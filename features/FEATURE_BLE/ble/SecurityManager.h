@@ -106,6 +106,108 @@ public:
     typedef FunctionPointerWithContext<const SecurityManager *> SecurityManagerShutdownCallback_t;
     typedef CallChainOfFunctionPointersWithContext<const SecurityManager *> SecurityManagerShutdownCallbackChain_t;
 
+public:
+    /* subclass to override handlers */
+    class SecurityManagerEventHandler {
+    public:
+        SecurityManagerEventHandler() {};
+        virtual ~SecurityManagerEventHandler() {};
+
+        virtual void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+            (void)handle;
+            (void)allowBonding;
+            (void)requireMITM;
+            (void)iocaps;
+        };
+        virtual void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
+            (void)handle;
+            (void)status;
+        };
+        virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+            (void)handle;
+            (void)securityMode;
+        };
+        virtual void securityContextStored(connection_handle_t handle) {
+            (void)handle;
+        }
+        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+            (void)handle;
+            (void)passkey;
+        };
+        virtual void validMicTimeout(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void linkKeyFailure(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+            (void)handle;
+            (void)keypress;
+        };
+        virtual void legacyPairingOobRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void oobRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void pinRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void passkeyRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void confirmationRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+        virtual void acceptPairingRequest(connection_handle_t handle) {
+            (void)handle;
+        };
+    };
+
+private:
+    /* legacy compatibility with old callbacks (from both sides, so combination of new and old works) */
+    class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
+    public:
+        LegacySecurityManagerEventHandler() :
+            securitySetupInitiatedCallback(),
+            securitySetupCompletedCallback(),
+            linkSecuredCallback(),
+            securityContextStoredCallback(),
+            passkeyDisplayCallback() { };
+
+        void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+            if (securitySetupInitiatedCallback) {
+                securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
+            }
+        };
+        void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
+            if (securitySetupCompletedCallback) {
+                securitySetupCompletedCallback(handle, status);
+            }
+        };
+        void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+            if (linkSecuredCallback) {
+                linkSecuredCallback(handle, securityMode);
+            }
+        };
+        void securityContextStored(connection_handle_t handle) {
+            if (securityContextStoredCallback) {
+                securityContextStoredCallback(handle);
+            }
+        }
+        void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+            if (passkeyDisplayCallback) {
+                passkeyDisplayCallback(handle, passkey);
+            }
+        };
+
+        SecurityManager::SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
+        SecurityManager::SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
+        SecurityManager::LinkSecuredCallback_t            linkSecuredCallback;
+        SecurityManager::HandleSpecificEvent_t            securityContextStoredCallback;
+        SecurityManager::PasskeyDisplayCallback_t         passkeyDisplayCallback;
+    };
+
     /*
      * The following functions are meant to be overridden in the platform-specific sub-class.
      */
@@ -161,7 +263,7 @@ public:
         shutdownCallChain.clear();
         if (eventHandler != &defaultEventHandler) {
             delete eventHandler;
-            eventHandler = defaultEventHandler;
+            eventHandler = &defaultEventHandler;
         }
 
         return BLE_ERROR_NONE;
@@ -531,106 +633,6 @@ private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 
     LegacySecurityManagerEventHandler      defaultEventHandler;
-};
-
-/* subclass to override handlers */
-class SecurityManagerEventHandler {
-public:
-    SecurityManagerEventHandler() {};
-    virtual ~SecurityManagerEventHandler() {};
-
-    virtual void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
-        (void)handle;
-        (void)allowBonding;
-        (void)requireMITM;
-        (void)iocaps;
-    };
-    virtual void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
-        (void)handle;
-        (void)status;
-    };
-    virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
-        (void)handle;
-        (void)securityMode;
-    };
-    virtual void securityContextStored(connection_handle_t handle) {
-        (void)handle;
-    }
-    virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
-        (void)handle;
-        (void)passkey;
-    };
-    virtual void validMicTimeout(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void linkKeyFailure(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
-        (void)handle;
-        (void)keypress;
-    };
-    virtual void legacyPairingOobRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void oobRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void pinRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void passkeyRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void confirmationRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-    virtual void acceptPairingRequest(connection_handle_t handle) {
-        (void)handle;
-    };
-};
-
-/* legacy compatibility with old callbacks (from both sides, so combination of new and old works) */
-class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
-public:
-    LegacySecurityManagerEventHandler() :
-        securitySetupInitiatedCallback(),
-        securitySetupCompletedCallback(),
-        linkSecuredCallback(),
-        securityContextStoredCallback(),
-        passkeyDisplayCallback() { };
-
-    void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
-        if (securitySetupInitiatedCallback) {
-            securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
-        }
-    };
-    void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
-        if (securitySetupCompletedCallback) {
-            securitySetupCompletedCallback(handle, status);
-        }
-    };
-    void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
-        if (linkSecuredCallback) {
-            linkSecuredCallback(handle, securityMode);
-        }
-    };
-    void securityContextStored(connection_handle_t handle) {
-        if (securityContextStoredCallback) {
-            securityContextStoredCallback(handle);
-        }
-    }
-    void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
-        if (passkeyDisplayCallback) {
-            passkeyDisplayCallback(handle, passkey);
-        }
-    };
-private:
-    SecurityManager::SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
-    SecurityManager::SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
-    SecurityManager::LinkSecuredCallback_t            linkSecuredCallback;
-    SecurityManager::HandleSpecificEvent_t            securityContextStoredCallback;
-    SecurityManager::PasskeyDisplayCallback_t         passkeyDisplayCallback;
 };
 
 #endif /*__SECURITY_MANAGER_H__*/
