@@ -341,83 +341,83 @@ private:
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
-   void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
+   void on_security_setup_initiated(connection_handle_t handle, bool allow_bonding,
                                           bool require_mitm, SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(handle, allow_bonding, require_mitm, iocaps);
         }
     }
-   void security_setup_completed(connection_handle_t handle,
+   void on_security_setup_completed(connection_handle_t handle,
                                           SecurityManager::SecurityCompletionStatus_t status) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupCompleted(handle, status);
         }
     }
-   void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
+   void on_link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(handle, security_mode);
         }
     }
 
-   void security_context_stored(connection_handle_t handle) {
+   void on_security_context_stored(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->securityContextStored(handle);
         }
     }
-   void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+   void on_passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(handle, passkey);
         }
     }
 
-   void valid_mic_timeout(connection_handle_t handle) {
+   void on_valid_mic_timeout(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->validMicTimeout(handle);
         }
     }
 
-   void link_key_failure(connection_handle_t handle) {
+   void on_link_key_failure(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->linkKeyFailure(handle);
         }
     }
 
-   void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+   void on_keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(handle, keypress);
         }
     }
 
-   void legacy_pariring_oob_request(connection_handle_t handle) {
+   void on_legacy_pariring_oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->legacyPairingOobRequest(handle);
         }
     }
 
-   void oob_request(connection_handle_t handle) {
+   void on_oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->oobRequest(handle);
         }
     }
-   void pin_request(connection_handle_t handle) {
+   void on_pin_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->pinRequest(handle);
         }
     }
-   void passkey_request(connection_handle_t handle) {
+   void on_passkey_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->passkeyRequest(handle);
         }
     }
-   void confirmation_request(connection_handle_t handle) {
+   void on_confirmation_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->confirmationRequest(handle);
         }
     }
-   void accept_pairing_request(connection_handle_t handle,
+   void on_accept_pairing_request(connection_handle_t handle,
                                         SecurityIOCapabilities_t iocaps,
                                         bool use_oob,
                                         authentication_t authentication,
@@ -429,14 +429,14 @@ public:
         }
     }
 
-    void keys_exchanged(connection_handle_t handle,
-                        advertising_peer_address_type_t peer_address_type,
-                        address_t &peer_address,
-                        ediv_t &ediv,
-                        rand_t &rand,
-                        ltk_t &ltk,
-                        irk_t &irk,
-                        csrk_t &csrk) {
+    void on_keys_distributed(connection_handle_t handle,
+                             advertising_peer_address_type_t peer_address_type,
+                             address_t &peer_address,
+                             ediv_t &ediv,
+                             rand_t &rand,
+                             ltk_t &ltk,
+                             irk_t &irk,
+                             csrk_t &csrk) {
         db.update_entry(
             handle,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
@@ -447,9 +447,36 @@ public:
             irk,
             csrk
         );
-
     }
-    void ltk_request(connection_handle_t handle, ediv_t &ediv, rand_t &rand) {
+
+    virtual void on_keys_distributed_ltk(
+        connection_handle_t connection,
+        ltk_t &ltk
+    ) = 0;
+
+    virtual void on_keys_distributed_ediv_rand(
+        connection_handle_t connection,
+        ediv_t &ediv,
+        rand_t &rand
+    ) = 0;
+
+    virtual void on_keys_distributed_irk(
+        connection_handle_t connection,
+        irk_t &irk
+    ) = 0;
+
+    virtual void on_keys_distributed_bdaddr(
+        connection_handle_t connection,
+        advertising_peer_address_type_t peer_identity_address_type,
+        address_t &peer_identity_address
+    ) = 0;
+
+    virtual void on_keys_distributed_csrk(
+        connection_handle_t connection,
+        csrk_t &csrk
+    ) = 0;
+
+    void on_ltk_request(connection_handle_t handle, ediv_t &ediv, rand_t &rand) {
         db.get_entry(
             mbed::callback(this, &GenericSecurityManager::setLtkCb),
             ediv,

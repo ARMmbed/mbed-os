@@ -222,6 +222,17 @@ public:
      */
     virtual void on_confirmation_request(connection_handle_t connection) = 0;
 
+    void on_keys_distributed(
+        connection_handle_t handle,
+        advertising_peer_address_type_t peer_address_type,
+        address_t &peer_address,
+        ediv_t &ediv,
+        rand_t &rand,
+        ltk_t &ltk,
+        irk_t &irk,
+        csrk_t &csrk
+    ) = 0;
+
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
         ltk_t &ltk
