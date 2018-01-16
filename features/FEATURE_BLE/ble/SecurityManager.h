@@ -90,10 +90,6 @@ public:
      */
     static const unsigned PASSKEY_LEN = 6;
     typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
-    typedef uint8_t C192_t[16];
-    typedef uint8_t R192_t[16];
-    typedef uint8_t C256_t[16];
-    typedef uint8_t R256_t[16];
 
     typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
     typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
@@ -325,14 +321,6 @@ public:
     // Security settings
     //
 
-    virtual ble_error_t setPinCode(uint8_t pinLength, uint8_t * pinCode, bool isStatic = false) {
-        (void) pinLength;
-        (void) pinCode;
-        (void) isStatic;
-
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
     virtual ble_error_t setPasskey(const Passkey_t passkey) {
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -466,39 +454,6 @@ public:
         (void) keypress;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t setOob(Gap::Handle_t handle, C192_t* hash192, R192_t* rand192) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t setExtendedOob(Gap::Handle_t handle,
-                                       C192_t* hash192, R192_t* rand192,
-                                       C256_t* hash256, R256_t* rand256) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        (void) hash256;
-        (void) rand256;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t getLocalOobData(Gap::Handle_t handle, C192_t* hash192, R192_t* rand192) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t getLocalExtendedOobData(Gap::Handle_t handle,
-                                                C192_t* hash192, R192_t* rand192,
-                                                C256_t* hash256, R256_t* rand256) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        (void) hash256;
-        (void) rand256;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
 
     /* Event callback handlers. */
 public:
@@ -632,6 +587,7 @@ private:
     SecurityManagerEventHandler*           eventHandler;
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 
+protected:
     LegacySecurityManagerEventHandler      defaultEventHandler;
 };
 
