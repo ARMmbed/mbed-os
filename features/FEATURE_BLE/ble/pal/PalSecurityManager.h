@@ -75,12 +75,10 @@ struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
     pairing_failure_t(type value) : SafeEnum<pairing_failure_t, uint8_t>(value) { }
 };
 
-
-using SecurityManager::IO_CAPS_NONE;
-using SecurityManager::SecurityCompletionStatus_t;
-using SecurityManager::SecurityMode_t;
-using SecurityManager::LinkSecurityStatus_t;
-using SecurityManager::Keypress_t;
+typedef SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
+typedef SecurityManager::SecurityMode_t SecurityMode_t;
+typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
+typedef SecurityManager::Keypress_t Keypress_t;
 
 /* please use typedef for porting not the types directly */
 
@@ -371,7 +369,7 @@ public:
      */
     virtual ble_error_t send_pairing_response(
         connection_handle_t handle,
-        SecurityIOCapabilities_t iocaps,
+        io_capability_t io_capability,
         bool oob_data_flag,
         authentication_t authentication_requirements,
         uint8_t max_key_size,
@@ -385,7 +383,7 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
      */
     virtual ble_error_t cancel_pairing(
-        connection_handle_t handle, pairing_failed_reason_t reason
+        connection_handle_t handle, pairing_failure_t reason
     ) = 0;
 
     virtual ble_error_t request_authentication(connection_handle_t handle) = 0;
