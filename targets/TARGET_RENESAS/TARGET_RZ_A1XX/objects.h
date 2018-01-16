@@ -77,6 +77,10 @@ struct can_s {
     uint32_t ch;
 };
 
+struct trng_s {
+    uint8_t dummy;
+};
+
 #ifdef __cplusplus
 }
 #endif
