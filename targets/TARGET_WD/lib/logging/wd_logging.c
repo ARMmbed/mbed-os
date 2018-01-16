@@ -19,6 +19,7 @@ void wd_log(int level, const char *format, va_list args) {
 		return;
 	}
 	mbed_error_vfprintf(format, args);
+	mbed_error_printf("\r\n");
 }
 
 void wd_log_debug(const char *format, ...) {
