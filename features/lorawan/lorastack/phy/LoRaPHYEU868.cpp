@@ -31,7 +31,6 @@
 
 #include "LoRaPHYEU868.h"
 #include "lora_phy_ds.h"
-#include "LoRaRadio.h"
 
 /*!
  * Number of default channels
@@ -67,6 +66,8 @@
  * Default datarate used by the node
  */
 #define EU868_DEFAULT_DATARATE                      DR_0
+
+#define EU868_DEFAULT_MAX_DATARATE                  DR_5
 
 /*!
  * Minimal Rx1 receive datarate offset
@@ -161,7 +162,7 @@
 /*!
  * Random ack timeout limits
  */
-#define EU868_ACK_TIMEOUT_RND                       1000
+#define EU868_ACK_TIMEOUT_RND     1000
 
 #if ( EU868_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -170,1128 +171,180 @@
 /*!
  * Second reception window channel frequency definition.
  */
-#define EU868_RX_WND_2_FREQ                         869525000
+#define EU868_RX_WND_2_FREQ       869525000
 
 /*!
  * Second reception window channel datarate definition.
  */
-#define EU868_RX_WND_2_DR                           DR_0
+#define EU868_RX_WND_2_DR          DR_0
 
 /*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND0                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
-
+static const band_t EU868_BAND0 = {100 , EU868_MAX_TX_POWER, 0, 0, 0,865000000, 868000000}; //  1.0 %
 /*!
  * Band 1 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND1                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
+static const band_t EU868_BAND1 = {100 , EU868_MAX_TX_POWER, 0, 0, 0, 868100000, 868600000}; //  1.0 %
 
 /*!
  * Band 2 definition
  * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND2                                 { 1000, EU868_MAX_TX_POWER, 0, 0, 0 } //  0.1 %
+static const band_t EU868_BAND2 = {1000, EU868_MAX_TX_POWER, 0, 0, 0, 868700000, 869200000}; //  0.1 %
 
 /*!
  * Band 3 definition
  * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND3                                 { 10  , EU868_MAX_TX_POWER, 0, 0, 0 } // 10.0 %
+static const band_t EU868_BAND3 = {10  , EU868_MAX_TX_POWER, 0, 0, 0, 869400000, 869650000}; // 10.0 %
 
 /*!
  * Band 4 definition
  * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
+static const band_t EU868_BAND4 = {100 , EU868_MAX_TX_POWER, 0, 0, 0, 869700000, 870000000}; //  1.0 %
+
+/*!
+ * Band 5 definition - It's actually a sub part of Band 2
+ * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ */
+static const band_t EU868_BAND5 = {1000, EU868_MAX_TX_POWER, 0, 0, 0, 863000000, 865000000}; //  0.1 %
 
 /*!
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define EU868_LC1                                   { 868100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+static const channel_params_t EU868_LC1 = {868100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1};
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define EU868_LC2                                   { 868300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+static const channel_params_t EU868_LC2 = {868300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1};
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define EU868_LC3                                   { 868500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+static const channel_params_t EU868_LC3 = {868500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1};
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
  */
-#define EU868_JOIN_CHANNELS                         ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
+#define EU868_JOIN_CHANNELS        (uint16_t)(LC(1) | LC(2) | LC(3))
 
 /*!
  * Data rates table definition
  */
-static const uint8_t DataratesEU868[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
+static const uint8_t datarates_EU868[]  = {12, 11, 10,  9,  8,  7,  7, 50};
 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsEU868[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
+static const uint32_t bandwidths_EU868[] = {125000, 125000, 125000, 125000, 125000, 125000, 250000, 0};
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateEU868[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
+static const uint8_t max_payloads_EU868[] = {51, 51, 51, 115, 242, 242, 242, 242};
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterEU868[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-
-// Static functions
-static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
-{
-    uint8_t nextLowerDr = 0;
-
-    if( dr == minDr )
-    {
-        nextLowerDr = minDr;
-    }
-    else
-    {
-        nextLowerDr = dr - 1;
-    }
-    return nextLowerDr;
-}
-
-static uint32_t GetBandwidth( uint32_t drIndex )
-{
-    switch( BandwidthsEU868[drIndex] )
-    {
-        default:
-        case 125000:
-            return 0;
-        case 250000:
-            return 1;
-        case 500000:
-            return 2;
-    }
-}
-
-static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
-{
-    int8_t txPowerResult = txPower;
-
-    // Limit tx power to the band max
-    txPowerResult =  MAX( txPower, maxBandTxPower );
-
-    return txPowerResult;
-}
-
-static bool VerifyTxFreq( uint32_t freq, uint8_t *band, LoRaRadio *radio )
-{
-    // Check radio driver support
-    if( radio->check_rf_frequency( freq ) == false )
-    {
-        return false;
-    }
-
-    // Check frequency bands
-    if( ( freq >= 863000000 ) && ( freq < 865000000 ) )
-    {
-        *band = 2;
-    }
-    else if( ( freq >= 865000000 ) && ( freq <= 868000000 ) )
-    {
-        *band = 0;
-    }
-    else if( ( freq > 868000000 ) && ( freq <= 868600000 ) )
-    {
-        *band = 1;
-    }
-    else if( ( freq >= 868700000 ) && ( freq <= 869200000 ) )
-    {
-        *band = 2;
-    }
-    else if( ( freq >= 869400000 ) && ( freq <= 869650000 ) )
-    {
-        *band = 3;
-    }
-    else if( ( freq >= 869700000 ) && ( freq <= 870000000 ) )
-    {
-        *band = 4;
-    }
-    else
-    {
-        return false;
-    }
-    return true;
-}
-
-uint8_t LoRaPHYEU868::CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t* channelsMask, channel_params_t* channels, band_t* bands, uint8_t* enabledChannels, uint8_t* delayTx )
-{
-    uint8_t nbEnabledChannels = 0;
-    uint8_t delayTransmission = 0;
-
-    for( uint8_t i = 0, k = 0; i < EU868_MAX_NB_CHANNELS; i += 16, k++ )
-    {
-        for( uint8_t j = 0; j < 16; j++ )
-        {
-            if( ( channelsMask[k] & ( 1 << j ) ) != 0 )
-            {
-                if( channels[i + j].frequency == 0 )
-                { // Check if the channel is enabled
-                    continue;
-                }
-                if( joined == false )
-                {
-                    if( ( EU868_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
-                    {
-                        continue;
-                    }
-                }
-                if( val_in_range( datarate, channels[i + j].dr_range.fields.min,
-                                              channels[i + j].dr_range.fields.max ) == 0 )
-                { // Check if the current channel selection supports the given datarate
-                    continue;
-                }
-                if( bands[channels[i + j].band].off_time > 0 )
-                { // Check if the band is available for transmission
-                    delayTransmission++;
-                    continue;
-                }
-                enabledChannels[nbEnabledChannels++] = i + j;
-            }
-        }
-    }
-
-    *delayTx = delayTransmission;
-    return nbEnabledChannels;
-}
+static const uint8_t max_payloads_repeater_EU868[] = {51, 51, 51, 115, 222, 222, 222, 222};
 
 LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
     : LoRaPHY(lora_time)
 {
-    const band_t band0 = EU868_BAND0;
-    const band_t band1 = EU868_BAND1;
-    const band_t band2 = EU868_BAND2;
-    const band_t band3 = EU868_BAND3;
-    const band_t band4 = EU868_BAND4;
+    bands[0] = EU868_BAND0;
+    bands[1] = EU868_BAND1;
+    bands[2] = EU868_BAND2;
+    bands[3] = EU868_BAND3;
+    bands[4] = EU868_BAND4;
+    bands[5] = EU868_BAND5;
 
-    Bands[0] = band0;
-    Bands[1] = band1;
-    Bands[2] = band2;
-    Bands[3] = band3;
-    Bands[4] = band4;
+    // Default Channels are always enabled, rest will be added later
+    channels[0] = EU868_LC1;
+    channels[1] = EU868_LC2;
+    channels[2] = EU868_LC3;
+
+    // Initialize the channels default mask
+    default_channel_masks[0] = LC(1) + LC(2) + LC(3);
+    // Update the channels mask
+    copy_channel_mask(channel_masks, default_channel_masks, 1);
+
+    // set default channels
+    phy_params.channels.channel_list = channels;
+    phy_params.channels.channel_list_size = EU868_MAX_NB_CHANNELS;
+    phy_params.channels.mask_list = channel_masks;
+    phy_params.channels.default_mask_list = default_channel_masks;
+    phy_params.channels.mask_list_size = EU868_CHANNELS_MASK_SIZE;
+
+    // set bands for EU868 spectrum
+    phy_params.bands.table = (void *) bands;
+    phy_params.bands.size = EU868_MAX_NB_BANDS;
+
+    // set bandwidths available in EU868 spectrum
+    phy_params.bandwidths.table = (void *) bandwidths_EU868;
+    phy_params.bandwidths.size = 8;
+
+    // set data rates available in EU868 spectrum
+    phy_params.datarates.table = (void *) datarates_EU868;
+    phy_params.datarates.size = 8;
+
+    // set payload sizes with respect to data rates
+    phy_params.payloads.table = (void *) max_payloads_EU868;
+    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.table = (void *) max_payloads_repeater_EU868;
+    phy_params.payloads.size = 8;
+
+    // dwell time setting
+    phy_params.ul_dwell_time_setting = 0;
+    phy_params.dl_dwell_time_setting = 0;
+
+    // set initial and default parameters
+    phy_params.duty_cycle_enabled = EU868_DUTY_CYCLE_ENABLED;
+    phy_params.accept_tx_param_setup_req = true;
+    phy_params.fsk_supported = true;
+    phy_params.cflist_supported = true;
+    phy_params.dl_channel_req_supported = true;
+    phy_params.custom_channelplans_supported = true;
+    phy_params.default_channel_cnt = EU868_NUMB_DEFAULT_CHANNELS;
+    phy_params.max_channel_cnt = EU868_MAX_NB_CHANNELS;
+    phy_params.cflist_channel_cnt = EU868_NUMB_CHANNELS_CF_LIST;
+    phy_params.min_tx_datarate = EU868_TX_MIN_DATARATE;
+    phy_params.max_tx_datarate = EU868_TX_MAX_DATARATE;
+    phy_params.min_rx_datarate = EU868_RX_MIN_DATARATE;
+    phy_params.max_rx_datarate = EU868_RX_MAX_DATARATE;
+    phy_params.default_datarate = EU868_DEFAULT_DATARATE;
+    phy_params.default_max_datarate = EU868_DEFAULT_MAX_DATARATE;
+    phy_params.min_rx1_dr_offset = EU868_MIN_RX1_DR_OFFSET;
+    phy_params.max_rx1_dr_offset = EU868_MAX_RX1_DR_OFFSET;
+    phy_params.default_rx1_dr_offset = EU868_DEFAULT_RX1_DR_OFFSET;
+    phy_params.min_tx_power = EU868_MIN_TX_POWER;
+    phy_params.max_tx_power = EU868_MAX_TX_POWER;
+    phy_params.default_tx_power = EU868_DEFAULT_TX_POWER;
+    phy_params.default_max_eirp = EU868_DEFAULT_MAX_EIRP;
+    phy_params.default_antenna_gain = EU868_DEFAULT_ANTENNA_GAIN;
+    phy_params.adr_ack_limit = EU868_ADR_ACK_LIMIT;
+    phy_params.adr_ack_delay = EU868_ADR_ACK_DELAY;
+    phy_params.max_rx_window = EU868_MAX_RX_WINDOW;
+    phy_params.recv_delay1 = EU868_RECEIVE_DELAY1;
+    phy_params.recv_delay2 = EU868_RECEIVE_DELAY2;
+    phy_params.join_channel_mask = EU868_JOIN_CHANNELS;
+    phy_params.join_accept_delay1 = EU868_JOIN_ACCEPT_DELAY1;
+    phy_params.join_accept_delay2 = EU868_JOIN_ACCEPT_DELAY2;
+    phy_params.max_fcnt_gap = EU868_MAX_FCNT_GAP;
+    phy_params.ack_timeout = EU868_ACKTIMEOUT;
+    phy_params.ack_timeout_rnd = EU868_ACK_TIMEOUT_RND;
+    phy_params.rx_window2_datarate = EU868_RX_WND_2_DR;
+    phy_params.rx_window2_frequency = EU868_RX_WND_2_FREQ;
 }
 
 LoRaPHYEU868::~LoRaPHYEU868()
 {
 }
 
-PhyParam_t LoRaPHYEU868::get_phy_params(GetPhyParams_t* getPhy)
-{
-    PhyParam_t phyParam = { 0 };
-
-    switch( getPhy->Attribute )
-    {
-        case PHY_MIN_RX_DR:
-        {
-            phyParam.Value = EU868_RX_MIN_DATARATE;
-            break;
-        }
-        case PHY_MIN_TX_DR:
-        {
-            phyParam.Value = EU868_TX_MIN_DATARATE;
-            break;
-        }
-        case PHY_DEF_TX_DR:
-        {
-            phyParam.Value = EU868_DEFAULT_DATARATE;
-            break;
-        }
-        case PHY_NEXT_LOWER_TX_DR:
-        {
-            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, EU868_TX_MIN_DATARATE );
-            break;
-        }
-        case PHY_DEF_TX_POWER:
-        {
-            phyParam.Value = EU868_DEFAULT_TX_POWER;
-            break;
-        }
-        case PHY_MAX_PAYLOAD:
-        {
-            phyParam.Value = MaxPayloadOfDatarateEU868[getPhy->Datarate];
-            break;
-        }
-        case PHY_MAX_PAYLOAD_REPEATER:
-        {
-            phyParam.Value = MaxPayloadOfDatarateRepeaterEU868[getPhy->Datarate];
-            break;
-        }
-        case PHY_DUTY_CYCLE:
-        {
-            phyParam.Value = EU868_DUTY_CYCLE_ENABLED;
-            break;
-        }
-        case PHY_MAX_RX_WINDOW:
-        {
-            phyParam.Value = EU868_MAX_RX_WINDOW;
-            break;
-        }
-        case PHY_RECEIVE_DELAY1:
-        {
-            phyParam.Value = EU868_RECEIVE_DELAY1;
-            break;
-        }
-        case PHY_RECEIVE_DELAY2:
-        {
-            phyParam.Value = EU868_RECEIVE_DELAY2;
-            break;
-        }
-        case PHY_JOIN_ACCEPT_DELAY1:
-        {
-            phyParam.Value = EU868_JOIN_ACCEPT_DELAY1;
-            break;
-        }
-        case PHY_JOIN_ACCEPT_DELAY2:
-        {
-            phyParam.Value = EU868_JOIN_ACCEPT_DELAY2;
-            break;
-        }
-        case PHY_MAX_FCNT_GAP:
-        {
-            phyParam.Value = EU868_MAX_FCNT_GAP;
-            break;
-        }
-        case PHY_ACK_TIMEOUT:
-        {
-            phyParam.Value = ( EU868_ACKTIMEOUT + get_random( -EU868_ACK_TIMEOUT_RND, EU868_ACK_TIMEOUT_RND ) );
-            break;
-        }
-        case PHY_DEF_DR1_OFFSET:
-        {
-            phyParam.Value = EU868_DEFAULT_RX1_DR_OFFSET;
-            break;
-        }
-        case PHY_DEF_RX2_FREQUENCY:
-        {
-            phyParam.Value = EU868_RX_WND_2_FREQ;
-            break;
-        }
-        case PHY_DEF_RX2_DR:
-        {
-            phyParam.Value = EU868_RX_WND_2_DR;
-            break;
-        }
-        case PHY_CHANNELS_MASK:
-        {
-            phyParam.ChannelsMask = ChannelsMask;
-            break;
-        }
-        case PHY_CHANNELS_DEFAULT_MASK:
-        {
-            phyParam.ChannelsMask = ChannelsDefaultMask;
-            break;
-        }
-        case PHY_MAX_NB_CHANNELS:
-        {
-            phyParam.Value = EU868_MAX_NB_CHANNELS;
-            break;
-        }
-        case PHY_CHANNELS:
-        {
-            phyParam.Channels = Channels;
-            break;
-        }
-        case PHY_DEF_UPLINK_DWELL_TIME:
-        case PHY_DEF_DOWNLINK_DWELL_TIME:
-        {
-            phyParam.Value = 0;
-            break;
-        }
-        case PHY_DEF_MAX_EIRP:
-        {
-            phyParam.fValue = EU868_DEFAULT_MAX_EIRP;
-            break;
-        }
-        case PHY_DEF_ANTENNA_GAIN:
-        {
-            phyParam.fValue = EU868_DEFAULT_ANTENNA_GAIN;
-            break;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-
-    return phyParam;
-}
-
-void LoRaPHYEU868::set_band_tx_done(SetBandTxDoneParams_t* txDone)
-{
-    set_last_tx_done( txDone->Joined, &Bands[Channels[txDone->Channel].band], txDone->LastTxDoneTime );
-}
-
-void LoRaPHYEU868::load_defaults(InitType_t type)
-{
-    switch( type )
-    {
-        case INIT_TYPE_INIT:
-        {
-            // Channels
-            const channel_params_t channel1 = EU868_LC1;
-            const channel_params_t channel2 = EU868_LC2;
-            const channel_params_t channel3 = EU868_LC3;
-            Channels[0] = channel1;
-            Channels[1] = channel2;
-            Channels[2] = channel3;
-
-            // Initialize the channels default mask
-            ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-            // Update the channels mask
-            copy_channel_mask( ChannelsMask, ChannelsDefaultMask, 1 );
-            break;
-        }
-        case INIT_TYPE_RESTORE:
-        {
-            // Restore channels default mask
-            ChannelsMask[0] |= ChannelsDefaultMask[0];
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-}
-
-bool LoRaPHYEU868::verify(VerifyParams_t* verify, PhyAttribute_t phyAttribute)
-{
-    switch( phyAttribute )
-    {
-        case PHY_TX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, EU868_TX_MIN_DATARATE, EU868_TX_MAX_DATARATE );
-        }
-        case PHY_DEF_TX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, DR_0, DR_5 );
-        }
-        case PHY_RX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, EU868_RX_MIN_DATARATE, EU868_RX_MAX_DATARATE );
-        }
-        case PHY_DEF_TX_POWER:
-        case PHY_TX_POWER:
-        {
-            // Remark: switched min and max!
-            return val_in_range( verify->TxPower, EU868_MAX_TX_POWER, EU868_MIN_TX_POWER );
-        }
-        case PHY_DUTY_CYCLE:
-        {
-            return EU868_DUTY_CYCLE_ENABLED;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
-        default:
-            return false;
-    }
-    return true;
-}
-
-void LoRaPHYEU868::apply_cf_list(ApplyCFListParams_t* applyCFList)
-{
-    channel_params_t newChannel;
-    ChannelAddParams_t channelAdd;
-    ChannelRemoveParams_t channelRemove;
-
-    // Setup default datarate range
-    newChannel.dr_range.value = ( DR_5 << 4 ) | DR_0;
-
-    // Size of the optional CF list
-    if( applyCFList->Size != 16 )
-    {
-        return;
-    }
-
-    // Last byte is RFU, don't take it into account
-    for( uint8_t i = 0, chanIdx = EU868_NUMB_DEFAULT_CHANNELS; chanIdx < EU868_MAX_NB_CHANNELS; i+=3, chanIdx++ )
-    {
-        if( chanIdx < ( EU868_NUMB_CHANNELS_CF_LIST + EU868_NUMB_DEFAULT_CHANNELS ) )
-        {
-            // Channel frequency
-            newChannel.frequency = (uint32_t) applyCFList->Payload[i];
-            newChannel.frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
-            newChannel.frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
-            newChannel.frequency *= 100;
-
-            // Initialize alternative frequency to 0
-            newChannel.rx1_frequency = 0;
-        }
-        else
-        {
-            newChannel.frequency = 0;
-            newChannel.dr_range.value = 0;
-            newChannel.rx1_frequency = 0;
-        }
-
-        if( newChannel.frequency != 0 )
-        {
-            channelAdd.NewChannel = &newChannel;
-            channelAdd.ChannelId = chanIdx;
-
-            // Try to add all channels
-            add_channel( &channelAdd );
-        }
-        else
-        {
-            channelRemove.ChannelId = chanIdx;
-
-            remove_channel( &channelRemove );
-        }
-    }
-}
-
-bool LoRaPHYEU868::set_channel_mask(ChanMaskSetParams_t* chanMaskSet)
-{
-    switch( chanMaskSet->ChannelsMaskType )
-    {
-        case CHANNELS_MASK:
-        {
-            copy_channel_mask( ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
-            break;
-        }
-        case CHANNELS_DEFAULT_MASK:
-        {
-            copy_channel_mask( ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
-            break;
-        }
-        default:
-            return false;
-    }
-    return true;
-}
-
-bool LoRaPHYEU868::get_next_ADR(AdrNextParams_t* adrNext, int8_t* drOut,
-                                int8_t* txPowOut, uint32_t* adrAckCounter)
-{
-    bool adrAckReq = false;
-    int8_t datarate = adrNext->Datarate;
-    int8_t txPower = adrNext->TxPower;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-
-    // Report back the adr ack counter
-    *adrAckCounter = adrNext->AdrAckCounter;
-
-    if( adrNext->AdrEnabled == true )
-    {
-        if( datarate == EU868_TX_MIN_DATARATE )
-        {
-            *adrAckCounter = 0;
-            adrAckReq = false;
-        }
-        else
-        {
-            if( adrNext->AdrAckCounter >= EU868_ADR_ACK_LIMIT )
-            {
-                adrAckReq = true;
-                txPower = EU868_MAX_TX_POWER;
-            }
-            else
-            {
-                adrAckReq = false;
-            }
-            if( adrNext->AdrAckCounter >= ( EU868_ADR_ACK_LIMIT + EU868_ADR_ACK_DELAY ) )
-            {
-                if( ( adrNext->AdrAckCounter % EU868_ADR_ACK_DELAY ) == 1 )
-                {
-                    // Decrease the datarate
-                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
-                    getPhy.Datarate = datarate;
-                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-                    phyParam = get_phy_params( &getPhy );
-                    datarate = phyParam.Value;
-
-                    if( datarate == EU868_TX_MIN_DATARATE )
-                    {
-                        // We must set adrAckReq to false as soon as we reach the lowest datarate
-                        adrAckReq = false;
-                        if( adrNext->UpdateChanMask == true )
-                        {
-                            // Re-enable default channels
-                            ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    *drOut = datarate;
-    *txPowOut = txPower;
-    return adrAckReq;
-}
-
-void LoRaPHYEU868::compute_rx_win_params(int8_t datarate, uint8_t minRxSymbols,
-                                         uint32_t rxError,
-                                         rx_config_params_t *rxConfigParams)
-{
-    double tSymbol = 0.0;
-
-    // Get the datarate, perform a boundary check
-    rxConfigParams->datarate = MIN( datarate, EU868_RX_MAX_DATARATE );
-    rxConfigParams->bandwidth = GetBandwidth( rxConfigParams->datarate );
-
-    if( rxConfigParams->datarate == DR_7 )
-    { // FSK
-        tSymbol = compute_symb_timeout_fsk( DataratesEU868[rxConfigParams->datarate] );
-    }
-    else
-    { // LoRa
-        tSymbol = compute_symb_timeout_lora( DataratesEU868[rxConfigParams->datarate], BandwidthsEU868[rxConfigParams->datarate] );
-    }
-
-    get_rx_window_params( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->window_timeout, &rxConfigParams->window_offset );
-}
-
-bool LoRaPHYEU868::rx_config(rx_config_params_t* rxConfig, int8_t* datarate)
-{
-    radio_modems_t modem;
-    int8_t dr = rxConfig->datarate;
-    uint8_t maxPayload = 0;
-    int8_t phyDr = 0;
-    uint32_t frequency = rxConfig->frequency;
-
-    if( _radio->get_status() != RF_IDLE )
-    {
-        return false;
-    }
-
-    if( rxConfig->rx_slot == RX_SLOT_WIN_1 )
-    {
-        // Apply window 1 frequency
-        frequency = Channels[rxConfig->channel].frequency;
-        // Apply the alternative RX 1 window frequency, if it is available
-        if( Channels[rxConfig->channel].rx1_frequency != 0 )
-        {
-            frequency = Channels[rxConfig->channel].rx1_frequency;
-        }
-    }
-
-    // Read the physical datarate from the datarates table
-    phyDr = DataratesEU868[dr];
-
-    _radio->set_channel( frequency );
-
-    // Radio configuration
-    if( dr == DR_7 )
-    {
-        modem = MODEM_FSK;
-        _radio->set_rx_config( modem, 50000, phyDr * 1000, 0, 83333, 5, rxConfig->window_timeout, false, 0, true, 0, 0, false, rxConfig->is_rx_continuous );
-    }
-    else
-    {
-        modem = MODEM_LORA;
-        _radio->set_rx_config( modem, rxConfig->bandwidth, phyDr, 1, 0, 8, rxConfig->window_timeout, false, 0, false, 0, 0, true, rxConfig->is_rx_continuous );
-    }
-
-    if( rxConfig->is_repeater_supported == true )
-    {
-        maxPayload = MaxPayloadOfDatarateRepeaterEU868[dr];
-    }
-    else
-    {
-        maxPayload = MaxPayloadOfDatarateEU868[dr];
-    }
-
-    _radio->set_max_payload_length( modem, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
-
-    *datarate = (uint8_t) dr;
-    return true;
-}
-
-bool LoRaPHYEU868::tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
-                             lorawan_time_t* txTimeOnAir)
-{
-    radio_modems_t modem;
-    int8_t phyDr = DataratesEU868[txConfig->Datarate];
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].band].max_tx_pwr, txConfig->Datarate, ChannelsMask );
-    uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
-    int8_t phyTxPower = 0;
-
-    // Calculate physical TX power
-    phyTxPower = compute_tx_power( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
-
-    // Setup the radio frequency
-    _radio->set_channel( Channels[txConfig->Channel].frequency );
-
-    if( txConfig->Datarate == DR_7 )
-    { // High Speed FSK channel
-        modem = MODEM_FSK;
-        _radio->set_tx_config( modem, phyTxPower, 25000, bandwidth, phyDr * 1000, 0, 5, false, true, 0, 0, false, 3000 );
-    }
-    else
-    {
-        modem = MODEM_LORA;
-        _radio->set_tx_config( modem, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
-    }
-
-    // Setup maximum payload lenght of the radio driver
-    _radio->set_max_payload_length( modem, txConfig->PktLen );
-    // Get the time-on-air of the next tx frame
-    *txTimeOnAir = _radio->time_on_air( modem, txConfig->PktLen );
-
-    *txPower = txPowerLimited;
-    return true;
-}
-
-uint8_t LoRaPHYEU868::link_ADR_request(LinkAdrReqParams_t* linkAdrReq,
-                                       int8_t* drOut, int8_t* txPowOut,
-                                       uint8_t* nbRepOut, uint8_t* nbBytesParsed)
-{
-    uint8_t status = 0x07;
-    RegionCommonLinkAdrParams_t linkAdrParams;
-    uint8_t nextIndex = 0;
-    uint8_t bytesProcessed = 0;
-    uint16_t chMask = 0;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
-
-    while( bytesProcessed < linkAdrReq->PayloadSize )
-    {
-        // Get ADR request parameters
-        nextIndex = parse_link_ADR_req( &( linkAdrReq->Payload[bytesProcessed] ), &linkAdrParams );
-
-        if( nextIndex == 0 )
-            break; // break loop, since no more request has been found
-
-        // Update bytes processed
-        bytesProcessed += nextIndex;
-
-        // Revert status, as we only check the last ADR request for the channel mask KO
-        status = 0x07;
-
-        // Setup temporary channels mask
-        chMask = linkAdrParams.ChMask;
-
-        // Verify channels mask
-        if( ( linkAdrParams.ChMaskCtrl == 0 ) && ( chMask == 0 ) )
-        {
-            status &= 0xFE; // Channel mask KO
-        }
-        else if( ( ( linkAdrParams.ChMaskCtrl >= 1 ) && ( linkAdrParams.ChMaskCtrl <= 5 )) ||
-                ( linkAdrParams.ChMaskCtrl >= 7 ) )
-        {
-            // RFU
-            status &= 0xFE; // Channel mask KO
-        }
-        else
-        {
-            for( uint8_t i = 0; i < EU868_MAX_NB_CHANNELS; i++ )
-            {
-                if( linkAdrParams.ChMaskCtrl == 6 )
-                {
-                    if( Channels[i].frequency != 0 )
-                    {
-                        chMask |= 1 << i;
-                    }
-                }
-                else
-                {
-                    if( ( ( chMask & ( 1 << i ) ) != 0 ) &&
-                        ( Channels[i].frequency == 0 ) )
-                    {// Trying to enable an undefined channel
-                        status &= 0xFE; // Channel mask KO
-                    }
-                }
-            }
-        }
-    }
-
-    // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
-    phyParam = get_phy_params( &getPhy );
-
-    linkAdrVerifyParams.Status = status;
-    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
-    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
-    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
-    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
-    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
-    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
-    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
-    linkAdrVerifyParams.NbChannels = EU868_MAX_NB_CHANNELS;
-    linkAdrVerifyParams.ChannelsMask = &chMask;
-    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
-    linkAdrVerifyParams.MaxDatarate = EU868_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = Channels;
-    linkAdrVerifyParams.MinTxPower = EU868_MIN_TX_POWER;
-    linkAdrVerifyParams.MaxTxPower = EU868_MAX_TX_POWER;
-
-    // Verify the parameters and update, if necessary
-    status = verify_link_ADR_req( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
-
-    // Update channelsMask if everything is correct
-    if( status == 0x07 )
-    {
-        // Set the channels mask to a default value
-        memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
-        // Update the channels mask
-        ChannelsMask[0] = chMask;
-    }
-
-    // Update status variables
-    *drOut = linkAdrParams.Datarate;
-    *txPowOut = linkAdrParams.TxPower;
-    *nbRepOut = linkAdrParams.NbRep;
-    *nbBytesParsed = bytesProcessed;
-
-    return status;
-}
-
-uint8_t LoRaPHYEU868::setup_rx_params(RxParamSetupReqParams_t* rxParamSetupReq)
-{
-    uint8_t status = 0x07;
-
-    // Verify radio frequency
-    if( _radio->check_rf_frequency( rxParamSetupReq->Frequency ) == false )
-    {
-        status &= 0xFE; // Channel frequency KO
-    }
-
-    // Verify datarate
-    if( val_in_range( rxParamSetupReq->Datarate, EU868_RX_MIN_DATARATE, EU868_RX_MAX_DATARATE ) == 0 )
-    {
-        status &= 0xFD; // Datarate KO
-    }
-
-    // Verify datarate offset
-    if( val_in_range( rxParamSetupReq->DrOffset, EU868_MIN_RX1_DR_OFFSET, EU868_MAX_RX1_DR_OFFSET ) == 0 )
-    {
-        status &= 0xFB; // Rx1DrOffset range KO
-    }
-
-    return status;
-}
-
-uint8_t LoRaPHYEU868::request_new_channel(NewChannelReqParams_t* newChannelReq)
-{
-    uint8_t status = 0x03;
-    ChannelAddParams_t channelAdd;
-    ChannelRemoveParams_t channelRemove;
-
-    if( newChannelReq->NewChannel->frequency == 0 )
-    {
-        channelRemove.ChannelId = newChannelReq->ChannelId;
-
-        // Remove
-        if( remove_channel( &channelRemove ) == false )
-        {
-            status &= 0xFC;
-        }
-    }
-    else
-    {
-        channelAdd.NewChannel = newChannelReq->NewChannel;
-        channelAdd.ChannelId = newChannelReq->ChannelId;
-
-        switch( add_channel( &channelAdd ) )
-        {
-            case LORAWAN_STATUS_OK:
-            {
-                break;
-            }
-            case LORAWAN_STATUS_FREQUENCY_INVALID:
-            {
-                status &= 0xFE;
-                break;
-            }
-            case LORAWAN_STATUS_DATARATE_INVALID:
-            {
-                status &= 0xFD;
-                break;
-            }
-            case LORAWAN_STATUS_FREQ_AND_DR_INVALID:
-            {
-                status &= 0xFC;
-                break;
-            }
-            default:
-            {
-                status &= 0xFC;
-                break;
-            }
-        }
-    }
-
-    return status;
-}
-
-int8_t LoRaPHYEU868::setup_tx_params(TxParamSetupReqParams_t* txParamSetupReq)
-{
-    return -1;
-}
-
-uint8_t LoRaPHYEU868::dl_channel_request(DlChannelReqParams_t* dlChannelReq)
-{
-    uint8_t status = 0x03;
-    uint8_t band = 0;
-
-    // Verify if the frequency is supported
-    if( VerifyTxFreq( dlChannelReq->Rx1Frequency, &band, _radio ) == false )
-    {
-        status &= 0xFE;
-    }
-
-    // Verify if an uplink frequency exists
-    if( Channels[dlChannelReq->ChannelId].frequency == 0 )
-    {
-        status &= 0xFD;
-    }
-
-    // Apply Rx1 frequency, if the status is OK
-    if( status == 0x03 )
-    {
-        Channels[dlChannelReq->ChannelId].rx1_frequency = dlChannelReq->Rx1Frequency;
-    }
-
-    return status;
-}
-
-int8_t LoRaPHYEU868::get_alternate_DR(AlternateDrParams_t* alternateDr)
-{
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
-}
-
-void LoRaPHYEU868::calculate_backoff(CalcBackOffParams_t* calcBackOff)
-{
-    RegionCommonCalcBackOffParams_t calcBackOffParams;
-
-    calcBackOffParams.Channels = Channels;
-    calcBackOffParams.Bands = Bands;
-    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
-    calcBackOffParams.Joined = calcBackOff->Joined;
-    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
-    calcBackOffParams.Channel = calcBackOff->Channel;
-    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
-    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
-
-    get_DC_backoff( &calcBackOffParams );
-}
-
-bool LoRaPHYEU868::set_next_channel(NextChanParams_t* nextChanParams,
-                                    uint8_t* channel, lorawan_time_t* time,
-                                    lorawan_time_t* aggregatedTimeOff)
-{
-    uint8_t nbEnabledChannels = 0;
-    uint8_t delayTx = 0;
-    uint8_t enabledChannels[EU868_MAX_NB_CHANNELS] = { 0 };
-    lorawan_time_t nextTxDelay = 0;
-
-    if( num_active_channels( ChannelsMask, 0, 1 ) == 0 )
-    { // Reactivate default channels
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-    }
-
-    if( nextChanParams->AggrTimeOff <= _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
-    {
-        // Reset Aggregated time off
-        *aggregatedTimeOff = 0;
-
-        // Update bands Time OFF
-        nextTxDelay = update_band_timeoff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, EU868_MAX_NB_BANDS );
-
-        // Search how many channels are enabled
-        nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
-                                                      ChannelsMask, Channels,
-                                                      Bands, enabledChannels, &delayTx );
-    }
-    else
-    {
-        delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx );
-    }
-
-    if( nbEnabledChannels > 0 )
-    {
-        // We found a valid channel
-        *channel = enabledChannels[get_random( 0, nbEnabledChannels - 1 )];
-
-        *time = 0;
-        return true;
-    }
-    else
-    {
-        if( delayTx > 0 )
-        {
-            // Delay transmission due to AggregatedTimeOff or to a band time off
-            *time = nextTxDelay;
-            return true;
-        }
-        // Datarate not supported by any channel, restore defaults
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-        *time = 0;
-        return false;
-    }
-}
-
-lorawan_status_t LoRaPHYEU868::add_channel(ChannelAddParams_t* channelAdd)
-{
-    uint8_t band = 0;
-    bool drInvalid = false;
-    bool freqInvalid = false;
-    uint8_t id = channelAdd->ChannelId;
-
-    if( id >= EU868_MAX_NB_CHANNELS )
-    {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
-    // Validate the datarate range
-    if( val_in_range( channelAdd->NewChannel->dr_range.fields.min, EU868_TX_MIN_DATARATE, EU868_TX_MAX_DATARATE ) == 0 )
-    {
-        drInvalid = true;
-    }
-    if( val_in_range( channelAdd->NewChannel->dr_range.fields.max, EU868_TX_MIN_DATARATE, EU868_TX_MAX_DATARATE ) == 0 )
-    {
-        drInvalid = true;
-    }
-    if( channelAdd->NewChannel->dr_range.fields.min > channelAdd->NewChannel->dr_range.fields.max )
-    {
-        drInvalid = true;
-    }
-
-    // Default channels don't accept all values
-    if( id < EU868_NUMB_DEFAULT_CHANNELS )
-    {
-        // Validate the datarate range for min: must be DR_0
-        if( channelAdd->NewChannel->dr_range.fields.min > DR_0 )
-        {
-            drInvalid = true;
-        }
-        // Validate the datarate range for max: must be DR_5 <= Max <= TX_MAX_DATARATE
-        if( val_in_range( channelAdd->NewChannel->dr_range.fields.max, DR_5, EU868_TX_MAX_DATARATE ) == 0 )
-        {
-            drInvalid = true;
-        }
-        // We are not allowed to change the frequency
-        if( channelAdd->NewChannel->frequency != Channels[id].frequency )
-        {
-            freqInvalid = true;
-        }
-    }
-
-    // Check frequency
-    if( freqInvalid == false )
-    {
-        if( VerifyTxFreq( channelAdd->NewChannel->frequency, &band, _radio ) == false )
-        {
-            freqInvalid = true;
-        }
-    }
-
-    // Check status
-    if( ( drInvalid == true ) && ( freqInvalid == true ) )
-    {
-        return LORAWAN_STATUS_FREQ_AND_DR_INVALID;
-    }
-    if( drInvalid == true )
-    {
-        return LORAWAN_STATUS_DATARATE_INVALID;
-    }
-    if( freqInvalid == true )
-    {
-        return LORAWAN_STATUS_FREQUENCY_INVALID;
-    }
-
-    memcpy( &(Channels[id]), channelAdd->NewChannel, sizeof( Channels[id] ) );
-    Channels[id].band = band;
-    ChannelsMask[0] |= ( 1 << id );
-    return LORAWAN_STATUS_OK;
-}
-
-bool LoRaPHYEU868::remove_channel(ChannelRemoveParams_t* channelRemove)
-{
-    uint8_t id = channelRemove->ChannelId;
-
-    if( id < EU868_NUMB_DEFAULT_CHANNELS )
-    {
-        return false;
-    }
-
-    // Remove the channel from the list of channels
-    const channel_params_t empty_channel = { 0, 0, { 0 }, 0 };
-    Channels[id] = empty_channel;
-
-    return disable_channel( ChannelsMask, id, EU868_MAX_NB_CHANNELS );
-}
-
-void LoRaPHYEU868::set_tx_cont_mode(ContinuousWaveParams_t* continuousWave)
-{
-    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, Bands[Channels[continuousWave->Channel].band].max_tx_pwr, continuousWave->Datarate, ChannelsMask );
-    int8_t phyTxPower = 0;
-    uint32_t frequency = Channels[continuousWave->Channel].frequency;
-
-    // Calculate physical TX power
-    phyTxPower = compute_tx_power( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
-
-    _radio->set_tx_continuous_wave( frequency, phyTxPower, continuousWave->Timeout );
-}
-
-uint8_t LoRaPHYEU868::apply_DR_offset(uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset)
-{
-    int8_t datarate = dr - drOffset;
-
-    if( datarate < 0 )
-    {
-        datarate = DR_0;
-    }
-    return datarate;
-}

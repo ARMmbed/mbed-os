@@ -207,6 +207,14 @@ typedef struct {
      * The device off time.
      */
     lorawan_time_t off_time;
+    /*!
+     * Lower band boundry
+     */
+    uint32_t lower_band_freq;
+    /*!
+     * Higher band boundry
+     */
+    uint32_t higher_band_freq;
 } band_t;
 
 /*!
@@ -2007,7 +2015,7 @@ typedef struct {
     /*!
      * The RX datarate.
      */
-    int8_t datarate;
+    uint8_t datarate;
     /*!
      * The RX bandwidth.
      */

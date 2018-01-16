@@ -10,8 +10,8 @@
             "value": true
         },
         "nb-trials": {
-            "help": "Indicates how many times join can be tried, default: 8",
-            "value": 8
+            "help": "Indicates how many times join can be tried, default: 12",
+            "value": 12
         },
         "device-eui": {
             "help": "Mote device IEEE EUI",

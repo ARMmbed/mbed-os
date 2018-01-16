@@ -41,7 +41,6 @@
 #define __LORAMAC_H__
 
 #include "lorawan/system/LoRaWANTimer.h"
-#include "netsocket/LoRaRadio.h"
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/mac/LoRaMacCommand.h"

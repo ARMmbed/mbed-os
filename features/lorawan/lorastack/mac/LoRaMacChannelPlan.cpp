@@ -41,18 +41,17 @@ void LoRaMacChannelPlan::activate_channelplan_subsystem(LoRaPHY *phy, LoRaMacMib
 
 lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
 {
-    ChannelAddParams_t channelAdd;
     channel_params_t mac_layer_ch_params;
     lorawan_status_t status;
 
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
+    get_phy_params_t get_phy;
+    phy_param_t phy_param;
     uint8_t max_num_channels;
 
     // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
+    get_phy.attribute = PHY_MAX_NB_CHANNELS;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
+    max_num_channels = (uint8_t) phy_param.value;
 
     // check if user is setting more channels than supported
     if (plan.nb_channels > max_num_channels) {
@@ -60,22 +59,16 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
     }
 
     for (uint8_t i = 0; i < plan.nb_channels; i++) {
+
         mac_layer_ch_params.band = plan.channels[i].ch_param.band;
-        mac_layer_ch_params.dr_range.fields.max =
-                plan.channels[i].ch_param.dr_range.fields.max;
-        mac_layer_ch_params.dr_range.fields.min =
-                plan.channels[i].ch_param.dr_range.fields.min;
-        mac_layer_ch_params.dr_range.value =
-                plan.channels[i].ch_param.dr_range.value;
-        mac_layer_ch_params.frequency =
-                plan.channels[i].ch_param.frequency;
-        mac_layer_ch_params.rx1_frequency =
-                plan.channels[i].ch_param.rx1_frequency;
 
-        channelAdd.ChannelId = plan.channels[i].id;
-        channelAdd.NewChannel = &mac_layer_ch_params;
+        mac_layer_ch_params.dr_range.fields.max = plan.channels[i].ch_param.dr_range.fields.max;
+        mac_layer_ch_params.dr_range.fields.min = plan.channels[i].ch_param.dr_range.fields.min;
+        mac_layer_ch_params.dr_range.value = plan.channels[i].ch_param.dr_range.value;
+        mac_layer_ch_params.frequency = plan.channels[i].ch_param.frequency;
+        mac_layer_ch_params.rx1_frequency = plan.channels[i].ch_param.rx1_frequency;
 
-        status = _lora_phy->add_channel(&channelAdd);
+        status = _lora_phy->add_channel(&mac_layer_ch_params, plan.channels[i].id);
 
         if (status != LORAWAN_STATUS_OK) {
             return status;
@@ -95,21 +88,21 @@ lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
     loramac_mib_req_confirm_t mib_confirm;
     lorawan_status_t status;
 
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
+    get_phy_params_t get_phy;
+    phy_param_t phy_param;
     uint8_t max_num_channels;
     uint16_t *channel_masks;
     uint8_t count = 0;
 
     // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
+    get_phy.attribute = PHY_MAX_NB_CHANNELS;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
+    max_num_channels = (uint8_t) phy_param.value;
 
     // Now check the Default channel mask
-    get_phy.Attribute = PHY_CHANNELS_MASK;
+    get_phy.attribute = PHY_CHANNELS_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
+    channel_masks = phy_param.channel_mask;
 
     // Request Mib to get channels
     memset(&mib_confirm, 0, sizeof(mib_confirm));
@@ -147,26 +140,26 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
 {
     lorawan_status_t status = LORAWAN_STATUS_OK;
 
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
+    get_phy_params_t get_phy;
+    phy_param_t phy_param;
     uint8_t max_num_channels;
     uint16_t *channel_masks;
     uint16_t *default_channel_masks;
 
     // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
+    get_phy.attribute = PHY_MAX_NB_CHANNELS;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
+    max_num_channels = (uint8_t) phy_param.value;
 
     // Now check the channel mask for enabled channels
-    get_phy.Attribute = PHY_CHANNELS_MASK;
+    get_phy.attribute = PHY_CHANNELS_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
+    channel_masks = phy_param.channel_mask;
 
     // Now check the channel mask for default channels
-    get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
+    get_phy.attribute = PHY_CHANNELS_DEFAULT_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    default_channel_masks = phy_param.ChannelsMask;
+    default_channel_masks = phy_param.channel_mask;
 
     for (uint8_t i = 0; i < max_num_channels; i++) {
         // skip any default channels
@@ -191,16 +184,15 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
 
 lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
 {
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
+    get_phy_params_t get_phy;
+    phy_param_t phy_param;
     uint8_t max_num_channels;
     uint16_t *channel_masks;
-    ChannelRemoveParams_t channelRemove;
 
     // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
+    get_phy.attribute = PHY_MAX_NB_CHANNELS;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
+    max_num_channels = (uint8_t) phy_param.value;
 
     // According to specification channel IDs start from 0 and last valid
     // channel ID is N-1 where N=MAX_NUM_CHANNELS.
@@ -210,9 +202,9 @@ lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
     }
 
     // Now check the Default channel mask
-    get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
+    get_phy.attribute = PHY_CHANNELS_DEFAULT_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
+    channel_masks = phy_param.channel_mask;
 
     // check if the channel ID give belongs to a default channel
     // Mostly the default channels are in the first mask if the region
@@ -222,9 +214,7 @@ lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    channelRemove.ChannelId = channel_id;
-
-    if(_lora_phy->remove_channel(&channelRemove) == false)
+    if(_lora_phy->remove_channel(channel_id) == false)
     {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }

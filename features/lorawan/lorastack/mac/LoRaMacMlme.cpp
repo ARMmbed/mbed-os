@@ -50,10 +50,10 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *mlmeRequest,
 
         lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
         loramac_mhdr_t macHdr;
-        AlternateDrParams_t altDr;
-        VerifyParams_t verify;
-        GetPhyParams_t getPhy;
-        PhyParam_t phyParam;
+
+        verification_params_t verify;
+        get_phy_params_t get_phy;
+        phy_param_t phyParam;
 
 
         if (params->mac_state != LORAMAC_IDLE) {
@@ -81,13 +81,13 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *mlmeRequest,
                 }
 
                 // Verify the parameter NbTrials for the join procedure
-                verify.NbJoinTrials = mlmeRequest->req.join.nb_trials;
+                verify.nb_join_trials = mlmeRequest->req.join.nb_trials;
 
                 if (_lora_phy->verify(&verify, PHY_NB_JOIN_TRIALS) == false) {
                     // Value not supported, get default
-                    getPhy.Attribute = PHY_DEF_NB_JOIN_TRIALS;
-                    phyParam = _lora_phy->get_phy_params(&getPhy);
-                    mlmeRequest->req.join.nb_trials = (uint8_t) phyParam.Value;
+                    get_phy.attribute = PHY_DEF_NB_JOIN_TRIALS;
+                    phyParam = _lora_phy->get_phy_params(&get_phy);
+                    mlmeRequest->req.join.nb_trials = (uint8_t) phyParam.value;
                 }
 
                 params->flags.bits.mlme_req = 1;
@@ -107,10 +107,8 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *mlmeRequest,
 
                 _lora_mac->ResetMacParameters();
 
-                altDr.NbTrials = params->join_request_trial_counter + 1;
-
                 params->sys_params.channel_data_rate =
-                        _lora_phy->get_alternate_DR(&altDr);
+                        _lora_phy->get_alternate_DR(params->join_request_trial_counter + 1);
 
                 status = _lora_mac->Send(&macHdr, 0, NULL, 0);
                 break;

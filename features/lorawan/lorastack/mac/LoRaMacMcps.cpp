@@ -49,11 +49,11 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
+    get_phy_params_t get_phy;
+    phy_param_t phyParam;
     lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
     loramac_mhdr_t macHdr;
-    VerifyParams_t verify;
+    verification_params_t verify;
     uint8_t fPort = 0;
     void *fBuffer;
     uint16_t fBufferSize;
@@ -115,23 +115,19 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
     //    }
 
     // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = params->sys_params.uplink_dwell_time;
-    phyParam = _lora_phy->get_phy_params(&getPhy);
+    get_phy.attribute = PHY_MIN_TX_DR;
+    phyParam = _lora_phy->get_phy_params(&get_phy);
 
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX(datarate, (int8_t)phyParam.Value);
+    datarate = MAX(datarate, (int8_t)phyParam.value);
 
     if (readyToSend == true) {
         if (params->sys_params.adr_on == false) {
-            verify.DatarateParams.Datarate = datarate;
-            verify.DatarateParams.UplinkDwellTime =
-                    params->sys_params.uplink_dwell_time;
+            verify.datarate = datarate;
 
             if (_lora_phy->verify(&verify, PHY_TX_DR) == true) {
-                params->sys_params.channel_data_rate =
-                        verify.DatarateParams.Datarate;
+                params->sys_params.channel_data_rate = verify.datarate;
             } else {
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }

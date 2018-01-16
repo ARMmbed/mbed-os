@@ -224,9 +224,9 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 {
     loramac_mcps_req_t mcps_req;
 
-    GetPhyParams_t phy_params;
-    PhyParam_t default_datarate;
-    phy_params.Attribute = PHY_DEF_TX_DR;
+    get_phy_params_t phy_params;
+    phy_param_t default_datarate;
+    phy_params.attribute = PHY_DEF_TX_DR;
     default_datarate = _lora_phy.get_phy_params(&phy_params);
 
     prepare_special_tx_frame(_compliance_test.app_port);
@@ -236,7 +236,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.req.unconfirmed.fport = _compliance_test.app_port;
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.unconfirmed.data_rate = default_datarate.Value;
+        mcps_req.req.unconfirmed.data_rate = default_datarate.value;
 
         tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -249,7 +249,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.req.confirmed.nb_trials = _num_retry;
-        mcps_req.req.confirmed.data_rate = default_datarate.Value;
+        mcps_req.req.confirmed.data_rate = default_datarate.value;
 
         tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -286,9 +286,9 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
     lorawan_status_t status;
     loramac_mib_req_confirm_t mib_get_params;
 
-    GetPhyParams_t phy_params;
-    PhyParam_t default_datarate;
-    phy_params.Attribute = PHY_DEF_TX_DR;
+    get_phy_params_t phy_params;
+    phy_param_t default_datarate;
+    phy_params.attribute = PHY_DEF_TX_DR;
     default_datarate = _lora_phy.get_phy_params(&phy_params);
 
     mcps_req.type = _tx_msg.type;
@@ -302,7 +302,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.unconfirmed.data_rate = default_datarate.Value;
+            mcps_req.req.unconfirmed.data_rate = default_datarate.value;
         } else {
             mcps_req.req.unconfirmed.data_rate = mib_get_params.param.channel_data_rate;
         }
@@ -316,7 +316,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.confirmed.data_rate = default_datarate.Value;
+            mcps_req.req.confirmed.data_rate = default_datarate.value;
         } else {
             mcps_req.req.confirmed.data_rate = mib_get_params.param.channel_data_rate;
         }
@@ -328,7 +328,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.proprietary.data_rate = default_datarate.Value;
+            mcps_req.req.proprietary.data_rate = default_datarate.value;
         } else {
             mcps_req.req.proprietary.data_rate = mib_get_params.param.channel_data_rate;
         }
@@ -977,32 +977,21 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
             break;
         default:
             if (is_port_valid(mcps_indication->port) == true ||
-                    mcps_indication->type == MCPS_PROPRIETARY) {
+                mcps_indication->type == MCPS_PROPRIETARY) {
 
                 // Valid message arrived.
-                // Save message to buffer with session information.
-                if (_rx_msg.msg.mcps_indication.buffer_size > LORAMAC_PHY_MAXPAYLOAD) {
-                    // This may never happen as both radio and MAC are limited
-                    // to the size 255 bytes
-                    tr_debug("Cannot receive more than buffer capacity!");
-                    if (_callbacks.events) {
-                        const int ret = _queue->call(_callbacks.events, RX_ERROR);
-                        MBED_ASSERT(ret != 0);
-                        (void)ret;
-                    }
-                    return;
-                } else {
-                    _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
-                    _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
-                    _rx_msg.msg.mcps_indication.port = mcps_indication->port;
+                _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
+                _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
+                _rx_msg.msg.mcps_indication.port = mcps_indication->port;
 
-                    // no copy, just set the pointer for the user
-                    _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
-                }
+                // no copy, just set the pointer for the user
+                _rx_msg.msg.mcps_indication.buffer =
+                mcps_indication->buffer;
 
                 // Notify application about received frame..
                 tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
                 _rx_msg.receive_ready = true;
+
                 if (_callbacks.events) {
                     const int ret = _queue->call(_callbacks.events, RX_DONE);
                     MBED_ASSERT(ret != 0);
