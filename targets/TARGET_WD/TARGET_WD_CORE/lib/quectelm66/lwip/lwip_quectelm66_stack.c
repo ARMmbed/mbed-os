@@ -733,46 +733,59 @@ static nsapi_error_t mbed_lwip_quectelm66_err_remap(err_t err) {
 /* LWIP network stack implementation */
 static nsapi_error_t mbed_lwip_quectelm66_gethostbyname(nsapi_stack_t *stack, const char *host, nsapi_addr_t *addr, nsapi_version_t version)
 {
-	ip_addr_t lwip_addr;
+	
+ip_addr_t lwip_addr;
 
 #if LWIP_IPV4 && LWIP_IPV6
-	u8_t addr_type;
-	if (version == NSAPI_UNSPEC) {
-		const ip_addr_t *ip_addr;
-		ip_addr = mbed_lwip_get_ip_addr(true, &lwip_quectelm66_netif);
-		if (IP_IS_V6(ip_addr)) {
-			addr_type = NETCONN_DNS_IPV6;
-		}
-		else {
-			addr_type = NETCONN_DNS_IPV4;
-		}
-	}
-	else if (version == NSAPI_IPv4) {
-		addr_type = NETCONN_DNS_IPV4;
-	}
-	else if (version == NSAPI_IPv6) {
-		addr_type = NETCONN_DNS_IPV6;
-	}
-	err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
+    u8_t addr_type;
+    if (version == NSAPI_UNSPEC) {
+        const ip_addr_t *ip_addr;
+        ip_addr = mbed_lwip_get_ip_addr(true, &lwip_netif);
+        // Prefer IPv6
+        if (IP_IS_V6(ip_addr)) {
+            // If IPv4 is available use it as backup
+            if (mbed_lwip_get_ipv4_addr(&lwip_netif)) {
+                addr_type = NETCONN_DNS_IPV6_IPV4;
+            } else {
+                addr_type = NETCONN_DNS_IPV6;
+            }
+        // Prefer IPv4
+        } else {
+            // If IPv6 is available use it as backup
+            if (mbed_lwip_get_ipv6_addr(&lwip_netif)) {
+                addr_type = NETCONN_DNS_IPV4_IPV6;
+            } else {
+                addr_type = NETCONN_DNS_IPV4;
+            }
+        }
+    } else if (version == NSAPI_IPv4) {
+        addr_type = NETCONN_DNS_IPV4;
+    } else if (version == NSAPI_IPv6) {
+        addr_type = NETCONN_DNS_IPV6;
+    } else {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+    err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
 #elif LWIP_IPV4
-	if (version != NSAPI_IPv4 && version != NSAPI_UNSPEC) {
-		return NSAPI_ERROR_DNS_FAILURE;
-	}
-	err_t err = netconn_gethostbyname(host, &lwip_addr);
+    if (version != NSAPI_IPv4 && version != NSAPI_UNSPEC) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+    err_t err = netconn_gethostbyname(host, &lwip_addr);
 #elif LWIP_IPV6
-	if (version != NSAPI_IPv6 && version != NSAPI_UNSPEC) {
-		return NSAPI_ERROR_DNS_FAILURE;
-	}
-	err_t err = netconn_gethostbyname(host, &lwip_addr);
+    if (version != NSAPI_IPv6 && version != NSAPI_UNSPEC) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+    err_t err = netconn_gethostbyname(host, &lwip_addr);
 #endif
 
-	if (err != ERR_OK) {
-		return NSAPI_ERROR_DNS_FAILURE;
-	}
+    if (err != ERR_OK) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
 
-	convert_lwip_quectelm66_addr_to_mbed(addr, &lwip_addr);
+    convert_lwip_quectelm66_addr_to_mbed(addr, &lwip_addr);
 
-	return 0;
+    return 0;
+
 }
 
 static nsapi_error_t mbed_lwip_quectelm66_add_dns_server(nsapi_stack_t *stack, nsapi_addr_t addr)
