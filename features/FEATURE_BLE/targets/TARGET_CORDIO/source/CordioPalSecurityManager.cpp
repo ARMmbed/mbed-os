@@ -307,6 +307,12 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+CordioSecurityManager& CordioSecurityManager::get_security_manager()
+{
+    static CordioSecurityManager _security_manager;
+    return _security_manager;
+}
+
 } // cordio
 } // vendor
 } // pal

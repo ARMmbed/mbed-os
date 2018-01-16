@@ -266,6 +266,9 @@ public:
     virtual ble_error_t send_keypress_notification(
         connection_handle_t connection, Keypress_t keypress
     );
+
+    // singleton of the ARM Cordio Security Manager
+    static CordioSecurityManager& get_security_manager();
 };
 
 } // cordio
