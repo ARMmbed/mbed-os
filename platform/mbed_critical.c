@@ -17,14 +17,14 @@
 
 /* Declare __STDC_LIMIT_MACROS so stdint.h defines UINT32_MAX when using C++ */
 #define __STDC_LIMIT_MACROS
-#include "platform/mbed_critical.h"
+#include "hal/critical_section_api.h"
 
 #include "cmsis.h"
 #include "platform/mbed_assert.h"
+#include "platform/mbed_critical.h"
 #include "platform/mbed_toolchain.h"
 
-static volatile uint32_t interrupt_enable_counter = 0;
-static volatile bool critical_interrupts_disabled = false;
+static volatile uint32_t critical_section_reentrancy_counter = 0;
 
 bool core_util_are_interrupts_enabled(void)
 {
@@ -51,53 +51,42 @@ bool core_util_is_isr_active(void)
 #endif
 }
 
-MBED_WEAK void core_util_critical_section_enter(void)
+bool core_util_in_critical_section(void)
 {
-    bool interrupts_disabled = !core_util_are_interrupts_enabled();
-    __disable_irq();
-
-    /* Save the interrupt disabled state as it was prior to any nested critical section lock use */
-    if (!interrupt_enable_counter) {
-        critical_interrupts_disabled = interrupts_disabled;
-    }
-
-    /* If the interrupt_enable_counter overflows or we are in a nested critical section and interrupts
-       are enabled, then something has gone badly wrong thus assert an error.
-    */
-    MBED_ASSERT(interrupt_enable_counter < UINT32_MAX); 
-// FIXME
-#ifndef   FEATURE_UVISOR
-    if (interrupt_enable_counter > 0) {
-        MBED_ASSERT(interrupts_disabled);
-    }
-#else
-#warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
-#endif /* FEATURE_UVISOR */
-    interrupt_enable_counter++;
+    return hal_in_critical_section();
 }
 
-MBED_WEAK void core_util_critical_section_exit(void)
+void core_util_critical_section_enter(void)
 {
-    /* If critical_section_enter has not previously been called, do nothing */
-    if (interrupt_enable_counter) {
-
 // FIXME
-#ifndef   FEATURE_UVISOR
-        bool interrupts_disabled = !core_util_are_interrupts_enabled(); /* get the current interrupt disabled state */
-
-        MBED_ASSERT(interrupts_disabled); /* Interrupts must be disabled on invoking an exit from a critical section */
+#ifdef FEATURE_UVISOR
+    #warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
 #else
-#warning "core_util_critical_section_exit needs fixing to work from unprivileged code"
+    // If the reentrancy counter overflows something has gone badly wrong.
+    MBED_ASSERT(critical_section_reentrancy_counter < UINT32_MAX);
 #endif /* FEATURE_UVISOR */
 
-        interrupt_enable_counter--;
+    hal_critical_section_enter();
 
-        /* Only re-enable interrupts if we are exiting the last of the nested critical sections and
-           interrupts were enabled on entry to the first critical section.
-        */
-        if (!interrupt_enable_counter && !critical_interrupts_disabled) {
-            __enable_irq();
-        }
+    ++critical_section_reentrancy_counter;
+}
+
+void core_util_critical_section_exit(void)
+{
+// FIXME
+#ifdef FEATURE_UVISOR
+    #warning "core_util_critical_section_exit needs fixing to work from unprivileged code"
+#endif /* FEATURE_UVISOR */
+
+    // If critical_section_enter has not previously been called, do nothing
+    if (critical_section_reentrancy_counter == 0) {
+        return;
+    }
+
+    --critical_section_reentrancy_counter;
+
+    if (critical_section_reentrancy_counter == 0) {
+        hal_critical_section_exit();
     }
 }
 
