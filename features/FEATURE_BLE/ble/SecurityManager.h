@@ -90,10 +90,6 @@ public:
      */
     static const unsigned PASSKEY_LEN = 6;
     typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
-    typedef uint8_t C192_t[16];
-    typedef uint8_t R192_t[16];
-    typedef uint8_t C256_t[16];
-    typedef uint8_t R256_t[16];
 
     typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
     typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
