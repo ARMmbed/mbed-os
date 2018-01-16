@@ -119,7 +119,7 @@ typedef struct
 /**@brief L2CAP event callback event structure. */
 typedef struct
 {
-  uint16_t conn_handle;                           /**< Connection Handle on which event occured. */
+  uint16_t conn_handle;                           /**< Connection Handle on which event occurred. */
   union
   {
     ble_l2cap_evt_rx_t rx;                        /**< RX Event parameters. */

@@ -1354,10 +1354,10 @@ enum status_code tcc_set_pattern(
  *
  * \return Bitmask of \c TCC_STATUS_* flags.
  *
- * \retval TCC_STATUS_CHANNEL_MATCH_CAPTURE(n)         Channel n match/capture has occured
+ * \retval TCC_STATUS_CHANNEL_MATCH_CAPTURE(n)         Channel n match/capture has occurred
  * \retval TCC_STATUS_CHANNEL_OUTPUT(n)                Channel n match/capture output state
- * \retval TCC_STATUS_NON_RECOVERABLE_FAULT_OCCUR(x)   Non-recoverable fault x has occured
- * \retval TCC_STATUS_RECOVERABLE_FAULT_OCCUR(n)       Recoverable fault n has occured
+ * \retval TCC_STATUS_NON_RECOVERABLE_FAULT_OCCUR(x)   Non-recoverable fault x has occurred
+ * \retval TCC_STATUS_RECOVERABLE_FAULT_OCCUR(n)       Recoverable fault n has occurred
  * \retval TCC_STATUS_NON_RECOVERABLE_FAULT_PRESENT(x) Non-recoverable fault x input present
  * \retval TCC_STATUS_RECOVERABLE_FAULT_PRESENT(n)     Recoverable fault n input present
  * \retval TCC_STATUS_SYNC_READY          None of register is syncing

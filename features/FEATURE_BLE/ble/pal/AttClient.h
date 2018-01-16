@@ -75,7 +75,7 @@ struct AttClient {
      * The mtu choosen for the connection is the minimum of the client Rx mtu
      * and server Rx mtu values.
      *
-     * If an error occured then the mtu used remains the default value.
+     * If an error occurred then the mtu used remains the default value.
      *
      * @param connection The handle of the connection to send this request to.
      *

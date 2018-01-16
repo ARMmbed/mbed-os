@@ -16074,7 +16074,7 @@ typedef struct
 #define ETH_DMASR_RPS_Closing                         ETH_DMASR_RPS_Closing_Msk /* Running - closing descriptor */
 #define ETH_DMASR_RPS_Queuing_Pos                     (17U)                    
 #define ETH_DMASR_RPS_Queuing_Msk                     (0x7U << ETH_DMASR_RPS_Queuing_Pos) /*!< 0x000E0000 */
-#define ETH_DMASR_RPS_Queuing                         ETH_DMASR_RPS_Queuing_Msk /* Running - queuing the recieve frame into host memory */
+#define ETH_DMASR_RPS_Queuing                         ETH_DMASR_RPS_Queuing_Msk /* Running - queuing the receive frame into host memory */
 #define ETH_DMASR_NIS_Pos                             (16U)                    
 #define ETH_DMASR_NIS_Msk                             (0x1U << ETH_DMASR_NIS_Pos) /*!< 0x00010000 */
 #define ETH_DMASR_NIS                                 ETH_DMASR_NIS_Msk        /* Normal interrupt summary */

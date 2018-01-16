@@ -116,7 +116,7 @@ static void service_changed_pending_set(void)
 
 /**@brief Event handler for events from the peer_database module.
  *
- * @param[in]  p_event The event that has happend with peer id and flags.
+ * @param[in]  p_event The event that has happened with peer id and flags.
  */
 static void pdb_evt_handler(pdb_evt_t const * p_event)
 {

@@ -157,7 +157,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    /*  Page size is the minimum programable size, which 4 bytes */
+    /*  Page size is the minimum programmable size, which 4 bytes */
     return 4;
 }
 

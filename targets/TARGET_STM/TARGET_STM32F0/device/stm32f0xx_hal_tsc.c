@@ -703,14 +703,14 @@ void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc)
   /* Check the parameters */
   assert_param(IS_TSC_ALL_INSTANCE(htsc->Instance));
 
-  /* Check if the end of acquisition occured */
+  /* Check if the end of acquisition occurred */
   if (__HAL_TSC_GET_FLAG(htsc, TSC_FLAG_EOA) != RESET)
   {
     /* Clear EOA flag */
     __HAL_TSC_CLEAR_FLAG(htsc, TSC_FLAG_EOA);
   }
   
-  /* Check if max count error occured */
+  /* Check if max count error occurred */
   if (__HAL_TSC_GET_FLAG(htsc, TSC_FLAG_MCE) != RESET)
   {
     /* Clear MCE flag */

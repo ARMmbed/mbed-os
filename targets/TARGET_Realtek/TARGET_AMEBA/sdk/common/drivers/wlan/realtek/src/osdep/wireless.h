@@ -145,7 +145,7 @@
  *
  * V11 to V12
  * ----------
- *	- Add SIOCSIWSTATS to get /proc/net/wireless programatically
+ *	- Add SIOCSIWSTATS to get /proc/net/wireless programmatically
  *	- Add DEV PRIVATE IOCTL to avoid collisions in SIOCDEVPRIVATE space
  *	- Add new statistics (frag, retry, beacon)
  *	- Add average quality (for user space calibration)

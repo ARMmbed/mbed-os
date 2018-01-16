@@ -37,7 +37,7 @@ enum _spdif_transfer_state
 {
     kSPDIF_Busy = 0x0U, /*!< SPDIF is busy */
     kSPDIF_Idle,        /*!< Transfer is done. */
-    kSPDIF_Error        /*!< Transfer error occured. */
+    kSPDIF_Error        /*!< Transfer error occurred. */
 };
 
 /*! @brief Typedef for spdif tx interrupt handler. */

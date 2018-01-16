@@ -852,7 +852,7 @@ enum tcc_callback {
 #define TCC_STATUS_CHANNEL_OUTPUT(ch)               (1UL << ((ch)+8))
 /** A Non-Recoverable Fault \c x (0 ~ 1) has occurred. */
 #define TCC_STATUS_NON_RECOVERABLE_FAULT_OCCUR(x)   (1UL << ((x)+16))
-/** A Recoverable Fault \c n (0 ~ 1 representing A ~ B) has occured. */
+/** A Recoverable Fault \c n (0 ~ 1 representing A ~ B) has occurred. */
 #define TCC_STATUS_RECOVERABLE_FAULT_OCCUR(n)       (1UL << ((n)+18))
 /** The Non-Recoverable Fault \c x (0 ~ 1) input is present. */
 #define TCC_STATUS_NON_RECOVERABLE_FAULT_PRESENT(x) (1UL << ((x)+20))

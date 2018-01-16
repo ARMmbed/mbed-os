@@ -20502,7 +20502,7 @@ typedef struct {
      * |        |          |Note: This bit is only cleared by writing 1 to it.
      * |[2]     |OVUNF     |QEI Counter Overflow Or Underflow Flag
      * |        |          |Flag is set by hardware while QEI_CNT overflows from 0xFFFF_FFFF to zero in free-counting mode or from the QEI_MAXCNT value to zero in compare-counting mode.
-     * |        |          |Similarly, the flag is set wile QEI counter underflows from zero to 0xFFFF_FFFF or QEI_MAXCNT.
+     * |        |          |Similarly, the flag is set while QEI counter underflows from zero to 0xFFFF_FFFF or QEI_MAXCNT.
      * |        |          |0 = No overflow or underflow occurs in QEI counter.
      * |        |          |1 = QEI counter occurs counting overflow or underflow.
      * |        |          |Note: This bit is only cleared by writing 1 to it.

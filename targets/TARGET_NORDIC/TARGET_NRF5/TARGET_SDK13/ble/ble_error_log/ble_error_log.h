@@ -65,7 +65,7 @@ extern "C" {
 /**@brief Error Log Data structure.
  *
  * @details The structure contains the error, message/filename, line number as well as the current
- *          stack, at the time where an error occured.
+ *          stack, at the time where an error occurred.
  */
 typedef struct
 {
@@ -85,8 +85,8 @@ typedef struct
  *
  * @param[in]   err_code    Error code to be logged.
  * @param[in]   p_message   Message to be written to the flash together with stack dump, usually
- *                          the file name where the error occured.
- * @param[in]   line_number Line number where the error occured.
+ *                          the file name where the error occurred.
+ * @param[in]   line_number Line number where the error occurred.
  *
  * @return      NRF_SUCCESS on successful writing of the error log.
  *

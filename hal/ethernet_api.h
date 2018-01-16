@@ -40,7 +40,7 @@ int ethernet_write(const char *data, int size);
 // send ethernet write buffer, returning the packet size sent
 int ethernet_send(void);
 
-// recieve from ethernet buffer, returning packet size, or 0 if no packet
+// receive from ethernet buffer, returning packet size, or 0 if no packet
 int ethernet_receive(void);
 
 // read size bytes in to data, return actual num bytes read (0..size)

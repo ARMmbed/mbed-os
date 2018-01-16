@@ -724,7 +724,7 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
     hsc->State = HAL_SMARTCARD_STATE_READY;
   }
   
-  /* SMARTCARD frame error interrupt occured ---------------------------------*/
+  /* SMARTCARD frame error interrupt occurred --------------------------------*/
   if((__HAL_SMARTCARD_GET_IT(hsc, SMARTCARD_IT_FE) != RESET) && (__HAL_SMARTCARD_GET_IT_SOURCE(hsc, SMARTCARD_IT_ERR) != RESET))
   { 
     __HAL_SMARTCARD_CLEAR_FEFLAG(hsc);
@@ -733,7 +733,7 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
     hsc->State = HAL_SMARTCARD_STATE_READY;
   }
   
-  /* SMARTCARD noise error interrupt occured ---------------------------------*/
+  /* SMARTCARD noise error interrupt occurred --------------------------------*/
   if((__HAL_SMARTCARD_GET_IT(hsc, SMARTCARD_IT_NE) != RESET) && (__HAL_SMARTCARD_GET_IT_SOURCE(hsc, SMARTCARD_IT_ERR) != RESET))
   { 
     __HAL_SMARTCARD_CLEAR_NEFLAG(hsc);
@@ -742,7 +742,7 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
     hsc->State = HAL_SMARTCARD_STATE_READY;
   }
   
-  /* SMARTCARD Over-Run interrupt occured ------------------------------------*/
+  /* SMARTCARD Over-Run interrupt occurred -----------------------------------*/
   if((__HAL_SMARTCARD_GET_IT(hsc, SMARTCARD_IT_ORE) != RESET) && (__HAL_SMARTCARD_GET_IT_SOURCE(hsc, SMARTCARD_IT_ERR) != RESET))
   { 
     __HAL_SMARTCARD_CLEAR_OREFLAG(hsc);
@@ -751,7 +751,7 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
     hsc->State = HAL_SMARTCARD_STATE_READY;
   }
   
-  /* SMARTCARD receiver timeout interrupt occured ----------------------------*/
+  /* SMARTCARD receiver timeout interrupt occurred ---------------------------*/
   if((__HAL_SMARTCARD_GET_IT(hsc, SMARTCARD_IT_RTO) != RESET) && (__HAL_SMARTCARD_GET_IT_SOURCE(hsc, SMARTCARD_IT_RTO) != RESET))
   { 
     __HAL_SMARTCARD_CLEAR_IT(hsc, SMARTCARD_CLEAR_RTOF);

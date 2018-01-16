@@ -577,7 +577,7 @@ __weak void HAL_MDIOS_WakeUpCallback(MDIOS_HandleTypeDef *hmdios)
     [..]
     This subsection provides a set of functions allowing to control the MDIOS.
      (+) HAL_MDIOS_GetState() API, helpful to check in run-time the state. 
-     (+) HAL_MDIOS_GetError() API, returns the errors occured during data transfer. 
+     (+) HAL_MDIOS_GetError() API, returns the errors occurred during data transfer. 
         
 @endverbatim
   * @{
@@ -586,7 +586,7 @@ __weak void HAL_MDIOS_WakeUpCallback(MDIOS_HandleTypeDef *hmdios)
 /**
   * @brief  Gets MDIOS error flags 
   * @param  hmdios mdios handle
-  * @retval bit map of occured errors 
+  * @retval bit map of occurred errors 
   */
 uint32_t HAL_MDIOS_GetError(MDIOS_HandleTypeDef *hmdios)
 {

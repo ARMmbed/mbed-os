@@ -211,21 +211,21 @@ public:
     /** Get the local IP address
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been recieved
+     *                  or null if no IP address has been received
      */
     virtual const char *get_ip_address();
 
     /** Get the local network mask
      *
      *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been recieved
+     *                  or null if no network mask has been received
      */
     virtual const char *get_netmask();
 
     /** Get the local gateways
      *
      *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been recieved
+     *                  or null if no network mask has been received
      */
     virtual const char *get_gateway();
 

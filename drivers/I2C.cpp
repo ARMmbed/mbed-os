@@ -81,7 +81,7 @@ int I2C::write(int data) {
     return ret;
 }
 
-// read - Master Reciever Mode
+// read - Master Receiver Mode
 int I2C::read(int address, char* data, int length, bool repeated) {
     lock();
     aquire();

@@ -1469,7 +1469,7 @@ snmp_complete_outbound_frame(struct snmp_request *request)
     if (request->error_status == SNMP_ERR_TOOBIG) {
       request->error_index = 0; /* defined by RFC 1157 */
     } else if (request->error_index == 0) {
-      /* set index to varbind where error occured (if not already set before, e.g. during GetBulk processing) */
+      /* set index to varbind where error occurred (if not already set before, e.g. during GetBulk processing) */
       request->error_index = request->inbound_varbind_enumerator.varbind_count;
     }
   } else {

@@ -365,7 +365,7 @@ bool im_is_duplicate_bonding_data(pm_peer_data_bonding_t const * p_bonding_data1
 /**@brief Event handler for events from the Peer Database module.
  *        This function is extern in Peer Database.
  *
- * @param[in]  p_event The event that has happend with peer id and flags.
+ * @param[in]  p_event The event that has happened with peer id and flags.
  */
 void im_pdb_evt_handler(pdb_evt_t const * p_event)
 {

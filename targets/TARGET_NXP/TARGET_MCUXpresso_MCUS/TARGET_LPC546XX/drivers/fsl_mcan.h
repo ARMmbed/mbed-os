@@ -544,7 +544,7 @@ void MCAN_SetDataTimingConfig(CAN_Type *base, const mcan_timing_config_t *config
  * @brief Configures an MCAN receive fifo 0 buffer.
  *
  * This function sets start address, element size, watermark, operation mode
- * and datafield size of the recieve fifo 0.
+ * and datafield size of the receive fifo 0.
  *
  * @param base MCAN peripheral base address.
  * @param config The receive fifo 0 configuration structure.
@@ -555,7 +555,7 @@ void MCAN_SetRxFifo0Config(CAN_Type *base, const mcan_rx_fifo_config_t *config);
  * @brief Configures an MCAN receive fifo 1 buffer.
  *
  * This function sets start address, element size, watermark, operation mode
- * and datafield size of the recieve fifo 1.
+ * and datafield size of the receive fifo 1.
  *
  * @param base MCAN peripheral base address.
  * @param config The receive fifo 1 configuration structure.
@@ -565,7 +565,7 @@ void MCAN_SetRxFifo1Config(CAN_Type *base, const mcan_rx_fifo_config_t *config);
 /*!
  * @brief Configures an MCAN receive buffer.
  *
- * This function sets start address and datafield size of the recieve buffer.
+ * This function sets start address and datafield size of the receive buffer.
  *
  * @param base MCAN peripheral base address.
  * @param config The receive buffer configuration structure.

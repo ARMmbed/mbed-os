@@ -98,7 +98,7 @@ public:
      */
     int send();
 
-    /** Recevies an arrived ethernet packet.
+    /** Receives an arrived ethernet packet.
      *
      *  Receiving an ethernet packet will drop the last received ethernet packet
      *  and make a new ethernet packet ready to read.
@@ -110,7 +110,7 @@ public:
      */
     int receive();
 
-    /** Read from an recevied ethernet packet.
+    /** Read from an received ethernet packet.
      *
      *  After receive returned a number bigger than 0 it is
      *  possible to read bytes from this packet.
@@ -131,11 +131,11 @@ public:
      */
     void address(char *mac);
 
-    /** Returns if an ethernet link is pressent or not. It takes a wile after Ethernet initializion to show up.
+    /** Returns if an ethernet link is present or not. It takes a while after Ethernet initialization to show up.
      *
      *  @returns
-     *   0 if no ethernet link is pressent,
-     *   1 if an ethernet link is pressent.
+     *   0 if no ethernet link is present,
+     *   1 if an ethernet link is present.
      *
      * Example:
      * @code

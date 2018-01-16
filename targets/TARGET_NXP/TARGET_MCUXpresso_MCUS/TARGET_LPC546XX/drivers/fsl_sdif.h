@@ -313,7 +313,7 @@ typedef struct _sdif_data
 
     size_t blockSize;       /*!< Block size, take care when config this parameter */
     uint32_t blockCount;    /*!< Block count */
-    uint32_t *rxData;       /*!< data buffer to recieve */
+    uint32_t *rxData;       /*!< data buffer to receive */
     const uint32_t *txData; /*!< data buffer to transfer */
 } sdif_data_t;
 
@@ -331,7 +331,7 @@ typedef struct _sdif_command
     uint32_t responseType;       /*!< Command response type */
     uint32_t flags;              /*!< Cmd flags */
     uint32_t responseErrorFlags; /*!< response error flags, need to check the flags when
-                                    recieve the cmd response */
+                                    receive the cmd response */
 } sdif_command_t;
 
 /*! @brief Transfer state */

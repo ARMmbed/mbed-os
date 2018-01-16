@@ -1173,7 +1173,7 @@ typedef enum _trng_statistical_check
  * TRNG access mode in the SA-TRNG Miscellaneous Control Register.
  *
  * Values:
- * - 0b0 - Programability of registers controlled only by the RNG Miscellaneous
+ * - 0b0 - Programmability of registers controlled only by the RNG Miscellaneous
  *     Control Register's access mode bit.
  * - 0b1 - Overides RNG Miscellaneous Control Register access mode and prevents
  *     TRNG register programming.

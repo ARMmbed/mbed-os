@@ -1781,7 +1781,7 @@ HAL_SD_ErrorTypedef HAL_SD_WideBusOperation_Config(SD_HandleTypeDef *hsd, uint32
     }
     else
     {
-      /* An error occured while enabling/disabling the wide bus*/
+      /* An error occurred while enabling/disabling the wide bus*/
     }
   }
   else

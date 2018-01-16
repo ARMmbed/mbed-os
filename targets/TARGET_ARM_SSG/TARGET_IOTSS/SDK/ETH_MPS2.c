@@ -375,7 +375,7 @@ unsigned int smsc9220_recv_packet(unsigned int *recvbuf, unsigned int *index)
         if(rxfifo_stat != 0) {   // Fetch status of this packet
             pktsize = ((rxfifo_stat >> 16) & 0x3FFF);
             if(rxfifo_stat & (1 << 15)) {
-                printf("Error occured during receiving of packets on the bus.\n");
+                printf("Error occurred during receiving of packets on the bus.\n");
                 return 1;
             } else {
                 /* Below formula (recommended by SMSC9220 code)

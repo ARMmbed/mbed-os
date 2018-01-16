@@ -142,7 +142,7 @@ void SetSysClock(void)
             /* 3- If fail start with HSI clock */
             if (SetSysClock_PLL_HSI() == 0) {
                 while(1) {
-                    // [TODO] Put something here to tell the user that a problem occured...
+                    // [TODO] Put something here to tell the user that a problem occurred...
                 }
             }
         }

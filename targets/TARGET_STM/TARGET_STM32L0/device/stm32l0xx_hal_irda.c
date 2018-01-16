@@ -896,7 +896,7 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
   */
 void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
 {
-  /* IRDA parity error interrupt occurred -------------------------------------*/
+  /* IRDA parity error interrupt occurred ------------------------------------*/
   if((__HAL_IRDA_GET_IT(hirda, IRDA_IT_PE) != RESET) && (__HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_PE) != RESET))
   { 
     __HAL_IRDA_CLEAR_PEFLAG(hirda);
@@ -906,7 +906,7 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
     hirda->State = HAL_IRDA_STATE_READY;
   }
   
-  /* IRDA frame error interrupt occured --------------------------------------*/
+  /* IRDA frame error interrupt occurred -------------------------------------*/
   if((__HAL_IRDA_GET_IT(hirda, IRDA_IT_FE) != RESET) && (__HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_ERR) != RESET))
   { 
     __HAL_IRDA_CLEAR_FEFLAG(hirda);
@@ -916,7 +916,7 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
     hirda->State = HAL_IRDA_STATE_READY;
   }
   
-  /* IRDA noise error interrupt occured --------------------------------------*/
+  /* IRDA noise error interrupt occurred -------------------------------------*/
   if((__HAL_IRDA_GET_IT(hirda, IRDA_IT_NE) != RESET) && (__HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_ERR) != RESET))
   { 
     __HAL_IRDA_CLEAR_NEFLAG(hirda);
@@ -926,7 +926,7 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
     hirda->State = HAL_IRDA_STATE_READY;
   }
   
-  /* IRDA Over-Run interrupt occured -----------------------------------------*/
+  /* IRDA Over-Run interrupt occurred -----------------------------------------*/
   if((__HAL_IRDA_GET_IT(hirda, IRDA_IT_ORE) != RESET) && (__HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_ERR) != RESET))
   { 
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
