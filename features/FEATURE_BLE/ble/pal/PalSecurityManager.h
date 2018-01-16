@@ -82,7 +82,6 @@ typedef SecurityManager::Keypress_t Keypress_t;
 
 /* please use typedef for porting not the types directly */
 
-typedef uint8_t passkey_t[3];
 typedef uint8_t oob_data_t[16];
 
 typedef uint8_t irk_t[16];
@@ -149,7 +148,7 @@ public:
      * Called when the application should display a passkey.
      */
     virtual void on_passkey_display(
-        connection_handle_t connection, const passkey_t& passkey
+        connection_handle_t connection, const passkey_num_t passkey
     ) = 0;
 
     /**
@@ -452,7 +451,7 @@ public:
      * Reply to a passkey request received from the SecurityManagerEventHandler.
      */
     virtual ble_error_t passkey_request_reply(
-        connection_handle_t connection, const passkey_t& passkey
+        connection_handle_t connection, const passkey_num_t passkey
     ) = 0;
 
     /**

@@ -182,7 +182,7 @@ public:
     ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
         // FIXME: ADD API in the pal to set default passkey!
 #if 0
-        uint32_t passkey = 0;
+        passkey_num_t passkey = 0;
         for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
             passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
         }
