@@ -34,7 +34,7 @@ using ble::pal::csrk_t;
 using ble::pal::ltk_t;
 using ble::pal::ediv_t;
 using ble::pal::rand_t;
-using SecurityManager::SecurityIOCapabilities_t;
+typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 static const uint8_t NUMBER_OFFSET = '0';
 
@@ -120,7 +120,7 @@ public:
         bondable = initBondable;
         mitm = initMITM;
         iocaps = initIocaps;
-        passkey = initPasskey;
+        memcpy(passkey, initPasskey, sizeof(Passkey_t));
 
         return BLE_ERROR_NONE;
     }
@@ -179,17 +179,15 @@ public:
     // Security settings
     //
 
-    ble_error_t setPinCode(uint8_t pinLength, uint8_t *pinCode,
-                           bool isStatic = false) {
-        return pal.set_pin_code(pinLength, pinCode, isStatic);
-    }
-
     ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
+        // FIXME: ADD API in the pal to set default passkey!
+#if 0
         uint32_t passkey = 0;
         for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
             passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
         }
-        return pal.set_passkey(passkey);
+#endif
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ble_error_t setAuthenticationTimeout(connection_handle_t handle,
@@ -201,7 +199,7 @@ public:
                                          uint32_t *timeout_in_ms) {
         uint16_t timeout_in_10ms;
         ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
-        timeout_in_ms = 10 * timeout_in_10ms;
+        *timeout_in_ms = 10 * timeout_in_10ms;
         return status;
     }
 
@@ -297,7 +295,9 @@ public:
     }
 
     virtual ble_error_t passkeyEntered(Gap::Handle_t handle, Passkey_t passkey) {
-        return pal.passkey_entered(handle, passkey);
+        // FIXME: convert to passkey_t (3 bytes instead of 6)
+        //return pal.passkey_request_reply(handle, passkey);
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
@@ -308,7 +308,7 @@ public:
     // Event handler
     //
 
-    void setSecurityManagerEventHandler(::SecurityManagerEventHandler* handler) {
+    void setSecurityManagerEventHandler(::SecurityManager::SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
         if (handler) {
             _app_event_handler = handler;
@@ -459,7 +459,7 @@ public:
 
 private:
     /* handler is always a valid pointer */
-    ::SecurityManagerEventHandler *_app_event_handler;
+    ::SecurityManager::SecurityManagerEventHandler *_app_event_handler;
 };
 
 
