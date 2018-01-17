@@ -188,3 +188,8 @@ matrix:
       env: NAME=mbed2-ATMEL
     - <<: *mbed-2
       env: NAME=mbed2-NUVOTON
+<<<<<<< HEAD
+=======
+    - <<: *mbed-2
+      env: NAME=mbed2-RENESAS
+>>>>>>> upstream/mbed-os-5.7

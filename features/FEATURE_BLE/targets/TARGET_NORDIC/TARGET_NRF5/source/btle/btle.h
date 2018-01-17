@@ -26,6 +26,13 @@ extern "C" {
 #include "ble_srv_common.h"
 #include "headers/nrf_ble.h"
 
+#define CENTRAL_LINK_COUNT    3  /**<number of central links used by the application. When changing this number remember to adjust the RAM settings */
+                                                                       /** If value for YOTTA_CFG_NORDIC_BLE_PERIPHERAL_LINKS was used, ram settings are adjusted by the yotta target module. */
+#define PERIPHERAL_LINK_COUNT 1     /**<number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
+                                                                       /** If value for YOTTA_CFG_NORDIC_BLE_CENTRAL_LINKS was used, ram settings are adjusted by the yotta target module. */
+#define GATTS_ATTR_TAB_SIZE 0x600 /**< GATTS attribite table size. */
+                                                                       /** If value for YOTTA_CFG_NORDIC_BLE_GATTS_ATTR_TAB_SIZE was used, ram settings are adjusted by the yotta target module. */
+
 error_t     btle_init(void);
 
 // flag indicating if events have been signaled or not

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   UART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Asynchronous Receiver Transmitter (UART) peripheral:
@@ -287,7 +285,7 @@ HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart);
 /**
   * @brief Initialize the UART mode according to the specified
   *        parameters in the UART_InitTypeDef and initialize the associated handle.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
@@ -366,7 +364,7 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
 /**
   * @brief Initialize the half-duplex mode according to the specified
   *        parameters in the UART_InitTypeDef and creates the associated handle.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
@@ -439,9 +437,9 @@ HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
 /**
   * @brief Initialize the multiprocessor mode according to the specified
   *        parameters in the UART_InitTypeDef and initialize the associated handle.
-  * @param huart: UART handle.
-  * @param Address: UART node address (4-, 6-, 7- or 8-bit long).
-  * @param WakeUpMethod: specifies the UART wakeup method.
+  * @param huart UART handle.
+  * @param Address UART node address (4-, 6-, 7- or 8-bit long).
+  * @param WakeUpMethod specifies the UART wakeup method.
   *        This parameter can be one of the following values:
   *          @arg @ref UART_WAKEUPMETHOD_IDLELINE WakeUp by an idle line detection
   *          @arg @ref UART_WAKEUPMETHOD_ADDRESSMARK WakeUp by an address mark
@@ -531,7 +529,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Add
 
 /**
   * @brief DeInitialize the UART peripheral.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
@@ -569,7 +567,7 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
 
 /**
   * @brief Initialize the UART MSP.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
@@ -584,7 +582,7 @@ __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 
 /**
   * @brief DeInitialize the UART MSP.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
@@ -680,10 +678,10 @@ __weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 
 /**
   * @brief Send an amount of data in blocking mode.
-  * @param huart: UART handle.
-  * @param pData: Pointer to data buffer.
-  * @param Size: Amount of data to be sent.
-  * @param Timeout: Timeout duration.
+  * @param huart UART handle.
+  * @param pData Pointer to data buffer.
+  * @param Size Amount of data to be sent.
+  * @param Timeout Timeout duration.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
   *         (as sent data will be handled using u16 pointer cast). Depending on compilation chain,
@@ -764,10 +762,10 @@ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, u
 
 /**
   * @brief Receive an amount of data in blocking mode.
-  * @param huart: UART handle.
-  * @param pData: pointer to data buffer.
-  * @param Size: amount of data to be received.
-  * @param Timeout: Timeout duration.
+  * @param huart UART handle.
+  * @param pData pointer to data buffer.
+  * @param Size amount of data to be received.
+  * @param Timeout Timeout duration.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
   *         (as received data will be handled using u16 pointer cast). Depending on compilation chain,
@@ -851,9 +849,9 @@ HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, ui
 
 /**
   * @brief Send an amount of data in interrupt mode.
-  * @param huart: UART handle.
-  * @param pData: pointer to data buffer.
-  * @param Size: amount of data to be sent.
+  * @param huart UART handle.
+  * @param pData pointer to data buffer.
+  * @param Size amount of data to be sent.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
   *         (as sent data will be handled using u16 pointer cast). Depending on compilation chain,
@@ -907,9 +905,9 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
 
 /**
   * @brief Receive an amount of data in interrupt mode.
-  * @param huart: UART handle.
-  * @param pData: pointer to data buffer.
-  * @param Size: amount of data to be received.
+  * @param huart UART handle.
+  * @param pData pointer to data buffer.
+  * @param Size amount of data to be received.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
   *         (as received data will be handled using u16 pointer cast). Depending on compilation chain,
@@ -969,9 +967,9 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
 
 /**
   * @brief Send an amount of data in DMA mode.
-  * @param huart: UART handle.
-  * @param pData: pointer to data buffer.
-  * @param Size: amount of data to be sent.
+  * @param huart UART handle.
+  * @param pData pointer to data buffer.
+  * @param Size amount of data to be sent.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
   *         (as sent data will be handled by DMA from halfword frontier). Depending on compilation chain,
@@ -1044,9 +1042,9 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pDat
 
 /**
   * @brief Receive an amount of data in DMA mode.
-  * @param huart: UART handle.
-  * @param pData: pointer to data buffer.
-  * @param Size: amount of data to be received.
+  * @param huart UART handle.
+  * @param pData pointer to data buffer.
+  * @param Size amount of data to be received.
   * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
   *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
   *         (as received data will be handled by DMA from halfword frontier). Depending on compilation chain,
@@ -1121,7 +1119,7 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
 
 /**
   * @brief Pause the DMA Transfer.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart)
@@ -1154,7 +1152,7 @@ HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart)
 
 /**
   * @brief Resume the DMA Transfer.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
@@ -1188,7 +1186,7 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
 
 /**
   * @brief Stop the DMA Transfer.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
@@ -1652,7 +1650,7 @@ HAL_StatusTypeDef HAL_UART_AbortReceive_IT(UART_HandleTypeDef *huart)
 
 /**
   * @brief Handle UART interrupt request.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
@@ -1806,7 +1804,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
 
 /**
   * @brief Tx Transfer completed callback.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -1821,7 +1819,7 @@ __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 /**
   * @brief  Tx Half Transfer completed callback.
-  * @param  huart: UART handle.
+  * @param  huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
@@ -1836,7 +1834,7 @@ __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 
 /**
   * @brief Rx Transfer completed callback.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -1851,7 +1849,7 @@ __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 /**
   * @brief  Rx Half Transfer completed callback.
-  * @param  huart: UART handle.
+  * @param  huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
@@ -1866,7 +1864,7 @@ __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 
 /**
   * @brief UART error callback.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 __weak void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
@@ -1949,7 +1947,7 @@ __weak void HAL_UART_AbortReceiveCpltCallback (UART_HandleTypeDef *huart)
 /**
   * @brief Enable UART in mute mode (does not mean UART enters mute mode;
   * to enter mute mode, HAL_MultiProcessor_EnterMuteMode() API must be called).
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_MultiProcessor_EnableMuteMode(UART_HandleTypeDef *huart)
@@ -1970,7 +1968,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_EnableMuteMode(UART_HandleTypeDef *huart)
 /**
   * @brief  Disable UART mute mode (does not mean the UART actually exits mute mode
   *         as it may not have been in mute mode at this very moment).
-  * @param  huart: UART handle.
+  * @param  huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_MultiProcessor_DisableMuteMode(UART_HandleTypeDef *huart)
@@ -1991,7 +1989,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_DisableMuteMode(UART_HandleTypeDef *huart)
 /**
   * @brief Enter UART mute mode (means UART actually enters mute mode).
   * @note  To exit from mute mode, HAL_MultiProcessor_DisableMuteMode() API must be called.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 void HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart)
@@ -2001,7 +1999,7 @@ void HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart)
 
 /**
   * @brief  Enable the UART transmitter and disable the UART receiver.
-  * @param  huart: UART handle.
+  * @param  huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HalfDuplex_EnableTransmitter(UART_HandleTypeDef *huart)
@@ -2025,7 +2023,7 @@ HAL_StatusTypeDef HAL_HalfDuplex_EnableTransmitter(UART_HandleTypeDef *huart)
 
 /**
   * @brief  Enable the UART receiver and disable the UART transmitter.
-  * @param  huart: UART handle.
+  * @param  huart UART handle.
   * @retval HAL status.
   */
 HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart)
@@ -2105,7 +2103,7 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart)
 
 /**
   * @brief Configure the UART peripheral.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
@@ -2210,7 +2208,7 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
 
 /**
   * @brief Configure the UART peripheral advanced features.
-  * @param huart: UART handle.
+  * @param huart UART handle.
   * @retval None
   */
 void UART_AdvFeatureConfig(UART_HandleTypeDef *huart)

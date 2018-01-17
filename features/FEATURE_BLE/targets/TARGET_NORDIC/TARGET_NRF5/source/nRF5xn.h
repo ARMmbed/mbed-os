@@ -20,10 +20,10 @@
 #include "ble/BLE.h"
 #include "ble/blecommon.h"
 #include "ble/BLEInstanceBase.h"
+#include "ble/generic/GenericGattClient.h"
 
 #include "nRF5xGap.h"
 #include "nRF5xGattServer.h"
-#include "nRF5xGattClient.h"
 #include "nRF5xSecurityManager.h"
 
 #include "btle.h"
@@ -77,11 +77,8 @@ public:
      *
      * @return  A reference to GattClient.
      */
-    virtual nRF5xGattClient &getGattClient() {
-        if (gattClientInstance == NULL) {
-            gattClientInstance = new nRF5xGattClient();
-        }
-        return *gattClientInstance;
+    virtual GattClient &getGattClient() {
+        return gattClient;
     }
 
     /**
@@ -171,10 +168,8 @@ private:
                                                             *   If NULL, then GattServer has not been initialized.
                                                             *   The pointer has been declared as 'mutable' so that
                                                             *   it can be assigned inside a 'const' function. */
-    mutable nRF5xGattClient      *gattClientInstance;      /**< Pointer to the GattClient object instance.
-                                                            *   If NULL, then GattClient has not been initialized.
-                                                            *   The pointer has been declared as 'mutable' so that
-                                                            *   it can be assigned inside a 'const' function. */
+    ble::generic::GenericGattClient gattClient;
+
     mutable nRF5xSecurityManager *securityManagerInstance; /**< Pointer to the SecurityManager object instance.
                                                             *   If NULL, then SecurityManager has not been initialized.
                                                             *   The pointer has been declared as 'mutable' so that
