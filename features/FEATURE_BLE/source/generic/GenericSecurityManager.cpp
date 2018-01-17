@@ -216,12 +216,7 @@ public:
     // List management
     //
 
-
     ble_error_t purgeAllBondingState(void) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 

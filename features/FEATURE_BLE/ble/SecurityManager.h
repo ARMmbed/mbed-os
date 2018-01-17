@@ -158,6 +158,11 @@ public:
         virtual void acceptPairingRequest(connection_handle_t handle) {
             (void)handle;
         };
+        virtual void whitelistFromBondTable(Gap::Whitelist_t* whitelist) {
+            if (whitelist) {
+                delete whitelist;
+            }
+        };
     };
 
 private:
@@ -282,6 +287,8 @@ public:
     }
 
     /**
+     * @deprecated
+     *
      * Get a list of addresses from all peers in the bond table.
      *
      * @param[in,out]   addresses
@@ -298,6 +305,16 @@ public:
         /* Avoid compiler warnings about unused variables */
         (void) addresses;
 
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Create a list of addresses from all peers in the bond table and generate
+     * an event which returns it as a whitelist
+     *
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t generatewhitelistFromBondTable() const {
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
