@@ -740,24 +740,27 @@
         "release_versions": ["2", "5"],
         "device_name" : "LPC54114J256BD64"
     },
-    "LPC546XX": {
-        "supported_form_factors": ["ARDUINO"],
+    "MCU_LPC546XX": {    
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
         "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54618J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "detect_code": ["1056"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "LPC54618J512ET180"
     },
+    "LPC546XX": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_LPC546XX"],
+        "detect_code": ["1056"]
+    },
     "FF_LPC546XX": {
-        "inherits": ["LPC546XX"],
+        "inherits": ["MCU_LPC546XX"],
+        "extra_labels_add" : ["LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
-        "supported_form_factors": [""],
         "detect_code": ["8081"]
     },
     "NUCLEO_F030R8": {
