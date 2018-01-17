@@ -27,7 +27,6 @@ namespace generic {
 
 using ble::pal::address_t;
 using ble::pal::advertising_peer_address_type_t;
-using ble::pal::authentication_t;
 using ble::pal::key_distribution_t;
 using ble::pal::irk_t;
 using ble::pal::csrk_t;
@@ -35,6 +34,8 @@ using ble::pal::ltk_t;
 using ble::pal::ediv_t;
 using ble::pal::rand_t;
 using ble::pal::pairing_failure_t;
+using ble::pal::AuthenticationMask::AuthenticationFlags_t;
+using ble::pal::AuthenticationMask;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class PasskeyNum {
@@ -89,14 +90,13 @@ struct SecurityEntry_t {
     address_t peer_identity_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
-    uint8_t mitm_protection:1; /**< does the key provide mitm */
-    uint8_t keypress_notification:1;
+    uint8_t mitm:1; /**< does the key provide mitm */
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
     uint8_t sign_data:1;
     uint8_t encrypt_data:1;
-    uint8_t oob_mitm_protection:1;
     uint8_t oob:1;
+    uint8_t oob_mitm_protection:1;
     uint8_t secure_connections:1;
 };
 
@@ -181,7 +181,7 @@ public:
 
     void restore();
     void sync();
-    void setRestore(bool reload);
+    void set_restore(bool reload);
 private:
 
 };
@@ -192,16 +192,22 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
     //
-    ble_error_t init(bool                     initBondable = true,
-                     bool                     initMITM     = true,
-                     SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
-                     const Passkey_t          initPasskey  = NULL) {
+    ble_error_t init(bool                     bondable = true,
+                     bool                     mitm     = true,
+                     SecurityIOCapabilities_t iocaps   = IO_CAPS_NONE,
+                     const Passkey_t          passkey  = NULL) {
         db.restore();
-        bondable = initBondable;
-        mitm = initMITM;
-        io_capability = initIocaps;
-        displayPasskey = PasskeyAsci(initPasskey);
-        legacyPairingAllowed = true;
+        io_capability = iocaps;
+        display_passkey = PasskeyAsci::to_num(passkey);
+        legacy_pairing_allowed = true;
+
+        bool secure_connections;
+        pal.get_secure_connections_support(secure_connections);
+
+        authentication.set_bondable(bondable);
+        authentication.set_mitm(mitm);
+        authentication.set_secure_connections(secure_connections);
+        authentication.set_keypress_notification(true);
 
         return BLE_ERROR_NONE;
     }
@@ -214,7 +220,7 @@ public:
     }
 
     ble_error_t preserveBondingStateOnReset(bool enabled) {
-        db.setRestore(enabled);
+        db.set_restore(enabled);
         return BLE_ERROR_NONE;
     }
 
@@ -232,7 +238,7 @@ public:
     //
 
     ble_error_t allowLegacyPairing(bool allow = true) {
-        legacyPairingAllowed = allow;
+        legacy_pairing_allowed = allow;
         return BLE_ERROR_NONE;
     }
 
@@ -245,7 +251,7 @@ public:
     //
 
     virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
-        displayPasskey = passkey;
+        display_passkey = passkey;
         return BLE_ERROR_NONE;
     }
 
@@ -270,12 +276,12 @@ public:
     ble_error_t getLinkSecurity(connection_handle_t connection,
                                 SecurityMode_t *securityMode) {
 
-        *securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+        securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
         return BLE_ERROR_NONE;
     }
 
     ble_error_t setKeypressNotification(bool enabled = true) {
-        keypressNotification = enabled;
+        authentication.set_keypress_notification(enabled);
         return BLE_ERROR_NONE;
     }
 
@@ -327,7 +333,7 @@ public:
      *
      * @return no action instruction to the db since this only reads the keys.
      */
-    DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
+    DbCbAction_t set_ltk_cb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
         pal.set_ltk(entry.handle, entryKeys.ltk);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
@@ -337,13 +343,37 @@ public:
     //
 
     ble_error_t requestPairing(connection_handle_t connection) {
-        (void) connection;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            return pal.send_pairing_request(
+                connection,
+                io_capability,
+                entry->oob,
+                authentication,
+                max_key_size,
+                initiator_dist,
+                responder_dist
+            );
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     ble_error_t acceptPairingRequest(connection_handle_t connection) {
-        (void) connection;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            return pal.send_pairing_response(
+                connection,
+                io_capability,
+                entry->oob,
+                authentication,
+                max_key_size,
+                initiator_dist,
+                responder_dist
+            );
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     ble_error_t canceltPairingRequest(connection_handle_t connection) {
@@ -351,12 +381,35 @@ public:
     }
 
     ble_error_t requestAuthentication(connection_handle_t connection) {
-        (void) connection;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            if (entry->mitm) {
+                if (entry->authenticated) {
+                    return BLE_ERROR_NONE;
+                } else {
+                    pal.enable_encryption(connection);
+                }
+            } else {
+                /* don't change the default value of authentication */
+                AuthenticationMask connection_authentication = authentication;
+                connection_authentication.set_mitm(true);
+                return pal.send_pairing_request(
+                    connection,
+                    io_capability,
+                    entry->oob,
+                    authentication,
+                    max_key_size,
+                    initiator_dist,
+                    responder_dist
+                );
+            }
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        authorisationRequired = required;
+        pairing_authorisation_required = required;
         return BLE_ERROR_NONE;
     }
 
@@ -406,7 +459,16 @@ public:
     }
 
 protected:
-    GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl) {
+    GenericSecurityManager(ble::pal::SecurityManager& palImpl)
+        : pal(palImpl),
+          io_capability(0),
+          pairing_authorisation_required(false),
+          legacy_pairing_allowed(true),
+          authentication(0),
+          min_key_size(0),
+          max_key_size(128),
+          initiator_dist(0),
+          responder_dist(0) {
         _app_event_handler = &defaultEventHandler;
         pal.set_event_handler(this);
     }
@@ -416,20 +478,16 @@ private:
     SecurityDb db;
 
     SecurityIOCapabilities_t io_capability;
-    PasskeyNum displayPasskey;
+    PasskeyNum display_passkey;
 
-    bool mitm;
-    bool bondable;
-    bool authorisationRequired;
-    bool keypressNotification;
-    bool oobProvidesMitmProtection;
-    bool legacyPairingAllowed;
+    bool pairing_authorisation_required;
+    bool legacy_pairing_allowed;
 
-    authentication_t    authentication;
-    uint8_t             minKeySize;
-    uint8_t             maxKeySize;
-    key_distribution_t  initiatorDist;
-    key_distribution_t  responderDist;
+    AuthenticationMask  authentication;
+    uint8_t             min_key_size;
+    uint8_t             max_key_size;
+    key_distribution_t  initiator_dist;
+    key_distribution_t  responder_dist;
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
@@ -517,11 +575,11 @@ public:
     void on_accept_pairing_request(connection_handle_t connection,
                                    SecurityIOCapabilities_t iocaps,
                                    bool use_oob,
-                                   authentication_t authentication,
+                                   AuthenticationMask authentication,
                                    uint8_t max_key_size,
                                    key_distribution_t initiator_dist,
                                    key_distribution_t responder_dist) {
-        if (_app_event_handler && authorisationRequired) {
+        if (_app_event_handler && pairing_authorisation_required) {
             _app_event_handler->acceptPairingRequest(connection);
         }
     }
@@ -580,7 +638,7 @@ public:
     void on_ltk_request(connection_handle_t connection,
                         ediv_t &ediv,
                         rand_t &rand) {
-        db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::setLtkCb), ediv, rand);
+        db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::set_ltk_cb), ediv, rand);
     }
 
 private:
