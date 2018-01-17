@@ -20,60 +20,12 @@
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "ble/BLETypes.h"
-#include "ble/SafeEnum.h"
 #include "ble/BLEProtocol.h"
 #include "ble/SecurityManager.h"
 #include "ble/pal/GapTypes.h"
 
 namespace ble {
 namespace pal {
-
-/**
- * Type that describe the IO capability of a device; it is used during Pairing
- * Feature exchange.
- */
-struct io_capability_t : SafeEnum<io_capability_t, uint8_t> {
-    enum type {
-        DISPLAY_ONLY = 0x00,
-        DISPLAY_YES_NO = 0x01,
-        KEYBOARD_ONLY = 0x02,
-        NO_INPUT_NO_OUTPUT = 0x03,
-        KEYBOARD_DISPLAY = 0x04
-    };
-
-    /**
-     * Construct a new instance of io_capability_t.
-     */
-    io_capability_t(type value) : SafeEnum<io_capability_t, uint8_t>(value) { }
-};
-
-
-/**
- * Type that describe a pairing failure.
- */
-struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
-    enum type {
-        PASSKEY_ENTRY_FAILED = 0x01,
-        OOB_NOT_AVAILABLE = 0x02,
-        AUTHENTICATION_REQUIREMENTS = 0x03,
-        CONFIRM_VALUE_FAILED = 0x04,
-        PAIRING_NOT_SUPPORTED = 0x05,
-        ENCRYPTION_KEY_SIZE = 0x06,
-        COMMAND_NOT_SUPPORTED = 0x07,
-        UNSPECIFIED_REASON = 0x08,
-        REPEATED_ATTEMPTS = 0x09,
-        INVALID_PARAMETERS = 0x0A,
-        DHKEY_CHECK_FAILED = 0x0B,
-        NUMERIC_COMPARISON_FAILED = 0x0c,
-        BR_EDR_PAIRING_IN_PROGRESS = 0x0D,
-        CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED = 0x0E
-    };
-
-    /**
-     * Construct a new instance of pairing_failure_t.
-     */
-    pairing_failure_t(type value) : SafeEnum<pairing_failure_t, uint8_t>(value) { }
-};
 
 typedef SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
 typedef SecurityManager::SecurityMode_t SecurityMode_t;
@@ -106,7 +58,7 @@ enum KeyDistributionFlags_t {
 class AuthenticationMask {
 public:
     enum AuthenticationFlags_t {
-        AUTHENTICATION_BONDABLE                = 0x01,
+        AUTHENTICATION_BONDABLE               = 0x01,
         AUTHENTICATION_MITM                   = 0x04, /* 0x02 missing because bonding uses two bits */
         AUTHENTICATION_SECURE_CONNECTIONS     = 0x08,
         AUTHENTICATION_KEYPRESS_NOTIFICATION  = 0x10
@@ -176,6 +128,10 @@ public:
  */
 class SecurityManagerEventHandler {
 public:
+    ////////////////////////////////////////////////////////////////////////////
+    // Pairing
+    //
+
     /**
      * Called upon reception of a pairing request.
      *
@@ -204,27 +160,15 @@ public:
     ) = 0;
 
     /**
-     * Called when the application should display a passkey.
+     * To indicate that the pairing for the link has completed.
      */
-    virtual void on_passkey_display(
-        connection_handle_t connection, const passkey_num_t passkey
+    virtual void on_pairing_completed(
+        connection_handle_t connection
     ) = 0;
 
-    /**
-     * Request the passkey entered during pairing.
-     *
-     * @note shall be followed by: pal::SecurityManager::passkey_request_reply
-     * or a cancellation of the procedure.
-     */
-    virtual void on_passkey_request(connection_handle_t connection) = 0;
-
-    /**
-     * Request oob data entered during pairing
-     *
-     * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
-     * or a cancellation of the procedure.
-     */
-    virtual void on_oob_data_request(connection_handle_t connection) = 0;
+    ////////////////////////////////////////////////////////////////////////////
+    // Security
+    //
 
     /**
      * To indicate that a security procedure for the link has started.
@@ -234,14 +178,6 @@ public:
         bool allow_bonding,
         bool require_mitm,
         io_capability_t iocaps
-    ) = 0;
-
-    /**
-     * To indicate that the security procedure for the link has completed.
-     */
-    virtual void on_security_setup_completed(
-        connection_handle_t connection,
-        SecurityManager::SecurityCompletionStatus_t status
     ) = 0;
 
     /**
@@ -261,7 +197,31 @@ public:
      */
     virtual void on_valid_mic_timeout(connection_handle_t connection) = 0;
 
-    virtual void on_link_key_failure(connection_handle_t connection) = 0;
+    ////////////////////////////////////////////////////////////////////////////
+    // MITM
+    //
+
+    /**
+     * Called when the application should display a passkey.
+     */
+    virtual void on_passkey_display(
+        connection_handle_t connection, const passkey_num_t passkey
+    ) = 0;
+
+    /**
+     * To indicate user confirmation is require to confirm matching
+     * passkeys displayed on devices
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E, 7.7.42
+     */
+    virtual void on_confirmation_request(connection_handle_t connection) = 0;
+
+    /**
+     * Request the passkey entered during pairing.
+     *
+     * @note shall be followed by: pal::SecurityManager::passkey_request_reply
+     * or a cancellation of the procedure.
+     */
+    virtual void on_passkey_request(connection_handle_t connection) = 0;
 
     /**
      * To indicate that the peer has pressed a button
@@ -275,11 +235,17 @@ public:
     virtual void on_legacy_pariring_oob_request(connection_handle_t connection) = 0;
 
     /**
-     * To indicate user confirmation is require to confirm matching
-     * passkeys displayed on devices
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E, 7.7.42
+     * Request oob data entered during pairing
+     *
+     * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
+     * or a cancellation of the procedure.
      */
-    virtual void on_confirmation_request(connection_handle_t connection) = 0;
+    virtual void on_oob_data_request(connection_handle_t connection) = 0;
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Keys
+    //
 
     virtual void on_keys_distributed(
         connection_handle_t handle,

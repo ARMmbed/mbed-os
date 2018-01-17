@@ -21,6 +21,7 @@
 #include "PalSecurityManager.h"
 #include "Callback.h"
 #include "ble/pal/GapTypes.h"
+#include "ble/BLETypes.h"
 
 namespace ble {
 namespace generic {
@@ -36,6 +37,7 @@ using ble::pal::rand_t;
 using ble::pal::pairing_failure_t;
 using ble::pal::AuthenticationMask::AuthenticationFlags_t;
 using ble::pal::AuthenticationMask;
+using ble::pairing_failure_t;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class PasskeyNum {
@@ -491,6 +493,39 @@ private:
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Pairing
+    //
+
+    void on_pairing_request(connection_handle_t connection,
+                            SecurityIOCapabilities_t iocaps,
+                            bool use_oob,
+                            AuthenticationMask authentication,
+                            uint8_t max_key_size,
+                            key_distribution_t initiator_dist,
+                            key_distribution_t responder_dist) {
+        if (_app_event_handler && pairing_authorisation_required) {
+            _app_event_handler->acceptPairingRequest(connection);
+        }
+    }
+
+    void on_pairing_error(connection_handle_t connection, pairing_failure_t error) {
+        if (_app_event_handler) {
+            _app_event_handler->pairingError(connection, error);
+        }
+    }
+
+    void on_pairing_completed(connection_handle_t connection) {
+        if (_app_event_handler) {
+            _app_event_handler->pairingCompleted(connection);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Security
+    //
+
     void on_security_setup_initiated(connection_handle_t connection,
                                      bool allow_bonding,
                                      bool require_mitm,
@@ -499,28 +534,11 @@ public:
             _app_event_handler->securitySetupInitiated(connection, allow_bonding, require_mitm, iocaps);
         }
     }
-    void on_security_setup_completed(connection_handle_t connection,
-                                     SecurityManager::SecurityCompletionStatus_t status) {
-        if (_app_event_handler) {
-            _app_event_handler->securitySetupCompleted(connection, status);
-        }
-    }
+
     void on_link_secured(connection_handle_t connection,
                          SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(connection, security_mode);
-        }
-    }
-
-    void on_security_context_stored(connection_handle_t connection) {
-        if (_app_event_handler) {
-            _app_event_handler->securityContextStored(connection);
-        }
-    }
-    void on_passkey_display(connection_handle_t connection,
-                            const SecurityManager::Passkey_t passkey) {
-        if (_app_event_handler) {
-            _app_event_handler->passkeyDisplay(connection, passkey);
         }
     }
 
@@ -530,9 +548,21 @@ public:
         }
     }
 
-    void on_link_key_failure(connection_handle_t connection) {
+    /* TODO: this appears to be redundant */
+    void on_security_context_stored(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->linkKeyFailure(connection);
+            _app_event_handler->securityContextStored(connection);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MITM
+    //
+
+    void on_passkey_display(connection_handle_t connection,
+                            const SecurityManager::Passkey_t passkey) {
+        if (_app_event_handler) {
+            _app_event_handler->passkeyDisplay(connection, passkey);
         }
     }
 
@@ -540,6 +570,19 @@ public:
                                   SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(connection, keypress);
+        }
+    }
+
+    void on_passkey_request(connection_handle_t connection) {
+
+        if (_app_event_handler) {
+            _app_event_handler->passkeyRequest(connection);
+        }
+    }
+
+    void on_confirmation_request(connection_handle_t connection) {
+        if (_app_event_handler) {
+            _app_event_handler->confirmationRequest(connection);
         }
     }
 
@@ -554,35 +597,10 @@ public:
             _app_event_handler->oobRequest(connection);
         }
     }
-    void on_pin_request(connection_handle_t connection) {
 
-        if (_app_event_handler) {
-            _app_event_handler->pinRequest(connection);
-        }
-    }
-    void on_passkey_request(connection_handle_t connection) {
-
-        if (_app_event_handler) {
-            _app_event_handler->passkeyRequest(connection);
-        }
-    }
-    void on_confirmation_request(connection_handle_t connection) {
-
-        if (_app_event_handler) {
-            _app_event_handler->confirmationRequest(connection);
-        }
-    }
-    void on_accept_pairing_request(connection_handle_t connection,
-                                   SecurityIOCapabilities_t iocaps,
-                                   bool use_oob,
-                                   AuthenticationMask authentication,
-                                   uint8_t max_key_size,
-                                   key_distribution_t initiator_dist,
-                                   key_distribution_t responder_dist) {
-        if (_app_event_handler && pairing_authorisation_required) {
-            _app_event_handler->acceptPairingRequest(connection);
-        }
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // Keys
+    //
 
     void on_keys_distributed(connection_handle_t connection,
                              advertising_peer_address_type_t peer_address_type,

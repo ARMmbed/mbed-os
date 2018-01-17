@@ -21,11 +21,13 @@
 
 #include "Gap.h"
 #include "CallChainOfFunctionPointersWithContext.h"
+#include "ble/BLETypes.h"
 
 class SecurityManagerEventHandler;
 class LegacySecurityManagerEventHandler;
 
 using ble::connection_handle_t;
+using ble::pairing_failure_t;
 
 class SecurityManager {
 public:
@@ -109,60 +111,82 @@ public:
         SecurityManagerEventHandler() {};
         virtual ~SecurityManagerEventHandler() {};
 
+        ////////////////////////////////////////////////////////////////////////////
+        // Pairing
+        //
+
+        virtual void acceptPairingRequest(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        virtual void pairingError(connection_handle_t handle, pairing_failure_t error) {
+            (void)handle;
+        }
+
+        virtual void pairingCompleted(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Security
+        //
+
         virtual void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
             (void)handle;
             (void)allowBonding;
             (void)requireMITM;
             (void)iocaps;
-        };
-        virtual void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
-            (void)handle;
-            (void)status;
-        };
+        }
+
         virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
             (void)handle;
             (void)securityMode;
-        };
-        virtual void securityContextStored(connection_handle_t handle) {
-            (void)handle;
         }
-        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
-            (void)handle;
-            (void)passkey;
-        };
+
         virtual void validMicTimeout(connection_handle_t handle) {
             (void)handle;
-        };
-        virtual void linkKeyFailure(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
-            (void)handle;
-            (void)keypress;
-        };
-        virtual void legacyPairingOobRequest(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void oobRequest(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void pinRequest(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void passkeyRequest(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void confirmationRequest(connection_handle_t handle) {
-            (void)handle;
-        };
-        virtual void acceptPairingRequest(connection_handle_t handle) {
-            (void)handle;
-        };
+        }
+
         virtual void whitelistFromBondTable(Gap::Whitelist_t* whitelist) {
             if (whitelist) {
                 delete whitelist;
             }
-        };
+        }
+
+        /* TODO: this appears to be redundant */
+        virtual void securityContextStored(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // MITM
+        //
+
+        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+            (void)handle;
+            (void)passkey;
+        }
+
+        virtual void confirmationRequest(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        virtual void passkeyRequest(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+            (void)handle;
+            (void)keypress;
+        }
+
+        virtual void legacyPairingOobRequest(connection_handle_t handle) {
+            (void)handle;
+        }
+
+        virtual void oobRequest(connection_handle_t handle) {
+            (void)handle;
+        }
     };
 
 private:
@@ -176,26 +200,49 @@ private:
             securityContextStoredCallback(),
             passkeyDisplayCallback() { };
 
+        ////////////////////////////////////////////////////////////////////////////
+        // Pairing
+        //
+
+        void pairingError(connection_handle_t handle, pairing_failure_t error) {
+            if (securitySetupCompletedCallback) {
+                /* translate error codes to what the callback expects */
+                securitySetupCompletedCallback(handle, (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80));
+            }
+        }
+        void pairingCompleted(connection_handle_t handle) {
+            if (securitySetupCompletedCallback) {
+                securitySetupCompletedCallback(handle, SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS);
+            }
+        }
+
         void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
             if (securitySetupInitiatedCallback) {
                 securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
             }
         };
-        void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
-            if (securitySetupCompletedCallback) {
-                securitySetupCompletedCallback(handle, status);
-            }
-        };
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Security
+        //
+
         void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
             if (linkSecuredCallback) {
                 linkSecuredCallback(handle, securityMode);
             }
         };
+
+        /* TODO: this appears to be redundant */
         void securityContextStored(connection_handle_t handle) {
             if (securityContextStoredCallback) {
                 securityContextStoredCallback(handle);
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // MITM
+        //
+
         void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
             if (passkeyDisplayCallback) {
                 passkeyDisplayCallback(handle, passkey);
@@ -604,7 +651,14 @@ public:
     }
     /** @deprecated */
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
-        eventHandler->securitySetupCompleted(handle, status);
+        if (status & 0x80) {
+            pairing_failure_t error(status & ~0x80);
+            eventHandler->pairingError(handle, error);
+        } else if (status == SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS) {
+            eventHandler->pairingCompleted(handle);
+        } else {
+            eventHandler->pairingError(handle, pairing_failure_t::UNSPECIFIED_REASON);
+        }
     }
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {

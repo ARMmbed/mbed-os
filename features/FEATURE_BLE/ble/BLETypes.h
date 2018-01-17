@@ -19,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "ble/SafeEnum.h"
 
 /**
  * @addtogroup ble
@@ -116,6 +117,54 @@ static inline attribute_handle_range_t attribute_handle_range(
     };
     return result;
 }
+
+
+/**
+ * Type that describe a pairing failure.
+ */
+struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
+    enum type {
+        PASSKEY_ENTRY_FAILED = 0x01,
+        OOB_NOT_AVAILABLE = 0x02,
+        AUTHENTICATION_REQUIREMENTS = 0x03,
+        CONFIRM_VALUE_FAILED = 0x04,
+        PAIRING_NOT_SUPPORTED = 0x05,
+        ENCRYPTION_KEY_SIZE = 0x06,
+        COMMAND_NOT_SUPPORTED = 0x07,
+        UNSPECIFIED_REASON = 0x08,
+        REPEATED_ATTEMPTS = 0x09,
+        INVALID_PARAMETERS = 0x0A,
+        DHKEY_CHECK_FAILED = 0x0B,
+        NUMERIC_COMPARISON_FAILED = 0x0c,
+        BR_EDR_PAIRING_IN_PROGRESS = 0x0D,
+        CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED = 0x0E
+    };
+
+    /**
+     * Construct a new instance of pairing_failure_t.
+     */
+    pairing_failure_t(type value) : SafeEnum<pairing_failure_t, uint8_t>(value) { }
+};
+
+
+/**
+ * Type that describe the IO capability of a device; it is used during Pairing
+ * Feature exchange.
+ */
+struct io_capability_t : SafeEnum<io_capability_t, uint8_t> {
+    enum type {
+        DISPLAY_ONLY = 0x00,
+        DISPLAY_YES_NO = 0x01,
+        KEYBOARD_ONLY = 0x02,
+        NO_INPUT_NO_OUTPUT = 0x03,
+        KEYBOARD_DISPLAY = 0x04
+    };
+
+    /**
+     * Construct a new instance of io_capability_t.
+     */
+    io_capability_t(type value) : SafeEnum<io_capability_t, uint8_t>(value) { }
+};
 
 } // namespace ble
 
