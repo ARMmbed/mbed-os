@@ -63,9 +63,6 @@ public:
             passkey -= result;
         }
     }
-    PasskeyAsci& operator=(PasskeyNum& passkey) {
-        return PasskeyAsci(passkey);
-    }
     operator PasskeyNum() {
         return PasskeyNum(getNumber());
     }

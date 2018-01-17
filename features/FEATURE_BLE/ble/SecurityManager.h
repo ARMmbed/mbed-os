@@ -336,7 +336,14 @@ public:
     // Security settings
     //
 
-    virtual ble_error_t setPasskey(const Passkey_t passkey) {
+    /**
+     * Set the passkey that is displayed on the local device instead of using
+     * a randomly generated one
+     *
+     * @param passkey asci string of 6 digits
+     * @return
+     */
+    virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
