@@ -34,7 +34,6 @@ using ble::pal::csrk_t;
 using ble::pal::ltk_t;
 using ble::pal::ediv_t;
 using ble::pal::rand_t;
-using ble::pal::pairing_failure_t;
 using ble::pal::AuthenticationMask::AuthenticationFlags_t;
 using ble::pal::AuthenticationMask;
 using ble::pairing_failure_t;
