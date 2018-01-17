@@ -198,7 +198,7 @@ public:
                      SecurityIOCapabilities_t iocaps   = IO_CAPS_NONE,
                      const Passkey_t          passkey  = NULL) {
         db.restore();
-        io_capability = iocaps;
+        io_capability = io_capability_t(iocaps);
         display_passkey = PasskeyAsci::to_num(passkey);
         legacy_pairing_allowed = true;
 
@@ -277,7 +277,7 @@ public:
     ble_error_t getLinkSecurity(connection_handle_t connection,
                                 SecurityMode_t *securityMode) {
 
-        securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+        *securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
         return BLE_ERROR_NONE;
     }
 
@@ -478,7 +478,7 @@ private:
     ble::pal::SecurityManager& pal;
     SecurityDb db;
 
-    SecurityIOCapabilities_t io_capability;
+    io_capability_t io_capability;
     PasskeyNum display_passkey;
 
     bool pairing_authorisation_required;
@@ -498,7 +498,7 @@ public:
     //
 
     void on_pairing_request(connection_handle_t connection,
-                            SecurityIOCapabilities_t iocaps,
+                            io_capability_t iocaps,
                             bool use_oob,
                             AuthenticationMask authentication,
                             uint8_t max_key_size,
@@ -528,7 +528,7 @@ public:
     void on_security_setup_initiated(connection_handle_t connection,
                                      bool allow_bonding,
                                      bool require_mitm,
-                                     SecurityIOCapabilities_t iocaps) {
+                                     io_capability_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(connection, allow_bonding, require_mitm, iocaps);
         }
