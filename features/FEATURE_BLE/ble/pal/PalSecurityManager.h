@@ -338,9 +338,7 @@ public:
     // Feature support
     //
 
-    virtual ble_error_t get_secure_connections_support(
-        bool &enabled, bool &secure_connections_only
-    ) = 0;
+    virtual ble_error_t get_secure_connections_support(bool &enabled) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
