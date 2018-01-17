@@ -172,7 +172,7 @@ public:
 
     /**
      * To indicate that a security procedure for the link has started.
-     */
+     */ /*TODO: is this redundant with pairing request present? */
     virtual void on_security_setup_initiated(
         connection_handle_t connection,
         bool allow_bonding,
