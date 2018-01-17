@@ -198,9 +198,7 @@ static void default_idle_hook(void)
     if (ticks_to_sleep) {
         os_timer->schedule_tick(ticks_to_sleep);
 
-        sleep_manager_lock_deep_sleep();
         sleep();
-        sleep_manager_unlock_deep_sleep();
 
         os_timer->cancel_tick();
         // calculate how long we slept
