@@ -92,7 +92,7 @@ ble_error_t nRF5xSecurityManager::set_secure_connections_support(
 }
 
 ble_error_t nRF5xSecurityManager::get_secure_connections_support(
-    bool &enabled, bool &secure_connections_only
+    bool &enabled
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -264,7 +264,7 @@ nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
 
 bool nRF5xSecurityManager::sm_handler()
 {
-
+    return false;
 }
 
 } // nordic
