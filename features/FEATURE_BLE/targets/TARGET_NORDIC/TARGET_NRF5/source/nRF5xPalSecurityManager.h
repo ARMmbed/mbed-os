@@ -273,6 +273,10 @@ public:
     // Event handler
     // FIXME: set proper event handling type
     static bool sm_handler();
+
+private:
+    irk_t _irk;
+    csrk_t _csrk;
 };
 
 } // nordic
