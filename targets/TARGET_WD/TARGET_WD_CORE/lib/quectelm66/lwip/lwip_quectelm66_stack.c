@@ -47,6 +47,8 @@
 #define PPPOS_WRITE_TIMEOUT 1000
 #endif
 
+static bool lwip_inited = false;
+
 /* Static arena of sockets */
 static struct lwip_quectelm66_socket {
 	bool in_use;
@@ -539,6 +541,22 @@ static void ppp_notify_phase_cb(ppp_pcb *pcb, u8_t phase, void *ctx) {
 
 nsapi_error_t mbed_lwip_quectelm66_init(emac_interface_t *emac, const char* username, const char* password, pppos_context_t* ctx_cb)
 {
+
+	// Check if we've already brought up lwip
+    if (!lwip_inited) {
+
+		// Seed lwip random
+        lwip_seed_random();
+
+        // Initialise TCP sequence number
+        uint32_t tcp_isn_secret[4];
+        for (int i = 0; i < 4; i++) {
+            tcp_isn_secret[i] = LWIP_RAND();
+        }
+        lwip_init_tcp_isn(0, (u8_t *) &tcp_isn_secret);
+
+        lwip_inited = true;
+    }
 
 	sys_sem_new(&lwip_quectelm66_tcpip_inited, 0);
 	sys_sem_new(&lwip_quectelm66_netif_linked, 0);
