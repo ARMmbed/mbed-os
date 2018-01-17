@@ -223,9 +223,8 @@ public:
     // Feature support
     //
 
-
     ble_error_t allowLegacyPairing(bool allow = true) {
-        allowLegacyPairing = allow;
+        legacyPairingAllowed = allow;
         return BLE_ERROR_NONE;
     }
 
@@ -412,7 +411,7 @@ private:
     bool authorisationRequired;
     bool keypressNotification;
     bool oobProvidesMitmProtection;
-    bool allowLegacyPairing;
+    bool legacyPairingAllowed;
 
     authentication_t    authentication;
     uint8_t             minKeySize;
