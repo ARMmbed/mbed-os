@@ -241,11 +241,6 @@ class _ArmccParser(_Parser):
                     section = '.data'
                 elif test_re.group(3) == 'Zero':
                     section = '.bss'
-                elif test_re_armcc.group(3) == 'Code':
-                    section = '.text'
-                else:
-                    print "Malformed input found when parsing armcc map: %s, %r" %\
-                          (line, test_re_armcc.groups())
                 elif test_re.group(3) == 'Code':
                     section = '.text'
                 else:
