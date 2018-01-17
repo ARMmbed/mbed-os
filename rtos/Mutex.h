@@ -41,7 +41,7 @@ class Mutex;
  * @code
  * void foo(Mutex &m) {
  *     ScopedMutexLock lock(m);
- *     // Code in this block will be protected by Mutex lock
+ *     // Mutex lock protects code in this block
  * }
  * @endcode
  */
@@ -56,7 +56,7 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
  This is for example used to protect access to a shared resource.
 
  @note
- Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
+ Memory considerations: The mutex control structures will be created on current thread's stack, both for the Mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex : private mbed::NonCopyable<Mutex> {
