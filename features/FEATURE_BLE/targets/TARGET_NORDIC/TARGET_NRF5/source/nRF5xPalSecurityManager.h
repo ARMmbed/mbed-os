@@ -18,6 +18,7 @@
 #define NRF5X_PAL_SECURITY_MANAGER_
 
 #include "ble/pal/PalSecurityManager.h"
+#include "nrf_ble.h"
 
 namespace ble {
 namespace pal {
@@ -272,7 +273,7 @@ public:
 
     // Event handler
     // FIXME: set proper event handling type
-    static bool sm_handler();
+    static bool sm_handler(const ble_evt_t *evt);
 
 private:
     irk_t _irk;

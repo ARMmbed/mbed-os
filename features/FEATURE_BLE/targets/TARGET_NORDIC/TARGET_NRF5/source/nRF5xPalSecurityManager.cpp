@@ -15,6 +15,7 @@
  */
 
 #include "nRF5xPalSecurityManager.h"
+#include "nrf_ble.h"
 #include "nrf_ble_gap.h"
 
 namespace ble {
@@ -311,7 +312,10 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
 ) {
     // FIXME: there is no fixed function that can be used to cancel pairing all
     // the time. However sd_ble_gap_sec_params_reply should be used to cancel a
-    // pairing after a pairing request
+    // pairing after a pairing request.
+
+    // sd_ble_gap_auth_key_reply should be used to cancel pairing when a key
+    // entered by the user is required.
 
     uint32_t err = sd_ble_gap_sec_params_reply(
         connection,
@@ -394,9 +398,165 @@ nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
     return _security_manager;
 }
 
-bool nRF5xSecurityManager::sm_handler()
+bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
 {
-    return false;
+    SecurityManagerEventHandler* handler =
+        get_security_manager().get_event_handler();
+
+    if ((evt == NULL) || (handler == NULL)) {
+        return false;
+    }
+
+    const ble_gap_evt_t& gap_evt = evt->evt.gap_evt;
+    uint16_t connection = gap_evt.conn_handle;
+
+    switch (evt->header.evt_id) {
+        case BLE_GAP_EVT_SEC_PARAMS_REQUEST: {
+            const ble_gap_sec_params_t& params =
+                gap_evt.params.sec_params_request.peer_params;
+
+            authentication_t authentication_requirements =
+                params.bond |
+                params.mitm << 2 |
+                params.lesc << 3 |
+                params.keypress << 4;
+
+            key_distribution_t initiator_dist =
+                params.kdist_peer.enc |
+                params.kdist_peer.id << 1 |
+                params.kdist_peer.sign << 2 |
+                params.kdist_peer.link << 3;
+
+            key_distribution_t responder_dist =
+                params.kdist_own.enc |
+                params.kdist_own.id << 1 |
+                params.kdist_own.sign << 2 |
+                params.kdist_own.link << 3;
+
+            // FIXME: pass min key size
+            handler->on_pairing_request(
+                connection,
+                (io_capability_t::type) params.io_caps,
+                params.oob,
+                authentication_requirements,
+                params.max_key_size,
+                initiator_dist,
+                responder_dist
+            );
+            return true;
+        }
+
+        case BLE_GAP_EVT_SEC_INFO_REQUEST: {
+            const ble_gap_evt_sec_info_request_t& req =
+                gap_evt.params.sec_info_request;
+
+            handler->on_ltk_request(
+                connection,
+                req.master_id.ediv,
+                req.master_id.rand
+            );
+
+            return true;
+        }
+
+        case BLE_GAP_EVT_PASSKEY_DISPLAY: {
+            const ble_gap_evt_passkey_display_t& req =
+                gap_evt.params.passkey_display;
+
+            if (req.match_request == 0) {
+                handler->on_passkey_display(
+                    connection,
+                    0 /* TODO: conversion of req.passkey into a numerical passkey */
+                );
+            } else {
+                // handle this case for secure pairing
+            }
+
+            return true;
+        }
+
+        case BLE_GAP_EVT_KEY_PRESSED:
+            // TODO: add with LESC support
+            return true;
+
+        case BLE_GAP_EVT_AUTH_KEY_REQUEST: {
+            uint8_t key_type = gap_evt.params.auth_key_request.key_type;
+
+            switch (key_type) {
+                case BLE_GAP_AUTH_KEY_TYPE_NONE:
+                    break;
+
+                case BLE_GAP_AUTH_KEY_TYPE_PASSKEY:
+                    handler->on_passkey_request(connection);
+                    break;
+
+                case BLE_GAP_AUTH_KEY_TYPE_OOB:
+                    handler->on_oob_data_request(connection);
+                    break;
+            }
+
+            return true;
+        }
+
+        case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
+            // TODO: Add with LESC support
+            return true;
+
+        case BLE_GAP_EVT_AUTH_STATUS: {
+            const ble_gap_evt_auth_status_t& status =
+                gap_evt.params.auth_status;
+
+            switch (status.auth_status) {
+                case BLE_GAP_SEC_STATUS_SUCCESS:
+                    // FIXME: needs success handler
+                    break;
+                case BLE_GAP_SEC_STATUS_TIMEOUT:
+                    // FIXME: needs timeout handler
+                    break;
+
+                case BLE_GAP_SEC_STATUS_PASSKEY_ENTRY_FAILED:
+                case BLE_GAP_SEC_STATUS_OOB_NOT_AVAILABLE:
+                case BLE_GAP_SEC_STATUS_AUTH_REQ:
+                case BLE_GAP_SEC_STATUS_CONFIRM_VALUE:
+                case BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP:
+                case BLE_GAP_SEC_STATUS_ENC_KEY_SIZE:
+                case BLE_GAP_SEC_STATUS_SMP_CMD_UNSUPPORTED:
+                case BLE_GAP_SEC_STATUS_UNSPECIFIED:
+                case BLE_GAP_SEC_STATUS_REPEATED_ATTEMPTS:
+                case BLE_GAP_SEC_STATUS_INVALID_PARAMS:
+                case BLE_GAP_SEC_STATUS_DHKEY_FAILURE:
+                case BLE_GAP_SEC_STATUS_NUM_COMP_FAILURE:
+                case BLE_GAP_SEC_STATUS_BR_EDR_IN_PROG:
+                case BLE_GAP_SEC_STATUS_X_TRANS_KEY_DISALLOWED:
+                    handler->on_pairing_error(
+                        connection,
+                        (pairing_failure_t::type) (status.auth_status & 0xF)
+                    );
+                    break;
+
+                default:
+                    break;
+            }
+
+
+            return true;
+        }
+
+        case BLE_GAP_EVT_CONN_SEC_UPDATE:
+            // FIXME: Invoke handler indicating the link encryption
+            return true;
+
+        case BLE_GAP_EVT_TIMEOUT:
+            // FIXME: forward event when available
+            return true;
+
+        case BLE_GAP_EVT_SEC_REQUEST:
+            // FIXME: forward event when available
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 } // nordic
