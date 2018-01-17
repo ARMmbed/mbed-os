@@ -270,7 +270,7 @@ public:
     ble_error_t getLinkSecurity(connection_handle_t connection,
                                 SecurityMode_t *securityMode) {
 
-        securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+        *securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
         return BLE_ERROR_NONE;
     }
 
