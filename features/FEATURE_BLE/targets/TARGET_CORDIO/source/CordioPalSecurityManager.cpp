@@ -95,7 +95,7 @@ ble_error_t CordioSecurityManager::set_secure_connections_support(
 }
 
 ble_error_t CordioSecurityManager::get_secure_connections_support(
-    bool &enabled, bool &secure_connections_only
+    bool &enabled
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

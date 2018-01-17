@@ -98,7 +98,7 @@ public:
      * @see ::ble::pal::SecurityManager::get_secure_connections_support
      */
     virtual ble_error_t get_secure_connections_support(
-        bool &enabled, bool &secure_connections_only
+        bool &enabled
     );
 
     ////////////////////////////////////////////////////////////////////////////
