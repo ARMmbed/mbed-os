@@ -1,6 +1,6 @@
 {
   "name": "mbed-coap",
-  "version": "4.0.11",
+  "version": "4.1.0",
   "description": "COAP library",
   "keywords": [
     "coap",
