@@ -69,7 +69,7 @@ public:
         }
     }
     operator PasskeyNum() {
-        return PasskeyNum(get_number());
+        return PasskeyNum(to_num(asci));
     }
 
     static uint32_t to_num(const uint8_t* asci) {
@@ -78,10 +78,6 @@ public:
             passkey += (asci[i] - NUMBER_OFFSET) * m;
         }
         return passkey;
-    }
-private:
-    uint32_t get_number() {
-        return to_num(asci);
     }
     uint8_t asci[SecurityManager::PASSKEY_LEN];
 };
