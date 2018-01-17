@@ -28,11 +28,7 @@ The [release notes](https://os.mbed.com/releases) detail the current release. Yo
 
 ## Getting started for developers
  
-<<<<<<< HEAD
-We have a [developer webiste](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
-=======
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
->>>>>>> upstream/mbed-os-5.7
 
 ## Getting started for contributors
  
