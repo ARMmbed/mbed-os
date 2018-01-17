@@ -68,16 +68,16 @@ public:
         }
     }
     operator PasskeyNum() {
-        return PasskeyNum(getNumber());
+        return PasskeyNum(get_number());
     }
-private:
-    uint32_t getNumber() {
+    uint32_t get_number() {
         uint32_t passkey = 0;
         for (int i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
             passkey += (asci[i] - NUMBER_OFFSET) * m;
         }
         return passkey;
     }
+private:
     uint8_t asci[SecurityManager::PASSKEY_LEN];
 };
 
@@ -196,7 +196,6 @@ public:
 
     ble_error_t reset(void) {
         db.sync();
-
         SecurityManager::reset();
 
         return BLE_ERROR_NONE;
@@ -370,7 +369,7 @@ public:
     }
 
     virtual ble_error_t passkeyEntered(connection_handle_t connection, Passkey_t passkey) {
-        return pal.passkey_request_reply(connection, passkey);
+        return pal.passkey_request_reply(connection, PasskeyAsci(passkey).get_number());
     }
 
     virtual ble_error_t sendKeypressNotification(connection_handle_t connection, Keypress_t keypress) {
