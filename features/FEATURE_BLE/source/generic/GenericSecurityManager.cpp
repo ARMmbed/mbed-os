@@ -62,7 +62,7 @@ public:
         memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
     }
     PasskeyAsci(const PasskeyNum& passkey) {
-        for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
+        for (size_t i = 5, m = 100000; i >= 0; --i, m /= 10) {
             uint32_t result = passkey.number / m;
             asci[i] = NUMBER_OFFSET + result;
             passkey.number -= result;
@@ -71,14 +71,18 @@ public:
     operator PasskeyNum() {
         return PasskeyNum(get_number());
     }
-    uint32_t get_number() {
+
+    static uint32_t to_num(const uint8_t* asci) {
         uint32_t passkey = 0;
-        for (int i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
+        for (size_t i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
             passkey += (asci[i] - NUMBER_OFFSET) * m;
         }
         return passkey;
     }
 private:
+    uint32_t get_number() {
+        return to_num(asci);
+    }
     uint8_t asci[SecurityManager::PASSKEY_LEN];
 };
 
@@ -385,7 +389,7 @@ public:
                                        Passkey_t passkey) {
         return pal.passkey_request_reply(
             connection,
-            PasskeyAsci(passkey).get_number()
+            PasskeyAsci::to_num(passkey)
         );
     }
 
@@ -406,7 +410,7 @@ public:
     }
 
 protected:
-    GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
+    GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl) {
         _app_event_handler = &defaultEventHandler;
         pal.set_event_handler(this);
     }
