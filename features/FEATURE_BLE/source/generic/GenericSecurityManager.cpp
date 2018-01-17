@@ -155,7 +155,7 @@ public:
                       csrk_t &csrk);
 
     void remove_entry(SecurityEntry_t&);
-    void clear_entries(SecurityEntry_t&);
+    void clear_entries();
 
     void get_whitelist(WhitelistDbCb_t cb);
 
@@ -164,6 +164,10 @@ public:
 
     void remove_whitelist_entry(address_t);
     void clear_whitelist();
+
+    void restore();
+    void sync();
+    void setRestore(bool reload);
 private:
 
 };
@@ -178,7 +182,7 @@ public:
                      bool                     initMITM     = true,
                      SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
                      const Passkey_t          initPasskey  = NULL) {
-        loadState();
+        db.restore();
         bondable = initBondable;
         mitm = initMITM;
         iocaps = initIocaps;
@@ -188,7 +192,7 @@ public:
     }
 
     ble_error_t reset(void) {
-        saveState();
+        db.sync();
 
         SecurityManager::reset();
 
@@ -196,19 +200,13 @@ public:
     }
 
     void saveState() {
-        if (saveStateEnabled) {
-            /*save lists */
-        }
     }
 
     void loadState() {
-        if (saveStateEnabled) {
-            /*load lists */
-        }
     }
 
     ble_error_t preserveBondingStateOnReset(bool enabled) {
-        saveStateEnabled = enabled;
+        db.setRestore(enabled);
         return BLE_ERROR_NONE;
     }
 
@@ -217,15 +215,18 @@ public:
     //
 
     ble_error_t purgeAllBondingState(void) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        db.clear_entries();
+        return BLE_ERROR_NONE;
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
 
-    ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
-        return pal.set_secure_connections_support(enabled, secure_connections_only);
+
+    ble_error_t allowLegacyPairing(bool allow = true) {
+        allowLegacyPairing = allow;
+        return BLE_ERROR_NONE;
     }
 
     ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
@@ -404,12 +405,14 @@ private:
     SecurityDb db;
 
     SecurityIOCapabilities_t iocaps;
-    PasskeyNum               passkey;
-    bool                     mitm;
-    bool                     bondable;
-    bool                     authorisationRequired;
-    bool                     keypressNotification;
-    bool                     oobProvidesMitmProtection;
+    PasskeyNum passkey;
+
+    bool mitm;
+    bool bondable;
+    bool authorisationRequired;
+    bool keypressNotification;
+    bool oobProvidesMitmProtection;
+    bool allowLegacyPairing;
 
     authentication_t    authentication;
     uint8_t             minKeySize;
