@@ -39,10 +39,11 @@ typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class PasskeyNum {
 public:
+    PasskeyNum() : number(0) { }
+    PasskeyNum(uint32_t num) : number(num) { }
     operator uint32_t() {
         return number;
     }
-private:
     uint32_t number;
 };
 
@@ -50,7 +51,7 @@ class PasskeyAsci {
 public:
     static const uint8_t NUMBER_OFFSET = '0';
 
-    PasskeyAsci(uint8_t* passkey) {
+    PasskeyAsci(const uint8_t* passkey) {
         if (passkey) {
             memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
         } else {
@@ -62,9 +63,9 @@ public:
     }
     PasskeyAsci(const PasskeyNum& passkey) {
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
-            uint32_t result = passkey / m;
+            uint32_t result = passkey.number / m;
             asci[i] = NUMBER_OFFSET + result;
-            passkey -= result;
+            passkey.number -= result;
         }
     }
     operator PasskeyNum() {
@@ -198,7 +199,7 @@ public:
         db.restore();
         bondable = initBondable;
         mitm = initMITM;
-        iocaps = initIocaps;
+        io_capability = initIocaps;
         displayPasskey = PasskeyAsci(initPasskey);
         legacyPairingAllowed = true;
 
@@ -319,7 +320,7 @@ public:
     //
 
     /**
-     * Returns the requested LTK to the PAL.
+     * Returns the requested LTK to the PAL. Called by the security db.
      *
      * @param entry security entry returned by the database.
      * @param entryKeys security entry containing keys.
@@ -334,7 +335,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
-
 
     ble_error_t requestPairing(connection_handle_t connection) {
         (void) connection;
@@ -415,7 +415,7 @@ private:
     ble::pal::SecurityManager& pal;
     SecurityDb db;
 
-    SecurityIOCapabilities_t iocaps;
+    SecurityIOCapabilities_t io_capability;
     PasskeyNum displayPasskey;
 
     bool mitm;
