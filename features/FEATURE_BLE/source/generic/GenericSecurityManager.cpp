@@ -146,7 +146,6 @@ public:
     void get_entry_keys(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
     void get_entry_identityt(SecurityEntryIdentityDbCb_t cb, address_t identity_address);
 
-    void update_entry(SecurityEntry_t&);
     void update_entry(connection_handle_t connection,
                       bool address_is_public,
                       address_t &peer_address,
@@ -155,6 +154,18 @@ public:
                       ltk_t &ltk,
                       irk_t &irk,
                       csrk_t &csrk);
+    void update_entry_ltk(connection_handle_t connection,
+                          ltk_t &ltk);
+    void update_entry_ediv_rand(connection_handle_t connection,
+                                ediv_t &ediv,
+                                rand_t &rand);
+    void update_entry_irk(connection_handle_t connection,
+                          irk_t &irk);
+    void update_entry_bdaddr(connection_handle_t connection,
+                             bool address_is_public,
+                             address_t &peer_address);
+    void update_entry_csrk(connection_handle_t connection,
+                           csrk_t &csrk);
 
     void remove_entry(SecurityEntry_t&);
     void clear_entries();
@@ -353,7 +364,8 @@ public:
     // MITM
     //
 
-    ble_error_t setOOBDataUsage(connection_handle_t connection, bool useOOB, bool OOBProvidesMITM = true) {
+    ble_error_t setOOBDataUsage(connection_handle_t connection,
+                                bool useOOB, bool OOBProvidesMITM = true) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             entry->oob = useOOB;
@@ -364,15 +376,21 @@ public:
         }
     }
 
-    virtual ble_error_t confirmationEntered(connection_handle_t connection, bool confirmation) {
+    virtual ble_error_t confirmationEntered(connection_handle_t connection,
+                                            bool confirmation) {
         return pal.confirmation_entered(connection, confirmation);
     }
 
-    virtual ble_error_t passkeyEntered(connection_handle_t connection, Passkey_t passkey) {
-        return pal.passkey_request_reply(connection, PasskeyAsci(passkey).get_number());
+    virtual ble_error_t passkeyEntered(connection_handle_t connection,
+                                       Passkey_t passkey) {
+        return pal.passkey_request_reply(
+            connection,
+            PasskeyAsci(passkey).get_number()
+        );
     }
 
-    virtual ble_error_t sendKeypressNotification(connection_handle_t connection, Keypress_t keypress) {
+    virtual ble_error_t sendKeypressNotification(connection_handle_t connection,
+                                                 Keypress_t keypress) {
         return pal.send_keypress_notification(connection, keypress);
     }
 
@@ -395,8 +413,6 @@ protected:
 
 private:
     ble::pal::SecurityManager& pal;
-    bool saveStateEnabled;
-
     SecurityDb db;
 
     SecurityIOCapabilities_t iocaps;
@@ -417,92 +433,97 @@ private:
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
-   void on_security_setup_initiated(connection_handle_t connection, bool allow_bonding,
-                                          bool require_mitm, SecurityIOCapabilities_t iocaps) {
+    void on_security_setup_initiated(connection_handle_t connection,
+                                     bool allow_bonding,
+                                     bool require_mitm,
+                                     SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(connection, allow_bonding, require_mitm, iocaps);
         }
     }
-   void on_security_setup_completed(connection_handle_t connection,
-                                          SecurityManager::SecurityCompletionStatus_t status) {
+    void on_security_setup_completed(connection_handle_t connection,
+                                     SecurityManager::SecurityCompletionStatus_t status) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupCompleted(connection, status);
         }
     }
-   void on_link_secured(connection_handle_t connection, SecurityManager::SecurityMode_t security_mode) {
+    void on_link_secured(connection_handle_t connection,
+                         SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(connection, security_mode);
         }
     }
 
-   void on_security_context_stored(connection_handle_t connection) {
+    void on_security_context_stored(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->securityContextStored(connection);
         }
     }
-   void on_passkey_display(connection_handle_t connection, const SecurityManager::Passkey_t passkey) {
+    void on_passkey_display(connection_handle_t connection,
+                            const SecurityManager::Passkey_t passkey) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(connection, passkey);
         }
     }
 
-   void on_valid_mic_timeout(connection_handle_t connection) {
+    void on_valid_mic_timeout(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->validMicTimeout(connection);
         }
     }
 
-   void on_link_key_failure(connection_handle_t connection) {
+    void on_link_key_failure(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->linkKeyFailure(connection);
         }
     }
 
-   void on_keypress_notification(connection_handle_t connection, SecurityManager::Keypress_t keypress) {
+    void on_keypress_notification(connection_handle_t connection,
+                                  SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(connection, keypress);
         }
     }
 
-   void on_legacy_pariring_oob_request(connection_handle_t connection) {
+    void on_legacy_pariring_oob_request(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->legacyPairingOobRequest(connection);
         }
     }
 
-   void on_oob_request(connection_handle_t connection) {
+    void on_oob_request(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->oobRequest(connection);
         }
     }
-   void on_pin_request(connection_handle_t connection) {
+    void on_pin_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
             _app_event_handler->pinRequest(connection);
         }
     }
-   void on_passkey_request(connection_handle_t connection) {
+    void on_passkey_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
             _app_event_handler->passkeyRequest(connection);
         }
     }
-   void on_confirmation_request(connection_handle_t connection) {
+    void on_confirmation_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
             _app_event_handler->confirmationRequest(connection);
         }
     }
-   void on_accept_pairing_request(connection_handle_t connection,
-                                        SecurityIOCapabilities_t iocaps,
-                                        bool use_oob,
-                                        authentication_t authentication,
-                                        uint8_t max_key_size,
-                                        key_distribution_t initiator_dist,
-                                        key_distribution_t responder_dist) {
-       if (_app_event_handler && authorisationRequired) {
+    void on_accept_pairing_request(connection_handle_t connection,
+                                   SecurityIOCapabilities_t iocaps,
+                                   bool use_oob,
+                                   authentication_t authentication,
+                                   uint8_t max_key_size,
+                                   key_distribution_t initiator_dist,
+                                   key_distribution_t responder_dist) {
+        if (_app_event_handler && authorisationRequired) {
             _app_event_handler->acceptPairingRequest(connection);
-       }
+        }
     }
 
     void on_keys_distributed(connection_handle_t connection,
@@ -525,39 +546,37 @@ public:
         );
     }
 
-    virtual void on_keys_distributed_ltk(
-        connection_handle_t connection,
-        ltk_t &ltk
-    ) = 0;
+    void on_keys_distributed_ltk(connection_handle_t connection,
+                                 ltk_t &ltk) {
+        db.update_entry_ltk(connection, ltk);
+    }
 
-    virtual void on_keys_distributed_ediv_rand(
-        connection_handle_t connection,
-        ediv_t &ediv,
-        rand_t &rand
-    ) = 0;
+    void on_keys_distributed_ediv_rand(connection_handle_t connection,
+                                       ediv_t &ediv,
+                                       rand_t &rand) {
+        db.update_entry_ediv_rand(connection, ediv, rand);
+    }
 
-    virtual void on_keys_distributed_irk(
-        connection_handle_t connection,
-        irk_t &irk
-    ) = 0;
+    void on_keys_distributed_irk(connection_handle_t connection,
+                                 irk_t &irk) {
+        db.update_entry_irk(connection, irk);
+    }
 
-    virtual void on_keys_distributed_bdaddr(
-        connection_handle_t connection,
-        advertising_peer_address_type_t peer_identity_address_type,
-        address_t &peer_identity_address
-    ) = 0;
+    void on_keys_distributed_bdaddr(connection_handle_t connection,
+                                    advertising_peer_address_type_t peer_identity_address_type,
+                                    address_t &peer_identity_address) {
+        db.update_entry_bdaddr(connection, peer_identity_address_type, peer_identity_address);
+    }
 
-    virtual void on_keys_distributed_csrk(
-        connection_handle_t connection,
-        csrk_t &csrk
-    ) = 0;
+    void on_keys_distributed_csrk(connection_handle_t connection,
+                                  csrk_t &csrk) {
+        db.update_entry_csr(connection, csrk);
+    }
 
-    void on_ltk_request(connection_handle_t connection, ediv_t &ediv, rand_t &rand) {
-        db.get_entry_keys(
-            mbed::callback(this, &GenericSecurityManager::setLtkCb),
-            ediv,
-            rand
-        );
+    void on_ltk_request(connection_handle_t connection,
+                        ediv_t &ediv,
+                        rand_t &rand) {
+        db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::setLtkCb), ediv, rand);
     }
 
 private:
