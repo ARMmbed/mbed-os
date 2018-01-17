@@ -187,6 +187,7 @@ public:
         mitm = initMITM;
         iocaps = initIocaps;
         passkey = PasskeyAsci(initPasskey);
+        legacyPairingAllowed = true;
 
         return BLE_ERROR_NONE;
     }
@@ -197,12 +198,6 @@ public:
         SecurityManager::reset();
 
         return BLE_ERROR_NONE;
-    }
-
-    void saveState() {
-    }
-
-    void loadState() {
     }
 
     ble_error_t preserveBondingStateOnReset(bool enabled) {
@@ -228,8 +223,8 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
-        return pal.get_secure_connections_support(*enabled, *secure_connections_only);
+    ble_error_t getSecureConnectionsSupport(bool *enabled) {
+        return pal.get_secure_connections_support(*enabled);
     }
 
     ////////////////////////////////////////////////////////////////////////////
