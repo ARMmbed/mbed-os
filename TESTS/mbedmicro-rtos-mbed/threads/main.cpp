@@ -25,6 +25,10 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define THREAD_STACK_SIZE 512
 #define PARALLEL_THREAD_STACK_SIZE 384
 #define CHILD_THREAD_STACK_SIZE 384
