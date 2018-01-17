@@ -1473,6 +1473,26 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
+	"WISE_1510": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L443xC", "STM32L443RC"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "overrides": {"lse_available": 0},
+        "release_versions": ["5"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_name" : "STM32L443RC",
+        "detect_code": ["0458"],
+        "bootloader_supported": true
+    },
     "NUCLEO_L476RG": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
