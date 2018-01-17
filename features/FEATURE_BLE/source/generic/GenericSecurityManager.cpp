@@ -528,7 +528,7 @@ public:
 
     void on_keys_distributed(connection_handle_t connection,
                              advertising_peer_address_type_t peer_address_type,
-                             address_t &peer_address,
+                             address_t &peer_identity_address,
                              ediv_t &ediv,
                              rand_t &rand,
                              ltk_t &ltk,
@@ -537,7 +537,7 @@ public:
         db.update_entry(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
-            peer_address,
+            peer_identity_address,
             ediv,
             rand,
             ltk,
@@ -563,14 +563,18 @@ public:
     }
 
     void on_keys_distributed_bdaddr(connection_handle_t connection,
-                                    advertising_peer_address_type_t peer_identity_address_type,
+                                    advertising_peer_address_type_t peer_address_type,
                                     address_t &peer_identity_address) {
-        db.update_entry_bdaddr(connection, peer_identity_address_type, peer_identity_address);
+        db.update_entry_bdaddr(
+            connection,
+            (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
+            peer_identity_address
+        );
     }
 
     void on_keys_distributed_csrk(connection_handle_t connection,
                                   csrk_t &csrk) {
-        db.update_entry_csr(connection, csrk);
+        db.update_entry_csrk(connection, csrk);
     }
 
     void on_ltk_request(connection_handle_t connection,
