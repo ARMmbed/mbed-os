@@ -31,7 +31,7 @@ namespace mbed {
  *
  * @tparam Lockable The type implementing BasicLockable concept
  *
- * @note For type Lockable to be BasicLockable the following conditions have to be satisfied:
+ * @note For type Lockable to be BasicLockable, the following conditions have to be satisfied:
  *        - has public member function @a lock which blocks until a lock can be obtained for the current execution context
  *        - has public member function @a unlock which releases the lock
  *
@@ -42,7 +42,7 @@ namespace mbed {
  * @code
  * void foo(Mutex &m) {
  *     ScopedLock<Mutex> lock(m);
- *     // Code in this block will be protected by Mutex lock
+ *     // Mutex lock protects code in this block
  * }
  * @endcode
  *
@@ -53,7 +53,7 @@ namespace mbed {
  * template<typename Lockable>
  * void foo(Lockable& lockable) {
  *     ScopedLock<Lockable> lock(lockable);
- *     // Code in this block will run under lock
+ *     // Code in this block runs under lock
  * }
  * @endcode
  */
