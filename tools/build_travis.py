@@ -88,6 +88,9 @@ build_list = [
         { "target": "DISCO_L475VG_IOT01A", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L476VG",        "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+
+        # module manufacturer : muRata
+        { "target": "CMWX1ZZABZ_078",    "toolchains": "GCC_ARM", "libs": [] },
         ),
     },
 
@@ -314,6 +317,11 @@ linking_list = [
                        }
              },
             {"target": "DISCO_L072CZ_LRWAN1",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
+            {"target": "CMWX1ZZABZ_078",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                       }
