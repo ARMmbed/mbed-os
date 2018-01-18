@@ -743,7 +743,7 @@
     "MCU_LPC546XX": {    
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54618J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
@@ -759,7 +759,6 @@
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
-        "extra_labels_add" : ["LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
         "detect_code": ["8081"]
     },
