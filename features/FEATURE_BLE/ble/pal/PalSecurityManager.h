@@ -44,6 +44,51 @@ typedef uint8_t rand_t[2];
 typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
+class PasskeyNum {
+public:
+    PasskeyNum() : number(0) { }
+    PasskeyNum(uint32_t num) : number(num) { }
+    operator uint32_t() {
+        return number;
+    }
+    uint32_t number;
+};
+
+class PasskeyAsci {
+public:
+    static const uint8_t NUMBER_OFFSET = '0';
+
+    PasskeyAsci(const uint8_t* passkey) {
+        if (passkey) {
+            memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
+        } else {
+            memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
+        }
+    }
+    PasskeyAsci() {
+        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
+    }
+    PasskeyAsci(const PasskeyNum& passkey) {
+        for (size_t i = 5, m = 100000; i >= 0; --i, m /= 10) {
+            uint32_t result = passkey.number / m;
+            asci[i] = NUMBER_OFFSET + result;
+            passkey.number -= result;
+        }
+    }
+    operator PasskeyNum() {
+        return PasskeyNum(to_num(asci));
+    }
+
+    static uint32_t to_num(const uint8_t* asci) {
+        uint32_t passkey = 0;
+        for (size_t i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
+            passkey += (asci[i] - NUMBER_OFFSET) * m;
+        }
+        return passkey;
+    }
+    uint8_t asci[SecurityManager::PASSKEY_LEN];
+};
+
 class KeyDistribution {
 public:
     enum KeyDistributionFlags_t {
@@ -242,13 +287,11 @@ public:
     //
 
     /**
-     * To indicate that the link with the peer is secured. For bonded devices,
-     * subsequent reconnections with a bonded peer will result only in this callback
-     * when the link is secured; setup procedures will not occur (unless the
-     * bonding information is either lost or deleted on either or both sides).
+     * reports change of encryption status or result of encryption request
      */
-    virtual void on_link_secured(
-        connection_handle_t connection, SecurityManager::SecurityMode_t security_mode
+    virtual void on_link_encryption_result(
+        connection_handle_t connection,
+        bool encrypted
     ) = 0;
 
     /**
@@ -266,7 +309,8 @@ public:
      * Called when the application should display a passkey.
      */
     virtual void on_passkey_display(
-        connection_handle_t connection, const passkey_num_t passkey
+        connection_handle_t connection,
+        const passkey_num_t passkey
     ) = 0;
 
     /**
@@ -426,15 +470,23 @@ public:
 
     virtual ble_error_t get_secure_connections_support(bool &enabled) = 0;
 
+    virtual ble_error_t set_io_capability(io_capability_t io_capability) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
+
     virtual ble_error_t set_authentication_timeout(
         connection_handle_t, uint16_t timeout_in_10ms
     ) = 0;
 
     virtual ble_error_t get_authentication_timeout(
         connection_handle_t, uint16_t &timeout_in_10ms
+    ) = 0;
+
+    virtual ble_error_t set_encryption_key_requirements(
+        uint16_t min_encryption_key_bitsize,
+        uint16_t max_encryption_key_bitsize
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -444,10 +496,6 @@ public:
     virtual ble_error_t enable_encryption(connection_handle_t connection) = 0;
 
     virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
-
-    virtual ble_error_t get_encryption_status(
-        connection_handle_t connection, LinkSecurityStatus_t &status
-    ) = 0;
 
     virtual ble_error_t get_encryption_key_size(
         connection_handle_t, uint8_t &bitsize
@@ -492,10 +540,8 @@ public:
      */
     virtual ble_error_t send_pairing_request(
         connection_handle_t connection,
-        io_capability_t io_capability,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
-        uint8_t maximum_encryption_key_size,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     );
@@ -507,10 +553,8 @@ public:
      */
     virtual ble_error_t send_pairing_response(
         connection_handle_t connection,
-        io_capability_t io_capability,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
-        uint8_t maximum_encryption_key_size,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) = 0;
@@ -538,6 +582,8 @@ public:
     // MITM
     //
 
+    virtual void set_display_passkey(const passkey_num_t passkey) = 0;
+
     /**
      * Reply to a passkey request received from the SecurityManagerEventHandler.
      */
@@ -551,7 +597,6 @@ public:
     virtual ble_error_t oob_data_request_reply(
         connection_handle_t connection, const oob_data_t& oob_data
     ) = 0;
-
 
     virtual ble_error_t confirmation_entered(
         connection_handle_t connection, bool confirmation

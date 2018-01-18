@@ -37,52 +37,9 @@ using ble::pal::AuthenticationMask::AuthenticationFlags_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
+using ble::PasskeyAsci;
+using ble::PasskeyNum;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
-
-class PasskeyNum {
-public:
-    PasskeyNum() : number(0) { }
-    PasskeyNum(uint32_t num) : number(num) { }
-    operator uint32_t() {
-        return number;
-    }
-    uint32_t number;
-};
-
-class PasskeyAsci {
-public:
-    static const uint8_t NUMBER_OFFSET = '0';
-
-    PasskeyAsci(const uint8_t* passkey) {
-        if (passkey) {
-            memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
-        } else {
-            memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
-        }
-    }
-    PasskeyAsci() {
-        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
-    }
-    PasskeyAsci(const PasskeyNum& passkey) {
-        for (size_t i = 5, m = 100000; i >= 0; --i, m /= 10) {
-            uint32_t result = passkey.number / m;
-            asci[i] = NUMBER_OFFSET + result;
-            passkey.number -= result;
-        }
-    }
-    operator PasskeyNum() {
-        return PasskeyNum(to_num(asci));
-    }
-
-    static uint32_t to_num(const uint8_t* asci) {
-        uint32_t passkey = 0;
-        for (size_t i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
-            passkey += (asci[i] - NUMBER_OFFSET) * m;
-        }
-        return passkey;
-    }
-    uint8_t asci[SecurityManager::PASSKEY_LEN];
-};
 
 /* separate structs to allow db implementation to minimise memory usage */
 
@@ -466,8 +423,6 @@ protected:
           pairing_authorisation_required(false),
           legacy_pairing_allowed(true),
           authentication(0),
-          min_key_size(0),
-          max_key_size(128),
           initiator_dist(0),
           responder_dist(0) {
         _app_event_handler = &defaultEventHandler;
@@ -485,8 +440,6 @@ private:
     bool legacy_pairing_allowed;
 
     AuthenticationMask  authentication;
-    uint8_t             min_key_size;
-    uint8_t             max_key_size;
     KeyDistribution     initiator_dist;
     KeyDistribution     responder_dist;
 
