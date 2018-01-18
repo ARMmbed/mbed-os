@@ -28,9 +28,17 @@
  *******************************************************************************
  */
 
+#include "mbed_assert.h"
+#include "serial_api.h"
+#include "serial_api_hal.h"
+
 #if DEVICE_SERIAL
 
-#include "serial_api_hal.h"
+#include "cmsis.h"
+#include "pinmap.h"
+#include <string.h>
+#include "PeripheralPins.h"
+#include "mbed_error.h"
 
 #define UART_NUM (3)
 
@@ -38,6 +46,9 @@ uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
+
+int stdio_uart_inited = 0;
+serial_t stdio_uart;
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
@@ -215,12 +226,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 
     if (obj_s->uart == UART_4) {
-        irq_n = USART4_IRQn;
+        irq_n = UART4_IRQn;
         vector = (uint32_t)&uart4_irq;
     }
 
     if (obj_s->uart == UART_5) {
-        irq_n = USART5_IRQn;
+        irq_n = UART5_IRQn;
         vector = (uint32_t)&uart5_irq;
     }
 
@@ -608,19 +619,19 @@ int serial_irq_handler_asynch(serial_t *obj)
     
     // Handle error events
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_PARITY_ERROR & obj_s->events);
         }
-}
+    }
 
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_FRAMING_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
     }

@@ -19,8 +19,7 @@
             "-g3",
             "-DMBED_DEBUG",
             "-DMBED_TRAP_ERRORS_ENABLED=1",
-            "-DWD_BL_ENABLE_DEVELOPMENT",
-            "-fpermissive"
+            "-DWD_BL_ENABLE_DEVELOPMENT"
         ],
         "asm": [
             "-x",
@@ -32,7 +31,8 @@
         "cxx": [
             "-std=gnu++98",
             "-fno-rtti",
-            "-Wvla"
+            "-Wvla",
+            "-fpermissive"
         ],
         "ld": [
             "-Wl,--gc-sections",
