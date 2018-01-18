@@ -162,7 +162,7 @@ public:
                                 ediv_t ediv,
                                 rand_t rand);
     void update_entry_irk(connection_handle_t connection,
-                          irk_t *irk);
+                          irk_t irk);
     void update_entry_bdaddr(connection_handle_t connection,
                              bool address_is_public,
                              address_t &peer_address);
