@@ -293,7 +293,7 @@ public:
     /**
      * To indicate that the user application needs to provide OOB data
      */
-    virtual void on_legacy_pariring_oob_request(connection_handle_t connection) = 0;
+    virtual void on_legacy_pairing_oob_request(connection_handle_t connection) = 0;
 
     /**
      * Request oob data entered during pairing
