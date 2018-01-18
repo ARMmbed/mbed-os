@@ -178,7 +178,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_MODE(hdma->Init.Mode));
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
 
-#if defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F100xE) || defined (STM32F105xC) || defined (STM32F107xC)
+#if defined(WD_ROUTINGMAX) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F100xE) || defined (STM32F105xC) || defined (STM32F107xC)
   /* calculation of the channel index */
   if ((uint32_t)(hdma->Instance) < (uint32_t)(DMA2_Channel1))
   {
@@ -268,7 +268,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   /* Reset DMA Channel memory address register */
   hdma->Instance->CMAR = 0U;
 
-#if defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F100xE) || defined (STM32F105xC) || defined (STM32F107xC)
+#if defined(WD_ROUTINGMAX) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F100xE) || defined (STM32F105xC) || defined (STM32F107xC)
   /* calculation of the channel index */
   if ((uint32_t)(hdma->Instance) < (uint32_t)(DMA2_Channel1))
   {
