@@ -3652,9 +3652,6 @@
             "STDIO_MESSAGES",
             "INTERRUPTIN",
             "RTC",
-            "I2C",
-            "I2CSLAVE",
-            "I2C_ASYNCH",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -3682,6 +3679,9 @@
             "WD_BOARD_SHORT_NAME=\"CO1\""
         ],
         "device_has_add": [
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
             "ETHERNET",
             "LOWPOWERTIMER",
             "ERROR_RED"
