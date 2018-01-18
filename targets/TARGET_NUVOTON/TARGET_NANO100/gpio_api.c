@@ -34,6 +34,11 @@ uint32_t gpio_set(PinName pin)
     return (uint32_t)(1 << pin_index);    // Return the pin mask
 }
 
+int gpio_is_connected(const gpio_t *obj)
+{
+    return (obj->pin != (PinName) NC);
+}
+
 void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
