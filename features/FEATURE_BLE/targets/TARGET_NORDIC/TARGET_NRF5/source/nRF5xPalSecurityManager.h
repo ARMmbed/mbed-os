@@ -200,10 +200,10 @@ public:
         connection_handle_t connection,
         io_capability_t io_capability,
         bool oob_data_flag,
-        authentication_t authentication_requirements,
+        AuthenticationMask authentication_requirements,
         uint8_t maximum_encryption_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     );
 
     /**
@@ -213,10 +213,10 @@ public:
         connection_handle_t connection,
         io_capability_t io_capability,
         bool oob_data_flag,
-        authentication_t authentication_requirements,
+        AuthenticationMask authentication_requirements,
         uint8_t maximum_encryption_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     );
 
     /**

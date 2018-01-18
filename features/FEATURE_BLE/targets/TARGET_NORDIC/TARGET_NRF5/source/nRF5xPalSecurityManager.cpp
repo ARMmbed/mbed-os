@@ -115,14 +115,14 @@ ble_error_t nRF5xSecurityManager::get_secure_connections_support(
 //
 
 ble_error_t nRF5xSecurityManager::set_authentication_timeout(
-    connection_handle_t, uint16_t timeout_in_10ms
+    connection_handle_t connection, uint16_t timeout_in_10ms
 ) {
     // NOTE: Nothing in the Nordic API to manipulate the authentication timeout
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t nRF5xSecurityManager::get_authentication_timeout(
-    connection_handle_t, uint16_t &timeout_in_10ms
+    connection_handle_t connection, uint16_t &timeout_in_10ms
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -156,7 +156,7 @@ ble_error_t nRF5xSecurityManager::get_encryption_status(
 }
 
 ble_error_t nRF5xSecurityManager::get_encryption_key_size(
-    connection_handle_t, uint8_t &bitsize
+    connection_handle_t connection, uint8_t &bitsize
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -217,31 +217,31 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
     connection_handle_t connection,
     io_capability_t io_capability,
     bool oob_data_flag,
-    authentication_t authentication_requirements,
+    AuthenticationMask authentication_requirements,
     uint8_t maximum_encryption_key_size,
-    key_distribution_t initiator_dist,
-    key_distribution_t responder_dist
+    KeyDistribution initiator_dist,
+    KeyDistribution responder_dist
 ) {
     ble_gap_sec_params_t security_params = {
-        /* bond */ static_cast<uint8_t>((authentication_requirements >> 0) & 3),
-        /* mitm */ static_cast<uint8_t>((authentication_requirements >> 2) & 1),
-        /* lesc */ static_cast<uint8_t>((authentication_requirements >> 3) & 1),
-        /* keypress */ static_cast<uint8_t>((authentication_requirements >> 4) & 1),
+        /* bond */ authentication_requirements.get_bondable(),
+        /* mitm */ authentication_requirements.get_mitm(),
+        /* lesc */ authentication_requirements.get_secure_connections(),
+        /* keypress */ authentication_requirements.get_keypress_notification(),
         /* io_caps */ io_capability.value(),
         /* oob */ oob_data_flag,
         /* min_key_size */ 7, // FIXME!
         /* max_key_size */ maximum_encryption_key_size,
         /* kdist_periph */ {
-            /* enc */ static_cast<uint8_t>((responder_dist >> 0) & 1),
-            /* id */ static_cast<uint8_t>((responder_dist >> 1) & 1),
-            /* sign */ static_cast<uint8_t>((responder_dist >> 2) & 1),
-            /* link */ static_cast<uint8_t>((responder_dist >> 3) & 1)
+            /* enc */ responder_dist.get_encryption(),
+            /* id */ responder_dist.get_identity(),
+            /* sign */ responder_dist.get_signing(),
+            /* link */ responder_dist.get_link()
         },
         /* kdist_central */ {
-            /* enc */ static_cast<uint8_t>((initiator_dist >> 0) & 1),
-            /* id */ static_cast<uint8_t>((initiator_dist >> 1) & 1),
-            /* sign */ static_cast<uint8_t>((initiator_dist >> 2) & 1),
-            /* link */ static_cast<uint8_t>((initiator_dist >> 3) & 1)
+            /* enc */ initiator_dist.get_encryption(),
+            /* id */ initiator_dist.get_identity(),
+            /* sign */ initiator_dist.get_signing(),
+            /* link */ initiator_dist.get_link()
         }
     };
 
@@ -257,31 +257,31 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
     connection_handle_t connection,
     io_capability_t io_capability,
     bool oob_data_flag,
-    authentication_t authentication_requirements,
+    AuthenticationMask authentication_requirements,
     uint8_t maximum_encryption_key_size,
-    key_distribution_t initiator_dist,
-    key_distribution_t responder_dist
+    KeyDistribution initiator_dist,
+    KeyDistribution responder_dist
 ) {
     ble_gap_sec_params_t security_params = {
-        /* bond */ static_cast<uint8_t>((authentication_requirements >> 0) & 3),
-        /* mitm */static_cast<uint8_t>((authentication_requirements >> 2) & 1),
-        /* lesc */ static_cast<uint8_t>((authentication_requirements >> 3) & 1),
-        /* keypress */ static_cast<uint8_t>((authentication_requirements >> 4) & 1),
+        /* bond */ authentication_requirements.get_bondable(),
+        /* mitm */ authentication_requirements.get_mitm(),
+        /* lesc */ authentication_requirements.get_secure_connections(),
+        /* keypress */ authentication_requirements.get_keypress_notification(),
         /* io_caps */ io_capability.value(),
         /* oob */ oob_data_flag,
         /* min_key_size */ 7, // FIXME!
         /* max_key_size */ maximum_encryption_key_size,
         /* kdist_periph */ {
-            /* enc */ static_cast<uint8_t>((responder_dist >> 0) & 1),
-            /* id */ static_cast<uint8_t>((responder_dist >> 1) & 1),
-            /* sign */ static_cast<uint8_t>((responder_dist >> 2) & 1),
-            /* link */ static_cast<uint8_t>((responder_dist >> 3) & 1)
+            /* enc */ responder_dist.get_encryption(),
+            /* id */ responder_dist.get_identity(),
+            /* sign */ responder_dist.get_signing(),
+            /* link */ responder_dist.get_link()
         },
         /* kdist_central */ {
-            /* enc */ static_cast<uint8_t>((initiator_dist >> 0) & 1),
-            /* id */ static_cast<uint8_t>((initiator_dist >> 1) & 1),
-            /* sign */ static_cast<uint8_t>((initiator_dist >> 2) & 1),
-            /* link */ static_cast<uint8_t>((initiator_dist >> 3) & 1)
+            /* enc */ initiator_dist.get_encryption(),
+            /* id */ initiator_dist.get_identity(),
+            /* sign */ initiator_dist.get_signing(),
+            /* link */ initiator_dist.get_link()
         }
     };
 
@@ -415,23 +415,26 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             const ble_gap_sec_params_t& params =
                 gap_evt.params.sec_params_request.peer_params;
 
-            authentication_t authentication_requirements =
-                params.bond |
-                params.mitm << 2 |
-                params.lesc << 3 |
-                params.keypress << 4;
+            AuthenticationMask authentication_requirements(
+                params.bond,
+                params.mitm,
+                params.lesc,
+                params.keypress
+            );
 
-            key_distribution_t initiator_dist =
-                params.kdist_peer.enc |
-                params.kdist_peer.id << 1 |
-                params.kdist_peer.sign << 2 |
-                params.kdist_peer.link << 3;
+            KeyDistribution initiator_dist {
+                params.kdist_peer.enc,
+                params.kdist_peer.id,
+                params.kdist_peer.sign,
+                params.kdist_peer.link
+            );
 
-            key_distribution_t responder_dist =
-                params.kdist_own.enc |
-                params.kdist_own.id << 1 |
-                params.kdist_own.sign << 2 |
-                params.kdist_own.link << 3;
+            KeyDistribution responder_dist() =
+                params.kdist_own.enc,
+                params.kdist_own.id,
+                params.kdist_own.sign,
+                params.kdist_own.link
+            );
 
             // FIXME: pass min key size
             handler->on_pairing_request(

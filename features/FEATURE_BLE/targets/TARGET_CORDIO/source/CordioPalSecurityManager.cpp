@@ -198,10 +198,10 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     connection_handle_t connection,
     io_capability_t io_capability,
     bool oob_data_flag,
-    authentication_t authentication_requirements,
+    AuthenticationMask authentication_requirements,
     uint8_t maximum_encryption_key_size,
-    key_distribution_t initiator_dist,
-    key_distribution_t responder_dist
+    KeyDistribution initiator_dist,
+    KeyDistribution responder_dist
 ) {
     if ((maximum_encryption_key_size > 16) ||
         (maximum_encryption_key_size < pSmpCfg->minKeyLen)) {
@@ -214,9 +214,9 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     DmSecPairReq(
         connection,
         oob_data_flag,
-        authentication_requirements,
-        initiator_dist,
-        responder_dist
+        authentication_requirements.value(),
+        initiator_dist.value(),
+        responder_dist.value()
     );
 
     return BLE_ERROR_NONE;
@@ -226,10 +226,10 @@ ble_error_t CordioSecurityManager::send_pairing_response(
     connection_handle_t connection,
     io_capability_t io_capability,
     bool oob_data_flag,
-    authentication_t authentication_requirements,
+    AuthenticationMask authentication_requirements,
     uint8_t maximum_encryption_key_size,
-    key_distribution_t initiator_dist,
-    key_distribution_t responder_dist
+    KeyDistribution initiator_dist,
+    KeyDistribution responder_dist
 ) {
 
     if ((maximum_encryption_key_size > 16) ||
@@ -243,9 +243,9 @@ ble_error_t CordioSecurityManager::send_pairing_response(
     DmSecPairRsp(
         connection,
         oob_data_flag,
-        authentication_requirements,
-        initiator_dist,
-        responder_dist
+        authentication_requirements.value(),
+        initiator_dist.value(),
+        responder_dist.value()
     );
 
     return BLE_ERROR_NONE;
