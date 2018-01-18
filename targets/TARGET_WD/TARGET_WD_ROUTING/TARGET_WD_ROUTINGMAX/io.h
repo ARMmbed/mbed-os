@@ -1,5 +1,6 @@
 #pragma once
 #include "PinNames.h"
+#include "mbed.h"
 
 // Helpers
 #include "AnalogInManager.h"

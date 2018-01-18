@@ -28,11 +28,12 @@
 static void donothing(uint64_t id) {}
 
 DS18B20::DS18B20(OneWire * oneWire, uint measurementIntervalSeconds)
-	: _sensorCount(0), _sensorAddedCallback(donothing), _sensorRemovedCallback(donothing), _ticker(), _queue(&IOEventQueue::getInstance()) {
+	: _sensorCount(0), _sensorAddedCallback(donothing), _sensorRemovedCallback(donothing), _queue(&IOEventQueue::getInstance()) {
 	
 	this->_oneWire = oneWire;
+	_ticker = new Ticker();
 
-	this->_ticker.attach(callback(this, &DS18B20::collectMeasurement), (float)(measurementIntervalSeconds));	
+	this->_ticker->attach(callback(this, &DS18B20::collectMeasurement), (float)(measurementIntervalSeconds));	
 		
 }
 
@@ -114,8 +115,8 @@ float DS18B20::getValue(uint64_t id) {
 }
 
 void DS18B20::setMeasurementInterval(uint measurementIntervalSeconds) {
-	this->_ticker.detach();
-	this->_ticker.attach(callback(this, &DS18B20::collectMeasurement), (float)(measurementIntervalSeconds));
+	this->_ticker->detach();
+	this->_ticker->attach(callback(this, &DS18B20::collectMeasurement), (float)(measurementIntervalSeconds));
 }
 
 void DS18B20::attachSensorAddedCallback(Callback<void(uint64_t)> cb) {

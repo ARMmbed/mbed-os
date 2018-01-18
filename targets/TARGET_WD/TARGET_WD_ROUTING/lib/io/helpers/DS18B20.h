@@ -45,7 +45,7 @@ private:
 	Callback<void(uint64_t)> _sensorRemovedCallback;
 	
 	IOEventQueue * _queue;
-	Ticker _ticker;
+	Ticker * _ticker;
 	
 	typedef MeasurementBuffer<float> DS18B20MeasurementBuffer;
 	map<uint64_t, DS18B20MeasurementBuffer> _mSensors;

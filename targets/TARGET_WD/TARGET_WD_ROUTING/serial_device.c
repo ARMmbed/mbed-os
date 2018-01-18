@@ -130,6 +130,14 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 }
 
+void serial_baud(serial_t *obj, int baudrate)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+  
+    obj_s->baudrate = baudrate;
+    init_uart(obj);
+}
+
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/

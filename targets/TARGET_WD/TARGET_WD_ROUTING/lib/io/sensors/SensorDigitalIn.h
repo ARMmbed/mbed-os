@@ -47,18 +47,17 @@ private:
 	void onPulseDurationResetTimeout(void);
 	
 	Callback<void(uint16_t)> _irq;
-	InterruptIn _interruptIn;
+	InterruptIn * _interruptIn;
 	uint16_t _instanceMetadata;
 	int _value;
 	int _edgeCounter;
-	Timer _pulseDurationTimer;
+	Timer * _pulseDurationTimer;
 	ResettableTimeout * _pulseDurationResetTimout;
 	MeasurementBuffer<int> * _pulseDurationBuffer;
 	int _pulseDurationOffset;
 	int _pulseDurationFilterSize;
 	
-	Ticker _ticker;
-	Timeout _confirmationDelay;
+	Ticker * _ticker;
 	IOEventQueue * _queue;
 };
 
