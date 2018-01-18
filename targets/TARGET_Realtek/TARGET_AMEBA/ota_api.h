@@ -22,17 +22,19 @@
 #define FLASH_SECTOR_SIZE    0x1000
 #define FLASH_SECTOR_MASK    ~(FLASH_SECTOR_SIZE - 1)
 
+#define OTA_REGION1_HEADER  0x0b000
+#define OTA_REGION2_HEADER  0x0c000
 #define OTA_REGION1_BASE    0x40000
 #define OTA_REGION2_BASE    0x120000
 #define OTA_REGION1_SIZE    0xe0000
 #define OTA_REGION2_SIZE    0xe0000
 #define OTA_REGION_SIZE     0xe0000
-#define OTA_MBED_FS_BASE    0xb000
+#define OTA_MBED_FS_BASE    0x10000
+#define OTA_MBED_FS_SIZE    0x30000
 
 #define OTA_CRC32_LEN       0x44
 #define OTA_HEADER_LEN      0x48
 
-#define OTA_HEADER_OFS      0x0
 #define OTA_TAG_OFS         0x0
 #define OTA_VER_OFS         0x4
 #define OTA_EPOCH_OFS       0x8
@@ -57,6 +59,8 @@ typedef struct imginfo_s {
     uint8_t campaign[16];
     uint32_t crc32;
     bool valid;
+    uint32_t header_addr;
+    uint32_t image_addr;
 } imginfo_t;
 
 #ifdef __cplusplus
@@ -64,7 +68,7 @@ extern "C" {
 #endif
 
 extern void OTA_GetImageInfo(uint32_t base, imginfo_t *info);
-extern uint32_t OTA_GetUpdateBase(void);
+extern uint32_t OTA_GetUpdateRegion(void);
 
 extern uint32_t OTA_UpdateHeader(uint32_t base, imginfo_t *img);
 extern uint32_t OTA_UpdateImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *data);
