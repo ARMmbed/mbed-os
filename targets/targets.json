@@ -3757,5 +3757,19 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
+    },
+    "OSHCHIP": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "extra_labels_add": ["OSHCHIP"],
+        "macros_add": ["TARGET_OSHCHIP" , "TARGET_NRF_LFCLK_RC"],
+        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF51822_xxAA",
+        "config": {
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_RC",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            }
+        }
     }
 }
