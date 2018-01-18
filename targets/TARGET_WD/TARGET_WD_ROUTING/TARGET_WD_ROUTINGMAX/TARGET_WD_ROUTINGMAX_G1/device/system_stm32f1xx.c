@@ -220,10 +220,15 @@ void SystemInit (void)
   #endif /* DATA_IN_ExtSRAM */
 #endif 
 
+// GPR: this needs to be included to use the NVIC_FLASH_VECTOR_ADDRESS macro
+// This uses the g_pfnVectors global variable (which is initialized with the linker-script __vector_table symbol), 
+// while the old version uses the FLASH_BASE constant (which points to the bootloader now)
+#include "nvic_addr.h"
+
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
-  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH. */
 #endif 
 }
 

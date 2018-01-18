@@ -61,7 +61,7 @@
   * @{
   */
 /* Interrupt & Flag management */
-#if defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || \
+#if defined(WD_ROUTINGMAX) || defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || \
     defined (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
 /** @defgroup DMAEx_High_density_XL_density_Product_devices DMAEx High density and XL density product devices
   * @{
