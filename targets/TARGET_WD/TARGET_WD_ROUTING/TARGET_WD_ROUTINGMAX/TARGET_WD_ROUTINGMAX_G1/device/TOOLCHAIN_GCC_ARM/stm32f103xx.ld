@@ -114,7 +114,11 @@ SECTIONS
     {
         . = ALIGN(4);
         
-		*(.text*)
+        *(.text)           /* .text sections (code) */
+        *(.text*)          /* .text* sections (code) */
+        *(.glue_7)         /* glue arm to thumb code */
+        *(.glue_7t)        /* glue thumb to arm code */
+        *(.eh_frame)
 
         KEEP(*(.init))
         KEEP(*(.fini))
@@ -234,6 +238,16 @@ SECTIONS
         . += HEAP_SIZE;
         __HeapLimit = .;
     } > RAM
+
+    /* Remove information from the standard libraries */
+    /DISCARD/ :
+    {
+        libc.a ( * )
+        libm.a ( * )
+        libgcc.a ( * )
+    }
+
+    .ARM.attributes 0 : { *(.ARM.attributes) }
 
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     _estack = __StackTop;
