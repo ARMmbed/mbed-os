@@ -57,7 +57,10 @@ public:
 
     KeyDistribution() : _value(0) { }
     KeyDistribution(uint8_t value) : _value(value) { }
-    KeyDistribution(bool encryption, bool identity, bool signing, bool link) : _value(0) {
+    KeyDistribution(bool encryption,
+                    bool identity,
+                    bool signing,
+                    bool link) : _value(0) {
         set_encryption(encryption);
         set_identity(identity);
         set_signing(signing);
@@ -112,6 +115,7 @@ public:
     uint8_t value() {
         return _value;
     }
+
 private:
     uint8_t _value;
 };
@@ -127,7 +131,10 @@ public:
 
     AuthenticationMask() : _value(0) { }
     AuthenticationMask(uint8_t value) : _value(value) { }
-    AuthenticationMask(bool bondable, bool mitm, bool secure_connections, bool keypress) : _value(0) {
+    AuthenticationMask(bool bondable,
+                       bool mitm,
+                       bool secure_connections,
+                       bool keypress) : _value(0) {
         set_bondable(bondable);
         set_mitm(mitm);
         set_secure_connections(secure_connections);
@@ -182,6 +189,7 @@ public:
     uint8_t value() {
         return _value;
     }
+
 private:
     uint8_t _value;
 };
