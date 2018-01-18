@@ -312,27 +312,27 @@ public:
         connection_handle_t handle,
         advertising_peer_address_type_t peer_address_type,
         address_t &peer_address,
-        ediv_t &ediv,
-        rand_t &rand,
-        ltk_t &ltk,
-        irk_t &irk,
-        csrk_t &csrk
+        ediv_t ediv,
+        rand_t rand,
+        ltk_t ltk,
+        irk_t irk,
+        csrk_t csrk
     ) = 0;
 
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        ltk_t &ltk
+        ltk_t ltk
     ) = 0;
 
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        ediv_t &ediv,
-        rand_t &rand
+        ediv_t ediv,
+        rand_t rand
     ) = 0;
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        irk_t &irk
+        irk_t irk
     ) = 0;
 
     virtual void on_keys_distributed_bdaddr(
@@ -343,13 +343,13 @@ public:
 
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        csrk_t &csrk
+        csrk_t csrk
     ) = 0;
 
     virtual void on_ltk_request(
         connection_handle_t connection,
-        ediv_t &ediv,
-        rand_t &rand
+        ediv_t ediv,
+        rand_t rand
     ) = 0;
 };
 
