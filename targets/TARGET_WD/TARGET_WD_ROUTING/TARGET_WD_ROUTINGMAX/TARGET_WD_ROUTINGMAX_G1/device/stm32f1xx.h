@@ -2,23 +2,23 @@
   ******************************************************************************
   * @file    stm32f1xx.h
   * @author  MCD Application Team
-  * @version V4.1.0
-  * @date    29-April-2016
+  * @version V4.2.0
+  * @date    31-March-2017
   * @brief   CMSIS STM32F1xx Device Peripheral Access Layer Header File. 
   *
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
   *            - Configuration section that allows to select:
   *              - The STM32F1xx device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e. 
-  *                code will be based on direct access to peripheral’s registers 
+  *              - To use or not the peripheralï¿½s drivers in application code(i.e. 
+  *                code will be based on direct access to peripheralï¿½s registers 
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
   *  
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -89,7 +89,7 @@
   /* #define STM32F103x6  */   /*!< STM32F103C4, STM32F103R4, STM32F103T4, STM32F103C6, STM32F103R6 and STM32F103T6 */
   /* #define STM32F103xB  */   /*!< STM32F103C8, STM32F103R8, STM32F103T8, STM32F103V8, STM32F103CB, STM32F103RB, STM32F103TB and STM32F103VB */
   /* #define STM32F103xE */    /*!< STM32F103RC, STM32F103VC, STM32F103ZC, STM32F103RD, STM32F103VD, STM32F103ZD, STM32F103RE, STM32F103VE and STM32F103ZE */
-  #define STM32F103xG  */   /*!< STM32F103RF, STM32F103VF, STM32F103ZF, STM32F103RG, STM32F103VG and STM32F103ZG */
+  #define STM32F103xG          /*!< STM32F103RF, STM32F103VF, STM32F103ZF, STM32F103RG, STM32F103VG and STM32F103ZG */
   /* #define STM32F105xC */    /*!< STM32F105R8, STM32F105V8, STM32F105RB, STM32F105VB, STM32F105RC and STM32F105VC */
   /* #define STM32F107xC  */   /*!< STM32F107RB, STM32F107VB, STM32F107RC and STM32F107VC */  
 #endif
@@ -104,14 +104,14 @@
    In this case, these drivers will not be included and the application code will 
    be based on direct access to peripherals registers 
    */
-#define USE_HAL_DRIVER
+  #define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number
+  * @brief CMSIS Device version number V4.2.0
   */
-#define __STM32F1_CMSIS_VERSION_MAIN   (0x04) /*!< [31:24] main version */                                  
-#define __STM32F1_CMSIS_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32F1_CMSIS_VERSION_MAIN   (0x04) /*!< [31:24] main version */
+#define __STM32F1_CMSIS_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
 #define __STM32F1_CMSIS_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F1_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F1_CMSIS_VERSION        ((__STM32F1_CMSIS_VERSION_MAIN << 24)\

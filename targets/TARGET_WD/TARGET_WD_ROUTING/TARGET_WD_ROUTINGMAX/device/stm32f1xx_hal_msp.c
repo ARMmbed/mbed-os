@@ -1,14 +1,16 @@
 /**
   ******************************************************************************
-  * @file    system_stm32f10x.h
-  * @author  MCD Application Team
-  * @version V4.2.0
-  * @date    31-March-2017
-  * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Header File.
+  * File Name          : stm32f1xx_hal_msp.c
+  * Description        : This file provides code for the MSP Initialization 
+  *                      and de-Initialization codes.
   ******************************************************************************
-  * @attention
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -34,83 +36,61 @@
   *
   ******************************************************************************
   */
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f1xx_hal.h"
 
-/** @addtogroup CMSIS
-  * @{
-  */
+extern void _Error_Handler(char *, int);
+/* USER CODE BEGIN 0 */
 
-/** @addtogroup stm32f10x_system
-  * @{
-  */  
-  
+/* USER CODE END 0 */
 /**
-  * @brief Define to prevent recursive inclusion
+  * Initializes the Global MSP.
   */
-#ifndef __SYSTEM_STM32F10X_H
-#define __SYSTEM_STM32F10X_H
+void HAL_MspInit(void)
+{
+  /* USER CODE BEGIN MspInit 0 */
 
-#ifdef __cplusplus
- extern "C" {
-#endif 
+  /* USER CODE END MspInit 0 */
 
-/** @addtogroup STM32F10x_System_Includes
-  * @{
-  */
+  __HAL_RCC_AFIO_CLK_ENABLE();
 
-/**
-  * @}
-  */
+  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
+  /* System interrupt init*/
+  /* MemoryManagement_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
+  /* BusFault_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
+  /* UsageFault_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
+  /* SVCall_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
+  /* DebugMonitor_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
+  /* PendSV_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
+  /* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 
-/** @addtogroup STM32F10x_System_Exported_types
-  * @{
-  */
+    /**NOJTAG: JTAG-DP Disabled and SW-DP Enabled 
+    */
+  __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
-extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
-extern const uint8_t  AHBPrescTable[16U];  /*!< AHB prescalers table values */
-extern const uint8_t  APBPrescTable[8U];   /*!< APB prescalers table values */
+  /* USER CODE BEGIN MspInit 1 */
 
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F10x_System_Exported_Constants
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F10x_System_Exported_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @addtogroup STM32F10x_System_Exported_Functions
-  * @{
-  */
-  
-extern void SystemInit(void);
-extern void SystemCoreClockUpdate(void);
-/**
-  * @}
-  */
-
-#ifdef __cplusplus
+  /* USER CODE END MspInit 1 */
 }
-#endif
 
-#endif /*__SYSTEM_STM32F10X_H */
+/* USER CODE BEGIN 1 */
+
+/* USER CODE END 1 */
 
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */  
+  */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
