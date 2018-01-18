@@ -39,6 +39,86 @@ UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    
+    // Determine the UART to use (UART_1, UART_2, ...)
+    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
+    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
+
+    // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
+    obj_s->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
+    MBED_ASSERT(obj_s->uart != (UARTName)NC);
+
+    // Enable USART clock
+    if (obj_s->uart == UART_1) {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
+        __HAL_RCC_USART1_CLK_ENABLE();
+        obj_s->index = 0;
+		__HAL_RCC_DMA1_CLK_ENABLE();
+    }
+    if (obj_s->uart == UART_2) {
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART2_CLK_ENABLE();
+        obj_s->index = 1;
+		__HAL_RCC_DMA1_CLK_ENABLE();
+    }
+    if (obj_s->uart == UART_3) {
+        __HAL_RCC_USART3_FORCE_RESET();
+        __HAL_RCC_USART3_RELEASE_RESET();
+        __HAL_RCC_USART3_CLK_ENABLE();
+        obj_s->index = 2;
+    }
+	if (obj_s->uart == UART_4) {
+        __HAL_RCC_UART4_FORCE_RESET();
+        __HAL_RCC_UART4_RELEASE_RESET();
+        __HAL_RCC_UART4_CLK_ENABLE();
+        obj_s->index = 3;
+    }
+	if (obj_s->uart == UART_5) {
+        __HAL_RCC_UART5_FORCE_RESET();
+        __HAL_RCC_UART5_RELEASE_RESET();
+        __HAL_RCC_UART5_CLK_ENABLE();
+        obj_s->index = 4;
+		// PFR: no DMA!
+    }
+
+    // Configure UART pins
+    pinmap_pinout(tx, PinMap_UART_TX);
+    pinmap_pinout(rx, PinMap_UART_RX);
+    
+    if (tx != NC) {
+        pin_mode(tx, PullUp);
+    }
+    if (rx != NC) {
+        pin_mode(rx, PullUp);
+    }
+
+    // Configure UART
+    obj_s->baudrate = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE;
+    obj_s->databits = UART_WORDLENGTH_8B;
+    obj_s->stopbits = UART_STOPBITS_1;
+    obj_s->parity   = UART_PARITY_NONE;
+    
+#if DEVICE_SERIAL_FC
+    obj_s->hw_flow_ctl = UART_HWCONTROL_NONE;
+#endif
+
+    obj_s->pin_tx = tx;
+    obj_s->pin_rx = rx;
+
+    init_uart(obj);
+
+    // For stdio management
+    if (obj_s->uart == STDIO_UART) {
+        stdio_uart_inited = 1;
+        memcpy(&stdio_uart, obj, sizeof(serial_t));
+    }
+}
+
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
@@ -59,6 +139,12 @@ static void uart_irq(int id)
                 /*  Flag has been cleared when reading the content */
             }
         }
+        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET) {
+			if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_IDLE) != RESET) {
+				irq_handler(serial_irq_ids[id], RxIrq);
+				__HAL_UART_CLEAR_FLAG(huart, UART_FLAG_IDLE);
+			}
+		}
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
             if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
                 volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
@@ -77,10 +163,26 @@ static void uart2_irq(void)
     uart_irq(1);
 }
 
+#if defined(USART3_BASE)
 static void uart3_irq(void)
 {
     uart_irq(2);
 }
+#endif
+
+#if defined(UART4_BASE)
+static void uart4_irq(void)
+{
+    uart_irq(3);
+}
+#endif
+
+#if defined(UART5_BASE)
+static void uart5_irq(void)
+{
+    uart_irq(4);
+}
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -112,9 +214,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart3_irq;
     }
 
+    if (obj_s->uart == UART_4) {
+        irq_n = USART4_IRQn;
+        vector = (uint32_t)&uart4_irq;
+    }
+
+    if (obj_s->uart == UART_5) {
+        irq_n = USART5_IRQn;
+        vector = (uint32_t)&uart5_irq;
+    }
+
     if (enable) {
         if (irq == RxIrq) {
             __HAL_UART_ENABLE_IT(huart, UART_IT_RXNE);
+            __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
         } else { // TxIrq
             __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
         }
@@ -125,6 +238,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         int all_disabled = 0;
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
+            __HAL_UART_DISABLE_IT(huart, UART_IT_IDLE);
             // Check if TxIrq is disabled too
             if ((huart->Instance->CR1 & USART_CR1_TXEIE) == 0) {
                 all_disabled = 1;
@@ -281,7 +395,16 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
         case 2:
             irq_n = USART3_IRQn;
             break;
-
+#if defined(UART4_BASE)
+        case 3:
+            irq_n = UART4_IRQn;
+            break;
+#endif
+#if defined(USART5_BASE)
+        case 4:
+            irq_n = UART5_IRQn;
+            break;
+#endif
         default:
             irq_n = (IRQn_Type)0;
     }
@@ -387,8 +510,16 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_SetVector(irq_n, (uint32_t)handler);
     NVIC_EnableIRQ(irq_n);
 
-    // following HAL function will enable the RXNE interrupt + error interrupts    
-    HAL_UART_Receive_IT(huart, (uint8_t*)rx, rx_length);
+    if(huart->hdmarx != NULL && huart->hdmarx->Instance != NULL) {
+        // following HAL function will program and enable the DMA transfer
+        HAL_UART_Receive_DMA(huart, (uint8_t*)rx, rx_length);    
+            
+        /* Enable the UART Idle line interrupt: */
+        __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
+    } else {
+        // following HAL function will enable the RXNE interrupt + error interrupts    
+        HAL_UART_Receive_IT(huart, (uint8_t*)rx, rx_length);
+    }
 }
 
 /**
@@ -456,6 +587,15 @@ int serial_irq_handler_asynch(serial_t *obj)
     uint8_t *buf = (uint8_t*)(obj->rx_buff.buffer);
     uint8_t i = 0;
     
+    if ((huart->Instance->CR3 & USART_CR3_DMAT) !=0) {
+		// call dma tx interrupt
+		HAL_DMA_IRQHandler(huart->hdmatx);
+	}
+	if ((huart->Instance->CR3 & USART_CR3_DMAR) !=0) {
+		// call dma rx interrupt
+		HAL_DMA_IRQHandler(huart->hdmarx);
+	}
+
     // TX PART:
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
         if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET) {
@@ -484,7 +624,8 @@ int serial_irq_handler_asynch(serial_t *obj)
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
     }
-    
+
+    // read flags for return event first as they are cleared in IRQ handler
     HAL_UART_IRQHandler(huart);
     
     // Abort if an error occurs
@@ -515,6 +656,14 @@ int serial_irq_handler_asynch(serial_t *obj)
             }
         }
     }
+
+    // Check if idle line interrupt occurred
+    if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET) {
+		 if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_IDLE) != RESET) {
+			 __HAL_UART_CLEAR_IDLEFLAG(huart);
+			 return_event |= (SERIAL_EVENT_RX_IDLE & obj_s->events);
+		 }
+	 }
     
     return return_event;  
 }
@@ -559,11 +708,13 @@ void serial_rx_abort_asynch(serial_t *obj)
     
     // disable interrupts
     __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
+    __HAL_UART_DISABLE_IT(huart, UART_IT_IDLE);
     __HAL_UART_DISABLE_IT(huart, UART_IT_PE);
     __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
     
     // clear flags
     __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
+    __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_IDLE);
     volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear errors flag
     
     // reset states
