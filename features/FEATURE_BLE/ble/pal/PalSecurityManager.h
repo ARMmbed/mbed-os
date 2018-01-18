@@ -44,15 +44,76 @@ typedef uint8_t rand_t[2];
 typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
-typedef uint8_t key_distribution_t;
+class KeyDistribution {
+public:
+    enum KeyDistributionFlags_t {
+        KEY_DISTRIBUTION_NONE       = 0x00,
+        KEY_DISTRIBUTION_ENCRYPTION = 0x01,
+        KEY_DISTRIBUTION_IDENTITY   = 0x02,
+        KEY_DISTRIBUTION_SIGNING    = 0x04,
+        KEY_DISTRIBUTION_LINK       = 0x08,
+        KEY_DISTRIBUTION_ALL        = 0x0F
+    };
 
-enum KeyDistributionFlags_t {
-    KEY_DISTRIBUTION_NONE       = 0x00,
-    KEY_DISTRIBUTION_ENCRYPTION = 0x01,
-    KEY_DISTRIBUTION_IDENTITY   = 0x02,
-    KEY_DISTRIBUTION_SIGNING    = 0x04,
-    KEY_DISTRIBUTION_LINK       = 0x08,
-    KEY_DISTRIBUTION_ALL        = 0x0F
+    KeyDistribution() : _value(0) { }
+    KeyDistribution(uint8_t value) : _value(value) { }
+    KeyDistribution(bool encryption, bool identity, bool signing, bool link) : _value(0) {
+        set_encryption(encryption);
+        set_identity(identity);
+        set_signing(signing);
+        set_link(link);
+    }
+
+    bool get_encryption() {
+        return _value & KEY_DISTRIBUTION_ENCRYPTION;
+    }
+    bool get_identity() {
+        return _value & KEY_DISTRIBUTION_IDENTITY;
+    }
+    bool get_signing() {
+        return _value & KEY_DISTRIBUTION_SIGNING;
+    }
+    bool get_link() {
+        return _value & KEY_DISTRIBUTION_LINK;
+    }
+
+    void set_encryption(bool enabled = true) {
+        if (enabled) {
+            _value |= KEY_DISTRIBUTION_ENCRYPTION;
+        } else {
+            _value &= ~KEY_DISTRIBUTION_ENCRYPTION;
+        }
+    }
+    void set_identity(bool enabled = true) {
+        if (enabled) {
+            _value |= KEY_DISTRIBUTION_IDENTITY;
+        } else {
+            _value &= ~KEY_DISTRIBUTION_IDENTITY;
+        }
+    }
+    void set_signing(bool enabled = true) {
+        if (enabled) {
+            _value |= KEY_DISTRIBUTION_SIGNING;
+        } else {
+            _value &= ~KEY_DISTRIBUTION_SIGNING;
+        }
+    }
+    void set_link(bool enabled = true) {
+        if (enabled) {
+            _value |= KEY_DISTRIBUTION_LINK;
+        } else {
+            _value &= ~KEY_DISTRIBUTION_LINK;
+        }
+    }
+
+    operator uint8_t() {
+        return _value;
+    }
+    uint8_t value() {
+        return _value;
+    }
+private:
+    uint8_t _value;
 };
 
 class AuthenticationMask {
@@ -64,9 +125,9 @@ public:
         AUTHENTICATION_KEYPRESS_NOTIFICATION  = 0x10
     };
 
-    AuthenticationMask() : mask(0) { }
-    AuthenticationMask(uint8_t init_mask) : mask(init_mask) { }
-    AuthenticationMask(bool bondable, bool mitm, bool secure_connections, bool keypress) : mask(0) {
+    AuthenticationMask() : _value(0) { }
+    AuthenticationMask(uint8_t value) : _value(value) { }
+    AuthenticationMask(bool bondable, bool mitm, bool secure_connections, bool keypress) : _value(0) {
         set_bondable(bondable);
         set_mitm(mitm);
         set_secure_connections(secure_connections);
@@ -74,54 +135,56 @@ public:
     }
 
     bool get_bondable() {
-        return mask & AUTHENTICATION_BONDABLE;
+        return _value & AUTHENTICATION_BONDABLE;
     }
     bool get_mitm() {
-        return mask & AUTHENTICATION_MITM;
+        return _value & AUTHENTICATION_MITM;
     }
     bool get_secure_connections() {
-        return mask & AUTHENTICATION_SECURE_CONNECTIONS;
+        return _value & AUTHENTICATION_SECURE_CONNECTIONS;
     }
     bool get_keypress_notification() {
-        return mask & AUTHENTICATION_KEYPRESS_NOTIFICATION;
+        return _value & AUTHENTICATION_KEYPRESS_NOTIFICATION;
     }
 
     void set_bondable(bool enabled = true) {
         if (enabled) {
-            mask |= AUTHENTICATION_BONDABLE;
+            _value |= AUTHENTICATION_BONDABLE;
         } else {
-            mask &= ~AUTHENTICATION_BONDABLE;
+            _value &= ~AUTHENTICATION_BONDABLE;
         }
     }
     void set_mitm(bool enabled = true) {
         if (enabled) {
-            mask |= AUTHENTICATION_MITM;
+            _value |= AUTHENTICATION_MITM;
         } else {
-            mask &= ~AUTHENTICATION_MITM;
+            _value &= ~AUTHENTICATION_MITM;
         }
     }
     void set_secure_connections(bool enabled = true) {
         if (enabled) {
-            mask |= AUTHENTICATION_SECURE_CONNECTIONS;
+            _value |= AUTHENTICATION_SECURE_CONNECTIONS;
         } else {
-            mask &= ~AUTHENTICATION_SECURE_CONNECTIONS;
+            _value &= ~AUTHENTICATION_SECURE_CONNECTIONS;
         }
     }
     void set_keypress_notification(bool enabled = true) {
         if (enabled) {
-            mask |= AUTHENTICATION_KEYPRESS_NOTIFICATION;
+            _value |= AUTHENTICATION_KEYPRESS_NOTIFICATION;
         } else {
-            mask &= ~AUTHENTICATION_KEYPRESS_NOTIFICATION;
+            _value &= ~AUTHENTICATION_KEYPRESS_NOTIFICATION;
         }
     }
 
     operator uint8_t() {
-        return mask;
+        return _value;
     }
-    uint8_t mask;
+    uint8_t value() {
+        return _value;
+    }
+private:
+    uint8_t _value;
 };
-
-
 
 /**
  * Handle events generated by ble::pal::SecurityManager
@@ -144,8 +207,8 @@ public:
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
         uint8_t maximum_encryption_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     ) = 0;
 
     /**
@@ -435,8 +498,8 @@ public:
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
         uint8_t maximum_encryption_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     );
 
     /**
@@ -450,8 +513,8 @@ public:
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
         uint8_t maximum_encryption_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     ) = 0;
 
     /**
