@@ -145,29 +145,29 @@ public:
      */
     SecurityEntry_t* get_entry(connection_handle_t connection);
 
-    void get_entry_keys(SecurityEntryKeysDbCb_t cb, ediv_t *ediv, rand_t *rand);
+    void get_entry_keys(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
     void get_entry_identityt(SecurityEntryIdentityDbCb_t cb, address_t &identity_address);
 
     void update_entry(connection_handle_t connection,
                       bool address_is_public,
                       address_t &peer_address,
-                      ediv_t *ediv,
-                      rand_t *rand,
-                      ltk_t *ltk,
-                      irk_t *irk,
-                      csrk_t *csrk);
+                      ediv_t ediv,
+                      rand_t rand,
+                      ltk_t ltk,
+                      irk_t irk,
+                      csrk_t csrk);
     void update_entry_ltk(connection_handle_t connection,
-                          ltk_t *ltk);
+                          ltk_t ltk);
     void update_entry_ediv_rand(connection_handle_t connection,
-                                ediv_t *ediv,
-                                rand_t *rand);
+                                ediv_t ediv,
+                                rand_t rand);
     void update_entry_irk(connection_handle_t connection,
                           irk_t *irk);
     void update_entry_bdaddr(connection_handle_t connection,
                              bool address_is_public,
                              address_t &peer_address);
     void update_entry_csrk(connection_handle_t connection,
-                           csrk_t *csrk);
+                           csrk_t csrk);
 
     void remove_entry(SecurityEntry_t&);
     void clear_entries();
@@ -588,11 +588,11 @@ public:
     void on_keys_distributed(connection_handle_t connection,
                              advertising_peer_address_type_t peer_address_type,
                              address_t &peer_identity_address,
-                             ediv_t *ediv,
-                             rand_t *rand,
-                             ltk_t *ltk,
-                             irk_t *irk,
-                             csrk_t *csrk) {
+                             ediv_t ediv,
+                             rand_t rand,
+                             ltk_t ltk,
+                             irk_t irk,
+                             csrk_t csrk) {
         db.update_entry(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
@@ -606,18 +606,18 @@ public:
     }
 
     void on_keys_distributed_ltk(connection_handle_t connection,
-                                 ltk_t *ltk) {
+                                 ltk_t ltk) {
         db.update_entry_ltk(connection, ltk);
     }
 
     void on_keys_distributed_ediv_rand(connection_handle_t connection,
-                                       ediv_t *ediv,
-                                       rand_t *rand) {
+                                       ediv_t ediv,
+                                       rand_t rand) {
         db.update_entry_ediv_rand(connection, ediv, rand);
     }
 
     void on_keys_distributed_irk(connection_handle_t connection,
-                                 irk_t *irk) {
+                                 irk_t irk) {
         db.update_entry_irk(connection, irk);
     }
 
@@ -632,13 +632,13 @@ public:
     }
 
     void on_keys_distributed_csrk(connection_handle_t connection,
-                                  csrk_t *csrk) {
+                                  csrk_t csrk) {
         db.update_entry_csrk(connection, csrk);
     }
 
     void on_ltk_request(connection_handle_t connection,
-                        ediv_t *ediv,
-                        rand_t *rand) {
+                        ediv_t ediv,
+                        rand_t rand) {
         db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::set_ltk_cb), ediv, rand);
     }
 
