@@ -51,7 +51,8 @@ struct SecurityEntry_t {
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
     uint8_t sign_data:1;
-    uint8_t encrypt_data:1;
+    uint8_t encryption_requested:1;
+    uint8_t encrypted:1;
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
     uint8_t secure_connections:1;
@@ -255,8 +256,20 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t getLinkSecurity(connection_handle_t connection, LinkSecurityStatus_t *securityStatusP) {
-        return pal.get_encryption_status(connection, *securityStatusP);
+    ble_error_t getLinkSecurity(connection_handle_t connection, LinkSecurityStatus_t *securityStatus) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            if (entry->encrypted) {
+                *securityStatus = LinkSecurityStatus_t::ENCRYPTED;
+            } else if (entry->encryption_requested) {
+                *securityStatus = LinkSecurityStatus_t::ENCRYPTION_IN_PROGRESS;
+            } else {
+                *securityStatus = LinkSecurityStatus_t::NOT_ENCRYPTED;
+            }
+            return BLE_ERROR_NONE;
+         } else {
+             return BLE_ERROR_INVALID_PARAM;
+         }
     }
 
     ble_error_t getEncryptionKeySize(connection_handle_t connection, uint8_t *size) {
@@ -468,10 +481,10 @@ public:
     // Security
     //
 
-    void on_link_secured(connection_handle_t connection,
-                         SecurityManager::SecurityMode_t security_mode) {
+    void on_link_encryption_result(connection_handle_t connection,
+                                   bool encrypted) {
         if (_app_event_handler) {
-            _app_event_handler->linkSecured(connection, security_mode);
+            _app_event_handler->linkEncryptionResult(connection, encrypted);
         }
     }
 
