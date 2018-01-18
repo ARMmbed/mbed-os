@@ -40,7 +40,7 @@
 #include "PeripheralPins.h"
 #include "mbed_error.h"
 
-#define UART_NUM (3)
+#define UART_NUM (5)
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
@@ -479,11 +479,20 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     NVIC_SetVector(irq_n, (uint32_t)handler);
     NVIC_EnableIRQ(irq_n);
 
-    // the following function will enable UART_IT_TXE and error interrupts
-    if (HAL_UART_Transmit_IT(huart, (uint8_t*)tx, tx_length) != HAL_OK) {
+    if(huart->hdmatx != NULL && huart->hdmatx->Instance != NULL) {
+        // the following function will enable program and enable the DMA transfer
+        if (HAL_UART_Transmit_DMA(huart, (uint8_t*)tx, tx_length) != HAL_OK)
+        {
+        /* Transfer error in transmission process */
         return 0;
+        }
+    } else {
+        // the following function will enable UART_IT_TXE and error interrupts
+        if (HAL_UART_Transmit_IT(huart, (uint8_t*)tx, tx_length) != HAL_OK) {
+            return 0;
+        }
     }
-    
+
     return tx_length;
 }
 
