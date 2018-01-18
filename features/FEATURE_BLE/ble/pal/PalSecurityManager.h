@@ -44,20 +44,13 @@ typedef uint8_t rand_t[2];
 typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
-class PasskeyNum {
-public:
-    PasskeyNum() : number(0) { }
-    PasskeyNum(uint32_t num) : number(num) { }
-    operator uint32_t() {
-        return number;
-    }
-    uint32_t number;
-};
-
 class PasskeyAsci {
 public:
     static const uint8_t NUMBER_OFFSET = '0';
 
+    PasskeyAsci() {
+        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
+    }
     PasskeyAsci(const uint8_t* passkey) {
         if (passkey) {
             memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
@@ -65,21 +58,18 @@ public:
             memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
         }
     }
-    PasskeyAsci() {
-        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
-    }
-    PasskeyAsci(const PasskeyNum& passkey) {
+    PasskeyAsci(const passkey_num_t passkey) {
         for (size_t i = 5, m = 100000; i >= 0; --i, m /= 10) {
-            uint32_t result = passkey.number / m;
+            uint32_t result = passkey / m;
             asci[i] = NUMBER_OFFSET + result;
-            passkey.number -= result;
+            passkey -= result;
         }
     }
-    operator PasskeyNum() {
-        return PasskeyNum(to_num(asci));
+    operator passkey_num_t() {
+        return to_num(asci);
     }
 
-    static uint32_t to_num(const uint8_t* asci) {
+    static uint32_t to_num(const uint8_t *asci) {
         uint32_t passkey = 0;
         for (size_t i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
             passkey += (asci[i] - NUMBER_OFFSET) * m;
@@ -582,7 +572,7 @@ public:
     // MITM
     //
 
-    virtual void set_display_passkey(const passkey_num_t passkey) = 0;
+    virtual ble_error_t set_display_passkey(const passkey_num_t passkey) = 0;
 
     /**
      * Reply to a passkey request received from the SecurityManagerEventHandler.
