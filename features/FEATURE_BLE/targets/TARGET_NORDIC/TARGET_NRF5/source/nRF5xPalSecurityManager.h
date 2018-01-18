@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef CORDIO_PAL_SECURITY_MANAGER_
-#define CORDIO_PAL_SECURITY_MANAGER_
+#ifndef NRF5X_PAL_SECURITY_MANAGER_
+#define NRF5X_PAL_SECURITY_MANAGER_
 
 #include "ble/pal/PalSecurityManager.h"
-#include "wsf_types.h"
-#include "wsf_os.h"
+#include "nrf_ble.h"
 
 namespace ble {
 namespace pal {
 namespace vendor {
-namespace cordio {
+namespace nordic {
 
-class CordioSecurityManager : public ::ble::pal::SecurityManager {
+class nRF5xSecurityManager : public ::ble::pal::SecurityManager {
 public:
-    CordioSecurityManager();
+    nRF5xSecurityManager();
 
-    virtual ~CordioSecurityManager();
+    virtual ~nRF5xSecurityManager();
 
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
@@ -269,16 +268,21 @@ public:
         connection_handle_t connection, Keypress_t keypress
     );
 
-    // singleton of the ARM Cordio Security Manager
-    static CordioSecurityManager& get_security_manager();
+    // singleton of nordic Security Manager
+    static nRF5xSecurityManager& get_security_manager();
 
     // Event handler
-    static bool sm_handler(const wsfMsgHdr_t* msg);
+    // FIXME: set proper event handling type
+    static bool sm_handler(const ble_evt_t *evt);
+
+private:
+    irk_t _irk;
+    csrk_t _csrk;
 };
 
-} // cordio
+} // nordic
 } // vendor
 } // pal
 } // ble
 
-#endif /* CORDIO_PAL_SECURITY_MANAGER_ */
+#endif /* NRF5X_PAL_SECURITY_MANAGER_ */

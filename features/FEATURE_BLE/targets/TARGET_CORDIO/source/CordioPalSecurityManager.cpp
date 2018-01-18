@@ -17,6 +17,7 @@
 #include "CordioPalSecurityManager.h"
 #include "dm_api.h"
 #include "smp_api.h"
+#include "wsf_os.h"
 
 namespace ble {
 namespace pal {
@@ -94,7 +95,7 @@ ble_error_t CordioSecurityManager::set_secure_connections_support(
 }
 
 ble_error_t CordioSecurityManager::get_secure_connections_support(
-    bool &enabled, bool &secure_connections_only
+    bool &enabled
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -312,6 +313,140 @@ CordioSecurityManager& CordioSecurityManager::get_security_manager()
     static CordioSecurityManager _security_manager;
     return _security_manager;
 }
+
+bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
+    SecurityManagerEventHandler* handler =
+        get_security_manager().get_event_handler();
+
+    if ((msg == NULL) || (handler == NULL)) {
+        return false;
+    }
+
+    switch (msg->event) {
+        case DM_SEC_PAIR_CMPL_IND:
+            // TODO
+            return true;
+
+        case DM_SEC_PAIR_FAIL_IND: {
+            uint8_t status = msg->status;
+            if (status >= pairing_failure_t::PASSKEY_ENTRY_FAILED &&
+                status <= pairing_failure_t::CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED) {
+                handler->on_pairing_error(
+                    msg->param,
+                    (pairing_failure_t::type) msg->status
+                );
+            } else if (status == SMP_ERR_MEMORY) {
+                // FIXME: report to user
+            } else if (msg->status == SMP_ERR_TIMEOUT) {
+                // FIXME: forward to timeout handler
+            } else {
+                // TODO: log error
+            }
+            return true;
+        }
+
+        case DM_SEC_ENCRYPT_IND:
+            // TODO: Indicate link encryption
+            return true;
+
+        case DM_SEC_ENCRYPT_FAIL_IND:
+            // TODO: indicate link encryption failure
+            return true;
+
+        case DM_SEC_AUTH_REQ_IND: {
+            dmSecAuthReqIndEvt_t* evt = (dmSecAuthReqIndEvt_t*) msg;
+            connection_handle_t connection = evt->hdr.param;
+
+            if (evt->oob) {
+                handler->on_oob_data_request(connection);
+            } else if (evt->display) {
+                // FIXME: generate the passkey to display or query the default one
+                passkey_num_t passkey;
+                handler->on_passkey_display(connection, passkey);
+                DmSecAuthRsp(connection, 3, reinterpret_cast<uint8_t*>(&passkey));
+            } else {
+                handler->on_passkey_request(connection);
+            }
+            return true;
+        }
+
+        case DM_SEC_KEY_IND: {
+            dmSecKeyIndEvt_t* evt = (dmSecKeyIndEvt_t*) msg;
+            connection_handle_t connection = evt->hdr.param;
+
+            switch(evt->type) {
+                case DM_KEY_LOCAL_LTK:
+                    // TODO: usefull ???
+                    break;
+
+                case DM_KEY_PEER_LTK:
+                    handler->on_keys_distributed_ltk(connection, evt->keyData.ltk.key);
+                    handler->on_keys_distributed_ediv_rand(
+                        connection, evt->keyData.ltk.ediv, evt->keyData.ltk.rand
+                    );
+                    break;
+
+                case DM_KEY_IRK:
+                    handler->on_keys_distributed_bdaddr(
+                        connection,
+                        evt->keyData.irk.addrType,
+                        evt->keyData.irk.bdAddr
+                    );
+                    handler->on_keys_distributed_irk(connection, evt->keyData.irk.key);
+                    break;
+
+                case DM_KEY_CSRK:
+                    handler->on_keys_distributed_csrk(connection, evt->keyData.csrk);
+                    break;
+            }
+
+            // TODO: what to do with the security level and encryption key len ???
+
+            return true;
+        }
+
+        case DM_SEC_LTK_REQ_IND: {
+            hciLeLtkReqEvt_t* evt = (hciLeLtkReqEvt_t*) msg;
+            handler->on_ltk_request(
+                evt->hdr.param,
+                evt->encDiversifier,
+                evt->randNum
+            );
+            return true;
+        }
+
+        case DM_SEC_PAIR_IND: {
+            dmSecPairIndEvt_t* evt = (dmSecPairIndEvt_t*) msg;
+            handler->on_pairing_request(
+                evt->hdr.param,
+                0, // io capability missing,
+                evt->oob,
+                evt->auth,
+                0, // FIXME: maximum encryption key size missing
+                evt->iKeyDist,
+                evt->rKeyDist
+            )        ;
+            return true;
+        }
+
+        case DM_SEC_SLAVE_REQ_IND:
+            return true;
+
+        case DM_SEC_CALC_OOB_IND:
+            return true;
+
+        case DM_SEC_ECC_KEY_IND:
+            return true;
+
+        case DM_SEC_COMPARE_IND:
+            return true;
+
+        case DM_SEC_KEYPRESS_IND:
+            return true;
+    }
+
+}
+
 
 } // cordio
 } // vendor
