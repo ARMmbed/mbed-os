@@ -525,15 +525,6 @@ public:
     // Security
     //
 
-    void on_security_setup_initiated(connection_handle_t connection,
-                                     bool allow_bonding,
-                                     bool require_mitm,
-                                     io_capability_t iocaps) {
-        if (_app_event_handler) {
-            _app_event_handler->securitySetupInitiated(connection, allow_bonding, require_mitm, iocaps);
-        }
-    }
-
     void on_link_secured(connection_handle_t connection,
                          SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
@@ -544,13 +535,6 @@ public:
     void on_valid_mic_timeout(connection_handle_t connection) {
         if (_app_event_handler) {
             _app_event_handler->validMicTimeout(connection);
-        }
-    }
-
-    /* TODO: this appears to be redundant */
-    void on_security_context_stored(connection_handle_t connection) {
-        if (_app_event_handler) {
-            _app_event_handler->securityContextStored(connection);
         }
     }
 

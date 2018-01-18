@@ -234,16 +234,6 @@ public:
     //
 
     /**
-     * To indicate that a security procedure for the link has started.
-     */ /*TODO: is this redundant with pairing request present? */
-    virtual void on_security_setup_initiated(
-        connection_handle_t connection,
-        bool allow_bonding,
-        bool require_mitm,
-        io_capability_t iocaps
-    ) = 0;
-
-    /**
      * To indicate that the link with the peer is secured. For bonded devices,
      * subsequent reconnections with a bonded peer will result only in this callback
      * when the link is secured; setup procedures will not occur (unless the

@@ -131,13 +131,6 @@ public:
         // Security
         //
 
-        virtual void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
-            (void)handle;
-            (void)allowBonding;
-            (void)requireMITM;
-            (void)iocaps;
-        }
-
         virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
             (void)handle;
             (void)securityMode;
@@ -216,12 +209,6 @@ private:
             }
         }
 
-        void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
-            if (securitySetupInitiatedCallback) {
-                securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
-            }
-        };
-
         ////////////////////////////////////////////////////////////////////////////
         // Security
         //
@@ -231,13 +218,6 @@ private:
                 linkSecuredCallback(handle, securityMode);
             }
         };
-
-        /* TODO: this appears to be redundant */
-        void securityContextStored(connection_handle_t handle) {
-            if (securityContextStoredCallback) {
-                securityContextStoredCallback(handle);
-            }
-        }
 
         ////////////////////////////////////////////////////////////////////////////
         // MITM
@@ -647,7 +627,9 @@ public:
 public:
     /** @deprecated */
     void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
-        eventHandler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
+        if (defaultEventHandler.securitySetupInitiatedCallback) {
+            defaultEventHandler.securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
+        }
     }
     /** @deprecated */
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
@@ -666,7 +648,9 @@ public:
     }
     /** @deprecated */
     void processSecurityContextStoredEvent(Gap::Handle_t handle) {
-        eventHandler->securityContextStored(handle);
+        if (defaultEventHandler.securityContextStoredCallback) {
+            defaultEventHandler.securityContextStoredCallback(handle);
+        }
     }
     /** @deprecated */
     void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
