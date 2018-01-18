@@ -1739,17 +1739,9 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                     return NULL;
                 }
 
-                // Response with COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE if the payload size is more than we can handle
-
-                uint32_t max_size = SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE;
                 if (!blocks_in_order) {
                     tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_INCOMPLETE!");
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_INCOMPLETE;
-                } else if (received_coap_msg_ptr->options_list_ptr->size1 > max_size) {
-                    // Include maximum size that stack can handle into response
-                    tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
-                    src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1 = max_size;
                 } else if (received_coap_msg_ptr->msg_code == COAP_MSG_CODE_REQUEST_GET) {
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_CONTENT;
                 } else if (received_coap_msg_ptr->msg_code == COAP_MSG_CODE_REQUEST_POST) {
@@ -1760,23 +1752,31 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_DELETED;
                 }
 
-                src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 = received_coap_msg_ptr->options_list_ptr->block1;
-                src_coap_blockwise_ack_msg_ptr->msg_type = COAP_MSG_TYPE_ACKNOWLEDGEMENT;
-
-                /* Check block size */
-                block_temp = (src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 & 0x07);
-                uint16_t block_size = 1u << (block_temp + 4);
-                if (block_size >  handle->sn_coap_block_data_size) {
-                     // Include maximum size that stack can handle into response
-                     tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
-                     src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
-                     src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1 = handle->sn_coap_block_data_size;
-                     sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(handle);
+                // Response with COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE if the payload size is more than we can handle
+                if (received_coap_msg_ptr->options_list_ptr->size1 > SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE) {
+                    // Include maximum size that stack can handle into response
+                    tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
+                    src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
                 }
+                else {
+                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 = received_coap_msg_ptr->options_list_ptr->block1;
+                    src_coap_blockwise_ack_msg_ptr->msg_type = COAP_MSG_TYPE_ACKNOWLEDGEMENT;
 
-                if (block_temp > sn_coap_convert_block_size(handle->sn_coap_block_data_size)) {
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 &= 0xFFFFF8;
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 |= sn_coap_convert_block_size(handle->sn_coap_block_data_size);
+                    /* Check block size */
+                    block_temp = (src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 & 0x07);
+                    uint16_t block_size = 1u << (block_temp + 4);
+                    if (block_size >  handle->sn_coap_block_data_size) {
+                         // Include maximum size that stack can handle into response
+                         tr_error("sn_coap_handle_blockwise_message - (recv block1) COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE!");
+                         src_coap_blockwise_ack_msg_ptr->msg_code = COAP_MSG_CODE_RESPONSE_REQUEST_ENTITY_TOO_LARGE;
+                         src_coap_blockwise_ack_msg_ptr->options_list_ptr->size1 = handle->sn_coap_block_data_size;
+                         sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(handle);
+                    }
+
+                    if (block_temp > sn_coap_convert_block_size(handle->sn_coap_block_data_size)) {
+                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 &= 0xFFFFF8;
+                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 |= sn_coap_convert_block_size(handle->sn_coap_block_data_size);
+                    }
                 }
 
                 src_coap_blockwise_ack_msg_ptr->msg_id = received_coap_msg_ptr->msg_id;
