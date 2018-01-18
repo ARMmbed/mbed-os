@@ -131,11 +131,6 @@ public:
         // Security
         //
 
-        virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
-            (void)handle;
-            (void)securityMode;
-        }
-
         virtual void validMicTimeout(connection_handle_t handle) {
             (void)handle;
         }
@@ -146,9 +141,13 @@ public:
             }
         }
 
-        /* TODO: this appears to be redundant */
-        virtual void securityContextStored(connection_handle_t handle) {
+        ////////////////////////////////////////////////////////////////////////////
+        // Encryption
+        //
+
+        void linkEncryptionResult(connection_handle_t handle, bool encrypted) {
             (void)handle;
+            (void)encrypted;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -210,11 +209,17 @@ private:
         }
 
         ////////////////////////////////////////////////////////////////////////////
-        // Security
+        // Encryption
         //
 
-        void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+        void linkEncryptionResult(connection_handle_t handle, bool encrypted) {
             if (linkSecuredCallback) {
+                SecurityManager::SecurityMode_t securityMode;
+                if (encrypted) {
+                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM
+                } else {
+                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_OPEN_LINK
+                }
                 linkSecuredCallback(handle, securityMode);
             }
         };
@@ -452,6 +457,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumBitSize, uint8_t maximumBitSize) {
+        (void) minimumBitSize;
+        (void) maximumBitSize;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
@@ -644,7 +655,11 @@ public:
     }
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
-        eventHandler->linkSecured(handle, securityMode);
+        if (securityMode == SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM) {
+            eventHandler->linkEncryptionResult(handle, true);
+        } else {
+            eventHandler->linkEncryptionResult(handle, false);
+        }
     }
     /** @deprecated */
     void processSecurityContextStoredEvent(Gap::Handle_t handle) {

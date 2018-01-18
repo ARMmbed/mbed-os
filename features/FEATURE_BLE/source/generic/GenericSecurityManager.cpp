@@ -37,8 +37,7 @@ using ble::pal::AuthenticationMask::AuthenticationFlags_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
-using ble::PasskeyAsci;
-using ble::PasskeyNum;
+using ble::pal::PasskeyAsci;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 /* separate structs to allow db implementation to minimise memory usage */
@@ -155,8 +154,8 @@ public:
                      SecurityIOCapabilities_t iocaps   = IO_CAPS_NONE,
                      const Passkey_t          passkey  = NULL) {
         db.restore();
-        io_capability = io_capability_t(iocaps);
-        display_passkey = PasskeyAsci::to_num(passkey);
+        pal.set_io_capability(io_capability_t(iocaps));
+        pal.set_display_passkey(PasskeyAsci::to_num(passkey));
         legacy_pairing_allowed = true;
 
         bool secure_connections;
@@ -208,9 +207,8 @@ public:
     // Security settings
     //
 
-    virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
-        display_passkey = passkey;
-        return BLE_ERROR_NONE;
+    ble_error_t setDisplayPasskey(const Passkey_t passkey) {
+        return pal.set_display_passkey(PasskeyAsci::to_num(passkey));
     }
 
     ble_error_t setAuthenticationTimeout(connection_handle_t connection,
@@ -271,6 +269,10 @@ public:
         }
     }
 
+    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumBitSize, uint8_t maximumBitSize) {
+        return pal.set_encryption_key_requirements(minimumBitSize, maximumBitSize);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
@@ -305,10 +307,8 @@ public:
         if (entry) {
             return pal.send_pairing_request(
                 connection,
-                io_capability,
                 entry->oob,
                 authentication,
-                max_key_size,
                 initiator_dist,
                 responder_dist
             );
@@ -322,10 +322,8 @@ public:
         if (entry) {
             return pal.send_pairing_response(
                 connection,
-                io_capability,
                 entry->oob,
                 authentication,
-                max_key_size,
                 initiator_dist,
                 responder_dist
             );
@@ -353,10 +351,8 @@ public:
                 connection_authentication.set_mitm(true);
                 return pal.send_pairing_request(
                     connection,
-                    io_capability,
                     entry->oob,
                     authentication,
-                    max_key_size,
                     initiator_dist,
                     responder_dist
                 );
@@ -419,7 +415,6 @@ public:
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl)
         : pal(palImpl),
-          io_capability(0),
           pairing_authorisation_required(false),
           legacy_pairing_allowed(true),
           authentication(0),
@@ -432,9 +427,6 @@ protected:
 private:
     ble::pal::SecurityManager& pal;
     SecurityDb db;
-
-    io_capability_t io_capability;
-    PasskeyNum display_passkey;
 
     bool pairing_authorisation_required;
     bool legacy_pairing_allowed;
@@ -451,10 +443,8 @@ public:
     //
 
     void on_pairing_request(connection_handle_t connection,
-                            io_capability_t iocaps,
                             bool use_oob,
                             AuthenticationMask authentication,
-                            uint8_t max_key_size,
                             KeyDistribution initiator_dist,
                             KeyDistribution responder_dist) {
         if (_app_event_handler && pairing_authorisation_required) {
