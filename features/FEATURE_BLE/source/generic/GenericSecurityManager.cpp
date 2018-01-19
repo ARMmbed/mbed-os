@@ -192,6 +192,49 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    // Pairing
+    //
+
+    ble_error_t requestPairing(connection_handle_t connection) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            return pal.send_pairing_request(
+                connection,
+                entry->oob,
+                authentication,
+                initiator_dist,
+                responder_dist
+            );
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+    }
+
+    ble_error_t acceptPairingRequest(connection_handle_t connection) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            return pal.send_pairing_response(
+                connection,
+                entry->oob,
+                authentication,
+                initiator_dist,
+                responder_dist
+            );
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+    }
+
+    ble_error_t canceltPairingRequest(connection_handle_t connection) {
+        return pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
+    }
+
+    ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        pairing_authorisation_required = required;
+        return BLE_ERROR_NONE;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
 
@@ -319,40 +362,6 @@ public:
     // Authentication
     //
 
-    ble_error_t requestPairing(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            return pal.send_pairing_request(
-                connection,
-                entry->oob,
-                authentication,
-                initiator_dist,
-                responder_dist
-            );
-        } else {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-    }
-
-    ble_error_t acceptPairingRequest(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            return pal.send_pairing_response(
-                connection,
-                entry->oob,
-                authentication,
-                initiator_dist,
-                responder_dist
-            );
-        } else {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-    }
-
-    ble_error_t canceltPairingRequest(connection_handle_t connection) {
-        return pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
-    }
-
     ble_error_t requestAuthentication(connection_handle_t connection) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
@@ -377,11 +386,6 @@ public:
         } else {
             return BLE_ERROR_INVALID_PARAM;
         }
-    }
-
-    ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        pairing_authorisation_required = required;
-        return BLE_ERROR_NONE;
     }
 
     ////////////////////////////////////////////////////////////////////////////

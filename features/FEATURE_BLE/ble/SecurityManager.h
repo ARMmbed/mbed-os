@@ -341,6 +341,30 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    // Pairing
+    //
+
+    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        (void) required;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
 
@@ -471,28 +495,8 @@ public:
     // Authentication
     //
 
-    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
     virtual ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
         (void) connectionHandle;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        (void) required;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
