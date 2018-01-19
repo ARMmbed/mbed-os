@@ -584,7 +584,10 @@ public:
         connection_handle_t connection
     ) {
         if (_app_event_handler) {
-            _app_event_handler->linkEncryptionResult(connection, link_encryption_t::NOT_ENCRYPTED);
+            _app_event_handler->linkEncryptionResult(
+                connection,
+                link_encryption_t::NOT_ENCRYPTED
+            );
         }
     }
 
@@ -665,8 +668,10 @@ public:
         }
     }
 
-    virtual void on_keys_distributed_ltk(connection_handle_t connection,
-        const ltk_t ltk) {
+    virtual void on_keys_distributed_ltk(
+        connection_handle_t connection,
+        const ltk_t ltk
+    ) {
         db.update_entry_ltk(connection, ltk);
     }
 
