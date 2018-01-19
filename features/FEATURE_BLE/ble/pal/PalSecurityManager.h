@@ -401,10 +401,6 @@ public:
 
 /**
  * Adaptation layer of the Security Manager.
- *
- *
- * FIXME: ADD API in the pal to set default passkey!
- *
  */
 class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
