@@ -56,6 +56,7 @@ struct SecurityEntry_t {
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
     uint8_t secure_connections:1;
+    uint8_t signing_key:1;
 };
 
 struct SecurityEntryKeys_t {
@@ -77,6 +78,7 @@ enum DbCbAction_t {
 
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
+typedef mbed::Callback<DbCbAction_t(connection_handle_t, csrk_t)> SecurityEntryCsrkDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryIdentity_t&)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
 
@@ -102,6 +104,11 @@ public:
      */
     virtual SecurityEntry_t* get_entry(connection_handle_t connection);
 
+
+    virtual void get_entry_csrk(
+        SecurityEntryCsrkDbCb_t cb,
+        connection_handle_t connection
+    );
     virtual void get_entry_keys(
         SecurityEntryKeysDbCb_t cb,
         const ediv_t ediv,
@@ -383,6 +390,30 @@ public:
     // Keys
     //
 
+    virtual ble_error_t getSigningKey(connection_handle_t connection, bool authenticated) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        if (entry->signing_key && (entry->mitm || !authenticated)) {
+            /* we have a key that is either authenticated or we don't care if it is
+             * so retrieve it from the db now */
+            db.get_entry_csrk(
+                mbed::callback(this, &GenericSecurityManager::return_csrk_cb),
+                connection
+            );
+            return BLE_ERROR_NONE;
+        } else {
+            /* we don't have the right key so we need to get it first
+             * keys exchange will create the signingKey event */
+            if (authenticated) {
+                return requestAuthentication(connection);
+            } else {
+                return requestPairing(connection);
+            }
+        }
+    }
+
     /**
      * Returns the requested LTK to the PAL. Called by the security db.
      *
@@ -396,6 +427,16 @@ public:
         SecurityEntryKeys_t& entryKeys
     ) {
         pal.set_ltk(entry.handle, entryKeys.ltk);
+        return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+    }
+
+    DbCbAction_t return_csrk_cb(
+        connection_handle_t connection,
+        csrk_t csrk
+    ) {
+        if (_app_event_handler) {
+            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+        }
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 

@@ -418,22 +418,6 @@ public:
     }
 
     /**
-     * Retrieves a signing key through a signingKey event.
-     * If a signing key is not present, pairing/authentication will be attempted.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] authenticated    Whether the signing key needs to be authenticated
-     *                             (provide MITM protection).
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t getSigningKey(Gap::Handle_t connectionHandle, bool authenticated) {
-        (void)connectionHandle;
-        (void)authenticated;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
      * Set whether or not we want to send and receive keypress notifications
      * during passkey entry.
      *
@@ -512,6 +496,26 @@ public:
     virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
         (void) handle;
         (void) keypress;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Keys
+    //
+
+    /**
+     * Retrieves a signing key through a signingKey event.
+     * If a signing key is not present, pairing/authentication will be attempted.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] authenticated    Whether the signing key needs to be authenticated
+     *                             (provide MITM protection).
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getSigningKey(Gap::Handle_t connectionHandle, bool authenticated) {
+        (void)connectionHandle;
+        (void)authenticated;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
