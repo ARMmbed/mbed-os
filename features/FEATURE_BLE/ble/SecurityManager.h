@@ -121,8 +121,9 @@ public:
             (void)handle;
         }
 
-        virtual void pairingResult(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t result) {
+        virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
             (void)handle;
+            (void)result;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -149,9 +150,9 @@ public:
         // Encryption
         //
 
-        void linkEncryptionResult(connection_handle_t handle, link_encryption_t encrypted) {
+        virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
             (void)handle;
-            (void)encrypted;
+            (void)result;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -200,7 +201,7 @@ private:
         // Pairing
         //
 
-        void pairingResult(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t result) {
+        virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
             if (securitySetupCompletedCallback) {
                 securitySetupCompletedCallback(handle, result);
             }
@@ -210,11 +211,13 @@ private:
         // Encryption
         //
 
-        void linkEncryptionResult(connection_handle_t handle, LinkSecurityStatus_t encrypted) {
+        virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
             if (linkSecuredCallback) {
                 SecurityManager::SecurityMode_t securityMode;
-                if (encrypted) {
+                if (result == link_encryption_t::ENCRYPTED) {
                     securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
+                } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+                    securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
                 } else {
                     securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
                 }
@@ -226,7 +229,7 @@ private:
         // MITM
         //
 
-        void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
             if (passkeyDisplayCallback) {
                 passkeyDisplayCallback(handle, passkey);
             }
