@@ -38,6 +38,7 @@ using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
 using ble::pal::PasskeyAsci;
+using ble::pal::passkey_num_t;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 /* separate structs to allow db implementation to minimise memory usage */
@@ -503,9 +504,9 @@ public:
     //
 
     void on_passkey_display(connection_handle_t connection,
-                            const SecurityManager::Passkey_t passkey) {
+                            const passkey_num_t passkey) {
         if (_app_event_handler) {
-            _app_event_handler->passkeyDisplay(connection, passkey);
+            _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
         }
     }
 
@@ -547,7 +548,7 @@ public:
 
     void on_keys_distributed(connection_handle_t connection,
                              advertising_peer_address_type_t peer_address_type,
-                             address_t &peer_identity_address,
+                             const address_t &peer_identity_address,
                              const ediv_t ediv,
                              const rand_t rand,
                              const ltk_t ltk,
