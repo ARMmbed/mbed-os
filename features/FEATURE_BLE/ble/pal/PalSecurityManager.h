@@ -333,7 +333,7 @@ public:
      * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
      * or a cancellation of the procedure.
      */
-    virtual void on_oob_data_request(connection_handle_t connection) = 0;
+    virtual void on_oob_request(connection_handle_t connection) = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////
