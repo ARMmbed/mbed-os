@@ -206,9 +206,9 @@ private:
             if (linkSecuredCallback) {
                 SecurityManager::SecurityMode_t securityMode;
                 if (encrypted) {
-                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM
+                    securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
                 } else {
-                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_OPEN_LINK
+                    securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
                 }
                 linkSecuredCallback(handle, securityMode);
             }
@@ -643,7 +643,7 @@ public:
     }
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
-        if (securityMode == SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM) {
+        if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
             eventHandler->linkEncryptionResult(handle, true);
         } else {
             eventHandler->linkEncryptionResult(handle, false);
