@@ -309,15 +309,6 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t getLinkSecurity(
-        connection_handle_t connection,
-        SecurityMode_t *securityMode
-    ) {
-
-        *securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
-        return BLE_ERROR_NONE;
-    }
-
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
         authentication.set_keypress_notification(enabled);
         return BLE_ERROR_NONE;
