@@ -208,6 +208,10 @@ public:
     // Security settings
     //
 
+    ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps) {
+        return pal.set_io_capability(io_capability_t(iocaps));
+    }
+
     ble_error_t setDisplayPasskey(const Passkey_t passkey) {
         return pal.set_display_passkey(PasskeyAsci::to_num(passkey));
     }

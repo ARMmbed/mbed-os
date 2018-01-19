@@ -368,6 +368,11 @@ public:
     // Security settings
     //
 
+    virtual ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps) {
+        (void) iocaps;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     /**
      * Set the passkey that is displayed on the local device instead of using
      * a randomly generated one
@@ -446,7 +451,7 @@ public:
     virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
-        (void)securityStatusP;
+        (void)securityStatus;
 
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }

@@ -246,10 +246,8 @@ public:
      */
     virtual void on_pairing_request(
         connection_handle_t connection,
-        io_capability_t io_capability,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
-        uint8_t maximum_encryption_key_size,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) = 0;
