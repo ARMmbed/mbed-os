@@ -28,6 +28,8 @@ class LegacySecurityManagerEventHandler;
 
 using ble::connection_handle_t;
 using ble::pairing_failure_t;
+using ble::link_encryption_t;
+typedef uint8_t csrk_t[16];
 
 class SecurityManager {
 public:
@@ -60,11 +62,11 @@ public:
     };
 
     enum SecurityIOCapabilities_t {
-      IO_CAPS_DISPLAY_ONLY     = 0x00,   /**< Display only. */
-      IO_CAPS_DISPLAY_YESNO    = 0x01,   /**< Display and yes/no entry. */
-      IO_CAPS_KEYBOARD_ONLY    = 0x02,   /**< Keyboard only. */
-      IO_CAPS_NONE             = 0x03,   /**< No I/O capabilities. */
-      IO_CAPS_KEYBOARD_DISPLAY = 0x04,   /**< Keyboard and display. */
+        IO_CAPS_DISPLAY_ONLY = 0x00, /**< Display only. */
+        IO_CAPS_DISPLAY_YESNO = 0x01, /**< Display and yes/no entry. */
+        IO_CAPS_KEYBOARD_ONLY = 0x02, /**< Keyboard only. */
+        IO_CAPS_NONE = 0x03, /**< No I/O capabilities. */
+        IO_CAPS_KEYBOARD_DISPLAY = 0x04, /**< Keyboard and display. */
     };
 
     enum SecurityCompletionStatus_t {
@@ -137,11 +139,15 @@ public:
             }
         }
 
+        virtual void signingKey(const csrk_t csrk, bool authenticated) {
+            (void)csrk;
+        }
+
         ////////////////////////////////////////////////////////////////////////////
         // Encryption
         //
 
-        void linkEncryptionResult(connection_handle_t handle, bool encrypted) {
+        void linkEncryptionResult(connection_handle_t handle, link_encryption_t encrypted) {
             (void)handle;
             (void)encrypted;
         }
@@ -202,7 +208,7 @@ private:
         // Encryption
         //
 
-        void linkEncryptionResult(connection_handle_t handle, bool encrypted) {
+        void linkEncryptionResult(connection_handle_t handle, LinkSecurityStatus_t encrypted) {
             if (linkSecuredCallback) {
                 SecurityManager::SecurityMode_t securityMode;
                 if (encrypted) {
@@ -407,6 +413,22 @@ public:
     }
 
     /**
+     * Retrieves a signing key through a signingKey event.
+     * If a signing key is not present, pairing/authentication will be attempted.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] authenticated    Whether the signing key needs to be authenticated
+     *                             (provide MITM protection).
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getSigningKey(Gap::Handle_t connectionHandle, bool authenticated) {
+        (void)connectionHandle;
+        (void)authenticated;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
      * Set whether or not we want to send and receive keypress notifications
      * during passkey entry.
      *
@@ -424,7 +446,7 @@ public:
     // Encryption
     //
 
-    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
+    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, link_encryption_t *securityStatus) {
         (void)connectionHandle;
         (void)securityStatus;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -577,11 +599,17 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)securityStatus;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+     ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
+        link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
+        ble_error_t status = getLinkEncryption(connectionHandle, &encryption);
+        /* legacy support limits the return values */
+        if (encryption.value() == link_encryption_t::ENCRYPTED_WITH_MITM) {
+            *securityStatus = ENCRYPTED;
+        } else {
+            *securityStatus = (LinkSecurityStatus_t)encryption.value();
+        }
+
+        return status;
     }
 
     /**
@@ -646,9 +674,9 @@ public:
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
         if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
-            eventHandler->linkEncryptionResult(handle, true);
+            eventHandler->linkEncryptionResult(handle, link_encryption_t::ENCRYPTED);
         } else {
-            eventHandler->linkEncryptionResult(handle, false);
+            eventHandler->linkEncryptionResult(handle, link_encryption_t::NOT_ENCRYPTED);
         }
     }
     /** @deprecated */

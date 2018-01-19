@@ -295,7 +295,7 @@ public:
      */
     virtual void on_link_encryption_result(
         connection_handle_t connection,
-        bool encrypted
+        link_encryption_t result
     ) = 0;
 
     /**

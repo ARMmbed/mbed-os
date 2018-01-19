@@ -294,8 +294,6 @@ public:
     //
 
     /**
-     * @deprecated
-     *
      * Get the security status of a connection.
      *
      * @param[in]  connection   Handle to identify the connection.
@@ -303,24 +301,24 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t getLinkSecurity(connection_handle_t connection, LinkSecurityStatus_t *securityStatus) {
-        return getLinkEncryption(connection, securityStatus);
-    }
-
-    ble_error_t getLinkEncryption(connection_handle_t connection, LinkSecurityStatus_t *securityStatus) {
+    ble_error_t getLinkEncryption(connection_handle_t connection, link_encryption_t *securityStatus) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             if (entry->encrypted) {
-                *securityStatus = ENCRYPTED;
+                if (entry->mitm) {
+                    *securityStatus = link_encryption_t::ENCRYPTED_WITH_MITM;
+                } else {
+                    *securityStatus = link_encryption_t::ENCRYPTED;
+                }
             } else if (entry->encryption_requested) {
-                *securityStatus = ENCRYPTION_IN_PROGRESS;
+                *securityStatus = link_encryption_t::ENCRYPTION_IN_PROGRESS;
             } else {
-                *securityStatus = NOT_ENCRYPTED;
+                *securityStatus = link_encryption_t::NOT_ENCRYPTED;
             }
             return BLE_ERROR_NONE;
-         } else {
-             return BLE_ERROR_INVALID_PARAM;
-         }
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     ble_error_t getEncryptionKeySize(connection_handle_t connection, uint8_t *size) {
@@ -519,15 +517,15 @@ public:
     //
 
     void on_link_encryption_result(connection_handle_t connection,
-                                   bool encrypted) {
+                                   link_encryption_t result) {
         if (_app_event_handler) {
-            _app_event_handler->linkEncryptionResult(connection, encrypted);
+            _app_event_handler->linkEncryptionResult(connection, result);
         }
     }
 
     void on_link_encryption_request_timed_out(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->linkEncryptionResult(connection, false);
+            _app_event_handler->linkEncryptionResult(connection, link_encryption_t::NOT_ENCRYPTED);
         }
     }
 

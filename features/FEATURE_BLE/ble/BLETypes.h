@@ -118,6 +118,22 @@ static inline attribute_handle_range_t attribute_handle_range(
     return result;
 }
 
+/**
+ * Type that describes link's encryption state..
+ */
+struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
+    enum type {
+        NOT_ENCRYPTED,          /**< The link is not secured. */
+        ENCRYPTION_IN_PROGRESS, /**< Link security is being established. */
+        ENCRYPTED,              /**< The link is secure. */
+        ENCRYPTED_WITH_MITM     /**< The link is secure and authenticated. */
+    };
+
+    /**
+     * Construct a new instance of pairing_failure_t.
+     */
+    link_encryption_t(type value) : SafeEnum<link_encryption_t, uint8_t>(value) { }
+};
 
 /**
  * Type that describe a pairing failure.
