@@ -61,7 +61,7 @@ extern "C" {
  *
  * # Defined behavior
  * * The function ticker_init is safe to call repeatedly - Verified by test ::ticker_init_test
- * * The function ticker_init resets the internal count and disables the ticker interrupt - Verified by test ::ticker_init_test
+ * * The function ticker_init allows the ticker to keep counting and disables the ticker interrupt - Verified by test ::ticker_init_test
  * * Ticker frequency is non-zero and counter is at least 8 bits - Verified by ::ticker_info_test
  * * The ticker rolls over at (1 << bits) and continues counting starting from 0 - Verified by ::ticker_overflow_test
  * * The ticker counts at the specified frequency +- 10% - Verified by ::ticker_frequency_test
