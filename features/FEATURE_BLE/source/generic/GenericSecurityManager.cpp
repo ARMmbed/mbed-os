@@ -33,7 +33,6 @@ using ble::pal::csrk_t;
 using ble::pal::ltk_t;
 using ble::pal::ediv_t;
 using ble::pal::rand_t;
-using ble::pal::AuthenticationMask::AuthenticationFlags_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
@@ -103,7 +102,7 @@ public:
      */
     SecurityEntry_t* get_entry(connection_handle_t connection);
 
-    void get_entry_keys(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
+    void get_entry_keys(SecurityEntryKeysDbCb_t cb, const ediv_t ediv, const rand_t rand);
     void get_entry_identityt(SecurityEntryIdentityDbCb_t cb, address_t &identity_address);
 
     void update_entry(connection_handle_t connection,
@@ -156,7 +155,7 @@ public:
                      SecurityIOCapabilities_t iocaps   = IO_CAPS_NONE,
                      const Passkey_t          passkey  = NULL) {
         db.restore();
-        pal.set_io_capability(io_capability_t(iocaps));
+        pal.set_io_capability((io_capability_t::type) iocaps);
         pal.set_display_passkey(PasskeyAsci::to_num(passkey));
         legacy_pairing_allowed = true;
 
@@ -210,7 +209,7 @@ public:
     //
 
     ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps) {
-        return pal.set_io_capability(io_capability_t(iocaps));
+        return pal.set_io_capability((io_capability_t::type) iocaps);
     }
 
     ble_error_t setDisplayPasskey(const Passkey_t passkey) {
@@ -265,11 +264,11 @@ public:
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             if (entry->encrypted) {
-                *securityStatus = LinkSecurityStatus_t::ENCRYPTED;
+                *securityStatus = ENCRYPTED;
             } else if (entry->encryption_requested) {
-                *securityStatus = LinkSecurityStatus_t::ENCRYPTION_IN_PROGRESS;
+                *securityStatus = ENCRYPTION_IN_PROGRESS;
             } else {
-                *securityStatus = LinkSecurityStatus_t::NOT_ENCRYPTED;
+                *securityStatus = NOT_ENCRYPTED;
             }
             return BLE_ERROR_NONE;
          } else {
