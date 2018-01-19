@@ -452,9 +452,9 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumBitSize, uint8_t maximumBitSize) {
-        (void) minimumBitSize;
-        (void) maximumBitSize;
+    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {
+        (void) minimumByteSize;
+        (void) maximumByteSize;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
