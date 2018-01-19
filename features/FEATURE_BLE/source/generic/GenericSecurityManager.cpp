@@ -286,8 +286,8 @@ public:
         }
     }
 
-    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumBitSize, uint8_t maximumBitSize) {
-        return pal.set_encryption_key_requirements(minimumBitSize, maximumBitSize);
+    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {
+        return pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////

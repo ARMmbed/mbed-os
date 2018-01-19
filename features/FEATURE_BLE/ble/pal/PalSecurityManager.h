@@ -468,6 +468,9 @@ public:
 
     virtual ble_error_t get_secure_connections_support(bool &enabled) = 0;
 
+    /**
+     * Set the io capability that will be used during pairing feature exchange.
+     */
     virtual ble_error_t set_io_capability(io_capability_t io_capability) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -484,9 +487,20 @@ public:
         uint16_t &timeout_in_10ms
     ) = 0;
 
+    /**
+     * Set the key size boundaries that will be used during pairing feature
+     * exchange.
+     *
+     * @param[in] min_encryption_key_size The minimum encryption key size in bytes
+     * required for pairing. This value shall be in the range [7 : 16].
+     *
+     * @param[in] max_encryption_key_size The maximum encryption key size in bytes
+     * required for pairing. This value shall be in the range
+     * [min_encryption_key_size : 16].
+     */
     virtual ble_error_t set_encryption_key_requirements(
-        uint16_t min_encryption_key_bitsize,
-        uint16_t max_encryption_key_bitsize
+        uint8_t min_encryption_key_size,
+        uint8_t max_encryption_key_size
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -583,6 +597,26 @@ public:
     // MITM
     //
 
+    /**
+     * Set the default passkey that will be used when the SM needs a passkey to
+     * be displayed.
+     *
+     * By default, the pal security manager generates a random passkey when a
+     * passkey has to be displayed by the application. A call to this function
+     * with a valid passkey alter this behaviour and the SecurityManager shall
+     * pass the passkey set into SecurityManagerEvent::on_passkey_display .
+     *
+     * A call to this function with a null pointer will reset the behaviour and
+     * indicates to the security manager that passkeys passed to
+     * SecurityManagerEvent::on_passkey_display shall be randomly generated.
+     *
+     * @param[in] passkey Set the passkey that shall be used by the security
+     * manager when SecurityManagerEvent::on_passkey_display is called. If
+     * passkey is a null pointer then the security manager generates a random
+     * passkey everytime it calls SecurityManagerEvent::on_passkey_display.
+     *
+     * @return BLE_ERROR_NONE or an appropriate error code.
+     */
     virtual ble_error_t set_display_passkey(const passkey_num_t passkey) = 0;
 
     /**
