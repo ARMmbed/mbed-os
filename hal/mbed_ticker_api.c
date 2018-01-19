@@ -110,7 +110,6 @@ static us_timestamp_t convert_timestamp(us_timestamp_t ref, timestamp_t timestam
  */
 static void update_present_time(const ticker_data_t *const ticker)
 {
-
     ticker_event_queue_t *queue = ticker->queue;
     uint32_t ticker_time = ticker->interface->read();
     if (ticker_time == ticker->queue->tick_last_read) {
@@ -252,11 +251,16 @@ static void schedule_interrupt(const ticker_data_t *const ticker)
 void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)
 {
     initialize(ticker);
+
+    core_util_critical_section_enter();
     set_handler(ticker, handler);
+    core_util_critical_section_exit();
 }
 
 void ticker_irq_handler(const ticker_data_t *const ticker)
 {
+    core_util_critical_section_enter();
+
     ticker->interface->clear_interrupt();
 
     /* Go through all the pending TimerEvents */
@@ -284,6 +288,8 @@ void ticker_irq_handler(const ticker_data_t *const ticker)
     }
 
     schedule_interrupt(ticker);
+
+    core_util_critical_section_exit();
 }
 
 void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id)
@@ -296,13 +302,14 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
         ticker->queue->present_time, 
         timestamp
     );
-    core_util_critical_section_exit();
 
     // defer to ticker_insert_event_us
     ticker_insert_event_us(
         ticker, 
         obj, absolute_timestamp, id
     );
+
+    core_util_critical_section_exit();
 }
 
 void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id)
@@ -343,6 +350,7 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
     schedule_interrupt(ticker);
 
     core_util_critical_section_exit();
+
 }
 
 void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj)
@@ -377,7 +385,11 @@ timestamp_t ticker_read(const ticker_data_t *const ticker)
 us_timestamp_t ticker_read_us(const ticker_data_t *const ticker)
 {
     initialize(ticker);
+
+    core_util_critical_section_enter();
     update_present_time(ticker);
+    core_util_critical_section_exit();
+
     return ticker->queue->present_time;
 }
 
