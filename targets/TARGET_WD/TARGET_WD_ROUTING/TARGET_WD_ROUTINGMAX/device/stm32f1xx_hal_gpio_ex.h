@@ -874,7 +874,7 @@
                                    ((__GPIOx__) == (GPIOB))? 1U :\
                                    ((__GPIOx__) == (GPIOC))? 2U :\
                                    ((__GPIOx__) == (GPIOD))? 3U :4U)
-#elif defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG)
+#elif defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define GPIO_GET_INDEX(__GPIOx__) (((__GPIOx__) == (GPIOA))? 0U :\
                                    ((__GPIOx__) == (GPIOB))? 1U :\
                                    ((__GPIOx__) == (GPIOC))? 2U :\

@@ -106,7 +106,7 @@ typedef struct
 } TIM_BreakDeadTimeConfigTypeDef;
 
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /** 
@@ -143,7 +143,7 @@ typedef struct {
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -265,7 +265,7 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /** @addtogroup TIMEx_Exported_Functions_Group5
@@ -280,7 +280,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_IT(TIM_HandleTypeDef *htim, u
 HAL_StatusTypeDef HAL_TIMEx_ConfigCommutationEvent_DMA(TIM_HandleTypeDef *htim, uint32_t  InputTrigger, uint32_t  CommutationSource);
 HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim, TIM_BreakDeadTimeConfigTypeDef *sBreakDeadTimeConfig);
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim, TIM_MasterConfigTypeDef * sMasterConfig);
 /**
@@ -309,7 +309,7 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim);
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /**

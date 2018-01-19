@@ -103,7 +103,7 @@
 #endif /* HSI_VALUE */
 
 /*!< Uncomment the following line if you need to use external SRAM  */ 
-#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 /* #define DATA_IN_ExtSRAM */
 #endif /* STM32F100xE || STM32F101xE || STM32F101xG || STM32F103xE || STM32F103xG */
 
@@ -150,7 +150,7 @@ const uint8_t APBPrescTable[8U] =  {0, 0, 0, 0, 1, 2, 3, 4};
   * @{
   */
 
-#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #ifdef DATA_IN_ExtSRAM
   static void SystemInit_ExtMemCtl(void); 
 #endif /* DATA_IN_ExtSRAM */
@@ -214,7 +214,7 @@ void SystemInit (void)
   RCC->CIR = 0x009F0000U;
 #endif /* STM32F105xC */
     
-#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
   #ifdef DATA_IN_ExtSRAM
     SystemInit_ExtMemCtl(); 
   #endif /* DATA_IN_ExtSRAM */
@@ -375,7 +375,7 @@ void SystemCoreClockUpdate (void)
   SystemCoreClock >>= tmp;  
 }
 
-#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 /**
   * @brief  Setup the external memory controller. Called in startup_stm32f1xx.s 
   *          before jump to __main

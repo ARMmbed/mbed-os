@@ -287,7 +287,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
  || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
- || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F105xC) || defined(STM32F107xC) || defined(TARGET_WD_ROUTINGMAX)
   /*------------------------------ USB clock Configuration ------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USB) == RCC_PERIPHCLK_USB)
   {
@@ -336,7 +336,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 
 #endif /* STM32F105xC || STM32F107xC */
 
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
   /* Get the I2S2 clock configuration -----------------------------------------*/
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_I2S2;
   PeriphClkInit->I2s2ClockSelection = RCC_I2S2CLKSOURCE_SYSCLK;
@@ -349,7 +349,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
  || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
- || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F105xC) || defined(STM32F107xC) || defined(TARGET_WD_ROUTINGMAX)
   /* Get the USB clock configuration -----------------------------------------*/
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_USB;
   PeriphClkInit->UsbClockSelection = __HAL_RCC_GET_USB_SOURCE();
@@ -412,7 +412,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   uint32_t pll2mul = 0U, pll3mul = 0U, prediv2 = 0U;
 #endif /* STM32F105xC || STM32F107xC */
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6) || \
-    defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+    defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
   const uint8_t aPLLMULFactorTable[16] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 16};
   const uint8_t aPredivFactorTable[2] = {1, 2};
 
@@ -427,7 +427,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   {
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
  || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
- || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F105xC) || defined(STM32F107xC) || defined(TARGET_WD_ROUTINGMAX)
   case RCC_PERIPHCLK_USB:  
     {
       /* Get RCC configuration ------------------------------------------------------*/
@@ -511,10 +511,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       break;
     }
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
-#if defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC) || defined(TARGET_WD_ROUTINGMAX)
   case RCC_PERIPHCLK_I2S2:  
     {
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
       /* SYSCLK used as source clock for I2S2 */
       frequency = HAL_RCC_GetSysClockFreq();
 #else
@@ -539,7 +539,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
     }
   case RCC_PERIPHCLK_I2S3:
     {
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
       /* SYSCLK used as source clock for I2S3 */
       frequency = HAL_RCC_GetSysClockFreq();
 #else

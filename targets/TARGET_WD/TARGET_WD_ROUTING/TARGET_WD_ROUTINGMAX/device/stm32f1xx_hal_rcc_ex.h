@@ -172,7 +172,7 @@
                 (((__SELECTION__) & RCC_PERIPHCLK_I2S3)   == RCC_PERIPHCLK_I2S3)   || \
                 (((__SELECTION__) & RCC_PERIPHCLK_USB)   == RCC_PERIPHCLK_USB))
 
-#elif defined(STM32F103xE) || defined(STM32F103xG)
+#elif defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 
 #define IS_RCC_I2S2CLKSOURCE(__SOURCE__) ((__SOURCE__) == RCC_I2S2CLKSOURCE_SYSCLK)
 
@@ -203,7 +203,7 @@
 #endif /* STM32F105xC || STM32F107xC */
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 
 #define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5))
 
@@ -309,7 +309,7 @@ typedef struct
   uint32_t AdcClockSelection;         /*!< ADC clock source      
                                        This parameter can be a value of @ref RCCEx_ADC_Prescaler */
 
-#if defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
   uint32_t I2s2ClockSelection;         /*!< I2S2 clock source
                                        This parameter can be a value of @ref RCCEx_I2S2_Clock_Source */
@@ -325,7 +325,7 @@ typedef struct
 #endif /* STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)\
  || defined(STM32F105xC) || defined(STM32F107xC)
   uint32_t UsbClockSelection;         /*!< USB clock source      
                                        This parameter can be a value of @ref RCCEx_USB_Prescaler */
@@ -348,13 +348,13 @@ typedef struct
   */
 #define RCC_PERIPHCLK_RTC           0x00000001U
 #define RCC_PERIPHCLK_ADC           0x00000002U
-#if defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
 #define RCC_PERIPHCLK_I2S2          0x00000004U
 #define RCC_PERIPHCLK_I2S3          0x00000008U
 #endif /* STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)\
  || defined(STM32F105xC) || defined(STM32F107xC)
 #define RCC_PERIPHCLK_USB          0x00000010U
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
@@ -375,7 +375,7 @@ typedef struct
   * @}
   */
 
-#if defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
 /** @defgroup RCCEx_I2S2_Clock_Source I2S2 Clock Source
   * @{
@@ -404,7 +404,7 @@ typedef struct
 #endif /* STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 
 /** @defgroup RCCEx_USB_Prescaler USB Prescaler
   * @{
@@ -642,7 +642,7 @@ typedef struct
   */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined(STM32F105xC) || defined  (STM32F107xC)\
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined  (STM32F107xC)\
  || defined  (STM32F100xE)
 #define __HAL_RCC_DMA2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -656,7 +656,7 @@ typedef struct
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG || STM32F105xC || STM32F107xC || STM32F100xE */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined  (STM32F100xE)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined  (STM32F100xE)
 #define __HAL_RCC_FSMC_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_FSMCEN);\
@@ -668,7 +668,7 @@ typedef struct
 #define __HAL_RCC_FSMC_CLK_DISABLE()        (RCC->AHBENR &= ~(RCC_AHBENR_FSMCEN))
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG || STM32F100xE */
 
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_SDIO_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_SDIOEN);\
@@ -755,17 +755,17 @@ typedef struct
   */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined(STM32F105xC) || defined  (STM32F107xC)\
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined  (STM32F107xC)\
  || defined  (STM32F100xE)
 #define __HAL_RCC_DMA2_IS_CLK_ENABLED()       ((RCC->AHBENR & (RCC_AHBENR_DMA2EN)) != RESET)
 #define __HAL_RCC_DMA2_IS_CLK_DISABLED()      ((RCC->AHBENR & (RCC_AHBENR_DMA2EN)) == RESET)
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG || STM32F105xC || STM32F107xC || STM32F100xE */
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined  (STM32F100xE)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined  (STM32F100xE)
 #define __HAL_RCC_FSMC_IS_CLK_ENABLED()       ((RCC->AHBENR & (RCC_AHBENR_FSMCEN)) != RESET)
 #define __HAL_RCC_FSMC_IS_CLK_DISABLED()      ((RCC->AHBENR & (RCC_AHBENR_FSMCEN)) == RESET)
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG || STM32F100xE */
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_SDIO_IS_CLK_ENABLED()       ((RCC->AHBENR & (RCC_AHBENR_SDIOEN)) != RESET)
 #define __HAL_RCC_SDIO_IS_CLK_DISABLED()      ((RCC->AHBENR & (RCC_AHBENR_SDIOEN)) == RESET)
 #endif /* STM32F103xE || STM32F103xG */
@@ -795,7 +795,7 @@ typedef struct
   */
 
 #if defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE)\
- || defined(STM32F103xG) || defined(STM32F105xC) ||defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) ||defined(STM32F107xC)
 #define __HAL_RCC_CAN1_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_CAN1EN);\
@@ -809,7 +809,7 @@ typedef struct
 
 #if defined(STM32F100xB) || defined(STM32F100xE) || defined(STM32F101xB)\
  || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F102xB)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)\
  || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM4_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -850,7 +850,7 @@ typedef struct
 #endif /* STM32F100xB || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_USB_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_USBEN);\
@@ -863,7 +863,7 @@ typedef struct
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM5_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM5EN);\
@@ -1046,7 +1046,7 @@ typedef struct
 #define __HAL_RCC_CAN2_CLK_DISABLE()        (RCC->APB1ENR &= ~(RCC_APB1ENR_CAN2EN))
 #endif /* STM32F105xC || STM32F107xC */
 
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM12_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM12EN);\
@@ -1089,13 +1089,13 @@ typedef struct
   */
 
 #if defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE)\
- || defined(STM32F103xG) || defined(STM32F105xC) ||defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) ||defined(STM32F107xC)
 #define __HAL_RCC_CAN1_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_CAN1EN)) != RESET)
 #define __HAL_RCC_CAN1_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_CAN1EN)) == RESET)
 #endif /* STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG || STM32F105xC || STM32F107xC */
 #if defined(STM32F100xB) || defined(STM32F100xE) || defined(STM32F101xB)\
  || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F102xB)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)\
  || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM4_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM4EN)) != RESET)
 #define __HAL_RCC_TIM4_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_TIM4EN)) == RESET)
@@ -1107,12 +1107,12 @@ typedef struct
 #define __HAL_RCC_I2C2_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_I2C2EN)) == RESET)
 #endif /* STM32F100xB || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_USB_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_USBEN)) != RESET)
 #define __HAL_RCC_USB_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_USBEN)) == RESET)
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG */
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM5_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM5EN)) != RESET)
 #define __HAL_RCC_TIM5_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_TIM5EN)) == RESET)
 #define __HAL_RCC_TIM6_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM6EN)) != RESET)
@@ -1160,7 +1160,7 @@ typedef struct
 #define __HAL_RCC_TIM12_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM12EN)) != RESET)
 #define __HAL_RCC_TIM12_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_TIM12EN)) == RESET)
 #endif /* STM32F105xC || STM32F107xC */
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM13_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM13EN)) != RESET)
 #define __HAL_RCC_TIM13_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_TIM13EN)) == RESET)
 #define __HAL_RCC_TIM14_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM14EN)) != RESET)
@@ -1181,7 +1181,7 @@ typedef struct
 
 #if defined(STM32F101xG) || defined(STM32F103x6) || defined(STM32F103xB)\
  || defined(STM32F105xC) || defined(STM32F107xC) || defined(STM32F103xE)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_ADC2_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC2EN);\
@@ -1225,7 +1225,7 @@ typedef struct
 
 #if defined(STM32F100xE) || defined(STM32F101xB) || defined(STM32F101xE)\
  || defined(STM32F101xG) || defined(STM32F100xB) || defined(STM32F103xB)\
- || defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+ || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
 #define __HAL_RCC_GPIOE_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1239,7 +1239,7 @@ typedef struct
 #endif /* STM32F101x6 || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_GPIOF_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPFEN);\
@@ -1260,7 +1260,7 @@ typedef struct
 #define __HAL_RCC_GPIOG_CLK_DISABLE()       (RCC->APB2ENR &= ~(RCC_APB2ENR_IOPGEN))
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG*/
 
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM8_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM8EN);\
@@ -1302,7 +1302,7 @@ typedef struct
 #define __HAL_RCC_GPIOG_CLK_DISABLE()       (RCC->APB2ENR &= ~(RCC_APB2ENR_IOPGEN))
 #endif /* STM32F100xE */
 
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM9_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM9EN);\
@@ -1346,7 +1346,7 @@ typedef struct
 
 #if defined(STM32F101xG) || defined(STM32F103x6) || defined(STM32F103xB)\
  || defined(STM32F105xC) || defined(STM32F107xC) || defined(STM32F103xE)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_ADC2_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_ADC2EN)) != RESET)
 #define __HAL_RCC_ADC2_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_ADC2EN)) == RESET)
 #endif /* STM32F101xG || STM32F103x6 || STM32F103xB || STM32F105xC || STM32F107xC || STM32F103xE || STM32F103xG */
@@ -1360,19 +1360,19 @@ typedef struct
 #endif /* STM32F100xB || STM32F100xE */
 #if defined(STM32F100xE) || defined(STM32F101xB) || defined(STM32F101xE)\
  || defined(STM32F101xG) || defined(STM32F100xB) || defined(STM32F103xB)\
- || defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+ || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
 #define __HAL_RCC_GPIOE_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_IOPEEN)) != RESET)
 #define __HAL_RCC_GPIOE_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_IOPEEN)) == RESET)
 #endif /* STM32F101x6 || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_GPIOF_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_IOPFEN)) != RESET)
 #define __HAL_RCC_GPIOF_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_IOPFEN)) == RESET)
 #define __HAL_RCC_GPIOG_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_IOPGEN)) != RESET)
 #define __HAL_RCC_GPIOG_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_IOPGEN)) == RESET)
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG*/
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM8_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_TIM8EN)) != RESET)
 #define __HAL_RCC_TIM8_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_TIM8EN)) == RESET)
 #define __HAL_RCC_ADC3_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_ADC3EN)) != RESET)
@@ -1384,7 +1384,7 @@ typedef struct
 #define __HAL_RCC_GPIOG_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_IOPGEN)) != RESET)
 #define __HAL_RCC_GPIOG_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_IOPGEN)) == RESET)
 #endif /* STM32F100xE */
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM9_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_TIM9EN)) != RESET)
 #define __HAL_RCC_TIM9_IS_CLK_DISABLED()      ((RCC->APB2ENR & (RCC_APB2ENR_TIM9EN)) == RESET)
 #define __HAL_RCC_TIM10_IS_CLK_ENABLED()       ((RCC->APB2ENR & (RCC_APB2ENR_TIM10EN)) != RESET)
@@ -1425,7 +1425,7 @@ typedef struct
   */
 
 #if defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE)\
- || defined(STM32F103xG) || defined(STM32F105xC) ||defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) ||defined(STM32F107xC)
 #define __HAL_RCC_CAN1_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_CAN1RST))
 
 #define __HAL_RCC_CAN1_RELEASE_RESET()      (RCC->APB1RSTR &= ~(RCC_APB1RSTR_CAN1RST))
@@ -1433,7 +1433,7 @@ typedef struct
 
 #if defined(STM32F100xB) || defined(STM32F100xE) || defined(STM32F101xB)\
  || defined(STM32F101xE) || defined(STM32F101xG) || defined(STM32F102xB)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)\
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)\
  || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM4_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM4RST))
 #define __HAL_RCC_SPI2_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_SPI2RST))
@@ -1447,13 +1447,13 @@ typedef struct
 #endif /* STM32F100xB || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_USB_FORCE_RESET()         (RCC->APB1RSTR |= (RCC_APB1RSTR_USBRST))
 #define __HAL_RCC_USB_RELEASE_RESET()       (RCC->APB1RSTR &= ~(RCC_APB1RSTR_USBRST))
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined(STM32F107xC)
 #define __HAL_RCC_TIM5_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM5RST))
 #define __HAL_RCC_TIM6_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM6RST))
 #define __HAL_RCC_TIM7_FORCE_RESET()        (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM7RST))
@@ -1507,7 +1507,7 @@ typedef struct
 #define __HAL_RCC_CAN2_RELEASE_RESET()      (RCC->APB1RSTR &= ~(RCC_APB1RSTR_CAN2RST))
 #endif /* STM32F105xC || STM32F107xC */
 
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM12_FORCE_RESET()       (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM12RST))
 #define __HAL_RCC_TIM13_FORCE_RESET()       (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM13RST))
 #define __HAL_RCC_TIM14_FORCE_RESET()       (RCC->APB1RSTR |= (RCC_APB1RSTR_TIM14RST))
@@ -1528,7 +1528,7 @@ typedef struct
 
 #if defined(STM32F101xG) || defined(STM32F103x6) || defined(STM32F103xB)\
  || defined(STM32F105xC) || defined(STM32F107xC) || defined(STM32F103xE)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_ADC2_FORCE_RESET()        (RCC->APB2RSTR |= (RCC_APB2RSTR_ADC2RST))
 
 #define __HAL_RCC_ADC2_RELEASE_RESET()      (RCC->APB2RSTR &= ~(RCC_APB2RSTR_ADC2RST))
@@ -1546,7 +1546,7 @@ typedef struct
 
 #if defined(STM32F100xE) || defined(STM32F101xB) || defined(STM32F101xE)\
  || defined(STM32F101xG) || defined(STM32F100xB) || defined(STM32F103xB)\
- || defined(STM32F103xE) || defined(STM32F103xG) || defined(STM32F105xC)\
+ || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC)\
  || defined(STM32F107xC)
 #define __HAL_RCC_GPIOE_FORCE_RESET()       (RCC->APB2RSTR |= (RCC_APB2RSTR_IOPERST))
 
@@ -1554,7 +1554,7 @@ typedef struct
 #endif /* STM32F101x6 || STM32F101xB || STM32F101xE || (...) || STM32F105xC || STM32F107xC */
 
 #if defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG)\
- || defined(STM32F103xG)
+ || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_GPIOF_FORCE_RESET()       (RCC->APB2RSTR |= (RCC_APB2RSTR_IOPFRST))
 #define __HAL_RCC_GPIOG_FORCE_RESET()       (RCC->APB2RSTR |= (RCC_APB2RSTR_IOPGRST))
 
@@ -1562,7 +1562,7 @@ typedef struct
 #define __HAL_RCC_GPIOG_RELEASE_RESET()     (RCC->APB2RSTR &= ~(RCC_APB2RSTR_IOPGRST))
 #endif /* STM32F101xE || STM32F103xE || STM32F101xG || STM32F103xG*/
 
-#if defined(STM32F103xE) || defined(STM32F103xG)
+#if defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM8_FORCE_RESET()        (RCC->APB2RSTR |= (RCC_APB2RSTR_TIM8RST))
 #define __HAL_RCC_ADC3_FORCE_RESET()        (RCC->APB2RSTR |= (RCC_APB2RSTR_ADC3RST))
 
@@ -1578,7 +1578,7 @@ typedef struct
 #define __HAL_RCC_GPIOG_RELEASE_RESET()     (RCC->APB2RSTR &= ~(RCC_APB2RSTR_IOPGRST))
 #endif /* STM32F100xE */
 
-#if defined(STM32F101xG) || defined(STM32F103xG)
+#if defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 #define __HAL_RCC_TIM9_FORCE_RESET()        (RCC->APB2RSTR |= (RCC_APB2RSTR_TIM9RST))
 #define __HAL_RCC_TIM10_FORCE_RESET()       (RCC->APB2RSTR |= (RCC_APB2RSTR_TIM10RST))
 #define __HAL_RCC_TIM11_FORCE_RESET()       (RCC->APB2RSTR |= (RCC_APB2RSTR_TIM11RST))
@@ -1689,7 +1689,7 @@ typedef struct
   */  
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
- || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
+ || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
 /** @brief  Macro to configure the USB clock.
   * @param  __USBCLKSOURCE__ specifies the USB clock source.
   *          This parameter can be one of the following values:

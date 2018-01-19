@@ -127,7 +127,7 @@ static void TIM_CCxNChannelCmd(TIM_TypeDef* TIMx, uint32_t Channel, uint32_t Cha
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /* Exported functions ---------------------------------------------------------*/
@@ -1431,7 +1431,7 @@ HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t 
   */
 
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /** @defgroup TIMEx_Exported_Functions_Group5 Peripheral Control functions
@@ -1663,7 +1663,7 @@ HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
 }
 
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /**
@@ -1801,7 +1801,7 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef *htim)
   * @}
   */
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 /**
@@ -1846,7 +1846,7 @@ static void TIM_CCxNChannelCmd(TIM_TypeDef* TIMx, uint32_t Channel, uint32_t Cha
   */
 
 #endif /* defined(STM32F100xB) || defined(STM32F100xE) ||                                                 */
-       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || */
+       /* defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || */
        /* defined(STM32F105xC) || defined(STM32F107xC)                                                    */
 
 #endif /* HAL_TIM_MODULE_ENABLED */

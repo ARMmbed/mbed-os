@@ -262,7 +262,7 @@ typedef struct
 #endif /* STM32F101x6 || STM32F102x6 || STM32F103x6 */
        /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB */
 
-#if (defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG) || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC))
+#if (defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) || defined(STM32F105xC) || defined(STM32F107xC))
 #define FLASH_PAGE_SIZE          0x800U
 #endif /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB */
        /* STM32F101xG || STM32F103xG */ 
@@ -376,7 +376,7 @@ typedef struct
 
 /* STM32 High-density, XL-density and Connectivity line devices */
 #if  defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) \
-  || defined(STM32F101xG) || defined(STM32F103xG) \
+  || defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) \
   || defined(STM32F105xC) || defined(STM32F107xC)
 #define OB_WRP_PAGES0TO1               0x00000001U  /*!< Write protection of page 0 TO 1 */
 #define OB_WRP_PAGES2TO3               0x00000002U  /*!< Write protection of page 2 TO 3 */
@@ -440,7 +440,7 @@ typedef struct
 #endif /* STM32F100xE || STM32F101xE || STM32F103xE */
 
 /* XL Density */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if  defined(STM32F101xG) || defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX) 
 #define OB_WRP_PAGES0TO15MASK          0x000000FFU
 #define OB_WRP_PAGES16TO31MASK         0x0000FF00U
 #define OB_WRP_PAGES32TO47MASK         0x00FF0000U

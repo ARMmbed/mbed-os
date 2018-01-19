@@ -149,7 +149,7 @@
   #include "stm32f103xb.h"
 #elif defined(STM32F103xE)
   #include "stm32f103xe.h"
-#elif defined(STM32F103xG)
+#elif defined(STM32F103xG) || defined(TARGET_WD_ROUTINGMAX)
   #include "stm32f103xg.h"
 #elif defined(STM32F105xC)
   #include "stm32f105xc.h"
