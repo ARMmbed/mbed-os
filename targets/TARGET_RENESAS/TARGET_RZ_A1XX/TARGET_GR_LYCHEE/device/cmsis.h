@@ -8,5 +8,6 @@
 #define MBED_CMSIS_H
 
 #include "MBRZA1LU.h"
+#include "cmsis_nvic.h"
 
 #endif
