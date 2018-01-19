@@ -32,7 +32,7 @@ extern "C" {
  *
  * Given ticker is initialised and interrupt is set.
  * When ticker is re-initialised.
- * Then ticker resets the internal count and disables the ticker interrupt.
+ * Then ticker keeps counting and disables the ticker interrupt.
  */
 void ticker_init_test(void);
 
