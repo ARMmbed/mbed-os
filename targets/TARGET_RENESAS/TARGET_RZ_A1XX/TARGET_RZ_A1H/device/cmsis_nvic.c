@@ -31,11 +31,13 @@
 #include "MBRZA1H.h"
 #include "irq_ctrl.h"
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
     InterruptHandlerRegister(IRQn, (IRQHandler)vector);
 }
 
-uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+uint32_t NVIC_GetVector(IRQn_Type IRQn)
+{
     uint32_t vectors = (uint32_t)IRQ_GetHandler(IRQn);
     return vectors;
 }
