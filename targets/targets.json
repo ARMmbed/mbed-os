@@ -1844,6 +1844,47 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
+    "MTB_MTS_DRAGONFLY": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F411RE"],
+        "config": {
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD"
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART"
+            },
+            "usb_tx": {
+                "help": "Value PB_6",
+                "value": "PB_6"
+            },
+            "usb_rx": {
+                "help": "Value PB_7",
+                "value": "PB_7"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_1",
+                "value": "UART_1",
+                "macro_name": "STDIO_UART"
+             }
+        },
+        "overrides": {
+                 "lse_available": 0
+        },
+        "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
+        "post_binary_hook": {
+            "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
+            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
+        },
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F411RE",
+        "bootloader_supported": true
+    },
     "XDOT_L151CC": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
