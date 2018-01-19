@@ -140,7 +140,9 @@ public:
         }
 
         virtual void signingKey(connection_handle_t handle, const csrk_t csrk, bool authenticated) {
+            (void)handle;
             (void)csrk;
+            (void)authenticated;
         }
 
         ////////////////////////////////////////////////////////////////////////////

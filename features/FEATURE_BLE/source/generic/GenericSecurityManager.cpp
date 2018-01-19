@@ -441,8 +441,8 @@ protected:
           pairing_authorisation_required(false),
           legacy_pairing_allowed(true),
           authentication(0),
-          initiator_dist(0),
-          responder_dist(0) {
+          initiator_dist(KeyDistribution::KEY_DISTRIBUTION_ALL),
+          responder_dist(KeyDistribution::KEY_DISTRIBUTION_ALL) {
         _app_event_handler = &defaultEventHandler;
         pal.set_event_handler(this);
     }
@@ -594,6 +594,10 @@ public:
             irk,
             csrk
         );
+
+        if (_app_event_handler) {
+            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+        }
     }
 
     void on_keys_distributed_ltk(connection_handle_t connection,
@@ -625,6 +629,10 @@ public:
     void on_keys_distributed_csrk(connection_handle_t connection,
                                   const csrk_t csrk) {
         db.update_entry_csrk(connection, csrk);
+
+        if (_app_event_handler) {
+            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+        }
     }
 
     void on_ltk_request(connection_handle_t connection,
