@@ -204,7 +204,7 @@ private:
         }
         void pairingCompleted(connection_handle_t handle) {
             if (securitySetupCompletedCallback) {
-                securitySetupCompletedCallback(handle, SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS);
+                securitySetupCompletedCallback(handle, SecurityManager::SEC_STATUS_SUCCESS);
             }
         }
 
@@ -216,9 +216,9 @@ private:
             if (linkSecuredCallback) {
                 SecurityManager::SecurityMode_t securityMode;
                 if (encrypted) {
-                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM
+                    securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
                 } else {
-                    securityMode = SecurityMode_t::SECURITY_MODE_ENCRYPTION_OPEN_LINK
+                    securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
                 }
                 linkSecuredCallback(handle, securityMode);
             }
@@ -650,9 +650,9 @@ public:
     /** @deprecated */
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
         if (status & 0x80) {
-            pairing_failure_t error(status & ~0x80);
+            pairing_failure_t error((pairing_failure_t::type) (status & ~0x80));
             eventHandler->pairingError(handle, error);
-        } else if (status == SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS) {
+        } else if (status == SecurityManager::SEC_STATUS_SUCCESS) {
             eventHandler->pairingCompleted(handle);
         } else {
             eventHandler->pairingError(handle, pairing_failure_t::UNSPECIFIED_REASON);
@@ -660,7 +660,7 @@ public:
     }
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
-        if (securityMode == SecurityMode_t::SECURITY_MODE_ENCRYPTION_NO_MITM) {
+        if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
             eventHandler->linkEncryptionResult(handle, true);
         } else {
             eventHandler->linkEncryptionResult(handle, false);

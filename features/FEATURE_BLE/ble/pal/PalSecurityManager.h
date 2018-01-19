@@ -58,8 +58,8 @@ public:
             memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
         }
     }
-    PasskeyAsci(const passkey_num_t passkey) {
-        for (size_t i = 5, m = 100000; i >= 0; --i, m /= 10) {
+    PasskeyAsci(passkey_num_t passkey) {
+        for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
             uint32_t result = passkey / m;
             asci[i] = NUMBER_OFFSET + result;
             passkey -= result;
