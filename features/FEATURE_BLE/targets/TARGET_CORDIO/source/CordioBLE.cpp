@@ -35,6 +35,7 @@
 #include "mbed_assert.h"
 
 #include "CordioPalAttClient.h"
+#include "CordioPalSecurityManager.h"
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
@@ -238,6 +239,10 @@ void BLE::processEvents()
         return;
     }
 
+    if (ble::pal::vendor::cordio::CordioSecurityManager::get_security_manager().sm_handler(msg)) {
+        return;
+    }
+
     switch(msg->event) {
         case DM_RESET_CMPL_IND: {
             ::BLE::InitializationCompleteCallbackContext context = {
@@ -362,11 +367,10 @@ void BLE::stack_setup()
     SecInit();
 
     // Note: enable once security is supported
-#if 0
+    SecRandInit();
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -400,8 +404,10 @@ void BLE::stack_setup()
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+    SmprInit();
     SmprScInit();
     SmpiInit();
+    SmpiScInit();
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
 
