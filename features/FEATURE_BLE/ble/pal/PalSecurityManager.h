@@ -39,8 +39,8 @@ typedef uint8_t oob_data_t[16];
 typedef uint8_t irk_t[16];
 typedef uint8_t csrk_t[16];
 typedef uint8_t ltk_t[16];
-typedef uint8_t ediv_t[8];
-typedef uint8_t rand_t[2];
+typedef uint8_t ediv_t[2];
+typedef uint8_t rand_t[8];
 typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
