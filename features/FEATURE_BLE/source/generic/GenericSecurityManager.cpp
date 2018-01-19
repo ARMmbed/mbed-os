@@ -91,8 +91,8 @@ class GenericSecurityManagerEventHandler;
  */
 class SecurityDb {
 public:
-    SecurityDb() {};
-    ~SecurityDb() {};
+    SecurityDb() { };
+    virtual ~SecurityDb() { };
 
     /**
      * Return immediately security entry containing the state
@@ -100,48 +100,65 @@ public:
      * @param[in] handle valid connection handle
      * @return pointer to security entry, NULL if handle was invalid
      */
-    SecurityEntry_t* get_entry(connection_handle_t connection);
+    virtual SecurityEntry_t* get_entry(connection_handle_t connection);
 
-    void get_entry_keys(SecurityEntryKeysDbCb_t cb, const ediv_t ediv, const rand_t rand);
-    void get_entry_identityt(SecurityEntryIdentityDbCb_t cb, address_t &identity_address);
+    virtual void get_entry_keys(
+        SecurityEntryKeysDbCb_t cb,
+        const ediv_t ediv,
+        const rand_t rand
+    );
+    virtual void get_entry_identityt(
+        SecurityEntryIdentityDbCb_t cb,
+        address_t &identity_address
+    );
 
-    void update_entry(connection_handle_t connection,
-                      bool address_is_public,
-                      const address_t &peer_address,
-                      const ediv_t ediv,
-                      const rand_t rand,
-                      const ltk_t ltk,
-                      const irk_t irk,
-                      const csrk_t csrk);
-    void update_entry_ltk(connection_handle_t connection,
-                          const ltk_t ltk);
-    void update_entry_ediv_rand(connection_handle_t connection,
-                                const ediv_t ediv,
-                                const rand_t rand);
-    void update_entry_irk(connection_handle_t connection,
-                          const irk_t irk);
-    void update_entry_bdaddr(connection_handle_t connection,
-                             bool address_is_public,
-                             const address_t &peer_address);
-    void update_entry_csrk(connection_handle_t connection,
-                           const csrk_t csrk);
+    virtual void update_entry(
+        connection_handle_t connection,
+        bool address_is_public,
+        const address_t &peer_address,
+        const ediv_t ediv,
+        const rand_t rand,
+        const ltk_t ltk,
+        const irk_t irk,
+        const csrk_t csrk
+    );
+    virtual void update_entry_ltk(
+        connection_handle_t connection,
+        const ltk_t ltk
+    );
+    virtual void update_entry_ediv_rand(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    );
+    virtual void update_entry_irk(
+        connection_handle_t connection,
+        const irk_t irk
+    );
+    virtual void update_entry_bdaddr(
+        connection_handle_t connection,
+        bool address_is_public,
+        const address_t &peer_address
+    );
+    virtual void update_entry_csrk(
+        connection_handle_t connection,
+        const csrk_t csrk
+    );
 
-    void remove_entry(SecurityEntry_t&);
-    void clear_entries();
+    virtual void remove_entry(SecurityEntry_t&);
+    virtual void clear_entries();
 
-    void get_whitelist(WhitelistDbCb_t cb);
+    virtual void get_whitelist(WhitelistDbCb_t cb);
 
-    void update_whitelist(Gap::Whitelist_t& whitelist);
-    void add_whitelist_entry(const address_t &address);
+    virtual void update_whitelist(Gap::Whitelist_t& whitelist);
+    virtual void add_whitelist_entry(const address_t &address);
 
-    void remove_whitelist_entry(const address_t &address);
-    void clear_whitelist();
+    virtual void remove_whitelist_entry(const address_t &address);
+    virtual void clear_whitelist();
 
-    void restore();
-    void sync();
-    void set_restore(bool reload);
-private:
-
+    virtual void restore();
+    virtual void sync();
+    virtual void set_restore(bool reload);
 };
 
 class GenericSecurityManager : public SecurityManager,
@@ -150,10 +167,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
     //
-    virtual ble_error_t init(bool                     bondable = true,
-                     bool                     mitm     = true,
-                     SecurityIOCapabilities_t iocaps   = IO_CAPS_NONE,
-                     const Passkey_t          passkey  = NULL) {
+    virtual ble_error_t init(
+        bool bondable = true,
+        bool mitm     = true,
+        SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
+        const Passkey_t passkey  = NULL
+    ) {
         db.restore();
         pal.set_io_capability((io_capability_t::type) iocaps);
         pal.set_display_passkey(PasskeyAsci::to_num(passkey));
@@ -259,26 +278,34 @@ public:
         return pal.set_display_passkey(PasskeyAsci::to_num(passkey));
     }
 
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t connection,
-                                         uint32_t timeout_in_ms) {
+    virtual ble_error_t setAuthenticationTimeout(
+        connection_handle_t connection,
+        uint32_t timeout_in_ms
+    ) {
         return pal.set_authentication_timeout(connection, timeout_in_ms / 10);
     }
 
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t connection,
-                                         uint32_t *timeout_in_ms) {
+    virtual ble_error_t getAuthenticationTimeout(
+        connection_handle_t connection,
+        uint32_t *timeout_in_ms
+    ) {
         uint16_t timeout_in_10ms;
         ble_error_t status = pal.get_authentication_timeout(connection, timeout_in_10ms);
         *timeout_in_ms = 10 * timeout_in_10ms;
         return status;
     }
 
-    virtual ble_error_t setLinkSecurity(connection_handle_t connection,
-                                SecurityMode_t securityMode) {
+    virtual ble_error_t setLinkSecurity(
+        connection_handle_t connection,
+        SecurityMode_t securityMode
+    ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t getLinkSecurity(connection_handle_t connection,
-                                SecurityMode_t *securityMode) {
+    virtual ble_error_t getLinkSecurity(
+        connection_handle_t connection,
+        SecurityMode_t *securityMode
+    ) {
 
         *securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
         return BLE_ERROR_NONE;
@@ -301,7 +328,10 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getLinkEncryption(connection_handle_t connection, link_encryption_t *securityStatus) {
+    virtual ble_error_t getLinkEncryption(
+        connection_handle_t connection,
+        link_encryption_t *securityStatus
+    ) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             if (entry->encrypted) {
@@ -321,7 +351,10 @@ public:
         }
     }
 
-    virtual ble_error_t getEncryptionKeySize(connection_handle_t connection, uint8_t *size) {
+    virtual ble_error_t getEncryptionKeySize(
+        connection_handle_t connection,
+        uint8_t *size
+    ) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             *size = entry->encryption_key_size;
@@ -331,7 +364,10 @@ public:
         }
     }
 
-    virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {
+    virtual ble_error_t setEncryptionKeyRequirements(
+        uint8_t minimumByteSize,
+        uint8_t maximumByteSize
+    ) {
         return pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
     }
 
@@ -355,7 +391,10 @@ public:
      *
      * @return no action instruction to the db since this only reads the keys.
      */
-    DbCbAction_t set_ltk_cb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
+    DbCbAction_t set_ltk_cb(
+        SecurityEntry_t& entry,
+        SecurityEntryKeys_t& entryKeys
+    ) {
         pal.set_ltk(entry.handle, entryKeys.ltk);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
@@ -394,8 +433,11 @@ public:
     // MITM
     //
 
-    virtual ble_error_t setOOBDataUsage(connection_handle_t connection,
-                                bool useOOB, bool OOBProvidesMITM = true) {
+    virtual ble_error_t setOOBDataUsage(
+        connection_handle_t connection,
+        bool useOOB,
+        bool OOBProvidesMITM = true
+    ) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             entry->oob = useOOB;
@@ -406,21 +448,27 @@ public:
         }
     }
 
-    virtual ble_error_t confirmationEntered(connection_handle_t connection,
-                                            bool confirmation) {
+    virtual ble_error_t confirmationEntered(
+        connection_handle_t connection,
+        bool confirmation
+    ) {
         return pal.confirmation_entered(connection, confirmation);
     }
 
-    virtual ble_error_t passkeyEntered(connection_handle_t connection,
-                                       Passkey_t passkey) {
+    virtual ble_error_t passkeyEntered(
+        connection_handle_t connection,
+        Passkey_t passkey
+    ) {
         return pal.passkey_request_reply(
             connection,
             PasskeyAsci::to_num(passkey)
         );
     }
 
-    virtual ble_error_t sendKeypressNotification(connection_handle_t connection,
-                                                 Keypress_t keypress) {
+    virtual ble_error_t sendKeypressNotification(
+        connection_handle_t connection,
+        Keypress_t keypress
+    ) {
         return pal.send_keypress_notification(connection, keypress);
     }
 
@@ -428,7 +476,9 @@ public:
     // Event handler
     //
 
-    virtual void setSecurityManagerEventHandler(::SecurityManager::SecurityManagerEventHandler* handler) {
+    virtual void setSecurityManagerEventHandler(
+        ::SecurityManager::SecurityManagerEventHandler* handler
+     ) {
         SecurityManager::setSecurityManagerEventHandler(handler);
         if (handler) {
             _app_event_handler = handler;
@@ -465,17 +515,22 @@ public:
     // Pairing
     //
 
-    virtual void on_pairing_request(connection_handle_t connection,
-                            bool use_oob,
-                            AuthenticationMask authentication,
-                            KeyDistribution initiator_dist,
-                            KeyDistribution responder_dist) {
+    virtual void on_pairing_request(
+        connection_handle_t connection,
+        bool use_oob,
+        AuthenticationMask authentication,
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
+    ) {
         if (_app_event_handler && pairing_authorisation_required) {
             _app_event_handler->acceptPairingRequest(connection);
         }
     }
 
-    virtual void on_pairing_error(connection_handle_t connection, pairing_failure_t error) {
+    virtual void on_pairing_error(
+        connection_handle_t connection,
+        pairing_failure_t error
+    ) {
         if (_app_event_handler) {
             _app_event_handler->pairingResult(
                 connection,
@@ -516,14 +571,18 @@ public:
     // Encryption
     //
 
-    virtual void on_link_encryption_result(connection_handle_t connection,
-                                   link_encryption_t result) {
+    virtual void on_link_encryption_result(
+        connection_handle_t connection,
+        link_encryption_t result
+    ) {
         if (_app_event_handler) {
             _app_event_handler->linkEncryptionResult(connection, result);
         }
     }
 
-    virtual void on_link_encryption_request_timed_out(connection_handle_t connection) {
+    virtual void on_link_encryption_request_timed_out(
+        connection_handle_t connection
+    ) {
         if (_app_event_handler) {
             _app_event_handler->linkEncryptionResult(connection, link_encryption_t::NOT_ENCRYPTED);
         }
@@ -533,15 +592,19 @@ public:
     // MITM
     //
 
-    virtual void on_passkey_display(connection_handle_t connection,
-                            const passkey_num_t passkey) {
+    virtual void on_passkey_display(
+        connection_handle_t connection,
+        const passkey_num_t passkey
+    ) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
         }
     }
 
-    virtual void on_keypress_notification(connection_handle_t connection,
-                                  SecurityManager::Keypress_t keypress) {
+    virtual void on_keypress_notification(
+        connection_handle_t connection,
+        SecurityManager::Keypress_t keypress
+    ) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(connection, keypress);
         }
@@ -576,14 +639,16 @@ public:
     // Keys
     //
 
-    virtual void on_keys_distributed(connection_handle_t connection,
-                             advertising_peer_address_type_t peer_address_type,
-                             const address_t &peer_identity_address,
-                             const ediv_t ediv,
-                             const rand_t rand,
-                             const ltk_t ltk,
-                             const irk_t irk,
-                             const csrk_t csrk) {
+    virtual void on_keys_distributed(
+        connection_handle_t connection,
+        advertising_peer_address_type_t peer_address_type,
+        const address_t &peer_identity_address,
+        const ediv_t ediv,
+        const rand_t rand,
+        const ltk_t ltk,
+        const irk_t irk,
+        const csrk_t csrk
+    ) {
         db.update_entry(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
@@ -601,33 +666,41 @@ public:
     }
 
     virtual void on_keys_distributed_ltk(connection_handle_t connection,
-                                 const ltk_t ltk) {
+        const ltk_t ltk) {
         db.update_entry_ltk(connection, ltk);
     }
 
-    virtual void on_keys_distributed_ediv_rand(connection_handle_t connection,
-                                       const ediv_t ediv,
-                                       const rand_t rand) {
+    virtual void on_keys_distributed_ediv_rand(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    ) {
         db.update_entry_ediv_rand(connection, ediv, rand);
     }
 
-    virtual void on_keys_distributed_irk(connection_handle_t connection,
-                                 const irk_t irk) {
+    virtual void on_keys_distributed_irk(
+        connection_handle_t connection,
+        const irk_t irk
+    ) {
         db.update_entry_irk(connection, irk);
     }
 
-    virtual void on_keys_distributed_bdaddr(connection_handle_t connection,
-                                    advertising_peer_address_type_t peer_address_type,
-                                    const address_t &peer_identity_address) {
+    virtual void on_keys_distributed_bdaddr(
+        connection_handle_t connection,
+        advertising_peer_address_type_t peer_address_type,
+        const address_t &peer_identity_address
+    ) {
         db.update_entry_bdaddr(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address
-        );
+            );
     }
 
-    virtual void on_keys_distributed_csrk(connection_handle_t connection,
-                                  const csrk_t csrk) {
+    virtual void on_keys_distributed_csrk(
+        connection_handle_t connection,
+        const csrk_t csrk
+    ) {
         db.update_entry_csrk(connection, csrk);
 
         if (_app_event_handler) {
@@ -635,9 +708,11 @@ public:
         }
     }
 
-    virtual void on_ltk_request(connection_handle_t connection,
-                        const ediv_t ediv,
-                        const rand_t rand) {
+    virtual void on_ltk_request(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    ) {
         db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::set_ltk_cb), ediv, rand);
     }
 
