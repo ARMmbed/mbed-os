@@ -47,7 +47,8 @@ static uint8_t  OSTM_PendIRQ;       // Timer interrupt pending flag
 
 
 // Setup OS Tick.
-int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
+int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler)
+{
   uint32_t clock;
   uint32_t prio;
   uint32_t bits;
@@ -130,7 +131,8 @@ int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
 }
 
 /// Enable OS Tick.
-int32_t  OS_Tick_Enable (void) {
+int32_t  OS_Tick_Enable (void)
+{
 
   if (OSTM_PendIRQ != 0U) {
     OSTM_PendIRQ = 0U;
@@ -158,33 +160,39 @@ int32_t  OS_Tick_Disable (void) {
 }
 
 // Acknowledge OS Tick IRQ.
-int32_t OS_Tick_AcknowledgeIRQ (void) {
+int32_t OS_Tick_AcknowledgeIRQ (void)
+{
   return (IRQ_ClearPending (OSTM_IRQn));
 }
 
 // Get OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void) {
+int32_t  OS_Tick_GetIRQn (void)
+{
   return (OSTM_IRQn);
 }
 
 // Get OS Tick clock.
-uint32_t OS_Tick_GetClock (void) {
+uint32_t OS_Tick_GetClock (void)
+{
   return (OSTM_Clock);
 }
 
 // Get OS Tick interval.
-uint32_t OS_Tick_GetInterval (void) {
+uint32_t OS_Tick_GetInterval (void)
+{
   return (OSTM.OSTMnCMP + 1U);
 }
 
 // Get OS Tick count value.
-uint32_t OS_Tick_GetCount (void) {
+uint32_t OS_Tick_GetCount (void)
+{
   uint32_t cmp = OSTM.OSTMnCMP;
   return  (cmp - OSTM.OSTMnCNT);
 }
 
 // Get OS Tick overflow status.
-uint32_t OS_Tick_GetOverflow (void) {
+uint32_t OS_Tick_GetOverflow (void)
+{
   return (IRQ_GetPending(OSTM_IRQn));
 }
 
