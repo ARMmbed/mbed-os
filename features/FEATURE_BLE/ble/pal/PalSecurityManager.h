@@ -264,23 +264,18 @@ public:
     ) = 0;
 
     /**
+     * To indicate that the pairing has timed out.
+     */
+    virtual void on_pairing_timed_out(connection_handle_t connection) = 0;
+
+    /**
      * To indicate that the pairing for the link has completed.
      */
-    virtual void on_pairing_completed(
-        connection_handle_t connection
-    ) = 0;
+    virtual void on_pairing_completed(connection_handle_t connection) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Security
     //
-
-    /**
-     * reports change of encryption status or result of encryption request
-     */
-    virtual void on_link_encryption_result(
-        connection_handle_t connection,
-        bool encrypted
-    ) = 0;
 
     /**
      * To indicate that the authentication timeout has elapsed
@@ -288,6 +283,25 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B, 5.4
      */
     virtual void on_valid_mic_timeout(connection_handle_t connection) = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Encryption
+    //
+
+    /**
+     * To indicate the result of an encryption request.
+     * @note Do no call if request timed out, call on_link_encryption_request_timed_out
+     * instead.
+     */
+    virtual void on_link_encryption_result(
+        connection_handle_t connection,
+        bool encrypted
+    ) = 0;
+
+    /**
+     * To indicate that the encryption request failed due to time out.
+     */
+    virtual void on_link_encryption_request_timed_out(connection_handle_t connection) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM

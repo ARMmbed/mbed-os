@@ -361,7 +361,7 @@ public:
                 if (entry->authenticated) {
                     return BLE_ERROR_NONE;
                 } else {
-                    pal.enable_encryption(connection);
+                    return pal.enable_encryption(connection);
                 }
             } else {
                 /* don't change the default value of authentication */
@@ -472,18 +472,43 @@ public:
 
     void on_pairing_error(connection_handle_t connection, pairing_failure_t error) {
         if (_app_event_handler) {
-            _app_event_handler->pairingError(connection, error);
+            _app_event_handler->pairingResult(
+                connection,
+                (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
+            );
+        }
+    }
+
+    void on_pairing_timed_out(connection_handle_t connection) {
+        if (_app_event_handler) {
+            _app_event_handler->pairingResult(
+                connection,
+                SecurityManager::SEC_STATUS_TIMEOUT
+            );
         }
     }
 
     void on_pairing_completed(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->pairingCompleted(connection);
+            _app_event_handler->pairingResult(
+                connection,
+                SecurityManager::SEC_STATUS_SUCCESS
+            );
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Security
+    //
+
+    void on_valid_mic_timeout(connection_handle_t connection) {
+        if (_app_event_handler) {
+            _app_event_handler->validMicTimeout(connection);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Encryption
     //
 
     void on_link_encryption_result(connection_handle_t connection,
@@ -493,9 +518,9 @@ public:
         }
     }
 
-    void on_valid_mic_timeout(connection_handle_t connection) {
+    void on_link_encryption_request_timed_out(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->validMicTimeout(connection);
+            _app_event_handler->linkEncryptionResult(connection, false);
         }
     }
 

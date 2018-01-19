@@ -119,11 +119,7 @@ public:
             (void)handle;
         }
 
-        virtual void pairingError(connection_handle_t handle, pairing_failure_t error) {
-            (void)handle;
-        }
-
-        virtual void pairingCompleted(connection_handle_t handle) {
+        virtual void pairingResult(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t result) {
             (void)handle;
         }
 
@@ -196,15 +192,9 @@ private:
         // Pairing
         //
 
-        void pairingError(connection_handle_t handle, pairing_failure_t error) {
+        void pairingResult(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t result) {
             if (securitySetupCompletedCallback) {
-                /* translate error codes to what the callback expects */
-                securitySetupCompletedCallback(handle, (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80));
-            }
-        }
-        void pairingCompleted(connection_handle_t handle) {
-            if (securitySetupCompletedCallback) {
-                securitySetupCompletedCallback(handle, SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS);
+                securitySetupCompletedCallback(handle, result);
             }
         }
 
@@ -649,14 +639,7 @@ public:
     }
     /** @deprecated */
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
-        if (status & 0x80) {
-            pairing_failure_t error(status & ~0x80);
-            eventHandler->pairingError(handle, error);
-        } else if (status == SecurityManager::SecurityCompletionStatus_t::SEC_STATUS_SUCCESS) {
-            eventHandler->pairingCompleted(handle);
-        } else {
-            eventHandler->pairingError(handle, pairing_failure_t::UNSPECIFIED_REASON);
-        }
+        eventHandler->pairingResult(handle, status);
     }
     /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
