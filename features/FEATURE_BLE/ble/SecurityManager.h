@@ -309,28 +309,6 @@ public:
     }
 
     /**
-     * @deprecated
-     *
-     * Get a list of addresses from all peers in the bond table.
-     *
-     * @param[in,out]   addresses
-     *                  (on input) addresses.capacity contains the maximum
-     *                  number of addresses to be returned.
-     *                  (on output) The populated table with copies of the
-     *                  addresses in the implementation's whitelist.
-     *
-     * @retval BLE_ERROR_NONE             On success, else an error code indicating reason for failure.
-     * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
-     *                                    application registration.
-     */
-    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
-        /* Avoid compiler warnings about unused variables */
-        (void) addresses;
-
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
      * Create a list of addresses from all peers in the bond table and generate
      * an event which returns it as a whitelist
      *
@@ -428,12 +406,6 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t *securityMode) {
-        (void) handle;
-        (void) securityMode;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
     /**
      * Set whether or not we want to send and receive keypress notifications
      * during passkey entry.
@@ -452,21 +424,9 @@ public:
     // Encryption
     //
 
-    /**
-     * @deprecated
-     *
-     * Get the security status of a connection.
-     *
-     * @param[in]  connectionHandle   Handle to identify the connection.
-     * @param[out] securityStatusP    Security status.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
-        /* Avoid compiler warnings about unused variables. */
+    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
         (void)connectionHandle;
         (void)securityStatus;
-
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -586,6 +546,44 @@ protected:
     virtual ~SecurityManager() { };
 
 public:
+    /**
+     * @deprecated
+     *
+     * Get a list of addresses from all peers in the bond table.
+     *
+     * @param[in,out]   addresses
+     *                  (on input) addresses.capacity contains the maximum
+     *                  number of addresses to be returned.
+     *                  (on output) The populated table with copies of the
+     *                  addresses in the implementation's whitelist.
+     *
+     * @retval BLE_ERROR_NONE             On success, else an error code indicating reason for failure.
+     * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
+     *                                    application registration.
+     */
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+        /* Avoid compiler warnings about unused variables */
+        (void) addresses;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * @deprecated
+     *
+     * Get the security status of a connection.
+     *
+     * @param[in]  connectionHandle   Handle to identify the connection.
+     * @param[out] securityStatusP    Security status.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)connectionHandle;
+        (void)securityStatus;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     /**
      * @deprecated
      *

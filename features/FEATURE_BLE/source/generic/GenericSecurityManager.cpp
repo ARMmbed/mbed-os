@@ -304,6 +304,10 @@ public:
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t getLinkSecurity(connection_handle_t connection, LinkSecurityStatus_t *securityStatus) {
+        return getLinkEncryption(connection, securityStatus);
+    }
+
+    ble_error_t getLinkEncryption(connection_handle_t connection, LinkSecurityStatus_t *securityStatus) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             if (entry->encrypted) {
