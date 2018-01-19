@@ -92,7 +92,7 @@ void wait_cycles(volatile unsigned int cycles)
 }
 
 /* Test that ticker_init can be called multiple times and
- * ticker_init resets the internal count and disables the ticker interrupt.
+ * ticker_init allows the ticker to keep counting and disables the ticker interrupt.
  */
 void ticker_init_test()
 {
@@ -118,7 +118,7 @@ void ticker_init_test()
     }
 
     TEST_ASSERT(intf->read() >= (ticks_start + 2 * TICKER_INT_VAL));
-    TEST_ASSERT(ticks_start > ticks_after_reinit);
+    TEST_ASSERT(ticks_start <= ticks_after_reinit);
     TEST_ASSERT_EQUAL(0, intFlag);
 }
 
