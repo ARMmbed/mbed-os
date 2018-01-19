@@ -29,11 +29,8 @@
 #define TICKER_INT_VAL 2000
 #define TICKER_DELTA 50
 
-#if DEVICE_LOWPOWERTIMER
-#define TICKER_OVERFLOW_DELTA 0 // this will allow to detect that ticker counter rollovers to 0
-#else
-#define TICKER_OVERFLOW_DELTA 50
-#endif
+#define LP_TICKER_OVERFLOW_DELTA 0 // this will allow to detect that ticker counter rollovers to 0
+#define HF_TICKER_OVERFLOW_DELTA 50
 
 #define TICKER_100_TICKS 100
 
@@ -47,6 +44,8 @@ using namespace utest::v1;
 
 volatile int intFlag = 0;
 const ticker_interface_t* intf;
+unsigned int ticker_overflow_delta;
+
 
 /* Auxiliary function to count ticker ticks elapsed during execution of N cycles of empty while loop.
  * Parameter <step> is used to disable compiler optimisation. */
@@ -260,12 +259,12 @@ void ticker_overflow_test(void)
     intf->init();
 
     /* Wait for max count. */
-    while (intf->read() != (max_count - TICKER_OVERFLOW_DELTA)) {
+    while (intf->read() != (max_count - ticker_overflow_delta)) {
         /* Just wait. */
     }
 
     /* Now we are near/at the overflow point. Detect rollover. */
-    while (intf->read() > TICKER_OVERFLOW_DELTA);
+    while (intf->read() > ticker_overflow_delta);
 
     const uint32_t after_overflow = intf->read();
 
@@ -277,7 +276,7 @@ void ticker_overflow_test(void)
     const uint32_t next_after_overflow = intf->read();
 
     /* Check that after the overflow ticker continue count. */
-    TEST_ASSERT(after_overflow <= TICKER_OVERFLOW_DELTA);
+    TEST_ASSERT(after_overflow <= ticker_overflow_delta);
     TEST_ASSERT(next_after_overflow >= TICKER_100_TICKS);
     TEST_ASSERT_EQUAL(0, intFlag);
 
@@ -399,6 +398,8 @@ utest::v1::status_t hf_ticker_setup(const Case *const source, const size_t index
 
     set_us_ticker_irq_handler(ticker_event_handler_stub);
 
+    ticker_overflow_delta = HF_TICKER_OVERFLOW_DELTA;
+
     return greentea_case_setup_handler(source, index_of_case);
 }
 
@@ -408,6 +409,8 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
     intf = get_lp_ticker_data()->interface;
 
     set_lp_ticker_irq_handler(ticker_event_handler_stub);
+
+    ticker_overflow_delta = LP_TICKER_OVERFLOW_DELTA;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
