@@ -343,45 +343,45 @@ public:
     virtual void on_keys_distributed(
         connection_handle_t handle,
         advertising_peer_address_type_t peer_address_type,
-        address_t &peer_address,
-        ediv_t ediv,
-        rand_t rand,
-        ltk_t ltk,
-        irk_t irk,
-        csrk_t csrk
+        const address_t &peer_address,
+        const ediv_t ediv,
+        const rand_t rand,
+        const ltk_t ltk,
+        const irk_t irk,
+        const csrk_t csrk
     ) = 0;
 
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        ltk_t ltk
+        const ltk_t ltk
     ) = 0;
 
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        ediv_t ediv,
-        rand_t rand
+        const ediv_t ediv,
+        const rand_t rand
     ) = 0;
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        irk_t irk
+        const irk_t irk
     ) = 0;
 
     virtual void on_keys_distributed_bdaddr(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t &peer_identity_address
+        const address_t &peer_identity_address
     ) = 0;
 
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        csrk_t csrk
+        const csrk_t csrk
     ) = 0;
 
     virtual void on_ltk_request(
         connection_handle_t connection,
-        ediv_t ediv,
-        rand_t rand
+        const ediv_t ediv,
+        const rand_t rand
     ) = 0;
 };
 
@@ -430,8 +430,8 @@ public:
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
         address_t peer_identity_address,
-        irk_t peer_irk,
-        irk_t local_irk
+        const irk_t peer_irk,
+        const irk_t local_irk
     ) = 0;
 
 
@@ -442,7 +442,7 @@ public:
      */
     virtual ble_error_t remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t peer_identity_address
+        const address_t &peer_identity_address
     ) = 0;
 
     /**
@@ -465,11 +465,13 @@ public:
     //
 
     virtual ble_error_t set_authentication_timeout(
-        connection_handle_t, uint16_t timeout_in_10ms
+        connection_handle_t,
+        uint16_t timeout_in_10ms
     ) = 0;
 
     virtual ble_error_t get_authentication_timeout(
-        connection_handle_t, uint16_t &timeout_in_10ms
+        connection_handle_t,
+        uint16_t &timeout_in_10ms
     ) = 0;
 
     virtual ble_error_t set_encryption_key_requirements(
@@ -486,7 +488,8 @@ public:
     virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
 
     virtual ble_error_t get_encryption_key_size(
-        connection_handle_t, uint8_t &bitsize
+        connection_handle_t connection,
+        uint8_t &bitsize
     ) = 0;
 
     virtual ble_error_t refresh_encryption_key(connection_handle_t connection) = 0;
@@ -501,17 +504,17 @@ public:
     // Keys
     //
 
-    virtual ble_error_t set_ltk(connection_handle_t connection, ltk_t ltk) = 0;
+    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t ltk) = 0;
 
     /**
      * Set the local IRK
      */
-    virtual ble_error_t set_irk(const irk_t& irk) = 0;
+    virtual ble_error_t set_irk(const irk_t irk) = 0;
 
     /**
      * Set the local csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t& csrk) = 0;
+    virtual ble_error_t set_csrk(const csrk_t csrk) = 0;
 
     virtual ble_error_t generate_irk() = 0;
 
@@ -583,7 +586,7 @@ public:
      * Reply to an oob data request received from the SecurityManagerEventHandler.
      */
     virtual ble_error_t oob_data_request_reply(
-        connection_handle_t connection, const oob_data_t& oob_data
+        connection_handle_t connection, const oob_data_t oob_data
     ) = 0;
 
     virtual ble_error_t confirmation_entered(
