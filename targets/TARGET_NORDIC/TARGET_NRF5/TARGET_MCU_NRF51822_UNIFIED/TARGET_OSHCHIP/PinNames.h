@@ -119,6 +119,18 @@ typedef enum {
     P0_28 = p28,
     P0_29 = p29,
     P0_30 = p30,
+    /*
+                ┏━━━━━━━━━━┓
+UART┬── TX  D0 ╶┨ 1  ╒╕ 16 ┠╴ VCC
+    └── RX  D1 ╶┨ 2  ╘╛ 15 ┠╴ D8  SCL ─┬I²C
+            D2 ╶┨ 3     14 ┠╴ D7  SDA ─┘
+ SPI┬ MOSI  D3 ╶┨ 4     13 ┠╴ A0
+    │ MISO  D4 ╶┨ 5 ┌──┐12 ┠╴ A
+    │  SEL  D5 ╶┨ 6 └──┘11 ┠╴ D9  AREF
+    └─ CLK  D4 ╶┨ 7     10 ┠╴ A2
+           GND ╶┨ 8  ::  9 ┠╴ A3
+                ┗━━━━━━━━━━┛
+    */
 
     OSHCHIP_PIN_1  = p20,
     OSHCHIP_PIN_2  = p18,
