@@ -125,7 +125,7 @@ UART┬── TX  D0 ╶┨ 1  ╒╕ 16 ┠╴ VCC
     └── RX  D1 ╶┨ 2  ╘╛ 15 ┠╴ D8  SCL ─┬I²C
             D2 ╶┨ 3     14 ┠╴ D7  SDA ─┘
  SPI┬ MOSI  D3 ╶┨ 4     13 ┠╴ A0
-    │ MISO  D4 ╶┨ 5 ┌──┐12 ┠╴ A
+    │ MISO  D4 ╶┨ 5 ┌──┐12 ┠╴ A1
     │  SEL  D5 ╶┨ 6 └──┘11 ┠╴ D9  AREF
     └─ CLK  D4 ╶┨ 7     10 ┠╴ A2
            GND ╶┨ 8  ::  9 ┠╴ A3
