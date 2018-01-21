@@ -57,6 +57,7 @@ struct SecurityEntry_t {
     uint8_t oob_mitm_protection:1;
     uint8_t secure_connections:1;
     uint8_t signing_key:1;
+    uint8_t encryption_key:1;
 };
 
 struct SecurityEntryKeys_t {
@@ -178,7 +179,8 @@ public:
         bool bondable = true,
         bool mitm     = true,
         SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-        const Passkey_t passkey  = NULL
+        const Passkey_t passkey  = NULL,
+        bool signing = true
     ) {
         db.restore();
         pal.set_io_capability((io_capability_t::type) iocaps);
@@ -192,6 +194,8 @@ public:
         authentication.set_mitm(mitm);
         authentication.set_secure_connections(secure_connections);
         authentication.set_keypress_notification(true);
+
+        initiator_dist.set_signing(signing);
 
         return BLE_ERROR_NONE;
     }
@@ -273,6 +277,25 @@ public:
         return pal.get_secure_connections_support(*enabled);
     }
 
+    virtual ble_error_t enableSigning(connection_handle_t connection, bool enabled = true) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        if (!entry->signing_key && enabled) {
+            KeyDistribution distribution = initiator_dist;
+            distribution.set_signing(enabled);
+            return pal.send_pairing_request(
+                connection,
+                entry->oob,
+                authentication,
+                distribution,
+                responder_dist
+            );
+        }
+        return BLE_ERROR_NONE;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
@@ -306,7 +329,12 @@ public:
         connection_handle_t connection,
         SecurityMode_t securityMode
     ) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        entry->encryption_requested = true;
+        pal.enable_encryption(connection);
     }
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {

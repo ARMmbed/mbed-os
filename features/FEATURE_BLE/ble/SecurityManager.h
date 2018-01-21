@@ -140,12 +140,6 @@ public:
             }
         }
 
-        virtual void signingKey(connection_handle_t handle, const csrk_t csrk, bool authenticated) {
-            (void)handle;
-            (void)csrk;
-            (void)authenticated;
-        }
-
         ////////////////////////////////////////////////////////////////////////////
         // Encryption
         //
@@ -183,6 +177,16 @@ public:
 
         virtual void oobRequest(connection_handle_t handle) {
             (void)handle;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        // Keys
+        //
+
+        virtual void signingKey(connection_handle_t handle, const csrk_t csrk, bool authenticated) {
+            (void)handle;
+            (void)csrk;
+            (void)authenticated;
         }
     };
 
@@ -262,13 +266,15 @@ public:
      *                           such as availability of a display or keyboard, to
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
+     * @param[in]  signing       Generate and distribute signing key during pairing
      *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t init(bool                     enableBonding = true,
                              bool                     requireMITM   = true,
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-                             const Passkey_t          passkey       = NULL) {
+                             const Passkey_t          passkey       = NULL,
+                             bool                     signing       = true) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
@@ -431,13 +437,18 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    virtual ble_error_t enableSigning(connection_handle_t handle, bool enabled = true) {
+        (void) enabled;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
 
-    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, link_encryption_t *securityStatus) {
+    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, link_encryption_t *encryption) {
         (void)connectionHandle;
-        (void)securityStatus;
+        (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
