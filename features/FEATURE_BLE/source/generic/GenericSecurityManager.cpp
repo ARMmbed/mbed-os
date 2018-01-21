@@ -349,7 +349,10 @@ public:
         authentication.set_keypress_notification(enabled);
     }
 
-    virtual ble_error_t enableSigning(connection_handle_t connection, bool enabled = true) {
+    virtual ble_error_t enableSigning(
+        connection_handle_t connection,
+        bool enabled = true
+    ) {
         SecurityEntry_t *entry = db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
@@ -536,7 +539,11 @@ public:
         csrk_t csrk
     ) {
         if (_app_event_handler) {
-            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+            _app_event_handler->signingKey(
+                connection,
+                csrk,
+                db.get_entry(connection)->mitm
+            );
         }
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
@@ -818,7 +825,11 @@ public:
         );
 
         if (_app_event_handler) {
-            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+            _app_event_handler->signingKey(
+                connection,
+                csrk,
+                db.get_entry(connection)->mitm
+            );
         }
     }
 
@@ -853,7 +864,7 @@ public:
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address
-            );
+        );
     }
 
     virtual void on_keys_distributed_csrk(
@@ -863,7 +874,11 @@ public:
         db.update_entry_csrk(connection, csrk);
 
         if (_app_event_handler) {
-            _app_event_handler->signingKey(connection, csrk, db.get_entry(connection)->mitm);
+            _app_event_handler->signingKey(
+                connection,
+                csrk,
+                db.get_entry(connection)->mitm
+            );
         }
     }
 
@@ -872,7 +887,11 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.get_entry_keys(mbed::callback(this, &GenericSecurityManager::set_ltk_cb), ediv, rand);
+        db.get_entry_keys(
+            mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
+            ediv,
+            rand
+        );
     }
 
 private:
