@@ -22,6 +22,7 @@
 
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 
 
 #ifdef __cplusplus
@@ -41,7 +42,8 @@ extern "C" {
  * @param[in] format The format string to output on panic
  * @param[in] ...    (Additional arguments) Depending on the format string
  */
-MBED_NORETURN void spm_panic(const char * format, ...);
+#define SPM_PANIC(format, ...)  error("%s %u: " format, __func__, __LINE__, ##__VA_ARGS__)
+
 
 /**
  * Assert on condition (debug build only)

@@ -29,8 +29,8 @@ extern "C" {
 #define PARTITION_STATE_ASSERT(partition, partition_state_expected)                                       \
 do {                                                                                                      \
     if (partition->partition_state != partition_state_expected) {                                         \
-        spm_panic("%s - partition with ID 0x%x is in incorrect processing state: %d while %d is expected!\n", \
-            __func__, partition->partition_id, partition->partition_state, partition_state_expected);     \
+        SPM_PANIC("partition with ID 0x%x is in incorrect processing state: %d while %d is expected!\n",  \
+            partition->partition_id, partition->partition_state, partition_state_expected);               \
     }                                                                                                     \
 } while (0)
 

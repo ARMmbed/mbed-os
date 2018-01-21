@@ -51,15 +51,18 @@ static inline void gather_iovecs(const iovec_t *src, uint32_t src_len, void *dst
     uint32_t active_dst_offset = 0;
 
     for (uint32_t i = 0; i < src_len; ++i) {
-        memcpy((uint8_t *)dst + active_dst_offset, (uint8_t *)src[i].iovec_base, src[i].iov_len);
+        memcpy((uint8_t *)dst + active_dst_offset, (uint8_t *)src[i].iov_base, src[i].iov_len);
         active_dst_offset += src[i].iov_len;
     }
 }
 
 // This function should do proper validation
-static inline bool is_buffer_accessible(void* ptr, size_t size)
+static inline bool is_buffer_accessible(const void *ptr, size_t size)
 {
-    PSA_UNUSED(ptr);
+    if (NULL == ptr) {
+        return false;
+    }
+
     PSA_UNUSED(size);
     return true;
 }
@@ -82,12 +85,12 @@ static inline void spm_channel_handle_get_mem(psa_handle_t handle, ipc_channel_t
 static inline void spm_validate_connection_allowed(secure_func_t *target, partition_t *source)
 {
     if ((NULL == source) && (false == target->allow_nspe)) {
-        spm_panic("%s - SFID 0x%x is not allowed to be called from NSPE\n", __func__, target->sfid);
+        SPM_PANIC("SFID 0x%x is not allowed to be called from NSPE\n", target->sfid);
     }
 
     if (NULL != source) {
         if (NULL == source->extern_sfids) {
-            spm_panic("%s - Partition %d did not declare extern functions\n", __func__, source->partition_id);
+            SPM_PANIC("Partition %d did not declare extern functions\n", source->partition_id);
         }
 
         for (uint32_t i = 0; i < source->extern_sfids_count; i++) {
@@ -96,7 +99,7 @@ static inline void spm_validate_connection_allowed(secure_func_t *target, partit
             }
         }
 
-        spm_panic("%s - SFID 0x%x is not in partition %d extern functions list\n", __func__, target->sfid, source->partition_id);
+        SPM_PANIC("SFID 0x%x is not in partition %d extern functions list\n", target->sfid, source->partition_id);
     }
 }
 
@@ -104,13 +107,13 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
 {
     secure_func_t *dst_sec_func = sec_func_get(sfid);
     if (NULL == dst_sec_func) {
-        spm_panic("%s - SFID 0x%x is invalid!\n", __func__, sfid);
+        SPM_PANIC("SFID 0x%x is invalid!\n", sfid);
     }
 
     if (((dst_sec_func->min_version_policy == PSA_MINOR_VERSION_POLICY_RELAXED) && (minor_version > dst_sec_func->min_version)) ||
         ((dst_sec_func->min_version_policy == PSA_MINOR_VERSION_POLICY_STRICT) && (minor_version != dst_sec_func->min_version))) {
-            spm_panic("%s - minor version %d does not comply with sfid %d minor policy %d",
-                    __func__, minor_version, dst_sec_func->sfid, dst_sec_func->min_version_policy);
+            SPM_PANIC("minor version %d does not comply with sfid %d minor policy %d",
+                    minor_version, dst_sec_func->sfid, dst_sec_func->min_version_policy);
     }
 
     partition_t *current_part = active_partition_get();
@@ -180,38 +183,40 @@ psa_error_t psa_call(
     size_t rx_len
     )
 {
-    if (tx_len > PSA_MAX_IOVEC_LEN) {
-        spm_panic("%s - tx_len (%d) is bigger than allowed (%d)\n", __func__, tx_len, PSA_MAX_IOVEC_LEN);
-    }
-
-    if ((tx_iovec == NULL) ^ (tx_len == 0)) {
-        spm_panic("%s - tx_iovec or tx_len are invalid\n", __func__);
-    }
-
-    if ((rx_buf == NULL) ^ (rx_len == 0)) {
-        spm_panic("%s - rx_buf or rx_len are invalid\n", __func__);
-    }
 
     uint32_t total_iovec_size = 0;
-    for (uint32_t i = 0; i < tx_len; ++i) {
-        if (tx_iovec[i].iovec_base == NULL) {
-            continue;
+
+    if (tx_len != 0) {
+        if (!is_buffer_accessible(tx_iovec, tx_len * sizeof(iovec_t))) {
+            SPM_PANIC("tx_iovec is inaccessible\n");
         }
 
-        if (!is_buffer_accessible((void *)tx_iovec[i].iovec_base, tx_iovec[i].iov_len)) {
-            spm_panic("%s - tx_iovec[%d] is inaccessible\n", __func__, i);
+        if (tx_len > PSA_MAX_IOVEC_LEN) {
+            SPM_PANIC("tx_len (%d) is bigger than allowed (%d)\n", tx_len, PSA_MAX_IOVEC_LEN);
+        }
+	
+        for (uint32_t i = 0; i < tx_len; ++i) {
+            if (tx_iovec[i].iov_len == 0) {
+                continue;
+            }
+
+            if (!is_buffer_accessible(tx_iovec[i].iov_base, tx_iovec[i].iov_len)) {
+                SPM_PANIC("tx_iovec[%d] is inaccessible\n", i);
+            }
+
+            total_iovec_size += tx_iovec[i].iov_len;
         }
 
-        total_iovec_size += tx_iovec[i].iov_len;
+        if (total_iovec_size > MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT) {
+            SPM_PANIC("payload (%d) is larger than available memory(%d)\n",
+                    total_iovec_size, MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT);
+        }
     }
 
-    if (total_iovec_size > MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT) {
-        spm_panic("%s - payload (%d) is larger than avialable memory(%d)\n", __func__, total_iovec_size,
-            MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT);
-    }
-
-    if ((rx_buf != NULL) && (!is_buffer_accessible(rx_buf, rx_len))) {
-        spm_panic("%s - rx_buf is inaccessible\n", __func__);
+    if (rx_len != 0) {
+        if (!is_buffer_accessible(rx_buf, rx_len)) {
+            SPM_PANIC("rx_buf is inaccessible\n");
+        }
     }
 
     ipc_channel_t *channel = NULL;
@@ -229,7 +234,7 @@ psa_error_t psa_call(
     SPM_ASSERT(PSA_IPC_MSG_TYPE_INVALID == active_msg->type);
     memset(active_msg, 0, sizeof(active_msg_t));
     active_msg->channel = channel;
-    active_msg->rx_buf = rx_buf;
+    active_msg->rx_buf = ((rx_len != 0) ? rx_buf : NULL);
     active_msg->rx_size = rx_len;
     active_msg->tx_size = total_iovec_size;
     gather_iovecs(tx_iovec, tx_len, active_msg->tx_buf);
