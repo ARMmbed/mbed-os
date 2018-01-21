@@ -277,25 +277,6 @@ public:
         return pal.get_secure_connections_support(*enabled);
     }
 
-    virtual ble_error_t enableSigning(connection_handle_t connection, bool enabled = true) {
-        SecurityEntry_t *entry = db.get_entry(connection);
-        if (!entry) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-        if (!entry->signing_key && enabled) {
-            KeyDistribution distribution = key_distribution;
-            distribution.set_signing(enabled);
-            return pal.send_pairing_request(
-                connection,
-                entry->oob,
-                authentication,
-                distribution,
-                distribution
-            );
-        }
-        return BLE_ERROR_NONE;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
@@ -339,6 +320,25 @@ public:
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
         authentication.set_keypress_notification(enabled);
+        return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t enableSigning(connection_handle_t connection, bool enabled = true) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        if (!entry->signing_key && enabled) {
+            KeyDistribution distribution = key_distribution;
+            distribution.set_signing(enabled);
+            return pal.send_pairing_request(
+                connection,
+                entry->oob,
+                authentication,
+                distribution,
+                distribution
+            );
+        }
         return BLE_ERROR_NONE;
     }
 
