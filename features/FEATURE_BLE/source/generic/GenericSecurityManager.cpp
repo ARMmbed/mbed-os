@@ -314,13 +314,39 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
-        entry->encryption_requested = true;
-        pal.enable_encryption(connection);
+        if (entry->encryption_requested) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
+
+        switch (securityMode) {
+            case SECURITY_MODE_ENCRYPTION_OPEN_LINK:
+                return setLinkEncryption(connection, link_encryption_t::NOT_ENCRYPTED);
+                break;
+
+            case SECURITY_MODE_ENCRYPTION_NO_MITM:
+                return setLinkEncryption(connection, link_encryption_t::ENCRYPTED);
+                break;
+
+            case SECURITY_MODE_ENCRYPTION_WITH_MITM:
+                return setLinkEncryption(connection, link_encryption_t::ENCRYPTED_WITH_MITM);
+                break;
+
+            case SECURITY_MODE_SIGNED_NO_MITM:
+                return getSigningKey(connection, false);
+                break;
+
+            case SECURITY_MODE_SIGNED_WITH_MITM:
+                return getSigningKey(connection, true);
+                break;
+
+            default:
+                return BLE_ERROR_INVALID_PARAM;
+                break;
+        }
     }
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
         authentication.set_keypress_notification(enabled);
-        return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t enableSigning(connection_handle_t connection, bool enabled = true) {
@@ -356,25 +382,81 @@ public:
      */
     virtual ble_error_t getLinkEncryption(
         connection_handle_t connection,
-        link_encryption_t *securityStatus
+        link_encryption_t *encryption
     ) {
+
         SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            if (entry->encrypted) {
-                if (entry->mitm) {
-                    *securityStatus = link_encryption_t::ENCRYPTED_WITH_MITM;
-                } else {
-                    *securityStatus = link_encryption_t::ENCRYPTED;
-                }
-            } else if (entry->encryption_requested) {
-                *securityStatus = link_encryption_t::ENCRYPTION_IN_PROGRESS;
-            } else {
-                *securityStatus = link_encryption_t::NOT_ENCRYPTED;
-            }
-            return BLE_ERROR_NONE;
-        } else {
+        if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
+        if (entry->encrypted) {
+            if (entry->mitm) {
+                *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
+            } else {
+                *encryption = link_encryption_t::ENCRYPTED;
+            }
+        } else if (entry->encryption_requested) {
+            *encryption = link_encryption_t::ENCRYPTION_IN_PROGRESS;
+        } else {
+            *encryption = link_encryption_t::NOT_ENCRYPTED;
+        }
+
+        return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t setLinkEncryption(
+        connection_handle_t connection,
+        link_encryption_t encryption
+    ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        link_encryption_t current_encryption;
+        getLinkEncryption(connection, &current_encryption);
+
+        if (current_encryption == link_encryption_t::ENCRYPTION_IN_PROGRESS) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
+
+        /* ignore if the link is already at required state*/
+        if (current_encryption == encryption) {
+            return BLE_ERROR_NONE;
+        }
+
+        switch(encryption.value()) {
+            case link_encryption_t::NOT_ENCRYPTED:
+                if (entry->encrypted) {
+                    return pal.disable_encryption(connection);
+                }
+                break;
+
+            case link_encryption_t::ENCRYPTED:
+                /* if already better than encrypted don't bother */
+                if (current_encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
+                    return BLE_ERROR_NONE;
+                }
+                entry->encryption_requested = true;
+                return pal.enable_encryption(connection);
+                break;
+
+            case link_encryption_t::ENCRYPTED_WITH_MITM:
+                if (entry->mitm && !entry->encrypted) {
+                    entry->encryption_requested = true;
+                    return pal.enable_encryption(connection);
+                } else {
+                    entry->encryption_requested = true;
+                    return requestAuthentication(connection);
+                }
+                break;
+
+            default:
+                return BLE_ERROR_INVALID_PARAM;
+        }
+
+        return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t getEncryptionKeySize(
@@ -465,27 +547,28 @@ public:
 
     virtual ble_error_t requestAuthentication(connection_handle_t connection) {
         SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            if (entry->mitm) {
-                if (entry->authenticated) {
-                    return BLE_ERROR_NONE;
-                } else {
-                    return pal.enable_encryption(connection);
-                }
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        if (entry->mitm) {
+            if (entry->authenticated) {
+                return BLE_ERROR_NONE;
             } else {
-                /* don't change the default value of authentication */
-                AuthenticationMask connection_authentication = authentication;
-                connection_authentication.set_mitm(true);
-                return pal.send_pairing_request(
-                    connection,
-                    entry->oob,
-                    authentication,
-                    key_distribution,
-                    key_distribution
-                );
+                entry->encryption_requested;
+                return pal.enable_encryption(connection);
             }
         } else {
-            return BLE_ERROR_INVALID_PARAM;
+            /* don't change the default value of authentication */
+            AuthenticationMask connection_authentication = authentication;
+            connection_authentication.set_mitm(true);
+            return pal.send_pairing_request(
+                connection,
+                entry->oob,
+                authentication,
+                key_distribution,
+                key_distribution
+            );
         }
     }
 
@@ -607,6 +690,12 @@ public:
     }
 
     virtual void on_pairing_completed(connection_handle_t connection) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            if (entry->encryption_requested) {
+                pal.enable_encryption(connection);
+            }
+        }
         if (_app_event_handler) {
             _app_event_handler->pairingResult(
                 connection,
@@ -633,6 +722,13 @@ public:
         connection_handle_t connection,
         link_encryption_t result
     ) {
+        if (result == link_encryption_t::ENCRYPTED
+            || result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+            SecurityEntry_t *entry = db.get_entry(connection);
+            if (entry) {
+               entry->encryption_requested = false;
+            }
+        }
         if (_app_event_handler) {
             _app_event_handler->linkEncryptionResult(connection, result);
         }
