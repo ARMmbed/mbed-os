@@ -82,7 +82,7 @@ void {{partition.name|lower}}_init(partition_t *partition);
 uint32_t init_partitions(partition_t **partitions)
 {
     if (NULL == partitions) {
-        spm_panic("%s - partitions is NULL!\n", __func__);
+        SPM_PANIC("partitions is NULL!\n");
     }
 
 {% for partition in partitions %}

@@ -199,8 +199,8 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
             if(handle_mgr->handles_pool[pool_ix].handle_owner != current_pid) {
 
-                // The spm_panic() function will exit the program
-                spm_panic("%s - [ERROR] Request for destroy by non-owner!\n", __func__);
+                // The SPM_PANIC() macro will exit the program
+                SPM_PANIC("[ERROR] Request for destroy by non-owner!\n");
             }
 
             /* Handle found in handles pool */
@@ -214,9 +214,9 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
     }
 
 
-    // Handle not found in handles pool - the spm_panic() function will exit the program
+    // Handle not found in handles pool - the SPM_PANIC() macro will exit the program
 
-    spm_panic("%s - [ERROR] Handle not found %d! \n", __func__, (int)handle);
+    SPM_PANIC("[ERROR] Handle not found %d! \n", (int)handle);
 }
 
 
@@ -241,8 +241,8 @@ void psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
     if(handle == PSA_NULL_HANDLE) {
 
-        // The spm_panic() function will exit the program
-        spm_panic("%s - [ERROR] Trying to get memory for an invalid handle! \n", __func__);
+        // The SPM_PANIC() macro will exit the program
+        SPM_PANIC("[ERROR] Trying to get memory for an invalid handle! \n");
     }
 
 
@@ -265,8 +265,8 @@ void psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t 
                 (current_pid != handle_mgr->handles_pool[pool_ix].handle_friend)
               ) {
 
-                // The spm_panic() function will exit the program
-                spm_panic("%s - [ERROR] Request for handle memory is not allowed for this partition! \n", __func__);
+                // The SPM_PANIC() macro will exit the program
+                SPM_PANIC("[ERROR] Request for handle memory is not allowed for this partition! \n");
             }
 
             *handle_mem = handle_mgr->handles_pool[pool_ix].handle_mem;
@@ -280,8 +280,8 @@ void psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t 
     }
 
 
-    // Handle not found in handles pool - the spm_panic() function will exit the program
+    // Handle not found in handles pool - the SPM_PANIC() macro will exit the program
 
-    spm_panic("%s - [ERROR] Handle %d not found! \n", __func__, (int)handle);
+    SPM_PANIC("[ERROR] Handle %d not found! \n", (int)handle);
 }
 
