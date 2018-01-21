@@ -95,12 +95,12 @@ extern void {{partition.entry_point}}(void *ptr);
 void {{partition.name|lower}}_init(partition_t *partition)
 {
     if (NULL == partition) {
-        spm_panic("%s - partition is NULL!\n", __func__);
+        SPM_PANIC("partition is NULL!\n");
     }
 
     partition->mutex = osMutexNew(&{{partition.name|lower}}_mutex_attr);
     if (NULL == partition->mutex) {
-        spm_panic("%s - Failed to create mutex for secure partition {{partition.name|lower}}!\n", __func__);
+        SPM_PANIC("Failed to create mutex for secure partition {{partition.name|lower}}!\n");
     }
 
     partition->semaphore = osSemaphoreNew(
@@ -109,7 +109,7 @@ void {{partition.name|lower}}_init(partition_t *partition)
         &{{partition.name|lower}}_sem_attr
         );
     if (NULL == partition->semaphore) {
-        spm_panic("%s - Failed to create semaphore for secure partition {{partition.name|lower}}!\n", __func__);
+        SPM_PANIC("Failed to create semaphore for secure partition {{partition.name|lower}}!\n");
     }
 
     for (uint32_t i = 0; i < {{partition.name|upper}}_SF_COUNT; ++i) {
@@ -119,7 +119,7 @@ void {{partition.name|lower}}_init(partition_t *partition)
 
     partition->thread_id = osThreadNew({{partition.entry_point}}, NULL, &{{partition.name|lower}}_thread_attr);
     if (NULL == partition->thread_id) {
-        spm_panic("%s - Failed to create start main thread of partition {{partition.name|lower}}!\n", __func__);
+        SPM_PANIC("Failed to create start main thread of partition {{partition.name|lower}}!\n");
     }
     partition->partition_state = PARTITION_STATE_IDLE;
 }
