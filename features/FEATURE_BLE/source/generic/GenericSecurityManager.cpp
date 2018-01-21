@@ -195,7 +195,7 @@ public:
         authentication.set_secure_connections(secure_connections);
         authentication.set_keypress_notification(true);
 
-        initiator_dist.set_signing(signing);
+        key_distribution.set_signing(signing);
 
         return BLE_ERROR_NONE;
     }
@@ -232,8 +232,8 @@ public:
                 connection,
                 entry->oob,
                 authentication,
-                initiator_dist,
-                responder_dist
+                key_distribution,
+                key_distribution
             );
         } else {
             return BLE_ERROR_INVALID_PARAM;
@@ -247,8 +247,8 @@ public:
                 connection,
                 entry->oob,
                 authentication,
-                initiator_dist,
-                responder_dist
+                key_distribution,
+                key_distribution
             );
         } else {
             return BLE_ERROR_INVALID_PARAM;
@@ -283,14 +283,14 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
         if (!entry->signing_key && enabled) {
-            KeyDistribution distribution = initiator_dist;
+            KeyDistribution distribution = key_distribution;
             distribution.set_signing(enabled);
             return pal.send_pairing_request(
                 connection,
                 entry->oob,
                 authentication,
                 distribution,
-                responder_dist
+                distribution
             );
         }
         return BLE_ERROR_NONE;
@@ -480,8 +480,8 @@ public:
                     connection,
                     entry->oob,
                     authentication,
-                    initiator_dist,
-                    responder_dist
+                    key_distribution,
+                    key_distribution
                 );
             }
         } else {
@@ -551,8 +551,7 @@ protected:
           pairing_authorisation_required(false),
           legacy_pairing_allowed(true),
           authentication(0),
-          initiator_dist(KeyDistribution::KEY_DISTRIBUTION_ALL),
-          responder_dist(KeyDistribution::KEY_DISTRIBUTION_ALL) {
+          key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
         _app_event_handler = &defaultEventHandler;
         pal.set_event_handler(this);
     }
@@ -565,8 +564,7 @@ private:
     bool legacy_pairing_allowed;
 
     AuthenticationMask  authentication;
-    KeyDistribution     initiator_dist;
-    KeyDistribution     responder_dist;
+    KeyDistribution     key_distribution;
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
