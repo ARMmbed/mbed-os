@@ -70,7 +70,7 @@ typedef struct psa_msg {
  */
 typedef struct iovec
 {
-    const void *iovec_base; /**< Starting address of the buffer.*/
+    const void *iov_base;   /**< Starting address of the buffer.*/
     size_t iov_len;         /**< Length in bytes of the buffer.*/
 } iovec_t;
 
