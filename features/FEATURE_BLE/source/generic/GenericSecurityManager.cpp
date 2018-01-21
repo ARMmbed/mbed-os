@@ -47,6 +47,7 @@ struct SecurityEntry_t {
     address_t peer_identity_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
+    uint8_t mitm_performed:1;
     uint8_t mitm:1; /**< does the key provide mitm */
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
@@ -347,6 +348,7 @@ public:
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
         authentication.set_keypress_notification(enabled);
+        return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t enableSigning(
@@ -670,6 +672,8 @@ public:
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) {
+        set_mitm_performed(connection, false);
+
         if (_app_event_handler && pairing_authorisation_required) {
             _app_event_handler->acceptPairingRequest(connection);
         }
@@ -679,6 +683,8 @@ public:
         connection_handle_t connection,
         pairing_failure_t error
     ) {
+        set_mitm_performed(connection, false);
+
         if (_app_event_handler) {
             _app_event_handler->pairingResult(
                 connection,
@@ -688,6 +694,8 @@ public:
     }
 
     virtual void on_pairing_timed_out(connection_handle_t connection) {
+        set_mitm_performed(connection, false);
+
         if (_app_event_handler) {
             _app_event_handler->pairingResult(
                 connection,
@@ -703,6 +711,13 @@ public:
                 pal.enable_encryption(connection);
             }
         }
+
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            entry->mitm = entry->mitm_performed;
+            entry->mitm_performed = false;
+        }
+
         if (_app_event_handler) {
             _app_event_handler->pairingResult(
                 connection,
@@ -755,11 +770,18 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // MITM
     //
+    virtual void set_mitm_performed(connection_handle_t connection, bool enable = true) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            entry->mitm_performed = true;
+        }
+    }
 
     virtual void on_passkey_display(
         connection_handle_t connection,
         const passkey_num_t passkey
     ) {
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
         }
@@ -769,31 +791,35 @@ public:
         connection_handle_t connection,
         SecurityManager::Keypress_t keypress
     ) {
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(connection, keypress);
         }
     }
 
     virtual void on_passkey_request(connection_handle_t connection) {
-
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->passkeyRequest(connection);
         }
     }
 
     virtual void on_confirmation_request(connection_handle_t connection) {
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->confirmationRequest(connection);
         }
     }
 
     virtual void on_legacy_pairing_oob_request(connection_handle_t connection) {
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->legacyPairingOobRequest(connection);
         }
     }
 
     virtual void on_oob_request(connection_handle_t connection) {
+        set_mitm_performed(connection);
         if (_app_event_handler) {
             _app_event_handler->oobRequest(connection);
         }
