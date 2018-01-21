@@ -540,13 +540,11 @@ public:
         connection_handle_t connection,
         csrk_t csrk
     ) {
-        if (_app_event_handler) {
-            _app_event_handler->signingKey(
-                connection,
-                csrk,
-                db.get_entry(connection)->mitm
-            );
-        }
+        _app_event_handler->signingKey(
+            connection,
+            csrk,
+            db.get_entry(connection)->mitm
+        );
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
@@ -674,7 +672,7 @@ public:
     ) {
         set_mitm_performed(connection, false);
 
-        if (_app_event_handler && pairing_authorisation_required) {
+        if (pairing_authorisation_required) {
             _app_event_handler->acceptPairingRequest(connection);
         }
     }
@@ -685,23 +683,19 @@ public:
     ) {
         set_mitm_performed(connection, false);
 
-        if (_app_event_handler) {
-            _app_event_handler->pairingResult(
-                connection,
-                (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
-            );
-        }
+        _app_event_handler->pairingResult(
+            connection,
+            (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
+        );
     }
 
     virtual void on_pairing_timed_out(connection_handle_t connection) {
         set_mitm_performed(connection, false);
 
-        if (_app_event_handler) {
-            _app_event_handler->pairingResult(
-                connection,
-                SecurityManager::SEC_STATUS_TIMEOUT
-            );
-        }
+        _app_event_handler->pairingResult(
+            connection,
+            SecurityManager::SEC_STATUS_TIMEOUT
+        );
     }
 
     virtual void on_pairing_completed(connection_handle_t connection) {
@@ -718,12 +712,10 @@ public:
             entry->mitm_performed = false;
         }
 
-        if (_app_event_handler) {
-            _app_event_handler->pairingResult(
-                connection,
-                SecurityManager::SEC_STATUS_SUCCESS
-            );
-        }
+        _app_event_handler->pairingResult(
+            connection,
+            SecurityManager::SEC_STATUS_SUCCESS
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -731,9 +723,7 @@ public:
     //
 
     virtual void on_valid_mic_timeout(connection_handle_t connection) {
-        if (_app_event_handler) {
-            _app_event_handler->validMicTimeout(connection);
-        }
+        _app_event_handler->validMicTimeout(connection);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -751,20 +741,16 @@ public:
                entry->encryption_requested = false;
             }
         }
-        if (_app_event_handler) {
-            _app_event_handler->linkEncryptionResult(connection, result);
-        }
+        _app_event_handler->linkEncryptionResult(connection, result);
     }
 
     virtual void on_link_encryption_request_timed_out(
         connection_handle_t connection
     ) {
-        if (_app_event_handler) {
-            _app_event_handler->linkEncryptionResult(
-                connection,
-                link_encryption_t::NOT_ENCRYPTED
-            );
-        }
+        _app_event_handler->linkEncryptionResult(
+            connection,
+            link_encryption_t::NOT_ENCRYPTED
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -782,9 +768,7 @@ public:
         const passkey_num_t passkey
     ) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
-        }
+        _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
     }
 
     virtual void on_keypress_notification(
@@ -792,37 +776,27 @@ public:
         SecurityManager::Keypress_t keypress
     ) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->keypressNotification(connection, keypress);
-        }
+        _app_event_handler->keypressNotification(connection, keypress);
     }
 
     virtual void on_passkey_request(connection_handle_t connection) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->passkeyRequest(connection);
-        }
+        _app_event_handler->passkeyRequest(connection);
     }
 
     virtual void on_confirmation_request(connection_handle_t connection) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->confirmationRequest(connection);
-        }
+        _app_event_handler->confirmationRequest(connection);
     }
 
     virtual void on_legacy_pairing_oob_request(connection_handle_t connection) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->legacyPairingOobRequest(connection);
-        }
+        _app_event_handler->legacyPairingOobRequest(connection);
     }
 
     virtual void on_oob_request(connection_handle_t connection) {
         set_mitm_performed(connection);
-        if (_app_event_handler) {
-            _app_event_handler->oobRequest(connection);
-        }
+        _app_event_handler->oobRequest(connection);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -850,13 +824,11 @@ public:
             csrk
         );
 
-        if (_app_event_handler) {
-            _app_event_handler->signingKey(
-                connection,
-                csrk,
-                db.get_entry(connection)->mitm
-            );
-        }
+        _app_event_handler->signingKey(
+            connection,
+            csrk,
+            db.get_entry(connection)->mitm
+        );
     }
 
     virtual void on_keys_distributed_ltk(
@@ -899,13 +871,11 @@ public:
     ) {
         db.update_entry_csrk(connection, csrk);
 
-        if (_app_event_handler) {
-            _app_event_handler->signingKey(
-                connection,
-                csrk,
-                db.get_entry(connection)->mitm
-            );
-        }
+        _app_event_handler->signingKey(
+            connection,
+            csrk,
+            db.get_entry(connection)->mitm
+        );
     }
 
     virtual void on_ltk_request(
