@@ -116,6 +116,10 @@ public:
         const ediv_t ediv,
         const rand_t rand
     );
+    virtual void get_entry_keys(
+        SecurityEntryKeysDbCb_t cb,
+        connection_handle_t connection
+    );
     virtual void get_entry_identityt(
         SecurityEntryIdentityDbCb_t cb,
         address_t &identity_address
@@ -444,13 +448,13 @@ public:
                     return BLE_ERROR_NONE;
                 }
                 entry->encryption_requested = true;
-                return pal.enable_encryption(connection);
+                return enable_encryption(connection);
                 break;
 
             case link_encryption_t::ENCRYPTED_WITH_MITM:
                 if (entry->mitm && !entry->encrypted) {
                     entry->encryption_requested = true;
-                    return pal.enable_encryption(connection);
+                    return enable_encryption(connection);
                 } else {
                     entry->encryption_requested = true;
                     return requestAuthentication(connection);
@@ -482,6 +486,30 @@ public:
         uint8_t maximumByteSize
     ) {
         return pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
+    }
+
+    virtual ble_error_t enable_encryption(connection_handle_t connection) {
+        db.get_entry_keys(
+            mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
+            connection
+        );
+        return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Returns the requested LTK to the PAL. Called by the security db.
+     *
+     * @param entry security entry returned by the database.
+     * @param entryKeys security entry containing keys.
+     *
+     * @return no action instruction to the db since this only reads the keys.
+     */
+    DbCbAction_t enable_encryption_cb(
+        SecurityEntry_t& entry,
+        SecurityEntryKeys_t& entryKeys
+    ) {
+        pal.enable_encryption(entry.handle, entryKeys.ltk, entryKeys.ediv, entryKeys.rand);
+        return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -563,7 +591,7 @@ public:
                 return BLE_ERROR_NONE;
             } else {
                 entry->encryption_requested;
-                return pal.enable_encryption(connection);
+                return enable_encryption(connection);
             }
         } else {
             /* don't change the default value of authentication */
@@ -702,7 +730,7 @@ public:
         SecurityEntry_t *entry = db.get_entry(connection);
         if (entry) {
             if (entry->encryption_requested) {
-                pal.enable_encryption(connection);
+                enable_encryption(connection);
             }
         }
 

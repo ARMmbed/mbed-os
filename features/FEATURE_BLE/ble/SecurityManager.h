@@ -452,6 +452,12 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    virtual ble_error_t setLinkEncryption(connection_handle_t connectionHandle, link_encryption_t encryption) {
+        (void)connectionHandle;
+        (void)encryption;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     virtual ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
         (void) handle;
         (void) size;
