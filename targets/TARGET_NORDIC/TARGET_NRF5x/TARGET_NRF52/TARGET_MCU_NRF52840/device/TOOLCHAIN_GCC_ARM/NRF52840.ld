@@ -61,7 +61,6 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
  */
 ENTRY(Reset_Handler)
 
-
 SECTIONS
 {
     .text :
@@ -89,6 +88,41 @@ SECTIONS
         *(.rodata*)
 
         KEEP(*(.eh_frame*))
+    } > FLASH
+
+    .sdh_soc_observers :
+    {
+        PROVIDE(__start_sdh_soc_observers = .);
+        KEEP(*(SORT(.sdh_soc_observers*)))
+        PROVIDE(__stop_sdh_soc_observers = .);
+    } > FLASH
+
+    .sdh_stack_observers :
+    {
+        PROVIDE(__start_sdh_stack_observers = .);
+        KEEP(*(SORT(.sdh_stack_observers*)))
+        PROVIDE(__stop_sdh_stack_observers = .);
+    } > FLASH
+
+    .sdh_req_observers :
+    {
+        PROVIDE(__start_sdh_req_observers = .);
+        KEEP(*(SORT(.sdh_req_observers*)))
+        PROVIDE(__stop_sdh_req_observers = .);
+    } > FLASH
+
+    .sdh_state_observers :
+    {
+        PROVIDE(__start_sdh_state_observers = .);
+        KEEP(*(SORT(.sdh_state_observers*)))
+        PROVIDE(__stop_sdh_state_observers = .);
+    } > FLASH
+
+    .sdh_ble_observers :
+    {
+        PROVIDE(__start_sdh_ble_observers = .);
+        KEEP(*(SORT(.sdh_ble_observers*)))
+        PROVIDE(__stop_sdh_ble_observers = .);
     } > FLASH
 
     .ARM.extab :
