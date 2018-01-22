@@ -61,12 +61,12 @@ public:
         bool secure_connections;
         pal.get_secure_connections_support(secure_connections);
 
-        authentication.set_bondable(bondable);
-        authentication.set_mitm(mitm);
-        authentication.set_secure_connections(secure_connections);
-        authentication.set_keypress_notification(true);
+        default_authentication.set_bondable(bondable);
+        default_authentication.set_mitm(mitm);
+        default_authentication.set_secure_connections(secure_connections);
+        default_authentication.set_keypress_notification(true);
 
-        key_distribution.set_signing(signing);
+        default_key_distribution.set_signing(signing);
         if (signing) {
             initSigning();
         }
@@ -117,14 +117,15 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
-        if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
+        if (!legacy_pairing_allowed && !default_authentication.get_secure_connections()) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
-        AuthenticationMask link_authentication(authentication);
+        AuthenticationMask link_authentication(default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
 
-        KeyDistribution link_key_distribution(key_distribution);
+        KeyDistribution link_key_distribution(default_key_distribution);
         link_key_distribution.set_signing(entry->signing_requested);
+        link_key_distribution.set_encryption(master_sends_keys);
 
         return pal.send_pairing_request(
             connection,
@@ -140,12 +141,19 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
+        AuthenticationMask link_authentication(default_authentication);
+        link_authentication.set_mitm(entry->mitm_requested);
+
+        KeyDistribution link_key_distribution(default_key_distribution);
+        link_key_distribution.set_signing(entry->signing_requested);
+
         return pal.send_pairing_response(
             connection,
             entry->oob,
-            authentication,
-            key_distribution,
-            key_distribution
+            link_authentication,
+            link_key_distribution,
+            link_key_distribution
         );
     }
 
@@ -235,7 +243,7 @@ public:
     }
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
-        authentication.set_keypress_notification(enabled);
+        default_authentication.set_keypress_notification(enabled);
         return BLE_ERROR_NONE;
     }
 
@@ -547,8 +555,9 @@ protected:
         : pal(palImpl),
           pairing_authorisation_required(false),
           legacy_pairing_allowed(true),
-          authentication(0),
-          key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
+          master_sends_keys(false),
+          default_authentication(0),
+          default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
         _app_event_handler = &defaultEventHandler;
         pal.set_event_handler(this);
     }
@@ -561,8 +570,8 @@ private:
     bool legacy_pairing_allowed;
     bool master_sends_keys;
 
-    AuthenticationMask  authentication;
-    KeyDistribution     key_distribution;
+    AuthenticationMask  default_authentication;
+    KeyDistribution     default_key_distribution;
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
