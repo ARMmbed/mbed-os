@@ -353,27 +353,21 @@ public:
         switch (securityMode) {
             case SECURITY_MODE_ENCRYPTION_OPEN_LINK:
                 return setLinkEncryption(connection, link_encryption_t::NOT_ENCRYPTED);
-                break;
 
             case SECURITY_MODE_ENCRYPTION_NO_MITM:
                 return setLinkEncryption(connection, link_encryption_t::ENCRYPTED);
-                break;
 
             case SECURITY_MODE_ENCRYPTION_WITH_MITM:
                 return setLinkEncryption(connection, link_encryption_t::ENCRYPTED_WITH_MITM);
-                break;
 
             case SECURITY_MODE_SIGNED_NO_MITM:
                 return getSigningKey(connection, false);
-                break;
 
             case SECURITY_MODE_SIGNED_WITH_MITM:
                 return getSigningKey(connection, true);
-                break;
 
             default:
                 return BLE_ERROR_INVALID_PARAM;
-                break;
         }
     }
 
@@ -462,34 +456,33 @@ public:
             return BLE_ERROR_NONE;
         }
 
-        switch(encryption.value()) {
-            case link_encryption_t::NOT_ENCRYPTED:
-                if (entry->encrypted) {
-                    return pal.disable_encryption(connection);
-                }
-                break;
+        if (encryption == link_encryption_t::NOT_ENCRYPTED) {
 
-            case link_encryption_t::ENCRYPTED:
-                /* if already better than encrypted don't bother */
-                if (current_encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
-                    return BLE_ERROR_NONE;
-                }
+            if (entry->encrypted) {
+                return pal.disable_encryption(connection);
+            }
+
+        } else if (encryption == link_encryption_t::ENCRYPTED) {
+
+            /* if already better than encrypted don't bother */
+            if (current_encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
+                return BLE_ERROR_NONE;
+            }
+            entry->encryption_requested = true;
+            return enable_encryption(connection);
+
+        } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
+
+            if (entry->mitm && !entry->encrypted) {
                 entry->encryption_requested = true;
                 return enable_encryption(connection);
-                break;
+            } else {
+                entry->encryption_requested = true;
+                return requestAuthentication(connection);
+            }
 
-            case link_encryption_t::ENCRYPTED_WITH_MITM:
-                if (entry->mitm && !entry->encrypted) {
-                    entry->encryption_requested = true;
-                    return enable_encryption(connection);
-                } else {
-                    entry->encryption_requested = true;
-                    return requestAuthentication(connection);
-                }
-                break;
-
-            default:
-                return BLE_ERROR_INVALID_PARAM;
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
         }
 
         return BLE_ERROR_NONE;
