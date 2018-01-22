@@ -381,6 +381,17 @@ public:
         const rand_t rand
     ) = 0;
 
+    virtual void on_keys_distributed_local_ltk(
+        connection_handle_t connection,
+        const ltk_t ltk
+    ) = 0;
+
+    virtual void on_keys_distributed_local_ediv_rand(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    ) = 0;
+
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t irk
