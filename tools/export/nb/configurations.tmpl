@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="100">
+    <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+        <logicalFolder name="HeaderFiles"
+                       displayName="Header Files"
+                       projectFiles="true">
+            {% for header in headers_folder -%}
+            {{ header }}
+            {% endfor %}
+        </logicalFolder>
+        <logicalFolder name="LinkerScript"
+                       displayName="Linker Files"
+                       projectFiles="true">
+            <itemPath>{{ linker_script }}</itemPath>
+        </logicalFolder>
+        <logicalFolder name="ResourceFiles"
+                       displayName="Resource Files"
+                       projectFiles="true">
+        </logicalFolder>
+        <logicalFolder name="SourceFiles"
+                       displayName="Source Files"
+                       projectFiles="true">
+            {% for source in sources_folder -%}
+            {{ source }}
+            {% endfor %}
+        </logicalFolder>
+        <logicalFolder name="OtherFiles"
+                       displayName="Other Files"
+                       projectFiles="true">
+        </logicalFolder>
+        <logicalFolder name="TestFiles"
+                       displayName="Test Files"
+                       projectFiles="false"
+                       kind="TEST_LOGICAL_FOLDER">
+        </logicalFolder>
+        <logicalFolder name="ExternalFiles"
+                       displayName="Important Files"
+                       projectFiles="false"
+                       kind="IMPORTANT_FILES_FOLDER">
+            <itemPath>Makefile</itemPath>
+        </logicalFolder>
+    </logicalFolder>
+    <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+    <sourceRootList>
+        <Elem>.</Elem>
+    </sourceRootList>
+    <projectmakefile>Makefile</projectmakefile>
+    <confs>
+        {% for id in options -%}
+        {% set opts = options[id] %}
+        <conf name="{{opts['id']}}" type="1">
+            <toolsSet>
+                <compilerSet>default</compilerSet>
+                <dependencyChecking>true</dependencyChecking>
+                <rebuildPropChanged>false</rebuildPropChanged>
+            </toolsSet>
+            <compileType>
+                <cTool>
+                    <standard>{{ c_std }}</standard>
+                    <incDir>
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
+                    </incDir>
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in c_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
+                    </commandLine>
+                    <preprocessorList>
+                        {% for item in opts['defines'] -%}
+                        <Elem>{{ item }}</Elem>
+                        {% endfor -%}
+                        {% for symbol in c_symbols -%}
+                        <Elem>{{ symbol }}</Elem>
+                        {% endfor -%}
+                    </preprocessorList>
+                    <commandlineTool>{{cc_cmd}}</commandlineTool>
+                </cTool>
+                <ccTool>
+                    <standard>{{ cpp_std }}</standard>
+                    <incDir>
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
+                    </incDir>
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in cxx_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
+                    </commandLine>
+                    <preprocessorList>
+                        {% for item in opts['defines'] -%}
+                        <Elem>{{ item }}</Elem>
+                        {% endfor -%}
+                        {% for symbol in c_symbols -%}
+                        <Elem>{{ symbol }}</Elem>
+                        {% endfor -%}
+                    </preprocessorList>
+                    <commandlineTool>{{cppc_cmd}}</commandlineTool>
+                </ccTool>
+                <fortranCompilerTool>
+                    <developmentMode>5</developmentMode>
+                </fortranCompilerTool>
+                <asmTool>
+                    <developmentMode>5</developmentMode>
+                    <incDir>
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
+                    </incDir>
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in asm_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
+                    </commandLine>
+                    <preprocessorList>
+                        {% for symbol in asm_symbols -%}
+                        <Elem>{{ symbol }}</Elem>
+                        {% endfor -%}
+                    </preprocessorList>
+                    <commandlineTool>{{asm_cmd}}</commandlineTool>
+                </asmTool>
+                <linkerTool>
+                    <output>${CND_DISTDIR}/${CND_CONF}/{{target}}/{{name}}.elf</output>
+                    <additionalDep>${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld</additionalDep>
+                    <commandlineTool>{{ld_cmd}}</commandlineTool>
+                    <commandLine>-T ${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld {%- for symbol in opts['ld'] -%}{{" "+symbol}}{%- endfor -%} {%- for item in linker_libs -%}{{" "+item}}{%- endfor -%} </commandLine>
+                </linkerTool>
+            </compileType>
+            {% for h in headers -%}
+            <item path="{{h}}" ex="false" tool="3" flavor2="0">
+            </item>
+            {% endfor -%}
+            {% for s in c_sources -%}
+            <item path="{{s}}" ex="false" tool="0" flavor2="3">
+                <cTool flags="1">
+                </cTool>
+            </item>
+            {% endfor -%}
+            {% for s in cpp_sources -%}
+            <item path="{{s}}" ex="false" tool="1" flavor2="0">
+                <ccTool flags="0">
+                </ccTool>
+            </item>
+            {% endfor -%}
+            {% for s in s_sources -%}
+            <item path="{{s}}" ex="false" tool="0" flavor2="0">
+            </item>
+            {% endfor -%}
+            <item path="{{linker_script }}" ex="false" tool="3" flavor2="0">
+                <customTool>
+                    <customToolCommandline>{{pp_cmd}} -o $@ $&lt;</customToolCommandline>
+                    <customToolDescription>Create ELF File using Link Script</customToolDescription>
+                    <customToolOutputs>${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld</customToolOutputs>
+                </customTool>
+            </item>
+            <item path="/nbproject/private/c_standard_headers_indexer.c" ex="true" tool="0" flavor2="0">
+            </item>
+            <item path="/nbproject/private/c_standard_headers_indexer.cpp" ex="true" tool="1" flavor2="0">
+            </item>
+        </conf>
+        {% endfor -%}
+    </confs>
+</configurationDescriptor>
