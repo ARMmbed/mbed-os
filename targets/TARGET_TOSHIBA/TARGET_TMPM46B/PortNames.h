@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
-
-#if defined(TARGET_TMPM066)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+typedef enum {
+    PortA = 0,
+    PortB,
+    PortC,
+    PortD,
+    PortE,
+    PortF,
+    PortG,
+    PortH,
+    PortJ,
+    PortK,
+    PortL
+} PortName;
+
+#ifdef __cplusplus
+}
 #endif
-
-#if defined(TARGET_TMPM46B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
 #endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
