@@ -38,17 +38,26 @@ struct SecurityEntry_t {
     address_t peer_identity_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
+
+    uint8_t mitm_requested:1;
     uint8_t mitm_performed:1;
-    uint8_t mitm:1; /**< does the key provide mitm */
+    uint8_t mitm_provided:1; /**< does the key provide mitm */
+
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
+
     uint8_t sign_data:1;
+
     uint8_t encryption_requested:1;
     uint8_t encrypted:1;
+
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
+
     uint8_t secure_connections:1;
+
     uint8_t signing_key:1;
+    uint8_t signing_requested:1;
     uint8_t encryption_key:1;
 };
 

@@ -48,9 +48,9 @@ public:
     //
     virtual ble_error_t init(
         bool bondable = true,
-        bool mitm     = true,
+        bool mitm = true,
         SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-        const Passkey_t passkey  = NULL,
+        const Passkey_t passkey = NULL,
         bool signing = true
     ) {
         db.restore();
@@ -120,12 +120,18 @@ public:
         if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
+        AuthenticationMask link_authentication(authentication);
+        link_authentication.set_mitm(entry->mitm_requested);
+
+        KeyDistribution link_key_distribution(key_distribution);
+        link_key_distribution.set_signing(entry->signing_requested);
+
         return pal.send_pairing_request(
             connection,
             entry->oob,
-            authentication,
-            key_distribution,
-            key_distribution
+            link_authentication,
+            link_key_distribution,
+            link_key_distribution
         );
     }
 
@@ -242,19 +248,11 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (!entry->signing_key && enabled) {
+        entry->signing_requested = enabled;
+
+        if (!entry->signing_key && entry->signing_requested) {
             initSigning();
-
-            KeyDistribution distribution = key_distribution;
-            distribution.set_signing(enabled);
-
-            return pal.send_pairing_request(
-                connection,
-                entry->oob,
-                authentication,
-                distribution,
-                distribution
-            );
+            return requestPairing(connection);
         }
 
         return BLE_ERROR_NONE;
@@ -288,7 +286,7 @@ public:
         }
 
         if (entry->encrypted) {
-            if (entry->mitm) {
+            if (entry->mitm_provided) {
                 *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
             } else {
                 *encryption = link_encryption_t::ENCRYPTED;
@@ -340,7 +338,7 @@ public:
 
         } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
-            if (entry->mitm && !entry->encrypted) {
+            if (entry->mitm_provided && !entry->encrypted) {
                 entry->encryption_requested = true;
                 return enable_encryption(connection);
             } else {
@@ -417,7 +415,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (entry->signing_key && (entry->mitm || !authenticated)) {
+        if (entry->signing_key && (entry->mitm_provided || !authenticated)) {
             /* we have a key that is either authenticated or we don't care if it is
              * so retrieve it from the db now */
             db.get_entry_csrk(
@@ -460,7 +458,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm
+            db.get_entry(connection)->mitm_provided
         );
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
@@ -475,7 +473,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (entry->mitm) {
+        if (entry->mitm_provided) {
             if (entry->authenticated) {
                 return BLE_ERROR_NONE;
             } else {
@@ -483,16 +481,8 @@ public:
                 return enable_encryption(connection);
             }
         } else {
-            /* don't change the default value of authentication */
-            AuthenticationMask connection_authentication(authentication);
-            connection_authentication.set_mitm(true);
-            return pal.send_pairing_request(
-                connection,
-                entry->oob,
-                authentication,
-                key_distribution,
-                key_distribution
-            );
+            entry->mitm_requested = true;
+            return requestPairing(connection);
         }
     }
 
@@ -626,7 +616,7 @@ public:
             if (entry->encryption_requested) {
                 enable_encryption(connection);
             }
-            entry->mitm = entry->mitm_performed;
+            entry->mitm_provided = entry->mitm_performed;
             entry->mitm_performed = false;
         }
 
@@ -752,7 +742,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm
+            db.get_entry(connection)->mitm_provided
         );
     }
 
@@ -814,7 +804,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm
+            db.get_entry(connection)->mitm_provided
         );
     }
 
