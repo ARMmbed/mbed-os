@@ -106,26 +106,42 @@ public:
      */
     virtual SecurityEntry_t* get_entry(connection_handle_t connection);
 
+    /* local keys */
 
+    /* get */
+    virtual void get_entry_local_keys(
+        SecurityEntryKeysDbCb_t cb,
+        connection_handle_t connection
+    );
+    /* set */
+    virtual void set_entry_local_ltk(
+        connection_handle_t connection,
+        const ltk_t ltk
+    );
+    virtual void set_entry_local_ediv_rand(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    );
+
+    /* peer's keys */
+
+    /* get */
     virtual void get_entry_csrk(
         SecurityEntryCsrkDbCb_t cb,
         connection_handle_t connection
     );
-    virtual void get_entry_keys(
+    virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         const ediv_t ediv,
         const rand_t rand
     );
-    virtual void get_entry_keys(
+    virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection
     );
-    virtual void get_entry_identityt(
-        SecurityEntryIdentityDbCb_t cb,
-        address_t &identity_address
-    );
-
-    virtual void update_entry(
+    /* set */
+    virtual void set_entry_peer(
         connection_handle_t connection,
         bool address_is_public,
         const address_t &peer_address,
@@ -135,30 +151,39 @@ public:
         const irk_t irk,
         const csrk_t csrk
     );
-    virtual void update_entry_ltk(
+    virtual void set_entry_peer_ltk(
         connection_handle_t connection,
         const ltk_t ltk
     );
-    virtual void update_entry_ediv_rand(
+    virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
         const ediv_t ediv,
         const rand_t rand
     );
-    virtual void update_entry_irk(
+    virtual void set_entry_peer_irk(
         connection_handle_t connection,
         const irk_t irk
     );
-    virtual void update_entry_bdaddr(
+    virtual void set_entry_peer_bdaddr(
         connection_handle_t connection,
         bool address_is_public,
         const address_t &peer_address
     );
-    virtual void update_entry_csrk(
+    virtual void set_entry_peer_csrk(
         connection_handle_t connection,
         const csrk_t csrk
     );
 
-    virtual void remove_entry(SecurityEntry_t&);
+    /* local csrk */
+
+    virtual void set_local_csrk(
+        const csrk_t csrk
+    );
+    virtual csrk_t get_local_csrk();
+
+    /* list management */
+
+    virtual void remove_entry( address_t peer_identity_address);
     virtual void clear_entries();
 
     virtual void get_whitelist(WhitelistDbCb_t cb);
@@ -168,6 +193,8 @@ public:
 
     virtual void remove_whitelist_entry(const address_t &address);
     virtual void clear_whitelist();
+
+    /* saving and loading from nvm */
 
     virtual void restore();
     virtual void sync();
@@ -489,7 +516,7 @@ public:
     }
 
     virtual ble_error_t enable_encryption(connection_handle_t connection) {
-        db.get_entry_keys(
+        db.get_entry_peer_keys(
             mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
             connection
         );
@@ -844,7 +871,7 @@ public:
         const irk_t irk,
         const csrk_t csrk
     ) {
-        db.update_entry(
+        db.set_entry_peer(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address,
@@ -866,7 +893,7 @@ public:
         connection_handle_t connection,
         const ltk_t ltk
     ) {
-        db.update_entry_ltk(connection, ltk);
+        db.set_entry_peer_ltk(connection, ltk);
     }
 
     virtual void on_keys_distributed_ediv_rand(
@@ -874,14 +901,14 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.update_entry_ediv_rand(connection, ediv, rand);
+        db.set_entry_peer_ediv_rand(connection, ediv, rand);
     }
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t irk
     ) {
-        db.update_entry_irk(connection, irk);
+        db.set_entry_peer_irk(connection, irk);
     }
 
     virtual void on_keys_distributed_bdaddr(
@@ -889,7 +916,7 @@ public:
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
     ) {
-        db.update_entry_bdaddr(
+        db.set_entry_peer_bdaddr(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address
@@ -900,7 +927,7 @@ public:
         connection_handle_t connection,
         const csrk_t csrk
     ) {
-        db.update_entry_csrk(connection, csrk);
+        db.set_entry_peer_csrk(connection, csrk);
 
         _app_event_handler->signingKey(
             connection,
@@ -914,7 +941,7 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.get_entry_keys(
+        db.get_entry_peer_keys(
             mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
             ediv,
             rand
