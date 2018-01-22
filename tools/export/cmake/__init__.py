@@ -58,36 +58,26 @@ class CMake(Exporter):
         # get all source files including headers, adding headers allows IDEs to detect which files
         # belong to the project, otherwise headers may be greyed out and not work with inspection
         # (that is true for CLion and definitely for Visual Code)
-        allSourceFiles = set(self.resources.c_sources +
-                             self.resources.cpp_sources +
-                             self.resources.s_sources +
-                             self.resources.headers)
-
-        # create a list of dependencies (mbed add ...)
-        dependencies = [l[:-4] for l in self.resources.lib_refs]
-        # separate the individual dependency source files into a map with the dep name as key and an array if files
-        depSources = {re.sub(r'^[.]/', '', l).replace('/', '_'):
-                          sorted([f for f in allSourceFiles if f.startswith(l)]) for l in dependencies}
-        # delete dependencies that have no source files (may happen if a sub-dependency is ignored by .mbedignore)
-        depSources = {k: v for k, v in depSources.items() if len(v) != 0}
-
-        # remove all source files that ended up being part of one of the dependencies
-        srcs = allSourceFiles
-        for dep in depSources.values():
-            srcs.difference_update(dep)
+        srcs = set(self.resources.c_sources +
+                   self.resources.cpp_sources +
+                   self.resources.s_sources +
+                   self.resources.headers)
+        srcs = [re.sub(r'^[.]/', '', f) for f in srcs]
 
         # additional libraries
         libraries = [self.prepare_lib(basename(lib)) for lib in self.resources.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib in self.toolchain.sys_libs]
 
+        # sort includes reverse, so the deepest dir comes first (ensures short includes)
+        includes = sorted([re.sub(r'^[.]/', '', l) for l in self.resources.inc_dirs], reverse=True)
+
         ctx = {
             'name': self.project_name,
             'target': self.target,
             'sources': sorted(srcs),
-            'dependencies': depSources,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
-            'include_paths': sorted(list(set(self.resources.inc_dirs))),
+            'include_paths': includes,
             'library_paths': sorted([re.sub(r'^[.]/', '', l) for l in self.resources.lib_dirs]),
             'linker_script': self.resources.linker_script,
             'hex_files': self.resources.hex_files,
@@ -179,7 +169,6 @@ class CMake(Exporter):
                 shutil.rmtree('.build')
             if exists('BUILD'):
                 shutil.rmtree('BUILD')
-
 
         if ret_code != 0:
             # Seems like something went wrong.
