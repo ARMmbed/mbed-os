@@ -258,9 +258,16 @@ public:
 
         entry->signing_requested = enabled;
 
+        if (entry->encrypted) {
+            return BLE_ERROR_INVALID_STATE;
+        }
         if (!entry->signing_key && entry->signing_requested) {
             initSigning();
-            return requestPairing(connection);
+            if (entry->master) {
+                return requestPairing(connection);
+            } else {
+                return slave_security_request(connection);
+            }
         }
 
         return BLE_ERROR_NONE;
@@ -269,6 +276,16 @@ public:
     virtual ble_error_t setHintFutureRoleReversal(bool enable = true) {
         master_sends_keys = enable;
         return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t slave_security_request(connection_handle_t connection) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        AuthenticationMask link_authentication(default_authentication);
+        link_authentication.set_mitm(entry->mitm_requested);
+        return pal.slave_security_request(connection, link_authentication);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -382,11 +399,23 @@ public:
     }
 
     virtual ble_error_t enable_encryption(connection_handle_t connection) {
-        db.get_entry_peer_keys(
-            mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
-            connection
-        );
-        return BLE_ERROR_NONE;
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+        if (entry->master) {
+            if (entry->encryption_key) {
+                db.get_entry_peer_keys(
+                    mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
+                    connection
+                );
+                return BLE_ERROR_NONE;
+            } else {
+                return requestPairing(connection);
+            }
+        } else {
+            return slave_security_request(connection);
+        }
     }
 
     /**
@@ -437,8 +466,10 @@ public:
              * keys exchange will create the signingKey event */
             if (authenticated) {
                 return requestAuthentication(connection);
-            } else {
+            } else if (entry->master) {
                 return requestPairing(connection);
+            } else {
+                return slave_security_request(connection);
             }
         }
     }
@@ -490,7 +521,11 @@ public:
             }
         } else {
             entry->mitm_requested = true;
-            return requestPairing(connection);
+            if (entry->master) {
+                return requestPairing(connection);
+            } else {
+                return slave_security_request(connection);
+            }
         }
     }
 
@@ -570,8 +605,8 @@ private:
     bool legacy_pairing_allowed;
     bool master_sends_keys;
 
-    AuthenticationMask  default_authentication;
-    KeyDistribution     default_key_distribution;
+    AuthenticationMask default_authentication;
+    KeyDistribution default_key_distribution;
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:

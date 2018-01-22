@@ -45,6 +45,7 @@ struct SecurityEntry_t {
 
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
+    uint8_t master:1;
 
     uint8_t sign_data:1;
 
@@ -59,6 +60,7 @@ struct SecurityEntry_t {
     uint8_t signing_key:1;
     uint8_t signing_requested:1;
     uint8_t encryption_key:1;
+
 };
 
 struct SecurityEntryKeys_t {
