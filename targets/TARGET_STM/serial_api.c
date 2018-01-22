@@ -474,11 +474,17 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
 
     switch (data_bits) {
-        case 9:
-            MBED_ASSERT(parity == UART_PARITY_NONE);
-            obj_s->databits = UART_WORDLENGTH_9B;
+        case 7:
+            if (parity != UART_PARITY_NONE) {
+                obj_s->databits = UART_WORDLENGTH_8B;
+            } else {
+#if defined UART_WORDLENGTH_7B
+                obj_s->databits = UART_WORDLENGTH_7B;
+#else
+                error("7-bit data format without parity is not supported");
+#endif
+            }
             break;
-        default:
         case 8:
             if (parity != UART_PARITY_NONE) {
                 obj_s->databits = UART_WORDLENGTH_9B;
@@ -486,15 +492,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
                 obj_s->databits = UART_WORDLENGTH_8B;
             }
             break;
-#if defined UART_WORDLENGTH_7B
-        case 7:
+        case 9:
             if (parity != UART_PARITY_NONE) {
-                obj_s->databits = UART_WORDLENGTH_8B;
+                error("Parity is not supported with 9-bit data format");
             } else {
-                obj_s->databits = UART_WORDLENGTH_7B;
+                obj_s->databits = UART_WORDLENGTH_9B;
             }
             break;
-#endif
+        default:
+            error("Only 7, 8 or 9-bit data formats are supported");
+            break;
     }
 
     if (stop_bits == 2) {
