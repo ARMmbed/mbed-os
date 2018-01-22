@@ -176,10 +176,10 @@ public:
 
     /* local csrk */
 
+    virtual const csrk_t& get_local_csrk();
     virtual void set_local_csrk(
         const csrk_t csrk
     );
-    virtual csrk_t get_local_csrk();
 
     /* list management */
 
