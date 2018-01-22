@@ -161,7 +161,7 @@ class Cache () :
             algo_bin = algo_itr.next()
             flm_file = algo_bin.read()
             return PackFlashAlgo(flm_file).sector_sizes
-        except:
+        except Exception:
             return None
 
     def _extract_dict(self, device, filename, pack) :
