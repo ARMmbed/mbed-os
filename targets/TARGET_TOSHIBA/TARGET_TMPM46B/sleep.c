@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "sleep_api.h"
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+void hal_sleep(void)
+{
+    // Set low power consumption mode IDLE
+    CG_SetSTBYMode(CG_STBY_MODE_IDLE);
+    __DSB();
+    // Enter idle mode
+    __WFI();
+}
 
-#if defined(TARGET_TMPM066)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
-
-#endif
-
-#if defined(TARGET_TMPM46B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
+void hal_deepsleep(void)
+{
+    // deepsleep = sleep because, TMPM46BF10FG does not support the low power
+    // consumption mode configured with the SLEEPDEEP bit in the Cortex-M4 core.
+    // Setting the bit of the system control register is prohibited.
+    hal_sleep();
+}
