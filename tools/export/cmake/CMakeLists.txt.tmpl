@@ -50,21 +50,11 @@ INCLUDE_DIRECTORIES(
   {% for p in include_paths %}{{p}}
   {% endfor %})
 
-{% for libname,libsrcs in dependencies.items() %}
-# target for library "{{libname}}"
-ADD_LIBRARY({{libname}} STATIC
-  {% for libsrc in libsrcs %}{{libsrc}}
-  {% endfor %})
-{% endfor %}
-
 # executable {{name}}
 ADD_EXECUTABLE({{name}}
   {% for src in sources %}{{src}}
   {% endfor %})
 SET_TARGET_PROPERTIES({{name}} PROPERTIES ENABLE_EXPORTS 1)
-TARGET_LINK_LIBRARIES({{name}}
-  {% for libname in dependencies.keys()|sort(reverse=true) %}{{libname}}
-  {% endfor %})
 # add syslibs dependencies to create the correct linker order
 TARGET_LINK_LIBRARIES({{name}} {{ld_sys_libs|join(" ")}})
 
