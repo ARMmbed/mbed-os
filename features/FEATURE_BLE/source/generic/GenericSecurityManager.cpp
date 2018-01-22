@@ -277,32 +277,33 @@ public:
 
     virtual ble_error_t requestPairing(connection_handle_t connection) {
         SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            return pal.send_pairing_request(
-                connection,
-                entry->oob,
-                authentication,
-                key_distribution,
-                key_distribution
-            );
-        } else {
+        if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+        if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
+        return pal.send_pairing_request(
+            connection,
+            entry->oob,
+            authentication,
+            key_distribution,
+            key_distribution
+        );
     }
 
     virtual ble_error_t acceptPairingRequest(connection_handle_t connection) {
         SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            return pal.send_pairing_response(
-                connection,
-                entry->oob,
-                authentication,
-                key_distribution,
-                key_distribution
-            );
-        } else {
+        if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+        return pal.send_pairing_response(
+            connection,
+            entry->oob,
+            authentication,
+            key_distribution,
+            key_distribution
+        );
     }
 
     virtual ble_error_t canceltPairingRequest(connection_handle_t connection) {
@@ -419,6 +420,11 @@ public:
             );
         }
 
+        return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t setHintFutureRoleReversal(bool enable = true) {
+        master_sends_keys = enable;
         return BLE_ERROR_NONE;
     }
 
@@ -641,7 +647,7 @@ public:
             }
         } else {
             /* don't change the default value of authentication */
-            AuthenticationMask connection_authentication = authentication;
+            AuthenticationMask connection_authentication(authentication);
             connection_authentication.set_mitm(true);
             return pal.send_pairing_request(
                 connection,
@@ -726,6 +732,7 @@ private:
 
     bool pairing_authorisation_required;
     bool legacy_pairing_allowed;
+    bool master_sends_keys;
 
     AuthenticationMask  authentication;
     KeyDistribution     key_distribution;
@@ -744,6 +751,10 @@ public:
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) {
+        /* cancel pairing if secure connection paring is not possible */
+        if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
+            canceltPairingRequest(connection);
+        }
         set_mitm_performed(connection, false);
 
         if (pairing_authorisation_required) {
@@ -969,6 +980,7 @@ public:
             db.get_entry(connection)->mitm
         );
     }
+
     virtual void on_ltk_request(
         connection_handle_t connection,
         const ediv_t ediv,
