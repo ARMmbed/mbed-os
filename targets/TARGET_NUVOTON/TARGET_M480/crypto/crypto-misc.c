@@ -289,22 +289,22 @@ void CRYPTO_IRQHandler()
 {
     uint32_t intsts;
     
-    if ((intsts = PRNG_GET_INT_FLAG())) {
+    if ((intsts = PRNG_GET_INT_FLAG()) != 0) {
         /* Done with OK */
         crypto_prng_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
         PRNG_CLR_INT_FLAG();
-    }  else if ((intsts = AES_GET_INT_FLAG())) {
+    }  else if ((intsts = AES_GET_INT_FLAG()) != 0) {
         /* Done with OK */
         crypto_aes_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
         AES_CLR_INT_FLAG();
-    } else if ((intsts = TDES_GET_INT_FLAG())) {
+    } else if ((intsts = TDES_GET_INT_FLAG()) != 0) {
         /* Done with OK */
         crypto_des_done |= CRYPTO_DONE_OK;
         /* Clear interrupt flag */
         TDES_CLR_INT_FLAG();
-    } else if ((intsts = ECC_GET_INT_FLAG())) {
+    } else if ((intsts = ECC_GET_INT_FLAG()) != 0) {
         /* Check interrupt flags */
         if (intsts & CRPT_INTSTS_ECCIF_Msk) {
             /* Done with OK */
