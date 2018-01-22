@@ -49,6 +49,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "mbed_toolchain.h"
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
@@ -110,7 +111,7 @@
     } while(0)
 
 /**
- * \brief           Configure ECCOP operation and wait for its completion
+ * \brief           Configure ECCOP operation, start it, and wait for its completion
  *
  * \param grp       ECP group
  * \param R         Destination point
@@ -133,13 +134,16 @@
  * \note            ECC accelerator doesn't support R = 0, and we need to detect it additionally.
  *                  For R = P + Q or R = 2*P, we can detect all R = 0 cases.
  *                  For R = m*P, we can detect all R = 0 cases only if grp->N (order) is a prime.
+ *
+ * \note            According to ECCOP operation, n is unnecessary. But to be consistent with R = m*P + n*Q,
+ *                  n is kept with unused modifier.
  *                  
  */
 int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
                             mbedtls_ecp_point *R,
                             const mbedtls_mpi *m,
                             const mbedtls_ecp_point *P,
-                            const mbedtls_mpi *n,
+                            MBED_UNUSED const mbedtls_mpi *n,
                             const mbedtls_ecp_point *Q,
                             uint32_t eccop);
 
@@ -284,7 +288,7 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
         MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&Q_.Z, 1));
     }
     
-    /* Run ECC point doubling: R = P + Q */
+    /* Run ECC point addition: R = P + Q */
     MBEDTLS_MPI_CHK(mbedtls_internal_run_eccop(grp, R, NULL, &P_, NULL, &Q_, ECCOP_POINT_ADD));
     
 cleanup:
@@ -497,7 +501,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
                             mbedtls_ecp_point *R,
                             const mbedtls_mpi *m,
                             const mbedtls_ecp_point *P,
-                            const mbedtls_mpi *n,
+                            MBED_UNUSED const mbedtls_mpi *n,
                             const mbedtls_ecp_point *Q,
                             uint32_t eccop)
 {
@@ -517,6 +521,8 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
     }
 
     int ret;
+    bool ecc_done;
+
     mbedtls_mpi N_;
     const mbedtls_mpi *Np;
     
@@ -658,7 +664,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
 
     crypto_ecc_prestart();
     CRPT->ECC_CTL = (grp->pbits << CRPT_ECC_CTL_CURVEM_Pos) | eccop | CRPT_ECC_CTL_FSEL_Msk | CRPT_ECC_CTL_START_Msk;
-    bool ecc_done = crypto_ecc_wait();
+    ecc_done = crypto_ecc_wait();
     
     /* FIXME: Better error code for ECC accelerator error */
     MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
@@ -714,7 +720,8 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
     }
     
     int ret;
-    
+    bool ecc_done;
+
     mbedtls_mpi N_;
     const mbedtls_mpi *Np;
     
@@ -746,7 +753,7 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
 
     crypto_ecc_prestart();
     CRPT->ECC_CTL = (pbits << CRPT_ECC_CTL_CURVEM_Pos) | (ECCOP_MODULE | modop) | CRPT_ECC_CTL_FSEL_Msk | CRPT_ECC_CTL_START_Msk;
-    bool ecc_done = crypto_ecc_wait();
+    ecc_done = crypto_ecc_wait();
     
     /* FIXME: Better error code for ECC accelerator error */
     MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
