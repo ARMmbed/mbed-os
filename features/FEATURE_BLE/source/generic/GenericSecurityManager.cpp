@@ -111,7 +111,9 @@ public:
     /* get */
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
-        connection_handle_t connection
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
     );
     /* set */
     virtual void set_entry_local_ltk(
@@ -921,6 +923,21 @@ public:
         db.set_entry_peer_ediv_rand(connection, ediv, rand);
     }
 
+    virtual void on_keys_distributed_local_ltk(
+        connection_handle_t connection,
+        const ltk_t ltk
+    ) {
+        db.set_entry_local_ltk(connection, ltk);
+    }
+
+    virtual void on_keys_distributed_local_ediv_rand(
+        connection_handle_t connection,
+        const ediv_t ediv,
+        const rand_t rand
+    ) {
+        db.set_entry_local_ediv_rand(connection, ediv, rand);
+    }
+
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t irk
@@ -952,14 +969,14 @@ public:
             db.get_entry(connection)->mitm
         );
     }
-
     virtual void on_ltk_request(
         connection_handle_t connection,
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.get_entry_peer_keys(
+        db.get_entry_local_keys(
             mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
+            connection,
             ediv,
             rand
         );

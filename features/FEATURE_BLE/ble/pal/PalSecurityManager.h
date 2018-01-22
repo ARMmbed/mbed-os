@@ -381,11 +381,30 @@ public:
         const rand_t rand
     ) = 0;
 
+    /**
+     * If we generated our own key, this lets us store it
+     * ourselves, if we are slave this will be used to encrypt,
+     * otherwise this will be stored to be used in case
+     * of role reversal
+     *
+     * @param connection connection handle
+     * @param ltk key sent to the peer
+     */
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
         const ltk_t ltk
     ) = 0;
 
+    /**
+     * If we generated our own key, this lets us identify
+     * the stored key, if we are slave that ltk will be
+     * used to encrypt, otherwise this will be stored to
+     * be used in case of role reversal
+     *
+     * @param connection connection handle
+     * @param ediv idenitfies ltk
+     * @param rand idenitfies ltk
+     */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
         const ediv_t ediv,
@@ -408,6 +427,10 @@ public:
         const csrk_t csrk
     ) = 0;
 
+    /**
+     * The peer is asking as to encrypt the link, we need to
+     * provide the ltk based on the ediv and rand provided by the other side
+     */
     virtual void on_ltk_request(
         connection_handle_t connection,
         const ediv_t ediv,
@@ -565,10 +588,6 @@ public:
      * Set the local csrk
      */
     virtual ble_error_t set_csrk(const csrk_t csrk) = 0;
-
-    virtual ble_error_t generate_irk() = 0;
-
-    virtual ble_error_t generate_csrk() = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication

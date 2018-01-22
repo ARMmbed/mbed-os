@@ -442,6 +442,18 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Give a hint to the stack that the master/slave role might change in the future
+     *
+     * @param enable if set to true it hints the roles are likely to swap in the future
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t setHintFutureRoleReversal(bool enable = true) {
+        (void)enable;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
