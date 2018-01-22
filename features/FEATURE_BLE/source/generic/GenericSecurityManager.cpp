@@ -176,7 +176,7 @@ public:
 
     /* local csrk */
 
-    virtual const csrk_t& get_local_csrk();
+    virtual const csrk_t* get_local_csrk();
     virtual void set_local_csrk(
         const csrk_t csrk
     );
@@ -228,6 +228,9 @@ public:
         authentication.set_keypress_notification(true);
 
         key_distribution.set_signing(signing);
+        if (signing) {
+            initSigning();
+        }
 
         return BLE_ERROR_NONE;
     }
@@ -241,6 +244,19 @@ public:
 
     virtual ble_error_t preserveBondingStateOnReset(bool enabled) {
         db.set_restore(enabled);
+        return BLE_ERROR_NONE;
+    }
+
+    virtual ble_error_t initSigning() {
+        /* TODO: store init bit to avoid rerunning needlessly*/
+        csrk_t* pcsrk = db.get_local_csrk();
+        if (!pcsrk) {
+            csrk_t csrk;
+            /* TODO: generate csrk */
+            pcsrk = &csrk;
+            db.set_local_csrk(*pcsrk);
+        }
+        pal.set_csrk(*pcsrk);
         return BLE_ERROR_NONE;
     }
 
@@ -387,8 +403,11 @@ public:
         }
 
         if (!entry->signing_key && enabled) {
+            initSigning();
+
             KeyDistribution distribution = key_distribution;
             distribution.set_signing(enabled);
+
             return pal.send_pairing_request(
                 connection,
                 entry->oob,
