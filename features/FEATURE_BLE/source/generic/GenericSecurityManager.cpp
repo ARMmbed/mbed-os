@@ -346,6 +346,7 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
         if (entry->encryption_requested) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
@@ -384,6 +385,7 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
         if (!entry->signing_key && enabled) {
             KeyDistribution distribution = key_distribution;
             distribution.set_signing(enabled);
@@ -395,6 +397,7 @@ public:
                 distribution
             );
         }
+
         return BLE_ERROR_NONE;
     }
 
@@ -549,6 +552,7 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
         if (entry->signing_key && (entry->mitm || !authenticated)) {
             /* we have a key that is either authenticated or we don't care if it is
              * so retrieve it from the db now */
@@ -557,6 +561,7 @@ public:
                 connection
             );
             return BLE_ERROR_NONE;
+
         } else {
             /* we don't have the right key so we need to get it first
              * keys exchange will create the signingKey event */
@@ -637,13 +642,13 @@ public:
         bool OOBProvidesMITM = true
     ) {
         SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
-            entry->oob = useOOB;
-            entry->oob_mitm_protection = OOBProvidesMITM;
-            return BLE_ERROR_NONE;
-        } else {
+        if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
+        entry->oob = useOOB;
+        entry->oob_mitm_protection = OOBProvidesMITM;
+        return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t confirmationEntered(
