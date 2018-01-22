@@ -3597,23 +3597,31 @@
     "VBLUNO51_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"]
     },
     "VBLUNO51_BOOT": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_BOOT"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"],
         "macros_add": ["TARGET_VBLUNO51"]
     },
     "VBLUNO51_OTA": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_OTA"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"],
         "macros_add": ["TARGET_VBLUNO51"]
     },
     "VBLUNO51": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2"],
         "device_name": "nRF51822_xxAC"
