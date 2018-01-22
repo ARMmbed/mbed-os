@@ -161,7 +161,18 @@ void us_ticker_irq_handler(void);
  */
 void us_ticker_init(void);
 
-/** Read the current tick
+/** Deinitialize the us ticker
+ *
+ * Powerdown the us ticker in preparation for sleep, powerdown, or reset.
+ *
+ * After this function is called, no other ticker functions should be called
+ * except us_ticker_init(), calling any function other than init is undefined.
+ *
+ * @note This function stops the ticker from counting.
+ */
+void us_ticker_free(void);
+
+/** Read the current counter
  *
  * Read the current counter value without performing frequency conversions.
  * If no rollover has occurred, the seconds passed since us_ticker_init()
@@ -230,7 +241,7 @@ void us_ticker_disable_interrupt(void);
 void us_ticker_clear_interrupt(void);
 
 /** Set pending interrupt that should be fired right away.
- * 
+ *
  * The ticker should be initialized prior calling this function.
  *
  * Pseudo Code:
