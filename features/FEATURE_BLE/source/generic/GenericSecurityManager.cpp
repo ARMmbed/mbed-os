@@ -590,7 +590,7 @@ public:
             if (entry->authenticated) {
                 return BLE_ERROR_NONE;
             } else {
-                entry->encryption_requested;
+                entry->encryption_requested = true;
                 return enable_encryption(connection);
             }
         } else {
@@ -748,6 +748,13 @@ public:
 
     virtual void on_valid_mic_timeout(connection_handle_t connection) {
         _app_event_handler->validMicTimeout(connection);
+    }
+
+    virtual void on_slave_security_request(
+        connection_handle_t connection,
+        AuthenticationMask authentication
+    ) {
+
     }
 
     ////////////////////////////////////////////////////////////////////////////

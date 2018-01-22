@@ -284,6 +284,11 @@ public:
      */
     virtual void on_valid_mic_timeout(connection_handle_t connection) = 0;
 
+    virtual void on_slave_security_request(
+        connection_handle_t connection,
+        AuthenticationMask authentication
+    ) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -501,6 +506,11 @@ public:
     virtual ble_error_t set_encryption_key_requirements(
         uint8_t min_encryption_key_size,
         uint8_t max_encryption_key_size
+    ) = 0;
+
+    virtual ble_error_t slave_security_request(
+        connection_handle_t connection,
+        AuthenticationMask authentication
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
