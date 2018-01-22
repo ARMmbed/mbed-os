@@ -20,6 +20,7 @@ import re
 import tempfile
 import datetime
 import uuid
+import itertools
 import struct
 import zlib
 import hashlib
@@ -560,10 +561,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
         # Generate PSA XML box code from manifests
-        detected_psa_sources = [f for f in resources.c_sources if re.match('.*\/spm\/src\/spm_.+\.c', f)]
-        detected_psa_sources += [f for f in resources.objects if re.match('.*\/spm\/src\/spm_.+\.o', f)]
-
-        if len(detected_psa_sources) > 0:
+        psa_source_pattern = re.compile('.+/spm/src/spm_.+\.[oc]')
+        if any(True for f in itertools.chain(resources.objects, resources.c_sources) if psa_source_pattern.match(f)):
             psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
             resources.add(toolchain.scan_resources(psa_files_dir))
 
