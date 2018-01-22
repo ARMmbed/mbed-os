@@ -249,7 +249,7 @@ public:
 
     virtual ble_error_t initSigning() {
         /* TODO: store init bit to avoid rerunning needlessly*/
-        csrk_t* pcsrk = db.get_local_csrk();
+        const csrk_t *pcsrk = db.get_local_csrk();
         if (!pcsrk) {
             csrk_t csrk;
             /* TODO: generate csrk */
