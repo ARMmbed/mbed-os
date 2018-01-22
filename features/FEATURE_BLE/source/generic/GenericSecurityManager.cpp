@@ -423,7 +423,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        link_encryption_t current_encryption;
+        link_encryption_t current_encryption(link_encryption_t::NOT_ENCRYPTED);
         getLinkEncryption(connection, &current_encryption);
 
         if (current_encryption == link_encryption_t::ENCRYPTION_IN_PROGRESS) {
@@ -732,10 +732,6 @@ public:
             if (entry->encryption_requested) {
                 enable_encryption(connection);
             }
-        }
-
-        SecurityEntry_t *entry = db.get_entry(connection);
-        if (entry) {
             entry->mitm = entry->mitm_performed;
             entry->mitm_performed = false;
         }

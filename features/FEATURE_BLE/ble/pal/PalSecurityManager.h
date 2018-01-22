@@ -511,7 +511,7 @@ public:
         connection_handle_t connection,
         const ltk_t ltk,
         const rand_t rand = NULL,
-        const ediv_t ediv = NULL,
+        const ediv_t ediv = NULL
     ) = 0;
 
     virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
