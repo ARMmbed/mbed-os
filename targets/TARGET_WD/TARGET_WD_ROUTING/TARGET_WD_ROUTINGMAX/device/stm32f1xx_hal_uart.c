@@ -885,6 +885,9 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
     /* Enable the UART Data Register not empty Interrupt */
     __HAL_UART_ENABLE_IT(huart, UART_IT_RXNE);
 
+    /* Enable the UART IDLE Line Interrupt */
+	  __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
+
     return HAL_OK;
   }
   else
@@ -2213,6 +2216,7 @@ static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
   /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
   CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
   CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  __HAL_UART_DISABLE_IT(huart, UART_IT_IDLE);
 
   /* At end of Rx process, restore huart->RxState to Ready */
   huart->RxState = HAL_UART_STATE_READY;

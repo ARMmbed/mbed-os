@@ -44,10 +44,74 @@
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
+DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
+
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
+
+static void init_dma(serial_t *obj){
+	struct serial_s *obj_s = SERIAL_S(obj);
+	UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
+	
+    switch (obj_s->uart) {
+        case UART_1:
+            /* USART1_RX Init */
+            hdma_usart1_rx.Instance = DMA1_Channel5;
+            hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+            hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+            hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
+            hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+            hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+            hdma_usart1_rx.Init.Mode = DMA_CIRCULAR;
+            hdma_usart1_rx.Init.Priority = DMA_PRIORITY_HIGH;
+            HAL_DMA_Init(&hdma_usart1_rx);
+            __HAL_LINKDMA(huart,hdmarx,hdma_usart1_rx);
+
+            /* USART1_TX Init */
+            hdma_usart1_tx.Instance = DMA1_Channel4;
+            hdma_usart1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+            hdma_usart1_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+            hdma_usart1_tx.Init.MemInc = DMA_MINC_ENABLE;
+            hdma_usart1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+            hdma_usart1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+            hdma_usart1_tx.Init.Mode = DMA_NORMAL;
+            hdma_usart1_tx.Init.Priority = DMA_PRIORITY_HIGH;
+            HAL_DMA_Init(&hdma_usart1_tx);
+            __HAL_LINKDMA(huart,hdmatx,hdma_usart1_tx);
+            break;
+
+        case UART_2:
+            /* USART2_RX Init */
+            hdma_usart2_rx.Instance = DMA1_Channel6;
+            hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+            hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+            hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+            hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+            hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+            hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
+            hdma_usart2_rx.Init.Priority = DMA_PRIORITY_HIGH;
+            HAL_DMA_Init(&hdma_usart2_rx);
+            __HAL_LINKDMA(huart,hdmarx,hdma_usart2_rx);
+
+            /* USART2_TX Init */
+            hdma_usart2_tx.Instance = DMA1_Channel7;
+            hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+            hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+            hdma_usart2_tx.Init.MemInc = DMA_MINC_ENABLE;
+            hdma_usart2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+            hdma_usart2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+            hdma_usart2_tx.Init.Mode = DMA_NORMAL;
+            hdma_usart2_tx.Init.Priority = DMA_PRIORITY_HIGH;
+            HAL_DMA_Init(&hdma_usart2_tx);
+            __HAL_LINKDMA(huart,hdmatx,hdma_usart2_tx);
+            break;
+    }
+}
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
@@ -129,6 +193,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj_s->pin_rx = rx;
 
     init_uart(obj);
+    init_dma(obj);
 
     // For stdio management
     if (obj_s->uart == STDIO_UART) {
@@ -495,6 +560,84 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
     return irq_n;
 }
 
+/**
+* Get index of serial object TX DMA IRQ, relating it to the physical peripheral.
+*
+* @param obj pointer to serial object
+* @return internal NVIC TX DMA IRQ index of U(S)ART peripheral
+*/
+static IRQn_Type serial_tx_get_irqdma_n(serial_t *obj)
+{
+	struct serial_s *obj_s = SERIAL_S(obj);
+	IRQn_Type irq_n = (IRQn_Type)0;
+
+	switch (obj_s->index) {
+		#if defined(USART1_BASE)
+		case 0:
+		irq_n = DMA1_Channel4_IRQn;
+		break;
+		#endif
+		#if defined(USART2_BASE)
+		case 1:
+		irq_n = DMA1_Channel7_IRQn;
+		break;
+		#endif
+		#if defined(USART3_BASE)
+		case 2:
+		irq_n = DMA1_Channel2_IRQn;
+		break;
+		#endif
+		#if defined(UART4_BASE)
+		case 3:
+		irq_n = DMA2_Channel4_5_IRQn;
+		break;
+		#endif
+		default:
+		irq_n = (IRQn_Type)0;
+	}
+
+	return irq_n;
+}
+
+/**
+* Get index of serial object RX DMA IRQ, relating it to the physical peripheral.
+*
+* @param obj pointer to serial object
+* @return internal NVIC RX DMA IRQ index of U(S)ART peripheral
+*/
+static IRQn_Type serial_rx_get_irqdma_n(serial_t *obj)
+{
+	struct serial_s *obj_s = SERIAL_S(obj);
+	IRQn_Type irq_n = (IRQn_Type)0;
+
+	switch (obj_s->index) {
+		#if defined(USART1_BASE)
+		case 0:
+		irq_n = DMA1_Channel5_IRQn;
+		break;
+		#endif
+		#if defined(USART2_BASE)
+		case 1:
+		irq_n = DMA1_Channel6_IRQn;
+		break;
+		#endif
+		#if defined(USART3_BASE)
+		case 2:
+		irq_n = DMA1_Channel3_IRQn;
+		break;
+		#endif
+		#if defined(UART4_BASE)
+		case 3:
+		irq_n = DMA2_Channel3_IRQn;
+		break;
+		#endif
+		default:
+		irq_n = (IRQn_Type)0;
+	}
+
+	return irq_n;
+}
+
 /******************************************************************************
  * MBED API FUNCTIONS
  ******************************************************************************/
@@ -544,17 +687,18 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     NVIC_EnableIRQ(irq_n);
 
     if(huart->hdmatx != NULL && huart->hdmatx->Instance != NULL) {
+        irq_n = serial_tx_get_irqdma_n(obj);
+        NVIC_ClearPendingIRQ(irq_n);
+        NVIC_DisableIRQ(irq_n);
+        NVIC_SetPriority(irq_n, 1);
+        NVIC_SetVector(irq_n, (uint32_t)handler);
+        NVIC_EnableIRQ(irq_n);
+
         // the following function will enable program and enable the DMA transfer
-        if (HAL_UART_Transmit_DMA(huart, (uint8_t*)tx, tx_length) != HAL_OK)
-        {
-        /* Transfer error in transmission process */
-        return 0;
-        }
+        HAL_UART_Transmit_DMA(huart, (uint8_t*)tx, tx_length);
     } else {
         // the following function will enable UART_IT_TXE and error interrupts
-        if (HAL_UART_Transmit_IT(huart, (uint8_t*)tx, tx_length) != HAL_OK) {
-            return 0;
-        }
+        HAL_UART_Transmit_IT(huart, (uint8_t*)tx, tx_length);
     }
 
     return tx_length;
@@ -603,6 +747,13 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_EnableIRQ(irq_n);
 
     if(huart->hdmarx != NULL && huart->hdmarx->Instance != NULL) {
+        irq_n = serial_rx_get_irqdma_n(obj);
+        NVIC_ClearPendingIRQ(irq_n);
+        NVIC_DisableIRQ(irq_n);
+        NVIC_SetPriority(irq_n, 1);
+        NVIC_SetVector(irq_n, (uint32_t)handler);
+        NVIC_EnableIRQ(irq_n);
+
         // following HAL function will program and enable the DMA transfer
         HAL_UART_Receive_DMA(huart, (uint8_t*)rx, rx_length);    
             

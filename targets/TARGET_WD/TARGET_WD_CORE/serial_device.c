@@ -660,6 +660,124 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
     return irq_n;
 }
 
+/**
+* Get index of serial object TX DMA IRQ, relating it to the physical peripheral.
+*
+* @param obj pointer to serial object
+* @return internal NVIC TX DMA IRQ index of U(S)ART peripheral
+*/
+static IRQn_Type serial_tx_get_irqdma_n(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+	IRQn_Type irq_n = (IRQn_Type)0;
+
+    switch (obj_s->index) {
+#if defined(USART1_BASE)
+        case 0:
+            irq_n = DMA2_Stream7_IRQn;
+            break;
+#endif
+#if defined(USART2_BASE)
+        case 1:
+            irq_n = DMA1_Stream6_IRQn;
+            break;
+#endif
+#if defined(USART3_BASE)
+        case 2:
+            irq_n = DMA1_Stream3_IRQn;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case 3:
+            irq_n = DMA1_Stream4_IRQn;
+            break;
+#endif
+#if defined(UART5_BASE)
+        case 4:
+            irq_n = DMA1_Stream7_IRQn;
+            break;
+#endif
+#if defined(USART6_BASE)
+        case 5:
+            irq_n = DMA2_Stream6_IRQn;
+            break;
+#endif
+#if defined(UART7_BASE)
+        case 6:
+            irq_n = DMA1_Stream1_IRQn;
+            break;
+#endif
+#if defined(UART8_BASE)
+        case 7:
+            irq_n = DMA1_Stream0_IRQn;
+            break;
+#endif
+        default:
+            irq_n = (IRQn_Type)0;
+    }
+
+    return irq_n;
+}
+
+/**
+* Get index of serial object RX DMA IRQ, relating it to the physical peripheral.
+*
+* @param obj pointer to serial object
+* @return internal NVIC RX DMA IRQ index of U(S)ART peripheral
+*/
+static IRQn_Type serial_rx_get_irqdma_n(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+	IRQn_Type irq_n = (IRQn_Type)0;
+
+	switch (obj_s->index) {
+#if defined(USART1_BASE)
+        case 0:
+            irq_n = DMA2_Stream5_IRQn;
+            break;
+#endif
+#if defined(USART2_BASE)
+        case 1:
+            irq_n = DMA1_Stream5_IRQn;
+            break;
+#endif
+#if defined(USART3_BASE)
+        case 2:
+            irq_n = DMA1_Stream1_IRQn;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case 3:
+            irq_n = DMA1_Stream2_IRQn;
+            break;
+#endif
+#if defined(UART5_BASE)
+        case 4:
+            irq_n = DMA1_Stream0_IRQn;
+            break;
+#endif
+#if defined(USART6_BASE)
+        case 5:
+            irq_n = DMA2_Stream1_IRQn;
+            break;
+#endif
+#if defined(UART7_BASE)
+        case 6:
+            irq_n = DMA1_Stream3_IRQn;
+            break;
+#endif
+#if defined(UART8_BASE)
+        case 7:
+            irq_n = DMA1_Stream6_IRQn;
+            break;
+#endif
+        default:
+            irq_n = (IRQn_Type)0;
+    }
+
+    return irq_n;
+}
+
 /******************************************************************************
  * MBED API FUNCTIONS
  ******************************************************************************/
@@ -709,6 +827,14 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     NVIC_EnableIRQ(irq_n);
 
     if(huart->hdmatx != NULL && huart->hdmatx->Instance != NULL) {
+        
+        irq_n = serial_tx_get_irqdma_n(obj);
+        NVIC_ClearPendingIRQ(irq_n);
+        NVIC_DisableIRQ(irq_n);
+        NVIC_SetPriority(irq_n, 1);
+        NVIC_SetVector(irq_n, (uint32_t)handler);
+        NVIC_EnableIRQ(irq_n);
+
         // the following function will enable program and enable the DMA transfer
         if (HAL_UART_Transmit_DMA(huart, (uint8_t*)tx, tx_length) != HAL_OK)
         {
@@ -768,6 +894,14 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_EnableIRQ(irq_n);
 
     if(huart->hdmarx != NULL && huart->hdmarx->Instance != NULL) {
+
+        irq_n = serial_rx_get_irqdma_n(obj);
+        NVIC_ClearPendingIRQ(irq_n);
+        NVIC_DisableIRQ(irq_n);
+        NVIC_SetPriority(irq_n, 1);
+        NVIC_SetVector(irq_n, (uint32_t)handler);
+        NVIC_EnableIRQ(irq_n);
+        
         // following HAL function will program and enable the DMA transfer
         HAL_UART_Receive_DMA(huart, (uint8_t*)rx, rx_length);    
             
