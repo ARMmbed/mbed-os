@@ -685,17 +685,19 @@ class Config(object):
 
                 # Consider the others as overrides
                 for name, val in overrides.items():
+                    if (name.startswith("target.") and
+                        (unit_kind is "application" or
+                         name in self.__unused_overrides)):
+                        _, attribute = name.split(".")
+                        setattr(self.target, attribute, val)
+                        continue
+
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name,
                                                               unit_kind, label)
                     if full_name in params:
                         params[full_name].set_value(val, unit_name, unit_kind,
                                                     label)
-                    elif (name.startswith("target.") and
-                          unit_kind is "application" or
-                          name in self.__unused_overrides):
-                        _, attribute = name.split(".")
-                        setattr(self.target, attribute, val)
                     else:
                         self.config_errors.append(
                             ConfigException(

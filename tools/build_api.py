@@ -284,26 +284,20 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-def add_regions_to_profile(profile, config, toolchain_class):
+def add_regions_to_toolchain(toolchain):
     """Add regions to the build profile, if there are any.
 
     Positional Arguments:
-    profile - the profile to update
-    config - the configuration object that owns the region
-    toolchain_class - the class of the toolchain being used
+    toolchain - the toolchain to add the region defines to
     """
-    if not profile:
-        return
-    regions = list(config.regions)
+    regions = list(toolchain.config.regions)
     for region in regions:
         for define in [(region.name.upper() + "_ADDR", region.start),
                        (region.name.upper() + "_SIZE", region.size)]:
-            profile["common"].append("-D%s=0x%x" %  define)
-    active_region = [r for r in regions if r.active][0]
-    for define in [("MBED_APP_START", active_region.start),
-                   ("MBED_APP_SIZE", active_region.size)]:
-        profile["ld"].append(toolchain_class.make_ld_define(*define))
-
+            toolchain.cc.append("-D%s=0x%x" %  define)
+            toolchain.cppc.append("-D%s=0x%x" %  define)
+            if region.active:
+                toolchain.ld.append(toolchain.make_ld_define(*define))
     print("Using regions in this build:")
     for region in regions:
         print("  Region %s size 0x%x, offset 0x%x"
@@ -351,9 +345,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     for contents in build_profile or []:
         for key in profile:
             profile[key].extend(contents[toolchain_name][key])
-
-    if config.has_regions:
-        add_regions_to_profile(profile, config, cur_tc)
 
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=profile)
@@ -438,6 +429,9 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
+
+    if toolchain.config.has_regions:
+        add_regions_to_toolchain(toolchain)
 
     if  (hasattr(toolchain.target, "release_versions") and
             "5" not in toolchain.target.release_versions and
