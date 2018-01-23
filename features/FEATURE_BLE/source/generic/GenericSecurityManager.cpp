@@ -117,9 +117,15 @@ public:
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
+
+        /* TODO: remove */
+        db.get_entry(connection)->master = true;
+        /* end temp code */
+
         if (!legacy_pairing_allowed && !default_authentication.get_secure_connections()) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
+
         AuthenticationMask link_authentication(default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
 
@@ -622,10 +628,15 @@ public:
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     ) {
+        /* TODO: remove */
+        db.get_entry(connection)->master = false;
+        /* end temp code */
+
         /* cancel pairing if secure connection paring is not possible */
         if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
             canceltPairingRequest(connection);
         }
+
         set_mitm_performed(connection, false);
 
         if (pairing_authorisation_required) {
