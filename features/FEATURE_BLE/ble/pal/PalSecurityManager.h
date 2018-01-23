@@ -565,8 +565,6 @@ public:
         uint8_t &bitsize
     ) = 0;
 
-    virtual ble_error_t refresh_encryption_key(connection_handle_t connection) = 0;
-
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
