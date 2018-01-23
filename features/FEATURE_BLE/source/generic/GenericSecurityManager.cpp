@@ -68,7 +68,7 @@ public:
 
         default_key_distribution.set_signing(signing);
         if (signing) {
-            initSigning();
+            init_signing();
         }
 
         return BLE_ERROR_NONE;
@@ -86,7 +86,7 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    virtual ble_error_t initSigning() {
+    virtual ble_error_t init_signing() {
         /* TODO: store init bit to avoid rerunning needlessly*/
         const csrk_t *pcsrk = db.get_local_csrk();
         if (!pcsrk) {
@@ -268,7 +268,7 @@ public:
             return BLE_ERROR_INVALID_STATE;
         }
         if (!entry->signing_key && entry->signing_requested) {
-            initSigning();
+            init_signing();
             if (entry->master) {
                 return requestPairing(connection);
             } else {
