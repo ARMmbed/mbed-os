@@ -500,10 +500,15 @@ public:
         connection_handle_t connection,
         csrk_t csrk
     ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+        }
+
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm_pairing
+            entry->mitm_csrk
         );
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
