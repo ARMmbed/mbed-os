@@ -6,7 +6,7 @@
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 /** @addtogroup Standard_Driver Standard Driver
   @{
 */
@@ -71,7 +71,7 @@ uint32_t SYS_GetResetSrc(void)
   */
 uint32_t SYS_IsRegLocked(void)
 {
-    return !(SYS->REGLCTL & 0x1);
+    return SYS->REGLCTL & 1UL ? 0UL : 1UL;
 }
 
 /**
@@ -128,11 +128,11 @@ void SYS_ResetCPU(void)
   *             - \ref I2C0_RST
   *             - \ref I2C1_RST
   *             - \ref I2C2_RST
+  *             - \ref QSPI0_RST
   *             - \ref SPI0_RST
   *             - \ref SPI1_RST
   *             - \ref SPI2_RST
   *             - \ref SPI3_RST
-  *             - \ref SPI4_RST
   *             - \ref SPI5_RST
   *             - \ref UART0_RST
   *             - \ref UART1_RST
@@ -153,8 +153,8 @@ void SYS_ResetCPU(void)
   *             - \ref USCI0_RST
   *             - \ref USCI1_RST
   *             - \ref DAC_RST
-  *             - \ref PWM0_RST
-  *             - \ref PWM1_RST
+  *             - \ref EPWM0_RST
+  *             - \ref EPWM1_RST
   *             - \ref BPWM0_RST
   *             - \ref BPWM1_RST
   *             - \ref QEI0_RST
@@ -168,11 +168,16 @@ void SYS_ResetCPU(void)
 __attribute__((cmse_nonsecure_entry))
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {
+    uint32_t u32tmpVal = 0UL, u32tmpAddr = 0UL;
+
     /* Generate reset signal to the corresponding module */
-    *(volatile uint32_t *)((uint32_t)&SYS->IPRST0 + (u32ModuleIndex >> 24))  |= 1 << (u32ModuleIndex & 0x00ffffff);
+    u32tmpVal = (1UL << (u32ModuleIndex & 0x00ffffffUL));
+    u32tmpAddr = (uint32_t)&SYS->IPRST0 + ((u32ModuleIndex >> 24UL));
+    *(uint32_t *)u32tmpAddr |= u32tmpVal;
 
     /* Release corresponding module from reset state */
-    *(volatile uint32_t *)((uint32_t)&SYS->IPRST0 + (u32ModuleIndex >> 24))  &= ~(1 << (u32ModuleIndex & 0x00ffffff));
+    u32tmpVal = ~(1UL << (u32ModuleIndex & 0x00ffffffUL));
+    *(uint32_t *)u32tmpAddr &= u32tmpVal;
 }
 #endif
 
@@ -200,7 +205,7 @@ void SYS_EnableBOD(int32_t i32Mode, uint32_t u32BODLevel)
     SYS->BODCTL |= SYS_BODCTL_BODEN_Msk;
 
     /* Enable Brown-out interrupt or reset function */
-    SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODRSTEN_Msk) | i32Mode;
+    SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODRSTEN_Msk) | (uint32_t)i32Mode;
 
     /* Select Brown-out Detector threshold voltage */
     SYS->BODCTL = (SYS->BODCTL & ~SYS_BODCTL_BODVL_Msk) | u32BODLevel;
@@ -218,6 +223,165 @@ void SYS_DisableBOD(void)
     SYS->BODCTL &= ~SYS_BODCTL_BODEN_Msk;
 }
 
+
+/**
+  * @brief      Set Power Level
+  * @param[in]  u32PowerLevel is power level setting. Including :
+  *             - \ref SYS_PLCTL_PLSEL_PL0
+  *             - \ref SYS_PLCTL_PLSEL_PL1
+  * @return     None
+  * @details    This function select power level.
+  *             The register write-protection function should be disabled before using this function.
+  */
+void SYS_SetPowerLevel(uint32_t u32PowerLevel)
+{
+    /* Set power voltage level */
+    SYS->PLCTL = (SYS->PLCTL & (~SYS_PLCTL_PLSEL_Msk)) | (u32PowerLevel);
+}
+
+
+/**
+  * @brief      Set Main Voltage Regulator Type
+  * @param[in]  u32PowerRegulator is main voltage regulator type. Including :
+  *             - \ref SYS_PLCTL_MVRS_LDO
+  *             - \ref SYS_PLCTL_MVRS_DCDC
+  * @retval     0  main voltage regulator type setting is not finished
+  * @retval     1  main voltage regulator type setting is finished
+  * @details    This function set main voltage regulator type.
+  *             The main voltage regulator type setting to DCDC cannot finished if the inductor is not detetcted.
+  *             The register write-protection function should be disabled before using this function.
+  */
+uint32_t SYS_SetPowerRegulator(uint32_t u32PowerRegulator)
+{
+    int32_t i32TimeOutCnt = 400;
+    uint32_t u32Ret = 1U;
+    uint32_t u32PowerRegStatus;
+
+    /* Get main voltage regulator type status */
+    u32PowerRegStatus = SYS->PLSTS & SYS_PLSTS_CURMVR_Msk;
+
+    /* Set main voltage regulator type */
+    if((u32PowerRegulator == SYS_PLCTL_MVRS_DCDC) && (u32PowerRegStatus == SYS_PLSTS_CURMVR_LDO))
+    {
+
+        /* Set main voltage regulator type to DCDC if status is LDO */
+        SYS->PLCTL |= SYS_PLCTL_MVRS_Msk;
+
+        /* Wait induction detection and main voltage regulator type change ready */
+        while((SYS->PLSTS & SYS_PLSTS_CURMVR_Msk) != SYS_PLSTS_CURMVR_DCDC)
+        {
+            if(i32TimeOutCnt-- <= 0)
+            {
+                u32Ret = 0U;    /* Main voltage regulator type change time-out */
+                break;
+            }
+        }
+
+    }
+    else if(u32PowerRegulator == SYS_PLCTL_MVRS_LDO)
+    {
+
+        /* Set main voltage regulator type to LDO if status is DCDC */
+        SYS->PLCTL &= (~SYS_PLCTL_MVRS_Msk);
+
+        /* Wait main voltage regulator type change ready */
+        while((SYS->PLSTS & SYS_PLSTS_CURMVR_Msk) != SYS_PLSTS_CURMVR_LDO)
+        {
+            if(i32TimeOutCnt-- <= 0)
+            {
+                u32Ret = 0U;    /* Main voltage regulator type change time-out */
+                break;
+            }
+        }
+
+    }
+
+    /* Clear main voltage regulator type change error flag */
+    if(SYS->PLSTS & SYS_PLSTS_MVRCERR_Msk)
+    {
+        SYS->PLSTS = SYS_PLSTS_MVRCERR_Msk;
+        u32Ret = 0U;
+    }
+
+    return u32Ret;
+}
+
+/**
+  * @brief      Set System SRAM Power Mode
+  * @param[in]  u32SRAMSel is SRAM region selection. Including :
+  *             - \ref SYS_SRAMPCTL_SRAM0PM0_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM0PM1_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM0PM2_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM0PM3_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM1PM0_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM1PM1_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM1PM2_Msk
+  *             - \ref SYS_SRAMPCTL_SRAM1PM3_Msk
+  * @param[in]  u32PowerMode is SRAM power mode. Including :
+  *             - \ref SYS_SRAMPCTL_SRAM_NORMAL
+  *             - \ref SYS_SRAMPCTL_SRAM_RETENTION
+  *             - \ref SYS_SRAMPCTL_SRAM_POWER_SHUT_DOWN
+  * @return     None
+  * @details    This function set system SRAM power mode.
+  *             The register write-protection function should be disabled before using this function.
+  */
+void SYS_SetSSRAMPowerMode(uint32_t u32SRAMSel, uint32_t u32PowerMode)
+{
+    uint32_t u32SRAMSelPos = 8UL;
+
+    /* Get system SRAM power mode setting position */
+    while(u32SRAMSelPos < 24UL)
+    {
+        if(u32SRAMSel & (1 << u32SRAMSelPos))
+        {
+            break;
+        }
+        else
+        {
+            u32SRAMSelPos++;
+        }
+    }
+
+    /* Set system SRAM power mode setting */
+    SYS->SRAMPCTL = (SYS->SRAMPCTL & (~u32SRAMSel)) | (u32PowerMode << u32SRAMSelPos);
+}
+
+/**
+  * @brief      Set Peripheral SRAM Power Mode
+  * @param[in]  u32SRAMSel is SRAM region selection. Including :
+  *             - \ref SYS_SRAMPPCT_CAN_Msk
+  *             - \ref SYS_SRAMPPCT_USBD_Msk
+  *             - \ref SYS_SRAMPPCT_PDMA0_Msk
+  *             - \ref SYS_SRAMPPCT_PDMA1_Msk
+  *             - \ref SYS_SRAMPPCT_FMC_Msk
+  * @param[in]  u32PowerMode is SRAM power mode. Including :
+  *             - \ref SYS_SRAMPPCT_SRAM_NORMAL
+  *             - \ref SYS_SRAMPPCT_SRAM_RETENTION
+  *             - \ref SYS_SRAMPPCT_SRAM_POWER_SHUT_DOWN
+  * @return     None
+  * @details    This function set peripheral SRAM power mode.
+  *             The register write-protection function should be disabled before using this function.
+  */
+void SYS_SetPSRAMPowerMode(uint32_t u32SRAMSel, uint32_t u32PowerMode)
+{
+    uint32_t u32SRAMSelPos = 0UL;
+
+    /* Get peripheral SRAM power mode setting position */
+    while(u32SRAMSelPos < 10UL)
+    {
+        if(u32SRAMSel & (1 << u32SRAMSelPos))
+        {
+            break;
+        }
+        else
+        {
+            u32SRAMSelPos++;
+        }
+    }
+
+    /* Set peripheral SRAM power mode setting */
+    SYS->SRAMPPCT = (SYS->SRAMPPCT & (~u32SRAMSel)) | (u32PowerMode << u32SRAMSelPos);
+}
 
 
 /*@}*/ /* end of group SYS_EXPORTED_FUNCTIONS */

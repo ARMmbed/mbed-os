@@ -1,10 +1,9 @@
 /**************************************************************************//**
  * @file     bootloader.h
  * @version  V1.00
- * @brief    Non-Secure Callable library header file of Boot Loader
+ * @brief    Secure Bootloader library header file
  *
- * @note
- * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __BOOTLOADER_H__
 #define __BOOTLOADER_H__
@@ -15,73 +14,82 @@ extern "C"
 #endif
 
 
-
-/*---------------------------------------------------------*/
-/*  Redirect BL API function name to meet API Naming Rule  */
-/*---------------------------------------------------------*/
-#define BL_GetVersion       BL_Get_Version
-#define BL_EnableFMC        BL_FMC_Open
-#define BL_DisableFMC       BL_FMC_Close
-#define BL_GetISPStatus     BL_FMC_ISP_Status
-#define BL_FlashRead        BL_FMC_Read
-#define BL_FlashMultiRead   BL_FMC_MultiRead
-#define BL_FlashWrite       BL_FMC_Write
-#define BL_FlashMultiWrite  BL_FMC_MultiWrite
-#define BL_FlashPageErase   BL_FMC_Erase
-#define BL_FlashChecksum    BL_FMC_GetChkSum
-#define BL_ReadCID          BL_FMC_ReadCID
-#define BL_ReadDID          BL_FMC_ReadDID
-#define BL_ReadPID          BL_FMC_ReadPID
-#define BL_ReadUCID         BL_FMC_ReadUCID
-#define BL_ReadUID          BL_FMC_ReadUID
-#define BL_CheckFlashAllOne BL_FMC_CheckAllOne
-#define BL_CheckOPTStatus   BL_FMC_Is_OTP_Locked
-#define BL_EnableOTPLock    BL_FMC_Lock_OTP
-#define BL_ReadOTP          BL_FMC_Read_OTP
-#define BL_WriteOTP         BL_FMC_Write_OTP
-#define BL_GetKPROMStatus   BL_FMC_Read_KPROM_STATUS
-#define BL_TrgKPROMCompare  BL_FMC_SKey_Compare
-#define BL_GetNSBoundary    BL_FMC_NSCBOUD
-#define BL_SetFlashAllLock  BL_FMC_Lock_All_Region
-#define BL_SetXOMActive     BL_FMC_Set_XOM_Active
-#define BL_GetXOMStatus     BL_FMC_Is_XOM_Actived
-#define BL_SetXOMRegion     BL_FMC_Set_XOM_Region
-#define BL_ReadXOMRegion    BL_FMC_Read_XOM_Region
-#define BL_EraseXOMRegion   BL_FMC_Erase_XOM
-#define BL_EraseXOMStatus   BL_FMC_XOM_Erase_Status
-#define BL_ResetChip        BL_Chip_Reset
-
-
-
 /** @addtogroup Standard_Driver Standard Driver
   @{
 */
 
-/** @addtogroup BL_Driver Boot Loader Driver
+/** @addtogroup BL_Driver Bootloader Driver
   @{
 */
 
-
-/** @addtogroup BL_EXPORTED_FUNCTIONS Boot Loader Exported Functions
+/** @addtogroup BL_EXPORTED_CONSTANTS Bootloader Exported Constants
   @{
 */
+/*--------------------------------------------------------------------------------------------------*/
+/*  Status and Erroe Code Constant Definitions                                                      */
+/*--------------------------------------------------------------------------------------------------*/
+#define BL_ERR_TT_CHECK         0xF0F00000UL    /*!< Not a non-secure parameter         */
+#define BL_ERR_PARAMETER        0xF0F00001UL    /*!< Invalid parameter                  */
+#define BL_PARAM_ALIGN          0xF0F00002UL    /*!< Parameter alignment error          */
+#define BL_NOT_FLASH_ADDR       0xF0F00003UL    /*!< Invalid flash address              */
+#define BL_NOT_SRAM_ADDR        0xF0F00004UL    /*!< Invalid sram address               */
+#define BL_XOM_NOT_CONFIG       0xF0F00005UL    /*!< XOM is not configure yet           */
+#define BL_XOM_HAS_CONFIG       0xF0F00006UL    /*!< XOM has beeen configured           */
+#define BL_XOM_HAS_ACTIVE       0xF0F00007UL    /*!< XOM is actived                     */
+#define BL_XOM_BASE_ERROR       0xF0F00008UL    /*!< Invalid XOM base address           */
+#define BL_KPROM_NOT_ENABLE     0xF0F00009UL    /*!< KPROM is not enabled yet           */
+#define BL_KPROM_KEY_FORBID     0xF0F0000AUL    /*!< KPROM comparison is forbidden      */
+#define BL_KPROM_KEY_UNMATCH    0xF0F0000BUL    /*!< KPROM comparison is unmatched      */
+#define BL_KPROM_KEY_LOCKED     0xF0F0000CUL    /*!< KPROM write-protect is enabled     */
+#define BL_KPROM_SET_FAIL       0xF0F0000EUL    /*!< Set KPROM key fail                 */
+#define BL_ISP_CMD_FAIL         (-1)            /*!< FMC command fail                   */
+#define BL_FLASH_ALLONE         0xA11FFFFFUL    /*!< Check-all-one result is all one    */
+#define BL_FLASH_NOT_ALLONE     0xA1100000UL    /*!< Check-all-one result is not all one*/
+
+/*--------------------------------------------------------------------------------------------------*/
+/*  Random Number Generator Constant Definitions                                                    */
+/*--------------------------------------------------------------------------------------------------*/
+#define BL_RNG_PRNG             (0UL)   /*!<Use H/W random number generator */
+#define BL_RNG_SWRNG            (1UL)   /*!<Use S/W random number generator */
+#define BL_RNG_LIRC32K          (0UL)   /*!<Use LIRC32 for random number generator */
+#define BL_RNG_LXT              (2UL)   /*!<Use LXT for random number generator */
+
+/*@}*/ /* end of group BL_EXPORTED_CONSTANTS */
+
+/** @addtogroup BLC_EXPORTED_STRUCTS Bootloader Exported Structs
+  @{
+*/
+/**
+  * @details    Random Number Generator Struct
+  */
+typedef struct
+{
+    uint32_t opt;       /*!< Operation mode */
+    int32_t data_len;   /*!< Internal use for random number generator */
+    uint8_t buf[32];    /*!< Internal use for random number generator */
+    uint8_t buf2[20];   /*!< Internal use for random number generator */
+} BL_RNG_T;
+
+/*@}*/ /* end of group BL_EXPORTED_STRUCTS */
 
 
-
+/** @addtogroup BL_EXPORTED_FUNCTIONS Bootlader Exported Functions
+  @{
+*/
 /**
   * @brief      Get Bootloader Version Number
   * @param      None
   * @return     Version number of bootloader
-  * @details    Return bootloader version number and it's fixed to be 0x16091414.
+  * @details    Return bootloader version number.
   */
 uint32_t BL_GetVersion(void);
 
 
 /**
-  * @brief      Enable FMC ISP Function
+  * @brief      Enable FMC ISP Function and return maximum APROM size
   * @param      None
   * @return     Maximum APROM size
-  * @details    This API will unlock register write-protect, enable relavive settings for access FMC ISP commands
+  * @details    This API will unlock register write-protect, enable relative settings for access FMC ISP commands
   *             and return maximum APROM by chip package.
   */
 uint32_t BL_EnableFMC(void);
@@ -91,10 +99,10 @@ uint32_t BL_EnableFMC(void);
   * @brief      Disable FMC ISP Function
   * @param      None
   * @return     None
-  * @details    This API will disable relavive settings for disable FMC ISP function and lock register write-protect
+  * @details    This API will disable relative settings for disable FMC ISP function and lock register write-protect
   *             until last ISP operation is finished.
   */
-void     BL_DisableFMC(void);
+void BL_DisableFMC(void);
 
 
 /**
@@ -108,86 +116,134 @@ uint32_t BL_GetISPStatus(void);
 
 
 /**
-  * @brief      Get 32-bit data from Non-Secure Flash Address
-  * @param[in]  u32Addr     Flash address should be in non-secure area
-  * @retval     0xF0F00001  u32Addr isn't word aligned
-  * @retval     0xF0F00002  u32Addr isn't in non-secure area
-  * @retval     The data of specified non-secure address
-  * @details    To read word data from specified non-secure flash address.
+  * @brief      Get Non-Secure Boundary
+  * @param      None
+  * @return     Current Non-Secure boundary
+  * @details    This API can get current Non-Secure boundary address.
   */
-uint32_t BL_FlashRead(uint32_t u32Addr);
+uint32_t BL_GetNSBoundary(void);
 
 
 /**
-  * @brief      Read Multi-Word Data from Non-Secure Flash
-  * @param[in]  u32Addr         Starting flash address should be in non-secure area
-  * @param[out] pu32NSRamBuf    Starting address to store reading data
+  * @brief      Set All Flash Region Lock
+  * @param      None
+  * @retval     -1      Set flash all lock failed
+  * @retval     0       Set flash all lock operation is success
+  * @details    This API will protect all flash region read/write operate by ICE/TWICP/WRITER interface exclude OPT area.
+  */
+int32_t BL_SetFlashAllLock(void);
+
+
+/**
+  * @brief      Read Non-Secure Flash Address Data (for Non-Secure region)
+  * @param[in]  u32NSAddr   Non-Secure flash address
+  * @retval     0xF0F00000  u32NSAddr isn't in Non-Secure area
+  * @retval     0xF0F00001  u32NSAddr isn't word aligned
+  * @retval     0xF0F00003  u32NSAddr isn't valid flash address
+  * @retval     -1          Flash read failed
+  * @retval     The data of specified Non-Secure address
+  * @details    To read word data from specified Non-Secure flash address.
+  */
+uint32_t BL_FlashRead(uint32_t u32NSAddr);
+
+
+/**
+  * @brief      Read Multi-Word Data from Non-Secure Flash Address (for Non-Secure region)
+  * @param[in]  u32NSAddr       Starting Non-Secure flash address
+  * @param[out] pu32NSRamBuf    Non-Secure sram address to store reading data
   * @param[in]  u32Size         Total read byte counts, it should be word aligned and maximum size is one page size.
-  * @retval     0xF0F00001      u32Addr or u32Size is invalid parameter
-  * @retval     0xF0F00002      u32Addr isn't in non-secure area
-  * @retval     0               Read operation is finished
-  * @details    To read multi-words data start from specified non-secure flash address.
-  *             And maximum read size is one page size, 20248 bytes.
+  * @retval     0xF0F00000      u32NSAddr or pu32NSRamBuf region isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32NSAddr, pu32NSRamBuf or u32Size parameter
+  * @retval     0xF0F00003      u32NSAddr isn't valid flash address
+  * @retval     0xF0F00004      pu32NSRamBuf isn't valid sram address
+  * @retval     -1              Multi-words read failed
+  * @retval     0               Read operation is success
+  * @details    To read multi-words data start from specified Non-Secure flash address.
+  *             And maximum read size is one page size, 2048 bytes.
   */
-int32_t  BL_FlashMultiRead(uint32_t u32Addr, uint32_t *pu32NSRamBuf, uint32_t u32Size);
+int32_t BL_FlashMultiRead(uint32_t u32NSAddr, uint32_t *pu32NSRamBuf, uint32_t u32Size);
 
 
 /**
-  * @brief      Program 32-bit data into Non-Secure Flash Address
-  * @param[in]  u32Addr     Flash address should be in non-secure area
+  * @brief      Program Data into Non-Secure Flash Address (for Non-Secure region)
+  * @param[in]  u32NSAddr   Non-Secure flash address
   * @param[in]  u32Data     32-bit Data to program
-  * @retval     0xF0F00001  u32Addr isn't word aligned
-  * @retval     0xF0F00002  u32Addr isn't in non-secure area
+  * @retval     0xF0F00000  u32NSAddr isn't in Non-Secure area
+  * @retval     0xF0F00001  u32NSAddr isn't word aligned
+  * @retval     0xF0F00003  u32NSAddr isn't valid flash address
+  * @retval     -1          Flash write failed
   * @retval     0           Program command is finished
-  * @details    To program word data into specified non-secure flash address.
+  * @details    To program word data into specified Non-Secure flash address.
   */
-int32_t  BL_FlashWrite(uint32_t u32Addr, uint32_t u32Data);
+int32_t BL_FlashWrite(uint32_t u32NSAddr, uint32_t u32Data);
 
 
 /**
-  * @brief      Program Multi-Word Data into Non-Secure Flash
-  * @param[in]  u32Addr         Starting flash address should be in non-secure area
-  * @param[in]  pu32NSRamBuf    Starting address to store data to be program
+  * @brief      Program Multi-Word Data into Non-Secure Flash Address (for Non-Secure region)
+  * @param[in]  u32NSAddr       Starting Non-Secure flash address
+  * @param[in]  pu32NSRamBuf    Non-Secure sram buffer address to store program data
   * @param[in]  u32Size         Total program byte counts, it should be word aligned and maximum size is one page size.
-  * @retval     0xF0F00001      u32Addr or u32Size is invalid parameter
-  * @retval     0xF0F00002      u32Addr isn't in non-secure area
+  * @retval     0xF0F00000      u32NSAddr or pu32NSRamBuf region isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32NSAddr, pu32NSRamBuf or u32Size parameter
+  * @retval     0xF0F00003      u32NSAddr isn't valid flash address
+  * @retval     0xF0F00004      pu32NSRamBuf isn't valid sram address
+  * @retval     -1              Multi-words write failed
   * @retval     0               Program operation is finished
-  * @details    To program multi-words data start from specified non-secure flash address.
-  *             And maximum program size is one page size, 20248 bytes.
+  * @details    To program multi-words data start from specified Non-Secure flash address.
+  *             And maximum program size is one page size, 2048 bytes.
   */
-int32_t  BL_FlashMultiWrite(uint32_t u32Addr, uint32_t *pu32NSRamBuf, uint32_t u32Size);
+int32_t BL_FlashMultiWrite(uint32_t u32NSAddr, uint32_t *pu32NSRamBuf, uint32_t u32Size);
 
 
 /**
-  * @brief      Flash Page Erase
-  * @param[in]  u32PageAddr Address of the non-secure flash page to be erased. It must be a page size aligned address.
-  * @retval     0xF0F00001  u32PageAddr isn't page size aligned
-  * @retval     0xF0F00002  u32PageAddr isn't in non-secure area
-  * @retval     0           Page erase success
+  * @brief      Non-Secure Flash Page Erase (for Non-Secure region)
+  * @param[in]  u32NSAddr   Non-Secure flash region to be erased and must be a page size aligned address.
+  * @retval     0xF0F00000  u32NSAddr region isn't in Non-Secure area
+  * @retval     0xF0F00001  u32NSAddr isn't page size aligned
+  * @retval     0xF0F00003  u32NSAddr isn't valid flash address
   * @retval     -1          Page erase failed
-  * @details    This API is used to perform page erase command on specified non-secure flash address.
-  *             And this address must be a 2048 bytes page size aligned address.
+  * @retval     0           Page erase success
+  * @details    This API is used to perform page erase command on specified Non-Secure flash address.
+  *             And this address must be a page size aligned address.
   */
-int32_t  BL_FlashPageErase(uint32_t u32PageAddr);
+int32_t BL_FlashPageErase(uint32_t u32NSAddr);
 
 
 /**
-  * @brief      Get specified Non-Secure Area CRC32 Checksum
-  * @param[in]  u32Addr         Starting non-secure flash address. It must be a page size aligned address.
-  * @param[in]  u32ByteCount    Byte count of non-secure flash area to be calculated. It must be multiple of 2048 bytes.
-  * @retval     0xFFFFFFFF      u32Addr isn't in non-secure area or u32ByteCount isn't page size aligned
+  * @brief      Get Non-Secure Flash Area CRC32 Checksum (for Non-Secure region)
+  * @param[in]  u32NSAddr       Non-Secure flash region to be calculated. u32NSAddr must be a page size aligned address.
+  * @param[in]  u32ByteCount    Byte counts of Non-Secure flash area to be calculated. It must be multiple of 2048 bytes.
+  * @retval     0xF0F00000      u32NSAddr region isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32NSAddr or u32ByteCount parameter
+  * @retval     0xF0F00003      u32NSAddr isn't valid flash address
+  * @retval     -1              Execute CRC32 operation failed
   * @retval     Result of CRC32 checksum
-  * @details    This API will calculate the CRC32 checksum result of specified non-secure flash area.
+  * @details    This API will calculate the CRC32 checksum result of specified Non-Secure flash area.
   *             And the starting address and calculated szie must be all 2048 bytes page size aligned.
   */
-uint32_t BL_FlashChecksum(uint32_t u32Addr, uint32_t u32ByteCount);
+uint32_t BL_FlashChecksum(uint32_t u32NSAddr, uint32_t u32ByteCount);
+
+
+/**
+  * @brief      Check Non-Secure Flash Area Data are all ONE or not (for Non-Secure region)
+  * @param[in]  u32NSAddr       Non-Secure flash region to be calculated. u32NSAddr must be a page size aligned address.
+  * @param[in]  u32ByteCount    Byte counts of Non-Secure flash area to be calculated. It must be multiple of 2048 bytes.
+  * @retval     0xF0F00000      u32NSAddr region isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32NSAddr or u32ByteCount parameter
+  * @retval     0xF0F00003      u32NSAddr isn't valid flash address
+  * @retval     -1              Execute Check Flash All One operation failed
+  * @retval     0xA11FFFFF      The contents of verified Non-Secure flash area are 0xFFFFFFFF
+  * @retval     0xA1100000      Some contents of verified Non-Secure flash area are not 0xFFFFFFFF
+  * @details    This API is used to check specified Non-Secure flash area are all 0xFFFFFFFF or not.
+  */
+uint32_t BL_CheckFlashAllOne(uint32_t u32NSAddr, uint32_t u32ByteCount);
 
 
 /**
   * @brief      Read Company ID
   * @param      None
   * @return     The company ID (32-bit)
-  * @details    The company ID of Nuvoton is fixed to be 0xDA
+  * @details    The company ID of Nuvoton is fixed to be 0xDA.
   */
 uint32_t BL_ReadCID(void);
 
@@ -229,72 +285,89 @@ uint32_t BL_ReadUID(uint32_t u32Index);
 
 
 /**
-  * @brief      Run Flash All One Verification and Get Result
-  * @param[in]  u32Addr         Starting non-secure flash address. It must be a page size aligned address.
-  * @param[in]  u32ByteCount    Byte count of non-secure flash area to be calculated. It must be multiple of 2048 bytes.
-  * @retval     0xA11FFFFF      The contents of verified non-secure flash area are 0xFFFFFFFF
-  * @retval     0xA1100000      Some contents of verified non-secure flash area are not 0xFFFFFFFF
-  * @retval     0xF0F00001      u32Addr isn't page size aligned
-  * @retval     0xF0F00002      u32Addr or u32ByteCount are not page size aligned
-  * @retval     0xFFFFFFFF      Unexpected error occurred
-  * @details    This API is used to check specified non-secure flash area are all 0xFFFFFFFF or not.
-  */
-uint32_t BL_CheckFlashAllOne(uint32_t u32Addr, uint32_t u32ByteCount);
-
-
-/**
-  * @brief      Check the specified OTP is Locked or Unlock
-  * @param[in]  u32OTP      The specified OTP number, it must be between 0 ~ 255.
-  * @retval     1           Specified OTP is locked
-  * @retval     0           Specified OTP is unlocked
-  * @retval     -1          Failed to read OTP lock status
-  * @retval     -2          Invalid OTP number
-  * @details    Use can use this API to check specified OPT is lock or unlock.
-  *             If unlocked, user can program specified bit data from 1 to 0 in this OPT area.
-  */
-int32_t  BL_CheckOPTStatus(uint32_t u32OTP);
-
-
-/**
-  * @brief      Lock the specified OTP
-  * @param[in]  u32OTP      The specified OTP number, it must be between 0 ~ 255.
-  * @retval     0           Success
-  * @retval     -1          Failed to execute write OTP command
-  * @retval     -2          Invalid OTP number
-  * @details    Use can use this API to lock specified OPT area.
-  *             If locked, user can't modify data in this OPT area.
-  */
-int32_t  BL_EnableOTPLock(uint32_t u32OTP);
-
-
-/**
   * @brief      Read the 64-bits OTP Data
   * @param[in]  u32OTP      The specified OTP number, it must be between 0 ~ 255.
-  * @param[in]  low_word    Low word of the 64-bits data
-  * @param[in]  high_word   High word of the 64-bits data
-  * @retval     0           Success
-  * @retval     -1          Failed to read OTP data
-  * @retval     -2          Invalid OTP number
+  * @param[out] pu32DataOut Buffer to store 64-bit OTP data
+  * @retval     0           OPT unlock
+  * @retval     1           OPT lock
+  * @retval     0xF0F00001  Wrong u32OTP or pu32DataOut parameter
+  * @retval     -1          Execute BL_ReadOTP failed
   * @details    Thia API can get the specified 64-bits OTP data.
   */
-int32_t  BL_ReadOTP(uint32_t u32OTP, uint32_t *low_word, uint32_t *high_word);
+int32_t BL_ReadOTP(uint32_t u32OTP, uint32_t *pu32DataOut);
 
 
 /**
-  * @brief      Program a 64-bits OTP Data
-  * @param[in]  u32OTP      The specified OTP number, it must be between 0 ~ 255.
-  * @param[in]  low_word    Low word of the 64-bits data
-  * @param[in]  high_word   High word of the 64-bits data
-  * @retval     0           Success
-  * @retval     -1          Failed to write OTP data
-  * @retval     -2          Invalid OTP number
-  * @details    Thia API can program 64-bits data to specified OTP area if current OTP is unlocked.
+  * @brief      Get XOM Active Status
+  * @param[in]  u32XOM      Specified XOM region, it must be between 0~3.
+  * @retval     0xF0F00001  Invalid u32XOM number
+  * @retval     0           Current XOM region isn't active yet
+  * @retval     1           Current XOM region is active
+  * @details    This API will return specified XOM region active status.
   */
-int32_t  BL_WriteOTP(uint32_t u32OTP, uint32_t low_word, uint32_t high_word);
+uint32_t BL_GetXOMActiveStatus(uint32_t u32XOM);
 
 
 /**
-  * @brief      Read KPROM KPKEYSTS Register Status
+  * @brief      Read XOM Setting (for Non-Secure region)
+  * @param[in]  u32XOM          Specified XOM region, it must be between 0~3
+  * @param[out] pu32Base        Return specified XOM base address
+  * @param[out] pu32PageCnt     Return specified XOM page count
+  * @retval     0xF0F00000      pu32Base, pu32PageCnt or XOM base address isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32XOM, pu32Base or pu32PageCnt parameter
+  * @retval     0xF0F00003      XOM base address isn't valid flash address
+  * @retval     0xF0F00004      pu32Base or pu32PageCnt isn't valid sram address
+  * @retval     0xF0F00005      XOM region isn't configured
+  * @retval     0               Read specified XOM setting success
+  * @details    This API will read specified XOM relative settings.
+  */
+int32_t BL_ReadXOMRegion(uint32_t u32XOM, uint32_t *pu32Base, uint32_t *pu32PageCnt);
+
+
+/**
+  * @brief      Set XOM Region and Active (for Non-Secure region)
+  * @param[in]  u32XOM          Specified XOM region, it must be between 0~3
+  * @param[in]  u32Base         Base address of XOM region
+  * @param[in]  u32PageCnt      Page count of XOM region
+  * @param[in]  u32IsDebugMode  1: Enable XOM debug mode; others will disable XOM debug mode.
+  * @retval     0xF0F00000      XOM region isn't in Non-Secure area
+  * @retval     0xF0F00001      Wrong u32XOM, u32Base or u32PageCnt parameter
+  * @retval     0xF0F00003      u32Base isn't valid flash address
+  * @retval     0xF0F00006      XOM region has configured
+  * @retval     0xF0F00007      XOM region has active
+  * @retval     -1              Set XOM failed
+  * @retval     0               Set specified XOM success
+  * @details    This API will set specified XOM active.
+  */
+int32_t BL_SetXOMRegion(uint32_t u32XOM, uint32_t u32Base, uint32_t u32PageCnt, uint32_t u32IsDebugMode);
+
+
+/**
+  * @brief      Erase XOM Setting (for Non-Secure region)
+  * @param[in]  u32XOMBase  Specified XOM region to be erase
+  * @retval     0xF0F00000  u32XOMBase or erase XOM region isn't in Non-Secure area
+  * @retval     0xF0F00001  u32XOMBase isn't page size aligned
+  * @retval     0xF0F00003  u32XOMBase isn't valid flash address
+  * @retval     0xF0F00008  Invalid u32XOMBase address
+  * @retval     -1          Erase XOM region failed
+  * @retval     0           Erase XOM region success
+  * @details    This API will erase specified XOM region data and relavive XOM setting.
+  */
+int32_t BL_EraseXOMRegion(uint32_t u32XOMBase);
+
+
+/**
+  * @brief      Get XOM Erased Status
+  * @param      None
+  * @retval     -1      Erase XOM operation failed
+  * @retval     0       Erase XOM operation success
+  * @details    This API will return the XOM erase operation is success or not.
+  */
+int32_t BL_GetXOMEraseStatus(void);
+
+
+/**
+  * @brief      Read KPKEYSTS Status
   * @param      None
   * @return     KPKEYSTS register status
   * @details    This API can read KPROM KPKEYSTS register status.
@@ -303,109 +376,56 @@ uint32_t BL_GetKPROMStatus(void);
 
 
 /**
-  * @brief      Execute Security Key Comparison
-  * @param[in]  key[3]      Input key[0]~key[2] to be compared
-  * @retval     0           Key matched
-  * @retval     -1          Forbidden. Times of key comparison mismatch reach the maximum count.
-  * @retval     -2          Key mismatched.
-  * @retval     -3          No security key lock. Key comparison is not required.
-  * @details    User can use this API to unlock KPROM protection then execute FMC program command well.
-  */
-int32_t  BL_TrgKPROMCompare(uint32_t key[3]);
-
-
-/**
-  * @brief      Get Non-Scure Boundary
+  * @brief      Read KPKEYCNT Status
   * @param      None
-  * @return     Current non-secure boundary
-  * @details    This API can get current non-secure boundary address.
+  * @return     KPKEYCNT register status
+  * @details    This API can read KPROM KPKEYCNT register status.
   */
-uint32_t BL_GetNSBoundary(void);
+uint32_t BL_GetKPROMCounter(void);
 
 
 /**
-  * @brief      Set All Flash Region Lock
+  * @brief      Read KPCNT Status
   * @param      None
-  * @return     Always return 0
-  * @details    This API will protect all flash region read/write operate by ICE/TWICP/WRITER interface exclude OPT area.
+  * @return     KPCNT register status
+  * @details    This API can read KPROM KPCNT register status.
   */
-int32_t  BL_SetFlashAllLock(void);
+
+uint32_t BL_GetKPROMPowerOnCounter(void);
 
 
 /**
-  * @brief      Set XOM Active
-  * @param[in]  u32XOM      Specified XOM region, it must be between 0~3.
-  * @retval     0           Set XOM region active success
-  * @retval     1           Current XOM region is avtive
-  * @retval     -1          Current XOM has not been configured yet
-  * @retval     -2          Invalid u32XOM number
-  * @retval     -3          XOM region isn't in non-secure area
-  * @details    This API will set specified XOM region become active.
+  * @brief      Execute KPROM Key Comparison
+  * @param[in]  key0        KPROM key0
+  * @param[in]  key1        KPROM key1
+  * @param[in]  key2        KPROM key2
+  * @retval     0xF0F00009  KPROM function isn't enabled
+  * @retval     0xF0F0000A  Trigger KPROM key comparison is FORBID
+  * @retval     0xF0F0000B  KPROM Key is mismatch
+  * @retval     0xF0F0000C  KPROM key still locked
+  * @retval     0           KPROM Key are matched
+  * @details    User can use this API to unlock KPROM write-protection then execute FMC program command well.
   */
-int32_t  BL_SetXOMActive(uint32_t u32XOM);
+int32_t BL_TrgKPROMCompare(uint32_t key0, uint32_t key1, uint32_t key2);
 
 
 /**
-  * @brief      Get XOM Active Status
-  * @param[in]  u32XOM      Specified XOM region, it must be between 0~3.
-  * @retval     0           Current XOM region isn't avtive yet
-  * @retval     1           Current XOM region is avtive
-  * @retval     -2          Invalid u32XOM number
-  * @details    This API will return specified XOM region is active or not.
+  * @brief      Enable KPROM Write-Protect
+  * @param[in]  key0        KPROM key0
+  * @param[in]  key1        KPROM key1
+  * @param[in]  key2        KPROM key2
+  * @param[in]  u32attr     [23:16] means Power-on Maximum Number of Error Key Entry
+  *                         [15:8] means Maximum Number of Error Key Entry for Each Power-on
+  *                         [7:0], 0xA5: KPROM and flash region are write-protected;
+  *                                0xA4: KPROM, flash and CONFIG region are write-protected.
+  * @retval     0xF0F00001  Error u32attr parameter
+  * @retval     0xF0F0000C  KPROM still locked
+  * @retval     0xF0F0000E  Set KPROM fail
+  * @retval     -1          FMC ISP command fail
+  * @retval     0           Enable KPROM function is success
+  * @details    User can use this API to lock FMC program command in flash or CONFIG region.
   */
-int32_t  BL_GetXOMStatus(uint32_t u32XOM);
-
-
-/**
-  * @brief      Set XOM Setting
-  * @param[in]  u32XOM          Specified XOM region, it must be between 0~3
-  * @param[in]  u32Base         Base address of XOM region
-  * @param[in]  u32PageCnt      Page count of XOM region
-  * @param[in]  u32SetActive    0: only configure XOM base and page count; 1: set XOM region avtive after XOM setting done.
-  * @retval     0               Set specified XOM success
-  * @retval     1               Current specified XOM region is active
-  * @retval     -1              Current specified XOM region has been configured
-  * @retval     -2              Invalid u32XOM number
-  * @retval     -3              XOM region isn't in non-secure area
-  * @details    This API will set specified XOM settings.
-  */
-int32_t  BL_SetXOMRegion(uint32_t u32XOM, uint32_t u32Base, uint32_t u32PageCnt, uint32_t u32SetActive);
-
-
-/**
-  * @brief      Read XOM Setting
-  * @param[in]  u32XOM      Specified XOM region, it must be between 0~3
-  * @param[out] pu32Base    Return specified XOM base address
-  * @param[out] pu32PageCnt Return specified XOM page count
-  * @retval     0           Read specified XOM setting success
-  * @retval     -1          Get specified XOM status failed
-  * @retval     -2          Invalid u32XOM number
-  * @retval     -3          XOM region isn't in non-secure area
-  * @details    This API will read specified XOM relative settings.
-  */
-int32_t  BL_ReadXOMRegion(uint32_t u32XOM, uint32_t *pu32Base, uint32_t *pu32PageCnt);
-
-
-/**
-  * @brief      Erase XOM Setting
-  * @param[in]  u32XOMBase  Specified valid XOM base address to be erase
-  * @retval     0           XOM page erase command finished
-  * @retval     -1          XOM page erase command failed
-  * @retval     -2          invalid u32XOMBase base address
-  * @retval     -3          u32XOMBase base mismatched
-  * @details    This API will erase specified XOM region data and relavive XOM setting.
-  */
-int32_t  BL_EraseXOMRegion(uint32_t u32XOMBase);
-
-
-/**
-  * @brief      Get XOM Erased Status
-  * @param      None
-  * @retval     0       XOM erase operation success
-  * @retval     -1      XOM erase operation failed
-  * @details    This API will return the XOM erase operation is success or not.
-  */
-int32_t  BL_EraseXOMStatus(void);
+int32_t BL_SetKPROM(uint32_t key0, uint32_t key1, uint32_t key2, uint32_t u32attr);
 
 
 /**
@@ -414,8 +434,123 @@ int32_t  BL_EraseXOMStatus(void);
   * @return     None
   * @details    This API will perform reset CHIP command to reset chip.
   */
-void     BL_ResetChip(void);
+void BL_ResetChip(void);
 
+
+/**
+  * @brief      Get ID ECC R, S digital signature (for Secure code)
+  * @param[out] R           R of the (R,S) pair digital signature
+  * @param[out] S           S of the (R,S) pair digital signature
+  * @retval     -1          Get R, S digital signature fail
+  * @retval     0           Success
+  * @details    This API will return ECC R, S digital signature of chip ID, include PDID, UID0~2 and UCID0~3.
+  */
+int32_t BL_GetIDECCSignature(uint32_t *R, uint32_t *S);
+
+
+/**
+  * @brief      Initial UART1 Command mode (for Secure code)
+  * @param      None
+  * @retval     -1      Execute API in Non-Secure code
+  * @details    Execute this API will initial UART1 command mode.
+  *             User can use command tool (Secure ISP Tool) to conmunicate with target chip.
+  * @note       User should configure relate UART1 functional setting before calling this API.
+  */
+int32_t BL_UART1UpgradeFlowInit(void);
+
+
+/**
+  * @brief      Process UART1 Interrupt (for Secure code)
+  * @param      None
+  * @retval     -1      Execute API in Non-Secure code
+  * @retval     0       Process UART1 interrupt event success
+  * @details    This API is used to process UART1 command data and should be called in UART1_IRQHandler().
+  */
+int32_t BL_ProcessUART1Interrupt(void);
+
+
+/**
+  * @brief      Initial USBD Command mode (for Secure code)
+  * @param      None
+  * @retval     -1      Execute API in Non-Secure code
+  * @details    Execute this API will initial USBD command mode.
+  *             User can use command tool (Secure ISP Tool) to conmunicate with target chip.
+  * @note       User should configure relate USBD functional setting before calling this API.
+  */
+int32_t BL_USBDUpgradeFlowInit(void);
+
+
+/**
+  * @brief      Process USBD Interrupt (for Secure code)
+  * @param      None
+  * @retval     -1      Execute API in Non-Secure code
+  * @retval     0       Process USBD interrupt event success
+  * @details    This API is used to process USBD command data and should be called in USBD_IRQHandler().
+  */
+int32_t BL_ProcessUSBDInterrupt(void);
+
+
+/**
+  * @brief      Initial Random Number Generator (for Secure code)
+  *
+  * @param[in]  rng     The structure of random number generator
+  * @param[in]  opt     Operation mode. Possible options are,
+  *                         (BL_RNG_PRNG | BL_RNG_LIRC32K),
+  *                         (BL_RNG_PRNG | BL_RNG_LXT),
+  *                         (BL_RNG_SWRNG | BL_RNG_LIRC32K),
+  *                         (BL_RNG_SWRNG | BL_RNG_LXT)
+  * @retval     -1      Fail
+  * @retval     0       Success
+  *
+  * @details    This API is used to initial random number generator for generate random number after calling BL_Random API.
+  */
+int32_t BL_RandomInit(BL_RNG_T *rng, uint32_t opt);
+
+
+/**
+  * @brief      Generate Random Number (for Secure code)
+  *
+  * @param[in]  rng     The structure of random number generator
+  * @param[out] p       Starting buffer address to store random number
+  * @param[in]  size    Total byte counts of random number
+  * @retval     -1      Fail
+  * @retval     0       Success
+  * @details    This API is used to generate random number.
+  */
+int32_t BL_Random(BL_RNG_T *rng, uint8_t *p, uint32_t size);
+
+
+/**
+  * @brief      This function makes USBD module to be ready to use (for Secure code)
+  * @param[in]  param           The structure of USBD information
+  * @param[in]  pfnClassReq     USB Class request callback function
+  * @param[in]  pfnSetInterface USB Set Interface request callback function
+  * @retval     -1      Execute API in Non-Secure code
+  * @retval     0       Success
+  * @details    This function will enable USB controller, USB PHY transceiver and pull-up resistor of USB_D+ pin. USB PHY will drive SE0 to bus.
+  */
+int32_t BL_USBDOpen(const S_USBD_INFO_T *param, CLASS_REQ pfnClassReq, SET_INTERFACE_REQ pfnSetInterface);
+
+
+/**
+  * @brief      This function makes USB host to recognize the device (for Secure code)
+  * @param      None
+  * @retval     -1      Execute API in Non-Secure code
+  * @retval     0       Success
+  * @details    Enable WAKEUP, FLDET, USB and BUS interrupts. Disable software-disconnect function after 100ms delay with SysTick timer.
+  */
+int32_t BL_USBDStart(void);
+
+
+/**
+  * @brief      Install EP Callback Function (for Secure code)
+  * @param[in]  ep              EP number
+  * @param[in]  pfnEPHandler    EP callback function
+  * @retval     -1      Fail
+  * @retval     0       Success
+  * @details    This function is used to set specific EP callback function
+  */
+int32_t BL_USBDInstallEPHandler(uint32_t ep, SET_INTERFACE_REQ pfnEPHandler);
 
 /*@}*/ /* end of group BL_EXPORTED_FUNCTIONS */
 

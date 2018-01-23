@@ -3,10 +3,9 @@
  * @version  V3.00
  * @brief    Cyclic Redundancy Check(CRC) driver source file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 /** @addtogroup Standard_Driver Standard Driver
@@ -47,23 +46,22 @@
   */
 void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen)
 {
-    CRC->SEED = u32Seed;
-    CRC->CTL = u32Mode | u32Attribute | u32DataLen | CRC_CTL_CRCEN_Msk;
+    CRC_T *pCRC;
 
-    /* Setting CRCRST bit will reload the initial seed value(CRC_SEED register) to CRC controller */
-    CRC->CTL |= CRC_CTL_CHKSINIT_Msk;
-}
-/**
-  * @brief      CRC Open API for Non-Secure
-  *
-  */
-void CRC_Open_NS(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_t u32DataLen)
-{
-    CRC_NS->SEED = u32Seed;
-    CRC_NS->CTL = u32Mode | u32Attribute | u32DataLen | CRC_CTL_CRCEN_Msk;
+    if((__PC()&NS_OFFSET) == NS_OFFSET)
+    {
+        pCRC = CRC_NS;
+    }
+    else
+    {
+        pCRC = CRC;
+    }
 
-    /* Setting CRCRST bit will reload the initial seed value(CRC_SEED register) to CRC controller */
-    CRC_NS->CTL |= CRC_CTL_CHKSINIT_Msk;
+    pCRC->SEED = u32Seed;
+    pCRC->CTL = u32Mode | u32Attribute | u32DataLen | CRC_CTL_CRCEN_Msk;
+
+    /* Setting CHKSINIT bit will reload the initial seed value(CRC_SEED register) to CRC controller */
+    pCRC->CTL |= CRC_CTL_CHKSINIT_Msk;
 }
 
 /**
@@ -77,42 +75,38 @@ void CRC_Open_NS(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint
   */
 uint32_t CRC_GetChecksum(void)
 {
-    switch(CRC->CTL & CRC_CTL_CRCMODE_Msk)
+    CRC_T *pCRC;
+    uint32_t u332Checksum = 0UL;
+
+    if((__PC()&NS_OFFSET) == NS_OFFSET)
+    {
+        pCRC = CRC_NS;
+    }
+    else
+    {
+        pCRC = CRC;
+    }
+
+    switch(pCRC->CTL & CRC_CTL_CRCMODE_Msk)
     {
         case CRC_CCITT:
         case CRC_16:
-            return (CRC->CHECKSUM & 0xFFFF);
+            u332Checksum = (pCRC->CHECKSUM & 0xFFFFUL);
+            break;
 
         case CRC_32:
-            return (CRC->CHECKSUM);
+            u332Checksum = pCRC->CHECKSUM;
+            break;
 
         case CRC_8:
-            return (CRC->CHECKSUM & 0xFF);
+            u332Checksum = (pCRC->CHECKSUM & 0xFFUL);
+            break;
 
         default:
-            return 0;
+            break;
     }
-}
-/**
-  * @brief      Get CRC Checksum API for Non-Secure
-  */
-uint32_t CRC_GetChecksum_NS(void)
-{
-    switch(CRC_NS->CTL & CRC_CTL_CRCMODE_Msk)
-    {
-        case CRC_CCITT:
-        case CRC_16:
-            return (CRC_NS->CHECKSUM & 0xFFFF);
 
-        case CRC_32:
-            return (CRC_NS->CHECKSUM);
-
-        case CRC_8:
-            return (CRC_NS->CHECKSUM & 0xFF);
-
-        default:
-            return 0;
-    }
+    return u332Checksum;
 }
 
 /*@}*/ /* end of group CRC_EXPORTED_FUNCTIONS */

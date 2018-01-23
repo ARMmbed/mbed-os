@@ -1,12 +1,11 @@
 /**************************************************************************//**
  * @file     sc.c
  * @version  V3.00
- * @brief    Smart Card(SC) driver source file
+ * @brief    Smartcard(SC) driver source file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
-*****************************************************************************/
-#include "M2351.h"
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ *****************************************************************************/
+#include "NuMicro.h"
 
 /* Below are variables used locally by SC driver and does not want to parse by doxygen unless HIDDEN_SYMBOLS is defined */
 /** @cond HIDDEN_SYMBOLS */
@@ -27,10 +26,11 @@ static uint32_t u32CardStateIgnore[SC_INTERFACE_NUM] = {0UL, 0UL, 0UL};
 */
 
 /**
-  * @brief      Check Smartcard Slot Status
+  * @brief      Indicates specified smartcard slot status
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Card insert status
   * @retval     TRUE    Card insert
   * @retval     FALSE   Card remove
   *
@@ -69,7 +69,7 @@ uint32_t SC_IsCardInserted(SC_T *sc)
 }
 
 /*
-  * @brief      Reset the Tx/Rx FIFO
+  * @brief      Reset the Tx and Rx FIFO of smartcard module
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
@@ -87,13 +87,13 @@ void SC_ClearFIFO(SC_T *sc)
 }
 
 /**
-  * @brief      Disable specified Smartcard
+  * @brief      Disable specified smartcard module
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
   * @return     None
   *
-  * @details    SC will force all transition to IDLE state.
+  * @details    This function disable specified smartcard module, and force all transition to IDLE state.
   */
 void SC_Close(SC_T *sc)
 {
@@ -112,22 +112,22 @@ void SC_Close(SC_T *sc)
 }
 
 /**
-  * @brief      Initialized Smartcard
+  * @brief      Initialized smartcard module
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32CD   Card detect polarity, select the SC_CD pin state which indicates card insert. Could be:
+  * @param[in]  u32CD   Card detect polarity, select the SC_CD pin state which indicates card absent. Could be:
   *                         -\ref SC_PIN_STATE_HIGH
   *                         -\ref SC_PIN_STATE_LOW
   *                         -\ref SC_PIN_STATE_IGNORE, no card detect pin, always assumes card present.
-  * @param[in]  u32PWR  Power on polarity, select the SC_PWR pin state which could set smartcard VCC to high level. Could be:
+  * @param[in]  u32PWR  Power off polarity, select the SC_PWR pin state which could set smartcard VCC to high level. Could be:
   *                         -\ref SC_PIN_STATE_HIGH
   *                         -\ref SC_PIN_STATE_LOW
   *
   * @return     None
   *
-  * @details    Initialization process configures smartcard and enables engine clock.
+  * @details    This function initialized smartcard module.
   */
-void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
+void SC_Open(SC_T *sc, uint32_t u32CardDet, uint32_t u32PWR)
 {
     uint32_t u32Reg = 0UL, u32Intf;
 
@@ -144,9 +144,9 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
         u32Intf = 2UL;
     }
 
-    if(u32CD != SC_PIN_STATE_IGNORE)
+    if(u32CardDet != SC_PIN_STATE_IGNORE)
     {
-        u32Reg = u32CD ? 0UL : SC_CTL_CDLV_Msk;
+        u32Reg = u32CardDet ? 0UL : SC_CTL_CDLV_Msk;
         u32CardStateIgnore[u32Intf] = 0UL;
     }
     else
@@ -158,17 +158,17 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
     {
         ;
     }
-    sc->CTL = SC_CTL_SCEN_Msk | u32Reg;
+    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_TMRSEL_Msk | u32Reg;
 }
 
 /**
-  * @brief      Reset specified Smartcard
+  * @brief      Reset specified smartcard module
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
   * @return     None
   *
-  * @details    Reset the Tx/Rx FIFO, clock and initial default parameter.
+  * @details    This function reset specified smartcard module to its default state for activate smartcard.
   */
 void SC_ResetReader(SC_T *sc)
 {
@@ -238,7 +238,7 @@ void SC_ResetReader(SC_T *sc)
 }
 
 /**
-  * @brief      Set Block Guard Time
+  * @brief      Set Block Guard Time (BGT)
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32BGT  Block guard time using ETU as unit, valid range are between 1 ~ 32.
@@ -253,7 +253,7 @@ void SC_SetBlockGuardTime(SC_T *sc, uint32_t u32BGT)
 }
 
 /**
-  * @brief      Set Character Guard Time
+  * @brief      Set Character Guard Time (CGT)
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32CGT  Character guard time using ETU as unit, valid range are between 11 ~ 267.
@@ -271,14 +271,13 @@ void SC_SetCharGuardTime(SC_T *sc, uint32_t u32CGT)
 }
 
 /**
-  * @brief      Stop all Timer Counting
+  * @brief      Stop all smartcard timer
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
   * @return     None
   *
-  * @details    This function stop all smartcard timer of specified smartcard module.
-  * @note       This function stop the timers within smartcard module, \b not timer module.
+  * @note       This function stop the timers within specified smartcard module, \b not timer module.
   */
 void SC_StopAllTimer(SC_T *sc)
 {
@@ -290,10 +289,10 @@ void SC_StopAllTimer(SC_T *sc)
 }
 
 /**
-  * @brief      Configure and Start specified Timer
+  * @brief      Configure and start smartcard timer
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32TimerCh  Specify time channel to start. Valid values are 0, 1, 2.
+  * @param[in] u32TimerNum  Timer to start. Valid values are 0, 1, 2.
   * @param[in]  u32Mode     Timer operating mode, valid values are:
   *                             - \ref SC_TMR_MODE_0
   *                             - \ref SC_TMR_MODE_1
@@ -310,18 +309,17 @@ void SC_StopAllTimer(SC_T *sc)
   *
   * @return     None
   *
-  * @details    Enable Timer starting, counter will count when condition match.
-  * @note       This function start the timer within smartcard module, \b not timer module.
-  * @note       Depend on the timer operating mode, timer may not start counting immediately.
+  * @note       This function start the timer within specified smartcard module, \b not timer module.
+  * @note       Depend on the timer operating mode, timer may not start counting immediately and starts when condition match.
   */
-void SC_StartTimer(SC_T *sc, uint32_t u32TimerCh, uint32_t u32Mode, uint32_t u32ETUCount)
+void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u32ETUCount)
 {
     uint32_t reg = u32Mode | (SC_TMRCTL0_CNT_Msk & (u32ETUCount - 1UL));
     while(sc->ALTCTL & SC_ALTCTL_SYNC_Msk)
     {
         ;
     }
-    if(u32TimerCh == 0UL)
+    if(u32TimerNum == 0UL)
     {
         while(sc->TMRCTL0 & SC_TMRCTL0_SYNC_Msk)
         {
@@ -330,7 +328,7 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerCh, uint32_t u32Mode, uint32_t u32
         sc->TMRCTL0 = reg;
         sc->ALTCTL |= SC_ALTCTL_CNTEN0_Msk;
     }
-    else if(u32TimerCh == 1UL)
+    else if(u32TimerNum == 1UL)
     {
         while(sc->TMRCTL1 & SC_TMRCTL1_SYNC_Msk)
         {
@@ -351,32 +349,35 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerCh, uint32_t u32Mode, uint32_t u32
 }
 
 /**
-  * @brief      Stop specified Timer Counting
+  * @brief      Stop a smartcard timer
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32TimerCh  Specify timer channel to stop. Valid values are 0, 1, 2.
+  * @param[in] u32TimerNum  Timer to stop. Valid values are 0, 1, 2.
   *
   * @return     None
   *
-  * @details    This function stop a smartcard timer of specified smartcard module.
-  * @note       This function stop the timer within smartcard module, \b not timer module.
+  * @note       This function stop the timer within specified smartcard module, \b not timer module.
   */
-void SC_StopTimer(SC_T *sc, uint32_t u32TimerCh)
+void SC_StopTimer(SC_T *sc, uint32_t u32TimerNum)
 {
-    while(sc->ALTCTL & SC_ALTCTL_SYNC_Msk)
+    while(sc->ALTCTL & SC_ALTCTL_SYNC_Msk) {}
+
+    if(u32TimerNum == 0UL)      /* timer 0 */
     {
-        ;
-    }
-    if(u32TimerCh == 0UL)         // timer 0
         sc->ALTCTL &= ~SC_ALTCTL_CNTEN0_Msk;
-    else if(u32TimerCh == 1UL)    // timer 1
+    }
+    else if(u32TimerNum == 1UL) /* timer 1 */
+    {
         sc->ALTCTL &= ~SC_ALTCTL_CNTEN1_Msk;
-    else                        // timer 2
+    }
+    else                        /* timer 2 */
+    {
         sc->ALTCTL &= ~SC_ALTCTL_CNTEN2_Msk;
+    }
 }
 
 /**
-  * @brief      Get specified Smartcard Clock Frequency
+  * @brief      Get smartcard clock frequency
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
@@ -386,59 +387,66 @@ void SC_StopTimer(SC_T *sc, uint32_t u32TimerCh)
   */
 uint32_t SC_GetInterfaceClock(SC_T *sc)
 {
-    uint32_t u32ClkSrc, u32Num, u32Clk, u32Div;
+    uint32_t u32ClkSrc, u32Num, u32Clk = __HIRC, u32Div;
 
     /* Get smartcard module clock source and divider */
-    if(sc == SC0)
+    if((sc == SC0) || (sc == SC0_NS))
     {
         u32Num = 0UL;
-        u32ClkSrc = CLK_GetModuleClockSource(SC0_MODULE);        
+        u32ClkSrc = CLK_GetModuleClockSource(SC0_MODULE);
         u32Div = CLK_GetModuleClockDivider(SC0_MODULE);
     }
-    else if(sc == SC1)
+    else if((sc == SC1) || (sc == SC1_NS))
     {
         u32Num = 1UL;
-        u32ClkSrc = CLK_GetModuleClockSource(SC1_MODULE);        
-         u32Div = CLK_GetModuleClockDivider(SC1_MODULE);
-   }
-   else if(sc == SC2)
-   {
+        u32ClkSrc = CLK_GetModuleClockSource(SC1_MODULE);
+        u32Div = CLK_GetModuleClockDivider(SC1_MODULE);
+    }
+    else if((sc == SC2) || (sc == SC2_NS))
+    {
         u32Num = 2UL;
-        u32ClkSrc = CLK_GetModuleClockSource(SC2_MODULE);        
+        u32ClkSrc = CLK_GetModuleClockSource(SC2_MODULE);
         u32Div = CLK_GetModuleClockDivider(SC2_MODULE);
     }
     else
     {
-        return 0;
+        u32Clk = 0UL;
     }
 
-    /* Get smartcard module clock */
-    if(u32ClkSrc == 0UL)
+    if(u32Clk == 0UL)
     {
-        u32Clk = __HXT;
-    }
-    else if(u32ClkSrc == 1UL)
-    {
-        u32Clk = CLK_GetPLLClockFreq();
-    }
-    else if(u32ClkSrc == 2UL)
-    {
-        if(u32Num == 1UL)
-        {
-            u32Clk = CLK_GetPCLK1Freq();
-        }
-        else
-        {
-            u32Clk = CLK_GetPCLK0Freq();
-        }
+        ; /* Invalid sc port */
     }
     else
     {
-        u32Clk = __HIRC;
+        /* Get smartcard module clock */
+        if(u32ClkSrc == 0UL)
+        {
+            u32Clk = __HXT;
+        }
+        else if(u32ClkSrc == 1UL)
+        {
+            u32Clk = CLK_GetPLLClockFreq();
+        }
+        else if(u32ClkSrc == 2UL)
+        {
+            if(u32Num == 1UL)
+            {
+                u32Clk = CLK_GetPCLK1Freq();
+            }
+            else
+            {
+                u32Clk = CLK_GetPCLK0Freq();
+            }
+        }
+        else
+        {
+            u32Clk = __HIRC;
+        }
+
+        u32Clk /= (u32Div + 1UL) * 1000UL;
     }
 
-    u32Clk /= (u32Div + 1UL) * 1000UL;
-    
     return u32Clk;
 }
 

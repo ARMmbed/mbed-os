@@ -1,12 +1,9 @@
 /**************************************************************************//**
  * @file     timer.h
  * @version  V3.00
- * $Revision: 2 $
- * $Date: 16/07/29 3:12p $
  * @brief    Timer PWM Controller(Timer PWM) driver header file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TIMER_PWM_H__
 #define __TIMER_PWM_H__
@@ -31,60 +28,60 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Output Channel Constant Definitions                                                                    */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_CH0                                (BIT0)       /*!< Indicate PWMx_CH0 */
-#define TPWM_CH1                                (BIT1)       /*!< Indicate PWMx_CH1 */
+#define TPWM_CH0                                (BIT0)       /*!< Indicate PWMx_CH0 \hideinitializer */
+#define TPWM_CH1                                (BIT1)       /*!< Indicate PWMx_CH1 \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Counter Type Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_UP_COUNT                           (0UL)       /*!< Up count type */
-#define TPWM_DOWN_COUNT                         (1UL)       /*!< Down count type */
-#define TPWM_UP_DOWN_COUNT                      (2UL)       /*!< Up-Down count type */
+#define TPWM_UP_COUNT                           (0UL << TIMER_PWMCTL_CNTTYPE_Pos)       /*!< Up count type \hideinitializer */
+#define TPWM_DOWN_COUNT                         (1UL << TIMER_PWMCTL_CNTTYPE_Pos)       /*!< Down count type \hideinitializer */
+#define TPWM_UP_DOWN_COUNT                      (2UL << TIMER_PWMCTL_CNTTYPE_Pos)       /*!< Up-Down count type \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Counter Mode Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_AUTO_RELOAD_MODE                   (0UL)       /*!< Auto-reload mode */
-#define TPWM_ONE_SHOT_MODE                      (1UL)       /*!< One-shot mode */
+#define TPWM_AUTO_RELOAD_MODE                   (0UL)                            /*!< Auto-reload mode \hideinitializer */
+#define TPWM_ONE_SHOT_MODE                      (TIMER_PWMCTL_CNTMODE_Msk)       /*!< One-shot mode \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Output Level Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_OUTPUT_TOGGLE                      (0UL)      /*!< Timer PWM output toggle */
-#define TPWM_OUTPUT_NOTHING                     (1UL)      /*!< Timer PWM output nothing */
-#define TPWM_OUTPUT_LOW                         (2UL)      /*!< Timer PWM output low */
-#define TPWM_OUTPUT_HIGH                        (3UL)      /*!< Timer PWM output high */
+#define TPWM_OUTPUT_TOGGLE                      (0UL)      /*!< Timer PWM output toggle \hideinitializer */
+#define TPWM_OUTPUT_NOTHING                     (1UL)      /*!< Timer PWM output nothing \hideinitializer */
+#define TPWM_OUTPUT_LOW                         (2UL)      /*!< Timer PWM output low \hideinitializer */
+#define TPWM_OUTPUT_HIGH                        (3UL)      /*!< Timer PWM output high \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Trigger EADC Source Select Constant Definitions                                                        */
+/*  Trigger ADC Source Select Constant Definitions                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_TRIGGER_EADC_AT_ZERO_POINT                     (0UL)     /*!< Timer PWM trigger EADC while counter zero point event occurred */
-#define TPWM_TRIGGER_EADC_AT_PERIOD_POINT                   (1UL)     /*!< Timer PWM trigger EADC while counter period point event occurred */
-#define TPWM_TRIGGER_EADC_AT_ZERO_OR_PERIOD_POINT           (2UL)     /*!< Timer PWM trigger EADC while counter zero or period point event occurred */
-#define TPWM_TRIGGER_EADC_AT_COMPARE_UP_COUNT_POINT         (3UL)     /*!< Timer PWM trigger EADC while counter up count compare point event occurred */
-#define TPWM_TRIGGER_EADC_AT_COMPARE_DOWN_COUNT_POINT       (4UL)     /*!< Timer PWM trigger EADC while counter down count compare point event occurred */
+#define TPWM_TRIGGER_ADC_AT_ZERO_POINT                      (0UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter zero point event occurred \hideinitializer */
+#define TPWM_TRIGGER_ADC_AT_PERIOD_POINT                    (1UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter period point event occurred \hideinitializer */
+#define TPWM_TRIGGER_ADC_AT_ZERO_OR_PERIOD_POINT            (2UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter zero or period point event occurred \hideinitializer */
+#define TPWM_TRIGGER_ADC_AT_COMPARE_UP_COUNT_POINT          (3UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter up count compare point event occurred \hideinitializer */
+#define TPWM_TRIGGER_ADC_AT_COMPARE_DOWN_COUNT_POINT        (4UL << TIMER_PWMEADCTS_TRGSEL_Pos)     /*!< Timer PWM trigger ADC while counter down count compare point event occurred \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Brake Control Constant Definitions                                                                     */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TPWM_BRAKE_SOURCE_EDGE_ACMP0            (TIMER_PWMBRKCTL_CPO0EBEN_Msk) /*!< Comparator 0 as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_ACMP1            (TIMER_PWMBRKCTL_CPO1EBEN_Msk) /*!< Comparator 1 as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_BKPIN            (TIMER_PWMBRKCTL_BRKPEEN_Msk)  /*!< Brake pin as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_SYS_CSS          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_CSSBRKEN_Msk << 16))    /*!< System fail condition: clock security system detection as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_SYS_BOD          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_BODBRKEN_Msk << 16))    /*!< System fail condition: brown-out detection as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_SYS_COR          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_CORBRKEN_Msk << 16))    /*!< System fail condition: core lockup detection as edge-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_EDGE_SYS_RAM          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_RAMBRKEN_Msk << 16))    /*!< System fail condition: SRAM parity error detection as edge-detect fault brake source */
+#define TPWM_BRAKE_SOURCE_EDGE_ACMP0            (TIMER_PWMBRKCTL_CPO0EBEN_Msk) /*!< Comparator 0 as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_ACMP1            (TIMER_PWMBRKCTL_CPO1EBEN_Msk) /*!< Comparator 1 as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_BKPIN            (TIMER_PWMBRKCTL_BRKPEEN_Msk)  /*!< Brake pin as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_SYS_CSS          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_CSSBRKEN_Msk << 16))    /*!< System fail condition: clock security system detection as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_SYS_BOD          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_BODBRKEN_Msk << 16))    /*!< System fail condition: brown-out detection as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_SYS_COR          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_CORBRKEN_Msk << 16))    /*!< System fail condition: core lockup detection as edge-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_EDGE_SYS_RAM          (TIMER_PWMBRKCTL_SYSEBEN_Msk | (TIMER_PWMFAILBRK_RAMBRKEN_Msk << 16))    /*!< System fail condition: SRAM parity error detection as edge-detect fault brake source \hideinitializer */
 
-#define TPWM_BRAKE_SOURCE_LEVEL_ACMP0           (TIMER_PWMBRKCTL_CPO0LBEN_Msk)  /*!< Comparator 0 as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_ACMP1           (TIMER_PWMBRKCTL_CPO1LBEN_Msk)  /*!< Comparator 1 as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_BKPIN           (TIMER_PWMBRKCTL_BRKPLEN_Msk)   /*!< Brake pin as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_SYS_CSS         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_CSSBRKEN_Msk << 16))    /*!< System fail condition: clock security system detection as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_SYS_BOD         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_BODBRKEN_Msk << 16))    /*!< System fail condition: brown-out detection as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_SYS_COR         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_CORBRKEN_Msk << 16))    /*!< System fail condition: core lockup detection as level-detect fault brake source */
-#define TPWM_BRAKE_SOURCE_LEVEL_SYS_RAM         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_RAMBRKEN_Msk << 16))    /*!< System fail condition: SRAM parity error detection as level-detect fault brake source */
+#define TPWM_BRAKE_SOURCE_LEVEL_ACMP0           (TIMER_PWMBRKCTL_CPO0LBEN_Msk)  /*!< Comparator 0 as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_ACMP1           (TIMER_PWMBRKCTL_CPO1LBEN_Msk)  /*!< Comparator 1 as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_BKPIN           (TIMER_PWMBRKCTL_BRKPLEN_Msk)   /*!< Brake pin as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_SYS_CSS         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_CSSBRKEN_Msk << 16))    /*!< System fail condition: clock security system detection as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_SYS_BOD         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_BODBRKEN_Msk << 16))    /*!< System fail condition: brown-out detection as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_SYS_COR         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_CORBRKEN_Msk << 16))    /*!< System fail condition: core lockup detection as level-detect fault brake source \hideinitializer */
+#define TPWM_BRAKE_SOURCE_LEVEL_SYS_RAM         (TIMER_PWMBRKCTL_SYSLBEN_Msk | (TIMER_PWMFAILBRK_RAMBRKEN_Msk << 16))    /*!< System fail condition: SRAM parity error detection as level-detect fault brake source \hideinitializer */
 
-#define TPWM_BRAKE_EDGE                         (TIMER_PWMSWBRK_BRKETRG_Msk)    /*!< Edge-detect fault brake */
-#define TPWM_BRAKE_LEVEL                        (TIMER_PWMSWBRK_BRKLTRG_Msk)    /*!< Level-detect fault brake */
+#define TPWM_BRAKE_EDGE                         (TIMER_PWMSWBRK_BRKETRG_Msk)    /*!< Edge-detect fault brake \hideinitializer */
+#define TPWM_BRAKE_LEVEL                        (TIMER_PWMSWBRK_BRKLTRG_Msk)    /*!< Level-detect fault brake \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Load Mode Constant Definitions                                                                         */
@@ -147,8 +144,9 @@ extern "C"
   *
   * @details    This macro is used to enable specified Timer channel as PWM counter mode, then timer counter mode is invalid.
   * @note       All registers about time counter function will be cleared to 0 and timer clock source will be changed to PCLKx automatically after executing this macro.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_PWM_MODE(timer)         ((timer)->ALTCTL = (1 << TIMER_ALTCTL_FUNCSEL_Pos))
+#define TPWM_ENABLE_PWM_MODE(timer)             ((timer)->ALTCTL = (1 << TIMER_ALTCTL_FUNCSEL_Pos))
 
 /**
   * @brief      Disable PWM Counter Mode
@@ -159,8 +157,9 @@ extern "C"
   *
   * @details    This macro is used to disable specified Timer channel as PWM counter mode, then timer counter mode is available.
   * @note       All registers about PWM counter function will be cleared to 0 after executing this macro.
+  * \hideinitializer
   */
-#define TPWM_DISABLE_PWM_MODE(timer)        ((timer)->ALTCTL = (0 << TIMER_ALTCTL_FUNCSEL_Pos))
+#define TPWM_DISABLE_PWM_MODE(timer)            ((timer)->ALTCTL = (0 << TIMER_ALTCTL_FUNCSEL_Pos))
 
 /**
   * @brief      Enable Independent Mode
@@ -170,6 +169,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable independent mode of TIMER PWM module and complementary mode will be disabled.
+  * \hideinitializer
   */
 #define TPWM_ENABLE_INDEPENDENT_MODE(timer)     ((timer)->PWMCTL &= ~(1 << TIMER_PWMCTL_OUTMODE_Pos))
 
@@ -181,6 +181,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable complementary mode of Timer PWM module and independent mode will be disabled.
+  * \hideinitializer
   */
 #define TPWM_ENABLE_COMPLEMENTARY_MODE(timer)   ((timer)->PWMCTL |= (1 << TIMER_PWMCTL_OUTMODE_Pos))
 
@@ -196,8 +197,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set Timer PWM counter type.
+  * \hideinitializer
   */
-#define TPWM_SET_COUNTER_TYPE(timer, type)      ((timer)->PWMCTL = ((timer)->PWMCTL & ~TIMER_PWMCTL_CNTTYPE_Msk) | ((type) << TIMER_PWMCTL_CNTTYPE_Pos))
+#define TPWM_SET_COUNTER_TYPE(timer, type)      ((timer)->PWMCTL = ((timer)->PWMCTL & ~TIMER_PWMCTL_CNTTYPE_Msk) | (type))
 
 /**
   * @brief      Start PWM Counter
@@ -207,6 +209,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable PWM generator and start counter counting.
+  * \hideinitializer
   */
 #define TPWM_START_COUNTER(timer)               ((timer)->PWMCTL |= TIMER_PWMCTL_CNTEN_Msk)
 
@@ -218,6 +221,7 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to stop PWM counter after current period is completed.
+  * \hideinitializer
   */
 #define TPWM_STOP_COUNTER(timer)                ((timer)->PWMPERIOD = 0x0)
 
@@ -232,8 +236,9 @@ extern "C"
   *
   * @details    This macro is used to set the prescaler of specified TIMER PWM.
   * @note       If prescaler is 0, then there is no scaling in counter clock source.
+  * \hideinitializer
   */
-#define TPWM_SET_PRESCALER(timer, prescaler) ((timer)->PWMCLKPSC = (prescaler))
+#define TPWM_SET_PRESCALER(timer, prescaler)    ((timer)->PWMCLKPSC = (prescaler))
 
 /**
   * @brief      Get Counter Clock Prescaler
@@ -243,8 +248,9 @@ extern "C"
   * @return     Target prescaler setting, CLKPSC (TIMERx_PWMCLKPSC[11:0])
   *
   * @details    Get the prescaler setting, the target counter clock divider is (CLKPSC + 1).
+  * \hideinitializer
   */
-#define TPWM_GET_PRESCALER(timer)       ((timer)->PWMCLKPSC)
+#define TPWM_GET_PRESCALER(timer)               ((timer)->PWMCLKPSC)
 
 /**
   * @brief      Set Couner Period
@@ -256,8 +262,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set the period of specified TIMER PWM.
+  * \hideinitializer
   */
-#define TPWM_SET_PERIOD(timer, period)  ((timer)->PWMPERIOD = (period))
+#define TPWM_SET_PERIOD(timer, period)          ((timer)->PWMPERIOD = (period))
 
 /**
   * @brief      Get Couner Period
@@ -267,8 +274,9 @@ extern "C"
   * @return     Target period setting, PERIOD (TIMERx_PWMPERIOD[15:0])
   *
   * @details    This macro is used to get the period of specified TIMER PWM.
+  * \hideinitializer
   */
-#define TPWM_GET_PERIOD(timer)          ((timer)->PWMPERIOD)
+#define TPWM_GET_PERIOD(timer)                  ((timer)->PWMPERIOD)
 
 /**
   * @brief      Set Comparator Value
@@ -280,8 +288,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set the comparator value of specified TIMER PWM.
+  * \hideinitializer
   */
-#define TPWM_SET_CMPDAT(timer, cmp)     ((timer)->PWMCMPDAT = (cmp))
+#define TPWM_SET_CMPDAT(timer, cmp)             ((timer)->PWMCMPDAT = (cmp))
 
 /**
   * @brief      Get Comparator Value
@@ -291,8 +300,9 @@ extern "C"
   * @return     Target comparator setting, CMPDAT (TIMERx_PWMCMPDAT[15:0])
   *
   * @details    This macro is used to get the comparator value of specified TIMER PWM.
+  * \hideinitializer
   */
-#define TPWM_GET_CMPDAT(timer)          ((timer)->PWMCMPDAT)
+#define TPWM_GET_CMPDAT(timer)                  ((timer)->PWMCMPDAT)
 
 /**
   * @brief      Clear Counter
@@ -302,8 +312,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to clear counter of specified TIMER PWM.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_COUNTER(timer)       ((timer)->PWMCNTCLR = TIMER_PWMCNTCLR_CNTCLR_Msk)
+#define TPWM_CLEAR_COUNTER(timer)               ((timer)->PWMCNTCLR = TIMER_PWMCNTCLR_CNTCLR_Msk)
 
 /**
   * @brief      Software Trigger Brake Event
@@ -317,8 +328,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to trigger brake event by writing PWMSWBRK register.
+  * \hideinitializer
   */
-#define TPWM_SW_TRIGGER_BRAKE(timer, type)  ((timer)->PWMSWBRK = (type))
+#define TPWM_SW_TRIGGER_BRAKE(timer, type)      ((timer)->PWMSWBRK = (type))
 
 /**
   * @brief      Enable Output Function
@@ -333,8 +345,9 @@ extern "C"
   *
   * @details    This macro is used to enable output function of specified output pins.
   * @note       If the corresponding bit in u32ChMask parameter is 0, then output function will be disabled in this channel.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_OUTPUT(timer, ch)  ((timer)->PWMPOEN = (ch))
+#define TPWM_ENABLE_OUTPUT(timer, ch)           ((timer)->PWMPOEN = (ch))
 
 /**
   * @brief      Set Output Inverse
@@ -349,8 +362,9 @@ extern "C"
   *
   * @details    This macro is used to enable output inverse of specified output pins.
   * @note       If u32ChMask parameter is 0, then output inverse function will be disabled.
+  * \hideinitializer
   */
-#define TPWM_SET_OUTPUT_INVERSE(timer, ch)  ((timer)->PWMPOLCTL = (ch))
+#define TPWM_SET_OUTPUT_INVERSE(timer, ch)      ((timer)->PWMPOLCTL = (ch))
 
 /**
   * @brief      Enable Output Function
@@ -367,12 +381,9 @@ extern "C"
   *
   * @details    This macro is used to enable output function of specified output pins.
   * @note       If u32ChMask parameter is 0, then output mask function will be disabled.
+  * \hideinitializer
   */
-#define TPWM_SET_MASK_OUTPUT(timer, ch, level) \
-    { \
-        (timer)->PWMMSKEN = (ch); \
-        (timer)->PWMMSK = (level); \
-    }
+#define TPWM_SET_MASK_OUTPUT(timer, ch, level) do {(timer)->PWMMSKEN = (ch); (timer)->PWMMSK = (level); }while(0)
 
 /**
   * @brief      Set Counter Synchronous Mode
@@ -391,8 +402,9 @@ extern "C"
   * @details    This macro is used to set counter synchronous mode of specified Timer PWM module.
   * @note       Only support all PWM counters are synchronous by TIMER0 PWM or TIMER0~1 PWM counter synchronous by TIMER0 PWM and
   *             TIMER2~3 PWM counter synchronous by TIMER2 PWM.
+  * \hideinitializer
   */
-#define TPWM_SET_COUNTER_SYNC_MODE(timer, mode) ((timer)->PWMSCTL = (mode))
+#define TPWM_SET_COUNTER_SYNC_MODE(timer, mode)     ((timer)->PWMSCTL = (mode))
 
 /**
   * @brief      Trigger Counter Synchronous
@@ -404,8 +416,9 @@ extern "C"
   * @details    This macro is used to trigger synchronous event by specified TIMER PWM.
   * @note       1. This macro is only available for TIMER0 PWM and TIMER2 PWM. \n
   *             2. STRGEN (PWMSTRG[0]) is write only and always read as 0.
+  * \hideinitializer
   */
-#define TPWM_TRIGGER_COUNTER_SYNC(timer)    ((timer)->PWMSTRG = TIMER_PWMSTRG_STRGEN_Msk)
+#define TPWM_TRIGGER_COUNTER_SYNC(timer)            ((timer)->PWMSTRG = TIMER_PWMSTRG_STRGEN_Msk)
 
 /**
   * @brief      Enable Zero Event Interrupt
@@ -415,8 +428,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the zero event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_ZERO_INT(timer)         ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_ZIEN_Msk)
+#define TPWM_ENABLE_ZERO_INT(timer)                 ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_ZIEN_Msk)
 
 /**
   * @brief      Disable Zero Event Interrupt
@@ -426,8 +440,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the zero event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_DISABLE_ZERO_INT(timer)        ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_ZIEN_Msk)
+#define TPWM_DISABLE_ZERO_INT(timer)                ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_ZIEN_Msk)
 
 /**
   * @brief      Get Zero Event Interrupt Flag
@@ -438,8 +453,9 @@ extern "C"
   * @retval     1   Zero event interrupt occurred
   *
   * @details    This macro indicates zero event occurred or not.
+  * \hideinitializer
   */
-#define TPWM_GET_ZERO_INT_FLAG(timer)       (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_ZIF_Msk)? 1 : 0)
+#define TPWM_GET_ZERO_INT_FLAG(timer)               (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_ZIF_Msk)? 1 : 0)
 
 /**
   * @brief      Clear Zero Event Interrupt Flag
@@ -449,8 +465,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears zero event interrupt flag.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_ZERO_INT_FLAG(timer)     ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_ZIF_Msk)
+#define TPWM_CLEAR_ZERO_INT_FLAG(timer)             ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_ZIF_Msk)
 
 /**
   * @brief      Enable Period Event Interrupt
@@ -460,8 +477,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the period event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_PERIOD_INT(timer)       ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_PIEN_Msk)
+#define TPWM_ENABLE_PERIOD_INT(timer)               ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_PIEN_Msk)
 
 /**
   * @brief      Disable Period Event Interrupt
@@ -471,8 +489,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the period event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_DISABLE_PERIOD_INT(timer)      ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_PIEN_Msk)
+#define TPWM_DISABLE_PERIOD_INT(timer)              ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_PIEN_Msk)
 
 /**
   * @brief      Get Period Event Interrupt Flag
@@ -483,8 +502,9 @@ extern "C"
   * @retval     1   Period event interrupt occurred
   *
   * @details    This macro indicates period event occurred or not.
+  * \hideinitializer
   */
-#define TPWM_GET_PERIOD_INT_FLAG(timer)     (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_PIF_Msk)? 1 : 0)
+#define TPWM_GET_PERIOD_INT_FLAG(timer)             (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_PIF_Msk)? 1 : 0)
 
 /**
   * @brief      Clear Period Event Interrupt Flag
@@ -494,8 +514,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears period event interrupt flag.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_PERIOD_INT_FLAG(timer)   ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_PIF_Msk)
+#define TPWM_CLEAR_PERIOD_INT_FLAG(timer)           ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_PIF_Msk)
 
 /**
   * @brief      Enable Compare Up Event Interrupt
@@ -505,8 +526,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the compare up event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_CMP_UP_INT(timer)       ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_CMPUIEN_Msk)
+#define TPWM_ENABLE_CMP_UP_INT(timer)               ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_CMPUIEN_Msk)
 
 /**
   * @brief      Disable Compare Up Event Interrupt
@@ -516,8 +538,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the compare up event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_DISABLE_CMP_UP_INT(timer)      ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_CMPUIEN_Msk)
+#define TPWM_DISABLE_CMP_UP_INT(timer)              ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_CMPUIEN_Msk)
 
 /**
   * @brief      Get Compare Up Event Interrupt Flag
@@ -528,8 +551,9 @@ extern "C"
   * @retval     1   Compare up event interrupt occurred
   *
   * @details    This macro indicates compare up event occurred or not.
+  * \hideinitializer
   */
-#define TPWM_GET_CMP_UP_INT_FLAG(timer)     (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_CMPUIF_Msk)? 1 : 0)
+#define TPWM_GET_CMP_UP_INT_FLAG(timer)             (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_CMPUIF_Msk)? 1 : 0)
 
 /**
   * @brief      Clear Compare Up Event Interrupt Flag
@@ -539,8 +563,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears compare up event interrupt flag.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_CMP_UP_INT_FLAG(timer)   ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_CMPUIF_Msk)
+#define TPWM_CLEAR_CMP_UP_INT_FLAG(timer)           ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_CMPUIF_Msk)
 
 /**
   * @brief      Enable Compare Down Event Interrupt
@@ -550,8 +575,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to enable the compare down event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_ENABLE_CMP_DOWN_INT(timer)     ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_CMPDIEN_Msk)
+#define TPWM_ENABLE_CMP_DOWN_INT(timer)             ((timer)->PWMINTEN0 |= TIMER_PWMINTEN0_CMPDIEN_Msk)
 
 /**
   * @brief      Disable Compare Down Event Interrupt
@@ -561,8 +587,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to disable the compare down event interrupt function.
+  * \hideinitializer
   */
-#define TPWM_DISABLE_CMP_DOWN_INT(timer)    ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_CMPDIEN_Msk)
+#define TPWM_DISABLE_CMP_DOWN_INT(timer)            ((timer)->PWMINTEN0 &= ~TIMER_PWMINTEN0_CMPDIEN_Msk)
 
 /**
   * @brief      Get Compare Down Event Interrupt Flag
@@ -573,8 +600,9 @@ extern "C"
   * @retval     1   Compare down event interrupt occurred
   *
   * @details    This macro indicates compare down event occurred or not.
+  * \hideinitializer
   */
-#define TPWM_GET_CMP_DOWN_INT_FLAG(timer)   (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_CMPDIF_Msk)? 1 : 0)
+#define TPWM_GET_CMP_DOWN_INT_FLAG(timer)           (((timer)->PWMINTSTS0 & TIMER_PWMINTSTS0_CMPDIF_Msk)? 1 : 0)
 
 /**
   * @brief      Clear Compare Down Event Interrupt Flag
@@ -584,8 +612,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears compare down event interrupt flag.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_CMP_DOWN_INT_FLAG(timer) ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_CMPDIF_Msk)
+#define TPWM_CLEAR_CMP_DOWN_INT_FLAG(timer)         ((timer)->PWMINTSTS0 = TIMER_PWMINTSTS0_CMPDIF_Msk)
 
 /**
   * @brief      Get Counter Reach Maximum Count Status
@@ -596,8 +625,9 @@ extern "C"
   * @retval     1   Timer PWM counter counts to maximum value, 0xFFFF
   *
   * @details    This macro indicates Timer PWM counter has count to 0xFFFF or not.
+  * \hideinitializer
   */
-#define TPWM_GET_REACH_MAX_CNT_STATUS(timer)    (((timer)->PWMSTATUS & TIMER_PWMSTATUS_CNTMAXF_Msk)? 1 : 0)
+#define TPWM_GET_REACH_MAX_CNT_STATUS(timer)        (((timer)->PWMSTATUS & TIMER_PWMSTATUS_CNTMAXF_Msk)? 1 : 0)
 
 /**
   * @brief      Clear Counter Reach Maximum Count Status
@@ -607,31 +637,34 @@ extern "C"
   * @return     None
   *
   * @details    This macro clears reach maximum count status.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_REACH_MAX_CNT_STATUS(timer)  ((timer)->PWMSTATUS = TIMER_PWMSTATUS_CNTMAXF_Msk)
+#define TPWM_CLEAR_REACH_MAX_CNT_STATUS(timer)      ((timer)->PWMSTATUS = TIMER_PWMSTATUS_CNTMAXF_Msk)
 
 /**
-  * @brief      Get Trigger EADC Status
+  * @brief      Get Trigger ADC Status
   *
   * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
-  * @retval     0       Trigger EADC start conversion is not occur
+  * @retval     0       Trigger ADC start conversion is not occur
   * @retval     1       Specified counter compare event has trigger ADC start conversion
   *
-  * @details    This macro is used to indicate PWM counter compare event has triggered EADC start conversion.
+  * @details    This macro is used to indicate PWM counter compare event has triggered ADC start conversion.
+  * \hideinitializer
   */
-#define TPWM_GET_TRG_EADC_STATUS(timer)          (((timer)->PWMSTATUS & TIMER_PWMSTATUS_EADCTRGF_Msk)? 1 : 0)
+#define TPWM_GET_TRG_ADC_STATUS(timer)              (((timer)->PWMSTATUS & TIMER_PWMSTATUS_EADCTRGF_Msk)? 1 : 0)
 
 /**
-  * @brief      Clear Trigger EADC Status
+  * @brief      Clear Trigger ADC Status
   *
   * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
   * @return     None
   *
-  * @details    This macro is used to clear PWM counter compare event trigger EADC status.
+  * @details    This macro is used to clear PWM counter compare event trigger ADC status.
+  * \hideinitializer
   */
-#define TPWM_CLEAR_TRG_EADC_STATUS(timer)        ((timer)->PWMSTATUS = TIMER_PWMSTATUS_EADCTRGF_Msk)
+#define TPWM_CLEAR_TRG_ADC_STATUS(timer)            ((timer)->PWMSTATUS = TIMER_PWMSTATUS_EADCTRGF_Msk)
 
 /**
   * @brief      Set Brake Event at Brake Pin High or Low-to-High
@@ -642,8 +675,9 @@ extern "C"
   *
   * @details    This macro is used to set detect brake event when external brake pin at high level or transfer from low to high.
   * @note       The default brake pin detection is high level or from low to high.
+  * \hideinitializer
   */
-#define TPWM_SET_BRAKE_PIN_HIGH_DETECT(timer)   ((timer)->PWMBNF &= ~TIMER_PWMBNF_BRKPINV_Msk)
+#define TPWM_SET_BRAKE_PIN_HIGH_DETECT(timer)       ((timer)->PWMBNF &= ~TIMER_PWMBNF_BRKPINV_Msk)
 
 /**
   * @brief      Set Brake Event at Brake Pin Low or High-to-Low
@@ -653,8 +687,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set detect brake event when external brake pin at low level or transfer from high to low.
+  * \hideinitializer
   */
-#define TPWM_SET_BRAKE_PIN_LOW_DETECT(timer)    ((timer)->PWMBNF |= TIMER_PWMBNF_BRKPINV_Msk)
+#define TPWM_SET_BRAKE_PIN_LOW_DETECT(timer)        ((timer)->PWMBNF |= TIMER_PWMBNF_BRKPINV_Msk)
 
 /**
   * @brief      Set External Brake Pin Source
@@ -669,8 +704,9 @@ extern "C"
   * @return     None
   *
   * @details    This macro is used to set detect brake event when external brake pin at high level or transfer from low to high.
+  * \hideinitializer
   */
-#define TPWM_SET_BRAKE_PIN_SOURCE(timer, pin)   ((timer)->PWMBNF = ((timer)->PWMBNF & ~TIMER_PWMBNF_BKPINSRC_Msk) | ((pin)<<TIMER_PWMBNF_BKPINSRC_Pos))
+#define TPWM_SET_BRAKE_PIN_SOURCE(timer, pin)       ((timer)->PWMBNF = ((timer)->PWMBNF & ~TIMER_PWMBNF_BKPINSRC_Msk) | ((pin)<<TIMER_PWMBNF_BKPINSRC_Pos))
 
 
 void TPWM_SetCounterClockSource(TIMER_T *timer, uint32_t u32CntClkSrc);
@@ -680,8 +716,8 @@ void TPWM_EnableDeadTimeWithPrescale(TIMER_T *timer, uint32_t u32DTCount);
 void TPWM_DisableDeadTime(TIMER_T *timer);
 void TPWM_EnableCounter(TIMER_T *timer);
 void TPWM_DisableCounter(TIMER_T *timer);
-void TPWM_EnableTriggerEADC(TIMER_T *timer, uint32_t u32Condition);
-void TPWM_DisableTriggerEADC(TIMER_T *timer);
+void TPWM_EnableTriggerADC(TIMER_T *timer, uint32_t u32Condition);
+void TPWM_DisableTriggerADC(TIMER_T *timer);
 void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1Level, uint32_t u32BrakeSource);
 void TPWM_EnableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource);
 void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource);
@@ -706,4 +742,4 @@ void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum);
 
 #endif /* __TIMER_PWM_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

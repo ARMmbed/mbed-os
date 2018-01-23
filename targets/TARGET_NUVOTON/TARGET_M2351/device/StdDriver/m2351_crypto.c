@@ -18,6 +18,10 @@
 #define CRPT_DBGMSG(...)   do { } while (0)       /* disable debug */
 #endif
 
+#if defined(__ICCARM__)
+# pragma diag_suppress=Pm073, Pm143        /* Misra C rule 14.7 */
+#endif
+
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -43,7 +47,9 @@ static void dump_ecc_reg(char *str, uint32_t volatile regs[], int32_t count);
 static char get_Nth_nibble_char(uint32_t val32, uint32_t idx);
 static void Hex2Reg(char input[], uint32_t volatile reg[]);
 static void Reg2Hex(int32_t count, uint32_t volatile reg[], char output[]);
-
+static char ch2hex(char ch);
+static void Hex2RegEx(char input[], uint32_t volatile reg[], int shift);
+static int  get_nibble_value(char c);
 
 /* // @endcond HIDDEN_SYMBOLS */
 
@@ -403,9 +409,18 @@ void SHA_Read(CRPT_T *crpt, uint32_t u32Digest[])
     {
         wcnt = 7UL;
     }
-    else
+    else if(i == SHA_MODE_SHA256)
     {
         wcnt = 8UL;
+    }
+    else if(i == SHA_MODE_SHA384)
+    {
+        wcnt = 12UL;
+    }
+    else
+    {
+        /* SHA_MODE_SHA512 */
+        wcnt = 16UL;
     }
 
     reg_addr = (uint32_t) & (crpt->HMAC_DGST[0]);
@@ -780,6 +795,21 @@ static void dump_ecc_reg(char *str, uint32_t volatile regs[], int32_t count)
 #else
 static void dump_ecc_reg(char *str, uint32_t volatile regs[], int32_t count) { }
 #endif
+static char  ch2hex(char ch)
+{
+    if(ch <= '9')
+    {
+        return ch - '0';
+    }
+    else if((ch <= 'z') && (ch >= 'a'))
+    {
+        return ch - 'a' + 10U;
+    }
+    else
+    {
+        return ch - 'A' + 10U;
+    }
+}
 
 static void Hex2Reg(char input[], uint32_t volatile reg[])
 {
@@ -795,22 +825,40 @@ static void Hex2Reg(char input[], uint32_t volatile reg[])
         val32 = 0UL;
         for(i = 0UL; (i < 8UL) && (si >= 0); i++)
         {
-            if(input[si] <= '9')
-            {
-                hex = input[si] - '0';
-            }
-            else if((input[si] <= 'z') && (input[si] >= 'a'))
-            {
-                hex = input[si] - 'a' + 10U;
-            }
-            else
-            {
-                hex = input[si] - 'A' + 10U;
-            }
+            hex = ch2hex(input[si]);
             val32 |= (uint32_t)hex << (i * 4UL);
             si--;
         }
         reg[ri++] = val32;
+    }
+}
+
+static void Hex2RegEx(char input[], uint32_t volatile reg[], int shift)
+{
+    uint32_t  hex, carry;
+    int       si, ri;
+    uint32_t  i, val32;
+
+    si = (int)strlen(input) - 1;
+    ri = 0;
+    carry = 0U;
+    while(si >= 0)
+    {
+        val32 = 0UL;
+        for(i = 0UL; (i < 8UL) && (si >= 0); i++)
+        {
+            hex = (uint32_t)ch2hex(input[si]);
+            hex <<= shift;
+
+            val32 |= (uint32_t)((hex & 0xFU) | carry) << (i * 4UL);
+            carry = (hex >> 4) & 0xFU;
+            si--;
+        }
+        reg[ri++] = val32;
+    }
+    if(carry != 0U)
+    {
+        reg[ri] = carry;
     }
 }
 
@@ -838,7 +886,7 @@ static void Reg2Hex(int32_t count, uint32_t volatile reg[], char output[])
 
     for(ri = 0; idx >= 0; ri++)
     {
-        for(i = 0UL; i < 8UL; i++)
+        for(i = 0UL; (i < 8UL) && (idx >= 0); i++)
         {
             output[idx] = get_Nth_nibble_char(reg[ri], i);
             idx--;
@@ -916,6 +964,72 @@ static int32_t ecc_init_curve(CRPT_T *crpt, E_ECC_CURVE ecc_curve)
     return ret;
 }
 
+
+static int  get_nibble_value(char c)
+{
+    char ch;
+
+    if((c >= '0') && (c <= '9'))
+    {
+        ch = '0';
+        return ((int)c - (int)ch);
+    }
+
+    if((c >= 'a') && (c <= 'f'))
+    {
+        ch = 'a';
+        return ((int)c - (int)ch - 10);
+    }
+
+    if((c >= 'A') && (c <= 'F'))
+    {
+        ch = 'A';
+        return ((int)c - (int)ch - 10);
+    }
+    return 0;
+}
+
+
+/**
+  * @brief  Check if the private key is located in valid range of curve.
+  * @param[in]  ecc_curve   The pre-defined ECC curve.
+  * @param[in]  private_k   The input private key.
+  * @return  1    Is valid.
+  * @return  0    Is not valid.
+  * @return  -1   Invalid curve.
+  */
+int ECC_IsPrivateKeyValid(CRPT_T *crpt, E_ECC_CURVE ecc_curve,  char private_k[])
+{
+    uint32_t  i;
+
+
+    pCurve = get_curve(ecc_curve);
+    if(pCurve == NULL)
+    {
+        return -1;
+    }
+
+    if(strlen(private_k) < strlen(pCurve->Eorder))
+    {
+        return 1;
+    }
+
+    if(strlen(private_k) > strlen(pCurve->Eorder))
+    {
+        return 0;
+    }
+
+    for(i = 0U; i < strlen(private_k); i++)
+    {
+        if(get_nibble_value(private_k[i]) < get_nibble_value(pCurve->Eorder[i]))
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
 /**
   * @brief  Given a private key and curve to generate the public key pair.
   * @param[in]  private_k   The input private key.
@@ -927,7 +1041,8 @@ static int32_t ecc_init_curve(CRPT_T *crpt, E_ECC_CURVE ecc_curve)
   */
 int32_t  ECC_GeneratePublicKey(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *private_k, char public_k1[], char public_k2[])
 {
-    int32_t  ret = 0;
+    int32_t  ret = 0, i;
+    uint32_t u32Tmp;
 
     if(ecc_init_curve(crpt, ecc_curve) != 0)
     {
@@ -936,6 +1051,11 @@ int32_t  ECC_GeneratePublicKey(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *privat
 
     if(ret == 0)
     {
+        for(i = 0; i < 18; i++)
+        {
+            crpt->ECC_K[i] = 0UL;
+        }
+
         Hex2Reg(private_k, crpt->ECC_K);
 
         /* set FSEL (Field selection) */
@@ -952,7 +1072,12 @@ int32_t  ECC_GeneratePublicKey(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *privat
         crpt->ECC_CTL |= ((uint32_t)pCurve->key_len << CRPT_ECC_CTL_CURVEM_Pos) |
                          ECCOP_POINT_MUL | CRPT_ECC_CTL_START_Msk;
 
-        while((g_ECC_done | g_ECCERR_done) == 0UL) { }
+        do
+        {
+            u32Tmp = g_ECC_done;
+            u32Tmp |= g_ECCERR_done;
+        }
+        while(u32Tmp == 0UL);
 
         Reg2Hex(pCurve->Echar, crpt->ECC_X1, public_k1);
         Reg2Hex(pCurve->Echar, crpt->ECC_Y1, public_k2);
@@ -962,8 +1087,83 @@ int32_t  ECC_GeneratePublicKey(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *privat
 }
 
 
+/**
+  * @brief  Given a curve parameter, the other party's public key, and one's own private key to generate the secret Z.
+  * @param[in]  ecc_curve   The pre-defined ECC curve.
+  * @param[in]  private_k   One's own private key.
+  * @param[in]  public_k1   The other party's publick key 1.
+  * @param[in]  public_k2   The other party's publick key 2.
+  * @param[out] secret_z    The ECC CDH secret Z.
+  * @return  0    Success.
+  * @return  -1   "ecc_curve" value is invalid.
+  */
+int32_t  ECC_GenerateSecretZ(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *private_k, char public_k1[], char public_k2[], char secret_z[])
+{
+    int32_t  i, ret = 0;
+    uint32_t u32Tmp;
+
+    if(ecc_init_curve(crpt, ecc_curve) != 0)
+    {
+        ret = -1;
+    }
+
+    if(ret == 0)
+    {
+        for(i = 0; i < 18; i++)
+        {
+            crpt->ECC_K[i] = 0UL;
+            crpt->ECC_X1[i] = 0UL;
+            crpt->ECC_Y1[i] = 0UL;
+        }
+
+        if((ecc_curve == CURVE_B_163) || (ecc_curve == CURVE_B_233) || (ecc_curve == CURVE_B_283) ||
+                (ecc_curve == CURVE_B_409) || (ecc_curve == CURVE_B_571) || (ecc_curve == CURVE_K_163))
+        {
+            Hex2RegEx(private_k, crpt->ECC_K, 1);
+        }
+        else if((ecc_curve == CURVE_K_233) || (ecc_curve == CURVE_K_283) ||
+                (ecc_curve == CURVE_K_409) || (ecc_curve == CURVE_K_571))
+        {
+            Hex2RegEx(private_k, crpt->ECC_K, 2);
+        }
+        else
+        {
+            Hex2Reg(private_k, crpt->ECC_K);
+        }
+
+        Hex2Reg(public_k1, crpt->ECC_X1);
+        Hex2Reg(public_k2, crpt->ECC_Y1);
+
+        /* set FSEL (Field selection) */
+        if(pCurve->GF == (int)CURVE_GF_2M)
+        {
+            crpt->ECC_CTL = 0UL;
+        }
+        else           /*  CURVE_GF_P */
+        {
+            crpt->ECC_CTL = CRPT_ECC_CTL_FSEL_Msk;
+        }
+        g_ECC_done = g_ECCERR_done = 0UL;
+        crpt->ECC_CTL |= ((uint32_t)pCurve->key_len << CRPT_ECC_CTL_CURVEM_Pos) |
+                         ECCOP_POINT_MUL | CRPT_ECC_CTL_START_Msk;
+
+        do
+        {
+            u32Tmp = g_ECC_done;
+            u32Tmp |= g_ECCERR_done;
+        }
+        while(u32Tmp == 0UL);
+
+        Reg2Hex(pCurve->Echar, crpt->ECC_X1, secret_z);
+    }
+
+    return ret;
+}
+
 static void run_ecc_codec(CRPT_T *crpt, uint32_t mode)
 {
+    uint32_t u32Tmp;
+
     if((mode & CRPT_ECC_CTL_ECCOP_Msk) == ECCOP_MODULE)
     {
         crpt->ECC_CTL = CRPT_ECC_CTL_FSEL_Msk;
@@ -984,7 +1184,13 @@ static void run_ecc_codec(CRPT_T *crpt, uint32_t mode)
 
     g_ECC_done = g_ECCERR_done = 0UL;
     crpt->ECC_CTL |= ((uint32_t)pCurve->key_len << CRPT_ECC_CTL_CURVEM_Pos) | mode | CRPT_ECC_CTL_START_Msk;
-    while((g_ECC_done | g_ECCERR_done) == 0UL) { }
+
+    do
+    {
+        u32Tmp = g_ECC_done;
+        u32Tmp |= g_ECCERR_done;
+    }
+    while(u32Tmp == 0UL);
 
     while(crpt->ECC_STS & CRPT_ECC_STS_BUSY_Msk) { }
 }
@@ -1043,6 +1249,10 @@ int32_t  ECC_GenerateSignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messag
          */
 
         /* 3-(4) Write the random integer k to K register */
+        for(i = 0; i < 18; i++)
+        {
+            crpt->ECC_K[i] = 0UL;
+        }
         Hex2Reg(k, crpt->ECC_K);
 
         run_ecc_codec(crpt, ECCOP_POINT_MUL);
@@ -1118,6 +1328,10 @@ int32_t  ECC_GenerateSignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *messag
         crpt->ECC_Y1[0] = 0x1UL;
 
         /*  4-(3) Write the random integer k to X1 registers */
+        for(i = 0; i < 18; i++)
+        {
+            crpt->ECC_X1[i] = 0UL;
+        }
         Hex2Reg(k, crpt->ECC_X1);
 
         run_ecc_codec(crpt, ECCOP_MODULE | MODOP_DIV);
@@ -1276,6 +1490,10 @@ int32_t  ECC_VerifySignature(CRPT_T *crpt, E_ECC_CURVE ecc_curve, char *message,
         crpt->ECC_Y1[0] = 0x1UL;
 
         /*  3-(3) Write s to X1 registers */
+        for(i = 0; i < 18; i++)
+        {
+            CRPT->ECC_X1[i] = 0UL;
+        }
         Hex2Reg(S, crpt->ECC_X1);
 
         run_ecc_codec(crpt, ECCOP_MODULE | MODOP_DIV);

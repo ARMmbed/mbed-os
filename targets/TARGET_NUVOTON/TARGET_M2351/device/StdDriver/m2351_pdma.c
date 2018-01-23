@@ -6,7 +6,7 @@
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 static uint8_t u32ChSelect[PDMA_CH_MAX];
@@ -38,10 +38,10 @@ void PDMA_Open(PDMA_T *pdma, uint32_t u32Mask)
 {
     int volatile i;
 
-    for(i = 0UL; i < PDMA_CH_MAX; i++)
+    for(i = 0; i < (int)PDMA_CH_MAX; i++)
     {
         (pdma)->DSCT[i].CTL = 0UL;
-        u32ChSelect[i] = PDMA_MEM;
+        u32ChSelect[i] = (uint8_t)PDMA_MEM;
     }
 
     (pdma)->CHCTL |= u32Mask;
@@ -80,6 +80,26 @@ void PDMA_SetTransferCnt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Width, uint32
 {
     (pdma)->DSCT[u32Ch].CTL &= ~(PDMA_DSCT_CTL_TXCNT_Msk | PDMA_DSCT_CTL_TXWIDTH_Msk);
     (pdma)->DSCT[u32Ch].CTL |= (u32Width | ((u32TransCount - 1UL) << PDMA_DSCT_CTL_TXCNT_Pos));
+}
+
+/**
+ * @brief       Set PDMA Stride Mode
+ *
+ * @param[in]   pdma            The pointer of the specified PDMA module
+ * @param[in]   u32Ch           The selected channel
+ * @param[in]   u32DestLen      Destination stride count
+ * @param[in]   u32SrcLen       Source stride count
+ * @param[in]   u32TransCount   Transfer count
+ *
+ * @return      None
+ *
+ * @details     This function set the selected stride mode.
+ */
+void PDMA_SetStride(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32DestLen, uint32_t u32SrcLen, uint32_t u32TransCount)
+{
+    (pdma)->DSCT[u32Ch].CTL |= PDMA_DSCT_CTL_STRIDEEN_Msk;
+    (pdma)->STRIDE[u32Ch].ASOCR = (u32DestLen << 16) | u32SrcLen;
+    (pdma)->STRIDE[u32Ch].STCR = u32TransCount;
 }
 
 /**
@@ -133,6 +153,8 @@ void PDMA_SetTransferAddr(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32SrcAddr, uin
  *                - \ref PDMA_USCI0_RX
  *                - \ref PDMA_USCI1_TX
  *                - \ref PDMA_USCI1_RX
+ *                - \ref PDMA_QSPI0_TX
+ *                - \ref PDMA_QSPI0_RX
  *                - \ref PDMA_SPI0_TX
  *                - \ref PDMA_SPI0_RX
  *                - \ref PDMA_SPI1_TX
@@ -141,16 +163,14 @@ void PDMA_SetTransferAddr(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32SrcAddr, uin
  *                - \ref PDMA_SPI2_RX
  *                - \ref PDMA_SPI3_TX
  *                - \ref PDMA_SPI3_RX
- *                - \ref PDMA_SPI4_TX
- *                - \ref PDMA_SPI4_RX
  *                - \ref PDMA_SPI5_TX
  *                - \ref PDMA_SPI5_RX
- *                - \ref PDMA_PWM0_P1_RX
- *                - \ref PDMA_PWM0_P2_RX
- *                - \ref PDMA_PWM0_P3_RX
- *                - \ref PDMA_PWM1_P1_RX
- *                - \ref PDMA_PWM1_P2_RX
- *                - \ref PDMA_PWM1_P3_RX
+ *                - \ref PDMA_EPWM0_P1_RX
+ *                - \ref PDMA_EPWM0_P2_RX
+ *                - \ref PDMA_EPWM0_P3_RX
+ *                - \ref PDMA_EPWM1_P1_RX
+ *                - \ref PDMA_EPWM1_P2_RX
+ *                - \ref PDMA_EPWM1_P3_RX
  *                - \ref PDMA_I2C0_TX
  *                - \ref PDMA_I2C0_RX
  *                - \ref PDMA_I2C1_TX
@@ -175,7 +195,7 @@ void PDMA_SetTransferAddr(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32SrcAddr, uin
  */
 void PDMA_SetTransferMode(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Peripheral, uint32_t u32ScatterEn, uint32_t u32DescAddr)
 {
-    u32ChSelect[u32Ch] = u32Peripheral;
+    u32ChSelect[u32Ch] = (uint8_t)u32Peripheral;
     switch(u32Ch)
     {
         case 0UL:
@@ -203,16 +223,18 @@ void PDMA_SetTransferMode(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Peripheral, 
             (pdma)->REQSEL4_7 = ((pdma)->REQSEL4_7 & ~PDMA_REQSEL4_7_REQSRC7_Msk) | (u32Peripheral << PDMA_REQSEL4_7_REQSRC7_Pos);
             break;
         default:
-            ;
+            break;
     }
 
     if(u32ScatterEn)
     {
         (pdma)->DSCT[u32Ch].CTL = ((pdma)->DSCT[u32Ch].CTL & ~PDMA_DSCT_CTL_OPMODE_Msk) | PDMA_OP_SCATTER;
-        (pdma)->DSCT[u32Ch].FIRST = u32DescAddr - ((pdma)->SCATBA);
+        (pdma)->DSCT[u32Ch].NEXT = u32DescAddr - ((pdma)->SCATBA);
     }
     else
+    {
         (pdma)->DSCT[u32Ch].CTL = ((pdma)->DSCT[u32Ch].CTL & ~PDMA_DSCT_CTL_OPMODE_Msk) | PDMA_OP_BASIC;
+    }
 }
 
 /**
@@ -300,12 +322,16 @@ void PDMA_SetTimeOut(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32OnOff, uint32_t u
             break;
 
         default:
-            ;
+            break;
     }
     if(u32OnOff)
+    {
         (pdma)->TOUTEN |= (1UL << u32Ch);
+    }
     else
+    {
         (pdma)->TOUTEN &= ~(1UL << u32Ch);
+    }
 }
 
 /**
@@ -321,7 +347,9 @@ void PDMA_SetTimeOut(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32OnOff, uint32_t u
 void PDMA_Trigger(PDMA_T *pdma, uint32_t u32Ch)
 {
     if(u32ChSelect[u32Ch] == PDMA_MEM)
+    {
         (pdma)->SWREQ = (1UL << u32Ch);
+    }
 }
 
 /**

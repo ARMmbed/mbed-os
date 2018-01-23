@@ -44,7 +44,8 @@ typedef enum {
     GPIO_D = (int) NU_MODNAME(GPIOD_BASE, 3, 0),
     GPIO_E = (int) NU_MODNAME(GPIOE_BASE, 4, 0),
     GPIO_F = (int) NU_MODNAME(GPIOF_BASE, 5, 0),
-    GPIO_G = (int) NU_MODNAME(GPIOF_BASE, 6, 0)    
+    GPIO_G = (int) NU_MODNAME(GPIOF_BASE, 6, 0),
+    GPIO_H = (int) NU_MODNAME(GPIOF_BASE, 7, 0)    
 } GPIOName;
 #endif
 
@@ -107,7 +108,7 @@ typedef enum {
     SPI_1 = (int) NU_MODNAME(SPI1_BASE, 1, 0),
     SPI_2 = (int) NU_MODNAME(SPI2_BASE, 2, 0),
     SPI_3 = (int) NU_MODNAME(SPI3_BASE, 3, 0),
-    SPI_4 = (int) NU_MODNAME(SPI4_BASE, 4, 0),
+//    SPI_4 = (int) NU_MODNAME(SPI4_BASE, 4, 0),
     SPI_5 = (int) NU_MODNAME(SPI5_BASE, 5, 0)    
 } SPIName;
 
@@ -118,19 +119,19 @@ typedef enum {
 } I2CName;
 
 typedef enum {
-    PWM_0_0 = (int) NU_MODNAME(PWM0_BASE, 0, 0),
-    PWM_0_1 = (int) NU_MODNAME(PWM0_BASE, 0, 1),
-    PWM_0_2 = (int) NU_MODNAME(PWM0_BASE, 0, 2),
-    PWM_0_3 = (int) NU_MODNAME(PWM0_BASE, 0, 3),
-    PWM_0_4 = (int) NU_MODNAME(PWM0_BASE, 0, 4),
-    PWM_0_5 = (int) NU_MODNAME(PWM0_BASE, 0, 5),
+    PWM_0_0 = (int) NU_MODNAME(EPWM0_BASE, 0, 0),
+    PWM_0_1 = (int) NU_MODNAME(EPWM0_BASE, 0, 1),
+    PWM_0_2 = (int) NU_MODNAME(EPWM0_BASE, 0, 2),
+    PWM_0_3 = (int) NU_MODNAME(EPWM0_BASE, 0, 3),
+    PWM_0_4 = (int) NU_MODNAME(EPWM0_BASE, 0, 4),
+    PWM_0_5 = (int) NU_MODNAME(EPWM0_BASE, 0, 5),
     
-    PWM_1_0 = (int) NU_MODNAME(PWM1_BASE, 1, 0),
-    PWM_1_1 = (int) NU_MODNAME(PWM1_BASE, 1, 1),
-    PWM_1_2 = (int) NU_MODNAME(PWM1_BASE, 1, 2),
-    PWM_1_3 = (int) NU_MODNAME(PWM1_BASE, 1, 3),
-    PWM_1_4 = (int) NU_MODNAME(PWM1_BASE, 1, 4),
-    PWM_1_5 = (int) NU_MODNAME(PWM1_BASE, 1, 5),
+    PWM_1_0 = (int) NU_MODNAME(EPWM1_BASE, 1, 0),
+    PWM_1_1 = (int) NU_MODNAME(EPWM1_BASE, 1, 1),
+    PWM_1_2 = (int) NU_MODNAME(EPWM1_BASE, 1, 2),
+    PWM_1_3 = (int) NU_MODNAME(EPWM1_BASE, 1, 3),
+    PWM_1_4 = (int) NU_MODNAME(EPWM1_BASE, 1, 4),
+    PWM_1_5 = (int) NU_MODNAME(EPWM1_BASE, 1, 5),
     
     BPWM_0_0 = (int) NU_MODNAME(BPWM0_BASE, 0, 0),
     BPWM_0_1 = (int) NU_MODNAME(BPWM0_BASE, 0, 1),
