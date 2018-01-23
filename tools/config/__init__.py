@@ -17,7 +17,7 @@ limitations under the License.
 
 from copy import deepcopy
 import os
-from os.path import dirname, abspath, exists, join
+from os.path import dirname, abspath, exists, join, isabs
 import sys
 from collections import namedtuple
 from os.path import splitext, relpath
@@ -29,6 +29,10 @@ from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
+
+PATH_OVERRIDES = set(["target.bootloader_img"])
+BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
+                            "target.mbed_app_start", "target.mbed_app_size"])
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -84,6 +88,8 @@ class ConfigParameter(object):
             else:
                 prefix = unit_name + '.'
             return prefix + name
+        if name in BOOTLOADER_OVERRIDES:
+            return name
         # The name has a prefix, so check if it is valid
         if not allow_prefix:
             raise ConfigException("Invalid parameter name '%s' in '%s'" %
@@ -362,8 +368,6 @@ class Config(object):
                         "artifact_name": str}
     }
 
-    __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
-                              "target.mbed_app_start", "target.mbed_app_size"])
 
     # Allowed features in configurations
     __allowed_features = [
@@ -441,7 +445,7 @@ class Config(object):
             self.target = tgt
         self.target = deepcopy(self.target)
         self.target_labels = self.target.labels
-        for override in self.__unused_overrides:
+        for override in BOOTLOADER_OVERRIDES:
             _, attr = override.split(".")
             setattr(self.target, attr, None)
 
@@ -491,7 +495,7 @@ class Config(object):
     @property
     def has_regions(self):
         """Does this config have regions defined?"""
-        for override in self.__unused_overrides:
+        for override in BOOTLOADER_OVERRIDES:
             _, attr = override.split(".")
             if getattr(self.target, attr, None):
                 return True
@@ -552,8 +556,11 @@ class Config(object):
     def _generate_bootloader_build(self, rom_start, rom_size):
         start = rom_start
         if self.target.bootloader_img:
-            basedir = abspath(dirname(self.app_config_location))
-            filename = join(basedir, self.target.bootloader_img)
+            if isabs(self.target.bootloader_img):
+                filename = self.target.bootloader_img
+            else:
+                basedir = abspath(dirname(self.app_config_location))
+                filename = join(basedir, self.target.bootloader_img)
             if not exists(filename):
                 raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
@@ -685,12 +692,9 @@ class Config(object):
 
                 # Consider the others as overrides
                 for name, val in overrides.items():
-                    if (name.startswith("target.") and
-                        (unit_kind is "application" or
-                         name in self.__unused_overrides)):
-                        _, attribute = name.split(".")
-                        setattr(self.target, attribute, val)
-                        continue
+                    if (name in PATH_OVERRIDES and "__config_path" in data):
+                        val = os.path.join(
+                            os.path.dirname(data["__config_path"]), val)
 
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name,
@@ -698,6 +702,12 @@ class Config(object):
                     if full_name in params:
                         params[full_name].set_value(val, unit_name, unit_kind,
                                                     label)
+                    elif (name.startswith("target.") and
+                        (unit_kind is "application" or
+                         name in BOOTLOADER_OVERRIDES)):
+                        _, attribute = name.split(".")
+                        setattr(self.target, attribute, val)
+                        continue
                     else:
                         self.config_errors.append(
                             ConfigException(
@@ -750,7 +760,7 @@ class Config(object):
                 rel_names = [tgt for tgt, _ in
                              get_resolution_order(self.target.json_data, tname,
                                                   [])]
-                if full_name in self.__unused_overrides:
+                if full_name in BOOTLOADER_OVERRIDES:
                     continue
                 if (full_name not in params) or \
                    (params[full_name].defined_by[7:] not in rel_names):
