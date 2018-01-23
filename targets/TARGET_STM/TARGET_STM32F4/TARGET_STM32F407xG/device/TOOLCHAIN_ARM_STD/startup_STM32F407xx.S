@@ -1,53 +1,45 @@
-;/*****************************************************************************
-; * @file:    startup_STM32F40x.s
-; * @purpose: CMSIS Cortex-M4 Core Device Startup File
-; *           for the ST STM32F40x Device Series
-; * @version: V1.20
-; * @date:    16. January 2012
-; *------- <<< Use Configuration Wizard in Context Menu >>> ------------------
-; *
-; * Copyright (C) 2012 ARM Limited. All rights reserved.
-; * ARM Limited (ARM) is supplying this software for use with Cortex-M4
-; * processor based microcontrollers.  This file can be freely distributed
-; * within development tools that are supporting such ARM based processors.
-; *
-; * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
-; * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
-; * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
-; * ARM SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
-; * CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
-; *
-; *****************************************************************************/
-
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00000400
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __initial_sp
-                
-Stack_Mem       SPACE   Stack_Size
-__initial_sp    EQU     0x20020000 ; Top of RAM
-
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size       EQU     0x00000400
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-                
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit    EQU (__initial_sp - Stack_Size)
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
+;* File Name          : startup_stm32f407xx.s
+;* Author             : MCD Application Team
+;* Description        : STM32F407xx devices vector table for MDK-ARM_STD toolchain. 
+;*                      This module performs:
+;*                      - Set the initial SP
+;*                      - Set the initial PC == Reset_Handler
+;*                      - Set the vector table entries with the exceptions ISR address
+;*                      - Branches to __main in the C library (which eventually
+;*                        calls main()).
+;*                      After Reset the CortexM4 processor is in Thread mode,
+;*                      priority is Privileged, and the Stack is set to Main.
+;* <<< Use Configuration Wizard in Context Menu >>>   
+;*******************************************************************************
+; 
+;* Redistribution and use in source and binary forms, with or without modification,
+;* are permitted provided that the following conditions are met:
+;*   1. Redistributions of source code must retain the above copyright notice,
+;*      this list of conditions and the following disclaimer.
+;*   2. Redistributions in binary form must reproduce the above copyright notice,
+;*      this list of conditions and the following disclaimer in the documentation
+;*      and/or other materials provided with the distribution.
+;*   3. Neither the name of STMicroelectronics nor the names of its contributors
+;*      may be used to endorse or promote products derived from this software
+;*      without specific prior written permission.
+;*
+;* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+;* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+;* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+;* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+;* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+;* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+;* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+;* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+; 
+;*******************************************************************************
 
 
+
+__initial_sp        EQU     0x20020000  ; Top of RAM 
 
                 PRESERVE8
                 THUMB
@@ -56,6 +48,8 @@ __heap_limit    EQU (__initial_sp - Stack_Size)
 
                 AREA    RESET, DATA, READONLY
                 EXPORT  __Vectors
+                EXPORT  __Vectors_End
+                EXPORT  __Vectors_Size
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     Reset_Handler             ; Reset Handler
@@ -122,7 +116,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     TIM8_TRG_COM_TIM14_IRQHandler ; TIM8 Trigger and Commutation and TIM14 
                 DCD     TIM8_CC_IRQHandler            ; TIM8 Capture Compare 
                 DCD     DMA1_Stream7_IRQHandler       ; DMA1 Stream7 
-                DCD     FSMC_IRQHandler               ; FSMC 
+                DCD     FMC_IRQHandler                ; FMC 
                 DCD     SDIO_IRQHandler               ; SDIO 
                 DCD     TIM5_IRQHandler               ; TIM5 
                 DCD     SPI3_IRQHandler               ; SPI3 
@@ -153,10 +147,12 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     OTG_HS_WKUP_IRQHandler        ; USB OTG HS Wakeup through EXTI 
                 DCD     OTG_HS_IRQHandler             ; USB OTG HS 
                 DCD     DCMI_IRQHandler               ; DCMI 
-                DCD     CRYP_IRQHandler               ; CRYP crypto 
+                DCD     0                             ; Reserved 
                 DCD     HASH_RNG_IRQHandler           ; Hash and Rng 
                 DCD     FPU_IRQHandler                ; FPU 
+__Vectors_End
 
+__Vectors_Size  EQU  __Vectors_End - __Vectors
 
                 AREA    |.text|, CODE, READONLY
 
@@ -268,7 +264,7 @@ Default_Handler PROC
                 EXPORT  TIM8_TRG_COM_TIM14_IRQHandler   [WEAK]
                 EXPORT  TIM8_CC_IRQHandler              [WEAK]
                 EXPORT  DMA1_Stream7_IRQHandler         [WEAK]
-                EXPORT  FSMC_IRQHandler                 [WEAK]
+                EXPORT  FMC_IRQHandler                  [WEAK]
                 EXPORT  SDIO_IRQHandler                 [WEAK]
                 EXPORT  TIM5_IRQHandler                 [WEAK]
                 EXPORT  SPI3_IRQHandler                 [WEAK]
@@ -299,7 +295,6 @@ Default_Handler PROC
                 EXPORT  OTG_HS_WKUP_IRQHandler          [WEAK]
                 EXPORT  OTG_HS_IRQHandler               [WEAK]
                 EXPORT  DCMI_IRQHandler                 [WEAK]
-                EXPORT  CRYP_IRQHandler                 [WEAK]
                 EXPORT  HASH_RNG_IRQHandler             [WEAK]
                 EXPORT  FPU_IRQHandler                  [WEAK]
 
@@ -351,7 +346,7 @@ TIM8_UP_TIM13_IRQHandler
 TIM8_TRG_COM_TIM14_IRQHandler
 TIM8_CC_IRQHandler
 DMA1_Stream7_IRQHandler
-FSMC_IRQHandler
+FMC_IRQHandler
 SDIO_IRQHandler
 TIM5_IRQHandler
 SPI3_IRQHandler
@@ -382,7 +377,6 @@ OTG_HS_EP1_IN_IRQHandler
 OTG_HS_WKUP_IRQHandler
 OTG_HS_IRQHandler
 DCMI_IRQHandler
-CRYP_IRQHandler
 HASH_RNG_IRQHandler
 FPU_IRQHandler
  
