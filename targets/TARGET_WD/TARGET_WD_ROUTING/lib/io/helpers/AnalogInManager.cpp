@@ -157,7 +157,7 @@ void AnalogInManager::measurement_step(void) {
 		this->_minValue[inputIndex] = this->_currentValue[inputIndex];
 	
 	if (abs(previousValue - this->_currentValue[inputIndex]) > this->_valueChangedTolerance[inputIndex]){
-		events::EventQueue * eq = mbed_highprio_event_queue();
+		events::EventQueue * eq = mbed_event_queue();
 		eq->call(this->_irq[inputIndex], inputIndex);
 	}
 	

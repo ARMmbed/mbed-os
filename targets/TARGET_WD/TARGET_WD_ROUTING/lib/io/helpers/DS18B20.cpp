@@ -32,7 +32,7 @@ DS18B20::DS18B20(OneWire * oneWire, uint measurementIntervalSeconds)
 	
 	this->_oneWire = oneWire;
 	_ticker = new Ticker();
-	events::EventQueue * eq = mbed_highprio_event_queue();
+	events::EventQueue * eq = mbed_event_queue();
 	this->_ticker->attach(eq->event(callback(this, &DS18B20::collectMeasurement)), (float)(measurementIntervalSeconds));	
 		
 }
@@ -122,7 +122,7 @@ void DS18B20::setMeasurementInterval(uint measurementIntervalSeconds) {
 void DS18B20::attachSensorAddedCallback(Callback<void(uint64_t)> cb) {
 	
 	if (cb){
-		events::EventQueue * eq = mbed_highprio_event_queue();
+		events::EventQueue * eq = mbed_event_queue();
 		this->_sensorAddedCallback= eq->event(cb);
 	} else {
 		this->_sensorAddedCallback = donothing;
@@ -133,7 +133,7 @@ void DS18B20::attachSensorAddedCallback(Callback<void(uint64_t)> cb) {
 void DS18B20::attachSensorRemovedCallback(Callback<void(uint64_t)> cb) {
 	
 	if (cb){
-		events::EventQueue * eq = mbed_highprio_event_queue();
+		events::EventQueue * eq = mbed_event_queue();
 		this->_sensorRemovedCallback = eq->event(cb);
 	} else {
 		this->_sensorRemovedCallback = donothing;

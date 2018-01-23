@@ -14,7 +14,7 @@ BTSlave::BTSlave(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = MB
 	
 	_state = BT_STATE_INITIAL;
 
-	events::EventQueue * eq = mbed_highprio_event_queue();
+	events::EventQueue * eq = mbed_event_queue();
 	_tx_active_timeout = new ResettableTimeout(eq->event(callback(this, &BTSlave::_on_tx_active_timeout)), BT_SLAVE_MAX_TX_ACTIVE_WINDOW_MS * 1000);
 	_tx_active_timeout->stop();
 	

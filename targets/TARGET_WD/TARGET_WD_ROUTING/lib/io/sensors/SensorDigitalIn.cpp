@@ -118,7 +118,7 @@ void SensorDigitalIn::onPulseDurationResetTimeout(void) {
 void SensorDigitalIn::attach(mbed::Callback<void(uint16_t)> func) {
 	
 	if (func){
-		events::EventQueue * eq = mbed_highprio_event_queue();
+		events::EventQueue * eq = mbed_event_queue();
 		_irq = eq->event(func);
 	} else {
 		_irq = donothing;
