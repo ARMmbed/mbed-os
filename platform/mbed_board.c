@@ -58,10 +58,11 @@ void mbed_error_printf(const char* format, ...) {
 
 void mbed_error_vfprintf(const char * format, va_list arg) {
 #if DEVICE_SERIAL
-#define ERROR_BUF_SIZE      (128)
+#define ERROR_BUF_SIZE      (64)
     core_util_critical_section_enter();
     char buffer[ERROR_BUF_SIZE];
     int size = vsnprintf(buffer, ERROR_BUF_SIZE, format, arg);
+    if (size > ERROR_BUF_SIZE) size = ERROR_BUF_SIZE;
     if (size > 0) {
         if (!stdio_uart_inited) {
             serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
