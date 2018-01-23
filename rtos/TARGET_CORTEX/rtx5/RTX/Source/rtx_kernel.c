@@ -93,8 +93,11 @@ osStatus_t svcRtxKernelInitialize (void) {
     return osError;
   }
 
-  // Initialize osRtxInfo
-  memset(&osRtxInfo.kernel, 0, sizeof(osRtxInfo) - offsetof(osRtxInfo_t, kernel));
+  // Initialize osRtxInfo, skipping all elements before the kernel struct,
+  // (os_id and version), which are set elsewhere
+  memset(&osRtxInfo + sizeof(osRtxInfo.os_id) + sizeof(osRtxInfo.version),
+         0,
+         sizeof(osRtxInfo) - sizeof(osRtxInfo.os_id) - sizeof(osRtxInfo.version));
 
   if (osRtxConfig.thread_stack_size < (64U + 8U)) {
     EvrRtxKernelError(osRtxErrorInvalidThreadStack);
