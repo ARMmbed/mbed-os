@@ -53,20 +53,20 @@ public:
         const Passkey_t passkey = NULL,
         bool signing = true
     ) {
-        db.restore();
-        pal.set_io_capability((io_capability_t::type) iocaps);
-        pal.set_display_passkey(PasskeyAsci::to_num(passkey));
-        legacy_pairing_allowed = true;
+        _db.restore();
+        _pal.set_io_capability((io_capability_t::type) iocaps);
+        _pal.set_display_passkey(PasskeyAsci::to_num(passkey));
+        _legacy_pairing_allowed = true;
 
         bool secure_connections;
-        pal.get_secure_connections_support(secure_connections);
+        _pal.get_secure_connections_support(secure_connections);
 
-        default_authentication.set_bondable(bondable);
-        default_authentication.set_mitm(mitm);
-        default_authentication.set_secure_connections(secure_connections);
-        default_authentication.set_keypress_notification(true);
+        _default_authentication.set_bondable(bondable);
+        _default_authentication.set_mitm(mitm);
+        _default_authentication.set_secure_connections(secure_connections);
+        _default_authentication.set_keypress_notification(true);
 
-        default_key_distribution.set_signing(signing);
+        _default_key_distribution.set_signing(signing);
         if (signing) {
             init_signing();
         }
@@ -75,27 +75,27 @@ public:
     }
 
     virtual ble_error_t reset(void) {
-        db.sync();
+        _db.sync();
         SecurityManager::reset();
 
         return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t preserveBondingStateOnReset(bool enabled) {
-        db.set_restore(enabled);
+        _db.set_restore(enabled);
         return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t init_signing() {
         /* TODO: store init bit to avoid rerunning needlessly*/
-        const csrk_t *pcsrk = db.get_local_csrk();
+        const csrk_t *pcsrk = _db.get_local_csrk();
         if (!pcsrk) {
             csrk_t csrk;
             /* TODO: generate csrk */
             pcsrk = &csrk;
-            db.set_local_csrk(*pcsrk);
+            _db.set_local_csrk(*pcsrk);
         }
-        pal.set_csrk(*pcsrk);
+        _pal.set_csrk(*pcsrk);
         return BLE_ERROR_NONE;
     }
 
@@ -104,7 +104,7 @@ public:
     //
 
     virtual ble_error_t purgeAllBondingState(void) {
-        db.clear_entries();
+        _db.clear_entries();
         return BLE_ERROR_NONE;
     }
 
@@ -113,29 +113,29 @@ public:
     //
 
     virtual ble_error_t requestPairing(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
         /* TODO: remove */
-        db.get_entry(connection)->master = true;
+        _db.get_entry(connection)->master = true;
         /* end temp code */
 
-        if (!legacy_pairing_allowed && !default_authentication.get_secure_connections()) {
+        if (!_legacy_pairing_allowed && !_default_authentication.get_secure_connections()) {
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
 
         set_mitm_performed(connection, false);
 
-        AuthenticationMask link_authentication(default_authentication);
+        AuthenticationMask link_authentication(_default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
 
-        KeyDistribution link_key_distribution(default_key_distribution);
+        KeyDistribution link_key_distribution(_default_key_distribution);
         link_key_distribution.set_signing(entry->signing_requested);
-        link_key_distribution.set_encryption(master_sends_keys);
+        link_key_distribution.set_encryption(_master_sends_keys);
 
-        return pal.send_pairing_request(
+        return _pal.send_pairing_request(
             connection,
             entry->oob,
             link_authentication,
@@ -145,18 +145,18 @@ public:
     }
 
     virtual ble_error_t acceptPairingRequest(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        AuthenticationMask link_authentication(default_authentication);
+        AuthenticationMask link_authentication(_default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
 
-        KeyDistribution link_key_distribution(default_key_distribution);
+        KeyDistribution link_key_distribution(_default_key_distribution);
         link_key_distribution.set_signing(entry->signing_requested);
 
-        return pal.send_pairing_response(
+        return _pal.send_pairing_response(
             connection,
             entry->oob,
             link_authentication,
@@ -166,11 +166,11 @@ public:
     }
 
     virtual ble_error_t canceltPairingRequest(connection_handle_t connection) {
-        return pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
+        return _pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
     }
 
     virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        pairing_authorisation_required = required;
+        _pairing_authorisation_required = required;
         return BLE_ERROR_NONE;
     }
 
@@ -179,12 +179,12 @@ public:
     //
 
     virtual ble_error_t allowLegacyPairing(bool allow = true) {
-        legacy_pairing_allowed = allow;
+        _legacy_pairing_allowed = allow;
         return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t getSecureConnectionsSupport(bool *enabled) {
-        return pal.get_secure_connections_support(*enabled);
+        return _pal.get_secure_connections_support(*enabled);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -192,18 +192,18 @@ public:
     //
 
     virtual ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps) {
-        return pal.set_io_capability((io_capability_t::type) iocaps);
+        return _pal.set_io_capability((io_capability_t::type) iocaps);
     }
 
     virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
-        return pal.set_display_passkey(PasskeyAsci::to_num(passkey));
+        return _pal.set_display_passkey(PasskeyAsci::to_num(passkey));
     }
 
     virtual ble_error_t setAuthenticationTimeout(
         connection_handle_t connection,
         uint32_t timeout_in_ms
     ) {
-        return pal.set_authentication_timeout(connection, timeout_in_ms / 10);
+        return _pal.set_authentication_timeout(connection, timeout_in_ms / 10);
     }
 
     virtual ble_error_t getAuthenticationTimeout(
@@ -211,7 +211,7 @@ public:
         uint32_t *timeout_in_ms
     ) {
         uint16_t timeout_in_10ms;
-        ble_error_t status = pal.get_authentication_timeout(connection, timeout_in_10ms);
+        ble_error_t status = _pal.get_authentication_timeout(connection, timeout_in_10ms);
         *timeout_in_ms = 10 * timeout_in_10ms;
         return status;
     }
@@ -220,7 +220,7 @@ public:
         connection_handle_t connection,
         SecurityMode_t securityMode
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -251,7 +251,7 @@ public:
     }
 
     virtual ble_error_t setKeypressNotification(bool enabled = true) {
-        default_authentication.set_keypress_notification(enabled);
+        _default_authentication.set_keypress_notification(enabled);
         return BLE_ERROR_NONE;
     }
 
@@ -259,7 +259,7 @@ public:
         connection_handle_t connection,
         bool enabled = true
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -282,18 +282,18 @@ public:
     }
 
     virtual ble_error_t setHintFutureRoleReversal(bool enable = true) {
-        master_sends_keys = enable;
+        _master_sends_keys = enable;
         return BLE_ERROR_NONE;
     }
 
     virtual ble_error_t slave_security_request(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
-        AuthenticationMask link_authentication(default_authentication);
+        AuthenticationMask link_authentication(_default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
-        return pal.slave_security_request(connection, link_authentication);
+        return _pal.slave_security_request(connection, link_authentication);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -313,7 +313,7 @@ public:
         link_encryption_t *encryption
     ) {
 
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -337,7 +337,7 @@ public:
         connection_handle_t connection,
         link_encryption_t encryption
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -357,7 +357,7 @@ public:
         if (encryption == link_encryption_t::NOT_ENCRYPTED) {
 
             if (entry->encrypted) {
-                return pal.disable_encryption(connection);
+                return _pal.disable_encryption(connection);
             }
 
         } else if (encryption == link_encryption_t::ENCRYPTED) {
@@ -390,7 +390,7 @@ public:
         connection_handle_t connection,
         uint8_t *size
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (entry) {
             *size = entry->encryption_key_size;
             return BLE_ERROR_NONE;
@@ -403,17 +403,17 @@ public:
         uint8_t minimumByteSize,
         uint8_t maximumByteSize
     ) {
-        return pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
+        return _pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
     }
 
     virtual ble_error_t enable_encryption(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
         if (entry->master) {
             if (entry->ltk_stored) {
-                db.get_entry_peer_keys(
+                _db.get_entry_peer_keys(
                     mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
                     connection
                 );
@@ -438,7 +438,7 @@ public:
         SecurityEntry_t& entry,
         SecurityEntryKeys_t& entryKeys
     ) {
-        pal.enable_encryption(entry.handle, entryKeys.ltk, entryKeys.ediv, entryKeys.rand);
+        _pal.enable_encryption(entry.handle, entryKeys.ltk, entryKeys.ediv, entryKeys.rand);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
@@ -447,7 +447,7 @@ public:
     //
 
     virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
-       return pal.set_private_address_timeout(timeout_in_seconds);
+       return _pal.set_private_address_timeout(timeout_in_seconds);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -455,7 +455,7 @@ public:
     //
 
     virtual ble_error_t getSigningKey(connection_handle_t connection, bool authenticated) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -463,7 +463,7 @@ public:
         if (entry->csrk_stored && (entry->mitm_csrk || !authenticated)) {
             /* we have a key that is either authenticated or we don't care if it is
              * so retrieve it from the db now */
-            db.get_entry_csrk(
+            _db.get_entry_csrk(
                 mbed::callback(this, &GenericSecurityManager::return_csrk_cb),
                 connection
             );
@@ -494,7 +494,7 @@ public:
         SecurityEntry_t& entry,
         SecurityEntryKeys_t& entryKeys
     ) {
-        pal.set_ltk(entry.handle, entryKeys.ltk);
+        _pal.set_ltk(entry.handle, entryKeys.ltk);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
@@ -502,7 +502,7 @@ public:
         connection_handle_t connection,
         csrk_t csrk
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return DB_CB_ACTION_NO_UPDATE_REQUIRED;
         }
@@ -520,7 +520,7 @@ public:
     //
 
     virtual ble_error_t requestAuthentication(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -551,7 +551,7 @@ public:
         bool useOOB,
         bool OOBProvidesMITM = true
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -565,14 +565,14 @@ public:
         connection_handle_t connection,
         bool confirmation
     ) {
-        return pal.confirmation_entered(connection, confirmation);
+        return _pal.confirmation_entered(connection, confirmation);
     }
 
     virtual ble_error_t passkeyEntered(
         connection_handle_t connection,
         Passkey_t passkey
     ) {
-        return pal.passkey_request_reply(
+        return _pal.passkey_request_reply(
             connection,
             PasskeyAsci::to_num(passkey)
         );
@@ -582,7 +582,7 @@ public:
         connection_handle_t connection,
         Keypress_t keypress
     ) {
-        return pal.send_keypress_notification(connection, keypress);
+        return _pal.send_keypress_notification(connection, keypress);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -599,27 +599,28 @@ public:
     }
 
 protected:
-    GenericSecurityManager(ble::pal::SecurityManager& palImpl)
-        : pal(palImpl),
-          pairing_authorisation_required(false),
-          legacy_pairing_allowed(true),
-          master_sends_keys(false),
-          default_authentication(0),
-          default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
+    GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
+        : _pal(palImpl),
+          _db(dbImpl),
+          _pairing_authorisation_required(false),
+          _legacy_pairing_allowed(true),
+          _master_sends_keys(false),
+          _default_authentication(0),
+          _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
         _app_event_handler = &defaultEventHandler;
-        pal.set_event_handler(this);
+        _pal.set_event_handler(this);
     }
 
 private:
-    ble::pal::SecurityManager& pal;
-    GenericSecurityDb db;
+    ble::pal::SecurityManager& _pal;
+    GenericSecurityDb& _db;
 
-    bool pairing_authorisation_required;
-    bool legacy_pairing_allowed;
-    bool master_sends_keys;
+    bool _pairing_authorisation_required;
+    bool _legacy_pairing_allowed;
+    bool _master_sends_keys;
 
-    AuthenticationMask default_authentication;
-    KeyDistribution default_key_distribution;
+    AuthenticationMask _default_authentication;
+    KeyDistribution _default_key_distribution;
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
@@ -636,17 +637,17 @@ public:
         KeyDistribution responder_dist
     ) {
         /* TODO: remove */
-        db.get_entry(connection)->master = false;
+        _db.get_entry(connection)->master = false;
         /* end temp code */
 
         /* cancel pairing if secure connection paring is not possible */
-        if (!legacy_pairing_allowed && !authentication.get_secure_connections()) {
+        if (!_legacy_pairing_allowed && !authentication.get_secure_connections()) {
             canceltPairingRequest(connection);
         }
 
         set_mitm_performed(connection, false);
 
-        if (pairing_authorisation_required) {
+        if (_pairing_authorisation_required) {
             _app_event_handler->acceptPairingRequest(connection);
         }
     }
@@ -673,7 +674,7 @@ public:
     }
 
     virtual void on_pairing_completed(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (entry) {
             if (entry->encryption_requested) {
                 enable_encryption(connection);
@@ -703,13 +704,13 @@ public:
         connection_handle_t connection,
         AuthenticationMask authentication
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
 
         if (authentication.get_secure_connections()
-            && default_authentication.get_secure_connections()
+            && _default_authentication.get_secure_connections()
             && !entry->secure_connections) {
             requestPairing(connection);
         }
@@ -730,7 +731,7 @@ public:
         link_encryption_t result
     ) {
 
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
@@ -760,7 +761,7 @@ public:
     // MITM
     //
     virtual void set_mitm_performed(connection_handle_t connection, bool enable = true) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (entry) {
             entry->mitm_performed = true;
         }
@@ -816,7 +817,7 @@ public:
         const irk_t irk,
         const csrk_t csrk
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
@@ -824,7 +825,7 @@ public:
         entry->mitm_ltk = entry->mitm_performed;
         entry->mitm_csrk = entry->mitm_performed;
 
-        db.set_entry_peer(
+        _db.set_entry_peer(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address,
@@ -846,12 +847,12 @@ public:
         connection_handle_t connection,
         const ltk_t ltk
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
         entry->mitm_ltk = entry->mitm_performed;
-        db.set_entry_peer_ltk(connection, ltk);
+        _db.set_entry_peer_ltk(connection, ltk);
     }
 
     virtual void on_keys_distributed_ediv_rand(
@@ -859,14 +860,14 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.set_entry_peer_ediv_rand(connection, ediv, rand);
+        _db.set_entry_peer_ediv_rand(connection, ediv, rand);
     }
 
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
         const ltk_t ltk
     ) {
-        db.set_entry_local_ltk(connection, ltk);
+        _db.set_entry_local_ltk(connection, ltk);
     }
 
     virtual void on_keys_distributed_local_ediv_rand(
@@ -874,14 +875,14 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.set_entry_local_ediv_rand(connection, ediv, rand);
+        _db.set_entry_local_ediv_rand(connection, ediv, rand);
     }
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t irk
     ) {
-        db.set_entry_peer_irk(connection, irk);
+        _db.set_entry_peer_irk(connection, irk);
     }
 
     virtual void on_keys_distributed_bdaddr(
@@ -889,7 +890,7 @@ public:
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
     ) {
-        db.set_entry_peer_bdaddr(
+        _db.set_entry_peer_bdaddr(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_identity_address
@@ -900,14 +901,14 @@ public:
         connection_handle_t connection,
         const csrk_t csrk
     ) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
 
         entry->mitm_csrk = entry->mitm_performed;
 
-        db.set_entry_peer_csrk(connection, csrk);
+        _db.set_entry_peer_csrk(connection, csrk);
 
         _app_event_handler->signingKey(
             connection,
@@ -921,7 +922,7 @@ public:
         const ediv_t ediv,
         const rand_t rand
     ) {
-        db.get_entry_local_keys(
+        _db.get_entry_local_keys(
             mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
             connection,
             ediv,
@@ -930,16 +931,17 @@ public:
     }
 
     virtual void on_disconnected(connection_handle_t connection) {
-        SecurityEntry_t *entry = db.get_entry(connection);
+        SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
             return;
         }
         entry->connected = false;
-        db.sync();
+        _db.sync();
     }
 
     virtual void on_connected(connection_handle_t connection, address_t peer_address) {
-        SecurityEntry_t *entry = db.connect_entry(connection, peer_address);
+        /* TODO: if resolvable peer address, find identity address */
+        SecurityEntry_t *entry = _db.connect_entry(connection, peer_address);
         if (!entry) {
             return;
         }
