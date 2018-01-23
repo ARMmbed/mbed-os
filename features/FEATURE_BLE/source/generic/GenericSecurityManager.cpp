@@ -939,22 +939,14 @@ public:
         _db.sync();
     }
 
-    virtual void on_connected(connection_handle_t connection, address_t peer_address) {
+    virtual void on_connected(connection_handle_t connection, address_t peer_address, bool is_master) {
         /* TODO: if resolvable peer address, find identity address */
         SecurityEntry_t *entry = _db.connect_entry(connection, peer_address);
         if (!entry) {
             return;
         }
-
-        entry->mitm_requested = false;
-        entry->mitm_performed = false;
-
-        entry->connected = true;
-        entry->authenticated = false;
-
-        entry->encryption_requested = false;
-        entry->encrypted = false;
-        entry->signing_requested = false;
+        entry->reset();
+        entry->master = is_master;
     }
 
 private:

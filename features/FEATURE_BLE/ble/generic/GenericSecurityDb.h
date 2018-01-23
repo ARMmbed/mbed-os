@@ -34,30 +34,64 @@ using ble::pal::rand_t;
 /* separate structs to allow db implementation to minimise memory usage */
 
 struct SecurityEntry_t {
+    SecurityEntry_t()
+        : handle(0),
+        encryption_key_size (0),
+        peer_address_public(false),
+        csrk_stored(false),
+        mitm_csrk(false),
+        ltk_stored(false),
+        mitm_ltk(false),
+        secure_connections(false),
+        connected(false),
+        authenticated(false),
+        master(false),
+        encryption_requested(false),
+        encrypted(false),
+        signing_requested(false),
+        mitm_requested(false),
+        mitm_performed(false),
+        oob(false),
+        oob_mitm_protection(false) { }
+
+    void reset() {
+        mitm_requested = false;
+        mitm_performed = false;
+        connected = true;
+        authenticated = false;
+        encryption_requested = false;
+        encrypted = false;
+        signing_requested = false;
+        oob = false;
+        oob_mitm_protection = false;
+    }
+
     connection_handle_t handle;
     address_t peer_identity_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
 
-    uint8_t mitm_requested:1;
-    uint8_t mitm_performed:1; /**< keys exchange will have mitm protection */
-    uint8_t mitm_ltk:1;
+    uint8_t csrk_stored:1;
     uint8_t mitm_csrk:1;
+    uint8_t ltk_stored:1;
+    uint8_t mitm_ltk:1;
+    uint8_t secure_connections:1;
+
+    /* do not store */
 
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we turned encryption on during this connection */
     uint8_t master:1;
-    uint8_t secure_connections:1;
 
     uint8_t encryption_requested:1;
     uint8_t encrypted:1;
     uint8_t signing_requested:1;
 
+    uint8_t mitm_requested:1;
+    uint8_t mitm_performed:1; /**< keys exchange will have mitm protection */
+
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
-
-    uint8_t csrk_stored:1;
-    uint8_t ltk_stored:1;
 };
 
 struct SecurityEntryKeys_t {
@@ -214,15 +248,28 @@ public:
         connection_handle_t connection
     ) = 0;
 
-    virtual void remove_entry(address_t peer_identity_address) = 0;
+    virtual void remove_entry(
+        address_t peer_identity_address
+    ) = 0;
+
     virtual void clear_entries() = 0;
 
-    virtual void get_whitelist(WhitelistDbCb_t cb) = 0;
+    virtual void get_whitelist(
+        WhitelistDbCb_t cb
+    ) = 0;
 
-    virtual void update_whitelist(Gap::Whitelist_t& whitelist) = 0;
-    virtual void add_whitelist_entry(const address_t &address) = 0;
+    virtual void update_whitelist(
+        Gap::Whitelist_t& whitelist
+    ) = 0;
 
-    virtual void remove_whitelist_entry(const address_t &address) = 0;
+    virtual void add_whitelist_entry(
+        const address_t &address
+    ) = 0;
+
+    virtual void remove_whitelist_entry(
+        const address_t &address
+    ) = 0;
+
     virtual void clear_whitelist() = 0;
 
     /* saving and loading from nvm */
@@ -232,7 +279,10 @@ public:
     virtual void set_restore(bool reload) = 0;
 
 protected:
-    virtual bool resolve_to_identity_address(address_t peer_address, address_t identity_address) {
+    virtual bool resolve_to_identity_address(
+        address_t peer_address,
+        address_t identity_address
+    ) {
         /*TODO: resolve*/
         return (peer_address == identity_address);
     }
