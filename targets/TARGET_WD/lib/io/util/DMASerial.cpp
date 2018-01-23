@@ -10,6 +10,12 @@ extern UART_HandleTypeDef uart_handlers[8];
 
 DMASerial::DMASerial(PinName tx, PinName rx, int baud)
 	: RawSerial(tx, rx, baud),
+	_rxQueueProcessingThread(
+		osPriorityNormal,
+        OS_STACK_SIZE,
+        NULL, 
+		"dma_serial_rx"
+	),
 	consumer_pointer(0) { }
 
 void DMASerial::popFrame(char * buffer, int * length, uint32_t timeout) {

@@ -39,7 +39,7 @@
             "-Wl,--wrap,exit",
             "-Wl,--wrap,atexit",
             "-Wl,-n"
-        ]
+        ],
         "common": ["-c", "-Wall", "-Wextra",
                    "-Wno-unused-parameter", "-Wno-missing-field-initializers",
                    "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
