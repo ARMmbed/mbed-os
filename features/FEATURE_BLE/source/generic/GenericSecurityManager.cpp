@@ -126,6 +126,8 @@ public:
             return BLE_ERROR_OPERATION_NOT_PERMITTED;
         }
 
+        set_mitm_performed(connection, false);
+
         AuthenticationMask link_authentication(default_authentication);
         link_authentication.set_mitm(entry->mitm_requested);
 
@@ -523,7 +525,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (entry->mitm_pairing) {
+        if (entry->mitm_ltk) {
             if (entry->authenticated) {
                 return BLE_ERROR_NONE;
             } else {
@@ -676,10 +678,6 @@ public:
             if (entry->encryption_requested) {
                 enable_encryption(connection);
             }
-
-            /* keys exchanged from now on will share this mitm status */
-            entry->mitm_pairing = entry->mitm_performed;
-            entry->mitm_performed = false;
 
             /* sc doesn't need to exchange ltk */
             if (entry->secure_connections) {
@@ -840,7 +838,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm_pairing
+            entry->mitm_csrk
         );
     }
 
@@ -948,7 +946,6 @@ public:
 
         entry->mitm_requested = false;
         entry->mitm_performed = false;
-        entry->mitm_pairing = false;
 
         entry->connected = true;
         entry->authenticated = false;

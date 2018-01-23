@@ -40,8 +40,7 @@ struct SecurityEntry_t {
     uint8_t peer_address_public:1;
 
     uint8_t mitm_requested:1;
-    uint8_t mitm_performed:1;
-    uint8_t mitm_pairing:1; /**< keys exchange will have mitm protection */
+    uint8_t mitm_performed:1; /**< keys exchange will have mitm protection */
     uint8_t mitm_ltk:1;
     uint8_t mitm_csrk:1;
 
@@ -59,7 +58,6 @@ struct SecurityEntry_t {
 
     uint8_t csrk_stored:1;
     uint8_t ltk_stored:1;
-
 };
 
 struct SecurityEntryKeys_t {
