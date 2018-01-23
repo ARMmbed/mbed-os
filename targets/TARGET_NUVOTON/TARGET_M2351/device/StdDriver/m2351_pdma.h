@@ -93,22 +93,24 @@ extern "C"
 #define PDMA_USCI0_RX       0x00000011UL            /*!<DMA Connect to USCI0 RX  \hideinitializer */
 #define PDMA_USCI1_TX       0x00000012UL            /*!<DMA Connect to USCI1 TX  \hideinitializer */
 #define PDMA_USCI1_RX       0x00000013UL            /*!<DMA Connect to USCI1 RX  \hideinitializer */
-#define PDMA_SPI0_TX        0x00000014UL            /*!<DMA Connect to SPI0 TX  \hideinitializer */
-#define PDMA_SPI0_RX        0x00000015UL            /*!<DMA Connect to SPI0 RX  \hideinitializer */
-#define PDMA_SPI1_TX        0x00000016UL            /*!<DMA Connect to SPI1 TX  \hideinitializer */
-#define PDMA_SPI1_RX        0x00000017UL            /*!<DMA Connect to SPI1 RX  \hideinitializer */
-#define PDMA_SPI2_TX        0x00000018UL            /*!<DMA Connect to SPI2 TX  \hideinitializer */
-#define PDMA_SPI2_RX        0x00000019UL            /*!<DMA Connect to SPI2 RX  \hideinitializer */
-#define PDMA_SPI3_TX        0x0000001AUL            /*!<DMA Connect to SPI3 TX  \hideinitializer */
-#define PDMA_SPI3_RX        0x0000001BUL            /*!<DMA Connect to SPI3 RX  \hideinitializer */
-#define PDMA_SPI4_TX        0x0000001CUL            /*!<DMA Connect to SPI4 TX  \hideinitializer */
-#define PDMA_SPI4_RX        0x0000001DUL            /*!<DMA Connect to SPI4 RX  \hideinitializer */
-#define PDMA_PWM0_P1_RX     0x00000020UL            /*!<DMA Connect to PWM0 P1 RX  \hideinitializer */
-#define PDMA_PWM0_P2_RX     0x00000021UL            /*!<DMA Connect to PWM0 P2 RX  \hideinitializer */
-#define PDMA_PWM0_P3_RX     0x00000022UL            /*!<DMA Connect to PWM0 P3 RX  \hideinitializer */
-#define PDMA_PWM1_P1_RX     0x00000023UL            /*!<DMA Connect to PWM1 P1 RX  \hideinitializer */
-#define PDMA_PWM1_P2_RX     0x00000024UL            /*!<DMA Connect to PWM1 P2 RX  \hideinitializer */
-#define PDMA_PWM1_P3_RX     0x00000025UL            /*!<DMA Connect to PWM1 P3 RX  \hideinitializer */
+#define PDMA_QSPI0_TX       0x00000014UL            /*!<DMA Connect to QSPI0 TX  \hideinitializer */
+#define PDMA_QSPI0_RX       0x00000015UL            /*!<DMA Connect to QSPI0 RX  \hideinitializer */
+#define PDMA_SPI0_TX        0x00000016UL            /*!<DMA Connect to SPI0 TX  \hideinitializer */
+#define PDMA_SPI0_RX        0x00000017UL            /*!<DMA Connect to SPI0 RX  \hideinitializer */
+#define PDMA_SPI1_TX        0x00000018UL            /*!<DMA Connect to SPI1 TX  \hideinitializer */
+#define PDMA_SPI1_RX        0x00000019UL            /*!<DMA Connect to SPI1 RX  \hideinitializer */
+#define PDMA_SPI2_TX        0x0000001AUL            /*!<DMA Connect to SPI2 TX  \hideinitializer */
+#define PDMA_SPI2_RX        0x0000001BUL            /*!<DMA Connect to SPI2 RX  \hideinitializer */
+#define PDMA_SPI3_TX        0x0000001CUL            /*!<DMA Connect to SPI3 TX  \hideinitializer */
+#define PDMA_SPI3_RX        0x0000001DUL            /*!<DMA Connect to SPI3 RX  \hideinitializer */
+#define PDMA_SPI5_TX        0x0000001EUL            /*!<DMA Connect to SPI5 TX  \hideinitializer */
+#define PDMA_SPI5_RX        0x0000001FUL            /*!<DMA Connect to SPI5 RX  \hideinitializer */
+#define PDMA_EPWM0_P1_RX     0x00000020UL            /*!<DMA Connect to EPWM0 P1 RX  \hideinitializer */
+#define PDMA_EPWM0_P2_RX     0x00000021UL            /*!<DMA Connect to EPWM0 P2 RX  \hideinitializer */
+#define PDMA_EPWM0_P3_RX     0x00000022UL            /*!<DMA Connect to EPWM0 P3 RX  \hideinitializer */
+#define PDMA_EPWM1_P1_RX     0x00000023UL            /*!<DMA Connect to EPWM1 P1 RX  \hideinitializer */
+#define PDMA_EPWM1_P2_RX     0x00000024UL            /*!<DMA Connect to EPWM1 P2 RX  \hideinitializer */
+#define PDMA_EPWM1_P3_RX     0x00000025UL            /*!<DMA Connect to EPWM1 P3 RX  \hideinitializer */
 #define PDMA_I2C0_TX        0x00000026UL            /*!<DMA Connect to I2C0 TX  \hideinitializer */
 #define PDMA_I2C0_RX        0x00000027UL            /*!<DMA Connect to I2C0 RX  \hideinitializer */
 #define PDMA_I2C1_TX        0x00000028UL            /*!<DMA Connect to I2C1 TX  \hideinitializer */
@@ -124,8 +126,18 @@ extern "C"
 #define PDMA_ADC_RX         0x00000032UL            /*!<DMA Connect to ADC RX  \hideinitializer */
 #define PDMA_DAC0_TX        0x00000033UL            /*!<DMA Connect to DAC0 TX  \hideinitializer */
 #define PDMA_DAC1_TX        0x00000034UL            /*!<DMA Connect to DAC1 TX  \hideinitializer */
-#define PDMA_SPI5_TX        0x00000036UL            /*!<DMA Connect to SPI5 TX  \hideinitializer */
-#define PDMA_SPI5_RX        0x00000037UL            /*!<DMA Connect to SPI5 RX  \hideinitializer */
+#define PDMA_EPWM0_CH0_TX    0x00000035UL            /*!<DMA Connect to EPWM0 CH0 TX  \hideinitializer */
+#define PDMA_EPWM0_CH1_TX    0x00000036UL            /*!<DMA Connect to EPWM0 CH1 TX  \hideinitializer */
+#define PDMA_EPWM0_CH2_TX    0x00000037UL            /*!<DMA Connect to EPWM0 CH2 TX  \hideinitializer */
+#define PDMA_EPWM0_CH3_TX    0x00000038UL            /*!<DMA Connect to EPWM0 CH3 TX  \hideinitializer */
+#define PDMA_EPWM0_CH4_TX    0x00000039UL            /*!<DMA Connect to EPWM0 CH4 TX  \hideinitializer */
+#define PDMA_EPWM0_CH5_TX    0x0000003AUL            /*!<DMA Connect to EPWM0 CH5 TX  \hideinitializer */
+#define PDMA_EPWM1_CH0_TX    0x0000003BUL            /*!<DMA Connect to EPWM1 CH0 TX  \hideinitializer */
+#define PDMA_EPWM1_CH1_TX    0x0000003CUL            /*!<DMA Connect to EPWM1 CH1 TX  \hideinitializer */
+#define PDMA_EPWM1_CH2_TX    0x0000003DUL            /*!<DMA Connect to EPWM1 CH2 TX  \hideinitializer */
+#define PDMA_EPWM1_CH3_TX    0x0000003EUL            /*!<DMA Connect to EPWM1 CH3 TX  \hideinitializer */
+#define PDMA_EPWM1_CH4_TX    0x0000003FUL            /*!<DMA Connect to EPWM1 CH4 TX  \hideinitializer */
+#define PDMA_EPWM1_CH5_TX    0x00000040UL            /*!<DMA Connect to EPWM1 CH5 TX  \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Interrupt Type Constant Definitions                                                                    */
@@ -233,7 +245,7 @@ extern "C"
  * @details     Clear the selected channel timeout interrupt status.
  * @note        This function is only supported in channel 0 and channel 1.
  */
-#define PDMA_CLR_TMOUT_FLAG(pdma, u32Ch) ((uint32_t)((pdma)->INTSTS = (1 << ((u32Ch) + 8))))
+#define PDMA_CLR_TMOUT_FLAG(pdma, u32Ch) ((uint32_t)((pdma)->INTSTS = (1UL << ((u32Ch) + 8UL))))
 
 /**
  * @brief       Check Channel Status
@@ -246,7 +258,7 @@ extern "C"
  *
  * @details     Check the selected channel is busy or not.
  */
-#define PDMA_IS_CH_BUSY(pdma, u32Ch) ((uint32_t)((pdma)->TRGSTS & (1 << (u32Ch)))? 1 : 0)
+#define PDMA_IS_CH_BUSY(pdma, u32Ch) ((uint32_t)((pdma)->TRGSTS & (1UL << (u32Ch)))? 1 : 0)
 
 /**
  * @brief       Set Source Address
@@ -285,7 +297,7 @@ extern "C"
  *
  * @details     This macro set the selected channel transfer count.
  */
-#define PDMA_SET_TRANS_CNT(pdma, u32Ch, u32TransCount) ((uint32_t)((pdma)->DSCT[(u32Ch)].CTL=((pdma)->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|(((u32TransCount)-1) << PDMA_DSCT_CTL_TXCNT_Pos)))
+#define PDMA_SET_TRANS_CNT(pdma, u32Ch, u32TransCount) ((uint32_t)((pdma)->DSCT[(u32Ch)].CTL=((pdma)->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|(((u32TransCount)-1UL) << PDMA_DSCT_CTL_TXCNT_Pos)))
 
 /**
  * @brief       Set Scatter-gather descriptor Address
@@ -298,7 +310,19 @@ extern "C"
  *
  * @details     This macro set the selected channel scatter-gather descriptor address.
  */
-#define PDMA_SET_SCATTER_DESC(pdma, u32Ch, u32Addr) ((uint32_t)((pdma)->DSCT[(u32Ch)].FIRST = (u32Addr) - ((pdma)->SCATBA)))
+#define PDMA_SET_SCATTER_DESC(pdma, u32Ch, u32Addr) ((uint32_t)((pdma)->DSCT[(u32Ch)].NEXT = (u32Addr) - ((pdma)->SCATBA)))
+
+/**
+ * @brief       Stop the channel
+ *
+ * @param[in]   pdma        The pointer of the specified PDMA module
+ * @param[in]   u32Ch       The selected channel
+ *
+ * @return      None
+ *
+ * @details     This macro stop the selected channel.
+ */
+#define PDMA_STOP(pdma, u32Ch) ((uint32_t)((pdma)->PAUSE = (1UL << (u32Ch))))
 
 /**
  * @brief       Pause the channel
@@ -310,7 +334,7 @@ extern "C"
  *
  * @details     This macro pause the selected channel.
  */
-#define PDMA_PAUSE(pdma, u32Ch) ((uint32_t)((pdma)->PAUSE = (1 << (u32Ch))))
+#define PDMA_PAUSE(pdma, u32Ch) ((uint32_t)((pdma)->PAUSE = (1UL << (u32Ch))))
 
 /**
  * @brief       Reset the channel
@@ -322,7 +346,7 @@ extern "C"
  *
  * @details     This macro reset the selected channel.
  */
-#define PDMA_RESET(pdma, u32Ch) ((uint32_t)((pdma)->CHRST = (1 << (u32Ch))))
+#define PDMA_RESET(pdma, u32Ch) ((uint32_t)((pdma)->CHRST = (1UL << (u32Ch))))
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Define PWM functions prototype                                                                          */
@@ -330,6 +354,7 @@ extern "C"
 void PDMA_Open(PDMA_T *pdma, uint32_t u32Mask);
 void PDMA_Close(PDMA_T *pdma);
 void PDMA_SetTransferCnt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Width, uint32_t u32TransCount);
+void PDMA_SetStride(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32DestLen, uint32_t u32SrcLen, uint32_t u32TransCount);
 void PDMA_SetTransferAddr(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32SrcAddr, uint32_t u32SrcCtrl, uint32_t u32DstAddr, uint32_t u32DstCtrl);
 void PDMA_SetTransferMode(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Peripheral, uint32_t u32ScatterEn, uint32_t u32DescAddr);
 void PDMA_SetBurstType(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32BurstType, uint32_t u32BurstSize);
@@ -351,6 +376,6 @@ void PDMA_DisableInt(PDMA_T *pdma, uint32_t u32Ch, uint32_t u32Mask);
 }
 #endif
 
-#endif //__PDMA_H__
+#endif /* __PDMA_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

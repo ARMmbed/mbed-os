@@ -3,7 +3,7 @@
  * @version  V3.00
  * @brief    M2351 series USCI_SPI driver header file
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __USCI_SPI_H__
 #define __USCI_SPI_H__
@@ -26,37 +26,37 @@ extern "C"
   @{
 */
 
-#define USPI_MODE_0        (0x0 << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle low; data transmit with falling edge and receive with rising edge */
-#define USPI_MODE_1        (0x1 << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle low; data transmit with rising edge and receive with falling edge */
-#define USPI_MODE_2        (0x2 << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle high; data transmit with rising edge and receive with falling edge */
-#define USPI_MODE_3        (0x3 << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle high; data transmit with falling edge and receive with rising edge */
+#define USPI_MODE_0        (0x0UL << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle low; data transmit with falling edge and receive with rising edge */
+#define USPI_MODE_1        (0x1UL << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle low; data transmit with rising edge and receive with falling edge */
+#define USPI_MODE_2        (0x2UL << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle high; data transmit with rising edge and receive with falling edge */
+#define USPI_MODE_3        (0x3UL << USPI_PROTCTL_SCLKMODE_Pos)        /*!< SCLK idle high; data transmit with falling edge and receive with rising edge */
 
-#define USPI_SLAVE         (USPI_PROTCTL_SLAVE_Msk)                  /*!< Set as slave */
-#define USPI_MASTER        (0x0)                                     /*!< Set as master */
+#define USPI_SLAVE         (USPI_PROTCTL_SLAVE_Msk)                    /*!< Set as slave */
+#define USPI_MASTER        (0x0UL)                                     /*!< Set as master */
 
-#define USPI_SS                (USPI_PROTCTL_SS_Msk)                 /*!< Set SS */
-#define USPI_SS_ACTIVE_HIGH    (0x0)                                 /*!< SS active high */
-#define USPI_SS_ACTIVE_LOW     (USPI_LINECTL_CTLOINV_Msk)            /*!< SS active low */
+#define USPI_SS                (USPI_PROTCTL_SS_Msk)                   /*!< Set SS */
+#define USPI_SS_ACTIVE_HIGH    (0x0UL)                                 /*!< SS active high */
+#define USPI_SS_ACTIVE_LOW     (USPI_LINECTL_CTLOINV_Msk)              /*!< SS active low */
 
 /* USCI_SPI Interrupt Mask */
-#define USPI_SSINACT_INT_MASK        (0x001)                         /*!< Slave Slave Inactive interrupt mask */
-#define USPI_SSACT_INT_MASK          (0x002)                         /*!< Slave Slave Active interrupt mask */
-#define USPI_SLVTO_INT_MASK          (0x004)                         /*!< Slave Mode Time-out interrupt mask */
-#define USPI_SLVBE_INT_MASK          (0x008)                         /*!< Slave Mode Bit Count Error interrupt mask */
-#define USPI_TXUDR_INT_MASK          (0x010)                         /*!< Slave Transmit Under Run interrupt mask */
-#define USPI_RXOV_INT_MASK           (0x020)                         /*!< Receive Buffer Overrun interrupt mask */
-#define USPI_TXST_INT_MASK           (0x040)                         /*!< Transmit Start interrupt mask */
-#define USPI_TXEND_INT_MASK          (0x080)                         /*!< Transmit End interrupt mask */
-#define USPI_RXST_INT_MASK           (0x100)                         /*!< Receive Start interrupt mask */
-#define USPI_RXEND_INT_MASK          (0x200)                         /*!< Receive End interrupt mask */
+#define USPI_SSINACT_INT_MASK        (0x001UL)                         /*!< Slave Slave Inactive interrupt mask */
+#define USPI_SSACT_INT_MASK          (0x002UL)                         /*!< Slave Slave Active interrupt mask */
+#define USPI_SLVTO_INT_MASK          (0x004UL)                         /*!< Slave Mode Time-out interrupt mask */
+#define USPI_SLVBE_INT_MASK          (0x008UL)                         /*!< Slave Mode Bit Count Error interrupt mask */
+#define USPI_TXUDR_INT_MASK          (0x010UL)                         /*!< Slave Transmit Under Run interrupt mask */
+#define USPI_RXOV_INT_MASK           (0x020UL)                         /*!< Receive Buffer Overrun interrupt mask */
+#define USPI_TXST_INT_MASK           (0x040UL)                         /*!< Transmit Start interrupt mask */
+#define USPI_TXEND_INT_MASK          (0x080UL)                         /*!< Transmit End interrupt mask */
+#define USPI_RXST_INT_MASK           (0x100UL)                         /*!< Receive Start interrupt mask */
+#define USPI_RXEND_INT_MASK          (0x200UL)                         /*!< Receive End interrupt mask */
 
 /* USCI_SPI Status Mask */
-#define USPI_BUSY_MASK               (0x01)                          /*!< Busy status mask */
-#define USPI_RX_EMPTY_MASK           (0x02)                          /*!< RX empty status mask */
-#define USPI_RX_FULL_MASK            (0x04)                          /*!< RX full status mask */
-#define USPI_TX_EMPTY_MASK           (0x08)                          /*!< TX empty status mask */
-#define USPI_TX_FULL_MASK            (0x10)                          /*!< TX full status mask */
-#define USPI_SSLINE_STS_MASK         (0x20)                          /*!< USCI_SPI_SS line status mask */
+#define USPI_BUSY_MASK               (0x01UL)                          /*!< Busy status mask */
+#define USPI_RX_EMPTY_MASK           (0x02UL)                          /*!< RX empty status mask */
+#define USPI_RX_FULL_MASK            (0x04UL)                          /*!< RX full status mask */
+#define USPI_TX_EMPTY_MASK           (0x08UL)                          /*!< TX empty status mask */
+#define USPI_TX_FULL_MASK            (0x10UL)                          /*!< TX full status mask */
+#define USPI_SSLINE_STS_MASK         (0x20UL)                          /*!< USCI_SPI_SS line status mask */
 
 /*@}*/ /* end of group USCI_SPI_EXPORTED_CONSTANTS */
 
@@ -117,7 +117,7 @@ extern "C"
   * @return data in Rx register
   * \hideinitializer
   */
-#define USPI_READ_RX(uspi) ((uspi)->RXDAT)
+#define USPI_READ_RX(uspi) ( (uspi)->RXDAT )
 
 /**
   * @brief  Write datum to TX register.
@@ -126,7 +126,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_WRITE_TX(uspi, u32TxData) ( (uspi)->TXDAT = u32TxData )
+#define USPI_WRITE_TX(uspi, u32TxData) ( (uspi)->TXDAT = (u32TxData) )
 
 /**
   * @brief      Set USCI_SPI_SS pin to high state.
@@ -161,7 +161,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define USPI_SET_SUSPEND_CYCLE(uspi, u32SuspCycle) ( (uspi)->PROTCTL = ((uspi)->PROTCTL & ~USPI_PROTCTL_SUSPITV_Msk) | (u32SuspCycle << USPI_PROTCTL_SUSPITV_Pos) )
+#define USPI_SET_SUSPEND_CYCLE(uspi, u32SuspCycle) ( (uspi)->PROTCTL = ((uspi)->PROTCTL & ~USPI_PROTCTL_SUSPITV_Msk) | ((u32SuspCycle) << USPI_PROTCTL_SUSPITV_Pos) )
 
 /**
   * @brief  Set the USCI_SPI transfer sequence with LSB first.
@@ -186,13 +186,14 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
-{
-    if(u32Width == 16)
-        u32Width = 0;
-
-    uspi->LINECTL = (uspi->LINECTL & ~USPI_LINECTL_DWIDTH_Msk) | (u32Width << USPI_LINECTL_DWIDTH_Pos);
-}
+#define USPI_SET_DATA_WIDTH(uspi, u32Width) \
+    do{ \
+      if((u32Width) == 16ul){ \
+        (uspi)->LINECTL = ((uspi)->LINECTL & ~USPI_LINECTL_DWIDTH_Msk) | (0 << USPI_LINECTL_DWIDTH_Pos); \
+      }else { \
+        (uspi)->LINECTL = ((uspi)->LINECTL & ~USPI_LINECTL_DWIDTH_Msk) | ((u32Width) << USPI_LINECTL_DWIDTH_Pos); \
+      } \
+    }while(0)
 
 /**
   * @brief  Get the USCI_SPI busy state.
@@ -212,7 +213,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @retval 1 Flag is set.
   * \hideinitializer
   */
-#define USPI_GET_WAKEUP_FLAG(uspi) ( ((uspi)->WKSTS & USPI_WKSTS_WKF_Msk) == USPI_WKSTS_WKF_Msk ? 1:0)
+#define USPI_GET_WAKEUP_FLAG(uspi) ( ((uspi)->WKSTS & USPI_WKSTS_WKF_Msk) == USPI_WKSTS_WKF_Msk ? 1:0 )
 
 /**
   * @brief Clear the USCI_SPI wakeup flag.
@@ -220,7 +221,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_WAKEUP_FLAG(uspi)  ( (uspi)->WKSTS |= USPI_WKSTS_WKF_Msk)
+#define USPI_CLR_WAKEUP_FLAG(uspi)  ( (uspi)->WKSTS |= USPI_WKSTS_WKF_Msk )
 
 /**
   * @brief Get protocol interrupt flag/status.
@@ -228,7 +229,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return The interrupt flag/status of protocol status register.
   * \hideinitializer
   */
-#define USPI_GET_PROT_STATUS(uspi)    ( (uspi)->PROTSTS)
+#define USPI_GET_PROT_STATUS(uspi)    ( (uspi)->PROTSTS )
 
 /**
   * @brief Clear specified protocol interrupt flag.
@@ -245,7 +246,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_PROT_INT_FLAG(uspi,u32IntTypeFlag)    ( (uspi)->PROTSTS = u32IntTypeFlag)
+#define USPI_CLR_PROT_INT_FLAG(uspi, u32IntTypeFlag)    ( (uspi)->PROTSTS = (u32IntTypeFlag) )
 
 /**
   * @brief Get buffer interrupt flag/status.
@@ -253,7 +254,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return The interrupt flag/status of buffer status register.
   * \hideinitializer
   */
-#define USPI_GET_BUF_STATUS(uspi)    ( (uspi)->BUFSTS)
+#define USPI_GET_BUF_STATUS(uspi)    ( (uspi)->BUFSTS )
 
 /**
   * @brief Clear specified buffer interrupt flag.
@@ -264,7 +265,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_CLR_BUF_INT_FLAG(uspi,u32IntTypeFlag)    ( (uspi)->BUFSTS = u32IntTypeFlag)
+#define USPI_CLR_BUF_INT_FLAG(uspi, u32IntTypeFlag)    ( (uspi)->BUFSTS = (u32IntTypeFlag) )
 
 /**
   * @brief Enable specified protocol interrupt.
@@ -277,7 +278,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_PROT_INT(uspi, u32IntSel)    ((uspi)->PROTIEN |= (u32IntSel))
+#define USPI_ENABLE_PROT_INT(uspi, u32IntSel)    ( (uspi)->PROTIEN |= (u32IntSel) )
 
 /**
   * @brief Disable specified protocol interrupt.
@@ -290,7 +291,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_PROT_INT(uspi, u32IntSel)    ((uspi)->PROTIEN &= ~ (u32IntSel))
+#define USPI_DISABLE_PROT_INT(uspi, u32IntSel)    ( (uspi)->PROTIEN &= ~ (u32IntSel) )
 
 /**
   * @brief Enable specified buffer interrupt.
@@ -301,7 +302,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_BUF_INT(uspi, u32IntSel)    ((uspi)->BUFCTL |= (u32IntSel))
+#define USPI_ENABLE_BUF_INT(uspi, u32IntSel)    ( (uspi)->BUFCTL |= (u32IntSel) )
 
 /**
   * @brief Disable specified buffer interrupt.
@@ -312,7 +313,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_BUF_INT(uspi, u32IntSel)    ((uspi)->BUFCTL &= ~ (u32IntSel))
+#define USPI_DISABLE_BUF_INT(uspi, u32IntSel)    ( (uspi)->BUFCTL &= ~ (u32IntSel) )
 
 /**
   * @brief Enable specified transfer interrupt.
@@ -325,7 +326,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_ENABLE_TRANS_INT(uspi, u32IntSel)    ((uspi)->INTEN |= (u32IntSel))
+#define USPI_ENABLE_TRANS_INT(uspi, u32IntSel)    ( (uspi)->INTEN |= (u32IntSel) )
 
 /**
   * @brief Disable specified transfer interrupt.
@@ -338,7 +339,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return None
   * \hideinitializer
   */
-#define USPI_DISABLE_TRANS_INT(uspi, u32IntSel)    ((uspi)->INTEN &= ~ (u32IntSel))
+#define USPI_DISABLE_TRANS_INT(uspi, u32IntSel)    ( (uspi)->INTEN &= ~ (u32IntSel) )
 
 /**
   * @brief      Trigger RX PDMA function.
@@ -346,7 +347,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return     None.
   * @details    Set RXPDMAEN bit of USPI_PDMACTL register to enable RX PDMA transfer function.
   */
-#define USPI_TRIGGER_RX_PDMA(uspi)   ((uspi)->PDMACTL |= USPI_PDMACTL_RXPDMAEN_Msk|USPI_PDMACTL_PDMAEN_Msk)
+#define USPI_TRIGGER_RX_PDMA(uspi)   ( (uspi)->PDMACTL |= USPI_PDMACTL_RXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
 
 /**
   * @brief      Trigger TX PDMA function.
@@ -354,7 +355,7 @@ static __INLINE void USPI_SET_DATA_WIDTH(USPI_T *uspi, uint32_t u32Width)
   * @return     None.
   * @details    Set TXPDMAEN bit of USPI_PDMACTL register to enable TX PDMA transfer function.
   */
-#define USPI_TRIGGER_TX_PDMA(uspi)   ((uspi)->PDMACTL |= USPI_PDMACTL_TXPDMAEN_Msk|USPI_PDMACTL_PDMAEN_Msk)
+#define USPI_TRIGGER_TX_PDMA(uspi)   ( (uspi)->PDMACTL |= USPI_PDMACTL_TXPDMAEN_Msk | USPI_PDMACTL_PDMAEN_Msk )
 
 /**
   * @brief      Disable RX PDMA transfer.
@@ -399,6 +400,6 @@ void USPI_DisableWakeup(USPI_T *uspi);
 }
 #endif
 
-#endif //__USCI_SPI_H__
+#endif /* __USCI_SPI_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

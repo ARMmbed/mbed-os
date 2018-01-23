@@ -44,8 +44,8 @@ extern "C"
 #define DAC_TIMER1_TRIGGER         ((3UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< Timer 1 trigger */
 #define DAC_TIMER2_TRIGGER         ((4UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< Timer 2 trigger */
 #define DAC_TIMER3_TRIGGER         ((5UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< Timer 3 trigger */
-#define DAC_PWM0_TRIGGER           ((6UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< PWM0 trigger */
-#define DAC_PWM1_TRIGGER           ((7UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< PWM1 trigger */
+#define DAC_EPWM0_TRIGGER          ((6UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< EPWM0 trigger */
+#define DAC_EPWM1_TRIGGER          ((7UL<<DAC_CTL_TRGSEL_Pos)|DAC_CTL_TRGEN_Msk)   /*!< EPWM1 trigger */
 
 #define DAC_TRIGGER_MODE_DISABLE   (0UL<<DAC_CTL_TRGEN_Pos)   /*!< Trigger mode disable */
 #define DAC_TRIGGER_MODE_ENABLE    (1UL<<DAC_CTL_TRGEN_Pos)   /*!< Trigger mode enable */
@@ -223,21 +223,23 @@ extern "C"
   * @brief Enable DAC group mode
   * @param[in] dac The pointer of the specified DAC module.
   * @return None
+  * @note Only DAC0 has this control bit.
   * \hideinitializer
   */
-#define DAC_ENABLE_GROUP_MODE(dac) (DAC0->CTL |= DAC_CTL_GRPEN_Msk)
+#define DAC_ENABLE_GROUP_MODE(dac) ((dac)->CTL |= DAC_CTL_GRPEN_Msk)
 
 /**
   * @brief Disable DAC group mode
   * @param[in] dac The pointer of the specified DAC module.
   * @return None
+  * @note Only DAC0 has this control bit.
   * \hideinitializer
   */
-#define DAC_DISABLE_GROUP_MODE(dac) (DAC0->CTL &= ~DAC_CTL_GRPEN_Msk)
+#define DAC_DISABLE_GROUP_MODE(dac) ((dac)->CTL &= ~DAC_CTL_GRPEN_Msk)
 
 void DAC_Open(DAC_T *dac, uint32_t u32Ch, uint32_t u32TrgSrc);
 void DAC_Close(DAC_T *dac, uint32_t u32Ch);
-int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);
+uint32_t DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);
 
 /*@}*/ /* end of group DAC_EXPORTED_FUNCTIONS */
 
@@ -249,6 +251,6 @@ int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay);
 }
 #endif
 
-#endif //__DAC_H__
+#endif /* __DAC_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

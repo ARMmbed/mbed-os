@@ -6,21 +6,21 @@ LR_IROM1 0x10040000 {
    .ANY (+RO)
   }
     
-  ARM_LIB_STACK 0x30010000 EMPTY 0x800 {
+  ARM_LIB_STACK 0x30006000 EMPTY 0x800 {
   }
   
-  ER_IRAMVEC 0x30001800 EMPTY (4*(16 + 102)) {  ; Reserve for vectors
+  ER_IRAMVEC 0x30006800 EMPTY (4*(16 + 102)) {  ; Reserve for vectors
   }
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
    .ANY (+RW +ZI)
   }
   
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x30010000 + 0x10000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x30006000 + 0x12000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
   }
 }
 
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)    ; 256 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30020000)   ; 64 KB SRAM
+ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)    ; 512/2 KB APROM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30018000)   ; 72 KB SRAM for non-secure, 24 KB for secure 
 
 #else
 
@@ -40,7 +40,7 @@ LR_IROM1 0x00000000 {
    .ANY (+RW +ZI)
   }
   
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x10000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x6000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
   }
 }
 LR_IROM2 0x3F000
@@ -50,6 +50,6 @@ LR_IROM2 0x3F000
         *(Veneer$$CMSE)
     }
 }
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x00040000)    ; 256 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20010000)   ; 64 KB SRAM
+ScatterAssert(LoadLimit(LR_IROM1) <= 0x00040000)    ; 512/2 KB APROM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20006000)   ; 24 KB SRAM for secure, 72 KB for non-secure
 #endif

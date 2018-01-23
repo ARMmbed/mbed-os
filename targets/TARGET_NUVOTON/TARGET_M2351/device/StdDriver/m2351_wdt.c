@@ -3,10 +3,9 @@
  * @version  V3.00
  * @brief    Watchdog Timer(WDT) driver source file
  *
- * @note
- * Copyright (C) 2013 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 /** @addtogroup Standard_Driver Standard Driver

@@ -1,9 +1,9 @@
 /******************************************************************************
  * @file     usbd.h
  * @version  V3.00
- * @brief    M2351 series USB driver header file
+ * @brief    M2351 series USBD driver header file
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USBD_H__
 #define __USBD_H__
@@ -27,15 +27,15 @@ extern "C"
 */
 typedef struct s_usbd_info
 {
-    const uint8_t *gu8DevDesc;            /*!< Pointer for USB Device Descriptor          */
-    const uint8_t *gu8ConfigDesc;         /*!< Pointer for USB Configuration Descriptor   */
-    const uint8_t **gu8StringDesc;        /*!< Pointer for USB String Descriptor pointers */
-    const uint8_t **gu8HidReportDesc;     /*!< Pointer for USB HID Report Descriptor      */
-    const uint8_t *gu8BosDesc;
-    const uint32_t *gu32HidReportSize;    /*!< Pointer for HID Report descriptor Size */
-    const uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */
+    uint8_t *gu8DevDesc;            /*!< Pointer for USB Device Descriptor          */
+    uint8_t *gu8ConfigDesc;         /*!< Pointer for USB Configuration Descriptor   */
+    uint8_t **gu8StringDesc;        /*!< Pointer for USB String Descriptor pointers */
+    uint8_t **gu8HidReportDesc;     /*!< Pointer for USB HID Report Descriptor      */
+    uint8_t *gu8BosDesc;            /*!< Pointer for USB BOS Descriptor             */
+    uint32_t *gu32HidReportSize;    /*!< Pointer for HID Report descriptor Size */
+    uint32_t *gu32ConfigHidDescIdx; /*!< Pointer for HID Descriptor start index */
 
-} S_USBD_INFO_T;
+} S_USBD_INFO_T;  /*!< Device description structure */
 
 extern const S_USBD_INFO_T gsInfo;
 
@@ -47,76 +47,75 @@ extern const S_USBD_INFO_T gsInfo;
 /** @addtogroup USBD_EXPORTED_CONSTANTS USBD Exported Constants
   @{
 */
-#define USBD_BUF_BASE      (USBD_BASE+0x100)
-#define USBD_BUF_BASE_NS   (USBD_BASE+NS_OFFSET+0x100)
-#define USBD_MAX_EP        12
+#define USBD_BUF_BASE      (uint32_t)(((__PC() & NS_OFFSET) == NS_OFFSET)? (USBD_BASE+NS_OFFSET+0x100UL):(USBD_BASE+0x100UL))  /*!< USBD buffer base address */
+#define USBD_MAX_EP        12UL  /*!< Total EP number */
 
-#define EP0     0       /*!< Endpoint 0 */
-#define EP1     1       /*!< Endpoint 1 */
-#define EP2     2       /*!< Endpoint 2 */
-#define EP3     3       /*!< Endpoint 3 */
-#define EP4     4       /*!< Endpoint 4 */
-#define EP5     5       /*!< Endpoint 5 */
-#define EP6     6       /*!< Endpoint 6 */
-#define EP7     7       /*!< Endpoint 7 */
-#define EP8     8       /*!< Endpoint 8 */
-#define EP9     9       /*!< Endpoint 9 */
-#define EP10    10      /*!< Endpoint 10 */
-#define EP11    11      /*!< Endpoint 11 */
+#define EP0     0UL       /*!< Endpoint 0 */
+#define EP1     1UL       /*!< Endpoint 1 */
+#define EP2     2UL       /*!< Endpoint 2 */
+#define EP3     3UL       /*!< Endpoint 3 */
+#define EP4     4UL       /*!< Endpoint 4 */
+#define EP5     5UL       /*!< Endpoint 5 */
+#define EP6     6UL       /*!< Endpoint 6 */
+#define EP7     7UL       /*!< Endpoint 7 */
+#define EP8     8UL       /*!< Endpoint 8 */
+#define EP9     9UL       /*!< Endpoint 9 */
+#define EP10    10UL      /*!< Endpoint 10 */
+#define EP11    11UL      /*!< Endpoint 11 */
 
+/** @cond HIDDEN_SYMBOLS */
+/* USB Request Type */
+#define REQ_STANDARD        0x00UL
+#define REQ_CLASS           0x20UL
+#define REQ_VENDOR          0x40UL
 
-/*!<USB Request Type */
-#define REQ_STANDARD        0x00
-#define REQ_CLASS           0x20
-#define REQ_VENDOR          0x40
+/* USB Standard Request */
+#define GET_STATUS          0x00UL
+#define CLEAR_FEATURE       0x01UL
+#define SET_FEATURE         0x03UL
+#define SET_ADDRESS         0x05UL
+#define GET_DESCRIPTOR      0x06UL
+#define SET_DESCRIPTOR      0x07UL
+#define GET_CONFIGURATION   0x08UL
+#define SET_CONFIGURATION   0x09UL
+#define GET_INTERFACE       0x0AUL
+#define SET_INTERFACE       0x0BUL
+#define SYNC_FRAME          0x0CUL
 
-/*!<USB Standard Request */
-#define GET_STATUS          0x00
-#define CLEAR_FEATURE       0x01
-#define SET_FEATURE         0x03
-#define SET_ADDRESS         0x05
-#define GET_DESCRIPTOR      0x06
-#define SET_DESCRIPTOR      0x07
-#define GET_CONFIGURATION   0x08
-#define SET_CONFIGURATION   0x09
-#define GET_INTERFACE       0x0A
-#define SET_INTERFACE       0x0B
-#define SYNC_FRAME          0x0C
+/* USB Descriptor Type */
+#define DESC_DEVICE         0x01UL
+#define DESC_CONFIG         0x02UL
+#define DESC_STRING         0x03UL
+#define DESC_INTERFACE      0x04UL
+#define DESC_ENDPOINT       0x05UL
+#define DESC_QUALIFIER      0x06UL
+#define DESC_OTHERSPEED     0x07UL
+#define DESC_IFPOWER        0x08UL
+#define DESC_OTG            0x09UL
+#define DESC_BOS            0x0FUL
+#define DESC_CAPABILITY     0x10UL
 
-/*!<USB Descriptor Type */
-#define DESC_DEVICE         0x01
-#define DESC_CONFIG         0x02
-#define DESC_STRING         0x03
-#define DESC_INTERFACE      0x04
-#define DESC_ENDPOINT       0x05
-#define DESC_QUALIFIER      0x06
-#define DESC_OTHERSPEED     0x07
-#define DESC_IFPOWER        0x08
-#define DESC_OTG            0x09
-#define DESC_BOS            0x0F
-#define DESC_CAPABILITY     0x10
-
-/*!<USB Device Capability Type */
-#define CAP_WIRELESS        0x01
-#define CAP_USB20_EXT       0x02
+/* USB Device Capability Type */
+#define CAP_WIRELESS        0x01UL
+#define CAP_USB20_EXT       0x02UL
 
 /*!<USB HID Descriptor Type */
-#define DESC_HID            0x21
-#define DESC_HID_RPT        0x22
+#define DESC_HID            0x21UL
+#define DESC_HID_RPT        0x22UL
 
-/*!<USB Descriptor Length */
-#define LEN_DEVICE          18
-#define LEN_QUALIFIER       10
-#define LEN_CONFIG          9
-#define LEN_INTERFACE       9
-#define LEN_ENDPOINT        7
-#define LEN_OTG             5
-#define LEN_BOS             5
-#define LEN_HID             9
-#define LEN_CCID            0x36
-#define LEN_BOSCAP          7
+/* USB Descriptor Length */
+#define LEN_DEVICE          18UL
+#define LEN_QUALIFIER       10UL
+#define LEN_CONFIG          9UL
+#define LEN_INTERFACE       9UL
+#define LEN_ENDPOINT        7UL
+#define LEN_OTG             5UL
+#define LEN_BOS             5UL
+#define LEN_HID             9UL
+#define LEN_CCID            0x36UL
+#define LEN_BOSCAP          7UL
 
-/*!<USB Endpoint Type */
+/* USB Endpoint Type */
 #define EP_ISO              0x01
 #define EP_BULK             0x02
 #define EP_INT              0x03
@@ -124,9 +123,10 @@ extern const S_USBD_INFO_T gsInfo;
 #define EP_INPUT            0x80
 #define EP_OUTPUT           0x00
 
-/*!<USB Feature Selector */
-#define FEATURE_DEVICE_REMOTE_WAKEUP    0x01
-#define FEATURE_ENDPOINT_HALT           0x00
+/* USB Feature Selector */
+#define FEATURE_DEVICE_REMOTE_WAKEUP    0x01UL
+#define FEATURE_ENDPOINT_HALT           0x00UL
+/** @endcond HIDDEN_SYMBOLS */
 
 /******************************************************************************/
 /*                USB Specific Macros                                         */
@@ -135,10 +135,10 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_WAKEUP_EN          USBD_INTEN_WKEN_Msk         /*!< USB Wake-up Enable */
 #define USBD_DRVSE0             USBD_SE0_SE0_Msk            /*!< Drive SE0 */
 
-#define USBD_BYTEM              USBD_ATTR_BYTEM_Msk
+#define USBD_BYTEM              USBD_ATTR_BYTEM_Msk         /*!< Access Size Mode Selection */
 #define USBD_DPPU_EN            USBD_ATTR_DPPUEN_Msk        /*!< USB D+ Pull-up Enable */
 #define USBD_USB_EN             USBD_ATTR_USBEN_Msk         /*!< USB Enable */
-#define USBD_RWAKEUP            USBD_ATTR_RWAKEUP_Msk
+#define USBD_RWAKEUP            USBD_ATTR_RWAKEUP_Msk       /*!< Remote Wake-Up */
 #define USBD_PHY_EN             USBD_ATTR_PHYEN_Msk         /*!< PHY Enable */
 
 #define USBD_INT_BUS            USBD_INTEN_BUSIEN_Msk       /*!< USB Bus Event Interrupt */
@@ -172,10 +172,10 @@ extern const S_USBD_INFO_T gsInfo;
 #define USBD_CFGP_SSTALL        USBD_CFGP_SSTALL_Msk        /*!< Set Stall */
 #define USBD_CFG_CSTALL         USBD_CFG_CSTALL_Msk         /*!< Clear Stall */
 
-#define USBD_CFG_EPMODE_DISABLE (0ul << USBD_CFG_STATE_Pos)/*!< Endpoint Disable */
-#define USBD_CFG_EPMODE_OUT     (1ul << USBD_CFG_STATE_Pos)/*!< Out Endpoint */
-#define USBD_CFG_EPMODE_IN      (2ul << USBD_CFG_STATE_Pos)/*!< In Endpoint */
-#define USBD_CFG_TYPE_ISO       (1ul << USBD_CFG_ISOCH_Pos)/*!< Isochronous */
+#define USBD_CFG_EPMODE_DISABLE (0UL << USBD_CFG_STATE_Pos)/*!< Endpoint Disable */
+#define USBD_CFG_EPMODE_OUT     (1UL << USBD_CFG_STATE_Pos)/*!< Out Endpoint */
+#define USBD_CFG_EPMODE_IN      (2UL << USBD_CFG_STATE_Pos)/*!< In Endpoint */
+#define USBD_CFG_TYPE_ISO       (1UL << USBD_CFG_ISOCH_Pos)/*!< Isochronous */
 
 
 /*@}*/ /* end of group USBD_EXPORTED_CONSTANTS */
@@ -221,12 +221,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  To set USB ATTR control register to enable USB and PHY.
   *
   */
-#define USBD_ENABLE_USB()           ((uint32_t)(USBD->ATTR |= 0x7D0))
-
-/**
-  * @brief    Enable USB Macro for Non-Secure
-  */
-#define USBD_ENABLE_USB_NS()        ((uint32_t)(USBD_NS->ATTR |= 0x7D0))
+#define USBD_ENABLE_USB()           (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR |= 0x7D0)):((uint32_t)(USBD->ATTR |= 0x7D0)))
 
 /**
   * @brief    Disable USB
@@ -238,12 +233,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  To set USB ATTR control register to disable USB.
   *
   */
-#define USBD_DISABLE_USB()          ((uint32_t)(USBD->ATTR &= ~USBD_USB_EN))
-
-/**
-  * @brief    Disable USB Macro for Non-Secure
-  */
-#define USBD_DISABLE_USB_NS()       ((uint32_t)(USBD_NS->ATTR &= ~USBD_USB_EN))
+#define USBD_DISABLE_USB()          (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR &= ~USBD_USB_EN)):((uint32_t)(USBD->ATTR &= ~USBD_USB_EN)))
 
 /**
   * @brief    Enable USB PHY
@@ -255,12 +245,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  To set USB ATTR control register to enable USB PHY.
   *
   */
-#define USBD_ENABLE_PHY()           ((uint32_t)(USBD->ATTR |= USBD_PHY_EN))
-
-/**
-  * @brief    Enable USB PHY Macro for Non-Secure
-  */
-#define USBD_ENABLE_PHY_NS()        ((uint32_t)(USBD_NS->ATTR |= USBD_PHY_EN))
+#define USBD_ENABLE_PHY()           (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR |= USBD_PHY_EN)):((uint32_t)(USBD->ATTR |= USBD_PHY_EN)))
 
 /**
   * @brief    Disable USB PHY
@@ -272,12 +257,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  To set USB ATTR control register to disable USB PHY.
   *
   */
-#define USBD_DISABLE_PHY()          ((uint32_t)(USBD->ATTR &= ~USBD_PHY_EN))
-
-/**
-  * @brief    Disable USB PHY Macro for Non-Secure
-  */
-#define USBD_DISABLE_PHY_NS()       ((uint32_t)(USBD_NS->ATTR &= ~USBD_PHY_EN))
+#define USBD_DISABLE_PHY()          (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR &= ~USBD_PHY_EN)):((uint32_t)(USBD->ATTR &= ~USBD_PHY_EN)))
 
 /**
   * @brief    Enable SE0. Force USB PHY transceiver to drive SE0.
@@ -289,12 +269,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Set DRVSE0 bit of USB_DRVSE0 register to enable software-disconnect function. Force USB PHY transceiver to drive SE0 to bus.
   *
   */
-#define USBD_SET_SE0()              ((uint32_t)(USBD->SE0 |= USBD_DRVSE0))
-
-/**
-  * @brief    Enable SE0 Macro for Non-Secure. Force USB PHY transceiver to drive SE0.
-  */
-#define USBD_SET_SE0_NS()           ((uint32_t)(USBD_NS->SE0 |= USBD_DRVSE0))
+#define USBD_SET_SE0()              (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->SE0 |= USBD_DRVSE0)):((uint32_t)(USBD->SE0 |= USBD_DRVSE0)))
 
 /**
   * @brief    Disable SE0
@@ -306,12 +281,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Clear DRVSE0 bit of USB_DRVSE0 register to disable software-disconnect function.
   *
   */
-#define USBD_CLR_SE0()              ((uint32_t)(USBD->SE0 &= ~USBD_DRVSE0))
-
-/**
-  * @brief    Disable SE0 Macro for Non-Secure
-  */
-#define USBD_CLR_SE0_NS()           ((uint32_t)(USBD_NS->SE0 &= ~USBD_DRVSE0))
+#define USBD_CLR_SE0()              (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->SE0 &= ~USBD_DRVSE0)):((uint32_t)(USBD->SE0 &= ~USBD_DRVSE0)))
 
 /**
   * @brief       Set USB device address
@@ -323,12 +293,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details     Write USB device address to USB_FADDR register.
   *
   */
-#define USBD_SET_ADDR(addr)         (USBD->FADDR = (addr))
-
-/**
-  * @brief       Set USB device address Macro for Non-Secure
-  */
-#define USBD_SET_ADDR_NS(addr)      (USBD_NS->FADDR = (addr))
+#define USBD_SET_ADDR(addr)         (((__PC() & NS_OFFSET) == NS_OFFSET)? (USBD_NS->FADDR = (addr)):(USBD->FADDR = (addr)))
 
 /**
   * @brief    Get USB device address
@@ -340,12 +305,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Read USB_FADDR register to get USB device address.
   *
   */
-#define USBD_GET_ADDR()             ((uint32_t)(USBD->FADDR))
-
-/**
-  * @brief    Get USB device address Macro for Non-Secure
-  */
-#define USBD_GET_ADDR_NS()          ((uint32_t)(USBD_NS->FADDR))
+#define USBD_GET_ADDR()             (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->FADDR)):((uint32_t)(USBD->FADDR)))
 
 /**
   * @brief      Enable USB interrupt function
@@ -360,12 +320,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    Enable USB related interrupt functions specified by intr parameter.
   *
   */
-#define USBD_ENABLE_INT(intr)       (USBD->INTEN |= (intr))
-
-/**
-  * @brief      Enable USB interrupt function Macro for Non-Secure
-  */
-#define USBD_ENABLE_INT_NS(intr)    (USBD_NS->INTEN |= (intr))
+#define USBD_ENABLE_INT(intr)       (((__PC() & NS_OFFSET) == NS_OFFSET)? (USBD_NS->INTEN |= (intr)):(USBD->INTEN |= (intr)))
 
 /**
   * @brief    Get interrupt status
@@ -377,12 +332,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Return all interrupt flags of USB_INTSTS register.
   *
   */
-#define USBD_GET_INT_FLAG()         ((uint32_t)(USBD->INTSTS))
-
-/**
-  * @brief    Get interrupt status Macro for Non-Secure
-  */
-#define USBD_GET_INT_FLAG_NS()      ((uint32_t)(USBD_NS->INTSTS))
+#define USBD_GET_INT_FLAG()         (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->INTSTS)):((uint32_t)(USBD->INTSTS)))
 
 /**
   * @brief      Clear USB interrupt flag
@@ -397,12 +347,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    Clear USB related interrupt flags specified by flag parameter.
   *
   */
-#define USBD_CLR_INT_FLAG(flag)     (USBD->INTSTS = (flag))
-
-/**
-  * @brief      Clear USB interrupt flag Macro for Non-Secure
-  */
-#define USBD_CLR_INT_FLAG_NS(flag)  (USBD_NS->INTSTS = (flag))
+#define USBD_CLR_INT_FLAG(flag)     (((__PC() & NS_OFFSET) == NS_OFFSET)? (USBD_NS->INTSTS = (flag)):(USBD->INTSTS = (flag)))
 
 /**
   * @brief    Get endpoint status
@@ -414,12 +359,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Return all endpoint status.
   *
   */
-#define USBD_GET_EP_FLAG()          ((uint32_t)(USBD->EPSTS))
-
-/**
-  * @brief    Get endpoint status Macro for Non-Secure
-  */
-#define USBD_GET_EP_FLAG_NS()       ((uint32_t)(USBD_NS->EPSTS))
+#define USBD_GET_EP_FLAG()          (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->EPSTS)):((uint32_t)(USBD->EPSTS)))
 
 /**
   * @brief    Get USB bus state
@@ -435,12 +375,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Return USB_ATTR[3:0] for USB bus events.
   *
   */
-#define USBD_GET_BUS_STATE()        ((uint32_t)(USBD->ATTR & 0xf))
-
-/**
-  * @brief    Get USB bus state Macro for Non-Secure
-  */
-#define USBD_GET_BUS_STATE_NS()     ((uint32_t)(USBD_NS->ATTR & 0xf))
+#define USBD_GET_BUS_STATE()        (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->ATTR & 0xF)):((uint32_t)(USBD->ATTR & 0xF)))
 
 /**
   * @brief    Check cable connection state
@@ -453,12 +388,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details  Check the connection state by FLDET bit of USB_FLDET register.
   *
   */
-#define USBD_IS_ATTACHED()          ((uint32_t)(USBD->VBUSDET & USBD_VBUSDET_VBUSDET_Msk))
-
-/**
-  * @brief    Check cable connection state Macro for Non-Secure
-  */
-#define USBD_IS_ATTACHED_NS()       ((uint32_t)(USBD_NS->VBUSDET & USBD_VBUSDET_VBUSDET_Msk))
+#define USBD_IS_ATTACHED()          (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)(USBD_NS->VBUSDET & USBD_VBUSDET_VBUSDET_Msk)):((uint32_t)(USBD->VBUSDET & USBD_VBUSDET_VBUSDET_Msk)))
 
 /**
   * @brief      Stop USB transaction of the specified endpoint ID
@@ -470,12 +400,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    Write 1 to CLRRDY bit of USB_CFGPx register to stop USB transaction of the specified endpoint ID.
   *
   */
-#define USBD_STOP_TRANSACTION(ep)      (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk)
-
-/**
-  * @brief      Stop USB transaction of the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_STOP_TRANSACTION_NS(ep)   (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk)
+#define USBD_STOP_TRANSACTION(ep)      (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_CLRRDY_Msk))
 
 /**
   * @brief      Set USB DATA1 PID for the specified endpoint ID
@@ -488,12 +413,7 @@ extern const S_USBD_INFO_T gsInfo;
   *             Base on this setting, hardware will toggle PID between DATA0 and DATA1 automatically for IN token transactions.
   *
   */
-#define USBD_SET_DATA1(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk)
-
-/**
-  * @brief      Set USB DATA1 PID for the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_SET_DATA1_NS(ep)       (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk)
+#define USBD_SET_DATA1(ep)          (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) |= USBD_CFG_DSQSYNC_Msk))
 
 /**
   * @brief      Set USB DATA0 PID for the specified endpoint ID
@@ -506,12 +426,7 @@ extern const S_USBD_INFO_T gsInfo;
   *             Base on this setting, hardware will toggle PID between DATA0 and DATA1 automatically for IN token transactions.
   *
   */
-#define USBD_SET_DATA0(ep)          (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk))
-
-/**
-  * @brief      Set USB DATA0 PID for the specified endpoint ID Macro for Non-Secure
-  */
-#define USBD_SET_DATA0_NS(ep)       (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk))
+#define USBD_SET_DATA0(ep)          (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk)):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) &= (~USBD_CFG_DSQSYNC_Msk)))
 
 /**
   * @brief      Set USB payload size (IN data)
@@ -525,12 +440,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This macro will write the transfer length to USB_MXPLDx register for IN data transaction.
   *
   */
-#define USBD_SET_PAYLOAD_LEN(ep, size)     (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size))
-
-/**
-  * @brief      Set USB payload size (IN data) Macro for Non-Secure
-  */
-#define USBD_SET_PAYLOAD_LEN_NS(ep, size)  (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size))
+#define USBD_SET_PAYLOAD_LEN(ep, size)  (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size)):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4))) = (size)))
 
 /**
   * @brief      Get USB payload size (OUT data)
@@ -542,12 +452,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    Get the data length of OUT data transaction by reading USB_MXPLDx register.
   *
   */
-#define USBD_GET_PAYLOAD_LEN(ep)        ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4))))
-
-/**
-  * @brief      Get USB payload size (OUT data) Macro for Non-Secure
-  */
-#define USBD_GET_PAYLOAD_LEN_NS(ep)     ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4))))
+#define USBD_GET_PAYLOAD_LEN(ep)        (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].MXPLD + (uint32_t)((ep) << 4)))):((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].MXPLD + (uint32_t)((ep) << 4)))))
 
 /**
   * @brief      Configure endpoint
@@ -561,12 +466,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This macro will write config parameter to USB_CFGx register of specified endpoint ID.
   *
   */
-#define USBD_CONFIG_EP(ep, config)      (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) = (config))
-
-/**
-  * @brief      Configure endpoint Macro for Non-Secure
-  */
-#define USBD_CONFIG_EP_NS(ep, config)   (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) = (config))
+#define USBD_CONFIG_EP(ep, config)      (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFG + (uint32_t)((ep) << 4))) = (config)):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFG + (uint32_t)((ep) << 4))) = (config)))
 
 /**
   * @brief      Set USB endpoint buffer
@@ -580,12 +480,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This macro will set the SRAM offset for the specified endpoint ID.
   *
   */
-#define USBD_SET_EP_BUF_ADDR(ep, offset)       (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset))
-
-/**
-  * @brief      Set USB endpoint buffer Macro for Non-Secure
-  */
-#define USBD_SET_EP_BUF_ADDR_NS(ep, offset)    (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset))
+#define USBD_SET_EP_BUF_ADDR(ep, offset)    (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset)):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4))) = (offset)))
 
 /**
   * @brief      Get the offset of the specified USB endpoint buffer
@@ -597,12 +492,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This macro will return the SRAM offset of the specified endpoint ID.
   *
   */
-#define USBD_GET_EP_BUF_ADDR(ep)        ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4))))
-
-/**
-  * @brief      Get the offset of the specified USB endpoint buffer Macro for Non-Secure
-  */
-#define USBD_GET_EP_BUF_ADDR_NS(ep)     ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4))))
+#define USBD_GET_EP_BUF_ADDR(ep)        (((__PC() & NS_OFFSET) == NS_OFFSET)? ((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].BUFSEG + (uint32_t)((ep) << 4)))):((uint32_t)*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].BUFSEG + (uint32_t)((ep) << 4)))))
 
 /**
   * @brief       Set USB endpoint stall state
@@ -614,12 +504,7 @@ extern const S_USBD_INFO_T gsInfo;
   * @details     Set USB endpoint stall state for the specified endpoint ID. Endpoint will respond STALL token automatically.
   *
   */
-#define USBD_SET_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk)
-
-/**
-  * @brief       Set USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_SET_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk)
+#define USBD_SET_EP_STALL(ep)        (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) |= USBD_CFGP_SSTALL_Msk))
 
 /**
   * @brief       Clear USB endpoint stall state
@@ -630,12 +515,7 @@ extern const S_USBD_INFO_T gsInfo;
   *
   * @details     Clear USB endpoint stall state for the specified endpoint ID. Endpoint will respond ACK/NAK token.
   */
-#define USBD_CLR_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk)
-
-/**
-  * @brief       Clear USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_CLR_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk)
+#define USBD_CLR_EP_STALL(ep)        (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) &= ~USBD_CFGP_SSTALL_Msk))
 
 /**
   * @brief       Get USB endpoint stall state
@@ -648,12 +528,13 @@ extern const S_USBD_INFO_T gsInfo;
   * @details     Get USB endpoint stall state of the specified endpoint ID.
   *
   */
-#define USBD_GET_EP_STALL(ep)        (*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk)
+#define USBD_GET_EP_STALL(ep)        (((__PC() & NS_OFFSET) == NS_OFFSET)? (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk):(*((__IO uint32_t *) ((uint32_t)&USBD->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk))
 
-/**
-  * @brief       Get USB endpoint stall state Macro for Non-Secure
-  */
-#define USBD_GET_EP_STALL_NS(ep)     (*((__IO uint32_t *) ((uint32_t)&USBD_NS->EP[0].CFGP + (uint32_t)((ep) << 4))) & USBD_CFGP_SSTALL_Msk)
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+__STATIC_INLINE void USBD_MemCopy(uint8_t dest[], uint8_t src[], uint32_t size);
+__STATIC_INLINE void USBD_SetStall(uint8_t epnum);
+__STATIC_INLINE void USBD_ClearStall(uint8_t epnum);
+__STATIC_INLINE uint32_t USBD_GetStall(uint8_t epnum);
 
 /**
   * @brief      To support byte access between USB SRAM and system SRAM
@@ -669,9 +550,17 @@ extern const S_USBD_INFO_T gsInfo;
   * @details    This function will copy the number of data specified by size and src parameters to the address specified by dest parameter.
   *
   */
-static __INLINE void USBD_MemCopy(uint8_t *dest, uint8_t *src, int32_t size)
+__STATIC_INLINE void USBD_MemCopy(uint8_t dest[], uint8_t src[], uint32_t size)
 {
-    while(size--) *dest++ = *src++;
+    uint32_t volatile i = 0UL;
+    uint8_t u8SrcTmp;
+
+    while(size--)
+    {
+        u8SrcTmp = src[i];
+        dest[i] = u8SrcTmp;
+        i++;
+    }
 }
 
 
@@ -685,45 +574,30 @@ static __INLINE void USBD_MemCopy(uint8_t *dest, uint8_t *src, int32_t size)
   * @details     Set USB endpoint stall state. Endpoint will respond STALL token automatically.
   *
   */
-static __INLINE void USBD_SetStall(uint8_t epnum)
+__STATIC_INLINE void USBD_SetStall(uint8_t epnum)
 {
     uint32_t u32CfgAddr;
     uint32_t u32Cfg;
-    int i;
+    uint32_t i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
+    USBD_T *pUSBD;
+    if((__PC() & NS_OFFSET) == NS_OFFSET)
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
-            u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-            *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg | USBD_CFGP_SSTALL);
-            break;
-        }
+        pUSBD = USBD_NS;
     }
-}
-
-/**
-  * @brief       Set USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE void USBD_SetStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
+    else
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
+        pUSBD = USBD;
+    }
+
+    for(i = 0UL; i < USBD_MAX_EP; i++)
+    {
+        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
+        if((u32Cfg & 0xFUL) == epnum)
         {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
+            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFGP; /* USBD_CFGP0 */
             u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
             *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg | USBD_CFGP_SSTALL);
@@ -741,45 +615,30 @@ static __INLINE void USBD_SetStall_NS(uint8_t epnum)
   *
   * @details     Clear USB endpoint stall state. Endpoint will respond ACK/NAK token.
   */
-static __INLINE void USBD_ClearStall(uint8_t epnum)
+__STATIC_INLINE void USBD_ClearStall(uint8_t epnum)
 {
     uint32_t u32CfgAddr;
     uint32_t u32Cfg;
-    int i;
+    uint32_t i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
+    USBD_T *pUSBD;
+    if((__PC() & NS_OFFSET) == NS_OFFSET)
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
-            u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-            *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg & ~USBD_CFGP_SSTALL);
-            break;
-        }
+        pUSBD = USBD_NS;
     }
-}
-
-/**
-  * @brief       Clear USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE void USBD_ClearStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
+    else
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
+        pUSBD = USBD;
+    }
+
+    for(i = 0UL; i < USBD_MAX_EP; i++)
+    {
+        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
+        if((u32Cfg & 0xFUL) == epnum)
         {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
+            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFGP; /* USBD_CFGP0 */
             u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
             *((__IO uint32_t *)(u32CfgAddr)) = (u32Cfg & ~USBD_CFGP_SSTALL);
@@ -799,44 +658,30 @@ static __INLINE void USBD_ClearStall_NS(uint8_t epnum)
   * @details     Get USB endpoint stall state.
   *
   */
-static __INLINE uint32_t USBD_GetStall(uint8_t epnum)
+__STATIC_INLINE uint32_t USBD_GetStall(uint8_t epnum)
 {
     uint32_t u32CfgAddr;
     uint32_t u32Cfg;
-    int i;
+    uint32_t i;
 
-    for(i = 0; i < USBD_MAX_EP; i++)
+    USBD_T *pUSBD;
+    if((__PC() & NS_OFFSET) == NS_OFFSET)
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFG; /* USBD_CFG0 */
-        u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
-
-        if((u32Cfg & 0xf) == epnum)
-        {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD->EP[0].CFGP; /* USBD_CFGP0 */
-            break;
-        }
+        pUSBD = USBD_NS;
+    }
+    else
+    {
+        pUSBD = USBD;
     }
 
-    return ((*((__IO uint32_t *)(u32CfgAddr))) & USBD_CFGP_SSTALL);
-}
-
-/**
-  * @brief       Get USB endpoint stall state Macro for Non-Secure
-  */
-static __INLINE uint32_t USBD_GetStall_NS(uint8_t epnum)
-{
-    uint32_t u32CfgAddr;
-    uint32_t u32Cfg;
-    int i;
-
-    for(i = 0; i < USBD_MAX_EP; i++)
+    for(i = 0UL; i < USBD_MAX_EP; i++)
     {
-        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFG; /* USBD_CFG0 */
+        u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFG; /* USBD_CFG0 */
         u32Cfg = *((__IO uint32_t *)(u32CfgAddr));
 
-        if((u32Cfg & 0xf) == epnum)
+        if((u32Cfg & 0xFUL) == epnum)
         {
-            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&USBD_NS->EP[0].CFGP; /* USBD_CFGP0 */
+            u32CfgAddr = (uint32_t)(i << 4) + (uint32_t)&pUSBD->EP[0].CFGP; /* USBD_CFGP0 */
             break;
         }
     }
@@ -849,7 +694,7 @@ extern volatile uint8_t g_usbd_RemoteWakeupEn;
 
 typedef void (*VENDOR_REQ)(void);           /*!< Functional pointer type definition for Vendor class */
 typedef void (*CLASS_REQ)(void);            /*!< Functional pointer type declaration for USB class request callback handler */
-typedef void (*SET_INTERFACE_REQ)(void);    /*!< Functional pointer type declaration for USB set interface request callback handler */
+typedef void (*SET_INTERFACE_REQ)(uint32_t u32AltInterface);    /*!< Functional pointer type declaration for USB set interface request callback handler */
 typedef void (*SET_CONFIG_CB)(void);       /*!< Functional pointer type declaration for USB set configuration request callback handler */
 
 
@@ -859,7 +704,7 @@ void USBD_Start(void);
 void USBD_GetSetupPacket(uint8_t *buf);
 void USBD_ProcessSetupPacket(void);
 void USBD_StandardRequest(void);
-void USBD_PrepareCtrlIn(uint8_t *pu8Buf, uint32_t u32Size);
+void USBD_PrepareCtrlIn(uint8_t pu8Buf[], uint32_t u32Size);
 void USBD_CtrlIn(void);
 void USBD_PrepareCtrlOut(uint8_t *pu8Buf, uint32_t u32Size);
 void USBD_CtrlOut(void);
@@ -867,16 +712,6 @@ void USBD_SwReset(void);
 void USBD_SetVendorRequest(VENDOR_REQ pfnVendorReq);
 void USBD_SetConfigCallback(SET_CONFIG_CB pfnSetConfigCallback);
 void USBD_LockEpStall(uint32_t u32EpBitmap);
-
-void USBD_Open_NS(const S_USBD_INFO_T *param, CLASS_REQ pfnClassReq, SET_INTERFACE_REQ pfnSetInterface);
-void USBD_Start_NS(void);
-void USBD_ProcessSetupPacket_NS(void);
-void USBD_StandardRequest_NS(void);
-void USBD_PrepareCtrlIn_NS(uint8_t *pu8Buf, uint32_t u32Size);
-void USBD_CtrlIn_NS(void);
-void USBD_PrepareCtrlOut_NS(uint8_t *pu8Buf, uint32_t u32Size);
-void USBD_CtrlOut_NS(void);
-void USBD_SwReset_NS(void);
 
 /*@}*/ /* end of group USBD_EXPORTED_FUNCTIONS */
 
@@ -888,6 +723,6 @@ void USBD_SwReset_NS(void);
 }
 #endif
 
-#endif //__USBD_H__
+#endif /* __USBD_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

@@ -2,11 +2,11 @@
  * @file     qei.c
  * @version  V3.00
  * $Revision: 2 $
- * $Date: 16/09/01 9:33a $
+ * $Date: 17/09/20 9:33a $
  * @brief    Quadrature Encoder Interface (QEI) driver source file
  *
  * @note
- * Copyright (C) 2014 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M2351.h"
 
@@ -32,7 +32,7 @@
 void QEI_Close(QEI_T* qei)
 {
     /* Reset QEI configuration */
-    qei->CTL = 0;
+    qei->CTL = 0UL;
 }
 
 /**
@@ -52,10 +52,14 @@ void QEI_DisableInt(QEI_T* qei, uint32_t u32IntSel)
     QEI_DISABLE_INT(qei, u32IntSel);
 
     /* Disable NVIC QEI IRQ */
-    if(qei == QEI0)
+    if((qei == QEI0) || (qei == QEI0_NS))
+    {
         NVIC_DisableIRQ(QEI0_IRQn);
+    }
     else
+    {
         NVIC_DisableIRQ(QEI1_IRQn);
+    }
 }
 
 /**
@@ -75,10 +79,14 @@ void QEI_EnableInt(QEI_T* qei, uint32_t u32IntSel)
     QEI_ENABLE_INT(qei, u32IntSel);
 
     /* Enable NVIC QEI IRQ */
-    if(qei == QEI0)
+    if((qei == QEI0) || (qei == QEI0_NS))
+    {
         NVIC_EnableIRQ(QEI0_IRQn);
+    }
     else
+    {
         NVIC_EnableIRQ(QEI1_IRQn);
+    }
 }
 
 /**
@@ -135,4 +143,4 @@ void QEI_Stop(QEI_T* qei)
 
 /*@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2014 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

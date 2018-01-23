@@ -9,7 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "M2351.h"
+#include "NuMicro.h"
+
+#if defined (__ICCARM__)
+# pragma diag_suppress=Pm073, Pm143        /* Misra C 2004 rule 14.7 */
+#endif
+
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -23,31 +28,43 @@
   @{
 */
 
-#define SDH_BLOCK_SIZE   512
+#define SDH_BLOCK_SIZE   512UL
 
-//#define DEBUG_PRINTF printf
+/* #define DEBUG_PRINTF printf */
 #define DEBUG_PRINTF(...)
 
-/// @cond HIDDEN_SYMBOLS
+/** @cond HIDDEN_SYMBOLS */
 
-// global variables
-// For response R3 (such as ACMD41, CRC-7 is invalid; but SD controller will still
-// calculate CRC-7 and get an error result, software should ignore this error and clear SDISR [CRC_IF] flag
-// _sd_uR3_CMD is the flag for it. 1 means software should ignore CRC-7 error
-uint32_t _SDH_uR3_CMD = 0;
-uint32_t _SDH_uR7_CMD = 0;
-uint8_t volatile _SDH_SDDataReady = FALSE;
+/* global variables */
+/* For response R3 (such as ACMD41, CRC-7 is invalid; but SD controller will still */
+/* calculate CRC-7 and get an error result, software should ignore this error and clear SDISR [CRC_IF] flag */
+/* _sd_uR3_CMD is the flag for it. 1 means software should ignore CRC-7 error */
+uint8_t g_u8R3Flag = 0UL;
+uint8_t volatile g_u8SDDataReadyFlag = (uint8_t)FALSE;
 
-uint8_t *_SDH_pSDHCBuffer;
-uint32_t _SDH_ReferenceClock;
+static uint32_t _SDH_uR7_CMD = 0UL;
+static uint32_t _SDH_ReferenceClock;
 
 #if defined ( __ICCARM__ ) /*!< IAR Compiler */
 #pragma data_alignment = 4
-uint8_t _SDH_ucSDHCBuffer[512];
+static uint8_t _SDH_ucSDHCBuffer[512];
 #else
-__attribute__((aligned)) uint8_t _SDH_ucSDHCBuffer[512];
+static __attribute__((aligned)) uint8_t _SDH_ucSDHCBuffer[512];
 #endif
 
+/* Declare these functions here to avoid MISRA C 2004 rule 8.1 error */
+void SDH_CheckRB(SDH_T *sdh);
+uint32_t SDH_SDCommand(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg);
+uint32_t SDH_SDCmdAndRsp(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t u32TickCount);
+uint32_t SDH_Swap32(uint32_t u32Val);
+uint32_t SDH_SDCmdAndRsp2(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t pu32R2ptr[]);
+uint32_t SDH_SDCmdAndRspDataIn(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg);
+void SDH_Set_clock(SDH_T *sdh, uint32_t u32SDClockKhz);
+uint32_t SDH_CardDetection(SDH_T *sdh);
+uint32_t SDH_Init(SDH_T *sdh);
+uint32_t SDH_SwitchToHighSpeed(SDH_T *sdh, SDH_INFO_T *pSD);
+uint32_t SDH_SelectCardType(SDH_T *sdh);
+void SDH_Get_SD_info(SDH_T *sdh);
 
 int SDH_ok = 0;
 
@@ -58,364 +75,393 @@ void SDH_CheckRB(SDH_T *sdh)
     while(1)
     {
         sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-        while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+        while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
         if(sdh->INTSTS & SDH_INTSTS_DAT0STS_Msk)
+        {
             break;
+        }
     }
 }
 
 
-int SDH_SDCommand(SDH_T *sdh, uint8_t ucCmd, uint32_t uArg)
+uint32_t SDH_SDCommand(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg)
 {
-    volatile int buf;
     SDH_INFO_T *pSD;
+    volatile uint32_t u32Status = Successful;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    sdh->CMDARG = uArg;
-    buf = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (ucCmd << 8) | (SDH_CTL_COEN_Msk);
-    sdh->CTL = buf;
+    sdh->CMDARG = u32Arg;
+    sdh->CTL = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (u32Cmd << 8) | (SDH_CTL_COEN_Msk);
 
     while(sdh->CTL & SDH_CTL_COEN_Msk)
     {
-        if(pSD->IsCardInsert == FALSE)
-            return SDH_NO_SD_CARD;
+        if(pSD->IsCardInsert == (uint32_t)FALSE)
+        {
+            u32Status = SDH_NO_SD_CARD;
+        }
     }
-    return Successful;
+    return u32Status;
 }
 
 
-int SDH_SDCmdAndRsp(SDH_T *sdh, uint8_t ucCmd, uint32_t uArg, int ntickCount)
+uint32_t SDH_SDCmdAndRsp(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t u32TickCount)
 {
-    volatile int buf;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    sdh->CMDARG = uArg;
-    buf = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (ucCmd << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk);
-    sdh->CTL = buf;
+    sdh->CMDARG = u32Arg;
+    sdh->CTL = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (u32Cmd << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk);
 
-    if(ntickCount > 0)
+    if(u32TickCount > 0UL)
     {
         while(sdh->CTL & SDH_CTL_RIEN_Msk)
         {
-            if(ntickCount-- == 0)
+            if(u32TickCount-- == 0UL)
             {
-                sdh->CTL |= SDH_CTL_CTLRST_Msk; // reset SD engine
-                return 2;
+                sdh->CTL |= SDH_CTL_CTLRST_Msk; /* reset SD engine */
+                return 2UL;
             }
-            if(pSD->IsCardInsert == FALSE)
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
                 return SDH_NO_SD_CARD;
+            }
         }
     }
     else
     {
         while(sdh->CTL & SDH_CTL_RIEN_Msk)
         {
-            if(pSD->IsCardInsert == FALSE)
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
                 return SDH_NO_SD_CARD;
+            }
         }
     }
 
     if(_SDH_uR7_CMD)
     {
-        if(((sdh->RESP1 & 0xff) != 0x55) && ((sdh->RESP0 & 0xf) != 0x01))
+        if((sdh->RESP1 & 0xffUL) != 0x55UL)
         {
-            _SDH_uR7_CMD = 0;
-            return SDH_CMD8_ERROR;
+            if((sdh->RESP0 & 0xfUL) != 0x01UL)
+            {
+                _SDH_uR7_CMD = 0UL;
+                return SDH_CMD8_ERROR;
+            }
         }
     }
 
-    if(!_SDH_uR3_CMD)
+    if(!g_u8R3Flag)
     {
-        if(sdh->INTSTS & SDH_INTSTS_CRC7_Msk)      // check CRC7
+        if(sdh->INTSTS & SDH_INTSTS_CRC7_Msk)      /* check CRC7 */
+        {
             return Successful;
+        }
         else
         {
             return SDH_CRC7_ERROR;
         }
     }
-    else     // ignore CRC error for R3 case
+    else     /* ignore CRC error for R3 case */
     {
-        _SDH_uR3_CMD = 0;
+        g_u8R3Flag = 0UL;
         sdh->INTSTS = SDH_INTSTS_CRCIF_Msk;
         return Successful;
     }
 }
 
 
-int SDH_Swap32(int val)
+uint32_t SDH_Swap32(uint32_t u32Val)
 {
-    int buf;
+    uint32_t u32Buf;
 
-    buf = val;
-    val <<= 24;
-    val |= (buf << 8U) & 0xff0000;
-    val |= (buf >> 8U) & 0xff00;
-    val |= (buf >> 24U) & 0xff;
-    return val;
+    u32Buf = u32Val;
+    u32Val <<= 24;
+    u32Val |= (u32Buf << 8) & 0xff0000UL;
+    u32Val |= (u32Buf >> 8) & 0xff00UL;
+    u32Val |= (u32Buf >> 24) & 0xffUL;
+    return u32Buf;
 }
 
-// Get 16 bytes CID or CSD
-int SDH_SDCmdAndRsp2(SDH_T *sdh, uint8_t ucCmd, uint32_t uArg, uint32_t *puR2ptr)
+/* Get 16 bytes CID or CSD */
+uint32_t SDH_SDCmdAndRsp2(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg, uint32_t pu32R2ptr[])
 {
-    unsigned int i, buf;
-    unsigned int tmpBuf[5];
+    uint32_t i;
+    uint32_t tmpBuf[5];
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    sdh->CMDARG = uArg;
-    buf = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (ucCmd << 8U) | (SDH_CTL_COEN_Msk | SDH_CTL_R2EN_Msk);
-    sdh->CTL = buf;
+    sdh->CMDARG = u32Arg;
+    sdh->CTL = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (u32Cmd << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_R2EN_Msk);
 
     while(sdh->CTL & SDH_CTL_R2EN_Msk)
     {
-        if(pSD->IsCardInsert == FALSE)
+        if(pSD->IsCardInsert == (uint8_t)FALSE)
+        {
             return SDH_NO_SD_CARD;
+        }
     }
 
     if(sdh->INTSTS & SDH_INTSTS_CRC7_Msk)
     {
-        for(i = 0; i < 5; i++)
+        for(i = 0UL; i < 5UL; i++)
         {
             tmpBuf[i] = SDH_Swap32(sdh->FB[i]);
         }
-        for(i = 0; i < 4; i++)
-            *puR2ptr++ = ((tmpBuf[i] & 0x00ffffff) << 8) | ((tmpBuf[i + 1] & 0xff000000) >> 24);
+        for(i = 0UL; i < 4UL; i++)
+        {
+            pu32R2ptr[i] = ((tmpBuf[i] & 0x00ffffffUL) << 8) | ((tmpBuf[i + 1UL] & 0xff000000UL) >> 24);
+        }
         return Successful;
     }
     else
+    {
         return SDH_CRC7_ERROR;
+    }
 }
 
 
-int SDH_SDCmdAndRspDataIn(SDH_T *sdh, uint8_t ucCmd, uint32_t uArg)
+uint32_t SDH_SDCmdAndRspDataIn(SDH_T *sdh, uint32_t u32Cmd, uint32_t u32Arg)
 {
-    volatile int buf;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    sdh->CMDARG = uArg;
-    buf = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | (ucCmd << 8) |
-          (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
-
-    sdh->CTL = buf;
+    sdh->CMDARG = u32Arg;
+    sdh->CTL = (sdh->CTL & (~SDH_CTL_CMDCODE_Msk)) | ((uint32_t)u32Cmd << 8) |
+               (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
 
     while(sdh->CTL & SDH_CTL_RIEN_Msk)
     {
-        if(pSD->IsCardInsert == FALSE)
+        if(pSD->IsCardInsert == (uint32_t)FALSE)
+        {
             return SDH_NO_SD_CARD;
+        }
     }
 
     while(sdh->CTL & SDH_CTL_DIEN_Msk)
     {
-        if(pSD->IsCardInsert == FALSE)
+        if(pSD->IsCardInsert == (uint32_t)FALSE)
+        {
             return SDH_NO_SD_CARD;
+        }
     }
 
-    if(!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))       // check CRC7
+    if(!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))       /* check CRC7 */
     {
         return SDH_CRC7_ERROR;
     }
 
-    if(!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))      // check CRC16
+    if(!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))      /* check CRC16 */
     {
         return SDH_CRC16_ERROR;
     }
-    return 0;
+
+    return Successful;
 }
 
-// there are 8 bits for divider0, maximum is 256
-#define SDH_CLK_DIV0_MAX     256
+/* there are 8 bits for divider0, maximum is 256 */
+#define SDH_CLK_DIV0_MAX     256UL
 
-void SDH_Set_clock(SDH_T *sdh, uint32_t sd_clock_khz)
+void SDH_Set_clock(SDH_T *sdh, uint32_t u32SDClockKhz)
 {
-    if(!(__PC() & (1 << 28)))
+    if(!(__PC() & (1UL << 28)))
     {
-        uint32_t rate, div1;
-        static uint32_t u32SD_ClkSrc = 0;
+        uint32_t u32Rate, u32Div1;
+        static uint32_t u32SDClkSrc = 0UL;
 
         /* M2351 is only support SDH0 */
-        u32SD_ClkSrc = (CLK->CLKSEL0 & CLK_CLKSEL0_SDH0SEL_Msk);
-        if(u32SD_ClkSrc == CLK_CLKSEL0_SDH0SEL_HXT)
+        u32SDClkSrc = (CLK->CLKSEL0 & CLK_CLKSEL0_SDH0SEL_Msk);
+        if(u32SDClkSrc == CLK_CLKSEL0_SDH0SEL_HXT)
         {
-            _SDH_ReferenceClock = (CLK_GetHXTFreq() / 1000);
+            _SDH_ReferenceClock = (CLK_GetHXTFreq() / 1000UL);
         }
-        else if(u32SD_ClkSrc == CLK_CLKSEL0_SDH0SEL_HIRC)
+        else if(u32SDClkSrc == CLK_CLKSEL0_SDH0SEL_HIRC)
         {
-            _SDH_ReferenceClock = (__HIRC / 1000);
+            _SDH_ReferenceClock = (__HIRC / 1000UL);
         }
-        else if(u32SD_ClkSrc == CLK_CLKSEL0_SDH0SEL_PLL)
+        else if(u32SDClkSrc == CLK_CLKSEL0_SDH0SEL_PLL)
         {
-            _SDH_ReferenceClock = (CLK_GetPLLClockFreq() / 1000);
+            _SDH_ReferenceClock = (CLK_GetPLLClockFreq() / 1000UL);
         }
-        else if(u32SD_ClkSrc == CLK_CLKSEL0_SDH0SEL_HCLK)
+        else if(u32SDClkSrc == CLK_CLKSEL0_SDH0SEL_HCLK)
         {
-            _SDH_ReferenceClock = (CLK_GetHCLKFreq() / 1000);
-        }
-
-        if(sd_clock_khz >= 50000)
-        {
-            sd_clock_khz = 50000;
-        }
-        rate = _SDH_ReferenceClock / sd_clock_khz;
-
-        // choose slower clock if system clock cannot divisible by wanted clock
-        if(_SDH_ReferenceClock % sd_clock_khz != 0)
-            rate++;
-
-        if(rate >= SDH_CLK_DIV0_MAX)
-        {
-            rate = SDH_CLK_DIV0_MAX;
+            _SDH_ReferenceClock = (CLK_GetHCLKFreq() / 1000UL);
         }
 
-        //--- calculate the second divider CLKDIV0[SDHOST_N]
-        if (rate == 0)
+        if(u32SDClockKhz >= 50000UL)
         {
-            div1 = 0;
+            u32SDClockKhz = 50000UL;
+        }
+        u32Rate = _SDH_ReferenceClock / u32SDClockKhz;
+
+        /* choose slower clock if system clock cannot divisible by wanted clock */
+        if(_SDH_ReferenceClock % u32SDClockKhz != 0UL)
+        {
+            u32Rate++;
+        }
+
+        if(u32Rate >= SDH_CLK_DIV0_MAX)
+        {
+            u32Rate = SDH_CLK_DIV0_MAX;
+        }
+
+        /* --- calculate the second divider CLKDIV0[SDHOST_N] */
+        if(u32Rate == 0UL)
+        {
+            u32Div1 = 0UL;
         }
         else
         {
-            div1 = ((rate - 1) & 0xFF);
+            u32Div1 = ((u32Rate - 1UL) & 0xFFUL);
         }
 
-        //--- setup register
+        /* --- setup register */
         /* M2351 is only support SDH0 */
         CLK->CLKDIV0 &= ~CLK_CLKDIV0_SDH0DIV_Msk;
-        CLK->CLKDIV0 |= (div1 << CLK_CLKDIV0_SDH0DIV_Pos);
+        CLK->CLKDIV0 |= (u32Div1 << CLK_CLKDIV0_SDH0DIV_Pos);
     }
 }
 
-//uint32_t SDH_CardDetection(SDH_T *sdh)
-unsigned int SDH_CardDetection(SDH_T *sdh)
+uint32_t SDH_CardDetection(SDH_T *sdh)
 {
-    uint32_t i;
+    uint32_t i, u32Status = (uint32_t)TRUE;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    if(sdh->INTEN & SDH_INTEN_CDSRC0_Msk)   // Card detect pin from GPIO
+    if(sdh->INTEN & SDH_INTEN_CDSRC_Msk)   /* Card detect pin from GPIO */
     {
-        if(sdh->INTSTS & SDH_INTSTS_CDSTS0_Msk)   // Card remove
+        if(sdh->INTSTS & SDH_INTSTS_CDSTS_Msk)   /* Card remove */
         {
-            pSD->IsCardInsert = FALSE;
-            return FALSE;
+            pSD->IsCardInsert = (uint8_t)FALSE;
+            u32Status = (uint32_t)FALSE;
         }
         else
-            pSD->IsCardInsert = TRUE;
+        {
+            pSD->IsCardInsert = (uint8_t)TRUE;
+        }
     }
-    else if(!(sdh->INTEN & SDH_INTEN_CDSRC0_Msk))
+    else if(!(sdh->INTEN & SDH_INTEN_CDSRC_Msk))
     {
-        sdh->CTL |= SDH_CTL_CLKKEEP0_Msk;
-        for(i = 0; i < 5000; i++);
+        sdh->CTL |= SDH_CTL_CLKKEEP_Msk;
+        for(i = 0UL; i < 5000UL; i++) {}
 
-        if(sdh->INTSTS & SDH_INTSTS_CDSTS0_Msk) // Card insert
-            pSD->IsCardInsert = TRUE;
+        if(sdh->INTSTS & SDH_INTSTS_CDSTS_Msk) /* Card insert */
+        {
+            pSD->IsCardInsert = (uint8_t)TRUE;
+        }
         else
         {
-            pSD->IsCardInsert = FALSE;
-            return FALSE;
+            pSD->IsCardInsert = (uint8_t)FALSE;
+            u32Status = (uint32_t)FALSE;
         }
 
-        sdh->CTL &= ~SDH_CTL_CLKKEEP0_Msk;
+        sdh->CTL &= ~SDH_CTL_CLKKEEP_Msk;
     }
 
-    return TRUE;
+    return u32Status;
 }
 
 
-// Initial
-int SDH_Init(SDH_T *sdh)
+/* Initial */
+uint32_t SDH_Init(SDH_T *sdh)
 {
-    int volatile i, status;
-    unsigned int resp;
-    unsigned int CIDBuffer[4];
-    unsigned int volatile u32CmdTimeOut;
+    uint32_t volatile i, u32Status;
+    uint32_t u32Resp;
+    uint32_t au32CIDBuffer[4];
+    uint32_t volatile u32CmdTimeOut;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    // set the clock to 300KHz
-    SDH_Set_clock(sdh, 300);
+    /* set the clock to 300KHz */
+    SDH_Set_clock(sdh, 300UL);
 
-    // power ON 74 clock
+    /* power ON 74 clock */
     sdh->CTL |= SDH_CTL_CLK74OEN_Msk;
 
     while(sdh->CTL & SDH_CTL_CLK74OEN_Msk)
     {
-        if(pSD->IsCardInsert == FALSE)
+        if(pSD->IsCardInsert == (uint8_t)FALSE)
+        {
             return SDH_NO_SD_CARD;
+        }
     }
 
-    SDH_SDCommand(sdh, 0, 0);        // reset all cards
-    for(i = 0x1000; i > 0; i--);
+    SDH_SDCommand(sdh, 0UL, 0UL);        /* reset all cards */
+    for(i = 0x1000UL; i > 0UL; i--) {}
 
-    // initial SDHC
-    _SDH_uR7_CMD = 1;
-    //u32CmdTimeOut = 5000;
-    u32CmdTimeOut = 0xFFFFF;
-    //u32CmdTimeOut = 0;
+    /* initial SDHC */
+    _SDH_uR7_CMD = 1UL;
+    u32CmdTimeOut = 0xFFFFFUL;
 
-    i = SDH_SDCmdAndRsp(sdh, 8, 0x00000155, u32CmdTimeOut);
+    i = SDH_SDCmdAndRsp(sdh, 8UL, 0x00000155UL, u32CmdTimeOut);
     if(i == Successful)
     {
-        // SD 2.0
-        SDH_SDCmdAndRsp(sdh, 55, 0x00, u32CmdTimeOut);
-        _SDH_uR3_CMD = 1;
-        SDH_SDCmdAndRsp(sdh, 41, 0x40ff8000, u32CmdTimeOut); // 2.7v-3.6v
-        resp = sdh->RESP0;
+        /* SD 2.0 */
+        SDH_SDCmdAndRsp(sdh, 55UL, 0x00UL, u32CmdTimeOut);
+        g_u8R3Flag = 1UL;
+        SDH_SDCmdAndRsp(sdh, 41UL, 0x40ff8000UL, u32CmdTimeOut); /* 2.7v-3.6v */
+        u32Resp = sdh->RESP0;
 
-        while(!(resp & 0x00800000))         // check if card is ready
+        while(!(u32Resp & 0x00800000UL))         /* check if card is ready */
         {
-            SDH_SDCmdAndRsp(sdh, 55, 0x00, u32CmdTimeOut);
-            _SDH_uR3_CMD = 1;
-            SDH_SDCmdAndRsp(sdh, 41, 0x40ff8000, u32CmdTimeOut); // 3.0v-3.4v
-            resp = sdh->RESP0;
+            SDH_SDCmdAndRsp(sdh, 55UL, 0x00UL, u32CmdTimeOut);
+            g_u8R3Flag = 1UL;
+            SDH_SDCmdAndRsp(sdh, 41UL, 0x40ff8000UL, u32CmdTimeOut); /* 3.0v-3.4v */
+            u32Resp = sdh->RESP0;
         }
-        if(resp & 0x00400000)
+        if(u32Resp & 0x00400000UL)
+        {
             pSD->CardType = SDH_TYPE_SD_HIGH;
+        }
         else
+        {
             pSD->CardType = SDH_TYPE_SD_LOW;
+        }
     }
     else
     {
-        // SD 1.1
-        SDH_SDCommand(sdh, 0, 0);        // reset all cards
-        for(i = 0x100; i > 0; i--);
+        /* SD 1.1 */
+        SDH_SDCommand(sdh, 0UL, 0UL);        /* reset all cards */
+        for(i = 0x100UL; i > 0UL; i--) {}
 
-        i = SDH_SDCmdAndRsp(sdh, 55, 0x00, u32CmdTimeOut);
-        if(i == 2)      // MMC memory
+        i = SDH_SDCmdAndRsp(sdh, 55UL, 0x00UL, u32CmdTimeOut);
+        if(i == 2UL)      /* MMC memory */
         {
+            SDH_SDCommand(sdh, 0UL, 0UL);        /* reset */
+            for(i = 0x100UL; i > 0UL; i--) {}
 
-            SDH_SDCommand(sdh, 0, 0);        // reset
-            for(i = 0x100; i > 0; i--);
+            g_u8R3Flag = 1UL;
 
-            _SDH_uR3_CMD = 1;
-
-            if(SDH_SDCmdAndRsp(sdh, 1, 0x40ff8000, u32CmdTimeOut) != 2)     // eMMC memory
+            if(SDH_SDCmdAndRsp(sdh, 1UL, 0x40ff8000UL, u32CmdTimeOut) != 2UL)     /* eMMC memory */
             {
-                resp = sdh->RESP0;
-                while(!(resp & 0x00800000))         // check if card is ready
+                u32Resp = sdh->RESP0;
+                while(!(u32Resp & 0x00800000UL))         /* check if card is ready */
                 {
-                    _SDH_uR3_CMD = 1;
+                    g_u8R3Flag = 1UL;
 
-                    SDH_SDCmdAndRsp(sdh, 1, 0x40ff8000, u32CmdTimeOut);      // high voltage
-                    resp = sdh->RESP0;
+                    SDH_SDCmdAndRsp(sdh, 1UL, 0x40ff8000UL, u32CmdTimeOut);      /* high voltage */
+                    u32Resp = sdh->RESP0;
                 }
 
-                if(resp & 0x00400000)
+                if(u32Resp & 0x00400000UL)
+                {
                     pSD->CardType = SDH_TYPE_EMMC;
+                }
                 else
+                {
                     pSD->CardType = SDH_TYPE_MMC;
+                }
             }
             else
             {
@@ -423,17 +469,17 @@ int SDH_Init(SDH_T *sdh)
                 return SDH_ERR_DEVICE;
             }
         }
-        else if(i == 0)      // SD Memory
+        else if(i == 0UL)      /* SD Memory */
         {
-            _SDH_uR3_CMD = 1;
-            SDH_SDCmdAndRsp(sdh, 41, 0x00ff8000, u32CmdTimeOut); // 3.0v-3.4v
-            resp = sdh->RESP0;
-            while(!(resp & 0x00800000))         // check if card is ready
+            g_u8R3Flag = 1UL;
+            SDH_SDCmdAndRsp(sdh, 41UL, 0x00ff8000UL, u32CmdTimeOut); /* 3.0v-3.4v */
+            u32Resp = sdh->RESP0;
+            while(!(u32Resp & 0x00800000UL))         /* check if card is ready */
             {
-                SDH_SDCmdAndRsp(sdh, 55, 0x00, u32CmdTimeOut);
-                _SDH_uR3_CMD = 1;
-                SDH_SDCmdAndRsp(sdh, 41, 0x00ff8000, u32CmdTimeOut); // 3.0v-3.4v
-                resp = sdh->RESP0;
+                SDH_SDCmdAndRsp(sdh, 55UL, 0x00UL, u32CmdTimeOut);
+                g_u8R3Flag = 1UL;
+                SDH_SDCmdAndRsp(sdh, 41UL, 0x00ff8000UL, u32CmdTimeOut); /* 3.0v-3.4v */
+                u32Resp = sdh->RESP0;
             }
             pSD->CardType = SDH_TYPE_SD_LOW;
         }
@@ -444,137 +490,164 @@ int SDH_Init(SDH_T *sdh)
         }
     }
 
-    // CMD2, CMD3
+    /* CMD2, CMD3 */
     if(pSD->CardType != SDH_TYPE_UNKNOWN)
     {
-        SDH_SDCmdAndRsp2(sdh, 2, 0x00, CIDBuffer);
+        SDH_SDCmdAndRsp2(sdh, 2UL, 0x00UL, au32CIDBuffer);
         if((pSD->CardType == SDH_TYPE_MMC) || (pSD->CardType == SDH_TYPE_EMMC))
         {
-            if((status = SDH_SDCmdAndRsp(sdh, 3, 0x10000, 0)) != Successful)         // set RCA
-                return status;
-            pSD->RCA = 0x10000;
+            if((u32Status = SDH_SDCmdAndRsp(sdh, 3UL, 0x10000UL, 0UL)) != Successful)         /* set RCA */
+            {
+                return u32Status;
+            }
+            pSD->RCA = 0x10000UL;
         }
         else
         {
-            if((status = SDH_SDCmdAndRsp(sdh, 3, 0x00, 0)) != Successful)        // get RCA
-                return status;
+            if((u32Status = SDH_SDCmdAndRsp(sdh, 3UL, 0x00UL, 0UL)) != Successful)        /* get RCA */
+            {
+                return u32Status;
+            }
             else
-                pSD->RCA = (sdh->RESP0 << 8) & 0xffff0000;
+            {
+                pSD->RCA = (sdh->RESP0 << 8) & 0xffff0000UL;
+            }
         }
-    }
-    if (pSD->CardType == SDH_TYPE_SD_HIGH)
-    {
-        DEBUG_PRINTF("This is a SDHC card\n");
-    }
-    else if (pSD->CardType == SDH_TYPE_SD_LOW)
-    {
-        DEBUG_PRINTF("This is a SD card\n");
     }
 
     return Successful;
 }
 
 
-int SDH_SwitchToHighSpeed(SDH_T *sdh, SDH_INFO_T *pSD)
+uint32_t SDH_SwitchToHighSpeed(SDH_T *sdh, SDH_INFO_T *pSD)
 {
-    int volatile status = 0;
-    uint16_t current_comsumption, busy_status0;
+    uint32_t volatile u32Status = 0UL;
+    uint16_t u16CurrentComsumption, u16BusyStatus0;
 
-    sdh->DMASA = (uint32_t)_SDH_pSDHCBuffer;    // set DMA transfer starting address
-    sdh->BLEN = 63;    // 512 bit
+    sdh->DMASA = (uint32_t)_SDH_ucSDHCBuffer;    /* set DMA transfer starting address */
+    sdh->BLEN = 63UL;    /* 512 bit */
 
-    if((status = SDH_SDCmdAndRspDataIn(sdh, 6, 0x00ffff01)) != Successful)
-        return Fail;
-
-    current_comsumption = _SDH_pSDHCBuffer[0] << 8 | _SDH_pSDHCBuffer[1];
-    if(!current_comsumption)
-        return Fail;
-
-    busy_status0 = _SDH_pSDHCBuffer[28] << 8 | _SDH_pSDHCBuffer[29];
-
-    if(!busy_status0)    // function ready
+    if((u32Status = SDH_SDCmdAndRspDataIn(sdh, 6UL, 0x00ffff01UL)) != Successful)
     {
-        sdh->DMASA = (uint32_t)_SDH_pSDHCBuffer;        // set DMA transfer starting address
-        sdh->BLEN = 63;    // 512 bit
+        return Fail;
+    }
 
-        if((status = SDH_SDCmdAndRspDataIn(sdh, 6, 0x80ffff01)) != Successful)
+    u16CurrentComsumption = (uint16_t)_SDH_ucSDHCBuffer[0] << 8;
+    u16CurrentComsumption |= (uint16_t)_SDH_ucSDHCBuffer[1];
+    if(!u16CurrentComsumption)
+    {
+        return Fail;
+    }
+
+    u16BusyStatus0 = (uint16_t)_SDH_ucSDHCBuffer[28] << 8;
+    u16BusyStatus0 |= (uint16_t)_SDH_ucSDHCBuffer[29];
+
+    if(!u16BusyStatus0)    /* function ready */
+    {
+        sdh->DMASA = (uint32_t)_SDH_ucSDHCBuffer;        /* set DMA transfer starting address */
+        sdh->BLEN = 63UL;    /* 512 bit */
+
+        if((u32Status = SDH_SDCmdAndRspDataIn(sdh, 6UL, 0x80ffff01UL)) != Successful)
+        {
             return Fail;
+        }
 
-        // function change timing: 8 clocks
+        /* function change timing: 8 clocks */
         sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-        while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+        while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
 
-        current_comsumption = _SDH_pSDHCBuffer[0] << 8 | _SDH_pSDHCBuffer[1];
-        if(!current_comsumption)
+        u16CurrentComsumption = (uint16_t)_SDH_ucSDHCBuffer[0] << 8;
+        u16CurrentComsumption |= (uint16_t)_SDH_ucSDHCBuffer[1];
+        if(!u16CurrentComsumption)
+        {
             return Fail;
+        }
 
         return Successful;
     }
     else
+    {
         return Fail;
+    }
 }
 
 
-int SDH_SelectCardType(SDH_T *sdh)
+uint32_t SDH_SelectCardType(SDH_T *sdh)
 {
-    int volatile status = 0;
-    unsigned int arg;
+    uint32_t volatile u32Status = 0UL;
+    uint32_t u32Param;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    if((status = SDH_SDCmdAndRsp(sdh, 7, pSD->RCA, 0)) != Successful)
-        return status;
+    if((u32Status = SDH_SDCmdAndRsp(sdh, 7UL, pSD->RCA, 0UL)) != Successful)
+    {
+        return u32Status;
+    }
 
     SDH_CheckRB(sdh);
 
-    // if SD card set 4bit
+    /* if SD card set 4bit */
     if(pSD->CardType == SDH_TYPE_SD_HIGH)
     {
-        _SDH_pSDHCBuffer = (uint8_t *)((uint32_t)_SDH_ucSDHCBuffer);
-        sdh->DMASA = (uint32_t)_SDH_pSDHCBuffer;    // set DMA transfer starting address
-        sdh->BLEN = 0x07;  // 64 bit
+        sdh->DMASA = (uint32_t)_SDH_ucSDHCBuffer;    /* set DMA transfer starting address */
+        sdh->BLEN = 0x07UL;  /* 64 bit */
 
-        if((status = SDH_SDCmdAndRsp(sdh, 55, pSD->RCA, 0)) != Successful)
-            return status;
-        if((status = SDH_SDCmdAndRspDataIn(sdh, 51, 0x00)) != Successful)
-            return status;
-
-        if((_SDH_ucSDHCBuffer[0] & 0xf) == 0x2)
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 55UL, pSD->RCA, 0UL)) != Successful)
         {
-            status = SDH_SwitchToHighSpeed(sdh, pSD);
-            if(status == Successful)
+            return u32Status;
+        }
+        if((u32Status = SDH_SDCmdAndRspDataIn(sdh, 51UL, 0x00UL)) != Successful)
+        {
+            return u32Status;
+        }
+
+        if((_SDH_ucSDHCBuffer[0] & 0xfUL) == 0xfUL)
+        {
+            u32Status = SDH_SwitchToHighSpeed(sdh, pSD);
+            if(u32Status == Successful)
             {
                 /* divider */
                 SDH_Set_clock(sdh, SDHC_FREQ);
             }
         }
 
-        if((status = SDH_SDCmdAndRsp(sdh, 55, pSD->RCA, 0)) != Successful)
-            return status;
-        if((status = SDH_SDCmdAndRsp(sdh, 6, 0x02, 0)) != Successful)    // set bus width
-            return status;
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 55UL, pSD->RCA, 0UL)) != Successful)
+        {
+            return u32Status;
+        }
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 6UL, 0x02UL, 0UL)) != Successful)    /* set bus width */
+        {
+            return u32Status;
+        }
 
         sdh->CTL |= SDH_CTL_DBW_Msk;
     }
     else if(pSD->CardType == SDH_TYPE_SD_LOW)
     {
-        _SDH_pSDHCBuffer = (uint8_t *)((uint32_t)_SDH_ucSDHCBuffer);
-        sdh->DMASA = (uint32_t) _SDH_pSDHCBuffer; // set DMA transfer starting address
-        sdh->BLEN = 0x07;  // 64 bit
+        sdh->DMASA = (uint32_t) _SDH_ucSDHCBuffer; /* set DMA transfer starting address */
+        sdh->BLEN = 0x07UL;  /* 64 bit */
 
-        if((status = SDH_SDCmdAndRsp(sdh, 55, pSD->RCA, 0)) != Successful)
-            return status;
-        if((status = SDH_SDCmdAndRspDataIn(sdh, 51, 0x00)) != Successful)
-            return status;
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 55UL, pSD->RCA, 0UL)) != Successful)
+        {
+            return u32Status;
+        }
+        if((u32Status = SDH_SDCmdAndRspDataIn(sdh, 51UL, 0x00UL)) != Successful)
+        {
+            return u32Status;
+        }
 
-        // set data bus width. ACMD6 for SD card, SDCR_DBW for host.
-        if((status = SDH_SDCmdAndRsp(sdh, 55, pSD->RCA, 0)) != Successful)
-            return status;
+        /* set data bus width. ACMD6 for SD card, SDCR_DBW for host. */
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 55UL, pSD->RCA, 0UL)) != Successful)
+        {
+            return u32Status;
+        }
 
-        if((status = SDH_SDCmdAndRsp(sdh, 6, 0x02, 0)) != Successful)    // set bus width
-            return status;
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 6UL, 0x02UL, 0UL)) != Successful)    /* set bus width */
+        {
+            return u32Status;
+        }
 
         sdh->CTL |= SDH_CTL_DBW_Msk;
     }
@@ -582,26 +655,31 @@ int SDH_SelectCardType(SDH_T *sdh)
     {
 
         if(pSD->CardType == SDH_TYPE_MMC)
+        {
             sdh->CTL &= ~SDH_CTL_DBW_Msk;
+        }
 
-        //--- sent CMD6 to MMC card to set bus width to 4 bits mode
-        // set CMD6 argument Access field to 3, Index to 183, Value to 1 (4-bit mode)
-        arg = (3 << 24) | (183 << 16) | (1 << 8);
-        if((status = SDH_SDCmdAndRsp(sdh, 6, arg, 0)) != Successful)
-            return status;
+        /* --- sent CMD6 to MMC card to set bus width to 4 bits mode */
+        /* set CMD6 argument Access field to 3, Index to 183, Value to 1 (4-bit mode) */
+        u32Param = (3UL << 24) | (183UL << 16) | (1UL << 8);
+        if((u32Status = SDH_SDCmdAndRsp(sdh, 6UL, u32Param, 0UL)) != Successful)
+        {
+            return u32Status;
+        }
         SDH_CheckRB(sdh);
 
-        sdh->CTL |= SDH_CTL_DBW_Msk;; // set bus width to 4-bit mode for SD host controller
-
+        sdh->CTL |= SDH_CTL_DBW_Msk; /* set bus width to 4-bit mode for SD host controller */
     }
 
-    if((status = SDH_SDCmdAndRsp(sdh, 16, SDH_BLOCK_SIZE, 0)) != Successful)  // set block length
-        return status;
-    sdh->BLEN = SDH_BLOCK_SIZE - 1;           // set the block size
+    if((u32Status = SDH_SDCmdAndRsp(sdh, 16UL, SDH_BLOCK_SIZE, 0UL)) != Successful)  /* set block length */
+    {
+        return u32Status;
+    }
+    sdh->BLEN = SDH_BLOCK_SIZE - 1UL;           /* set the block size */
 
-    SDH_SDCommand(sdh, 7, 0);
+    SDH_SDCommand(sdh, 7UL, 0UL);
     sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
 
     sdh->INTEN |= SDH_INTEN_BLKDIEN_Msk;
 
@@ -612,75 +690,77 @@ void SDH_Get_SD_info(SDH_T *sdh)
 {
     unsigned int R_LEN, C_Size, MULT, size;
     unsigned int Buffer[4];
-    unsigned char *ptr;
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    SDH_SDCmdAndRsp2(sdh, 9, pSD->RCA, (uint32_t *)Buffer);
+    SDH_SDCmdAndRsp2(sdh, 9UL, pSD->RCA, Buffer);
 
     if((pSD->CardType == SDH_TYPE_MMC) || (pSD->CardType == SDH_TYPE_EMMC))
     {
-        // for MMC/eMMC card
-        if((Buffer[0] & 0xc0000000) == 0xc0000000)
+        /* for MMC/eMMC card */
+        if((Buffer[0] & 0xc0000000UL) == 0xc0000000UL)
         {
-            // CSD_STRUCTURE [127:126] is 3
-            // CSD version depend on EXT_CSD register in eMMC v4.4 for card size > 2GB
-            SDH_SDCmdAndRsp(sdh, 7, pSD->RCA, 0);
+            /* CSD_STRUCTURE [127:126] is 3 */
+            /* CSD version depend on EXT_CSD register in eMMC v4.4 for card size > 2GB */
+            SDH_SDCmdAndRsp(sdh, 7UL, pSD->RCA, 0UL);
 
-            ptr = (uint8_t *)((uint32_t)_SDH_ucSDHCBuffer);
-            sdh->DMASA = (uint32_t)ptr;  // set DMA transfer starting address
-            sdh->BLEN = 511;  // read 512 bytes for EXT_CSD
+            sdh->DMASA = (uint32_t)_SDH_ucSDHCBuffer;  /* set DMA transfer starting address */
+            sdh->BLEN = 511UL;  /* read 512 bytes for EXT_CSD */
 
-            if(SDH_SDCmdAndRspDataIn(sdh, 8, 0x00) != Successful)
+            if(SDH_SDCmdAndRspDataIn(sdh, 8UL, 0x00UL) != Successful)
+            {
                 return;
+            }
 
-            SDH_SDCommand(sdh, 7, 0);
+            SDH_SDCommand(sdh, 7UL, 0UL);
             sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-            while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+            while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
 
-            pSD->totalSectorN = (*(unsigned int *)(ptr + 212));
-            pSD->diskSize = pSD->totalSectorN / 2;
+            pSD->totalSectorN = (uint32_t)_SDH_ucSDHCBuffer[215] << 24;
+            pSD->totalSectorN |= (uint32_t)_SDH_ucSDHCBuffer[214] << 16;
+            pSD->totalSectorN |= (uint32_t)_SDH_ucSDHCBuffer[213] << 8;
+            pSD->totalSectorN |= (uint32_t)_SDH_ucSDHCBuffer[212];
+            pSD->diskSize = pSD->totalSectorN / 2UL;
         }
         else
         {
-            // CSD version v1.0/1.1/1.2 in eMMC v4.4 spec for card size <= 2GB
-            R_LEN = (Buffer[1] & 0x000f0000) >> 16;
-            C_Size = ((Buffer[1] & 0x000003ff) << 2) | ((Buffer[2] & 0xc0000000) >> 30);
-            MULT = (Buffer[2] & 0x00038000) >> 15;
-            size = (C_Size + 1) * (1 << (MULT + 2)) * (1 << R_LEN);
+            /* CSD version v1.0/1.1/1.2 in eMMC v4.4 spec for card size <= 2GB */
+            R_LEN = (Buffer[1] & 0x000f0000UL) >> 16;
+            C_Size = ((Buffer[1] & 0x000003ffUL) << 2) | ((Buffer[2] & 0xc0000000UL) >> 30);
+            MULT = (Buffer[2] & 0x00038000UL) >> 15;
+            size = (C_Size + 1UL) * (1UL << (MULT + 2UL)) * (1UL << R_LEN);
 
-            pSD->diskSize = size / 1024;
-            pSD->totalSectorN = size / 512;
+            pSD->diskSize = size / 1024UL;
+            pSD->totalSectorN = size / 512UL;
         }
     }
     else
     {
-        if(Buffer[0] & 0xc0000000)
+        if(Buffer[0] & 0xc0000000UL)
         {
-            C_Size = ((Buffer[1] & 0x0000003f) << 16) | ((Buffer[2] & 0xffff0000) >> 16);
-            size = (C_Size + 1) * 512;  // Kbytes
+            C_Size = ((Buffer[1] & 0x0000003fUL) << 16) | ((Buffer[2] & 0xffff0000UL) >> 16);
+            size = (C_Size + 1UL) * 512UL;  /* Kbytes */
 
             pSD->diskSize = size;
             pSD->totalSectorN = size << 1;
         }
         else
         {
-            R_LEN = (Buffer[1] & 0x000f0000) >> 16;
-            C_Size = ((Buffer[1] & 0x000003ff) << 2) | ((Buffer[2] & 0xc0000000) >> 30);
-            MULT = (Buffer[2] & 0x00038000) >> 15;
-            size = (C_Size + 1) * (1 << (MULT + 2)) * (1 << R_LEN);
+            R_LEN = (Buffer[1] & 0x000f0000UL) >> 16;
+            C_Size = ((Buffer[1] & 0x000003ffUL) << 2) | ((Buffer[2] & 0xc0000000UL) >> 30);
+            MULT = (Buffer[2] & 0x00038000UL) >> 15;
+            size = (C_Size + 1UL) * (1UL << (MULT + 2UL)) * (1UL << R_LEN);
 
-            pSD->diskSize = size / 1024;
-            pSD->totalSectorN = size / 512;
+            pSD->diskSize = size / 1024UL;
+            pSD->totalSectorN = size / 512UL;
         }
     }
-    pSD->sectorSize = 512;
-    DEBUG_PRINTF("The size is %d MB\n\n", pSD->diskSize/1024);
+    pSD->sectorSize = (int)512UL;
 }
 
-/// @endcond HIDDEN_SYMBOLS
+/** @endcond HIDDEN_SYMBOLS */
 
 
 /**
@@ -693,35 +773,33 @@ void SDH_Get_SD_info(SDH_T *sdh)
  */
 void SDH_Open(SDH_T *sdh, uint32_t u32CardDetSrc)
 {
-    // enable DMAC
+    /* enable DMAC */
     sdh->DMACTL = SDH_DMACTL_DMARST_Msk;
-    while(sdh->DMACTL & SDH_DMACTL_DMARST_Msk);
+    while(sdh->DMACTL & SDH_DMACTL_DMARST_Msk) {}
 
     sdh->DMACTL = SDH_DMACTL_DMAEN_Msk;
 
-    //Reset FMI
-    sdh->GCTL = SDH_GCTL_GCTLRST_Msk | SDH_GCTL_SDEN_Msk;        // Start reset FMI controller.
-    while(sdh->GCTL & SDH_GCTL_GCTLRST_Msk);
+    /* Reset FMI */
+    sdh->GCTL = SDH_GCTL_GCTLRST_Msk | SDH_GCTL_SDEN_Msk;        /* Start reset FMI controller. */
+    while(sdh->GCTL & SDH_GCTL_GCTLRST_Msk) {}
 
     memset(&SD0, 0, sizeof(SDH_INFO_T));
 
-    // enable SD
+    /* enable SD */
     sdh->GCTL = SDH_GCTL_SDEN_Msk;
 
     if(u32CardDetSrc & CardDetect_From_DAT3)
     {
-        DEBUG_PRINTF("CardDetect_From_DAT3\n");
-        sdh->INTEN &= ~SDH_INTEN_CDSRC0_Msk;
+        sdh->INTEN &= ~SDH_INTEN_CDSRC_Msk;
     }
     else
     {
-        DEBUG_PRINTF("CardDetect_From_GPIO\n");
-        sdh->INTEN |= SDH_INTEN_CDSRC0_Msk;
+        sdh->INTEN |= SDH_INTEN_CDSRC_Msk;
     }
-    sdh->INTEN |= SDH_INTEN_CDIEN0_Msk;
+    sdh->INTEN |= SDH_INTEN_CDIEN_Msk;
 
-    sdh->CTL |= SDH_CTL_CTLRST_Msk;     // SD software reset
-    while(sdh->CTL & SDH_CTL_CTLRST_Msk);
+    sdh->CTL |= SDH_CTL_CTLRST_Msk;     /* SD software reset */
+    while(sdh->CTL & SDH_CTL_CTLRST_Msk) {}
 
 }
 
@@ -738,35 +816,45 @@ void SDH_Open(SDH_T *sdh, uint32_t u32CardDetSrc)
  */
 uint32_t SDH_Probe(SDH_T *sdh)
 {
-    uint32_t val;
+    uint32_t u32Val;
 
-    // Disable FMI/SD host interrupt
-    sdh->GINTEN = 0U;
+    /* Disable FMI/SD host interrupt */
+    sdh->GINTEN = 0UL;
 
     sdh->CTL &= ~SDH_CTL_SDNWR_Msk;
-    sdh->CTL |=  0x09UL << SDH_CTL_SDNWR_Pos;         // set SDNWR = 9
+    sdh->CTL |=  0x09UL << SDH_CTL_SDNWR_Pos;         /* set SDNWR = 9 */
     sdh->CTL &= ~SDH_CTL_BLKCNT_Msk;
-    sdh->CTL |=  0x01UL << SDH_CTL_BLKCNT_Pos;           // set BLKCNT = 1
-    sdh->CTL &= ~SDH_CTL_DBW_Msk;               // SD 1-bit data bus
+    sdh->CTL |=  0x01UL << SDH_CTL_BLKCNT_Pos;           /* set BLKCNT = 1 */
+    sdh->CTL &= ~SDH_CTL_DBW_Msk;               /* SD 1-bit data bus */
 
     if(!(SDH_CardDetection(sdh)))
+    {
         return SDH_NO_SD_CARD;
+    }
 
-    if((val = SDH_Init(sdh)) != 0U)
-        return val;
+    if((u32Val = SDH_Init(sdh)) != 0UL)
+    {
+        return u32Val;
+    }
 
     /* divider */
     if(SD0.CardType == SDH_TYPE_MMC)
+    {
         SDH_Set_clock(sdh, MMC_FREQ);
+    }
     else
+    {
         SDH_Set_clock(sdh, SD_FREQ);
+    }
     SDH_Get_SD_info(sdh);
 
-    if((val = SDH_SelectCardType(sdh)) != 0U)
-        return val;
+    if((u32Val = SDH_SelectCardType(sdh)) != 0UL)
+    {
+        return u32Val;
+    }
 
     SDH_ok = 1;
-    return 0;
+    return 0UL;
 }
 
 /**
@@ -781,121 +869,132 @@ uint32_t SDH_Probe(SDH_T *sdh)
  */
 uint32_t SDH_Read(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32_t u32SecCount)
 {
-    char volatile bIsSendCmd = FALSE, buf;
-    unsigned int volatile reg;
-    int volatile i, loop, status;
-    uint32_t blksize = SDH_BLOCK_SIZE;
+    uint32_t volatile u32IsSendCmd = (uint32_t)FALSE, u32Buf;
+    uint32_t volatile u32Reg;
+    uint32_t volatile i, loop, u32Status;
+    uint32_t u32BlkSize = SDH_BLOCK_SIZE;
 
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    //--- check input parameters
-    if(u32SecCount == 0U)
+    /* --- check input parameters */
+    if(u32SecCount == 0UL)
     {
         return SDH_SELECT_ERROR;
     }
 
-    if((status = SDH_SDCmdAndRsp(sdh, 7, pSD->RCA, 0)) != Successful)
-        return status;
+    if((u32Status = SDH_SDCmdAndRsp(sdh, 7UL, pSD->RCA, 0UL)) != Successful)
+    {
+        return u32Status;
+    }
     SDH_CheckRB(sdh);
 
-    sdh->BLEN = blksize - 1U;       // the actual byte count is equal to (SDBLEN+1)
+    sdh->BLEN = u32BlkSize - 1UL;       /* the actual byte count is equal to (SDBLEN+1) */
 
     if((pSD->CardType == SDH_TYPE_SD_HIGH) || (pSD->CardType == SDH_TYPE_EMMC))
+    {
         sdh->CMDARG = u32StartSec;
+    }
     else
-        sdh->CMDARG = u32StartSec * blksize;
+    {
+        sdh->CMDARG = u32StartSec * u32BlkSize;
+    }
 
     sdh->DMASA = (uint32_t)pu8BufAddr;
 
-    loop = u32SecCount / 255U;
-    for(i = 0; i < loop; i++)
+    loop = u32SecCount / 255UL;
+    while(loop > 0UL)
     {
-        _SDH_SDDataReady = FALSE;
-        reg = sdh->CTL & ~SDH_CTL_CMDCODE_Msk;
-        reg = reg | 0xff0000UL;   // set BLK_CNT to 255
-        if(bIsSendCmd == FALSE)
+        g_u8SDDataReadyFlag = (uint8_t)FALSE;
+        u32Reg = sdh->CTL & ~SDH_CTL_CMDCODE_Msk;
+        u32Reg = u32Reg | 0xff0000UL;   /* set BLK_CNT to 255 */
+        if(u32IsSendCmd == (uint32_t)FALSE)
         {
-            sdh->CTL = reg | (18U << 8U) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
-            bIsSendCmd = TRUE;
+            sdh->CTL = u32Reg | (18UL << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
+            u32IsSendCmd = (uint32_t)TRUE;
         }
         else
-            sdh->CTL = reg | SDH_CTL_DIEN_Msk;
-
-        while(!_SDH_SDDataReady)
         {
-            if(_SDH_SDDataReady) break;
-            if(pSD->IsCardInsert == FALSE)
-                return SDH_NO_SD_CARD;
+            sdh->CTL = u32Reg | SDH_CTL_DIEN_Msk;
         }
 
-        if (!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))
-        {    // check CRC7
-            //DEBUG_PRINTF("sdioSD_Read_in_blksize(): response error!\n");
+        while(!g_u8SDDataReadyFlag)
+        {
+            if(g_u8SDDataReadyFlag)
+            {
+                break;
+            }
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
+                return SDH_NO_SD_CARD;
+            }
+        }
+
+        if(!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))     /* check CRC7 */
+        {
             return SDH_CRC7_ERROR;
         }
 
-        if (!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))
-        {   // check CRC16
-            //DEBUG_PRINTF("sdioSD_Read_in_blksize() :read data error!\n");
+        if(!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))    /* check CRC16 */
+        {
+            return SDH_CRC16_ERROR;
+        }
+        loop--;
+    }
+
+    loop = u32SecCount % 255UL;
+    if(loop != 0UL)
+    {
+        uint32_t u32RegTmp;
+        g_u8SDDataReadyFlag = (uint8_t)FALSE;
+        u32Reg = sdh->CTL & (~SDH_CTL_CMDCODE_Msk);
+        u32Reg = u32Reg & (~SDH_CTL_BLKCNT_Msk);
+        u32RegTmp = (loop << 16);
+        u32Reg |= u32RegTmp;    /* setup SDCR_BLKCNT */
+
+        if(u32IsSendCmd == (uint32_t)FALSE)
+        {
+            sdh->CTL = u32Reg | (18UL << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
+            u32IsSendCmd = (uint32_t)TRUE;
+        }
+        else
+        {
+            sdh->CTL = u32Reg | SDH_CTL_DIEN_Msk;
+        }
+
+        while(!g_u8SDDataReadyFlag)
+        {
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
+                return SDH_NO_SD_CARD;
+            }
+        }
+
+        if(!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))     /* check CRC7 */
+        {
+            return SDH_CRC7_ERROR;
+        }
+
+        if(!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))     /* check CRC16 */
+        {
             return SDH_CRC16_ERROR;
         }
     }
 
-    loop = u32SecCount % 255U;
-    if(loop != 0)
+    if(SDH_SDCmdAndRsp(sdh, 12UL, 0UL, 0UL))     /* stop command */
     {
-        _SDH_SDDataReady = FALSE;
-        reg = sdh->CTL & (~SDH_CTL_CMDCODE_Msk);
-        reg = reg & (~SDH_CTL_BLKCNT_Msk);
-        reg |= (loop << 16U);    // setup SDCR_BLKCNT
-
-        if(bIsSendCmd == FALSE)
-        {
-            sdh->CTL = reg | (18U << 8U) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DIEN_Msk);
-            bIsSendCmd = TRUE;
-        }
-        else
-            sdh->CTL = reg | SDH_CTL_DIEN_Msk;
-
-        while(!_SDH_SDDataReady)
-        {
-            if(pSD->IsCardInsert == FALSE)
-                return SDH_NO_SD_CARD;
-        }
-
-        if (!(sdh->INTSTS & SDH_INTSTS_CRC7_Msk))
-        {
-            // check CRC7
-            //DEBUG_PRINTF("sdioSD_Read_in_blksize(): response error!\n");
-            return SDH_CRC7_ERROR;
-        }
-
-        if (!(sdh->INTSTS & SDH_INTSTS_CRC16_Msk))
-        {
-            // check CRC16
-            //DEBUG_PRINTF("sdioSD_Read_in_blksize(): read data error!\n");
-            return SDH_CRC16_ERROR;
-        }
-    }
-
-    if (SDH_SDCmdAndRsp(sdh, 12, 0, 0))
-    {
-        // stop command
-        //DEBUG_PRINTF("stop command fail !!\n");
         return SDH_CRC7_ERROR;
     }
     SDH_CheckRB(sdh);
 
-    SDH_SDCommand(sdh, 7, 0);
+    SDH_SDCommand(sdh, 7UL, 0UL);
     sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
 
     return Successful;
 }
-
 
 /**
  *  @brief  This function use to write data to SD card.
@@ -913,82 +1012,99 @@ uint32_t SDH_Read(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32_
  */
 uint32_t SDH_Write(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32_t u32SecCount)
 {
-    char volatile bIsSendCmd = FALSE;
-    unsigned int volatile reg;
-    int volatile i, loop, status;
+    uint32_t volatile u32IsSendCmd = (uint32_t)FALSE;
+    uint32_t volatile u32Reg;
+    uint32_t volatile i, loop, u32Status;
 
     SDH_INFO_T *pSD;
 
     /* M2351 is only support SDH0 */
     pSD = &SD0;
 
-    //--- check input parameters
-    if(u32SecCount == 0U)
+    /* --- check input parameters */
+    if(u32SecCount == 0UL)
     {
         return SDH_SELECT_ERROR;
     }
 
-    if((status = SDH_SDCmdAndRsp(sdh, 7, pSD->RCA, 0)) != Successful)
-        return status;
+    if((u32Status = SDH_SDCmdAndRsp(sdh, 7UL, pSD->RCA, 0UL)) != Successful)
+    {
+        return u32Status;
+    }
 
     SDH_CheckRB(sdh);
 
-    // According to SD Spec v2.0, the write CMD block size MUST be 512, and the start address MUST be 512*n.
-    sdh->BLEN = SDH_BLOCK_SIZE - 1U;           // set the block size
+    /* According to SD Spec v2.0, the write CMD block size MUST be 512, and the start address MUST be 512*n. */
+    sdh->BLEN = SDH_BLOCK_SIZE - 1UL;           /* set the block size */
 
     if((pSD->CardType == SDH_TYPE_SD_HIGH) || (pSD->CardType == SDH_TYPE_EMMC))
+    {
         sdh->CMDARG = u32StartSec;
+    }
     else
-        sdh->CMDARG = u32StartSec * SDH_BLOCK_SIZE;  // set start address for SD CMD
+    {
+        sdh->CMDARG = u32StartSec * SDH_BLOCK_SIZE;  /* set start address for SD CMD */
+    }
 
     sdh->DMASA = (uint32_t)pu8BufAddr;
-    loop = u32SecCount / 255U;   // the maximum block count is 0xFF=255 for register SDCR[BLK_CNT]
-    for(i = 0; i < loop; i++)
+    loop = u32SecCount / 255UL;   /* the maximum block count is 0xFF=255 for register SDCR[BLK_CNT] */
+    while(loop > 0UL)
     {
-        _SDH_SDDataReady = FALSE;
-        reg = sdh->CTL & 0xff00c080UL;
-        reg = reg | 0xff0000UL;   // set BLK_CNT to 0xFF=255
-        if(!bIsSendCmd)
+        g_u8SDDataReadyFlag = (uint8_t)FALSE;
+        u32Reg = sdh->CTL & 0xff00c080UL;
+        u32Reg = u32Reg | 0xff0000UL;   /* set BLK_CNT to 0xFF=255 */
+        if(!u32IsSendCmd)
         {
-            sdh->CTL = reg | (25U << 8U) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DOEN_Msk);
-            bIsSendCmd = TRUE;
+            sdh->CTL = u32Reg | (25UL << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DOEN_Msk);
+            u32IsSendCmd = (uint32_t)TRUE;
         }
         else
-            sdh->CTL = reg | SDH_CTL_DOEN_Msk;
-
-        while(!_SDH_SDDataReady)
         {
-            if(pSD->IsCardInsert == FALSE)
-                return SDH_NO_SD_CARD;
+            sdh->CTL = u32Reg | SDH_CTL_DOEN_Msk;
         }
 
-        if((sdh->INTSTS & SDH_INTSTS_CRCIF_Msk) != 0U)      // check CRC
+        while(!g_u8SDDataReadyFlag)
+        {
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
+                return SDH_NO_SD_CARD;
+            }
+        }
+
+        if((sdh->INTSTS & SDH_INTSTS_CRCIF_Msk) != 0UL)      /* check CRC */
         {
             sdh->INTSTS = SDH_INTSTS_CRCIF_Msk;
             return SDH_CRC_ERROR;
         }
+        loop--;
     }
 
-    loop = u32SecCount % 255U;
-    if(loop != 0U)
+    loop = u32SecCount % 255UL;
+    if(loop != 0UL)
     {
-        _SDH_SDDataReady = FALSE;
-        reg = (sdh->CTL & 0xff00c080UL) | (loop << 16U);
-        if(!bIsSendCmd)
+        uint32_t u32RegTmp;
+        g_u8SDDataReadyFlag = (uint8_t)FALSE;
+        u32RegTmp = (loop << 16);
+        u32Reg = (sdh->CTL & 0xff00c080UL) | u32RegTmp;
+        if(!u32IsSendCmd)
         {
-            sdh->CTL = reg | (25U << 8U) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DOEN_Msk);
-            bIsSendCmd = TRUE;
+            sdh->CTL = u32Reg | (25UL << 8) | (SDH_CTL_COEN_Msk | SDH_CTL_RIEN_Msk | SDH_CTL_DOEN_Msk);
+            u32IsSendCmd = (uint32_t)TRUE;
         }
         else
-            sdh->CTL = reg | SDH_CTL_DOEN_Msk;
-
-        while(!_SDH_SDDataReady)
         {
-            if(pSD->IsCardInsert == FALSE)
-                return SDH_NO_SD_CARD;
+            sdh->CTL = u32Reg | SDH_CTL_DOEN_Msk;
         }
 
-        if((sdh->INTSTS & SDH_INTSTS_CRCIF_Msk) != 0U)      // check CRC
+        while(!g_u8SDDataReadyFlag)
+        {
+            if(pSD->IsCardInsert == (uint8_t)FALSE)
+            {
+                return SDH_NO_SD_CARD;
+            }
+        }
+
+        if((sdh->INTSTS & SDH_INTSTS_CRCIF_Msk) != 0UL)      /* check CRC */
         {
             sdh->INTSTS = SDH_INTSTS_CRCIF_Msk;
             return SDH_CRC_ERROR;
@@ -996,15 +1112,15 @@ uint32_t SDH_Write(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32
     }
     sdh->INTSTS = SDH_INTSTS_CRCIF_Msk;
 
-    if(SDH_SDCmdAndRsp(sdh, 12, 0, 0))       // stop command
+    if(SDH_SDCmdAndRsp(sdh, 12UL, 0UL, 0UL))       /* stop command */
     {
         return SDH_CRC7_ERROR;
     }
     SDH_CheckRB(sdh);
 
-    SDH_SDCommand(sdh, 7, 0);
+    SDH_SDCommand(sdh, 7UL, 0UL);
     sdh->CTL |= SDH_CTL_CLK8OEN_Msk;
-    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk);
+    while(sdh->CTL & SDH_CTL_CLK8OEN_Msk) {}
 
     return Successful;
 }

@@ -30,14 +30,14 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /* CAN Test Mode Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define    CAN_NORMAL_MODE   0    /*!< CAN select normal mode */
-#define    CAN_BASIC_MODE    1    /*!< CAN select basic mode */
+#define    CAN_NORMAL_MODE   0U    /*!< CAN select normal mode */
+#define    CAN_BASIC_MODE    1U    /*!< CAN select basic mode */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Message ID Type Constant Definitions                                                                    */
 /*---------------------------------------------------------------------------------------------------------*/
-#define    CAN_STD_ID    0    /*!< CAN select standard ID */
-#define    CAN_EXT_ID    1    /*!< CAN select extended ID */
+#define    CAN_STD_ID    0UL    /*!< CAN select standard ID */
+#define    CAN_EXT_ID    1UL    /*!< CAN select extended ID */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Message Frame Type Constant Definitions                                                                 */
@@ -76,9 +76,9 @@ typedef struct
 
 /*@}*/ /* end of group M2351_CAN_EXPORTED_STRUCTS */
 
-/// @cond HIDDEN_SYMBOLS
+/** @cond HIDDEN_SYMBOLS */
 #define MSG(id)  (id)
-/// @endcond //HIDDEN_SYMBOLS
+/** @endcond HIDDEN_SYMBOLS */
 
 /** @addtogroup M2351_CAN_EXPORTED_FUNCTIONS CAN Exported Functions
   @{
@@ -148,18 +148,30 @@ typedef struct
 /* Define CAN functions prototype                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
 uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate);
-uint32_t CAN_Open(CAN_T *tCAN, uint32_t u32BaudRate, uint32_t u32Mode);
 void CAN_Close(CAN_T *tCAN);
+uint32_t CAN_Open(CAN_T *tCAN, uint32_t u32BaudRate, uint32_t u32Mode);
 void CAN_CLR_INT_PENDING_BIT(CAN_T *tCAN, uint8_t u32MsgNum);
 void CAN_EnableInt(CAN_T *tCAN, uint32_t u32Mask);
 void CAN_DisableInt(CAN_T *tCAN, uint32_t u32Mask);
-int32_t CAN_Transmit(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
-int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
-int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32MsgCount, uint32_t u32IDType, uint32_t u32ID);
-int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint32_t u32ID);
-int32_t CAN_SetRxMsgAndMsk(CAN_T *tCAN, uint32_t u32MsgNum , uint32_t u32IDType, uint32_t u32ID, uint32_t u32IDMask);
-int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum , STR_CANMSG_T* pCanMsg);
+int32_t CAN_Transmit(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T* pCanMsg);
+int32_t CAN_Receive(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T* pCanMsg);
+int32_t CAN_SetMultiRxMsg(CAN_T *tCAN, uint32_t u32MsgNum, uint32_t u32MsgCount, uint32_t u32IDType, uint32_t u32ID);
+int32_t CAN_SetRxMsg(CAN_T *tCAN, uint32_t u32MsgNum, uint32_t u32IDType, uint32_t u32ID);
+int32_t CAN_SetRxMsgAndMsk(CAN_T *tCAN, uint32_t u32MsgNum, uint32_t u32IDType, uint32_t u32ID, uint32_t u32IDMask);
+int32_t CAN_SetTxMsg(CAN_T *tCAN, uint32_t u32MsgNum, STR_CANMSG_T* pCanMsg);
 int32_t CAN_TriggerTxMsg(CAN_T  *tCAN, uint32_t u32MsgNum);
+void CAN_EnterInitMode(CAN_T *tCAN, uint8_t u8Mask);
+void CAN_LeaveInitMode(CAN_T *tCAN);
+void CAN_WaitMsg(CAN_T *tCAN);
+uint32_t CAN_GetCANBitRate(CAN_T *tCAN);
+void CAN_EnterTestMode(CAN_T *tCAN, uint8_t u8TestMask);
+void CAN_LeaveTestMode(CAN_T *tCAN);
+uint32_t CAN_IsNewDataReceived(CAN_T *tCAN, uint8_t u8MsgObj);
+int32_t CAN_BasicSendMsg(CAN_T *tCAN, STR_CANMSG_T* pCanMsg);
+int32_t CAN_BasicReceiveMsg(CAN_T *tCAN, STR_CANMSG_T* pCanMsg);
+int32_t CAN_SetRxMsgObjAndMsk(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8idType, uint32_t u32id, uint32_t u32idmask, uint8_t u8singleOrFifoLast);
+int32_t CAN_SetRxMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8idType, uint32_t u32id, uint8_t u8singleOrFifoLast);
+int32_t CAN_ReadMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8Release, STR_CANMSG_T* pCanMsg);
 
 
 /*@}*/ /* end of group CAN_EXPORTED_FUNCTIONS */
@@ -172,6 +184,6 @@ int32_t CAN_TriggerTxMsg(CAN_T  *tCAN, uint32_t u32MsgNum);
 }
 #endif
 
-#endif //__CAN_H__
+#endif /* __CAN_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

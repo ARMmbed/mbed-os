@@ -6,7 +6,7 @@
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 /** @addtogroup Standard_Driver Standard Driver
@@ -24,11 +24,14 @@
 /**
  * @brief       Set GPIO operation mode
  *
- * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF or PG.
+ * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF, PG or PH.
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
- *                          It could be BIT0 ~ BIT15 for PA, PB, PC, PD and PF. \n
- *                          It could be BIT0 ~ BIT13 for PE. \n
- *                          It could be BIT1 ~ BIT5, BIT7 ~ BIT12 for PG.
+ *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
+ *                          It could be BIT0 ~ BIT13 for PC. \n
+ *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT11 for PF. \n
+ *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
+ *                          It could be BIT4 ~ BIT11 for PH.
  * @param[in]   u32Mode     Operation mode. It could be
  *                          - \ref GPIO_MODE_INPUT
  *                          - \ref GPIO_MODE_OUTPUT
@@ -43,11 +46,11 @@ void GPIO_SetMode(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 {
     uint32_t i;
 
-    for(i = 0; i < GPIO_PIN_MAX; i++)
+    for(i = 0ul; i < GPIO_PIN_MAX; i++)
     {
-        if(u32PinMask & (1 << i))
+        if((u32PinMask & (1ul << i)) == (1ul << i))
         {
-            port->MODE = (port->MODE & ~(0x3 << (i << 1))) | (u32Mode << (i << 1));
+            port->MODE = (port->MODE & ~(0x3ul << (i << 1))) | (u32Mode << (i << 1));
         }
     }
 }
@@ -55,11 +58,14 @@ void GPIO_SetMode(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 /**
  * @brief       Enable GPIO interrupt
  *
- * @param[in]   port            GPIO port. It could be PA, PB, PC, PD, PE, PF and PG.
+ * @param[in]   port            GPIO port. It could be PA, PB, PC, PD, PE, PF, PG or PH.
  * @param[in]   u32Pin          The pin of specified GPIO port. \n
- *                              It could be 0 ~ 15 for PA, PB, PC, PD and PF GPIO port. \n
- *                              It could be 0 ~ 13 for PE GPIO port. \n
- *                              It could be 1 ~ 5, 7 ~ 12 for PG GPIO port.
+ *                              It could be 0 ~ 15 for PA, PB and PE. \n
+ *                              It could be 0 ~ 13 for PC GPIO port. \n
+ *                              It could be 0 ~ 14 for PD GPIO port. \n
+ *                              It could be 0 ~ 11 for PF GPIO port. \n
+ *                              It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
+ *                              It could be 4 ~ 11 for PH GPIO port.
  * @param[in]   u32IntAttribs   The interrupt attribute of specified GPIO pin. It could be
  *                              - \ref GPIO_INT_RISING
  *                              - \ref GPIO_INT_FALLING
@@ -84,11 +90,15 @@ void GPIO_EnableInt(GPIO_T *port, uint32_t u32Pin, uint32_t u32IntAttribs)
 /**
  * @brief       Disable GPIO interrupt
  *
- * @param[in]   port            GPIO port. It could be PA, PB, PC, PD, PE, PF and PG.
- * @param[in]   u32Pin          The pin of specified GPIO port. \n
- *                              It could be 0 ~ 15 for PA, PB, PC, PD and PF GPIO port. \n
- *                              It could be 0 ~ 13 for PE GPIO port. \n
- *                              It could be 1 ~ 5, 7 ~ 12 for PG GPIO port.
+
+ * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF, PG or PH.
+ * @param[in]   u32Pin      The pin of specified GPIO port. \n
+ *                          It could be 0 ~ 15 for PA, PB and PE. \n
+ *                          It could be 0 ~ 13 for PC GPIO port. \n
+ *                          It could be 0 ~ 14 for PD GPIO port. \n
+ *                          It could be 0 ~ 11 for PF GPIO port. \n
+ *                          It could be 2 ~ 4, 9 ~ 15 for PG GPIO port. \n
+ *                          It could be 4 ~ 11 for PH GPIO port.
  *
  * @return      None
  *
@@ -106,11 +116,15 @@ void GPIO_DisableInt(GPIO_T *port, uint32_t u32Pin)
 /**
  * @brief       Set GPIO slew rate control
  *
- * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF or PG.
+
+ * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF, PG or PH.
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
- *                          It could be BIT0 ~ BIT15 for PA, PB, PC, PD and PF. \n
- *                          It could be BIT0 ~ BIT13 for PE. \n
- *                          It could be BIT1 ~ BIT5, BIT7 ~ BIT12 for PG.
+ *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
+ *                          It could be BIT0 ~ BIT13 for PC. \n
+ *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT11 for PF. \n
+ *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
+ *                          It could be BIT4 ~ BIT11 for PH.
  * @param[in]   u32Mode     Slew rate mode.  It could be
  *                          - \ref GPIO_SLEWCTL_NORMAL (maximum 40 MHz at 2.7V)
  *                          - \ref GPIO_SLEWCTL_HIGH (maximum 80 MHz at 2.7V)
@@ -136,11 +150,15 @@ void GPIO_SetSlewCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 /**
  * @brief       Set GPIO Pull-up and Pull-down control
  *
- * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF or PG.
+
+ * @param[in]   port        GPIO port. It could be PA, PB, PC, PD, PE, PF, PG or PH.
  * @param[in]   u32PinMask  The single or multiple pins of specified GPIO port. \n
- *                          It could be BIT0 ~ BIT15 for PA, PB, PC, PD and PF. \n
- *                          It could be BIT0 ~ BIT13 for PE. \n
- *                          It could be BIT1 ~ BIT5, BIT7 ~ BIT12 for PG.
+ *                          It could be BIT0 ~ BIT15 for PA, PB and PE. \n
+ *                          It could be BIT0 ~ BIT13 for PC. \n
+ *                          It could be BIT0 ~ BIT14 for PD. \n
+ *                          It could be BIT0 ~ BIT11 for PF. \n
+ *                          It could be BIT2 ~ BIT3, BIT9 ~ BIT15 for PG. \n
+ *                          It could be BIT4 ~ BIT11 for PH.
  * @param[in]   u32Mode     The pin mode of specified GPIO pin. It could be
  *                          - \ref GPIO_PUSEL_DISABLE
  *                          - \ref GPIO_PUSEL_PULL_UP

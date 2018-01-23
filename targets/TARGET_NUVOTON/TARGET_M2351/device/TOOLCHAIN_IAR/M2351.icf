@@ -8,8 +8,8 @@ define symbol __ICFEDIT_intvec_start__ = 0x10040000;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__ = 0x10040000;
 define symbol __ICFEDIT_region_ROM_end__   = 0x10080000 - 1;
-define symbol __ICFEDIT_region_IRAM_start__ = 0x30010000;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x30020000 - 1;
+define symbol __ICFEDIT_region_IRAM_start__ = 0x30006000;
+define symbol __ICFEDIT_region_IRAM_end__   = 0x30018000 - 1;
 } else {
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
@@ -19,11 +19,15 @@ define symbol __ICFEDIT_region_ROM_end__   = 0x0003F000 - 1;
 define symbol __ICFEDIT_region_NSCROM_start__ = 0x0003F000;
 define symbol __ICFEDIT_region_NSCROM_end__   = 0x00040000 - 1;
 define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x20010000 - 1;
+define symbol __ICFEDIT_region_IRAM_end__   = 0x20006000 - 1;
 }
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = 0x800;
+if (isdefinedsymbol(__DOMAIN_NS)) {
 define symbol __ICFEDIT_size_heap__   = 0x4000;
+} else {
+define symbol __ICFEDIT_size_heap__   = 0x1000;
+}
 /**** End of ICF editor section. ###ICF###*/
 
 

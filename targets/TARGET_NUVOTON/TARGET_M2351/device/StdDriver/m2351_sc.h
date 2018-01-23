@@ -1,10 +1,9 @@
 /**************************************************************************//**
  * @file     sc.h
  * @version  V3.00
- * @brief    Smart Card(SC) driver header file
+ * @brief    Smartcard(SC) driver header file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SC_H__
 #define __SC_H__
@@ -52,7 +51,7 @@ extern "C"
 */
 
 /**
-  * @brief      Enable Smartcard Interrupt
+  * @brief      This macro enable smartcard interrupt
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32Mask Interrupt mask to be enabled. A combination of
@@ -78,7 +77,7 @@ extern "C"
 #define SC_ENABLE_INT(sc, u32Mask)      ((sc)->INTEN |= (u32Mask))
 
 /**
-  * @brief      Disable Smartcard Interrupt
+  * @brief      This macro disable smartcard interrupt
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32Mask Interrupt mask to be disabled. A combination of
@@ -104,12 +103,10 @@ extern "C"
 #define SC_DISABLE_INT(sc, u32Mask)     ((sc)->INTEN &= ~(u32Mask))
 
 /**
-  * @brief      Set Smartcard Power Pin State
+  * @brief      This macro set VCC pin state of smartcard interface
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32State    Set pin state of power pin, valid parameters are:
-  *                             - \ref SC_PIN_STATE_HIGH
-  *                             - \ref SC_PIN_STATE_LOW
+  * @param[in]  u32State    Pin state of VCC pin, valid parameters are \ref SC_PIN_STATE_HIGH and \ref SC_PIN_STATE_LOW.
   *
   * @return     None
   *
@@ -127,12 +124,10 @@ extern "C"
 
 
 /**
-  * @brief      Set Smartcard Clock Status
+  * @brief      This macro turns CLK output on or off
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32OnOff    Set clock on or off for selected smartcard module, valid values are:
-  *                             - \ref SC_CLK_ON
-  *                             - \ref SC_CLK_OFF
+  * @param[in] u32OnOff     Clock on or off for selected smartcard module, valid values are \ref SC_CLK_ON and \ref SC_CLK_OFF.
   *
   * @return     None
   *
@@ -149,12 +144,10 @@ extern "C"
     }while(0)
 
 /**
-  * @brief      Set Smartcard I/O Pin State
+  * @brief      This macro set I/O pin state of smartcard interface
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32State    Set pin state of I/O pin, valid parameters are:
-  *                             - \ref SC_PIN_STATE_HIGH
-  *                             - \ref SC_PIN_STATE_LOW
+  * @param[in] u32State     Pin state of I/O pin, valid parameters are \ref SC_PIN_STATE_HIGH and \ref SC_PIN_STATE_LOW.
   *
   * @return     None
   *
@@ -171,12 +164,10 @@ extern "C"
     }while(0)
 
 /**
-  * @brief      Set Smartcard Reset Pin State
+  * @brief      This macro set RST pin state of smartcard interface
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32State    Set pin state of reset pin, valid parameters are:
-  *                             - \ref SC_PIN_STATE_HIGH
-  *                             - \ref SC_PIN_STATE_LOW
+  * @param[in] u32State     Pin state of RST pin, valid parameters are \ref SC_PIN_STATE_HIGH and \ref SC_PIN_STATE_LOW.
   *
   * @return     None
   *
@@ -193,7 +184,7 @@ extern "C"
     }while(0)
 
 /**
-  * @brief      Read One Byte Data
+  * @brief      This macro read one byte from smartcard module receive FIFO
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
@@ -205,7 +196,7 @@ extern "C"
 #define SC_READ(sc)             ((char)((sc)->DAT))
 
 /**
-  * @brief      Write One Byte Data
+  * @brief      This macro write one byte to smartcard module transmit FIFO
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u8Data  Data to write to transmit FIFO.
@@ -218,7 +209,7 @@ extern "C"
 #define SC_WRITE(sc, u8Data)    ((sc)->DAT = (u8Data))
 
 /**
-  * @brief      Set Smartcard Stop Bit Length
+  * @brief      This macro set smartcard stop bit length
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32Len  Stop bit length, ether 1 or 2.
@@ -230,62 +221,59 @@ extern "C"
   */
 #define SC_SET_STOP_BIT_LEN(sc, u32Len) ((sc)->CTL = ((sc)->CTL & ~SC_CTL_NSB_Msk) | (((u32Len) == 1)? SC_CTL_NSB_Msk : 0))
 
+
+/*---------------------------------------------------------------------------------------------------------*/
+/* static inline functions                                                                                 */
+/*---------------------------------------------------------------------------------------------------------*/
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+__STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count);
+__STATIC_INLINE void SC_SetRxRetry(SC_T *sc, uint32_t u32Count);
+
+
 /**
-  * @brief      Set Tx Error Retry Count
+  * @brief      Enable/Disable Tx error retry, and set Tx error retry count
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32Count    The number of Tx error retry count, between 0~8 and 0 means disable Tx error retry function.
+  * @param[in]  u32Count    The number of times of Tx error retry count, between 0~8. 0 means disable Tx error retry.
   *
   * @return     None
   *
   * @details    This function is used to enable/disable transmitter retry function when parity error has occurred, and set error retry count.
-  * @note       Set error retry count to 0 will disable Tx error retry function.
   */
 __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk)
-    {
-        ;
-    }
+    while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+
     /* Retry count must set while enable bit disabled, so disable it first */
     (sc)->CTL &= ~(SC_CTL_TXRTY_Msk | SC_CTL_TXRTYEN_Msk);
 
     if((u32Count) != 0UL)
     {
-        while((sc)->CTL & SC_CTL_SYNC_Msk)
-        {
-            ;
-        }
+        while((sc)->CTL & SC_CTL_SYNC_Msk) {}
         (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_TXRTY_Pos) | SC_CTL_TXRTYEN_Msk;
     }
 }
 
 /**
-  * @brief      Set Rx Error Retry Count
+  * @brief      Enable/Disable Rx error retry, and set Rx error retry count
   *
   * @param[in]  sc          The pointer of smartcard module.
-  * @param[in]  u32Count    The number of Rx error retry count, between 0~8 and 0 means disable Rx error retry function.
+  * @param[in]  u32Count    The number of times of Rx error retry count, between 0~8. 0 means disable Rx error retry.
   *
   * @return     None
   *
   * @details    This function is used to enable/disable receiver retry function when parity error has occurred, and set error retry count.
-  * @note       Set error retry count to 0 will disable Rx error retry function.
   */
-__STATIC_INLINE void  SC_SetRxRetry(SC_T *sc, uint32_t u32Count)
+__STATIC_INLINE void SC_SetRxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while((sc)->CTL & SC_CTL_SYNC_Msk)
-    {
-        ;
-    }
+    while((sc)->CTL & SC_CTL_SYNC_Msk) {}
+
     /* Retry count must set while enable bit disabled, so disable it first */
     (sc)->CTL &= ~(SC_CTL_RXRTY_Msk | SC_CTL_RXRTYEN_Msk);
 
     if((u32Count) != 0UL)
     {
-        while((sc)->CTL & SC_CTL_SYNC_Msk)
-        {
-            ;
-        }
+        while((sc)->CTL & SC_CTL_SYNC_Msk) {}
         (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_RXRTY_Pos) | SC_CTL_RXRTYEN_Msk;
     }
 }
@@ -303,6 +291,7 @@ void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u3
 void SC_StopTimer(SC_T *sc, uint32_t u32TimerNum);
 uint32_t SC_GetInterfaceClock(SC_T *sc);
 
+
 /*@}*/ /* end of group SC_EXPORTED_FUNCTIONS */
 
 /*@}*/ /* end of group SC_Driver */
@@ -313,6 +302,6 @@ uint32_t SC_GetInterfaceClock(SC_T *sc);
 }
 #endif
 
-#endif //__SC_H__
+#endif /* __SC_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

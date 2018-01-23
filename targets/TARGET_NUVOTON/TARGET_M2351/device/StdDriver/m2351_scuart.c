@@ -1,13 +1,13 @@
 /**************************************************************************//**
  * @file     scuart.c
  * @version  V3.00
- * @brief    Smart Card UART(SCUART) driver source file
+ * @brief    Smartcard UART mode (SCUART) driver source file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
+static uint32_t SCUART_GetClock(SC_T *sc);
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -22,13 +22,13 @@
 */
 
 /**
-  * @brief      Disable Smartcard UART Function
+  * @brief      Disable smartcard interface
   *
   * @param      sc      The pointer of smartcard module.
   *
   * @return     None
   *
-  * @details    The function is used to disable Smartcard interface UART mode.
+  * @details    The function is used to disable smartcard interface UART mode.
   */
 void SCUART_Close(SC_T* sc)
 {
@@ -39,30 +39,30 @@ void SCUART_Close(SC_T* sc)
 
 /** @cond HIDDEN_SYMBOLS */
 /**
-  * @brief      Get Smartcard Clock Frequency
+  * @brief      Returns module clock of specified SC interface
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
-  * @return     Module clock of specified SC port.
+  * @return     Module clock of specified SC interface.
   */
 static uint32_t SCUART_GetClock(SC_T *sc)
 {
-    uint32_t u32ClkSrc, u32Num, u32Clk, u32Div;
+    uint32_t u32ClkSrc, u32Num, u32Clk = __HIRC, u32Div;
 
     /* Get smartcard module clock source and divider */
-    if(sc == SC0)
+    if((sc == SC0) || (sc == SC0_NS))
     {
         u32Num = 0UL;
         u32ClkSrc = CLK_GetModuleClockSource(SC0_MODULE);
         u32Div = CLK_GetModuleClockDivider(SC0_MODULE);
     }
-    else if(sc == SC1)
+    else if((sc == SC1) || (sc == SC1_NS))
     {
         u32Num = 1UL;
         u32ClkSrc = CLK_GetModuleClockSource(SC1_MODULE);
         u32Div = CLK_GetModuleClockDivider(SC1_MODULE);
     }
-    else if(sc == SC2)
+    else if((sc == SC2) || (sc == SC2_NS))
     {
         u32Num = 2UL;
         u32ClkSrc = CLK_GetModuleClockSource(SC2_MODULE);
@@ -70,42 +70,49 @@ static uint32_t SCUART_GetClock(SC_T *sc)
     }
     else
     {
-        return 0;
+        u32Clk = 0UL;
     }
 
-    /* Get smartcard module clock */
-    if(u32ClkSrc == 0UL)
+    if(u32Clk == 0UL)
     {
-        u32Clk = __HXT;
-    }
-    else if(u32ClkSrc == 1UL)
-    {
-        u32Clk = CLK_GetPLLClockFreq();
-    }
-    else if(u32ClkSrc == 2UL)
-    {
-        if(u32Num == 1UL)
-        {
-            u32Clk = CLK_GetPCLK1Freq();
-        }
-        else
-        {
-            u32Clk = CLK_GetPCLK0Freq();
-        }
+        ; /* Invalid sc port */
     }
     else
     {
-        u32Clk = __HIRC;
-    }
+        /* Get smartcard module clock */
+        if(u32ClkSrc == 0UL)
+        {
+            u32Clk = __HXT;
+        }
+        else if(u32ClkSrc == 1UL)
+        {
+            u32Clk = CLK_GetPLLClockFreq();
+        }
+        else if(u32ClkSrc == 2UL)
+        {
+            if(u32Num == 1UL)
+            {
+                u32Clk = CLK_GetPCLK1Freq();
+            }
+            else
+            {
+                u32Clk = CLK_GetPCLK0Freq();
+            }
+        }
+        else
+        {
+            u32Clk = __HIRC;
+        }
 
-    u32Clk /= (u32Div + 1UL);
+        u32Clk /= (u32Div + 1UL);
+    }
 
     return u32Clk;
 }
 /** @endcond HIDDEN_SYMBOLS */
 
 /**
-  * @brief      Enable Smartcard UART Function
+  * @brief      Enable smartcard module UART mode and set baudrate
   *
   * @param[in]  sc          The pointer of smartcard module.
   * @param[in]  u32Baudrate Target baudrate of smartcard UART module.
@@ -116,11 +123,11 @@ static uint32_t SCUART_GetClock(SC_T *sc)
   *
   * @note       This function configures character width to 8 bits, 1 stop bit, and no parity.
   *             And can use \ref SCUART_SetLineConfig function to update these settings.
-  *          	The baudrate clock source comes from SC_CLK/SC_DIV, where SC_CLK is controlled
-  *          	by SCxSEL in CLKSEL3 register, SC_DIV is controlled by SCxDIV in CLKDIV1
-  *          	register. Since the baudrate divider is 12-bit wide and must be larger than 4,
-  *          	(clock source / baudrate) must be larger or equal to 5 and smaller or equal to
-  *          	4096. Otherwise this function cannot configure SCUART to work with target baudrate.
+  *             The baudrate clock source comes from SC_CLK/SC_DIV, where SC_CLK is controlled
+  *             by SCxSEL in CLKSEL3 register, SC_DIV is controlled by SCxDIV in CLKDIV1
+  *             register. Since the baudrate divider is 12-bit wide and must be larger than 4,
+  *             (clock source / baudrate) must be larger or equal to 5 and smaller or equal to
+  *             4096. Otherwise this function cannot configure SCUART to work with target baudrate.
   */
 uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate)
 {
@@ -129,19 +136,19 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate)
     /* Calculate divider for target baudrate */
     u32Div = (u32Clk + (u32Baudrate >> 1) - 1UL) / u32Baudrate - 1UL;
 
-    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;  // Enable smartcard interface and stop bit = 1
-    sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; // Enable UART mode, disable parity and 8 bit per character
+    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;  /* Enable smartcard interface and stop bit = 1 */
+    sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; /* Enable UART mode, disable parity and 8 bit per character */
     sc->ETUCTL = u32Div;
 
     return(u32Clk / (u32Div + 1UL));
 }
 
 /**
-  * @brief      Read SC UART Data
+  * @brief      Read Rx data from Rx FIFO
   *
   * @param[in]  sc              The pointer of smartcard module.
   * @param[in]  pu8RxBuf        The buffer to store receive the data.
-  * @param[in]  u32ReadBytes    Number of data to receive.
+  * @param[in] u32ReadBytes     Target number of characters to receive
   *
   * @return     Actual character number reads to buffer
   *
@@ -149,7 +156,7 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate)
   *
   * @note       This function does not block and return immediately if there's no data available.
   */
-uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
+uint32_t SCUART_Read(SC_T* sc, uint8_t pu8RxBuf[], uint32_t u32ReadBytes)
 {
     uint32_t u32Count;
 
@@ -166,7 +173,7 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
 }
 
 /**
-  * @brief      Set SC UART Line Setting
+  * @brief      Configure smartcard UART mode line setting
   *
   * @param[in]  sc              The pointer of smartcard module.
   * @param[in]  u32Baudrate     Target baudrate of smartcard UART mode. If this value is 0, SC UART baudrate will not change.
@@ -185,32 +192,36 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
   *
   * @return     Actual baudrate of smartcard UART mode
   *
-  * @details    SC UART function is operated in SC UART line setting.
+  * @details    The baudrate clock source comes from SC_CLK/SC_DIV, where SC_CLK is controlled
+  *             by SCxSEL in CLKSEL3 register, SC_DIV is controlled by SCxDIV in CLKDIV1
+  *             register. Since the baudrate divider is 12-bit wide and must be larger than 4,
+  *             (clock source / baudrate) must be larger or equal to 5 and smaller or equal to
+  *             4096. Otherwise this function cannot configure SCUART to work with target baudrate.
   */
 uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t u32StopBits)
 {
     uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
 
-    if(u32Baudrate == 0)
-    { 
+    if(u32Baudrate == 0UL)
+    {
         /* Keep original baudrate setting */
         u32Div = sc->ETUCTL & SC_ETUCTL_ETURDIV_Msk;
     }
     else
     {
         /* Calculate divider for target baudrate */
-        u32Div = ((u32Clk + (u32Baudrate >> 1) - 1) / u32Baudrate) - 1;
+        u32Div = ((u32Clk + (u32Baudrate >> 1) - 1UL) / u32Baudrate) - 1UL;
         sc->ETUCTL = u32Div;
     }
 
-    sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;  // Set stop bit
-    sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;  // Set character width and parity
+    sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;  /* Set stop bit */
+    sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;  /* Set character width and parity */
 
-    return (u32Clk / (u32Div + 1));
+    return (u32Clk / (u32Div + 1UL));
 }
 
 /**
-  * @brief      Set Receive Time-out Count
+  * @brief      Set receive timeout count
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u32TOC  Rx time-out counter, using baudrate as counter unit. Valid range are 0~0x1FF,
@@ -228,11 +239,11 @@ void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC)
 }
 
 /**
-  * @brief      Write SC UART Data
+  * @brief      Write data into transmit FIFO to send data out
   *
   * @param[in]  sc              The pointer of smartcard module.
   * @param[in]  pu8TxBuf        The buffer containing data to send to transmit FIFO.
-  * @param[in]  u32WriteBytes   Number of data to transmit.
+  * @param[in]  u32WriteBytes   Number of data to send.
   *
   * @return     None
   *
@@ -252,7 +263,7 @@ void SCUART_Write(SC_T* sc, uint8_t pu8TxBuf[], uint32_t u32WriteBytes)
             ;
         }
         /* Write 1 byte to FIFO */
-        sc->DAT = pu8TxBuf[u32Count];  // Write 1 byte to FIFO
+        sc->DAT = pu8TxBuf[u32Count];  /* Write 1 byte to FIFO */
     }
 }
 

@@ -6,7 +6,7 @@
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -33,16 +33,16 @@
   */
 void EADC_Open(EADC_T *eadc, uint32_t u32InputMode)
 {
-    eadc->CTL &= (~(EADC_CTL_DIFFEN_Msk | 0x70000UL));
+    eadc->CTL &= (~(EADC_CTL_DIFFEN_Msk));
 
     eadc->CTL |= (u32InputMode | EADC_CTL_ADCEN_Msk);
 
-    while(!(eadc->PWRM & EADC_PWRM_PWUPRDY_Msk));
+    while(!(eadc->PWRM & EADC_PWRM_PWUPRDY_Msk)) {}
 }
 
 /**
   * @brief Disable EADC_module.
-  * @param[in] eadc The pointer of the specified EADC module..
+  * @param[in] eadc The pointer of the specified EADC module.
   * @return None
   * @details Clear ADCEN bit (EADC_CTL[0]) to disable A/D converter analog circuit power consumption.
   */
@@ -66,18 +66,18 @@ void EADC_Close(EADC_T *eadc)
   *                            - \ref EADC_TIMER1_TRIGGER                : Timer1 overflow pulse trigger
   *                            - \ref EADC_TIMER2_TRIGGER                : Timer2 overflow pulse trigger
   *                            - \ref EADC_TIMER3_TRIGGER                : Timer3 overflow pulse trigger
-  *                            - \ref EADC_PWM0TG0_TRIGGER               : PWM0TG0 trigger
-  *                            - \ref EADC_PWM0TG1_TRIGGER               : PWM0TG1 trigger
-  *                            - \ref EADC_PWM0TG2_TRIGGER               : PWM0TG2 trigger
-  *                            - \ref EADC_PWM0TG3_TRIGGER               : PWM0TG3 trigger
-  *                            - \ref EADC_PWM0TG4_TRIGGER               : PWM0TG4 trigger
-  *                            - \ref EADC_PWM0TG5_TRIGGER               : PWM0TG5 trigger
-  *                            - \ref EADC_PWM1TG0_TRIGGER               : PWM1TG0 trigger
-  *                            - \ref EADC_PWM1TG1_TRIGGER               : PWM1TG1 trigger
-  *                            - \ref EADC_PWM1TG2_TRIGGER               : PWM1TG2 trigger
-  *                            - \ref EADC_PWM1TG3_TRIGGER               : PWM1TG3 trigger
-  *                            - \ref EADC_PWM1TG4_TRIGGER               : PWM1TG4 trigger
-  *                            - \ref EADC_PWM1TG5_TRIGGER               : PWM1TG5 trigger
+  *                            - \ref EADC_PWM0TG0_TRIGGER               : EPWM0TG0 trigger
+  *                            - \ref EADC_PWM0TG1_TRIGGER               : EPWM0TG1 trigger
+  *                            - \ref EADC_PWM0TG2_TRIGGER               : EPWM0TG2 trigger
+  *                            - \ref EADC_PWM0TG3_TRIGGER               : EPWM0TG3 trigger
+  *                            - \ref EADC_PWM0TG4_TRIGGER               : EPWM0TG4 trigger
+  *                            - \ref EADC_PWM0TG5_TRIGGER               : EPWM0TG5 trigger
+  *                            - \ref EADC_PWM1TG0_TRIGGER               : EPWM1TG0 trigger
+  *                            - \ref EADC_PWM1TG1_TRIGGER               : EPWM1TG1 trigger
+  *                            - \ref EADC_PWM1TG2_TRIGGER               : EPWM1TG2 trigger
+  *                            - \ref EADC_PWM1TG3_TRIGGER               : EPWM1TG3 trigger
+  *                            - \ref EADC_PWM1TG4_TRIGGER               : EPWM1TG4 trigger
+  *                            - \ref EADC_PWM1TG5_TRIGGER               : EPWM1TG5 trigger
   *                            - \ref EADC_BPWM0TG_TRIGGER               : BPWM0TG trigger
   *                            - \ref EADC_BPWM1TG_TRIGGER               : BPWM1TG trigger
   * @param[in] u32Channel Specifies the sample module channel, valid value are from 0 to 15.
@@ -117,7 +117,6 @@ void EADC_SetTriggerDelayTime(EADC_T *eadc, \
     eadc->SCTL[u32ModuleNum] &= ~(EADC_SCTL_TRGDLYDIV_Msk | EADC_SCTL_TRGDLYCNT_Msk);
     eadc->SCTL[u32ModuleNum] |= ((u32TriggerDelayTime << EADC_SCTL_TRGDLYCNT_Pos) | u32DelayClockDivider);
 }
-
 
 /**
   * @brief Set ADC extend sample time.
