@@ -1,0 +1,27 @@
+{
+  "testcases": [
+    {
+      "config": {
+        "requirements": {
+          "duts": {
+            "*": {
+              "count": 1, 
+              "application": {
+                "bin": "/Users/ollpuo01/git/mbed-os-icetea-integration/BUILD/tests/K64F/GCC_ARM/./TEST_APPS/device/exampleapp/exampleapp.bin", 
+                "name": "TEST_APPS-device-exampleapp"
+              }, 
+              "type": "hardware", 
+              "allowed_platforms": [
+                "K64F"
+              ]
+            }
+          }, 
+          "external": {
+            "apps": []
+          }
+        }
+      }, 
+      "name": "test_cmdline"
+    }
+  ]
+}

@@ -8,7 +8,15 @@
         "fea-ipv6": {
             "help": "Used to globally disable ipv6 tracing features.",
             "value": null
+        },
+        "allocator": {
+            "value": "malloc",
+            "macro_name": "MEM_ALLOC"
+        },
+        "deallocator": {
+            "value": "free",
+            "macro_name": "MEM_FREE"
         }
 
-    }    
+    }
 }
