@@ -1,10 +1,9 @@
 /**************************************************************************//**
  * @file     scuart.h
  * @version  V3.00
- * @brief    Smart Card UART(SCUART) driver header file
+ * @brief    Smartcard UART mode (SCUART) driver header file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SCUART_H__
 #define __SCUART_H__
@@ -45,9 +44,9 @@ extern "C"
   @{
 */
 
-/* Tx Macros */
+/* TX Macros */
 /**
-  * @brief      Write Data to Tx Data Register
+  * @brief Write Data to Tx data register
   *
   * @param[in]  sc      The pointer of smartcard module.
   * @param[in]  u8Data  Data byte to transmit.
@@ -60,10 +59,11 @@ extern "C"
 #define SCUART_WRITE(sc, u8Data)    ((sc)->DAT = (u8Data))
 
 /**
-  * @brief      Get Tx FIFO Empty Flag Status
+  * @brief      Get Tx FIFO empty flag status from register
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Transmit FIFO empty status
   * @retval     0                       Transmit FIFO is not empty
   * @retval     SC_STATUS_TXEMPTY_Msk   Transmit FIFO is empty
   *
@@ -74,10 +74,11 @@ extern "C"
 #define SCUART_GET_TX_EMPTY(sc)     ((sc)->STATUS & SC_STATUS_TXEMPTY_Msk)
 
 /**
-  * @brief      Get Tx FIFO Full Flag Status
+  * @brief Get Tx FIFO full flag status from register
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Transmit FIFO full status
   * @retval     0                       Transmit FIFO is not full
   * @retval     SC_STATUS_TXFULL_Msk    Transmit FIFO is full
   *
@@ -87,7 +88,7 @@ extern "C"
 #define SCUART_GET_TX_FULL(sc)      ((sc)->STATUS & SC_STATUS_TXFULL_Msk)
 
 /**
-  * @brief      Wait specified Smartcard port Transmission Complete
+  * @brief      Wait specified smartcard port transmission complete
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
@@ -101,10 +102,11 @@ extern "C"
 #define SCUART_WAIT_TX_EMPTY(sc)    while((sc)->STATUS & SC_STATUS_TXACT_Msk)
 
 /**
-  * @brief      Check Tx FIFO Full Status
+  * @brief      Check specified smartcard port transmit FIFO is full or not
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Transmit FIFO full status
   * @retval     0       Transmit FIFO is not full
   * @retval     1       Transmit FIFO is full
   *
@@ -115,10 +117,11 @@ extern "C"
 #define SCUART_IS_TX_FULL(sc)       (((sc)->STATUS & SC_STATUS_TXFULL_Msk)? 1 : 0)
 
 /**
-  * @brief      Check Tx Transmit Complete Status
+  * @brief      Check specified smartcard port transmission is over
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Transmit complete status
   * @retval     0       Transmit is not complete
   * @retval     1       Transmit complete
   *
@@ -128,10 +131,11 @@ extern "C"
 #define SCUART_IS_TX_EMPTY(sc)      (((sc)->STATUS & SC_STATUS_TXACT_Msk)? 0 : 1)
 
 /**
-  * @brief      Check Tx FIFO Empty Status
+  * @brief      Check specified smartcard port transmit FIFO empty status
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Transmit FIFO empty status
   * @retval     0       Transmit FIFO is not empty
   * @retval     1       Transmit FIFO is empty
   *
@@ -156,7 +160,7 @@ extern "C"
 
 /* RX Macros */
 /**
-  * @brief      Read Rx Data Register
+  * @brief      Read Rx data register
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
@@ -168,10 +172,11 @@ extern "C"
 #define SCUART_READ(sc)         ((sc)->DAT)
 
 /**
-  * @brief      Get Rx FIFO Empty Flag Status
+  * @brief      Get Rx FIFO empty flag status from register
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Receive FIFO empty status
   * @retval     0                       Receive FIFO is not empty
   * @retval     SC_STATUS_RXEMPTY_Msk   Receive FIFO is empty
   *
@@ -182,10 +187,11 @@ extern "C"
 #define SCUART_GET_RX_EMPTY(sc) ((sc)->STATUS & SC_STATUS_RXEMPTY_Msk)
 
 /**
-  * @brief      Get Rx FIFO Full Flag Status
+  * @brief      Get Rx FIFO full flag status from register
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Receive FIFO full status
   * @retval     0                       Receive FIFO is not full
   * @retval     SC_STATUS_TXFULL_Msk    Receive FIFO is full
   *
@@ -195,12 +201,13 @@ extern "C"
 #define SCUART_GET_RX_FULL(sc)  ((sc)->STATUS & SC_STATUS_RXFULL_Msk)
 
 /**
-  * @brief      Check Rx FIFO Reach FIFO Trigger Level Status
+  * @brief      Check if receive data number in FIFO reach FIFO trigger level or not
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
-  * @retval     0       The number of bytes in Rx FIFO is less than trigger level.
-  * @retval     1       The number of bytes in Rx FIFO equals or larger than trigger level.
+  * @return     Receive FIFO data status
+  * @retval     0       The number of bytes in receive FIFO is less than trigger level
+  * @retval     1       The number of bytes in receive FIFO equals or larger than trigger level
   *
   * @details    RDAIF (SC_INTSTS[0]) is used for received data reaching trigger level RXTRGLV (SC_CTL[7:6]) interrupt status flag.
   *
@@ -210,10 +217,11 @@ extern "C"
 #define SCUART_IS_RX_READY(sc)  (((sc)->INTSTS & SC_INTSTS_RDAIF_Msk)? 1 : 0)
 
 /**
-  * @brief      Check Rx FIFO Full Status
+  * @brief      Check specified smartcard port receive FIFO is full or not
   *
   * @param[in]  sc      The pointer of smartcard module.
   *
+  * @return     Receive FIFO full status
   * @retval     0       Receive FIFO is not full
   * @retval     1       Receive FIFO is full
   *
@@ -225,10 +233,10 @@ extern "C"
 
 /* Interrupt Macros */
 /**
-  * @brief      Enable specified SCUART Interrupt Function
+  * @brief      Enable specified interrupts
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32Mask Interrupt masks to enable, a combination of following bits.
+  * @param[in]  u32Mask Interrupt masks to enable, a combination of following bits,
   *                         - \ref SC_INTEN_RXTOIEN_Msk
   *                         - \ref SC_INTEN_TERRIEN_Msk
   *                         - \ref SC_INTEN_TBEIEN_Msk
@@ -243,10 +251,10 @@ extern "C"
 #define SCUART_ENABLE_INT(sc, u32Mask)  ((sc)->INTEN |= (u32Mask))
 
 /**
-  * @brief      Disable specified SCUART Interrupt Function
+  * @brief      Disable specified interrupts
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32Mask Interrupt masks to disable, a combination of following bits.
+  * @param[in]  u32Mask Interrupt masks to disable, a combination of following bits,
   *                         - \ref SC_INTEN_RXTOIEN_Msk
   *                         - \ref SC_INTEN_TERRIEN_Msk
   *                         - \ref SC_INTEN_TBEIEN_Msk
@@ -261,17 +269,18 @@ extern "C"
 #define SCUART_DISABLE_INT(sc, u32Mask) ((sc)->INTEN &= ~(u32Mask))
 
 /**
-  * @brief      Get specified SCUART Interrupt Status
+  * @brief      Get specified interrupt flag/status
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32Type Interrupt status to check, could be one of following value:
-  *                         - \ref SC_INTSTS_RBTOIF_Msk
+  * @param[in] u32Type  Interrupt flag/status to check, could be one of following value
+  *                         - \ref SC_INTSTS_RXTOIF_Msk
   *                         - \ref SC_INTSTS_TERRIF_Msk
   *                         - \ref SC_INTSTS_TBEIF_Msk
   *                         - \ref SC_INTSTS_RDAIF_Msk
   *
-  * @retval     0       Specified interrupt does not happened.
-  * @retval     1       Specified interrupt happened.
+  * @return     The status of specified interrupt
+  * @retval     0       Specified interrupt does not happened
+  * @retval     1       Specified interrupt happened
   *
   * @details    The macro is used to get receiver buffer time-out interrupt status, transfer error interrupt status,
   *             transmit buffer empty interrupt status or receive data reach interrupt status.
@@ -280,11 +289,10 @@ extern "C"
 #define SCUART_GET_INT_FLAG(sc, u32Type)    (((sc)->INTSTS & (u32Type))? 1 : 0)
 
 /**
-  * @brief      Clear specified SCUART Interrupt Flag
+  * @brief      Clear specified interrupt flag/status
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32Type Interrupt flag to clear, could be the combination of following values:
-  *                         - \ref SC_INTSTS_TERRIF_Msk
+  * @param[in] u32Type  Interrupt flag/status to clear, only \ref SC_INTSTS_TERRIF_Msk valid for this macro.
   *
   * @return     None
   *
@@ -294,13 +302,14 @@ extern "C"
 #define SCUART_CLR_INT_FLAG(sc, u32Type)    ((sc)->INTSTS = (u32Type))
 
 /**
-  * @brief      Get SCUART Receiver Error Flag Status
+  * @brief      Get receive error flag/status
   *
   * @param[in]  sc  The pointer of smartcard module.
   *
-  * @retval     SC_STATUS_PEF_Msk   Rx parity error
-  * @retval     SC_STATUS_FEF_Msk   Rx frame error
-  * @retval     SC_STATUS_BEF_Msk   Rx break error
+  * @return     Current receive error status, could one of following errors:
+  * @retval     SC_STATUS_PEF_Msk   Parity error
+  * @retval     SC_STATUS_FEF_Msk   Frame error
+  * @retval     SC_STATUS_BEF_Msk   Break error
   *
   * @details    The macro is used to get receiver parity error status, frame error status or break error status.
   * \hideinitializer
@@ -308,10 +317,10 @@ extern "C"
 #define SCUART_GET_ERR_FLAG(sc)             ((sc)->STATUS & (SC_STATUS_PEF_Msk | SC_STATUS_FEF_Msk | SC_STATUS_BEF_Msk))
 
 /**
-  * @brief      Clear specified Receiver Error Flag
+  * @brief      Clear specified receive error flag/status
   *
   * @param[in]  sc      The pointer of smartcard module.
-  * @param[in]  u32Mask Receiver error flag to clear, combination following values:
+  * @param[in]  u32Mask Receive error flag/status to clear, combination following values
   *                         - \ref SC_STATUS_PEF_Msk
   *                         - \ref SC_STATUS_FEF_Msk
   *                         - \ref SC_STATUS_BEF_Msk
@@ -340,6 +349,6 @@ void SCUART_Write(SC_T* sc, uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 }
 #endif
 
-#endif //__SCUART_H__
+#endif /* __SCUART_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

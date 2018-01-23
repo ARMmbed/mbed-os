@@ -326,7 +326,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         (parity == ParityEven || parity == ParityForced0) ? UART_PARITY_EVEN :
         UART_PARITY_NONE;
     uint32_t stopbits_intern = (stop_bits == 2) ? UART_STOP_BIT_2 : UART_STOP_BIT_1;
-    UART_SetLine_Config((UART_T *) NU_MODBASE(obj->serial.uart), 
+    UART_SetLineConfig((UART_T *) NU_MODBASE(obj->serial.uart), 
         0,  // Don't change baudrate 
         databits_intern, 
         parity_intern, 

@@ -9,7 +9,7 @@
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #include <stdio.h>
-#include "M2351.h"
+#include "NuMicro.h"
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -24,27 +24,51 @@
 */
 
 /**
-  * @brief      Set boot source from LDROM or APROM after next software reset
+  * @brief Run flash all one verification and get result.
   *
-  * @param[in]  i32BootSrc
-  *                1: Boot from LDROM
-  *                0: Boot from APROM
+  * @param[in] u32addr   Starting flash address. It must be a page aligned address.
+  * @param[in] u32count  Byte count of flash to be calculated. It must be multiple of 512 bytes.
   *
-  * @return    None
+  * @retval   READ_ALLONE_YES       The contents of verified flash area are 0xA11FFFFF.
+  * @retval   READ_ALLONE_NOT       Some contents of verified flash area are not 0xA1100000.
+  * @retval   READ_ALLONE_CMD_FAIL  Unexpected error occurred.
   *
-  * @details   This function is used to switch APROM boot or LDROM boot. User need to call
-  *            FMC_SetBootSource to select boot source first, then use CPU reset or
-  *            System Reset Request to reset system.
-  *
+  * @details  Run ISP check all one command to check specify area is all one or not.
   */
-void FMC_SetBootSource(int32_t i32BootSrc)
+uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count)
 {
-    if(i32BootSrc)
-        FMC->ISPCTL |= FMC_ISPCTL_BS_Msk; /* Boot from LDROM */
-    else
-        FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk;/* Boot from APROM */
-}
+    uint32_t  ret = READ_ALLONE_CMD_FAIL;
 
+    FMC->ISPSTS = 0x80UL;   /* clear check all one bit */
+
+    FMC->ISPCMD   = FMC_ISPCMD_RUN_ALL1;
+    FMC->ISPADDR  = u32addr;
+    FMC->ISPDAT   = u32count;
+    FMC->ISPTRG   = FMC_ISPTRG_ISPGO_Msk;
+
+    while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+    do
+    {
+        FMC->ISPCMD = FMC_ISPCMD_READ_ALL1;
+        FMC->ISPADDR    = u32addr;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+        while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+    }
+    while(FMC->ISPDAT == 0UL);
+
+    if(FMC->ISPDAT == READ_ALLONE_YES)
+    {
+        ret = FMC->ISPDAT;
+    }
+
+    if(FMC->ISPDAT == READ_ALLONE_NOT)
+    {
+        ret = FMC->ISPDAT;
+    }
+
+    return ret;
+}
 
 /**
   * @brief    Disable ISP Functions
@@ -61,109 +85,248 @@ void FMC_Close(void)
     FMC->ISPCTL &= ~FMC_ISPCTL_ISPEN_Msk;
 }
 
-
 /**
-  * @brief    Disable APROM update function
+  * @brief     Config XOM Region
+  * @param[in] xom_num    The XOM number(0~3)
+  * @param[in] xom_base   The XOM region base address.
+  * @param[in] xom_page   The XOM page number of region size.
   *
-  * @param    None
+  * @retval   0   Success
+  * @retval   1   XOM is has already actived.
+  * @retval   -1  Program failed.
+  * @retval   -2  Invalid XOM number.
   *
-  * @return   None
-  *
-  * @details  Disable APROM update function will forbid APROM programming when boot form APROM.
-  *           APROM update is default to be disable.
-  *
+  * @details  Program XOM base address and XOM size(page)
   */
-void FMC_DisableAPUpdate(void)
+int32_t FMC_ConfigXOM(uint32_t xom_num, uint32_t xom_base, uint8_t xom_page)
 {
-    FMC->ISPCTL &= ~FMC_ISPCTL_APUEN_Msk;
+    int32_t  ret = 0;
+
+    if(xom_num >= 4UL)
+    {
+        ret = -2;
+    }
+
+    if(ret == 0)
+    {
+        ret = FMC_GetXOMState(xom_num);
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_XOM_BASE + (xom_num * 0x10u);
+        FMC->ISPDAT = xom_base;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_XOM_BASE + (xom_num * 0x10u + 0x04u);
+        FMC->ISPDAT = xom_page;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_XOM_BASE + (xom_num * 0x10u + 0x08u);
+        FMC->ISPDAT = 0u;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+
+    return ret;
 }
 
-
 /**
-  * @brief    Disable User Configuration update function
+  * @brief      Execute Flash Page erase
   *
-  * @param    None
+  * @param[in]  u32PageAddr Address of the flash page to be erased.
+  *             It must be a 2048 bytes aligned address.
   *
-  * @return   None
+  * @return     ISP page erase success or not.
+  * @retval     0  Success
+  * @retval     -1  Erase failed
   *
-  * @details  Disable User Configuration update function will forbid User Configuration programming.
-  *           User Configuration update is default to be disable.
+  * @details    Execute FMC_ISPCMD_PAGE_ERASE command to erase a flash page. The page size is 2048 bytes.
   */
-void FMC_DisableConfigUpdate(void)
+int32_t FMC_Erase(uint32_t u32PageAddr)
 {
-    FMC->ISPCTL &= ~FMC_ISPCTL_CFGUEN_Msk;
+    int32_t  ret = 0;
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
+        FMC->ISPADDR = u32PageAddr;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
+        {
+            FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+    return ret;
 }
 
-
 /**
-  * @brief    Disable LDROM update function
+  * @brief      Execute Flash Bank erase
   *
-  * @param    None
+  * @param[in]  u32BankAddr Base address of the flash bank to be erased.
   *
-  * @return   None
-
-  * @details  Disable LDROM update function will forbid LDROM programming.
-  *           LDROM update is default to be disable.
+  * @return     ISP bank erase success or not.
+  * @retval     0  Success
+  * @retval     -1  Erase failed
+  *
+  * @details  Execute FMC_ISPCMD_BANK_ERASE command to erase a flash block.
   */
-void FMC_DisableLDUpdate(void)
+int32_t FMC_Erase_Bank(uint32_t u32BankAddr)
 {
-    FMC->ISPCTL &= ~FMC_ISPCTL_LDUEN_Msk;
+    int32_t  ret = 0;
+
+    FMC->ISPCMD = FMC_ISPCMD_BANK_ERASE;
+    FMC->ISPADDR = u32BankAddr;
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}
+
+    if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
+    {
+        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
+        ret = -1;
+    }
+    return ret;
 }
 
-
 /**
-  * @brief    Enable APROM update function
+  * @brief      Execute Flash Block erase
   *
-  * @param    None
+  * @param[in]  u32BlockAddr  Address of the flash block to be erased.
+  *                           It must be a 4 pages aligned address.
   *
-  * @return   None
+  * @return     ISP block erase success or not.
+  * @retval     0  Success
+  * @retval     -1  Erase failed
   *
-  * @details  Enable APROM to be able to program when boot from APROM.
-  *
+  * @details Execute FMC_ISPCMD_BLOCK_ERASE command to erase a flash block. The block size is 4 pages.
   */
-void FMC_EnableAPUpdate(void)
+int32_t FMC_Erase_Block(uint32_t u32BlockAddr)
 {
-    FMC->ISPCTL |= FMC_ISPCTL_APUEN_Msk;
+    int32_t  ret = 0;
+
+    FMC->ISPCMD = FMC_ISPCMD_BLOCK_ERASE;
+    FMC->ISPADDR = u32BlockAddr;
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}
+
+    if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
+    {
+        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
+        ret = -1;
+    }
+    return ret;
 }
 
-
 /**
-  * @brief    Enable User Configuration update function
+  * @brief  Execute Erase XOM Region
   *
-  * @param    None
+  * @param[in]  xom_num  The XOMRn(n=0~3)
   *
-  * @return   None
+  * @return   XOM erase success or not.
+  * @retval    0  Success
+  * @retval   -1  Erase failed
+  * @retval   -2  Invalid XOM number.
   *
-  * @details  Enable User Configuration to be able to program.
-  *
+  * @details Execute FMC_ISPCMD_PAGE_ERASE command to erase XOM.
   */
-void FMC_EnableConfigUpdate(void)
+int32_t FMC_EraseXOM(uint32_t xom_num)
 {
-    FMC->ISPCTL |= FMC_ISPCTL_CFGUEN_Msk;
+    uint32_t u32Addr;
+    int32_t i32Active, err = 0;
+
+    if(xom_num >= 4UL)
+    {
+        err = -2;
+    }
+
+    if(err == 0)
+    {
+        i32Active = FMC_GetXOMState(xom_num);
+
+        if(i32Active)
+        {
+            switch(xom_num)
+            {
+                case 0u:
+                    u32Addr = (FMC->XOMR0STS & 0xFFFFFF00u) >> 8u;
+                    break;
+                case 1u:
+                    u32Addr = (FMC->XOMR1STS & 0xFFFFFF00u) >> 8u;
+                    break;
+                case 2u:
+                    u32Addr = (FMC->XOMR2STS & 0xFFFFFF00u) >> 8u;
+                    break;
+                case 3u:
+                    u32Addr = (FMC->XOMR3STS & 0xFFFFFF00u) >> 8u;
+                    break;
+                default:
+                    break;
+            }
+            FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
+            FMC->ISPADDR = u32Addr;
+            FMC->ISPDAT = 0x55aa03u;
+            FMC->ISPTRG = 0x1u;
+#if ISBEN
+            __ISB();
+#endif
+            while(FMC->ISPTRG) {}
+
+            /* Check ISPFF flag to know whether erase OK or fail. */
+            if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
+            {
+                FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
+                err = -1;
+            }
+        }
+        else
+        {
+            err = -1;
+        }
+    }
+    return err;
 }
-
-
-/**
-  * @brief    Enable LDROM update function
-  *
-  * @param    None
-  *
-  * @return   None
-  *
-  * @details  Enable LDROM to be able to program.
-  *
-  */
-void FMC_EnableLDUpdate(void)
-{
-    FMC->ISPCTL |= FMC_ISPCTL_LDUEN_Msk;
-}
-
 
 /**
   * @brief    Get the current boot source
   *
   * @param    None
   *
+  * @return   The current boot source.
   * @retval   0 This chip is currently booting from APROM
   * @retval   1 This chip is currently booting from LDROM
   *
@@ -172,12 +335,168 @@ void FMC_EnableLDUpdate(void)
   */
 int32_t FMC_GetBootSource(void)
 {
+    int32_t  ret = 0;
+
     if(FMC->ISPCTL & FMC_ISPCTL_BS_Msk)
-        return 1;
-    else
-        return 0;
+    {
+        ret = 1;
+    }
+
+    return ret;
 }
 
+/**
+  * @brief     Run CRC32 checksum calculation and get result.
+  *
+  * @param[in] u32addr   Starting flash address. It must be a page aligned address.
+  * @param[in] u32count  Byte count of flash to be calculated. It must be multiple of 2048bytes.
+  *
+  * @return    Success or not.
+  * @retval    0           Success.
+  * @retval    0xFFFFFFFF  Invalid parameter.
+  *
+  * @details  Run ISP CRC32 checksum command to calculate checksum then get and return checksum data.
+  */
+uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count)
+{
+    uint32_t   ret;
+
+    if((u32addr % 2048UL) || (u32count % 2048UL))
+    {
+        ret = 0xFFFFFFFF;
+    }
+    else
+    {
+        FMC->ISPCMD  = FMC_ISPCMD_RUN_CKS;
+        FMC->ISPADDR = u32addr;
+        FMC->ISPDAT  = u32count;
+        FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+        FMC->ISPCMD = FMC_ISPCMD_READ_CKS;
+        FMC->ISPADDR    = u32addr;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+        ret = FMC->ISPDAT;
+    }
+
+    return ret;
+}
+
+/**
+  * @brief  Check the OTP is locked or not.
+  *
+  * @param[in] otp_num    The OTP number.
+  *
+  * @retval   1   OTP is locked.
+  * @retval   0   OTP is not locked.
+  * @retval   -1  Failed to read OTP lock bits.
+  * @retval   -2  Invalid OTP number.
+  *
+  * @details To get specify OTP lock status
+  */
+int32_t FMC_Is_OTP_Locked(uint32_t otp_num)
+{
+    int32_t  ret = 0;
+
+    if(otp_num > 255UL)
+    {
+        ret = -2;
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_READ;
+        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+        else
+        {
+            if(FMC->ISPDAT != 0xFFFFFFFFUL)
+            {
+                ret = 1;   /* Lock work was progrmmed. OTP was locked. */
+            }
+        }
+    }
+    return ret;
+}
+
+/**
+  * @brief  Check the XOM is actived or not.
+  *
+  * @param[in] xom_num    The xom number(0~3).
+  *
+  * @retval   1   XOM is actived.
+  * @retval   0   XOM is not actived.
+  * @retval   -2  Invalid XOM number.
+  *
+  * @details To get specify XOMRn(n=0~3) active status
+  */
+int32_t FMC_GetXOMState(uint32_t xom_num)
+{
+    uint32_t u32act;
+    int32_t  ret = 0;
+
+    if(xom_num >= 4UL)
+    {
+        ret = -2;
+    }
+
+    if(ret >= 0)
+    {
+        u32act = (((FMC->XOMSTS) & 0xful) & (1ul << xom_num)) >> xom_num;
+        ret = (int32_t)u32act;
+    }
+    return ret;
+}
+
+/**
+  * @brief  Lock the specified OTP.
+  *
+  * @param[in] otp_num    The OTP number.
+  *
+  * @retval    0   Success
+  * @retval   -1  Failed to write OTP lock bits.
+  * @retval   -2  Invalid OTP number.
+  *
+  * @details  To lock specified OTP number
+  */
+int32_t FMC_Lock_OTP(uint32_t otp_num)
+{
+    int32_t  ret = 0;
+
+    if(otp_num > 255UL)
+    {
+        ret = -2;
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
+        FMC->ISPDAT = 0UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+    return ret;
+}
 
 /**
   * @brief    Enable FMC ISP function
@@ -197,12 +516,117 @@ void FMC_Open(void)
     FMC->ISPCTL |=  FMC_ISPCTL_ISPEN_Msk;
 }
 
+
+/**
+  * @brief      Read a word bytes from flash
+  *
+  * @param[in]  u32Addr Address of the flash location to be read.
+  *             It must be a word aligned address.
+  *
+  * @return     The word data read from specified flash address.
+  *
+  * @details    Execute FMC_ISPCMD_READ command to read a word from flash.
+  */
+uint32_t FMC_Read(uint32_t u32Addr)
+{
+    FMC->ISPCMD = FMC_ISPCMD_READ;
+    FMC->ISPADDR = u32Addr;
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+    return FMC->ISPDAT;
+}
+
+/**
+  * @brief      Read a double-word bytes from flash
+  *
+  * @param[in]  u32addr   Address of the flash location to be read.
+  *             It must be a double-word aligned address.
+  *
+  * @param[out] u32data0  Place holder of word 0 read from flash address u32addr.
+  * @param[out] u32data1  Place holder of word 0 read from flash address u32addr+4.
+  *
+  * @return     0   Success
+  * @return     -1  Failed
+  *
+  * @details    Execute FMC_ISPCMD_READ_64 command to read a double-word from flash.
+  */
+int32_t FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1)
+{
+    int32_t  ret = 0;
+
+    FMC->ISPCMD = FMC_ISPCMD_READ_64;
+    FMC->ISPADDR    = u32addr;
+    FMC->ISPDAT = 0x0UL;
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+    while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+    if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+    {
+        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+        ret = -1;
+    }
+    else
+    {
+        *u32data0 = FMC->MPDAT0;
+        *u32data1 = FMC->MPDAT1;
+    }
+    return ret;
+}
+
+/**
+  * @brief  Read data from OTP
+  *
+  * @param[in] otp_num    The OTP number(0~255).
+  * @param[in] low_word   Low word of the 64-bits data.
+  * @param[in] high_word   High word of the 64-bits data.
+  *
+  * @retval    0   Success
+  * @retval   -1  Read failed.
+  * @retval   -2  Invalid OTP number.
+  *
+  * @details  Read the 64-bits data from the specified OTP.
+  */
+int32_t FMC_Read_OTP(uint32_t otp_num, uint32_t *low_word, uint32_t *high_word)
+{
+    int32_t  ret = 0;
+
+    if(otp_num > 255UL)
+    {
+        ret = -2;
+    }
+
+    if(ret == 0)
+    {
+        FMC->ISPCMD = FMC_ISPCMD_READ_64;
+        FMC->ISPADDR    = FMC_OTP_BASE + otp_num * 8UL ;
+        FMC->ISPDAT = 0x0UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) {}
+
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+        else
+        {
+            *low_word = FMC->MPDAT0;
+            *high_word = FMC->MPDAT1;
+        }
+    }
+    return ret;
+}
+
 /**
   * @brief       Read the User Configuration words.
   *
-  * @param[out]  u32Config  The word buffer to store the User Configuration data.
+  * @param[out]  u32Config[]  The word buffer to store the User Configuration data.
   * @param[in]   u32Count   The word count to be read.
   *
+  * @return      Success or not.
   * @retval       0 Success
   * @retval      -1 Failed
   *
@@ -210,21 +634,245 @@ void FMC_Open(void)
   *              if u32Count = 1, Only CONFIG0 will be returned to the buffer specified by u32Config.
   *              if u32Count = 2, Both CONFIG0 and CONFIG1 will be returned.
   */
-int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
+int32_t FMC_ReadConfig(uint32_t u32Config[], uint32_t u32Count)
 {
-    int32_t i;
+    uint32_t i;
 
-    for(i = 0; i < u32Count; i++)
-        u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i * 4);
-
+    for(i = 0u; i < u32Count; i++)
+    {
+        u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i * 4u);
+    }
     return 0;
 }
 
+/**
+  * @brief      Set boot source from LDROM or APROM after next software reset
+  *
+  * @param[in]  i32BootSrc
+  *                1: Boot from LDROM
+  *                0: Boot from APROM
+  *
+  * @return    None
+  *
+  * @details   This function is used to switch APROM boot or LDROM boot. User need to call
+  *            FMC_SetBootSource to select boot source first, then use CPU reset or
+  *            System Reset Request to reset system.
+  *
+  */
+void FMC_SetBootSource(int32_t i32BootSrc)
+{
+    if(i32BootSrc)
+    {
+        FMC->ISPCTL |= FMC_ISPCTL_BS_Msk; /* Boot from LDROM */
+    }
+    else
+    {
+        FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk;/* Boot from APROM */
+    }
+}
+
+/**
+  * @brief    Execute Security Key Comparison.
+  *
+  * @param[in] key  Key 0~2 to be compared.
+  *
+  * @retval   0     Key matched.
+  * @retval   -1    Forbidden. Times of key comparison mismatch reach the maximum count.
+  * @retval   -2    Key mismatched.
+  * @retval   -3    No KPROM key lock. Key comparison is not required.
+  *
+  * @ details   Input a keys to compare with security key
+  */
+int32_t  FMC_CompareSPKey(uint32_t key[3])
+{
+    uint32_t  u32KeySts;
+    int32_t   ret = 0;
+
+    if(FMC->KPKEYSTS & FMC_KPKEYSTS_FORBID_Msk)
+    {
+        /* FMC_SKey_Compare - FORBID!  */
+        ret = -1;
+    }
+
+    if(!(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYLOCK_Msk))
+    {
+        /* FMC_SKey_Compare - key is not locked!  */
+        ret = -3;
+    }
+
+    if(ret == 0)
+    {
+        FMC->KPKEY0 = key[0];
+        FMC->KPKEY1 = key[1];
+        FMC->KPKEY2 = key[2];
+        FMC->KPKEYTRG = FMC_KPKEYTRG_KPKEYGO_Msk | FMC_KPKEYTRG_TCEN_Msk;
+
+        while(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
+
+        u32KeySts = FMC->KPKEYSTS;
+
+        if(!(u32KeySts & FMC_KPKEYSTS_KEYMATCH_Msk))
+        {
+            /* Key mismatched! */
+            ret = -2;
+        }
+        else if(u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk)
+        {
+            /* Key matched, but still be locked! */
+            ret = -2;
+        }
+    }
+    return ret;
+}
+
+/**
+  * @brief    Setup Security Key.
+  *
+  * @param[in] key      Key 0~2 to be setup.
+  * @param[in] kpmax    Maximum unmatched power-on counting number.
+  * @param[in] kemax    Maximum unmatched counting number.
+  * @param[in] lock_CONFIG   1: Security key lock CONFIG to write-protect. 0: Don't lock CONFIG.
+  * @param[in] lock_SPROM    1: Security key lock SPROM to write-protect. 0: Don't lock SPROM. (This param is not supported on M2351)
+  *
+  * @retval    0    Success.
+  * @retval   -1    Key is locked. Cannot overwrite the current key.
+  * @retval   -2    Failed to erase flash.
+  * @retval   -3    Failed to program key.
+  * @retval   -4    Key lock function failed.
+  * @retval   -5    CONFIG lock function failed.
+  * @retval   -6    SPROM lock function failed. (This status is not supported on M2351)
+  * @retval   -7    KPMAX function failed.
+  * @retval   -8    KEMAX function failed.
+  *
+  * @details  Set secure keys and setup key compare count. The secure key also can protect user config.
+  */
+int32_t  FMC_SetSPKey(uint32_t key[3], uint32_t kpmax, uint32_t kemax,
+                      const int32_t lock_CONFIG, const int32_t lock_SPROM)
+{
+    uint32_t  lock_ctrl = 0UL;
+    uint32_t  u32KeySts;
+    int32_t   ret = 0;
+
+    if(FMC->KPKEYSTS != 0x200UL)
+    {
+        ret = -1;
+    }
+
+    if(FMC_Erase(FMC_KPROM_BASE))
+    {
+        ret = -2;
+    }
+
+    if(FMC_Erase(FMC_KPROM_BASE + 0x200UL))
+    {
+        ret = -3;
+    }
+
+    if(!lock_CONFIG)
+    {
+        lock_ctrl |= 0x1UL;
+    }
+
+    if(!lock_SPROM)
+    {
+        lock_ctrl |= 0x2UL;
+    }
+
+    if(ret == 0)
+    {
+        FMC_Write(FMC_KPROM_BASE, key[0]);
+        FMC_Write(FMC_KPROM_BASE + 0x4UL, key[1]);
+        FMC_Write(FMC_KPROM_BASE + 0x8UL, key[2]);
+        FMC_Write(FMC_KPROM_BASE + 0xCUL, kpmax);
+        FMC_Write(FMC_KPROM_BASE + 0x10UL, kemax);
+        FMC_Write(FMC_KPROM_BASE + 0x14UL, lock_ctrl);
+
+        while(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
+
+        u32KeySts = FMC->KPKEYSTS;
+
+        if(!(u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk))
+        {
+            /* Security key lock failed! */
+            ret = -4;
+        }
+        else if((lock_CONFIG && (!(u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk))) ||
+                ((!lock_CONFIG) && (u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk)))
+        {
+            /* CONFIG lock failed! */
+            ret = -5;
+        }
+        else if(((FMC->KPCNT & FMC_KPCNT_KPMAX_Msk) >> FMC_KPCNT_KPMAX_Pos) != kpmax)
+        {
+            /* KPMAX failed! */
+            ret = -7;
+        }
+        else if(((FMC->KPKEYCNT & FMC_KPKEYCNT_KPKEMAX_Msk) >> FMC_KPKEYCNT_KPKEMAX_Pos) != kemax)
+        {
+            /* KEMAX failed! */
+            ret = -8;
+        }
+    }
+    return ret;
+}
+
+/**
+  * @brief      Write a word bytes to flash.
+  *
+  * @param[in]  u32Addr Address of the flash location to be programmed.
+  *             It must be a word aligned address.
+  * @param[in]  u32Data The word data to be programmed.
+  *
+  * @return     None
+  *
+  * @ details   Execute ISP FMC_ISPCMD_PROGRAM to program a word to flash.
+  */
+void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
+{
+    FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+    FMC->ISPADDR = u32Addr;
+    FMC->ISPDAT = u32Data;
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+}
+
+/**
+  * @brief      Write a double-word bytes to flash
+  *
+  * @param[in]  u32addr Address of the flash location to be programmed.
+  *             It must be a double-word aligned address.
+  * @param[in]  u32data0   The word data to be programmed to flash address u32addr.
+  * @param[in]  u32data1   The word data to be programmed to flash address u32addr+4.
+  *
+  * @return     0   Success
+  * @return     -1  Failed
+  *
+  * @ details   Execute ISP FMC_ISPCMD_PROGRAM_64 to program a double-word to flash.
+  */
+int32_t FMC_Write8Bytes(uint32_t u32addr, uint32_t u32data0, uint32_t u32data1)
+{
+    int32_t  ret = 0;
+
+    FMC->ISPCMD  = FMC_ISPCMD_PROGRAM_64;
+    FMC->ISPADDR = u32addr;
+    FMC->MPDAT0  = u32data0;
+    FMC->MPDAT1  = u32data1;
+    FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
+
+    while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+    if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+    {
+        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+        ret = -1;
+    }
+    return ret;
+}
 
 /**
   * @brief    Write User Configuration
   *
-  * @param[in]  u32Config The word buffer to store the User Configuration data.
+  * @param[in]  u32Config[] The word buffer to store the User Configuration data.
   * @param[in]  u32Count The word count to program to User Configuration.
   *
   * @retval     0 Success
@@ -235,589 +883,181 @@ int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
   *           User Configuration is also be page erase. User needs to backup necessary data
   *           before erase User Configuration.
   */
-int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
+int32_t FMC_WriteConfig(uint32_t u32Config[], uint32_t u32Count)
 {
-    int32_t i;
+    int32_t  ret = 0;
+    uint32_t i;
 
-    for(i = 0; i < u32Count; i++)
+    FMC_ENABLE_CFG_UPDATE();
+    for(i = 0u; i < u32Count; i++)
     {
-        FMC_Write(FMC_CONFIG_BASE + i * 4, u32Config[i]);
-        if(FMC_Read(FMC_CONFIG_BASE + i * 4) != u32Config[i])
-            return -1;
+        FMC_Write(FMC_CONFIG_BASE + i * 4u, u32Config[i]);
+        if(FMC_Read(FMC_CONFIG_BASE + i * 4u) != u32Config[i])
+        {
+            ret = -1;
+        }
     }
-
-    return 0;
-}
-
-/**
-  * @brief      Execute Flash Block erase
-  *
-  * @param[in]  u32BlockAddr  Address of the flash block to be erased.
-  *             It must be a 4 pages aligned address.
-  *
-  * @return ISP page erase success or not.
-  * @retval   0  Success
-  * @retval   -1  Erase failed
-  *
-  * @details Execute FMC_ISPCMD_BLOCK_ERASE command to erase a flash block. The block size is 4 pages.
-  */
-int32_t FMC_Erase_Block(uint32_t u32BlockAddr)
-{
-    int32_t  ret = 0;
-
-    FMC->ISPCMD = FMC_ISPCMD_BLOCK_ERASE;
-    FMC->ISPADDR = u32BlockAddr;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
-
-    if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
-        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        ret = -1;
-    }
+    FMC_DISABLE_CFG_UPDATE();
     return ret;
 }
 
 /**
-  * @brief      Execute Flash Bank erase
+  * @brief      Write Multi-Word bytes to flash
   *
-  * @param[in]  u32BankAddr Base address of the flash bank to be erased.
+  * @param[in]  u32Addr    Start flash address in APROM where the data chunk to be programmed into.
+  *                        This address must be 8-bytes aligned to flash address.
+  * @param[in]  pu32Buf    Buffer that carry the data chunk.
+  * @param[in]  u32Len     Length of the data chunk in bytes.
   *
-  * @return ISP page erase success or not.
-  * @retval   0  Success
-  * @retval   -1  Erase failed
+  * @retval     >=0  Number of data bytes were programmed.
+  * @return     -1   Invalid address.
   *
-  * @details  Execute FMC_ISPCMD_BANK_ERASE command to erase a flash block.
+  * @detail     Program Multi-Word data into specified address of flash.
   */
-int32_t FMC_Erase_Bank(uint32_t u32BankAddr)
+
+int32_t FMC_WriteMultiple(uint32_t u32Addr, uint32_t pu32Buf[], uint32_t u32Len)
 {
-    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_BANK_ERASE;
-    FMC->ISPADDR = u32BankAddr;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    uint32_t i, idx, u32OnProg, retval = 0;
+    int32_t err;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
-
-    if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
-        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        ret = -1;
+    if((u32Addr >= FMC_APROM_END) || ((u32Addr % 8) != 0))
+    {
+        return -1;
     }
-    return ret;
+
+    idx = 0u;
+    FMC->ISPCMD = FMC_ISPCMD_PROGRAM_MUL;
+    FMC->ISPADDR = u32Addr;
+    retval += 16;
+    do
+    {
+        err = 0;
+        u32OnProg = 1u;
+        FMC->MPDAT0 = pu32Buf[idx + 0u];
+        FMC->MPDAT1 = pu32Buf[idx + 1u];
+        FMC->MPDAT2 = pu32Buf[idx + 2u];
+        FMC->MPDAT3 = pu32Buf[idx + 3u];
+        FMC->ISPTRG = 0x1u;
+        idx += 4u;
+
+        for(i = idx; i < (FMC_MULTI_WORD_PROG_LEN / 4u); i += 4u) /* Max data length is 256 bytes (512/4 words)*/
+        {
+            __set_PRIMASK(1u); /* Mask interrupt to avoid status check coherence error*/
+            do
+            {
+                if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0u)
+                {
+                    __set_PRIMASK(0u);
+
+                    FMC->ISPADDR = FMC->MPADDR & (~0xful);
+                    idx = (FMC->ISPADDR - u32Addr) / 4u;
+                    err = -1;
+                }
+            }
+            while((FMC->MPSTS & (3u << FMC_MPSTS_D0_Pos)) && (err == 0));
+
+            if(err == 0)
+            {
+                retval += 8;
+
+                /* Update new data for D0 */
+                FMC->MPDAT0 = pu32Buf[i];
+                FMC->MPDAT1 = pu32Buf[i + 1u];
+                do
+                {
+                    if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0u)
+                    {
+                        __set_PRIMASK(0u);
+                        FMC->ISPADDR = FMC->MPADDR & (~0xful);
+                        idx = (FMC->ISPADDR - u32Addr) / 4u;
+                        err = -1;
+                    }
+                }
+                while((FMC->MPSTS & (3u << FMC_MPSTS_D2_Pos)) && (err == 0));
+
+                if(err == 0)
+                {
+                    retval += 8;
+
+                    /* Update new data for D2*/
+                    FMC->MPDAT2 = pu32Buf[i + 2u];
+                    FMC->MPDAT3 = pu32Buf[i + 3u];
+                    __set_PRIMASK(0u);
+                }
+            }
+
+            if(err < 0)
+            {
+                break;
+            }
+        }
+        if(err == 0)
+        {
+            u32OnProg = 0u;
+            while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) {}
+        }
+    }
+    while(u32OnProg);
+
+    return retval;
 }
 
 /**
   * @brief     Write data to OTP
-  * @param[in] otp_num    The OTP number.
+  *
+  * @param[in] otp_num    The OTP number(0~255).
   * @param[in] low_word   Low word of the 64-bits data.
-  * @param[in] high_word   Low word of the 64-bits data.
+  * @param[in] high_word   High word of the 64-bits data.
   *
-  * @retval   0   Success
-  * @retval   -1  Program failed.
-  * @retval   -2  Invalid OTP number.
+  * @retval    0   Success
+  * @retval    -1  Program failed.
+  * @retval    -2  Invalid OTP number.
   *
-  * @details  Program a 64-bits data to the specified OTP. 
+  * @details  Program a 64-bits data to the specified OTP.
   */
 int32_t FMC_Write_OTP(uint32_t otp_num, uint32_t low_word, uint32_t high_word)
 {
     int32_t  ret = 0;
 
-    if (otp_num > 255UL) {
+    if(otp_num > 255UL)
+    {
         ret = -2;
     }
 
-    if (ret == 0) {
+    if(ret == 0)
+    {
         FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
         FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8UL;
         FMC->ISPDAT = low_word;
         FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
+        {
             FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
             ret = -1;
         }
     }
 
-    if (ret == 0) {
+    if(ret == 0)
+    {
         FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
         FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8UL + 4UL;
         FMC->ISPDAT = high_word;
         FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+        while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        }
-    }
-
-    return ret;
-}
-
-/**
-  * @brief  Read data from OTP
-  *
-  * @param[in] otp_num    The OTP number.
-  * @param[in] low_word   Low word of the 64-bits data.
-  * @param[in] high_word   Low word of the 64-bits data.
-  *
-  * @retval   0   Success
-  * @retval   -1  Read failed.
-  * @retval   -2  Invalid OTP number.
-  *
-  * @details  Read the 64-bits data from the specified OTP.
-  */
-int32_t FMC_Read_OTP(uint32_t otp_num, uint32_t *low_word, uint32_t *high_word)
-{
-    int32_t  ret = 0;
-
-    if (otp_num > 255UL) {
-        ret = -2;
-    }
-
-    if (ret == 0) {
-        FMC->ISPCMD = FMC_ISPCMD_READE_8;
-        FMC->ISPADDR    = FMC_OTP_BASE + otp_num * 8UL ;
-        FMC->ISPDAT = 0x0UL;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
-
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        } else {
-            *low_word = FMC->MPDAT0;
-            *high_word = FMC->MPDAT1;
-        }
-    }
-    return ret;
-}
-
-/**
-  * @brief  Lock the specified OTP.
-  *
-  * @param[in] otp_num    The OTP number.
-  *
-  * @retval   0   Success
-  * @retval   -1  Failed to write OTP lock bits.
-  * @retval   -2  Invalid OTP number.
-  *
-  * @details  To lock specified OTP number 
-  */
-int32_t FMC_Lock_OTP(uint32_t otp_num)
-{
-    int32_t  ret = 0;
-
-    if (otp_num > 255UL) {
-        ret = -2;
-    }
-
-    if (ret == 0) {
-        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
-        FMC->ISPDAT = 0UL;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
-
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        }
-    }
-    return ret;
-}
-
-/**
-  * @brief  Check the OTP is locked or not.
-  *
-  * @param[in] otp_num    The OTP number.
-  *
-  * @retval   1   OTP is locked.
-  * @retval   0   OTP is not locked.
-  * @retval   -1  Failed to read OTP lock bits.
-  * @retval   -2  Invalid OTP number.
-  *
-  * @details To get specify OPT lock status
-  */
-int32_t FMC_Is_OTP_Locked(uint32_t otp_num)
-{
-    int32_t  ret = 0;
-
-    if (otp_num > 255UL) {
-        ret = -2;
-    }
-
-    if (ret == 0) {
-        FMC->ISPCMD = FMC_ISPCMD_READ;
-        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
-
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        } else {
-            if (FMC->ISPDAT != 0xFFFFFFFFUL) {
-                ret = 1;   /* Lock work was progrmmed. OTP was locked. */
-            }
-        }
-    }
-    return ret;
-}
-
-/**
-  * @brief Run CRC32 checksum calculation and get result.
-  *
-  * @param[in] u32addr   Starting flash address. It must be a page aligned address.
-  * @param[in] u32count  Byte count of flash to be calculated. It must be multiple of 512 bytes.
-  *
-  * @return Success or not.
-  * @retval   0           Success.
-  * @retval   0xFFFFFFFF  Invalid parameter.
-  *
-  * details   Run ISP checksum command to calculate specify area
-  */
-uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count)
-{
-    uint32_t   ret;
-
-    if ((u32addr % 512UL) || (u32count % 512UL)) {
-        ret = 0xFFFFFFFF;
-    } else {
-        FMC->ISPCMD  = FMC_ISPCMD_CAL_CHECKSUM;
-        FMC->ISPADDR = u32addr;
-        FMC->ISPDAT  = u32count;
-        FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
-
-        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
-
-        FMC->ISPCMD = FMC_ISPCMD_CHECKSUM;
-        FMC->ISPADDR    = u32addr;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
-
-        ret = FMC->ISPDAT;
-    }
-
-    return ret;
-}
-
-
-/**
-  * @brief Run flash all one verification and get result.
-  *
-  * @param[in] u32addr   Starting flash address. It must be a page aligned address.
-  * @param[in] u32count  Byte count of flash to be calculated. It must be multiple of 512 bytes.
-  *
-  * @retval   READ_ALLONE_YES      The contents of verified flash area are 0xFFFFFFFF.
-  * @retval   READ_ALLONE_NOT  Some contents of verified flash area are not 0xFFFFFFFF.
-  * @retval   READ_ALLONE_CMD_FAIL  Unexpected error occurred.
-  *
-  * @details  Run ISP check all one command to check specify area is all one or not.
-  */
-uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count)
-{
-    uint32_t  ret = READ_ALLONE_CMD_FAIL;
-
-    FMC->ISPSTS = 0x80UL;   /* clear check all one bit */
-
-    FMC->ISPCMD   = FMC_ISPCMD_RUN_ALL1;
-    FMC->ISPADDR  = u32addr;
-    FMC->ISPDAT   = u32count;
-    FMC->ISPTRG   = FMC_ISPTRG_ISPGO_Msk;
-
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
-
-    do {
-        FMC->ISPCMD = FMC_ISPCMD_READ_ALL1;
-        FMC->ISPADDR    = u32addr;
-        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
-    }  while (FMC->ISPDAT == 0UL);
-
-    if (FMC->ISPDAT == READ_ALLONE_YES) {
-        ret = FMC->ISPDAT;
-    }
-
-    if (FMC->ISPDAT == READ_ALLONE_NOT) {
-        ret = FMC->ISPDAT;
-    }
-
-    return ret;
-}
-
-
-/**
-  * @brief    Setup security key.
-  *
-  * @param[in] key      Key 0~2 to be setup.
-  * @param[in] kpmax    Maximum unmatched power-on counting number.
-  * @param[in] kemax    Maximum unmatched counting number.
-  * @param[in] lock_CONFIG   1: Security key lock CONFIG to write-protect. 0: Don't lock CONFIG.
-  * @param[in] lock_SPROM    1: Security key lock SPROM to write-protect. 0: Don't lock SPROM. (This status is not supported on M2351)
-  *
-  * @retval   0     Success.
-  * @retval   -1    Key is locked. Cannot overwrite the current key.
-  * @retval   -2    Failed to erase flash.
-  * @retval   -3    Failed to program key.
-  * @retval   -4    Key lock function failed.
-  * @retval   -5    CONFIG lock function failed.
-  * @retval   -5    CONFIG lock function failed.
-  * @retval   -6    SPROM lock function failed. (This status is not supported on M2351)
-  * @retval   -7    KPMAX function failed.
-  * @retval   -8    KEMAX function failed.
-  *
-  * @details  Set security keys and setup key compare count. The Security key also can protect user config.
-  */
-int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax,
-                        const int32_t lock_CONFIG, const int32_t lock_SPROM)
-{
-    uint32_t  lock_ctrl = 0UL;
-    uint32_t  u32KeySts;
-    int32_t   ret = 0;
-
-    if (FMC->KPKEYSTS != 0x200UL) {
-        ret = -1;
-    }
-
-    if (FMC_Erase(FMC_KPROM_BASE)) {
-        ret = -2;
-    }
-
-    if (FMC_Erase(FMC_KPROM_BASE+0x200UL)) {
-        ret = -3;
-    }
-
-    if (!lock_CONFIG) {
-        lock_ctrl |= 0x1UL;
-    }
-
-    if (!lock_SPROM) {
-        lock_ctrl |= 0x2UL;
-    }
-
-    if (ret == 0) {
-        FMC_Write(FMC_KPROM_BASE, key[0]);
-        FMC_Write(FMC_KPROM_BASE+0x4UL, key[1]);
-        FMC_Write(FMC_KPROM_BASE+0x8UL, key[2]);
-        FMC_Write(FMC_KPROM_BASE+0xCUL, kpmax);
-        FMC_Write(FMC_KPROM_BASE+0x10UL, kemax);
-        FMC_Write(FMC_KPROM_BASE+0x14UL, lock_ctrl);
-
-        while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
-
-        u32KeySts = FMC->KPKEYSTS;
-
-        if (!(u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk)) {
-            /* Security key lock failed! */
-            ret = -4;
-        } else if ((lock_CONFIG && (!(u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk))) ||
-                   ((!lock_CONFIG) && (u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk))) {
-            /* CONFIG lock failed! */
-            ret = -5;
-        } else if (((FMC->KPCNT & FMC_KPCNT_KPMAX_Msk) >> FMC_KPCNT_KPMAX_Pos) != kpmax) {
-            /* KPMAX failed! */
-            ret = -7;     
-        } else if (((FMC->KPKEYCNT & FMC_KPKEYCNT_KPKEMAX_Msk) >> FMC_KPKEYCNT_KPKEMAX_Pos) != kemax) {
-            /* KEMAX failed! */
-            ret = -8;
-        }
-    }
-    return ret;
-}
-
-
-/**
-  * @brief    Execute security key comparison.
-  *
-  * @param[in] key  Key 0~2 to be compared.
-  *
-  * @retval   0     Key matched.
-  * @retval   -1    Forbidden. Times of key comparison mismatch reach the maximum count.
-  * @retval   -2    Key mismatched.
-  * @retval   -3    No security key lock. Key comparison is not required.
-  *
-  @ details   Inpue a keys to compare with security keys
-  */
-int32_t  FMC_SKey_Compare(uint32_t key[3])
-{
-    uint32_t  u32KeySts;
-    int32_t   ret = 0;
-
-    if (FMC->KPKEYSTS & FMC_KPKEYSTS_FORBID_Msk) {
-        /* FMC_SKey_Compare - FORBID!  */
-        ret = -1;
-    }
-
-    if (!(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYLOCK_Msk)) {
-        /* FMC_SKey_Compare - key is not locked!  */
-        ret = -3;
-    }
-
-    if (ret == 0) {
-        FMC->KPKEY0 = key[0];
-        FMC->KPKEY1 = key[1];
-        FMC->KPKEY2 = key[2];
-        FMC->KPKEYTRG = FMC_KPKEYTRG_KPKEYGO_Msk | FMC_KPKEYTRG_TCEN_Msk;
-                        
-        while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
-
-        u32KeySts = FMC->KPKEYSTS;
-
-        if (!(u32KeySts & FMC_KPKEYSTS_KEYMATCH_Msk)) {
-            /* Key mismatched! */
-            ret = -2;
-        } else if (u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk) {
-            /* Key matched, but still be locked! */
-            ret = -2;
-        }
-    }
-    return ret;
-}
-
-
-/**
-  * @brief  Check the XOM is actived or not.
-  *
-  * @param[in] xom_num    The xom number(0~3).
-  *
-  * @retval   1   XOM is actived.
-  * @retval   0   XOM is not actived.
-  * @retval   -2  Invalid XOM number.
-  *
-  * @details To get specify XOMRn(n=0~3) active status
-  */
-int32_t FMC_Is_XOM_Actived(uint32_t xom_num)
-{
-    int32_t  ret = 0, STS = 0;
-
-    if (xom_num >= 4UL)
-		{
-        return -2;
-    }
-
-		STS =  (((FMC->XOMSTS) & 0xf) & (1 << xom_num)) >> xom_num;
-		
-		return STS;
-}
-
-
-
-/**
-  * @brief     Config XOM Region
-  * @param[in] otp_num    The OTP number.
-  * @param[in] low_word   Low word of the 64-bits data.
-  * @param[in] high_word   Low word of the 64-bits data.
-  *
-  * @retval   0   Success
-  * @retval   1   XOM is has already actived.
-  * @retval   -1  Program failed.
-  * @retval   -2  Invalid XOM number.
-  *
-  * @details  Program XOM base address and XOM size(page)
-  */
-int32_t FMC_Config_XOM(uint32_t xom_num, uint32_t xom_base, uint8_t xom_page)
-{
-    int32_t  ret = 0;
-
-    if (xom_num >= 4UL)
-		{
-        ret = -2;
-    }
-		
-		if(ret==0)
-		{ 
-		    ret = FMC_Is_XOM_Actived(xom_num);
-    }	
-		
-		if(ret==0)
-		{
-        FMC_Write(FMC_XOM_BASE + xom_num*0x10, xom_base);
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk){
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-				}
-    }
-				
-		if(ret==0)	
-		{			
-		    FMC_Write(FMC_XOM_BASE + xom_num*0x10 + +0x04, xom_page);    //[2k~512k, 0~255]
-        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        }
-	  }	
-		
-		if(ret==0)	
-		{			
-		    FMC_Write(FMC_XOM_BASE + xom_num*0x10 + 0x08, 0);    //Active
-				if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-            ret = -1;
-        }
-		}
-
-    return ret;
-}
-
-
-/**
-  * @brief  Execute Erase XOM Region
-  *
-  * @param[in]  u32Addr  XOMRn(n=0~3) region base address
-  *
-  * @return   XOM erase success or not.
-  * @retval    0  Success
-  * @retval   -1  Erase failed
-  * @retval   -2  Invalid XOM number.
-  *
-  * @details Execute FMC_ISPCMD_PAGE_ERASE command to erase XOM. 
-  */
-int32_t FMC_Erase_XOM(uint32_t xom_num)
-{
-    uint32_t u32Addr, u32Active;
-	
-    if (xom_num >= 4UL)
-		{
-        return -2;
-    }
-    	
-		u32Active = FMC_Is_XOM_Actived(xom_num);
-		
-		
-		if(u32Active)
-		{   
-			  //u32Addr = inpw(((&(FMC->XOMR0STS) + xom_num*4) & 0xFFFFFF00) >> 8);
-		    u32Addr = (inpw(0x4000C0D0 + xom_num*4) & 0xFFFFFF00) >> 8;			
-        FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
-        FMC->ISPADDR = u32Addr;
-        FMC->ISPDAT = 0x55aa03;
-        FMC->ISPTRG = 0x1;
-#if ISBEN
-        __ISB();
-#endif
-        while(FMC->ISPTRG);
-
-         /* Check ISPFF flag to know whether erase OK or fail. */
-        if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
+        if(FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk)
         {
-            FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-            return -1;
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
         }
-	  }
-		else 
-		{
-			  return -1;
-		}
-		
-		return 0;
+    }
+
+    return ret;
 }
 
 /*@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */

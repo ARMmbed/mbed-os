@@ -1,12 +1,12 @@
-/****************************************************************************//**
+/**************************************************************************//**
  * @file     spi5.c
  * @version  V3.00
- * @brief    M2351 SPI5 driver source file
+ * @brief    M2351 series SPI5 driver source file
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
-#include "M2351.h"
+#include "NuMicro.h"
 
 /** @addtogroup Standard_Driver Standard Driver
   @{
@@ -46,37 +46,30 @@ uint32_t SPI5_Open(SPI5_T *spi,
                    uint32_t u32DataWidth,
                    uint32_t u32BusClock)
 {
-    if (!(__PC() & (1 << 28)))
+    if(u32DataWidth == 32UL)
     {
-        if(u32DataWidth == 32)
-            u32DataWidth = 0;
-
-        spi->CTL = u32MasterSlave | (u32DataWidth << SPI5_CTL_DWIDTH_Pos) | (u32SPI5Mode);
-
-        return (SPI5_SetBusClock(spi, u32BusClock));
+        u32DataWidth = 0UL;
     }
-    else
-    {
-        return 0;
-    }
+
+    spi->CTL = u32MasterSlave | (u32DataWidth << SPI5_CTL_DWIDTH_Pos) | (u32SPI5Mode);
+
+    return (SPI5_SetBusClock(spi, u32BusClock));
 }
 
 /**
-  * @brief Reset SPI5 module and disable SPI5 peripheral clock.
+  * @brief Reset SPI5 module.
   * @param[in]  spi is the base address of SPI5 module.
   * @return none
   */
 void SPI5_Close(SPI5_T *spi)
 {
-    if (!(__PC() & (1 << 28)))
+    if(!(__PC() & (1UL << 28UL)))
     {
-        /* Reset SPI5 */
-        if((uint32_t)spi == SPI5_BASE && (CLK->APBCLK1 & CLK_APBCLK1_SPI5CKEN_Msk))
+        if(spi == SPI5)
         {
-            CLK->APBCLK1 &= ~CLK_APBCLK1_SPI5CKEN_Msk;
+            /* Reset SPI5 */
             SYS->IPRST2 |= SYS_IPRST2_SPI5RST_Msk;
             SYS->IPRST2 &= ~SYS_IPRST2_SPI5RST_Msk;
-            CLK->APBCLK1 |=  CLK_APBCLK1_SPI5CKEN_Msk;
         }
     }
 }
@@ -130,86 +123,91 @@ void SPI5_EnableAutoSS(SPI5_T *spi, uint32_t u32SSPinMask, uint32_t u32ActiveLev
   * @param[in]  spi is the base address of SPI5 module.
   * @param[in]  u32BusClock is the expected frequency of SPI5 bus clock.
   * @return Actual frequency of SPI5 peripheral clock.
+  * @note   If u32BusClock >= system clock frequency for Secure, SPI peripheral clock source will be set to APB clock and DIVIDER will be set to 0.
+  * @note   If u32BusClock >= system clock frequency for Non-Secure, this function does not do anything to avoid the situation that the frequency of
+  *         SPI bus clock cannot be faster than the system clock rate. User should set up carefully.
   */
 uint32_t SPI5_SetBusClock(SPI5_T *spi, uint32_t u32BusClock)
 {
-    if (!(__PC() & (1 << 28)))
+    uint32_t u32ClkSrc, u32HCLKFreq;
+    uint32_t u32Div, u32RetValue;
+
+    /* Get system clock frequency */
+    u32HCLKFreq = CLK_GetHCLKFreq();
+
+    if(u32BusClock >= u32HCLKFreq)
     {
-        uint32_t u32ClkSrc, u32HCLKFreq;
-        uint32_t u32Div;
-
-        /* Get system clock frequency */
-        u32HCLKFreq = CLK_GetHCLKFreq();
-
-        if(u32BusClock >= u32HCLKFreq)
+        if(!(__PC() & (1UL << 28UL)))
         {
             /* Select PCLK as the clock source of SPI5 */
             if(spi == SPI5)
-                CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI5SEL_Msk)) | CLK_CLKSEL2_SPI5SEL_PCLK1;
-        }
-
-        /* Check clock source of SPI5 */
-        if((spi == SPI5) || (spi == SPI5_NS))
-        {
-            if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_HXT)
-                u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PLL)
-                u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PCLK1)
             {
-                /* Clock source is PCLK1 */
-                if(CLK_GetPCLK1Freq() == u32HCLKFreq >> 1)
-                    u32ClkSrc = (u32HCLKFreq / 2);
-                else
-                    u32ClkSrc = u32HCLKFreq;
+                CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI5SEL_Msk)) | CLK_CLKSEL2_SPI5SEL_PCLK1;
             }
-            else
-                u32ClkSrc = __HIRC; /* Clock source is HIRC */
         }
+    }
 
-        if(u32BusClock >= u32HCLKFreq)
+    /* Check clock source of SPI5 */
+    if((spi == SPI5) || (spi == SPI5_NS))
+    {
+        if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_HXT)
         {
-            /* Set DIVIDER = 0 */
-            spi->CLKDIV = 0;
-            /* Return master peripheral clock rate */
-            return u32ClkSrc;
+            u32ClkSrc = __HXT; /* Clock source is HXT */
         }
-        else if(u32BusClock >= u32ClkSrc)
+        else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PLL)
         {
-            /* Set DIVIDER = 0 */
-            spi->CLKDIV = 0;
-            /* Return master peripheral clock rate */
-            return u32ClkSrc;
+            u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
         }
-        else if(u32BusClock == 0)
+        else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PCLK1)
         {
-            /* Set DIVIDER to the maximum value 0xFF. f_spi = f_spi_clk_src / (DIVIDER + 1) */
-            spi->CLKDIV |= SPI5_CLKDIV_DIVIDER_Msk;
-            /* Return master peripheral clock rate */
-            return (u32ClkSrc / (0xFF + 1));
+            u32ClkSrc = CLK_GetPCLK1Freq(); /* Clock source is PCLK1 */
         }
         else
         {
-            u32Div = (((u32ClkSrc * 10) / u32BusClock + 5) / 10) - 1; /* Round to the nearest integer */
-            if(u32Div > 0xFF)
-            {
-                u32Div = 0xFF;
-                spi->CLKDIV |= SPI5_CLKDIV_DIVIDER_Msk;
-                /* Return master peripheral clock rate */
-                return (u32ClkSrc / (0xFF + 1));
-            }
-            else
-            {
-                spi->CLKDIV = (spi->CLKDIV & (~SPI5_CLKDIV_DIVIDER_Msk)) | (u32Div << SPI5_CLKDIV_DIVIDER_Pos);
-                /* Return master peripheral clock rate */
-                return (u32ClkSrc / (u32Div + 1));
-            }
+            u32ClkSrc = __HIRC; /* Clock source is HIRC */
         }
+    }
+
+    if(u32BusClock >= u32HCLKFreq)
+    {
+        /* Set DIVIDER = 0 */
+        spi->CLKDIV = 0UL;
+        /* Return master peripheral clock rate */
+        u32RetValue = u32ClkSrc;
+    }
+    else if(u32BusClock >= u32ClkSrc)
+    {
+        /* Set DIVIDER = 0 */
+        spi->CLKDIV = 0UL;
+        /* Return master peripheral clock rate */
+        u32RetValue = u32ClkSrc;
+    }
+    else if(u32BusClock == 0UL)
+    {
+        /* Set DIVIDER to the maximum value 0xFF. f_spi = f_spi_clk_src / (DIVIDER + 1) */
+        spi->CLKDIV |= SPI5_CLKDIV_DIVIDER_Msk;
+        /* Return master peripheral clock rate */
+        u32RetValue = (u32ClkSrc / (0xFFUL + 1UL));
     }
     else
     {
-        return 0;
+        u32Div = (((u32ClkSrc * 10UL) / u32BusClock + 5UL) / 10UL) - 1UL; /* Round to the nearest integer */
+        if(u32Div > 0xFFUL)
+        {
+            u32Div = 0xFFUL;
+            spi->CLKDIV |= SPI5_CLKDIV_DIVIDER_Msk;
+            /* Return master peripheral clock rate */
+            u32RetValue = (u32ClkSrc / (0xFFUL + 1UL));
+        }
+        else
+        {
+            spi->CLKDIV = (spi->CLKDIV & (~SPI5_CLKDIV_DIVIDER_Msk)) | (u32Div << SPI5_CLKDIV_DIVIDER_Pos);
+            /* Return master peripheral clock rate */
+            u32RetValue = (u32ClkSrc / (u32Div + 1UL));
+        }
     }
+
+    return u32RetValue;
 }
 
 /**
@@ -246,35 +244,34 @@ void SPI5_DisableFIFO(SPI5_T *spi)
 uint32_t SPI5_GetBusClock(SPI5_T *spi)
 {
     uint32_t u32Div;
-    uint32_t u32ClkSrc, u32HCLKFreq;
+    uint32_t u32ClkSrc;
 
     /* Get DIVIDER setting */
     u32Div = (spi->CLKDIV & SPI5_CLKDIV_DIVIDER_Msk) >> SPI5_CLKDIV_DIVIDER_Pos;
-
-    /* Get system clock frequency */
-    u32HCLKFreq = CLK_GetHCLKFreq();
 
     /* Check clock source of SPI5 */
     if((spi == SPI5) || (spi == SPI5_NS))
     {
         if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_HXT)
+        {
             u32ClkSrc = __HXT; /* Clock source is HXT */
+        }
         else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PLL)
+        {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
+        }
         else if((CLK_GetModuleClockSource(SPI5_MODULE) << CLK_CLKSEL2_SPI5SEL_Pos) == CLK_CLKSEL2_SPI5SEL_PCLK1)
         {
-            /* Clock source is PCLK1 */
-            if(CLK_GetPCLK1Freq() == u32HCLKFreq >> 1)
-                u32ClkSrc = (u32HCLKFreq / 2);
-            else
-                u32ClkSrc = u32HCLKFreq;
+            u32ClkSrc = CLK_GetPCLK1Freq(); /* Clock source is PCLK1 */
         }
         else
+        {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     }
 
     /* Return SPI bus clock rate */
-    return (u32ClkSrc / (u32Div + 1));
+    return (u32ClkSrc / (u32Div + 1UL));
 }
 
 /**
@@ -294,22 +291,34 @@ uint32_t SPI5_GetBusClock(SPI5_T *spi)
 void SPI5_EnableInt(SPI5_T *spi, uint32_t u32Mask)
 {
     if((u32Mask & SPI5_IE_MASK) == SPI5_IE_MASK)
+    {
         spi->CTL |= SPI5_CTL_UNITIEN_Msk;
+    }
 
     if((u32Mask & SPI5_SSTAIEN_MASK) == SPI5_SSTAIEN_MASK)
+    {
         spi->SSCTL |= SPI5_SSCTL_SSTAIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_TXTHIEN_MASK) == SPI5_FIFO_TXTHIEN_MASK)
+    {
         spi->FIFOCTL |= SPI5_FIFOCTL_TXTHIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_RXTHIEN_MASK) == SPI5_FIFO_RXTHIEN_MASK)
+    {
         spi->FIFOCTL |= SPI5_FIFOCTL_RXTHIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_RXOVIEN_MASK) == SPI5_FIFO_RXOVIEN_MASK)
+    {
         spi->FIFOCTL |= SPI5_FIFOCTL_RXOVIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_TIMEOUIEN_MASK) == SPI5_FIFO_TIMEOUIEN_MASK)
+    {
         spi->FIFOCTL |= SPI5_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /**
@@ -329,22 +338,34 @@ void SPI5_EnableInt(SPI5_T *spi, uint32_t u32Mask)
 void SPI5_DisableInt(SPI5_T *spi, uint32_t u32Mask)
 {
     if((u32Mask & SPI5_IE_MASK) == SPI5_IE_MASK)
+    {
         spi->CTL &= ~SPI5_CTL_UNITIEN_Msk;
+    }
 
     if((u32Mask & SPI5_SSTAIEN_MASK) == SPI5_SSTAIEN_MASK)
+    {
         spi->SSCTL &= ~SPI5_SSCTL_SSTAIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_TXTHIEN_MASK) == SPI5_FIFO_TXTHIEN_MASK)
+    {
         spi->FIFOCTL &= ~SPI5_FIFOCTL_TXTHIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_RXTHIEN_MASK) == SPI5_FIFO_RXTHIEN_MASK)
+    {
         spi->FIFOCTL &= ~SPI5_FIFOCTL_RXTHIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_RXOVIEN_MASK) == SPI5_FIFO_RXOVIEN_MASK)
+    {
         spi->FIFOCTL &= ~SPI5_FIFOCTL_RXOVIEN_Msk;
+    }
 
     if((u32Mask & SPI5_FIFO_TIMEOUIEN_MASK) == SPI5_FIFO_TIMEOUIEN_MASK)
+    {
         spi->FIFOCTL &= ~SPI5_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /**

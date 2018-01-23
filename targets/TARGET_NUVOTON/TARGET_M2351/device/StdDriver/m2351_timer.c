@@ -3,10 +3,9 @@
  * @version  V3.00
  * @brief    Timer Controller(Timer) driver source file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 /** @addtogroup Standard_Driver Standard Driver
@@ -51,7 +50,12 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
     }
     else
     {
-        if(u32Clk > 64000000UL)
+        if(u32Clk > 128000000UL)
+        {
+            u32Prescale = 15UL;    /* real prescaler value is 16 */
+            u32Clk >>= 4;
+        }
+        else if(u32Clk > 64000000UL)
         {
             u32Prescale = 7UL;    /* real prescaler value is 8 */
             u32Clk >>= 3;
@@ -109,7 +113,7 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
     uint32_t u32Prescale = 0UL, delay = (SystemCoreClock / u32Clk) + 1UL;
     uint32_t u32Cmpr, u32NsecPerTick;
 
-    // Clear current timer configuration/
+    /* Clear current timer configuration */
     timer->CTL = 0UL;
     timer->EXTCTL = 0UL;
 
@@ -136,15 +140,20 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
         }
     }
 
-    if(u32Clk <= 1000000)
+    if(u32Clk <= 1000000UL)
     {
-        u32Prescale = 0;
-        u32NsecPerTick = 1000000000 / u32Clk;
-        u32Cmpr = (u32Usec * 1000) / u32NsecPerTick;
+        u32Prescale = 0UL;
+        u32NsecPerTick = 1000000000UL / u32Clk;
+        u32Cmpr = (u32Usec * 1000UL) / u32NsecPerTick;
     }
     else
     {
-        if(u32Clk > 64000000UL)
+        if(u32Clk > 128000000UL)
+        {
+            u32Prescale = 15UL;    /* real prescaler value is 16 */
+            u32Clk >>= 4;
+        }
+        else if(u32Clk > 64000000UL)
         {
             u32Prescale = 7UL;    /* real prescaler value is 8 */
             u32Clk >>= 3;
@@ -174,17 +183,16 @@ void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
     timer->CMP = u32Cmpr;
     timer->CTL = TIMER_CTL_CNTEN_Msk | TIMER_ONESHOT_MODE | u32Prescale;
 
-    // When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
-    // And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
+    /*
+        When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
+        And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
+    */
     for(; delay > 0UL; delay--)
     {
         __NOP();
     }
 
-    while(timer->CTL & TIMER_CTL_ACTSTS_Msk)
-    {
-        ;
-    }
+    while(timer->CTL & TIMER_CTL_ACTSTS_Msk) {}
 }
 
 /**
@@ -274,7 +282,7 @@ void TIMER_DisableEventCounter(TIMER_T *timer)
   */
 uint32_t TIMER_GetModuleClock(TIMER_T *timer)
 {
-    uint32_t u32Src, u32Clk;
+    uint32_t u32Src, u32Clk = __HIRC;
     const uint32_t au32Clk[] = {__HXT, __LXT, 0UL, 0UL, 0UL, __LIRC, 0UL, __HIRC};
 
     if(timer == TIMER0)
@@ -289,25 +297,36 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
     {
         u32Src = CLK_GetModuleClockSource(TMR2_MODULE);
     }
-    else     /* Timer 3 */
+    else if((timer == TIMER3) || (timer == TIMER3_NS))
     {
         u32Src = CLK_GetModuleClockSource(TMR3_MODULE);
     }
-
-    if(u32Src == 2UL)
+    else
     {
-        if((timer == TIMER0) || (timer == TIMER1))
-        {
-            u32Clk = CLK_GetPCLK0Freq();
-        }
-        else
-        {
-            u32Clk = CLK_GetPCLK1Freq();
-        }
+        u32Clk = 0UL;
+    }
+
+    if(u32Clk == 0UL)
+    {
+        ; /* Invalid timer channel */
     }
     else
     {
-        u32Clk = au32Clk[u32Src];
+        if(u32Src == 2UL)
+        {
+            if((timer == TIMER0) || (timer == TIMER1))
+            {
+                u32Clk = CLK_GetPCLK0Freq();
+            }
+            else
+            {
+                u32Clk = CLK_GetPCLK1Freq();
+            }
+        }
+        else
+        {
+            u32Clk = au32Clk[u32Src];
+        }
     }
 
     return u32Clk;
@@ -323,11 +342,11 @@ uint32_t TIMER_GetModuleClock(TIMER_T *timer)
   *
   * @return     None
   *
-  * @details    This function is used to enable the Timer frequency counter function for
-  *             calculate input event frequency. After enable this function, a pair of timers,
-  *             TIMER0 and TIMER1, or TIMER2 and TIMER3 will be configured for this function.
-  *             The mode used to calculate input event frequency is mentioned as
-  *             "Inter Timer Trigger Mode" in Technical Reference Manual.
+  * @details    This function is used to calculate input event frequency. After enable
+  *             this function, a pair of timers, TIMER0 and TIMER1, or TIMER2 and TIMER3
+  *             will be configured for this function. The mode used to calculate input
+  *             event frequency is mentioned as "Inter Timer Trigger Mode" in Technical
+  *             Reference Manual.
   */
 void TIMER_EnableFreqCounter(TIMER_T *timer,
                              uint32_t u32DropCount,
@@ -337,17 +356,28 @@ void TIMER_EnableFreqCounter(TIMER_T *timer,
     TIMER_T *t;    /* store the timer base to configure compare value */
 
     if(timer == TIMER0)
+    {
         t = TIMER1;
+    }
     else if(timer == TIMER2)
+    {
         t = TIMER3;
+    }
     else if(timer == TIMER2_NS)
+    {
         t = TIMER3_NS;
+    }
     else
-        return ;
+    {
+        t = 0UL ;
+    }
 
-    t->CMP = 0xFFFFFFUL;
-    t->EXTCTL = u32EnableInt ? TIMER_EXTCTL_CAPIEN_Msk : 0;
-    timer->CTL = TIMER_CTL_INTRGEN_Msk | TIMER_CTL_CNTEN_Msk;
+    if(t != 0UL)
+    {
+        t->CMP = 0xFFFFFFUL;
+        t->EXTCTL = u32EnableInt ? TIMER_EXTCTL_CAPIEN_Msk : 0UL;
+        timer->CTL = TIMER_CTL_INTRGEN_Msk | TIMER_CTL_CNTEN_Msk;
+    }
 }
 
 /**
@@ -365,7 +395,7 @@ void TIMER_DisableFreqCounter(TIMER_T *timer)
 }
 
 /**
-  * @brief      Set Modules Trigger Source
+  * @brief      Select Interrupt Source to Trigger others Module
   *
   * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   * @param[in]  u32Src  Selects the interrupt source to trigger other modules. Could be:
@@ -382,22 +412,22 @@ void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src)
 }
 
 /**
-  * @brief      Set Target Modules to Trigger by Timer Interrupt
+  * @brief      Set Modules Trigger by Timer Interrupt
   *
   * @param[in]  timer   The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
-  * @param[in]  u32Mask The mask of modules (PWM, EADC, DAC and PDMA) trigger by timer. Is the combination of
-  *                     - \ref TIMER_TRG_TO_PWM,
+  * @param[in]  u32Mask The mask of modules (EPWM, EADC, DAC and PDMA) trigger by timer. Is the combination of
+  *                     - \ref TIMER_TRG_TO_EPWM,
   *                     - \ref TIMER_TRG_TO_EADC,
   *                     - \ref TIMER_TRG_TO_DAC and
   *                     - \ref TIMER_TRG_TO_PDMA
   *
   * @return     None
   *
-  * @details    This function is used to set PWM, EADC, DAC and PDMA module trigger by timer interrupt event.
+  * @details    This function is used to set EPWM, EADC, DAC and PDMA module triggered by timer interrupt event.
   */
 void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask)
 {
-    timer->TRGCTL = (timer->TRGCTL & ~(TIMER_TRGCTL_TRGPWM_Msk | TIMER_TRGCTL_TRGDAC_Msk | TIMER_TRGCTL_TRGEADC_Msk | TIMER_TRGCTL_TRGPDMA_Msk)) | u32Mask;
+    timer->TRGCTL = (timer->TRGCTL & ~(TIMER_TRGCTL_TRGEPWM_Msk | TIMER_TRGCTL_TRGDAC_Msk | TIMER_TRGCTL_TRGEADC_Msk | TIMER_TRGCTL_TRGPDMA_Msk)) | u32Mask;
 }
 
 /*@}*/ /* end of group TIMER_EXPORTED_FUNCTIONS */
@@ -406,4 +436,4 @@ void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask)
 
 /*@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

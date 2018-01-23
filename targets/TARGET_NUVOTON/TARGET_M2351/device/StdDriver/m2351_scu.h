@@ -58,11 +58,11 @@ typedef enum NSATTR
     BPWM0_Attr  = 64 + 26,
     BPWM1_Attr  = 64 + 27,
     /******  PNNSET3 **********************************************************************************/
-    SPI0_Attr   = 96 + 0,
-    SPI1_Attr   = 96 + 1,
-    SPI2_Attr   = 96 + 2,
-    SPI3_Attr   = 96 + 3,
-    SPI4_Attr   = 96 + 4,
+    QSPI0_Attr  = 96 + 0,
+    SPI0_Attr   = 96 + 1,
+    SPI1_Attr   = 96 + 2,
+    SPI2_Attr   = 96 + 3,
+    SPI3_Attr   = 96 + 4,
     SPI5_Attr   = 96 + 5,
     UART0_Attr  = 96 + 16,
     UART1_Attr  = 96 + 17,
@@ -298,6 +298,11 @@ typedef enum NSATTR
   *
   */
 #define SCU_NSM_DBG_ON(opt)    ((opt)?(SCU->NSMCTL |= SCU_NSMCTL_DBGON_Msk):(SCU->NSMCTL &= ~SCU_NSMCTL_DBGON_Msk))
+
+
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+__STATIC_INLINE void SCU_NSMConfig(uint32_t u32Ticks, uint32_t u32Prescale);
+__STATIC_INLINE void SCU_TimerConfig(uint32_t u32Ticks, uint32_t u32Prescale);
 
 
 /**

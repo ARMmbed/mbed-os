@@ -3,7 +3,7 @@
  * @version  V3.00
  * @brief    M2351 series OTG driver header file
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __OTG_H__
 #define __OTG_H__
@@ -326,6 +326,6 @@ extern "C"
 #endif
 
 
-#endif //__OTG_H__
+#endif /* __OTG_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

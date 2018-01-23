@@ -1,14 +1,14 @@
 /**************************************************************************//**
  * @file     ecap.c
  * @version  V3.00
- * $Revision: 1 $
- * $Date: 16/11/02 9:08a $
+
  * @brief    Enhanced Input Capture Timer (ECAP) driver source file
  *
  * @note
- * Copyright (C) 2014 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M2351.h"
+
 
 
 /** @addtogroup Standard_Driver Standard Driver
@@ -24,29 +24,27 @@
 */
 
 /**
-  * @brief      Enable ECAP funtion
+  * @brief      Enable ECAP function
   * @param[in]  ecap        The pointer of the specified ECAP module.
-  * @param[in]  u32FuncMask Input Caputer function select
-  *                         - \ref ECAP_DISABLE_COMPARE_RELOAD
+  * @param[in]  u32FuncMask Input capture function select
+  *                         - \ref ECAP_DISABLE_COMPARE
   *                         - \ref ECAP_COMPARE_FUNCTION
-  *                         - \ref ECAP_RELOAD_FUNCTION
-  *                         - \ref ECAP_RELOAD_COMPARE_FUNCTION
-
   * @return     None
-  * @details    This macro enable input capture function and select compare and reload funciton.
+  * @details    This macro enable input capture function and select compare and reload function.
   */
 void ECAP_Open(ECAP_T* ecap, uint32_t u32FuncMask)
 {
     /* Clear Input capture mode*/
-    ecap->CTL0 = ecap->CTL0 & ~(ECAP_CTL0_RLDEN_Msk | ECAP_CTL0_CMPEN_Msk);
+    ecap->CTL0 = ecap->CTL0 & ~(ECAP_CTL0_CMPEN_Msk);
 
     /* Enable Input Capture and set mode */
-    ecap->CTL0 |= ECAP_CTL0_CAPEN_Msk |
-                  ((u32FuncMask) << ECAP_CTL0_RLDEN_Pos);
+    ecap->CTL0 |= ECAP_CTL0_CAPEN_Msk | (u32FuncMask);
 }
 
+
+
 /**
-  * @brief      Disable ECAP funtion
+  * @brief      Disable ECAP function
   * @param[in]  ecap        The pointer of the specified ECAP module.
   * @return     None
   * @details    This macro disable input capture function.
@@ -75,10 +73,14 @@ void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask)
     ecap->CTL0 |= (u32Mask);
 
     /* Enable NVIC ECAP IRQ */
-    if(ecap == ECAP0)
+    if((ecap == ECAP0) || (ecap == ECAP0_NS))
+    {
         NVIC_EnableIRQ(ECAP0_IRQn);
+    }
     else
+    {
         NVIC_EnableIRQ(ECAP1_IRQn);
+    }
 }
 
 /**
@@ -96,13 +98,17 @@ void ECAP_EnableINT(ECAP_T* ecap, uint32_t u32Mask)
 void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask)
 {
     /* Disable input channel interrupt */
-    ecap->CTL0 &= ~(u32Mask);
+    (ecap->CTL0) &= ~(u32Mask);
 
     /* Disable NVIC ECAP IRQ */
-    if(ecap == ECAP0)
+    if((ecap == ECAP0) || (ecap == ECAP0_NS))
+    {
         NVIC_DisableIRQ(ECAP0_IRQn);
+    }
     else
+    {
         NVIC_DisableIRQ(ECAP1_IRQn);
+    }
 }
 
 /*@}*/ /* end of group ECAP_EXPORTED_FUNCTIONS */
@@ -111,4 +117,5 @@ void ECAP_DisableINT(ECAP_T* ecap, uint32_t u32Mask)
 
 /*@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2014 Nuvoton Technology Corp. ***/
+
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

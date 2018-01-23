@@ -33,7 +33,7 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global constant definitions                                                                                     */
 /*---------------------------------------------------------------------------------------------------------*/
-#define ISBEN   0
+#define ISBEN   0UL
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Define Base Address                                                                                     */
@@ -44,49 +44,63 @@ extern "C"
 #define FMC_LDROM_BASE          0x00100000UL    /*!< LDROM  Base Address          */
 #define FMC_LDROM_END           0x00101000UL    /*!< LDROM end address            */
 #define FMC_XOM_BASE            0x00200000UL    /*!< XOM  Base Address            */
+#define FMC_XOMR0_BASE          0x00200000UL    /*!< XOMR 0 Base Address */
+#define FMC_XOMR1_BASE          0x00200010UL    /*!< XOMR 1 Base Address */
+#define FMC_XOMR2_BASE          0x00200020UL    /*!< XOMR 2 Base Address */
+#define FMC_XOMR3_BASE          0x00200030UL    /*!< XOMR 3 Base Address */
+#define FMC_NSCBA_BASE          0x00200800UL    /*!< Non-Secure base address      */
+#define FMC_SCRLOCK_BASE        0x00200804UL    /*!< Secure Region Lock base address */
+#define FMC_ARLOCK_BASE         0x00210804UL    /*!< All Region Lock base address */
 #define FMC_CONFIG_BASE         0x00300000UL    /*!< CONFIG Base Address          */
-#define FMC_KPROM_BASE          0x00311000UL    /*!< Security ROM base address    */
+#define FMC_USER_CONFIG_0       0x00300000UL    /*!< CONFIG 0 Address */
+#define FMC_USER_CONFIG_1       0x00300004UL    /*!< CONFIG 1 Address */
+#define FMC_USER_CONFIG_2       0x00300008UL    /*!< CONFIG 2 Address */
+#define FMC_USER_CONFIG_3       0x0030000CUL    /*!< CONFIG 3 Address */
 #define FMC_OTP_BASE            0x00310000UL    /*!< OTP flash base address       */
+#define FMC_KPROM_BASE          0x00311000UL    /*!< Security ROM base address    */
 
-#define FMC_CONFIG0_ADDR        (FMC_CONFIG_BASE)       /*!< CONFIG 0 Address */
-#define FMC_CONFIG1_ADDR        (FMC_CONFIG_BASE + 0x4) /*!< CONFIG 1 Address */
-#define FMC_CONFIG2_ADDR        (FMC_CONFIG_BASE + 0x8) /*!< CONFIG 2 Address */
-#define FMC_CONFIG3_ADDR        (FMC_CONFIG_BASE + 0xC) /*!< CONFIG 3 Address */
+#define FMC_FLASH_PAGE_SIZE     0x800UL         /*!< Flash Page Size (2048 Bytes) */
+#define FMC_PAGE_ADDR_MASK      0xFFFFF800UL    /*!< Flash page address mask      */
+#define FMC_MULTI_WORD_PROG_LEN 512UL           /*!< The maximum length of a multi-word program.  */
 
 #define FMC_APROM_SIZE          FMC_APROM_END   /*!< APROM Size                  */
 #define FMC_BANK_SIZE           (FMC_APROM_SIZE/2UL) /*!< APROM Bank Size             */
 #define FMC_LDROM_SIZE          0x1000UL        /*!< LDROM Size (4 Kbytes)       */
 #define FMC_OTP_ENTRY_CNT       256UL           /*!< OTP entry number            */
 
-#define FMC_FLASH_PAGE_SIZE     0x800           /*!< Flash Page Size (2048 Bytes) */
-#define FMC_FLASH_BLOCK_SIZE    0x2000          /*!< Flash Page Size (8192 Bytes) */
-#define FMC_FLASH_BANK_SIZE     (FMC_APROM_SIZE/2UL) /*!< APROM Bank Size             */
+/*---------------------------------------------------------------------------------------------------------*/
+/*  XOM region number constant definitions                                                                 */
+/*---------------------------------------------------------------------------------------------------------*/
+#define XOMR0   0UL                             /*!< XOM region 0     */
+#define XOMR1   1UL                             /*!< XOM region 1     */
+#define XOMR2   2UL                             /*!< XOM region 2     */
+#define XOMR3   3UL                             /*!< XOM region 3     */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  ISPCTL constant definitions                                                                            */
 /*---------------------------------------------------------------------------------------------------------*/
-#define FMC_ISPCTL_BS_LDROM     0x1     /*!< ISPCTL setting to select to boot from LDROM */
-#define FMC_ISPCTL_BS_APROM     0x0     /*!< ISPCTL setting to select to boot from APROM */
+#define IS_BOOT_FROM_LDROM      0x1UL     /*!< ISPCTL setting to select to boot from LDROM */
+#define IS_BOOT_FROM_APROM      0x0UL     /*!< ISPCTL setting to select to boot from APROM */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  ISPCMD constant definitions                                                                            */
 /*---------------------------------------------------------------------------------------------------------*/
-#define FMC_ISPCMD_READ         0x00     /*!< ISP Command: Read Flash               */
-#define FMC_ISPCMD_READ_UID     0x04     /*!< ISP Command: Read Unique ID           */
-#define FMC_ISPCMD_READ_ALL1    0x08     /*!< ISP Command: Read all-one result      */
-#define FMC_ISPCMD_READ_CID     0x0B     /*!< ISP Command: Read Company ID          */
-#define FMC_ISPCMD_READ_DID     0x0C     /*!< ISP Command: Read Device ID           */
-#define FMC_ISPCMD_CHECKSUM     0x0D     /*!< ISP Command: Read Checksum            */
-#define FMC_ISPCMD_PROGRAM      0x21     /*!< ISP Command: 32-bit Program Flash     */
-#define FMC_ISPCMD_PAGE_ERASE   0x22     /*!< ISP Command: Page Erase Flash         */
-#define FMC_ISPCMD_BANK_ERASE   0x23     /*!< ISP Command: Erase Flash bank 0 or 1 */
-#define FMC_ISPCMD_BLOCK_ERASE  0x25     /*!< ISP Command: Erase 4 pages alignment of APROM in bank 0 or 1  */
-#define FMC_ISPCMD_MULTI_PROG   0x27     /*!< ISP Command: Flash Multi-Word Program */
-#define FMC_ISPCMD_RUN_ALL1     0x28     /*!< ISP Command: Run all-one verification*/
-#define FMC_ISPCMD_CAL_CHECKSUM 0x2D     /*!< ISP Command: Run Check Calculation    */
-#define FMC_ISPCMD_VECMAP       0x2E     /*!< ISP Command: Set vector mapping       */
-#define FMC_ISPCMD_READE_8      0x40     /*!< ISP Command: 64-bit read Flash     */
-#define FMC_ISPCMD_WRITE_8      0x61     /*!< ISP Command: 64-bit program Flash     */
+#define FMC_ISPCMD_READ         0x00UL     /*!< ISP Command: Read Flash               */
+#define FMC_ISPCMD_READ_UID     0x04UL     /*!< ISP Command: Read Unique ID           */
+#define FMC_ISPCMD_READ_ALL1    0x08UL     /*!< ISP Command: Read all-one result      */
+#define FMC_ISPCMD_READ_CID     0x0BUL     /*!< ISP Command: Read Company ID          */
+#define FMC_ISPCMD_READ_DID     0x0CUL     /*!< ISP Command: Read Device ID           */
+#define FMC_ISPCMD_READ_CKS     0x0DUL     /*!< ISP Command: Read Checksum            */
+#define FMC_ISPCMD_PROGRAM      0x21UL     /*!< ISP Command: 32-bit Program Flash     */
+#define FMC_ISPCMD_PAGE_ERASE   0x22UL     /*!< ISP Command: Page Erase Flash         */
+#define FMC_ISPCMD_BANK_ERASE   0x23UL     /*!< ISP Command: Erase Flash bank 0 or 1 */
+#define FMC_ISPCMD_BLOCK_ERASE  0x25UL     /*!< ISP Command: Erase 4 pages alignment of APROM in bank 0 or 1  */
+#define FMC_ISPCMD_PROGRAM_MUL  0x27UL     /*!< ISP Command: Flash Multi-Word Program */
+#define FMC_ISPCMD_RUN_ALL1     0x28UL     /*!< ISP Command: Run all-one verification*/
+#define FMC_ISPCMD_RUN_CKS      0x2DUL     /*!< ISP Command: Run Check Calculation    */
+#define FMC_ISPCMD_VECMAP       0x2EUL     /*!< ISP Command: Set vector mapping       */
+#define FMC_ISPCMD_READ_64      0x40UL     /*!< ISP Command: 64-bit read Flash     */
+#define FMC_ISPCMD_PROGRAM_64   0x61UL     /*!< ISP Command: 64-bit program Flash     */
 
 #define READ_ALLONE_YES         0xA11FFFFFUL    /*!< Check-all-one result is all one.     */
 #define READ_ALLONE_NOT         0xA1100000UL    /*!< Check-all-one result is not all one. */
@@ -202,162 +216,127 @@ extern "C"
 #define FMC_DISABLE_AP_UPDATE()   (FMC->ISPCTL &= ~FMC_ISPCTL_APUEN_Msk)  /*!< Disable APROM Update Function  */
 
 /**
- * @brief      Next Booting Selection function
- *
- * @param[in]  x   Booting from APROM(0)/LDROM(1)
- *
- * @return     None
- *
- * @details    This function will set MCU next booting from LDROM/APROM.
- *
- * @note       When use this macro, the Boot Loader booting selection MBS(CONFIG0[5]) must be set.
- *
- */
-#define FMC_SELECT_NEXT_BOOT(x)   (FMC->ISPCTL = (FMC->ISPCTL & ~FMC_ISPCTL_BS_Msk) | ((x) << FMC_ISPCTL_BS_Pos)) /*!< Select Next Booting, x = 0 or 1 */
-
-/**
- * @brief      Get MCU Booting Status
+ * @brief      Set Boot from APROM
  *
  * @param      None
  *
  * @return     None
  *
- * @details    This function will get status of chip next booting from LDROM/APROM.
+ * @details    This function is select booting from APROM.
  *
  */
-#define FMC_GET_BOOT_STATUS()     ((FMC->ISPCTL & FMC_ISPCTL_BS_Msk)?1:0) /*!< Get MCU Booting Status */
+#define FMC_SET_APROM_BOOT()        (FMC->ISPCTL &= ~FMC_ISPCTL_BS_Msk)         /*!< Select booting from APROM  */
+
+/**
+ * @brief      Set Boot from LDROM
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function is select booting from LDROM.
+ *
+ */
+#define FMC_SET_LDROM_BOOT()        (FMC->ISPCTL |= FMC_ISPCTL_BS_Msk)          /*!< Select booting from LDROM  */
+
+/**
+ * @brief      Get ISP Fail Flag
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function is used to get ISP fail flag when do ISP actoin.
+ *
+ */
+#define FMC_GET_FAIL_FLAG()         ((FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) ? 1UL : 0UL)  /*!< Get ISP fail flag */
+
+/**
+ * @brief      Clear ISP Fail Flag
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function is used to clear ISP fail flag when ISP fail flag set.
+ *
+ */
+#define FMC_CLR_FAIL_FLAG()         (FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk)       /*!< Clear ISP fail flag */
+
+/**
+ * @brief      Enable ISP Interrupt
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function will enable ISP action interrupt.
+ *
+ */
+#define FMC_ENABLE_ISP_INT()     (FMC->ISPCTL |=  FMC_ISPCTL_INTEN_Msk) /*!< Enable ISP interrupt */
+
+/**
+ * @brief      Disable ISP Interrupt
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function will disable ISP action interrupt.
+ *
+ */
+#define FMC_DISABLE_ISP_INT()     (FMC->ISPCTL &= ~FMC_ISPCTL_INTEN_Msk) /*!< Disable ISP interrupt */
+
+
+/**
+ * @brief      Get ISP Interrupt Flag
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function will get ISP action interrupt status
+ *
+ */
+#define FMC_GET_ISP_INT_FLAG()     ((FMC->ISPSTS & FMC_ISPSTS_INTFLAG_Msk) ? 1UL : 0UL) /*!< Get ISP interrupt flag Status */
+
+
+/**
+ * @brief      Clear ISP Interrupt Flag
+ *
+ * @param      None
+ *
+ * @return     None
+ *
+ * @details    This function will clear ISP interrupt flag
+ *
+ */
+#define FMC_CLEAR_ISP_INT_FLAG()     (FMC->ISPSTS = FMC_ISPSTS_INTFLAG_Msk) /*!< Clear ISP interrupt flag*/
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* inline functions                                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
-/**
- * @brief      Program 32-bit data into specified address of flash
- *
- * @param[in]  u32Addr  Flash address include APROM, LDROM, Data Flash, and CONFIG
- * @param[in]  u32Data  32-bit Data to program
- *
- * @return     None
- *
- * @details    To program word data into Flash include APROM, LDROM, Data Flash, and CONFIG.
- *             The corresponding functions in CONFIG are listed in FMC section of Technical Reference Manual.
- *
- */
-static __INLINE void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
-{
-    FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-    FMC->ISPADDR = u32Addr;
-    FMC->ISPDAT = u32Data;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-}
-
-/**
- * @brief      Program 64-bit data into specified address of flash
- *
- * @param[in]  u32Addr  Flash address include APROM, LDROM, Data Flash, and CONFIG
- * @param[in]  u32Data0 32-bit Data to program
- * @param[in]  u32Data1 32-bit Data to program
- *
- * @return     None
- *
- * @details    To program two words data into Flash include APROM, LDROM, Data Flash, and CONFIG.
- *             The corresponding functions in CONFIG are listed in FMC section of Technical Reference Manual.
- *
- */
-static __INLINE void FMC_Write8(uint32_t u32Addr, uint32_t u32Data0, uint32_t u32Data1)
-{
-    FMC->ISPCMD = FMC_ISPCMD_WRITE_8;
-    FMC->ISPADDR = u32Addr;
-    FMC->MPDAT0 = u32Data0;
-    FMC->MPDAT1 = u32Data1;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-}
+__STATIC_INLINE uint32_t FMC_ReadCID(void);
+__STATIC_INLINE uint32_t FMC_ReadPID(void);
+__STATIC_INLINE uint32_t FMC_ReadUID(uint8_t u8Index);
+__STATIC_INLINE uint32_t FMC_ReadUCID(uint32_t u32Index);
+__STATIC_INLINE void FMC_SetVectorPageAddr(uint32_t u32PageAddr);
+__STATIC_INLINE uint32_t FMC_GetVECMAP(void);
 
 
 /**
- * @brief       Read 32-bit Data from specified address of flash
+ * @brief       Get current vector mapping address.
  *
- * @param[in]   u32Addr  Flash address include APROM, LDROM, Data Flash, and CONFIG
+ * @param       None
  *
- * @return      The data of specified address
+ * @return      The current vector mapping address.
  *
- * @details     To read word data from Flash include APROM, LDROM, Data Flash, and CONFIG.
- *
- */
-static __INLINE uint32_t FMC_Read(uint32_t u32Addr)
-{
-    FMC->ISPCMD = FMC_ISPCMD_READ;
-    FMC->ISPADDR = u32Addr;
-    FMC->ISPDAT = 0;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-
-    return FMC->ISPDAT;
-}
-
-/**
- * @brief      Flash page erase
- *
- * @param[in]  u32Addr  Flash address including APROM, LDROM, Data Flash, and CONFIG
- *
- * @details    To do flash page erase. The target address could be APROM, LDROM, Data Flash, or CONFIG.
- *             The page size is 2048 bytes.
- *
- * @retval      0 Success
- * @retval     -1 Erase failed
+ * @details     To get VECMAP value which is the page address for remapping to vector page (0x0).
  *
  */
-static __INLINE int32_t FMC_Erase(uint32_t u32Addr)
+__STATIC_INLINE uint32_t FMC_GetVECMAP(void)
 {
-    FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
-    FMC->ISPADDR = u32Addr;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-
-    /* Check ISPFF flag to know whether erase OK or fail. */
-    if(FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk)
-    {
-        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        return -1;
-    }
-    return 0;
-}
-
-/**
- * @brief       Read Unique ID
- *
- * @param[in]   u8Index  UID index. 0 = UID[31:0], 1 = UID[63:32], 2 = UID[95:64]
- *
- * @return      The 32-bit unique ID data of specified UID index.
- *
- * @details     To read out 96-bit Unique ID.
- *
- */
-static __INLINE uint32_t FMC_ReadUID(uint8_t u8Index)
-{
-    FMC->ISPCMD = FMC_ISPCMD_READ_UID;
-    FMC->ISPADDR = ((uint32_t)u8Index << 2);
-    FMC->ISPDAT = 0;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-
-    return FMC->ISPDAT;
+    return (FMC->ISPSTS & FMC_ISPSTS_VECMAP_Msk);
 }
 
 /**
@@ -368,17 +347,16 @@ static __INLINE uint32_t FMC_ReadUID(uint8_t u8Index)
   * @return   The company ID (32-bit)
   *
   * @details  The company ID of Nuvoton is fixed to be 0xDA
-  *
   */
-static __INLINE uint32_t FMC_ReadCID(void)
+__STATIC_INLINE uint32_t FMC_ReadCID(void)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_CID;           /* Set ISP Command Code */
-    FMC->ISPADDR = 0x0;                          /* Must keep 0x0 when read CID */
+    FMC->ISPADDR = 0x0u;                         /* Must keep 0x0 when read CID */
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;          /* Trigger to start ISP procedure */
 #if ISBEN
     __ISB();
-#endif                                    /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;  /* Waiting for ISP Done */
+#endif                                           /* To make sure ISP/CPU be Synchronized */
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {} /* Waiting for ISP Done */
 
     return FMC->ISPDAT;
 }
@@ -391,17 +369,39 @@ static __INLINE uint32_t FMC_ReadCID(void)
   * @return   The product ID (32-bit)
   *
   * @details  This function is used to read product ID.
-  *
   */
-static __INLINE uint32_t FMC_ReadPID(void)
+__STATIC_INLINE uint32_t FMC_ReadPID(void)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_DID;          /* Set ISP Command Code */
-    FMC->ISPADDR = 0x04;                         /* Must keep 0x4 when read PID */
+    FMC->ISPADDR = 0x04u;                       /* Must keep 0x4 when read PID */
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;         /* Trigger to start ISP procedure */
 #if ISBEN
     __ISB();
-#endif                                     /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk);  /* Waiting for ISP Done */
+#endif                                          /* To make sure ISP/CPU be Synchronized */
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {} /* Waiting for ISP Done */
+
+    return FMC->ISPDAT;
+}
+
+/**
+ * @brief       Read Unique ID
+ *
+ * @param[in]   u8Index  UID index. 0 = UID[31:0], 1 = UID[63:32], 2 = UID[95:64]
+ *
+ * @return      The 32-bit unique ID data of specified UID index.
+ *
+ * @details     To read out 96-bit Unique ID.
+ */
+__STATIC_INLINE uint32_t FMC_ReadUID(uint8_t u8Index)
+{
+    FMC->ISPCMD = FMC_ISPCMD_READ_UID;
+    FMC->ISPADDR = ((uint32_t)u8Index << 2u);
+    FMC->ISPDAT = 0u;
+    FMC->ISPTRG = 0x1u;
+#if ISBEN
+    __ISB();
+#endif
+    while(FMC->ISPTRG) {}
 
     return FMC->ISPDAT;
 }
@@ -414,17 +414,16 @@ static __INLINE uint32_t FMC_ReadPID(void)
   * @return     The UCID of specified index
   *
   * @details    This function is used to read unique chip ID (UCID).
-  *
   */
-static __INLINE uint32_t FMC_ReadUCID(uint32_t u32Index)
+__STATIC_INLINE uint32_t FMC_ReadUCID(uint32_t u32Index)
 {
-    FMC->ISPCMD = FMC_ISPCMD_READ_UID;          /* Set ISP Command Code */
-    FMC->ISPADDR = (0x04 * u32Index) + 0x10;     /* The UCID is at offset 0x10 with word alignment. */
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;         /* Trigger to start ISP procedure */
+    FMC->ISPCMD = FMC_ISPCMD_READ_UID;            /* Set ISP Command Code */
+    FMC->ISPADDR = (0x04u * u32Index) + 0x10u;    /* The UCID is at offset 0x10 with word alignment. */
+    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;           /* Trigger to start ISP procedure */
 #if ISBEN
     __ISB();
-#endif                                     /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk);  /* Waiting for ISP Done */
+#endif                                            /* To make sure ISP/CPU be Synchronized */
+    while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) {}  /* Waiting for ISP Done */
 
     return FMC->ISPDAT;
 }
@@ -437,179 +436,48 @@ static __INLINE uint32_t FMC_ReadUCID(uint32_t u32Index)
  * @return      To set VECMAP to remap specified page address to 0x0.
  *
  * @details     This function is used to set VECMAP to map specified page to vector page (0x0).
- *
- * @note
- *              VECMAP only valid when new IAP function is enabled. (CBS = 10'b or 00'b)
- *
  */
-static __INLINE void FMC_SetVectorPageAddr(uint32_t u32PageAddr)
+__STATIC_INLINE void FMC_SetVectorPageAddr(uint32_t u32PageAddr)
 {
-    FMC->ISPCMD = FMC_ISPCMD_VECMAP; /* Set ISP Command Code */
+    FMC->ISPCMD = FMC_ISPCMD_VECMAP;  /* Set ISP Command Code */
     FMC->ISPADDR = u32PageAddr;       /* The address of specified page which will be map to address 0x0. It must be page alignment. */
-    FMC->ISPTRG = 0x1;               /* Trigger to start ISP procedure */
+    FMC->ISPTRG = 0x1u;               /* Trigger to start ISP procedure */
 #if ISBEN
     __ISB();
-#endif                         /* To make sure ISP/CPU be Synchronized */
-    while(FMC->ISPTRG);              /* Waiting for ISP Done */
+#endif                                /* To make sure ISP/CPU be Synchronized */
+    while(FMC->ISPTRG) {}             /* Waiting for ISP Done */
 }
 
-/**
- * @brief       Get current vector mapping address.
- *
- * @param       None
- *
- * @return      The current vector mapping address.
- *
- * @details     To get VECMAP value which is the page address for remapping to vector page (0x0).
- *
- * @note
- *              VECMAP only valid when new IAP function is enabled. (CBS = 10'b or 00'b)
- *
- */
-static __INLINE uint32_t FMC_GetVECMAP(void)
-{
-    return (FMC->ISPSTS & FMC_ISPSTS_VECMAP_Msk);
-}
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Functions                                                                                              */
+/*---------------------------------------------------------------------------------------------------------*/
 
-/**
- * @brief       Get Flash Checksum
- *
- * @param[in]   u32Addr    Specific flash start address
- * @param[in]   i32Size    Specific a size of Flash area
- *
- * @return      A checksum value of a flash block.
- *
- * @details     To get VECMAP value which is the page address for remapping to vector page (0x0).
- *
- */
-static __INLINE uint32_t FMC_GetCheckSum(uint32_t u32Addr, int32_t i32Size)
-{
-    FMC->ISPCMD = FMC_ISPCMD_CAL_CHECKSUM;
-    FMC->ISPADDR = u32Addr;
-    FMC->ISPDAT = (uint32_t)i32Size;
-    FMC->ISPTRG = 0x1;
-#if ISBEN
-    __ISB();
-#endif
-    while(FMC->ISPTRG);
-
-    FMC->ISPCMD = FMC_ISPCMD_CHECKSUM;
-    FMC->ISPTRG = 0x1;
-    while(FMC->ISPTRG);
-
-    return FMC->ISPDAT;
-}
-
-/**
- * @brief      Program Multi-Word data into specified address of flash
- *
- * @param[in]  u32Addr  Flash address include APROM, LDROM, Data Flash, and CONFIG
- * @param[in]  pu32Buf  A data pointer is point to a data buffer start address;
- *
- * @return     None
- *
- * @details    To program multi-words data into Flash include APROM, LDROM, Data Flash, and CONFIG.
- *             The corresponding functions in CONFIG are listed in FMC section of Technical Reference Manual.
- *
- */
-static __INLINE void FMC_Write256(uint32_t u32Addr, uint32_t *pu32Buf)
-{
-    int32_t i, idx;
-    volatile uint32_t *pu32IspData;
-    //int32_t i32Err;
-
-    //i32Err = 0;
-    idx = 0;
-    FMC->ISPCMD = FMC_ISPCMD_MULTI_PROG;
-    FMC->ISPADDR = u32Addr;
-
-retrigger:
-
-    //if(i32Err)
-    //    printf("idx=%d  ISPADDR = 0x%08x\n",idx, FMC->ISPADDR);
-
-    FMC->MPDAT0 = pu32Buf[idx + 0];
-    FMC->MPDAT1 = pu32Buf[idx + 1];
-    FMC->MPDAT2 = pu32Buf[idx + 2];
-    FMC->MPDAT3 = pu32Buf[idx + 3];
-
-
-
-    FMC->ISPTRG = 0x1;
-
-    pu32IspData = &FMC->MPDAT0;
-    idx += 4;
-
-    for(i = idx; i < 256 / 4; i += 4) // Max data length is 256 bytes (256/4 words)
-    {
-
-        __set_PRIMASK(1); // Mask interrupt to avoid status check coherence error
-        do
-        {
-            if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
-            {
-                __set_PRIMASK(0);
-                //printf("%d %x\n", i, FMC->MPADDR);
-                FMC->ISPADDR = FMC->MPADDR & (~0xful);
-                idx = (FMC->ISPADDR - u32Addr) / 4;
-                //i32Err = -1;
-                goto retrigger;
-            }
-        }
-        while(FMC->MPSTS & (3 << FMC_MPSTS_D0_Pos));
-
-        // Update new data for D0
-        pu32IspData[0] = pu32Buf[i  ];
-        pu32IspData[1] = pu32Buf[i + 1];
-
-        do
-        {
-            if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
-            {
-                __set_PRIMASK(0);
-                //printf("%d %x\n", i, FMC->MPADDR);
-                FMC->ISPADDR = FMC->MPADDR & (~0xful);
-                idx = (FMC->ISPADDR - u32Addr) / 4;
-                //i32Err = -1;
-                goto retrigger;
-            }
-        }
-        while(FMC->MPSTS & (3 << FMC_MPSTS_D2_Pos));
-
-        // Update new data for D2
-        pu32IspData[2] = pu32Buf[i + 2];
-        pu32IspData[3] = pu32Buf[i + 3];
-        __set_PRIMASK(0);
-    }
-
-    while(FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk);
-}
-
-void FMC_Open(void);
-void FMC_Close(void);
-void FMC_EnableAPUpdate(void);
-void FMC_DisableAPUpdate(void);
-void FMC_EnableConfigUpdate(void);
-void FMC_DisableConfigUpdate(void);
-void FMC_EnableLDUpdate(void);
-void FMC_DisableLDUpdate(void);
-int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count);
-int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count);
-void FMC_SetBootSource(int32_t i32BootSrc);
-int32_t FMC_GetBootSource(void);
-int32_t FMC_Erase_Bank(uint32_t u32BankAddr);
-int32_t FMC_Erase_Block(uint32_t u32BlockAddr);
-int32_t FMC_Read_OTP(uint32_t otp_num, uint32_t *low_word, uint32_t *high_word);
-int32_t FMC_Write_OTP(uint32_t otp_num, uint32_t low_word, uint32_t high_word);
-int32_t FMC_Lock_OTP(uint32_t otp_num);
-int32_t FMC_Is_OTP_Locked(uint32_t otp_num);
-uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count);
-uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count);
-int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax, const int32_t lock_CONFIG, const int32_t lock_SPROM);
-int32_t  FMC_SKey_Compare(uint32_t key[3]);
-int32_t FMC_Is_XOM_Actived(uint32_t xom_num);
-int32_t FMC_Config_XOM(uint32_t xom_num, uint32_t xom_base, uint8_t xom_page);
-int32_t FMC_Erase_XOM(uint32_t xom_num);
+extern uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count);
+extern void FMC_Close(void);
+extern int32_t FMC_ConfigXOM(uint32_t xom_num, uint32_t xom_base, uint8_t xom_page);
+extern int32_t FMC_Erase(uint32_t u32PageAddr);
+extern int32_t FMC_Erase_Bank(uint32_t u32BankAddr);
+extern int32_t FMC_Erase_Block(uint32_t u32BlockAddr);
+extern int32_t FMC_EraseXOM(uint32_t xom_num);
+extern int32_t FMC_GetBootSource(void);
+extern uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count);
+extern int32_t FMC_Is_OTP_Locked(uint32_t otp_num);
+extern int32_t FMC_GetXOMState(uint32_t xom_num);
+extern int32_t FMC_Lock_OTP(uint32_t otp_num);
+extern void FMC_Open(void);
+extern uint32_t FMC_Read(uint32_t u32Addr);
+extern int32_t FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1);
+extern int32_t FMC_Read_OTP(uint32_t otp_num, uint32_t *low_word, uint32_t *high_word);
+extern int32_t FMC_ReadConfig(uint32_t u32Config[], uint32_t u32Count);
+extern void FMC_SetBootSource(int32_t i32BootSrc);
+extern int32_t  FMC_CompareSPKey(uint32_t key[3]);
+extern int32_t  FMC_SetSPKey(uint32_t key[3], uint32_t kpmax, uint32_t kemax, const int32_t lock_CONFIG, const int32_t lock_SPROM);
+extern void FMC_Write(uint32_t u32Addr, uint32_t u32Data);
+extern int32_t FMC_Write8Bytes(uint32_t u32addr, uint32_t u32data0, uint32_t u32data1);
+extern int32_t FMC_WriteConfig(uint32_t u32Config[], uint32_t u32Count);
+extern int32_t FMC_WriteMultiple(uint32_t u32Addr, uint32_t pu32Buf[], uint32_t u32Len);
+extern int32_t FMC_Write_OTP(uint32_t otp_num, uint32_t low_word, uint32_t high_word);
+extern int32_t FMC_WriteMultipleA(uint32_t u32Addr, uint32_t pu32Buf[], uint32_t u32Len);
 /*@}*/ /* end of group FMC_EXPORTED_FUNCTIONS */
 
 /*@}*/ /* end of group FMC_Driver */

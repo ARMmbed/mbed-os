@@ -3,10 +3,9 @@
  * @version  V3.00
  * @brief    Timer PWM Controller(Timer PWM) driver source file
  *
- * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
-#include "M2351.h"
+#include "NuMicro.h"
 
 
 /** @addtogroup Standard_Driver Standard Driver
@@ -88,8 +87,6 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
     timer->PWMCTL = (timer->PWMCTL & ~TIMER_PWMCTL_CNTMODE_Msk) | (TPWM_AUTO_RELOAD_MODE << TIMER_PWMCTL_CNTMODE_Pos);
 
     /* Convert to real register value */
-    TPWM_SET_PRESCALER(timer, (u32Prescaler - 1UL));
-
     TPWM_SET_PERIOD(timer, (u32Period - 1UL));
     if(u32DutyCycle)
     {
@@ -101,6 +98,8 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
     }
 
     TPWM_SET_CMPDAT(timer, u32CMP);
+
+    TPWM_SET_PRESCALER(timer, (u32Prescaler - 1UL));
 
     return (u32TargetFreq);
 }
@@ -144,7 +143,7 @@ void TPWM_EnableDeadTimeWithPrescale(TIMER_T *timer, uint32_t u32DTCount)
   *
   * @return     None
   *
-  * @details    This function is used to enable Dead-time of selected channel.
+  * @details    This function is used to disable Dead-time of selected channel.
   * @note       The register write-protection function should be disabled before using this function.
   */
 void TPWM_DisableDeadTime(TIMER_T *timer)
@@ -181,35 +180,35 @@ void TPWM_DisableCounter(TIMER_T *timer)
 }
 
 /**
-  * @brief      Enable Trigger EADC
+  * @brief      Enable Trigger ADC
   *
   * @param[in]  timer           The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
-  * @param[in]  u32Condition    The condition to trigger EADC. It could be one of following conditions:
-  *                                 - \ref TPWM_TRIGGER_EADC_AT_ZERO_POINT
-  *                                 - \ref TPWM_TRIGGER_EADC_AT_PERIOD_POINT
-  *                                 - \ref TPWM_TRIGGER_EADC_AT_ZERO_OR_PERIOD_POINT
-  *                                 - \ref TPWM_TRIGGER_EADC_AT_COMPARE_UP_COUNT_POINT
-  *                                 - \ref TPWM_TRIGGER_EADC_AT_COMPARE_DOWN_COUNT_POINT
+  * @param[in]  u32Condition    The condition to trigger ADC. It could be one of following conditions:
+  *                                 - \ref TPWM_TRIGGER_ADC_AT_ZERO_POINT
+  *                                 - \ref TPWM_TRIGGER_ADC_AT_PERIOD_POINT
+  *                                 - \ref TPWM_TRIGGER_ADC_AT_ZERO_OR_PERIOD_POINT
+  *                                 - \ref TPWM_TRIGGER_ADC_AT_COMPARE_UP_COUNT_POINT
+  *                                 - \ref TPWM_TRIGGER_ADC_AT_COMPARE_DOWN_COUNT_POINT
   *
   * @return     None
   *
-  * @details    This function is used to enable specified counter compare event to trigger EADC.
+  * @details    This function is used to enable specified counter compare event to trigger ADC.
   */
-void TPWM_EnableTriggerEADC(TIMER_T *timer, uint32_t u32Condition)
+void TPWM_EnableTriggerADC(TIMER_T *timer, uint32_t u32Condition)
 {
-    timer->PWMEADCTS = TIMER_PWMEADCTS_TRGEN_Msk | (u32Condition << TIMER_PWMEADCTS_TRGSEL_Pos);
+    timer->PWMEADCTS = TIMER_PWMEADCTS_TRGEN_Msk | u32Condition;
 }
 
 /**
-  * @brief      Disable Trigger EADC
+  * @brief      Disable Trigger ADC
   *
   * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
   * @return     None
   *
-  * @details    This function is used to disable counter compare event to trigger EADC.
+  * @details    This function is used to disable counter compare event to trigger ADC.
   */
-void TPWM_DisableTriggerEADC(TIMER_T *timer)
+void TPWM_DisableTriggerADC(TIMER_T *timer)
 {
     timer->PWMEADCTS = 0x0UL;
 }
@@ -252,7 +251,8 @@ void TPWM_DisableTriggerEADC(TIMER_T *timer)
 void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1Level, uint32_t u32BrakeSource)
 {
     timer->PWMFAILBRK |= ((u32BrakeSource >> 16) & 0xFUL);
-    timer->PWMBRKCTL |= (u32BrakeSource & 0xFFFFUL) | (u32CH0Level << TIMER_PWMBRKCTL_BRKAEVEN_Pos) | (u32CH1Level << TIMER_PWMBRKCTL_BRKAODD_Pos);
+    timer->PWMBRKCTL = (timer->PWMBRKCTL & ~(TIMER_PWMBRKCTL_BRKAEVEN_Msk | TIMER_PWMBRKCTL_BRKAODD_Msk)) |
+                       (u32BrakeSource & 0xFFFFUL) | (u32CH0Level << TIMER_PWMBRKCTL_BRKAEVEN_Pos) | (u32CH1Level << TIMER_PWMBRKCTL_BRKAODD_Pos);
 }
 
 /**
@@ -329,7 +329,7 @@ void TPWM_ClearFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 }
 
 /**
-  * @brief      Enable load mode of selected channel
+  * @brief      Enable Load Mode
   *
   * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   * @param[in]  u32LoadMode  Timer PWM counter loading mode, could be one of following mode
@@ -395,7 +395,7 @@ void TPWM_DisableBrakePinDebounce(TIMER_T *timer)
 }
 
 /**
-  * @brief      Enable Brake Pin Inverse
+  * @brief      Enable Brake Pin Inverse Function
   *
   * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
@@ -409,7 +409,7 @@ void TPWM_EnableBrakePinInverse(TIMER_T *timer)
 }
 
 /**
-  * @brief      Disable Brake Pin Inverse
+  * @brief      Disable Brake Pin Inverse Function
   *
   * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   *
@@ -448,4 +448,4 @@ void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum)
 
 /*@}*/ /* end of group Standard_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/

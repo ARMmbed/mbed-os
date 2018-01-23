@@ -23,7 +23,7 @@ extern "C"
   @{
 */
 
-/** @addtogroup BPWM_EXPORTED_CONSTANTS PWM Exported Constants
+/** @addtogroup BPWM_EXPORTED_CONSTANTS BPWM Exported Constants
   @{
 */
 #define BPWM_CHANNEL_NUM                          (6UL)      /*!< BPWM channel number */
@@ -66,13 +66,13 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Trigger Source Select Constant Definitions                                                             */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_TRIGGER_ADC_EVEN_ZERO_POINT                     (0UL)     /*!< BPWM trigger ADC while counter of even channel matches zero point */
-#define BPWM_TRIGGER_ADC_EVEN_PERIOD_POINT                   (1UL)     /*!< BPWM trigger ADC while counter of even channel matches period point */
-#define BPWM_TRIGGER_ADC_EVEN_ZERO_OR_PERIOD_POINT           (2UL)     /*!< BPWM trigger ADC while counter of even channel matches zero or period point */
-#define BPWM_TRIGGER_ADC_EVEN_COMPARE_UP_COUNT_POINT         (3UL)     /*!< BPWM trigger ADC while counter of even channel matches up count to comparator point */
-#define BPWM_TRIGGER_ADC_EVEN_COMPARE_DOWN_COUNT_POINT       (4UL)     /*!< BPWM trigger ADC while counter of even channel matches down count to comparator point */
-#define BPWM_TRIGGER_ADC_ODD_COMPARE_UP_COUNT_POINT          (8UL)     /*!< BPWM trigger ADC while counter of odd channel matches up count to comparator point */
-#define BPWM_TRIGGER_ADC_ODD_COMPARE_DOWN_COUNT_POINT        (9UL)     /*!< BPWM trigger ADC while counter of odd channel matches down count to comparator point */
+#define BPWM_TRIGGER_ADC_EVEN_ZERO_POINT                     (0UL)     /*!< BPWM trigger ADC while counter of even channel matches zero point \hideinitializer */
+#define BPWM_TRIGGER_ADC_EVEN_PERIOD_POINT                   (1UL)     /*!< BPWM trigger ADC while counter of even channel matches period point \hideinitializer */
+#define BPWM_TRIGGER_ADC_EVEN_ZERO_OR_PERIOD_POINT           (2UL)     /*!< BPWM trigger ADC while counter of even channel matches zero or period point \hideinitializer */
+#define BPWM_TRIGGER_ADC_EVEN_CMP_UP_COUNT_POINT             (3UL)     /*!< BPWM trigger ADC while counter of even channel matches up count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_ADC_EVEN_CMP_DOWN_COUNT_POINT           (4UL)     /*!< BPWM trigger ADC while counter of even channel matches down count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_ADC_ODD_CMP_UP_COUNT_POINT              (8UL)     /*!< BPWM trigger ADC while counter of odd channel matches up count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_ADC_ODD_CMP_DOWN_COUNT_POINT            (9UL)     /*!< BPWM trigger ADC while counter of odd channel matches down count to comparator point \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Capture Control Constant Definitions                                                                   */
@@ -83,14 +83,14 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Duty Interrupt Type Constant Definitions                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_DUTY_INT_DOWN_COUNT_MATCH_CMP        (BPWM_INTEN_CMPDIEN0_Msk)   /*!< BPWM duty interrupt triggered if down count match comparator */
-#define BPWM_DUTY_INT_UP_COUNT_MATCH_CMP          (BPWM_INTEN_CMPUIEN0_Msk)   /*!< BPWM duty interrupt triggered if up down match comparator */
+#define BPWM_DUTY_INT_DOWN_COUNT_MATCH_CMP        (1 << BPWM_INTEN_CMPDIENn_Pos)   /*!< BPWM duty interrupt triggered if down count match comparator \hideinitializer */
+#define BPWM_DUTY_INT_UP_COUNT_MATCH_CMP          (1 << BPWM_INTEN_CMPUIENn_Pos)   /*!< BPWM duty interrupt triggered if up down match comparator \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Load Mode Constant Definitions                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_LOAD_MODE_IMMEDIATE                  (BPWM_CTL0_IMMLDEN0_Msk)    /*!< BPWM immediately load mode \hideinitializer */
-#define BPWM_LOAD_MODE_CENTER                     (BPWM_CTL0_CTRLD0_Msk)      /*!< BPWM center load mode \hideinitializer */
+#define BPWM_LOAD_MODE_IMMEDIATE                  (1 << BPWM_CTL0_IMMLDENn_Pos)    /*!< BPWM immediately load mode \hideinitializer */
+#define BPWM_LOAD_MODE_CENTER                     (1 << BPWM_CTL0_CTRLDn_Pos)      /*!< BPWM center load mode \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Clock Source Select Constant Definitions                                                               */
@@ -162,7 +162,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define BPWM_GET_CAPTURE_RISING_DATA(bpwm, u32ChannelNum) (*(__IO uint32_t *) (&((bpwm)->RCAPDAT0) + 2 * (u32ChannelNum)))
+#define BPWM_GET_CAPTURE_RISING_DATA(bpwm, u32ChannelNum) ((bpwm)->CAPDAT[(u32ChannelNum)].RCAPDAT)
 
 /**
  * @brief This macro get captured falling data
@@ -171,7 +171,7 @@ extern "C"
  * @return None
  * \hideinitializer
  */
-#define BPWM_GET_CAPTURE_FALLING_DATA(bpwm, u32ChannelNum) (*(__IO uint32_t *) (&((bpwm)->FCAPDAT0) + 2 * (u32ChannelNum)))
+#define BPWM_GET_CAPTURE_FALLING_DATA(bpwm, u32ChannelNum) ((bpwm)->CAPDAT[(u32ChannelNum)].FCAPDAT)
 
 /**
  * @brief This macro mask output logic to high or low
@@ -212,7 +212,7 @@ extern "C"
 #define BPWM_SET_CMR(bpwm, u32ChannelNum, u32CMR) ((bpwm)->CMPDAT[(u32ChannelNum)] = (u32CMR))
 
 /**
- * @brief This macro get the comparator of the selected channel
+ * @brief This macro get the duty of the selected channel
  * @param[in] bpwm The pointer of the specified BPWM module
  * @param[in] u32ChannelNum BPWM channel number. Valid values are between 0~5
  * @return Return the comparator of specified channel. Valid values are between 0~0xFFFF
@@ -234,15 +234,13 @@ extern "C"
 #define BPWM_SET_CNR(bpwm, u32ChannelNum, u32CNR) ((bpwm)->PERIOD = (u32CNR))
 
 /**
- * @brief This macro get the period of the selected channel
+ * @brief This macro get the period of all channels
  * @param[in] bpwm The pointer of the specified BPWM module
- * @param[in] u32ChannelNum BPWM channel number. Valid values are between 0~5.
- * @return Return the period of specified channel. Valid values are between 0~0xFFFF
- * @details This macro is used to get the period of specified channel.
- * @note All channels share the same period.
+ * @param[in] u32ChannelNum BPWM channel number. This parameter is not used.
+ * @return None
  * \hideinitializer
  */
-#define BPWM_GET_CNR(bpwm, u32ChannelNum)  ((bpwm)->PERIOD)
+#define BPWM_GET_CNR(bpwm, u32ChannelNum) ((bpwm)->PERIOD)
 
 /**
  * @brief This macro set the BPWM aligned type
@@ -298,13 +296,13 @@ extern "C"
  */
 #define BPWM_SET_OUTPUT_LEVEL(bpwm, u32ChannelMask, u32ZeroLevel, u32CmpUpLevel, u32PeriodLevel, u32CmpDownLevel) \
    do{ \
-        int i; \
-        for(i = 0; i < 6; i++) { \
-            if((u32ChannelMask) & (1 << i)) { \
-                (bpwm)->WGCTL0 = (((bpwm)->WGCTL0 & ~(3UL << (2 * i))) | ((u32ZeroLevel) << (2 * i))); \
-                (bpwm)->WGCTL0 = (((bpwm)->WGCTL0 & ~(3UL << (BPWM_WGCTL0_PRDPCTL0_Pos + (2 * i)))) | ((u32PeriodLevel) << (BPWM_WGCTL0_PRDPCTL0_Pos + (2 * i)))); \
-                (bpwm)->WGCTL1 = (((bpwm)->WGCTL1 & ~(3UL << (2 * i))) | ((u32CmpUpLevel) << (2 * i))); \
-                (bpwm)->WGCTL1 = (((bpwm)->WGCTL1 & ~(3UL << (BPWM_WGCTL1_CMPDCTL0_Pos + (2 * i)))) | ((u32CmpDownLevel) << (BPWM_WGCTL1_CMPDCTL0_Pos + (2 * i)))); \
+        uint32_t i; \
+        for(i = 0UL; i < 6UL; i++) { \
+            if((u32ChannelMask) & (1UL << i)) { \
+                (bpwm)->WGCTL0 = (((bpwm)->WGCTL0 & ~(3UL << (i << 1))) | ((u32ZeroLevel) << (i << 1))); \
+                (bpwm)->WGCTL0 = (((bpwm)->WGCTL0 & ~(3UL << (BPWM_WGCTL0_PRDPCTL0_Pos + (i << 1)))) | ((u32PeriodLevel) << (BPWM_WGCTL0_PRDPCTL0_Pos + (i << 1)))); \
+                (bpwm)->WGCTL1 = (((bpwm)->WGCTL1 & ~(3UL << (i << 1))) | ((u32CmpUpLevel) << (i << 1))); \
+                (bpwm)->WGCTL1 = (((bpwm)->WGCTL1 & ~(3UL << (BPWM_WGCTL1_CMPDCTL0_Pos + (i << 1)))) | ((u32CmpDownLevel) << (BPWM_WGCTL1_CMPDCTL0_Pos + (i << 1)))); \
             } \
         } \
     }while(0)
@@ -359,6 +357,6 @@ void BPWM_ClearWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum);
 }
 #endif
 
-#endif //__BPWM_H__
+#endif /* __BPWM_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

@@ -9,12 +9,6 @@
 #ifndef __EADC_H__
 #define __EADC_H__
 
-/*---------------------------------------------------------------------------------------------------------*/
-/* Include related headers                                                                                 */
-/*---------------------------------------------------------------------------------------------------------*/
-#include "M2351.h"
-
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -60,18 +54,18 @@ extern "C"
 #define EADC_TIMER1_TRIGGER                 (5UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer1 overflow pulse trigger */
 #define EADC_TIMER2_TRIGGER                 (6UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer2 overflow pulse trigger */
 #define EADC_TIMER3_TRIGGER                 (7UL<<EADC_SCTL_TRGSEL_Pos)      /*!< Timer3 overflow pulse trigger */
-#define EADC_PWM0TG0_TRIGGER                (8UL<<EADC_SCTL_TRGSEL_Pos)      /*!< PWM0TG0 trigger */
-#define EADC_PWM0TG1_TRIGGER                (9UL<<EADC_SCTL_TRGSEL_Pos)      /*!< PWM0TG1 trigger */
-#define EADC_PWM0TG2_TRIGGER                (0xAUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM0TG2 trigger */
-#define EADC_PWM0TG3_TRIGGER                (0xBUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM0TG3 trigger */
-#define EADC_PWM0TG4_TRIGGER                (0xCUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM0TG4 trigger */
-#define EADC_PWM0TG5_TRIGGER                (0xDUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM0TG5 trigger */
-#define EADC_PWM1TG0_TRIGGER                (0xEUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM1TG0 trigger */
-#define EADC_PWM1TG1_TRIGGER                (0xFUL<<EADC_SCTL_TRGSEL_Pos)    /*!< PWM1TG1 trigger */
-#define EADC_PWM1TG2_TRIGGER                (0x10UL<<EADC_SCTL_TRGSEL_Pos)   /*!< PWM1TG2 trigger */
-#define EADC_PWM1TG3_TRIGGER                (0x11UL<<EADC_SCTL_TRGSEL_Pos)   /*!< PWM1TG3 trigger */
-#define EADC_PWM1TG4_TRIGGER                (0x12UL<<EADC_SCTL_TRGSEL_Pos)   /*!< PWM1TG4 trigger */
-#define EADC_PWM1TG5_TRIGGER                (0x13UL<<EADC_SCTL_TRGSEL_Pos)   /*!< PWM1TG5 trigger */
+#define EADC_PWM0TG0_TRIGGER                (8UL<<EADC_SCTL_TRGSEL_Pos)      /*!< EPWM0TG0 trigger */
+#define EADC_PWM0TG1_TRIGGER                (9UL<<EADC_SCTL_TRGSEL_Pos)      /*!< EPWM0TG1 trigger */
+#define EADC_PWM0TG2_TRIGGER                (0xAUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG2 trigger */
+#define EADC_PWM0TG3_TRIGGER                (0xBUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG3 trigger */
+#define EADC_PWM0TG4_TRIGGER                (0xCUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG4 trigger */
+#define EADC_PWM0TG5_TRIGGER                (0xDUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM0TG5 trigger */
+#define EADC_PWM1TG0_TRIGGER                (0xEUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG0 trigger */
+#define EADC_PWM1TG1_TRIGGER                (0xFUL<<EADC_SCTL_TRGSEL_Pos)    /*!< EPWM1TG1 trigger */
+#define EADC_PWM1TG2_TRIGGER                (0x10UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG2 trigger */
+#define EADC_PWM1TG3_TRIGGER                (0x11UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG3 trigger */
+#define EADC_PWM1TG4_TRIGGER                (0x12UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG4 trigger */
+#define EADC_PWM1TG5_TRIGGER                (0x13UL<<EADC_SCTL_TRGSEL_Pos)   /*!< EPWM1TG5 trigger */
 #define EADC_BPWM0TG_TRIGGER                (0x14UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM0TG trigger */
 #define EADC_BPWM1TG_TRIGGER                (0x15UL<<EADC_SCTL_TRGSEL_Pos)   /*!< BPWM1TG trigger */
 
@@ -271,7 +265,7 @@ extern "C"
   * @param[in] eadc The pointer of the specified EADC module.
   * @param[in] u32ModuleMask The combination of data valid status bits. Each bit corresponds to a data valid status, valid range are between 1~0x7FFFF.
   * @return Return the data valid flag of the user-specified sample module.
-  * @details This macro is used to read VALID bit (EADC_STATUS0[15:0], EADC_STATUS1[1:0]) field to get data overrun status.
+  * @details This macro is used to read VALID bit (EADC_STATUS0[15:0], EADC_STATUS1[2:0]) field to get data valid status.
   */
 #define EADC_GET_DATA_VALID_FLAG(eadc, u32ModuleMask) ((((eadc)->STATUS0 & EADC_STATUS0_VALID_Msk) | (((eadc)->STATUS1 & EADC_STATUS1_VALID_Msk) << 16)) & (u32ModuleMask))
 
@@ -282,7 +276,7 @@ extern "C"
   * @return Return the double data of the user-specified sample module.
   * @details This macro is used to read RESULT bit (EADC_DDATn[15:0], n=0~3) field to get conversion data.
   */
-#define EADC_GET_DOUBLE_DATA(eadc, u32ModuleNum) ((eadc)->DDAT[(u32ModuleNum)] & EADC_DDAT_RESULT_Msk)
+#define EADC_GET_DOUBLE_DATA(eadc, u32ModuleNum) ((eadc)->DDAT[(u32ModuleNum)] & EADC_DDAT0_RESULT_Msk)
 
 /**
   * @brief Get the user-specified interrupt flags.
@@ -391,7 +385,7 @@ extern "C"
                          u32MatchCount) ((eadc)->CMP[0] |=(((u32ModuleNum) << EADC_CMP_CMPSPL_Pos)|\
                                                             (u32Condition) |\
                                                             ((u16CMPData) << EADC_CMP_CMPDAT_Pos)| \
-                                                            (((u32MatchCount) - 1) << EADC_CMP_CMPMCNT_Pos)|\
+                                                            (((u32MatchCount) - 1UL) << EADC_CMP_CMPMCNT_Pos)|\
                                                             EADC_CMP_ADCMPEN_Msk))
 
 /**
@@ -415,7 +409,7 @@ extern "C"
                          u32MatchCount) ((eadc)->CMP[1] |=(((u32ModuleNum) << EADC_CMP_CMPSPL_Pos)|\
                                                             (u32Condition) |\
                                                             ((u16CMPData) << EADC_CMP_CMPDAT_Pos)| \
-                                                            (((u32MatchCount) - 1) << EADC_CMP_CMPMCNT_Pos)|\
+                                                            (((u32MatchCount) - 1UL) << EADC_CMP_CMPMCNT_Pos)|\
                                                             EADC_CMP_ADCMPEN_Msk))
 
 /**
@@ -439,7 +433,7 @@ extern "C"
                          u32MatchCount) ((eadc)->CMP[2] |=(((u32ModuleNum) << EADC_CMP_CMPSPL_Pos)|\
                                                             (u32Condition) |\
                                                             ((u16CMPData) << EADC_CMP_CMPDAT_Pos)| \
-                                                            (((u32MatchCount) - 1) << EADC_CMP_CMPMCNT_Pos)|\
+                                                            (((u32MatchCount) - 1UL) << EADC_CMP_CMPMCNT_Pos)|\
                                                             EADC_CMP_ADCMPEN_Msk))
 
 /**
@@ -463,7 +457,7 @@ extern "C"
                          u32MatchCount) ((eadc)->CMP[3] |=(((u32ModuleNum) << EADC_CMP_CMPSPL_Pos)|\
                                                             (u32Condition) |\
                                                             ((u16CMPData) << EADC_CMP_CMPDAT_Pos)| \
-                                                            (((u32MatchCount) - 1) << EADC_CMP_CMPMCNT_Pos)|\
+                                                            (((u32MatchCount) - 1UL) << EADC_CMP_CMPMCNT_Pos)|\
                                                             EADC_CMP_ADCMPEN_Msk))
 
 /**
@@ -510,7 +504,7 @@ extern "C"
   * @return None
   * @details This macro is used to disable comparator 0.
   */
-#define EADC_DISABLE_CMP0(eadc) ((eadc)->CMP[0] = 0)
+#define EADC_DISABLE_CMP0(eadc) ((eadc)->CMP[0] = 0UL)
 
 /**
   * @brief Disable comparator 1.
@@ -518,7 +512,7 @@ extern "C"
   * @return None
   * @details This macro is used to disable comparator 1.
   */
-#define EADC_DISABLE_CMP1(eadc) ((eadc)->CMP[1] = 0)
+#define EADC_DISABLE_CMP1(eadc) ((eadc)->CMP[1] = 0UL)
 
 /**
   * @brief Disable comparator 2.
@@ -526,7 +520,7 @@ extern "C"
   * @return None
   * @details This macro is used to disable comparator 2.
   */
-#define EADC_DISABLE_CMP2(eadc) ((eadc)->CMP[2] = 0)
+#define EADC_DISABLE_CMP2(eadc) ((eadc)->CMP[2] = 0UL)
 
 /**
   * @brief Disable comparator 3.
@@ -534,14 +528,14 @@ extern "C"
   * @return None
   * @details This macro is used to disable comparator 3.
   */
-#define EADC_DISABLE_CMP3(eadc) ((eadc)->CMP[3] = 0)
+#define EADC_DISABLE_CMP3(eadc) ((eadc)->CMP[3] = 0UL)
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Define EADC functions prototype                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
 void EADC_Open(EADC_T *eadc, uint32_t u32InputMode);
 void EADC_Close(EADC_T *eadc);
-void EADC_ConfigSampleModule(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32TriggerSource, uint32_t u32Channel);
+void EADC_ConfigSampleModule(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32TriggerSrc, uint32_t u32Channel);
 void EADC_SetTriggerDelayTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32TriggerDelayTime, uint32_t u32DelayClockDivider);
 void EADC_SetExtendSampleTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32ExtendSampleTime);
 
@@ -555,6 +549,6 @@ void EADC_SetExtendSampleTime(EADC_T *eadc, uint32_t u32ModuleNum, uint32_t u32E
 }
 #endif
 
-#endif //__EADC_H__
+#endif /* __EADC_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

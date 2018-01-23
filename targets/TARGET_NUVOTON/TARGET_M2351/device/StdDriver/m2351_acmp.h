@@ -368,7 +368,7 @@ extern "C"
 
 
 /* Function prototype declaration */
-void ACMP_Open(ACMP_T *acmp, uint32_t u32ChNum, uint32_t u32NegSrc, uint32_t u32HysteresisEn);
+void ACMP_Open(ACMP_T *acmp, uint32_t u32ChNum, uint32_t u32NegSrc, uint32_t u32HysSel);
 void ACMP_Close(ACMP_T *acmp, uint32_t u32ChNum);
 
 
@@ -384,6 +384,6 @@ void ACMP_Close(ACMP_T *acmp, uint32_t u32ChNum);
 #endif
 
 
-#endif //__ACMP_H__
+#endif /* __ACMP_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
