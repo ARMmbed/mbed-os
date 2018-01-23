@@ -51,28 +51,34 @@ static uart_irq_handler irq_handler;
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int id)
+static uint32_t uart_irq(int id)
 {
     UART_HandleTypeDef * huart = &uart_handlers[id];
-    
+    uint32_t status = 0;
+
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
                 irq_handler(serial_irq_ids[id], TxIrq);
+                status = 1;
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
                 /*  Flag has been cleared when reading the content */
+                status = 1;
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
                 __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+                status = 1;
             }
         }
     }
+    
+    return status;
 }
 
 static void uart1_irq(void)
@@ -90,41 +96,41 @@ static void uart2_irq(void)
 // Used for both USART3_4_IRQn and USART3_8_IRQn
 static void uart3_8_irq(void)
 {
+#if defined(TARGET_STM32F091RC)
 #if defined(USART3_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART3) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART3) != RESET) {
       uart_irq(2);
   }
 #endif
 #if defined(USART4_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART4) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART4) != RESET) {
       uart_irq(3);
   }
 #endif
 #if defined(USART5_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART5) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART5) != RESET) {
       uart_irq(4);
   }
 #endif
 #if defined(USART6_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART6) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART6) != RESET) {
       uart_irq(5);
   }
 #endif
 #if defined(USART7_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART7) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART7) != RESET) {
       uart_irq(6);
   }
 #endif
 #if defined(USART8_BASE)
-  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART8) != RESET)
-  {
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART8) != RESET) {
       uart_irq(7);
   }
+#endif
+#else // TARGET_STM32F070RB, TARGET_STM32F072RB
+    if (uart_irq(2) == 0) { // Check if it's USART3
+        uart_irq(3); // Otherwise it's USART4
+    }
 #endif
 }
 
