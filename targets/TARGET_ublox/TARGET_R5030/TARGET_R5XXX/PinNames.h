@@ -107,8 +107,8 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullDown = 1,
-    PullUp = 2,  // TODO: current HI2110 chip does not have pull-up
-    PullDefault = PullDown // TODO: mbed requires PullUp as default but HI2110 doesn't have it 
+    PullUp = 2,  
+    PullDefault = PullDown 
 } PinMode;
 
 
