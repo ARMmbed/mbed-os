@@ -104,8 +104,8 @@
 #define DRIVER_BITFIELD_SET_ENUM(data, name, enumValue)  DRIVER_BITFIELD_SET(data, name,  DRIVER_BITFIELD_ENUM(name, enumValue))
 
 /* PIO macros */
-#define PIO_CHANNEL_SUB_32_MASK       (0x1F)
-#define PIO_CHANNEL_OVER_32_SHIFT     (5)
+//#define PIO_CHANNEL_SUB_32_MASK       (0x1F)
+//#define PIO_CHANNEL_OVER_32_SHIFT     (5)
 
 #define Uart1RXDxSIO_CHANNEL    (42)
 #define Uart1TXDxSIO_CHANNEL    (43)
