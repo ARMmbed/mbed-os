@@ -463,7 +463,7 @@ public:
         if (entry->csrk_stored && (entry->mitm_csrk || !authenticated)) {
             /* we have a key that is either authenticated or we don't care if it is
              * so retrieve it from the db now */
-            _db.get_entry_csrk(
+            _db.get_entry_peer_csrk(
                 mbed::callback(this, &GenericSecurityManager::return_csrk_cb),
                 connection
             );
