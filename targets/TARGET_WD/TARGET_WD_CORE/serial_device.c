@@ -144,7 +144,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
     }
 
-    // Configure the UART pins
+    // Configure UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
     
@@ -295,7 +295,7 @@ static void uart_irq(int id)
 			}
 		}
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
                 volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
             }
         }
@@ -446,6 +446,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (enable) {
         if (irq == RxIrq) {
             __HAL_UART_ENABLE_IT(huart, UART_IT_RXNE);
+            __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
         } else { // TxIrq
             __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
         }
@@ -456,6 +457,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         int all_disabled = 0;
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
+            __HAL_UART_DISABLE_IT(huart, UART_IT_IDLE);
             // Check if TxIrq is disabled too
             if ((huart->Instance->CR1 & USART_CR1_TXEIE) == 0) {
                 all_disabled = 1;
@@ -484,7 +486,11 @@ int serial_getc(serial_t *obj)
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
     
     while (!serial_readable(obj));
-    return (int)(huart->Instance->DR & 0x1FF);
+    if (obj_s->databits == UART_WORDLENGTH_8B) {
+        return (int)(huart->Instance->DR & (uint8_t)0xFF);
+    } else {
+        return (int)(huart->Instance->DR & (uint16_t)0x1FF);
+    }
 }
 
 void serial_putc(serial_t *obj, int c)
@@ -493,7 +499,11 @@ void serial_putc(serial_t *obj, int c)
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
     
     while (!serial_writable(obj));
-    huart->Instance->DR = (uint32_t)(c & 0x1FF);
+    if (obj_s->databits == UART_WORDLENGTH_8B) {
+        huart->Instance->DR = (uint8_t)(c & (uint8_t)0xFF);
+    } else {
+        huart->Instance->DR = (uint16_t)(c & (uint16_t)0x1FF);
+    }
 }
 
 void serial_clear(serial_t *obj)
@@ -855,23 +865,24 @@ int serial_irq_handler_asynch(serial_t *obj)
     
     // Handle error events
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_PARITY_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_FRAMING_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
     }
     
+    // read flags for return event first as they are cleared in IRQ handler
     HAL_UART_IRQHandler(huart);
     
     // Abort if an error occurs
@@ -903,7 +914,7 @@ int serial_irq_handler_asynch(serial_t *obj)
         }
     }
     
-    // Idle line interrupt
+    // Check if idle line interrupt occurred
 	if (__HAL_UART_GET_FLAG(huart, UART_FLAG_IDLE) != RESET) {
 		if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_IDLE) != RESET) {
 			__HAL_UART_CLEAR_IDLEFLAG(huart);
@@ -954,11 +965,13 @@ void serial_rx_abort_asynch(serial_t *obj)
     
     // disable interrupts
     __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
+    __HAL_UART_DISABLE_IT(huart, UART_IT_IDLE);
     __HAL_UART_DISABLE_IT(huart, UART_IT_PE);
     __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
     
     // clear flags
     __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
+    __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_IDLE);
     volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear errors flag
     
     // reset states
@@ -1030,6 +1043,6 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     init_uart(obj);
 }
 
-#endif
+#endif /* DEVICE_SERIAL_FC */
 
-#endif
+#endif /* DEVICE_SERIAL */

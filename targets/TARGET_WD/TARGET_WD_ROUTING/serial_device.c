@@ -41,8 +41,7 @@
 #include "mbed_error.h"
 
 #define UART_NUM (5)
-
-uint32_t serial_irq_ids[UART_NUM] = {0};
+static uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
@@ -63,38 +62,46 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(obj_s->uart != (UARTName)NC);
 
     // Enable USART clock
-    if (obj_s->uart == UART_1) {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-        __HAL_RCC_USART1_CLK_ENABLE();
-        obj_s->index = 0;
-		__HAL_RCC_DMA1_CLK_ENABLE();
-    }
-    if (obj_s->uart == UART_2) {
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
-        __HAL_RCC_USART2_CLK_ENABLE();
-        obj_s->index = 1;
-		__HAL_RCC_DMA1_CLK_ENABLE();
-    }
-    if (obj_s->uart == UART_3) {
-        __HAL_RCC_USART3_FORCE_RESET();
-        __HAL_RCC_USART3_RELEASE_RESET();
-        __HAL_RCC_USART3_CLK_ENABLE();
-        obj_s->index = 2;
-    }
-	if (obj_s->uart == UART_4) {
+    switch (obj_s->uart) {
+        case UART_1:
+            __HAL_RCC_USART1_FORCE_RESET();
+            __HAL_RCC_USART1_RELEASE_RESET();
+            __HAL_RCC_USART1_CLK_ENABLE();
+            __HAL_RCC_DMA1_CLK_ENABLE();
+            obj_s->index = 0;
+            break;
+    
+        case UART_2:
+            __HAL_RCC_USART2_FORCE_RESET();
+            __HAL_RCC_USART2_RELEASE_RESET();
+            __HAL_RCC_USART2_CLK_ENABLE();
+            __HAL_RCC_DMA1_CLK_ENABLE();
+            obj_s->index = 1;
+            break;
+#if defined(USART3_BASE)
+        case UART_3:
+            __HAL_RCC_USART3_FORCE_RESET();
+            __HAL_RCC_USART3_RELEASE_RESET();
+            __HAL_RCC_USART3_CLK_ENABLE();
+            obj_s->index = 2;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case UART_4:
         __HAL_RCC_UART4_FORCE_RESET();
         __HAL_RCC_UART4_RELEASE_RESET();
         __HAL_RCC_UART4_CLK_ENABLE();
         obj_s->index = 3;
-    }
-	if (obj_s->uart == UART_5) {
+        break;
+#endif
+#if defined(UART5_BASE)
+        case UART_5:
         __HAL_RCC_UART5_FORCE_RESET();
         __HAL_RCC_UART5_RELEASE_RESET();
         __HAL_RCC_UART5_CLK_ENABLE();
         obj_s->index = 4;
-		// PFR: no DMA!
+        break;
+#endif
     }
 
     // Configure UART pins
@@ -128,6 +135,54 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
+}
+
+void serial_free(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    
+    // Reset UART and disable clock
+    switch (obj_s->index) {
+        case 0:
+            __HAL_RCC_USART1_FORCE_RESET();
+            __HAL_RCC_USART1_RELEASE_RESET();
+            __HAL_RCC_USART1_CLK_DISABLE();
+            __HAL_RCC_DMA1_CLK_DISABLE();
+            break;
+        case 1:
+            __HAL_RCC_USART2_FORCE_RESET();
+            __HAL_RCC_USART2_RELEASE_RESET();
+            __HAL_RCC_USART2_CLK_DISABLE();
+            __HAL_RCC_DMA1_CLK_DISABLE();
+            break;
+#if defined(USART3_BASE)
+        case 2:
+            __HAL_RCC_USART3_FORCE_RESET();
+            __HAL_RCC_USART3_RELEASE_RESET();
+            __HAL_RCC_USART3_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART4_BASE)
+        case 3:
+            __HAL_RCC_UART4_FORCE_RESET();
+            __HAL_RCC_UART4_RELEASE_RESET();
+            __HAL_RCC_UART4_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART5_BASE)
+        case 4:
+            __HAL_RCC_UART5_FORCE_RESET();
+            __HAL_RCC_UART5_RELEASE_RESET();
+            __HAL_RCC_UART5_CLK_DISABLE();
+            break;
+#endif
+    }
+    
+    // Configure GPIOs
+    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
+    serial_irq_ids[obj_s->index] = 0;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -218,29 +273,34 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
-    if (obj_s->uart == UART_1) {
-        irq_n = USART1_IRQn;
-        vector = (uint32_t)&uart1_irq;
-    }
+switch (obj_s->index) {
+        case 0:
+            irq_n = USART1_IRQn;
+            vector = (uint32_t)&uart1_irq;
+            break;
 
-    if (obj_s->uart == UART_2) {
-        irq_n = USART2_IRQn;
-        vector = (uint32_t)&uart2_irq;
-    }
-
-    if (obj_s->uart == UART_3) {
-        irq_n = USART3_IRQn;
-        vector = (uint32_t)&uart3_irq;
-    }
-
-    if (obj_s->uart == UART_4) {
-        irq_n = UART4_IRQn;
-        vector = (uint32_t)&uart4_irq;
-    }
-
-    if (obj_s->uart == UART_5) {
-        irq_n = UART5_IRQn;
-        vector = (uint32_t)&uart5_irq;
+        case 1:
+            irq_n = USART2_IRQn;
+            vector = (uint32_t)&uart2_irq;
+            break;
+#if defined(USART3_BASE)
+        case 2:
+            irq_n = USART3_IRQn;
+            vector = (uint32_t)&uart3_irq;
+            break;
+#endif
+#if defined(UART4_BASE)
+        case 3:
+            irq_n = UART4_IRQn;
+            vector = (uint32_t)&uart4_irq;
+            break;
+#endif
+#if defined(UART5_BASE)
+        case 4:
+            irq_n = UART5_IRQn;
+            vector = (uint32_t)&uart5_irq;
+            break;
+#endif
     }
 
     if (enable) {
@@ -403,17 +463,21 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
     IRQn_Type irq_n;
 
     switch (obj_s->index) {
+#if defined(USART1_BASE)
         case 0:
             irq_n = USART1_IRQn;
             break;
-
+#endif
+#if defined(USART2_BASE)
         case 1:
             irq_n = USART2_IRQn;
             break;
-
+#endif
+#if defined(USART3_BASE)
         case 2:
             irq_n = USART3_IRQn;
             break;
+#endif
 #if defined(UART4_BASE)
         case 3:
             irq_n = UART4_IRQn;
@@ -755,7 +819,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     }
 }
 
-#endif /* DEVICE_SERIAL_ASYNCH */
+#endif
 
 #if DEVICE_SERIAL_FC
 
