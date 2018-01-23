@@ -3313,6 +3313,12 @@
         "device_has": ["I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"]
     },
+    "OSHCHIP": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "overrides": {
+            "target.lf_clock_src": "NRF_LF_SRC_RC"
+        }
+    },
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -3757,11 +3763,5 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
-    },
-    "OSHCHIP": {
-        "inherits": ["MCU_NRF51_32K_UNIFIED"],
-        "overrides": {
-            "target.lf_clock_src": "NRF_LF_SRC_RC"
-        }
     }
 }
