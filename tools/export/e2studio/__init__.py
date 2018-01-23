@@ -32,6 +32,7 @@ class E2Studio(GNUARMEclipse):
 
         self.gen_file('e2studio/.cproject.tmpl', jinja_ctx, '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('e2studio/.gdbinit.tmpl', jinja_ctx, '.gdbinit')
+        self.gen_file('e2studio/launch5x.tmpl', jinja_ctx, '%s OpenOCD 5x.launch' % self.project_name, trim_blocks=True, lstrip_blocks=True)
         self.gen_file('e2studio/launch.tmpl', jinja_ctx, '%s OpenOCD.launch' % self.project_name, trim_blocks=True, lstrip_blocks=True)
 
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx, '.project', trim_blocks=True, lstrip_blocks=True)
