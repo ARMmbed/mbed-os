@@ -41,25 +41,24 @@ struct SecurityEntry_t {
 
     uint8_t mitm_requested:1;
     uint8_t mitm_performed:1;
-    uint8_t mitm_provided:1; /**< does the key provide mitm */
+    uint8_t mitm_pairing:1; /**< keys exchange will have mitm protection */
+    uint8_t mitm_ltk:1;
+    uint8_t mitm_csrk:1;
 
     uint8_t connected:1;
-    uint8_t authenticated:1; /**< have we authenticated during this connection */
+    uint8_t authenticated:1; /**< have we turned encryption on during this connection */
     uint8_t master:1;
-
-    uint8_t sign_data:1;
+    uint8_t secure_connections:1;
 
     uint8_t encryption_requested:1;
     uint8_t encrypted:1;
+    uint8_t signing_requested:1;
 
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
 
-    uint8_t secure_connections:1;
-
-    uint8_t signing_key:1;
-    uint8_t signing_requested:1;
-    uint8_t encryption_key:1;
+    uint8_t csrk_stored:1;
+    uint8_t ltk_stored:1;
 
 };
 
@@ -185,7 +184,28 @@ public:
 
     /* list management */
 
-    virtual void remove_entry( address_t peer_identity_address);
+    /**
+     * Create a new entry or retrieve existing stored entry
+     * and put it in the live connections store to be retrieved
+     * synchronously through connection handle.
+     *
+     * @param connection this will be the index for live entries.
+     * @param peer_address this address will be used to locate existing entry.
+     *
+     * @return pointer to entry newly created or located existing entry.
+     */
+    virtual SecurityEntry_t* connect_entry(connection_handle_t connection, address_t peer_address);
+
+    /**
+     * Create a new entry or retrieve existing stored entry
+     * and put it in the live connections store to be retrieved
+     * synchronously through connection handle.
+     *
+     * @param connection this handle will be freed up from the security db
+     */
+    virtual SecurityEntry_t* disconnect_entry(connection_handle_t connection);
+
+    virtual void remove_entry(address_t peer_identity_address);
     virtual void clear_entries();
 
     virtual void get_whitelist(WhitelistDbCb_t cb);

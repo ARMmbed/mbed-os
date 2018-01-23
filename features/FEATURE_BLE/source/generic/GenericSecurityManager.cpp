@@ -267,7 +267,7 @@ public:
         if (entry->encrypted) {
             return BLE_ERROR_INVALID_STATE;
         }
-        if (!entry->signing_key && entry->signing_requested) {
+        if (!entry->csrk_stored && entry->signing_requested) {
             init_signing();
             if (entry->master) {
                 return requestPairing(connection);
@@ -317,7 +317,7 @@ public:
         }
 
         if (entry->encrypted) {
-            if (entry->mitm_provided) {
+            if (entry->mitm_ltk) {
                 *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
             } else {
                 *encryption = link_encryption_t::ENCRYPTED;
@@ -369,7 +369,7 @@ public:
 
         } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
-            if (entry->mitm_provided && !entry->encrypted) {
+            if (entry->mitm_ltk && !entry->encrypted) {
                 entry->encryption_requested = true;
                 return enable_encryption(connection);
             } else {
@@ -410,7 +410,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
         if (entry->master) {
-            if (entry->encryption_key) {
+            if (entry->ltk_stored) {
                 db.get_entry_peer_keys(
                     mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
                     connection
@@ -458,7 +458,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (entry->signing_key && (entry->mitm_provided || !authenticated)) {
+        if (entry->csrk_stored && (entry->mitm_csrk || !authenticated)) {
             /* we have a key that is either authenticated or we don't care if it is
              * so retrieve it from the db now */
             db.get_entry_csrk(
@@ -503,7 +503,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm_provided
+            db.get_entry(connection)->mitm_pairing
         );
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
@@ -518,7 +518,7 @@ public:
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        if (entry->mitm_provided) {
+        if (entry->mitm_pairing) {
             if (entry->authenticated) {
                 return BLE_ERROR_NONE;
             } else {
@@ -671,8 +671,15 @@ public:
             if (entry->encryption_requested) {
                 enable_encryption(connection);
             }
-            entry->mitm_provided = entry->mitm_performed;
+
+            /* keys exchanged from now on will share this mitm status */
+            entry->mitm_pairing = entry->mitm_performed;
             entry->mitm_performed = false;
+
+            /* sc doesn't need to exchange ltk */
+            if (entry->secure_connections) {
+                entry->mitm_ltk = entry->mitm_performed;
+            }
         }
 
         _app_event_handler->pairingResult(
@@ -693,7 +700,22 @@ public:
         connection_handle_t connection,
         AuthenticationMask authentication
     ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
+        }
 
+        if (authentication.get_secure_connections()
+            && default_authentication.get_secure_connections()
+            && !entry->secure_connections) {
+            requestPairing(connection);
+        }
+
+        if (authentication.get_mitm()
+            && !entry->mitm_ltk) {
+            entry->mitm_requested = true;
+            requestPairing(connection);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -704,13 +726,21 @@ public:
         connection_handle_t connection,
         link_encryption_t result
     ) {
-        if (result == link_encryption_t::ENCRYPTED
-            || result == link_encryption_t::ENCRYPTED_WITH_MITM) {
-            SecurityEntry_t *entry = db.get_entry(connection);
-            if (entry) {
-               entry->encryption_requested = false;
-            }
+
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
         }
+
+        if (result == link_encryption_t::ENCRYPTED) {
+           entry->encryption_requested = false;
+        }
+
+        if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+            entry->encryption_requested = false;
+            entry->authenticated = true;
+        }
+
         _app_event_handler->linkEncryptionResult(connection, result);
     }
 
@@ -783,6 +813,14 @@ public:
         const irk_t irk,
         const csrk_t csrk
     ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
+        }
+
+        entry->mitm_ltk = entry->mitm_performed;
+        entry->mitm_csrk = entry->mitm_performed;
+
         db.set_entry_peer(
             connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
@@ -797,7 +835,7 @@ public:
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm_provided
+            db.get_entry(connection)->mitm_pairing
         );
     }
 
@@ -805,6 +843,11 @@ public:
         connection_handle_t connection,
         const ltk_t ltk
     ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
+        }
+        entry->mitm_ltk = entry->mitm_performed;
         db.set_entry_peer_ltk(connection, ltk);
     }
 
@@ -854,12 +897,19 @@ public:
         connection_handle_t connection,
         const csrk_t csrk
     ) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
+        }
+
+        entry->mitm_csrk = entry->mitm_performed;
+
         db.set_entry_peer_csrk(connection, csrk);
 
         _app_event_handler->signingKey(
             connection,
             csrk,
-            db.get_entry(connection)->mitm_provided
+            entry->mitm_csrk
         );
     }
 
@@ -874,6 +924,33 @@ public:
             ediv,
             rand
         );
+    }
+
+    virtual void on_disconnected(connection_handle_t connection) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (!entry) {
+            return;
+        }
+        entry->connected = false;
+        db.sync();
+    }
+
+    virtual void on_connected(connection_handle_t connection, address_t peer_address) {
+        SecurityEntry_t *entry = db.connect_entry(connection, peer_address);
+        if (!entry) {
+            return;
+        }
+
+        entry->mitm_requested = false;
+        entry->mitm_performed = false;
+        entry->mitm_pairing = false;
+
+        entry->connected = true;
+        entry->authenticated = false;
+
+        entry->encryption_requested = false;
+        entry->encrypted = false;
+        entry->signing_requested = false;
     }
 
 private:
