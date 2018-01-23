@@ -16,7 +16,6 @@ static void donothing(uint16_t instanceId) {}
 
 SensorDigitalIn::SensorDigitalIn(PinName pin, EdgeSelection edgeSelection, uint16_t instanceMetadata)
 	: _instanceMetadata(instanceMetadata), 
-	_queue(&IOEventQueue::getInstance()), 
 	_value(0), 
 	_pulseDurationOffset(0),
 	_pulseDurationFilterSize(DEFAULT_PULSE_DURATION_FILTER_SIZE),
@@ -60,7 +59,8 @@ SensorDigitalIn::~SensorDigitalIn(){
 void SensorDigitalIn::onEdge(bool countEdge) {
 	
 	// exit irq context and execute confirmation in event queue thread
-	Event<void(bool, int, int)> e = _queue->event(callback(this, &SensorDigitalIn::confirmEdge));
+	events::EventQueue * eq = mbed_highprio_event_queue();
+	Event<void(bool, int, int)> e = eq->event(callback(this, &SensorDigitalIn::confirmEdge));
 	e.call(countEdge, this->_interruptIn->read(), this->_pulseDurationTimer->read_us());
 	
 }
@@ -118,7 +118,8 @@ void SensorDigitalIn::onPulseDurationResetTimeout(void) {
 void SensorDigitalIn::attach(mbed::Callback<void(uint16_t)> func) {
 	
 	if (func){
-		_irq = _queue->event(func);
+		events::EventQueue * eq = mbed_highprio_event_queue();
+		_irq = eq->event(func);
 	} else {
 		_irq = donothing;
 	}

@@ -8,8 +8,7 @@ static void donothing(uint16_t instanceId) {}
 AnalogInManager::AnalogInManager(int inputCount, PinName muxSel0, PinName muxSel1, PinName muxSel2, PinName spiMiso, PinName spiSck, PinName spiCs)
 	:	_inputCount(inputCount), _currentInputSelection(1), _currentValue(0), _valueChangedTolerance(0), _minValue(0), _maxValue(0),
 		_muxSel0(muxSel0, 0), _muxSel1(muxSel1, 0), _muxSel2(muxSel2, 0), 
-		_pinCs(spiCs, 1), _spi(NC, spiMiso, spiSck), 
-		_queue(&IOEventQueue::getInstance()) {
+		_pinCs(spiCs, 1), _spi(NC, spiMiso, spiSck) {
 	
 	// allocate memory for dynamic buffers
 	this->_measurementBuffers = new AINMeasurementBuffer[inputCount](AIN_MEASUREMENT_BUFFER_SIZE);
@@ -157,8 +156,10 @@ void AnalogInManager::measurement_step(void) {
 	if (this->_currentValue[inputIndex] < this->_minValue[inputIndex])
 		this->_minValue[inputIndex] = this->_currentValue[inputIndex];
 	
-	if (abs(previousValue - this->_currentValue[inputIndex]) > this->_valueChangedTolerance[inputIndex])
-		_queue->call(this->_irq[inputIndex], inputIndex);
+	if (abs(previousValue - this->_currentValue[inputIndex]) > this->_valueChangedTolerance[inputIndex]){
+		events::EventQueue * eq = mbed_highprio_event_queue();
+		eq->call(this->_irq[inputIndex], inputIndex);
+	}
 	
 }
 

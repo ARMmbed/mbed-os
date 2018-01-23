@@ -6,7 +6,6 @@ ___________________INCLUDES____________________________
 ******************************************************/
 #include "mbed.h"
 #include "PinNames.h"
-#include "IOEventQueue.h"
 #include "MeasurementBuffer.h"
 #include "ResettableTimeout.h"
 
@@ -58,7 +57,6 @@ private:
 	int _pulseDurationFilterSize;
 	
 	Ticker * _ticker;
-	IOEventQueue * _queue;
 };
 
 #endif

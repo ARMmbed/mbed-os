@@ -3,11 +3,8 @@
 #include <map>
 #include <iterator>
 #include "mbed.h"
-#include "IOEventQueue.h"
-
 #include "OneWire.h"
 #include "MeasurementBuffer.h"
-
 
 #define DS18B20_INVALID_VALUE				-999.99
 #define DS18B20_FAMILY_CODE					0x28
@@ -44,7 +41,6 @@ private:
 	Callback<void(uint64_t)> _sensorAddedCallback;
 	Callback<void(uint64_t)> _sensorRemovedCallback;
 	
-	IOEventQueue * _queue;
 	Ticker * _ticker;
 	
 	typedef MeasurementBuffer<float> DS18B20MeasurementBuffer;

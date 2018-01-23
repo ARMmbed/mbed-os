@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mbed.h"
-#include "IOEventQueue.h"
 #include "PinNames.h"
 #include "wd_logging.h"
 #include "MeasurementBuffer.h"
@@ -60,7 +59,6 @@ private:
 	DigitalOut _muxSel2;
 	DigitalOut _pinCs;
 	SPI _spi;
-	IOEventQueue * _queue;
 	
 	rtos::Mutex _mutex;
 	Thread _measurementThread;

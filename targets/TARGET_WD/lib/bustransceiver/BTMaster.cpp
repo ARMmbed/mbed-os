@@ -17,8 +17,9 @@ BTMaster::BTMaster(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = 
 	_state = BT_STATE_INITIAL;
 			
 	// register interrupt handler for falling edge on bus interrupt
-	_irq.fall(callback(this, &BTMaster::_on_bus_irq));
-	_txQueueLockTimeout = new ResettableTimeout(callback(this, &BTMaster::_on_tx_queue_lock_timeout), BT_MASTER_TX_ACK_TIMEOUT_US);
+	events::EventQueue * eq = mbed_highprio_event_queue();
+	_irq.fall(eq->event(callback(this, &BTMaster::_on_bus_irq)));
+	_txQueueLockTimeout = new ResettableTimeout(eq->event(callback(this, &BTMaster::_on_tx_queue_lock_timeout)), BT_MASTER_TX_ACK_TIMEOUT_US);
 	_txQueueLockTimeout->stop();
 	
 } //BTMaster
