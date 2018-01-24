@@ -579,11 +579,13 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
-        # Generate PSA XML box code from manifests
-        psa_source_pattern = re.compile(r'spm_.+\.[oc]')
-        if any(psa_source_pattern.match(basename(f)) for f in itertools.chain(resources.objects, resources.c_sources)):
-            psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
-            resources.add(toolchain.scan_resources(psa_files_dir))
+
+        # psa_source_pattern = re.compile(r'spm_.+\.[oc]')
+        # if any(psa_source_pattern.match(basename(f)) for f in itertools.chain(resources.objects, resources.c_sources)):
+
+        # Generate SPM additional code from manifests
+        psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
+        resources.add(toolchain.scan_resources(psa_files_dir))
 
         # Change linker script if specified
         if linker_script is not None:
