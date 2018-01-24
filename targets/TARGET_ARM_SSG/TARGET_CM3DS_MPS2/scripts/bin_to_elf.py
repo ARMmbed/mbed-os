@@ -20,7 +20,7 @@ limitations under the License.
 This script parses the test_spec.json file and replace the .bin extension of
 test binary paths to .elf. It allows you to use .elf file for greentea testing.
 For testing, the MPS2+ should be configured to program the file mbed.elf at
-root. Motherboard firmware version 225 or greater is required.
+root. Motherboard firmware version 2.2.6 or greater is required.
 Example to launch tests with .elf files (compiled with ARM), at the root of mbed-os folder:
 $ mbed test --compile -m ARM_CM3DS_MPS2 -t ARM
 $ ./targets/TARGET_ARM_SSG/TARGET_CM3DS_MPS2/scripts/bin_to_elf.py BUILD/tests/ARM_CM3DS_MPS2/ARM/test_spec.json

@@ -21,7 +21,6 @@
 
 #include "cmsdk_ticker.h"
 #include "us_ticker_api.h"
-#include "platform_devices.h"
 
 /**
  * \brief Convert clocks to us

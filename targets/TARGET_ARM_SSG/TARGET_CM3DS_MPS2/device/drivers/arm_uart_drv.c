@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017 ARM Limited
+ * Copyright (c) 2016-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -263,21 +263,23 @@ enum arm_uart_irq_t arm_uart_get_interrupt_status(struct arm_uart_dev_t* dev)
 {
     struct _arm_uart_reg_map_t* p_uart =
                                     (struct _arm_uart_reg_map_t*)dev->cfg->base;
-
+    enum arm_uart_irq_t intrstatus = ARM_UART_IRQ_NONE;
 
     if(dev->data->state & ARM_UART_INITIALIZED) {
         switch(p_uart->intr_reg.intrstatus) {
         case ARM_UART_TX_INTR:
-            return ARM_UART_IRQ_TX;
+            intrstatus = ARM_UART_IRQ_TX;
             break;
         case ARM_UART_RX_INTR:
-            return ARM_UART_IRQ_RX;
+            intrstatus = ARM_UART_IRQ_RX;
             break;
         case ARM_UART_TX_INTR | ARM_UART_RX_INTR:
-            return ARM_UART_IRQ_COMBINED;
+            intrstatus = ARM_UART_IRQ_COMBINED;
             break;
-        /* default: not defined to force all cases to be handled */
+        default:
+            break;
         }
     }
-    return ARM_UART_IRQ_NONE;
+
+    return intrstatus;
 }

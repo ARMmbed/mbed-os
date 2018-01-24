@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef __ARM_LTD_PLATFORM_DEVICES_H__
 #define __ARM_LTD_PLATFORM_DEVICES_H__
 
+/* ======= Configures the peripheral set ======= */
 #include "device_cfg.h"
 
 /* ======= Includes generic driver headers ======= */

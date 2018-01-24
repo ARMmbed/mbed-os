@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 
 #include "mbed_retarget.h"
 #include "mbed_wait_api.h"
-#include "SMM_MPS2.h"
 #include "smsc9220_eth.h"
+#include "CM3DS.h"
 
 #define REG_WRITE_TIME_OUT  50
 #define RESET_TIME_OUT      10
@@ -623,7 +623,7 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
     unsigned int dwords_to_write = 0;
     unsigned int xmit_inf = 0;
     unsigned int tx_buffer_free_space = 0;
-    volatile unsigned int xmit_stat = 0;
+    unsigned int xmit_stat = 0;
 
     if (!data) {
         return -1; /* Invalid input parameter */
@@ -677,7 +677,9 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
         /* pop status port */
         /* for error check it should be checked "at a later time" according to data sheet */
         xmit_stat = SMSC9220->TX_STAT_PORT;
+        (void)xmit_stat;
     }
+
     ongoing_packet_length_sent += current_size;
     return 0;
 }

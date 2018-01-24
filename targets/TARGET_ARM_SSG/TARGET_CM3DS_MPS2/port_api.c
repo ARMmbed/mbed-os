@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ PinName port_pin(PortName port, int pin_n)
         return NC;
     }
 
-    return (PINS_PER_GPIO * port + pin_n);
+    return (PinName)(PINS_PER_GPIO * port + pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)

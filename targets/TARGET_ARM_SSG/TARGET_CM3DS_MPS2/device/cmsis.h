@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015-2017 ARM Limited
+ * Copyright (c) 2015-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * A generic CMSIS include header, pulling in CM3DS and MPS2 specifics
+ */
+
+/*
+ * A generic CMSIS include header, pulling in CM3DS specifics.
+ * This file is included by mbed OS upper layers.
  */
 
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
 /* CM3DS Core */
-#include "CMSDK_CM3DS.h"
-/* MPS2 CMSIS Library */
-#include "SMM_MPS2.h"
-/* NVIC Driver */
-#include "cmsis_nvic.h"
+#include "CM3DS.h"
 
 #endif /* MBED_CMSIS_H */

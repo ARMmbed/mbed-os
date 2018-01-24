@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 
 #include "platform_devices.h"
-#include "SMM_MPS2.h"
+/* Base addresses of peripherals */
+#include "CM3DS.h"
 
 /* ARM CMSDK Timer driver structures */
 #ifdef ARM_CMSDK_TIMER0

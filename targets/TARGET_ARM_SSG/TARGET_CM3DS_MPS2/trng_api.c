@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@
 #include "tztrng.h"
 
 #define BITS_PER_BYTE 8
-/* Base address of the TRNG peripheral */
-#define TRNG_BASE     0x4000F000
 
 /**
  * \defgroup hal_trng TRNG hal functions

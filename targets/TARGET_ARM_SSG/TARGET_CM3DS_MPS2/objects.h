@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,15 +56,6 @@ struct serial_s {
 struct i2c_s {
     MPS2_I2C_TypeDef *i2c;
     uint32_t freq_us;       /* Stores I2C frequency in microseconds */
-};
-
-struct tsc_s {
-    MPS2_I2C_TypeDef *tsc;
-};
-
-struct audio_s {
-    MPS2_I2S_TypeDef *audio_I2S;
-    MPS2_I2C_TypeDef *audio_I2C;
 };
 
 struct spi_s {

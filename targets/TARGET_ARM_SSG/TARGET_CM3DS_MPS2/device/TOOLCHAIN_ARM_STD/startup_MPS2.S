@@ -16,10 +16,10 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- *
+ */
+
+/*
  * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
- *
  */
 
 #include "memory_zones.h"

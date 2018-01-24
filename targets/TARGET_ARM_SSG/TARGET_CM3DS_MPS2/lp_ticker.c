@@ -23,7 +23,6 @@
 
 #include "cmsdk_ticker.h"
 #include "lp_ticker_api.h"
-#include "platform_devices.h"
 
 /**
  * \brief Calculate clocks to us
