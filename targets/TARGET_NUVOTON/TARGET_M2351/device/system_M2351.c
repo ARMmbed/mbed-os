@@ -24,7 +24,6 @@ extern void *__vector_table;                   /* see startup file */
 #else
 extern void *__vector_handlers;                   /* see startup file */
 #endif
-extern uint32_t GetPC(void);              /* Get current program counter(PC) */
 
 
 /*----------------------------------------------------------------------------
