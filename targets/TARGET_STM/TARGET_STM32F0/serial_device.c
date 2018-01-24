@@ -51,34 +51,27 @@ static uart_irq_handler irq_handler;
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static uint32_t uart_irq(int id)
+static void uart_irq(int id)
 {
     UART_HandleTypeDef * huart = &uart_handlers[id];
-    uint32_t status = 0;
-
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
                 irq_handler(serial_irq_ids[id], TxIrq);
-                status = 1;
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
-                status = 1;
+                /* Flag has been cleared when reading the content */
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
                 __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
-                status = 1;
             }
         }
     }
-    
-    return status;
 }
 
 static void uart1_irq(void)
@@ -128,9 +121,12 @@ static void uart3_8_irq(void)
   }
 #endif
 #else // TARGET_STM32F070RB, TARGET_STM32F072RB
-    if (uart_irq(2) == 0) { // Check if it's USART3
-        uart_irq(3); // Otherwise it's USART4
-    }
+#if defined(USART3_BASE)
+  uart_irq(2);
+#endif
+#if defined(USART4_BASE)
+  uart_irq(3);
+#endif
 #endif
 }
 
