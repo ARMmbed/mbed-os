@@ -26,8 +26,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
     def __init__(self, target,  notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
@@ -128,21 +127,12 @@ class GCC(mbedToolchain):
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
                     'line': match.group('line'),
-                    'col': 0,
+                    'col': match.group('col'),
                     'message': match.group('message'),
                     'text': '',
                     'target_name': self.target.name,
                     'toolchain_name': self.name
                 }
-            elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
-                match = self.INDEX_PATTERN.match(line)
-                if match is not None:
-                    msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
-                    msg = None
-                else:
-                    msg['text'] += line+"\n"
 
         if msg is not None:
             self.cc_info(msg)
