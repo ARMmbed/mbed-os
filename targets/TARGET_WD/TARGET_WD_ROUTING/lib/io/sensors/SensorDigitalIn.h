@@ -7,6 +7,7 @@ ___________________INCLUDES____________________________
 #include "mbed.h"
 #include "PinNames.h"
 #include "MeasurementBuffer.h"
+#include "IOEventQueue.h"
 #include "ResettableTimeout.h"
 
 /******************************************************
@@ -35,28 +36,23 @@ public:
 	
 private:
 	void setValue(int value);
-	
-	void onEdge(bool countEdge);
-	void onObservingEdge(void) { onEdge(true); }
-	void onIgnoringEdge(void) { onEdge(false); }
-	void confirmEdge(bool countEdge, int value, int durationUs);
-	
-	void onPollingTick(void);
-	
+	void onSamplingTick(void);
+	void onEdge(void);
 	void onPulseDurationResetTimeout(void);
 	
+	DigitalIn * _din;
+	EdgeSelection _edgeSelection;
 	Callback<void(uint16_t)> _irq;
-	InterruptIn * _interruptIn;
 	uint16_t _instanceMetadata;
 	int _value;
 	int _edgeCounter;
 	Timer * _pulseDurationTimer;
 	ResettableTimeout * _pulseDurationResetTimout;
 	MeasurementBuffer<int> * _pulseDurationBuffer;
+	MeasurementBuffer<uint8_t> * _samplingBuffer;
+	IOEventQueue * _eq;
 	int _pulseDurationOffset;
 	int _pulseDurationFilterSize;
-	
-	Ticker * _ticker;
 };
 
 #endif

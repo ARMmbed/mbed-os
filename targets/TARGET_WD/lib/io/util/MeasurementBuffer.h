@@ -2,6 +2,7 @@
 #include <list>
 #include <iterator>
 #include <cmath>
+#include <numeric>
 
 #define DEFAULT_MEASUREMENT_BUFFER_SIZE		9
 
@@ -14,6 +15,7 @@ struct IMeasurementBuffer {
 	virtual void add(T v) = 0;
 	virtual T get(void) = 0;
 	virtual T MAD(void) = 0;
+	virtual T sum(void) = 0;
 };
 
 template <typename T>
@@ -38,6 +40,10 @@ public:
 		return _median(bufCpy);
 	};
 	
+	T sum() {
+		return std::accumulate(buf.begin(), buf.end(), 0);
+	}
+
 	T MAD() {
 		T median = get();
 		std::list<T> tmp;

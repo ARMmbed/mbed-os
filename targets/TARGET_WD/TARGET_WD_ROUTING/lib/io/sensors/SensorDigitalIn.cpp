@@ -2,12 +2,15 @@
 ___________________INCLUDES____________________________
 ******************************************************/
 #include "SensorDigitalIn.h"
+#include "wd_logging.h"
 
 /******************************************************
 ___________________DEFINES_____________________________
 ******************************************************/
 #define DEFAULT_PULSE_DURATION_FILTER_SIZE		9
 #define PULSE_DURATION_RESET_TIMEOUT_FACTOR		3
+#define SAMPLING_BUFFER_FILTER_SIZE				3
+#define SAMPLING_INTERVAL_MS					50
 
 /******************************************************
 ___________________IMPLEMENTATION______________________
@@ -16,98 +19,64 @@ static void donothing(uint16_t instanceId) {}
 
 SensorDigitalIn::SensorDigitalIn(PinName pin, EdgeSelection edgeSelection, uint16_t instanceMetadata)
 	: _instanceMetadata(instanceMetadata), 
+    _eq(&IOEventQueue::getInstance()), 
+	_edgeSelection(edgeSelection),
 	_value(0), 
 	_pulseDurationOffset(0),
 	_pulseDurationFilterSize(DEFAULT_PULSE_DURATION_FILTER_SIZE),
 	_edgeCounter(0) {
-		
-	_interruptIn = new InterruptIn(pin);
-	_pulseDurationTimer = new Timer();
-	_ticker = new Ticker();	
-
-	if (edgeSelection == SensorDigitalIn::None) {
-		_ticker->attach(callback(this, &SensorDigitalIn::onPollingTick), 0.05f);
-	} else if (edgeSelection == SensorDigitalIn::Rising) {
-		_interruptIn->rise(callback(this, &SensorDigitalIn::onObservingEdge));
-		_interruptIn->fall(callback(this, &SensorDigitalIn::onIgnoringEdge));
-	} else {
-		_interruptIn->fall(callback(this, &SensorDigitalIn::onObservingEdge));
-		_interruptIn->rise(callback(this, &SensorDigitalIn::onIgnoringEdge));
-	}
-	
-	_interruptIn->enable_irq();
-	_irq = donothing;
-	
-	this->_pulseDurationTimer->start();
-	this->_pulseDurationBuffer = new MeasurementBuffer<int>(_pulseDurationFilterSize);
-	this->_pulseDurationBuffer->clear();
-	this->_pulseDurationResetTimout = new ResettableTimeout(callback(this, &SensorDigitalIn::onPulseDurationResetTimeout), 5000000); // 5 seconds default timeout
 	
 	// set initial value
-	this->setValue(_interruptIn->read());
+	_din = new DigitalIn(pin);
+	this->setValue(_din->read());
+
+	_irq = donothing;
+
+	// prepare buffers
+	this->_pulseDurationBuffer = new MeasurementBuffer<int>(_pulseDurationFilterSize);
+	this->_pulseDurationBuffer->clear();
+	_samplingBuffer = new MeasurementBuffer<uint8_t>(SAMPLING_BUFFER_FILTER_SIZE);
+	_samplingBuffer->clear();
+
+	// schedule sampling
+	_eq->call_every(SAMPLING_INTERVAL_MS, this, &SensorDigitalIn::onSamplingTick);
+
+	// prepare timers
+	_pulseDurationTimer = new Timer();
+	this->_pulseDurationTimer->start();
+	events::EventQueue * eq = mbed_event_queue();
+	this->_pulseDurationResetTimout = new ResettableTimeout(eq->event(callback(this, &SensorDigitalIn::onPulseDurationResetTimeout)), 5000000); // 5 seconds default timeout
+
 }
 
+SensorDigitalIn::~SensorDigitalIn(){}
 
-SensorDigitalIn::~SensorDigitalIn(){
+void SensorDigitalIn::onEdge() {
 	
-	_interruptIn->disable_irq();
-	_ticker->detach();
-	
+	this->_edgeCounter ++;
+	int durationUs = this->_pulseDurationTimer->read_us();
+	this->_pulseDurationBuffer->add(durationUs);
+	this->_pulseDurationTimer->reset();
+	timestamp_t resetTimeout = durationUs * PULSE_DURATION_RESET_TIMEOUT_FACTOR;
+	if (resetTimeout < 10000000) resetTimeout = 10000000;	// limit to 10 sec min.
+	if (resetTimeout > 60000000) resetTimeout = 60000000;	// limit to 60 sec max.
+	this->_pulseDurationResetTimout->reset(resetTimeout);
+
 }
 
-
-void SensorDigitalIn::onEdge(bool countEdge) {
+void SensorDigitalIn::onSamplingTick(void) {
 	
-	// exit irq context and execute confirmation in event queue thread
-	events::EventQueue * eq = mbed_highprio_event_queue();
-	Event<void(bool, int, int)> e = eq->event(callback(this, &SensorDigitalIn::confirmEdge));
-	e.call(countEdge, this->_interruptIn->read(), this->_pulseDurationTimer->read_us());
+	_samplingBuffer->add((uint8_t)_din->read());
 	
-}
-
-
-void SensorDigitalIn::confirmEdge(bool countEdge, int value, int durationUs) {
-	
-	wait_us(250);	// important: wait in event-queue thread (exit irq)!
-	
-	// we need to confirm interrupt state here in case of noise, hence the delayed, repeated read operation
-	if (value == this->_interruptIn->read()) {
-		
-		if (countEdge) { 
-			this->_edgeCounter++;
-			this->_pulseDurationBuffer->add(durationUs + this->_pulseDurationOffset);
-			this->_pulseDurationOffset = this->_pulseDurationTimer->read_us() - durationUs;
-			this->_pulseDurationTimer->reset();
-			timestamp_t resetTimeout = durationUs * PULSE_DURATION_RESET_TIMEOUT_FACTOR;
-			if (resetTimeout < 10000000) resetTimeout = 10000000;	// limit to 10 sec min.
-			if (resetTimeout > 60000000) resetTimeout = 60000000;	// limit to 60 sec max.
-			this->_pulseDurationResetTimout->reset(resetTimeout);
-		}
-		
-		this->setValue(value);
-		
+	int value = _samplingBuffer->sum() > (SAMPLING_BUFFER_FILTER_SIZE/2) ? 1 : 0;
+	if ((value > _value && _edgeSelection == Rising) ||
+		(value < _value && _edgeSelection == Falling)) {
+		onEdge();
 	}
-	
-}
 
-
-void SensorDigitalIn::onPollingTick(void) {
-	
-	int value = this->_interruptIn->read();
-	if (value > this->_value) {
-		this->_edgeCounter ++;
-		int durationUs = this->_pulseDurationTimer->read_us();
-		this->_pulseDurationBuffer->add(durationUs);
-		this->_pulseDurationTimer->reset();
-		timestamp_t resetTimeout = durationUs * PULSE_DURATION_RESET_TIMEOUT_FACTOR;
-		if (resetTimeout < 10000000) resetTimeout = 10000000;	// limit to 10 sec min.
-		if (resetTimeout > 60000000) resetTimeout = 60000000;	// limit to 60 sec max.
-		this->_pulseDurationResetTimout->reset(resetTimeout);
-	}
 	this->setValue(value);
 	
 }
-
 
 void SensorDigitalIn::onPulseDurationResetTimeout(void) {
 	
@@ -126,13 +95,11 @@ void SensorDigitalIn::attach(mbed::Callback<void(uint16_t)> func) {
 	
 }
 
-
 void SensorDigitalIn::detach(void) {
 	
 	_irq = donothing;
 	
 }
-
 
 float SensorDigitalIn::getPulseDuration(void) {
 	return ((float) this->_pulseDurationBuffer->get()) / 1000000.0f;
