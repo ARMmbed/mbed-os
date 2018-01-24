@@ -106,16 +106,16 @@ WEAK_ALIAS_FUNC(GPC_IRQHandler, Default_Handler)        // 18: GPIO Port C
 WEAK_ALIAS_FUNC(GPD_IRQHandler, Default_Handler)        // 19: GPIO Port D
 WEAK_ALIAS_FUNC(GPE_IRQHandler, Default_Handler)        // 20: GPIO Port E
 WEAK_ALIAS_FUNC(GPF_IRQHandler, Default_Handler)        // 21: GPIO Port F
-WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 22: SPI0
-WEAK_ALIAS_FUNC(SPI1_IRQHandler, Default_Handler)       // 23: SPI1
+WEAK_ALIAS_FUNC(QSPI0_IRQHandler, Default_Handler)       // 22: SPI0
+WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)       // 23: SPI1
 WEAK_ALIAS_FUNC(BRAKE0_IRQHandler, Default_Handler)     // 24: 
-WEAK_ALIAS_FUNC(PWM0_P0_IRQHandler, Default_Handler)     // 25: 
-WEAK_ALIAS_FUNC(PWM0_P1_IRQHandler, Default_Handler)     // 26: 
-WEAK_ALIAS_FUNC(PWM0_P2_IRQHandler, Default_Handler)     // 27: 
+WEAK_ALIAS_FUNC(EPWM0_P0_IRQHandler, Default_Handler)     // 25: 
+WEAK_ALIAS_FUNC(EPWM0_P1_IRQHandler, Default_Handler)     // 26: 
+WEAK_ALIAS_FUNC(EPWM0_P2_IRQHandler, Default_Handler)     // 27: 
 WEAK_ALIAS_FUNC(BRAKE1_IRQHandler, Default_Handler)     // 28: 
-WEAK_ALIAS_FUNC(PWM1_P0_IRQHandler, Default_Handler)     // 29: 
-WEAK_ALIAS_FUNC(PWM1_P1_IRQHandler, Default_Handler)     // 30: 
-WEAK_ALIAS_FUNC(PWM1_P2_IRQHandler, Default_Handler)     // 31: 
+WEAK_ALIAS_FUNC(EPWM1_P0_IRQHandler, Default_Handler)     // 29: 
+WEAK_ALIAS_FUNC(EPWM1_P1_IRQHandler, Default_Handler)     // 30: 
+WEAK_ALIAS_FUNC(EPWM1_P2_IRQHandler, Default_Handler)     // 31: 
 WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)       // 32: Timer 0
 WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)       // 33: Timer 1
 WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)       // 34: Timer 2
@@ -135,8 +135,8 @@ WEAK_ALIAS_FUNC(EADC3_IRQHandler, Default_Handler)      // 47: ADC0 interrupt so
 WEAK_ALIAS_FUNC(UART2_IRQHandler, Default_Handler)      // 48: UART2
 WEAK_ALIAS_FUNC(UART3_IRQHandler, Default_Handler)      // 49: UART3
                                                         // 50: Reserved
-WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler)       // 51: SPI2
-WEAK_ALIAS_FUNC(SPI3_IRQHandler, Default_Handler)       // 52: SPI3
+WEAK_ALIAS_FUNC(SPI1_IRQHandler, Default_Handler)       // 51: SPI1
+WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler)       // 52: SPI2
 WEAK_ALIAS_FUNC(USBD_IRQHandler, Default_Handler)       // 53: USB device
 WEAK_ALIAS_FUNC(USBH_IRQHandler, Default_Handler)       // 54: USB host
 WEAK_ALIAS_FUNC(USBOTG_IRQHandler, Default_Handler)     // 55: USB OTG
@@ -146,7 +146,7 @@ WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)        // 58:
 WEAK_ALIAS_FUNC(SC1_IRQHandler, Default_Handler)        // 59: 
 WEAK_ALIAS_FUNC(SC2_IRQHandler, Default_Handler)        // 60: 
                                                         // 61: 
-WEAK_ALIAS_FUNC(SPI4_IRQHandler, Default_Handler)       // 62:
+WEAK_ALIAS_FUNC(SPI3_IRQHandler, Default_Handler)       // 62:
                                                         // 63: Reserved
 WEAK_ALIAS_FUNC(SDH0_IRQHandler, Default_Handler)       // 64:                                                        
                                                         // 65 ~67: Reserved                                                        
@@ -155,7 +155,7 @@ WEAK_ALIAS_FUNC(I2S0_IRQHandler, Default_Handler)       // 68:
 WEAK_ALIAS_FUNC(OPA0_IRQHandler, Default_Handler)       // 70:
 WEAK_ALIAS_FUNC(CRPT_IRQHandler, Default_Handler)       // 71:
 WEAK_ALIAS_FUNC(GPG_IRQHandler, Default_Handler)        // 72:
-                                                        // 73: Reserved
+WEAK_ALIAS_FUNC(EINT6_IRQHandler, Default_Handler)      // 73:
 WEAK_ALIAS_FUNC(UART4_IRQHandler, Default_Handler)      // 74:
 WEAK_ALIAS_FUNC(UART5_IRQHandler, Default_Handler)      // 75:
 WEAK_ALIAS_FUNC(USCI0_IRQHandler, Default_Handler)      // 76:
@@ -169,14 +169,14 @@ WEAK_ALIAS_FUNC(QEI0_IRQHandler, Default_Handler)       // 84:
 WEAK_ALIAS_FUNC(QEI1_IRQHandler, Default_Handler)       // 85:
 WEAK_ALIAS_FUNC(ECAP0_IRQHandler, Default_Handler)      // 86:
 WEAK_ALIAS_FUNC(ECAP1_IRQHandler, Default_Handler)      // 87:
-                                                        // 88~89: Reserved
-WEAK_ALIAS_FUNC(SDH1_IRQHandler, Default_Handler)       // 90:
-                                                        // 91~95: Reserved
+WEAK_ALIAS_FUNC(GPH_IRQHandler, Default_Handler)        // 88:
+WEAK_ALIAS_FUNC(EINT7_IRQHandler, Default_Handler)      // 89:
+                                                        // 90~95: Reserved
 WEAK_ALIAS_FUNC(SPI5_IRQHandler, Default_Handler)       // 96:
 WEAK_ALIAS_FUNC(DSRC_IRQHandler, Default_Handler)       // 97:
 WEAK_ALIAS_FUNC(PDMA1_IRQHandler, Default_Handler)      // 98:
 WEAK_ALIAS_FUNC(SCU_IRQHandler, Default_Handler)        // 99:                            
-WEAK_ALIAS_FUNC(LCD_IRQHandler, Default_Handler)        // 100: 
+                                                        // 100:  Reserved
 WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)        // 101: 
 
 
@@ -241,16 +241,16 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) GPD_IRQHandler,          // 19: GPIO Port D
     (uint32_t) GPE_IRQHandler,          // 20: GPIO Port E
     (uint32_t) GPF_IRQHandler,          // 21: GPIO Port F
-    (uint32_t) SPI0_IRQHandler,         // 22: SPI0
-    (uint32_t) SPI1_IRQHandler,         // 23: SPI1
+    (uint32_t) QSPI0_IRQHandler,        // 22: QSPI0
+    (uint32_t) SPI0_IRQHandler,         // 23: SPI0
     (uint32_t) BRAKE0_IRQHandler,       // 24: 
-    (uint32_t) PWM0_P0_IRQHandler,      // 25: 
-    (uint32_t) PWM0_P1_IRQHandler,       // 26: 
-    (uint32_t) PWM0_P2_IRQHandler,       // 27: 
+    (uint32_t) EPWM0_P0_IRQHandler,      // 25: 
+    (uint32_t) EPWM0_P1_IRQHandler,       // 26: 
+    (uint32_t) EPWM0_P2_IRQHandler,       // 27: 
     (uint32_t) BRAKE1_IRQHandler,       // 28: 
-    (uint32_t) PWM1_P0_IRQHandler,       // 29: 
-    (uint32_t) PWM1_P1_IRQHandler,       // 30: 
-    (uint32_t) PWM1_P2_IRQHandler,       // 31: 
+    (uint32_t) EPWM1_P0_IRQHandler,       // 29: 
+    (uint32_t) EPWM1_P1_IRQHandler,       // 30: 
+    (uint32_t) EPWM1_P2_IRQHandler,       // 31: 
     (uint32_t) TMR0_IRQHandler,         // 32: Timer 0
     (uint32_t) TMR1_IRQHandler,         // 33: Timer 1
     (uint32_t) TMR2_IRQHandler,         // 34: Timer 2
@@ -270,8 +270,8 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) UART2_IRQHandler,        // 48: UART2
     (uint32_t) UART3_IRQHandler,        // 49: UART3
     (uint32_t) Default_Handler,         // 50: Reserved
-    (uint32_t) SPI2_IRQHandler,         // 51: SPI2
-    (uint32_t) Default_Handler,         // 52: Reserved
+    (uint32_t) SPI1_IRQHandler,         // 51: SPI1
+    (uint32_t) SPI2_IRQHandler,         // 52: SPI2
     (uint32_t) USBD_IRQHandler,         // 53: USB device
     (uint32_t) USBH_IRQHandler,         // 54: USB host
     (uint32_t) USBOTG_IRQHandler,       // 55: USB OTG
@@ -281,7 +281,7 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) SC1_IRQHandler,          // 59: 
     (uint32_t) SC2_IRQHandler,          // 60: 
     (uint32_t) Default_Handler,         // 61: Reserved.
-    (uint32_t) SPI4_IRQHandler,         // 62: 
+    (uint32_t) SPI3_IRQHandler,         // 62: 
     (uint32_t) Default_Handler,         // 63: 
     (uint32_t) SDH0_IRQHandler,         // 64:
     (uint32_t) Default_Handler,         // 65:
@@ -292,7 +292,7 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) OPA0_IRQHandler,         // 70:
     (uint32_t) CRPT_IRQHandler,         // 71:
     (uint32_t) GPG_IRQHandler,         // 72:
-    (uint32_t) Default_Handler,         // 73:
+    (uint32_t) EINT6_IRQHandler,         // 73:
     (uint32_t) UART4_IRQHandler,         // 74:
     (uint32_t) UART5_IRQHandler,         // 75:
     (uint32_t) USCI0_IRQHandler,         // 76:
@@ -307,9 +307,9 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) QEI1_IRQHandler,         // 85:
     (uint32_t) ECAP0_IRQHandler,         // 86:    
     (uint32_t) ECAP1_IRQHandler,         // 87:
-    (uint32_t) Default_Handler,         // 88:    
-    (uint32_t) Default_Handler,         // 89:
-    (uint32_t) SDH1_IRQHandler,         // 90:    
+    (uint32_t) GPH_IRQHandler,          // 88:    
+    (uint32_t) EINT7_IRQHandler,        // 89:
+    (uint32_t) Default_Handler,         // 90:    
     (uint32_t) Default_Handler,         // 91:
     (uint32_t) Default_Handler,         // 92:    
     (uint32_t) Default_Handler,         // 93:
@@ -319,7 +319,7 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) DSRC_IRQHandler,         // 97:
     (uint32_t) PDMA1_IRQHandler,         // 98:    
     (uint32_t) SCU_IRQHandler,         // 99:
-    (uint32_t) LCD_IRQHandler,         // 100:    
+    (uint32_t) Default_Handler,         // 100:    
     (uint32_t) TRNG_IRQHandler,         // 101:
 };
 
@@ -387,7 +387,7 @@ void Default_Handler(void)
     while (1);
 }
 
-
+#if 0
 #if defined(__CC_ARM)
 uint32_t GetPC(void)
 {
@@ -399,4 +399,5 @@ __asm  {
        }    
     return val;
 }    
+#endif
 #endif
