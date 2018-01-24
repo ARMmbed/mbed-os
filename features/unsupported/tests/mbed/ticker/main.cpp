@@ -43,7 +43,5 @@ int main() {
     flipper_1.attach(&flip_1, 1.0); // the address of the function to be attached (flip) and the interval (1 second)
     flipper_2.attach(&flip_2, 2.0); // the address of the function to be attached (flip) and the interval (2 seconds)
 
-    while (true) {
-        wait(1.0);
-    }
+    while (1);
 }
