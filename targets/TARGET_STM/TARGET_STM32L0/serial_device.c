@@ -85,24 +85,24 @@ static void uart2_irq(void)
     uart_irq(1);
 }
 
-static void lpuart1_irq(void)
-{
-    uart_irq(2);
-}
-
 #if defined(USART4_BASE)
 static void uart4_irq(void)
 {
-    uart_irq(3);
+    uart_irq(2);
 }
 #endif
 
 #if defined(USART5_BASE)
 static void uart5_irq(void)
 {
-    uart_irq(4);
+    uart_irq(3);
 }
 #endif
+
+static void lpuart1_irq(void)
+{
+    uart_irq(4);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
