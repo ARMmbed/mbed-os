@@ -303,7 +303,7 @@ def validate_partition_manifests(manifests):
             irq_signals[irq.signal] = manifest.file
 
             if irq.line_num in irq_numbers:
-                raise ValueError('IRQ {} is required by both {} and {}.'.format(
+                raise ValueError('IRQ line number {} is found in both {} and {}.'.format(
                     irq.line_num, irq_numbers[irq.line_num], manifest.file))
             irq_numbers[irq.line_num] = manifest.file
 
@@ -327,13 +327,14 @@ def get_latest_timestamp(*files):
     return max([os.path.getmtime(f) for f in files])
 
 
-def generate_source_files(manifests, template_files, output_dir):
+def generate_source_files(manifests, template_files, output_dir, extra_filters=None):
     """
     Generate C code from manifests using given templates
 
     :param manifests: List of the partition manifests
     :param template_files: List of template files
     :param output_dir: Output directory for the generated C file
+    :param extra_filters: Dictionary of extra filters to use in the rendering process
     :return: List of paths to the generated files
     """
     autogen_folder = path_join(output_dir, 'psa_autogen')
@@ -341,12 +342,16 @@ def generate_source_files(manifests, template_files, output_dir):
     # Create a list of all the defined MMIO regions.
     region_list = [region for manifest in manifests for region in manifest.mmio_regions]
 
+    templates_dirs = list(set([os.path.dirname(path) for path in template_files]))
+
     # Load templates for the code generation.
     env = Environment(
-        loader=FileSystemLoader(TEMPLATES_DIR),
+        loader=FileSystemLoader(templates_dirs),
         lstrip_blocks=True,
         trim_blocks=True
     )
+    if extra_filters:
+        env.filters.update(extra_filters)
 
     rendered_files = {}
     template_files = [os.path.basename(elem) for elem in template_files]
@@ -383,7 +388,7 @@ def is_up_to_date(manifest_files, template_files, generated_files):
 
     We don't need to re-generate the files if:
     1. All the expected generated files exist AND
-    2. None of the XMLs, templates, script files we're modified after the auto-generated files
+    2. None of the XMLs, templates, script files were modified after the auto-generated files
 
     :param manifest_files: List of the manifest files
     :param template_files: List of the template files
