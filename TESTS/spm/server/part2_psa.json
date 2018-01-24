@@ -1,0 +1,27 @@
+{
+  "name": "PART2",
+  "type": "SECURE",
+  "priority": "NORMAL",
+  "id": "0x7FFFFFFF",
+  "entry_point": "part2_main",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "secure_functions": [{
+      "sfid": "SF_REVERSE",
+      "signal": "SF_REVERSE_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "strict"
+    },
+    {
+      "sfid": "SF_DB_TST",
+      "signal": "SF_DB_TST_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "strict"
+    }
+  ],
+  "source_files": [
+    "partition2.c"
+  ]
+}

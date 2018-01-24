@@ -1,0 +1,167 @@
+{
+  "name": "PART2",
+  "type": "SECURE",
+  "priority": "NORMAL",
+  "id": "0x00000002",
+  "entry_point": "server_main2",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "secure_functions": [{
+      "sfid": "PART2_INT_MASK",
+      "signal": "PART2_INT_MASK_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_GET_MSG_NULL",
+      "signal": "PART2_GET_MSG_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_GET_SIGNUM_MULTIPLE_BIT",
+      "signal": "PART2_GET_SIGNUM_MULTIPLE_BIT_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_GET_SIGNUM_NOT_SUBSET",
+      "signal": "PART2_GET_SIGNUM_NOT_SUBSET_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_GET_SIGNUM_NOT_ACTIVE",
+      "signal": "PART2_GET_SIGNUM_NOT_ACTIVE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_READ_INVALID_HANDLE",
+      "signal": "PART2_READ_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_READ_NULL_HANDLE",
+      "signal": "PART2_READ_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_READ_TX_SIZE_ZERO",
+      "signal": "PART2_READ_TX_SIZE_ZERO_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_BUFFER_NULL",
+      "signal": "PART2_WRITE_BUFFER_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_OFFSET_BIGGER_MAX",
+      "signal": "PART2_WRITE_OFFSET_BIGGER_MAX_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_OFFSET_BIGGER_RX_SIZE",
+      "signal": "PART2_WRITE_OFFSET_BIGGER_RX_SIZE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_RX_BUFF_NULL",
+      "signal": "PART2_WRITE_RX_BUFF_NULL_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_INVALID_HANDLE",
+      "signal": "PART2_WRITE_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_NULL_HANDLE",
+      "signal": "PART2_WRITE_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_END_INVALID_HANDLE",
+      "signal": "PART2_END_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_END_NULL_HANDLE",
+      "signal": "PART2_END_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_SET_RHANDLE_INVALID",
+      "signal": "PART2_SET_RHANDLE_INVALID_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_NOTIFY_PART_ID_INVALID",
+      "signal": "PART2_NOTIFY_PART_ID_INVALID_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_IDENTITY_INVALID_HANDLE",
+      "signal": "PART2_IDENTITY_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_IDENTITY_NULL_HANDLE",
+      "signal": "PART2_IDENTITY_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_SET_RHANDLE_INVALID_HANDLE",
+      "signal": "PART2_SET_RHANDLE_INVALID_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_SET_RHANDLE_NULL_HANDLE",
+      "signal": "PART2_SET_RHANDLE_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    }
+  ],
+  "source_files": [
+    "server2.c"
+  ]
+}
