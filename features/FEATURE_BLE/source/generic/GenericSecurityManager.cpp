@@ -26,11 +26,11 @@ namespace generic {
 
 using ble::pal::address_t;
 using ble::pal::advertising_peer_address_type_t;
-using ble::pal::irk_t;
-using ble::pal::csrk_t;
-using ble::pal::ltk_t;
-using ble::pal::ediv_t;
-using ble::pal::rand_t;
+using ble::irk_t;
+using ble::csrk_t;
+using ble::ltk_t;
+using ble::ediv_t;
+using ble::rand_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
@@ -93,9 +93,9 @@ public:
             csrk_t csrk;
             /* TODO: generate csrk */
             pcsrk = &csrk;
-            _db.set_local_csrk(*pcsrk);
+            _db.set_local_csrk(pcsrk);
         }
-        _pal.set_csrk(*pcsrk);
+        _pal.set_csrk(pcsrk);
         return BLE_ERROR_NONE;
     }
 
@@ -438,7 +438,7 @@ public:
         SecurityEntry_t& entry,
         SecurityEntryKeys_t& entryKeys
     ) {
-        _pal.enable_encryption(entry.handle, entryKeys.ltk, entryKeys.ediv, entryKeys.rand);
+        _pal.enable_encryption(entry.handle, &entryKeys.ltk, &entryKeys.rand, &entryKeys.ediv);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
@@ -494,13 +494,13 @@ public:
         SecurityEntry_t& entry,
         SecurityEntryKeys_t& entryKeys
     ) {
-        _pal.set_ltk(entry.handle, entryKeys.ltk);
+        _pal.set_ltk(entry.handle, &entryKeys.ltk);
         return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
     DbCbAction_t return_csrk_cb(
         connection_handle_t connection,
-        csrk_t csrk
+        const csrk_t *csrk
     ) {
         SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
@@ -811,11 +811,11 @@ public:
         connection_handle_t connection,
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address,
-        const ediv_t ediv,
-        const rand_t rand,
-        const ltk_t ltk,
-        const irk_t irk,
-        const csrk_t csrk
+        const ediv_t *ediv,
+        const rand_t *rand,
+        const ltk_t *ltk,
+        const irk_t *irk,
+        const csrk_t *csrk
     ) {
         SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
@@ -845,7 +845,7 @@ public:
 
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) {
         SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
@@ -857,30 +857,30 @@ public:
 
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
         _db.set_entry_peer_ediv_rand(connection, ediv, rand);
     }
 
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) {
         _db.set_entry_local_ltk(connection, ltk);
     }
 
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
         _db.set_entry_local_ediv_rand(connection, ediv, rand);
     }
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        const irk_t irk
+        const irk_t *irk
     ) {
         _db.set_entry_peer_irk(connection, irk);
     }
@@ -899,7 +899,7 @@ public:
 
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        const csrk_t csrk
+        const csrk_t *csrk
     ) {
         SecurityEntry_t *entry = _db.get_entry(connection);
         if (!entry) {
@@ -919,8 +919,8 @@ public:
 
     virtual void on_ltk_request(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
         _db.get_entry_local_keys(
             mbed::callback(this, &GenericSecurityManager::set_ltk_cb),

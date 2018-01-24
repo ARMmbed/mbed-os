@@ -25,11 +25,11 @@ namespace ble {
 namespace generic {
 
 using ble::pal::address_t;
-using ble::pal::irk_t;
-using ble::pal::csrk_t;
-using ble::pal::ltk_t;
-using ble::pal::ediv_t;
-using ble::pal::rand_t;
+using ble::irk_t;
+using ble::csrk_t;
+using ble::ltk_t;
+using ble::ediv_t;
+using ble::rand_t;
 
 /* separate structs to allow db implementation to minimise memory usage */
 
@@ -113,7 +113,7 @@ enum DbCbAction_t {
 
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
-typedef mbed::Callback<DbCbAction_t(connection_handle_t, csrk_t)> SecurityEntryCsrkDbCb_t;
+typedef mbed::Callback<DbCbAction_t(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryIdentity_t&)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
 
@@ -145,20 +145,20 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 
     /* set */
     virtual void set_entry_local_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) = 0;
 
     virtual void set_entry_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 
     /* peer's keys */
@@ -179,27 +179,27 @@ public:
         connection_handle_t connection,
         bool address_is_public,
         const address_t &peer_address,
-        const ediv_t ediv,
-        const rand_t rand,
-        const ltk_t ltk,
-        const irk_t irk,
-        const csrk_t csrk
+        const ediv_t *ediv,
+        const rand_t *rand,
+        const ltk_t *ltk,
+        const irk_t *irk,
+        const csrk_t *csrk
     ) = 0;
 
     virtual void set_entry_peer_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) = 0;
 
     virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 
     virtual void set_entry_peer_irk(
         connection_handle_t connection,
-        const irk_t irk
+        const irk_t *irk
     ) = 0;
 
     virtual void set_entry_peer_bdaddr(
@@ -210,14 +210,14 @@ public:
 
     virtual void set_entry_peer_csrk(
         connection_handle_t connection,
-        const csrk_t csrk
+        const csrk_t *csrk
     ) = 0;
 
     /* local csrk */
 
     virtual const csrk_t* get_local_csrk() = 0;
     virtual void set_local_csrk(
-        const csrk_t csrk
+        const csrk_t *csrk
     ) = 0;
 
     /* list management */
@@ -324,8 +324,8 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
         SecurityEntry_t *entry = NULL;
         db_store_t *store = get_store(connection);
@@ -338,18 +338,18 @@ public:
     /* set */
     virtual void set_entry_local_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) {
-        memcpy(_local_keys.ltk, ltk, sizeof(ltk_t));
+        _local_keys.ltk = *ltk;
     }
 
     virtual void set_entry_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
-        memcpy(_local_keys.ediv, ediv, sizeof(ediv_t));
-        memcpy(_local_keys.rand, rand, sizeof(rand_t));
+        _local_keys.ediv = *ediv;
+        _local_keys.rand = *rand;
     }
 
     /* peer's keys */
@@ -366,7 +366,7 @@ public:
             entry = &store->entry;
             identity = &store->identity;
         }
-        cb(entry->handle, identity->csrk);
+        cb(entry->handle, &identity->csrk);
     }
 
     virtual void get_entry_peer_keys(
@@ -388,52 +388,52 @@ public:
         connection_handle_t connection,
         bool address_is_public,
         const address_t &peer_address,
-        const ediv_t ediv,
-        const rand_t rand,
-        const ltk_t ltk,
-        const irk_t irk,
-        const csrk_t csrk
+        const ediv_t *ediv,
+        const rand_t *rand,
+        const ltk_t *ltk,
+        const irk_t *irk,
+        const csrk_t *csrk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
             store->entry.peer_identity_address = peer_address;
-            memcpy(store->key.ltk, ltk, sizeof(ltk_t));
-            memcpy(store->key.ediv, ediv, sizeof(ediv_t));
-            memcpy(store->key.rand, rand, sizeof(rand_t));
-            memcpy(store->identity.irk, irk, sizeof(irk_t));
-            memcpy(store->identity.csrk, csrk, sizeof(csrk_t));
+            store->key.ltk = *ltk;
+            store->key.ediv = *ediv;
+            store->key.rand = *rand;
+            store->identity.irk = *irk;
+            store->identity.csrk = *csrk;
         }
     }
 
     virtual void set_entry_peer_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            memcpy(store->key.ltk, ltk, sizeof(ltk_t));
+            store->key.ltk = *ltk;
         }
     }
 
     virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            memcpy(store->key.ediv, ediv, sizeof(ediv_t));
-            memcpy(store->key.rand, rand, sizeof(rand_t));
+            store->key.ediv = *ediv;
+            store->key.rand = *rand;
         }
     }
 
     virtual void set_entry_peer_irk(
         connection_handle_t connection,
-        const irk_t irk
+        const irk_t *irk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            memcpy(store->identity.irk, irk, sizeof(irk_t));
+            store->identity.irk = *irk;
         }
     }
 
@@ -450,11 +450,11 @@ public:
 
     virtual void set_entry_peer_csrk(
         connection_handle_t connection,
-        const csrk_t csrk
+        const csrk_t *csrk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            memcpy(store->identity.csrk, csrk, sizeof(csrk_t));
+            store->identity.csrk = *csrk;
         }
     }
 
@@ -464,8 +464,8 @@ public:
         return &_local_identity.csrk;
     }
 
-    virtual void set_local_csrk(const csrk_t csrk) {
-        memcpy(&_local_identity.csrk, csrk, sizeof(csrk_t));
+    virtual void set_local_csrk(const csrk_t *csrk) {
+        _local_identity.csrk = *csrk;
     }
 
     /* list management */

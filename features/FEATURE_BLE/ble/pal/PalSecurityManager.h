@@ -32,16 +32,8 @@ typedef SecurityManager::SecurityMode_t SecurityMode_t;
 typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
 typedef SecurityManager::Keypress_t Keypress_t;
 
-/* please use typedef for porting not the types directly */
-
 typedef uint8_t oob_data_t[16];
 
-typedef uint8_t irk_t[16];
-typedef uint8_t csrk_t[16];
-typedef uint8_t ltk_t[16];
-typedef uint8_t ediv_t[2];
-typedef uint8_t rand_t[8];
-typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
 class PasskeyAsci {
@@ -363,22 +355,22 @@ public:
         connection_handle_t handle,
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_address,
-        const ediv_t ediv,
-        const rand_t rand,
-        const ltk_t ltk,
-        const irk_t irk,
-        const csrk_t csrk
+        const ediv_t *ediv,
+        const rand_t *rand,
+        const ltk_t *ltk,
+        const irk_t *irk,
+        const csrk_t *csrk
     ) = 0;
 
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) = 0;
 
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 
     /**
@@ -392,7 +384,7 @@ public:
      */
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
-        const ltk_t ltk
+        const ltk_t *ltk
     ) = 0;
 
     /**
@@ -407,13 +399,13 @@ public:
      */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        const irk_t irk
+        const irk_t *irk
     ) = 0;
 
     virtual void on_keys_distributed_bdaddr(
@@ -424,7 +416,7 @@ public:
 
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        const csrk_t csrk
+        const csrk_t *csrk
     ) = 0;
 
     /**
@@ -433,8 +425,8 @@ public:
      */
     virtual void on_ltk_request(
         connection_handle_t connection,
-        const ediv_t ediv,
-        const rand_t rand
+        const ediv_t *ediv,
+        const rand_t *rand
     ) = 0;
 };
 
@@ -553,9 +545,9 @@ public:
 
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
-        const ltk_t ltk,
-        const rand_t rand = NULL,
-        const ediv_t ediv = NULL
+        const ltk_t *ltk,
+        const rand_t *rand = NULL,
+        const ediv_t *ediv = NULL
     ) = 0;
 
     virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
@@ -575,17 +567,17 @@ public:
     // Keys
     //
 
-    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t ltk) = 0;
+    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t *ltk) = 0;
 
     /**
      * Set the local IRK
      */
-    virtual ble_error_t set_irk(const irk_t irk) = 0;
+    virtual ble_error_t set_irk(const irk_t *irk) = 0;
 
     /**
      * Set the local csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t csrk) = 0;
+    virtual ble_error_t set_csrk(const csrk_t *csrk) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication

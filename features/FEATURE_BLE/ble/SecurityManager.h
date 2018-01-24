@@ -29,7 +29,7 @@ class LegacySecurityManagerEventHandler;
 using ble::connection_handle_t;
 using ble::pairing_failure_t;
 using ble::link_encryption_t;
-typedef uint8_t csrk_t[16];
+using ble::csrk_t;
 
 class SecurityManager {
 public:
@@ -183,7 +183,7 @@ public:
         // Keys
         //
 
-        virtual void signingKey(connection_handle_t handle, const csrk_t csrk, bool authenticated) {
+        virtual void signingKey(connection_handle_t handle, const csrk_t *csrk, bool authenticated) {
             (void)handle;
             (void)csrk;
             (void)authenticated;
