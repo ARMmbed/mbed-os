@@ -371,8 +371,9 @@ uint32_t CLK_SetCoreClock(uint32_t u32Hclk)
        Select HCLK clock source divider as 1
        and update system core clock
     */
-    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL, CLK_CLKDIV0_HCLK(1UL));
-
+//    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_PLL, CLK_CLKDIV0_HCLK(1UL));
+    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC48, CLK_CLKDIV0_HCLK(1UL)); /* To use HIRC instead of PLL to avoid reset halt issue in A version */
+    
     /* Disable HIRC if HIRC is disabled before setting core clock */
     if(u32HIRCSTB == 0UL)
     {
