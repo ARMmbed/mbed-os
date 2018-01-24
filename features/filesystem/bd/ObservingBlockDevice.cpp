@@ -91,6 +91,11 @@ bd_size_t ObservingBlockDevice::get_erase_size() const
     return _bd->get_erase_size();
 }
 
+int ObservingBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
+}
+
 bd_size_t ObservingBlockDevice::size() const
 {
     return _bd->size();

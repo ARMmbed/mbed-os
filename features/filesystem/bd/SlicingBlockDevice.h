@@ -99,7 +99,8 @@ public:
 
     /** Erase blocks on a block device
      *
-     *  The state of an erased block is undefined until it has been programmed
+     *  The state of an erased block is undefined until it has been programmed,
+     *  unless get_erase_value returns a non-negative byte value
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
@@ -126,6 +127,17 @@ public:
      *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size() const;
+
+    /** Get the value of storage when erased
+     *
+     *  If get_erase_value returns a non-negative byte value, the underlying
+     *  storage will be set to that value when erased, and storage containing
+     *  that value can be programmed without another erase.
+     *
+     *  @return         The value of storage when erased, or -1 if the value of
+     *                  erased storage can't be relied on
+     */
+    virtual int get_erase_value() const;
 
     /** Get the total size of the underlying device
      *
