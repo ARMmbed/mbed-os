@@ -1,6 +1,7 @@
 {
+    "name": "bl",
     "target_overrides": {
-        "K64F": {
+        "LPC1768": {
             "target.bootloader_img": "does_not_exists.bin",
             "target.restrict_size": "0xFFFFF"
         }
