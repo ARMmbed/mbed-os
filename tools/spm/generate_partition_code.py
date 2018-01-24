@@ -2,17 +2,14 @@
 import glob
 import itertools
 import json
-import logging
 import os
-from os.path import normpath, join as path_join
+from os.path import join as path_join
 
 from jinja2 import Environment, FileSystemLoader
 from jsonschema import validate
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = path_join(SCRIPT_DIR, 'templates')
-
-logger = logging.getLogger('uVisor')
 
 
 def assert_int(num):
@@ -26,7 +23,11 @@ def assert_int(num):
         return num
     num_str = str(num)
     radix = 16 if num_str.lower().startswith('0x') else 10
-    return int(num_str, radix) if int(num_str, radix) <= 0x7FFFFFFF else int(num_str, radix) - 0x100000000
+    res = int(num_str, radix)
+    # Python converts str to int as a signed integer
+    if res > 0x7FFFFFFF:
+        res -= 0x100000000
+    return res
 
 
 class SecureFunction(object):
@@ -237,6 +238,11 @@ class Manifest(object):
         validate(manifest, partition_schema)
         manifest_dir = os.path.dirname(manifest_file)
 
+        source_files = [os.path.normpath(path_join(manifest_dir, src_file)) for src_file in manifest['source_files']]
+        mmio_regions = [MmioRegion(**mmio_region) for mmio_region in manifest.get('mmio_regions', [])]
+        secure_functions = [SecureFunction(**sf) for sf in manifest.get('secure_functions', [])]
+        irqs = [Irq(**irq) for irq in manifest.get('irqs', [])]
+
         return Manifest(
             manifest_file=manifest_file,
             name=manifest['name'],
@@ -246,11 +252,11 @@ class Manifest(object):
             heap_size=assert_int(manifest['heap_size']),
             stack_size=assert_int(manifest['stack_size']),
             entry_point=manifest['entry_point'],
-            source_files=[normpath(path_join(manifest_dir, src_file)) for src_file in manifest['source_files']],
-            mmio_regions=[MmioRegion(**mmio_region) for mmio_region in manifest.get('mmio_regions', [])],
-            secure_functions=[SecureFunction(**sf) for sf in manifest.get('secure_functions', [])],
+            source_files=source_files,
+            mmio_regions=mmio_regions,
+            secure_functions=secure_functions,
             extern_sfids=manifest.get('extern_sfids', []),
-            irqs=[Irq(**irq) for irq in manifest.get('irqs', [])]
+            irqs=irqs
         )
 
 
