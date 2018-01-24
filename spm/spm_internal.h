@@ -62,13 +62,13 @@ typedef struct spm {
  * Structure containing the currently active message for a Secure Function.
  */
 typedef struct active_msg {
-    SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
     ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
     uint8_t tx_buf[MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT]; /* combined iovecs of the message.*/
     uint32_t tx_size; /* Size in bytes of the message payload.*/
     void *rx_buf; /* Pointer to the client's response buffer.*/
     size_t rx_size; /* Size in bytes of expected response data.*/
     psa_error_t rc; /* Return code to be filled by the Secure Function.*/
+    SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } active_msg_t;
 
 /*
