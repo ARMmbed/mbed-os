@@ -326,15 +326,10 @@ class GNUARMNetbeans(Exporter):
                 # evaluate all matched items (from current and previous list)
                 matched = []
                 # Compare the Element in Previous Dir with the Elements in Current Dir
-                # and add the Differences to the match-List
-                if len(dir_list) <= len(prev_dir_list):
-                    for idx, element in enumerate(dir_list):
-                        if element == prev_dir_list[idx]:
-                            matched.append(element)
-                else:
-                    for idx, element in enumerate(prev_dir_list):
-                        if element == dir_list[idx]:
-                            matched.append(element)
+                # and add the equal Elements to the match-List
+                for elem_prev_dir, elem_cur_dir in zip(prev_dir_list, dir_list):
+                    if elem_prev_dir == elem_cur_dir:
+                        matched.append(elem_cur_dir)
 
                 # calculate difference between matched and length
                 diff = dir_depth - len(matched)
