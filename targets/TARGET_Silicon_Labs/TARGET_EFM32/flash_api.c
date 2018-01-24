@@ -35,6 +35,7 @@
 int32_t flash_init(flash_t *obj)
 {
     (void)obj;
+    MSC_Init();
     return 0;
 }
 
@@ -46,6 +47,7 @@ int32_t flash_init(flash_t *obj)
 int32_t flash_free(flash_t *obj)
 {
     (void)obj;
+    MSC_Deinit();
     return 0;
 }
 
