@@ -18,6 +18,10 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
+#include <stdint.h>
+#include "PinNames.h"
+#include "Callback.h"
+
 /**
  * Structure to hold RF controls for LoRa Radio.
  * SX1276 have an extra control for the crystal (used in DOSCO-L072CZ)
