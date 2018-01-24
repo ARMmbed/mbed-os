@@ -59,6 +59,15 @@ public:
      */
     virtual int deinit() = 0;
 
+    /** Ensure data on storage is in sync with the driver
+     *
+     *  @return         0 on success or a negative error code on failure
+     */
+    virtual int sync()
+    {
+        return 0;
+    }
+
     /** Read blocks from a block device
      *
      *  If a failure occurs, it is not possible to determine how many bytes succeeded
