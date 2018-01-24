@@ -40,17 +40,6 @@ public:
      */
     void TimerTimeCounterInit(events::EventQueue *queue);
 
-   /*!
-    * \brief Initializes the timer object.
-    *
-    * \remark The TimerSetValue function must be called before starting the timer.
-    *         This function initializes the timestamp and reloads the value at 0.
-    *
-    * \param [in] obj          The structure containing the timer object parameters.
-    * \param [in] callback     The function callback called at the end of the timeout.
-    */
-    void TimerInit( timer_event_t *obj, mbed::Callback<void()> callback);
-
     /*!
      * \brief Read the current time.
      *
@@ -66,29 +55,31 @@ public:
      */
     lorawan_time_t TimerGetElapsedTime( lorawan_time_t savedTime );
 
-  
+    /*!
+     * \brief Initializes the timer object.
+     *
+     * \remark The TimerSetValue function must be called before starting the timer.
+     *         This function initializes the timestamp and reloads the value at 0.
+     *
+     * \param [in] obj          The structure containing the timer object parameters.
+     * \param [in] callback     The function callback called at the end of the timeout.
+     */
+     void TimerInit( timer_event_t &obj, mbed::Callback<void()> callback);
 
     /*!
      * \brief Starts and adds the timer object to the list of timer events.
      *
      * \param [in] obj The structure containing the timer object parameters.
+     * \param [in] value The new timeout value.
      */
-    void TimerStart( timer_event_t *obj );
+    void TimerStart( timer_event_t &obj, const uint32_t timeout );
 
     /*!
      * \brief Stops and removes the timer object from the list of timer events.
      *
      * \param [in] obj The structure containing the timer object parameters.
      */
-    void TimerStop( timer_event_t *obj );
-
-    /*!
-     * \brief Set a new timeout value.
-     *
-     * \param [in] obj   The structure containing the timer object parameters.
-     * \param [in] value The new timeout value.
-     */
-    void TimerSetValue( timer_event_t *obj, uint32_t value );
+    void TimerStop( timer_event_t &obj );
 
 private:
     events::EventQueue *_queue;

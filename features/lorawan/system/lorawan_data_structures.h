@@ -24,9 +24,7 @@
 #define LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_
 
 #include <inttypes.h>
-#include "drivers/Ticker.h"
 #include "platform/Callback.h"
-#include "platform/SingletonPtr.h"
 
 /*!
  * \brief Timer time variable definition
@@ -2052,9 +2050,8 @@ typedef struct {
  * \brief Timer object description
  */
 typedef struct {
-    uint32_t value;
     mbed::Callback<void()> callback;
-    SingletonPtr<mbed::Ticker> timer;
+    int timer_id;
 } timer_event_t;
 
 /*!
