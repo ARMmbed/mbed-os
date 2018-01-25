@@ -558,7 +558,7 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
 
 // Warning: the list of UART/USART in this function must be aligned with the list
 // written in serial_init function.
-inline int8_t get_uart_index(UARTName uart_name)
+int8_t get_uart_index(UARTName uart_name)
 {
     uint8_t index = 0;
 
