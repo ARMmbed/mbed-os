@@ -1231,9 +1231,31 @@ class mbedToolchain:
 
         return None
 
+    def add_regions(self):
+        """Add regions to the build profile, if there are any.
+        """
+        print("Using regions in this build:")
+        for region in self.config.regions:
+            for define in [(region.name.upper() + "_ADDR", region.start),
+                           (region.name.upper() + "_SIZE", region.size)]:
+                define_string = "-D%s=0x%x" %  define
+                self.cc.append(define_string)
+                self.cppc.append(define_string)
+                self.flags["common"].append(define_string)
+            if region.active:
+                for define in [("MBED_APP_START", region.start),
+                               ("MBED_APP_SIZE", region.size)]:
+                    define_string = self.make_ld_define(*define)
+                    self.ld.append(define_string)
+                    self.flags["ld"].append(define_string)
+            print("  Region %s size 0x%x, offset 0x%x"
+                    % (region.name, region.size, region.start))
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
+        if self.config.has_regions:
+            self.add_regions()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).

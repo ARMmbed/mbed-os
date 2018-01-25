@@ -284,25 +284,6 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-def add_regions_to_toolchain(toolchain):
-    """Add regions to the build profile, if there are any.
-
-    Positional Arguments:
-    toolchain - the toolchain to add the region defines to
-    """
-    regions = list(toolchain.config.regions)
-    for region in regions:
-        for define in [(region.name.upper() + "_ADDR", region.start),
-                       (region.name.upper() + "_SIZE", region.size)]:
-            toolchain.cc.append("-D%s=0x%x" %  define)
-            toolchain.cppc.append("-D%s=0x%x" %  define)
-            if region.active:
-                toolchain.ld.append(toolchain.make_ld_define(*define))
-    print("Using regions in this build:")
-    for region in regions:
-        print("  Region %s size 0x%x, offset 0x%x"
-              % (region.name, region.size, region.start))
-
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -429,9 +410,6 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
-
-    if toolchain.config.has_regions:
-        add_regions_to_toolchain(toolchain)
 
     if  (hasattr(toolchain.target, "release_versions") and
             "5" not in toolchain.target.release_versions and
