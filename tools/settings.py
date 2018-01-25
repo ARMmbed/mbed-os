@@ -54,6 +54,9 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+# Print compiler warnings and errors as link format
+PRINT_COMPILER_OUTPUT_AS_LINK = False
+
 CLI_COLOR_MAP = {
     "warning": "yellow",
     "error"  : "red"

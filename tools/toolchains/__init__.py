@@ -31,7 +31,7 @@ from distutils.spawn import find_executable
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
-from tools.settings import MBED_ORG_USER
+from tools.settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 import tools.hooks as hooks
 from tools.memap import MemapParser
 from hashlib import md5
@@ -458,8 +458,13 @@ class mbedToolchain:
 
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
-            event['file'] = basename(event['file'])
-            msg = '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
+
+            if PRINT_COMPILER_OUTPUT_AS_LINK:
+                event['file'] = getcwd() + event['file'].strip('.')
+                msg = '[%(severity)s] %(file)s:%(line)s:%(col)s: %(message)s' % event
+            else:
+                event['file'] = basename(event['file'])
+                msg = '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
 
         elif event['type'] == 'progress':
             if 'percent' in event:
