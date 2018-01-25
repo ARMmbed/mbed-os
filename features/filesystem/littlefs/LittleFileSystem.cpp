@@ -102,7 +102,8 @@ static int lfs_bd_erase(const struct lfs_config *c, lfs_block_t block)
 
 static int lfs_bd_sync(const struct lfs_config *c)
 {
-    return 0;
+    BlockDevice *bd = (BlockDevice *)c->context;
+    return bd->sync();
 }
 
 
