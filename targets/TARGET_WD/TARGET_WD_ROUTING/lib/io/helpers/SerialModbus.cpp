@@ -31,11 +31,11 @@ SerialModbus::SerialModbus(PinName tx, PinName rx, int baud, int stopBits, Seria
 	
 	_serial.format(bits, parity, stopBits);
 	
-	this->_serial_raw_buffer = new char[MODBUS_DMA_RX_RAW_BUFFER_LENGTH]();
-	this->_serial_frame_buffer = new char[MODBUS_DMA_RX_FRAME_BUFFER_LENGTH]();
+	_serial_raw_buffer = new char[MODBUS_DMA_RX_RAW_BUFFER_LENGTH]();
+	_serial_frame_buffer = new char[MODBUS_DMA_RX_FRAME_BUFFER_LENGTH]();
 	
-	this->_serial.startRead(
-		this->_serial_raw_buffer,
+	_serial.startRead(
+		_serial_raw_buffer,
 		512
 	);
 
@@ -192,18 +192,19 @@ SerialBase::Parity SerialModbus::GetParity(){
 }
 
 void SerialModbus::_serial_tx_complete(int evt){
+	_rs485_en.write(0);
 	_tx_complete_sem.release();
 }
 
 Modbus::ModbusErrorCode SerialModbus::write_request(uint8_t * request_datagram, size_t length){
 	
 	_rs485_en.write(1);
-	this->_serial.write(request_datagram, length, callback(this, &SerialModbus::_serial_tx_complete));
-	this->_tx_complete_sem.wait(MODBUS_DMA_WRITE_TIMEOUT_MS);
+	_serial.write(request_datagram, length, callback(this, &SerialModbus::_serial_tx_complete));
+	_tx_complete_sem.wait(MODBUS_DMA_WRITE_TIMEOUT_MS);
 	_rs485_en.write(0);
 	
 	size_t echo_length;
-	_serial.popFrame(this->_serial_frame_buffer, &echo_length, MODBUS_DMA_ECHO_TIMEOUT_MS);
+	_serial.popFrame(_serial_frame_buffer, &echo_length, MODBUS_DMA_ECHO_TIMEOUT_MS);
 	
 	if(echo_length == 0){
 		return Modbus::Timeout;
@@ -214,7 +215,7 @@ Modbus::ModbusErrorCode SerialModbus::write_request(uint8_t * request_datagram, 
 	}
 	
 	for(uint i = 0; i < length; i++){
-		if (request_datagram[i] != this->_serial_frame_buffer[i]) {
+		if (request_datagram[i] != _serial_frame_buffer[i]) {
 			return Modbus::Echo;
 		}
 	}
@@ -226,7 +227,7 @@ Modbus::ModbusErrorCode SerialModbus::write_request(uint8_t * request_datagram, 
 Modbus::ModbusErrorCode SerialModbus::read_response(uint8_t * response_datagram, size_t length){
 	
 	size_t response_length;
-	_serial.popFrame(this->_serial_frame_buffer, &response_length, MODBUS_DMA_READ_TIMEOUT_MS);
+	_serial.popFrame(_serial_frame_buffer, &response_length, MODBUS_DMA_READ_TIMEOUT_MS);
 	
 	if(response_length == 0){
 		return Modbus::Timeout;
@@ -236,7 +237,7 @@ Modbus::ModbusErrorCode SerialModbus::read_response(uint8_t * response_datagram,
 		return Modbus::Unknown;
 	}
 	
-	memcpy(response_datagram, this->_serial_frame_buffer, length);
+	memcpy(response_datagram, _serial_frame_buffer, length);
 	
 	return Modbus::Success;
 	
