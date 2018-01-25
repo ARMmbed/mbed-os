@@ -122,10 +122,14 @@ static void uart3_8_irq(void)
 #endif
 #else // TARGET_STM32F070RB, TARGET_STM32F072RB
 #if defined(USART3_BASE)
-  uart_irq(2);
+  if (USART3->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+      uart_irq(2);
+  }
 #endif
 #if defined(USART4_BASE)
-  uart_irq(3);
+  if (USART4->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+      uart_irq(3);
+  }
 #endif
 #endif
 }
