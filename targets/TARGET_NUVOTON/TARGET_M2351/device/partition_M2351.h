@@ -123,11 +123,11 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START3     0x30010000
+#define SAU_INIT_START3     0x3000C000
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END3       0x3001FFFF
+#define SAU_INIT_END3       0x30017FFF
 /*
 //     <o>Region is
 //         <0=>Non-Secure
@@ -367,7 +367,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS1_VAL      0x0C
+#define NVIC_INIT_ITNS1_VAL      0x1C
 
 /*
     Initialize ITNS 2 (Interrupts 0..31)
@@ -408,7 +408,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS2_VAL      0x800
+#define NVIC_INIT_ITNS2_VAL      0x000
 
 
 /*
@@ -603,7 +603,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.20>  UART4      <0=> Secure <1=> Non-Secure
 //   <o.21>  UART5      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET3_VAL      0x00200000
+#define SCU_INIT_PNSSET3_VAL      0x00010000
 /*
     PNSSET4
 */
@@ -697,7 +697,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.14> 0x0001C000 ~ 0x0001DFFF      <0=> Secure <1=> Non-Secure
 //   <o.15> 0x0001E000 ~ 0x0001FFFF      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_SRAMNSSET_VAL      0x0000FF00
+#define SCU_INIT_SRAMNSSET_VAL      0x00000FC0
 
 /*
 // </h>
