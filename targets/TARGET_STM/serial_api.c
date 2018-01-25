@@ -369,32 +369,30 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *obj_s = SERIAL_S(obj);
 
     obj_s->baudrate = baudrate;
-    if (init_uart(obj) != HAL_OK) {
-
 #if defined(LPUART1_BASE)
         /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
-        if (obj_s->uart == LPUART_1) {
-            /* Try to change LPUART clock source */
-            RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-            if (baudrate == 9600) {
-                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
-                    return;
-                }
-            }
-            else {
-                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
-                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
-                    return;
-                }
-            }
+    if (obj_s->uart == LPUART_1) {
+        /* If baudrate is lower than 9600 try to change to LSE */
+        RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+        if (baudrate <= 9600 && __HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+        } else {
+            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
         }
+        if (init_uart(obj) == HAL_OK) {
+                return;
+        }
+        /* Change LPUART clock source and try again */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+        PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+    }
 #endif /* LPUART1_BASE */
-
+    if (init_uart(obj) != HAL_OK) {
         debug("Cannot initialize UART with baud rate %u\n", baudrate);
     }
 }
