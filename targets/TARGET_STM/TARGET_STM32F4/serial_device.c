@@ -168,59 +168,63 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
-    switch (obj_s->index) {
-        case 0:
+    switch (obj_s->uart) {
+#if defined(USART1_BASE)
+        case UART_1:
             irq_n = USART1_IRQn;
             vector = (uint32_t)&uart1_irq;
             break;
-        case 1:
+#endif
+#if defined(USART2_BASE)
+        case UART_2:
             irq_n = USART2_IRQn;
             vector = (uint32_t)&uart2_irq;
             break;
+#endif
 #if defined(USART3_BASE)
-        case 2:
+        case UART_3:
             irq_n = USART3_IRQn;
             vector = (uint32_t)&uart3_irq;
             break;
 #endif
 #if defined(UART4_BASE)
-        case 3:
+        case UART_4:
             irq_n = UART4_IRQn;
             vector = (uint32_t)&uart4_irq;
             break;
 #endif
 #if defined(UART5_BASE)
-        case 4:
+        case UART_5:
             irq_n = UART5_IRQn;
             vector = (uint32_t)&uart5_irq;
             break;
 #endif
 #if defined(USART6_BASE)
-        case 5:
+        case UART_6:
             irq_n = USART6_IRQn;
             vector = (uint32_t)&uart6_irq;
             break;
 #endif
 #if defined(UART7_BASE)
-        case 6:
+        case UART_7:
             irq_n = UART7_IRQn;
             vector = (uint32_t)&uart7_irq;
             break;
 #endif
 #if defined(UART8_BASE)
-        case 7:
+        case UART_8:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
             break;
 #endif
 #if defined(UART9_BASE)
-        case 8:
+        case UART_9:
             irq_n = UART9_IRQn;
             vector = (uint32_t)&uart9_irq;
             break;
 #endif
 #if defined(UART10_BASE)
-        case 9:
+        case UART_10:
             irq_n = UART10_IRQn;
             vector = (uint32_t)&uart10_irq;
             break;
@@ -233,8 +237,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         } else { // TxIrq
             __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
         }
-            NVIC_SetVector(irq_n, vector);
-            NVIC_EnableIRQ(irq_n);
+        NVIC_SetVector(irq_n, vector);
+        NVIC_EnableIRQ(irq_n);
 
     } else { // disable
         int all_disabled = 0;
@@ -253,7 +257,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         }
 
         if (all_disabled) {
-          NVIC_DisableIRQ(irq_n);
+            NVIC_DisableIRQ(irq_n);
         }
     }
 }
@@ -284,7 +288,7 @@ void serial_clear(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
+
     huart->TxXferCount = 0;
     huart->RxXferCount = 0;
 }
@@ -293,7 +297,7 @@ void serial_break_set(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
+
     HAL_LIN_SendBreak(huart);
 }
 
