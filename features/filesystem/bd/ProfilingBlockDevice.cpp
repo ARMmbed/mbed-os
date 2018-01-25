@@ -35,6 +35,11 @@ int ProfilingBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ProfilingBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ProfilingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     int err = _bd->read(b, addr, size);

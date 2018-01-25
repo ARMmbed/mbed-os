@@ -53,6 +53,11 @@ int ExhaustibleBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ExhaustibleBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ExhaustibleBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);

@@ -45,6 +45,11 @@ int ReadOnlyBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ReadOnlyBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);
