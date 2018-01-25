@@ -38,6 +38,9 @@ serial_t stdio_uart;
 extern UART_HandleTypeDef uart_handlers[];
 extern uint32_t serial_irq_ids[];
 
+// Utility functions
+HAL_StatusTypeDef init_uart(serial_t *obj);
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -201,7 +204,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
     IndexNumber++;
 #endif
-
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
@@ -423,38 +425,6 @@ void serial_baud(serial_t *obj, int baudrate)
     }
 }
 
-HAL_StatusTypeDef init_uart(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    huart->Instance = (USART_TypeDef *)(obj_s->uart);
-
-    huart->Init.BaudRate     = obj_s->baudrate;
-    huart->Init.WordLength   = obj_s->databits;
-    huart->Init.StopBits     = obj_s->stopbits;
-    huart->Init.Parity       = obj_s->parity;
-#if DEVICE_SERIAL_FC
-    huart->Init.HwFlowCtl    = obj_s->hw_flow_ctl;
-#else
-    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-#endif
-    huart->Init.OverSampling = UART_OVERSAMPLING_16;
-    huart->TxXferCount       = 0;
-    huart->TxXferSize        = 0;
-    huart->RxXferCount       = 0;
-    huart->RxXferSize        = 0;
-
-    if (obj_s->pin_rx == NC) {
-        huart->Init.Mode = UART_MODE_TX;
-    } else if (obj_s->pin_tx == NC) {
-        huart->Init.Mode = UART_MODE_RX;
-    } else {
-        huart->Init.Mode = UART_MODE_TX_RX;
-    }
-
-    return HAL_UART_Init(huart);
-}
-
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -549,5 +519,42 @@ void serial_break_clear(serial_t *obj)
 {
     (void)obj;
 }
+
+/******************************************************************************
+ * UTILITY FUNCTIONS
+ ******************************************************************************/
+
+HAL_StatusTypeDef init_uart(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
+    huart->Instance = (USART_TypeDef *)(obj_s->uart);
+
+    huart->Init.BaudRate     = obj_s->baudrate;
+    huart->Init.WordLength   = obj_s->databits;
+    huart->Init.StopBits     = obj_s->stopbits;
+    huart->Init.Parity       = obj_s->parity;
+#if DEVICE_SERIAL_FC
+    huart->Init.HwFlowCtl    = obj_s->hw_flow_ctl;
+#else
+    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+#endif
+    huart->Init.OverSampling = UART_OVERSAMPLING_16;
+    huart->TxXferCount       = 0;
+    huart->TxXferSize        = 0;
+    huart->RxXferCount       = 0;
+    huart->RxXferSize        = 0;
+
+    if (obj_s->pin_rx == NC) {
+        huart->Init.Mode = UART_MODE_TX;
+    } else if (obj_s->pin_tx == NC) {
+        huart->Init.Mode = UART_MODE_RX;
+    } else {
+        huart->Init.Mode = UART_MODE_TX_RX;
+    }
+
+    return HAL_UART_Init(huart);
+}
+
 
 #endif /* DEVICE_SERIAL */
