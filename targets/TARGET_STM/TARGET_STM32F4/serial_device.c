@@ -49,97 +49,106 @@ UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
+// Defined in serial_api.c
+inline int8_t get_uart_index(int uart_base);
+
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int id)
+static void uart_irq(int uart_base)
 {
-    UART_HandleTypeDef * huart = &uart_handlers[id];
-    
-    if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE) != RESET) {
-                irq_handler(serial_irq_ids[id], TxIrq);
+    int8_t id = get_uart_index(uart_base);
+    if (id >= 0) {
+        UART_HandleTypeDef * huart = &uart_handlers[id];
+        if (serial_irq_ids[id] != 0) {
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE) != RESET) {
+                    irq_handler(serial_irq_ids[id], TxIrq);
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
-                irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
+                    irq_handler(serial_irq_ids[id], RxIrq);
+                    /* Flag has been cleared when reading the content */
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
-                volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+                    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
+                }
             }
         }
     }
 }
 
+#if defined(USART1_BASE)
 static void uart1_irq(void)
 {
-    uart_irq(0);
+    uart_irq(USART1_BASE);
 }
+#endif
 
+#if defined(USART2_BASE)
 static void uart2_irq(void)
 {
-    uart_irq(1);
+    uart_irq(USART2_BASE);
 }
+#endif
 
 #if defined(USART3_BASE)
 static void uart3_irq(void)
 {
-    uart_irq(2);
+    uart_irq(USART3_BASE);
 }
 #endif
 
 #if defined(UART4_BASE)
 static void uart4_irq(void)
 {
-    uart_irq(3);
+    uart_irq(UART4_BASE);
 }
 #endif
 
 #if defined(UART5_BASE)
 static void uart5_irq(void)
 {
-    uart_irq(4);
+    uart_irq(UART5_BASE);
 }
 #endif
 
 #if defined(USART6_BASE)
 static void uart6_irq(void)
 {
-    uart_irq(5);
+    uart_irq(USART6_BASE);
 }
 #endif
 
 #if defined(UART7_BASE)
 static void uart7_irq(void)
 {
-    uart_irq(6);
+    uart_irq(UART7_BASE);
 }
 #endif
 
 #if defined(UART8_BASE)
 static void uart8_irq(void)
 {
-    uart_irq(7);
+    uart_irq(UART8_BASE);
 }
 #endif
 
 #if defined(UART9_BASE)
 static void uart9_irq(void)
 {
-    uart_irq(8);
+    uart_irq(UART9_BASE);
 }
 #endif
 
 #if defined(UART10_BASE)
 static void uart10_irq(void)
 {
-    uart_irq(9);
+    uart_irq(UART10_BASE);
 }
 #endif
 
@@ -163,7 +172,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             irq_n = USART1_IRQn;
             vector = (uint32_t)&uart1_irq;
             break;
-
         case 1:
             irq_n = USART2_IRQn;
             vector = (uint32_t)&uart2_irq;
