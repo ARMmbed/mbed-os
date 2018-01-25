@@ -25,7 +25,7 @@ struct km_fbuf_s {
    uint32_t pwracc;
    /** DC Accumulator Status at address offset 0x00C, read-only */
    uint32_t dcacc;
-   /** Write Pointer Match Interrupt Settings. Match when (Mask AND Value) = WrPtr at address offset 0x010, read-write */
+   /** Write Pointer Match Interrupt Settings. Match when reg Value = (WrPtr AND Mask) at address offset 0x010, read-write */
    uint32_t match;
    /** Client Request address error checking control at address offset 0x014, read-write */
    uint32_t clierrctrl;

@@ -45,7 +45,7 @@ struct usim_s {
    uint32_t lowrsttime;
    /** This is a 16-bit read/write register that defines the maximum time between the rising edge of the SCRSTN signal and the start of ATR response. The value is in terms of smart card clock cycles. Bits (7:0) of this register are hard-wired to zero. at address offset 0x038, read-write */
    uint32_t atrstartlimit;
-   /** This is a 16-bit, read/write register that sets the maximum time between the leading edges of two, consecutive characters. The value is in ETUs. at address offset 0x03C, read-write */
+   /** This is a 16-bit, read/write register that sets the maximum time between the leading edges of two, consecutive characters. Sets LSBs c2clim 15:0. See also c2climhi for c2clim 23:16. at address offset 0x03C, read-write */
    uint32_t c2clim;
    /** This is a 2-bit read/write register that enables assertion of each interrupt bit individually in the Interrupt Status Register. at address offset 0x040, read-write */
    uint32_t inten2;
@@ -58,7 +58,11 @@ struct usim_s {
    /** This is a 16-bit, read-only register that provides the number of bytes stored in the RX FIFO. at address offset 0x050, read-write */
    uint32_t rxfifocnt;
    /** Reserved space */
-   uint8_t fill0[428];
+   uint8_t fill0[4];
+   /** This is a 16-bit, read/write register that sets the maximum time between the leading edges of two, consecutive characters. Sets MSBs c2clim[23:16]. See also c2clim for c2clim[15:0] at address offset 0x058, read-write */
+   uint32_t c2climhi;
+   /** Reserved space */
+   uint8_t fill1[420];
    /** This is an 8-bit, read/write register that provides access to the receive and transmit FIFO buffers. The TX FIFO is accessed during the APB write transfer. The RX FIFO is accessed during the APB read transfer. All read/write accesses at address range 200h-3ffh are redirected to the FIFO. at address offset 0x200, read-write */
    uint32_t fifo[64];
 };
@@ -290,6 +294,10 @@ struct usim_s {
 /** bit field defines for usim_s#rxfifocnt */
 #define USIM_RXFIFOCNT_RXFIFOCNT_OFFSET 0
 #define USIM_RXFIFOCNT_RXFIFOCNT_SIZE 16
+
+/** bit field defines for usim_s#c2climhi */
+#define USIM_C2CLIMHI_ATRSTARTLIMIT_OFFSET 0
+#define USIM_C2CLIMHI_ATRSTARTLIMIT_SIZE 8
 
 /** bit field defines for usim_s#fifo */
 #define USIM_FIFO_FIFO_OFFSET 0
