@@ -1294,8 +1294,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F746ZG",
-        "bootloader_supported": true
+        "device_name": "STM32F746ZG"
     },
     "NUCLEO_F756ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -1351,8 +1350,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F767ZI",
-        "bootloader_supported": true
+        "device_name": "STM32F767ZI"
     },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
