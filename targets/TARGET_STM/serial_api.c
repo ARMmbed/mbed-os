@@ -556,5 +556,87 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
     return HAL_UART_Init(huart);
 }
 
+// Warning: the list of UART/USART in this function must be aligned with the list
+// written in serial_init function.
+inline int8_t get_uart_index(int uart_base)
+{
+    uint8_t index = 0;
+#if defined(USART1_BASE)
+    if (uart_base == USART1_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART2_BASE)
+    if (uart_base == USART2_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART3_BASE)
+    if (uart_base == USART3_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART4_BASE)
+    if (uart_base == UART4_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART4_BASE)
+    if (uart_base == USART4_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART5_BASE)
+    if (uart_base == UART5_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART5_BASE)
+    if (uart_base == USART5_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART6_BASE)
+    if (uart_base == USART6_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART7_BASE)
+    if (uart_base == UART7_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART7_BASE)
+    if (uart_base == USART7_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART8_BASE)
+    if (uart_base == UART8_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART8_BASE)
+    if (uart_base == USART8_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART9_BASE)
+    if (uart_base == UART9_BASE) return index;
+    index++;
+#endif
+
+#if defined(UART10_BASE)
+    if (uart_base == UART10_BASE) return index;
+    index++;
+#endif
+
+#if defined(LPUART1_BASE)
+    if (uart_base == LPUART1_BASE) return index;
+    index++;
+#endif
+
+    return -1;
+}
 
 #endif /* DEVICE_SERIAL */
