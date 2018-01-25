@@ -174,7 +174,7 @@ void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_RxFifoFullCallback(UART_HandleTypeDef *huart);
 void HAL_UARTEx_TxFifoEmptyCallback(UART_HandleTypeDef *huart);
 #endif
-  
+
 /**
   * @}
   */
@@ -186,7 +186,13 @@ void HAL_UARTEx_TxFifoEmptyCallback(UART_HandleTypeDef *huart);
 /* Peripheral Control functions  **********************************************/
 HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart);
+/* MBED */
+HAL_StatusTypeDef HAL_UARTEx_EnableClockStopMode(UART_HandleTypeDef *huart);
+/* MBED */
 HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart);
+/* MBED */
+HAL_StatusTypeDef HAL_UARTEx_DisableClockStopMode(UART_HandleTypeDef *huart);
+/* MBED */
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength);
 
 #if defined(USART_CR2_SLVEN)
