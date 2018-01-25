@@ -56,9 +56,10 @@ int8_t get_uart_index(int uart_base);
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int uart_base)
+static void uart_irq(UARTName uart_name)
 {
-    int8_t id = get_uart_index(uart_base);
+    int8_t id = get_uart_index(uart_name);
+
     if (id >= 0) {
         UART_HandleTypeDef * huart = &uart_handlers[id];
         if (serial_irq_ids[id] != 0) {
@@ -85,70 +86,70 @@ static void uart_irq(int uart_base)
 #if defined(USART1_BASE)
 static void uart1_irq(void)
 {
-    uart_irq(USART1_BASE);
+    uart_irq(UART_1);
 }
 #endif
 
 #if defined(USART2_BASE)
 static void uart2_irq(void)
 {
-    uart_irq(USART2_BASE);
+    uart_irq(UART_2);
 }
 #endif
 
 #if defined(USART3_BASE)
 static void uart3_irq(void)
 {
-    uart_irq(USART3_BASE);
+    uart_irq(UART_3);
 }
 #endif
 
 #if defined(UART4_BASE)
 static void uart4_irq(void)
 {
-    uart_irq(UART4_BASE);
+    uart_irq(UART_4);
 }
 #endif
 
 #if defined(UART5_BASE)
 static void uart5_irq(void)
 {
-    uart_irq(UART5_BASE);
+    uart_irq(UART_5);
 }
 #endif
 
 #if defined(USART6_BASE)
 static void uart6_irq(void)
 {
-    uart_irq(USART6_BASE);
+    uart_irq(UART_6);
 }
 #endif
 
 #if defined(UART7_BASE)
 static void uart7_irq(void)
 {
-    uart_irq(UART7_BASE);
+    uart_irq(UART_7);
 }
 #endif
 
 #if defined(UART8_BASE)
 static void uart8_irq(void)
 {
-    uart_irq(UART8_BASE);
+    uart_irq(UART_8);
 }
 #endif
 
 #if defined(UART9_BASE)
 static void uart9_irq(void)
 {
-    uart_irq(UART9_BASE);
+    uart_irq(UART_9);
 }
 #endif
 
 #if defined(UART10_BASE)
 static void uart10_irq(void)
 {
-    uart_irq(UART10_BASE);
+    uart_irq(UART_10);
 }
 #endif
 
