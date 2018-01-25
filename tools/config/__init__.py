@@ -41,6 +41,7 @@ except NameError:
     unicode = str
 PATH_OVERRIDES = set(["target.bootloader_img"])
 BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
+                            "target.header_format",
                             "target.mbed_app_start", "target.mbed_app_size"])
 
 # Base class for all configuration exceptions
@@ -568,6 +569,29 @@ class Config(object):
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
+    @staticmethod
+    def _header_size(format):
+        size_in_bytes = 0
+        for _, _, subtype, _ in format:
+            try:
+                size_in_bytes += int(subtype) // 8
+            except:
+                if subtype == "CRCITT32":
+                    size_in_bytes += 32 // 8
+                elif subtype == "SHA256":
+                    size_in_bytes += 256 // 8
+                else:
+                    raise ValueError("target.header_format: subtype %s is not "
+                                     "understood" % subtype)
+        return size_in_bytes
+
+    def _make_header_region(self, start, header_format):
+        size = self._header_size(header_format)
+        region = Region("application_header", start, size, False, None)
+        start += size
+        start = ((start + 7) // 8) * 8
+        return (start, region)
+
     def _generate_bootloader_build(self, rom_start, rom_size):
         start = rom_start
         rom_end = rom_start + rom_size
@@ -588,11 +612,19 @@ class Config(object):
             yield Region("bootloader", rom_start, part_size, False,
                          filename)
             start = rom_start + part_size
+            if self.target.header_format:
+                start, region = self._make_header_region(
+                    start, self.target.header_format)
+                yield region
         if self.target.restrict_size is not None:
             new_size = int(self.target.restrict_size, 0)
             new_size = Config._align_floor(start + new_size, self.sectors) - start
             yield Region("application", start, new_size, True, None)
             start += new_size
+            if self.target.header_format:
+                start, region = self._make_header_region(
+                    start, self.target.header_format)
+                yield region
             yield Region("post_application", start, rom_end - start,
                          False, None)
         else:
