@@ -148,8 +148,43 @@ static uint32_t const * fs_flash_page_end_addr()
 {
     uint32_t const bootloader_addr = NRF_UICR->NRFFW[0];
 
-    return  (uint32_t*)((bootloader_addr != FS_ERASED_WORD) ? bootloader_addr :
-                                                              NRF_FICR->CODESIZE * FS_PAGE_SIZE);
+    /*********** HEADS UP MODIFICATION ************
+     * In some cases, the bootloader start address is not always aligned on page boundaries
+     * This is the current (1/2018) situation with the fw field update structure
+     * Image information is embedded in the first 0x300 bytes of the hex
+     * Therefore, execution cannot begin where the bootloader is installed (eg: 0x78000)
+     * But must instead begin from 0x78300...
+     * fstorage then allocates unaligned storage based on the unaligned bootloader start address...
+     * which is unusable since fstorage won't let you delete pages with addresses out of your range
+     * So this patch was put in place to make sure allocated memory is aligned
+     */
+
+    // Original code
+    //return  (uint32_t*)((bootloader_addr != FS_ERASED_WORD) ? bootloader_addr :
+    //                                                          NRF_FICR->CODESIZE * FS_PAGE_SIZE);
+
+    // Bootloader address is populated
+    if(bootloader_addr != FS_ERASED_WORD)
+      {
+	// Check if the bootloader address is aligned
+	if((bootloader_addr % FS_PAGE_SIZE) != 0)
+	  {
+	    // Bootloader address isn't aligned
+	    // Align the end address with the beginning of the whole page
+	    return (uint32_t*)(bootloader_addr - (bootloader_addr % FS_PAGE_SIZE));
+	  }
+	else
+	  {
+	    //Bootloader address is aligned... just return it
+	    return (uint32_t*)(bootloader_addr);
+	  }
+      }
+    else
+      {
+	// Bootloader doesn't even exist!
+	return (uint32_t*)(NRF_FICR->CODESIZE * FS_PAGE_SIZE);
+
+      }
 }
 
 
