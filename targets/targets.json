@@ -1088,19 +1088,14 @@
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "config": {
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value PB_6",
                 "value": "PB_6"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value PB_7",
                 "value": "PB_7"
             },
-            "stdio_uart": {
-                "help": "Value: UART_1",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
-             },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
@@ -1889,19 +1884,14 @@
                 "value": 1,
                 "macro_name": "MODEM_ON_BOARD_UART"
             },
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value PB_6",
                 "value": "PB_6"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value PB_7",
                 "value": "PB_7"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
-             }
+            }
         },
         "overrides": {
                  "lse_available": 0
