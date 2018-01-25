@@ -10,7 +10,7 @@ ___________________DEFINES_____________________________
 #define DEFAULT_PULSE_DURATION_FILTER_SIZE		9
 #define PULSE_DURATION_RESET_TIMEOUT_FACTOR		3
 #define SAMPLING_BUFFER_FILTER_SIZE				3
-#define SAMPLING_INTERVAL_MS					50
+#define SAMPLING_INTERVAL_MS					15
 
 /******************************************************
 ___________________IMPLEMENTATION______________________
