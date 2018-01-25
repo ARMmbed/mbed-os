@@ -123,7 +123,7 @@
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START3     0x3000C000
+#define SAU_INIT_START3     0x30006000
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
@@ -697,7 +697,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.14> 0x0001C000 ~ 0x0001DFFF      <0=> Secure <1=> Non-Secure
 //   <o.15> 0x0001E000 ~ 0x0001FFFF      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_SRAMNSSET_VAL      0x00000FC0
+#define SCU_INIT_SRAMNSSET_VAL      0x00000FF8
 
 /*
 // </h>
