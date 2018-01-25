@@ -29,7 +29,13 @@ ___________________IMPLEMENTATION______________________
 ******************************************************/
 static void donothing() {}
 
-DmUI::DmUI(PinName mosi, PinName miso, PinName sck, PinName cs, PinName irq) : _pinCS(cs, 0), _pinIRQ(irq), _spi(mosi, miso, sck), _timer(), _queue(4 * EVENTS_EVENT_SIZE) {
+DmUI::DmUI(PinName mosi, PinName miso, PinName sck, PinName cs, PinName irq) 
+	: _pinCS(cs, 0), 
+	_pinIRQ(irq), 
+	_spi(mosi, miso, sck), 
+	_timer(), 
+	_queue(4 * EVENTS_EVENT_SIZE),
+	_srStateCache(0xFF) {
 	
 	// start event queue dispatch thread
 	//this->_eventThread.start(callback(&_queue, &EventQueue::dispatch_forever));

@@ -127,7 +127,7 @@ private:
 	EventQueue _queue;
 	Thread _eventThread;
 	
-	uint8_t _srStateCache = 0xFF;
+	uint8_t _srStateCache;
 	uint8_t _hwVersion;
 };	
 
