@@ -20,6 +20,9 @@ import re
 import tempfile
 import datetime
 import uuid
+import struct
+import zlib
+import hashlib
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
@@ -339,8 +342,65 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     return toolchain
 
+def _printihex(ihex):
+    import pprint
+    pprint.PrettyPrinter().pprint(ihex.todict())
+
+def _real_region_size(region):
+    try:
+        part = intelhex_offset(region.filename, offset=region.start)
+        return (part.maxaddr() - part.minaddr()) + 1
+    except AttributeError:
+        return region.size
+
+def _fill_header(region_list, current_region):
+    """Fill an application header region
+
+    This is done it three steps:
+     * Fill the whole region with zeros
+     * Fill const, timestamp and size entries with their data
+     * Fill the digests using this header as the header region
+    """
+    region_dict = {r.name: r for r in region_list}
+    header = IntelHex()
+    header.puts(current_region.start, b'\x00' * current_region.size)
+    start = current_region.start
+    for member in current_region.filename:
+        _, type, subtype, data = member
+        member_size = Config.header_member_size(member)
+        if type == "const":
+            fmt = {"8": "<B", "16": "<H", "32": "<L", "64": "<Q"}[subtype]
+            header.puts(start, struct.pack(fmt, int(data, 0)))
+        elif type == "timestamp":
+            fmt = {"32": "<L", "64": "<Q"}[subtype]
+            header.puts(start, struct.pack(fmt, time()))
+        elif type == "size":
+            fmt = {"32": "<L", "64": "<Q"}[subtype]
+            size = sum(_real_region_size(region_dict[r]) for r in data)
+            header.puts(start, struct.pack(fmt, size))
+        start += Config.header_member_size(member)
+    start = current_region.start
+    for member in current_region.filename:
+        _, type, subtype, data = member
+        if type  == "digest":
+            if data == "header":
+                ih = header
+            else:
+                ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
+            if subtype == "CRCITT32":
+                header.puts(start, struct.pack("<l", zlib.crc32(ih.tobinarray())))
+            elif subtype.startswith("SHA"):
+                if subtype == "SHA256":
+                    hash = hashlib.sha256()
+                elif subtype == "SHA512":
+                    hash = hashlib.sha512()
+                hash.update(ih.tobinarray())
+                header.puts(start, hash.digest())
+        start += Config.header_member_size(member)
+    return header
+
 def merge_region_list(region_list, destination, padding=b'\xFF'):
-    """Merege the region_list into a single image
+    """Merge the region_list into a single image
 
     Positional Arguments:
     region_list - list of regions, which should contain filenames
@@ -355,6 +415,11 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     for region in region_list:
         if region.active and not region.filename:
             raise ToolException("Active region has no contents: No file found.")
+        if isinstance(region.filename, list):
+            header_basename, _ = splitext(destination)
+            header_filename = header_basename + "_header.hex"
+            _fill_header(region_list, region).tofile(header_filename, format='hex')
+            region = region._replace(filename=header_filename)
         if region.filename:
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)

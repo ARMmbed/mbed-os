@@ -570,24 +570,28 @@ class Config(object):
                 "Bootloader build requested but no bootlader configuration")
 
     @staticmethod
+    def header_member_size(member):
+        _, _, subtype, _ = member
+        try:
+            return int(subtype) // 8
+        except:
+            if subtype == "CRCITT32":
+                return 32 // 8
+            elif subtype == "SHA256":
+                return 256 // 8
+            elif subtype == "SHA512":
+                return 512 // 8
+            else:
+                raise ValueError("target.header_format: subtype %s is not "
+                                 "understood" % subtype)
+
+    @staticmethod
     def _header_size(format):
-        size_in_bytes = 0
-        for _, _, subtype, _ in format:
-            try:
-                size_in_bytes += int(subtype) // 8
-            except:
-                if subtype == "CRCITT32":
-                    size_in_bytes += 32 // 8
-                elif subtype == "SHA256":
-                    size_in_bytes += 256 // 8
-                else:
-                    raise ValueError("target.header_format: subtype %s is not "
-                                     "understood" % subtype)
-        return size_in_bytes
+        return sum(Config.header_member_size(m) for m in format)
 
     def _make_header_region(self, start, header_format):
         size = self._header_size(header_format)
-        region = Region("application_header", start, size, False, None)
+        region = Region("header", start, size, False, None)
         start += size
         start = ((start + 7) // 8) * 8
         return (start, region)
@@ -615,7 +619,7 @@ class Config(object):
             if self.target.header_format:
                 start, region = self._make_header_region(
                     start, self.target.header_format)
-                yield region
+                yield region._replace(filename=self.target.header_format)
         if self.target.restrict_size is not None:
             new_size = int(self.target.restrict_size, 0)
             new_size = Config._align_floor(start + new_size, self.sectors) - start
