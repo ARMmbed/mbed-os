@@ -525,6 +525,18 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
         huart->Init.Mode = UART_MODE_TX_RX;
     }
 
+#if defined(LPUART1_BASE)
+    if (huart->Instance == LPUART1) {
+        if (obj_s->baudrate <= 9600) {
+            HAL_UARTEx_EnableClockStopMode(huart);
+            HAL_UARTEx_EnableStopMode(huart);
+        } else {
+            HAL_UARTEx_DisableClockStopMode(huart);
+            HAL_UARTEx_DisableStopMode(huart);
+        }
+    }
+#endif
+
     return HAL_UART_Init(huart);
 }
 
