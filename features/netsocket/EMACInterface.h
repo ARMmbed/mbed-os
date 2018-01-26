@@ -25,6 +25,16 @@
 
 /** EMACInterface class
  *  Implementation of the NetworkInterface for an EMAC-based driver
+ *
+ * This class provides the necessary glue logic to create a NetworkInterface
+ * based on an EMAC and an OnboardNetworkStack. EthernetInterface and
+ * EMAC-based Wi-Fi drivers derive from it.
+ *
+ * Drivers derived from EMACInterface should be constructed so that their
+ * EMAC is functional without the need to call `connect()`. For example
+ * a Wi-Fi driver should permit `WiFi::get_emac().power_up()` as soon as
+ * the credentials have been set. This is necessary to support specialised
+ * applications such as 6LoWPAN mesh border routers.
  */
 class EMACInterface : public virtual NetworkInterface
 {
@@ -110,6 +120,16 @@ public:
      *                  or null if no network mask has been recieved
      */
     virtual const char *get_gateway();
+
+    /** Provide access to the EMAC
+     *
+     * This should be used with care - normally the network stack would
+     * control the EMAC, so manipulating the EMAC while the stack
+     * is also using it (ie after connect) will likely cause problems.
+     *
+     * @return          Reference to the EMAC in use
+     */
+    EMAC &get_emac() const { return _emac; }
 
     virtual EMACInterface *emacInterface() { return this; }
 
