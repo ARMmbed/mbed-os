@@ -1,0 +1,164 @@
+---- __CC_ARM Matches (163 in 68 files) ----
+Arm_math.h (cmsis\target_cortex_m):#if   defined ( __CC_ARM )
+Arm_math.h (cmsis\target_cortex_m):#if   defined ( __CC_ARM )
+Arm_math.h (cmsis\target_cortex_m):#if   (__FPU_USED == 1) && defined ( __CC_ARM   )
+Arm_math.h (cmsis\target_cortex_m):#if   defined ( __CC_ARM )
+Arm_math.h (cmsis\target_cortex_m):#if   defined ( __CC_ARM )
+Arm_math.h (features\unsupported\dsp\cmsis_dsp):#if defined __CC_ARM
+Arm_math.h (features\unsupported\dsp\cmsis_dsp):  #if defined (ARM_MATH_CM0_FAMILY) && defined ( __CC_ARM   )
+Arm_math.h (features\unsupported\dsp\cmsis_dsp):#if   (__FPU_USED == 1) && defined ( __CC_ARM   )
+Arm_math.h (features\unsupported\dsp\cmsis_dsp):#if defined ( __CC_ARM )
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+basicAPI.cpp (tests\storage_abstraction\basicapi):#ifndef __CC_ARM
+Basic_types.h (targets\target_realtek\target_ameba\sdk\soc\realtek\common\bsp):#elif defined(__CC_ARM)
+Basic_types.h (targets\target_realtek\target_ameba\sdk\soc\realtek\common\bsp):#elif defined ( __CC_ARM   )
+Basic_types.h (targets\target_realtek\target_ameba\sdk\soc\realtek\common\bsp):#elif defined (__CC_ARM)
+Binary.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\source\common):#if defined(__GNUC__) && !defined(__CC_ARM) // keil does not support binary format
+Binary.h (features\feature_ble\targets\target_nordic\target_nrf5\source\common):#if defined(__GNUC__) && !defined(__CC_ARM) // keil does not support binary format
+Ble_conn_state.c (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\ble\common):#if defined(__CC_ARM)
+Ble_conn_state.c (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\ble\common):#if defined(__CC_ARM)
+Bootloader_util.c (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\bootloader_dfu):#if defined ( __CC_ARM )
+Cfstore_svm.cpp (features\storage\feature_storage\cfstore\source):#if   defined ( __CC_ARM )
+Cfstore_test.c (features\storage\feature_storage\cfstore\source):#if   defined ( __CC_ARM )
+Cmsis_compiler.h (cmsis\target_cortex_a):#if   defined ( __CC_ARM )
+Cmsis_compiler.h (cmsis\target_cortex_m):#if   defined ( __CC_ARM )
+Cmsis_os.h (rtos\target_cortex\rtx4):#if   defined(__CC_ARM)
+Cmsis_os2.h (rtos\target_cortex\rtx5\include):#if   defined(__CC_ARM)
+Common_functions.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#ifdef  __CC_ARM
+Common_functions.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#ifdef  __CC_ARM
+Common_functions.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#ifdef  __CC_ARM
+Compiler_abstraction.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\device):#if defined ( __CC_ARM )
+Configuration_store.c (features\storage\feature_storage\cfstore\source):#if   defined ( __CC_ARM )
+Core_armv8mbl.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_armv8mml.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_ca.h (cmsis\target_cortex_a):#if defined ( __CC_ARM )
+Core_cm0.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm0plus.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm23.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm3.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm33.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm4.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):        #if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):        #if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):        #if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):        #if defined ( __CC_ARM )
+Core_cm7.h (cmsis\target_cortex_m):        #if defined ( __CC_ARM )
+Core_sc000.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Core_sc300.h (cmsis\target_cortex_m):#if defined ( __CC_ARM )
+Device_manager_peripheral.c (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\ble\device_manager):#if defined ( __CC_ARM )
+Dlist.h (targets\target_realtek\target_ameba\sdk\common\api\platform):#if defined ( __CC_ARM   )
+Em_usb.h (features\unsupported\usbdevice\targets\target_silicon_labs\inc):#ifdef __CC_ARM
+Em_usb.h (features\unsupported\usbdevice\targets\target_silicon_labs\inc):#elif defined( __CC_ARM )                 /* MDK-ARM compiler */
+Em_usb.h (features\unsupported\usbdevice\targets\target_silicon_labs\inc):  #if defined(__ICCARM__) || defined (__CC_ARM) || defined (__CROSSWORKS_ARM)
+Hal_soc_ps_monitor.h (targets\target_realtek\target_ameba\sdk\soc\realtek\8195a\fwlib):#if defined (__CC_ARM)
+Main.cpp (tests\mbed_hal\flash\functional_tests):#ifdef __CC_ARM
+Mbed_application.c (platform):#if defined (__CC_ARM)
+Mbed_assert.h (platform):#elif !defined(__cplusplus) && defined(__GNUC__) && !defined(__CC_ARM) \
+Mbed_boot.c (rtos\target_cortex):    #elif defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+Mbed_boot.c (rtos\target_cortex):#if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+Mbed_critical.c (platform):#if defined (__CC_ARM) 
+Mbed_retarget.cpp (platform):#elif defined(__CC_ARM)
+Mbed_rtx.h (targets\target_realtek):#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+Mbed_rtx_conf.h (rtos\target_cortex):#if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+Mbed_sdk_boot.c (platform):#if defined (__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 5010060))
+Mbed_semihost_api.h (platform):#if !defined(__CC_ARM) && !defined(__ARMCC_VERSION)
+Mbed_toolchain.h (platform): && !defined(__CC_ARM)   /* ARMCC      */ \
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
+Mbed_toolchain.h (platform):#elif defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if (defined(__GNUC__) || defined(__clang__)) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__CC_ARM)
+Mbed_toolchain.h (platform):#if defined(__GNUC__) || defined(__CC_ARM)
+Mbed_trace.h (features\feature_common_pal\mbed-trace\mbed-trace):#if defined(__GNUC__) || defined(__CC_ARM)
+Mbed_trace.h (features\feature_common_pal\mbed-trace\mbed-trace):#if defined(__GNUC__) || defined(__CC_ARM)
+Nrf51.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\device):#if defined(__CC_ARM)
+Nrf51.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\device):#if defined(__CC_ARM)
+Nrf_delay.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\drivers_nrf\delay):#if defined ( __CC_ARM   )
+Nrf_svc.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\softdevice\s130\headers):#if defined (__CC_ARM)
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#elif defined __CC_ARM
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#if defined __CC_ARM || defined __TASKING__
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#if defined __CC_ARM || defined __GNUC__
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):# elif defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#if defined __GNUC__ && NS_GCC_VERSION >= 40600 && !defined __CC_ARM
+Ns_types.h (features\feature_common_pal\nanostack-libservice\mbed-client-libservice):#ifdef __CC_ARM
+Osdep_service.h (targets\target_realtek\target_ameba\sdk\os\os_dep\include):#elif defined ( __CC_ARM   )
+Platform_stdlib.h (targets\target_realtek\target_ameba\sdk\common\api\platform):#elif defined (__CC_ARM)
+Rtl8195a_compiler.h (targets\target_realtek\target_ameba\target_rtl8195a\device):#elif defined(__CC_ARM)
+Rtl8195a_init.c (targets\target_realtek\target_ameba\target_rtl8195a\device):#if defined(__CC_ARM) || \
+Rtl8195a_init.c (targets\target_realtek\target_ameba\target_rtl8195a\device):#if defined (__CC_ARM) || 
+Rtl8195a_init.c (targets\target_realtek\target_ameba\target_rtl8195a\device):#if defined (__CC_ARM)
+Rtl8195a_init.c (targets\target_realtek\target_ameba\target_rtl8195a\device):#if defined (__CC_ARM)
+Rtw_debug.h (targets\target_realtek\target_ameba\sdk\common\drivers\wlan\realtek\include):#if defined (__ICCARM__) || defined (__CC_ARM) ||defined(__GNUC__)|| defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B)
+Rtw_debug.h (targets\target_realtek\target_ameba\sdk\common\drivers\wlan\realtek\include):#endif	//#ifdef __CC_ARM
+Rtx2_service.c (targets\target_realtek\target_ameba\sdk\os\rtx2):#if defined(__CC_ARM)
+Rtx2_service.c (targets\target_realtek\target_ameba\sdk\os\rtx2):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#else   // !(defined(__CC_ARM) || defined(__ICCARM__))
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_ca.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#else   // !(defined(__CC_ARM) || defined(__ICCARM__))
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_core_cm.h (rtos\target_cortex\rtx5\rtx\source):#if defined(__CC_ARM)
+Rtx_lib.c (rtos\target_cortex\rtx5\rtx\source):    (defined(__GNUC__) && !defined(__CC_ARM))
+Rtx_lib.c (rtos\target_cortex\rtx5\rtx\source):#if  defined(__CC_ARM) || \
+Rtx_lib.c (rtos\target_cortex\rtx5\rtx\source):#if (( defined(__CC_ARM) || \
+Rtx_malloc_wrapper.c (features\feature_uvisor\source\rtx):#elif defined (__CC_ARM)
+Section_config.h (targets\target_realtek\target_ameba\sdk\soc\realtek\common\bsp):#if defined (__CC_ARM)
+Section_config.h (targets\target_realtek\target_ameba\sdk\soc\realtek\common\bsp):#if defined (__CC_ARM)
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Section_vars.h (features\feature_ble\targets\target_nordic\target_mcu_nrf51822\sdk\source\libraries\experimental_section_vars):#if defined __CC_ARM
+Storage_volume.cpp (features\storage\feature_storage\storage-volume-manager\source):#if   defined ( __CC_ARM )
+Storage_volume_manager.cpp (features\storage\feature_storage\storage-volume-manager\source):#if   defined ( __CC_ARM )
+Utest_shim.h (features\frameworks\utest\utest):#       if defined(__CC_ARM)
+Uvisor_exports.h (features\feature_uvisor\includes\uvisor\api\inc):#if defined(__CC_ARM)
+Uvisor_exports.h (features\feature_uvisor\includes\uvisor\api\inc):#endif /* defined(__CC_ARM) || defined(__GNUC__) */
+Wireless.h (targets\target_realtek\target_ameba\sdk\common\drivers\wlan\realtek\src\osdep):#ifdef __CC_ARM	//Fix Keil compile error, must modify sizeof iw_encode_ext - Alex Fang
+Wsf_types.h (features\feature_ble\targets\target_cordio\stack\cordio_stack\ws-core\sw\wsf\generic):     defined(__CC_ARM) || defined(__IAR_SYSTEMS_ICC__)
+Wsf_types.h (features\feature_ble\targets\target_maxim\exactle\wsf\generic):     (__ICC8051__ == 0)) || defined(__CC_ARM) || \
