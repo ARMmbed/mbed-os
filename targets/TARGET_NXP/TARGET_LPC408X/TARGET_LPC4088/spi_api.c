@@ -69,6 +69,7 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {P1_28, SPI_0, 5},
     {P2_23, SPI_0, 2},
     {P4_21, SPI_1, 3},
+    {P5_3,  SPI_2, 2},
     {NC   , NC   , 0}
 };
 
