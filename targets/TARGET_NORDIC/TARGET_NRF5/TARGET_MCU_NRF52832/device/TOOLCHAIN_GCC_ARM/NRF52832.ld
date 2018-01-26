@@ -43,9 +43,11 @@ Also modified to allow UICR to be written to using the section attribute
 
 MEMORY
 {
-  IMAGEINFO(r): ORIGIN = MBED_APP_START, LENGTH = IMAGE_INFO_OFFSET
+   FLASH(rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+   RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
+  /*IMAGEINFO(r): ORIGIN = MBED_APP_START, LENGTH = IMAGE_INFO_OFFSET
   FLASH(rx) : ORIGIN = MBED_APP_START+IMAGE_INFO_OFFSET, LENGTH = MBED_APP_SIZE-IMAGE_INFO_OFFSET
-  RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
+  RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108*/
   /*UICR (rw) :  ORIGIN = 0x10001014, LENGTH = 0x8
   UICR_AP (rw) : ORIGIN = 0x10001200, LENGTH = 0x10*/
 }
@@ -89,14 +91,18 @@ SECTIONS
 	KEEP(*(.Vectors))
     } > VECTORS*/
 
-    .imageinfo :
+    /*.imageinfo :
     {
 	KEEP(*(.ImageInfo))
-    } > IMAGEINFO
+    } > IMAGEINFO*/
     
     .text :
     {
         KEEP(*(.Vectors))
+	FILL(0xff)
+	. = 0x100;
+	KEEP(*(.ImageInfo))
+	. = 0x400;
         *(.text*)
 
         KEEP(*(.init))
