@@ -13,7 +13,7 @@
 class EMACPhy : public NanostackEthernetPhy
 {
 public:
-    EMACPhy(NanostackMemoryManager &mem, EMAC &m) : memory_manager(mem), emac(m), device_id(-1) { }
+    EMACPhy(NanostackMemoryManager &mem, EMAC &m);
     virtual int8_t phy_register();
     virtual void get_mac_address(uint8_t *mac);
     virtual void set_mac_address(uint8_t *mac);
@@ -51,6 +51,25 @@ static int8_t emac_phy_tx(uint8_t *data_ptr, uint16_t data_len, uint8_t tx_handl
 {
     return single_phy->tx(data_ptr, data_len, tx_handle, data_flow);
 }
+
+EMACPhy::EMACPhy(NanostackMemoryManager &mem, EMAC &m) : memory_manager(mem), emac(m), device_id(-1)
+{
+    /* Same default address logic as lwIP glue uses */
+#if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
+    mac_addr[0] = MBED_MAC_ADDR_0;
+    mac_addr[1] = MBED_MAC_ADDR_1;
+    mac_addr[2] = MBED_MAC_ADDR_2;
+    mac_addr[3] = MBED_MAC_ADDR_3;
+    mac_addr[4] = MBED_MAC_ADDR_4;
+    mac_addr[5] = MBED_MAC_ADDR_5;
+#else
+    mbed_mac_address((char *) mac_addr);
+#endif
+    /* We have a default MAC address, so do don't force them to supply one */
+    /* They may or may not update hwaddr with their address */
+    emac.get_hwaddr(mac_addr);
+}
+
 
 void EMACPhy::emac_phy_rx(emac_mem_buf_t *mem)
 {
@@ -115,23 +134,11 @@ int8_t EMACPhy::phy_register()
             return -1;
         }
 
-        /* Same default address logic as lwIP glue uses */
-#if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-        mac_addr[0] = MBED_MAC_ADDR_0;
-        mac_addr[1] = MBED_MAC_ADDR_1;
-        mac_addr[2] = MBED_MAC_ADDR_2;
-        mac_addr[3] = MBED_MAC_ADDR_3;
-        mac_addr[4] = MBED_MAC_ADDR_4;
-        mac_addr[5] = MBED_MAC_ADDR_5;
-#else
-        mbed_mac_address((char *) mac_addr);
-#endif
-
         phy.phy_MTU = emac.get_mtu_size();
-        /* We have a default MAC address, so do don't force them to supply one */
-        /* They may or may not update hwaddr with their address */
-        emac.get_hwaddr(mac_addr);
-        /* Then we write back either what they gave us, or our default */
+        /* Set the address - this could be either board default, what they
+         * told us with EMAC::get_mac_address, or something manually specified
+         * with EMACPhy::set_mac_address
+         */
         emac.set_hwaddr(mac_addr);
 
         emac.set_all_multicast(true);
@@ -171,7 +178,7 @@ void EMACPhy::set_mac_address(uint8_t *mac)
     memcpy(mac_addr, mac, sizeof mac_addr);
 }
 
-nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out)
+nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr)
 {
     if (single_phy) {
         return NSAPI_ERROR_DEVICE_ERROR;
@@ -180,6 +187,10 @@ nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Onb
     single_phy = new (nothrow) EMACPhy(this->memory_manager, emac);
     if (!single_phy) {
         return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    if (mac_addr) {
+        single_phy->set_mac_address(const_cast<uint8_t*>(mac_addr));
     }
 
     Nanostack::EthernetInterface *interface;
@@ -197,5 +208,14 @@ nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Onb
     *interface_out = interface;
 
     return NSAPI_ERROR_OK;
+
+}
+
+nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out)
+{
+    Nanostack::EthernetInterface *interface;
+    nsapi_error_t err = add_ethernet_interface(emac, default_if, &interface);
+    *interface_out = interface;
+    return err;
 }
 #endif

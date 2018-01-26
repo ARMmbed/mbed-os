@@ -30,11 +30,16 @@ public:
     virtual char *get_netmask(char *buf, nsapi_size_t buflen);
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
+    void get_mac_address(uint8_t *buf) const { interface_phy.get_mac_address(buf); }
+
     /**
      * \brief Callback from C-layer
      * \param state state of the network
      * */
     void network_handler(mesh_connection_status_t status);
+
+    int8_t get_interface_id() const { return interface_id; }
+    int8_t get_driver_id() const { return _device_id; }
 
 private:
     NanostackPhy &interface_phy;

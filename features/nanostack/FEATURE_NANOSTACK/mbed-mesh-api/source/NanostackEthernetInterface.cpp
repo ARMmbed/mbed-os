@@ -27,16 +27,9 @@ nsapi_error_t Nanostack::EthernetInterface::initialize()
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    enet_tasklet_init();
-    __mesh_handler_set_callback(this);
-    interface_id = enet_tasklet_network_init(_device_id);
-
     nanostack_unlock();
 
-    if (interface_id < 0)
-        return NSAPI_ERROR_DEVICE_ERROR;
-    else
-        return NSAPI_ERROR_OK;
+    return NSAPI_ERROR_OK;
 }
 
 #if 0
@@ -72,7 +65,15 @@ nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
     }
 
     nanostack_lock();
-    int8_t status = enet_tasklet_connect(&__mesh_handler_c_callback, interface_id);
+    if (interface_id < 0) {
+        enet_tasklet_init();
+        __mesh_handler_set_callback(this);
+        interface_id = enet_tasklet_network_init(_device_id);
+    }
+    int8_t status = -1;
+    if (interface_id >= 0) {
+        status = enet_tasklet_connect(&__mesh_handler_c_callback, interface_id);
+    }
     nanostack_unlock();
 
     if (status == -1) {
