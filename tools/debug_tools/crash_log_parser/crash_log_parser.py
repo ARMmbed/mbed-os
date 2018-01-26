@@ -1,4 +1,22 @@
 #!/usr/bin/env python
+"""
+mbed SDK
+Copyright (c) 2017-2019 ARM Limited
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+LIBRARIES BUILD
+"""
 
 from __future__ import print_function
 from os import path
@@ -25,8 +43,7 @@ class ElfHelper(object):
         self.maplines = map_file.readlines()
         self.matches = ptn.findall(op)
         self.addrs = [int(x[0],16) for x in self.matches]
-        #print(self.maplines)
-        
+                
     def function_addrs(self):
         return self.addrs
     
@@ -37,18 +54,14 @@ class ElfHelper(object):
 
     def file_name_for_function_name(self, funcname):
         for eachline in self.maplines:
-            #print("%s:%s"%(eachline,funcname))
             result = eachline.find(funcname)
             if(result != -1):
                 break
         toks = eachline.split()   
-        #print("%s:%s"%(str(funcname),str(toks)))
         if(len(toks) <= 0):
             print("WARN: Unable to find %s in map file"%(str(funcname)))
-            #return funcname
             return ("%s [FUNCTION]"%(str(funcname)))
         else:    
-            #return toks[-1].replace("./BUILD/","").replace("/","\\")
             return toks[-1]
             
 def parseHFSR(hfsr):
@@ -143,7 +156,6 @@ def main(input):
         eachline=lines[i]
         if(-1 != eachline.find("--- MbedOS Fault Handler ---")):
             break
-        #print(eachline)
         
         if(eachline.startswith("PC")):
             l = re.findall(r"[\w']+", eachline)

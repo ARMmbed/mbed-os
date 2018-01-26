@@ -19,6 +19,7 @@
 #include "mbed_rtx_fault_handler.h"
 #include "hal/serial_api.h"
 
+#ifndef MBED_FAULT_HANDLER_DISABLED
 //Global for populating the context in exception handler
 mbed_fault_context_t mbed_fault_context;
 
@@ -36,17 +37,29 @@ extern int stdio_uart_inited;
 extern serial_t stdio_uart;
 #endif
 
+//This is a handler function called from Fault handler to print the error information out.
+//This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
 __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn)
 {
     fault_print_init();
     fault_print_str("\n++ MbedOS Fault Handler ++\n\nFaultType: ",NULL);
         
     switch( fault_type ) {
-      case HARD_FAULT_EXCEPTION: fault_print_str("HardFault",NULL); break;
-      case MEMMANAGE_FAULT_EXCEPTION: fault_print_str("MemManageFault",NULL); break;
-      case BUS_FAULT_EXCEPTION: fault_print_str("BusFault",NULL); break;
-      case USAGE_FAULT_EXCEPTION: fault_print_str("UsageFault",NULL); break;
-      default: fault_print_str("Unknown Fault",NULL); break;
+      case HARD_FAULT_EXCEPTION: 
+        fault_print_str("HardFault",NULL); 
+        break;
+      case MEMMANAGE_FAULT_EXCEPTION: 
+        fault_print_str("MemManageFault",NULL); 
+        break;
+      case BUS_FAULT_EXCEPTION: 
+        fault_print_str("BusFault",NULL); 
+        break;
+      case USAGE_FAULT_EXCEPTION: 
+        fault_print_str("UsageFault",NULL); 
+        break;
+      default: 
+        fault_print_str("Unknown Fault",NULL); 
+        break;
     }
     fault_print_str("\n\nContext:",NULL);
     print_context_info();
@@ -71,7 +84,7 @@ __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_conte
     
     fault_print_str("\n\n-- MbedOS Fault Handler --\n\n",NULL);
         
-    /* Just spin here, we have alrady crashed */
+    /* Just spin here, we have already crashed */
     for (;;) {}
 }
 
@@ -211,3 +224,5 @@ void hex_to_str(uint32_t value, char *hex_str)
         hex_str[i] = hex_char_map[(value & (0xf << (i * 4))) >> (i * 4)];
     }
 }
+
+#endif //MBED_FAULT_HANDLER_SUPPORT

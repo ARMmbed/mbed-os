@@ -21,11 +21,12 @@
 ; *
 ; * -----------------------------------------------------------------------------
 ; */
-
-                IF       :LNOT::DEF:__DOMAIN_NS
-__DOMAIN_NS     EQU      1
-                ENDIF
-                    
+#ifndef MBED_FAULT_HANDLER_DISABLED
+                
+#ifndef __DOMAIN_NS 
+#define __DOMAIN_NS 1
+#endif
+                
 FAULT_TYPE_HARD_FAULT           EQU      0x10
 FAULT_TYPE_MEMMANAGE_FAULT      EQU      0x20
 FAULT_TYPE_BUS_FAULT            EQU      0x30
@@ -66,7 +67,7 @@ UsageFault_Handler\
                     
 Fault_Handler   PROC
                 EXPORT   Fault_Handler
-                IF       __DOMAIN_NS = 1                    
+#if (__DOMAIN_NS == 1)                       
                 IMPORT   osRtxInfo
                 IMPORT   mbed_fault_handler
                 IMPORT   mbed_fault_context
@@ -148,8 +149,10 @@ Fault_Handler_Continue2
                 LDR      R1,=mbed_fault_context
                 LDR      R2,=osRtxInfo
                 BLX      R3
-                ENDIF    
+#endif                    
                 B        .                         ; Just in case we come back here                
                 ENDP
                     
+#endif
+                
                 END

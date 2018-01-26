@@ -21,15 +21,15 @@
  *
  * -----------------------------------------------------------------------------
  */
+#ifndef MBED_FAULT_HANDLER_DISABLED
 
-
-        .file    "except_cm0.S"
+        .file    "except.S"
         .syntax  unified
-        
-        .ifndef  __DOMAIN_NS
-        .equ     __DOMAIN_NS, 1
-        .endif
-            
+                
+#ifndef __DOMAIN_NS 
+#define __DOMAIN_NS 1
+#endif
+
         .equ     FAULT_TYPE_HARD_FAULT,         0x10
         .equ     FAULT_TYPE_MEMMANAGE_FAULT,    0x20
         .equ     FAULT_TYPE_BUS_FAULT,          0x30
@@ -103,7 +103,7 @@ UsageFault_Handler:
         .cantunwind
 
 Fault_Handler:
-        .if      __DOMAIN_NS == 1
+#if (__DOMAIN_NS == 1)
         MRS      R0,MSP
         LDR      R1,=0x4                
         MOV      R2,LR
@@ -181,10 +181,14 @@ Fault_Handler_Continue2:
         LDR      R1,=mbed_fault_context
         LDR      R2,=osRtxInfo
         BLX      R3
-        .endif
+#endif
         B        .                        // Just in case we come back here   
         
         .fnend
         .size    Fault_Handler, .-Fault_Handler
 
+#endif
+        
         .end
+        
+        

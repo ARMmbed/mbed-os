@@ -22,24 +22,23 @@
 ; * -----------------------------------------------------------------------------
 ; */
 
-
-                NAME    except_cm0.s
+                NAME    except.S
                 
-#ifndef __DOMAIN_NS 
-#define __DOMAIN_NS 1
-#endif
-    
 FAULT_TYPE_HARD_FAULT           EQU      0x10
 FAULT_TYPE_MEMMANAGE_FAULT      EQU      0x20
 FAULT_TYPE_BUS_FAULT            EQU      0x30
 FAULT_TYPE_USAGE_FAULT          EQU      0x40
 
+#ifndef MBED_FAULT_HANDLER_DISABLED
+                
+#ifndef __DOMAIN_NS 
+#define __DOMAIN_NS 1
+#endif
                 PRESERVE8
                 SECTION .rodata:DATA:NOROOT(2)
                 
                 THUMB
                 SECTION .text:CODE:NOROOT(2)
-
 
 HardFault_Handler
                 EXPORT  HardFault_Handler
@@ -147,5 +146,6 @@ Fault_Handler_Continue2
                 BLX     R3 
 #endif                
                 B       .                         ; Just in case we come back here    
+#endif                                            ; #if (MBED_FAULT_HANDLER_SUPPORT == 1) 
 
                 END
