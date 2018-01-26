@@ -2567,6 +2567,15 @@
         "extra_labels": ["RZA1H", "VKRZA1H"],
         "release_versions": []
     },
+    "GR_LYCHEE": {
+        "inherits": ["RZ_A1XX"],
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
+        "device_has_add": ["TRNG"],
+        "device_has_remove": ["ETHERNET"],
+        "features_remove": ["LWIP"],
+        "release_versions": ["2", "5"]
+    },
     "MAXWSNENV": {
         "inherits": ["Target"],
         "core": "Cortex-M3",

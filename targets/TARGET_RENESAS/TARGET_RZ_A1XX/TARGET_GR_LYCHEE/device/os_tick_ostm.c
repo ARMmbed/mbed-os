@@ -27,7 +27,7 @@
 #include "os_tick.h"
 #include "irq_ctrl.h"
 
-#include <MBRZA1H.h>
+#include <MBRZA1LU.h>
 
 #include <cmsis.h>
 
@@ -146,8 +146,7 @@ int32_t  OS_Tick_Enable (void)
 }
 
 /// Disable OS Tick.
-int32_t  OS_Tick_Disable (void)
-{
+int32_t  OS_Tick_Disable (void) {
 
   // Stop the OSTM counter
   OSTM.OSTMnTT = 0x01U;

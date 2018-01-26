@@ -14,9 +14,30 @@
  * limitations under the License.
  */
 
-#ifndef RESERVED_PINS_H
-#define RESERVED_PINS_H
+#if defined(DEVICE_TRNG)
+#include "trng_api.h"
 
-#define TARGET_RESERVED_PINS {}
+#if defined(TARGET_GR_LYCHEE)
 
+extern void trng_init_esp32(void);
+extern void trng_free_esp32(void);
+extern int trng_get_bytes_esp32(uint8_t *output, size_t length, size_t *output_length);
+
+void trng_init(trng_t *obj)
+{
+    trng_init_esp32();
+}
+
+void trng_free(trng_t *obj)
+{
+    trng_free_esp32();
+}
+
+int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+{
+    return trng_get_bytes_esp32(output, length, output_length);
+}
+#else
+#error "There is no initialization processing."
+#endif
 #endif

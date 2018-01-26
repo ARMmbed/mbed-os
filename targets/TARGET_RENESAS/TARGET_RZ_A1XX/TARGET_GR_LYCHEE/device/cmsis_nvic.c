@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "MBRZA1H.h"
+#include "MBRZA1LU.h"
 #include "irq_ctrl.h"
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
