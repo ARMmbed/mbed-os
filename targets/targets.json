@@ -2122,6 +2122,10 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
+    "UBLOX_C030_R410M": {
+        "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
     "NZ32_SC151": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
