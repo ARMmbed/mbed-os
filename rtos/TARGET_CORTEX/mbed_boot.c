@@ -161,6 +161,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "cmsis.h"
 #include "mbed_rtx.h"
