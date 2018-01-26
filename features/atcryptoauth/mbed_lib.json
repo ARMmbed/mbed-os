@@ -1,0 +1,10 @@
+{
+    "name": "atcaecc",
+    "config": {
+        "present": 1,
+        "app-enable": {
+            "help": "Enable ATCA ECC device commissioning App.",
+            "value": 1
+        }
+    }
+}
