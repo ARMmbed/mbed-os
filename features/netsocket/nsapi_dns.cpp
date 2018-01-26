@@ -243,8 +243,9 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
         }
 
         const uint8_t *response = packet;
-        if (dns_scan_response(&response, addr, addr_count) > 0) {
-            result = NSAPI_ERROR_OK;
+        nsapi_size_t cnt;
+        if ((cnt = dns_scan_response(&response, addr, addr_count)) > 0) {
+            result = cnt;
         }
 
         /* The DNS response is final, no need to check other servers */
