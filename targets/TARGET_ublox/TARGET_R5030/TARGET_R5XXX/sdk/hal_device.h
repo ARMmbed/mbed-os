@@ -486,14 +486,14 @@ enum STM_CFG {
    STM_CFG_ULBPE_START = 4,
    /** Uplink BPE End. */
    STM_CFG_ULBPE_END = 5,
-   /** Ofdm Demux Start. */
-   STM_CFG_OFDMDEMUX0_START = 6,
    /** Ofdm Demux End. */
-   STM_CFG_OFDMDEMUX0_END = 7,
+   STM_CFG_OFDMDEMUX0_END = 6,
    /** Ofdm Demux Start. */
-   STM_CFG_OFDMDEMUX1_START = 8,
+   STM_CFG_OFDMDEMUX0_START = 7,
    /** Ofdm Demux End. */
-   STM_CFG_OFDMDEMUX1_END = 9,
+   STM_CFG_OFDMDEMUX1_END = 8,
+   /** Ofdm Demux Start. */
+   STM_CFG_OFDMDEMUX1_START = 9,
    /** TCU0 FEVENT */
    STM_CFG_TCU0_FEVENT = 10,
    /** TCU1 FEVENT */
@@ -1350,24 +1350,24 @@ enum RF_DIG_SCH_Q_DEPTH {
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL2 = 1,
    /** RF Scheduler Q6 depth - AUX */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_AUX = 4,
-   /** RF Scheduler Q6 depth - Master Load */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
    /** RF Scheduler Q1 depth - TX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX2 = 4,
    /** RF Scheduler Q0 depth - TX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX1 = 4,
+   /** RF Scheduler Q6 depth - Master Load */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
    /** RF Scheduler Q3 depth - RX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX2 = 8,
    /** RF Scheduler Q2 depth - RX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX1 = 8,
+   /** RF Scheduler Q14 depth - RFFE */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16,
    /** RF Scheduler Q14 depth - GPIO */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_GPIO = 16,
-   /** RF Scheduler Q13 depth - Clock */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CLK = 16,
    /** RF Scheduler Q15 depth - CPU Interrupt */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CPU = 16,
-   /** RF Scheduler Q14 depth - RFFE */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16
+   /** RF Scheduler Q13 depth - Clock */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CLK = 16
 };
 
 /** RF Scheduler Queue IDs */
@@ -1454,10 +1454,10 @@ enum RF_DIG_SCH_Q_POS_GPIO_RFFE {
    RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO12 = 13,
    /** GPIO[13] */
    RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO13 = 14,
-   /** GPIO[15] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 15,
    /** GPIO[14] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 15
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 15,
+   /** GPIO[15] */
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 15
 };
 
 /** RF Scheduler Queue 7 Bit Positions for Master Load */
@@ -2020,7 +2020,7 @@ namespace device {
 /** Applications Subsystem Control->
  *PSRAM Control Interface->
  *PSRAM IP.  
-This module implements an AXI3-compatible PSRAM controller for Windbond and ISSI PSRAM devices
+This module implements an AXI3-compatible PSRAM controller for Winbond and ISSI PSRAM devices
 */
 static volatile struct psram_s* const app_ss_psram_ctrl = (struct psram_s*)(+0x49600000);
 #ifdef __cplusplus
@@ -2361,6 +2361,18 @@ namespace device {
  *Timping Control Unit Sequence FIFOs
 */
 static volatile struct tcu_seqfifo_s* const bb_modem_ss_tcuseqfifos = (struct tcu_seqfifo_s*)(+0x48010000);
+#ifdef __cplusplus
+}
+#endif
+
+struct nic400_modem_ic_s;
+#ifdef __cplusplus
+namespace device {
+#endif
+/** Baseband MODEM Subsystem Control->
+ *Modem Subsystem NIC GPV control registers
+*/
+static volatile struct nic400_modem_ic_s* const bb_modem_ss_modem_ic_ctrl = (struct nic400_modem_ic_s*)(+0x49A00000);
 #ifdef __cplusplus
 }
 #endif

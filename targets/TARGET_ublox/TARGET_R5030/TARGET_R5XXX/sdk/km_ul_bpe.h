@@ -176,12 +176,12 @@ struct km_ul_bpe_s {
 /** bit field defines for km_ul_bpe_s#ulbpestatus */
 #define KM_UL_BPE_ULBPESTATUS_MASTERFSM_OFFSET 0
 #define KM_UL_BPE_ULBPESTATUS_MASTERFSM_SIZE 2
-/** aka input */
-#define KM_UL_BPE_ULBPESTATUS_MASTERFSM_ENCODE_VALUE 1
 /**  */
 #define KM_UL_BPE_ULBPESTATUS_MASTERFSM_IDLE_VALUE 0
 /** aka output */
 #define KM_UL_BPE_ULBPESTATUS_MASTERFSM_RATEMATCH_VALUE 2
+/** aka input */
+#define KM_UL_BPE_ULBPESTATUS_MASTERFSM_ENCODE_VALUE 1
 #define KM_UL_BPE_ULBPESTATUS_ENCODEFSM_OFFSET 2
 #define KM_UL_BPE_ULBPESTATUS_ENCODEFSM_SIZE 3
 /** encode multiplexed ack (small encoder) */

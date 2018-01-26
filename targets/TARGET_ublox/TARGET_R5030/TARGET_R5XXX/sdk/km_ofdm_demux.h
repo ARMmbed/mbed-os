@@ -298,14 +298,14 @@ struct km_ofdm_demux_s {
 /** bit field defines for km_ofdm_demux_s#statusctrl_0 */
 #define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_OFFSET 0
 #define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_SIZE 2
-/** Idle, waiting for next sub-frame configuration. */
-#define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_IDLE_VALUE 0
 /** Ofdm processing taking place. */
 #define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_PROC_VALUE 3
 /** Requesting data from the fbuf */
 #define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_REQ_VALUE 1
 /** FBUF transfer taking place. */
 #define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_XFER_VALUE 2
+/** Idle, waiting for next sub-frame configuration. */
+#define KM_OFDM_DEMUX_STATUSCTRL_0_STATE_IDLE_VALUE 0
 #define KM_OFDM_DEMUX_STATUSCTRL_0_SYMBOL_OFFSET 2
 #define KM_OFDM_DEMUX_STATUSCTRL_0_SYMBOL_SIZE 4
 #define KM_OFDM_DEMUX_STATUSCTRL_0_SFADDR_OFFSET 6
@@ -376,12 +376,12 @@ struct km_ofdm_demux_s {
 #define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_SIZE 2
 /** Idle, waiting for next sub-frame configuration. */
 #define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_IDLE_VALUE 0
-/** Ofdm processing taking place. */
-#define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_PROC_VALUE 3
 /** Requesting data from the fbuf */
 #define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_REQ_VALUE 1
 /** FBUF transfer taking place. */
 #define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_XFER_VALUE 2
+/** Ofdm processing taking place. */
+#define KM_OFDM_DEMUX_STATUSCTRL_1_STATE_PROC_VALUE 3
 #define KM_OFDM_DEMUX_STATUSCTRL_1_SYMBOL_OFFSET 2
 #define KM_OFDM_DEMUX_STATUSCTRL_1_SYMBOL_SIZE 4
 #define KM_OFDM_DEMUX_STATUSCTRL_1_SFADDR_OFFSET 6
