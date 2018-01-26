@@ -1,11 +1,7 @@
 #include "mbed.h"
 #include "test_env.h"
 
-void print_char(char c = '*')
-{
-    printf("%c", c);
-    fflush(stdout);
-}
+RawSerial pc(USBTX, USBRX);
 
 Ticker flipper_1;
 DigitalOut led1(LED1);
@@ -17,7 +13,7 @@ void flip_1() {
     } else {
         led1 = 1; led1_state = 1;
     }
-    print_char();
+    pc.putc('*');
 }
 
 Ticker flipper_2;
