@@ -1834,6 +1834,36 @@ lorawan_status_t LoRaMac::LoRaMacInitialization(loramac_primitives_t *primitives
     return LORAWAN_STATUS_OK;
 }
 
+void LoRaMac::disconnect()
+{
+    // Cancel all timers
+    _lora_time.TimerStop(_params.timers.mac_state_check_timer);
+    _lora_time.TimerStop(_params.timers.tx_delayed_timer);
+    _lora_time.TimerStop(_params.timers.rx_window1_timer);
+    _lora_time.TimerStop(_params.timers.rx_window2_timer);
+    _lora_time.TimerStop(_params.timers.ack_timeout_timer);
+
+    // Put radio to sleep
+    lora_phy->put_radio_to_sleep();
+
+    // Reset internal state
+    _params.is_nwk_joined = false;
+    _params.is_ack_retry_timeout_expired = false;
+    _params.is_rx_window_enabled = true;
+    _params.is_node_ack_requested = false;
+    _params.is_srv_ack_requested = false;
+    _params.flags.value = 0;
+    _params.mac_state = 0;
+
+    // Clear MAC commands
+    mac_commands.ClearCommandBuffer();
+    mac_commands.ClearRepeatBuffer();
+    mac_commands.ClearMacCommandsInNextTx();
+
+    // Set internal state to idle.
+    _params.mac_state = LORAMAC_IDLE;
+}
+
 lorawan_status_t LoRaMac::LoRaMacQueryTxPossible( uint8_t size, loramac_tx_info_t* txInfo )
 {
     AdrNextParams_t adrNext;

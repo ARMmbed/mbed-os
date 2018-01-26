@@ -92,6 +92,14 @@ public:
                                           events::EventQueue *queue);
 
     /*!
+     * \brief   Disconnect LoRaMac layer
+     *
+     * \details Cancels all outstanding requests and sets LoRaMac's
+     *          internal state to idle.
+     */
+    void disconnect(void);
+
+    /*!
      * \brief   Queries the LoRaMAC whether it is possible to send the next frame with
      *          a given payload size. The LoRaMAC takes the scheduled MAC commands into
      *          account and reports when the frame can be sent.

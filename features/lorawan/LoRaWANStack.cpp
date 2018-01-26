@@ -1193,6 +1193,9 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
              */
             drop_channel_list();
 
+            // Shutdown LoRaMac
+            _loramac.disconnect();
+
             // Stop sending messages and set joined status to false.
 #if defined(LORAWAN_COMPLIANCE_TEST)
             _loramac.LoRaMacStopTxTimer();
