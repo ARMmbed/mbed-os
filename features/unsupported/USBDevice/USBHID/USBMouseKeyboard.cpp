@@ -348,9 +348,9 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
 #endif
 
 
-uint8_t * USBMouseKeyboard::reportDesc() {
+const uint8_t * USBMouseKeyboard::reportDesc() {
     if (mouse_type == REL_MOUSE) {
-        static uint8_t reportDescriptor[] = {
+        static const uint8_t reportDescriptor[] = {
                 // Keyboard
                 USAGE_PAGE(1),      0x01,
                 USAGE(1),           0x06,
@@ -442,7 +442,7 @@ uint8_t * USBMouseKeyboard::reportDesc() {
         reportLength = sizeof(reportDescriptor);
         return reportDescriptor;
     } else if (mouse_type == ABS_MOUSE) {
-        static uint8_t reportDescriptor[] = {
+        static const uint8_t reportDescriptor[] = {
 
                 // Keyboard
                 USAGE_PAGE(1),      0x01,

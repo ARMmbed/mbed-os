@@ -81,12 +81,18 @@ extern "C" {
     void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
     void __real__free_r(struct _reent * r, void * ptr);
     void* __real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
+    void* malloc_wrapper(struct _reent * r, size_t size, void * caller);
+    void free_wrapper(struct _reent * r, void * ptr, void* caller);
 }
 
 // TODO: memory tracing doesn't work with uVisor enabled.
 #if !defined(FEATURE_UVISOR)
 
 extern "C" void * __wrap__malloc_r(struct _reent * r, size_t size) {
+    return malloc_wrapper(r, size, MBED_CALLER_ADDR());
+}
+
+extern "C" void * malloc_wrapper(struct _reent * r, size_t size, void * caller) {
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -111,7 +117,7 @@ extern "C" void * __wrap__malloc_r(struct _reent * r, size_t size) {
     ptr = __real__malloc_r(r, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
-    mbed_mem_trace_malloc(ptr, size, MBED_CALLER_ADDR());
+    mbed_mem_trace_malloc(ptr, size, caller);
     mbed_mem_trace_unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
@@ -160,6 +166,10 @@ extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) 
 }
 
 extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
+    free_wrapper(r, ptr, MBED_CALLER_ADDR());
+}
+
+extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller) {
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
@@ -177,7 +187,7 @@ extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
     __real__free_r(r, ptr);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
-    mbed_mem_trace_free(ptr, MBED_CALLER_ADDR());
+    mbed_mem_trace_free(ptr, caller);
     mbed_mem_trace_unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
@@ -245,9 +255,16 @@ extern "C" {
     void *SUPER_REALLOC(void *ptr, size_t size);
     void *SUPER_CALLOC(size_t nmemb, size_t size);
     void SUPER_FREE(void *ptr);
+    void *malloc_wrapper(size_t size, void* caller);
+    void free_wrapper(void *ptr, void* caller);
 }
 
+
 extern "C" void* SUB_MALLOC(size_t size) {
+    return malloc_wrapper(size, MBED_CALLER_ADDR());
+}
+
+extern "C" void* malloc_wrapper(size_t size, void* caller) {
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -272,11 +289,12 @@ extern "C" void* SUB_MALLOC(size_t size) {
     ptr = SUPER_MALLOC(size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
-    mbed_mem_trace_malloc(ptr, size, MBED_CALLER_ADDR());
+    mbed_mem_trace_malloc(ptr, size, caller);
     mbed_mem_trace_unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
+
 
 extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
     void *new_ptr = NULL;
@@ -337,6 +355,10 @@ extern "C" void *SUB_CALLOC(size_t nmemb, size_t size) {
 }
 
 extern "C" void SUB_FREE(void *ptr) {
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
+extern "C" void free_wrapper(void *ptr, void* caller) {
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
@@ -354,7 +376,7 @@ extern "C" void SUB_FREE(void *ptr) {
     SUPER_FREE(ptr);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
-    mbed_mem_trace_free(ptr, MBED_CALLER_ADDR());
+    mbed_mem_trace_free(ptr, caller);
     mbed_mem_trace_unlock();
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }

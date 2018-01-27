@@ -46,13 +46,16 @@ static void own_free(void *ptr)
 
 static NS_LIST_DEFINE(request_list, coap_transaction_t, link);
 
-static coap_transaction_t *transaction_find_client_by_token(uint8_t token[4])
+static coap_transaction_t *transaction_find_client_by_token(uint8_t *token, uint8_t token_len, const uint8_t address[static 16], uint16_t port)
 {
+    (void) address;
+    (void) port;
     coap_transaction_t *this = NULL;
+
     ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
-        if (memcmp(cur_ptr->token,token,4) == 0 && cur_ptr->client_request) {
+        if ((cur_ptr->token_len == token_len) && (memcmp(cur_ptr->token, token, token_len) == 0) && cur_ptr->client_request) {
            this = cur_ptr;
-            break;
+           break;
         }
     }
     return this;
@@ -147,12 +150,13 @@ static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_
     coap_transaction_t *this = NULL;
     (void)address_ptr;
     (void)param;
+
     tr_warn("transaction was not handled %d", resp_ptr->msg_id);
     if (!resp_ptr) {
         return -1;
     }
-    if( resp_ptr->token_ptr ){
-        this = transaction_find_client_by_token(resp_ptr->token_ptr);
+    if(resp_ptr->token_ptr){
+        this = transaction_find_client_by_token(resp_ptr->token_ptr, resp_ptr->token_len, address_ptr->addr_ptr, address_ptr->port);
     }
     if (!this) {
         return 0;
@@ -278,6 +282,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
             memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
             if (coap_message->token_len) {
                 memcpy(transaction_ptr->token, coap_message->token_ptr, coap_message->token_len);
+                transaction_ptr->token_len = coap_message->token_len;
             }
             transaction_ptr->remote_port = port;
             if (cb(socket_id, coap_message, transaction_ptr) < 0) {
@@ -292,7 +297,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     } else {
         coap_transaction_t *this = NULL;
         if (coap_message->token_ptr) {
-            this = transaction_find_client_by_token(coap_message->token_ptr);
+            this = transaction_find_client_by_token(coap_message->token_ptr, coap_message->token_len, source_addr_ptr, port);
         }
         if (!this) {
             tr_error("client transaction not found");
@@ -352,8 +357,9 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
 
     do{
         randLIB_get_n_bytes_random(token,4);
-    }while(transaction_find_client_by_token(token));
+    }while(transaction_find_client_by_token(token, 4, destination_addr, destination_port));
     memcpy(transaction_ptr->token,token,4);
+    transaction_ptr->token_len = 4;
     request.token_ptr = transaction_ptr->token;
     request.token_len = 4;
 
@@ -464,7 +470,7 @@ int8_t coap_message_handler_response_send_by_msg_id(coap_msg_handler_t *handle, 
     response.payload_len = payload_len;
     response.payload_ptr = (uint8_t *) payload_ptr;  // Cast away const and trust that nsdl doesn't modify...
     response.content_format = content_type;
-    response.token_len = 4;
+    response.token_len = transaction_ptr->token_len;
     response.token_ptr = transaction_ptr->token;
     response.msg_code = message_code;
     if (transaction_ptr->req_msg_type == COAP_MSG_TYPE_CONFIRMABLE) {
