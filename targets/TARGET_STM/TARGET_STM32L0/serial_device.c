@@ -49,25 +49,58 @@ static uart_irq_handler irq_handler;
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int id)
+static int8_t uart_pointer_get_index(int uart_base)
 {
-    UART_HandleTypeDef * huart = &uart_handlers[id];
-    
-    if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
-                irq_handler(serial_irq_ids[id], TxIrq);
+    uint8_t index = 0;
+#if defined(USART1_BASE)
+    if (uart_base == USART1_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART2_BASE)
+    if (uart_base == USART2_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART4_BASE)
+    if (uart_base == USART4_BASE) return index;
+    index++;
+#endif
+
+#if defined(USART5_BASE)
+    if (uart_base == USART5_BASE) return index;
+    index++;
+#endif
+
+#if defined(LPUART1_BASE)
+    if (uart_base == LPUART1_BASE) return index;
+    index++;
+#endif
+    return -1;
+}
+
+static void uart_irq(int uart_base)
+{
+    int8_t id = uart_pointer_get_index(uart_base);
+    if (id >= 0) {
+        UART_HandleTypeDef * huart = &uart_handlers[id];
+
+        if (serial_irq_ids[id] != 0) {
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
+                    irq_handler(serial_irq_ids[id], TxIrq);
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
-                irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
+                    irq_handler(serial_irq_ids[id], RxIrq);
+                    /*  Flag has been cleared when reading the content */
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
-                __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
+                    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+                }
             }
         }
     }
@@ -76,33 +109,36 @@ static void uart_irq(int id)
 #if defined(USART1_BASE)
 static void uart1_irq(void)
 {
-    uart_irq(0);
+    uart_irq(USART1_BASE);
 }
 #endif
 
 static void uart2_irq(void)
 {
-    uart_irq(1);
+    uart_irq(USART2_BASE);
 }
 
-static void lpuart1_irq(void)
+#if defined(USART4_BASE) || defined(USART5_BASE)
+static void uart4_5_irq(void)
 {
-    uart_irq(2);
-}
-
 #if defined(USART4_BASE)
-static void uart4_irq(void)
-{
-    uart_irq(3);
-}
+    if (USART4->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+        uart_irq(USART4_BASE);
+    }
 #endif
 
 #if defined(USART5_BASE)
-static void uart5_irq(void)
-{
-    uart_irq(4);
+    if (USART5->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+        uart_irq(USART5_BASE);
+    }
+#endif
 }
 #endif
+
+static void lpuart1_irq(void)
+{
+    uart_irq(LPUART1_BASE);
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -136,17 +172,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&lpuart1_irq;
     }
 
-#if defined(USART4_BASE)
-    if (obj_s->uart == UART_4) {
+#if defined(USART4_BASE) || defined(USART5_BASE)
+    if (obj_s->uart == UART_4 || obj_s->uart == UART_5) {
         irq_n = USART4_5_IRQn;
-        vector = (uint32_t)&uart4_irq;
-    }
-#endif
-
-#if defined(USART5_BASE)
-    if (obj_s->uart == UART_5) {
-        irq_n = USART4_5_IRQn;
-        vector = (uint32_t)&uart5_irq;
+        vector = (uint32_t)&uart4_5_irq;
     }
 #endif
 
