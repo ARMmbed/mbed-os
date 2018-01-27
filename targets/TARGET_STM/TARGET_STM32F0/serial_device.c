@@ -54,7 +54,6 @@ static uart_irq_handler irq_handler;
 static void uart_irq(int id)
 {
     UART_HandleTypeDef * huart = &uart_handlers[id];
-    
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
@@ -64,7 +63,7 @@ static void uart_irq(int id)
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
+                /* Flag has been cleared when reading the content */
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
@@ -87,47 +86,53 @@ static void uart2_irq(void)
 }
 #endif
 
-#if defined USART3_BASE
-static void uart3_irq(void)
+// Used for both USART3_4_IRQn and USART3_8_IRQn
+static void uart3_8_irq(void)
 {
-    uart_irq(2);
-}
+#if defined(TARGET_STM32F091RC)
+#if defined(USART3_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART3) != RESET) {
+      uart_irq(2);
+  }
 #endif
-
-#if defined USART4_BASE
-static void uart4_irq(void)
-{
-    uart_irq(3);
-}
+#if defined(USART4_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART4) != RESET) {
+      uart_irq(3);
+  }
 #endif
-
-#if defined USART5_BASE
-static void uart5_irq(void)
-{
-    uart_irq(4);
-}
+#if defined(USART5_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART5) != RESET) {
+      uart_irq(4);
+  }
 #endif
-
-#if defined USART6_BASE
-static void uart6_irq(void)
-{
-    uart_irq(5);
-}
+#if defined(USART6_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART6) != RESET) {
+      uart_irq(5);
+  }
 #endif
-
-#if defined USART7_BASE
-static void uart7_irq(void)
-{
-    uart_irq(6);
-}
+#if defined(USART7_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART7) != RESET) {
+      uart_irq(6);
+  }
 #endif
-
-#if defined USART8_BASE
-static void uart8_irq(void)
-{
-    uart_irq(7);
-}
+#if defined(USART8_BASE)
+  if (__HAL_GET_PENDING_IT(HAL_ITLINE_USART8) != RESET) {
+      uart_irq(7);
+  }
 #endif
+#else // TARGET_STM32F070RB, TARGET_STM32F072RB
+#if defined(USART3_BASE)
+  if (USART3->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+      uart_irq(2);
+  }
+#endif
+#if defined(USART4_BASE)
+  if (USART4->ISR & (UART_FLAG_TXE | UART_FLAG_RXNE | UART_FLAG_ORE)) {
+      uart_irq(3);
+  }
+#endif
+#endif
+}
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
@@ -156,53 +161,55 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 #endif
 
-#if defined (TARGET_STM32F091RC)
-    if (obj_s->uart == UART_3) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart3_irq;
-    }
-
-    if (obj_s->uart == UART_4) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart4_irq;
-    }
-
-    if (obj_s->uart == UART_5) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart5_irq;
-    }
-
-    if (obj_s->uart == UART_6) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart6_irq;
-    }
-
-    if (obj_s->uart == UART_7) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart7_irq;
-    }
-
-    if (obj_s->uart == UART_8) {
-        irq_n = USART3_8_IRQn;
-        vector = (uint32_t)&uart8_irq;
-    }
-
-#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
-
-#else
 #if defined(USART3_BASE)
     if (obj_s->uart == UART_3) {
+#if defined(TARGET_STM32F091RC)
+        irq_n = USART3_8_IRQn;
+#else
         irq_n = USART3_4_IRQn;
-        vector = (uint32_t)&uart3_irq;
+#endif
+        vector = (uint32_t)&uart3_8_irq;
     }
 #endif
 
 #if defined(USART4_BASE)
     if (obj_s->uart == UART_4) {
+#if defined(TARGET_STM32F091RC)
+        irq_n = USART3_8_IRQn;
+#else
         irq_n = USART3_4_IRQn;
-        vector = (uint32_t)&uart4_irq;
+#endif
+        vector = (uint32_t)&uart3_8_irq;
     }
 #endif
+
+// Below usart are available only on TARGET_STM32F091RC
+#if defined(USART5_BASE)
+    if (obj_s->uart == UART_5) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart3_8_irq;
+    }
+#endif
+
+#if defined(USART6_BASE)
+    if (obj_s->uart == UART_6) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart3_8_irq;
+    }
+#endif
+
+#if defined(USART7_BASE)
+    if (obj_s->uart == UART_7) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart3_8_irq;
+    }
+#endif
+
+#if defined(USART8_BASE)
+    if (obj_s->uart == UART_8) {
+        irq_n = USART3_8_IRQn;
+        vector = (uint32_t)&uart3_8_irq;
+    }
 #endif
 
     if (enable) {

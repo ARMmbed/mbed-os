@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    21-April-2017
-  * @brief   HAL configuration file.
+  * @brief   HAL configuration template file.
+  *          This file should be copied to the application folder and renamed
+  *          to stm32l4xx_hal_conf.h.
   ******************************************************************************
   * @attention
   *
@@ -52,7 +52,9 @@
   */
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED
-#define HAL_CAN_MODULE_ENABLED
+// For MBED we use the CAN legacy for now
+//#define HAL_CAN_MODULE_ENABLED
+#define HAL_CAN_LEGACY_MODULE_ENABLED
 #define HAL_COMP_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
@@ -62,8 +64,10 @@
 #define HAL_DFSDM_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_DMA2D_MODULE_ENABLED
+#define HAL_DSI_MODULE_ENABLED
 #define HAL_FIREWALL_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
+#define HAL_GFXMMU_MODULE_ENABLED
 #define HAL_HASH_MODULE_ENABLED
 #define HAL_HCD_MODULE_ENABLED
 #define HAL_NAND_MODULE_ENABLED
@@ -75,7 +79,9 @@
 #define HAL_IWDG_MODULE_ENABLED
 #define HAL_LCD_MODULE_ENABLED
 #define HAL_LPTIM_MODULE_ENABLED
+#define HAL_LTDC_MODULE_ENABLED
 #define HAL_OPAMP_MODULE_ENABLED
+#define HAL_OSPI_MODULE_ENABLED
 #define HAL_PCD_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_QSPI_MODULE_ENABLED
@@ -239,6 +245,10 @@
   #include "stm32l4xx_hal_can.h"
 #endif /* HAL_CAN_MODULE_ENABLED */
 
+#ifdef HAL_CAN_LEGACY_MODULE_ENABLED
+  #include "stm32l4xx_hal_can_legacy.h"
+#endif /* HAL_CAN_LEGACY_MODULE_ENABLED */
+
 #ifdef HAL_COMP_MODULE_ENABLED
   #include "stm32l4xx_hal_comp.h"
 #endif /* HAL_COMP_MODULE_ENABLED */
@@ -262,6 +272,10 @@
 #ifdef HAL_DMA2D_MODULE_ENABLED
   #include "stm32l4xx_hal_dma2d.h"
 #endif /* HAL_DMA2D_MODULE_ENABLED */
+
+#ifdef HAL_DSI_MODULE_ENABLED
+  #include "stm32l4xx_hal_dsi.h"
+#endif /* HAL_DSI_MODULE_ENABLED */
 
 #ifdef HAL_FIREWALL_MODULE_ENABLED
   #include "stm32l4xx_hal_firewall.h"
@@ -303,9 +317,17 @@
   #include "stm32l4xx_hal_lptim.h"
 #endif /* HAL_LPTIM_MODULE_ENABLED */
 
+#ifdef HAL_LTDC_MODULE_ENABLED
+  #include "stm32l4xx_hal_ltdc.h"
+#endif /* HAL_LTDC_MODULE_ENABLED */
+
 #ifdef HAL_OPAMP_MODULE_ENABLED
   #include "stm32l4xx_hal_opamp.h"
 #endif /* HAL_OPAMP_MODULE_ENABLED */
+
+#ifdef HAL_OSPI_MODULE_ENABLED
+  #include "stm32l4xx_hal_ospi.h"
+#endif /* HAL_OSPI_MODULE_ENABLED */
 
 #ifdef HAL_PWR_MODULE_ENABLED
   #include "stm32l4xx_hal_pwr.h"
@@ -378,6 +400,10 @@
 #ifdef HAL_HCD_MODULE_ENABLED
   #include "stm32l4xx_hal_hcd.h"
 #endif /* HAL_HCD_MODULE_ENABLED */
+
+#ifdef HAL_GFXMMU_MODULE_ENABLED
+  #include "stm32l4xx_hal_gfxmmu.h"
+#endif /* HAL_GFXMMU_MODULE_ENABLED */
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT

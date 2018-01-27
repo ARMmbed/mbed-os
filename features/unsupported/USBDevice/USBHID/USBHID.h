@@ -98,13 +98,14 @@ public:
 
 protected:
     uint16_t reportLength;
+    uint8_t reportDescriptor[27];
 
     /*
     * Get the Report descriptor
     *
     * @returns pointer to the report descriptor
     */
-    virtual uint8_t * reportDesc();
+    virtual const uint8_t * reportDesc();
 
     /*
     * Get the length of the report descriptor
@@ -118,21 +119,21 @@ protected:
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual const uint8_t * stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t * stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual const uint8_t * configurationDesc();
 
 
     /*
@@ -164,6 +165,7 @@ protected:
     virtual bool USBCallback_setConfiguration(uint8_t configuration);
 
 private:
+    uint8_t configurationDescriptor[41];
     HID_REPORT outputReport;
     uint8_t output_length;
     uint8_t input_length;

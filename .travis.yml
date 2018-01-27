@@ -127,6 +127,7 @@ matrix:
       before_script:
         # Setup and patch littlefs-fuse
         - git clone https://github.com/geky/littlefs-fuse littlefs_fuse
+        - git -C littlefs_fuse checkout 3f1ed6e37799e49e3710830dc6abb926d5503cf2
         - echo '*' > littlefs_fuse/.mbedignore
         - rm -rf littlefs_fuse/littlefs/*
         - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) littlefs_fuse/littlefs
@@ -142,11 +143,10 @@ matrix:
         # Run local littlefs tests
         - CFLAGS="-Wno-format" make -C$LITTLEFS/littlefs test QUIET=1
         # Run local littlefs tests with set of variations
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=64 -DLFS_PROG_SIZE=64" make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=1 -DLFS_PROG_SIZE=1" make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512" make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_BLOCK_COUNT=1023" make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_LOOKAHEAD=2048" make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"      make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"       make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"     make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048" make -C$LITTLEFS/littlefs test QUIET=1
         # Self-hosting littlefs fuzz test with littlefs-fuse
         - make -Clittlefs_fuse
         - littlefs_fuse/lfs --format /dev/loop0

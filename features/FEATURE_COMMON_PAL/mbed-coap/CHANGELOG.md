@@ -1,5 +1,21 @@
 # Change Log
 
+## [v4.1.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.1.1) 
+**Closed issues:**
+-  IOTCLT-2203 mbed-coap does not handle PUT or POST if they indicate a smaller block size preference (fixed regression) 
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.1.0...v4.1.1)
+
+## [v4.1.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.1.0) 
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.0.10...v4.1.0)
+
+ **New feature:**
+  - New API to disable automatic GET(BLOCK2) request sending.
+
+ **Closed issues:**
+  -  IOTCLT-2203 mbed-coap does not handle PUT or POST if they indicate a smaller block size preference 
+
 ## [v4.0.10](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.0.10) 
 
 -[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.0.9...v4.0.10)
