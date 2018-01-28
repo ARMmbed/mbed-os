@@ -19,6 +19,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include "ble/SafeEnum.h"
 
 /**
@@ -181,6 +182,70 @@ struct io_capability_t : SafeEnum<io_capability_t, uint8_t> {
      */
     io_capability_t(type value) : SafeEnum<io_capability_t, uint8_t>(value) { }
 };
+
+template <size_t octet_size>
+struct octet_type_t {
+    /**
+     * Default to all zeroes
+     */
+    octet_type_t() {
+        memset(value, 0x00, sizeof(value));
+    }
+
+    /**
+     * Initialize a data from an array of bytes.
+     *
+     * @param input_value value of the data.
+     */
+    octet_type_t(const uint8_t (&input_value)[octet_size]) {
+        memcpy(value, input_value, sizeof(value));
+    }
+
+    /**
+     * Equal operator between two octet types.
+     */
+    friend bool operator==(const octet_type_t& lhs, const octet_type_t& rhs) {
+        return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
+    }
+
+    /**
+     * Non equal operator between two octet types.
+     */
+    friend bool operator!=(const octet_type_t& lhs, const octet_type_t& rhs) {
+        return !(lhs == rhs);
+    }
+
+    /**
+     * Subscript operator to access data content
+     */
+    uint8_t operator[](uint8_t i) const {
+        return value[i];
+    }
+
+    /**
+     * Return the pointer to the buffer holding data.
+     */
+    const uint8_t* data() const {
+        return value;
+    }
+
+    /**
+     * Size in byte of a data.
+     */
+    static uint8_t size() {
+        return sizeof(value);
+    }
+
+private:
+    uint8_t value[octet_size];
+};
+
+typedef octet_type_t<16> irk_t;
+typedef octet_type_t<16> csrk_t;
+typedef octet_type_t<16> ltk_t;
+typedef octet_type_t<2> ediv_t;
+typedef octet_type_t<8> rand_t;
+typedef octet_type_t<8> random_data_t;
 
 } // namespace ble
 
