@@ -32,7 +32,7 @@ typedef SecurityManager::SecurityMode_t SecurityMode_t;
 typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
 typedef SecurityManager::Keypress_t Keypress_t;
 
-typedef uint8_t oob_data_t[16];
+typedef octet_type_t<16> oob_data_t;
 
 typedef uint32_t passkey_num_t;
 
@@ -665,7 +665,7 @@ public:
      * Reply to an oob data request received from the SecurityManagerEventHandler.
      */
     virtual ble_error_t oob_data_request_reply(
-        connection_handle_t connection, const oob_data_t oob_data
+        connection_handle_t connection, const oob_data_t *oob_data
     ) = 0;
 
     virtual ble_error_t confirmation_entered(
