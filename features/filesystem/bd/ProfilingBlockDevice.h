@@ -125,11 +125,11 @@ public:
     /** Get the value of storage when erased
      *
      *  If get_erase_value returns a non-negative byte value, the underlying
-     *  storage will be set to that value when erased, and storage containing
-     *  that value can be programmed without another erase.
+     *  storage is set to that value when erased, and you can program storage
+     *  containing that value without another erase.
      *
-     *  @return         The value of storage when erased, or -1 if the value of
-     *                  erased storage can't be relied on
+     *  @return         The value of storage when erased, or -1 if you can't
+     *                  rely on the value of erased storage
      */
     virtual int get_erase_value() const;
 
