@@ -3684,7 +3684,8 @@
             "I2C_ASYNCH",
             "ETHERNET",
             "LOWPOWERTIMER",
-            "ERROR_RED"
+            "ERROR_RED",
+            "TRNG"
         ],
         "features": [
             "LWIP"
