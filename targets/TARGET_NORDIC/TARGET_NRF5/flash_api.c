@@ -46,10 +46,6 @@
 int32_t flash_init(flash_t *obj)
 {
     (void)(obj);
-    uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
-        return -1;
-    }
     return 0;
 }
 
