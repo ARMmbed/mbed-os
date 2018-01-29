@@ -59,8 +59,6 @@ public:
 
     virtual ble_error_t preserveBondingStateOnReset(bool enabled);
 
-    virtual ble_error_t init_signing();
-
     ////////////////////////////////////////////////////////////////////////////
     // List management
     //
@@ -119,8 +117,6 @@ public:
 
     virtual ble_error_t setHintFutureRoleReversal(bool enable = true);
 
-    virtual ble_error_t slave_security_request(connection_handle_t connection);
-
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -153,37 +149,11 @@ public:
         uint8_t maximumByteSize
     );
 
-    virtual ble_error_t enable_encryption(connection_handle_t connection);
-
-    /**
-     * Returns the requested LTK to the PAL. Called by the security db.
-     *
-     * @param entry security entry returned by the database.
-     * @param entryKeys security entry containing keys.
-     *
-     * @return no action instruction to the db since this only reads the keys.
-     */
-    DbCbAction_t enable_encryption_cb(
-        SecurityEntry_t& entry,
-        SecurityEntryKeys_t& entryKeys
-    );
-
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
 
     virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds);
-
-private:
-    bool check_against_identity_address(
-        const address_t peer_address,
-        const irk_t *irk
-    );
-
-    void check_against_irk_cb(
-        const irk_t *irk
-    );
-public:
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -193,26 +163,6 @@ public:
         connection_handle_t connection,
         bool authenticated
     );
-
-private:
-    /**
-     * Returns the requested LTK to the PAL. Called by the security db.
-     *
-     * @param entry security entry returned by the database.
-     * @param entryKeys security entry containing keys.
-     *
-     * @return no action instruction to the db since this only reads the keys.
-     */
-    DbCbAction_t set_ltk_cb(
-        SecurityEntry_t& entry,
-        SecurityEntryKeys_t& entryKeys
-    );
-
-    void return_csrk_cb(
-        connection_handle_t connection,
-        const csrk_t *csrk
-    );
-public:
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -244,6 +194,7 @@ public:
         connection_handle_t connection,
         Keypress_t keypress
     );
+
     ////////////////////////////////////////////////////////////////////////////
     // Event handler
     //
@@ -264,6 +215,57 @@ protected:
         _app_event_handler = &defaultEventHandler;
         _pal.set_event_handler(this);
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Helper functions
+    //
+
+private:
+    ble_error_t init_signing();
+
+    ble_error_t slave_security_request(connection_handle_t connection);
+
+    ble_error_t enable_encryption(connection_handle_t connection);
+
+    /**
+     * Returns the requested LTK to the PAL. Called by the security db.
+     *
+     * @param entry security entry returned by the database.
+     * @param entryKeys security entry containing keys.
+     *
+     * @return no action instruction to the db since this only reads the keys.
+     */
+    DbCbAction_t enable_encryption_cb(
+        SecurityEntry_t& entry,
+        SecurityEntryKeys_t& entryKeys
+    );
+
+    bool check_against_identity_address(
+        const address_t peer_address,
+        const irk_t *irk
+    );
+
+    void check_against_irk_cb(
+        const irk_t *irk
+    );
+
+    /**
+     * Returns the requested LTK to the PAL. Called by the security db.
+     *
+     * @param entry security entry returned by the database.
+     * @param entryKeys security entry containing keys.
+     *
+     * @return no action instruction to the db since this only reads the keys.
+     */
+    DbCbAction_t set_ltk_cb(
+        SecurityEntry_t& entry,
+        SecurityEntryKeys_t& entryKeys
+    );
+
+    void return_csrk_cb(
+        connection_handle_t connection,
+        const csrk_t *csrk
+    );
 
 private:
     ble::pal::SecurityManager& _pal;

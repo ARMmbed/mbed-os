@@ -21,6 +21,8 @@
 namespace ble {
 namespace generic {
 
+/* Implements SecurityManager */
+
 ////////////////////////////////////////////////////////////////////////////
 // SM lifecycle management
 //
@@ -61,19 +63,6 @@ ble_error_t GenericSecurityManager::reset(void) {
 
 ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
     _db.set_restore(enabled);
-    return BLE_ERROR_NONE;
-}
-
-ble_error_t GenericSecurityManager::init_signing() {
-    /* TODO: store init bit to avoid rerunning needlessly*/
-    const csrk_t *pcsrk = _db.get_local_csrk();
-    if (!pcsrk) {
-        csrk_t csrk;
-        /* TODO: generate csrk */
-        pcsrk = &csrk;
-        _db.set_local_csrk(pcsrk);
-    }
-    _pal.set_csrk(pcsrk);
     return BLE_ERROR_NONE;
 }
 
@@ -264,16 +253,6 @@ ble_error_t GenericSecurityManager::setHintFutureRoleReversal(bool enable) {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-    AuthenticationMask link_authentication(_default_authentication);
-    link_authentication.set_mitm(entry->mitm_requested);
-    return _pal.slave_security_request(connection, link_authentication);
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
@@ -384,84 +363,6 @@ ble_error_t GenericSecurityManager::setEncryptionKeyRequirements(
     return _pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
 }
 
-ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connection) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return BLE_ERROR_INVALID_PARAM;
-    }
-    if (entry->master) {
-        if (entry->ltk_stored) {
-            _db.get_entry_peer_keys(
-                mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
-                connection
-            );
-            return BLE_ERROR_NONE;
-        } else {
-            return requestPairing(connection);
-        }
-    } else {
-        return slave_security_request(connection);
-    }
-}
-
-/**
- * Returns the requested LTK to the PAL. Called by the security db.
- *
- * @param entry security entry returned by the database.
- * @param entryKeys security entry containing keys.
- *
- * @return no action instruction to the db since this only reads the keys.
- */
-DbCbAction_t GenericSecurityManager::enable_encryption_cb(
-    SecurityEntry_t& entry,
-    SecurityEntryKeys_t& entryKeys
-) {
-    _pal.enable_encryption(entry.handle, &entryKeys.ltk, &entryKeys.rand, &entryKeys.ediv);
-    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// Privacy
-//
-
-ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
-   return _pal.set_private_address_timeout(timeout_in_seconds);
-}
-
-void GenericSecurityManager::check_against_irk_cb(
-    const irk_t *irk
-) {
-
-}
-
-bool GenericSecurityManager::check_against_identity_address(
-    const address_t peer_address,
-    const irk_t *irk
-) {
-    /* we need to verify the identity by encrypting the
-     * PRAND part with the IRK key and checking the result
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
-    octet_type_t<6> prand_hash(peer_address.data(), 6);
-
-    /* remove the hash and leave only prand */
-    prand_hash[3] = 0;
-    prand_hash[4] = 0;
-    prand_hash[5] = 0;
-
-    _pal.encrypt_data(irk, prand_hash.data());
-
-    /* prand_hash now contains the hash result in the first 3 octects
-     * compare it with the hash in the peer identity address */
-
-    /* can't use memcmp because of address_t constness */
-    if ((prand_hash[0] == peer_address[3])
-        || (prand_hash[1] == peer_address[4])
-        || (prand_hash[2] == peer_address[5])) {
-        return true;
-    }
-    return false;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
@@ -494,36 +395,12 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
     }
 }
 
-/**
- * Returns the requested LTK to the PAL. Called by the security db.
- *
- * @param entry security entry returned by the database.
- * @param entryKeys security entry containing keys.
- *
- * @return no action instruction to the db since this only reads the keys.
- */
-DbCbAction_t GenericSecurityManager::set_ltk_cb(
-    SecurityEntry_t& entry,
-    SecurityEntryKeys_t& entryKeys
-) {
-    _pal.set_ltk(entry.handle, &entryKeys.ltk);
-    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
-}
+////////////////////////////////////////////////////////////////////////////
+// Privacy
+//
 
-void GenericSecurityManager::return_csrk_cb(
-    connection_handle_t connection,
-    const csrk_t *csrk
-) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return;
-    }
-
-    _app_event_handler->signingKey(
-        connection,
-        csrk,
-        entry->mitm_csrk
-    );
+ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+   return _pal.set_private_address_timeout(timeout_in_seconds);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -609,7 +486,136 @@ void GenericSecurityManager::setSecurityManagerEventHandler(
     }
 }
 
-/*  implements ble::pal::SecurityManagerEventHandler */
+////////////////////////////////////////////////////////////////////////////
+// Helper functions
+//
+
+ble_error_t GenericSecurityManager::init_signing() {
+    /* TODO: store init bit to avoid rerunning needlessly*/
+    const csrk_t *pcsrk = _db.get_local_csrk();
+    if (!pcsrk) {
+        csrk_t csrk;
+        /* TODO: generate csrk */
+        pcsrk = &csrk;
+        _db.set_local_csrk(pcsrk);
+    }
+    _pal.set_csrk(pcsrk);
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+    AuthenticationMask link_authentication(_default_authentication);
+    link_authentication.set_mitm(entry->mitm_requested);
+    return _pal.slave_security_request(connection, link_authentication);
+}
+
+ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connection) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+    if (entry->master) {
+        if (entry->ltk_stored) {
+            _db.get_entry_peer_keys(
+                mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
+                connection
+            );
+            return BLE_ERROR_NONE;
+        } else {
+            return requestPairing(connection);
+        }
+    } else {
+        return slave_security_request(connection);
+    }
+}
+
+/**
+ * Returns the requested LTK to the PAL. Called by the security db.
+ *
+ * @param entry security entry returned by the database.
+ * @param entryKeys security entry containing keys.
+ *
+ * @return no action instruction to the db since this only reads the keys.
+ */
+DbCbAction_t GenericSecurityManager::enable_encryption_cb(
+    SecurityEntry_t& entry,
+    SecurityEntryKeys_t& entryKeys
+) {
+    _pal.enable_encryption(entry.handle, &entryKeys.ltk, &entryKeys.rand, &entryKeys.ediv);
+    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+}
+
+void GenericSecurityManager::check_against_irk_cb(
+    const irk_t *irk
+) {
+
+}
+
+bool GenericSecurityManager::check_against_identity_address(
+    const address_t peer_address,
+    const irk_t *irk
+) {
+    /* we need to verify the identity by encrypting the
+     * PRAND part with the IRK key and checking the result
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
+    octet_type_t<6> prand_hash(peer_address.data(), 6);
+
+    /* remove the hash and leave only prand */
+    prand_hash[3] = 0;
+    prand_hash[4] = 0;
+    prand_hash[5] = 0;
+
+    _pal.encrypt_data(irk, prand_hash.data());
+
+    /* prand_hash now contains the hash result in the first 3 octects
+     * compare it with the hash in the peer identity address */
+
+    /* can't use memcmp because of address_t constness */
+    if ((prand_hash[0] == peer_address[3])
+        || (prand_hash[1] == peer_address[4])
+        || (prand_hash[2] == peer_address[5])) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Returns the requested LTK to the PAL. Called by the security db.
+ *
+ * @param entry security entry returned by the database.
+ * @param entryKeys security entry containing keys.
+ *
+ * @return no action instruction to the db since this only reads the keys.
+ */
+DbCbAction_t GenericSecurityManager::set_ltk_cb(
+    SecurityEntry_t& entry,
+    SecurityEntryKeys_t& entryKeys
+) {
+    _pal.set_ltk(entry.handle, &entryKeys.ltk);
+    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+}
+
+void GenericSecurityManager::return_csrk_cb(
+    connection_handle_t connection,
+    const csrk_t *csrk
+) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return;
+    }
+
+    _app_event_handler->signingKey(
+        connection,
+        csrk,
+        entry->mitm_csrk
+    );
+}
+
+/* Implements ble::pal::SecurityManagerEventHandler */
 
 ////////////////////////////////////////////////////////////////////////////
 // Pairing
