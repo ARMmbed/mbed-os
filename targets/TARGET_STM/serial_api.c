@@ -563,77 +563,107 @@ int8_t get_uart_index(UARTName uart_name)
     uint8_t index = 0;
 
 #if defined(USART1_BASE)
-    if (uart_name == UART_1) return index;
+    if (uart_name == UART_1) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART2_BASE)
-    if (uart_name == UART_2) return index;
+    if (uart_name == UART_2) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART3_BASE)
-    if (uart_name == UART_3) return index;
+    if (uart_name == UART_3) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART4_BASE)
-    if (uart_name == UART_4) return index;
+    if (uart_name == UART_4) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART4_BASE)
-    if (uart_name == UART_4) return index;
+    if (uart_name == UART_4) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART5_BASE)
-    if (uart_name == UART_5) return index;
+    if (uart_name == UART_5) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART5_BASE)
-    if (uart_name == UART_5) return index;
+    if (uart_name == UART_5) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART6_BASE)
-    if (uart_name == UART_6) return index;
+    if (uart_name == UART_6) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART7_BASE)
-    if (uart_name == UART_7) return index;
+    if (uart_name == UART_7) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART7_BASE)
-    if (uart_name == UART_7) return index;
+    if (uart_name == UART_7) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART8_BASE)
-    if (uart_name == UART_8) return index;
+    if (uart_name == UART_8) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(USART8_BASE)
-    if (uart_name == UART_8) return index;
+    if (uart_name == UART_8) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART9_BASE)
-    if (uart_name == UART_9) return index;
+    if (uart_name == UART_9) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(UART10_BASE)
-    if (uart_name == UART_10) return index;
+    if (uart_name == UART_10) {
+        return index;
+    }
     index++;
 #endif
 
 #if defined(LPUART1_BASE)
-    if (uart_name == LPUART_1) return index;
+    if (uart_name == LPUART_1) {
+        return index;
+    }
     index++;
 #endif
 
