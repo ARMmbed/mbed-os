@@ -58,7 +58,7 @@ void mbed_error_printf(const char* format, ...) {
 
 void mbed_error_vfprintf(const char * format, va_list arg) {
 #if DEVICE_SERIAL
-#define ERROR_BUF_SIZE      (64)
+#define ERROR_BUF_SIZE      (128)
     core_util_critical_section_enter();
     char buffer[ERROR_BUF_SIZE];
     int size = vsnprintf(buffer, ERROR_BUF_SIZE, format, arg);
