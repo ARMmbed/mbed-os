@@ -29,6 +29,7 @@
  */
 
 #include "PeripheralPins.h"
+#include "mbed_toolchain.h"
 
 // =====
 // Note: Commented lines are alternative possibilities which are not used per default.
@@ -38,7 +39,7 @@
 
 //*** ADC ***
 
-const PinMap PinMap_ADC[] = {
+MBED_WEAK const PinMap PinMap_ADC[] = {
     {PA_0, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 0, 0)},  // ARDUINO A0
     {PA_1, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 1, 0)},  // Pin not available on any connector
 //  {PA_2, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 2, 0)},  // ARDUINO D1 - Used by STDIO_UART_TX
@@ -55,7 +56,7 @@ const PinMap PinMap_ADC[] = {
     {NC,   NC,    0}
 };
 
-const PinMap PinMap_ADC_Internal[] = {
+MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
     {ADC_TEMP, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)}, // Internal channel
     {ADC_VREF, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0,  0, 0)}, // Internal channel
     {ADC_VBAT, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)}, // Internal channel
@@ -64,7 +65,7 @@ const PinMap PinMap_ADC_Internal[] = {
 
 //*** DAC ***
 
-const PinMap PinMap_DAC[] = {
+MBED_WEAK const PinMap PinMap_DAC[] = {
     {PA_4, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 1, 0)}, // ARDUINO A2
     {PA_5, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 2, 0)}, // CN3.7 - Used also to drive LED2
     {NC,   NC,    0}
@@ -72,7 +73,7 @@ const PinMap PinMap_DAC[] = {
 
 //*** I2C ***
 
-const PinMap PinMap_I2C_SDA[] = {
+MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
     {PA_10, I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF6_I2C1)}, // ARDUINO D2
     {PB_4,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF7_I2C3)}, // Pin not available on any connector
     {PB_7,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF1_I2C1)}, // ARDUINO D5 - Used also to drive LED4
@@ -83,7 +84,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_I2C_SCL[] = {
+MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
     {PA_8,  I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF7_I2C3)}, // ARDUINO D7
     {PA_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF6_I2C1)}, // ARDUINO D8
     {PB_6,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF1_I2C1)}, // ARDUINO D10 - Used also to drive LED3
@@ -96,7 +97,7 @@ const PinMap PinMap_I2C_SCL[] = {
 
 //*** PWM ***
 // Pins using TIM21 cannot be used as TIM21 is already used by ticker.
-const PinMap PinMap_PWM[] = {
+MBED_WEAK const PinMap PinMap_PWM[] = {
     {PA_0,      PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 1, 0)},  // ARDUINO A0
     {PA_1,      PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 2, 0)},  // Pin not available on any connector
 //  {PA_2,      PWM_21, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21, 1, 0)}, // ARDUINO D1 - Used by STDIO_UART_TX
@@ -125,7 +126,7 @@ const PinMap PinMap_PWM[] = {
 
 //*** SERIAL ***
 
-const PinMap PinMap_UART_TX[] = {
+MBED_WEAK const PinMap PinMap_UART_TX[] = {
     {PA_0,       UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},  // ARDUINO A0
     {PA_2,       UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},  // ARDUINO D1 - Used by STDIO_UART_TX
 //  {PA_2,       LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // ARDUINO D1 - UART2 is already used by STDIO_UART_TX
@@ -140,7 +141,7 @@ const PinMap PinMap_UART_TX[] = {
     {NC,         NC,       0}
 };
 
-const PinMap PinMap_UART_RX[] = {
+MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PA_1,      UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},  // Pin not available on any connector
     {PA_3,      UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},  // ARDUINO D0 - Used by STDIO_UART_RX
 //  {PA_3,      LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // ARDUINO D0 - UART2 is already used by STDIO_UART_RX
@@ -155,7 +156,7 @@ const PinMap PinMap_UART_RX[] = {
     {NC,        NC,       0}
 };
 
-const PinMap PinMap_UART_RTS[] = {
+MBED_WEAK const PinMap PinMap_UART_RTS[] = {
     {PA_1,  UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},  // Pin not available on any connector
     {PA_12, UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},  // CN3.14
     {PA_15, UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},  // Pin not available on any connector
@@ -167,7 +168,7 @@ const PinMap PinMap_UART_RTS[] = {
     {NC,    NC,       0}
 };
 
-const PinMap PinMap_UART_CTS[] = {
+MBED_WEAK const PinMap PinMap_UART_CTS[] = {
     {PA_0,  UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},  // ARDUINO A0
     {PA_6,  LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_LPUART1)}, // Pin not available on any connector
     {PA_11, UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},  // CN3.15
@@ -179,7 +180,7 @@ const PinMap PinMap_UART_CTS[] = {
 
 //*** SPI ***
 
-const PinMap PinMap_SPI_MOSI[] = {
+MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
     {PA_7,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // Pin not available on any connector
     {PA_12, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // CN3.14
     {PB_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // ARDUINO D4 - Used also to drive LED1
@@ -187,7 +188,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_MISO[] = {
+MBED_WEAK const PinMap PinMap_SPI_MISO[] = {
     {PA_6,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // Pin not available on any connector
     {PA_11, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // CN3.15
     {PB_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // Pin not available on any connector
@@ -196,7 +197,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_SCLK[] = {
+MBED_WEAK const PinMap PinMap_SPI_SCLK[] = {
     {PA_5,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // CN3.7 - Used also to drive LED2
     {PB_3,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // Pin not available on any connector
     {PB_10, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)}, // Pin not available on any connector
@@ -204,7 +205,7 @@ const PinMap PinMap_SPI_SCLK[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_SSEL[] = {
+MBED_WEAK const PinMap PinMap_SPI_SSEL[] = {
     {PA_4,  SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // ARDUINO A2
     {PA_15, SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_SPI1)}, // Pin not available on any connector
     {PB_9,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)}, // ARDUINO D14
