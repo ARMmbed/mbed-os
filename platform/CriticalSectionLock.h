@@ -19,6 +19,7 @@
 #define MBED_CRITICALSECTIONLOCK_H
 
 #include "platform/mbed_critical.h"
+#include "platform/mbed_toolchain.h"
 
 namespace mbed {
 
