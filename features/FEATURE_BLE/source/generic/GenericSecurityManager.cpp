@@ -755,7 +755,7 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
 
 void GenericSecurityManager::on_passkey_display(
     connection_handle_t connection,
-    const passkey_num_t passkey
+    passkey_num_t passkey
 ) {
     set_mitm_performed(connection);
     _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);

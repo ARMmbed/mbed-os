@@ -331,7 +331,7 @@ public:
 
     virtual void on_passkey_display(
         connection_handle_t connection,
-        const passkey_num_t passkey
+        passkey_num_t passkey
     );
 
     virtual void on_keypress_notification(
