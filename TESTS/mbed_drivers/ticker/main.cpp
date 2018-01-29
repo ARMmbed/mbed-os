@@ -69,7 +69,9 @@ void ticker_callback_1_switch_to_2(void)
     // If ticker is NULL then it is being or has been deleted
     if (ticker1) {
         ticker1->detach();
-        ticker1->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
+    }
+    if (ticker2) {
+        ticker2->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
     }
     switch_led1_state();
 }
@@ -80,7 +82,9 @@ void ticker_callback_2_switch_to_1(void)
     // If ticker is NULL then it is being or has been deleted
     if (ticker2) {
         ticker2->detach();
-        ticker2->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+    }
+    if (ticker1) {
+        ticker1->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
     }
     switch_led2_state();
 }
