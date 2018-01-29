@@ -116,7 +116,7 @@ if __name__ == '__main__':
         "--stats-depth",
         type=int,
         dest="stats_depth",
-        default=2,
+        default=None,
         help="Depth level for static memory report")
 
     # Local run
