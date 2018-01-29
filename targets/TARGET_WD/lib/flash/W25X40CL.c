@@ -277,7 +277,9 @@ MC_RES flash_read_unique_id(uint64_t *buffer) {
 				(((uint64_t)tmp[5]) << 16) |
 				(((uint64_t)tmp[6]) << 8) |
 				((uint64_t)tmp[7]);
-				
+	
+	if (*buffer == 0) return MC_RES_ERROR;
+
 	return MC_RES_OK;
 }
 
