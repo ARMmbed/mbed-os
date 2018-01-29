@@ -29,7 +29,7 @@
             "-std=gnu99"
         ],
         "cxx": [
-            "-std=gnu++98",
+            "-std=gnu++11",
             "-fno-rtti",
             "-Wvla",
             "-fpermissive"
@@ -68,7 +68,7 @@
         ],
         "cxx": [
             "-fno-rtti",
-            "-std=gnu++98"
+            "-std=gnu++11"
         ],
         "ld": [
             "--verbose",

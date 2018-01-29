@@ -18,6 +18,14 @@ DMASerial::DMASerial(PinName tx, PinName rx, int baud)
 	),
 	consumer_pointer(0) { }
 
+DMASerial::~DMASerial() {
+
+	detachRxCallback();
+	_rxQueueProcessingThread.terminate();
+	abort_read();
+
+}
+
 void DMASerial::popFrame(char * buffer, int * length, uint32_t timeout) {
 	
 	osEvent evt = _dma_rx_frame_queue.get(timeout);

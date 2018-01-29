@@ -10,7 +10,8 @@
 // default constructor
 BTSlave::BTSlave(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
 	:	BTBase(Tx, Rx, Irq, Led, baud),
-		_irq(Irq, 1) {
+		_irq(Irq, 1),
+		_rng() {
 	
 	_state = BT_STATE_INITIAL;
 
@@ -26,11 +27,8 @@ BTSlave::~BTSlave() {
 } //~BTSlave
 
 int BTSlave::_get_random_int(int from, int to) {
-	return rand() % to + from;
-	//std::default_random_engine generator;
-	//std::uniform_int_distribution<int> distribution(from, to);
-	//return distribution(generator);
-
+	std::uniform_int_distribution<int> distribution(from, to);
+ 	return distribution(_rng);
 }
 
 void BTSlave::_tx_release(void) {
@@ -192,7 +190,10 @@ void BTSlave::_start(void) {
 
 	// set bus interrupt to signal that we are here
 	_bus_irq_set();
-	
+
+	// seed random number generator with device id (unfortunately we do not have access to a hw rng)
+	_rng.seed(_id);
+
 	// start tx processing
 	this->_txQueueProcessingThread.start(mbed::Callback<void()>(this, &BTSlave::_tx_queue_process_loop));
 

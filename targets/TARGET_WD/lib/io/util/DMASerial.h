@@ -28,6 +28,7 @@ class DMASerial : public RawSerial{
     
 public:
     DMASerial(PinName tx, PinName rx, int baud);
+	~DMASerial();
 	
 	void popFrame(char * buffer, int * length, uint32_t timeout = osWaitForever);
 	void getFrame(dma_frame_meta_t * frame_meta, char * buffer, int * length);

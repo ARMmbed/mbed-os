@@ -14,7 +14,7 @@ ___________________INCLUDES____________________________
 ******************************************************/
 #include "BTBase.h"
 #include "ResettableTimeout.h"
-//#include <random>
+#include <random>
 
 /******************************************************
 ___________________DEFINES_____________________________
@@ -30,7 +30,8 @@ private:
 	DigitalOut _irq;
 	ResettableTimeout * _tx_active_timeout;
 	Thread _txQueueProcessingThread;
-	
+	default_random_engine _rng;
+
 //functions
 public:
 	BTSlave(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
