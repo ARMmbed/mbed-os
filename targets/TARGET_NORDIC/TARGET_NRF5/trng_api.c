@@ -37,54 +37,146 @@
  */
 
 #if defined(DEVICE_TRNG)
-#include "trng_api.h"
+
+#include "hal/trng_api.h"
+#include "hal/lp_ticker_api.h"
+
 #include "nrf_drv_rng.h"
 
+#define DEFAULT_TIMEOUT_US (1000*1000)
+
+/* Macro for testing if the SoftDevice is active, regardless of whether the 
+ * application is build with the SoftDevice or not.
+ */
+#if defined(SOFTDEVICE_PRESENT)
+#include "nrf_sdm.h"
+static uint8_t wrapper(void) {
+    uint8_t softdevice_is_enabled;
+    ret_code_t result = sd_softdevice_is_enabled(&softdevice_is_enabled);
+    return ((result == NRF_SUCCESS) && (softdevice_is_enabled == 1));
+}
+#define NRF_HAL_SD_IS_ENABLED() wrapper()
+#else
+#define NRF_HAL_SD_IS_ENABLED() 0
+#endif
+
+/** Initialize the TRNG peripheral
+ *
+ * @param obj The TRNG object
+ */
 void trng_init(trng_t *obj)
 {
     (void) obj;
 
-    (void)nrf_drv_rng_init(NULL);
+    /* Initialize low power ticker. Used for timeouts. */
+    static bool first_init = true;
+
+    if (first_init) {
+        first_init = false;
+        lp_ticker_init();
+    }
 }
 
+/** Deinitialize the TRNG peripheral
+ *
+ * @param obj The TRNG object
+ */
 void trng_free(trng_t *obj)
 {
     (void) obj;
-
-    nrf_drv_rng_uninit();
 }
 
-/* Get random data from NRF5x TRNG peripheral.
+/** Get random data from TRNG peripheral
  *
- * This implementation returns num of random bytes in range <1, length>.
- * For parameters description see trng_api.h file.
+ * @param obj The TRNG object
+ * @param output The pointer to an output array
+ * @param length The size of output data, to avoid buffer overwrite
+ * @param output_length The length of generated data
+ * @return 0 success, -1 fail
  */
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-    uint8_t bytes_available;
-
     (void) obj;
 
-    nrf_drv_rng_bytes_available(&bytes_available);
+    /* Use SDK RNG driver if SoftDevice is enabled. */
+    if (NRF_HAL_SD_IS_ENABLED()) {
 
-    if (bytes_available == 0) {
-        nrf_drv_rng_block_rand(output, 1);
-        *output_length = 1;
+        /* Initialize driver once. */
+        static bool nordic_driver_init = true;
+
+        if (nordic_driver_init) {
+            nordic_driver_init = false;
+            nrf_drv_rng_init(NULL);
+        }
+
+        /* Query how many bytes are available. */
+        uint8_t bytes_available;
+        nrf_drv_rng_bytes_available(&bytes_available);
+
+        /* If no bytes are cached, block until at least 1 byte is available. */
+        if (bytes_available == 0) {
+            nrf_drv_rng_block_rand(output, 1);
+            *output_length = 1;
+        } else {
+
+            /* Get up to the requested number of bytes. */
+            if (bytes_available > length) {
+                bytes_available = length;
+            }
+
+            ret_code_t result = nrf_drv_rng_rand(output, bytes_available);
+
+            /* Set output length with available bytes. */
+            if (result == NRF_SUCCESS) {
+                *output_length = bytes_available;
+            } else {
+                *output_length = 0;
+            }
+        }
     } else {
 
-        if (bytes_available > length) {
-            bytes_available = length;
+        /* Initialize low-level registers once. */
+        static bool nordic_register_init = true;
+
+        if (nordic_register_init) {
+            nordic_register_init = false;
+
+            /* Enable RNG */
+            nrf_rng_error_correction_enable();
+            nrf_rng_task_trigger(NRF_RNG_TASK_START);
         }
 
-        if (nrf_drv_rng_rand(output, bytes_available) != NRF_SUCCESS) {
-            *output_length = 0;
-            return -1;
-        } else {
-            *output_length = bytes_available;
+        /* Copy out one byte at a time. */
+        size_t index = 0;
+        for ( ;  index < length; index++) {
+
+            /* Setup stop watch for timeout. */
+            uint32_t start_us = lp_ticker_read();
+            uint32_t now_us = start_us;
+
+            /* Block until timeout or random numer is ready. */
+            while (((now_us - start_us) < DEFAULT_TIMEOUT_US) && 
+                   !nrf_rng_event_get(NRF_RNG_EVENT_VALRDY)) {
+                now_us = lp_ticker_read();            
+            }
+
+            /* Abort if timeout was reached. */
+            if ((now_us - start_us) >= DEFAULT_TIMEOUT_US) {
+                break;
+            } else {
+
+                /* Read random byte and clear event in preparation for the next byte. */
+                nrf_rng_event_clear(NRF_RNG_EVENT_VALRDY);
+                output[index] = nrf_rng_random_value_get();
+            }
         }
+
+        /* Set output length with available bytes. */
+        *output_length = index;
     }
 
-    return 0;
+    /* Set return value based on how many bytes was read. */
+    return (*output_length == 0) ? -1 : 0;
 }
 
 #endif
