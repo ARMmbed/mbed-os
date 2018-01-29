@@ -409,10 +409,12 @@ protected:
             /* we need to verify the identity by encrypting the
              * PRAND part with the IRK key and checking the result
              * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
-            address_t address_checked = peer_address;
-            address_checked[3] = 0;
-            address_checked[4] = 0;
-            address_checked[5] = 0;
+            address_t prand_hash = peer_address;
+
+            /* remove the hash and leave only prand */
+            prand_hash[3] = 0;
+            prand_hash[4] = 0;
+            prand_hash[5] = 0;
 
             /* TODO:
             GenericSecurityManager *sm = GenericSecurityManager::instance();
@@ -423,10 +425,13 @@ protected:
             sm->encrypt_data(irk, address_checked.data());
             */
 
+            /* prand_hash now contains the hash result in the first 3 octects
+             * compare it with the hash in the peer identity address */
+
             /* can't use memcmp because of address_t constness */
-            if ((address_checked[3] == peer_address[0])
-                || (address_checked[4] == peer_address[1])
-                || (address_checked[5] == peer_address[2])) {
+            if ((prand_hash[0] == peer_address[3])
+                || (prand_hash[1] == peer_address[4])
+                || (prand_hash[2] == peer_address[5])) {
                 return true;
             }
         }
