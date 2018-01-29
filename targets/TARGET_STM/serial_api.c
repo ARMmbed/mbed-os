@@ -44,7 +44,6 @@ HAL_StatusTypeDef init_uart(serial_t *obj);
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
-    int IndexNumber = 0;
     uint8_t stdio_config = 0;
 
     // Determine the UART to use (UART_1, UART_2, ...)
@@ -64,15 +63,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         }
     }
 
-    // Enable USART clock
+    // Reset and enable clock
 #if defined(USART1_BASE)
     if (obj_s->uart == UART_1) {
         __HAL_RCC_USART1_FORCE_RESET();
         __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined (USART2_BASE)
@@ -80,9 +77,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART3_BASE)
@@ -90,9 +85,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART3_FORCE_RESET();
         __HAL_RCC_USART3_RELEASE_RESET();
         __HAL_RCC_USART3_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART4_BASE)
@@ -100,9 +93,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART4_FORCE_RESET();
         __HAL_RCC_UART4_RELEASE_RESET();
         __HAL_RCC_UART4_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART4_BASE)
@@ -110,9 +101,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART4_FORCE_RESET();
         __HAL_RCC_USART4_RELEASE_RESET();
         __HAL_RCC_USART4_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART5_BASE)
@@ -120,9 +109,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART5_FORCE_RESET();
         __HAL_RCC_UART5_RELEASE_RESET();
         __HAL_RCC_UART5_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART5_BASE)
@@ -130,9 +117,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART5_FORCE_RESET();
         __HAL_RCC_USART5_RELEASE_RESET();
         __HAL_RCC_USART5_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART6_BASE)
@@ -140,9 +125,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART6_FORCE_RESET();
         __HAL_RCC_USART6_RELEASE_RESET();
         __HAL_RCC_USART6_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART7_BASE)
@@ -150,9 +133,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART7_FORCE_RESET();
         __HAL_RCC_UART7_RELEASE_RESET();
         __HAL_RCC_UART7_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART7_BASE)
@@ -160,9 +141,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART7_FORCE_RESET();
         __HAL_RCC_USART7_RELEASE_RESET();
         __HAL_RCC_USART7_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART8_BASE)
@@ -170,9 +149,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART8_FORCE_RESET();
         __HAL_RCC_UART8_RELEASE_RESET();
         __HAL_RCC_UART8_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART8_BASE)
@@ -180,9 +157,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART8_FORCE_RESET();
         __HAL_RCC_USART8_RELEASE_RESET();
         __HAL_RCC_USART8_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART9_BASE)
@@ -190,9 +165,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART9_FORCE_RESET();
         __HAL_RCC_UART9_RELEASE_RESET();
         __HAL_RCC_UART9_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART10_BASE)
@@ -200,9 +173,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART10_FORCE_RESET();
         __HAL_RCC_UART10_RELEASE_RESET();
         __HAL_RCC_UART10_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(LPUART1_BASE)
@@ -210,10 +181,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_LPUART1_FORCE_RESET();
         __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
+
+    // Assign serial object index
+    obj_s->index = get_uart_index(obj_s->uart);
+    MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -556,8 +529,6 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
     return HAL_UART_Init(huart);
 }
 
-// Warning: the list of UART/USART in this function must be aligned with the list
-// written in serial_init function.
 int8_t get_uart_index(UARTName uart_name)
 {
     uint8_t index = 0;
