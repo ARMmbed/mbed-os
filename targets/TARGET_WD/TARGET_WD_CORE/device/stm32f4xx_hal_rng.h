@@ -45,7 +45,7 @@
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F469xx) ||\
     defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx) || defined(WD_CORE)
       
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
