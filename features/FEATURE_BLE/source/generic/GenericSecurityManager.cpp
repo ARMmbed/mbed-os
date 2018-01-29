@@ -428,6 +428,12 @@ ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in
    return _pal.set_private_address_timeout(timeout_in_seconds);
 }
 
+void GenericSecurityManager::check_against_irk_cb(
+    const irk_t *irk
+) {
+
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
@@ -476,13 +482,13 @@ DbCbAction_t GenericSecurityManager::set_ltk_cb(
     return DB_CB_ACTION_NO_UPDATE_REQUIRED;
 }
 
-DbCbAction_t GenericSecurityManager::return_csrk_cb(
+void GenericSecurityManager::return_csrk_cb(
     connection_handle_t connection,
     const csrk_t *csrk
 ) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (!entry) {
-        return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+        return;
     }
 
     _app_event_handler->signingKey(
@@ -490,7 +496,6 @@ DbCbAction_t GenericSecurityManager::return_csrk_cb(
         csrk,
         entry->mitm_csrk
     );
-    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -893,15 +898,57 @@ void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
 }
 
 void GenericSecurityManager::on_connected(connection_handle_t connection, address_t peer_address, bool is_master) {
-    /* TODO: if resolvable peer address, find identity address */
-    SecurityEntry_t *entry = _db.connect_entry(connection, peer_address);
+    SecurityEntry_t *entry = NULL;
+
+    /* if it's a resolvable address, check against IRKs */
+    if ((peer_address[0] & 0x3) == 0x2) {
+        IdentytList_t *list = NULL;
+        if (_db.get_identity_list(list) == BLE_ERROR_NONE && list) {
+            for (size_t i; i < list->size; ++i) {
+                /* if the address resolves connect to an existing entry based on the identity address */
+                if (check_against_identity_address(peer_address, &list->identities[i].irk)) {
+                    entry = _db.connect_entry(connection, list->identities[i].peer_identity_address);
+                }
+            }
+        }
+    }
+
+    entry = _db.connect_entry(connection, peer_address);
     if (!entry) {
         return;
     }
+
     entry->reset();
     entry->master = is_master;
 }
 
+bool GenericSecurityManager::check_against_identity_address(
+    const address_t peer_address,
+    const irk_t *irk
+) {
+    /* we need to verify the identity by encrypting the
+     * PRAND part with the IRK key and checking the result
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
+    octet_type_t<6> prand_hash(peer_address.data(), 6);
+
+    /* remove the hash and leave only prand */
+    prand_hash[3] = 0;
+    prand_hash[4] = 0;
+    prand_hash[5] = 0;
+
+    _pal.encrypt_data(irk, prand_hash.data());
+
+    /* prand_hash now contains the hash result in the first 3 octects
+     * compare it with the hash in the peer identity address */
+
+    /* can't use memcmp because of address_t constness */
+    if ((prand_hash[0] == peer_address[3])
+        || (prand_hash[1] == peer_address[4])
+        || (prand_hash[2] == peer_address[5])) {
+        return true;
+    }
+    return false;
+}
 
 
 } /* namespace generic */

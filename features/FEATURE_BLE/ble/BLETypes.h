@@ -202,6 +202,16 @@ struct octet_type_t {
     }
 
     /**
+     * Initialize a data from an buffer of bytes.
+     *
+     * @param input_value pointer to buffer.
+     * @param size buffer size
+     */
+    octet_type_t(const uint8_t* input_value, size_t size) {
+        memcpy(value, input_value, size);
+    }
+
+    /**
      * Equal operator between two octet types.
      */
     friend bool operator==(const octet_type_t& lhs, const octet_type_t& rhs) {
@@ -218,14 +228,14 @@ struct octet_type_t {
     /**
      * Subscript operator to access data content
      */
-    uint8_t operator[](uint8_t i) const {
+    uint8_t& operator[](uint8_t i) {
         return value[i];
     }
 
     /**
      * Return the pointer to the buffer holding data.
      */
-    const uint8_t* data() const {
+    uint8_t* data() {
         return value;
     }
 

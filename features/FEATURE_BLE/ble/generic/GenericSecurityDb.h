@@ -72,7 +72,6 @@ struct SecurityEntry_t {
     }
 
     connection_handle_t handle;
-    address_t peer_identity_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
 
@@ -100,14 +99,19 @@ struct SecurityEntry_t {
 };
 
 struct SecurityEntryKeys_t {
-    ltk_t  ltk;
+    ltk_t ltk;
     ediv_t ediv;
     rand_t rand;
 };
 
 struct SecurityEntryIdentity_t {
-    irk_t  irk;
-    csrk_t csrk;
+    address_t peer_identity_address;
+    irk_t irk;
+};
+
+struct IdentytList_t {
+    SecurityEntryIdentity_t* identities;
+    size_t size;
 };
 
 /** Return value for callbacks to indicate to the security db
@@ -122,8 +126,8 @@ enum DbCbAction_t {
 
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
-typedef mbed::Callback<DbCbAction_t(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
-typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryIdentity_t&)> SecurityEntryIdentityDbCb_t;
+typedef mbed::Callback<void(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
+typedef mbed::Callback<void(const SecurityEntryIdentity_t*)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
 
 /**
@@ -201,14 +205,26 @@ public:
     ) = 0;
 
     /**
-     * Return asynchronously the local signing key through a callback
-     * so that packets being sent can be signed.
+     * Return asynchronously the peer encryption key through a callback
+     * so that encryption can be enabled.
      * @param cb callback which will receive the key
      * @param connection handle of the connection queried
      */
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection
+    ) = 0;
+
+    /**
+     * Return asynchronously one identity entry, call until you get NULL
+     * to get all Iidentity entries containing IRK and identity address
+     * @param cb callback which will receive the entry
+     * @note query is stateful and will return NULL when all
+     * entries have been returned, it may return the same entry multiple
+     * times if list is changed in between queries
+     */
+    virtual void get_next_entry_peer_identity(
+        SecurityEntryIdentityDbCb_t cb
     ) = 0;
 
     /**
@@ -307,6 +323,17 @@ public:
     /* list management */
 
     /**
+     * If implementation has enough memory it can return the
+     * irk list synchronously, otherwise asynchronously iteration
+     * shall be used through get_next_entry_peer_identity
+     *
+     * @param list the list of entires, NULL if empty
+     *
+     * @return BLE_ERROR_NONE if the function is implemented.
+     */
+    virtual ble_error_t get_identity_list(IdentytList_t* list) = 0;
+
+    /**
      * Create a new entry or retrieve existing stored entry
      * and put it in the live connections store to be retrieved
      * synchronously through connection handle.
@@ -399,44 +426,6 @@ public:
      * @param reload if true values will be preserved across resets.
      */
     virtual void set_restore(bool reload) = 0;
-
-protected:
-    virtual bool check_against_identity_address(
-        const address_t peer_address,
-        const irk_t *irk
-    ) {
-        if ((peer_address[0] & 0x3) == 0x2) {
-            /* we need to verify the identity by encrypting the
-             * PRAND part with the IRK key and checking the result
-             * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
-            address_t prand_hash = peer_address;
-
-            /* remove the hash and leave only prand */
-            prand_hash[3] = 0;
-            prand_hash[4] = 0;
-            prand_hash[5] = 0;
-
-            /* TODO:
-            GenericSecurityManager *sm = GenericSecurityManager::instance();
-            if (!sm) {
-                return BLE_ERROR_INITIALIZATION_INCOMPLETE;
-            }
-
-            sm->encrypt_data(irk, address_checked.data());
-            */
-
-            /* prand_hash now contains the hash result in the first 3 octects
-             * compare it with the hash in the peer identity address */
-
-            /* can't use memcmp because of address_t constness */
-            if ((prand_hash[0] == peer_address[3])
-                || (prand_hash[1] == peer_address[4])
-                || (prand_hash[2] == peer_address[5])) {
-                return true;
-            }
-        }
-        return false;
-    }
 };
 
 /* naive memory implementation for verification */
@@ -446,12 +435,12 @@ private:
         db_store_t() { };
         SecurityEntry_t entry;
         SecurityEntryKeys_t key;
-        SecurityEntryIdentity_t identity;
+        csrk_t csrk;
     };
     static const size_t MAX_ENTRIES = 5;
 
 public:
-    MemoryGenericSecurityDb() { };
+    MemoryGenericSecurityDb() : _irk_index(0) { };
     virtual ~MemoryGenericSecurityDb() { };
 
     virtual SecurityEntry_t* get_entry(connection_handle_t connection) {
@@ -505,13 +494,27 @@ public:
         connection_handle_t connection
     ) {
         SecurityEntry_t *entry = NULL;
-        SecurityEntryIdentity_t *identity = NULL;
+        csrk_t csrk;
         db_store_t *store = get_store(connection);
         if (store) {
             entry = &store->entry;
-            identity = &store->identity;
+            csrk = store->csrk;
         }
-        cb(entry->handle, &identity->csrk);
+        cb(entry->handle, &csrk);
+    }
+
+    virtual void get_next_entry_peer_identity(
+        SecurityEntryIdentityDbCb_t cb
+    ) {
+        SecurityEntryIdentity_t identity;
+
+        if (_irk_index < MAX_ENTRIES) {
+            _irk_index++;
+            cb(&_identities[_irk_index - 1]);
+        } else {
+            _irk_index = 0;
+            cb(NULL);
+        }
     }
 
     virtual void get_entry_peer_keys(
@@ -541,13 +544,15 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->entry.peer_identity_address = peer_address;
             store->key.ltk = *ltk;
             store->key.ediv = *ediv;
             store->key.rand = *rand;
-            store->identity.irk = *irk;
-            store->identity.csrk = *csrk;
+            store->csrk = *csrk;
+            size_t index = store - _db;
+            _identities[index].irk = *irk;
+            _identities[index].peer_identity_address = peer_address;
         }
+        _irk_index = 0;
     }
 
     virtual void set_entry_peer_ltk(
@@ -578,8 +583,10 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->identity.irk = *irk;
+            size_t index = store - _db;
+            _identities[index].irk = *irk;
         }
+        _irk_index = 0;
     }
 
     virtual void set_entry_peer_bdaddr(
@@ -589,7 +596,8 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->entry.peer_identity_address = peer_address;
+            size_t index = store - _db;
+            _identities[index].peer_identity_address = peer_address;
         }
     }
 
@@ -599,29 +607,31 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->identity.csrk = *csrk;
+            store->csrk = *csrk;
         }
     }
 
     /* local csrk */
 
     virtual const csrk_t* get_local_csrk() {
-        return &_local_identity.csrk;
+        return &_local_csrk;
     }
 
     virtual void set_local_csrk(const csrk_t *csrk) {
-        _local_identity.csrk = *csrk;
+        _local_csrk = *csrk;
     }
 
     /* list management */
+
+    virtual ble_error_t get_identity_list(IdentytList_t* list) {
+        return BLE_ERROR_NONE;
+    }
 
     virtual SecurityEntry_t* connect_entry(connection_handle_t connection, address_t peer_address) {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_db[i].entry.connected) {
                 continue;
-            } else if (peer_address == _db[i].entry.peer_identity_address) {
-                return &_db[i].entry;
-            } else if (check_against_identity_address(peer_address, &_db[i].identity.irk)) {
+            } else if (peer_address == _identities[i].peer_identity_address) {
                 return &_db[i].entry;
             }
         }
@@ -630,6 +640,8 @@ public:
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (!_db[i].entry.connected) {
                 _db[i] = db_store_t();
+                _identities[i] = SecurityEntryIdentity_t();
+                _irk_index = 0;
                 return &_db[i].entry;
             }
         }
@@ -646,6 +658,7 @@ public:
         }
         _local_keys = SecurityEntryKeys_t();
         _local_identity = SecurityEntryIdentity_t();
+        _local_csrk = csrk_t();
     }
 
     virtual void get_whitelist(WhitelistDbCb_t cb) { }
@@ -676,8 +689,12 @@ private:
     }
 
     db_store_t _db[MAX_ENTRIES];
+    SecurityEntryIdentity_t _identities[MAX_ENTRIES];
     SecurityEntryKeys_t _local_keys;
     SecurityEntryIdentity_t _local_identity;
+    csrk_t _local_csrk;
+
+    size_t _irk_index;
 };
 
 } /* namespace generic */

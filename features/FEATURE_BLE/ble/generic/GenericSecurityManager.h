@@ -174,12 +174,27 @@ public:
 
     virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds);
 
+private:
+    bool check_against_identity_address(
+        const address_t peer_address,
+        const irk_t *irk
+    );
+
+    void check_against_irk_cb(
+        const irk_t *irk
+    );
+public:
+
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 
-    virtual ble_error_t getSigningKey(connection_handle_t connection, bool authenticated);
+    virtual ble_error_t getSigningKey(
+        connection_handle_t connection,
+        bool authenticated
+    );
 
+private:
     /**
      * Returns the requested LTK to the PAL. Called by the security db.
      *
@@ -193,10 +208,11 @@ public:
         SecurityEntryKeys_t& entryKeys
     );
 
-    DbCbAction_t return_csrk_cb(
+    void return_csrk_cb(
         connection_handle_t connection,
         const csrk_t *csrk
     );
+public:
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
