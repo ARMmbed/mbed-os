@@ -51,8 +51,12 @@ typedef enum {
 } PWMName;
 
 typedef enum {
+#ifdef UART0_BASE
     UART_0 = UART0_BASE,
+#endif
+#ifdef UART1_BASE
     UART_1 = UART1_BASE,
+#endif
     USART_0 = USART0_BASE,
     USART_1 = USART1_BASE,
     USART_2 = USART2_BASE,
