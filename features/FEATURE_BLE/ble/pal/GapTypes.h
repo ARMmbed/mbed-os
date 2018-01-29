@@ -464,6 +464,13 @@ struct address_t {
     }
 
     /**
+     * Subscript operator to access mac address content
+     */
+    uint8_t& operator[](uint8_t i) {
+        return value[i];
+    }
+
+    /**
      * Return the pointer to the buffer holding mac address.
      */
     const uint8_t* data() const {

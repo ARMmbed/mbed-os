@@ -557,6 +557,11 @@ public:
         uint8_t &bitsize
     ) = 0;
 
+    virtual ble_error_t encrypt_data(
+        const key_t *key,
+        uint8_t *data
+    ) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
