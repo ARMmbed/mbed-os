@@ -579,8 +579,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
-        spm_source_pattern = re.compile(r'spm_.+\.[oc]')
-        if any(spm_source_pattern.match(basename(f)) for f in itertools.chain(resources.objects, resources.c_sources)):
+        # Skip SPM sources for Mbed OS 2 builds
+        # Directories scanned would not include the root of Mbed OS for legacy builds
+        if 'rtos' in toolchain.config.lib_config_data:
             # Generate SPM additional code from manifests
             psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
             resources.add(toolchain.scan_resources(psa_files_dir))
