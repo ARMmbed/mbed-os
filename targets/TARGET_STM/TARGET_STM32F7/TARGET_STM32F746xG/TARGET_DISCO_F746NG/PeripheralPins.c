@@ -29,6 +29,7 @@
  */
 
 #include "PeripheralPins.h"
+#include "mbed_toolchain.h"
 
 // =============================================================================
 // Notes:
@@ -40,7 +41,7 @@
 
 //*** ADC ***
 
-const PinMap PinMap_ADC[] = {
+MBED_WEAK const PinMap PinMap_ADC[] = {
     {PA_0,  ADC_3, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 0, 0)}, // ADC3_IN0 - ARDUINO A0
     {PF_6,  ADC_3, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 4, 0)}, // ADC3_IN4 - ARDUINO A5
     {PF_7,  ADC_3, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 5, 0)}, // ADC3_IN5 - ARDUINO A4
@@ -50,7 +51,7 @@ const PinMap PinMap_ADC[] = {
     {NC,   NC,    0}
 };
 
-const PinMap PinMap_ADC_Internal[] = {
+MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
     {ADC_TEMP, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)}, // See in analogin_api.c the correct ADC channel used
     {ADC_VREF, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)}, // See in analogin_api.c the correct ADC channel used
     {ADC_VBAT, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)}, // See in analogin_api.c the correct ADC channel used
@@ -59,7 +60,7 @@ const PinMap PinMap_ADC_Internal[] = {
 
 //*** DAC ***
 
-const PinMap PinMap_DAC[] = {
+MBED_WEAK const PinMap PinMap_DAC[] = {
     {PA_4, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 1, 0)}, // DAC_OUT1
     {PA_5, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 2, 0)}, // DAC_OUT2
     {NC,   NC,    0}
@@ -67,19 +68,19 @@ const PinMap PinMap_DAC[] = {
 
 //*** I2C ***
 
-const PinMap PinMap_I2C_SDA[] = {
+MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
     {PB_9,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // ARDUINO D14
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_I2C_SCL[] = {
+MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
     {PB_8,  I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // ARDUINO D15
     {NC,    NC,    0}
 };
 
 //*** PWM ***
 
-const PinMap PinMap_PWM[] = {
+MBED_WEAK const PinMap PinMap_PWM[] = {
     {PA_0,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2,  1, 0)}, // TIM2_CH1 - ARDUINO A0
 //  {PA_0,  PWM_5,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM5,  1, 0)}, // TIM5_CH1 - ARDUINO A0 (used by us_ticker)
     {PA_8,  PWM_1,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM1,  1, 0)}, // TIM1_CH1 - ARDUINO D5
@@ -111,7 +112,7 @@ const PinMap PinMap_PWM[] = {
 
 //*** SERIAL ***
 
-const PinMap PinMap_UART_TX[] = {
+MBED_WEAK const PinMap PinMap_UART_TX[] = {
     {PA_0,  UART_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)}, // ARDUINO A0
     {PA_9,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Virtual Com Port
     {PC_6,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)}, // ARDUINO D1
@@ -119,14 +120,14 @@ const PinMap PinMap_UART_TX[] = {
     {NC,    NC,     0}
 };
 
-const PinMap PinMap_UART_RX[] = {
+MBED_WEAK const PinMap PinMap_UART_RX[] = {
     {PB_7,  UART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)}, // Virtual Com Port
     {PC_7,  UART_6, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)}, // ARDUINO D0
     {PF_6,  UART_7, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART7)}, // ARDUINO A5
     {NC,    NC,     0}
 };
 
-const PinMap PinMap_UART_RTS[] = {
+MBED_WEAK const PinMap PinMap_UART_RTS[] = {
     {PA_1,  UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
     {PA_12, UART_1,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PA_15, UART_4,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)},
@@ -142,7 +143,7 @@ const PinMap PinMap_UART_RTS[] = {
     {NC,    NC,      0}
 };
 
-const PinMap PinMap_UART_CTS[] = {
+MBED_WEAK const PinMap PinMap_UART_CTS[] = {
     {PA_0,  UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART2)},
     {PA_11, UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART1)},
     {PB_0,  UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART4)},
@@ -160,28 +161,28 @@ const PinMap PinMap_UART_CTS[] = {
 
 //*** SPI ***
 
-const PinMap PinMap_SPI_MOSI[] = {
+MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
     {PB_15, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D11
     {PF_9,  SPI_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI5)}, // ARDUINO A2
     {PI_3,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D7
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_MISO[] = {
+MBED_WEAK const PinMap PinMap_SPI_MISO[] = {
     {PB_14, SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D12
     {PF_8,  SPI_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI5)}, // ARDUINO A3
     {PI_2,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D8
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_SCLK[] = {
+MBED_WEAK const PinMap PinMap_SPI_SCLK[] = {
     {PF_7,  SPI_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI5)}, // ARDUINO A4
     {PH_6,  SPI_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI5)}, // ARDUINO D6
     {PI_1,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D13
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_SPI_SSEL[] = {
+MBED_WEAK const PinMap PinMap_SPI_SSEL[] = {
     {PB_4,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF7_SPI2)}, // ARDUINO D3
     {PB_9,  SPI_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI2)}, // ARDUINO D14
     {PF_6,  SPI_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF5_SPI5)}, // ARDUINO A5
@@ -189,7 +190,7 @@ const PinMap PinMap_SPI_SSEL[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_CAN_RD[] = {
+MBED_WEAK const PinMap PinMap_CAN_RD[] = {
     // {PB_12 , CAN_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN2)},
     // {PD_0  , CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)},
     // {PA_11, CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)},
@@ -198,7 +199,7 @@ const PinMap PinMap_CAN_RD[] = {
     {NC,    NC,    0}
 };
 
-const PinMap PinMap_CAN_TD[] = {
+MBED_WEAK const PinMap PinMap_CAN_TD[] = {
     // {PB_13 , CAN_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN2)},
     // {PD_1  , CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)},
     // {PA_12, CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)},
