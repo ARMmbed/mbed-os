@@ -51,6 +51,11 @@ int ObservingBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ObservingBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ObservingBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);

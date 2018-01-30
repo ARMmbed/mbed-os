@@ -77,6 +77,12 @@ public:
      */
     virtual int deinit();
 
+    /** Ensure data on storage is in sync with the driver
+     *
+     *  @return         0 on success or a negative error code on failure
+     */
+    virtual int sync();
+
     /** Read blocks from a block device
      *
      *  @param buffer   Buffer to read blocks into
