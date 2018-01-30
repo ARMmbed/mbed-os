@@ -40,6 +40,7 @@ extern uint32_t serial_irq_ids[];
 
 // Utility functions
 HAL_StatusTypeDef init_uart(serial_t *obj);
+int8_t get_uart_index(UARTName uart_name);
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
