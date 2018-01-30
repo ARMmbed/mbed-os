@@ -65,6 +65,8 @@ public:
 
     virtual ble_error_t purgeAllBondingState(void);
 
+    virtual ble_error_t generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const;
+
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //

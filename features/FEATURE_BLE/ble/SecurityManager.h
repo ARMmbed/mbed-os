@@ -34,11 +34,11 @@ using ble::csrk_t;
 class SecurityManager {
 public:
     enum Keypress_t {
-        KEYPRESS_STARTED, /* Passkey entry started */
-        KEYPRESS_ENTERED, /* Passkey digit entered */
-        KEYPRESS_ERASED, /* Passkey digit erased */
-        KEYPRESS_CLEARED, /* Passkey cleared */
-        KEYPRESS_COMPLETED, /* Passkey entry completed */
+        KEYPRESS_STARTED,   /**< Passkey entry started */
+        KEYPRESS_ENTERED,   /**< Passkey digit entered */
+        KEYPRESS_ERASED,    /**< Passkey digit erased */
+        KEYPRESS_CLEARED,   /**< Passkey cleared */
+        KEYPRESS_COMPLETED, /**< Passkey entry completed */
     };
 
     enum SecurityMode_t {
@@ -62,10 +62,10 @@ public:
     };
 
     enum SecurityIOCapabilities_t {
-        IO_CAPS_DISPLAY_ONLY = 0x00, /**< Display only. */
-        IO_CAPS_DISPLAY_YESNO = 0x01, /**< Display and yes/no entry. */
-        IO_CAPS_KEYBOARD_ONLY = 0x02, /**< Keyboard only. */
-        IO_CAPS_NONE = 0x03, /**< No I/O capabilities. */
+        IO_CAPS_DISPLAY_ONLY = 0x00,     /**< Display only. */
+        IO_CAPS_DISPLAY_YESNO = 0x01,    /**< Display and yes/no entry. */
+        IO_CAPS_KEYBOARD_ONLY = 0x02,    /**< Keyboard only. */
+        IO_CAPS_NONE = 0x03,             /**< No I/O capabilities. */
         IO_CAPS_KEYBOARD_DISPLAY = 0x04, /**< Keyboard and display. */
     };
 
@@ -93,21 +93,20 @@ public:
      * for authentication instead of generating a random one.
      */
     static const unsigned PASSKEY_LEN = 6;
-    typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
-
-    typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
-    typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
-    typedef void (*SecuritySetupCompletedCallback_t)(Gap::Handle_t, SecurityCompletionStatus_t status);
-    typedef void (*LinkSecuredCallback_t)(Gap::Handle_t handle, SecurityMode_t securityMode);
-    typedef void (*PasskeyDisplayCallback_t)(Gap::Handle_t handle, const Passkey_t passkey);
-
-public:
+    typedef uint8_t Passkey_t[PASSKEY_LEN]; /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
 
     typedef FunctionPointerWithContext<const SecurityManager *> SecurityManagerShutdownCallback_t;
     typedef CallChainOfFunctionPointersWithContext<const SecurityManager *> SecurityManagerShutdownCallbackChain_t;
 
-public:
-    /* subclass to override handlers */
+    /* legacy callbacks, please use SecurityManagerEventHandler instead */
+    typedef void (*HandleSpecificEvent_t)(connection_handle_t handle);
+    typedef void (*SecuritySetupInitiatedCallback_t)(connection_handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
+    typedef void (*SecuritySetupCompletedCallback_t)(connection_handle_t, SecurityCompletionStatus_t status);
+    typedef void (*LinkSecuredCallback_t)(connection_handle_t handle, SecurityMode_t securityMode);
+    typedef void (*PasskeyDisplayCallback_t)(connection_handle_t handle, const Passkey_t passkey);
+
+    /* The stack will use these functions to signal events to the application,
+     * subclass to override handlers */
     class SecurityManagerEventHandler {
     public:
         SecurityManagerEventHandler() {};
@@ -117,10 +116,22 @@ public:
         // Pairing
         //
 
+        /**
+         * Request application to accept or reject pairing. Application should respond by
+         * calling the appropriate function: acceptPairingRequest or cancelPairingRequest
+         *
+         * @param[in] handle connection handle
+         */
         virtual void acceptPairingRequest(connection_handle_t handle) {
             (void)handle;
         }
 
+        /**
+         * Indicate to the application that pairing has completed.
+         *
+         * @param[in] handle connection handle
+         * @param[in] result result of the pairing indicating success or reason for failure
+         */
         virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
             (void)handle;
             (void)result;
@@ -130,10 +141,22 @@ public:
         // Security
         //
 
+        /**
+         * Indicate to the application that the set timeout time has elapsed without
+         * receiving a packet with a valid MIC.
+         *
+         * @param[in] handle connection handle
+         */
         virtual void validMicTimeout(connection_handle_t handle) {
             (void)handle;
         }
 
+        /**
+         * Deliver the requested whitelist to the application.
+         *
+         * @param[in] whitelist whitelist created based on the bonding table,
+         *                      caller transfers the memory ownership
+         */
         virtual void whitelistFromBondTable(Gap::Whitelist_t* whitelist) {
             if (whitelist) {
                 delete whitelist;
@@ -144,6 +167,12 @@ public:
         // Encryption
         //
 
+        /**
+         * Inform the device of the encryption state of a given link.
+         *
+         * @param[in] handle connection handle
+         * @param[in] result encryption state of the link
+         */
         virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
             (void)handle;
             (void)result;
@@ -153,28 +182,62 @@ public:
         // MITM
         //
 
+        /**
+         * Display the given passkey on the local device.
+         *
+         * @param[in] handle connection handle
+         * @param[in] passkey 6 digit passkey to be displayed
+         */
         virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
             (void)handle;
             (void)passkey;
         }
 
+        /**
+         * Indicate to the application that a confirmation is required. The application should
+         * proceed by supplying the confirmation confirmationEntered function.
+         *
+         * @param[in] handle connection handle
+         */
         virtual void confirmationRequest(connection_handle_t handle) {
             (void)handle;
         }
 
+        /**
+         * Indicate to the application that a passkey is required. The application should
+         * proceed by supplying the passkey through the passkeyEntered function.
+         *
+         * @param[in] handle connection handle
+         */
         virtual void passkeyRequest(connection_handle_t handle) {
             (void)handle;
         }
 
+        /**
+         * Notify the application that a key was pressed by the peer during passkey entry.
+         *
+         * @param[in] handle connection handle
+         * @param[in] keypress type of keypress event
+         */
         virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
             (void)handle;
             (void)keypress;
         }
 
+        /**
+         * Indicate to the application it needs to return out of band data to the stack.
+         *
+         * @param[in] handle connection handle
+         */
         virtual void legacyPairingOobRequest(connection_handle_t handle) {
             (void)handle;
         }
 
+        /**
+         * Indicate to the application it needs to return out of band data to the stack.
+         *
+         * @param[in] handle connection handle
+         */
         virtual void oobRequest(connection_handle_t handle) {
             (void)handle;
         }
@@ -183,6 +246,13 @@ public:
         // Keys
         //
 
+        /**
+         * Deliver the signing key to the application.
+         *
+         * @param[in] handle connection handle
+         * @param[in] csrk signing key, pointer only valid during call
+         * @param[in] authenticated indicates if the signing key is authenticated
+         */
         virtual void signingKey(connection_handle_t handle, const csrk_t *csrk, bool authenticated) {
             (void)handle;
             (void)csrk;
@@ -191,7 +261,8 @@ public:
     };
 
 private:
-    /* legacy compatibility with old callbacks (from both sides, so combination of new and old works) */
+    /* Legacy compatibility with old callbacks (from both sides so any
+     * combination of new and old works) */
     class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
     public:
         LegacySecurityManagerEventHandler() :
@@ -201,19 +272,11 @@ private:
             securityContextStoredCallback(),
             passkeyDisplayCallback() { };
 
-        ////////////////////////////////////////////////////////////////////////////
-        // Pairing
-        //
-
         virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
             if (securitySetupCompletedCallback) {
                 securitySetupCompletedCallback(handle, result);
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        // Encryption
-        //
 
         virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
             if (linkSecuredCallback) {
@@ -228,10 +291,6 @@ private:
                 linkSecuredCallback(handle, securityMode);
             }
         };
-
-        ////////////////////////////////////////////////////////////////////////////
-        // MITM
-        //
 
         virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
             if (passkeyDisplayCallback) {
@@ -309,6 +368,13 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    virtual ble_error_t preserveBondingStateOnReset(bool enable) {
+        /* Avoid compiler warnings about unused variables */
+        (void) enable;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // List management
     //
@@ -327,11 +393,17 @@ public:
 
     /**
      * Create a list of addresses from all peers in the bond table and generate
-     * an event which returns it as a whitelist
+     * an event which returns it as a whitelist. Pass in the container for the whitelist.
+     * This will be returned by the event.
+     *
+     * @param[in] whitelist Preallocated whitelist which will be filled up to its capacity.
+     *                      If whitelist already contains entries this will be appended to.
+     *                      Ownership of memory is trasnferred from the caller. It will be
+     *                      returned in the generated event.
      *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t generatewhitelistFromBondTable() const {
+    virtual ble_error_t generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -339,17 +411,17 @@ public:
     // Pairing
     //
 
-    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
+    virtual ble_error_t requestPairing(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
+    virtual ble_error_t acceptPairingRequest(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
+    virtual ble_error_t canceltPairingRequest(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -415,7 +487,7 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+    virtual ble_error_t setLinkSecurity(connection_handle_t connectionHandle, SecurityMode_t securityMode) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)securityMode;
@@ -458,7 +530,7 @@ public:
     // Encryption
     //
 
-    virtual ble_error_t getLinkEncryption(Gap::Handle_t connectionHandle, link_encryption_t *encryption) {
+    virtual ble_error_t getLinkEncryption(connection_handle_t connectionHandle, link_encryption_t *encryption) {
         (void)connectionHandle;
         (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -470,7 +542,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
+    virtual ble_error_t getEncryptionKeySize(connection_handle_t handle, uint8_t *size) {
         (void) handle;
         (void) size;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -495,7 +567,7 @@ public:
     // Authentication
     //
 
-    virtual ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
+    virtual ble_error_t requestAuthentication(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -504,7 +576,7 @@ public:
     // MITM
     //
 
-    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
+    virtual ble_error_t setOOBDataUsage(connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
         /* Avoid compiler warnings about unused variables */
         (void) connectionHandle;
         (void) useOOB;
@@ -512,17 +584,17 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t confirmationEntered(Gap::Handle_t handle, bool confirmation) {
+    virtual ble_error_t confirmationEntered(connection_handle_t handle, bool confirmation) {
         (void) handle;
         (void) confirmation;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t passkeyEntered(Gap::Handle_t handle, Passkey_t passkey) {
+    virtual ble_error_t passkeyEntered(connection_handle_t handle, Passkey_t passkey) {
         (void) handle;
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
+    virtual ble_error_t sendKeypressNotification(connection_handle_t handle, Keypress_t keypress) {
         (void) handle;
         (void) keypress;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -542,7 +614,7 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getSigningKey(Gap::Handle_t connectionHandle, bool authenticated) {
+    virtual ble_error_t getSigningKey(connection_handle_t connectionHandle, bool authenticated) {
         (void)connectionHandle;
         (void)authenticated;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -591,13 +663,6 @@ public:
         }
     }
 
-    virtual ble_error_t preserveBondingStateOnReset(bool enable) {
-        /* Avoid compiler warnings about unused variables */
-        (void) enable;
-
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
 protected:
     SecurityManager() {
         eventHandler = &defaultEventHandler;
@@ -607,7 +672,7 @@ protected:
 
 public:
     /**
-     * @deprecated
+     * @deprecated use generateWhitelistFromBondTable instead
      *
      * Get a list of addresses from all peers in the bond table.
      *
@@ -637,7 +702,7 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-     ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
+     ble_error_t getLinkSecurity(connection_handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
         link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
         ble_error_t status = getLinkEncryption(connectionHandle, &encryption);
         /* legacy support limits the return values */
@@ -700,17 +765,17 @@ public:
     /* Entry points for the underlying stack to report events back to the user. */
 public:
     /** @deprecated */
-    void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
+    void processSecuritySetupInitiatedEvent(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
         if (defaultEventHandler.securitySetupInitiatedCallback) {
             defaultEventHandler.securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
         }
     }
     /** @deprecated */
-    void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
+    void processSecuritySetupCompletedEvent(connection_handle_t handle, SecurityCompletionStatus_t status) {
         eventHandler->pairingResult(handle, status);
     }
     /** @deprecated */
-    void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
+    void processLinkSecuredEvent(connection_handle_t handle, SecurityMode_t securityMode) {
         if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
             eventHandler->linkEncryptionResult(handle, link_encryption_t::ENCRYPTED);
         } else {
@@ -718,13 +783,13 @@ public:
         }
     }
     /** @deprecated */
-    void processSecurityContextStoredEvent(Gap::Handle_t handle) {
+    void processSecurityContextStoredEvent(connection_handle_t handle) {
         if (defaultEventHandler.securityContextStoredCallback) {
             defaultEventHandler.securityContextStoredCallback(handle);
         }
     }
     /** @deprecated */
-    void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
+    void processPasskeyDisplayEvent(connection_handle_t handle, const Passkey_t passkey) {
         eventHandler->passkeyDisplay(handle, passkey);
     }
 

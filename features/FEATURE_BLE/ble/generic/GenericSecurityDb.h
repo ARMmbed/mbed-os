@@ -20,6 +20,7 @@
 #include "Callback.h"
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
+#include <stdlib.h>
 
 namespace ble {
 namespace generic {
@@ -128,7 +129,7 @@ typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
 typedef mbed::Callback<void(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
 typedef mbed::Callback<void(const SecurityEntryIdentity_t*)> SecurityEntryIdentityDbCb_t;
-typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
+typedef mbed::Callback<void(Gap::Whitelist_t*)> WhitelistDbCb_t;
 
 /**
  * SecurityDB holds the state for active connections and bonded devices.
@@ -145,6 +146,7 @@ public:
     /**
      * Return immediately security entry containing the state
      * information for active connection.
+     *
      * @param[in] handle valid connection handle
      * @return pointer to security entry, NULL if handle was invalid
      */
@@ -156,10 +158,11 @@ public:
 
     /**
      * Retrieve stored LTK based on passed in EDIV and RAND values.
-     * @param cb callback that will receive the LTK struct
-     * @param connection handle for the connection requesting the key
-     * @param ediv one of the values used to identify the LTK
-     * @param rand one of the values used to identify the LTK
+     *
+     * @param[in] cb callback that will receive the LTK struct
+     * @param[in] connection handle for the connection requesting the key
+     * @param[in] ediv one of the values used to identify the LTK
+     * @param[in] rand one of the values used to identify the LTK
      */
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
@@ -170,8 +173,9 @@ public:
 
     /**
      * Save new local LTK for a connection.
-     * @param connection handle for which the LTK is being updated
-     * @param ltk the new LTK, if the device is slave, this is the LTK that will
+     *
+     * @param[in] connection handle for which the LTK is being updated
+     * @param[in] ltk the new LTK, if the device is slave, this is the LTK that will
      *            be used when link is encrypted
      */
     virtual void set_entry_local_ltk(
@@ -181,9 +185,10 @@ public:
 
     /**
      * Update EDIV and RAND used to identify the LTK.
-     * @param connection handle for the connection which values are being updated
-     * @param ediv new EDIV value
-     * @param rand new RAND value
+     *
+     * @param[in] connection handle for the connection which values are being updated
+     * @param[in] ediv new EDIV value
+     * @param[in] rand new RAND value
      */
     virtual void set_entry_local_ediv_rand(
         connection_handle_t connection,
@@ -196,8 +201,9 @@ public:
     /**
      * Return asynchronously the peer signing key through a callback
      * so that signed packets can be verified.
-     * @param cb callback which will receive the key
-     * @param connection handle of the connection queried
+     *
+     * @param[in] cb callback which will receive the key
+     * @param[in] connection handle of the connection queried
      */
     virtual void get_entry_peer_csrk(
         SecurityEntryCsrkDbCb_t cb,
@@ -207,8 +213,9 @@ public:
     /**
      * Return asynchronously the peer encryption key through a callback
      * so that encryption can be enabled.
-     * @param cb callback which will receive the key
-     * @param connection handle of the connection queried
+     *
+     * @param[in] cb callback which will receive the key
+     * @param[in] connection handle of the connection queried
      */
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
@@ -217,8 +224,9 @@ public:
 
     /**
      * Return asynchronously one identity entry, call until you get NULL
-     * to get all Iidentity entries containing IRK and identity address
-     * @param cb callback which will receive the entry
+     * to get all Iidentity entries containing IRK and identity address.
+     *
+     * @param[in] cb callback which will receive the entry
      * @note query is stateful and will return NULL when all
      * entries have been returned, it may return the same entry multiple
      * times if list is changed in between queries
@@ -229,14 +237,15 @@ public:
 
     /**
      * Update all values in one call.
-     * @param connection for which the values are being updated
-     * @param address_is_public is the address public or private
-     * @param peer_address identity address of the peer
-     * @param ediv EDIV value
-     * @param rand RAND value
-     * @param ltk LTK value
-     * @param irk IRK value
-     * @param csrk CSRK value
+     *
+     * @param[in] connection for which the values are being updated
+     * @param[in] address_is_public is the address public or private
+     * @param[in] peer_address identity address of the peer
+     * @param[in] ediv EDIV value
+     * @param[in] rand RAND value
+     * @param[in] ltk LTK value
+     * @param[in] irk IRK value
+     * @param[in] csrk CSRK value
      */
     virtual void set_entry_peer(
         connection_handle_t connection,
@@ -251,8 +260,9 @@ public:
 
     /**
      * Save new LTK received from the peer.
-     * @param connection handle for which the LTK is being updated
-     * @param ltk the new LTK, if the peer device is slave, this is the LTK that will
+     *
+     * @param[in] connection handle for which the LTK is being updated
+     * @param[in] ltk the new LTK, if the peer device is slave, this is the LTK that will
      *            be used when link is encrypted
      */
     virtual void set_entry_peer_ltk(
@@ -262,9 +272,10 @@ public:
 
     /**
      * Update EDIV and RAND used to identify the LTK sent by the peer.
-     * @param connection handle for the connection which values are being updated
-     * @param ediv new EDIV value
-     * @param rand new RAND value
+     *
+     * @param[in] connection handle for the connection which values are being updated
+     * @param[in] ediv new EDIV value
+     * @param[in] rand new RAND value
      */
     virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
@@ -274,8 +285,9 @@ public:
 
     /**
      * Update IRK for this connection.
-     * @param connection handle of the connection being updated
-     * @param irk new IRK value
+     *
+     * @param[in] connection handle of the connection being updated
+     * @param[in] irk new IRK value
      */
     virtual void set_entry_peer_irk(
         connection_handle_t connection,
@@ -284,9 +296,10 @@ public:
 
     /**
      * Update the identity address of the peer.
-     * @param connection connection for the peer address being updated
-     * @param address_is_public is the identity address public or private
-     * @param peer_address the new address
+     *
+     * @param[in] connection connection for the peer address being updated
+     * @param[in] address_is_public is the identity address public or private
+     * @param[in] peer_address the new address
      */
     virtual void set_entry_peer_bdaddr(
         connection_handle_t connection,
@@ -296,8 +309,9 @@ public:
 
     /**
      * Update peer signing key.
-     * @param connection handle of the conncetion being updated
-     * @param csrk new CSRK value
+     *
+     * @param[in] connection handle of the conncetion being updated
+     * @param[in] csrk new CSRK value
      */
     virtual void set_entry_peer_csrk(
         connection_handle_t connection,
@@ -308,13 +322,15 @@ public:
 
     /**
      * Return local signing key used for signing packets.
+     *
      * @return pointer to local CSRK
      */
     virtual const csrk_t* get_local_csrk() = 0;
 
     /**
      * Update local signing key.
-     * @param csrk new CSRK value
+     *
+     * @param[in] csrk new CSRK value
      */
     virtual void set_local_csrk(
         const csrk_t *csrk
@@ -327,7 +343,7 @@ public:
      * irk list synchronously, otherwise asynchronously iteration
      * shall be used through get_next_entry_peer_identity
      *
-     * @param list the list of entires, NULL if empty
+     * @param[in] list the list of entires, NULL if empty
      *
      * @return BLE_ERROR_NONE if the function is implemented.
      */
@@ -338,8 +354,8 @@ public:
      * and put it in the live connections store to be retrieved
      * synchronously through connection handle.
      *
-     * @param connection this will be the index for live entries.
-     * @param peer_address this address will be used to locate existing entry.
+     * @param[in] connection this will be the index for live entries.
+     * @param[in] peer_address this address will be used to locate existing entry.
      *
      * @return pointer to entry newly created or located existing entry.
      */
@@ -353,7 +369,7 @@ public:
      * and put it in the live connections store to be retrieved
      * synchronously through connection handle.
      *
-     * @param connection this handle will be freed up from the security db
+     * @param[in] connection this handle will be freed up from the security db
      */
     virtual void disconnect_entry(
         connection_handle_t connection
@@ -361,7 +377,8 @@ public:
 
     /**
      * Remove entry for this peer from NVM.
-     * @param peer_identity_address peer address that no longer needs NVM storage.
+     *
+     * @param[in] peer_identity_address peer address that no longer needs NVM storage.
      */
     virtual void remove_entry(
         const address_t peer_identity_address
@@ -374,15 +391,30 @@ public:
 
     /**
      * Asynchronously return the whitelist stored in NVM through a callback.
-     * @param cb callback that will receive the whitelist
+     *
+     * @param[in] cb callback that will receive the whitelist
+     * @param[in] whitelist preallocated whitelist that will be filled in
      */
     virtual void get_whitelist(
-        WhitelistDbCb_t cb
+        WhitelistDbCb_t cb,
+        Gap::Whitelist_t *whitelist
+    ) = 0;
+
+    /**
+     * Asynchronously return a whitelist through a callback, generated from the bond table.
+     *
+     * @param[in] cb callback that will receive the whitelist
+     * @param[in] whitelist preallocated whitelist that will be filled in
+     */
+    virtual void generate_whitelist_from_bond_table(
+        WhitelistDbCb_t cb,
+        Gap::Whitelist_t *whitelist
     ) = 0;
 
     /**
      * Update the whitelist stored in NVM by replacing it with new one.
-     * @param whitelist
+     *
+     * @param[in] whitelist
      */
     virtual void set_whitelist(
         const Gap::Whitelist_t& whitelist
@@ -390,7 +422,8 @@ public:
 
     /**
      * Add a new entry to the whitelist in the NVM.
-     * @param address new whitelist entry
+     *
+     * @param[in] address new whitelist entry
      */
     virtual void add_whitelist_entry(
         const address_t &address
@@ -398,7 +431,8 @@ public:
 
     /**
      * Remove whitelist entry from NVM.
-     * @param address entry to be removed
+     *
+     * @param[in] address entry to be removed
      */
     virtual void remove_whitelist_entry(
         const address_t &address
@@ -423,7 +457,8 @@ public:
 
     /**
      * Toggle whether values should be preserved across resets.
-     * @param reload if true values will be preserved across resets.
+     *
+     * @param[in] reload if true values will be preserved across resets.
      */
     virtual void set_restore(bool reload) = 0;
 };
@@ -652,6 +687,7 @@ public:
     virtual void disconnect_entry(connection_handle_t connection) { }
 
     virtual void remove_entry(address_t peer_identity_address);
+
     virtual void clear_entries() {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             _db[i] = db_store_t();
@@ -661,18 +697,43 @@ public:
         _local_csrk = csrk_t();
     }
 
-    virtual void get_whitelist(WhitelistDbCb_t cb) { }
+    virtual void get_whitelist(WhitelistDbCb_t cb, Gap::Whitelist_t *whitelist) {
+        /*TODO: fill whitelist*/
+        cb(whitelist);
+    }
+
+    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, Gap::Whitelist_t *whitelist) {
+        for (size_t i = 0; i < MAX_ENTRIES && i < whitelist->capacity; i++) {
+            if (_db[i].entry.peer_address_public) {
+                whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;
+            } else {
+                whitelist->addresses[i].type = BLEProtocol::AddressType::RANDOM_STATIC;
+            }
+
+            memcpy(
+                whitelist->addresses[i].address,
+                _identities[i].peer_identity_address.data(),
+                sizeof(BLEProtocol::AddressBytes_t)
+            );
+        }
+
+        cb(whitelist);
+    }
 
     virtual void update_whitelist(Gap::Whitelist_t& whitelist) { }
+
     virtual void add_whitelist_entry(const address_t &address) { }
 
     virtual void remove_whitelist_entry(const address_t &address) { }
+
     virtual void clear_whitelist() { }
 
     /* saving and loading from nvm */
 
     virtual void restore() { }
+
     virtual void sync() { }
+
     virtual void set_restore(bool reload) { }
 
 private:

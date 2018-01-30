@@ -75,6 +75,16 @@ ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
     return BLE_ERROR_NONE;
 }
 
+ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
+    if (_app_event_handler) {
+        _db.generate_whitelist_from_bond_table(
+            mbed::callback(_app_event_handler, &::SecurityManager::SecurityManagerEventHandler::whitelistFromBondTable),
+            whitelist
+        );
+    }
+    return BLE_ERROR_NONE;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Pairing
 //
@@ -752,6 +762,7 @@ void GenericSecurityManager::on_link_encryption_request_timed_out(
 ////////////////////////////////////////////////////////////////////////////
 // MITM
 //
+
 void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (entry) {

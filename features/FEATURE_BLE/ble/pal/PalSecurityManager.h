@@ -96,16 +96,16 @@ public:
         set_link(link);
     }
 
-    bool get_encryption() {
+    bool get_encryption() const {
         return _value & KEY_DISTRIBUTION_ENCRYPTION;
     }
-    bool get_identity() {
+    bool get_identity() const {
         return _value & KEY_DISTRIBUTION_IDENTITY;
     }
-    bool get_signing() {
+    bool get_signing() const {
         return _value & KEY_DISTRIBUTION_SIGNING;
     }
-    bool get_link() {
+    bool get_link() const {
         return _value & KEY_DISTRIBUTION_LINK;
     }
 
@@ -174,16 +174,16 @@ public:
         set_keypress_notification(keypress);
     }
 
-    bool get_bondable() {
+    bool get_bondable() const {
         return _value & AUTHENTICATION_BONDABLE;
     }
-    bool get_mitm() {
+    bool get_mitm() const {
         return _value & AUTHENTICATION_MITM;
     }
-    bool get_secure_connections() {
+    bool get_secure_connections() const {
         return _value & AUTHENTICATION_SECURE_CONNECTIONS;
     }
-    bool get_keypress_notification() {
+    bool get_keypress_notification() const {
         return _value & AUTHENTICATION_KEYPRESS_NOTIFICATION;
     }
 
@@ -725,7 +725,9 @@ public:
         const ediv_t *ediv = NULL
     ) = 0;
 
-    virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
+    virtual ble_error_t disable_encryption(
+        connection_handle_t connection
+    ) = 0;
 
     /**
      * Get the link's key size.
@@ -744,7 +746,7 @@ public:
      * perform the encryption.
      *
      * @param[in] key encryption key
-     * @param[in,out] data data to be encrypted
+     * @param[in,out] data data to be encrypted, if successful contains the result
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t encrypt_data(
@@ -756,7 +758,9 @@ public:
     // Privacy
     //
 
-    virtual ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) = 0;
+    virtual ble_error_t set_private_address_timeout(
+        uint16_t timeout_in_seconds
+    ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -952,7 +956,8 @@ public:
      * Sets the event handler that us called by the PAL porters to notify the stack of events
      * which will in turn be passed onto the user application when appropriate.
      *
-     * @param[in] event_handler the new event handler interface implementation
+     * @param[in] event_handler the new event handler interface implementation. Memory
+     * owned by caller who is reponsible for updating this pointer if interface changes.
      */
     void set_event_handler(
         SecurityManagerEventHandler *event_handler
