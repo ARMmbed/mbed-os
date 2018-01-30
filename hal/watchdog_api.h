@@ -24,6 +24,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/**
+ * \defgroup hal_watchdog Watchdog HAL API
+ * @{
+ */
+
 /** \file watchdog_api.h
  *
  * This module provides platform independent access to the system watchdog timer

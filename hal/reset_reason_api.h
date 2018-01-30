@@ -26,6 +26,11 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup hal_reset_reason Reset Reason HAL API
+ * @{
+ */
+
 typedef enum {
   RESET_REASON_POWER_ON,       /**< Set when power is initially applied to the board. The power-on-reset circuit causes a POWER_ON reset when this occurs */
   RESET_REASON_PIN_RESET,      /**< Set when a reset is triggered by the hardware pin on the board */
