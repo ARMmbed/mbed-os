@@ -249,13 +249,17 @@ struct octet_type_t {
 private:
     uint8_t value[octet_size];
 };
+
+/* 128 bit keys */
 class key_t : public octet_type_t<16> {} ;
 class irk_t : public key_t {};
 class csrk_t : public key_t {};
 class ltk_t : public key_t {};
+
 typedef octet_type_t<2> ediv_t;
 typedef octet_type_t<8> rand_t;
 typedef octet_type_t<8> random_data_t;
+typedef octet_type_t<16> oob_data_t;
 
 } // namespace ble
 

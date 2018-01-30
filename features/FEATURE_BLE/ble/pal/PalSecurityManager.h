@@ -32,8 +32,6 @@ typedef SecurityManager::SecurityMode_t SecurityMode_t;
 typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
 typedef SecurityManager::Keypress_t Keypress_t;
 
-typedef octet_type_t<16> oob_data_t;
-
 typedef uint32_t passkey_num_t;
 
 class PasskeyAsci {
@@ -333,9 +331,13 @@ public:
     ) = 0;
 
     /**
-     * To indicate that the encryption request failed due to time out.
+     * Indicate that the encryption request failed due to timeout.
+     *
+     * @param[in] connection connection handle
      */
-    virtual void on_link_encryption_request_timed_out(connection_handle_t connection) = 0;
+    virtual void on_link_encryption_request_timed_out(
+        connection_handle_t connection
+    ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -525,8 +527,8 @@ public:
      * provide the LTK based on the EDIV and RAND provided by the other side.
      *
      * @param[in] connection connection handle
-     * @param[in] ediv idenitfies LTK
-     * @param[in] rand idenitfies LTK
+     * @param[in] ediv identifies LTK
+     * @param[in] rand identifies LTK
      */
     virtual void on_ltk_request(
         connection_handle_t connection,
@@ -586,7 +588,7 @@ public:
      *
      * @param[in] peer_identity_address_type public/private indicator
      * @param[in] peer_identity_address address of the device whose entry is to be added
-     * @param[in] peer_irk peerk identity resolving key
+     * @param[in] peer_irk peer identity resolving key
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.38
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
@@ -622,10 +624,19 @@ public:
     // Feature support
     //
 
-    virtual ble_error_t get_secure_connections_support(bool &enabled) = 0;
+    /**
+     * Check if the Secure Connections feature is supported by the stack and controller.
+     *
+     * @param[out] enabled true if SC are supported
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t get_secure_connections_support(
+        bool &enabled
+    ) = 0;
 
     /**
      * Set the IO capability that will be used during pairing feature exchange.
+     *
      * @param[in] io_capability type of IO capabilities available on the local device
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
@@ -720,7 +731,7 @@ public:
      * Get the link's key size.
      *
      * @param[in] connection connection handle
-     * @param[in] bytesize size of the encryption key in bytes
+     * @param[out] bytesize size of the encryption key in bytes
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t get_encryption_key_size(
@@ -753,6 +764,7 @@ public:
 
     /**
      * Set the LTK that is to be used for encryption.
+     *
      * @param[in] connection connection handle
      * @param[in] ltk long term key
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
@@ -764,6 +776,7 @@ public:
 
     /**
      * Set the local IRK.
+     *
      * @param[in] irk identity resolutino key
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
@@ -773,6 +786,7 @@ public:
 
     /**
      * Set the local CSRK.
+     *
      * @param[in] csrk signing key
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
