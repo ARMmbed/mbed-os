@@ -296,8 +296,11 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     resources.headers.append(config_header)
     resources.file_basepath[config_header] = dirname(config_header)
 
-    psa_files_dir = process_manifest_files(resources.psa_manifests, export_path)
-    resources.add(toolchain.scan_resources(psa_files_dir, base_path=export_path))
+    # Skip SPM sources for Mbed OS 2 builds
+    # Directories scanned would not include the root of Mbed OS for legacy builds
+    if 'rtos' in toolchain.config.lib_config_data:
+        psa_files_dir = process_manifest_files(resources.psa_manifests, export_path)
+        resources.add(toolchain.scan_resources(psa_files_dir, base_path=export_path))
 
     # Change linker script if specified
     if linker_script is not None:
