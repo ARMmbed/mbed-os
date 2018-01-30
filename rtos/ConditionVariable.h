@@ -118,7 +118,10 @@ struct Waiter;
  */
 class ConditionVariable : private mbed::NonCopyable<ConditionVariable> {
 public:
-    /** Create and Initialize a ConditionVariable object */
+    /** Create and Initialize a ConditionVariable object
+     *
+     * @note You may call this function from ISR context.
+    */
     ConditionVariable(Mutex &mutex);
 
     /** Wait for a notification
@@ -142,6 +145,8 @@ public:
      *
      * mutex.unlock();
      * @endcode
+     *
+     * @note You cannot call this function from ISR context.
      */
     void wait();
 
@@ -176,21 +181,31 @@ public:
      *
      * mutex.unlock();
      * @endcode
+     *
+     * @note You cannot call this function from ISR context.
      */
     bool wait_for(uint32_t millisec);
 
     /** Notify one waiter on this condition variable that a condition changed.
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
+     *
+     * @note This function may be called from ISR context.
      */
     void notify_one();
 
     /** Notify all waiters on this condition variable that a condition changed.
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
+     *
+     * @note This function may be called from ISR context.
      */
     void notify_all();
 
+    /** ConditionVariable destructor
+     *
+     * @note You may call this function from ISR context.
+     */
     ~ConditionVariable();
 
 protected:

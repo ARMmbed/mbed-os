@@ -52,6 +52,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      bool                      has_variable_len,
                                      const uint8_t            *userDescriptionDescriptorValuePtr,
                                      uint16_t                  userDescriptionDescriptorValueLen,
+                                     const uint8_t            *presentationFormatDescriptorValuePtr,
+                                     uint16_t                  presentationFormatDescriptorValueLen,
                                      bool                      readAuthorization,
                                      bool                      writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle);

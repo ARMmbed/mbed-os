@@ -28,13 +28,13 @@
 
 using namespace utest::v1;
 
-#ifndef MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE
-#define MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE 256
+#ifndef MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE
+#define MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE 256
 #endif
 
 namespace {
-    char tx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
-    char rx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
+    char tx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
+    char rx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
 }
 
 void prep_buffer(char *tx_buffer, size_t tx_size) {
@@ -44,7 +44,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 }
 
 void test_tcp_echo() {
-
+    int n = 0;
     NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
 
@@ -86,7 +86,12 @@ void test_tcp_echo() {
 
         prep_buffer(tx_buffer, sizeof(tx_buffer));
 #if defined(MBED_CONF_APP_TCP_ECHO_PREFIX)
-        sock.recv(rx_buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
+        n = sock.recv(rx_buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
+        if (n >= 0) {
+            printf("recv-ed prefix: %d bytes - %.*s  \n", n, n, rx_buffer);
+        } else {
+            printf("Network error in receiving prefix: %d\n", n);
+        }
 #endif /* MBED_CONF_APP_TCP_ECHO_PREFIX */
         const int ret = sock.send(tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
@@ -95,7 +100,7 @@ void test_tcp_echo() {
             printf("Network error %d\n", ret);
         }
 
-        int n = sock.recv(rx_buffer, sizeof(rx_buffer));
+        n = sock.recv(rx_buffer, sizeof(rx_buffer));
         if (n >= 0) {
             printf("recv %d bytes - %.*s  \n", n, n, rx_buffer);
         } else {

@@ -145,9 +145,21 @@ typedef enum {
     SPI_CLK     = D13,
     SPI_NSS     = D10,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_9,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_10,
+#endif
+
     // ST-Link
-    USBRX   = PA_10,
-    USBTX   = PA_9,
+    USBRX   = STDIO_UART_RX,
+    USBTX   = STDIO_UART_TX,
     SWDIO   = PA_13, 
     SWCLK   = PA_14, 
     NTRST   = PB_4,  

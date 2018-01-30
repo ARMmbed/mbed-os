@@ -196,7 +196,9 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    int err = _ffs[pdrv]->read(buff, sector*ssize, count*ssize);
+    bd_addr_t addr = (bd_addr_t)sector*ssize;
+    bd_size_t size = (bd_size_t)count*ssize;
+    int err = _ffs[pdrv]->read(buff, addr, size);
     return err ? RES_PARERR : RES_OK;
 }
 
@@ -204,12 +206,14 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    int err = _ffs[pdrv]->erase(sector*ssize, count*ssize);
+    bd_addr_t addr = (bd_addr_t)sector*ssize;
+    bd_size_t size = (bd_size_t)count*ssize;
+    int err = _ffs[pdrv]->erase(addr, size);
     if (err) {
         return RES_PARERR;
     }
 
-    err = _ffs[pdrv]->program(buff, sector*ssize, count*ssize);
+    err = _ffs[pdrv]->program(buff, addr, size);
     if (err) {
         return RES_PARERR;
     }
@@ -250,7 +254,9 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             } else {
                 DWORD *sectors = (DWORD*)buff;
                 DWORD ssize = disk_get_sector_size(pdrv);
-                int err = _ffs[pdrv]->trim(sectors[0]*ssize, (sectors[1]-sectors[0]+1)*ssize);
+                bd_addr_t addr = (bd_addr_t)sectors[0]*ssize;
+                bd_size_t size = (bd_size_t)(sectors[1]-sectors[0]+1)*ssize;
+                int err = _ffs[pdrv]->trim(addr, size);
                 return err ? RES_PARERR : RES_OK;
             }
     }

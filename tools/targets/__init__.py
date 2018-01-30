@@ -458,6 +458,11 @@ class MTSCode(object):
         """A hoof for the MTS Dragonfly"""
         MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", binf)
 
+    @staticmethod
+    def combine_bins_mtb_mts_dragonfly(t_self, resources, elf, binf):
+        """A hook for the MTB MTS Dragonfly"""
+        MTSCode._combine_bins_helper("MTB_MTS_DRAGONFLY", binf)
+
 class MCU_NRF51Code(object):
     """NRF51 Hooks"""
     @staticmethod

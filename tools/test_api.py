@@ -28,6 +28,7 @@ import argparse
 import datetime
 import threading
 import ctypes
+import functools
 from types import ListType
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
@@ -71,7 +72,6 @@ from tools.utils import argparse_filestring_type
 from tools.utils import argparse_uppercase_type
 from tools.utils import argparse_lowercase_type
 from tools.utils import argparse_many
-from tools.utils import get_path_depth
 
 import tools.host_tests.host_tests_plugins as host_tests_plugins
 
@@ -2019,9 +2019,15 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
     options: Compile options to pass to the toolchain (ex. ['debug-info'])
     app_config - location of a chosen mbed_app.json file
+
+    returns a dictionary where keys are the test name, and the values are
+    lists of paths needed to biuld the test.
     """
 
+    # Temporary structure: tests referenced by (name, base, group, case) tuple
     tests = {}
+    # List of common folders: (predicate function, path) tuple
+    commons = []
 
     # Prepare the toolchain
     toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
@@ -2042,32 +2048,52 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
             # Loop through all subdirectories
             for d in test_resources.inc_dirs:
 
-                # If the test case folder is not called 'host_tests' and it is
+                # If the test case folder is not called 'host_tests' or 'COMMON' and it is
                 # located two folders down from the main 'TESTS' folder (ex. TESTS/testgroup/testcase)
                 # then add it to the tests
-                path_depth = get_path_depth(relpath(d, walk_base_dir))
-                if path_depth == 2:
+                relative_path = relpath(d, walk_base_dir)
+                relative_path_parts = os.path.normpath(relative_path).split(os.sep)
+                if len(relative_path_parts) == 2:
                     test_group_directory_path, test_case_directory = os.path.split(d)
                     test_group_directory = os.path.basename(test_group_directory_path)
 
-                    # Check to make sure discoverd folder is not in a host test directory
-                    if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
+                    # Check to make sure discoverd folder is not in a host test directory or common directory
+                    special_dirs = ['host_tests', 'COMMON']
+                    if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
                         test_name = test_path_to_name(d, base_dir)
-                        tests[test_name] = d
+                        tests[(test_name, walk_base_dir, test_group_directory, test_case_directory)] = [d]
 
-    return tests
+                # Also find any COMMON paths, we'll add these later once we find all the base tests
+                if 'COMMON' in relative_path_parts:
+                    if relative_path_parts[0] != 'COMMON':
+                        def predicate(base_pred, group_pred, (name, base, group, case)):
+                            return base == base_pred and group == group_pred
+                        commons.append((functools.partial(predicate, walk_base_dir, relative_path_parts[0]), d))
+                    else:
+                        def predicate(base_pred, (name, base, group, case)):
+                            return base == base_pred
+                        commons.append((functools.partial(predicate, walk_base_dir), d))
+
+    # Apply common directories
+    for pred, path in commons:
+        for test_identity, test_paths in tests.iteritems():
+            if pred(test_identity):
+                test_paths.append(path)
+
+    # Drop identity besides name
+    return {name: paths for (name, _, _, _), paths in tests.iteritems()}
 
 def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
     in the specified format"""
     if format == "list":
         for test_name in sorted(tests.keys()):
-            test_path = tests[test_name]
+            test_path = tests[test_name][0]
             print "Test Case:"
             print "    Name: %s" % test_name
             print "    Path: %s" % test_path
     elif format == "json":
-        print json.dumps(tests, indent=2)
+        print json.dumps({test_name: test_path[0] for test_name, test_paths in tests}, indent=2)
     else:
         print "Unknown format '%s'" % format
         sys.exit(1)
@@ -2164,13 +2190,16 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     jobs_count = int(jobs if jobs else cpu_count())
     p = Pool(processes=jobs_count)
     results = []
-    for test_name, test_path in tests.iteritems():
-        test_build_path = os.path.join(build_path, test_path)
-        src_path = base_source_paths + [test_path]
-        bin_file = None
-        test_case_folder_name = os.path.basename(test_path)
+    for test_name, test_paths in tests.iteritems():
+        if type(test_paths) != ListType:
+            test_paths = [test_paths]
 
-        args = (src_path, test_build_path, target, toolchain_name)
+        test_build_path = os.path.join(build_path, test_paths[0])
+        src_paths = base_source_paths + test_paths
+        bin_file = None
+        test_case_folder_name = os.path.basename(test_paths[0])
+
+        args = (src_paths, test_build_path, target, toolchain_name)
         kwargs = {
             'jobs': 1,
             'clean': clean,

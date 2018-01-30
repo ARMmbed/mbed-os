@@ -229,6 +229,7 @@ struct coap_s {
     uint8_t sn_coap_resending_count;
     uint8_t sn_coap_resending_intervall;
     uint8_t sn_coap_duplication_buffer_size;
+    uint8_t sn_coap_internal_block2_resp_handling; /* If this is set then coap itself sends a next GET request automatically */
 };
 
 #ifdef __cplusplus

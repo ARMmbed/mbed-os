@@ -46,28 +46,28 @@ protected:
     *
     * @returns pointer to the device descriptor
     */
-    virtual uint8_t * deviceDesc();
+    virtual const uint8_t * deviceDesc();
 
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual const uint8_t * stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t * stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual const uint8_t * configurationDesc();
 
     /*
     * Send a buffer

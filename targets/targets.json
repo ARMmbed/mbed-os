@@ -903,7 +903,7 @@
         },
         "detect_code": ["0835"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F207ZG"
@@ -1025,6 +1025,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0744"],
@@ -1074,6 +1078,31 @@
         "device_name": "STM32F412ZG",
         "bootloader_supported": true
     },
+    "MTB_MXCHIP_EMW3166": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F412xG", "STM32F412ZG"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "device_has_add": ["CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F412ZG",
+        "bootloader_supported": true,
+        "config": {
+            "stdio_uart_tx": {
+                "help": "Value PB_6",
+                "value": "PB_6"
+            },
+            "stdio_uart_rx": {
+                "help": "Value PB_7",
+                "value": "PB_7"
+            },
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        }
+    },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
@@ -1084,6 +1113,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0743"],
@@ -1244,6 +1277,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "macros_add": ["USBHOST_OTHER"],
@@ -1268,6 +1305,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -1292,6 +1333,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "supported_form_factors": ["ARDUINO"],
@@ -1314,6 +1359,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0780"],
@@ -1333,6 +1382,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0790"],
@@ -1351,6 +1404,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0715"],
@@ -1369,6 +1426,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0760"],
@@ -1403,6 +1464,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0770"],
@@ -1421,9 +1486,13 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
-        "detect_code": ["0770"],
+        "detect_code": ["0779"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L433RC",
@@ -1439,6 +1508,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0765"],
@@ -1476,6 +1549,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0827"],
@@ -1550,10 +1627,18 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "macros_add": ["USB_STM_HAL"],
         "overrides": {"lse_available": 0},
         "device_has_add": ["ANALOGOUT"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
     "DISCO_F429ZI": {
@@ -1606,6 +1691,11 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
+
             }
         },
         "overrides": {"lse_available": 0},
@@ -1624,6 +1714,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0833"],
@@ -1645,6 +1739,10 @@
             "usb_speed": {
                 "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
                 "value": "1"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0815"],
@@ -1664,6 +1762,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0817"],
@@ -1682,6 +1784,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "supported_form_factors": ["ARDUINO"],
@@ -1701,6 +1807,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0820"],
@@ -1758,6 +1868,42 @@
         "device_has_add": [],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
+    },
+    "MTB_MTS_DRAGONFLY": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F411RE"],
+        "config": {
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD"
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART"
+            },
+            "stdio_uart_tx": {
+                "help": "Value PB_6",
+                "value": "PB_6"
+            },
+            "stdio_uart_rx": {
+                "help": "Value PB_7",
+                "value": "PB_7"
+            }
+        },
+        "overrides": {
+                 "lse_available": 0
+        },
+        "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
+        "post_binary_hook": {
+            "function": "MTSCode.combine_bins_mtb_mts_dragonfly",
+            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
+        },
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F411RE",
+        "bootloader_supported": true
     },
     "XDOT_L151CC": {
         "inherits": ["FAMILY_STM32"],
@@ -1818,18 +1964,13 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "config": {
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value: D8(default) or D1",
                 "value": "D8"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value: D2(default) or D0",
                 "value": "D2"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1(default) or UART_3",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
             }
         }
     },
@@ -1837,39 +1978,19 @@
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "release_versions": ["5"],
         "config": {
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value: PA_9(default) or PD_8",
                 "value": "PA_9"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value: PA_10(default) or PD_9",
                 "value": "PA_10"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1(default) or UART_3",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
             }
         }
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "release_versions": ["5"],
-        "config": {
-            "usb_tx": {
-                "help": "Value PA_11",
-                "value": "PA_11"
-            },
-            "usb_rx": {
-                "help": "Value PA_13",
-                "value": "PA_13"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
-             }
-        }
+        "release_versions": ["5"]
      },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
@@ -2426,27 +2547,24 @@
         "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
-    "RZ_A1H": {
-        "supported_form_factors": ["ARDUINO"],
-        "core": "Cortex-A9",
-        "program_cycle_s": 2,
-        "extra_labels": ["RENESAS", "MBRZA1H"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+    "RZ_A1XX": {
         "inherits": ["Target"],
+        "core": "Cortex-A9",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["RENESAS", "RZ_A1XX"],
         "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
+        "program_cycle_s": 2
+    },
+    "RZ_A1H": {
+        "inherits": ["RZ_A1XX"],
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": ["RZA1H", "MBRZA1H"],
         "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
-        "inherits": ["Target"],
-        "core": "Cortex-A9",
-        "extra_labels": ["RENESAS", "VKRZA1H"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "default_toolchain": "ARM",
-        "program_cycle_s": 2,
-        "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["LWIP"],
-        "default_lib": "std",
+        "inherits": ["RZ_A1XX"],
+        "extra_labels": ["RZA1H", "VKRZA1H"],
         "release_versions": []
     },
     "MAXWSNENV": {
@@ -3389,7 +3507,7 @@
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG", "SPISLAVE"],
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG", "SPISLAVE"],
         "release_versions": ["2", "5"]
     },
     "NUMAKER_PFM_M453": {
@@ -3499,23 +3617,31 @@
     "VBLUNO51_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"]
     },
     "VBLUNO51_BOOT": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_BOOT"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"],
         "macros_add": ["TARGET_VBLUNO51"]
     },
     "VBLUNO51_OTA": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_OTA"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "extra_labels_add": ["VBLUNO51"],
         "macros_add": ["TARGET_VBLUNO51"]
     },
     "VBLUNO51": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "detect_code": ["C006"],
+        "overrides": {"uart_hwfc": 0},
         "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2"],
         "device_name": "nRF51822_xxAC"
@@ -3530,6 +3656,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lowpowertimer_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0823"],

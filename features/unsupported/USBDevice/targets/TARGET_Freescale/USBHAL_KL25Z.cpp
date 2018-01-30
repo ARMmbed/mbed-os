@@ -22,6 +22,7 @@
 #include "fsl_common.h"
 #endif
 #include "USBHAL.h"
+#include "mbed_critical.h"
 
 USBHAL * USBHAL::instance;
 
@@ -64,6 +65,13 @@ typedef struct BDT {
     uint32_t  address;    // Addr
 } BDT;
 
+typedef enum {
+    CTRL_XFER_READY,
+    CTRL_XFER_IN,
+    CTRL_XFER_NONE,
+    CTRL_XFER_OUT
+} ctrl_xfer_t;
+
 // there are:
 //    * 4 bidirectionnal endpt -> 8 physical endpt
 //    * as there are ODD and EVEN buffer -> 8*2 bdt
@@ -73,6 +81,7 @@ uint8_t * endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
 
 static uint8_t set_addr = 0;
 static uint8_t addr = 0;
+static ctrl_xfer_t ctrl_xfer = CTRL_XFER_READY;
 
 static uint32_t Data1  = 0x55555555;
 
@@ -223,11 +232,16 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
                                               USB_ENDPT_EPRXEN_MASK;  // en RX (OUT) tran.
         bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].byte_count = maxPacket;
         bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].address    = (uint32_t) buf;
-        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info       = BD_OWN_MASK | BD_DTS_MASK;
+        bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info       = BD_DTS_MASK;
         bdt[EP_BDT_IDX(log_endpoint, RX, EVEN)].info       = 0;
+        if (log_endpoint == 0) {
+            // Prepare for setup packet
+            bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info |= BD_OWN_MASK;
+        }
     }
 
-    Data1 |= (1 << endpoint);
+    // First transfer will be a DATA0 packet
+    Data1 &= ~(1 << endpoint);
 
     return true;
 }
@@ -239,13 +253,35 @@ void USBHAL::EP0setup(uint8_t *buffer) {
 }
 
 void USBHAL::EP0readStage(void) {
-    Data1 &= ~1UL;  // set DATA0
-    bdt[0].info = (BD_DTS_MASK | BD_OWN_MASK);
+    // Not needed
 }
 
 void USBHAL::EP0read(void) {
-    uint32_t idx = EP_BDT_IDX(PHY_TO_LOG(EP0OUT), RX, 0);
-    bdt[idx].byte_count = MAX_PACKET_SIZE_EP0;
+    if (ctrl_xfer == CTRL_XFER_READY) {
+        // Transfer is done so ignore call
+        return;
+    }
+    if (ctrl_xfer == CTRL_XFER_IN) {
+        ctrl_xfer = CTRL_XFER_READY;
+        // Control transfer with a data IN stage.
+        // The next packet received will be the status packet - an OUT packet using DATA1
+        //
+        // PROBLEM:
+        // If a Setup packet is received after status packet of
+        // a Control In transfer has been received in the RX buffer
+        // but before the processor has had a chance the prepare
+        // this buffer for the Setup packet, the Setup packet
+        // will be dropped.
+        //
+        // WORKAROUND:
+        // Set data toggle to DATA0 so if the status stage of a
+        // Control In transfer arrives it will be ACKed by hardware
+        // but will be discarded without filling the RX buffer.
+        // This allows a subsequent SETUP packet to be stored
+        // without any processor intervention.
+        Data1 &= ~1UL;  // set DATA0
+    }
+    endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
 }
 
 uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
@@ -255,6 +291,15 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
 }
 
 void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
+    if (ctrl_xfer == CTRL_XFER_READY) {
+        // Transfer is done so ignore call
+        return;
+    }
+    if ((ctrl_xfer == CTRL_XFER_NONE) || (ctrl_xfer == CTRL_XFER_OUT)) {
+        // Prepare for next setup packet
+        endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
+        ctrl_xfer = CTRL_XFER_READY;
+     }
     endpointWrite(EP0IN, buffer, size);
 }
 
@@ -262,13 +307,34 @@ void USBHAL::EP0getWriteResult(void) {
 }
 
 void USBHAL::EP0stall(void) {
+    if (ctrl_xfer == CTRL_XFER_READY) {
+        // Transfer is done so ignore call
+        return;
+    }
+    ctrl_xfer = CTRL_XFER_READY;
+    core_util_critical_section_enter();
     stallEndpoint(EP0OUT);
+    // Prepare for next setup packet
+    // Note - time between stalling and setting up the endpoint
+    //      must be kept to a minimum to prevent a dropped SETUP
+    //      packet.
+    endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
+    core_util_critical_section_exit();
 }
 
 EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
-    endpoint = PHY_TO_LOG(endpoint);
-    uint32_t idx = EP_BDT_IDX(endpoint, RX, 0);
+    uint8_t log_endpoint = PHY_TO_LOG(endpoint);
+
+    uint32_t idx = EP_BDT_IDX(log_endpoint, RX, 0);
     bdt[idx].byte_count = maximumSize;
+    if ((Data1 >> endpoint) & 1) {
+        bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK | BD_DATA01_MASK;
+    }
+    else {
+        bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK;
+    }
+
+    Data1 ^= (1 << endpoint);
     return EP_PENDING;
 }
 
@@ -307,18 +373,14 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
         buffer[n] = ep_buf[n];
     }
 
-    if (((Data1 >> endpoint) & 1) == ((bdt[idx].info >> 6) & 1)) {
-        if (setup && (buffer[6] == 0))  // if no setup data stage,
-            Data1 &= ~1UL;              // set DATA0
-        else
-            Data1 ^= (1 << endpoint);
-    }
-
-    if (((Data1 >> endpoint) & 1)) {
-        bdt[idx].info = BD_DTS_MASK | BD_DATA01_MASK | BD_OWN_MASK;
-    }
-    else {
-        bdt[idx].info = BD_DTS_MASK | BD_OWN_MASK;
+    if (setup) {
+        // Record the setup type
+        if (buffer[6] == 0)  {
+            ctrl_xfer = CTRL_XFER_NONE;
+        } else {
+            uint8_t in_xfer = (buffer[0] >> 7) & 1;
+            ctrl_xfer = in_xfer ? CTRL_XFER_IN : CTRL_XFER_OUT;
+        }
     }
 
     USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
@@ -351,9 +413,9 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
     }
 
     if ((Data1 >> endpoint) & 1) {
-        bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK;
-    } else {
         bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK | BD_DATA01_MASK;
+    } else {
+        bdt[idx].info = BD_OWN_MASK | BD_DTS_MASK;
     }
 
     Data1 ^= (1 << endpoint);
@@ -438,7 +500,7 @@ void USBHAL::usbisr(void) {
     if (istat & 1<<7) {
         if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK)
             USB0->ENDPOINT[0].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
-        USB0->ISTAT |= USB_ISTAT_STALL_MASK;
+        USB0->ISTAT = USB_ISTAT_STALL_MASK;
     }
 
     // token interrupt
@@ -450,7 +512,7 @@ void USBHAL::usbisr(void) {
 
         // setup packet
         if ((num == 0) && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == SETUP_TOKEN)) {
-            Data1 &= ~0x02;
+            Data1 |= 0x02 | 0x01; // set DATA1 for TX and RX
             bdt[EP_BDT_IDX(0, TX, EVEN)].info &= ~BD_OWN_MASK;
             bdt[EP_BDT_IDX(0, TX, ODD)].info  &= ~BD_OWN_MASK;
 
@@ -493,13 +555,13 @@ void USBHAL::usbisr(void) {
 
     // sleep interrupt
     if (istat & 1<<4) {
-        USB0->ISTAT |= USB_ISTAT_SLEEP_MASK;
+        USB0->ISTAT = USB_ISTAT_SLEEP_MASK;
     }
 
     // error interrupt
     if (istat & USB_ISTAT_ERROR_MASK) {
         USB0->ERRSTAT = 0xFF;
-        USB0->ISTAT |= USB_ISTAT_ERROR_MASK;
+        USB0->ISTAT = USB_ISTAT_ERROR_MASK;
     }
 }
 

@@ -255,7 +255,9 @@ def create_daplink(image_bin, ram1_bin, ram2_bin):
 
     output = open(image_bin, "wb")
     append_image_file(ram1_bin, output)
+    append_image_file(ram2_bin, output)
 
+    output.seek(0xb000)
     line = ""
     for key in ['tag', 'ver', 'timestamp', 'size', 'hash', 'campaign']:
         line += RAM2_HEADER[key]
@@ -264,7 +266,6 @@ def create_daplink(image_bin, ram1_bin, ram2_bin):
     RAM2_HEADER['crc32'] = format_number(crc32_checksum(line), 8)
 
     output.write(RAM2_HEADER['crc32'])
-    append_image_file(ram2_bin, output)
     output.close()
 
 # ----------------------------
