@@ -249,6 +249,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L432KC',
             'mcuId': 'STM32L432KCUx'
         },
+        'WISE_1510':
+        {
+            'name': 'WISE-1510',
+            'mcuId': 'STM32L433RCx'
+        },
         'NUCLEO_L476RG':
         {
             'name': 'NUCLEO-L476RG',

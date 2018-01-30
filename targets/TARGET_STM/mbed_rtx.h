@@ -52,6 +52,9 @@
 #elif defined(TARGET_STM32F303VC)
 #define INITIAL_SP              (0x2000A000UL)
 
+#elif defined(TARGET_STM32L443RC)
+#define INITIAL_SP              (0x2000C000UL)
+
 #elif defined(TARGET_STM32L432KC) ||\
       defined (TARGET_STM32L433RC)
 #define INITIAL_SP              (0x20010000UL)
