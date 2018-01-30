@@ -1973,6 +1973,31 @@
         "inherits": ["XDOT_L151CC"],
         "detect_code": ["8080"]
     },
+    "MTB_MTS_XDOT": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151CC"],
+        "config": {
+            "hse_value": {
+            "value": "24000000",
+            "macro_name": "HSE_VALUE"
+            },
+            "stdio_uart_tx": {
+                "help": "Value PA_2",
+                "value": "PA_2"
+            },
+            "stdio_uart_rx": {
+                "help": "Value PA_3",
+                "value": "PA_3"
+            }
+        },
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CC",
+        "bootloader_supported": true
+    },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
