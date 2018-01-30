@@ -210,6 +210,8 @@ class GNUARMEclipse(Exporter):
 
             # Hack to fill in build_dir
             toolchain.build_dir = self.toolchain.build_dir
+            toolchain.config = self.toolchain.config
+            toolchain.set_config_data(self.toolchain.config.get_config_data())
 
             flags = self.toolchain_flags(toolchain)
 
