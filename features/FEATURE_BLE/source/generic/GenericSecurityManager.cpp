@@ -76,9 +76,9 @@ ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
 }
 
 ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
-    if (_app_event_handler) {
+    if (eventHandler) {
         _db.generate_whitelist_from_bond_table(
-            mbed::callback(_app_event_handler, &::SecurityManager::SecurityManagerEventHandler::whitelistFromBondTable),
+            mbed::callback(eventHandler, &::SecurityManager::SecurityManagerEventHandler::whitelistFromBondTable),
             whitelist
         );
     }
@@ -484,19 +484,6 @@ ble_error_t GenericSecurityManager::sendKeypressNotification(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// Event handler
-//
-
-void GenericSecurityManager::setSecurityManagerEventHandler(
-    ::SecurityManager::SecurityManagerEventHandler* handler
- ) {
-    SecurityManager::setSecurityManagerEventHandler(handler);
-    if (handler) {
-        _app_event_handler = handler;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
 // Helper functions
 //
 
@@ -618,7 +605,7 @@ void GenericSecurityManager::return_csrk_cb(
         return;
     }
 
-    _app_event_handler->signingKey(
+    eventHandler->signingKey(
         connection,
         csrk,
         entry->mitm_csrk
@@ -650,7 +637,7 @@ void GenericSecurityManager::on_pairing_request(
     set_mitm_performed(connection, false);
 
     if (_pairing_authorisation_required) {
-        _app_event_handler->acceptPairingRequest(connection);
+        eventHandler->acceptPairingRequest(connection);
     }
 }
 
@@ -660,7 +647,7 @@ void GenericSecurityManager::on_pairing_error(
 ) {
     set_mitm_performed(connection, false);
 
-    _app_event_handler->pairingResult(
+    eventHandler->pairingResult(
         connection,
         (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
     );
@@ -669,7 +656,7 @@ void GenericSecurityManager::on_pairing_error(
 void GenericSecurityManager::on_pairing_timed_out(connection_handle_t connection) {
     set_mitm_performed(connection, false);
 
-    _app_event_handler->pairingResult(
+    eventHandler->pairingResult(
         connection,
         SecurityManager::SEC_STATUS_TIMEOUT
     );
@@ -688,7 +675,7 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
         }
     }
 
-    _app_event_handler->pairingResult(
+    eventHandler->pairingResult(
         connection,
         SecurityManager::SEC_STATUS_SUCCESS
     );
@@ -699,7 +686,7 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 //
 
 void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
-    _app_event_handler->validMicTimeout(connection);
+    eventHandler->validMicTimeout(connection);
 }
 
 void GenericSecurityManager::on_slave_security_request(
@@ -747,13 +734,13 @@ void GenericSecurityManager::on_link_encryption_result(
         entry->authenticated = true;
     }
 
-    _app_event_handler->linkEncryptionResult(connection, result);
+    eventHandler->linkEncryptionResult(connection, result);
 }
 
 void GenericSecurityManager::on_link_encryption_request_timed_out(
     connection_handle_t connection
 ) {
-    _app_event_handler->linkEncryptionResult(
+    eventHandler->linkEncryptionResult(
         connection,
         link_encryption_t::NOT_ENCRYPTED
     );
@@ -775,7 +762,7 @@ void GenericSecurityManager::on_passkey_display(
     passkey_num_t passkey
 ) {
     set_mitm_performed(connection);
-    _app_event_handler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
+    eventHandler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
 }
 
 void GenericSecurityManager::on_keypress_notification(
@@ -783,27 +770,27 @@ void GenericSecurityManager::on_keypress_notification(
     SecurityManager::Keypress_t keypress
 ) {
     set_mitm_performed(connection);
-    _app_event_handler->keypressNotification(connection, keypress);
+    eventHandler->keypressNotification(connection, keypress);
 }
 
 void GenericSecurityManager::on_passkey_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    _app_event_handler->passkeyRequest(connection);
+    eventHandler->passkeyRequest(connection);
 }
 
 void GenericSecurityManager::on_confirmation_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    _app_event_handler->confirmationRequest(connection);
+    eventHandler->confirmationRequest(connection);
 }
 
 void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    _app_event_handler->legacyPairingOobRequest(connection);
+    eventHandler->legacyPairingOobRequest(connection);
 }
 
 void GenericSecurityManager::on_oob_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    _app_event_handler->oobRequest(connection);
+    eventHandler->oobRequest(connection);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -839,7 +826,7 @@ void GenericSecurityManager::on_keys_distributed(
         csrk
     );
 
-    _app_event_handler->signingKey(
+    eventHandler->signingKey(
         connection,
         csrk,
         entry->mitm_csrk
@@ -913,7 +900,7 @@ void GenericSecurityManager::on_keys_distributed_csrk(
 
     _db.set_entry_peer_csrk(connection, csrk);
 
-    _app_event_handler->signingKey(
+    eventHandler->signingKey(
         connection,
         csrk,
         entry->mitm_csrk

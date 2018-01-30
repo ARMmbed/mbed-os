@@ -794,10 +794,10 @@ public:
     }
 
 private:
-    SecurityManagerEventHandler*           eventHandler;
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 
 protected:
+    SecurityManagerEventHandler*           eventHandler;
     LegacySecurityManagerEventHandler      defaultEventHandler;
 };
 

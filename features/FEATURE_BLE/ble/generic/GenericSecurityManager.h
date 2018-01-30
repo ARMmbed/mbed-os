@@ -197,14 +197,6 @@ public:
         Keypress_t keypress
     );
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Event handler
-    //
-
-    virtual void setSecurityManagerEventHandler(
-        ::SecurityManager::SecurityManagerEventHandler* handler
-     );
-
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
         : _pal(palImpl),
