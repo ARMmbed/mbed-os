@@ -184,6 +184,9 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi, PinName spi_miso,
     _rf_ctrls.txctl = txctl;
     _rf_ctrls.tcxo = tcxo;
 
+    _dio4_pin = dio4;
+    _dio5_pin = dio5;
+
     _radio_events = NULL;
 
     // Detect Murata based on pin configuration
@@ -1662,8 +1665,10 @@ void SX1276_LoRaRadio::setup_interrupts()
     _dio1_ctl.rise(callback(this, &SX1276_LoRaRadio::dio1_irq_isr));
     _dio2_ctl.rise(callback(this, &SX1276_LoRaRadio::dio2_irq_isr));
     _dio3_ctl.rise(callback(this, &SX1276_LoRaRadio::dio3_irq_isr));
-    _dio4_ctl.rise(callback(this, &SX1276_LoRaRadio::dio4_irq_isr));
-    if (!is_murata) {
+    if (_dio4_pin != NC) {
+        _dio4_ctl.rise(callback(this, &SX1276_LoRaRadio::dio4_irq_isr));
+    }
+    if (_dio5_pin != NC) {
         _dio5_ctl.rise(callback(this, &SX1276_LoRaRadio::dio5_irq_isr));
     }
 }

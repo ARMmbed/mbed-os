@@ -331,7 +331,8 @@ private:
     // variation is inherent to driver because of target configuration.
     rf_ctrls _rf_ctrls;
 
-    // DIO5 PinName. We need to store this as not all modules have it connected
+    // We need these PinNames as not all modules have those connected
+    PinName _dio4_pin;
     PinName _dio5_pin;
 
     // Structure containing all user and network specified settings

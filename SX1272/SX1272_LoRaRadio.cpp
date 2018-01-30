@@ -185,6 +185,7 @@ SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi, PinName spi_miso,
     _rf_ctrls.rxctl = rxctl;
     _rf_ctrls.txctl = txctl;
 
+    _dio4_pin = dio4;
     _dio5_pin = dio5;
 
     _radio_events = NULL;
@@ -1579,7 +1580,9 @@ void SX1272_LoRaRadio::setup_interrupts()
     _dio1_ctl.rise(callback(this, &SX1272_LoRaRadio::dio1_irq_isr));
     _dio2_ctl.rise(callback(this, &SX1272_LoRaRadio::dio2_irq_isr));
     _dio3_ctl.rise(callback(this, &SX1272_LoRaRadio::dio3_irq_isr));
-    _dio4_ctl.rise(callback(this, &SX1272_LoRaRadio::dio4_irq_isr));
+    if (_dio4_pin != NC) {
+        _dio4_ctl.rise(callback(this, &SX1272_LoRaRadio::dio4_irq_isr));
+    }
     if (_dio5_pin != NC) {
         _dio5_ctl.rise(callback(this, &SX1272_LoRaRadio::dio5_irq_isr));
     }
@@ -1591,7 +1594,6 @@ void SX1272_LoRaRadio::setup_interrupts()
  */
 void SX1272_LoRaRadio::set_low_power_mode(bool status)
 {
-
     if( RadioIsActive != status )
     {
         RadioIsActive = status;
