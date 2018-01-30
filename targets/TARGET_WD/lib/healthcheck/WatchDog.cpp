@@ -71,7 +71,7 @@ void WatchDog::Check(){
 		if((*it)->GetState(this->_context) != HealthCheckBase::HEALTHIE){
 			
 			// HealthCheck failed, system is in an unhealthy state --> danger of reset
-			wd_log_warn("WatchDog --> Failed");
+			wd_log_warn("WatchDog --> Failed by %s", (*it)->GetFriendlyName());
 			return;
 			
 		}

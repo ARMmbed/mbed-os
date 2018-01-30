@@ -26,6 +26,8 @@ class HealthCheckBase {
 	
 		virtual HEALTH_STATE GetState(void * context) = 0;
 	
+		virtual const char * GetFriendlyName() = 0;
+
 };
 
-#endif
+#endif
