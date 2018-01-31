@@ -169,10 +169,10 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
         return; // Return HASH_BUSY timout error here
     }
 
-    if (ctx->sbuf_len > 0) {
-        if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
-            return; // Return error code here
-        }
+    /* Last accumulation for extra bytes in sbuf_len */
+    /* This allows the HW flags to be in place in case mbedtls_sha256_update has not been called yet */
+    if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
+        return; // Return error code here
     }
     mbedtls_zeroize(ctx->sbuf, ST_SHA1_BLOCK_SIZE);
     ctx->sbuf_len = 0;
