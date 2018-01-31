@@ -28,5 +28,11 @@
             "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",
             "value": "HeapBlockDevice"
         }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["LWIP"],
+            "nsapi.default-stack": "LWIP"
+        }
     }
 }
