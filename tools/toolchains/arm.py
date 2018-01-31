@@ -16,8 +16,8 @@ limitations under the License.
 """
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists
-from os import makedirs, write
+from os.path import join, dirname, splitext, basename, exists, relpath
+from os import makedirs, write, curdir
 from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
@@ -184,7 +184,7 @@ class ARM(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    def correct_scatter_shebang(self, scatter_file):
+    def correct_scatter_shebang(self, scatter_file, base_path=curdir):
         """Correct the shebang at the top of a scatter file.
 
         Positional arguments:
@@ -203,7 +203,8 @@ class ARM(mbedToolchain):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
-                self.SHEBANG += " -I %s" % dirname(scatter_file)
+                self.SHEBANG += " -I %s" % relpath(dirname(scatter_file),
+                                                   base_path)
                 if self.need_update(new_scatter, [scatter_file]):
                     with open(new_scatter, "wb") as out:
                         out.write(self.SHEBANG)
