@@ -228,9 +228,10 @@ class Arm(Makefile):
 
     def generate(self):
         if self.resources.linker_script:
+            sct_file = self.resources.linker_script
             new_script = self.toolchain.correct_scatter_shebang(
-                self.resources.linker_script)
-            if new_script is not self.resources.linker_script:
+                sct_file, join(self.resources.file_basepath[sct_file], "BUILD"))
+            if new_script is not sct_file:
                 self.resources.linker_script = new_script
                 self.generated_files.append(new_script)
         return super(Arm, self).generate()

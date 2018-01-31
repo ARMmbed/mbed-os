@@ -217,12 +217,14 @@ class Uvision(Exporter):
             # UVFile tuples defined above
             'project_files': sorted(list(self.format_src(srcs).iteritems()),
                                     key=lambda (group, _): group.lower()),
-            'linker_script':self.toolchain.correct_scatter_shebang(
-                self.resources.linker_script),
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
-        self.generated_files.append(ctx['linker_script'])
+        sct_file = self.resources.linker_script
+        ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
+            sct_file, self.resources.file_basepath[sct_file])
+        if ctx['linker_script'] != sct_file:
+            self.generated_files.append(ctx['linker_script'])
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")
         if core.endswith("FD"):
