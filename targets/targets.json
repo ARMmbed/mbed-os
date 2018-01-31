@@ -3289,7 +3289,32 @@
                 "help": "Value: 1 for enable, 0 for disable",
                 "value": 1,
                 "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
-            }
+            },
+            "nrf_central_link_count": {
+                "help": "When acting as BLE central, how many peripherals can connect",
+                "macro_name": "MBED_CONF_NRF_CENTRAL_LINK_COUNT",
+                "value": "3"
+            },
+            "nrf_peripheral_link_count": {
+                "help": "When acting as BLE peripheral, how many centrals can we conenct to",
+                "macro_name": "MBED_CONF_NRF_PERIPHERAL_LINK_COUNT",
+                "value": "1"
+            },
+            "nrf_gatt_attr_tab_size": {
+                "help": "The size of the table used to hold gatts. Can be adjusted by trial and error",
+                "macro_name": "MBED_CONF_NRF_GATTS_ATTR_TAB_SIZE",
+                "value": "0x600"
+            },
+            "nrf_uuid_table_max_entries": {
+                "help": "maximum number of 128-bit UUIDs with distinct bases that we expect to be in use",
+                "macro_name": "MBED_CONF_NRF_UUID_TABLE_MAX_ENTRIES",
+                "value": "4"
+            },
+            "nrf_is_srvc_changed_charact_present": {
+                "help": "select whether to include the Service Changed characteristic in the GATT Server",
+                "macro_name": "MBED_CONF_NRF_IS_SRVC_CHANGED_CHARACT_PRESENT",
+                "value": "1"
+            }           
         },
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },

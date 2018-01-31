@@ -26,33 +26,49 @@ extern "C" {
 #include "ble_srv_common.h"
 #include "headers/nrf_ble.h"
 
-#ifndef CENTRAL_LINK_COUNT
-#define CENTRAL_LINK_COUNT    3  /**<number of central links used by the application. When changing this number remember to adjust the RAM settings */
-#endif                                                                 /** If value for YOTTA_CFG_NORDIC_BLE_PERIPHERAL_LINKS was used, ram settings are adjusted by the yotta target module. */
+/* number of central links used by the application. 
+ * When changing this number remember to adjust the RAM settings */
+#ifndef MBED_CONF_NRF_CENTRAL_LINK_COUNT
+    #define CENTRAL_LINK_COUNT    3  
+#else
+    #define CENTRAL_LINK_COUNT    MBED_CONF_NRF_CENTRAL_LINK_COUNT  
+#endif
 
-#ifndef PERIPHERAL_LINK_COUNT
-#define PERIPHERAL_LINK_COUNT 1     /**<number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
-#endif                                                                 /** If value for YOTTA_CFG_NORDIC_BLE_CENTRAL_LINKS was used, ram settings are adjusted by the yotta target module. */
+/* number of peripheral links used by the application. 
+ * When changing this number remember to adjust the RAM settings */
+#ifndef MBED_CONF_NRF_PERIPHERAL_LINK_COUNT
+    #define PERIPHERAL_LINK_COUNT    1  
+#else
+    #define PERIPHERAL_LINK_COUNT    MBED_CONF_NRF_PERIPHERAL_LINK_COUNT  
+#endif
 
-#ifndef GATTS_ATTR_TAB_SIZE
-#define GATTS_ATTR_TAB_SIZE 0x600 /**< GATTS attribite table size. */
-#endif                                                                 /** If value for YOTTA_CFG_NORDIC_BLE_GATTS_ATTR_TAB_SIZE was used, ram settings are adjusted by the yotta target module. */
 
-    /**
-     * Using this call, the application can select whether to include the
-     * Service Changed characteristic in the GATT Server. The default in all
-     * previous releases has been to include the Service Changed characteristic,
-     * but this affects how GATT clients behave. Specifically, it requires
-     * clients to subscribe to this attribute and not to cache attribute handles
-     * between connections unless the devices are bonded. If the application
-     * does not need to change the structure of the GATT server attributes at
-     * runtime this adds unnecessary complexity to the interaction with peer
-     * clients. If the SoftDevice is enabled with the Service Changed
-     * Characteristics turned off, then clients are allowed to cache attribute
-     * handles making applications simpler on both sides.
-     */
-#ifndef IS_SRVC_CHANGED_CHARACT_PRESENT
-#define IS_SRVC_CHANGED_CHARACT_PRESENT 0
+/* GATTS attribite table size. 
+ * When changing this number remember to adjust the RAM settings */
+#ifndef MBED_CONF_NRF_GATTS_ATTR_TAB_SIZE
+    #define GATTS_ATTR_TAB_SIZE    0x600  
+#else
+    #define GATTS_ATTR_TAB_SIZE    MBED_CONF_NRF_GATTS_ATTR_TAB_SIZE  
+#endif
+
+
+/**
+ * Using this call, the application can select whether to include the
+ * Service Changed characteristic in the GATT Server. The default in all
+ * previous releases has been to include the Service Changed characteristic,
+ * but this affects how GATT clients behave. Specifically, it requires
+ * clients to subscribe to this attribute and not to cache attribute handles
+ * between connections unless the devices are bonded. If the application
+ * does not need to change the structure of the GATT server attributes at
+ * runtime this adds unnecessary complexity to the interaction with peer
+ * clients. If the SoftDevice is enabled with the Service Changed
+ * Characteristics turned off, then clients are allowed to cache attribute
+ * handles making applications simpler on both sides.
+ */
+#ifndef MBED_CONF_NRF_IS_SRVC_CHANGED_CHARACT_PRESENT
+    #define IS_SRVC_CHANGED_CHARACT_PRESENT    1  
+#else
+    #define IS_SRVC_CHANGED_CHARACT_PRESENT    MBED_CONF_NRF_IS_SRVC_CHANGED_CHARACT_PRESENT  
 #endif
 
 error_t     btle_init(void);
