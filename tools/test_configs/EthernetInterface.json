@@ -23,5 +23,11 @@
             "help" : "Some servers send a prefix before echoed message",
             "value" : "\"u-blox AG TCP/UDP test service\\n\""
         }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["LWIP"],
+            "nsapi.default-stack": "LWIP"
+        }
     }
 }
