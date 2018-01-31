@@ -165,13 +165,17 @@ const PinMap PinMap_SPI_CS[] = {
 
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
+#ifdef UART0_BASE
     /* UART0 */
     {PF6, UART_0, 0},
     {PE0, UART_0, 1},
+#endif
+#ifdef UART1_BASE
     /* UART1 */
     {PF10, UART_1, 1},
     {PB9, UART_1, 2},
     {PE2, UART_1, 3},
+#endif
     /* USART0 */
     {PE10, USART_0, 0},
     {PE7, USART_0, 1},
@@ -199,13 +203,17 @@ const PinMap PinMap_UART_TX[] = {
 };
 
 const PinMap PinMap_UART_RX[] = {
+#ifdef UART0_BASE
     /* UART0 */
     {PF7, UART_0, 0},
     {PE1, UART_0, 1},
+#endif
+#ifdef UART1_BASE
     /* UART1 */
     {PF11, UART_1, 1},
     {PB10, UART_1, 2},
     {PE3, UART_1, 3},
+#endif
     /* USART0 */
     {PE11, USART_0, 0},
     {PE6, USART_0, 1},
