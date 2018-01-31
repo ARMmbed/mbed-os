@@ -82,6 +82,11 @@ bd_size_t ReadOnlyBlockDevice::get_erase_size() const
     return _bd->get_erase_size();
 }
 
+int ReadOnlyBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
+}
+
 bd_size_t ReadOnlyBlockDevice::size() const
 {
     return _bd->size();
