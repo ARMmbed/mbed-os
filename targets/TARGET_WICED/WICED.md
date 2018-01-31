@@ -28,6 +28,21 @@ http://ess-wiki.advantech.com.tw/wiki/images/4/44/WM-BN-BM-22_SDK_5.1.x_platform
 
 Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
+## Enable compilation of the WICED SDK and Mbed OS wrapper
+
+To enable compilation of the WICED SDK, add the label `WICED` to the `target.extra_labels`
+in your mbed_app.json:
+
+``` json
+{
+    "target_overrides": {
+        "*": {
+            "target.extra_labels_add": ["WICED"]
+        }
+    }
+}
+```
+
 ## Modify the WICED SDK to support Mbed OS's build tools
 
 1. Remove these files because they are unnecessary and large:
