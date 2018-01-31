@@ -50,6 +50,7 @@ struct SecurityEntry_t {
         authenticated(false),
         master(false),
         encryption_requested(false),
+        encryption_failed(false),
         encrypted(false),
         signing_requested(false),
         mitm_requested(false),
@@ -66,6 +67,7 @@ struct SecurityEntry_t {
         connected = true;
         authenticated = false;
         encryption_requested = false;
+        encryption_failed = false;
         encrypted = false;
         signing_requested = false;
         oob = false;
@@ -89,6 +91,7 @@ struct SecurityEntry_t {
     uint8_t master:1;
 
     uint8_t encryption_requested:1;
+    uint8_t encryption_failed:1;
     uint8_t encrypted:1;
     uint8_t signing_requested:1;
 
@@ -115,18 +118,9 @@ struct IdentytList_t {
     size_t size;
 };
 
-/** Return value for callbacks to indicate to the security db
- *  whether the value needs to be updated in the NVM. */
-enum DbCbAction_t {
-    DB_CB_ACTION_UPDATE,
-    DB_CB_ACTION_NO_UPDATE_REQUIRED, /**< does not guarantee discarding changes if you made any */
-    DB_CB_ACTION_REMOVE
-};
-
 /* callbacks for asynchronous data retrieval from the security db */
 
-typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
-typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
+typedef mbed::Callback<void(const SecurityEntry_t*, const SecurityEntryKeys_t*)> SecurityEntryKeysDbCb_t;
 typedef mbed::Callback<void(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
 typedef mbed::Callback<void(const SecurityEntryIdentity_t*)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<void(Gap::Whitelist_t*)> WhitelistDbCb_t;
@@ -390,7 +384,9 @@ public:
     virtual void clear_entries() = 0;
 
     /**
-     * Asynchronously return the whitelist stored in NVM through a callback.
+     * Asynchronously return the whitelist stored in NVM through a callback. Function
+     * takes ownership of the memory. The whitelist and the ownership will be returned
+     * in the callback.
      *
      * @param[in] cb callback that will receive the whitelist
      * @param[in] whitelist preallocated whitelist that will be filled in
@@ -402,6 +398,8 @@ public:
 
     /**
      * Asynchronously return a whitelist through a callback, generated from the bond table.
+     * Function takes ownership of the memory. The whitelist and the ownership will be
+     * returned in the callback.
      *
      * @param[in] cb callback that will receive the whitelist
      * @param[in] whitelist preallocated whitelist that will be filled in
@@ -501,7 +499,15 @@ public:
         if (store) {
             entry = &store->entry;
         }
-        cb(*entry, _local_keys);
+
+        /* validate we have the correct key */
+        if (ediv && rand
+            && *ediv == _local_keys.ediv
+            && *rand == _local_keys.rand) {
+            cb(entry, &_local_keys);
+        } else {
+            cb(entry, NULL);
+        }
     }
 
     /* set */
@@ -563,7 +569,7 @@ public:
             entry = &store->entry;
             key = &store->key;
         }
-        cb(*entry, *key);
+        cb(entry, key);
     }
 
     /* set */

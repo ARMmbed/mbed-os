@@ -125,14 +125,6 @@ public:
     // Encryption
     //
 
-    /**
-     * Get the security status of a connection.
-     *
-     * @param[in]  connection   Handle to identify the connection.
-     * @param[out] securityStatusP    Security status.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
     virtual ble_error_t getLinkEncryption(
         connection_handle_t connection,
         link_encryption_t *encryption
@@ -217,47 +209,78 @@ protected:
     //
 
 private:
+    /**
+     * Generate the CSRK if needed.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     ble_error_t init_signing();
 
+    /**
+     * Send slave security request based on current link settings.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     ble_error_t slave_security_request(connection_handle_t connection);
 
+    /**
+     * Enable encryption on the link, depending on whether device is master or slave.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     ble_error_t enable_encryption(connection_handle_t connection);
 
     /**
      * Returns the requested LTK to the PAL. Called by the security db.
      *
-     * @param entry security entry returned by the database.
-     * @param entryKeys security entry containing keys.
-     *
-     * @return no action instruction to the db since this only reads the keys.
+     * @param[in] entry security entry returned by the database.
+     * @param[in] entryKeys security entry containing keys.
      */
-    DbCbAction_t enable_encryption_cb(
-        SecurityEntry_t& entry,
-        SecurityEntryKeys_t& entryKeys
+    void enable_encryption_cb(
+        const SecurityEntry_t* entry,
+        const SecurityEntryKeys_t* entryKeys
     );
 
+    /**
+     * Check if identity resolving key resolves the peer address.
+     *
+     * @param[in] peer_address Resolvable random address.
+     * @param[in] irk Identity resolving key.
+     * @return True if identity resolving key resolves the peer address.
+     */
     bool check_against_identity_address(
         const address_t peer_address,
         const irk_t *irk
     );
 
-    void check_against_irk_cb(
-        const irk_t *irk
+    /**
+     * Checks device address against an identity resolving key. Called by the security db.
+     *
+     * @param[in] identity identity resolving key and identity address
+     */
+    void check_against_identity_cb(
+        const SecurityEntryIdentity_t *identity
     );
 
     /**
      * Returns the requested LTK to the PAL. Called by the security db.
      *
-     * @param entry security entry returned by the database.
-     * @param entryKeys security entry containing keys.
-     *
-     * @return no action instruction to the db since this only reads the keys.
+     * @param[in] entry security entry returned by the database.
+     * @param[in] entryKeys security entry containing keys.
      */
-    DbCbAction_t set_ltk_cb(
-        SecurityEntry_t& entry,
-        SecurityEntryKeys_t& entryKeys
+    void set_ltk_cb(
+        const SecurityEntry_t* entry,
+        const SecurityEntryKeys_t* entryKeys
     );
 
+    /**
+     * Returns the CSRK for the connection. Called by the security db.
+     *
+     * @param[in] entry security entry returned by the database.
+     * @param[in] entryKeys security entry containing keys.
+     */
     void return_csrk_cb(
         connection_handle_t connection,
         const csrk_t *csrk
@@ -325,6 +348,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // MITM
     //
+
     virtual void set_mitm_performed(connection_handle_t connection, bool enable = true);
 
     virtual void on_passkey_display(

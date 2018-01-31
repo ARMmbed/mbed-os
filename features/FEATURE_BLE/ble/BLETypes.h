@@ -131,7 +131,7 @@ struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
     };
 
     /**
-     * Construct a new instance of pairing_failure_t.
+     * Construct a new instance of link_encryption_t.
      */
     link_encryption_t(type value) : SafeEnum<link_encryption_t, uint8_t>(value) { }
 };

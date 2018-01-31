@@ -267,14 +267,6 @@ ble_error_t GenericSecurityManager::setHintFutureRoleReversal(bool enable) {
 // Encryption
 //
 
-/**
- * Get the security status of a connection.
- *
- * @param[in]  connection   Handle to identify the connection.
- * @param[out] securityStatusP    Security status.
- *
- * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
- */
 ble_error_t GenericSecurityManager::getLinkEncryption(
     connection_handle_t connection,
     link_encryption_t *encryption
@@ -530,24 +522,17 @@ ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connec
     }
 }
 
-/**
- * Returns the requested LTK to the PAL. Called by the security db.
- *
- * @param entry security entry returned by the database.
- * @param entryKeys security entry containing keys.
- *
- * @return no action instruction to the db since this only reads the keys.
- */
-DbCbAction_t GenericSecurityManager::enable_encryption_cb(
-    SecurityEntry_t& entry,
-    SecurityEntryKeys_t& entryKeys
+void GenericSecurityManager::enable_encryption_cb(
+    const SecurityEntry_t* entry,
+    const SecurityEntryKeys_t* entryKeys
 ) {
-    _pal.enable_encryption(entry.handle, &entryKeys.ltk, &entryKeys.rand, &entryKeys.ediv);
-    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+    if (entry && entryKeys) {
+        _pal.enable_encryption(entry->handle, &entryKeys->ltk, &entryKeys->rand, &entryKeys->ediv);
+    }
 }
 
-void GenericSecurityManager::check_against_irk_cb(
-    const irk_t *irk
+void GenericSecurityManager::check_against_identity_cb(
+    const SecurityEntryIdentity_t *identity
 ) {
 
 }
@@ -580,20 +565,17 @@ bool GenericSecurityManager::check_against_identity_address(
     return false;
 }
 
-/**
- * Returns the requested LTK to the PAL. Called by the security db.
- *
- * @param entry security entry returned by the database.
- * @param entryKeys security entry containing keys.
- *
- * @return no action instruction to the db since this only reads the keys.
- */
-DbCbAction_t GenericSecurityManager::set_ltk_cb(
-    SecurityEntry_t& entry,
-    SecurityEntryKeys_t& entryKeys
+void GenericSecurityManager::set_ltk_cb(
+    const SecurityEntry_t* entry,
+    const SecurityEntryKeys_t* entryKeys
 ) {
-    _pal.set_ltk(entry.handle, &entryKeys.ltk);
-    return DB_CB_ACTION_NO_UPDATE_REQUIRED;
+    if (entry) {
+        if (entryKeys) {
+            _pal.set_ltk(entry->handle, &entryKeys->ltk);
+        } else {
+            _pal.set_ltk(entry->handle, NULL);
+        }
+    }
 }
 
 void GenericSecurityManager::return_csrk_cb(
@@ -651,6 +633,16 @@ void GenericSecurityManager::on_pairing_error(
         connection,
         (SecurityManager::SecurityCompletionStatus_t)(error.value() | 0x80)
     );
+
+    /* if this pairing was triggered by a failed encryption attempt
+     * inform the application of the encryption failure */
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (entry && entry->encryption_requested && entry->encryption_failed) {
+        eventHandler->linkEncryptionResult(
+            connection,
+            link_encryption_t::NOT_ENCRYPTED
+        );
+    }
 }
 
 void GenericSecurityManager::on_pairing_timed_out(connection_handle_t connection) {
@@ -726,12 +718,26 @@ void GenericSecurityManager::on_link_encryption_result(
     }
 
     if (result == link_encryption_t::ENCRYPTED) {
-       entry->encryption_requested = false;
-    }
 
-    if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
         entry->encryption_requested = false;
+        entry->encryption_failed = false;
+
+    } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+
+        entry->encryption_requested = false;
+        entry->encryption_failed = false;
         entry->authenticated = true;
+
+    } else if (result == link_encryption_t::NOT_ENCRYPTED
+               && entry->encryption_requested
+               && !entry->encryption_failed) {
+
+        /* if we failed encryption for the first time
+         * retry repairing in case slave lost LTK */
+        requestPairing(entry->handle);
+        entry->encryption_failed = true;
+        /* don't return an event yet since we are retrying */
+        return;
     }
 
     eventHandler->linkEncryptionResult(connection, result);

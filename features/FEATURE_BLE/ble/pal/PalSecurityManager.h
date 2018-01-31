@@ -487,7 +487,8 @@ public:
 
     /**
      * Request the LTK since the peer is asking us to encrypt the link. We need to
-     * provide the LTK based on the EDIV and RAND provided by the other side.
+     * provide the LTK based on the EDIV and RAND provided by the other side. This
+     * is called on the slave.
      *
      * @param[in] connection connection handle
      * @param[in] ediv identifies LTK
@@ -733,7 +734,7 @@ public:
      * Set the LTK that is to be used for encryption.
      *
      * @param[in] connection connection handle
-     * @param[in] ltk long term key
+     * @param[in] ltk long term key, NULL if key has not been found
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_ltk(
