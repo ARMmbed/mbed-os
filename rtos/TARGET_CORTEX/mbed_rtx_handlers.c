@@ -79,7 +79,7 @@ __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
 
-static const char* error_msg(int32_t status)
+static const char *error_msg(int32_t status)
 {
     switch (status) {
     case osError:

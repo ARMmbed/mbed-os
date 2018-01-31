@@ -42,13 +42,13 @@ public:
      */ 
     FilePath(const char* file_path);
 
-    const char* fileName(void);
+    const char *fileName(void);
 
     bool          isFileSystem(void);
-    FileSystemLike* fileSystem(void);
+    FileSystemLike *fileSystem(void);
 
     bool    isFile(void);
-    FileLike* file(void);
+    FileLike *file(void);
     bool    exists(void);
 
 private:

@@ -62,7 +62,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
         "public API of mbed-os and is being removed in the future.")
-    static InterruptManager* get();
+    static InterruptManager *get();
 
     /** Destroy the current instance of the interrupt manager
      */

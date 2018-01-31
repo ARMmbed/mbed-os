@@ -87,7 +87,7 @@ public:
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
     */
-    T* alloc(uint32_t millisec=0) {
+    T *alloc(uint32_t millisec=0) {
         return _pool.alloc();
     }
 
@@ -97,7 +97,7 @@ public:
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
     */
-    T* calloc(uint32_t millisec=0) {
+    T *calloc(uint32_t millisec=0) {
         return _pool.calloc();
     }
 

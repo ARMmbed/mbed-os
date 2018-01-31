@@ -933,7 +933,7 @@ int mbed_getc(std::FILE *_file){
 #endif
 }
 
-char* mbed_gets(char*s, int size, std::FILE *_file){
+char *mbed_gets(char*s, int size, std::FILE *_file){
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
     /*This is only valid for unbuffered streams*/
     char *str = fgets(s,size,_file);
@@ -1191,7 +1191,7 @@ extern "C" clock_t clock()
 }
 
 // temporary - Default to 1MHz at 32 bits if target does not have us_ticker_get_info
-MBED_WEAK const ticker_info_t* us_ticker_get_info()
+MBED_WEAK const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,
@@ -1201,7 +1201,7 @@ MBED_WEAK const ticker_info_t* us_ticker_get_info()
 }
 
 // temporary - Default to 1MHz at 32 bits if target does not have lp_ticker_get_info
-MBED_WEAK const ticker_info_t* lp_ticker_get_info()
+MBED_WEAK const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,

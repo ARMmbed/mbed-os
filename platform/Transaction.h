@@ -59,7 +59,7 @@ public:
      *
      * @return The object which was stored
      */
-    Class* get_object() {
+    Class *get_object() {
         return _obj;
     }
 
@@ -67,7 +67,7 @@ public:
      *
      * @return The transaction which was stored
      */
-    transaction_t* get_transaction() {
+    transaction_t *get_transaction() {
         return &_data;
     }
 
