@@ -96,7 +96,7 @@ static uint32_t signalEvent()
 }
 
 
-error_t btle_init(void)
+nrf_error_t btle_init(void)
 {
     nrf_clock_lf_cfg_t clockConfiguration;
 
@@ -126,7 +126,7 @@ error_t btle_init(void)
      * Characteristics turned off, then clients are allowed to cache attribute
      * handles making applications simpler on both sides.
      */
-    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = true;
+    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = false;
 
     ble_enable_params_t ble_enable_params;
     uint32_t err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,

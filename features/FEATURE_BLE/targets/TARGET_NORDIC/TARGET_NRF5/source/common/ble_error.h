@@ -140,7 +140,7 @@ typedef enum
   ERROR_BLEGATTS_INVALID_ATTR_TYPE              = 0x3400 , /**< Invalid attribute type. */
   ERROR_BLEGATTS_SYS_ATTR_MISSING               = 0x3401 , /**< System Attributes missing. */
 
-}error_t;
+}nrf_error_t;
 
 #ifdef __cplusplus
  }

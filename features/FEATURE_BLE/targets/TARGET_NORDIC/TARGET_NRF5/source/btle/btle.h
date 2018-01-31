@@ -33,7 +33,7 @@ extern "C" {
 #define GATTS_ATTR_TAB_SIZE 0x600 /**< GATTS attribite table size. */
                                                                        /** If value for YOTTA_CFG_NORDIC_BLE_GATTS_ATTR_TAB_SIZE was used, ram settings are adjusted by the yotta target module. */
 
-error_t     btle_init(void);
+nrf_error_t     btle_init(void);
 
 // flag indicating if events have been signaled or not
 // It is used by processEvents and signalEventsToProcess

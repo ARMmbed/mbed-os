@@ -292,7 +292,7 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
         }
 
         if (updatesEnabled) {
-            error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
+            nrf_error_t error = (nrf_error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
             if (error != ERROR_NONE) {
                 switch (error) {
                     case ERROR_BLE_NO_TX_BUFFERS: /*  Notifications consume application buffers. The return value can be used for resending notifications. */

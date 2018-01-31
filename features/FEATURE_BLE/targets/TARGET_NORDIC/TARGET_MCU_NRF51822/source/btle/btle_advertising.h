@@ -19,6 +19,6 @@
 
 #include "common/common.h"
 
-error_t btle_advertising_start(void);
+nrf_error_t btle_advertising_start(void);
 
 #endif // ifndef _BTLE_ADVERTISING_H_

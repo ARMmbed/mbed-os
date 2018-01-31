@@ -19,6 +19,6 @@
 
 #include "common/common.h"
 
-error_t btle_gap_init(void);
+nrf_error_t btle_gap_init(void);
 
 #endif // ifndef _BTLE_GAP_H_
