@@ -334,10 +334,10 @@ public:
 
     /**
      * If implementation has enough memory it can return the
-     * irk list synchronously, otherwise asynchronously iteration
+     * irk list synchronously, otherwise asynchronous iteration
      * shall be used through get_next_entry_peer_identity
      *
-     * @param[in] list the list of entires, NULL if empty
+     * @param[in] list the list of entries, NULL if empty
      *
      * @return BLE_ERROR_NONE if the function is implemented.
      */

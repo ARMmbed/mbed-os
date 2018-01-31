@@ -554,13 +554,12 @@ bool GenericSecurityManager::check_against_identity_address(
 
     /* prand_hash now contains the hash result in the first 3 octects
      * compare it with the hash in the peer identity address */
-
-    /* can't use memcmp because of address_t constness */
     if ((prand_hash[0] == peer_address[3])
         || (prand_hash[1] == peer_address[4])
         || (prand_hash[2] == peer_address[5])) {
         return true;
     }
+
     return false;
 }
 

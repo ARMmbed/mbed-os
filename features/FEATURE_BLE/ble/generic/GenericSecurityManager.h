@@ -428,8 +428,25 @@ public:
         const rand_t *rand
     );
 
+    /**
+     * Inform the security manager that a device has been disconnected and its
+     * entry can be put in NVM storage. Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual void on_disconnected(connection_handle_t connection);
 
+    /**
+     * Inform the Security manager of a new connection. This will create
+     * or retrieve an existing security manager entry for the connected device.
+     * Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param peer_address Address of the connected device.
+     * @param is_master True if device is the master.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual void on_connected(connection_handle_t connection, address_t peer_address, bool is_master);
 
 private:
