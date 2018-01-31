@@ -8,8 +8,8 @@
             "value" : "new OdinWiFiInterface()"
         },
         "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD)"
+            "help" : "Disabled until EMAC updated",
+            "value" : null
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -27,6 +27,12 @@
             "help": "Simulated block device, requires sufficient heap",
             "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",
             "value": "HeapBlockDevice"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["LWIP"],
+            "nsapi.default-stack": "LWIP"
         }
     }
 }
