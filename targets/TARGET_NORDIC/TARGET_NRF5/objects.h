@@ -49,8 +49,10 @@ extern "C" {
 #endif
 
 struct serial_s {
-    uint32_t placeholder; // struct is unused by nRF5x API implementation
-};                        // but it must be not empty (required by strict compiler - IAR)
+    NRF_UART_Type *uart;
+    IRQn_Type IRQn;
+    int instance;
+};
 
 struct spi_s {
     uint8_t spi_idx;

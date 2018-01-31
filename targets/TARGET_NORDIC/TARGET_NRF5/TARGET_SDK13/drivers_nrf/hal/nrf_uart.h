@@ -49,7 +49,7 @@ extern "C" {
 #endif
 
 //Temporary defining legacy UART for instance 1
-#define NRF_UART1 (NRF_UART_Type *)NRF_UARTE1
+//#define NRF_UART1 (NRF_UART_Type *)NRF_UARTE1
 
 /**
  * @defgroup nrf_uart_hal UART HAL
