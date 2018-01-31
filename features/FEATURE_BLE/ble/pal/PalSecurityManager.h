@@ -661,7 +661,7 @@ public:
     ) = 0;
 
     /**
-     * Set the time after which an event will be generated unless we received a packet with
+     * Get the time after which an event will be generated unless we received a packet with
      * a valid MIC.
      * @param[in] connection connection handle
      * @param[out] timeout_in_10ms time measured in units of 10 milliseconds

@@ -637,7 +637,7 @@ void GenericSecurityManager::on_pairing_request(
     set_mitm_performed(connection, false);
 
     if (_pairing_authorisation_required) {
-        eventHandler->acceptPairingRequest(connection);
+        eventHandler->pairingRequest(connection);
     }
 }
 

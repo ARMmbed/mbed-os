@@ -99,14 +99,15 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const SecurityManager *> SecurityManagerShutdownCallbackChain_t;
 
     /* legacy callbacks, please use SecurityManagerEventHandler instead */
-    typedef void (*HandleSpecificEvent_t)(connection_handle_t handle);
+    typedef void (*HandleSpecificEvent_t)(connection_handle_t connectionHandle);
     typedef void (*SecuritySetupInitiatedCallback_t)(connection_handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
     typedef void (*SecuritySetupCompletedCallback_t)(connection_handle_t, SecurityCompletionStatus_t status);
-    typedef void (*LinkSecuredCallback_t)(connection_handle_t handle, SecurityMode_t securityMode);
-    typedef void (*PasskeyDisplayCallback_t)(connection_handle_t handle, const Passkey_t passkey);
+    typedef void (*LinkSecuredCallback_t)(connection_handle_t connectionHandle, SecurityMode_t securityMode);
+    typedef void (*PasskeyDisplayCallback_t)(connection_handle_t connectionHandle, const Passkey_t passkey);
 
-    /* The stack will use these functions to signal events to the application,
-     * subclass to override handlers */
+    /** The stack will use these functions to signal events to the application,
+     *  subclass to override handlers. Use SecurityManager::setSecurityManagerEventHandler
+     *  to set the interface implementation to be used. */
     class SecurityManagerEventHandler {
     public:
         SecurityManagerEventHandler() {};
@@ -120,20 +121,20 @@ public:
          * Request application to accept or reject pairing. Application should respond by
          * calling the appropriate function: acceptPairingRequest or cancelPairingRequest
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void acceptPairingRequest(connection_handle_t handle) {
-            (void)handle;
+        virtual void pairingRequest(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         /**
          * Indicate to the application that pairing has completed.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          * @param[in] result result of the pairing indicating success or reason for failure
          */
-        virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
-            (void)handle;
+        virtual void pairingResult(connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
+            (void)connectionHandle;
             (void)result;
         }
 
@@ -145,10 +146,10 @@ public:
          * Indicate to the application that the set timeout time has elapsed without
          * receiving a packet with a valid MIC.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void validMicTimeout(connection_handle_t handle) {
-            (void)handle;
+        virtual void validMicTimeout(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         /**
@@ -170,11 +171,11 @@ public:
         /**
          * Inform the device of the encryption state of a given link.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          * @param[in] result encryption state of the link
          */
-        virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
-            (void)handle;
+        virtual void linkEncryptionResult(connection_handle_t connectionHandle, link_encryption_t result) {
+            (void)connectionHandle;
             (void)result;
         }
 
@@ -185,11 +186,11 @@ public:
         /**
          * Display the given passkey on the local device.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          * @param[in] passkey 6 digit passkey to be displayed
          */
-        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
-            (void)handle;
+        virtual void passkeyDisplay(connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
+            (void)connectionHandle;
             (void)passkey;
         }
 
@@ -197,49 +198,49 @@ public:
          * Indicate to the application that a confirmation is required. The application should
          * proceed by supplying the confirmation confirmationEntered function.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void confirmationRequest(connection_handle_t handle) {
-            (void)handle;
+        virtual void confirmationRequest(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         /**
          * Indicate to the application that a passkey is required. The application should
          * proceed by supplying the passkey through the passkeyEntered function.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void passkeyRequest(connection_handle_t handle) {
-            (void)handle;
+        virtual void passkeyRequest(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         /**
          * Notify the application that a key was pressed by the peer during passkey entry.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          * @param[in] keypress type of keypress event
          */
-        virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
-            (void)handle;
+        virtual void keypressNotification(connection_handle_t connectionHandle, SecurityManager::Keypress_t keypress) {
+            (void)connectionHandle;
             (void)keypress;
         }
 
         /**
          * Indicate to the application it needs to return out of band data to the stack.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void legacyPairingOobRequest(connection_handle_t handle) {
-            (void)handle;
+        virtual void legacyPairingOobRequest(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         /**
          * Indicate to the application it needs to return out of band data to the stack.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void oobRequest(connection_handle_t handle) {
-            (void)handle;
+        virtual void oobRequest(connection_handle_t connectionHandle) {
+            (void)connectionHandle;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -249,60 +250,15 @@ public:
         /**
          * Deliver the signing key to the application.
          *
-         * @param[in] handle connection handle
+         * @param[in] connectionHandle connection connectionHandle
          * @param[in] csrk signing key, pointer only valid during call
          * @param[in] authenticated indicates if the signing key is authenticated
          */
-        virtual void signingKey(connection_handle_t handle, const csrk_t *csrk, bool authenticated) {
-            (void)handle;
+        virtual void signingKey(connection_handle_t connectionHandle, const csrk_t *csrk, bool authenticated) {
+            (void)connectionHandle;
             (void)csrk;
             (void)authenticated;
         }
-    };
-
-private:
-    /* Legacy compatibility with old callbacks (from both sides so any
-     * combination of new and old works) */
-    class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
-    public:
-        LegacySecurityManagerEventHandler() :
-            securitySetupInitiatedCallback(),
-            securitySetupCompletedCallback(),
-            linkSecuredCallback(),
-            securityContextStoredCallback(),
-            passkeyDisplayCallback() { };
-
-        virtual void pairingResult(connection_handle_t handle, SecurityCompletionStatus_t result) {
-            if (securitySetupCompletedCallback) {
-                securitySetupCompletedCallback(handle, result);
-            }
-        }
-
-        virtual void linkEncryptionResult(connection_handle_t handle, link_encryption_t result) {
-            if (linkSecuredCallback) {
-                SecurityManager::SecurityMode_t securityMode;
-                if (result == link_encryption_t::ENCRYPTED) {
-                    securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
-                } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
-                    securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
-                } else {
-                    securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
-                }
-                linkSecuredCallback(handle, securityMode);
-            }
-        };
-
-        virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
-            if (passkeyDisplayCallback) {
-                passkeyDisplayCallback(handle, passkey);
-            }
-        };
-
-        SecurityManager::SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
-        SecurityManager::SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
-        SecurityManager::LinkSecuredCallback_t            linkSecuredCallback;
-        SecurityManager::HandleSpecificEvent_t            securityContextStoredCallback;
-        SecurityManager::PasskeyDisplayCallback_t         passkeyDisplayCallback;
     };
 
     /*
@@ -368,6 +324,13 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    /**
+     * Normally all bonding information is lost when device is reset, this requests that the stack
+     * attempts to save the information and reload it during initialisation. This is not guaranteed.
+     *
+     * @param[in] enable if true the stack will attempt to preserve bonding information on reset.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t preserveBondingStateOnReset(bool enable) {
         /* Avoid compiler warnings about unused variables */
         (void) enable;
@@ -411,21 +374,52 @@ public:
     // Pairing
     //
 
+    /**
+     * Request pairing with the peer. Called by the master.
+     * @note Slave can call requestAuthentication or setLinkEncryption to achieve security.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t requestPairing(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Accept the pairing request. Called as a result of pairingRequest being called
+     * on the event handler.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t acceptPairingRequest(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Reject pairing request if the local device is the slave or cancel an outstanding
+     * pairing request if master.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t canceltPairingRequest(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Tell the stack whether the application needs to authorise pairing requests or should
+     * they be automatically accepted.
+     *
+     * @param[in] required If set to true, pairingRequest in the event handler will
+     *                     will be called and will require an action from the application
+     *                     to continue with pairing by calling acceptPairingRequest
+     *                     or canceltPairingRequest if the user wishes to reject it.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
         (void) required;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -435,11 +429,25 @@ public:
     // Feature support
     //
 
+    /**
+     * Allow of disallow the use of legacy pairing in case the application only wants
+     * to force the use of Secure Connections. If legacy pairing is disallowed and either
+     * side doesn't support Secure Connections the pairing will fail.
+     *
+     * @param[out] allow If true legacy pairing will be used if either side doesn't support Secure Connections.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t allowLegacyPairing(bool allow = true) {
         (void) allow;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Check if the Secure Connections feature is supported by the stack and controller.
+     *
+     * @param[out] enabled true if SC are supported
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t getSecureConnectionsSupport(bool *enabled) {
         (void) enabled;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -449,6 +457,12 @@ public:
     // Security settings
     //
 
+    /**
+     * Set the IO capability of the local device.
+     *
+     * @param[in] iocaps type of IO capabilities available on the local device
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps) {
         (void) iocaps;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -458,22 +472,36 @@ public:
      * Set the passkey that is displayed on the local device instead of using
      * a randomly generated one
      *
-     * @param passkey asci string of 6 digits
-     * @return
+     * @param[in] passkey asci string of 6 digits
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
-        (void) handle;
+    /**
+     * Set the time after which an event will be generated unless we received a packet with
+     * a valid MIC.
+     * @param[in] connection connection handle
+     * @param[in] timeout_in_10ms time measured in units of 10 milliseconds
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t setAuthenticationTimeout(connection_handle_t connectionHandle, uint32_t timeout_in_ms) {
+        (void) connectionHandle;
         (void) timeout_in_ms;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
-        (void) handle;
+    /**
+     * Get the time after which an event will be generated unless we received a packet with
+     * a valid MIC.
+     * @param[in] connection connection handle
+     * @param[out] timeout_in_10ms time measured in units of 10 milliseconds
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getAuthenticationTimeout(connection_handle_t connectionHandle, uint32_t *timeout_in_ms) {
+        (void) connectionHandle;
         (void) timeout_in_ms;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -499,7 +527,7 @@ public:
      * Set whether or not we want to send and receive keypress notifications
      * during passkey entry.
      *
-     * @param enabled if true pairing will try to enable keypress notifications
+     * @param[in] enabled if true pairing will try to enable keypress notifications
      * (dependant on other side supporting it)
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
@@ -509,15 +537,25 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t enableSigning(connection_handle_t handle, bool enabled = true) {
+    /**
+     * Request generation and exchange of signing keys so that packet signing can be utilised
+     * on this connection.
+     * @note This does not generate a signingKey event. Use getSigningKey for that.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] enabled          If set to true, signing keys will be exchanged
+     *                             during subsequent pairing.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t enableSigning(connection_handle_t connectionHandle, bool enabled = true) {
         (void) enabled;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
     /**
-     * Give a hint to the stack that the master/slave role might change in the future
+     * Give a hint to the stack that the master/slave role might change in the future.
      *
-     * @param enable if set to true it hints the roles are likely to swap in the future
+     * @param[in] enable If set to true it hints the roles are likely to swap in the future.
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
@@ -530,24 +568,54 @@ public:
     // Encryption
     //
 
+    /**
+     * Current state of encryption on the link.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[out] encryption
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t getLinkEncryption(connection_handle_t connectionHandle, link_encryption_t *encryption) {
         (void)connectionHandle;
         (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Enabled or disable encryption on the link. The result of this request will be indicated
+     * by a call to linkEncryptionResult in the event handler when the action is completed.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] encryption
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setLinkEncryption(connection_handle_t connectionHandle, link_encryption_t encryption) {
         (void)connectionHandle;
         (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getEncryptionKeySize(connection_handle_t handle, uint8_t *size) {
-        (void) handle;
-        (void) size;
+    /**
+     * Return the size of the encryption key used on this link.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[out] size Size of the encryption key in bytes
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getEncryptionKeySize(connection_handle_t connectionHandle, uint8_t *byteSize) {
+        (void) connectionHandle;
+        (void) byteSize;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Set the requirements for encryption key size. If the peer cannot comply with the requirements
+     * paring will fail.
+     *
+     * @param[in] minimumByteSize Smallest allowed encryption key size in bytes.
+     * @param[in] maximumByteSize Largest allowed encryption key size in bytes.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {
         (void) minimumByteSize;
         (void) maximumByteSize;
@@ -558,6 +626,12 @@ public:
     // Privacy
     //
 
+    /**
+     * Set the time after which the private adress will be regenerated.
+     *
+     * @param[in] timeout_in_seconds How often (in seconds) the private address should be regenerated.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
         (void) timeout_in_seconds;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -567,6 +641,13 @@ public:
     // Authentication
     //
 
+    /**
+     * Request that the link be authenticated (keys with MITM protection). This might trigger encryption
+     * or pairing/re-pairing. The success will be indicated through an event indicating security level change.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t requestAuthentication(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -576,6 +657,16 @@ public:
     // MITM
     //
 
+    /**
+     * Enable OOB data usage during paring.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] useOOB If set to true, authenticate using OOB data.
+     * @param[in] OOBProvidesMITM If set to true keys exchanged during pairing using OOB data
+     *                            will provide MITM protection. This indicates that the form
+     *                            of exchange used by the OOB data itself provides MITM protection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
     virtual ble_error_t setOOBDataUsage(connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
         /* Avoid compiler warnings about unused variables */
         (void) connectionHandle;
@@ -584,18 +675,42 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t confirmationEntered(connection_handle_t handle, bool confirmation) {
-        (void) handle;
+    /**
+     * Report to the stack if the passkey matches or not. Used during pairing to provide MITM protection.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] confirmation True value indicates the passkey displayed matches.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t confirmationEntered(connection_handle_t connectionHandle, bool confirmation) {
+        (void) connectionHandle;
         (void) confirmation;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t passkeyEntered(connection_handle_t handle, Passkey_t passkey) {
-        (void) handle;
+
+    /**
+     * Supply the stack with the user entered passkey.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] passkey ASCI string of digits entered by the user.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t passkeyEntered(connection_handle_t connectionHandle, Passkey_t passkey) {
+        (void) connectionHandle;
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t sendKeypressNotification(connection_handle_t handle, Keypress_t keypress) {
-        (void) handle;
+
+    /**
+     * Send a notification to the peer that the user pressed a key on the local device.
+     * @note This will only be delivered if the keypress notifications have been enabled during pairing.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] keypress Type of keypress event.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t sendKeypressNotification(connection_handle_t connectionHandle, Keypress_t keypress) {
+        (void) connectionHandle;
         (void) keypress;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -607,6 +722,7 @@ public:
     /**
      * Retrieves a signing key through a signingKey event.
      * If a signing key is not present, pairing/authentication will be attempted.
+     * @note This will attempt to retrieve the key even if enableSigning hasn't been called prior to pairing.
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] authenticated    Whether the signing key needs to be authenticated
@@ -645,15 +761,22 @@ public:
     }
 
     /**
-     * @brief provide access to the callchain of shutdown event callbacks
-     * It is possible to register callbacks using onShutdown().add(callback);
-     * It is possible to unregister callbacks using onShutdown().detach(callback)
+     * Provide access to the callchain of shutdown event callbacks.
+     * It is possible to register callbacks using onShutdown().add(callback).
+     * It is possible to unregister callbacks using onShutdown().detach(callback).
+     *
      * @return The shutdown event callbacks chain
      */
     SecurityManagerShutdownCallbackChain_t& onShutdown() {
         return shutdownCallChain;
     }
 
+    /**
+     * Assign the event handler implementation that will be used by the stack to signal events
+     * back to the application.
+     *
+     * @param[in] handler Event Handler interface implementation.
+     */
     virtual void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         if (handler) {
             if (eventHandler && (eventHandler != &defaultEventHandler)) {
@@ -765,40 +888,85 @@ public:
     /* Entry points for the underlying stack to report events back to the user. */
 public:
     /** @deprecated */
-    void processSecuritySetupInitiatedEvent(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
+    void processSecuritySetupInitiatedEvent(connection_handle_t connectionHandle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
         if (defaultEventHandler.securitySetupInitiatedCallback) {
-            defaultEventHandler.securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
+            defaultEventHandler.securitySetupInitiatedCallback(connectionHandle, allowBonding, requireMITM, iocaps);
         }
     }
     /** @deprecated */
-    void processSecuritySetupCompletedEvent(connection_handle_t handle, SecurityCompletionStatus_t status) {
-        eventHandler->pairingResult(handle, status);
+    void processSecuritySetupCompletedEvent(connection_handle_t connectionHandle, SecurityCompletionStatus_t status) {
+        eventHandler->pairingResult(connectionHandle, status);
     }
     /** @deprecated */
-    void processLinkSecuredEvent(connection_handle_t handle, SecurityMode_t securityMode) {
+    void processLinkSecuredEvent(connection_handle_t connectionHandle, SecurityMode_t securityMode) {
         if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
-            eventHandler->linkEncryptionResult(handle, link_encryption_t::ENCRYPTED);
+            eventHandler->linkEncryptionResult(connectionHandle, link_encryption_t::ENCRYPTED);
         } else {
-            eventHandler->linkEncryptionResult(handle, link_encryption_t::NOT_ENCRYPTED);
+            eventHandler->linkEncryptionResult(connectionHandle, link_encryption_t::NOT_ENCRYPTED);
         }
     }
     /** @deprecated */
-    void processSecurityContextStoredEvent(connection_handle_t handle) {
+    void processSecurityContextStoredEvent(connection_handle_t connectionHandle) {
         if (defaultEventHandler.securityContextStoredCallback) {
-            defaultEventHandler.securityContextStoredCallback(handle);
+            defaultEventHandler.securityContextStoredCallback(connectionHandle);
         }
     }
     /** @deprecated */
-    void processPasskeyDisplayEvent(connection_handle_t handle, const Passkey_t passkey) {
-        eventHandler->passkeyDisplay(handle, passkey);
+    void processPasskeyDisplayEvent(connection_handle_t connectionHandle, const Passkey_t passkey) {
+        eventHandler->passkeyDisplay(connectionHandle, passkey);
     }
+
+private:
+    /* Legacy compatibility with old callbacks (from both sides so any
+     * combination of new and old works) */
+    class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
+    public:
+        LegacySecurityManagerEventHandler() :
+            securitySetupInitiatedCallback(),
+            securitySetupCompletedCallback(),
+            linkSecuredCallback(),
+            securityContextStoredCallback(),
+            passkeyDisplayCallback() { };
+
+        virtual void pairingResult(connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
+            if (securitySetupCompletedCallback) {
+                securitySetupCompletedCallback(connectionHandle, result);
+            }
+        }
+
+        virtual void linkEncryptionResult(connection_handle_t connectionHandle, link_encryption_t result) {
+            if (linkSecuredCallback) {
+                SecurityManager::SecurityMode_t securityMode;
+                if (result == link_encryption_t::ENCRYPTED) {
+                    securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
+                } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+                    securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
+                } else {
+                    securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+                }
+                linkSecuredCallback(connectionHandle, securityMode);
+            }
+        };
+
+        virtual void passkeyDisplay(connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
+            if (passkeyDisplayCallback) {
+                passkeyDisplayCallback(connectionHandle, passkey);
+            }
+        };
+
+        SecurityManager::SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
+        SecurityManager::SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
+        SecurityManager::LinkSecuredCallback_t            linkSecuredCallback;
+        SecurityManager::HandleSpecificEvent_t            securityContextStoredCallback;
+        SecurityManager::PasskeyDisplayCallback_t         passkeyDisplayCallback;
+    };
 
 private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 
 protected:
-    SecurityManagerEventHandler*           eventHandler;
-    LegacySecurityManagerEventHandler      defaultEventHandler;
+    SecurityManagerEventHandler*      eventHandler;
+    LegacySecurityManagerEventHandler defaultEventHandler;
 };
 
 #endif /*__SECURITY_MANAGER_H__*/
