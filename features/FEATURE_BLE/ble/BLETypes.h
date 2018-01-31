@@ -342,6 +342,9 @@ typedef octet_type_t<8> random_data_t;
 /** Out of band data exchanged during pairing */
 typedef octet_type_t<16> oob_data_t;
 
+/** data to be encrypted */
+typedef octet_type_t<16> encryption_block_t;
+
 } // namespace ble
 
 /**

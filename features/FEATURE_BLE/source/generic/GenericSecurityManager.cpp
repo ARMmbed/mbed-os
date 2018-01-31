@@ -544,14 +544,13 @@ bool GenericSecurityManager::check_against_identity_address(
     /* we need to verify the identity by encrypting the
      * PRAND part with the IRK key and checking the result
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
-    octet_type_t<6> prand_hash(peer_address.data(), 6);
+    encryption_block_t prand_hash;
+    /* we only need the PRAND part */
+    prand_hash[0] = peer_address[0];
+    prand_hash[1] = peer_address[1];
+    prand_hash[2] = peer_address[2];
 
-    /* remove the hash and leave only prand */
-    prand_hash[3] = 0;
-    prand_hash[4] = 0;
-    prand_hash[5] = 0;
-
-    _pal.encrypt_data(irk, prand_hash.data());
+    _pal.encrypt_data(irk, prand_hash);
 
     /* prand_hash now contains the hash result in the first 3 octects
      * compare it with the hash in the peer identity address */

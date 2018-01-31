@@ -516,18 +516,21 @@ public:
 
     /**
      * Initialise stack. Called before first use.
+     *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t initialize() = 0;
 
     /**
      * Finalise all actions. Called before shutdown.
+     *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t terminate() = 0;
 
     /**
      * Reset to same state as after initialize.
+     *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t reset()  = 0;
@@ -615,6 +618,7 @@ public:
     /**
      * Set the time after which an event will be generated unless we received a packet with
      * a valid MIC.
+     *
      * @param[in] connection connection handle
      * @param[in] timeout_in_10ms time measured in units of 10 milliseconds
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
@@ -627,6 +631,7 @@ public:
     /**
      * Get the time after which an event will be generated unless we received a packet with
      * a valid MIC.
+     *
      * @param[in] connection connection handle
      * @param[out] timeout_in_10ms time measured in units of 10 milliseconds
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
@@ -675,7 +680,9 @@ public:
 
     /**
      * Enabled encryption using the LTK given. The EDIV and RAND will be sent to the peer and
-     * used to identify the LTK. This is called by the master.
+     * used to identify the LTK. This is called by the master. This will refresh the key if
+     * enabled on an already encrypted link.
+     *
      * @param[in] connection connection handle
      * @param[in] ltk long term key from the peer
      * @param[in] ediv encryption diversifier from the peer
@@ -715,7 +722,7 @@ public:
      */
     virtual ble_error_t encrypt_data(
         const key_t *key,
-        uint8_t *data
+        encryption_block_t &data
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
