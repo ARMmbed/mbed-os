@@ -209,8 +209,8 @@
       "targets" : ["K64F", "K66F", "NUCLEO_F429ZI"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : true,
-      "export": true,
+      "compile" : false,
+      "export": false,
       "auto-update" : false
     },
     {
