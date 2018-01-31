@@ -27,16 +27,18 @@ namespace generic {
 
 using ble::pal::address_t;
 using ble::pal::advertising_peer_address_type_t;
+using ble::pal::AuthenticationMask;
+using ble::pal::KeyDistribution;
+
 using ble::irk_t;
 using ble::csrk_t;
 using ble::ltk_t;
 using ble::ediv_t;
 using ble::rand_t;
-using ble::pal::AuthenticationMask;
-using ble::pal::KeyDistribution;
 using ble::pairing_failure_t;
-using ble::pal::PasskeyAsci;
-using ble::pal::passkey_num_t;
+using ble::PasskeyAsci;
+using ble::passkey_num_t;
+
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class GenericSecurityManagerEventHandler;

@@ -32,43 +32,6 @@ typedef SecurityManager::SecurityMode_t SecurityMode_t;
 typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
 typedef SecurityManager::Keypress_t Keypress_t;
 
-typedef uint32_t passkey_num_t;
-
-class PasskeyAsci {
-public:
-    static const uint8_t NUMBER_OFFSET = '0';
-
-    PasskeyAsci() {
-        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
-    }
-    PasskeyAsci(const uint8_t* passkey) {
-        if (passkey) {
-            memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
-        } else {
-            memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
-        }
-    }
-    PasskeyAsci(passkey_num_t passkey) {
-        for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
-            uint32_t result = passkey / m;
-            asci[i] = NUMBER_OFFSET + result;
-            passkey -= result;
-        }
-    }
-    operator passkey_num_t() {
-        return to_num(asci);
-    }
-
-    static uint32_t to_num(const uint8_t *asci) {
-        uint32_t passkey = 0;
-        for (size_t i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
-            passkey += (asci[i] - NUMBER_OFFSET) * m;
-        }
-        return passkey;
-    }
-    uint8_t asci[SecurityManager::PASSKEY_LEN];
-};
-
 /**
  * Key distribution as required by the SMP with convenient setters and getters,
  * use value() to get the octet you can use directly in the PDU.
@@ -242,7 +205,7 @@ public:
      * or cancel the pairing procedure (cancel_pairing).
      *
      * @param[in] connection connection handle
-     * @param[in] oob_data_flag is oob data present
+     * @param[in] oob_data_flag is out of band data present
      * @param[in] authentication_requirements authentication requirements
      * @param[in] initiator_dist key distribution
      * @param[in] responder_dist key distribution

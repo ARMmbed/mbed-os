@@ -762,7 +762,7 @@ void GenericSecurityManager::on_passkey_display(
     passkey_num_t passkey
 ) {
     set_mitm_performed(connection);
-    eventHandler->passkeyDisplay(connection, PasskeyAsci(passkey).asci);
+    eventHandler->passkeyDisplay(connection, PasskeyAsci(passkey).value());
 }
 
 void GenericSecurityManager::on_keypress_notification(
