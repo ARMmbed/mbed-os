@@ -29,11 +29,7 @@
     "type": "object",
     "patternProperties": {
       "\\*": {
-        "type": "object",
-        "patternProperties": {
-          ".*\\..*": {}
-        },
-        "additionalProperties": false
+        "$ref": "#/target_override_entry"
       },
       "^\\S+$": {
         "$ref": "#/target_override_entry"
@@ -69,6 +65,7 @@
   },
   "config_parameter_short": {
     "type": [
+      "array",
       "string",
       "integer",
       "boolean",
@@ -88,7 +85,15 @@
   "target_override_entry": {
     "type": "object",
     "patternProperties": {
-      "^\\S+$": {}
+      "^\\S+$": {
+        "type": [
+          "array",
+          "string",
+          "integer",
+          "boolean",
+          "null"
+        ]
+      }
     },
     "additionalProperties": false
   }
