@@ -16,10 +16,34 @@
 
 /* Linker script to configure memory regions. */
 
+/* Default to no softdevice */
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x80000
+#endif
+
+/* If app_start is 0, do not set aside space for the softdevice */
+#if MBED_APP_START == 0
+  #define MBED_RAM_START  0x20000000
+  #define MBED_RAM_SIZE   0x10000
+#else
+  #define MBED_RAM_START  0x20003000
+  #define MBED_RAM_SIZE   0xD000
+#endif
+
+#define MBED_RAM0_START MBED_RAM_START
+#define MBED_RAM0_SIZE  0xD8
+#define MBED_RAM1_START (MBED_RAM_START + MBED_RAM0_SIZE)
+#define MBED_RAM1_SIZE  (MBED_RAM_SIZE - MBED_RAM0_SIZE)
+
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x23000, LENGTH = 0x5d000
-  RAM (rwx) :  ORIGIN = 0x20003000, LENGTH = 0xd000
+  FLASH (rx)     : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  RAM_NVIC (rwx) : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
+  RAM (rwx)      : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
 }
 
 
@@ -175,12 +199,12 @@ SECTIONS
 
     __edata = .;
 
-    .noinit :
+    .noinit (NOLOAD) :
     {
       PROVIDE(__start_noinit = .);
       KEEP(*(.noinit))
       PROVIDE(__stop_noinit = .);
-    } > RAM
+    } > RAM_NVIC
     
     .bss :
     {
@@ -199,8 +223,8 @@ SECTIONS
         *(.heap*);
 
         /* Expand the heap to reach the stack boundary. */
-        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - 0x800), "heap region overflowed into stack");
-        . += (ORIGIN(RAM) + LENGTH(RAM) - 0x800) - .;
+        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - 0x8000), "heap region overflowed into stack");
+        . += (ORIGIN(RAM) + LENGTH(RAM) - 0x8000) - .;
     } > RAM
     PROVIDE(__heap_start = ADDR(.heap));
     PROVIDE(__heap_size = SIZEOF(.heap));
