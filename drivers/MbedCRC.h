@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
 
 #include <stdint.h>
 #include "drivers/TableCRC.h"
+#include "platform/mbed_assert.h"
 
-#if   defined ( __CC_ARM )
+#if defined ( __CC_ARM )
 #pragma diag_suppress 62  // Shift count is negative
 #elif defined ( __GNUC__ )
 #pragma GCC diagnostic push
@@ -45,8 +46,56 @@ typedef enum crc_polynomial {
 
 /** CRC object provides CRC generation through hardware/software
  *
+ *  ROM polynomial tables for supported polynomials (:: crc_polynomial_t) will be used for
+ *  software CRC computation, if ROM tables are not available then CRC is computed runtime
+ *  bit by bit for all data input.
+ *
  *  @tparam  polynomial CRC polynomial value in hex
  *  @tparam  width CRC polynomial width
+ *
+ * Example: Compute CRC data
+ * @code
+ *
+ *  #include "mbed.h"
+ *  #include "drivers/MbedCRC.h"
+ *
+ *  int main() {
+ *      MbedCRC<POLY_32BIT_ANSI, 32> ct;
+ *
+ *      char  test[] = "123456789";
+ *      uint32_t crc = 0;
+ *
+ *      printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
+ *
+ *      ct.compute((void *)test, strlen((const char*)test), &crc);
+ *
+ *      printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
+ *      return 0;
+ *  }
+ * @endcode
+ * Example: Compute CRC with data available in parts
+ * @code
+ *
+ *  #include "mbed.h"
+ *  #include "drivers/MbedCRC.h"
+ *  int main() {
+ *      MbedCRC<POLY_32BIT_ANSI, 32> ct;
+ *
+ *      char  test[] = "123456789";
+ *      uint32_t crc = 0;
+ *
+ *      printf("\nPolynomial = 0x%lx  Width = %d \n", ct.get_polynomial(), ct.get_width());
+ *
+ *      ct.compute_partial_start(&crc);
+ *      ct.compute_partial((void *)&test, 4, &crc);
+ *      ct.compute_partial((void *)&test[4], 5, &crc);
+ *      ct.compute_partial_stop(&crc);
+ *
+ *      printf("The CRC of data \"123456789\" is : 0x%lx\n", crc);
+ *      return 0;
+ *  }
+ * @endcode
+ * @ingroup drivers
  */
 
 template <uint32_t polynomial=POLY_32BIT_ANSI, uint8_t width=32>
@@ -57,34 +106,24 @@ public:
 
     /** Lifetime of CRC object
      *
-     *  @param  initial_xor  Inital value/seed to Xor (Default ~0x0)
-     *  @param  final_xor  Final Xor value (Default ~0x0)
+     *  @param  initial_xor  Inital value/seed to Xor
+     *  @param  final_xor  Final Xor value
      *  @param  reflect_data
      *  @param  reflect_remainder
+*  @note   Default constructor without any arguments is valid only for supported CRC polynomials. :: crc_polynomial_t
+     *          MbedCRC <POLY_7BIT_SD, 7> ct; --- Valid POLY_7BIT_SD
+     *          MbedCRC <0x1021, 16> ct; --- Valid POLY_16BIT_CCITT
+     *          MbedCRC <POLY_16BIT_CCITT, 32> ct; --- Invalid, compilation error
+     *          MbedCRC <POLY_16BIT_CCITT, 32> ct (i,f,rd,rr) Consturctor can be used for not supported polynomials
+     *          MbedCRC<POLY_16BIT_CCITT, 16> sd(0, 0, false, false); Constructor can also be used for supported
+     *             polynomials with different intial/final/reflect values
+     *
      */
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder);
     MbedCRC();
     virtual ~MbedCRC()
     {
         // Do nothing
-    }
-
-    /** Initialize a CRC module
-     *
-     *  @return  0 on success or a negative error code on failure
-     */
-    int32_t init(void)
-    {
-        return 0;
-    }
-
-    /** Deinitialize a CRC module
-     *
-     * @return  0 on success, negative error code on failure
-     */
-    int32_t deinit(void)
-    {
-        return 0;
     }
 
     /** Compute CRC for the data input
@@ -96,6 +135,7 @@ public:
      */
     int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
+        MBED_ASSERT(crc != NULL);
         int32_t status;
         if (0 != (status = compute_partial_start(crc))) {
             *crc = 0;
@@ -129,7 +169,7 @@ public:
     int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         if (NULL == _crc_table) {
-            // Compute Slow CRC
+            // Compute bitwise CRC
             return bitwise_compute_partial(buffer, size, crc);
         } else {
             // Table CRC
