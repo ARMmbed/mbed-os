@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file PeripheralNames.h
+ * @file PeripheralPins.h
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -20,50 +20,47 @@
  * limitations under the License.
  *
  ******************************************************************************/
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
 
-#include "em_adc.h"
-#include "em_usart.h"
-#include "em_i2c.h"
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
 
-#ifdef __cplusplus
-extern "C" {
+#include "pinmap.h"
+#include "PeripheralNames.h"
+
+#if DEVICE_ANALOGIN
+/************ADC***************/
+extern const PinMap PinMap_ADC[];
 #endif
 
-typedef enum {
-    ADC_0 = ADC0_BASE
-} ADCName;
+#if DEVICE_ANALOGOUT
+/************DAC***************/
+extern const PinMap PinMap_DAC[];
+#endif
 
-typedef enum {
-    I2C_0 = I2C0_BASE,
-    I2C_1 = I2C1_BASE,
-} I2CName;
+#if DEVICE_I2C
+/************I2C***************/
+extern const PinMap PinMap_I2C_SCL[];
+extern const PinMap PinMap_I2C_SDA[];
+#endif
 
-typedef enum {
-    PWM_CH0 = 0,
-    PWM_CH1 = 1,
-    PWM_CH2 = 2,
-    PWM_CH3 = 3
-} PWMName;
+#if DEVICE_PWMOUT
+/************PWM***************/
+extern const PinMap PinMap_PWM[];
+#endif
 
-typedef enum {
-    USART_0 = USART0_BASE,
-    USART_1 = USART1_BASE,
-    USART_2 = USART2_BASE,
-    USART_3 = USART3_BASE,
-    LEUART_0 = LEUART0_BASE,
-} UARTName;
+#if DEVICE_SPI
+/************SPI***************/
+extern const PinMap PinMap_SPI_MOSI[];
+extern const PinMap PinMap_SPI_MISO[];
+extern const PinMap PinMap_SPI_CLK[];
+extern const PinMap PinMap_SPI_CS[];
+#endif
 
-typedef enum {
-    SPI_0 = USART0_BASE,
-    SPI_1 = USART1_BASE,
-    SPI_2 = USART2_BASE,
-    SPI_3 = USART3_BASE,
-} SPIName;
-
-#ifdef __cplusplus
-}
+#if DEVICE_SERIAL
+/************UART**************/
+extern const PinMap PinMap_UART_TX[];
+extern const PinMap PinMap_UART_RX[];
 #endif
 
 #endif
+
