@@ -43,8 +43,11 @@
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
 
-#if defined(NRF52_ERRATA_20)
-    #include "nrf_sdh.h"
+#if defined(SOFTDEVICE_PRESENT)
+#include "nrf_sdh.h"
+#define NRF_HAL_US_TICKER_SD_IS_ENABLED() nrf_sdh_is_enabled()
+#else
+#define NRF_HAL_US_TICKER_SD_IS_ENABLED() 0
 #endif
 
 //------------------------------------------------------------------------------
@@ -90,7 +93,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
 __STATIC_INLINE void errata_20(void)
 {
 #if defined(NRF52_ERRATA_20)
-    if (!nrf_sdh_is_enabled())
+    if (!NRF_HAL_US_TICKER_SD_IS_ENABLED())
     {
         NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
         NRF_CLOCK->TASKS_LFCLKSTART    = 1;

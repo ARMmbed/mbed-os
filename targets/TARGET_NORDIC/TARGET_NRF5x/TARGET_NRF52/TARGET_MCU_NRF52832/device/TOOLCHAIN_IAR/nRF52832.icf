@@ -2,12 +2,22 @@
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 
+/* Default to no softdevice */
 if (!isdefinedsymbol(MBED_APP_START)) {
-    define symbol MBED_APP_START = 0x23000;
+    define symbol MBED_APP_START = 0x0;
 }
 
 if (!isdefinedsymbol(MBED_APP_SIZE)) {
-    define symbol MBED_APP_SIZE = 0x5d000;
+    define symbol MBED_APP_SIZE = 0x80000;
+}
+
+/* If app_start is 0, do not set aside space for the softdevice */
+if (MBED_APP_START == 0) {
+  define symbol MBED_RAM_START = 0x20000000;
+  define symbol MBED_RAM_SIZE  = 0x10000;
+} else {
+  define symbol MBED_RAM_START = 0x20003000;
+  define symbol MBED_RAM_SIZE  = 0xD000;
 }
 
 /*-Specials-*/
@@ -16,15 +26,15 @@ define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__   = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_end__     = MBED_APP_START + MBED_APP_SIZE - 1;
-define symbol __ICFEDIT_region_RAM_start__   = 0x20003000;
-define symbol __ICFEDIT_region_RAM_end__     = 0x2000ffff;
+define symbol __ICFEDIT_region_RAM_start__   = MBED_RAM_START;
+define symbol __ICFEDIT_region_RAM_end__     = MBED_RAM_START + MBED_RAM_SIZE - 1;
 export symbol __ICFEDIT_region_RAM_start__;
 export symbol __ICFEDIT_region_RAM_end__;
 
 /*-Sizes-*/
 /*Heap 1/4 of ram and stack 1/8*/
-define symbol __ICFEDIT_size_cstack__   = 0x800;
-define symbol __ICFEDIT_size_heap__     = 0x1800;
+define symbol __ICFEDIT_size_cstack__   = 0x2000;
+define symbol __ICFEDIT_size_heap__     = 0x4000;
 /**** End of ICF editor section. ###ICF###*/
 
 define symbol __code_start_soft_device__ = 0x0;
@@ -38,6 +48,7 @@ define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
+place at address mem:__ICFEDIT_region_RAM_start__ { section .noinit };
 
 keep { section .intvec };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
