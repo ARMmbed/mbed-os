@@ -3497,9 +3497,27 @@
     "MCU_NRF52832": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
-        "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM", "TRNG"],
-        "extra_labels": ["NORDIC", "NRF5x", "NRF52", "MCU_NRF52832", "SDK_14_2", "SOFTDEVICE_S132"],
+        "macros": [
+            "NRF52",
+            "TARGET_NRF52832",
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
+            "MBED_TICKLESS"
+        ],
+        "device_has": [
+            "ITM",
+            "TRNG",
+            "STCLK_OFF_DURING_SLEEP"
+        ],
+        "extra_labels": [
+            "NORDIC",
+            "NRF5x",
+            "NRF52",
+            "MCU_NRF52832",
+            "SDK_14_2",
+            "SOFTDEVICE_COMMON",
+            "SOFTDEVICE_S132"
+        ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -3518,8 +3536,8 @@
             "function": "MCU_NRF51Code.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
+        "bootloader_supported": true,
         "MERGE_BOOTLOADER": false,
-        "features": ["BLE"],
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
@@ -3623,9 +3641,26 @@
     "MCU_NRF52840": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
-        "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM"],
-        "extra_labels": ["NORDIC", "NRF5x", "NRF52", "MCU_NRF52840", "SDK_14_2", "SOFTDEVICE_S140"],
+        "macros": [
+            "NRF52840_XXAA",
+            "TARGET_NRF52840",
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
+            "MBED_TICKLESS"
+        ],
+        "device_has": [
+            "ITM",
+            "STCLK_OFF_DURING_SLEEP"
+        ],
+        "extra_labels": [
+            "NORDIC",
+            "NRF5x",
+            "NRF52",
+            "MCU_NRF52840",
+            "SDK_14_2",
+            "SOFTDEVICE_COMMON",
+            "SOFTDEVICE_S140"
+        ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -3645,8 +3680,8 @@
             "function": "MCU_NRF51Code.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
+        "bootloader_supported": true,
         "MERGE_BOOTLOADER": false,
-        "features": ["BLE"],
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",

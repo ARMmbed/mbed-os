@@ -16,8 +16,14 @@
 #include "sleep_api.h"
 #include "cmsis.h"
 #include "mbed_interface.h"
-#include "nrf_sdh.h"
 #include "nrf_soc.h"
+
+#if defined(SOFTDEVICE_PRESENT)
+#include "nrf_sdh.h"
+#define NRF_HAL_SLEEP_SD_IS_ENABLED() nrf_sdh_is_enabled()
+#else
+#define NRF_HAL_SLEEP_SD_IS_ENABLED() 0
+#endif
 
 // Mask of reserved bits of the register ICSR in the System Control Block peripheral
 // In this case, bits which are equal to 0 are the bits reserved in this register
@@ -41,9 +47,11 @@ void hal_sleep(void)
 #endif
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
-    if (nrf_sdh_is_enabled()) {
+    if (NRF_HAL_SLEEP_SD_IS_ENABLED()) {
+#if defined(SOFTDEVICE_PRESENT)
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
+#endif
     } else {
         NRF_POWER->TASKS_LOWPWR = 1;
 
