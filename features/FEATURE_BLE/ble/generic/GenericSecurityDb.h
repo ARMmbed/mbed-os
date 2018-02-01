@@ -113,16 +113,10 @@ struct SecurityEntryIdentity_t {
     irk_t irk;
 };
 
-struct IdentytList_t {
-    SecurityEntryIdentity_t* identities;
-    size_t size;
-};
-
 /* callbacks for asynchronous data retrieval from the security db */
 
 typedef mbed::Callback<void(const SecurityEntry_t*, const SecurityEntryKeys_t*)> SecurityEntryKeysDbCb_t;
 typedef mbed::Callback<void(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
-typedef mbed::Callback<void(const SecurityEntryIdentity_t*)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<void(Gap::Whitelist_t*)> WhitelistDbCb_t;
 
 /**
@@ -214,19 +208,6 @@ public:
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection
-    ) = 0;
-
-    /**
-     * Return asynchronously one identity entry, call until you get NULL
-     * to get all Iidentity entries containing IRK and identity address.
-     *
-     * @param[in] cb callback which will receive the entry
-     * @note query is stateful and will return NULL when all
-     * entries have been returned, it may return the same entry multiple
-     * times if list is changed in between queries
-     */
-    virtual void get_next_entry_peer_identity(
-        SecurityEntryIdentityDbCb_t cb
     ) = 0;
 
     /**
@@ -331,17 +312,6 @@ public:
     ) = 0;
 
     /* list management */
-
-    /**
-     * If implementation has enough memory it can return the
-     * irk list synchronously, otherwise asynchronous iteration
-     * shall be used through get_next_entry_peer_identity
-     *
-     * @param[in] list the list of entries, NULL if empty
-     *
-     * @return BLE_ERROR_NONE if the function is implemented.
-     */
-    virtual ble_error_t get_identity_list(IdentytList_t* list) = 0;
 
     /**
      * Create a new entry or retrieve existing stored entry
@@ -473,7 +443,7 @@ private:
     static const size_t MAX_ENTRIES = 5;
 
 public:
-    MemoryGenericSecurityDb() : _irk_index(0) { };
+    MemoryGenericSecurityDb() { };
     virtual ~MemoryGenericSecurityDb() { };
 
     virtual SecurityEntry_t* get_entry(connection_handle_t connection) {
@@ -544,20 +514,6 @@ public:
         cb(entry->handle, &csrk);
     }
 
-    virtual void get_next_entry_peer_identity(
-        SecurityEntryIdentityDbCb_t cb
-    ) {
-        SecurityEntryIdentity_t identity;
-
-        if (_irk_index < MAX_ENTRIES) {
-            _irk_index++;
-            cb(&_identities[_irk_index - 1]);
-        } else {
-            _irk_index = 0;
-            cb(NULL);
-        }
-    }
-
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection
@@ -593,7 +549,6 @@ public:
             _identities[index].irk = *irk;
             _identities[index].peer_identity_address = peer_address;
         }
-        _irk_index = 0;
     }
 
     virtual void set_entry_peer_ltk(
@@ -627,7 +582,6 @@ public:
             size_t index = store - _db;
             _identities[index].irk = *irk;
         }
-        _irk_index = 0;
     }
 
     virtual void set_entry_peer_bdaddr(
@@ -664,10 +618,6 @@ public:
 
     /* list management */
 
-    virtual ble_error_t get_identity_list(IdentytList_t* list) {
-        return BLE_ERROR_NONE;
-    }
-
     virtual SecurityEntry_t* connect_entry(connection_handle_t connection, address_t peer_address) {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_db[i].entry.connected) {
@@ -682,7 +632,6 @@ public:
             if (!_db[i].entry.connected) {
                 _db[i] = db_store_t();
                 _identities[i] = SecurityEntryIdentity_t();
-                _irk_index = 0;
                 return &_db[i].entry;
             }
         }
@@ -760,8 +709,6 @@ private:
     SecurityEntryKeys_t _local_keys;
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
-
-    size_t _irk_index;
 };
 
 } /* namespace generic */

@@ -934,22 +934,7 @@ void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
 }
 
 void GenericSecurityManager::on_connected(connection_handle_t connection, address_t peer_address, bool is_master) {
-    SecurityEntry_t *entry = NULL;
-
-    /* if it's a resolvable address, check against IRKs */
-    if ((peer_address[0] & 0x3) == 0x2) {
-        IdentytList_t *list = NULL;
-        if (_db.get_identity_list(list) == BLE_ERROR_NONE && list) {
-            for (size_t i; i < list->size; ++i) {
-                /* if the address resolves connect to an existing entry based on the identity address */
-                if (check_against_identity_address(peer_address, &list->identities[i].irk)) {
-                    entry = _db.connect_entry(connection, list->identities[i].peer_identity_address);
-                }
-            }
-        }
-    }
-
-    entry = _db.connect_entry(connection, peer_address);
+    SecurityEntry_t *entry = _db.connect_entry(connection, peer_address);
     if (!entry) {
         return;
     }
