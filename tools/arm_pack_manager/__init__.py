@@ -15,6 +15,8 @@ from tempfile import gettempdir
 import warnings
 from distutils.version import LooseVersion
 
+from tools.flash_algo import PackFlashAlgo
+
 warnings.filterwarnings("ignore")
 
 from fuzzywuzzy import process
@@ -145,12 +147,33 @@ class Cache () :
                          for pdsc in root_data.find_all("pdsc")]
         return self.urls
 
+    def _get_sectors(self, device):
+        """Extract sector sizes from device FLM algorithm
+
+        Will return None if there is no algorithm, pdsc URL formatted in correctly
+
+        :return: A list tuples of sector start and size
+        :rtype: [list]
+        """
+        try:
+            pack = self.pack_from_cache(device)
+            algo_itr = (pack.open(path) for path in device['algorithm'].keys())
+            algo_bin = algo_itr.next()
+            flm_file = algo_bin.read()
+            return PackFlashAlgo(flm_file).sector_sizes
+        except Exception:
+            return None
+
     def _extract_dict(self, device, filename, pack) :
         to_ret = dict(pdsc_file=filename, pack_file=pack)
         try : to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
                                                       size=m["size"]))
                                        for m in device("memory")])
-        except (KeyError, TypeError, IndexError) as e : pass
+        except (KeyError, TypeError, IndexError) as e:
+            try : to_ret["memory"] = dict([(m["name"], dict(start=m["start"],
+                                                          size=m["size"]))
+                                           for m in device("memory")])
+            except (KeyError, TypeError, IndexError) as e : pass
         try: algorithms = device("algorithm")
         except:
             try: algorithms = device.parent("algorithm")
@@ -219,6 +242,7 @@ class Cache () :
             del to_ret["compile"]
 
         to_ret['debug-interface'] = []
+        to_ret['sectors'] = self._get_sectors(to_ret)
 
         return to_ret
 
@@ -445,4 +469,3 @@ class Cache () :
         """
         self.cache_file(url)
         return self.pdsc_from_cache(url)
-

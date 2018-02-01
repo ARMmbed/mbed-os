@@ -176,10 +176,10 @@ int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx, unsigned char output[20]
         return MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED; // Hash busy timeout
     }
 
-    if (ctx->sbuf_len > 0) {
-        if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
-            return MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED;
-        }
+    /* Last accumulation for extra bytes in sbuf_len */
+    /* This allows the HW flags to be in place in case mbedtls_sha256_update has not been called yet */
+    if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
+        return MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED;
     }
     mbedtls_zeroize(ctx->sbuf, ST_SHA1_BLOCK_SIZE);
     ctx->sbuf_len = 0;

@@ -1498,6 +1498,26 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
+	"WISE_1510": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L443xC", "STM32L443RC"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "overrides": {"lse_available": 0},
+        "release_versions": ["5"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_name" : "STM32L443RC",
+        "detect_code": ["0458"],
+        "bootloader_supported": true
+    },
     "NUCLEO_L476RG": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -1724,6 +1744,15 @@
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L072CZ"
+    },
+    "CMWX1ZZABZ_078": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M0+",
+        "extra_labels_add": ["STM32L0", "STM32L0x2xZ", "STM32L082CZ", "STM32L082xx"],
+        "detect_code": ["0456"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L082CZ"
     },
     "DISCO_F746NG": {
         "inherits": ["FAMILY_STM32"],
@@ -3373,6 +3402,28 @@
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
+    },
+    "MTB_UBLOX_NINA_B1": {
+        "inherits": ["MCU_NRF52"],
+        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "extra_labels_add": ["MTB_UBLOX_NINA_B1"],
+        "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA",
+        "bootloader_supported": true,
+        "overrides": {
+                "uart_hwfc": 0
+        },
+        "config": {
+            "usb_tx": {
+                "help": "Value p6",
+                "value": "p6"
+            },
+            "usb_rx": {
+                "help": "Value p5",
+                "value": "p5"
+            }
+        }
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],

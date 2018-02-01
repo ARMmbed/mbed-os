@@ -54,6 +54,7 @@ build_list = [
         { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F413ZH",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "WISE_1510",         "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -88,6 +89,9 @@ build_list = [
         { "target": "DISCO_L475VG_IOT01A", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L476VG",        "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+
+        # module manufacturer : muRata
+        { "target": "CMWX1ZZABZ_078",    "toolchains": "GCC_ARM", "libs": [] },
         ),
     },
 
@@ -315,6 +319,11 @@ linking_list = [
                        }
              },
             {"target": "DISCO_L072CZ_LRWAN1",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
+            {"target": "CMWX1ZZABZ_078",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                       }

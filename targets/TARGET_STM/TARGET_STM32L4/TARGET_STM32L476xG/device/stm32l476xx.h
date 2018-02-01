@@ -16056,6 +16056,11 @@ typedef struct
 #define USART_CR3_WUFIE_Pos           (22U)
 #define USART_CR3_WUFIE_Msk           (0x1U << USART_CR3_WUFIE_Pos)            /*!< 0x00400000 */
 #define USART_CR3_WUFIE               USART_CR3_WUFIE_Msk                      /*!< Wake Up Interrupt Enable */
+/* MBED */
+#define USART_CR3_UCESM_Pos           (23U)
+#define USART_CR3_UCESM_Msk           (0x1U << USART_CR3_UCESM_Pos)            /*!< 0x00800000 */
+#define USART_CR3_UCESM               USART_CR3_UCESM_Msk                      /*!< Clock Enable in Stop mode */ 
+/* MBED */
 
 /******************  Bit definition for USART_BRR register  *******************/
 #define USART_BRR_DIV_FRACTION_Pos    (0U)

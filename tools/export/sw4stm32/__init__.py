@@ -99,6 +99,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'DISCO-L072CZ-LRWAN1',
             'mcuId': 'STM32L072CZTx'
         },
+        'CMWX1ZZABZ_078':
+        {
+            'name': 'CMWX1ZZABZ-078',
+            'mcuId': 'CMWX1ZZABZ_078'
+        },
         'DISCO_L475VG_IOT01A':
         {
             'name': 'STM32L475G-DISCO',
@@ -248,6 +253,11 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-L432KC',
             'mcuId': 'STM32L432KCUx'
+        },
+        'WISE_1510':
+        {
+            'name': 'WISE-1510',
+            'mcuId': 'STM32L433RCx'
         },
         'NUCLEO_L476RG':
         {
