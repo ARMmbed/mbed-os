@@ -30,14 +30,15 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
 ## Enable compilation of the WICED SDK and Mbed OS wrapper
 
-To enable compilation of the WICED SDK, add the label `WICED` to the `target.extra_labels`
+To enable compilation of the WICED SDK, add the label `WICED` to the `target.extra_labels` and 'BLE' to the `target.features_add`
 in your mbed_app.json:
 
 ``` json
 {
     "target_overrides": {
-        "*": {
-            "target.extra_labels_add": ["WICED"]
+        "WISE1530_F412RE": {
+            "target.extra_labels_add": ["WICED"],
+            "target.features_add": ["BLE"]
         }
     }
 }

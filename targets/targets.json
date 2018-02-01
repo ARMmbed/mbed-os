@@ -1131,8 +1131,7 @@
         },
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
         "release_versions": ["5"],
-        "device_name": "STM32F412RE",
-        "features": ["BLE"]
+        "device_name": "STM32F412RE"
     },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
