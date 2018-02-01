@@ -39,7 +39,10 @@
 #include "nrf.h"
 #include "cmsis_nvic.h"
 #include "stdint.h"
+
+#if defined(SOFTDEVICE_PRESENT)
 #include "nrf_sdm.h"
+#endif
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __attribute__ ((section(".bss.noinit"),zero_init))
@@ -71,5 +74,9 @@ void nrf_reloc_vector_table(void)
 		nrf_dispatch_vector[i] = old_vectors[i];
 	}
 
+#if defined(SOFTDEVICE_PRESENT)
 	sd_softdevice_vector_table_base_set((uint32_t) nrf_dispatch_vector);
+#else
+    SCB->VTOR = (uint32_t) nrf_dispatch_vector;    
+#endif
 }
