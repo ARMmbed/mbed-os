@@ -27,10 +27,18 @@
 
 using namespace utest::v1;
 
+// Avoid creating the interface twice
+static NetworkInterface *get_interface()
+{
+    static NetworkInterface *interface = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+
+    return interface;
+}
+
 // Bringing the network up and down
 template <int COUNT>
 void test_bring_up_down() {
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    NetworkInterface* net = get_interface();
 
     for (int i = 0; i < COUNT; i++) {
         int err = MBED_CONF_APP_CONNECT_STATEMENT;
