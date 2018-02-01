@@ -108,7 +108,8 @@ def test_init_app_config(target):
 
         config = Config(target, app_config=app_config)
 
-        mock_json_file_to_dict.assert_called_with(app_config)
+        mock_json_file_to_dict.assert_any_call("app_config")
+
         assert config.app_config_data == mock_return
 
 
@@ -149,7 +150,7 @@ def test_init_no_app_config_with_dir(target):
         config = Config(target, [directory])
 
         mock_isfile.assert_called_with(path)
-        mock_json_file_to_dict.assert_called_once_with(path)
+        mock_json_file_to_dict.assert_any_call(path)
         assert config.app_config_data == mock_return
 
 
@@ -171,5 +172,5 @@ def test_init_override_app_config(target):
 
         config = Config(target, [directory], app_config=app_config)
 
-        mock_json_file_to_dict.assert_called_once_with(app_config)
+        mock_json_file_to_dict.assert_any_call(app_config)
         assert config.app_config_data == mock_return
