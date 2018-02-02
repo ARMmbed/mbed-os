@@ -3513,7 +3513,6 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "MCU_NRF52832",
             "SDK_14_2",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132"
@@ -3524,20 +3523,7 @@
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
-        "MERGE_SOFT_DEVICE": true,
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "boot": "",
-                "name": "s132_nrf52_5.0.0_softdevice.hex",
-                "offset": 143360
-            }
-        ],
-        "post_binary_hook": {
-            "function": "MCU_NRF51Code.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
-        },
         "bootloader_supported": true,
-        "MERGE_BOOTLOADER": false,
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
@@ -3656,7 +3642,6 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "MCU_NRF52840",
             "SDK_14_2",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S140"
@@ -3667,21 +3652,7 @@
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
-        "MERGE_SOFT_DEVICE": true,
-        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
-            {
-                "boot": "",
-                "name": "s140_nrf52840_5.0.0-2.alpha_softdevice.hex",
-                "offset": 139264
-            }
-        ],
-        "bootloader_select_index": 0,
-        "post_binary_hook": {
-            "function": "MCU_NRF51Code.binary_hook",
-            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
-        },
         "bootloader_supported": true,
-        "MERGE_BOOTLOADER": false,
         "config": {
             "lf_clock_src": {
                 "value": "NRF_LF_SRC_XTAL",
