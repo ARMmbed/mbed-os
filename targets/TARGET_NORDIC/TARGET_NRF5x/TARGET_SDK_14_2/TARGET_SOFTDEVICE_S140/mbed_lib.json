@@ -10,7 +10,7 @@
     "target_overrides": {
         "*": {
             "target.features_add": ["BLE"],
-            "target.mbed_app_start": "0x22000"
+            "target.bootloader_img": "hex/s140_nrf52840_5.0.0-2.alpha_softdevice.hex"
         }
     }
 }
