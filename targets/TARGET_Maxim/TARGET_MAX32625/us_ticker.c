@@ -33,9 +33,11 @@
 
 #include <stddef.h>
 #include "mbed_error.h"
+#include "mbed_critical.h"
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 #include "tmr.h"
+#include "assert.h"
 
 #define US_TIMER        MXC_TMR0
 #define US_TIMER_IRQn   TMR0_0_IRQn
@@ -49,13 +51,21 @@ static volatile uint64_t event_cnt;     // Holds the value of the next event
 #define MAX_TICK_VAL    ((uint64_t)0xFFFFFFFF * ticks_per_us)
 
 //******************************************************************************
-static inline void inc_current_cnt(uint32_t inc)
+static inline void inc_current_cnt_no_crit(uint32_t inc)
 {
     // Overflow the ticker when the us ticker overflows
     current_cnt += inc;
     if (current_cnt > MAX_TICK_VAL) {
         current_cnt -= (MAX_TICK_VAL + 1);
     }
+}
+
+//******************************************************************************
+static inline void inc_current_cnt(uint32_t inc)
+{
+    core_util_critical_section_enter();
+    inc_current_cnt_no_crit(inc);
+    core_util_critical_section_exit();
 }
 
 //******************************************************************************
@@ -89,10 +99,11 @@ static void tmr_handler(void)
 {
     uint32_t cmp = TMR32_GetCompare(US_TIMER);
     TMR32_SetCompare(US_TIMER, 0xFFFFFFFF); // reset to max value to prevent further interrupts
+    if (TMR32_GetFlag(US_TIMER)) {
+        inc_current_cnt_no_crit(cmp);
+    }
     TMR32_ClearFlag(US_TIMER);
     NVIC_ClearPendingIRQ(US_TIMER_IRQn);
-
-    inc_current_cnt(cmp);
 
     if (event_passed(current_cnt + TMR32_GetCount(US_TIMER), event_cnt)) {
         // the timestamp has expired
@@ -162,6 +173,7 @@ uint32_t us_ticker_read(void)
     uint64_t current_cnt1, current_cnt2;
     uint32_t cmp, cnt;
     uint32_t flag1, flag2;
+    static uint32_t last = 0;
 
     if (!us_ticker_inited) {
         us_ticker_init();
@@ -179,12 +191,19 @@ uint32_t us_ticker_read(void)
 
     // Account for an unserviced interrupt
     if (flag1) {
+        // Clear peripheral interrupt flag; leaving NVIC pending set
+        TMR32_ClearFlag(US_TIMER);
+        // Advance global count
+        inc_current_cnt(cmp + cnt);
+
         current_cnt1 += cmp;
     }
 
     current_cnt1 += cnt;
 
-    return (current_cnt1 / ticks_per_us);
+    assert(last <= (current_cnt1 / ticks_per_us));
+    last = (current_cnt1 / ticks_per_us);
+    return last;
 }
 
 //******************************************************************************
@@ -228,6 +247,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     TMR32_Start(US_TIMER);
 }
 
+//******************************************************************************
 void us_ticker_fire_interrupt(void)
 {
     TMR32_SetCompare(US_TIMER, 1);
