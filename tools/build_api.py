@@ -370,7 +370,8 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     print("Space used after regions merged: 0x%x" %
           (merged.maxaddr() - merged.minaddr() + 1))
     with open(destination, "wb+") as output:
-        merged.tofile(output, format='bin')
+        _, format = splitext(destination)
+        merged.tofile(output, format=format.strip("."))
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
                    inc_dirs=None, base_path=None, collect_ignores=False):
@@ -512,7 +513,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
             region_list = list(toolchain.config.regions)
             region_list = [r._replace(filename=res) if r.active else r
                            for r in region_list]
-            res = join(build_path, name) + ".bin"
+            res = "%s.%s" % (join(build_path, name),
+                             getattr(toolchain.target, "OUTPUT_EXT", "bin"))
             merge_region_list(region_list, res)
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
