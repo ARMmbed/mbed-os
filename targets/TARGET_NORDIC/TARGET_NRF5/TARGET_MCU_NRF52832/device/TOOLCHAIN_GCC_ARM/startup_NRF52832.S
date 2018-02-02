@@ -147,6 +147,13 @@ Reset_Handler:
     BLX     R0
     LDR     R0, =nrf_reloc_vector_table
     BLX     R0
+
+// Heads Up Modification for mbed-memory-status library
+#if DEBUG_ISR_STACK_USAGE
+    LDR     R0, =fill_isr_stack_with_canary
+    BLX     R0
+#endif
+	
     LDR     R0, =_start
     BX      R0
 
