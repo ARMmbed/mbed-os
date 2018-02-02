@@ -1,0 +1,14 @@
+{
+    "name": "softdevice",
+    "macros": [
+        "SOFTDEVICE_PRESENT=1",
+        "BLE_STACK_SUPPORT_REQD=1",
+        "S132=1"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["BLE"],
+            "target.mbed_app_start": "0x23000"
+        }
+    }
+}
