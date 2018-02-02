@@ -8,7 +8,7 @@
     "target_overrides": {
         "*": {
             "target.features_add": ["BLE"],
-            "target.mbed_app_start": "0x23000"
+            "target.bootloader_img": "hex/s132_nrf52_5.0.0_softdevice.hex"
         }
     }
 }
