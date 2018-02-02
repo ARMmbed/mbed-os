@@ -346,6 +346,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     padding - bytes to fill gapps with
     """
     merged = IntelHex()
+    _, format = splitext(destination)
 
     print("Merging Regions:")
 
@@ -363,14 +364,17 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
             pad_size = region.size - part_size
             if pad_size > 0 and region != region_list[-1]:
                 print("  Padding region %s with 0x%x bytes" % (region.name, pad_size))
-                merged.puts(merged.maxaddr() + 1, padding * pad_size)
+                if format is ".hex":
+                    """The offset will be in the hex file generated when we're done,
+                    so we can skip padding here"""
+                else:
+                    merged.puts(merged.maxaddr() + 1, padding * pad_size)
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
     print("Space used after regions merged: 0x%x" %
           (merged.maxaddr() - merged.minaddr() + 1))
     with open(destination, "wb+") as output:
-        _, format = splitext(destination)
         merged.tofile(output, format=format.strip("."))
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
