@@ -573,9 +573,9 @@ class Config(object):
     def header_member_size(member):
         _, _, subtype, _ = member
         try:
-            return int(subtype) // 8
+            return int(subtype[:-2]) // 8
         except:
-            if subtype == "CRCITT32":
+            if subtype.startswith("CRCITT32"):
                 return 32 // 8
             elif subtype == "SHA256":
                 return 256 // 8

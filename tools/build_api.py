@@ -369,13 +369,18 @@ def _fill_header(region_list, current_region):
         _, type, subtype, data = member
         member_size = Config.header_member_size(member)
         if type == "const":
-            fmt = {"8": "<B", "16": "<H", "32": "<L", "64": "<Q"}[subtype]
+            fmt = {
+                "8le": ">B", "16le": "<H", "32le": "<L", "64le": "<Q",
+                "8be": "<B", "16be": ">H", "32be": ">L", "64be": ">Q"
+            }[subtype]
             header.puts(start, struct.pack(fmt, int(data, 0)))
         elif type == "timestamp":
-            fmt = {"32": "<L", "64": "<Q"}[subtype]
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
             header.puts(start, struct.pack(fmt, time()))
         elif type == "size":
-            fmt = {"32": "<L", "64": "<Q"}[subtype]
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
             size = sum(_real_region_size(region_dict[r]) for r in data)
             header.puts(start, struct.pack(fmt, size))
         start += Config.header_member_size(member)
@@ -387,8 +392,9 @@ def _fill_header(region_list, current_region):
                 ih = header
             else:
                 ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
-            if subtype == "CRCITT32":
-                header.puts(start, struct.pack("<l", zlib.crc32(ih.tobinarray())))
+            if subtype.startswith("CRCITT32"):
+                fmt = {"CRCITT32be": ">l", "CRCITT32le": "<l"}[subtype]
+                header.puts(start, struct.pack(fmt, zlib.crc32(ih.tobinarray())))
             elif subtype.startswith("SHA"):
                 if subtype == "SHA256":
                     hash = hashlib.sha256()
