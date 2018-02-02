@@ -383,13 +383,9 @@ def _fill_header(region_list, current_region):
                    "32be": ">L", "64be": ">Q"}[subtype]
             size = sum(_real_region_size(region_dict[r]) for r in data)
             header.puts(start, struct.pack(fmt, size))
-        start += Config.header_member_size(member)
-    start = current_region.start
-    for member in current_region.filename:
-        _, type, subtype, data = member
-        if type  == "digest":
+        elif type  == "digest":
             if data == "header":
-                ih = header
+                ih = header[:start]
             else:
                 ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
             if subtype.startswith("CRCITT32"):
