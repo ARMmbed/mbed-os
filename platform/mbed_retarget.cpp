@@ -107,13 +107,29 @@ void remove_filehandle(FileHandle *file) {
 }
 }
 
+#if defined(DEVICE_ITM) && ENABLE_SWO
+#define MACRO_ITM_PUTC      ITM_SendChar
+#else
+#define MACRO_ITM_PUTC(X)
+#endif
+
+#if !MBED_CONF_PLATFORM_STDIO_ENABLE
+#undef DEVICE_SERIAL
+#endif
+
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-static char stdio_in_prev;
-static char stdio_out_prev;
+#define MACRO_SERIAL_PUTC   serial_putc
+#else
+#define MACRO_SERIAL_PUTC(X, Y)
 #endif
+
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
+#if DEVICE_SERIAL
+static char stdio_in_prev;
+#endif
+static char stdio_out_prev;
 #endif
 
 static void init_serial() {
@@ -309,21 +325,23 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 
     if (fh < 3) {
-#if DEVICE_SERIAL
-        if (!stdio_uart_inited) init_serial();
+        init_serial();
+
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
         for (unsigned int i = 0; i < length; i++) {
             if (buffer[i] == '\n' && stdio_out_prev != '\r') {
-                 serial_putc(&stdio_uart, '\r');
+                MACRO_ITM_PUTC('\r');
+                MACRO_SERIAL_PUTC(&stdio_uart, '\r');
             }
-            serial_putc(&stdio_uart, buffer[i]);
+            MACRO_ITM_PUTC(buffer[i]);
+            MACRO_SERIAL_PUTC(&stdio_uart, buffer[i]);
             stdio_out_prev = buffer[i];
         }
 #else
         for (unsigned int i = 0; i < length; i++) {
-            serial_putc(&stdio_uart, buffer[i]);
+            MACRO_ITM_PUTC(buffer[i]);
+            MACRO_SERIAL_PUTC(&stdio_uart, buffer[i]);
         }
-#endif
 #endif
         n = length;
     } else {
@@ -351,9 +369,7 @@ extern "C" void PREFIX(_exit)(int return_code) {
 }
 
 extern "C" void _ttywrch(int ch) {
-#if DEVICE_SERIAL
-    serial_putc(&stdio_uart, ch);
-#endif
+    MACRO_SERIAL_PUTC(&stdio_uart, ch);
 }
 #endif
 
