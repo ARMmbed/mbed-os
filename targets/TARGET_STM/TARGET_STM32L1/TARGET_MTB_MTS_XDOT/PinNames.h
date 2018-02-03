@@ -187,6 +187,7 @@ typedef enum {
 
     // LED
     LED1            = GPIO3,
+    LED2            = GPIO3,
 
     //Standardized button name
     SW1 = PA_0,
