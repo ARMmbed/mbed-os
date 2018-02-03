@@ -76,12 +76,12 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 #endif/* FEATURE_UVISOR */
 
 extern "C" {
-    void * __real__malloc_r(struct _reent * r, size_t size);
-    void * __real__memalign_r(struct _reent * r, size_t alignment, size_t bytes);
-    void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
+    void  *__real__malloc_r(struct _reent * r, size_t size);
+    void  *__real__memalign_r(struct _reent * r, size_t alignment, size_t bytes);
+    void  *__real__realloc_r(struct _reent * r, void * ptr, size_t size);
     void __real__free_r(struct _reent * r, void * ptr);
-    void* __real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
-    void* malloc_wrapper(struct _reent * r, size_t size, void * caller);
+    void *__real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
+    void *malloc_wrapper(struct _reent * r, size_t size, void * caller);
     void free_wrapper(struct _reent * r, void * ptr, void* caller);
 }
 

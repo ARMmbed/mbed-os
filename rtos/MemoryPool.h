@@ -79,7 +79,7 @@ public:
 
       @note You may call this function from ISR context.
     */
-    T* alloc(void) {
+    T *alloc(void) {
         return (T*)osMemoryPoolAlloc(_id, 0);
     }
 
@@ -88,7 +88,7 @@ public:
 
       @note You may call this function from ISR context.
     */
-    T* calloc(void) {
+    T *calloc(void) {
         T *item = (T*)osMemoryPoolAlloc(_id, 0);
         if (item != NULL) {
             memset(item, 0, sizeof(T));

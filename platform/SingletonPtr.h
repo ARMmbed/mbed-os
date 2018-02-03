@@ -80,7 +80,7 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T* get() {
+    T *get() {
         if (NULL == _ptr) {
             singleton_lock();
             if (NULL == _ptr) {

@@ -48,7 +48,7 @@ public:
     FileBase(const char *name, PathType t);
     virtual ~FileBase();
 
-    const char* getName(void);
+    const char *getName(void);
     PathType    getPathType(void);
 
     static FileBase *lookup(const char *name, unsigned int len);
