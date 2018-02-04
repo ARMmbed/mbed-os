@@ -68,9 +68,13 @@ static HAL_GDMA_OP UartGdmaOp;
 
 #ifdef CONFIG_MBED_ENABLED
 #include "log_uart_api.h"
+#include "hal_log_uart.h"
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 log_uart_t stdio_uart_log;
+static uint32_t serial_log_irq_ids;
+static uart_irq_handler log_irq_handler;
+static uint32_t serial_log_irq_en;
 #endif
 
 static void SerialTxDoneCallBack(VOID *pAdapter);
@@ -256,7 +260,8 @@ static void SerialTxDoneCallBack(VOID *pAdapter)
     pHalRuartAdapter->Interrupts &= ~RUART_IER_ETBEI;
     HalRuartSetIMRRtl8195a (pHalRuartAdapter);
 
-    if (irq_handler[uart_idx] != NULL) {
+    if (irq_handler[uart_idx] != NULL) 
+    {
         irq_handler[uart_idx](serial_irq_ids[uart_idx], TxIrq);
     }
 }
@@ -266,13 +271,49 @@ static void SerialRxDoneCallBack(VOID *pAdapter)
     PHAL_RUART_ADAPTER pHalRuartAdapter = pAdapter;
     u8 uart_idx = pHalRuartAdapter->UartIndex;
     
-    if (irq_handler[uart_idx] != NULL) {
+    if (irq_handler[uart_idx] != NULL)
+    {
         irq_handler[uart_idx](serial_irq_ids[uart_idx], RxIrq);
     }
 }
 
+
+#ifdef CONFIG_MBED_ENABLED
+static void serial_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
+{
+    if(event == IIR_RX_RDY || event == IIR_CHAR_TIMEOUT)
+    {
+        if (log_irq_handler){
+            log_irq_handler(serial_log_irq_ids, RxIrq);
+            }
+    }
+    else if(event == IIR_THR_EMPTY)
+    {
+        if (log_irq_handler){
+                log_irq_handler(serial_log_irq_ids, TxIrq);
+            }
+    }
+    return;
+}
+#endif
+
+
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) 
 {
+
+#ifdef CONFIG_MBED_ENABLED
+            if(obj->index == UART_3)
+            {
+                log_irq_handler = handler;
+                serial_log_irq_ids = id;     
+    
+                log_uart_irq_handler(&stdio_uart_log, serial_loguart_irq_handler, id);
+                return;
+            }             
+#endif
+
+
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     u8 uart_idx;
 
@@ -291,6 +332,22 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) 
 {
+
+#ifdef CONFIG_MBED_ENABLED
+        if(obj->index == UART_3)
+        {
+            if(irq == RxIrq)
+               {
+                   log_uart_irq_set(&stdio_uart_log, IIR_RX_RDY, enable);
+            }
+            else
+            {
+                log_uart_irq_set(&stdio_uart_log, IIR_THR_EMPTY, enable);
+            }
+            return;
+        }
+#endif
+
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     PHAL_RUART_OP pHalRuartOp;
     u8 uart_idx;
@@ -298,27 +355,42 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     pHalRuartAdapter = &(obj->hal_uart_adp);
     pHalRuartOp = &(obj->hal_uart_op);
     uart_idx = pHalRuartAdapter->UartIndex;
+
     
-    if (enable) {
-        if (irq == RxIrq) {
+    if (enable) 
+    {
+        if (irq == RxIrq) 
+        {
             pHalRuartAdapter->Interrupts |= RUART_IER_ERBI | RUART_IER_ELSI;
             serial_irq_en[uart_idx] |= SERIAL_RX_IRQ_EN;
             HalRuartSetIMRRtl8195a (pHalRuartAdapter);
-         } else {
+        } 
+        else 
+        {
             serial_irq_en[uart_idx] |= SERIAL_TX_IRQ_EN;
         }
+         
         pHalRuartOp->HalRuartRegIrq(pHalRuartAdapter);
+         
+        //log_uart
         pHalRuartOp->HalRuartIntEnable(pHalRuartAdapter);
-    } else { // disable
-        if (irq == RxIrq) {
+    } 
+    else 
+    { // disable
+        if (irq == RxIrq) 
+        {
             pHalRuartAdapter->Interrupts &= ~(RUART_IER_ERBI | RUART_IER_ELSI);
             serial_irq_en[uart_idx] &= ~SERIAL_RX_IRQ_EN;
-        } else {
+        } 
+        else 
+        {
             pHalRuartAdapter->Interrupts &= ~RUART_IER_ETBEI;
             serial_irq_en[uart_idx] &= ~SERIAL_TX_IRQ_EN;
         }
         HalRuartSetIMRRtl8195a (pHalRuartAdapter);
-        if (pHalRuartAdapter->Interrupts == 0) {
+        
+        if (pHalRuartAdapter->Interrupts == 0) 
+        {
             InterruptUnRegister(&pHalRuartAdapter->IrqHandle);
             InterruptDis(&pHalRuartAdapter->IrqHandle);
         }
