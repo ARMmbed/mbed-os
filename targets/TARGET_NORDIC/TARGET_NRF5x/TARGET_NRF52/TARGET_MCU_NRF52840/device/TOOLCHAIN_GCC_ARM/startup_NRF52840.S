@@ -61,7 +61,7 @@ __Vectors:
     .long   0                           /*Reserved */
     .long   0                           /*Reserved */
     .long   SVC_Handler
-    .long   0                           /*Reserved */
+    .long   DebugMon_Handler
     .long   0                           /*Reserved */
     .long   PendSV_Handler
     .long   SysTick_Handler
@@ -110,9 +110,11 @@ __Vectors:
     .long   UARTE1_IRQHandler_v
     .long   QSPI_IRQHandler_v
     .long   CRYPTOCELL_IRQHandler_v
-    .long   SPIM3_IRQHandler_v
+    .long   0                           /*Reserved */
     .long   0                           /*Reserved */
     .long   PWM3_IRQHandler_v
+    .long   0                           /*Reserved */
+    .long   SPIM3_IRQHandler_v
 
 
     .size    __Vectors, . - __Vectors
@@ -209,6 +211,13 @@ SVC_Handler:
     .size   SVC_Handler, . - SVC_Handler
 
 
+    .weak   DebugMon_Handler
+    .type   DebugMon_Handler, %function
+DebugMon_Handler:
+    b       .
+    .size   DebugMon_Handler, . - DebugMon_Handler
+
+
     .weak   PendSV_Handler
     .type   PendSV_Handler, %function
 PendSV_Handler:
@@ -277,7 +286,7 @@ Default_Handler:
     IRQ  UARTE1_IRQHandler_v
     IRQ  QSPI_IRQHandler_v
     IRQ  CRYPTOCELL_IRQHandler_v
-    IRQ  SPIM3_IRQHandler_v               
     IRQ  PWM3_IRQHandler_v
+    IRQ  SPIM3_IRQHandler_v
     
   .end
