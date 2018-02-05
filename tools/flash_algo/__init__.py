@@ -22,7 +22,10 @@ import struct
 import binascii
 import argparse
 import logging
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import jinja2
 from collections import namedtuple
 from itertools import count
@@ -124,7 +127,7 @@ class PackFlashAlgo(object):
         if fmt == "hex":
             blob = binascii.b2a_hex(self.algo_data)
             line_list = []
-            for i in xrange(0, len(blob), group_size):
+            for i in range(0, len(blob), group_size):
                 line_list.append('"' + blob[i:i + group_size] + '"')
             return ("\n" + padding).join(line_list)
         elif fmt == "c":
@@ -311,7 +314,7 @@ class ElfFileSimple(ELFFile):
 
     def __init__(self, data):
         """Construct a ElfFileSimple from bytes or a bytearray"""
-        super(ElfFileSimple, self).__init__(StringIO.StringIO(data))
+        super(ElfFileSimple, self).__init__(StringIO(data))
         self.symbols = self._read_symbol_table()
 
     def _read_symbol_table(self):
