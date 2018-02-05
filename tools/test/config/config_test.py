@@ -173,3 +173,25 @@ def test_init_override_app_config(target):
 
         mock_json_file_to_dict.assert_called_once_with(app_config)
         assert config.app_config_data == mock_return
+
+@pytest.mark.parametrize("target", ["K64F", "UBLOX_EVK_ODIN_W2"])
+@pytest.mark.parametrize("overrides", [
+    {},
+    {"restrict_size": "0x200"},
+    {"mbed_app_start": "0x200"}
+])
+def test_basic_regions(target, overrides):
+    """
+    Test that the region lists are sane with various configurations
+    """
+    set_targets_json_location()
+    config = Config(target)
+    for o, v in overrides.items():
+        setattr(config.target, o, v)
+    try:
+        if config.has_regions:
+            regions = list(config.regions)
+            for r in regions:
+                assert r.size >= 0
+    except ConfigException:
+        pass
