@@ -61,7 +61,7 @@ __Vectors:
     .long   0                           /*Reserved */
     .long   0                           /*Reserved */
     .long   SVC_Handler
-    .long   0                           /*Reserved */
+    .long   DebugMon_Handler
     .long   0                           /*Reserved */
     .long   PendSV_Handler
     .long   SysTick_Handler
@@ -200,6 +200,13 @@ UsageFault_Handler:
 SVC_Handler:
     B       .
     .size   SVC_Handler, . - SVC_Handler
+
+
+    .weak   DebugMon_Handler
+    .type   DebugMon_Handler, %function
+DebugMon_Handler:
+    b       .
+    .size   DebugMon_Handler, . - DebugMon_Handler
 
 
     .weak   PendSV_Handler
