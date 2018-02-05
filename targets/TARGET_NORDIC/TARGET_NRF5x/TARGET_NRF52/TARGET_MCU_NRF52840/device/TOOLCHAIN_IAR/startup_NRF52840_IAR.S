@@ -122,9 +122,11 @@ __vector_table
         DCD     UARTE1_IRQHandler_v
         DCD     QSPI_IRQHandler_v
         DCD     CRYPTOCELL_IRQHandler_v
-        DCD     SPIM3_IRQHandler_v
-        DCD     0                           /*Reserved */
+        DCD     0                         ; Reserved
+        DCD     0                         ; Reserved
         DCD     PWM3_IRQHandler_v
+        DCD     0                         ; Reserved
+        DCD     SPIM3_IRQHandler_v
 
 __Vectors_End
 __Vectors                           EQU   __vector_table
@@ -146,7 +148,7 @@ Reset_Handler
         BX      R0
 
         ; Dummy exception handlers
-        
+
 
         PUBWEAK NMI_Handler
         SECTION .text:CODE:NOROOT(1)
@@ -385,7 +387,7 @@ FPU_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
 USBD_IRQHandler_v
         B .
-        
+
         PUBWEAK  UARTE1_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
 UARTE1_IRQHandler_v
@@ -410,7 +412,7 @@ SPIM3_IRQHandler_v
         SECTION .text:CODE:NOROOT(1)
 PWM3_IRQHandler_v
         B .
-        
+
 
         END
 
