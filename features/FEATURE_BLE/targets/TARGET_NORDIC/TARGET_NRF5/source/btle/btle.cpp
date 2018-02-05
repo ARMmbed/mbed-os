@@ -126,7 +126,7 @@ nrf_error_t btle_init(void)
      * Characteristics turned off, then clients are allowed to cache attribute
      * handles making applications simpler on both sides.
      */
-    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = false;
+    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = true;
 
     ble_enable_params_t ble_enable_params;
     uint32_t err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,
