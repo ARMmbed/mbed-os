@@ -3676,7 +3676,8 @@
         "macros_add": [
             "WD_ABI_CPUID_MASK=0xFFF0FFF0",
             "WD_ABI_CPUID=0x4100C240",
-            "WD_BOARD_SHORT_NAME=\"CO1\""
+            "WD_BOARD_SHORT_NAME=\"CO1\"",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
         "device_has_add": [
             "I2C",
