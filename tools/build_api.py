@@ -36,7 +36,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset)
+                    intelhex_offset, integer)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -353,6 +353,7 @@ def _real_region_size(region):
     except AttributeError:
         return region.size
 
+
 def _fill_header(region_list, current_region):
     """Fill an application header region
 
@@ -373,7 +374,7 @@ def _fill_header(region_list, current_region):
                 "8le": ">B", "16le": "<H", "32le": "<L", "64le": "<Q",
                 "8be": "<B", "16be": ">H", "32be": ">L", "64be": ">Q"
             }[subtype]
-            header.puts(start, struct.pack(fmt, int(data, 0)))
+            header.puts(start, struct.pack(fmt, integer(data, 0)))
         elif type == "timestamp":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
