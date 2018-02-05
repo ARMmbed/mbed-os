@@ -95,6 +95,27 @@ matrix:
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
     - env:
+        - NAME=astyle
+      install:
+      - wget https://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
+        mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
+        pushd BUILD/astyle/build/gcc;
+        make;
+        export PATH=$PWD/bin:$PATH;
+        popd;
+      - astyle --version
+      script:
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle.out;
+          if [ $(cat astyle.out | grep Formatted | wc -l) -ne 0 ]; then
+            git --no-pager diff;
+            echo "Please fix style issues as shown above";
+            exit 1;
+          else
+            echo "Coding style check OK";
+            exit 0;
+          fi
+
+    - env:
         - NAME=events
         - EVENTS=events
       install:
