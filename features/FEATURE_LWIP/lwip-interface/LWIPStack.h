@@ -139,7 +139,7 @@ public:
     #endif
         char has_addr_state;
         bool connected;
-        bool dhcp;
+        bool dhcp_started;
         bool ppp;
         struct netif netif;
     };
