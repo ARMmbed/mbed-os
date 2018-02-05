@@ -230,7 +230,7 @@ char *LWIP::Interface::get_gateway(char *buf, nsapi_size_t buflen)
 
 LWIP::Interface::Interface() :
         hw(NULL), has_addr_state(0),
-        connected(false), dhcp(false), ppp(false)
+        connected(false), dhcp_started(false), ppp(false)
 {
     memset(&netif, 0, sizeof netif);
 
@@ -271,7 +271,6 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
         return NSAPI_ERROR_NO_MEMORY;
     }
     interface->emac = &emac;
-    interface->dhcp = true;
     interface->ppp = false;
 
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
@@ -328,7 +327,6 @@ nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, LWIP::Interfac
         return NSAPI_ERROR_NO_MEMORY;
     }
     interface->hw = hw;
-    interface->dhcp = true;
     interface->ppp = true;
 
     ret = ppp_lwip_if_init(hw, &interface->netif);
@@ -427,13 +425,12 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
 #if LWIP_DHCP
     if (stack != IPV6_STACK) {
         // Connect to the network
-        dhcp = dhcp;
-
         if (dhcp) {
             err_t err = dhcp_start(&netif);
             if (err) {
                 return NSAPI_ERROR_DHCP_FAILURE;
             }
+            dhcp_started = true;
         }
     }
 #endif
@@ -446,8 +443,8 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
             }
             return NSAPI_ERROR_DHCP_FAILURE;
         }
-        connected = true;
     }
+    connected = true;
 
 #if PREF_ADDR_TIMEOUT
     if (stack != IPV4_STACK && stack != IPV6_STACK) {
@@ -482,10 +479,10 @@ nsapi_error_t LWIP::Interface::bringdown()
 
 #if LWIP_DHCP
     // Disconnect from the network
-    if (dhcp) {
+    if (dhcp_started) {
         dhcp_release(&netif);
         dhcp_stop(&netif);
-        dhcp = false;
+        dhcp_started = false;
     }
 #endif
 
