@@ -20,6 +20,14 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+/* Some internal functions are used for Nuvoton internal self-test.
+ * Remove the static modifier for self-test compile. */
+#if defined(NU_CRYPTO_SELF_TEST) && NU_CRYPTO_SELF_TEST
+#define NU_STATIC
+#else
+#define NU_STATIC static
+#endif
+
 #if defined(MBEDTLS_ECP_C)
 
 #include "mbedtls/ecp.h"
@@ -139,13 +147,13 @@
  *                  n is kept with unused modifier.
  *                  
  */
-int internal_run_eccop(const mbedtls_ecp_group *grp,
-                        mbedtls_ecp_point *R,
-                        const mbedtls_mpi *m,
-                        const mbedtls_ecp_point *P,
-                        MBED_UNUSED const mbedtls_mpi *n,
-                        const mbedtls_ecp_point *Q,
-                        uint32_t eccop);
+NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
+                                    mbedtls_ecp_point *R,
+                                    const mbedtls_mpi *m,
+                                    const mbedtls_ecp_point *P,
+                                    MBED_UNUSED const mbedtls_mpi *n,
+                                    const mbedtls_ecp_point *Q,
+                                    uint32_t eccop);
 
 /**
  * \brief           Configure MODOP operation and wait for its completion
@@ -165,12 +173,12 @@ int internal_run_eccop(const mbedtls_ecp_group *grp,
  *
  * \note            o1/o2 must be normalized (within [0, p - 1]). r would be normalized.
  */
-int internal_run_modop(mbedtls_mpi *r,
-                            const mbedtls_mpi *o1,
-                            const mbedtls_mpi *o2,
-                            const mbedtls_mpi *p,
-                            uint32_t pbits,
-                            uint32_t modop);
+NU_STATIC int internal_run_modop(mbedtls_mpi *r,
+                                    const mbedtls_mpi *o1,
+                                    const mbedtls_mpi *o2,
+                                    const mbedtls_mpi *p,
+                                    uint32_t pbits,
+                                    uint32_t modop);
 
 /**
  * \brief               Import X from ECC registers, little endian
@@ -183,7 +191,7 @@ int internal_run_modop(mbedtls_mpi *r,
  *
  * \note                Destination MPI is always non-negative.
  */
-static int internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *eccreg, size_t eccreg_num );
+NU_STATIC int internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *eccreg, size_t eccreg_num );
 
 /**
  * \brief               Export X into ECC registers, little endian
@@ -197,7 +205,7 @@ static int internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *ec
  * \note                Source MPI cannot be negative.
  * \note                Fills the remaining MSB ECC registers with zeros if X doesn't cover all.
  */
-static int internal_mpi_write_eccreg( const mbedtls_mpi *X, volatile uint32_t *eccreg, size_t eccreg_num );
+NU_STATIC int internal_mpi_write_eccreg( const mbedtls_mpi *X, volatile uint32_t *eccreg, size_t eccreg_num );
                             
 unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 {
@@ -456,13 +464,13 @@ cleanup:
 }
 #endif
 
-int internal_run_eccop(const mbedtls_ecp_group *grp,
-                            mbedtls_ecp_point *R,
-                            const mbedtls_mpi *m,
-                            const mbedtls_ecp_point *P,
-                            MBED_UNUSED const mbedtls_mpi *n,
-                            const mbedtls_ecp_point *Q,
-                            uint32_t eccop)
+NU_STATIC int internal_run_eccop(const mbedtls_ecp_group *grp,
+                                    mbedtls_ecp_point *R,
+                                    const mbedtls_mpi *m,
+                                    const mbedtls_ecp_point *P,
+                                    MBED_UNUSED const mbedtls_mpi *n,
+                                    const mbedtls_ecp_point *Q,
+                                    uint32_t eccop)
 {
     /* Check necessary arguments for all ECC operations */
     if (grp == NULL || R == NULL) {
@@ -640,12 +648,12 @@ cleanup:
     return ret;
 }
 
-int internal_run_modop(mbedtls_mpi *r,
-                        const mbedtls_mpi *o1,
-                        const mbedtls_mpi *o2,
-                        const mbedtls_mpi *p,
-                        uint32_t pbits,
-                        uint32_t modop)
+NU_STATIC int internal_run_modop(mbedtls_mpi *r,
+                                    const mbedtls_mpi *o1,
+                                    const mbedtls_mpi *o2,
+                                    const mbedtls_mpi *p,
+                                    uint32_t pbits,
+                                    uint32_t modop)
 {
     if (r == NULL || 
         o1 == NULL ||
@@ -734,7 +742,7 @@ cleanup:
 
 #endif  // ECP_SHORTWEIERSTRASS
 
-static int internal_mpi_read_eccreg(mbedtls_mpi *x, const volatile uint32_t *eccreg, size_t eccreg_num)
+NU_STATIC int internal_mpi_read_eccreg(mbedtls_mpi *x, const volatile uint32_t *eccreg, size_t eccreg_num)
 {
     if (x == NULL) {
         return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
@@ -761,7 +769,7 @@ cleanup:
     return ret;
 }
 
-static int internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t *eccreg, size_t eccreg_num )
+NU_STATIC int internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t *eccreg, size_t eccreg_num )
 {
     if (x == NULL) {
         return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
