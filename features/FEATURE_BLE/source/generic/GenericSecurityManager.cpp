@@ -531,38 +531,6 @@ void GenericSecurityManager::enable_encryption_cb(
     }
 }
 
-void GenericSecurityManager::check_against_identity_cb(
-    const SecurityEntryIdentity_t *identity
-) {
-
-}
-
-bool GenericSecurityManager::check_against_identity_address(
-    const address_t peer_address,
-    const irk_t *irk
-) {
-    /* we need to verify the identity by encrypting the
-     * PRAND part with the IRK key and checking the result
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.2 */
-    encryption_block_t prand_hash;
-    /* we only need the PRAND part */
-    prand_hash[0] = peer_address[0];
-    prand_hash[1] = peer_address[1];
-    prand_hash[2] = peer_address[2];
-
-    _pal.encrypt_data(irk, prand_hash);
-
-    /* prand_hash now contains the hash result in the first 3 octects
-     * compare it with the hash in the peer identity address */
-    if ((prand_hash[0] == peer_address[3])
-        || (prand_hash[1] == peer_address[4])
-        || (prand_hash[2] == peer_address[5])) {
-        return true;
-    }
-
-    return false;
-}
-
 void GenericSecurityManager::set_ltk_cb(
     const SecurityEntry_t* entry,
     const SecurityEntryKeys_t* entryKeys

@@ -25,12 +25,12 @@
 namespace ble {
 namespace generic {
 
-using ble::pal::address_t;
 using ble::pal::advertising_peer_address_type_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
 using ble::pal::connection_peer_address_type_t;
 
+using ble::address_t;
 using ble::irk_t;
 using ble::csrk_t;
 using ble::ltk_t;
@@ -192,18 +192,16 @@ public:
         Keypress_t keypress
     );
 
-    virtual ble_error_t set_peer_oob(
-        const address_t& peer_address,
-        const oob_rand_t& random,
-        const oob_confirm_t& confirm
+    virtual ble_error_t legacyPairingOobReceived(
+        address_t address,
+        const oob_tk_t *tk
     );
 
-    virtual ble_error_t get_local_oob(
-        connection_handle_t connection,
-        address_t& peer_address,
-        oob_rand_t& random,
-        oob_confirm_t& confirm
-    ) const;
+    virtual ble_error_t oobReceived(
+        address_t address,
+        const oob_rand_t *random,
+        const oob_confirm_t *confirm
+    );
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
@@ -255,27 +253,6 @@ private:
     void enable_encryption_cb(
         const SecurityEntry_t* entry,
         const SecurityEntryKeys_t* entryKeys
-    );
-
-    /**
-     * Check if identity resolving key resolves the peer address.
-     *
-     * @param[in] peer_address Resolvable random address.
-     * @param[in] irk Identity resolving key.
-     * @return True if identity resolving key resolves the peer address.
-     */
-    bool check_against_identity_address(
-        const address_t peer_address,
-        const irk_t *irk
-    );
-
-    /**
-     * Checks device address against an identity resolving key. Called by the security db.
-     *
-     * @param[in] identity identity resolving key and identity address
-     */
-    void check_against_identity_cb(
-        const SecurityEntryIdentity_t *identity
     );
 
     /**

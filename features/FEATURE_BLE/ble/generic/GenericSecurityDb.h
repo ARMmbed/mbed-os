@@ -25,7 +25,7 @@
 namespace ble {
 namespace generic {
 
-using ble::pal::address_t;
+using ble::address_t;
 using ble::irk_t;
 using ble::csrk_t;
 using ble::ltk_t;

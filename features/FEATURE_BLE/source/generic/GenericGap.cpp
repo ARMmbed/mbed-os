@@ -409,14 +409,14 @@ ble_error_t GenericGap::setAddress(
             }
 
             ble_error_t err = _pal_gap.set_random_address(
-                pal::address_t(address, true)
+                ble::address_t(address, true)
             );
             if (err) {
                 return err;
             }
 
             _address_type = type;
-            _address = pal::address_t(address, true);
+            _address = ble::address_t(address, true);
             return BLE_ERROR_NONE;
         }
 
@@ -501,7 +501,7 @@ ble_error_t GenericGap::connect(
         scanParams->getWindow(),
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
-        pal::address_t(peerAddr, true),
+        ble::address_t(peerAddr, true),
         (pal::own_address_type_t::type) _address_type,
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
@@ -859,7 +859,7 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         (pal::advertising_type_t::type) params.getAdvertisingType(),
         get_own_address_type(),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
-        pal::address_t(),
+        ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
         _advertising_filter_policy
     );

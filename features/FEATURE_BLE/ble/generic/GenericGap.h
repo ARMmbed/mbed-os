@@ -25,6 +25,7 @@
 #include "ble/pal/PalGap.h"
 #include "ble/pal/GapEvents.h"
 #include "ble/pal/GapTypes.h"
+#include "ble/BLETypes.h"
 #include "ble/pal/GenericAccessService.h"
 #include "ble/pal/EventQueue.h"
 
@@ -282,7 +283,7 @@ private:
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     BLEProtocol::AddressType_t _address_type;
-    pal::address_t _address;
+    ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;

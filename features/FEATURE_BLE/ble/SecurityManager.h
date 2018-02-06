@@ -30,6 +30,10 @@ using ble::connection_handle_t;
 using ble::pairing_failure_t;
 using ble::link_encryption_t;
 using ble::csrk_t;
+using ble::oob_tk_t;
+using ble::oob_rand_t;
+using ble::oob_confirm_t;
+using ble::address_t;
 
 class SecurityManager {
 public:
@@ -241,6 +245,35 @@ public:
          */
         virtual void oobRequest(connection_handle_t connectionHandle) {
             (void)connectionHandle;
+        }
+
+        /**
+         * Indicate that the application needs to send OOB data to the peer.
+         *
+         * @param[in] address address that will be used in the pairing
+         * @param[in] temporaryKey temporary key to be used in legacy pairing
+         */
+        virtual void legacyPairingOobGenerated(address_t address,
+                                               const oob_tk_t *temporaryKey) {
+            (void)address;
+            (void)temporaryKey;
+        }
+
+        /**
+         * Indicate that the application needs to send OOB data to the peer.
+         *
+         * @param[in] connectionHandle connection connectionHandle
+         * @param[in] address address that will be used in the pairing
+         * @param[in] random random number used to generate the confirmation
+         * @param[in] confirm confirmation value to be use for authentication
+         *                    in secure connections pairing
+         */
+        virtual void oobGenerated(address_t address,
+                                  const oob_rand_t *random,
+                                  const oob_confirm_t *confirm) {
+            (void)address;
+            (void)random;
+            (void)confirm;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -712,6 +745,37 @@ public:
     virtual ble_error_t sendKeypressNotification(connection_handle_t connectionHandle, Keypress_t keypress) {
         (void) connectionHandle;
         (void) keypress;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Supply the stack with the OOB data for legacy connections.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] address address of the peer device this data comes from
+     * @param[in] tk pointer to out of band data received containing the temporary key.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t legacyPairingOobReceived(address_t address, const oob_tk_t *tk) {
+        (void) address;
+        (void) tk;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Supply the stack with the OOB data for secure connections.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] address address of the peer device this data comes from
+     * @param[in] random random number used to generate the confirmation
+     * @param[in] confirm confirmation value to be use for authentication
+     *                    in secure connections pairing
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t oobReceived(address_t address, const oob_rand_t *random, const oob_confirm_t *confirm) {
+        (void) address;
+        (void) random;
+        (void) confirm;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
