@@ -719,6 +719,11 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
         return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
     }
     
+    /* Check divisor is not zero in MODOP_DIV operation */
+    if (modop == MODOP_DIV && mbedtls_mpi_cmp_int(o2, 0) == 0) {
+        return MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
+    }
+
     int ret;
     bool ecc_done;
 
