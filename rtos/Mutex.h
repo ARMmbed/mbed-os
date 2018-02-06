@@ -28,10 +28,25 @@
 #include "mbed_rtos_storage.h"
 
 #include "platform/NonCopyable.h"
+#include "platform/ScopedLock.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
+
+class Mutex;
+/** Typedef for the mutex lock
+ *
+ * Usage:
+ * @code
+ * void foo(Mutex &m) {
+ *     ScopedMutexLock lock(m);
+ *     // Mutex lock protects code in this block
+ * }
+ * @endcode
+ */
+typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
+
 /**
  * \defgroup rtos_Mutex Mutex class
  * @{
@@ -44,7 +59,7 @@ namespace rtos {
  ISR handler, consider using @a Semaphore.
 
  @note
- Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
+ Memory considerations: The mutex control structures will be created on current thread's stack, both for the Mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex : private mbed::NonCopyable<Mutex> {

@@ -95,6 +95,7 @@
 // mbed Non-hardware components
 #include "platform/Callback.h"
 #include "platform/FunctionPointer.h"
+#include "platform/ScopedLock.h"
 
 using namespace mbed;
 using namespace std;
