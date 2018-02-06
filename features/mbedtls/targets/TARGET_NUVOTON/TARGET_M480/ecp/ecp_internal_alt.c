@@ -88,7 +88,7 @@
  * \return          0 if not normalized,
  *                  1 if normalized
  */
-#define MBEDTLS_INTERNAL_MPI_IS_NORM(N, P)                          \
+#define INTERNAL_MPI_IS_NORM(N, P)                          \
     ((mbedtls_mpi_cmp_int(&N, 0) >= 0) && (mbedtls_mpi_cmp_mpi(&N, &P) < 0))
   
         
@@ -100,9 +100,9 @@
  * \param N2        Output MPI which holds normalized N1 if N1 is not normalized yet
  * \param P         Prime modulus
  */
-#define MBEDTLS_INTERNAL_MPI_NORM(R, N1, N2, P)                     \
+#define INTERNAL_MPI_NORM(R, N1, N2, P)                     \
     do {                                                            \
-        if (MBEDTLS_INTERNAL_MPI_IS_NORM(N1, P)) {                  \
+        if (INTERNAL_MPI_IS_NORM(N1, P)) {                  \
             *R = &N1;                                               \
         } else {                                                    \
             MBEDTLS_MPI_CHK(mbedtls_mpi_mod_mpi(&N2, &N1, &P));     \
@@ -139,13 +139,13 @@
  *                  n is kept with unused modifier.
  *                  
  */
-int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
-                            mbedtls_ecp_point *R,
-                            const mbedtls_mpi *m,
-                            const mbedtls_ecp_point *P,
-                            MBED_UNUSED const mbedtls_mpi *n,
-                            const mbedtls_ecp_point *Q,
-                            uint32_t eccop);
+int internal_run_eccop(const mbedtls_ecp_group *grp,
+                        mbedtls_ecp_point *R,
+                        const mbedtls_mpi *m,
+                        const mbedtls_ecp_point *P,
+                        MBED_UNUSED const mbedtls_mpi *n,
+                        const mbedtls_ecp_point *Q,
+                        uint32_t eccop);
 
 /**
  * \brief           Configure MODOP operation and wait for its completion
@@ -165,7 +165,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
  *
  * \note            o1/o2 must be normalized (within [0, p - 1]). r would be normalized.
  */
-int mbedtls_internal_run_modop(mbedtls_mpi *r,
+int internal_run_modop(mbedtls_mpi *r,
                             const mbedtls_mpi *o1,
                             const mbedtls_mpi *o2,
                             const mbedtls_mpi *p,
@@ -183,7 +183,7 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
  *
  * \note                Destination MPI is always non-negative.
  */
-static int mbedtls_internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *eccreg, size_t eccreg_num );
+static int internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint32_t *eccreg, size_t eccreg_num );
 
 /**
  * \brief               Export X into ECC registers, little endian
@@ -197,7 +197,7 @@ static int mbedtls_internal_mpi_read_eccreg( mbedtls_mpi *X, const volatile uint
  * \note                Source MPI cannot be negative.
  * \note                Fills the remaining MSB ECC registers with zeros if X doesn't cover all.
  */
-static int mbedtls_internal_mpi_write_eccreg( const mbedtls_mpi *X, volatile uint32_t *eccreg, size_t eccreg_num );
+static int internal_mpi_write_eccreg( const mbedtls_mpi *X, volatile uint32_t *eccreg, size_t eccreg_num );
                             
 unsigned char mbedtls_internal_ecp_grp_capable( const mbedtls_ecp_group *grp )
 {
@@ -289,7 +289,7 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
     }
     
     /* Run ECC point addition: R = P + Q */
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_eccop(grp, R, NULL, &P_, NULL, &Q_, ECCOP_POINT_ADD));
+    MBEDTLS_MPI_CHK(internal_run_eccop(grp, R, NULL, &P_, NULL, &Q_, ECCOP_POINT_ADD));
     
 cleanup:
 
@@ -327,7 +327,7 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
     MBEDTLS_MPI_CHK(mbedtls_internal_ecp_normalize_jac(grp, &P_));
     
     /* Run ECC point doubling: R = 2*P */
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_eccop(grp, R, NULL, &P_, NULL, NULL, ECCOP_POINT_DOUBLE));
+    MBEDTLS_MPI_CHK(internal_run_eccop(grp, R, NULL, &P_, NULL, NULL, ECCOP_POINT_DOUBLE));
     
 cleanup:
 
@@ -369,7 +369,7 @@ int mbedtls_internal_ecp_mul_jac(mbedtls_ecp_group *grp,
     MBEDTLS_MPI_CHK(mbedtls_internal_ecp_normalize_jac(grp, &P_));
         
     /* Run ECC point multiplication: R = m*P */
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_eccop(grp, R, m, &P_, NULL, NULL, ECCOP_POINT_MUL));
+    MBEDTLS_MPI_CHK(internal_run_eccop(grp, R, m, &P_, NULL, NULL, ECCOP_POINT_MUL));
 
 cleanup:
 
@@ -426,7 +426,7 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     mbedtls_mpi_init(&Zi);
     mbedtls_mpi_init(&ZZi);
 
-    /* Use MBEDTLS_INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
+    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
      * Np: Pointer to normalized MPI, which could be N1 or N_
@@ -434,20 +434,20 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
 
     /* Zi = 1 / Z */
     mbedtls_mpi_lset(&Zi, 1);
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, pt->Z, N, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&Zi, &Zi, Np, &grp->P, grp->pbits, MODOP_DIV));
+    INTERNAL_MPI_NORM(&Np, pt->Z, N, grp->P);
+    MBEDTLS_MPI_CHK(internal_run_modop(&Zi, &Zi, Np, &grp->P, grp->pbits, MODOP_DIV));
     
     /* ZZi = 1 / Z^2 = Zi * Zi */
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&ZZi, &Zi, &Zi, &grp->P, grp->pbits, MODOP_MUL));
+    MBEDTLS_MPI_CHK(internal_run_modop(&ZZi, &Zi, &Zi, &grp->P, grp->pbits, MODOP_MUL));
     
     /* X = X / Z^2 = X * ZZi */
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, pt->X, N, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&pt->X, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
+    INTERNAL_MPI_NORM(&Np, pt->X, N, grp->P);
+    MBEDTLS_MPI_CHK(internal_run_modop(&pt->X, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
     
     /* Y = Y / Z^3 = Y * ZZi * Zi */
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, pt->Y, N, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&pt->Y, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
-    MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&pt->Y, &pt->Y, &Zi, &grp->P, grp->pbits, MODOP_MUL));
+    INTERNAL_MPI_NORM(&Np, pt->Y, N, grp->P);
+    MBEDTLS_MPI_CHK(internal_run_modop(&pt->Y, Np, &ZZi, &grp->P, grp->pbits, MODOP_MUL));
+    MBEDTLS_MPI_CHK(internal_run_modop(&pt->Y, &pt->Y, &Zi, &grp->P, grp->pbits, MODOP_MUL));
     
     /* Z = 1 */
     MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&pt->Z, 1));
@@ -497,7 +497,7 @@ cleanup:
 }
 #endif
 
-int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
+int internal_run_eccop(const mbedtls_ecp_group *grp,
                             mbedtls_ecp_point *R,
                             const mbedtls_mpi *m,
                             const mbedtls_ecp_point *P,
@@ -528,7 +528,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
     
     mbedtls_mpi_init(&N_);
     
-    /* Use MBEDTLS_INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
+    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
      * Np: Pointer to normalized MPI, which could be N1 or N_
@@ -566,7 +566,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
         /* NOTE: If grp->N (order) is a prime, we could detect R = 0 for all m*P cases
          *       by just checking if m is a multiple of grp->N. Otherwise, sigh. */
         /* TODO: Find an approach to detecting R = 0 for all m*P cases */
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
+        INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
         if (mbedtls_mpi_cmp_int(Np, 0) == 0) {
             MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
             goto cleanup;
@@ -594,7 +594,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
         }
         
         /* R = P + Q = P + (-P) = 0 */
-        MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&N_, &P->Y, &Q->Y, &grp->P, grp->pbits, MODOP_ADD));
+        MBEDTLS_MPI_CHK(internal_run_modop(&N_, &P->Y, &Q->Y, &grp->P, grp->pbits, MODOP_ADD));
         if (mbedtls_mpi_cmp_int(&N_, 0) == 0) {
             MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
             goto cleanup;
@@ -613,7 +613,7 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
         }
         
         /* R = 2*P = P + P = P + (-P) = 0 */
-        MBEDTLS_MPI_CHK(mbedtls_internal_run_modop(&N_, &P->Y, &P->Y, &grp->P, grp->pbits, MODOP_ADD));
+        MBEDTLS_MPI_CHK(internal_run_modop(&N_, &P->Y, &P->Y, &grp->P, grp->pbits, MODOP_ADD));
         if (mbedtls_mpi_cmp_int(&N_, 0) == 0) {
             MBEDTLS_MPI_CHK(mbedtls_ecp_set_zero(R));
             goto cleanup;
@@ -627,16 +627,16 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
     /* Special case for A = -3 */
     if (grp->A.p == NULL) {
         MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&N_, -3));
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, N_, N_, grp->P);
+        INTERNAL_MPI_NORM(&Np, N_, N_, grp->P);
     } else {
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, grp->A, N_, grp->P);
+        INTERNAL_MPI_NORM(&Np, grp->A, N_, grp->P);
     }
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_A, NU_ECC_BIGNUM_MAXWORD));
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, grp->B, N_, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_B, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_A, NU_ECC_BIGNUM_MAXWORD));
+    INTERNAL_MPI_NORM(&Np, grp->B, N_, grp->P);
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_B, NU_ECC_BIGNUM_MAXWORD));
     
     /* Configure ECC prime modulus */ 
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(&grp->P, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(&grp->P, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
     
     /* Configure ECC scalar for point multiplication 
      *
@@ -644,22 +644,22 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
      * Special cases R = 0 should have been detected out above.
      */
     if (eccop == ECCOP_POINT_MUL) {
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_K, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, *m, N_, grp->N);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_K, NU_ECC_BIGNUM_MAXWORD));
     }
     
     /* Configure ECC point (X1, Y1) */
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, P->X, N_, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-    MBEDTLS_INTERNAL_MPI_NORM(&Np, P->Y, N_, grp->P);
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
+    INTERNAL_MPI_NORM(&Np, P->X, N_, grp->P);
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
+    INTERNAL_MPI_NORM(&Np, P->Y, N_, grp->P);
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
 
     /* Configure ECC points (X2, Y2) */
     if (eccop == ECCOP_POINT_ADD) {
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, Q->X, N_, grp->P);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X2, NU_ECC_BIGNUM_MAXWORD));
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, Q->Y, N_, grp->P);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y2, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, Q->X, N_, grp->P);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X2, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, Q->Y, N_, grp->P);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y2, NU_ECC_BIGNUM_MAXWORD));
     }
 
     crypto_ecc_prestart();
@@ -670,8 +670,8 @@ int mbedtls_internal_run_eccop(const mbedtls_ecp_group *grp,
     MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
     
     /* (X1, Y1) hold the normalized result. */
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_read_eccreg(&R->X, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_read_eccreg(&R->Y, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->X, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(&R->Y, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
     MBEDTLS_MPI_CHK(mbedtls_mpi_lset(&R->Z, 1));
         
 cleanup:
@@ -681,12 +681,12 @@ cleanup:
     return ret;
 }
 
-int mbedtls_internal_run_modop(mbedtls_mpi *r,
-                            const mbedtls_mpi *o1,
-                            const mbedtls_mpi *o2,
-                            const mbedtls_mpi *p,
-                            uint32_t pbits,
-                            uint32_t modop)
+int internal_run_modop(mbedtls_mpi *r,
+                        const mbedtls_mpi *o1,
+                        const mbedtls_mpi *o2,
+                        const mbedtls_mpi *p,
+                        uint32_t pbits,
+                        uint32_t modop)
 {
     if (r == NULL || 
         o1 == NULL ||
@@ -732,7 +732,7 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
     
     mbedtls_mpi_init(&N_);
     
-    /* Use MBEDTLS_INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
+    /* Use INTERNAL_MPI_NORM(Np, N1, N_, P) to get normalized MPI
      *
      * N_: Holds normalized MPI if the passed-in MPI N1 is not
      * Np: Pointer to normalized MPI, which could be N1 or N_
@@ -741,20 +741,20 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
     if (modop == MODOP_MUL ||
         modop == MODOP_ADD ||
         modop == MODOP_SUB) {
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-         MBEDTLS_INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
     } else if (modop == MODOP_DIV) {
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
-        MBEDTLS_INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
-        MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, *o2, N_, *p);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
+        INTERNAL_MPI_NORM(&Np, *o1, N_, *p);
+        MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(Np, (uint32_t *) CRPT->ECC_Y1, NU_ECC_BIGNUM_MAXWORD));
     } else {
         MBEDTLS_MPI_CHK(MBEDTLS_ERR_ECP_BAD_INPUT_DATA);
     }
 
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_write_eccreg(p, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_write_eccreg(p, (uint32_t *) CRPT->ECC_N, NU_ECC_BIGNUM_MAXWORD));
 
     crypto_ecc_prestart();
     CRPT->ECC_CTL = (pbits << CRPT_ECC_CTL_CURVEM_Pos) | (ECCOP_MODULE | modop) | CRPT_ECC_CTL_FSEL_Msk | CRPT_ECC_CTL_START_Msk;
@@ -764,7 +764,7 @@ int mbedtls_internal_run_modop(mbedtls_mpi *r,
     MBEDTLS_MPI_CHK(ecc_done ? 0 : -1);
     
     /* X1 holds the result. */
-    MBEDTLS_MPI_CHK(mbedtls_internal_mpi_read_eccreg(r, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
+    MBEDTLS_MPI_CHK(internal_mpi_read_eccreg(r, (uint32_t *) CRPT->ECC_X1, NU_ECC_BIGNUM_MAXWORD));
 
 cleanup:
     
@@ -775,7 +775,7 @@ cleanup:
 
 #endif  // ECP_SHORTWEIERSTRASS
 
-static int mbedtls_internal_mpi_read_eccreg(mbedtls_mpi *x, const volatile uint32_t *eccreg, size_t eccreg_num)
+static int internal_mpi_read_eccreg(mbedtls_mpi *x, const volatile uint32_t *eccreg, size_t eccreg_num)
 {
     if (x == NULL) {
         return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
@@ -802,7 +802,7 @@ cleanup:
     return ret;
 }
 
-static int mbedtls_internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t *eccreg, size_t eccreg_num )
+static int internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t *eccreg, size_t eccreg_num )
 {
     if (x == NULL) {
         return MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
