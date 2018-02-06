@@ -3316,7 +3316,7 @@
     "OSHCHIP": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "overrides": {
-            "target.lf_clock_src": "NRF_LF_SRC_RC"
+            "lf_clock_src": "NRF_LF_SRC_RC"
         }
     },
     "MCU_NRF52": {
