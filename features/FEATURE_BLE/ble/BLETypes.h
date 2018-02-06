@@ -311,7 +311,7 @@ struct octet_type_t {
     /**
      * Return the pointer to the buffer holding data.
      */
-    uint8_t* data() {
+    const uint8_t* data() const {
         return value;
     }
 
@@ -322,7 +322,7 @@ struct octet_type_t {
         return sizeof(value);
     }
 
-private:
+protected:
     uint8_t value[octet_size];
 };
 
@@ -355,7 +355,7 @@ typedef octet_type_t<32> dhkey_t;
 /**
  * MAC address data type.
  */
-struct address_t {
+struct address_t : public octet_type_t<6>{
     /**
      * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
      */
@@ -383,51 +383,6 @@ struct address_t {
     address_t(const uint8_t* input_value, bool tag) {
         memcpy(value, input_value, sizeof(value));
     }
-
-    /**
-     * Equal operator between two addresses.
-     */
-    friend bool operator==(const address_t& lhs, const address_t& rhs) {
-        return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
-    }
-
-    /**
-     * Non equal operator between two addresses.
-     */
-    friend bool operator!=(const address_t& lhs, const address_t& rhs) {
-        return !(lhs == rhs);
-    }
-
-    /**
-     * Subscript operator to access mac address content
-     */
-    uint8_t operator[](uint8_t i) const {
-        return value[i];
-    }
-
-    /**
-     * Subscript operator to access mac address content
-     */
-    uint8_t& operator[](uint8_t i) {
-        return value[i];
-    }
-
-    /**
-     * Return the pointer to the buffer holding mac address.
-     */
-    const uint8_t* data() const {
-        return value;
-    }
-
-    /**
-     * Size in byte of a mac address.
-     */
-    static uint8_t size() {
-        return sizeof(value);
-    }
-
-private:
-    uint8_t value[6];
 };
 
 } // namespace ble
