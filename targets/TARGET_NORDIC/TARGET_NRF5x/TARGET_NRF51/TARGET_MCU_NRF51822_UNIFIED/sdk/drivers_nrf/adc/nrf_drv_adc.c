@@ -92,7 +92,7 @@ void nrf_drv_adc_uninit(void)
 
 void nrf_drv_adc_channel_enable(nrf_drv_adc_channel_t * const p_channel)
 {
-    ASSERT(mp_state == NRF_DRV_STATE_INITIALIZED);
+    ASSERT(m_cb.state == NRF_DRV_STATE_INITIALIZED);
     ASSERT(!is_address_from_stack(p_channel));
 
     p_channel->p_next = NULL;
@@ -114,7 +114,7 @@ void nrf_drv_adc_channel_enable(nrf_drv_adc_channel_t * const p_channel)
 
 void nrf_drv_adc_channel_disable(nrf_drv_adc_channel_t * const p_channel)
 {
-    ASSERT(mp_state == NRF_DRV_STATE_INITIALIZED);
+    ASSERT(m_cb.state == NRF_DRV_STATE_INITIALIZED);
     ASSERT(m_cb.p_head);
 
     nrf_drv_adc_channel_t * p_curr_channel = m_cb.p_head;
@@ -137,7 +137,7 @@ void nrf_drv_adc_channel_disable(nrf_drv_adc_channel_t * const p_channel)
 
 void nrf_drv_adc_sample(void)
 {
-    ASSERT(mp_state != NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(m_cb.state != NRF_DRV_STATE_UNINITIALIZED);
     ASSERT(!nrf_adc_is_busy());
     nrf_adc_start();
 }
@@ -145,7 +145,7 @@ void nrf_drv_adc_sample(void)
 ret_code_t nrf_drv_adc_sample_convert(nrf_drv_adc_channel_t const * const p_channel, 
                                       nrf_adc_value_t * p_value)
 {
-    ASSERT(mp_state != NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(m_cb.state != NRF_DRV_STATE_UNINITIALIZED);
     if(m_cb.state == NRF_DRV_STATE_POWERED_ON)
     {
         return NRF_ERROR_BUSY;
@@ -212,7 +212,7 @@ static bool adc_sample_process()
 
 ret_code_t nrf_drv_adc_buffer_convert(nrf_adc_value_t * buffer, uint16_t size)
 {
-    ASSERT(mp_state != NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(m_cb.state != NRF_DRV_STATE_UNINITIALIZED);
     if(m_cb.state == NRF_DRV_STATE_POWERED_ON)
     {
         return NRF_ERROR_BUSY;
@@ -250,7 +250,7 @@ ret_code_t nrf_drv_adc_buffer_convert(nrf_adc_value_t * buffer, uint16_t size)
 
 bool nrf_drv_adc_is_busy(void)
 {
-    ASSERT(mp_state != NRF_DRV_STATE_UNINITIALIZED);
+    ASSERT(m_cb.state != NRF_DRV_STATE_UNINITIALIZED);
     return (m_cb.state == NRF_DRV_STATE_POWERED_ON) ? true : false;
 }
 
