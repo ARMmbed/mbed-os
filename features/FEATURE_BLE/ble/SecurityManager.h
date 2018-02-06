@@ -612,8 +612,8 @@ public:
      * Set the requirements for encryption key size. If the peer cannot comply with the requirements
      * paring will fail.
      *
-     * @param[in] minimumByteSize Smallest allowed encryption key size in bytes.
-     * @param[in] maximumByteSize Largest allowed encryption key size in bytes.
+     * @param[in] minimumByteSize Smallest allowed encryption key size in bytes. (no smaller than 7)
+     * @param[in] maximumByteSize Largest allowed encryption key size in bytes. (no larger than 16)
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {

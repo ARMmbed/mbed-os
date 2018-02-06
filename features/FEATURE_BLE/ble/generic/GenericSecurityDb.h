@@ -31,6 +31,7 @@ using ble::csrk_t;
 using ble::ltk_t;
 using ble::ediv_t;
 using ble::rand_t;
+using ble::pal::connection_peer_address_type_t;
 
 /* separate structs for keys to allow db implementation
  * to minimise memory usage, only holding live connection
@@ -39,8 +40,9 @@ using ble::rand_t;
 struct SecurityEntry_t {
     SecurityEntry_t()
         : handle(0),
-        encryption_key_size (0),
+        encryption_key_size(0),
         peer_address_public(false),
+        local_address_public(false),
         csrk_stored(false),
         mitm_csrk(false),
         ltk_stored(false),
@@ -77,6 +79,7 @@ struct SecurityEntry_t {
     connection_handle_t handle;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
+    uint8_t local_address_public:1;
 
     uint8_t csrk_stored:1;
     uint8_t mitm_csrk:1;
@@ -110,7 +113,9 @@ struct SecurityEntryKeys_t {
 
 struct SecurityEntryIdentity_t {
     address_t peer_identity_address;
-    irk_t irk;
+    irk_t peer_irk;
+    address_t local_identity_address;
+    irk_t local_irk;
 };
 
 /* callbacks for asynchronous data retrieval from the security db */
@@ -319,13 +324,15 @@ public:
      * synchronously through connection handle.
      *
      * @param[in] connection this will be the index for live entries.
+     * @param[in] peer_address_type type of address
      * @param[in] peer_address this address will be used to locate existing entry.
      *
      * @return pointer to entry newly created or located existing entry.
      */
     virtual SecurityEntry_t* connect_entry(
         connection_handle_t connection,
-        const address_t peer_address
+        connection_peer_address_type_t::type peer_address_type,
+        const address_t& peer_address
     ) = 0;
 
     /**
@@ -546,7 +553,7 @@ public:
             store->key.rand = *rand;
             store->csrk = *csrk;
             size_t index = store - _db;
-            _identities[index].irk = *irk;
+            _identities[index].peer_irk = *irk;
             _identities[index].peer_identity_address = peer_address;
         }
     }
@@ -580,7 +587,7 @@ public:
         db_store_t *store = get_store(connection);
         if (store) {
             size_t index = store - _db;
-            _identities[index].irk = *irk;
+            _identities[index].peer_irk = *irk;
         }
     }
 
@@ -618,11 +625,19 @@ public:
 
     /* list management */
 
-    virtual SecurityEntry_t* connect_entry(connection_handle_t connection, address_t peer_address) {
+    virtual SecurityEntry_t* connect_entry(
+        connection_handle_t connection,
+        connection_peer_address_type_t::type peer_address_type,
+        const address_t& peer_address
+    ) {
+        const bool peer_address_public =
+            (peer_address_type == connection_peer_address_type_t::PUBLIC_ADDRESS);
+
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_db[i].entry.connected) {
                 continue;
-            } else if (peer_address == _identities[i].peer_identity_address) {
+            } else if (peer_address == _identities[i].peer_identity_address
+                && _db[i].entry.peer_address_public == peer_address_public) {
                 return &_db[i].entry;
             }
         }
@@ -632,6 +647,8 @@ public:
             if (!_db[i].entry.connected) {
                 _db[i] = db_store_t();
                 _identities[i] = SecurityEntryIdentity_t();
+                _identities[i].peer_identity_address = peer_address;
+                _db[i].entry.peer_address_public = peer_address_public;
                 return &_db[i].entry;
             }
         }

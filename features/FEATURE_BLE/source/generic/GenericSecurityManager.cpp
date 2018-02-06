@@ -933,8 +933,18 @@ void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
     _db.sync();
 }
 
-void GenericSecurityManager::on_connected(connection_handle_t connection, address_t peer_address, bool is_master) {
-    SecurityEntry_t *entry = _db.connect_entry(connection, peer_address);
+void GenericSecurityManager::on_connected(
+    connection_handle_t connection,
+    bool is_master,
+    connection_peer_address_type_t::type peer_address_type,
+    const address_t &peer_address
+) {
+    SecurityEntry_t *entry = _db.connect_entry(
+        connection,
+        peer_address_type,
+        peer_address
+    );
+
     if (!entry) {
         return;
     }
@@ -942,7 +952,6 @@ void GenericSecurityManager::on_connected(connection_handle_t connection, addres
     entry->reset();
     entry->master = is_master;
 }
-
 
 } /* namespace generic */
 } /* namespace ble */

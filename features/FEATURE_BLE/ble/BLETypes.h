@@ -340,10 +340,16 @@ typedef octet_type_t<8> rand_t;
 typedef octet_type_t<8> random_data_t;
 
 /** Out of band data exchanged during pairing */
-typedef octet_type_t<16> oob_data_t;
+typedef octet_type_t<16> oob_tk_t; /**< legacy pairing TK */
+typedef octet_type_t<16> oob_rand_t; /**< secure connections oob random 128 value */
+typedef octet_type_t<16> oob_confirm_t; /**< secure connections oob confirmation value */
 
 /** data to be encrypted */
 typedef octet_type_t<16> encryption_block_t;
+
+typedef octet_type_t<32> public_key_t;
+typedef octet_type_t<32> private_key_t;
+typedef octet_type_t<32> dhkey_t;
 
 } // namespace ble
 

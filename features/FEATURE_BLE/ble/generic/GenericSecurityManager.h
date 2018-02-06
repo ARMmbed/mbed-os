@@ -29,6 +29,7 @@ using ble::pal::address_t;
 using ble::pal::advertising_peer_address_type_t;
 using ble::pal::AuthenticationMask;
 using ble::pal::KeyDistribution;
+using ble::pal::connection_peer_address_type_t;
 
 using ble::irk_t;
 using ble::csrk_t;
@@ -190,6 +191,19 @@ public:
         connection_handle_t connection,
         Keypress_t keypress
     );
+
+    virtual ble_error_t set_peer_oob(
+        const address_t& peer_address,
+        const oob_rand_t& random,
+        const oob_confirm_t& confirm
+    );
+
+    virtual ble_error_t get_local_oob(
+        connection_handle_t connection,
+        address_t& peer_address,
+        oob_rand_t& random,
+        oob_confirm_t& confirm
+    ) const;
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
@@ -443,11 +457,17 @@ public:
      * Called by GAP.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param peer_address Address of the connected device.
-     * @param is_master True if device is the master.
+     * @param[in] is_master True if device is the master.
+     * @param[in] peer_address_type type of address
+     * @param[in] peer_address Address of the connected device.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual void on_connected(connection_handle_t connection, address_t peer_address, bool is_master);
+    virtual void on_connected(
+        connection_handle_t connection,
+        bool is_master,
+        connection_peer_address_type_t::type peer_address_type,
+        const address_t &peer_address
+    );
 
 private:
     /* handler is always a valid pointer */

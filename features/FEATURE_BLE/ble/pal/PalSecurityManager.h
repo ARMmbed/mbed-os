@@ -354,23 +354,13 @@ public:
     /**
      * Request OOB data from the user application.
      *
-     * @param[in] connection connection handle
+     * @param[in] connection connection handlendle
+     * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_data_request_reply
+     * or a cancellation of the procedure.
      */
     virtual void on_legacy_pairing_oob_request(
         connection_handle_t connection
     ) = 0;
-
-    /**
-     * Request oob data entered during pairing.
-     *
-     * @param[in] connection connection handle
-     * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
-     * or a cancellation of the procedure.
-     */
-    virtual void on_oob_request(
-        connection_handle_t connection
-    ) = 0;
-
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -498,6 +488,35 @@ public:
         connection_handle_t connection,
         const ediv_t *ediv,
         const rand_t *rand
+    ) = 0;
+
+    /**
+     * Store the peer's public keys.
+     *
+     * @param[in] connection connection handle
+     * @param[in] public_key_x peer public key (x coordinate) received during pairing
+     * @param[in] public_key_y peer public key (y coordinate) received during pairing
+     */
+    virtual void on_keys_distributed_public_key(
+        connection_handle_t connection,
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    ) = 0;
+
+    /**
+     * Provide the local public key.
+     *
+     * @param[in] public_key_x newly generated public key (x coordinate)
+     * @param[in] public_key_y newly generated public key (y coordinate)
+     */
+    virtual void on_public_key_generated(
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    ) = 0;
+
+    virtual void on_local_secure_connections_oob_data_generated(
+        const oob_confirm_t &confirm,
+        const oob_rand_t &random
     ) = 0;
 };
 
@@ -769,6 +788,12 @@ public:
         const csrk_t *csrk
     ) = 0;
 
+    /**
+     * Generate the Public key. This will also generate the private key.
+     * Public key will be returned as an event handler callback when it's ready.
+     */
+    virtual void generate_public_key() = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
@@ -866,7 +891,7 @@ public:
      * @param[in] passkey Set the passkey that shall be used by the security
      * manager when SecurityManagerEvent::on_passkey_display is called. If
      * passkey is a null pointer then the security manager generates a random
-     * passkey everytime it calls SecurityManagerEvent::on_passkey_display.
+     * passkey every time it calls SecurityManagerEvent::on_passkey_display.
      *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
@@ -891,9 +916,9 @@ public:
      * @param[in] oob_data pointer to out of band data
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t oob_data_request_reply(
+    virtual ble_error_t legacy_pairing_oob_data_request_reply(
         connection_handle_t connection,
-        const oob_data_t *oob_data
+        const oob_tk_t *oob_data
     ) = 0;
 
     /**
@@ -919,6 +944,14 @@ public:
     virtual ble_error_t send_keypress_notification(
         connection_handle_t connection,
         Keypress_t keypress
+    ) = 0;
+
+    virtual ble_error_t get_local_secure_connections_oob_data() = 0;
+
+    virtual ble_error_t set_peer_secure_connections_oob_data(
+        const address_t &peer_address,
+        const oob_rand_t &random,
+        const oob_confirm_t &confirm
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
