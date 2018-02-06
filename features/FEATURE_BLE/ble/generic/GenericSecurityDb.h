@@ -112,10 +112,8 @@ struct SecurityEntryKeys_t {
 };
 
 struct SecurityEntryIdentity_t {
-    address_t peer_identity_address;
-    irk_t peer_irk;
-    address_t local_identity_address;
-    irk_t local_irk;
+    address_t identity_address;
+    irk_t irk;
 };
 
 /* callbacks for asynchronous data retrieval from the security db */
@@ -444,7 +442,8 @@ private:
     struct db_store_t {
         db_store_t() { };
         SecurityEntry_t entry;
-        SecurityEntryKeys_t key;
+        SecurityEntryKeys_t peer_keys;
+        SecurityEntryKeys_t local_keys;
         csrk_t csrk;
     };
     static const size_t MAX_ENTRIES = 5;
@@ -479,9 +478,9 @@ public:
 
         /* validate we have the correct key */
         if (ediv && rand
-            && *ediv == _local_keys.ediv
-            && *rand == _local_keys.rand) {
-            cb(entry, &_local_keys);
+            && *ediv == store->local_keys.ediv
+            && *rand == store->local_keys.rand) {
+            cb(entry, &store->local_keys);
         } else {
             cb(entry, NULL);
         }
@@ -492,7 +491,10 @@ public:
         connection_handle_t connection,
         const ltk_t *ltk
     ) {
-        _local_keys.ltk = *ltk;
+        db_store_t *store = get_store(connection);
+        if (store) {
+            store->local_keys.ltk = *ltk;
+        }
     }
 
     virtual void set_entry_local_ediv_rand(
@@ -500,8 +502,11 @@ public:
         const ediv_t *ediv,
         const rand_t *rand
     ) {
-        _local_keys.ediv = *ediv;
-        _local_keys.rand = *rand;
+        db_store_t *store = get_store(connection);
+        if (store) {
+            store->local_keys.ediv = *ediv;
+            store->local_keys.rand = *rand;
+        }
     }
 
     /* peer's keys */
@@ -530,7 +535,7 @@ public:
         db_store_t *store = get_store(connection);
         if (store) {
             entry = &store->entry;
-            key = &store->key;
+            key = &store->peer_keys;
         }
         cb(entry, key);
     }
@@ -548,13 +553,13 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->key.ltk = *ltk;
-            store->key.ediv = *ediv;
-            store->key.rand = *rand;
+            store->peer_keys.ltk = *ltk;
+            store->peer_keys.ediv = *ediv;
+            store->peer_keys.rand = *rand;
             store->csrk = *csrk;
             size_t index = store - _db;
-            _identities[index].peer_irk = *irk;
-            _identities[index].peer_identity_address = peer_address;
+            _identities[index].irk = *irk;
+            _identities[index].identity_address = peer_address;
         }
     }
 
@@ -564,7 +569,7 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->key.ltk = *ltk;
+            store->peer_keys.ltk = *ltk;
         }
     }
 
@@ -575,8 +580,8 @@ public:
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->key.ediv = *ediv;
-            store->key.rand = *rand;
+            store->peer_keys.ediv = *ediv;
+            store->peer_keys.rand = *rand;
         }
     }
 
@@ -587,7 +592,7 @@ public:
         db_store_t *store = get_store(connection);
         if (store) {
             size_t index = store - _db;
-            _identities[index].peer_irk = *irk;
+            _identities[index].irk = *irk;
         }
     }
 
@@ -599,7 +604,7 @@ public:
         db_store_t *store = get_store(connection);
         if (store) {
             size_t index = store - _db;
-            _identities[index].peer_identity_address = peer_address;
+            _identities[index].identity_address = peer_address;
         }
     }
 
@@ -636,7 +641,7 @@ public:
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_db[i].entry.connected) {
                 continue;
-            } else if (peer_address == _identities[i].peer_identity_address
+            } else if (peer_address == _identities[i].identity_address
                 && _db[i].entry.peer_address_public == peer_address_public) {
                 return &_db[i].entry;
             }
@@ -647,7 +652,7 @@ public:
             if (!_db[i].entry.connected) {
                 _db[i] = db_store_t();
                 _identities[i] = SecurityEntryIdentity_t();
-                _identities[i].peer_identity_address = peer_address;
+                _identities[i].identity_address = peer_address;
                 _db[i].entry.peer_address_public = peer_address_public;
                 return &_db[i].entry;
             }
@@ -664,7 +669,6 @@ public:
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             _db[i] = db_store_t();
         }
-        _local_keys = SecurityEntryKeys_t();
         _local_identity = SecurityEntryIdentity_t();
         _local_csrk = csrk_t();
     }
@@ -684,7 +688,7 @@ public:
 
             memcpy(
                 whitelist->addresses[i].address,
-                _identities[i].peer_identity_address.data(),
+                _identities[i].identity_address.data(),
                 sizeof(BLEProtocol::AddressBytes_t)
             );
         }
@@ -723,7 +727,6 @@ private:
 
     db_store_t _db[MAX_ENTRIES];
     SecurityEntryIdentity_t _identities[MAX_ENTRIES];
-    SecurityEntryKeys_t _local_keys;
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
 };
