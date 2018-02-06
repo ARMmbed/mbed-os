@@ -99,7 +99,7 @@ struct SecurityEntry_t {
     uint8_t signing_requested:1;
 
     uint8_t mitm_requested:1;
-    uint8_t mitm_performed:1; /**< keys exchange will have mitm protection */
+    uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
 
     uint8_t oob:1;
     uint8_t oob_mitm_protection:1;
@@ -290,7 +290,7 @@ public:
     /**
      * Update peer signing key.
      *
-     * @param[in] connection handle of the conncetion being updated
+     * @param[in] connection handle of the connection being updated
      * @param[in] csrk new CSRK value
      */
     virtual void set_entry_peer_csrk(

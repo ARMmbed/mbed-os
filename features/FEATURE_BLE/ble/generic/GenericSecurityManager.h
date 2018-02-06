@@ -37,7 +37,7 @@ using ble::ltk_t;
 using ble::ediv_t;
 using ble::rand_t;
 using ble::pairing_failure_t;
-using ble::PasskeyAsci;
+using ble::PasskeyAscii;
 using ble::passkey_num_t;
 
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;

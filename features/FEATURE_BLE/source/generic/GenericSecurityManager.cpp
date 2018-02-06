@@ -35,7 +35,7 @@ ble_error_t GenericSecurityManager::init(
 ) {
     _db.restore();
     _pal.set_io_capability((io_capability_t::type) iocaps);
-    _pal.set_display_passkey(PasskeyAsci::to_num(passkey));
+    _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
     _legacy_pairing_allowed = true;
 
     bool secure_connections;
@@ -173,7 +173,7 @@ ble_error_t GenericSecurityManager::setIoCapability(SecurityIOCapabilities_t ioc
 }
 
 ble_error_t GenericSecurityManager::setDisplayPasskey(const Passkey_t passkey) {
-    return _pal.set_display_passkey(PasskeyAsci::to_num(passkey));
+    return _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
 }
 
 ble_error_t GenericSecurityManager::setAuthenticationTimeout(
@@ -464,7 +464,7 @@ ble_error_t GenericSecurityManager::passkeyEntered(
 ) {
     return _pal.passkey_request_reply(
         connection,
-        PasskeyAsci::to_num(passkey)
+        PasskeyAscii::to_num(passkey)
     );
 }
 
@@ -766,7 +766,7 @@ void GenericSecurityManager::on_passkey_display(
     passkey_num_t passkey
 ) {
     set_mitm_performed(connection);
-    eventHandler->passkeyDisplay(connection, PasskeyAsci(passkey).value());
+    eventHandler->passkeyDisplay(connection, PasskeyAscii(passkey).value());
 }
 
 void GenericSecurityManager::on_keypress_notification(

@@ -472,7 +472,7 @@ public:
      * Set the passkey that is displayed on the local device instead of using
      * a randomly generated one
      *
-     * @param[in] passkey asci string of 6 digits
+     * @param[in] passkey ASCII string of 6 digits
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
@@ -528,7 +528,7 @@ public:
      * during passkey entry.
      *
      * @param[in] enabled if true pairing will try to enable keypress notifications
-     * (dependant on other side supporting it)
+     * (dependent on other side supporting it)
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
@@ -692,7 +692,7 @@ public:
      * Supply the stack with the user entered passkey.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] passkey ASCI string of digits entered by the user.
+     * @param[in] passkey ASCII string of digits entered by the user.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t passkeyEntered(connection_handle_t connectionHandle, Passkey_t passkey) {

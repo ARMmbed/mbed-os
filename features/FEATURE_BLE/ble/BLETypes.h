@@ -191,7 +191,7 @@ typedef uint32_t passkey_num_t;
 /**
  * Passkey stored as a string of digits.
  */
-class PasskeyAsci {
+class PasskeyAscii {
 public:
     static const uint8_t PASSKEY_LEN = 6;
     static const uint8_t NUMBER_OFFSET = '0';
@@ -199,8 +199,8 @@ public:
     /**
      * Default to all zeroes
      */
-    PasskeyAsci() {
-        memset(asci, NUMBER_OFFSET, PASSKEY_LEN);
+    PasskeyAscii() {
+        memset(ascii, NUMBER_OFFSET, PASSKEY_LEN);
     }
 
     /**
@@ -208,11 +208,11 @@ public:
      *
      * @param input_value value of the data.
      */
-    PasskeyAsci(const uint8_t* passkey) {
+    PasskeyAscii(const uint8_t* passkey) {
         if (passkey) {
-            memcpy(asci, passkey, PASSKEY_LEN);
+            memcpy(ascii, passkey, PASSKEY_LEN);
         } else {
-            memset(asci, NUMBER_OFFSET, PASSKEY_LEN);
+            memset(ascii, NUMBER_OFFSET, PASSKEY_LEN);
         }
     }
 
@@ -221,10 +221,10 @@ public:
      *
      * @param input_value value of the data.
      */
-    PasskeyAsci(passkey_num_t passkey) {
+    PasskeyAscii(passkey_num_t passkey) {
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
             uint32_t result = passkey / m;
-            asci[i] = NUMBER_OFFSET + result;
+            ascii[i] = NUMBER_OFFSET + result;
             passkey -= result;
         }
     }
@@ -233,18 +233,18 @@ public:
      * Cast to number.
      */
     operator passkey_num_t() {
-        return to_num(asci);
+        return to_num(ascii);
     }
 
     /**
-     * Convert ASCI string of digits into a number.
-     * @param ASCI string of 6 digits stored as ASCI characters
+     * Convert ASCII string of digits into a number.
+     * @param ASCII string of 6 digits stored as ASCII characters
      * @return Passkey as a number.
      */
-    static uint32_t to_num(const uint8_t *asci) {
+    static uint32_t to_num(const uint8_t *ascii) {
         uint32_t passkey = 0;
         for (size_t i = 0, m = 1; i < PASSKEY_LEN; ++i, m *= 10) {
-            passkey += (asci[i] - NUMBER_OFFSET) * m;
+            passkey += (ascii[i] - NUMBER_OFFSET) * m;
         }
         return passkey;
     }
@@ -253,10 +253,10 @@ public:
      * Return the pointer to the buffer holding the string.
      */
     uint8_t* value() {
-        return asci;
+        return ascii;
     }
 private:
-    uint8_t asci[PASSKEY_LEN];
+    uint8_t ascii[PASSKEY_LEN];
 };
 
 template <size_t octet_size>

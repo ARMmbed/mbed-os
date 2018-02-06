@@ -354,7 +354,7 @@ public:
     /**
      * Request OOB data from the user application.
      *
-     * @param[in] connection connection handlendle
+     * @param[in] connection connection handle
      * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_data_request_reply
      * or a cancellation of the procedure.
      */
@@ -431,8 +431,8 @@ public:
      * be used in case of role reversal.
      *
      * @param[in] connection connection handle
-     * @param[in] ediv idenitfies LTK
-     * @param[in] rand idenitfies LTK
+     * @param[in] ediv identifies LTK
+     * @param[in] rand identifies LTK
      */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
@@ -960,12 +960,12 @@ public:
     virtual ble_error_t get_local_secure_connections_oob_data() = 0;
 
     /**
-     * Set the OOB data received from the peer. This will be used during authenticatoin stage
+     * Set the OOB data received from the peer. This will be used during authentication stage
      * of secure connections OOB pairing.
      *
      * @param[in] peer_address peer address of the device this data came from
      * @param[in] random random number used to generate the data
-     * @param[in] confirm the resulting confirmation value, based on the peer's oublic keys
+     * @param[in] confirm the resulting confirmation value, based on the peer's public keys
      *                    and a random number
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
@@ -983,7 +983,7 @@ public:
      * which will in turn be passed onto the user application when appropriate.
      *
      * @param[in] event_handler the new event handler interface implementation. Memory
-     * owned by caller who is reponsible for updating this pointer if interface changes.
+     * owned by caller who is responsible for updating this pointer if interface changes.
      */
     void set_event_handler(
         SecurityManagerEventHandler *event_handler
