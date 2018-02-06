@@ -127,7 +127,11 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    if (softdevice_enable(&ble_enable_params) != NRF_SUCCESS) {
+    err_code = softdevice_enable(&ble_enable_params);
+    if (err_code == NRF_ERROR_NO_MEM) {
+        error("Linker file has not enough ram assigned for softdevice config");
+    }
+    if (err_code != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
     }
 
