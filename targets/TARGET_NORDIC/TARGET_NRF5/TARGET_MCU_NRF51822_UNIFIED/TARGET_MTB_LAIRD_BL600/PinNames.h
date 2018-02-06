@@ -181,6 +181,25 @@ typedef enum {
     P_43 = NC,
     P_44 = SIO_0,
 
+    //MTB aliases
+    GP0    =  SIO_30,
+    GP1    = SIO_0,
+    AIN0  = SIO_1,
+    AIN1  = SIO_2,
+    AIN2  = SIO_3,
+    GP2    = SIO_7,
+    GP3    = SIO_13,
+    UART1_TX = SIO_17,
+    UART1_RX = SIO_18,
+    UART2_TX = SIO_25,
+    UART2_RX = SIO_26,
+    GP4     = SIO_14,
+    GP5     = SIO_15, //A0 for LCD on MTB
+    GP6     = SIO_16, //RESET for LCD on MTB
+    GP7     = SIO_19,
+    GP8     = SIO_20,
+
+    //LEDs
     LED1 = SIO_4,
     LED2 = SIO_5,
     LED3 = SIO_6,
@@ -213,6 +232,11 @@ typedef enum {
     SPIS_PSELMISO = SPI_MISO0,
     SPIS_PSELSS = SPI_SS0,    
     SPIS_PSELSCK = SPI_SCK0,
+
+    SPI_MOSI = SPI_MOSI0,
+    SPI_MISO = SPI_MISO0,
+    SPI_SS = SPI_SS0,    
+    SPI_SCK = SPI_SCK0,
 
     I2C_SDA0 = SIO_8,
     I2C_SCL0 = SIO_9,
