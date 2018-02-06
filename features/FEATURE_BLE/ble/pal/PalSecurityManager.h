@@ -514,6 +514,14 @@ public:
         const public_key_t &public_key_y
     ) = 0;
 
+    /**
+     * Provide data for secure connections OOB exchange
+     * generated based on local public keys and a random value.
+     *
+     * @param[in] random random number used to generate the data
+     * @param[in] confirm the resulting confirmation value, based on the oublic keys and a random number
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
+     */
     virtual void on_local_secure_connections_oob_data_generated(
         const oob_confirm_t &confirm,
         const oob_rand_t &random
@@ -771,7 +779,7 @@ public:
     /**
      * Set the local IRK.
      *
-     * @param[in] irk identity resolutino key
+     * @param[in] irk identity resolution key
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_irk(
@@ -939,15 +947,29 @@ public:
      * an appropriate event there if the keypress protocol is enabled.
      * @param[in] connection connection handle
      * @param[in] keypress type of keypress event
-     * @return
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t send_keypress_notification(
         connection_handle_t connection,
         Keypress_t keypress
     ) = 0;
 
+    /**
+     * Derive oob data based on the local public key and random number. Data is returned through an event.
+     */
     virtual ble_error_t get_local_secure_connections_oob_data() = 0;
 
+    /**
+     * Set the OOB data received from the peer. This will be used during authenticatoin stage
+     * of secure connections OOB pairing.
+     *
+     * @param[in] peer_address peer address of the device this data came from
+     * @param[in] random random number used to generate the data
+     * @param[in] confirm the resulting confirmation value, based on the peer's oublic keys
+     *                    and a random number
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
     virtual ble_error_t set_peer_secure_connections_oob_data(
         const address_t &peer_address,
         const oob_rand_t &random,
@@ -968,7 +990,6 @@ public:
     ) {
         _pal_event_handler = event_handler;
     }
-
 
 protected:
     SecurityManagerEventHandler* get_event_handler() {
