@@ -1,7 +1,7 @@
 """
 mbed SDK
 Copyright (c) 2011-2017 ARM Limited
-Portions Copyright (c) 2017 Analog Devices, Inc.
+Portions Copyright (c) 2017-2018 Analog Devices, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,14 +27,16 @@ from subprocess import Popen, PIPE
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter
 
-class Option:
-    """
-    Container for CCES option type and value
-    """
-    def __init__(self, opt_type, value):
-        self.type = opt_type
-        self.value = value
+from collections import namedtuple
 
+
+# Container for CCES option type and value
+Option = namedtuple('Option', ['type', 'value'])
+
+"""
+Tuple of supported device names
+"""
+SUPPORTED_DEVICES = ("ADuCM3027", "ADuCM3029", "ADuCM360", "ADuCM4050")
 
 class CCES(Exporter):
     """
@@ -51,7 +53,9 @@ class CCES(Exporter):
         target_name - the name of the target.
         """
         target = TARGET_MAP[target_name]
-        return cls.TOOLCHAIN in target.supported_toolchains
+        return (cls.TOOLCHAIN in target.supported_toolchains) \
+            and hasattr(target, "device_name") \
+            and (target.device_name in SUPPORTED_DEVICES)
 
     @property
     def flags(self):
@@ -66,23 +70,42 @@ class CCES(Exporter):
         Skip macros because headless tools handles them separately
         """
         config_header = self.toolchain.get_config_header()
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
+        flags = {key + "_flags": copy.deepcopy(value) for key, value \
                     in self.toolchain.flags.iteritems()}
         if config_header:
-            config_header = os.path.relpath(config_header,
+            config_header = os.path.relpath(config_header, \
                                 self.resources.file_basepath[config_header])
-            config_header = "\\\"" + self.format_path(config_header) + "\\\""
+            config_header = "\\\"" + self.format_inc_path(config_header) \
+                                + "\\\""
             header_options = self.toolchain.get_config_option(config_header)
             flags['c_flags'] += header_options
             flags['cxx_flags'] += header_options
         return flags
 
     @staticmethod
-    def format_path(path):
+    def format_path(path, prefix):
         """
-        Formats the given path relative to the project directory
+        Formats the given source path relative to the project directory
+        using the prefix
         """
-        return os.path.abspath(path).replace("\\", "\\\\")
+        new_path = path
+        if new_path.startswith("./"):
+            new_path = new_path[2:]
+        return prefix + new_path.replace("\\", "\\\\")
+
+    @staticmethod
+    def format_inc_path(path):
+        """
+        Formats the given include path relative to the project directory
+        """
+        return CCES.format_path(path, "${ProjDirPath}/../")
+
+    @staticmethod
+    def format_src_path(path):
+        """
+        Formats the given source path relative to the project directory
+        """
+        return CCES.format_path(path, "PARENT-1-PROJECT_LOC/")
 
     @staticmethod
     def clean_flags(container, flags):
@@ -95,6 +118,19 @@ class CCES(Exporter):
                 flags.remove(flag)
 
     @staticmethod
+    def parse_flags(flags, options, booleans):
+        """
+        Parse the values in `booleans`, insert them into the
+        `options` dictionary and remove them from `flags`
+        """
+        for flag, flag_id in booleans.items():
+            value = "false"
+            if flag in flags:
+                value = "true"
+                flags.remove(flag)
+            options[flag_id] = Option("baseId", value)
+
+    @staticmethod
     def convert_common_options(prefix, options, flags):
         """
         Converts the common flags into CCES options and removes them
@@ -102,7 +138,7 @@ class CCES(Exporter):
         """
         # remove these flags without converting to option
         # since they are added by CCES
-        remove = [ "-c" ]
+        remove = ["-c"]
         for flag in remove:
             if flag in flags:
                 flags.remove(flag)
@@ -126,7 +162,7 @@ class CCES(Exporter):
 
         # remove these flags without converting to option
         # since they are added by CCES
-        remove = [ "-x", "assembler-with-cpp" ]
+        remove = ["-x", "assembler-with-cpp"]
         for flag in remove:
             if flag in flags:
                 flags.remove(flag)
@@ -134,13 +170,7 @@ class CCES(Exporter):
         booleans = {"-v": "arm.assembler.option.verbose",
                     "-g": "arm.assembler.option.debuginfo"}
 
-        for flag in booleans:
-            value = "false"
-            if flag in flags:
-                value = "true"
-                flags.remove(flag)
-            option = Option("baseId", value)
-            options[booleans[flag]] = option
+        CCES.parse_flags(flags, options, booleans)
 
         CCES.convert_common_options("arm.assembler.", options, flags)
 
@@ -152,7 +182,7 @@ class CCES(Exporter):
         Converts the compiler flags into CCES options and removes them
         from the flags list
         """
-        options  = {}
+        options = {}
 
         enable_optimization = "true"
         value = "arm.base.compiler.option.optimization.og"
@@ -170,24 +200,23 @@ class CCES(Exporter):
         options["arm.base.compiler.option.optimization.enable"] = option
 
         booleans = {"-g": "arm.base.compiler.option.debug",
-                    "-save-temps": "arm.base.compiler.option.savetemps",
-                    "-ffunction-sections": "arm.c.compiler.option.elimination.code",
-                    "-fdata-sections": "arm.c.compiler.option.elimination.data",
+                    "-save-temps": \
+                        "arm.base.compiler.option.savetemps",
+                    "-ffunction-sections": \
+                        "arm.c.compiler.option.elimination.code",
+                    "-fdata-sections": \
+                        "arm.c.compiler.option.elimination.data",
                     "-pedantic": "arm.base.compiler.option.pedantic",
-                    "-pedantic-errors": "arm.base.compiler.option.pedanticerrors",
+                    "-pedantic-errors": \
+                        "arm.base.compiler.option.pedanticerrors",
                     "-w": "arm.base.compiler.option.inhibitallwarnings",
                     "-Wall": "arm.base.compiler.option.allwarnings",
                     "-Wextra": "arm.base.compiler.option.extrawarnings",
                     "-Werror": "arm.base.compiler.option.warningaserror",
-                    "-Wconversion": "arm.base.compiler.option.conversionwarning"}
+                    "-Wconversion": \
+                        "arm.base.compiler.option.conversionwarning"}
 
-        for flag in booleans:
-            value = "false"
-            if flag in flags:
-                value = "true"
-                flags.remove(flag)
-            option = Option("baseId", value)
-            options[booleans[flag]] = option
+        CCES.parse_flags(flags, options, booleans)
 
         CCES.convert_common_options("arm.base.compiler.", options, flags)
 
@@ -207,15 +236,63 @@ class CCES(Exporter):
                     "-s": "arm.linker.option.strip",
                     "-Wl,--gc-sections": "arm.linker.option.elimination"}
 
-        for flag in booleans:
-            value = "false"
-            if flag in flags:
-                value = "true"
-                flags.remove(flag)
-            option = Option("baseId", value)
-            options[booleans[flag]] = option
+        CCES.parse_flags(flags, options, booleans)
 
         return options
+
+    @staticmethod
+    def get_cces_path(root):
+        """
+        Returns the path to the CCES executable
+        """
+        cces_path = None
+
+        if sys.platform == 'win32' or sys.platform == 'cygwin':
+            cces_path = os.path.join(root, "Eclipse", "ccesc.exe")
+        elif sys.platform.startswith('linux'):
+            cces_path = os.path.join(root, "Eclipse", "cces")
+        elif sys.platform == 'darwin':
+            cces_path = os.path.join(root, "MacOS", "cces")
+        else:
+            print("Unsupported operating system '%s'" % sys.platform)
+            return None
+
+        return cces_path
+
+    @staticmethod
+    def get_project_create_command(cces_path, workspace, project_name):
+        """
+        Generate the headless tools projectcreate command string
+        with the given parameters
+        """
+        cmd = [
+            "\"%s\"" % cces_path,
+            "-nosplash",
+            "-consoleLog",
+            "-application com.analog.crosscore.headlesstools",
+            "-data", workspace,
+            "-project", project_name,
+            "-command projectcreate",
+            "-input-file", "cces.json"
+        ]
+        return ' '.join(cmd)
+
+    @staticmethod
+    def get_project_build_command(cces_path, workspace, project_name):
+        """
+        Generate the headless tools build command string
+        with the given parameters
+        """
+        cmd = [
+            "\"%s\"" % cces_path,
+            "-nosplash",
+            "-consoleLog",
+            "-application com.analog.crosscore.headlesstools",
+            "-data", workspace,
+            "-project", project_name,
+            "-cleanBuild all"
+        ]
+        return ' '.join(cmd)
 
     # override
     def generate(self):
@@ -225,23 +302,11 @@ class CCES(Exporter):
 
         self.resources.win_to_unix()
 
-        t = TARGET_MAP[self.target]
-
-        proc = t.device_name
-        fpu = None
-        float_abi = None
-
-        if t.core == "Cortex-M4F":
-            cpu = "cortex-m4"
-            fpu = "fpv4-sp-d16"
-            float_abi = "softfp"
-        else:
-            cpu = t.core.lower()
-
         asm_defines = self.toolchain.get_symbols(True)
         c_defines = self.toolchain.get_symbols()
 
-        include_dirs = [self.format_path(d) for d in self.resources.inc_dirs if d]
+        include_dirs = [self.format_inc_path(d) for d \
+                        in self.resources.inc_dirs if d]
 
         srcs = self.resources.s_sources + \
                 self.resources.c_sources + \
@@ -250,9 +315,9 @@ class CCES(Exporter):
 
         srcs_dict = {}
         for src in srcs:
-            srcs_dict[src] = self.format_path(src)
+            srcs_dict[src] = self.format_src_path(src)
 
-        ld_script = self.format_path(self.resources.linker_script)
+        ld_script = self.format_inc_path(self.resources.linker_script)
 
         asm_flags = self.flags['asm_flags']
         c_flags = self.flags['c_flags'] + self.flags['common_flags']
@@ -260,33 +325,40 @@ class CCES(Exporter):
 
         libs = []
         for libpath in self.resources.libraries:
-            lib, ext = os.path.splitext(os.path.basename(libpath))
+            lib = os.path.splitext(os.path.basename(libpath))[0]
             libs.append(lib[3:]) # skip 'lib' prefix
 
-        system_libs = [
-            '-lstdc++', '-lsupc++', '-lc', '-lgcc'
-            ]
+        ld_flags = self.flags['ld_flags'] + ["-l" + lib for lib \
+                    in self.toolchain.sys_libs]
 
-        ld_flags = self.flags['ld_flags'] + system_libs
+        proc = self.toolchain.target.device_name
+        cpu = self.toolchain.target.core.lower()
+        fpu = None
+        float_abi = None
 
-        flags = ["-mcpu="+cpu, "-mthumb"]
-        if fpu is not None:
-            flags.append("-mfpu="+fpu)
-            flags.append("-mfloat-abi="+float_abi)
+        # parse toolchain CPU flags
+        for flag in self.toolchain.cpu:
+            if flag.startswith("-mcpu="):
+                cpu = flag[len("-mcpu="):]
+            elif flag.startswith("-mfpu="):
+                fpu = flag[len("-mfpu="):]
+            elif flag.startswith("-mfloat-abi="):
+                float_abi = flag[len("-mfloat-abi="):]
 
-        self.clean_flags(c_flags, flags)
-        self.clean_flags(cxx_flags, flags)
-        self.clean_flags(ld_flags, flags)
+        # remove toolchain CPU flags. We'll handle them separately
+        # in the generated .json file
+        self.clean_flags(c_flags, self.toolchain.cpu)
+        self.clean_flags(cxx_flags, self.toolchain.cpu)
+        self.clean_flags(ld_flags, self.toolchain.cpu)
 
         ld_opts = self.convert_linker_options(ld_flags)
         asm_opts = self.convert_assembler_options(asm_flags)
         c_opts = self.convert_compiler_options(c_flags)
         cxx_opts = self.convert_compiler_options(cxx_flags)
 
-        workspace = tempfile.mkdtemp()
         project = "cces"
         json = "cces.json"
-        local_location = self.format_path(project)
+        local_location = project
 
         jinja_ctx = {
             'project' : self.project_name,
@@ -314,105 +386,88 @@ class CCES(Exporter):
         self.gen_file('cces/cces.json.tmpl', jinja_ctx,
                       json, trim_blocks=True, lstrip_blocks=True)
 
-        # import .json file using CCES headless builder
-        cces_path = os.getenv("CCES_HOME")
-        if cces_path is None:
-            print "Failed to export project: 'CCES_HOME' environment variable not defined."
-            return -1
+        # generate a readme on how to create the CCES project
+        # using the generated .json file
 
-        if sys.platform == 'win32' or sys.platform == 'cygwin':
-            cces_path = os.path.join(cces_path, "Eclipse", "ccesc.exe")
-        elif sys.platform.startswith('linux'):
-            cces_path = os.path.join(cces_path, "Eclipse", "cces")
-        elif sys.platform == 'darwin':
-            cces_path = os.path.join(cces_path, "MacOS", "cces")
-        else:
-            print "Unsupported operating system '%s'" % sys.platform
-            return -1
+        jinja_ctx = {
+            'project_create_command' : CCES.get_project_create_command("cces", \
+                                            "WORKSPACE", project),
+            'project_build_command' : CCES.get_project_build_command("cces", \
+                                            "WORKSPACE", project)
+        }
 
-        cmd = [
-            "\"%s\"" % cces_path,
-            "-nosplash",
-            "-consoleLog",
-            "-application com.analog.crosscore.headlesstools",
-            "-data", workspace,
-            "-project", os.path.join(self.export_dir, project),
-            "-command projectcreate",
-            "-input-file", os.path.join(self.export_dir, json)
-        ]
-        print ' '.join(cmd)
-        p = Popen(' '.join(cmd), shell=True, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        rc = p.returncode
+        self.gen_file('cces/README.md.tmpl', jinja_ctx, "README.md")
 
-        # cleanup workspace
-        if os.path.exists(workspace):
-            shutil.rmtree(workspace)
-
-        # check return code for failure
-        if rc == 0:
-            return 0
-
-        for line in out.split("\n"):
-            print line
-        for line in err.split("\n"):
-            print line
-
-        print "Failed to export project. Return code: %d" % rc
-        return -1
+        print("CCES files generated.")
 
     @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
         """
         Build the generated CCES project using headless builder.
         """
-        workspace = tempfile.mkdtemp()
-        project = "cces"
-        cces_path = os.getenv("CCES_HOME")
+        # create the project by importing .json file using CCES headless builder
+        cces_home = os.getenv("CCES_HOME")
+        if cces_home is None:
+            print("Failed to build project: " + \
+                "'CCES_HOME' environment variable not defined.")
+            return -1
+
+        cces_path = CCES.get_cces_path(cces_home)
         if cces_path is None:
-            print "Failed to build project: 'CCES_HOME' environment variable not defined."
             return -1
 
-        if sys.platform == 'win32' or sys.platform == 'cygwin':
-            cces_path = os.path.join(cces_path, "Eclipse", "ccesc.exe")
-        elif sys.platform.startswith('linux'):
-            cces_path = os.path.join(cces_path, "Eclipse", "cces")
-        elif sys.platform == 'darwin':
-            cces_path = os.path.join(cces_path, "MacOS", "cces")
-        else:
-            print "Unsupported operating system '%s'" % sys.platform
+        workspace = tempfile.mkdtemp()
+
+        cmd = CCES.get_project_create_command(cces_path, workspace, \
+                project_name)
+        print(cmd)
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+        ret_code = process.returncode
+
+        # cleanup workspace
+        if os.path.exists(workspace):
+            shutil.rmtree(workspace, True)
+
+        # check return code for failure
+        if ret_code != 0:
+            for line in out.split("\n"):
+                print(line)
+            for line in err.split("\n"):
+                print(line)
+
+            print("Failed to create project. Return code: %d" % ret_code)
             return -1
 
-        cmd = [
-            "\"%s\"" % cces_path,
-            "-nosplash",
-            "-consoleLog",
-            "-application com.analog.crosscore.headlesstools",
-            "-data", workspace,
-            "-project", project,
-            "-cleanBuild all"
-        ]
-        p = Popen(' '.join(cmd), shell=True, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        rc = p.returncode
+        # build the project
+        workspace = tempfile.mkdtemp()
+
+        cmd = CCES.get_project_build_command(cces_path, workspace, project_name)
+        print(cmd)
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+        ret_code = process.returncode
 
         if log_name:
-            with open(log_name, 'w+') as f:
-                f.write(out)
-                f.write(err)
-                if rc != 0:
-                    f.write("Failed to build project. Return code: %d" % rc)
+            with open(log_name, 'w+') as log_file:
+                log_file.write(out)
+                log_file.write(err)
+                if ret_code != 0:
+                    log_file.write("Failed to build project. Return code: %d"\
+                                    % ret_code)
 
         # cleanup workspace
         if os.path.exists(workspace):
             shutil.rmtree(workspace)
 
         # check return code for failure
-        if rc == 0:
+        if ret_code == 0:
             return 0
 
-        print out
-        print err
+        for line in out.split("\n"):
+            print(line)
+        for line in err.split("\n"):
+            print(line)
 
-        print "Failed to build project. Return code: %d" % rc
+        print("Failed to build project. Return code: %d" % ret_code)
         return -1
