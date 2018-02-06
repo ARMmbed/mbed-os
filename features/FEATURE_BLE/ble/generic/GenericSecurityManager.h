@@ -318,6 +318,8 @@ public:
     // Pairing
     //
 
+    /** @copydoc SecurityManagerEventHandler::on_pairing_request
+     */
     virtual void on_pairing_request(
         connection_handle_t connection,
         bool use_oob,
@@ -326,21 +328,31 @@ public:
         KeyDistribution responder_dist
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_pairing_error
+     */
     virtual void on_pairing_error(
         connection_handle_t connection,
         pairing_failure_t error
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_pairing_timed_out
+     */
     virtual void on_pairing_timed_out(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_pairing_completed
+     */
     virtual void on_pairing_completed(connection_handle_t connection);
 
     ////////////////////////////////////////////////////////////////////////////
     // Security
     //
 
+    /** @copydoc SecurityManagerEventHandler::on_valid_mic_timeout
+     */
     virtual void on_valid_mic_timeout(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_slave_security_request
+     */
     virtual void on_slave_security_request(
         connection_handle_t connection,
         AuthenticationMask authentication
@@ -350,11 +362,15 @@ public:
     // Encryption
     //
 
+    /** @copydoc SecurityManagerEventHandler::on_link_encryption_result
+     */
     virtual void on_link_encryption_result(
         connection_handle_t connection,
         link_encryption_t result
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_link_encryption_request_timed_out
+     */
     virtual void on_link_encryption_request_timed_out(
         connection_handle_t connection
     );
@@ -363,35 +379,53 @@ public:
     // MITM
     //
 
+    /** @copydoc SecurityManagerEventHandler::set_mitm_performed
+     */
     virtual void set_mitm_performed(connection_handle_t connection, bool enable = true);
 
+    /** @copydoc SecurityManagerEventHandler::on_passkey_display
+     */
     virtual void on_passkey_display(
         connection_handle_t connection,
         passkey_num_t passkey
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keypress_notification
+     */
     virtual void on_keypress_notification(
         connection_handle_t connection,
         SecurityManager::Keypress_t keypress
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_passkey_request
+     */
     virtual void on_passkey_request(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_confirmation_request
+     */
     virtual void on_confirmation_request(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_legacy_pairing_oob_request
+     */
     virtual void on_legacy_pairing_oob_request(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_oob_request
+     */
     virtual void on_oob_request(connection_handle_t connection);
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
 
+    /** @copydoc SecurityManagerEventHandler::on_secure_connections_ltk_generated
+     */
     virtual void on_secure_connections_ltk_generated(
         connection_handle_t connection,
         const ltk_t *ltk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed
+     */
     virtual void on_keys_distributed(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_address_type,
@@ -403,49 +437,70 @@ public:
         const csrk_t *csrk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_ltk
+     */
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
         const ltk_t *ltk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_ediv_rand
+     */
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
         const ediv_t *ediv,
         const rand_t *rand
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_local_ltk
+     */
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
         const ltk_t *ltk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_local_ediv_rand
+     */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
         const ediv_t *ediv,
         const rand_t *rand
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_irk
+     */
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
         const irk_t *irk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_bdaddr
+     */
     virtual void on_keys_distributed_bdaddr(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_keys_distributed_csrk
+     */
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
         const csrk_t *csrk
     );
 
+    /** @copydoc SecurityManagerEventHandler::on_ltk_requeston_ltk_request
+     */
     virtual void on_ltk_request(
         connection_handle_t connection,
         const ediv_t *ediv,
         const rand_t *rand
     );
+
+    /* end implements ble::pal::SecurityManagerEventHandler */
+
+    /* GAP integration */
+public:
 
     /**
      * Inform the security manager that a device has been disconnected and its
@@ -454,7 +509,9 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual void on_disconnected(connection_handle_t connection);
+    virtual void on_disconnected(
+        connection_handle_t connection
+    );
 
     /**
      * Inform the Security manager of a new connection. This will create
