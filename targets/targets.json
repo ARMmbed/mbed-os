@@ -1515,7 +1515,7 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
-	"WISE_1510": {
+	"MTB_ADV_WISE_1510": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -1779,7 +1779,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L072CZ"
     },
-    "CMWX1ZZABZ_078": {
+    "MTB_MURATA_ABZ": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L0x2xZ", "STM32L082CZ", "STM32L082xx"],
