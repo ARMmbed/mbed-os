@@ -360,13 +360,32 @@ public:
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
 
-    /** Wait for a specified time period in millisec:
+    /** Wait for a specified time period in milliseconds
+      Being tick-based, the delay will be up to the specified time - eg for
+      a value of 1 the system waits until the next millisecond tick occurs,
+      leading to a delay of 0-1 milliseconds.
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
 
       @note You cannot call this function from ISR context.
     */
     static osStatus wait(uint32_t millisec);
+
+    /** Wait until a specified time in millisec
+      The specified time is according to Kernel::get_ms_count().
+      @param   millisec absolute time in millisec
+      @return  status code that indicates the execution status of the function.
+      @note not callable from interrupt
+      @note if millisec is equal to or lower than the current tick count, this
+            returns immediately, either with an error or "osOK".
+      @note the underlying RTOS may have a limit to the maximum wait time
+            due to internal 32-bit computations, but this is guaranteed to work if the
+            delay is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+            it may return with an immediate error, or wait for the maximum delay.
+
+      @note You cannot call this function from ISR context.
+    */
+    static osStatus wait_until(uint64_t millisec);
 
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
