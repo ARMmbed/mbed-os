@@ -387,6 +387,11 @@ public:
     // Keys
     //
 
+    virtual void on_secure_connections_ltk_generated(
+        connection_handle_t connection,
+        const ltk_t *ltk
+    );
+
     virtual void on_keys_distributed(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_address_type,

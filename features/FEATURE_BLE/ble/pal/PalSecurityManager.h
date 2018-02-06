@@ -367,6 +367,18 @@ public:
     //
 
     /**
+     * Store the results of key generation of the stage 2 of secure connections pairing
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.3.5.6.5
+     *
+     * @param[in] connection connection handle
+     * @param[in] ltk long term key from the peer
+     */
+    virtual void on_secure_connections_ltk_generated(
+        connection_handle_t connection,
+        const ltk_t *ltk
+    ) = 0;
+
+    /**
      * Store the results of key distribution after all the keys have been received.
      *
      * @param[in] connection connection handle

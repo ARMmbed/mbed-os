@@ -801,6 +801,21 @@ void GenericSecurityManager::on_oob_request(connection_handle_t connection) {
 // Keys
 //
 
+void GenericSecurityManager::on_secure_connections_ltk_generated(
+    connection_handle_t connection,
+    const ltk_t *ltk
+) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return;
+    }
+
+    entry->mitm_ltk = entry->mitm_performed;
+    entry->secure_connections = true;
+
+    _db.set_entry_peer_ltk(connection, ltk);
+}
+
 void GenericSecurityManager::on_keys_distributed(
     connection_handle_t connection,
     advertising_peer_address_type_t peer_address_type,
