@@ -1744,7 +1744,7 @@
     "DISCO_L072CZ_LRWAN1": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
-        "extra_labels_add": ["STM32L0", "STM32L072CZ", "STM32L072xx"],
+        "extra_labels_add": ["STM32L0", "STM32L072CZ", "STM32L072xZ", "STM32L072xx"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "config": {
             "clock_source": {
