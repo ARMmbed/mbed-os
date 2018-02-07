@@ -570,6 +570,7 @@ class Config(object):
 
     def _generate_bootloader_build(self, rom_start, rom_size):
         start = rom_start
+        rom_end = rom_start + rom_size
         if self.target.bootloader_img:
             if isabs(self.target.bootloader_img):
                 filename = self.target.bootloader_img
@@ -592,10 +593,10 @@ class Config(object):
             new_size = Config._align_floor(start + new_size, self.sectors) - start
             yield Region("application", start, new_size, True, None)
             start += new_size
-            yield Region("post_application", start, rom_size - start,
+            yield Region("post_application", start, rom_end - start,
                          False, None)
         else:
-            yield Region("application", start, rom_size - start,
+            yield Region("application", start, rom_end - start,
                          True, None)
         if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
