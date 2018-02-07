@@ -938,7 +938,7 @@ public:
      */
     virtual ble_error_t legacy_pairing_oob_data_request_reply(
         connection_handle_t connection,
-        const oob_tk_t *oob_data
+        const oob_tk_t &oob_data
     ) = 0;
 
     /**
@@ -957,6 +957,7 @@ public:
     /**
      * Notify the stack that the user pressed a key. This will be sent to the peer and create
      * an appropriate event there if the keypress protocol is enabled.
+     *
      * @param[in] connection connection handle
      * @param[in] keypress type of keypress event
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
@@ -975,7 +976,7 @@ public:
      * Set the OOB data received from the peer. This will be used during authentication stage
      * of secure connections OOB pairing.
      *
-     * @param[in] peer_address peer address of the device this data came from
+     * @param[in] connection connection handle
      * @param[in] random random number used to generate the data
      * @param[in] confirm the resulting confirmation value, based on the peer's public keys
      *                    and a random number
@@ -983,7 +984,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_peer_secure_connections_oob_data(
-        const address_t &peer_address,
+        connection_handle_t connection,
         const oob_rand_t &random,
         const oob_confirm_t &confirm
     ) = 0;

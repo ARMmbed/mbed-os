@@ -756,7 +756,7 @@ public:
      * @param[in] tk pointer to out of band data received containing the temporary key.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t legacyPairingOobReceived(address_t address, const oob_tk_t *tk) {
+    virtual ble_error_t legacyPairingOobReceived(const address_t *address, const oob_tk_t *tk) {
         (void) address;
         (void) tk;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -772,7 +772,7 @@ public:
      *                    in secure connections pairing
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t oobReceived(address_t address, const oob_rand_t *random, const oob_confirm_t *confirm) {
+    virtual ble_error_t oobReceived(const address_t *address, const oob_rand_t *random, const oob_confirm_t *confirm) {
         (void) address;
         (void) random;
         (void) confirm;

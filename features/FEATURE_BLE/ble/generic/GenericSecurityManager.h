@@ -193,12 +193,12 @@ public:
     );
 
     virtual ble_error_t legacyPairingOobReceived(
-        address_t address,
+        const address_t *address,
         const oob_tk_t *tk
     );
 
     virtual ble_error_t oobReceived(
-        address_t address,
+        const address_t *address,
         const oob_rand_t *random,
         const oob_confirm_t *confirm
     );

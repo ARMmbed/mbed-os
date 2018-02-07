@@ -476,18 +476,34 @@ ble_error_t GenericSecurityManager::sendKeypressNotification(
 }
 
 ble_error_t GenericSecurityManager::legacyPairingOobReceived(
-    address_t address,
+    const address_t *address,
     const oob_tk_t *tk
 ) {
+    if (address && tk) {
+        SecurityEntry_t *entry = _db.get_entry(*address);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
 
+        return _pal.legacy_pairing_oob_data_request_reply(entry->handle, *tk);
+    }
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericSecurityManager::oobReceived(
-    address_t address,
+    const address_t *address,
     const oob_rand_t *random,
     const oob_confirm_t *confirm
 ) {
+    if (address && random && confirm) {
+        SecurityEntry_t *entry = _db.get_entry(*address);
+        if (!entry) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
 
+        return _pal.set_peer_secure_connections_oob_data(entry->handle, *random, *confirm);
+    }
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -77,6 +77,7 @@ struct SecurityEntry_t {
     }
 
     connection_handle_t handle;
+    address_t peer_address;
     uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
     uint8_t local_address_public:1;
@@ -143,6 +144,17 @@ public:
      */
     virtual SecurityEntry_t* get_entry(
         connection_handle_t connection
+    ) = 0;
+
+    /**
+     * Return immediately security entry containing the state
+     * information for active connection.
+     *
+     * @param[in] peer_address peer address in the entry being requested
+     * @return pointer to security entry, NULL if no entry was fined
+     */
+    virtual SecurityEntry_t* get_entry(
+        const address_t &peer_address
     ) = 0;
 
     /* local keys */
@@ -452,11 +464,27 @@ public:
     MemoryGenericSecurityDb() { };
     virtual ~MemoryGenericSecurityDb() { };
 
-    virtual SecurityEntry_t* get_entry(connection_handle_t connection) {
+    virtual SecurityEntry_t* get_entry(
+        connection_handle_t connection
+    ) {
         SecurityEntry_t *entry = NULL;
         db_store_t *store = get_store(connection);
         if (store) {
             entry = &store->entry;
+        }
+        return entry;
+    }
+
+    virtual SecurityEntry_t* get_entry(
+        const address_t &peer_address
+    ) {
+        SecurityEntry_t *entry = NULL;
+        for (size_t i = 0; i < MAX_ENTRIES; i++) {
+            if (!_db[i].entry.connected) {
+                continue;
+            } else if (peer_address == _db[i].entry.peer_address) {
+                entry = &_db[i].entry;
+            }
         }
         return entry;
     }
