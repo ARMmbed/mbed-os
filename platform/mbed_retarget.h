@@ -21,6 +21,8 @@
 
 #if __cplusplus
 #include <cstdio>
+#else
+#include <stdio.h>
 #endif //__cplusplus
 #include <stdint.h>
 #include <stddef.h>
@@ -28,8 +30,9 @@
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
-typedef signed   int  ssize_t;     ///< Signed size type, usually encodes negative errors
-typedef signed   long off_t;       ///< Offset in a data stream
+typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
+typedef signed   long off_t;    ///< Offset in a data stream
+typedef unsigned int  nfds_t;   ///< Number of file descriptors
 typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
@@ -51,6 +54,10 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
 
+#define STDIN_FILENO  0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 #include <time.h>
 
 /** \addtogroup platform */
@@ -66,28 +73,53 @@ namespace mbed {
 
 class FileHandle;
 class DirHandle;
-std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
+
+/** Targets may implement this to change stdin, stdout, stderr.
+ *
+ * If the application hasn't provided mbed_override_console, this is called
+ * to give the target a chance to specify a FileHandle for the console.
+ *
+ * If this is not provided or returns NULL, the console will be:
+ *   - UARTSerial if configuration option "platform.stdio-buffered-serial" is
+ *     true and the target has DEVICE_SERIAL;
+ *   - Raw HAL serial via serial_getc and serial_putc if
+ *     "platform.stdio-buffered-serial" is false and the target has DEVICE_SERIAL;
+ *   - stdout/stderr will be a sink and stdin will input a stream of 0s if the
+ *     target does not have DEVICE_SERIAL.
+ *
+ * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
+ * @return  pointer to FileHandle to override normal stream otherwise NULL
+ */
+FileHandle* mbed_target_override_console(int fd);
+
+/** Applications may implement this to change stdin, stdout, stderr.
+ *
+ * This hook gives the application a chance to specify a custom FileHandle
+ * for the console.
+ *
+ * If this is not provided or returns NULL, the console will be specified
+ * by mbed_target_override_console, else will default to serial - see
+ * mbed_target_override_console for more details.
+ *
+ * Example:
+ * @code
+ * FileHandle* mbed::mbed_override_console(int) {
+ *     static UARTSerial my_serial(D0, D1);
+ *     return &my_serial;
+ * }
+ * @endcode
+
+ * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
+ * @return  pointer to FileHandle to override normal stream otherwise NULL
+ */
+FileHandle* mbed_override_console(int fd);
 
 }
+
 typedef mbed::DirHandle DIR;
 #else
 typedef struct Dir DIR;
 #endif
-
-#if __cplusplus
-extern "C" {
-#endif
-    DIR *opendir(const char*);
-    struct dirent *readdir(DIR *);
-    int closedir(DIR*);
-    void rewinddir(DIR*);
-    long telldir(DIR*);
-    void seekdir(DIR*, long);
-    int mkdir(const char *name, mode_t n);
-#if __cplusplus
-};
-#endif
-
 
 /* The intent of this section is to unify the errno error values to match
  * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
@@ -429,16 +461,6 @@ struct statvfs {
     unsigned long  f_namemax;  ///< Maximum filename length
 };
 
-#if __cplusplus
-extern "C" {
-#endif
-    int stat(const char *path, struct stat *st);
-    int statvfs(const char *path, struct statvfs *buf);
-#if __cplusplus
-};
-#endif
-
-
 /* The following are dirent.h definitions are declared here to garuntee
  * consistency where structure may be different with different toolchains
  */
@@ -457,6 +479,78 @@ enum {
     DT_LNK,     ///< This is a symbolic link.
     DT_SOCK,    ///< This is a UNIX domain socket.
 };
+
+struct pollfd {
+    int fd;
+    short events;
+    short revents;
+};
+
+/* POSIX-compatible I/O functions */
+#if __cplusplus
+extern "C" {
+#endif
+    int open(const char *path, int oflag, ...);
+#ifndef __IAR_SYSTEMS_ICC__ /* IAR provides fdopen itself */
+#if __cplusplus
+    std::FILE* fdopen(int fildes, const char *mode);
+#else
+    FILE* fdopen(int fildes, const char *mode);
+#endif
+#endif
+    ssize_t write(int fildes, const void *buf, size_t nbyte);
+    ssize_t read(int fildes, void *buf, size_t nbyte);
+    off_t lseek(int fildes, off_t offset, int whence);
+    int isatty(int fildes);
+    int fsync(int fildes);
+    int fstat(int fh, struct stat *st);
+    int poll(struct pollfd fds[], nfds_t nfds, int timeout);
+    int close(int fildes);
+    int stat(const char *path, struct stat *st);
+    int statvfs(const char *path, struct statvfs *buf);
+    DIR *opendir(const char*);
+    struct dirent *readdir(DIR *);
+    int closedir(DIR*);
+    void rewinddir(DIR*);
+    long telldir(DIR*);
+    void seekdir(DIR*, long);
+    int mkdir(const char *name, mode_t n);
+#if __cplusplus
+}; // extern "C"
+
+namespace mbed {
+
+/** This call is an analogue to POSIX fdopen().
+ *
+ *  It associates a C stream to an already-opened FileHandle, to allow you to
+ *  use C printf/scanf/fwrite etc. The provided FileHandle must remain open -
+ *  it will be closed by the C library when fclose(FILE) is called.
+ *
+ *  The net effect is fdopen(bind_to_fd(fh), mode), with error handling.
+ *
+ *  @param fh       a pointer to an opened FileHandle
+ *  @param mode     operation upon the file descriptor, e.g., "w+"
+ *
+ *  @returns        a pointer to FILE
+ */
+std::FILE* fdopen(mbed::FileHandle *fh, const char *mode);
+
+/** Bind an mbed FileHandle to a POSIX file descriptor
+ *
+ * This is similar to fdopen, but only operating at the POSIX layer - it
+ * associates a POSIX integer file descriptor with a FileHandle, to allow you
+ * to use POSIX read/write calls etc. The provided FileHandle must remain open -
+ * it will be closed when close(int) is called.
+ *
+ *  @param fh       a pointer to an opened FileHandle
+ *
+ *  @return         an integer file descriptor, or negative if no descriptors available
+ */
+int bind_to_fd(mbed::FileHandle *fh);
+
+} // namespace mbed
+
+#endif // __cplusplus
 
 /**@}*/
 
