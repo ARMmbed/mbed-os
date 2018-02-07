@@ -251,7 +251,7 @@
         "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768", "NXP_EMAC"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "detect_code": ["1010"],
-        "device_has": ["RTC", "USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["RTC", "USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
         "bootloader_supported": true,
