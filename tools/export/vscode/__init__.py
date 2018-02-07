@@ -40,12 +40,13 @@ class VSCode(Makefile):
         if not exists(join(self.export_dir, '.vscode')):
             makedirs(join(self.export_dir, '.vscode'))
 
-        self.gen_file('vscode/tasks.tmpl', ctx,
-                      join('.vscode', 'tasks.json'))
-        self.gen_file('vscode/launch.tmpl', ctx,
-                      join('.vscode', 'launch.json'))
-        self.gen_file('vscode/settings.tmpl', ctx,
-                      join('.vscode', 'settings.json'))
+        config_files = ['launch', 'settings', 'tasks']
+        for file in config_files:
+            if not exists('.vscode/%s.json' % file):
+                self.gen_file('vscode/%s.tmpl' % file, ctx,
+                              '.vscode/%s.json' % file)
+            else:
+                print 'Keeping existing %s.json' % file
 
         # So.... I want all .h and .hpp files in self.resources.inc_dirs
         all_directories = []

@@ -110,7 +110,7 @@ void test_socket_attach() {
 
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
+    EventQueue queue(10*EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());

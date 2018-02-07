@@ -234,6 +234,11 @@ int MBRBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int MBRBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_read(addr, size));
@@ -265,6 +270,11 @@ bd_size_t MBRBlockDevice::get_program_size() const
 bd_size_t MBRBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int MBRBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t MBRBlockDevice::size() const

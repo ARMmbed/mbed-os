@@ -67,6 +67,18 @@ public:
     */
     int32_t wait(uint32_t millisec=osWaitForever);
 
+    /** Wait until a Semaphore resource becomes available.
+      @param   millisec  absolute timeout time, referenced to Kernel::get_ms_count()
+      @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
+      @note the underlying RTOS may have a limit to the maximum wait time
+            due to internal 32-bit computations, but this is guaranteed to work if the
+            wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+            the acquire attempt will time out earlier than specified.
+
+      @note You cannot call this function from ISR context.
+    */
+    int32_t wait_until(uint64_t millisec);
+
     /** Release a Semaphore resource that was obtain with Semaphore::wait.
       @return status code that indicates the execution status of the function:
               @a osOK the token has been correctly released.

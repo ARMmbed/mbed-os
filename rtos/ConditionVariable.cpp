@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 #include "rtos/ConditionVariable.h"
+#include "rtos/Kernel.h"
 #include "rtos/Thread.h"
 
 #include "mbed_error.h"
 #include "mbed_assert.h"
 
 namespace rtos {
-
 
 ConditionVariable::Waiter::Waiter(): sem(0), prev(NULL), next(NULL), in_list(false)
 {
@@ -62,6 +62,24 @@ bool ConditionVariable::wait_for(uint32_t millisec)
     }
 
     return timeout;
+}
+
+bool ConditionVariable::wait_until(uint64_t millisec)
+{
+    uint64_t now = Kernel::get_ms_count();
+
+    if (now >= millisec) {
+        // Time has already passed - standard behaviour is to
+        // treat as a "try".
+        return wait_for(0);
+    } else if (millisec - now >= osWaitForever) {
+        // Exceeds maximum delay of underlying wait_for -
+        // spuriously wake after 49 days, indicating no timeout.
+        wait_for(osWaitForever - 1);
+        return false;
+    } else {
+        return wait_for(millisec - now);
+    }
 }
 
 void ConditionVariable::notify_one()

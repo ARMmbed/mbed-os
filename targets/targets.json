@@ -714,11 +714,24 @@
         },
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"]
     },
+    "MIMXRT1050_EVK": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M7FD",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "EVK", "MIMXRT1050", "IMX"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MIMXRT1052DVL6A", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["0227"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "release_versions": ["2", "5"],
+        "device_name": "MIMXRT1052"
+    },
     "LPC54114": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPC54114_M4", "LPCXpresso"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPC54114_M4", "LPCXpresso", "LPC"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54114J256BD64_cm4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
@@ -727,24 +740,26 @@
         "release_versions": ["2", "5"],
         "device_name" : "LPC54114J256BD64"
     },
-    "LPC546XX": {
-        "supported_form_factors": ["ARDUINO"],
+    "MCU_LPC546XX": {    
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54618J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "detect_code": ["1056"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "LPC54618J512ET180"
     },
+    "LPC546XX": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_LPC546XX"],
+        "detect_code": ["1056"]
+    },
     "FF_LPC546XX": {
-        "inherits": ["LPC546XX"],
+        "inherits": ["MCU_LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
-        "supported_form_factors": [""],
         "detect_code": ["8081"]
     },
     "NUCLEO_F030R8": {
@@ -1289,7 +1304,8 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F746ZG"
+        "device_name": "STM32F746ZG",
+        "bootloader_supported": true
     },
     "NUCLEO_F756ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -1345,7 +1361,8 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F767ZI"
+        "device_name": "STM32F767ZI",
+        "bootloader_supported": true
     },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
@@ -1496,6 +1513,26 @@
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L433RC",
+        "bootloader_supported": true
+    },
+	"WISE_1510": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L443xC", "STM32L443RC"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "overrides": {"lse_available": 0},
+        "release_versions": ["5"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_name" : "STM32L443RC",
+        "detect_code": ["0458"],
         "bootloader_supported": true
     },
     "NUCLEO_L476RG": {
@@ -1725,6 +1762,15 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L072CZ"
     },
+    "CMWX1ZZABZ_078": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M0+",
+        "extra_labels_add": ["STM32L0", "STM32L0x2xZ", "STM32L082CZ", "STM32L082xx"],
+        "detect_code": ["0456"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L082CZ"
+    },
     "DISCO_F746NG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
@@ -1926,6 +1972,31 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["XDOT_L151CC"],
         "detect_code": ["8080"]
+    },
+    "MTB_MTS_XDOT": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151CC"],
+        "config": {
+            "hse_value": {
+            "value": "24000000",
+            "macro_name": "HSE_VALUE"
+            },
+            "stdio_uart_tx": {
+                "help": "Value PA_2",
+                "value": "PA_2"
+            },
+            "stdio_uart_rx": {
+                "help": "Value PA_3",
+                "value": "PA_3"
+            }
+        },
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CC",
+        "bootloader_supported": true
     },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
@@ -3373,6 +3444,28 @@
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
+    },
+    "MTB_UBLOX_NINA_B1": {
+        "inherits": ["MCU_NRF52"],
+        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "extra_labels_add": ["MTB_UBLOX_NINA_B1"],
+        "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA",
+        "bootloader_supported": true,
+        "overrides": {
+                "uart_hwfc": 0
+        },
+        "config": {
+            "usb_tx": {
+                "help": "Value p6",
+                "value": "p6"
+            },
+            "usb_rx": {
+                "help": "Value p5",
+                "value": "p5"
+            }
+        }
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],

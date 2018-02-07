@@ -27,6 +27,7 @@ from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
 from json import load, dump
+from tools.arm_pack_manager import Cache
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException, intelhex_offset
@@ -283,31 +284,6 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-def add_regions_to_profile(profile, config, toolchain_class):
-    """Add regions to the build profile, if there are any.
-
-    Positional Arguments:
-    profile - the profile to update
-    config - the configuration object that owns the region
-    toolchain_class - the class of the toolchain being used
-    """
-    if not profile:
-        return
-    regions = list(config.regions)
-    for region in regions:
-        for define in [(region.name.upper() + "_ADDR", region.start),
-                       (region.name.upper() + "_SIZE", region.size)]:
-            profile["common"].append("-D%s=0x%x" %  define)
-    active_region = [r for r in regions if r.active][0]
-    for define in [("MBED_APP_START", active_region.start),
-                   ("MBED_APP_SIZE", active_region.size)]:
-        profile["ld"].append(toolchain_class.make_ld_define(*define))
-
-    print("Using regions in this build:")
-    for region in regions:
-        print("  Region %s size 0x%x, offset 0x%x"
-              % (region.name, region.size, region.start))
-
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -350,9 +326,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     for contents in build_profile or []:
         for key in profile:
             profile[key].extend(contents[toolchain_name][key])
-
-    if config.has_regions:
-        add_regions_to_profile(profile, config, cur_tc)
 
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=profile)
@@ -547,19 +520,24 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''
         if memap_instance:
-            # Write output to stdout in text (pretty table) format
-            memap_table = memap_instance.generate_output('table', stats_depth)
-
+            real_stats_depth = stats_depth if stats_depth is None else 2
+            memap_table = memap_instance.generate_output('table', real_stats_depth)
             if not silent:
-                print memap_table
+                if not stats_depth:
+                    memap_bars = memap_instance.generate_output('bars',
+                            real_stats_depth, None,
+                            getattr(toolchain.target, 'device_name', None))
+                    print memap_bars
+                else:
+                    print memap_table
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
-            memap_instance.generate_output('json', stats_depth, map_out)
+            memap_instance.generate_output('json', real_stats_depth, map_out)
 
             # Write output to file in CSV format for the CI
             map_csv = join(build_path, name + "_map.csv")
-            memap_instance.generate_output('csv-ci', stats_depth, map_csv)
+            memap_instance.generate_output('csv-ci', real_stats_depth, map_csv)
 
         resources.detect_duplicates(toolchain)
 

@@ -353,6 +353,35 @@ osStatus Thread::wait(uint32_t millisec) {
     return osDelay(millisec);
 }
 
+osStatus Thread::wait_until(uint64_t millisec) {
+    // CMSIS-RTOS 2.1.0 and 2.1.1 differ in the time type, which we determine
+    // by looking at the return type of osKernelGetTickCount. We assume
+    // our header at least matches the implementation, so we don't try looking
+    // at the run-time version report. (There's no compile-time version report)
+    if (sizeof osKernelGetTickCount() == sizeof(uint64_t)) {
+        // CMSIS-RTOS 2.1.0 has a 64-bit API. The corresponding RTX 5.2.0 can't
+        // delay more than 0xfffffffe ticks, but there's no limit stated for
+        // the generic API.
+        return osDelayUntil(millisec);
+    } else {
+        // 64-bit time doesn't wrap (for half a billion years, at last)
+        uint64_t now = Kernel::get_ms_count();
+        // Report being late on entry
+        if (now >= millisec) {
+            return osErrorParameter;
+        }
+        // We're about to make a 32-bit delay call, so have at least this limit
+        if (millisec - now > 0xFFFFFFFF) {
+            return osErrorParameter;
+        }
+        // And this may have its own internal limit - we'll find out.
+        // We hope/assume there's no problem with passing
+        // osWaitForever = 0xFFFFFFFF - that value is only specified to have
+        // special meaning for osSomethingWait calls.
+        return osDelay(millisec - now);
+    }
+}
+
 osStatus Thread::yield() {
     return osThreadYield();
 }

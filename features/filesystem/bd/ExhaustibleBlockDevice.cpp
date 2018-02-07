@@ -53,6 +53,11 @@ int ExhaustibleBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ExhaustibleBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ExhaustibleBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);
@@ -100,6 +105,11 @@ bd_size_t ExhaustibleBlockDevice::get_program_size() const
 bd_size_t ExhaustibleBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int ExhaustibleBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t ExhaustibleBlockDevice::size() const

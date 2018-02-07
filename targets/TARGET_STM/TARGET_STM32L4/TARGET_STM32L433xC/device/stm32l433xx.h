@@ -14391,6 +14391,11 @@ typedef struct
 #define USART_CR3_WUFIE_Pos           (22U)
 #define USART_CR3_WUFIE_Msk           (0x1U << USART_CR3_WUFIE_Pos)            /*!< 0x00400000 */
 #define USART_CR3_WUFIE               USART_CR3_WUFIE_Msk                      /*!< Wake Up Interrupt Enable */
+/* MBED */
+#define USART_CR3_UCESM_Pos           (23U)
+#define USART_CR3_UCESM_Msk           (0x1U << USART_CR3_UCESM_Pos)            /*!< 0x00800000 */
+#define USART_CR3_UCESM               USART_CR3_UCESM_Msk                      /*!< Clock Enable in Stop mode */ 
+/* MBED */
 #define USART_CR3_TCBGTIE_Pos         (24U)
 #define USART_CR3_TCBGTIE_Msk         (0x1U << USART_CR3_TCBGTIE_Pos)          /*!< 0x01000000 */
 #define USART_CR3_TCBGTIE             USART_CR3_TCBGTIE_Msk                    /*!< Transmission Complete Before Guard Time Interrupt Enable */
