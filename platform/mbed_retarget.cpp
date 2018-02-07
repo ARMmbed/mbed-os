@@ -37,6 +37,9 @@
 #endif
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+#if MBED_CONF_RETARGET_STDIO_ALT
+#include "platform/mbed_retarget_alt.h"
+#endif
 
 static SingletonPtr<PlatformMutex> _mutex;
 
@@ -107,6 +110,7 @@ void remove_filehandle(FileHandle *file) {
 }
 }
 
+#if !MBED_CONF_RETARGET_STDIO_ALT
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
@@ -125,6 +129,7 @@ static void init_serial() {
 #endif
 #endif
 }
+#endif
 
 /**
  * Sets errno when file opening fails.
@@ -210,13 +215,25 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
      */
     if (std::strcmp(name, __stdin_name) == 0) {
+#if !MBED_CONF_RETARGET_STDIO_ALT
         init_serial();
+#else
+        retarget_stdio_init_alt(0);
+#endif
         return 0;
     } else if (std::strcmp(name, __stdout_name) == 0) {
+#if !MBED_CONF_RETARGET_STDIO_ALT
         init_serial();
+#else
+        retarget_stdio_init_alt(1);
+#endif
         return 1;
     } else if (std::strcmp(name, __stderr_name) == 0) {
+#if !MBED_CONF_RETARGET_STDIO_ALT
         init_serial();
+#else
+        retarget_stdio_init_alt(2);
+#endif
         return 2;
     }
     #endif
@@ -309,6 +326,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 
     if (fh < 3) {
+#if !MBED_CONF_RETARGET_STDIO_ALT
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
@@ -326,6 +344,14 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 #endif
         n = length;
+#else
+        // use alternative/custom stdio write function
+        n = retarget_stdio_write_alt(fh, buffer, length);
+        if (n < 0) {
+            errno = n;
+            return -1;
+        }
+#endif
     } else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) {
@@ -372,6 +398,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 
     if (fh < 3) {
         // only read a character at a time from stdin
+#if !MBED_CONF_RETARGET_STDIO_ALT
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
@@ -398,6 +425,14 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 #endif
         n = 1;
+#else
+        // use alternative/custom stdio read function
+        n = retarget_stdio_read_alt(fh, buffer, length);
+        if (n < 0) {
+            errno = n;
+            return -1;
+        }
+#endif
     } else {
         FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) {
