@@ -482,6 +482,7 @@ static void mbed_lwip_netif_link_irq(struct netif *lwip_netif)
 
     } else {
         sys_sem_signal(&lwip_netif_unlinked);
+        netif_set_down(lwip_netif);
     }
 }
 

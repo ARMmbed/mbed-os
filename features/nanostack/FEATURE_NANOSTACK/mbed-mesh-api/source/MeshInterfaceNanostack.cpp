@@ -18,6 +18,7 @@
 #include "NanostackInterface.h"
 #include "mesh_system.h"
 #include "net_interface.h"
+#include "thread_management_if.h"
 
 
 MeshInterfaceNanostack::MeshInterfaceNanostack()
@@ -49,7 +50,8 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
 {
     nanostack_lock();
 
-    if (status == MESH_CONNECTED && _blocking) {
+    if ((status == MESH_CONNECTED || status == MESH_CONNECTED_LOCAL ||
+         status == MESH_CONNECTED_GLOBAL) && _blocking) {
         connect_semaphore.release();
     }
 
@@ -57,12 +59,21 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
 
 
     if (status == MESH_CONNECTED) {
-        uint8_t temp_ipv6[16];
-        if (!arm_net_address_get(_network_interface_id, ADDR_IPV6_GP, temp_ipv6)) {
-            _connect_status = NSAPI_STATUS_GLOBAL_UP;
-        } else {
+        uint8_t temp_ipv6_global[16];
+        uint8_t temp_ipv6_local[16];
+        if (arm_net_address_get(_network_interface_id, ADDR_IPV6_LL, temp_ipv6_local) == 0) {
             _connect_status = NSAPI_STATUS_LOCAL_UP;
         }
+        if (arm_net_address_get(_network_interface_id, ADDR_IPV6_GP, temp_ipv6_global) == 0
+            && (memcmp(temp_ipv6_global, temp_ipv6_local, 16) != 0)) {
+            _connect_status = NSAPI_STATUS_GLOBAL_UP;
+        }
+    } else if (status == MESH_CONNECTED_LOCAL ) {
+        _connect_status = NSAPI_STATUS_LOCAL_UP;
+    } else if (status == MESH_CONNECTED_GLOBAL) {
+        _connect_status = NSAPI_STATUS_GLOBAL_UP;
+    } else if (status == MESH_BOOTSTRAP_STARTED) {
+        _connect_status = NSAPI_STATUS_CONNECTING;
     } else {
         _connect_status = NSAPI_STATUS_DISCONNECTED;
     }

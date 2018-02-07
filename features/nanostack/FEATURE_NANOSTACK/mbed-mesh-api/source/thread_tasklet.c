@@ -67,6 +67,8 @@ typedef struct {
     void (*mesh_api_cb)(mesh_connection_status_t nwk_status);
     channel_list_s channel_list;
     tasklet_state_t tasklet_state;
+    mesh_connection_status_t connection_status;
+    timeout_t *poll_network_status_timeout;
     int8_t tasklet;
 
     net_6lowpan_mode_e operating_mode;
@@ -75,7 +77,8 @@ typedef struct {
 
     /** Default network ID*/
     uint8_t networkid[16];
-    uint8_t extented_panid[8];    
+    uint8_t extented_panid[8];
+    uint8_t ip[16];
 } thread_tasklet_data_str_t;
 
 
@@ -88,6 +91,7 @@ void thread_tasklet_main(arm_event_s *event);
 void thread_tasklet_network_state_changed(mesh_connection_status_t status);
 void thread_tasklet_parse_network_event(arm_event_s *event);
 void thread_tasklet_configure_and_connect_to_network(void);
+void thread_tasklet_poll_network_status();
 #define TRACE_THREAD_TASKLET
 #ifndef TRACE_THREAD_TASKLET
 #define thread_tasklet_trace_bootstrap_info() ((void) 0)
@@ -127,8 +131,19 @@ void thread_tasklet_main(arm_event_s *event)
                                        thread_tasklet_data_ptr->tasklet);
 
             if (event->event_id == TIMER_EVENT_START_BOOTSTRAP) {
+                int8_t status;
                 tr_debug("Restart bootstrap");
-                arm_nwk_interface_up(thread_tasklet_data_ptr->nwk_if_id);
+                status = arm_nwk_interface_up(thread_tasklet_data_ptr->nwk_if_id);
+
+                if (status >= 0) {
+                    thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
+                    tr_info("Start Thread bootstrap (%s mode)", thread_tasklet_data_ptr->operating_mode == NET_6LOWPAN_SLEEPY_HOST ? "SED" : "Router");
+                    thread_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
+                } else {
+                    thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+                    tr_err("Bootstrap start failed, %d", status);
+                    thread_tasklet_network_state_changed(MESH_BOOTSTRAP_START_FAILED);
+                }
             }
             break;
 
@@ -165,30 +180,36 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
                 tr_info("Thread bootstrap ready");
                 thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
                 thread_tasklet_trace_bootstrap_info();
-                thread_tasklet_network_state_changed(MESH_CONNECTED);
+                /* We are connected, for Local or Global IP */
+                thread_tasklet_poll_network_status();
             }
             break;
         case ARM_NWK_NWK_SCAN_FAIL:
             /* Link Layer Active Scan Fail, Stack is Already at Idle state */
             tr_debug("Link Layer Scan Fail: No Beacons");
             thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL:
             /* No ND Router at current Channel Stack is Already at Idle state */
             tr_debug("ND Scan/ GP REG fail");
             thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_NWK_CONNECTION_DOWN:
             /* Connection to Access point is lost wait for Scan Result */
             tr_debug("ND/RPL scan new network");
             thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_NWK_PARENT_POLL_FAIL:
             thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_AUHTENTICATION_FAIL:
             tr_debug("Network authentication fail");
             thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         default:
             tr_warn("Unknown event %d", status);
@@ -201,6 +222,30 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
                                     ARM_LIB_SYSTEM_TIMER_EVENT,
                                     thread_tasklet_data_ptr->tasklet,
                                     5000);
+    }
+}
+
+void thread_tasklet_poll_network_status()
+{
+    /* Check if we do have an IP */
+    uint8_t temp_ipv6[16];
+    if (arm_net_address_get(thread_tasklet_data_ptr->nwk_if_id, ADDR_IPV6_GP, temp_ipv6) == 0) {
+        /* Check if this is the same IP than previously */
+        if (memcmp(temp_ipv6, thread_tasklet_data_ptr->ip, 16) == 0) {
+            return;
+        } else {
+            memcpy(thread_tasklet_data_ptr->ip, temp_ipv6, 16);
+            link_configuration_s *link_cfg = thread_management_configuration_get(thread_tasklet_data_ptr->nwk_if_id);
+            if (memcmp(thread_tasklet_data_ptr->ip, link_cfg->mesh_local_ula_prefix, 8) == 0) {
+                thread_tasklet_network_state_changed(MESH_CONNECTED_LOCAL);
+            } else {
+                thread_tasklet_network_state_changed(MESH_CONNECTED_GLOBAL);
+            }
+        }
+    } else {
+        if (thread_tasklet_data_ptr->connection_status != MESH_DISCONNECTED &&
+            thread_tasklet_data_ptr->connection_status != MESH_BOOTSTRAP_STARTED)
+            thread_tasklet_network_state_changed(MESH_DISCONNECTED);
     }
 }
 
@@ -298,6 +343,7 @@ void thread_tasklet_configure_and_connect_to_network(void)
     if (status >= 0) {
         thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
         tr_info("Start Thread bootstrap (%s mode)", thread_tasklet_data_ptr->operating_mode == NET_6LOWPAN_SLEEPY_HOST ? "SED" : "Router");
+        thread_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
     } else {
         thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
         tr_err("Bootstrap start failed, %d", status);
@@ -310,6 +356,7 @@ void thread_tasklet_configure_and_connect_to_network(void)
  */
 void thread_tasklet_network_state_changed(mesh_connection_status_t status)
 {
+    thread_tasklet_data_ptr->connection_status = status;
     if (thread_tasklet_data_ptr->mesh_api_cb) {
         (thread_tasklet_data_ptr->mesh_api_cb)(status);
     }
@@ -374,6 +421,8 @@ int8_t thread_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_i
     thread_tasklet_data_ptr->mesh_api_cb = callback;
     thread_tasklet_data_ptr->nwk_if_id = nwk_interface_id;
     thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_INITIALIZED;
+    thread_tasklet_data_ptr->poll_network_status_timeout =
+        eventOS_timeout_every_ms(thread_tasklet_poll_network_status, 2000, NULL);
 
     if (re_connecting == false) {
         thread_tasklet_data_ptr->tasklet = eventOS_event_handler_create(&thread_tasklet_main,
@@ -383,6 +432,7 @@ int8_t thread_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_i
             // -2 memory allocation failure
             return thread_tasklet_data_ptr->tasklet;
         }
+
         ns_event_loop_thread_start();
     } else {
         thread_tasklet_data_ptr->tasklet = tasklet;
@@ -407,6 +457,8 @@ int8_t thread_tasklet_disconnect(bool send_cb)
 
         // Clear callback, it will be set again in next connect
         thread_tasklet_data_ptr->mesh_api_cb = NULL;
+        // Cancel the callback timeout
+        eventOS_timeout_cancel(thread_tasklet_data_ptr->poll_network_status_timeout);
     }
     return status;
 }
@@ -469,4 +521,3 @@ int8_t thread_tasklet_data_poll_rate_set(uint32_t timeout)
 
     return status;
 }
-
