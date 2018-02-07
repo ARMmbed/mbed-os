@@ -600,7 +600,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "LPC1768",
