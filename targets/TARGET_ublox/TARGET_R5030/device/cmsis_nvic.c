@@ -30,8 +30,7 @@
  */
 #include "cmsis_nvic.h"
 
-#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Location of vectors in RAM
-#define NVIC_FLASH_VECTOR_ADDRESS (0x0)         // Initial vector position in flash
+
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     // Space for dynamic vectors, initialised to allocate in R/W
