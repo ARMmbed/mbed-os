@@ -18,6 +18,7 @@ limitations under the License.
 
 TEST BUILD & RUN
 """
+from __future__ import print_function
 import sys
 import json
 from time import sleep
@@ -186,20 +187,20 @@ if __name__ == '__main__':
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
         if options.supported_toolchains == "matrix":
-            print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+            print(mcu_toolchain_matrix(platform_filter=options.general_filter_regex))
         elif options.supported_toolchains == "toolchains":
             toolchain_list = mcu_toolchain_list()
             # Only print the lines that matter
             for line in toolchain_list.split("\n"):
                 if not "mbed" in line:
-                    print line
+                    print(line)
         elif options.supported_toolchains == "targets":
-            print mcu_target_list()
+            print(mcu_target_list())
         exit(0)
 
     # Print available tests in order and exit
     if options.list_tests is True:
-        print '\n'.join(map(str, sorted(TEST_MAP.values())))
+        print('\n'.join(map(str, sorted(TEST_MAP.values()))))
         sys.exit()
 
     # force program to "0" if a source dir is specified
@@ -245,7 +246,7 @@ if __name__ == '__main__':
         search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
-                           %(toolchain,search_path))
+                           %(toolchain, search_path))
 
     # Test
     build_data_blob = {} if options.build_data else None
@@ -259,7 +260,7 @@ if __name__ == '__main__':
         if options.extra is not None:        test.extra_files = options.extra
 
         if not test.is_supported(mcu, toolchain):
-            print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
+            print('The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain))
             sys.exit()
 
         # Linking with extra libraries
@@ -294,7 +295,7 @@ if __name__ == '__main__':
                                                                    options,
                                                                    toolchain),
                                      stats_depth=options.stats_depth)
-            print 'Image: %s'% bin_file
+            print('Image: %s'% bin_file)
 
             if options.disk:
                 # Simple copy to the mbed disk
@@ -328,16 +329,16 @@ if __name__ == '__main__':
                     sys.stdout.write(c)
                     sys.stdout.flush()
 
-        except KeyboardInterrupt, e:
-            print "\n[CTRL+c] exit"
+        except KeyboardInterrupt as e:
+            print("\n[CTRL+c] exit")
         except NotSupportedException as e:
-            print "\nCould not compile for %s: %s" % (mcu, str(e))
-        except Exception,e:
+            print("\nCould not compile for %s: %s" % (mcu, str(e)))
+        except Exception as e:
             if options.verbose:
                 import traceback
                 traceback.print_exc(file=sys.stdout)
             else:
-                print "[ERROR] %s" % str(e)
+                print("[ERROR] %s" % str(e))
 
             sys.exit(1)
     if options.build_data:

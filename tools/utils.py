@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 import sys
 import inspect
 import os
@@ -29,6 +30,11 @@ import json
 from collections import OrderedDict
 import logging
 from intelhex import IntelHex
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 def remove_if_in(lst, thing):
     if thing in lst:
@@ -66,14 +72,14 @@ def cmd(command, check=True, verbose=False, shell=False, cwd=None):
     """A wrapper to run a command as a blocking job"""
     text = command if shell else ' '.join(command)
     if verbose:
-        print text
+        print(text)
     return_code = call(command, shell=shell, cwd=cwd)
     if check and return_code != 0:
         raise Exception('ERROR %d: "%s"' % (return_code, text))
 
 
 def run_cmd(command, work_dir=None, chroot=None, redirect=False):
-    """Run a command in the forground
+    """Run a command in the foreground
 
     Positional arguments:
     command - the command to run
@@ -100,7 +106,7 @@ def run_cmd(command, work_dir=None, chroot=None, redirect=False):
                         stderr=STDOUT if redirect else PIPE, cwd=work_dir)
         _stdout, _stderr = process.communicate()
     except OSError:
-        print "[OS ERROR] Command: "+(' '.join(command))
+        print("[OS ERROR] Command: "+(' '.join(command)))
         raise
 
     return _stdout, _stderr, process.returncode
@@ -318,13 +324,13 @@ def check_required_modules(required_modules, verbose=True):
             except ImportError as exc:
                 not_installed_modules.append(module_name)
                 if verbose:
-                    print "Error: %s" % exc
+                    print("Error: %s" % exc)
 
     if verbose:
         if not_installed_modules:
-            print ("Warning: Module(s) %s not installed. Please install " + \
-                   "required module(s) before using this script.")\
-                % (', '.join(not_installed_modules))
+            print("Warning: Module(s) %s not installed. Please install "
+                  "required module(s) before using this script."
+                  % (', '.join(not_installed_modules)))
 
     if not_installed_modules:
         return False
@@ -342,11 +348,11 @@ def dict_to_ascii(dictionary):
     """
     if isinstance(dictionary, dict):
         return OrderedDict([(dict_to_ascii(key), dict_to_ascii(value))
-                            for key, value in dictionary.iteritems()])
+                            for key, value in dictionary.items()])
     elif isinstance(dictionary, list):
         return [dict_to_ascii(element) for element in dictionary]
     elif isinstance(dictionary, unicode):
-        return dictionary.encode('ascii')
+        return dictionary.encode('ascii').decode()
     else:
         return dictionary
 
@@ -375,6 +381,8 @@ def argparse_type(casedness, prefer_hyphen=False):
             the string, or the hyphens/underscores do not match the expected
             style of the argument.
             """
+            if not isinstance(string, unicode):
+                string = string.decode()
             if prefer_hyphen:
                 newstring = casedness(string).replace("_", "-")
             else:
@@ -393,10 +401,10 @@ def argparse_type(casedness, prefer_hyphen=False):
     return middle
 
 # short cuts for the argparse_type versions
-argparse_uppercase_type = argparse_type(str.upper, False)
-argparse_lowercase_type = argparse_type(str.lower, False)
-argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
-argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
+argparse_uppercase_type = argparse_type(unicode.upper, False)
+argparse_lowercase_type = argparse_type(unicode.lower, False)
+argparse_uppercase_hyphen_type = argparse_type(unicode.upper, True)
+argparse_lowercase_hyphen_type = argparse_type(unicode.lower, True)
 
 def argparse_force_type(case):
     """ validate that an argument passed in (as string) is a member of the list
@@ -406,6 +414,8 @@ def argparse_force_type(case):
         """ The parser type generator"""
         def parse_type(string):
             """ The parser type"""
+            if not isinstance(string, unicode):
+                string = string.decode()
             for option in lst:
                 if case(string) == case(option):
                     return option
@@ -416,8 +426,8 @@ def argparse_force_type(case):
     return middle
 
 # these two types convert the case of their arguments _before_ validation
-argparse_force_uppercase_type = argparse_force_type(str.upper)
-argparse_force_lowercase_type = argparse_force_type(str.lower)
+argparse_force_uppercase_type = argparse_force_type(unicode.upper)
+argparse_force_lowercase_type = argparse_force_type(unicode.lower)
 
 def argparse_many(func):
     """ An argument parser combinator that takes in an argument parser and

@@ -18,6 +18,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 
 import os
 import sys
@@ -382,11 +383,12 @@ def run_builds(dry_run, vendor):
                 toolchain_list = build["toolchains"]
                 if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
                 for toolchain in toolchain_list:
-                    cmdline = "python tools/build.py -m %s -t %s -c --silent "% (build["target"], toolchain)
+                    cmdline = ("%s tools/build.py -m %s -t %s -c --silent "%
+                               (sys.executable, build["target"], toolchain))
                     libs = build.get("libs", [])
                     if libs:
                         cmdline = cmdline + " ".join(["--" + l for l in libs])
-                    print "Executing: " + cmdline
+                    print("Executing: %s" % cmdline)
                     if not dry_run:
                         if os.system(cmdline) != 0:
                             sys.exit(1)
@@ -408,18 +410,14 @@ def run_test_linking(dry_run, vendor):
                     for test_lib in tests:
                         test_names = tests[test_lib]
                         test_lib_switch = "--" + test_lib if test_lib else ""
-                        cmdline = "python tools/make.py -m %s -t %s -c --silent %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
-                        print "Executing: " + cmdline
+                        cmdline = ("%s tools/make.py -m %s -t %s -c --silent %s "
+                                   "-n %s" % (sys.executable, link["target"],
+                                               toolchain, test_lib_switch,
+                                               ",".join(test_names)))
+                        print("Executing: %s" % cmdline)
                         if not dry_run:
                             if os.system(cmdline) != 0:
                                 sys.exit(1)
-
-def run_test_testsuite(dry_run, vendor):
-    cmdline = "python tools/singletest.py --version"
-    print "Executing: " + cmdline
-    if not dry_run:
-        if os.system(cmdline) != 0:
-            sys.exit(1)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -434,4 +432,3 @@ if __name__ == "__main__":
 
     run_builds("-s" in sys.argv, options.vendor)
     run_test_linking("-s" in sys.argv, options.vendor)
-    run_test_testsuite("-s" in sys.argv, options.vendor)

@@ -15,25 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from host_registry import HostRegistry
+from .host_registry import HostRegistry
 
 # Host test supervisors
-from echo import EchoTest
-from rtc_auto import RTCTest
-from stdio_auto import StdioTest
-from hello_auto import HelloTest
-from detect_auto import DetectPlatformTest
-from default_auto import DefaultAuto
-from dev_null_auto import DevNullTest
-from wait_us_auto import WaitusTest
-from tcpecho_server_auto import TCPEchoServerTest
-from udpecho_server_auto import UDPEchoServerTest
-from tcpecho_client_auto import TCPEchoClientTest
-from udpecho_client_auto import UDPEchoClientTest
-from wfi_auto import WFITest
-from serial_nc_rx_auto import SerialNCRXTest
-from serial_nc_tx_auto import SerialNCTXTest
-from serial_complete_auto import SerialCompleteTest
+from .echo import EchoTest
+from .rtc_auto import RTCTest
+from .stdio_auto import StdioTest
+from .hello_auto import HelloTest
+from .detect_auto import DetectPlatformTest
+from .default_auto import DefaultAuto
+from .dev_null_auto import DevNullTest
+from .wait_us_auto import WaitusTest
+from .tcpecho_server_auto import TCPEchoServerTest
+from .udpecho_server_auto import UDPEchoServerTest
+from .tcpecho_client_auto import TCPEchoClientTest
+from .udpecho_client_auto import UDPEchoClientTest
+from .wfi_auto import WFITest
+from .serial_nc_rx_auto import SerialNCRXTest
+from .serial_nc_tx_auto import SerialNCTXTest
+from .serial_complete_auto import SerialCompleteTest
 
 # Populate registry with supervising objects
 HOSTREGISTRY = HostRegistry()

@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 
 from copy import deepcopy
 from six import moves
@@ -28,12 +29,16 @@ from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
-# Implementation of mbed configuration mechanism
-from tools.utils import json_file_to_dict, intelhex_offset
-from tools.arm_pack_manager import Cache
-from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
-    generate_py_target, get_resolution_order
 
+from ..utils import json_file_to_dict, intelhex_offset
+from ..arm_pack_manager import Cache
+from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
+                       get_resolution_order, Target)
+
+try:
+    unicode
+except NameError:
+    unicode = str
 PATH_OVERRIDES = set(["target.bootloader_img"])
 BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
                             "target.mbed_app_start", "target.mbed_app_size"])
@@ -432,15 +437,14 @@ class Config(object):
         self.lib_config_data = {}
         # Make sure that each config is processed only once
         self.processed_configs = {}
-        if isinstance(tgt, basestring):
+        if isinstance(tgt, Target):
+            self.target = tgt
+        else:
             if tgt in TARGET_MAP:
                 self.target = TARGET_MAP[tgt]
             else:
                 self.target = generate_py_target(
                     self.app_config_data.get("custom_targets", {}), tgt)
-
-        else:
-            self.target = tgt
         self.target = deepcopy(self.target)
         self.target_labels = self.target.labels
         for override in BOOTLOADER_OVERRIDES:
@@ -465,7 +469,7 @@ class Config(object):
                 continue
             full_path = os.path.normpath(os.path.abspath(config_file))
             # Check that we didn't already process this file
-            if self.processed_configs.has_key(full_path):
+            if full_path in self.processed_configs:
                 continue
             self.processed_configs[full_path] = True
             # Read the library configuration and add a "__full_config_path"
@@ -496,7 +500,7 @@ class Config(object):
 
             # If there's already a configuration for a module with the same
             # name, exit with error
-            if self.lib_config_data.has_key(cfg["name"]):
+            if cfg["name"] in self.lib_config_data:
                 raise ConfigException(
                     "Library name '%s' is not unique (defined in '%s' and '%s')"
                     % (cfg["name"], full_path,
@@ -662,7 +666,7 @@ class Config(object):
                 # Check for invalid cumulative overrides in libraries
                 if (unit_kind == 'library' and
                     any(attr.startswith('target.extra_labels') for attr
-                        in overrides.iterkeys())):
+                        in overrides.keys())):
                     raise ConfigException(
                         "Target override 'target.extra_labels' in " +
                         ConfigParameter.get_display_name(unit_name, unit_kind,
@@ -670,7 +674,7 @@ class Config(object):
                         " is only allowed at the application level")
 
                 # Parse out cumulative overrides
-                for attr, cumulatives in self.cumulative_overrides.iteritems():
+                for attr, cumulatives in self.cumulative_overrides.items():
                     if 'target.'+attr in overrides:
                         key = 'target.' + attr
                         if not isinstance(overrides[key], list):
@@ -729,7 +733,7 @@ class Config(object):
                                                                      unit_kind,
                                                                      label)))))
 
-        for cumulatives in self.cumulative_overrides.itervalues():
+        for cumulatives in self.cumulative_overrides.values():
             cumulatives.update_target(self.target)
 
         return params

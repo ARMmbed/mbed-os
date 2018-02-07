@@ -10,7 +10,7 @@ env:
       --data @- << DATA\n{
       "state": "$0",
       "description": "$1",
-      "context": "travis-ci/$NAME",
+      "context": "travis-ci/$NAME/$(python --version)",
       "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
       }\nDATA'
 
@@ -73,6 +73,10 @@ matrix:
 
     - env:
         - NAME=tools
+      python:
+        - '2.7'
+        - '3.5'
+        - '3.6'
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
@@ -175,7 +179,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor "${NAME#mbed2-}"
+        - python -u tools/build_travis.py --vendor "${NAME#mbed2-}"
     - <<: *mbed-2
       env: NAME=mbed2-STM
     - <<: *mbed-2
@@ -190,3 +194,8 @@ matrix:
       env: NAME=mbed2-NUVOTON
     - <<: *mbed-2
       env: NAME=mbed2-RENESAS
+      # Change python version here only because 3x the other jobs does not add any more coverage
+      python:
+        - '2.7'
+        - '3.5'
+        - '3.6'

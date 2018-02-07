@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 class HostTestRegistry:
     """ Simple class used to register and store
@@ -23,7 +24,7 @@ class HostTestRegistry:
     PLUGINS = {}    # 'Plugin Name' : Plugin Object
 
     def print_error(self, text):
-        print "Plugin load failed. Reason: %s"% text
+        print("Plugin load failed. Reason: %s" % text)
 
     def register_plugin(self, plugin):
         """ Registers and stores plugin inside registry for further use.

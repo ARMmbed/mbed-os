@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Memory Map File Analyser for ARM mbed"""
+from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
@@ -15,8 +16,8 @@ from copy import deepcopy
 from prettytable import PrettyTable
 from tools.arm_pack_manager import Cache
 
-from utils import argparse_filestring_type, \
-    argparse_lowercase_hyphen_type, argparse_uppercase_type
+from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                    argparse_uppercase_type)
 
 
 class _Parser(object):
@@ -132,7 +133,7 @@ class _GccParser(_Parser):
                 return join('[lib]', test_re_obj_name.group(2),
                             test_re_obj_name.group(3))
             else:
-                print "Unknown object name found in GCC map file: %s" % line
+                print("Unknown object name found in GCC map file: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -217,7 +218,7 @@ class _ArmccParser(_Parser):
             if is_obj:
                 return join('[lib]', basename(is_obj.group(1)), is_obj.group(3))
             else:
-                print "Malformed input found when parsing ARMCC map: %s" % line
+                print("Malformed input found when parsing ARMCC map: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -246,8 +247,8 @@ class _ArmccParser(_Parser):
                 elif test_re.group(3) == 'Code':
                     section = '.text'
                 else:
-                    print "Malformed input found when parsing armcc map: %s, %r" %\
-                          (line, test_re.groups())
+                    print("Malformed input found when parsing armcc map: %s, %r"
+                          % (line, test_re.groups()))
 
                     return ["", 0, ""]
 
@@ -352,7 +353,7 @@ class _IarParser(_Parser):
             elif test_re.group(2) == 'inited':
                 section = '.data'
             else:
-                print "Malformed input found when parsing IAR map: %s" % line
+                print("Malformed input found when parsing IAR map: %s" % line)
                 return ["", 0, ""]
 
             # lookup object in dictionary and return module name
@@ -407,7 +408,7 @@ class _IarParser(_Parser):
                 if (not arg.startswith("-")) and arg.endswith(".o"):
                     self.cmd_modules[basename(arg)] = arg
 
-        common_prefix = dirname(commonprefix(self.cmd_modules.values()))
+        common_prefix = dirname(commonprefix(list(self.cmd_modules.values())))
         self.cmd_modules = {s: relpath(f, common_prefix)
                             for s, f in self.cmd_modules.items()}
 
@@ -524,11 +525,11 @@ class MemapParser(object):
         self.compute_report()
         try:
             if file_output:
-                file_desc = open(file_output, 'wb')
+                file_desc = open(file_output, 'w')
             else:
                 file_desc = stdout
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
         to_call = {'json': self.generate_json,
@@ -558,24 +559,24 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        csv_writer = csv.writer(file_desc, delimiter=',',
-                                quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(file_desc, delimiter=',',
+                            quoting=csv.QUOTE_MINIMAL)
 
-        csv_module_section = []
-        csv_sizes = []
+        module_section = []
+        sizes = []
         for i in sorted(self.short_modules):
             for k in self.print_sections:
-                csv_module_section += [i+k]
-                csv_sizes += [self.short_modules[i][k]]
+                module_section.append((i + k))
+                sizes += [self.short_modules[i][k]]
 
-        csv_module_section += ['static_ram']
-        csv_sizes += [self.mem_summary['static_ram']]
+        module_section.append('static_ram')
+        sizes.append(self.mem_summary['static_ram'])
 
-        csv_module_section += ['total_flash']
-        csv_sizes += [self.mem_summary['total_flash']]
+        module_section.append('total_flash')
+        sizes.append(self.mem_summary['total_flash'])
 
-        csv_writer.writerow(csv_module_section)
-        csv_writer.writerow(csv_sizes)
+        writer.writerow(module_section)
+        writer.writerow(sizes)
         return None
 
     def generate_table(self, file_desc):
@@ -736,7 +737,7 @@ class MemapParser(object):
             return True
 
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
 def main():
@@ -803,7 +804,7 @@ def main():
         returned_string = memap.generate_output(args.export, depth)
 
     if args.export == 'table' and returned_string:
-        print returned_string
+        print(returned_string)
 
     exit(0)
 

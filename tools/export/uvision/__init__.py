@@ -215,7 +215,7 @@ class Uvision(Exporter):
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
             # UVFile tuples defined above
-            'project_files': sorted(list(self.format_src(srcs).iteritems()),
+            'project_files': sorted(list(self.format_src(srcs).items()),
                                     key=lambda (group, _): group.lower()),
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),

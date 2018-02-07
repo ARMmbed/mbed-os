@@ -14,16 +14,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
+
 from json import load
 from os.path import join, dirname
 from os import listdir
 from argparse import ArgumentParser, ArgumentTypeError
-from tools.toolchains import TOOLCHAINS
-from tools.targets import TARGET_NAMES, Target, update_target_data
-from tools.utils import argparse_force_uppercase_type, \
-    argparse_lowercase_hyphen_type, argparse_many, \
-    argparse_filestring_type, args_error, argparse_profile_filestring_type,\
-    argparse_deprecate
+
+from .toolchains import TOOLCHAINS
+from .targets import TARGET_NAMES, Target, update_target_data
+from .utils import (argparse_force_uppercase_type, argparse_deprecate,
+                    argparse_lowercase_hyphen_type, argparse_many,
+                    argparse_filestring_type, args_error,
+                    argparse_profile_filestring_type)
 
 FLAGS_DEPRECATION_MESSAGE = "Please use the --profile argument instead.\n"\
                             "Documentation may be found in "\

@@ -50,7 +50,7 @@ class DS5_5(Exporter):
 
     def generate(self):
         source_files = []
-        for r_type, n in DS5_5.FILE_TYPES.iteritems():
+        for r_type, n in DS5_5.FILE_TYPES.items():
             for file in getattr(self.resources, r_type):
                 source_files.append({
                     'name': basename(file), 'type': n, 'path': file

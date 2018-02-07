@@ -140,7 +140,7 @@ class Makefile(Exporter):
     def format_flags(self):
         """Format toolchain flags for Makefile"""
         flags = {}
-        for k, v in self.flags.iteritems():
+        for k, v in self.flags.items():
             if k in ['asm_flags', 'c_flags', 'cxx_flags']:
                 flags[k] = map(lambda x: x.replace('"', '\\"'), v)
             else:
