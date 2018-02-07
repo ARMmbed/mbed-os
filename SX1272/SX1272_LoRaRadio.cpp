@@ -1345,7 +1345,7 @@ void SX1272_LoRaRadio::default_antenna_switch_ctrls()
 uint8_t SX1272_LoRaRadio::get_pa_conf_reg()
 {
 
-#if defined(TARGET_MTS_MDOT_F411RE) || defined(TARGET_XDOT_L151CC)
+#if defined(TARGET_MTS_MDOT_F411RE) || defined(TARGET_XDOT_L151CC) || defined(TARGET_MTB_MTS_XDOT)
     return RF_PACONFIG_PASELECT_PABOOST;
 #endif
     if (radio_variant == SX1272MB1DCS) {
