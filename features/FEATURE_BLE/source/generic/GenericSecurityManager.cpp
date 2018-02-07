@@ -475,6 +475,21 @@ ble_error_t GenericSecurityManager::sendKeypressNotification(
     return _pal.send_keypress_notification(connection, keypress);
 }
 
+ble_error_t GenericSecurityManager::legacyPairingOobReceived(
+    address_t address,
+    const oob_tk_t *tk
+) {
+
+}
+
+ble_error_t GenericSecurityManager::oobReceived(
+    address_t address,
+    const oob_rand_t *random,
+    const oob_confirm_t *confirm
+) {
+
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Helper functions
 //
