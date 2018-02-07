@@ -24,15 +24,13 @@
 ; */
 
 
-                IF       :LNOT::DEF:DOMAIN_NS
-DOMAIN_NS       EQU      0
-                ENDIF
+#ifndef DOMAIN_NS
+DOMAIN_NS     EQU      0
+#endif
 
-                IF       ({FPU}="FPv5-SP") || ({FPU}="FPv5_D16")
-__FPU_USED      EQU      1
-                ELSE
+#ifndef __FPU_USED
 __FPU_USED      EQU      0
-                ENDIF
+#endif
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset
