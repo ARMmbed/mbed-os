@@ -100,10 +100,10 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'DISCO-L072CZ-LRWAN1',
             'mcuId': 'STM32L072CZTx'
         },
-        'CMWX1ZZABZ_078':
+        'MTB_MURATA_ABZ':
         {
-            'name': 'CMWX1ZZABZ-078',
-            'mcuId': 'CMWX1ZZABZ_078'
+            'name': 'MTB-MURATA-ABZ',
+            'mcuId': 'STM32L0x2xZ'
         },
         'DISCO_L475VG_IOT01A':
         {
@@ -255,10 +255,10 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L432KC',
             'mcuId': 'STM32L432KCUx'
         },
-        'WISE_1510':
+        'MTB_ADV_WISE_1510':
         {
-            'name': 'WISE-1510',
-            'mcuId': 'STM32L433RCx'
+            'name': 'MTB-ADV-WISE-1510',
+            'mcuId': 'STM32L443xC'
         },
         'NUCLEO_L476RG':
         {
@@ -274,7 +274,7 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-L496ZG',
             'mcuId': 'STM32L496ZGTx'
-        },        
+        },
         'NUCLEO_L496ZG_P':
         {
             'name': 'NUCLEO-L496ZG',

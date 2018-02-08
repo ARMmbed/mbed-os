@@ -55,7 +55,7 @@ build_list = [
         { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F413ZH",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
-        { "target": "WISE_1510",         "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "MTB_ADV_WISE_1510", "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -92,7 +92,7 @@ build_list = [
         { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
 
         # module manufacturer : muRata
-        { "target": "CMWX1ZZABZ_078",    "toolchains": "GCC_ARM", "libs": [] },
+        { "target": "MTB_MURATA_ABZ",    "toolchains": "GCC_ARM", "libs": [] },
         ),
     },
 
@@ -156,7 +156,7 @@ build_list = [
         )
     },
 
-    { 
+    {
         "ATMEL":
         (
             { "target": "SAMR21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -167,7 +167,7 @@ build_list = [
     },
 
 
-    { 
+    {
         "NUVOTON":
         (
             { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
@@ -236,7 +236,7 @@ linking_list = [
             {"target": "NUCLEO_F401RE",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
-                       "usb"  : ["USB_1", "USB_2" ,"USB_3"], 
+                       "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                      }
             },
             {"target": "NUCLEO_F411RE",
@@ -324,7 +324,7 @@ linking_list = [
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                       }
             },
-            {"target": "CMWX1ZZABZ_078",
+            {"target": "MTB_MURATA_ABZ",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                       }
@@ -354,7 +354,7 @@ linking_list = [
         )
     },
     {
-        "RENESAS": 
+        "RENESAS":
         (
             {
              "target": "RZ_A1H",
