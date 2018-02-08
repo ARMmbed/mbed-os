@@ -25,7 +25,7 @@
 
 #if defined(TARGET_R5030)
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000000 + 0x100000)
+#define INITIAL_SP              (0x20000000 + 0x10000)
 
 #endif
 #else
