@@ -2522,6 +2522,31 @@
         "extra_labels_add": ["MTM_CONNECT04S"],
         "macros_add": ["TARGET_MTM_CONNECT04S"]
     },
+    "MTB_LAIRD_BL600": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_name": "nRF51822_xxAA",
+        "release_versions" : ["5"],
+        "extra_labels_add": ["MTB_LAIRD_BL600"],
+        "config": {
+            "usb_tx": {
+                "help": "Value SIO_21",
+                "value": "SIO_21"
+            },
+            "usb_rx": {
+                "help": "Value SIO_22",
+                "value": "SIO_22"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_0",
+                "value": "UART_0",
+                "macro_name": "STDIO_UART"
+             }
+        },
+        "overrides": {
+                "uart_hwfc": 0
+        }
+    },
     "TY51822R3": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "macros_add": ["TARGET_NRF_32MHZ_XTAL"],
