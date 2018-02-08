@@ -351,14 +351,6 @@ typedef octet_type_t<32> public_key_t;
 typedef octet_type_t<32> private_key_t;
 typedef octet_type_t<32> dhkey_t;
 
-/* X and Y coordinate pair of the public key */
-struct public_key_pair_t {
-    public_key_pair_t() {};
-    public_key_t x;
-    public_key_t y;
-};
-
-
 /**
  * MAC address data type.
  */

@@ -273,11 +273,12 @@ protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
         : _pal(palImpl),
           _db(dbImpl),
+          _default_authentication(0),
+          _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
           _pairing_authorisation_required(false),
           _legacy_pairing_allowed(true),
           _master_sends_keys(false),
-          _default_authentication(0),
-          _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL) {
+          _public_keys_generated(false) {
         _app_event_handler = &defaultEventHandler;
         _pal.set_event_handler(this);
     }
@@ -335,12 +336,30 @@ private:
     /**
      * Returns the CSRK for the connection. Called by the security db.
      *
-     * @param[in] entry security entry returned by the database.
+     * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] entryKeys security entry containing keys.
      */
     void return_csrk_cb(
         connection_handle_t connection,
         const csrk_t *csrk
+    );
+
+    /**
+     * Generate local OOB data to be sent to the application which sends it to the peer.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     */
+    void generate_secure_connections_oob(
+        connection_handle_t connection
+    );
+
+    /**
+     * Updates the entry for the connection with OOB data presence.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     */
+    void update_oob_presence(
+        connection_handle_t connection
     );
 
 private:
@@ -350,9 +369,10 @@ private:
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;
 
-    address_t _sc_oob_address;
-    oob_rand_t _sc_oob_random;
-    oob_confirm_t _sc_oob_confirm;
+    address_t _sc_oob_peer_address;
+    oob_rand_t _sc_oob_peer_random;
+    oob_confirm_t _sc_oob_peer_confirm;
+    oob_rand_t _sc_oob_local_random;
 
     bool _pairing_authorisation_required;
     bool _legacy_pairing_allowed;

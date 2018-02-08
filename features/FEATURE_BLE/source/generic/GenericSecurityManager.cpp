@@ -92,6 +92,7 @@ ble_error_t GenericSecurityManager::init(
 
 ble_error_t GenericSecurityManager::reset(void) {
     _db.sync();
+    _public_keys_generated = false;
     SecurityManager::reset();
 
     return BLE_ERROR_NONE;
@@ -140,6 +141,7 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     }
 
     set_mitm_performed(connection, false);
+    update_oob_presence(connection);
 
     AuthenticationMask link_authentication(_default_authentication);
     link_authentication.set_mitm(entry->mitm_requested);
@@ -162,6 +164,8 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     if (!entry) {
         return BLE_ERROR_INVALID_PARAM;
     }
+
+    update_oob_presence(connection);
 
     AuthenticationMask link_authentication(_default_authentication);
     link_authentication.set_mitm(entry->mitm_requested);
@@ -484,6 +488,11 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
 
     entry->oob = useOOB;
     entry->oob_mitm_protection = OOBProvidesMITM;
+
+    if (_public_keys_generated) {
+        generate_secure_connections_oob(connection);
+    }
+
     return BLE_ERROR_NONE;
 }
 
@@ -532,13 +541,14 @@ ble_error_t GenericSecurityManager::oobReceived(
     const oob_confirm_t *confirm
 ) {
     if (address && random && confirm) {
-        SecurityEntry_t *entry = _db.get_entry(*address);
-        if (!entry) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
+        _sc_oob_peer_address = *address;
+        _sc_oob_local_random = *random;
+        _sc_oob_peer_confirm = *confirm;
 
+        return BLE_ERROR_NONE;
     }
-    return BLE_ERROR_NONE;
+
+    return BLE_ERROR_INVALID_PARAM;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -624,6 +634,24 @@ void GenericSecurityManager::return_csrk_cb(
         csrk,
         entry->mitm_csrk
     );
+}
+
+void GenericSecurityManager::generate_secure_connections_oob(
+    connection_handle_t connection
+) {
+    address_t local_address;
+    oob_confirm_t confirm;
+    /*TODO:generate*/
+    _app_event_handler->oobGenerated(&local_address, &_sc_oob_local_random, &confirm);
+}
+
+void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (entry) {
+        if (entry->peer_address == _sc_oob_peer_address) {
+            entry->oob = true;
+        }
+    }
 }
 
 /* Implements ble::pal::SecurityManagerEventHandler */
@@ -843,6 +871,7 @@ void GenericSecurityManager::on_public_key_generated(
     const public_key_t &public_key_y
 ) {
     _db.set_public_key(public_key_x, public_key_y);
+    _public_keys_generated = true;
 }
 
 void GenericSecurityManager::on_secure_connections_ltk_generated(

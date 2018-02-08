@@ -253,7 +253,7 @@ public:
          * @param[in] address address that will be used in the pairing
          * @param[in] temporaryKey temporary key to be used in legacy pairing
          */
-        virtual void legacyPairingOobGenerated(address_t address,
+        virtual void legacyPairingOobGenerated(const address_t *address,
                                                const oob_tk_t *temporaryKey) {
             (void)address;
             (void)temporaryKey;
@@ -268,7 +268,7 @@ public:
          * @param[in] confirm confirmation value to be use for authentication
          *                    in secure connections pairing
          */
-        virtual void oobGenerated(address_t address,
+        virtual void oobGenerated(const address_t *address,
                                   const oob_rand_t *random,
                                   const oob_confirm_t *confirm) {
             (void)address;
