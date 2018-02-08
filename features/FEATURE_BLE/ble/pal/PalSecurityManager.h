@@ -590,7 +590,6 @@ public:
         const irk_t peer_irk
     ) = 0;
 
-
     /**
      * Add a device definition from the resolving list of the LE subsystem.
      *
@@ -611,6 +610,61 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t clear_resolving_list() = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Pairing
+    //
+
+    /**
+     * Send a pairing request to a slave.
+     *
+     * @param[in] connection connection handle
+     * @param[in] oob_data_flag is oob data present
+     * @param[in] authentication_requirements authentication requirements
+     * @param[in] initiator_dist key distribution
+     * @param[in] responder_dist key distribution
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.1
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t send_pairing_request(
+        connection_handle_t connection,
+        bool oob_data_flag,
+        AuthenticationMask authentication_requirements,
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
+    );
+
+    /**
+     * Send a pairing response to a master.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.2*
+     * @param[in] connection connection handle
+     * @param[in] oob_data_flag is oob data present
+     * @param[in] authentication_requirements authentication requirements
+     * @param[in] initiator_dist key distribution
+     * @param[in] responder_dist key distribution
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t send_pairing_response(
+        connection_handle_t connection,
+        bool oob_data_flag,
+        AuthenticationMask authentication_requirements,
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
+    ) = 0;
+
+    /**
+     * Cancel an ongoing pairing.
+     *
+     * @param[in] connection connection handle
+     * @param[in] reason pairing failure error
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t cancel_pairing(
+        connection_handle_t connection,
+        pairing_failure_t reason
+    ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
@@ -803,57 +857,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
-
-    /**
-     * Send a pairing request to a slave.
-     *
-     * @param[in] connection connection handle
-     * @param[in] oob_data_flag is oob data present
-     * @param[in] authentication_requirements authentication requirements
-     * @param[in] initiator_dist key distribution
-     * @param[in] responder_dist key distribution
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.1
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t send_pairing_request(
-        connection_handle_t connection,
-        bool oob_data_flag,
-        AuthenticationMask authentication_requirements,
-        KeyDistribution initiator_dist,
-        KeyDistribution responder_dist
-    );
-
-    /**
-     * Send a pairing response to a master.
-     *
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.2*
-     * @param[in] connection connection handle
-     * @param[in] oob_data_flag is oob data present
-     * @param[in] authentication_requirements authentication requirements
-     * @param[in] initiator_dist key distribution
-     * @param[in] responder_dist key distribution
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t send_pairing_response(
-        connection_handle_t connection,
-        bool oob_data_flag,
-        AuthenticationMask authentication_requirements,
-        KeyDistribution initiator_dist,
-        KeyDistribution responder_dist
-    ) = 0;
-
-    /**
-     * Cancel an ongoing pairing.
-     *
-     * @param[in] connection connection handle
-     * @param[in] reason pairing failure error
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t cancel_pairing(
-        connection_handle_t connection,
-        pairing_failure_t reason
-    ) = 0;
 
     /**
      * Request authentication of the connection. This will trigger an appropriate reaction,
