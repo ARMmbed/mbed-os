@@ -27,9 +27,12 @@
 namespace mbed {
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_LocalFileSystem LocalFileSystem functions
+ * @{
+ */
 
 FILEHANDLE local_file_open(const char* name, int flags);
-/** @}*/
 
 /**
  * @class LocalFileHandle
@@ -111,6 +114,10 @@ public:
     virtual int open(DirHandle **dir, const char *name);
     virtual int remove(const char *filename);
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

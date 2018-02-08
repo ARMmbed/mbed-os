@@ -57,6 +57,11 @@ public:
      */
     virtual ~TCPSocket();
 
+   /** Override multicast functions to return error for TCP
+    *
+    */
+    int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
+
     /** Connects TCP socket to a remote host
      *
      *  Initiates a connection to a remote server specified by either

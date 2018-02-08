@@ -70,6 +70,28 @@ nsapi_error_t Socket::close()
     return ret;
 }
 
+int Socket::modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt)
+{
+    nsapi_ip_mreq_t mreq;
+
+    // Set up group address
+    mreq.imr_multiaddr = address.get_addr();
+    mreq.imr_interface = nsapi_addr_t();   // Default address, NSAPI_UNSPEC
+
+    return this->setsockopt(NSAPI_SOCKET, socketopt, &mreq, sizeof(mreq));
+}
+
+int Socket::join_multicast_group(const SocketAddress &address)
+{
+    return modify_multicast_group(address, NSAPI_ADD_MEMBERSHIP);
+}
+
+int Socket::leave_multicast_group(const SocketAddress &address)
+{
+    return modify_multicast_group(address, NSAPI_DROP_MEMBERSHIP);
+}
+
+
 nsapi_error_t Socket::bind(uint16_t port)
 {
     // Underlying bind is thread safe

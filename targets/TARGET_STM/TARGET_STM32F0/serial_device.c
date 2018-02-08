@@ -478,9 +478,7 @@ void serial_clear(serial_t *obj)
 void serial_break_set(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-
-    //HAL_LIN_SendBreak(huart);
+    UART_HandleTypeDef *huart __attribute__((unused)) = &uart_handlers[obj_s->index];
 }
 
 #if DEVICE_SERIAL_ASYNCH
@@ -798,9 +796,9 @@ int serial_irq_handler_asynch(serial_t *obj)
     HAL_UART_IRQHandler(huart);
     
     // Abort if an error occurs
-    if (return_event & SERIAL_EVENT_RX_PARITY_ERROR ||
-            return_event & SERIAL_EVENT_RX_FRAMING_ERROR ||
-            return_event & SERIAL_EVENT_RX_OVERRUN_ERROR) {
+    if ((return_event & SERIAL_EVENT_RX_PARITY_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_FRAMING_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_OVERRUN_ERROR)) {
         return return_event;
     }
     
@@ -874,8 +872,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     
     // clear flags
     __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_PEF | UART_CLEAR_FEF | UART_CLEAR_OREF);
-    volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE flag
-    UNUSED(tmpval);
+    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->RDR; // Clear RXNE flag
     
     // reset states
     huart->RxXferCount = 0;

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef __DEPRECATE_H__
-#define __DEPRECATE_H__
+#ifndef MBED_BLE_DEPRECATE_H__
+#define MBED_BLE_DEPRECATE_H__
 
 #ifdef YOTTA_CFG_MBED_OS
 	#include "compiler-polyfill/attributes.h"
 #else
+	/**
+	 * Deprecated, use MBED_DEPRECATED instead.
+	 */
 	#define __deprecated_message(msg)
 #endif
 

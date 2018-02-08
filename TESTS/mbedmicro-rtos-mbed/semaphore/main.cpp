@@ -30,7 +30,7 @@ using namespace utest::v1;
 #define SEM_CHANGES      100
 #define SHORT_WAIT       5
 
-#define THREAD_STACK_SIZE 512
+#define THREAD_STACK_SIZE 320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/
 
 Semaphore two_slots(SEMAPHORE_SLOTS);
 

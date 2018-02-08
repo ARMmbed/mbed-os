@@ -23,15 +23,23 @@
 
 namespace mbed {
 /** \addtogroup platform */
-
+/** @{*/
 /**
- * @class FileSystem
- * @ingroup platform
+ * \defgroup platform_FilePath FilePath class
+ * @{
  */
-class FileSystem;
 
+class FileSystem;
+/** Class FilePath
+ *
+ */
+ 
 class FilePath {
 public:
+    /** Constructor FilePath
+     *
+     *  @param file_path     The path of file.
+     */ 
     FilePath(const char* file_path);
 
     const char* fileName(void);
@@ -47,6 +55,10 @@ private:
     const char* file_name;
     FileBase* fb;
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

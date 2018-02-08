@@ -62,6 +62,20 @@ public:
      */
     nsapi_error_t close();
     
+    /** Subscribes to an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure
+     */
+    int join_multicast_group(const SocketAddress &address);
+
+    /** Leave an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure
+     */
+    int leave_multicast_group(const SocketAddress &address);
+
     /** Bind a specific address to a socket
      *
      *  Binding a socket specifies the address and port on which to recieve
@@ -203,6 +217,7 @@ protected:
     Socket();
     virtual nsapi_protocol_t get_proto() = 0;
     virtual void event() = 0;
+    int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
 
     NetworkStack *_stack;
     nsapi_socket_t _socket;

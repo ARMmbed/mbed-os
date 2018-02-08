@@ -17,6 +17,8 @@
 
 static ticker_event_queue_t events = { 0 };
 
+static ticker_irq_handler_type irq_handler = ticker_irq_handler;
+
 static const ticker_interface_t us_interface = {
     .init = us_ticker_init,
     .read = us_ticker_read,
@@ -37,7 +39,18 @@ const ticker_data_t* get_us_ticker_data(void)
     return &us_data;
 }
 
+ticker_irq_handler_type set_us_ticker_irq_handler(ticker_irq_handler_type ticker_irq_handler)
+{
+    ticker_irq_handler_type prev_irq_handler = irq_handler;
+
+    irq_handler = ticker_irq_handler;
+
+    return prev_irq_handler;
+}
+
 void us_ticker_irq_handler(void)
 {
-    ticker_irq_handler(&us_data);
+    if (irq_handler) {
+        irq_handler(&us_data);
+    }
 }

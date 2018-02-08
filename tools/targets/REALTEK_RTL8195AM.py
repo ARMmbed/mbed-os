@@ -9,6 +9,7 @@ import hashlib
 import shutil
 
 from tools.paths import TOOLS_BOOTLOADERS
+from tools.toolchains import TOOLCHAIN_PATHS
 from datetime import datetime
 
 # Constant Variables
@@ -122,7 +123,8 @@ def parse_load_segment_gcc(image_elf):
     #   LOAD           0x000034 0x10006000 0x10006000 0x026bc 0x026bc RW  0x8
     #   LOAD           0x0026f0 0x30000000 0x30000000 0x06338 0x06338 RWE 0x4
     segment_list = []
-    cmd = 'arm-none-eabi-readelf -l ' + image_elf
+    cmd = os.path.join(TOOLCHAIN_PATHS['GCC_ARM'], 'arm-none-eabi-readelf')
+    cmd = '"' + cmd + '"' + ' -l ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if not line.startswith("  LOAD"):
             continue
@@ -153,7 +155,8 @@ def parse_load_segment_armcc(image_elf):
     (offset, addr, size) = (0, 0, 0)
     segment_list = []
     in_segment = False
-    cmd = 'fromelf --text -v --only=none ' + image_elf
+    cmd = os.path.join(TOOLCHAIN_PATHS['ARM'], 'bin', 'fromelf')
+    cmd = '"' + cmd + '"' + ' --text -v --only=none ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if line == "":
             pass
@@ -201,7 +204,8 @@ def parse_load_segment_iar(image_elf):
 
     segment_list = []
     in_segment = False
-    cmd = 'ielfdumparm ' + image_elf
+    cmd = os.path.join(TOOLCHAIN_PATHS['IAR'], 'bin', 'ielfdumparm')
+    cmd = '"' + cmd + '"' + ' ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if line.startswith("  SEGMENTS:"):
             in_segment = True

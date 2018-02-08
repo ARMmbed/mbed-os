@@ -52,25 +52,25 @@ const int ethernet_MTU_SIZE  = 0x300;
 
 #define ETHERNET_ADDR_SIZE 6
 
-PACKED struct RX_DESC_TypeDef {                        /* RX Descriptor struct              */
+MBED_PACKED(struct) RX_DESC_TypeDef {                        /* RX Descriptor struct              */
    unsigned int Packet;
    unsigned int Ctrl;
 };
 typedef struct RX_DESC_TypeDef RX_DESC_TypeDef;
 
-PACKED struct RX_STAT_TypeDef {                        /* RX Status struct                  */
+MBED_PACKED(struct) RX_STAT_TypeDef {                        /* RX Status struct                  */
    unsigned int Info;
    unsigned int HashCRC;
 };
 typedef struct RX_STAT_TypeDef RX_STAT_TypeDef;
 
-PACKED struct TX_DESC_TypeDef {                        /* TX Descriptor struct              */
+MBED_PACKED(struct) TX_DESC_TypeDef {                        /* TX Descriptor struct              */
    unsigned int Packet;
    unsigned int Ctrl;
 };
 typedef struct TX_DESC_TypeDef TX_DESC_TypeDef;
 
-PACKED struct TX_STAT_TypeDef {                        /* TX Status struct                  */
+MBED_PACKED(struct) TX_STAT_TypeDef {                        /* TX Status struct                  */
    unsigned int Info;
 };
 typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
@@ -436,9 +436,9 @@ int ethernet_init() {
   int regv, tout;
   char mac[ETHERNET_ADDR_SIZE];
   unsigned int clock = clockselect();
-  
+
   LPC_SC->PCONP |= 0x40000000;                       /* Power Up the EMAC controller. */
-  
+
   LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
   LPC_IOCON->P1_0  |= 0x01;     /* ENET_TXD0 */
   LPC_IOCON->P1_1  &= ~0x07;
@@ -459,7 +459,7 @@ int ethernet_init() {
   LPC_IOCON->P1_16 |= 0x01;     /* ENET_MDC */
   LPC_IOCON->P1_17 &= ~0x07;
   LPC_IOCON->P1_17 |= 0x01;     /* ENET_MDIO */
-  
+
    /* Reset all EMAC internal modules. */
   LPC_EMAC->MAC1    = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX |
                       MAC1_RES_MCS_RX | MAC1_SIM_RES | MAC1_SOFT_RES;
@@ -523,7 +523,7 @@ int ethernet_init() {
 
   LPC_EMAC->IntEnable = INT_RX_DONE | INT_TX_DONE;    /* Enable EMAC interrupts. */
   LPC_EMAC->IntClear  = 0xFFFF;                       /* Reset all interrupts */
-  
+
   LPC_EMAC->Command  |= (CR_RX_EN | CR_TX_EN);        /* Enable receive and transmit mode of MAC Ethernet core */
   LPC_EMAC->MAC1     |= MAC1_REC_EN;
 
@@ -548,9 +548,9 @@ int ethernet_init() {
 void ethernet_free() {
     LPC_EMAC->IntEnable &= ~(INT_RX_DONE | INT_TX_DONE);
     LPC_EMAC->IntClear   =  0xFFFF;
-    
+
     LPC_SC->PCONP   &= ~0x40000000;       /* Power down the EMAC controller. */
-    
+
     LPC_IOCON->P1_0  &= ~0x07;    /*  ENET I/O config */
     LPC_IOCON->P1_1  &= ~0x07;
     LPC_IOCON->P1_4  &= ~0x07;
@@ -908,22 +908,22 @@ void ethernet_address(char *mac) {
 void ethernet_set_link(int speed, int duplex) {
     unsigned short phy_data;
     int tout;
-    
+
     if((speed < 0) || (speed > 1)) {
         phy_data = PHY_AUTO_NEG;
     } else {
         phy_data = (((unsigned short) speed << 13) |
                     ((unsigned short) duplex << 8));
     }
-    
+
     phy_write(PHY_REG_BMCR, phy_data);
-    
+
     for (tout = 100; tout; tout--) { __NOP(); }     /* A short delay */
-    
+
     switch(phy_id) {
         case DP83848C_ID:
             phy_data = phy_read(PHY_REG_STS);
-            
+
             if(phy_data & PHY_STS_DUPLEX) {
                 LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
                 LPC_EMAC->Command |= CR_FULL_DUP;
@@ -933,17 +933,17 @@ void ethernet_set_link(int speed, int duplex) {
                 LPC_EMAC->Command &= ~CR_FULL_DUP;
                 LPC_EMAC->IPGT = IPGT_HALF_DUP;
             }
-            
+
             if(phy_data & PHY_STS_SPEED) {
                 LPC_EMAC->SUPP &= ~SUPP_SPEED;
             } else {
                 LPC_EMAC->SUPP |= SUPP_SPEED;
             }
             break;
-        
+
         case LAN8720_ID:
             phy_data = phy_read(PHY_REG_SCSR);
-            
+
             if (phy_data & PHY_SCSR_DUPLEX) {
                 LPC_EMAC->MAC2 |= MAC2_FULL_DUP;
                 LPC_EMAC->Command |= CR_FULL_DUP;
@@ -952,13 +952,13 @@ void ethernet_set_link(int speed, int duplex) {
                 LPC_EMAC->Command &= ~CR_FULL_DUP;
                 LPC_EMAC->IPGT = IPGT_HALF_DUP;
             }
-            
+
             if(phy_data & PHY_SCSR_100MBIT) {
                 LPC_EMAC->SUPP |= SUPP_SPEED;
             } else {
                 LPC_EMAC->SUPP &= ~SUPP_SPEED;
             }
-            
+
             break;
     }
 }

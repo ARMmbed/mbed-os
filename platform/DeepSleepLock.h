@@ -22,6 +22,12 @@
 
 namespace mbed {
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_DeepSleepLock DeepSleepLock functions
+ * @{
+ */
 
 /** RAII object for disabling, then restoring the deep sleep mode
   * Usage:
@@ -81,6 +87,11 @@ public:
         }
     }
 };
+
+/**@}*/
+
+/**@}*/
+
 
 }
 

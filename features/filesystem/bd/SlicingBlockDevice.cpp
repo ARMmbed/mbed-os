@@ -17,17 +17,6 @@
 #include "SlicingBlockDevice.h"
 
 
-SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start)
-    : _bd(bd)
-    , _start_from_end(false), _start(start)
-    , _stop_from_end(true), _stop(0)
-{
-    if ((int64_t)_start < 0) {
-        _start_from_end = true;
-        _start = -_start;
-    }
-}
-
 SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr_t stop)
     : _bd(bd)
     , _start_from_end(false), _start(start)
@@ -38,7 +27,7 @@ SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr
         _start = -_start;
     }
 
-    if ((int64_t)_stop < 0) {
+    if ((int64_t)_stop <= 0) {
         _stop_from_end = true;
         _stop = -_stop;
     }

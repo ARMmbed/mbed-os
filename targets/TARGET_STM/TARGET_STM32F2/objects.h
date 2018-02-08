@@ -62,7 +62,8 @@ struct analogin_s {
 
 struct dac_s {
     DACName dac;
-    uint8_t channel;
+    PinName pin;
+    uint32_t channel;
     DAC_HandleTypeDef handle;
 };
 

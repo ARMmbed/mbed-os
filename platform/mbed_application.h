@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017-2017 ARM Limited
  *
@@ -16,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef MBED_APPLICATION_H
 #define MBED_APPLICATION_H
 
@@ -52,4 +50,3 @@ void mbed_start_application(uintptr_t address);
 
 #endif
 
-/** @}*/

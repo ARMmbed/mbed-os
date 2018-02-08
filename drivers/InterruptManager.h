@@ -60,10 +60,14 @@ public:
      *
      *  @return the only instance of this class
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     static InterruptManager* get();
 
     /** Destroy the current instance of the interrupt manager
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     static void destroy();
 
     /** Add a handler for an interrupt at the end of the handler list
@@ -74,6 +78,8 @@ public:
      *  @returns
      *  The function object created for 'function'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add_handler(void (*function)(void), IRQn_Type irq) {
         // Underlying call is thread safe
         return add_common(function, irq);
@@ -87,6 +93,8 @@ public:
      *  @returns
      *  The function object created for 'function'
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add_handler_front(void (*function)(void), IRQn_Type irq) {
         // Underlying call is thread safe
         return add_common(function, irq, true);
@@ -102,6 +110,8 @@ public:
      *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
         // Underlying call is thread safe
         return add_common(tptr, mptr, irq);
@@ -117,6 +127,8 @@ public:
      *  The function object created for 'tptr' and 'mptr'
      */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
         // Underlying call is thread safe
         return add_common(tptr, mptr, irq, true);
@@ -130,6 +142,8 @@ public:
      *  @returns
      *  true if the handler was found and removed, false otherwise
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
+        "public API of mbed-os and is being removed in the future.")
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
 private:

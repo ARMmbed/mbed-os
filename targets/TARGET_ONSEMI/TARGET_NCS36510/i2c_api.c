@@ -169,9 +169,7 @@ int i2c_byte_write(i2c_t *obj, int data)
         return Count;
     }
 
-    while(obj->membase->STATUS.WORD & I2C_STATUS_CMD_FIFO_OFL_BIT); /* Wait till command overflow ends */
-
-    if(obj->membase->STATUS.WORD & I2C_STATUS_BUS_ERR_BIT) {
+    if(I2C_BUS_ERR_CHECK) {
         /* Bus error means NAK received */
         return 0;
     } else {

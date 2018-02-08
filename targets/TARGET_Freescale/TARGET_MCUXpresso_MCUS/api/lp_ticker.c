@@ -139,6 +139,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     /* Checking if LPTRM can handle this sleep */
     delta_ticks = USEC_TO_COUNT(delta_us, CLOCK_GetFreq(kCLOCK_Er32kClk));
+    if (delta_ticks == 0) {
+        /* The requested delay is less than the minimum resolution of this counter */
+        delta_ticks = 1;
+    }
+
     if (delta_ticks > MAX_LPTMR_SLEEP) {
         /* Using RTC if wait time is over 16b (2s @32kHz) */
         uint32_t delta_sec;
@@ -154,6 +159,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
         /* Set aditional, subsecond, sleep time */
         if (delta_us) {
             lptmr_schedule = USEC_TO_COUNT(delta_us, CLOCK_GetFreq(kCLOCK_Er32kClk));
+            if (lptmr_schedule == 0) {
+                /* The requested delay is less than the minimum resolution of this counter */
+                lptmr_schedule = 1;
+            }
+
         }
     } else {
         /* Below RTC resolution using LPTMR */

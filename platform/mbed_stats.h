@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_stats stats functions
+ * @{
+ */
 /* mbed Microcontroller Library
  * Copyright (c) 2016-2016 ARM Limited
  *
@@ -25,6 +29,9 @@
 extern "C" {
 #endif
 
+/**
+ * struct mbed_stats_heap_t definition
+ */
 typedef struct {
     uint32_t current_size;      /**< Bytes allocated currently. */
     uint32_t max_size;          /**< Max bytes allocated at a given time. */
@@ -41,6 +48,9 @@ typedef struct {
  */
 void mbed_stats_heap_get(mbed_stats_heap_t *stats);
 
+/**
+ * struct mbed_stats_stack_t definition
+ */
 typedef struct {
     uint32_t thread_id;         /**< Identifier for thread that owns the stack or 0 if multiple threads. */
     uint32_t max_size;          /**< Maximum number of bytes used on the stack. */
@@ -71,5 +81,7 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
 #endif
 
 #endif
+
+/** @}*/
 
 /** @}*/

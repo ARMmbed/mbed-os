@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __SERVICE_DISOVERY_H__
-#define __SERVICE_DISOVERY_H__
+#ifndef MBED_BLE_SERVICE_DISOVERY_H__
+#define MBED_BLE_SERVICE_DISOVERY_H__
 
 #include "UUID.h"
 #include "Gap.h"
@@ -24,43 +24,68 @@
 class DiscoveredService;
 class DiscoveredCharacteristic;
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup client
+ * @{
+ */
+
+/**
+ * Host callback types needed by the service discovery procedure.
+ *
+ * This class is also an interface that may be used in vendor port to model
+ * the service discovery process. This interface is not used in user code.
+ *
+ * @important Implementing this interface is not a requirement for the
+ * implementation of the service discover process.
+ */
 class ServiceDiscovery {
 public:
-    /*
-     * Exposed application callback types.
+    /**
+     * Service discovered event handler.
+     *
+     * The callback accepts a pointer to a DiscoveredService as parameter.
+     *
+     * @important The argument passed to the callback may not persist after the
+     * callback invocation; therefore, the callbacks must make a shallow copy
+     * of the DiscoveredService passed as parameter to access its value beyond
+     * the callback scope.
      */
+    typedef FunctionPointerWithContext<const DiscoveredService *>
+        ServiceCallback_t;
 
     /**
-     * Callback type for when a matching service is found during service-
-     * discovery. The receiving function is passed in a pointer to a
-     * DiscoveredService object, which will remain valid for the lifetime of the
-     * callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object to work with the service beyond the callback.
+     * Characteristic discovered event handler.
+     *
+     * The callback accepts a pointer to a DiscoveredCharacteristic as
+     * parameter.
+     *
+     * @important The argument passed to the callback may not persist after the
+     * callback invocation; therefore, the callbacks must make a shallow copy
+     * of the DiscoveredCharacteristic passed as parameter to access its value
+     * beyond the callback scope.
      */
-    typedef FunctionPointerWithContext<const DiscoveredService *> ServiceCallback_t;
+    typedef FunctionPointerWithContext<const DiscoveredCharacteristic *>
+        CharacteristicCallback_t;
 
     /**
-     * Callback type for when a matching characteristic is found during service-
-     * discovery. The receiving function is passed in a pointer to a
-     * DiscoveredCharacteristic object, which will remain valid for the lifetime
-     * of the callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object to work with the characteristic beyond the callback.
-     */
-    typedef FunctionPointerWithContext<const DiscoveredCharacteristic *> CharacteristicCallback_t;
-
-    /**
-     * Callback type for when serviceDiscovery terminates.
+     * Service discovery ended event.
+     *
+     * The callback accepts a connection handle as parameter. This
+     * parameter is used to identify on which connection the service discovery
+     * process ended.
      */
     typedef FunctionPointerWithContext<Gap::Handle_t> TerminationCallback_t;
 
 public:
     /**
-     * Launch service discovery. Once launched, service discovery will remain
+     * Launch service discovery. Once launched, service discovery remains
      * active with callbacks being issued back into the application for matching
      * services or characteristics. isActive() can be used to determine status, and
-     * a termination callback (if set up) will be invoked at the end. Service
+     * a termination callback (if set up) is invoked at the end. Service
      * discovery can be terminated prematurely, if needed, using terminate().
      *
      * @param  connectionHandle
@@ -85,24 +110,24 @@ public:
      *           characteristic.
      * @param  matchingServiceUUID
      *           UUID-based filter for specifying a service in which the application is
-     *           interested. By default it is set as the wildcard UUID_UNKNOWN,
+     *           interested. By default, it is set as the wildcard UUID_UNKNOWN,
      *           in which case it matches all services. If characteristic-UUID
      *           filter (below) is set to the wildcard value, then a service
-     *           callback will be invoked for the matching service (or for every
+     *           callback is invoked for the matching service (or for every
      *           service if the service filter is a wildcard).
      * @param  matchingCharacteristicUUIDIn
      *           UUID-based filter for specifying a characteristic in which the application
-     *           is interested. By default it is set as the wildcard UUID_UKNOWN
+     *           is interested. By default, it is set as the wildcard UUID_UKNOWN
      *           to match against any characteristic. If both service-UUID
-     *           filter and characteristic-UUID filter are used with non-wildcard
+     *           filter and characteristic-UUID filter are used with nonwildcard
      *           values, then only a single characteristic callback is
      *           invoked for the matching characteristic.
      *
      * @note     Using wildcard values for both service-UUID and characteristic-
-     *           UUID will result in complete service discovery: callbacks being
+     *           UUID result in complete service discovery: callbacks being
      *           called for every service and characteristic.
      *
-     * @note     Providing NULL for the characteristic callback will result in
+     * @note     Providing NULL for the characteristic callback results in
      *           characteristic discovery being skipped for each matching
      *           service. This allows for an inexpensive method to discover only
      *           services.
@@ -136,9 +161,9 @@ public:
      * Clear all ServiceDiscovery state of the associated object.
      *
      * This function is meant to be overridden in the platform-specific
-     * sub-class. Nevertheless, the sub-class is only expected to reset its
-     * state and not the data held in ServiceDiscovery members. This shall be
-     * achieved by a call to ServiceDiscovery::reset() from the sub-class'
+     * subclass. Nevertheless, the subclass is only expected to reset its
+     * state and not the data held in ServiceDiscovery members. This is
+     * achieved by a call to ServiceDiscovery::reset() from the subclass'
      * reset() implementation.
      *
      * @return BLE_ERROR_NONE on success.
@@ -180,4 +205,10 @@ protected:
     CharacteristicCallback_t characteristicCallback;
 };
 
-#endif /* ifndef __SERVICE_DISOVERY_H__ */
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /* ifndef MBED_BLE_SERVICE_DISOVERY_H__ */

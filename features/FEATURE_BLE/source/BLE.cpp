@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
 #include "ble/BLE.h"
 #include "ble/BLEInstanceBase.h"
 
@@ -139,7 +140,8 @@ void defaultSchedulingCallback(BLE::OnEventsToProcessCallbackContext* params) {
 
 
 BLE::BLE(InstanceID_t instanceIDIn) : instanceID(instanceIDIn), transport(),
-    whenEventsToProcess(defaultSchedulingCallback)
+    whenEventsToProcess(defaultSchedulingCallback),
+    event_signaled(false)
 {
     static BLEInstanceBase *transportInstances[NUM_INSTANCES];
 
@@ -168,6 +170,7 @@ ble_error_t BLE::shutdown(void)
         error("bad handle to underlying transport");
     }
 
+    event_signaled = false;
     return transport->shutdown();
 }
 
@@ -263,9 +266,15 @@ void BLE::waitForEvent(void)
 
 void BLE::processEvents()
 {
+    if (event_signaled == false) {
+        return;
+    }
+
     if (!transport) {
         error("bad handle to underlying transport");
     }
+
+    event_signaled = false;
 
     transport->processEvents();
 }
@@ -273,10 +282,25 @@ void BLE::processEvents()
 void BLE::onEventsToProcess(const BLE::OnEventsToProcessCallback_t& callback)
 {
     whenEventsToProcess = callback;
+
+    // If events were previously signaled but the handler was not in place then
+    // signal immediately events availability
+    if (event_signaled && whenEventsToProcess) {
+        OnEventsToProcessCallbackContext params = {
+            *this
+        };
+        whenEventsToProcess(&params);
+    }
 }
 
 void BLE::signalEventsToProcess()
 {
+    if (event_signaled == true) {
+        return;
+    }
+
+    event_signaled = true;
+
     if (whenEventsToProcess) {
         OnEventsToProcessCallbackContext params = {
             *this

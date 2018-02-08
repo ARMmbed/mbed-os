@@ -130,7 +130,8 @@ uint32_t us_ticker_read()
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(Tim0_IRQn);
+    us_ticker_target = 0;
+    NVIC_SetPendingIRQ(Tim1_IRQn);
 }
 
 /*******************************************************************************

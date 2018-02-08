@@ -22,7 +22,10 @@
 
 using namespace utest::v1;
 
-#define TEST_EQUEUE_SIZE 1024
+// TEST_EQUEUE_SIZE was reduced below 1024B to fit this test to devices with small RAM (RAM <= 16kB)
+// additionally TEST_EQUEUE_SIZE was expressed in EVENTS_EVENT_SIZE to increase readability
+// (for more details about EVENTS_EVENT_SIZE see EventQueue constructor)
+#define TEST_EQUEUE_SIZE (18*EVENTS_EVENT_SIZE)
 
 // flag for called
 volatile bool touched = false;

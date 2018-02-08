@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 /** pio HAL Spreadsheet version number */
-#define PIO_HAL_VERSION 3
+#define PIO_HAL_VERSION 4
 
 /** Peripheral IO Controller Module
 */
@@ -241,54 +241,8 @@ struct pio_s {
    uint32_t pio_wur6sr_0;
    /** WakeUp Redux 28-31 Status Register at address offset 0x1BC, read-write */
    uint32_t pio_wur7sr_0;
-   /** Alternative Pad Cfg Enable Register at address offset 0x1C0, write-only */
-   uint32_t pio_acfger_0;
-   /** Alternative Pad Cfg Disable Register at address offset 0x1C4, write-only */
-   uint32_t pio_acfgdr_0;
-   /** Alternative Pad Cfg Enable Status Register at address offset 0x1C8, read-only */
-   uint32_t pio_acfgsr_0;
    /** Reserved space */
-   uint8_t fill15[4];
-   /** Alternative Output Enable Register at address offset 0x1D0, write-only */
-   uint32_t pio_aoer_0;
-   /** Alternative Output Disable Register at address offset 0x1D4, write-only */
-   uint32_t pio_aodr_0;
-   /** Alternative Output Status Register at address offset 0x1D8, read-only */
-   uint32_t pio_aosr_0;
-   /** Reserved space */
-   uint8_t fill16[4];
-   /** Set Output Data Register at address offset 0x1E0, write-only */
-   uint32_t pio_asodr_0;
-   /** Clear Output Data Register at address offset 0x1E4, write-only */
-   uint32_t pio_acodr_0;
-   /** Output Data Status Register at address offset 0x1E8, read-only */
-   uint32_t pio_aodsr_0;
-   /** Reserved space */
-   uint8_t fill17[4];
-   /** Alt Pull to High Level Enable Register at address offset 0x1F0, write-only */
-   uint32_t pio_apher_0;
-   /** Alt Pull to High Level Disable Register at address offset 0x1F4, write-only */
-   uint32_t pio_aphdr_0;
-   /** Alt Pull to High Level Status Register at address offset 0x1F8, read-only */
-   uint32_t pio_aphsr_0;
-   /** Reserved space */
-   uint8_t fill18[4];
-   /** Alt Pull to Low Level Enable Register at address offset 0x200, read-write */
-   uint32_t pio_apler_0;
-   /** Alt Pull to Low Level Disable Register at address offset 0x204, read-write */
-   uint32_t pio_apldr_0;
-   /** Alt Pull to Low Level Status Register at address offset 0x208, read-only */
-   uint32_t pio_aplsr_0;
-   /** Reserved space */
-   uint8_t fill19[4];
-   /** Alternative Pad Configuration Hold Enable Register at address offset 0x210, write-only */
-   uint32_t pio_acher_0;
-   /** Alternative Pad Configuration Hold Disable Register at address offset 0x214, write-only */
-   uint32_t pio_achdr_0;
-   /** Alternative Pad Configuration Hold Status Register at address offset 0x218, read-only */
-   uint32_t pio_achsr_0;
-   /** Reserved space */
-   uint8_t fill20[4];
+   uint8_t fill15[96];
    /** PIO Enable Register at address offset 0x220, write-only */
    uint32_t pio_per_1;
    /** PIO Disable Register at address offset 0x224, write-only */
@@ -296,7 +250,7 @@ struct pio_s {
    /** PIO Status Register at address offset 0x228, read-only */
    uint32_t pio_psr_1;
    /** Reserved space */
-   uint8_t fill21[4];
+   uint8_t fill16[4];
    /** Output Enable Register at address offset 0x230, write-only */
    uint32_t pio_oer_1;
    /** Output Disable Register at address offset 0x234, write-only */
@@ -312,7 +266,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 1) at address offset 0x248, read-only */
    uint32_t pio_ifsr_1;
    /** Reserved space */
-   uint8_t fill22[4];
+   uint8_t fill17[4];
    /** Set Output Data Register at address offset 0x250, write-only */
    uint32_t pio_sodr_1;
    /** Clear Output Data Register at address offset 0x254, write-only */
@@ -328,7 +282,7 @@ struct pio_s {
    /** 1st Interrupt Mask Register at address offset 0x268, read-only */
    uint32_t pio_imr1_1;
    /** Reserved space */
-   uint8_t fill23[4];
+   uint8_t fill18[4];
    /** 2nd Interrupt Enable Register at address offset 0x270, write-only */
    uint32_t pio_ier2_1;
    /** 2nd Interrupt Disable Register at address offset 0x274, write-only */
@@ -344,7 +298,7 @@ struct pio_s {
    /** Multi-Driver Status Register at address offset 0x288, read-only */
    uint32_t pio_mdsr_1;
    /** Reserved space */
-   uint8_t fill24[4];
+   uint8_t fill19[4];
    /** PIO check in Register at address offset 0x290, read-only */
    uint32_t pio_ckin_1;
    /** PIO general purpose Register at address offset 0x294, read-write */
@@ -368,7 +322,7 @@ struct pio_s {
    /** MSB Drive Strength Status Register at address offset 0x2B8, read-only */
    uint32_t pio_mdssr_1;
    /** Reserved space */
-   uint8_t fill25[4];
+   uint8_t fill20[4];
    /** LSB Drive Strength Enable Register at address offset 0x2C0, write-only */
    uint32_t pio_ldser_1;
    /** LSB Drive Strength Disable Register at address offset 0x2C4, write-only */
@@ -376,7 +330,7 @@ struct pio_s {
    /** LSB Drive Strength Status Register at address offset 0x2C8, read-only */
    uint32_t pio_ldssr_1;
    /** Reserved space */
-   uint8_t fill26[4];
+   uint8_t fill21[4];
    /** Slew Rate Enable Register at address offset 0x2D0, write-only */
    uint32_t pio_srer_1;
    /** Slew Rate Disable Register at address offset 0x2D4, write-only */
@@ -384,7 +338,7 @@ struct pio_s {
    /** Slew Rate Status Register at address offset 0x2D8, read-only */
    uint32_t pio_srsr_1;
    /** Reserved space */
-   uint8_t fill27[4];
+   uint8_t fill22[4];
    /** Pull to High Level Enable Register at address offset 0x2E0, write-only */
    uint32_t pio_pher_1;
    /** Pull to High Level Disable Register at address offset 0x2E4, write-only */
@@ -392,7 +346,7 @@ struct pio_s {
    /** Pull to High Level Status Register at address offset 0x2E8, read-only */
    uint32_t pio_phsr_1;
    /** Reserved space */
-   uint8_t fill28[4];
+   uint8_t fill23[4];
    /** Pull to Low Level Enable Register at address offset 0x2F0, write-only */
    uint32_t pio_pler_1;
    /** Pull to Low Level Disable Register at address offset 0x2F4, write-only */
@@ -400,7 +354,7 @@ struct pio_s {
    /** Pull to Low Level Status Register at address offset 0x2F8, read-only */
    uint32_t pio_plsr_1;
    /** Reserved space */
-   uint8_t fill29[4];
+   uint8_t fill24[4];
    /** Schmitt trigger Enable Register at address offset 0x300, write-only */
    uint32_t pio_ster_1;
    /** Schmitt trigger Disable Register at address offset 0x304, write-only */
@@ -408,7 +362,7 @@ struct pio_s {
    /** Schmitt trigger Status Register at address offset 0x308, read-only */
    uint32_t pio_stsr_1;
    /** Reserved space */
-   uint8_t fill30[4];
+   uint8_t fill25[4];
    /** Input Enable Register at address offset 0x310, write-only */
    uint32_t pio_iner_1;
    /** Input Disable Register at address offset 0x314, write-only */
@@ -416,7 +370,7 @@ struct pio_s {
    /** Input Enable Status Register at address offset 0x318, read-only */
    uint32_t pio_insr_1;
    /** Reserved space */
-   uint8_t fill31[4];
+   uint8_t fill26[4];
    /** Periph Ctrl PU/PD Enable Register at address offset 0x320, write-only */
    uint32_t pio_percper_1;
    /** Periph Ctrl PU/PD Disable Register at address offset 0x324, write-only */
@@ -424,7 +378,7 @@ struct pio_s {
    /** Periph Ctrl PU/PD Status Register at address offset 0x328, read-only */
    uint32_t pio_percpsr_1;
    /** Reserved space */
-   uint8_t fill32[4];
+   uint8_t fill27[4];
    /** HW Observation Selector Status Register at address offset 0x330, read-write */
    uint32_t pio_hwobssr_1;
    /** Input Filter Status Register (selector 2) at address offset 0x334, read-write */
@@ -432,7 +386,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 3) at address offset 0x338, read-write */
    uint32_t pio_if3sr_1;
    /** Reserved space */
-   uint8_t fill33[4];
+   uint8_t fill28[4];
    /** Interrupt Event Enable Register at address offset 0x340, write-only */
    uint32_t pio_ever_1;
    /** Interrupt Event Disable Register at address offset 0x344, write-only */
@@ -440,7 +394,7 @@ struct pio_s {
    /** Interrupt Event Status Register at address offset 0x348, read-only */
    uint32_t pio_evsr_1;
    /** Reserved space */
-   uint8_t fill34[4];
+   uint8_t fill29[4];
    /** Interrupt Event Type Enable Register at address offset 0x350, write-only */
    uint32_t pio_evter_1;
    /** Interrupt Event Type Disable Register at address offset 0x354, write-only */
@@ -488,7 +442,7 @@ struct pio_s {
    /** PIO Wakeup Event Status Register at address offset 0x3A8, read-only */
    uint32_t pio_pwesr_1;
    /** Reserved space */
-   uint8_t fill35[4];
+   uint8_t fill30[4];
    /** PIO Wakeup Event Type Enable Register at address offset 0x3B0, write-only */
    uint32_t pio_pweter_1;
    /** PIO Wakeup Event Type Disable Register at address offset 0x3B4, write-only */
@@ -513,54 +467,8 @@ struct pio_s {
    uint32_t pio_wur6sr_1;
    /** WakeUp Redux 28-31 Status Register at address offset 0x3DC, read-write */
    uint32_t pio_wur7sr_1;
-   /** Alternative Pad Cfg Enable Register at address offset 0x3E0, write-only */
-   uint32_t pio_acfger_1;
-   /** Alternative Pad Cfg Disable Register at address offset 0x3E4, write-only */
-   uint32_t pio_acfgdr_1;
-   /** Alternative Pad Cfg Enable Status Register at address offset 0x3E8, read-only */
-   uint32_t pio_acfgsr_1;
    /** Reserved space */
-   uint8_t fill36[4];
-   /** Alternative Output Enable Register at address offset 0x3F0, write-only */
-   uint32_t pio_aoer_1;
-   /** Alternative Output Disable Register at address offset 0x3F4, write-only */
-   uint32_t pio_aodr_1;
-   /** Alternative Output Status Register at address offset 0x3F8, read-only */
-   uint32_t pio_aosr_1;
-   /** Reserved space */
-   uint8_t fill37[4];
-   /** Set Output Data Register at address offset 0x400, write-only */
-   uint32_t pio_asodr_1;
-   /** Clear Output Data Register at address offset 0x404, write-only */
-   uint32_t pio_acodr_1;
-   /** Output Data Status Register at address offset 0x408, read-only */
-   uint32_t pio_aodsr_1;
-   /** Reserved space */
-   uint8_t fill38[4];
-   /** Alt Pull to High Level Enable Register at address offset 0x410, write-only */
-   uint32_t pio_apher_1;
-   /** Alt Pull to High Level Disable Register at address offset 0x414, write-only */
-   uint32_t pio_aphdr_1;
-   /** Alt Pull to High Level Status Register at address offset 0x418, read-only */
-   uint32_t pio_aphsr_1;
-   /** Reserved space */
-   uint8_t fill39[4];
-   /** Alt Pull to Low Level Enable Register at address offset 0x420, read-write */
-   uint32_t pio_apler_1;
-   /** Alt Pull to Low Level Disable Register at address offset 0x424, read-write */
-   uint32_t pio_apldr_1;
-   /** Alt Pull to Low Level Status Register at address offset 0x428, read-only */
-   uint32_t pio_aplsr_1;
-   /** Reserved space */
-   uint8_t fill40[4];
-   /** Alternative Pad Configuration Hold Enable Register at address offset 0x430, write-only */
-   uint32_t pio_acher_1;
-   /** Alternative Pad Configuration Hold Disable Register at address offset 0x434, write-only */
-   uint32_t pio_achdr_1;
-   /** Alternative Pad Configuration Hold Status Register at address offset 0x438, read-only */
-   uint32_t pio_achsr_1;
-   /** Reserved space */
-   uint8_t fill41[4];
+   uint8_t fill31[96];
    /** PIO Enable Register at address offset 0x440, write-only */
    uint32_t pio_per_2;
    /** PIO Disable Register at address offset 0x444, write-only */
@@ -568,7 +476,7 @@ struct pio_s {
    /** PIO Status Register at address offset 0x448, read-only */
    uint32_t pio_psr_2;
    /** Reserved space */
-   uint8_t fill42[4];
+   uint8_t fill32[4];
    /** Output Enable Register at address offset 0x450, write-only */
    uint32_t pio_oer_2;
    /** Output Disable Register at address offset 0x454, write-only */
@@ -584,7 +492,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 1) at address offset 0x468, read-only */
    uint32_t pio_ifsr_2;
    /** Reserved space */
-   uint8_t fill43[4];
+   uint8_t fill33[4];
    /** Set Output Data Register at address offset 0x470, write-only */
    uint32_t pio_sodr_2;
    /** Clear Output Data Register at address offset 0x474, write-only */
@@ -600,7 +508,7 @@ struct pio_s {
    /** 1st Interrupt Mask Register at address offset 0x488, read-only */
    uint32_t pio_imr1_2;
    /** Reserved space */
-   uint8_t fill44[4];
+   uint8_t fill34[4];
    /** 2nd Interrupt Enable Register at address offset 0x490, write-only */
    uint32_t pio_ier2_2;
    /** 2nd Interrupt Disable Register at address offset 0x494, write-only */
@@ -616,7 +524,7 @@ struct pio_s {
    /** Multi-Driver Status Register at address offset 0x4A8, read-only */
    uint32_t pio_mdsr_2;
    /** Reserved space */
-   uint8_t fill45[4];
+   uint8_t fill35[4];
    /** PIO check in Register at address offset 0x4B0, read-only */
    uint32_t pio_ckin_2;
    /** PIO general purpose Register at address offset 0x4B4, read-write */
@@ -640,7 +548,7 @@ struct pio_s {
    /** MSB Drive Strength Status Register at address offset 0x4D8, read-only */
    uint32_t pio_mdssr_2;
    /** Reserved space */
-   uint8_t fill46[4];
+   uint8_t fill36[4];
    /** LSB Drive Strength Enable Register at address offset 0x4E0, write-only */
    uint32_t pio_ldser_2;
    /** LSB Drive Strength Disable Register at address offset 0x4E4, write-only */
@@ -648,7 +556,7 @@ struct pio_s {
    /** LSB Drive Strength Status Register at address offset 0x4E8, read-only */
    uint32_t pio_ldssr_2;
    /** Reserved space */
-   uint8_t fill47[4];
+   uint8_t fill37[4];
    /** Slew Rate Enable Register at address offset 0x4F0, write-only */
    uint32_t pio_srer_2;
    /** Slew Rate Disable Register at address offset 0x4F4, write-only */
@@ -656,7 +564,7 @@ struct pio_s {
    /** Slew Rate Status Register at address offset 0x4F8, read-only */
    uint32_t pio_srsr_2;
    /** Reserved space */
-   uint8_t fill48[4];
+   uint8_t fill38[4];
    /** Pull to High Level Enable Register at address offset 0x500, write-only */
    uint32_t pio_pher_2;
    /** Pull to High Level Disable Register at address offset 0x504, write-only */
@@ -664,7 +572,7 @@ struct pio_s {
    /** Pull to High Level Status Register at address offset 0x508, read-only */
    uint32_t pio_phsr_2;
    /** Reserved space */
-   uint8_t fill49[4];
+   uint8_t fill39[4];
    /** Pull to Low Level Enable Register at address offset 0x510, write-only */
    uint32_t pio_pler_2;
    /** Pull to Low Level Disable Register at address offset 0x514, write-only */
@@ -672,7 +580,7 @@ struct pio_s {
    /** Pull to Low Level Status Register at address offset 0x518, read-only */
    uint32_t pio_plsr_2;
    /** Reserved space */
-   uint8_t fill50[4];
+   uint8_t fill40[4];
    /** Schmitt trigger Enable Register at address offset 0x520, write-only */
    uint32_t pio_ster_2;
    /** Schmitt trigger Disable Register at address offset 0x524, write-only */
@@ -680,7 +588,7 @@ struct pio_s {
    /** Schmitt trigger Status Register at address offset 0x528, read-only */
    uint32_t pio_stsr_2;
    /** Reserved space */
-   uint8_t fill51[4];
+   uint8_t fill41[4];
    /** Input Enable Register at address offset 0x530, write-only */
    uint32_t pio_iner_2;
    /** Input Disable Register at address offset 0x534, write-only */
@@ -688,7 +596,7 @@ struct pio_s {
    /** Input Enable Status Register at address offset 0x538, read-only */
    uint32_t pio_insr_2;
    /** Reserved space */
-   uint8_t fill52[4];
+   uint8_t fill42[4];
    /** Periph Ctrl PU/PD Enable Register at address offset 0x540, write-only */
    uint32_t pio_percper_2;
    /** Periph Ctrl PU/PD Disable Register at address offset 0x544, write-only */
@@ -696,7 +604,7 @@ struct pio_s {
    /** Periph Ctrl PU/PD Status Register at address offset 0x548, read-only */
    uint32_t pio_percpsr_2;
    /** Reserved space */
-   uint8_t fill53[4];
+   uint8_t fill43[4];
    /** HW Observation Selector Status Register at address offset 0x550, read-write */
    uint32_t pio_hwobssr_2;
    /** Input Filter Status Register (selector 2) at address offset 0x554, read-write */
@@ -704,7 +612,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 3) at address offset 0x558, read-write */
    uint32_t pio_if3sr_2;
    /** Reserved space */
-   uint8_t fill54[4];
+   uint8_t fill44[4];
    /** Interrupt Event Enable Register at address offset 0x560, write-only */
    uint32_t pio_ever_2;
    /** Interrupt Event Disable Register at address offset 0x564, write-only */
@@ -712,7 +620,7 @@ struct pio_s {
    /** Interrupt Event Status Register at address offset 0x568, read-only */
    uint32_t pio_evsr_2;
    /** Reserved space */
-   uint8_t fill55[4];
+   uint8_t fill45[4];
    /** Interrupt Event Type Enable Register at address offset 0x570, write-only */
    uint32_t pio_evter_2;
    /** Interrupt Event Type Disable Register at address offset 0x574, write-only */
@@ -760,7 +668,7 @@ struct pio_s {
    /** PIO Wakeup Event Status Register at address offset 0x5C8, read-only */
    uint32_t pio_pwesr_2;
    /** Reserved space */
-   uint8_t fill56[4];
+   uint8_t fill46[4];
    /** PIO Wakeup Event Type Enable Register at address offset 0x5D0, write-only */
    uint32_t pio_pweter_2;
    /** PIO Wakeup Event Type Disable Register at address offset 0x5D4, write-only */
@@ -785,54 +693,8 @@ struct pio_s {
    uint32_t pio_wur6sr_2;
    /** WakeUp Redux 28-31 Status Register at address offset 0x5FC, read-write */
    uint32_t pio_wur7sr_2;
-   /** Alternative Pad Cfg Enable Register at address offset 0x600, write-only */
-   uint32_t pio_acfger_2;
-   /** Alternative Pad Cfg Disable Register at address offset 0x604, write-only */
-   uint32_t pio_acfgdr_2;
-   /** Alternative Pad Cfg Enable Status Register at address offset 0x608, read-only */
-   uint32_t pio_acfgsr_2;
    /** Reserved space */
-   uint8_t fill57[4];
-   /** Alternative Output Enable Register at address offset 0x610, write-only */
-   uint32_t pio_aoer_2;
-   /** Alternative Output Disable Register at address offset 0x614, write-only */
-   uint32_t pio_aodr_2;
-   /** Alternative Output Status Register at address offset 0x618, read-only */
-   uint32_t pio_aosr_2;
-   /** Reserved space */
-   uint8_t fill58[4];
-   /** Set Output Data Register at address offset 0x620, write-only */
-   uint32_t pio_asodr_2;
-   /** Clear Output Data Register at address offset 0x624, write-only */
-   uint32_t pio_acodr_2;
-   /** Output Data Status Register at address offset 0x628, read-only */
-   uint32_t pio_aodsr_2;
-   /** Reserved space */
-   uint8_t fill59[4];
-   /** Alt Pull to High Level Enable Register at address offset 0x630, write-only */
-   uint32_t pio_apher_2;
-   /** Alt Pull to High Level Disable Register at address offset 0x634, write-only */
-   uint32_t pio_aphdr_2;
-   /** Alt Pull to High Level Status Register at address offset 0x638, read-only */
-   uint32_t pio_aphsr_2;
-   /** Reserved space */
-   uint8_t fill60[4];
-   /** Alt Pull to Low Level Enable Register at address offset 0x640, read-write */
-   uint32_t pio_apler_2;
-   /** Alt Pull to Low Level Disable Register at address offset 0x644, read-write */
-   uint32_t pio_apldr_2;
-   /** Alt Pull to Low Level Status Register at address offset 0x648, read-only */
-   uint32_t pio_aplsr_2;
-   /** Reserved space */
-   uint8_t fill61[4];
-   /** Alternative Pad Configuration Hold Enable Register at address offset 0x650, write-only */
-   uint32_t pio_acher_2;
-   /** Alternative Pad Configuration Hold Disable Register at address offset 0x654, write-only */
-   uint32_t pio_achdr_2;
-   /** Alternative Pad Configuration Hold Status Register at address offset 0x658, read-only */
-   uint32_t pio_achsr_2;
-   /** Reserved space */
-   uint8_t fill62[4];
+   uint8_t fill47[96];
    /** PIO Enable Register at address offset 0x660, write-only */
    uint32_t pio_per_3;
    /** PIO Disable Register at address offset 0x664, write-only */
@@ -840,7 +702,7 @@ struct pio_s {
    /** PIO Status Register at address offset 0x668, read-only */
    uint32_t pio_psr_3;
    /** Reserved space */
-   uint8_t fill63[4];
+   uint8_t fill48[4];
    /** Output Enable Register at address offset 0x670, write-only */
    uint32_t pio_oer_3;
    /** Output Disable Register at address offset 0x674, write-only */
@@ -856,7 +718,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 1) at address offset 0x688, read-only */
    uint32_t pio_ifsr_3;
    /** Reserved space */
-   uint8_t fill64[4];
+   uint8_t fill49[4];
    /** Set Output Data Register at address offset 0x690, write-only */
    uint32_t pio_sodr_3;
    /** Clear Output Data Register at address offset 0x694, write-only */
@@ -872,7 +734,7 @@ struct pio_s {
    /** 1st Interrupt Mask Register at address offset 0x6A8, read-only */
    uint32_t pio_imr1_3;
    /** Reserved space */
-   uint8_t fill65[4];
+   uint8_t fill50[4];
    /** 2nd Interrupt Enable Register at address offset 0x6B0, write-only */
    uint32_t pio_ier2_3;
    /** 2nd Interrupt Disable Register at address offset 0x6B4, write-only */
@@ -888,7 +750,7 @@ struct pio_s {
    /** Multi-Driver Status Register at address offset 0x6C8, read-only */
    uint32_t pio_mdsr_3;
    /** Reserved space */
-   uint8_t fill66[4];
+   uint8_t fill51[4];
    /** PIO check in Register at address offset 0x6D0, read-only */
    uint32_t pio_ckin_3;
    /** PIO general purpose Register at address offset 0x6D4, read-write */
@@ -912,7 +774,7 @@ struct pio_s {
    /** MSB Drive Strength Status Register at address offset 0x6F8, read-only */
    uint32_t pio_mdssr_3;
    /** Reserved space */
-   uint8_t fill67[4];
+   uint8_t fill52[4];
    /** LSB Drive Strength Enable Register at address offset 0x700, write-only */
    uint32_t pio_ldser_3;
    /** LSB Drive Strength Disable Register at address offset 0x704, write-only */
@@ -920,7 +782,7 @@ struct pio_s {
    /** LSB Drive Strength Status Register at address offset 0x708, read-only */
    uint32_t pio_ldssr_3;
    /** Reserved space */
-   uint8_t fill68[4];
+   uint8_t fill53[4];
    /** Slew Rate Enable Register at address offset 0x710, write-only */
    uint32_t pio_srer_3;
    /** Slew Rate Disable Register at address offset 0x714, write-only */
@@ -928,7 +790,7 @@ struct pio_s {
    /** Slew Rate Status Register at address offset 0x718, read-only */
    uint32_t pio_srsr_3;
    /** Reserved space */
-   uint8_t fill69[4];
+   uint8_t fill54[4];
    /** Pull to High Level Enable Register at address offset 0x720, write-only */
    uint32_t pio_pher_3;
    /** Pull to High Level Disable Register at address offset 0x724, write-only */
@@ -936,7 +798,7 @@ struct pio_s {
    /** Pull to High Level Status Register at address offset 0x728, read-only */
    uint32_t pio_phsr_3;
    /** Reserved space */
-   uint8_t fill70[4];
+   uint8_t fill55[4];
    /** Pull to Low Level Enable Register at address offset 0x730, write-only */
    uint32_t pio_pler_3;
    /** Pull to Low Level Disable Register at address offset 0x734, write-only */
@@ -944,7 +806,7 @@ struct pio_s {
    /** Pull to Low Level Status Register at address offset 0x738, read-only */
    uint32_t pio_plsr_3;
    /** Reserved space */
-   uint8_t fill71[4];
+   uint8_t fill56[4];
    /** Schmitt trigger Enable Register at address offset 0x740, write-only */
    uint32_t pio_ster_3;
    /** Schmitt trigger Disable Register at address offset 0x744, write-only */
@@ -952,7 +814,7 @@ struct pio_s {
    /** Schmitt trigger Status Register at address offset 0x748, read-only */
    uint32_t pio_stsr_3;
    /** Reserved space */
-   uint8_t fill72[4];
+   uint8_t fill57[4];
    /** Input Enable Register at address offset 0x750, write-only */
    uint32_t pio_iner_3;
    /** Input Disable Register at address offset 0x754, write-only */
@@ -960,7 +822,7 @@ struct pio_s {
    /** Input Enable Status Register at address offset 0x758, read-only */
    uint32_t pio_insr_3;
    /** Reserved space */
-   uint8_t fill73[4];
+   uint8_t fill58[4];
    /** Periph Ctrl PU/PD Enable Register at address offset 0x760, write-only */
    uint32_t pio_percper_3;
    /** Periph Ctrl PU/PD Disable Register at address offset 0x764, write-only */
@@ -968,7 +830,7 @@ struct pio_s {
    /** Periph Ctrl PU/PD Status Register at address offset 0x768, read-only */
    uint32_t pio_percpsr_3;
    /** Reserved space */
-   uint8_t fill74[4];
+   uint8_t fill59[4];
    /** HW Observation Selector Status Register at address offset 0x770, read-write */
    uint32_t pio_hwobssr_3;
    /** Input Filter Status Register (selector 2) at address offset 0x774, read-write */
@@ -976,7 +838,7 @@ struct pio_s {
    /** Input Filter Status Register (selector 3) at address offset 0x778, read-write */
    uint32_t pio_if3sr_3;
    /** Reserved space */
-   uint8_t fill75[4];
+   uint8_t fill60[4];
    /** Interrupt Event Enable Register at address offset 0x780, write-only */
    uint32_t pio_ever_3;
    /** Interrupt Event Disable Register at address offset 0x784, write-only */
@@ -984,7 +846,7 @@ struct pio_s {
    /** Interrupt Event Status Register at address offset 0x788, read-only */
    uint32_t pio_evsr_3;
    /** Reserved space */
-   uint8_t fill76[4];
+   uint8_t fill61[4];
    /** Interrupt Event Type Enable Register at address offset 0x790, write-only */
    uint32_t pio_evter_3;
    /** Interrupt Event Type Disable Register at address offset 0x794, write-only */
@@ -1032,7 +894,7 @@ struct pio_s {
    /** PIO Wakeup Event Status Register at address offset 0x7E8, read-only */
    uint32_t pio_pwesr_3;
    /** Reserved space */
-   uint8_t fill77[4];
+   uint8_t fill62[4];
    /** PIO Wakeup Event Type Enable Register at address offset 0x7F0, write-only */
    uint32_t pio_pweter_3;
    /** PIO Wakeup Event Type Disable Register at address offset 0x7F4, write-only */
@@ -1057,52 +919,6 @@ struct pio_s {
    uint32_t pio_wur6sr_3;
    /** WakeUp Redux 28-31 Status Register at address offset 0x81C, read-write */
    uint32_t pio_wur7sr_3;
-   /** Alternative Pad Cfg Enable Register at address offset 0x820, write-only */
-   uint32_t pio_acfger_3;
-   /** Alternative Pad Cfg Disable Register at address offset 0x824, write-only */
-   uint32_t pio_acfgdr_3;
-   /** Alternative Pad Cfg Enable Status Register at address offset 0x828, read-only */
-   uint32_t pio_acfgsr_3;
-   /** Reserved space */
-   uint8_t fill78[4];
-   /** Alternative Output Enable Register at address offset 0x830, write-only */
-   uint32_t pio_aoer_3;
-   /** Alternative Output Disable Register at address offset 0x834, write-only */
-   uint32_t pio_aodr_3;
-   /** Alternative Output Status Register at address offset 0x838, read-only */
-   uint32_t pio_aosr_3;
-   /** Reserved space */
-   uint8_t fill79[4];
-   /** Set Output Data Register at address offset 0x840, write-only */
-   uint32_t pio_asodr_3;
-   /** Clear Output Data Register at address offset 0x844, write-only */
-   uint32_t pio_acodr_3;
-   /** Output Data Status Register at address offset 0x848, read-only */
-   uint32_t pio_aodsr_3;
-   /** Reserved space */
-   uint8_t fill80[4];
-   /** Alt Pull to High Level Enable Register at address offset 0x850, write-only */
-   uint32_t pio_apher_3;
-   /** Alt Pull to High Level Disable Register at address offset 0x854, write-only */
-   uint32_t pio_aphdr_3;
-   /** Alt Pull to High Level Status Register at address offset 0x858, read-only */
-   uint32_t pio_aphsr_3;
-   /** Reserved space */
-   uint8_t fill81[4];
-   /** Alt Pull to Low Level Enable Register at address offset 0x860, read-write */
-   uint32_t pio_apler_3;
-   /** Alt Pull to Low Level Disable Register at address offset 0x864, read-write */
-   uint32_t pio_apldr_3;
-   /** Alt Pull to Low Level Status Register at address offset 0x868, read-only */
-   uint32_t pio_aplsr_3;
-   /** Reserved space */
-   uint8_t fill82[4];
-   /** Alternative Pad Configuration Hold Enable Register at address offset 0x870, write-only */
-   uint32_t pio_acher_3;
-   /** Alternative Pad Configuration Hold Disable Register at address offset 0x874, write-only */
-   uint32_t pio_achdr_3;
-   /** Alternative Pad Configuration Hold Status Register at address offset 0x878, read-only */
-   uint32_t pio_achsr_3;
 };
 
 /** bit field defines for pio_s#pio_per_0 */
@@ -1493,78 +1309,6 @@ struct pio_s {
 #define PIO_PIO_WUR7SR_0_NONE_OFFSET 0
 #define PIO_PIO_WUR7SR_0_NONE_SIZE 32
 
-/** bit field defines for pio_s#pio_acfger_0 */
-#define PIO_PIO_ACFGER_0_NONE_OFFSET 0
-#define PIO_PIO_ACFGER_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgdr_0 */
-#define PIO_PIO_ACFGDR_0_NONE_OFFSET 0
-#define PIO_PIO_ACFGDR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgsr_0 */
-#define PIO_PIO_ACFGSR_0_NONE_OFFSET 0
-#define PIO_PIO_ACFGSR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aoer_0 */
-#define PIO_PIO_AOER_0_NONE_OFFSET 0
-#define PIO_PIO_AOER_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodr_0 */
-#define PIO_PIO_AODR_0_NONE_OFFSET 0
-#define PIO_PIO_AODR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aosr_0 */
-#define PIO_PIO_AOSR_0_NONE_OFFSET 0
-#define PIO_PIO_AOSR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_asodr_0 */
-#define PIO_PIO_ASODR_0_NONE_OFFSET 0
-#define PIO_PIO_ASODR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acodr_0 */
-#define PIO_PIO_ACODR_0_NONE_OFFSET 0
-#define PIO_PIO_ACODR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodsr_0 */
-#define PIO_PIO_AODSR_0_NONE_OFFSET 0
-#define PIO_PIO_AODSR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apher_0 */
-#define PIO_PIO_APHER_0_NONE_OFFSET 0
-#define PIO_PIO_APHER_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphdr_0 */
-#define PIO_PIO_APHDR_0_NONE_OFFSET 0
-#define PIO_PIO_APHDR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphsr_0 */
-#define PIO_PIO_APHSR_0_NONE_OFFSET 0
-#define PIO_PIO_APHSR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apler_0 */
-#define PIO_PIO_APLER_0_NONE_OFFSET 0
-#define PIO_PIO_APLER_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apldr_0 */
-#define PIO_PIO_APLDR_0_NONE_OFFSET 0
-#define PIO_PIO_APLDR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aplsr_0 */
-#define PIO_PIO_APLSR_0_NONE_OFFSET 0
-#define PIO_PIO_APLSR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acher_0 */
-#define PIO_PIO_ACHER_0_NONE_OFFSET 0
-#define PIO_PIO_ACHER_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achdr_0 */
-#define PIO_PIO_ACHDR_0_NONE_OFFSET 0
-#define PIO_PIO_ACHDR_0_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achsr_0 */
-#define PIO_PIO_ACHSR_0_NONE_OFFSET 0
-#define PIO_PIO_ACHSR_0_NONE_SIZE 32
-
 /** bit field defines for pio_s#pio_per_1 */
 #define PIO_PIO_PER_1_NONE_OFFSET 0
 #define PIO_PIO_PER_1_NONE_SIZE 32
@@ -1952,78 +1696,6 @@ struct pio_s {
 /** bit field defines for pio_s#pio_wur7sr_1 */
 #define PIO_PIO_WUR7SR_1_NONE_OFFSET 0
 #define PIO_PIO_WUR7SR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfger_1 */
-#define PIO_PIO_ACFGER_1_NONE_OFFSET 0
-#define PIO_PIO_ACFGER_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgdr_1 */
-#define PIO_PIO_ACFGDR_1_NONE_OFFSET 0
-#define PIO_PIO_ACFGDR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgsr_1 */
-#define PIO_PIO_ACFGSR_1_NONE_OFFSET 0
-#define PIO_PIO_ACFGSR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aoer_1 */
-#define PIO_PIO_AOER_1_NONE_OFFSET 0
-#define PIO_PIO_AOER_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodr_1 */
-#define PIO_PIO_AODR_1_NONE_OFFSET 0
-#define PIO_PIO_AODR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aosr_1 */
-#define PIO_PIO_AOSR_1_NONE_OFFSET 0
-#define PIO_PIO_AOSR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_asodr_1 */
-#define PIO_PIO_ASODR_1_NONE_OFFSET 0
-#define PIO_PIO_ASODR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acodr_1 */
-#define PIO_PIO_ACODR_1_NONE_OFFSET 0
-#define PIO_PIO_ACODR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodsr_1 */
-#define PIO_PIO_AODSR_1_NONE_OFFSET 0
-#define PIO_PIO_AODSR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apher_1 */
-#define PIO_PIO_APHER_1_NONE_OFFSET 0
-#define PIO_PIO_APHER_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphdr_1 */
-#define PIO_PIO_APHDR_1_NONE_OFFSET 0
-#define PIO_PIO_APHDR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphsr_1 */
-#define PIO_PIO_APHSR_1_NONE_OFFSET 0
-#define PIO_PIO_APHSR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apler_1 */
-#define PIO_PIO_APLER_1_NONE_OFFSET 0
-#define PIO_PIO_APLER_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apldr_1 */
-#define PIO_PIO_APLDR_1_NONE_OFFSET 0
-#define PIO_PIO_APLDR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aplsr_1 */
-#define PIO_PIO_APLSR_1_NONE_OFFSET 0
-#define PIO_PIO_APLSR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acher_1 */
-#define PIO_PIO_ACHER_1_NONE_OFFSET 0
-#define PIO_PIO_ACHER_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achdr_1 */
-#define PIO_PIO_ACHDR_1_NONE_OFFSET 0
-#define PIO_PIO_ACHDR_1_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achsr_1 */
-#define PIO_PIO_ACHSR_1_NONE_OFFSET 0
-#define PIO_PIO_ACHSR_1_NONE_SIZE 32
 
 /** bit field defines for pio_s#pio_per_2 */
 #define PIO_PIO_PER_2_NONE_OFFSET 0
@@ -2413,78 +2085,6 @@ struct pio_s {
 #define PIO_PIO_WUR7SR_2_NONE_OFFSET 0
 #define PIO_PIO_WUR7SR_2_NONE_SIZE 32
 
-/** bit field defines for pio_s#pio_acfger_2 */
-#define PIO_PIO_ACFGER_2_NONE_OFFSET 0
-#define PIO_PIO_ACFGER_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgdr_2 */
-#define PIO_PIO_ACFGDR_2_NONE_OFFSET 0
-#define PIO_PIO_ACFGDR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acfgsr_2 */
-#define PIO_PIO_ACFGSR_2_NONE_OFFSET 0
-#define PIO_PIO_ACFGSR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aoer_2 */
-#define PIO_PIO_AOER_2_NONE_OFFSET 0
-#define PIO_PIO_AOER_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodr_2 */
-#define PIO_PIO_AODR_2_NONE_OFFSET 0
-#define PIO_PIO_AODR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aosr_2 */
-#define PIO_PIO_AOSR_2_NONE_OFFSET 0
-#define PIO_PIO_AOSR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_asodr_2 */
-#define PIO_PIO_ASODR_2_NONE_OFFSET 0
-#define PIO_PIO_ASODR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acodr_2 */
-#define PIO_PIO_ACODR_2_NONE_OFFSET 0
-#define PIO_PIO_ACODR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aodsr_2 */
-#define PIO_PIO_AODSR_2_NONE_OFFSET 0
-#define PIO_PIO_AODSR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apher_2 */
-#define PIO_PIO_APHER_2_NONE_OFFSET 0
-#define PIO_PIO_APHER_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphdr_2 */
-#define PIO_PIO_APHDR_2_NONE_OFFSET 0
-#define PIO_PIO_APHDR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aphsr_2 */
-#define PIO_PIO_APHSR_2_NONE_OFFSET 0
-#define PIO_PIO_APHSR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apler_2 */
-#define PIO_PIO_APLER_2_NONE_OFFSET 0
-#define PIO_PIO_APLER_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_apldr_2 */
-#define PIO_PIO_APLDR_2_NONE_OFFSET 0
-#define PIO_PIO_APLDR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_aplsr_2 */
-#define PIO_PIO_APLSR_2_NONE_OFFSET 0
-#define PIO_PIO_APLSR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_acher_2 */
-#define PIO_PIO_ACHER_2_NONE_OFFSET 0
-#define PIO_PIO_ACHER_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achdr_2 */
-#define PIO_PIO_ACHDR_2_NONE_OFFSET 0
-#define PIO_PIO_ACHDR_2_NONE_SIZE 32
-
-/** bit field defines for pio_s#pio_achsr_2 */
-#define PIO_PIO_ACHSR_2_NONE_OFFSET 0
-#define PIO_PIO_ACHSR_2_NONE_SIZE 32
-
 /** bit field defines for pio_s#pio_per_3 */
 #define PIO_PIO_PER_3_NONE_OFFSET 0
 #define PIO_PIO_PER_3_NONE_SIZE 22
@@ -2872,78 +2472,6 @@ struct pio_s {
 /** bit field defines for pio_s#pio_wur7sr_3 */
 #define PIO_PIO_WUR7SR_3_NONE_OFFSET 0
 #define PIO_PIO_WUR7SR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_acfger_3 */
-#define PIO_PIO_ACFGER_3_NONE_OFFSET 0
-#define PIO_PIO_ACFGER_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_acfgdr_3 */
-#define PIO_PIO_ACFGDR_3_NONE_OFFSET 0
-#define PIO_PIO_ACFGDR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_acfgsr_3 */
-#define PIO_PIO_ACFGSR_3_NONE_OFFSET 0
-#define PIO_PIO_ACFGSR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aoer_3 */
-#define PIO_PIO_AOER_3_NONE_OFFSET 0
-#define PIO_PIO_AOER_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aodr_3 */
-#define PIO_PIO_AODR_3_NONE_OFFSET 0
-#define PIO_PIO_AODR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aosr_3 */
-#define PIO_PIO_AOSR_3_NONE_OFFSET 0
-#define PIO_PIO_AOSR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_asodr_3 */
-#define PIO_PIO_ASODR_3_NONE_OFFSET 0
-#define PIO_PIO_ASODR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_acodr_3 */
-#define PIO_PIO_ACODR_3_NONE_OFFSET 0
-#define PIO_PIO_ACODR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aodsr_3 */
-#define PIO_PIO_AODSR_3_NONE_OFFSET 0
-#define PIO_PIO_AODSR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_apher_3 */
-#define PIO_PIO_APHER_3_NONE_OFFSET 0
-#define PIO_PIO_APHER_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aphdr_3 */
-#define PIO_PIO_APHDR_3_NONE_OFFSET 0
-#define PIO_PIO_APHDR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aphsr_3 */
-#define PIO_PIO_APHSR_3_NONE_OFFSET 0
-#define PIO_PIO_APHSR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_apler_3 */
-#define PIO_PIO_APLER_3_NONE_OFFSET 0
-#define PIO_PIO_APLER_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_apldr_3 */
-#define PIO_PIO_APLDR_3_NONE_OFFSET 0
-#define PIO_PIO_APLDR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_aplsr_3 */
-#define PIO_PIO_APLSR_3_NONE_OFFSET 0
-#define PIO_PIO_APLSR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_acher_3 */
-#define PIO_PIO_ACHER_3_NONE_OFFSET 0
-#define PIO_PIO_ACHER_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_achdr_3 */
-#define PIO_PIO_ACHDR_3_NONE_OFFSET 0
-#define PIO_PIO_ACHDR_3_NONE_SIZE 22
-
-/** bit field defines for pio_s#pio_achsr_3 */
-#define PIO_PIO_ACHSR_3_NONE_OFFSET 0
-#define PIO_PIO_ACHSR_3_NONE_SIZE 22
 
 /* EOF pio.h */
 #endif

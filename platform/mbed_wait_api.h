@@ -1,6 +1,11 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_wait_api wait_api functions
+ * @{
+ */
+ 
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -69,4 +74,5 @@ void wait_us(int us);
 
 #endif
 
+/** @}*/
 /** @}*/

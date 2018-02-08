@@ -34,6 +34,7 @@
 #include "rtos/MemoryPool.h"
 #include "rtos/Queue.h"
 #include "rtos/EventFlags.h"
+#include "rtos/ConditionVariable.h"
 
 using namespace rtos;
 

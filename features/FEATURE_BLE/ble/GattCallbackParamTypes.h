@@ -14,139 +14,377 @@
  * limitations under the License.
  */
 
-#ifndef __GATT_CALLBACK_PARAM_TYPES_H__
-#define __GATT_CALLBACK_PARAM_TYPES_H__
+#ifndef MBED_BLE_GATT_CALLBACK_PARAM_TYPES_H__
+#define MBED_BLE_GATT_CALLBACK_PARAM_TYPES_H__
 
 /**
- * Parameter of the callback invoked on a write operation.
- * This parameter is used whether a GattServer as received a write operation or
- * if the GattClient has completed a write operation.
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ */
+
+/**
+ * GATT Write event definition.
  *
- * @important The fields connHandle, handle and writeOp are used in both
- * callbacks while:
- *   - offset, len and data are reserved for GattServer write callbacks.
- *   - status and error_code are reserved for GattClient write callbacks.
+ * Instances of this type are created and passed to user registered callbacks
+ * whether the GattServer has received a write request or a GattClient has
+ * received a write response.
+ *
+ * @important The GattServer only populates the fields offset, len and data
+ * when it has received a write request. Callbacks attached to the GattClient
+ * do not use those fields.
+ *
+ * @important The GattClient only populates the fields status and error_code
+ * when it has received a write response. Callbacks attached to the GattServer
+ * do not use those fields.
  */
 struct GattWriteCallbackParams {
     /**
-     * Enumeration for write operations.
+     * Enumeration of allowed write operations.
      */
     enum WriteOp_t {
-        OP_INVALID               = 0x00,  /**< Invalid operation. */
-        OP_WRITE_REQ             = 0x01,  /**< Write request. */
-        OP_WRITE_CMD             = 0x02,  /**< Write command. */
-        OP_SIGN_WRITE_CMD        = 0x03,  /**< Signed write command. */
-        OP_PREP_WRITE_REQ        = 0x04,  /**< Prepare write request. */
-        OP_EXEC_WRITE_REQ_CANCEL = 0x05,  /**< Execute write request: cancel all prepared writes. */
-        OP_EXEC_WRITE_REQ_NOW    = 0x06,  /**< Execute write request: immediately execute all prepared writes. */
+        /**
+         * Invalid operation.
+         */
+        OP_INVALID = 0x00,
+
+        /**
+         * Write request.
+         */
+        OP_WRITE_REQ = 0x01,
+
+        /**
+         * Write command.
+         */
+        OP_WRITE_CMD = 0x02,
+
+        /**
+         * Signed write command.
+         */
+        OP_SIGN_WRITE_CMD = 0x03,
+
+        /**
+         * Prepare write request.
+         */
+        OP_PREP_WRITE_REQ = 0x04,
+
+        /**
+         * Execute write request: cancel all prepared writes.
+         */
+        OP_EXEC_WRITE_REQ_CANCEL = 0x05,
+
+        /**
+         * Execute write request: immediately execute all prepared writes.
+         */
+        OP_EXEC_WRITE_REQ_NOW = 0x06,
     };
 
-    Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
-    GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the write operation applies. */
-    WriteOp_t                writeOp;    /**< Type of write operation. */
+    /**
+     * Handle of the connection that triggered the event.
+     */
+    Gap::Handle_t connHandle;
 
-    // Note: offset is used in GattServer while status is used in GattClient
+    /**
+     * Handle of the attribute to which the write operation applies.
+     */
+    GattAttribute::Handle_t handle;
+
+    /**
+     * Type of the write operation.
+     */
+    WriteOp_t writeOp;
+
     union {
-        uint16_t                offset;     /**< Offset for the GattServer write operation. */
-        ble_error_t             status;     /**< Status of the GattClient Write operation */
+        /**
+         * Offset within the attribute value to be written.
+         *
+         * @important Reserved for GattServer registered callbacks.
+         */
+        uint16_t offset;
+
+        /**
+         * Status of the GattClient Write operation.
+         *
+         * @important Reserved for GattClient registered callbacks.
+         */
+        ble_error_t status;
     };
 
-    // Note: len is used in GattServer while error_code is used in GattClient
     union {
-        uint16_t                 len;        /**< Length (in bytes) of the data to write (GattServer). */
-        uint8_t                  error_code; /**< Error code of the GattClient Write operation */
+        /**
+         * Length (in bytes) of the data to write.
+         *
+         * @important Reserved for GattServer registered callbacks.
+         */
+        uint16_t len;
+
+        /**
+         * Error code of the GattClient Write operation.
+         *
+         * @important Reserved for GattClient registered callbacks.
+         */
+        uint8_t error_code;
     };
 
     /**
      * Pointer to the data to write.
      *
-     * @note Data might not persist beyond the callback; make a local copy if
-     *       needed.
-     * @note This field is not used by callbacks invoked by the GattClient module.
+     * @important Data may not persist beyond the callback scope.
+     *
+     * @important Reserved for GattServer registered callbacks.
      */
-    const uint8_t           *data;
+    const uint8_t *data;
 };
 
 /**
- * Parameter of the callback invoked on a read operation.
- * This parameter is used whether a GattServer as received a read operation or
- * if the GattClient has completed a read operation.
+ * GATT Read event definition.
  *
- * @important The fields connHandle, handle and offset are used in both
- * callbacks while:
- *   - len and data are reserved for GattServer read callbacks.
- *   - status and error_code are reserved for GattClient read callbacks.
+ * Instances of this type are created and passed to user registered callbacks
+ * whether the GattServer has received a read request or a GattClient has
+ * received a read response.
+ *
+ * @important The GattClient only populates the fields status and error_code
+ * when it has received a read response. Callbacks attached to the GattServer
+ * do not use those fields.
  */
 struct GattReadCallbackParams {
-    Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
-    GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the read operation applies. */
-    uint16_t                 offset;     /**< Offset for the read operation. */
+    /**
+     * Handle of the connection that triggered the event.
+     */
+    Gap::Handle_t connHandle;
+
+    /**
+     * Attribute Handle to which the read operation applies.
+     */
+    GattAttribute::Handle_t handle;
+
+    /**
+     * Offset within the attribute value read.
+     */
+    uint16_t offset;
+
     union {
-        uint16_t             len;        /**< Length (in bytes) of the data to read. */
-        uint8_t              error_code; /**< Error code if any (GattClient) */
+        /**
+         * Length in bytes of the data read.
+         */
+        uint16_t len;
+
+        /**
+         * Error code of the GattClient read operation.
+         *
+         * @important Reserved for GattClient registered callbacks.
+         *
+         * @important set if status is not equal to BLE_ERROR_NONE; otherwise,
+         * this field is interpreted as len.
+         */
+        uint8_t error_code;
     };
 
     /**
      * Pointer to the data read.
      *
-     * @note Data might not persist beyond the callback; make a local copy if
-     *       needed.
+     * @important Data may not persist beyond the callback scope.
      */
-    const uint8_t           *data;
-    ble_error_t              status;     /**< Status of the operation BLE_ERROR_NONE in case of success or the error in case of error */
-};
+    const uint8_t *data;
 
-enum GattAuthCallbackReply_t {
-    AUTH_CALLBACK_REPLY_SUCCESS                       = 0x00,    /**< Success. */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE         = 0x0101,  /**< ATT Error: Invalid attribute handle. */
-    AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED     = 0x0102,  /**< ATT Error: Read not permitted. */
-    AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED    = 0x0103,  /**< ATT Error: Write not permitted. */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHENTICATION   = 0x0105,  /**< ATT Error: Authenticated link required. */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET         = 0x0107,  /**< ATT Error: The specified offset was past the end of the attribute. */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION    = 0x0108,  /**< ATT Error: Used in ATT as "insufficient authorization". */
-    AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL     = 0x0109,  /**< ATT Error: Used in ATT as "prepare queue full". */
-    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND    = 0x010A,  /**< ATT Error: Used in ATT as "attribute not found". */
-    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG     = 0x010B,  /**< ATT Error: Attribute cannot be read or written using read/write blob requests. */
-    AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH = 0x010D,  /**< ATT Error: Invalid value size. */
-    AUTH_CALLBACK_REPLY_ATTERR_INSUF_RESOURCES        = 0x0111,  /**< ATT Error: Encrypted link required. */
-};
-
-struct GattWriteAuthCallbackParams {
-    Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
-    GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the write operation applies. */
-    uint16_t                 offset;     /**< Offset for the write operation. */
-    uint16_t                 len;        /**< Length of the incoming data. */
-    const uint8_t           *data;       /**< Incoming data, variable length. */
     /**
-     * This is the out parameter that the callback needs to set to
-     * AUTH_CALLBACK_REPLY_SUCCESS for the request to proceed.
+     * Status of the GattClient Read operation.
+     *
+     * @important Reserved for GattClient registered callbacks.
      */
-    GattAuthCallbackReply_t  authorizationReply;
-};
-
-struct GattReadAuthCallbackParams {
-    Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
-    GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the read operation applies. */
-    uint16_t                 offset;     /**< Offset for the read operation. */
-    uint16_t                 len;        /**< Optional: new length of the outgoing data. */
-    uint8_t                 *data;       /**< Optional: new outgoing data. Leave at NULL if data is unchanged. */
-    /**
-     * This is the out parameter that the callback needs to set to
-     * AUTH_CALLBACK_REPLY_SUCCESS for the request to proceed.
-     */
-    GattAuthCallbackReply_t  authorizationReply;
+    ble_error_t status;
 };
 
 /**
- * For encapsulating handle-value update events (notifications or indications)
- * generated at the remote server.
+ * @addtogroup server
+ * @{
  */
-struct GattHVXCallbackParams {
-  Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
-  GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the HVx operation applies. */
-  HVXType_t                type;       /**< Indication or Notification, see HVXType_t. */
-  uint16_t                 len;        /**< Attribute data length. */
-  const uint8_t           *data;       /**< Attribute data, variable length. */
+
+/**
+ * Enumeration of allowed values returned by read or write authorization process.
+ */
+enum GattAuthCallbackReply_t {
+    /**
+     * Success.
+     */
+    AUTH_CALLBACK_REPLY_SUCCESS = 0x00,
+
+    /**
+     * ATT Error: Invalid attribute handle.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_HANDLE = 0x0101,
+
+    /**
+     * ATT Error: Read not permitted.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_READ_NOT_PERMITTED = 0x0102,
+
+    /**
+     * ATT Error: Write not permitted.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_WRITE_NOT_PERMITTED = 0x0103,
+
+    /**
+     * ATT Error: Authenticated link required.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHENTICATION = 0x0105,
+
+    /**
+     * ATT Error: The specified offset was past the end of the attribute.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_OFFSET = 0x0107,
+
+    /**
+     * ATT Error: Used in ATT as "insufficient authorization".
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_AUTHORIZATION = 0x0108,
+
+    /**
+     * ATT Error: Used in ATT as "prepare queue full".
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_PREPARE_QUEUE_FULL = 0x0109,
+
+    /**
+     * ATT Error: Used in ATT as "attribute not found".
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_FOUND = 0x010A,
+
+    /**
+     * ATT Error: Attribute cannot be read or written using read/write blob
+     * requests.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_ATTRIBUTE_NOT_LONG = 0x010B,
+
+    /**
+     * ATT Error: Invalid value size.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INVALID_ATT_VAL_LENGTH = 0x010D,
+
+    /**
+     * ATT Error: Encrypted link required.
+     */
+    AUTH_CALLBACK_REPLY_ATTERR_INSUF_RESOURCES = 0x0111,
 };
 
-#endif /*__GATT_CALLBACK_PARAM_TYPES_H__*/
+/**
+ * GATT write authorization request event.
+ */
+struct GattWriteAuthCallbackParams {
+    /**
+     * Handle of the connection that triggered the event.
+     */
+    Gap::Handle_t connHandle;
+
+    /**
+     * Attribute Handle to which the write operation applies.
+     */
+    GattAttribute::Handle_t handle;
+
+    /**
+     * Offset for the write operation.
+     */
+    uint16_t offset;
+
+    /**
+     * Length of the incoming data.
+     */
+    uint16_t len;
+
+    /**
+     * Incoming data.
+     */
+    const uint8_t *data;
+
+    /**
+     * Authorization result.
+     *
+     * The callback sets this parameter. If the value is set to
+     * AUTH_CALLBACK_REPLY_SUCCESS, then the write request is accepted;
+     * otherwise, an error code is returned to the peer client.
+     */
+    GattAuthCallbackReply_t authorizationReply;
+};
+
+/**
+ * GATT read authorization request event.
+ */
+struct GattReadAuthCallbackParams {
+    /**
+     * The handle of the connection that triggered the event.
+     */
+    Gap::Handle_t connHandle;
+
+    /**
+     * Attribute Handle to which the read operation applies.
+     */
+    GattAttribute::Handle_t handle;
+
+    /**
+     * Offset for the read operation.
+     */
+    uint16_t offset;
+
+    /**
+     * Optional: new length of the outgoing data.
+     */
+    uint16_t len;
+
+    /**
+     * Optional: new outgoing data. Leave at NULL if data is unchanged.
+     */
+    uint8_t *data;
+
+    /**
+     * Authorization result.
+     *
+     * The callback sets this parameter. If the value is set to
+     * AUTH_CALLBACK_REPLY_SUCCESS, then the read request is accepted;
+     * otherwise, an error code is returned to the peer client.
+     */
+    GattAuthCallbackReply_t authorizationReply;
+};
+
+/**
+ * Handle Value Notification/Indication event.
+ *
+ * The GattClient generates this type of event upon the reception of a
+ * Handle Value Notification or Indication.
+ *
+ * The event is passed to callbacks registered by GattClient::onHVX().
+ */
+struct GattHVXCallbackParams {
+    /**
+     * The handle of the connection that triggered the event.
+     */
+    Gap::Handle_t connHandle;
+
+    /**
+     * Attribute Handle to which the HVx operation applies.
+     */
+    GattAttribute::Handle_t handle;
+
+    /**
+     * Indication or Notification, see HVXType_t.
+     */
+    HVXType_t type;
+
+    /**
+     * Attribute value length.
+     */
+    uint16_t len;
+
+    /**
+     * Attribute value.
+     */
+    const uint8_t *data;
+
+};
+
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /*MBED_BLE_GATT_CALLBACK_PARAM_TYPES_H__*/

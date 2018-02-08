@@ -37,6 +37,7 @@
 #define UVISOR_RPC_GATEWAY_MAGIC_SYNC  UDF_OPCODE(0x07C3)
 #define UVISOR_POOL_MAGIC              UDF_OPCODE(0x07C4)
 #define UVISOR_POOL_QUEUE_MAGIC        UDF_OPCODE(0x07C5)
+#define UVISOR_DEBUG_BOX_MAGIC         UDF_OPCODE(0x07C6)
 #else
 #error "Unsupported instruction set. The ARM Thumb-2 instruction set must be supported."
 #endif /* __thumb__ && __thumb2__ */

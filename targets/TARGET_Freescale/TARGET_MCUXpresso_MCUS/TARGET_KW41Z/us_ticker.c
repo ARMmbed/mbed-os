@@ -22,7 +22,16 @@
 
 static int us_ticker_inited = 0;
 
-void us_ticker_init(void) {
+static void lptmr_isr(void)
+{
+    LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
+    LPTMR_StopTimer(LPTMR0);
+
+    us_ticker_irq_handler();
+}
+
+void us_ticker_init(void) 
+{
     if (us_ticker_inited) {
         return;
     }
@@ -55,12 +64,13 @@ void us_ticker_init(void) {
     busClock = CLOCK_GetFreq(kCLOCK_McgInternalRefClk);
     LPTMR_SetTimerPeriod(LPTMR0, busClock / 1000000 - 1);
     /* Set interrupt handler */
-    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)us_ticker_irq_handler);
+    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)lptmr_isr);
     NVIC_EnableIRQ(LPTMR0_IRQn);
 }
 
 
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read() 
+{
     if (!us_ticker_inited) {
         us_ticker_init();
     }
@@ -68,15 +78,18 @@ uint32_t us_ticker_read() {
     return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
 }
 
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void) 
+{
     LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
 }
 
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void) 
+{
     LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
+void us_ticker_set_interrupt(timestamp_t timestamp) 
+{
     uint32_t delta = timestamp - us_ticker_read();
     LPTMR_StopTimer(LPTMR0);
     LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta);

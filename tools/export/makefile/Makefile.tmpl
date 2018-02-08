@@ -101,10 +101,10 @@ all: $(PROJECT).bin $(PROJECT).hex size
 	+@$(call MAKEDIR,$(dir $@))
 	+@echo "Assemble: $(notdir $<)"
   {% if needs_asm_preproc %}
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -E -o $(@:.o=.E.s) $<
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $(@:.o=.E.s)
+	@$(AS) -c $(ASM_FLAGS) -E -o $(@:.o=.E.s) $<
+	@$(AS) -c $(ASM_FLAGS) -o $@ $(@:.o=.E.s)
   {% else %}
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	@$(AS) -c $(ASM_FLAGS) -o $@ $<
   {% endif %}
 
 
@@ -112,10 +112,10 @@ all: $(PROJECT).bin $(PROJECT).hex size
 	+@$(call MAKEDIR,$(dir $@))
 	+@echo "Assemble: $(notdir $<)"
   {% if needs_asm_preproc %}
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -E -o $(@:.o=.E.s) $<
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $(@:.o=.E.s)
+	@$(AS) -c $(ASM_FLAGS) -E -o $(@:.o=.E.s) $<
+	@$(AS) -c $(ASM_FLAGS) -o $@ $(@:.o=.E.s)
   {% else %}
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+	@$(AS) -c $(ASM_FLAGS) -o $@ $<
   {% endif %}
 
 .c.o:

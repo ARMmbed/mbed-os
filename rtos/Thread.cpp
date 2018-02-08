@@ -23,6 +23,15 @@
 
 #include "mbed.h"
 #include "rtos/rtos_idle.h"
+#include "mbed_assert.h"
+
+#define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
+MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
+MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
+
+#define ALIGN_DOWN(pos, align) ((pos) - ((pos) % (align)))
+MBED_STATIC_ASSERT(ALIGN_DOWN(7, 8) == 0, "ALIGN_DOWN macro error");
+MBED_STATIC_ASSERT(ALIGN_DOWN(8, 8) == 8, "ALIGN_DOWN macro error");
 
 static void (*terminate_hook)(osThreadId_t id) = 0;
 extern "C" void thread_terminate_hook(osThreadId_t id)
@@ -36,15 +45,21 @@ namespace rtos {
 
 void Thread::constructor(osPriority priority,
         uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+
+    const uintptr_t unaligned_mem = reinterpret_cast<uintptr_t>(stack_mem);
+    const uintptr_t aligned_mem = ALIGN_UP(unaligned_mem, 8);
+    const uint32_t offset = aligned_mem - unaligned_mem;
+    const uint32_t aligned_size = ALIGN_DOWN(stack_size - offset, 8);
+
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
     _finished = false;
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     memset(&_attr, 0, sizeof(_attr));
     _attr.priority = priority;
-    _attr.stack_size = stack_size;
+    _attr.stack_size = aligned_size;
     _attr.name = name ? name : "application_unnamed_thread";
-    _attr.stack_mem = (uint32_t*)stack_mem;
+    _attr.stack_mem = reinterpret_cast<uint32_t*>(aligned_mem);
 }
 
 void Thread::constructor(Callback<void()> task,

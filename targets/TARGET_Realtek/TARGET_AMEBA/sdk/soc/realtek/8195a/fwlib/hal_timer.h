@@ -53,9 +53,10 @@ typedef struct _HAL_TIMER_OP_ {
 }HAL_TIMER_OP, *PHAL_TIMER_OP;
 
 typedef struct _HAL_TIMER_OP_EXT_ {
-	PHAL_TIMER_OP phal_timer_op_rom;
-	VOID (*HalTimerIrqEn)(u32 TimerId);
-	VOID (*HalTimerReLoad)(u32 TimerId, u32 LoadUs);
+    PHAL_TIMER_OP phal_timer_op_rom;
+    VOID (*HalTimerIrqEn)(u32 TimerId);
+    VOID (*HalTimerReLoad)(u32 TimerId, u32 LoadUs);
+    VOID (*HalTimerSync)(u32 TimerId);
 }HAL_TIMER_OP_EXT, *PHAL_TIMER_OP_EXT;
 
 #ifdef CONFIG_TIMER_MODULE

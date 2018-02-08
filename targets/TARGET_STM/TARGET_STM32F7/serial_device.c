@@ -763,9 +763,9 @@ int serial_irq_handler_asynch(serial_t *obj)
     HAL_UART_IRQHandler(huart);
     
     // Abort if an error occurs
-    if (return_event & SERIAL_EVENT_RX_PARITY_ERROR ||
-            return_event & SERIAL_EVENT_RX_FRAMING_ERROR ||
-            return_event & SERIAL_EVENT_RX_OVERRUN_ERROR) {
+    if ((return_event & SERIAL_EVENT_RX_PARITY_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_FRAMING_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_OVERRUN_ERROR)) {
         return return_event;
     }
     
@@ -838,7 +838,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
     
     // clear flags
-    volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE
+    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->RDR; // Clear RXNE
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_PEF);
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_FEF);
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_NEF);

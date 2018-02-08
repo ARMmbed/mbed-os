@@ -496,7 +496,6 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsc, uint8_t *
   */
 HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint16_t* tmp;
   uint32_t tickstart = 0U;
   
   if(hsc->RxState == HAL_SMARTCARD_STATE_READY) 
@@ -526,8 +525,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsc, uint8_t *p
       {
         return HAL_TIMEOUT;
       }
-      tmp = (uint16_t*) pData;
-      *tmp = (uint8_t)(hsc->Instance->DR & (uint8_t)0xFF);
+      *pData = (uint8_t)(hsc->Instance->DR & (uint8_t)0xFF);
       pData +=1U;
     }
 

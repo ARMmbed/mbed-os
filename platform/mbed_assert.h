@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_Assert Assert macros
+ * @{
+ */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -39,6 +43,19 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
 }
 #endif
 
+/** MBED_ASSERT
+ *  Declare runtime assertions: results in runtime error if condition is false
+ *
+ *  @note
+ *  Use of MBED_ASSERT is limited to Debug and Develop builds.
+ *
+ *  @code
+ *
+ *  int Configure(serial_t *obj) {
+ *      MBED_ASSERT(obj);
+ *  }
+ *  @endcode
+ */
 #ifdef NDEBUG
 #define MBED_ASSERT(expr) ((void)0)
 
@@ -110,4 +127,7 @@ do {                                                     \
 
 #endif
 
-/** @}*/
+/**@}*/
+
+/**@}*/
+

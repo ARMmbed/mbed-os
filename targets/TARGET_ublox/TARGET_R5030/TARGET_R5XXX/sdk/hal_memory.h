@@ -71,14 +71,14 @@ static void* const app_ss_mem_ospi_ext_mem_periph_ram = (void*)APP_SS_MEM_OSPI_E
 #ifdef __cplusplus
 namespace memory {
 #endif
-static void* const bb_modem_ss_mem_phy_cpu_tcm = (void*)BB_MODEM_SS_MEM_PHY_CPU_TCM_BASE;
+static void* const bb_modem_ss_mem_mdm_cpu_dtcm = (void*)BB_MODEM_SS_MEM_MDM_CPU_DTCM_BASE;
 #ifdef __cplusplus
 }
 #endif
 #ifdef __cplusplus
 namespace memory {
 #endif
-static void* const bb_modem_ss_mem_phy_cpu_tcm_alias = (void*)BB_MODEM_SS_MEM_PHY_CPU_TCM_ALIAS_BASE;
+static void* const bb_modem_ss_mem_mdm_cpu_dtcm_alias = (void*)BB_MODEM_SS_MEM_MDM_CPU_DTCM_ALIAS_BASE;
 #ifdef __cplusplus
 }
 #endif
@@ -99,14 +99,14 @@ static void* const bb_modem_ss_mem_mdm_cpu_itcm_alias = (void*)BB_MODEM_SS_MEM_M
 #ifdef __cplusplus
 namespace memory {
 #endif
-static void* const bb_modem_ss_mem_mdm_cpu_dtcm = (void*)BB_MODEM_SS_MEM_MDM_CPU_DTCM_BASE;
+static void* const bb_modem_ss_mem_phy_cpu_tcm = (void*)BB_MODEM_SS_MEM_PHY_CPU_TCM_BASE;
 #ifdef __cplusplus
 }
 #endif
 #ifdef __cplusplus
 namespace memory {
 #endif
-static void* const bb_modem_ss_mem_mdm_cpu_dtcm_alias = (void*)BB_MODEM_SS_MEM_MDM_CPU_DTCM_ALIAS_BASE;
+static void* const bb_modem_ss_mem_phy_cpu_tcm_alias = (void*)BB_MODEM_SS_MEM_PHY_CPU_TCM_ALIAS_BASE;
 #ifdef __cplusplus
 }
 #endif

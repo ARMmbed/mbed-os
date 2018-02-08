@@ -31,6 +31,10 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
+/**
+ * \defgroup rtos_Semaphore Semaphore class
+ * @{
+ */
 
 /** The Semaphore class is used to manage and protect access to a set of shared resources.
  *
@@ -71,11 +75,11 @@ private:
     void constructor(int32_t count, uint16_t max_count);
 
     osSemaphoreId_t               _id;
-    osSemaphoreAttr_t             _attr;
     mbed_rtos_storage_semaphore_t _obj_mem;
 };
-
+/** @}*/
+/** @}*/
 }
 #endif
 
-/** @}*/
+

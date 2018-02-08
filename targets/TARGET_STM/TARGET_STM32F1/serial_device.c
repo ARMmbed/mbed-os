@@ -172,7 +172,7 @@ static void uart_irq(int id)
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
             if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
-                volatile uint32_t tmpval = huart->Instance->DR; // Clear ORE flag
+                volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
             }
         }
     }
@@ -542,13 +542,13 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        volatile uint32_t tmpval = huart->Instance->DR; // Clear PE flag
+        volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear PE flag
     } else if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        volatile uint32_t tmpval = huart->Instance->DR; // Clear FE flag
+        volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear FE flag
     } else if (__HAL_UART_GET_FLAG(huart, UART_FLAG_NE) != RESET) {
-        volatile uint32_t tmpval = huart->Instance->DR; // Clear NE flag
+        volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear NE flag
     } else if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        volatile uint32_t tmpval = huart->Instance->DR; // Clear ORE flag
+        volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
     }
 }
 
@@ -599,9 +599,9 @@ int serial_irq_handler_asynch(serial_t *obj)
     HAL_UART_IRQHandler(huart);
     
     // Abort if an error occurs
-    if (return_event & SERIAL_EVENT_RX_PARITY_ERROR ||
-            return_event & SERIAL_EVENT_RX_FRAMING_ERROR ||
-            return_event & SERIAL_EVENT_RX_OVERRUN_ERROR) {
+    if ((return_event & SERIAL_EVENT_RX_PARITY_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_FRAMING_ERROR) ||
+        (return_event & SERIAL_EVENT_RX_OVERRUN_ERROR)) {
         return return_event;
     }
     
@@ -675,7 +675,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     
     // clear flags
     __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
-    volatile uint32_t tmpval = huart->Instance->DR; // Clear errors flag
+    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear errors flag
     
     // reset states
     huart->RxXferCount = 0;

@@ -36,7 +36,7 @@
 #
 # Command usage:
 #
-# update.py -c <config file> - T <github_token> -l <logging level> -f -b 
+# update.py -c <config file> - T <github_token> -f -b -s
 #
 # Where:
 # -c <config file> - Optional path to an examples file.
@@ -47,8 +47,10 @@
 # -b                 - Update branched repos. This will use the "src-branch" and 
 #                      "dst-branch" parameters in the 'via-branch' section. The destination
 #                      branch is created from the source branch (if it doesn't already exist).
+# -s               - Show the status of any pull requests with a tag matching that in the 
+#                    json config file
 # 
-# The options -f and -b are mutually exlusive. Only one can be specified.
+# The options -f, -b and -s are mutually exlusive. Only one can be specified.
 #
 #
 
@@ -431,6 +433,47 @@ def create_work_directory(path):
     
     os.makedirs(path)
 
+def check_update_status(examples, github, tag):
+    """ Check the status of previously raised update pull requests
+    
+    Args:
+    examples - list of examples which should have had PRs raised against them. 
+    github - github rest API instance
+    tag - release tag used for the update
+    
+    """
+
+    for example in examples:
+
+        repo_name = ''.join(['ARMmbed/', example['name']])
+        try:
+            repo = github.get_repo(repo_name, False)
+
+        except Exception as exc:
+            text = "Cannot access: " + str(repo_name)
+            userlog.error(text)
+            userlog.exception(exc)
+            sys.exit(1)
+
+        # Create the full repository filter component
+        org_str = ''.join(['repo:ARMmbed/', example['name']])
+        filt = ' '.join([org_str, 'is:pr', tag])        
+        merged = False
+
+        issues = github.search_issues(query=(filt))
+        pr_list = [repo.get_pull(issue.number) for issue in issues]
+
+        # Should only be one matching PR but just in case, go through paginated list  
+        for pr in pr_list:
+            if pr.merged:
+                userlog.info("%s - '%s': MERGED", example['name'], pr.title)
+            elif pr.state == 'open':
+                userlog.info("%s - '%s': PENDING", example['name'], pr.title)
+            elif pr.state == 'closed':
+                userlog.info("%s - '%s': CLOSED NOT MERGED", example['name'], pr.title)
+            else:
+                userlog.error("%s: Cannot find a pull request for %s", example['name'], tag)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=__doc__,
@@ -441,6 +484,7 @@ if __name__ == '__main__':
     exclusive = parser.add_mutually_exclusive_group(required=True)
     exclusive.add_argument('-f', '--fork', help="Update a fork", action='store_true')
     exclusive.add_argument('-b', '--branch', help="Update a branch", action='store_true')
+    exclusive.add_argument('-s', '--status', help="Show examples update status", action='store_true')
     
     args = parser.parse_args()
 
@@ -451,8 +495,6 @@ if __name__ == '__main__':
             sys.exit(1)
         json_data = json.load(config)
         
-    # Create working directory
-    create_work_directory('examples')
 
     github = Github(args.github_token)
     config = json_data['update-config']
@@ -461,6 +503,15 @@ if __name__ == '__main__':
     user = None
     src = "master"
     dst = None
+
+    if args.status:
+        
+        # This option should only be called after an update has been performed
+        check_update_status(json_data['examples'], github, tag)
+        exit(0)
+
+    # Create working directory
+    create_work_directory('examples')
 
     if args.fork:
         user = config['via-fork']['github-user']

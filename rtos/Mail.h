@@ -38,7 +38,11 @@ using namespace rtos;
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_Mail Mail class
+ * @{
+ */
+ 
 /** The Mail class allow to control, send, receive, or wait for mail.
  A mail is a memory block that is send to a thread or interrupt service routine.
   @tparam  T         data type of a single message element.
@@ -53,6 +57,22 @@ class Mail : private mbed::NonCopyable<Mail<T, queue_sz> > {
 public:
     /** Create and Initialise Mail queue. */
     Mail() { };
+
+    /** Check if the mail queue is empty
+     *
+     * @return True if the mail queue is empty, false if not
+     */
+    bool empty() const {
+        return _queue.empty();
+    }
+
+    /** Check if the mail queue is full
+     *
+     * @return True if the mail queue is full, false if not
+     */
+    bool full() const {
+        return _queue.full();
+    }
 
     /** Allocate a memory block of type T
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0).
@@ -103,9 +123,12 @@ private:
     MemoryPool<T, queue_sz> _pool;
 };
 
+/** @}*/
+/** @}*/
+
 }
 
 #endif
 
 
-/** @}*/
+

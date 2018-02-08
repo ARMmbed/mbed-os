@@ -105,7 +105,7 @@ void prep_buffer() {
 void test_socket_attach() {
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue;
+    EventQueue queue(4*EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
@@ -139,7 +139,7 @@ void cb_pass() {
 void test_socket_detach() {
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue;
+    EventQueue queue(4*EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
@@ -166,7 +166,7 @@ void test_socket_detach() {
 void test_socket_reattach() {
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue;
+    EventQueue queue(4*EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());

@@ -14,68 +14,234 @@
  * limitations under the License.
  */
 
-#ifndef __BLE_COMMON_H__
-#define __BLE_COMMON_H__
+#ifndef MBED_BLE_COMMON_H__
+#define MBED_BLE_COMMON_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
 
-/*! @brief Assigned values for BLE UUIDs. */
+/**
+ * Assigned values for BLE UUIDs.
+ */
 enum {
-    BLE_UUID_UNKNOWN                             = 0x0000, /**< Reserved UUID. */
-    BLE_UUID_SERVICE_PRIMARY                     = 0x2800, /**< Primary Service. */
-    BLE_UUID_SERVICE_SECONDARY                   = 0x2801, /**< Secondary Service. */
-    BLE_UUID_SERVICE_INCLUDE                     = 0x2802, /**< Include. */
-    BLE_UUID_CHARACTERISTIC                      = 0x2803, /**< Characteristic. */
-    BLE_UUID_DESCRIPTOR_CHAR_EXT_PROP            = 0x2900, /**< Characteristic Extended Properties Descriptor. */
-    BLE_UUID_DESCRIPTOR_CHAR_USER_DESC           = 0x2901, /**< Characteristic User Description Descriptor. */
-    BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG       = 0x2902, /**< Client Characteristic Configuration Descriptor. */
-    BLE_UUID_DESCRIPTOR_SERVER_CHAR_CONFIG       = 0x2903, /**< Server Characteristic Configuration Descriptor. */
-    BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT = 0x2904, /**< Characteristic Presentation Format Descriptor. */
-    BLE_UUID_DESCRIPTOR_CHAR_AGGREGATE_FORMAT    = 0x2905, /**< Characteristic Aggregate Format Descriptor. */
+    /**
+     * Reserved UUID.
+     */
+    BLE_UUID_UNKNOWN = 0x0000,
+
+    /**
+     * Primary Service.
+     */
+    BLE_UUID_SERVICE_PRIMARY = 0x2800,
+
+    /**
+     * Secondary Service.
+     */
+    BLE_UUID_SERVICE_SECONDARY = 0x2801,
+
+    /**
+     * Included service.
+     */
+    BLE_UUID_SERVICE_INCLUDE = 0x2802,
+
+    /**
+     * Characteristic.
+     */
+    BLE_UUID_CHARACTERISTIC = 0x2803,
+
+    /**
+     * Characteristic Extended Properties Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_CHAR_EXT_PROP = 0x2900,
+
+    /**
+     * Characteristic User Description Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_CHAR_USER_DESC = 0x2901,
+
+    /**
+     * Client Characteristic Configuration Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG = 0x2902,
+
+    /**
+     * Server Characteristic Configuration Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_SERVER_CHAR_CONFIG = 0x2903,
+
+    /**
+     * Characteristic Presentation Format Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT = 0x2904,
+
+    /**
+     * Characteristic Aggregate Format Descriptor.
+     */
+    BLE_UUID_DESCRIPTOR_CHAR_AGGREGATE_FORMAT = 0x2905,
 
 /* GATT specific UUIDs */
-    BLE_UUID_GATT                                = 0x1801, /**< Generic Attribute Profile. */
-    BLE_UUID_GATT_CHARACTERISTIC_SERVICE_CHANGED = 0x2A05, /**< Service Changed Characteristic. */
+    /**
+     * Generic Attribute Profile.
+     */
+    BLE_UUID_GATT = 0x1801,
+
+    /**
+     * Service Changed Characteristic.
+     */
+    BLE_UUID_GATT_CHARACTERISTIC_SERVICE_CHANGED = 0x2A05,
 
 /* GAP specific UUIDs */
-    BLE_UUID_GAP                                 = 0x1800, /**< Generic Access Profile. */
-    BLE_UUID_GAP_CHARACTERISTIC_DEVICE_NAME      = 0x2A00, /**< Device Name Characteristic. */
-    BLE_UUID_GAP_CHARACTERISTIC_APPEARANCE       = 0x2A01, /**< Appearance Characteristic. */
-    BLE_UUID_GAP_CHARACTERISTIC_PPF              = 0x2A02, /**< Peripheral Privacy Flag Characteristic. */
-    BLE_UUID_GAP_CHARACTERISTIC_RECONN_ADDR      = 0x2A03, /**< Reconnection Address Characteristic. */
-    BLE_UUID_GAP_CHARACTERISTIC_PPCP             = 0x2A04, /**< Peripheral Preferred Connection Parameters Characteristic. */
+
+    /**
+     * Generic Access Profile.
+     */
+    BLE_UUID_GAP = 0x1800,
+
+    /**
+     * Device Name Characteristic.
+     */
+    BLE_UUID_GAP_CHARACTERISTIC_DEVICE_NAME = 0x2A00,
+
+    /**
+     * Appearance Characteristic.
+     */
+    BLE_UUID_GAP_CHARACTERISTIC_APPEARANCE = 0x2A01,
+
+    /**
+     * Peripheral Privacy Flag Characteristic.
+     */
+    BLE_UUID_GAP_CHARACTERISTIC_PPF = 0x2A02,
+
+    /**
+     * Reconnection Address Characteristic.
+     */
+    BLE_UUID_GAP_CHARACTERISTIC_RECONN_ADDR = 0x2A03,
+
+    /**
+     * Peripheral Preferred Connection Parameters Characteristic.
+     */
+    BLE_UUID_GAP_CHARACTERISTIC_PPCP = 0x2A04,
 };
 
-/*! @brief Error codes for the BLE API. */
+/**
+ * Error codes for the BLE API.
+ *
+ * The value 0 means that no error was reported; therefore, it allows an API
+ * user to cleanly test for errors.
+ *
+ * @code
+ * ble_error_t error = some_ble_api_function();
+ * if (error) {
+ *   // handle the error
+ * }
+ * @endcode
+ */
 enum ble_error_t {
-    BLE_ERROR_NONE                      = 0, /**< No error. */
-    BLE_ERROR_BUFFER_OVERFLOW           = 1, /**< The requested action would cause a buffer overflow and has been aborted. */
-    BLE_ERROR_NOT_IMPLEMENTED           = 2, /**< Requested a feature that isn't yet implemented or isn't supported by the target HW. */
-    BLE_ERROR_PARAM_OUT_OF_RANGE        = 3, /**< One of the supplied parameters is outside the valid range. */
-    BLE_ERROR_INVALID_PARAM             = 4, /**< One of the supplied parameters is invalid. */
-    BLE_STACK_BUSY                      = 5, /**< The stack is busy. */
-    BLE_ERROR_INVALID_STATE             = 6, /**< Invalid state. */
-    BLE_ERROR_NO_MEM                    = 7, /**< Out of memory */
-    BLE_ERROR_OPERATION_NOT_PERMITTED   = 8,
+    /**
+     * No error.
+     */
+    BLE_ERROR_NONE = 0,
+
+    /**
+     * The requested action would cause a buffer overflow and has been aborted.
+     */
+    BLE_ERROR_BUFFER_OVERFLOW = 1,
+
+    /**
+     * Requested a feature that isn't yet implemented or isn't supported by the
+     * target HW.
+     */
+    BLE_ERROR_NOT_IMPLEMENTED = 2,
+
+    /**
+     * One of the supplied parameters is outside the valid range.
+     */
+    BLE_ERROR_PARAM_OUT_OF_RANGE = 3,
+
+    /**
+     * One of the supplied parameters is invalid.
+     */
+    BLE_ERROR_INVALID_PARAM = 4,
+
+    /**
+     * The stack is busy.
+     */
+    BLE_STACK_BUSY = 5,
+
+    /**
+     * Invalid state.
+     */
+    BLE_ERROR_INVALID_STATE = 6,
+
+    /**
+     * Out of memory.
+     */
+    BLE_ERROR_NO_MEM = 7,
+
+    /**
+     * The operation requested is not permitted.
+     */
+    BLE_ERROR_OPERATION_NOT_PERMITTED = 8,
+
+    /**
+     * The BLE subsystem has not completed its initialization.
+     */
     BLE_ERROR_INITIALIZATION_INCOMPLETE = 9,
-    BLE_ERROR_ALREADY_INITIALIZED       = 10,
-    BLE_ERROR_UNSPECIFIED               = 11, /**< Unknown error. */
-    BLE_ERROR_INTERNAL_STACK_FAILURE    = 12, /**< The platform-specific stack failed */
+
+    /**
+     *  The BLE system has already been initialized.
+     */
+    BLE_ERROR_ALREADY_INITIALIZED = 10,
+
+    /**
+     * Unknown error.
+     */
+    BLE_ERROR_UNSPECIFIED = 11,
+
+    /**
+     * The platform-specific stack failed.
+     */
+    BLE_ERROR_INTERNAL_STACK_FAILURE = 12,
 };
 
-/** @brief Default MTU size. */
+/**
+ * Default MTU size.
+ */
 static const unsigned BLE_GATT_MTU_SIZE_DEFAULT = 23;
 
+/**
+ * Handle Value Notification/Indication event.
+ *
+ * Emmitted when a notification or indication has been received from a GATT
+ * server.
+ */
 enum HVXType_t {
-    BLE_HVX_NOTIFICATION = 0x01,  /**< Handle Value Notification. */
-    BLE_HVX_INDICATION   = 0x02,  /**< Handle Value Indication. */
+    /**
+     * Handle Value Notification.
+     */
+    BLE_HVX_NOTIFICATION = 0x01,
+
+    /**
+     * Handle Value Indication.
+     */
+    BLE_HVX_INDICATION = 0x02,
 };
+
+/**
+ * @}
+ * @}
+ */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // ifndef __BLE_COMMON_H__
+#endif // ifndef MBED_BLE_COMMON_H__

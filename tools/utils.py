@@ -199,7 +199,7 @@ def delete_dir_files(directory):
     for element in listdir(directory):
         to_remove = join(directory, element)
         if not isdir(to_remove):
-            remove(file)
+            remove(to_remove)
 
 
 def get_caller_name(steps=2):

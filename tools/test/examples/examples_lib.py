@@ -292,7 +292,7 @@ def export_repos(config, ides, targets, examples):
                         status("SUCCESS exporting")
                         status("Building")
                         try:
-                            if EXPORTERS[ide].build(example_project_name):
+                            if EXPORTERS[ide].build(example_project_name, cleanup=False):
                                 status("FAILURE building")
                                 build_failures.append(example_name)
                             else:

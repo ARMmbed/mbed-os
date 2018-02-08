@@ -16,6 +16,12 @@
 #include "cmsis.h"
 #if defined(NVIC_NUM_VECTORS)
 
+// Suppress deprecation warnings since this whole
+// class is deprecated already
+#include "mbed_toolchain.h"
+#undef MBED_DEPRECATED_SINCE
+#define MBED_DEPRECATED_SINCE(...)
+
 #include "drivers/InterruptManager.h"
 #include "platform/mbed_critical.h"
 #include <string.h>

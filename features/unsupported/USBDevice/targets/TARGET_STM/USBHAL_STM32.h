@@ -28,6 +28,7 @@
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
     defined(TARGET_DISCO_F407VG) || \
+    defined(TARGET_DISCO_F429ZI) || \
     defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_F746NG) || \
     defined(TARGET_DISCO_F769NI) || \

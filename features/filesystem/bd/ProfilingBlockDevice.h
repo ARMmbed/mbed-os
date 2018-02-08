@@ -42,6 +42,7 @@
  *  printf("read count: %lld\n", profiler.get_read_count());
  *  printf("program count: %lld\n", profiler.get_program_count());
  *  printf("erase count: %lld\n", profiler.get_erase_count());
+ *  @endcode
  */
 class ProfilingBlockDevice : public BlockDevice
 {

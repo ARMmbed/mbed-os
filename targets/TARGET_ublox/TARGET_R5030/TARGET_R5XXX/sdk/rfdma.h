@@ -71,9 +71,9 @@ struct rfdma_rxc_s {
 #define RFDMA_RXC_CONF_SH_CNT_OFFSET 0
 #define RFDMA_RXC_CONF_SH_CNT_SIZE 3
 
-/** Receive channel pending registers
+/** Transmit channel pending registers
 */
-struct rfdma_rxp_s {
+struct rfdma_txp_s {
    /** Channel pending source address at address offset 0x000, read-write */
    uint32_t addr;
    /** Channel pending size in bytes at address offset 0x004, read-write */
@@ -84,58 +84,25 @@ struct rfdma_rxp_s {
    uint32_t fill;
 };
 
-/** bit field defines for rfdma_rxp_s#addr */
-#define RFDMA_RXP_ADDR_ADDRESS_OFFSET 2
-#define RFDMA_RXP_ADDR_ADDRESS_SIZE 30
+/** bit field defines for rfdma_txp_s#addr */
+#define RFDMA_TXP_ADDR_ADDRESS_OFFSET 2
+#define RFDMA_TXP_ADDR_ADDRESS_SIZE 30
 
-/** bit field defines for rfdma_rxp_s#size */
-#define RFDMA_RXP_SIZE_SIZE_OFFSET 2
-#define RFDMA_RXP_SIZE_SIZE_SIZE 30
+/** bit field defines for rfdma_txp_s#size */
+#define RFDMA_TXP_SIZE_SIZE_OFFSET 2
+#define RFDMA_TXP_SIZE_SIZE_SIZE 30
 
-/** bit field defines for rfdma_rxp_s#conf */
-#define RFDMA_RXP_CONF_SEV_O_ENABLE_OFFSET 0
-#define RFDMA_RXP_CONF_SEV_O_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_LOOP_ENABLE_OFFSET 2
-#define RFDMA_RXP_CONF_LOOP_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_BLOCK_CNT_OFFSET 8
-#define RFDMA_RXP_CONF_BLOCK_CNT_SIZE 8
-#define RFDMA_RXP_CONF_LOOP_CNT_OFFSET 16
-#define RFDMA_RXP_CONF_LOOP_CNT_SIZE 16
-
-/** Receive channel running registers
-*/
-struct rfdma_rxr_s {
-   /** Channel running source address at address offset 0x000, read-only */
-   uint32_t addr;
-   /** Channel running size in bytes at address offset 0x004, read-only */
-   uint32_t size;
-   /** Channel running configuration at address offset 0x008, read-only */
-   uint32_t conf;
-   /** Reserved space \private at address offset 0x00C, read-only */
-   uint32_t fill;
-};
-
-/** bit field defines for rfdma_rxr_s#addr */
-#define RFDMA_RXR_ADDR_ADDRESS_OFFSET 2
-#define RFDMA_RXR_ADDR_ADDRESS_SIZE 30
-
-/** bit field defines for rfdma_rxr_s#size */
-#define RFDMA_RXR_SIZE_SIZE_OFFSET 2
-#define RFDMA_RXR_SIZE_SIZE_SIZE 30
-
-/** bit field defines for rfdma_rxr_s#conf */
-#define RFDMA_RXR_CONF_SEV_O_ENABLE_OFFSET 0
-#define RFDMA_RXR_CONF_SEV_O_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_LOOP_ENABLE_OFFSET 2
-#define RFDMA_RXR_CONF_LOOP_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_BLOCK_CNT_OFFSET 8
-#define RFDMA_RXR_CONF_BLOCK_CNT_SIZE 8
-#define RFDMA_RXR_CONF_LOOP_CNT_OFFSET 16
-#define RFDMA_RXR_CONF_LOOP_CNT_SIZE 16
+/** bit field defines for rfdma_txp_s#conf */
+#define RFDMA_TXP_CONF_SEV_O_ENABLE_OFFSET 0
+#define RFDMA_TXP_CONF_SEV_O_ENABLE_SIZE 1
+#define RFDMA_TXP_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define RFDMA_TXP_CONF_EVENTS_O_ENABLE_SIZE 1
+#define RFDMA_TXP_CONF_LOOP_ENABLE_OFFSET 2
+#define RFDMA_TXP_CONF_LOOP_ENABLE_SIZE 1
+#define RFDMA_TXP_CONF_BLOCK_CNT_OFFSET 8
+#define RFDMA_TXP_CONF_BLOCK_CNT_SIZE 8
+#define RFDMA_TXP_CONF_LOOP_CNT_OFFSET 16
+#define RFDMA_TXP_CONF_LOOP_CNT_SIZE 16
 
 /** Transmit channel command registers
 */
@@ -209,9 +176,42 @@ struct rfdma_txr_s {
 #define RFDMA_TXR_CONF_LOOP_CNT_OFFSET 16
 #define RFDMA_TXR_CONF_LOOP_CNT_SIZE 16
 
-/** Transmit channel pending registers
+/** Receive channel running registers
 */
-struct rfdma_txp_s {
+struct rfdma_rxr_s {
+   /** Channel running source address at address offset 0x000, read-only */
+   uint32_t addr;
+   /** Channel running size in bytes at address offset 0x004, read-only */
+   uint32_t size;
+   /** Channel running configuration at address offset 0x008, read-only */
+   uint32_t conf;
+   /** Reserved space \private at address offset 0x00C, read-only */
+   uint32_t fill;
+};
+
+/** bit field defines for rfdma_rxr_s#addr */
+#define RFDMA_RXR_ADDR_ADDRESS_OFFSET 2
+#define RFDMA_RXR_ADDR_ADDRESS_SIZE 30
+
+/** bit field defines for rfdma_rxr_s#size */
+#define RFDMA_RXR_SIZE_SIZE_OFFSET 2
+#define RFDMA_RXR_SIZE_SIZE_SIZE 30
+
+/** bit field defines for rfdma_rxr_s#conf */
+#define RFDMA_RXR_CONF_SEV_O_ENABLE_OFFSET 0
+#define RFDMA_RXR_CONF_SEV_O_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_LOOP_ENABLE_OFFSET 2
+#define RFDMA_RXR_CONF_LOOP_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_BLOCK_CNT_OFFSET 8
+#define RFDMA_RXR_CONF_BLOCK_CNT_SIZE 8
+#define RFDMA_RXR_CONF_LOOP_CNT_OFFSET 16
+#define RFDMA_RXR_CONF_LOOP_CNT_SIZE 16
+
+/** Receive channel pending registers
+*/
+struct rfdma_rxp_s {
    /** Channel pending source address at address offset 0x000, read-write */
    uint32_t addr;
    /** Channel pending size in bytes at address offset 0x004, read-write */
@@ -222,25 +222,25 @@ struct rfdma_txp_s {
    uint32_t fill;
 };
 
-/** bit field defines for rfdma_txp_s#addr */
-#define RFDMA_TXP_ADDR_ADDRESS_OFFSET 2
-#define RFDMA_TXP_ADDR_ADDRESS_SIZE 30
+/** bit field defines for rfdma_rxp_s#addr */
+#define RFDMA_RXP_ADDR_ADDRESS_OFFSET 2
+#define RFDMA_RXP_ADDR_ADDRESS_SIZE 30
 
-/** bit field defines for rfdma_txp_s#size */
-#define RFDMA_TXP_SIZE_SIZE_OFFSET 2
-#define RFDMA_TXP_SIZE_SIZE_SIZE 30
+/** bit field defines for rfdma_rxp_s#size */
+#define RFDMA_RXP_SIZE_SIZE_OFFSET 2
+#define RFDMA_RXP_SIZE_SIZE_SIZE 30
 
-/** bit field defines for rfdma_txp_s#conf */
-#define RFDMA_TXP_CONF_SEV_O_ENABLE_OFFSET 0
-#define RFDMA_TXP_CONF_SEV_O_ENABLE_SIZE 1
-#define RFDMA_TXP_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define RFDMA_TXP_CONF_EVENTS_O_ENABLE_SIZE 1
-#define RFDMA_TXP_CONF_LOOP_ENABLE_OFFSET 2
-#define RFDMA_TXP_CONF_LOOP_ENABLE_SIZE 1
-#define RFDMA_TXP_CONF_BLOCK_CNT_OFFSET 8
-#define RFDMA_TXP_CONF_BLOCK_CNT_SIZE 8
-#define RFDMA_TXP_CONF_LOOP_CNT_OFFSET 16
-#define RFDMA_TXP_CONF_LOOP_CNT_SIZE 16
+/** bit field defines for rfdma_rxp_s#conf */
+#define RFDMA_RXP_CONF_SEV_O_ENABLE_OFFSET 0
+#define RFDMA_RXP_CONF_SEV_O_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_LOOP_ENABLE_OFFSET 2
+#define RFDMA_RXP_CONF_LOOP_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_BLOCK_CNT_OFFSET 8
+#define RFDMA_RXP_CONF_BLOCK_CNT_SIZE 8
+#define RFDMA_RXP_CONF_LOOP_CNT_OFFSET 16
+#define RFDMA_RXP_CONF_LOOP_CNT_SIZE 16
 
 /** RFDMA control registers
 */

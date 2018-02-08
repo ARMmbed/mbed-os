@@ -56,7 +56,8 @@ public:
     /** Lifetime of the memory block device
      *
      * @param size      Size of the Block Device in bytes
-     * @param block     Block size in bytes
+     * @param block     Block size in bytes. Minimum read, program, and erase sizes are
+     *                  configured to this value
      */
     HeapBlockDevice(bd_size_t size, bd_size_t block=512);
     /** Lifetime of the memory block device

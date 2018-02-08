@@ -22,6 +22,14 @@
 
 static int us_ticker_inited = 0;
 
+static void lptmr_isr(void)
+{
+    LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
+    LPTMR_StopTimer(LPTMR0);
+
+    us_ticker_irq_handler();
+}
+
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -56,7 +64,7 @@ void us_ticker_init(void)
     busClock = CLOCK_GetFreq(kCLOCK_McgInternalRefClk);
     LPTMR_SetTimerPeriod(LPTMR0, busClock / 1000000 - 1);
     /* Set interrupt handler */
-    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)us_ticker_irq_handler);
+    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)lptmr_isr);
     NVIC_EnableIRQ(LPTMR0_IRQn);
 }
 

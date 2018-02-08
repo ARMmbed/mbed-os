@@ -35,6 +35,10 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
+/**
+ * \defgroup rtos_Thread Thread class
+ * @{
+ */
 
 /** The Thread class allow defining, creating, and controlling thread functions in the system.
  *
@@ -370,8 +374,9 @@ private:
     mbed_rtos_storage_thread_t _obj_mem;
     bool                       _finished;
 };
-
+/** @}*/
+/** @}*/
 }
 #endif
 
-/** @}*/
+

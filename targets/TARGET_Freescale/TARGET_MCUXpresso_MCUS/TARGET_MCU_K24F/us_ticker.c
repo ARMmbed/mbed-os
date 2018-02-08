@@ -21,6 +21,16 @@
 
 static int us_ticker_inited = 0;
 
+static void pit_isr(void)
+{
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_3, PIT_TFLG_TIF_MASK);
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_2, PIT_TFLG_TIF_MASK);
+    PIT_StopTimer(PIT, kPIT_Chnl_2);
+    PIT_StopTimer(PIT, kPIT_Chnl_3);
+
+    us_ticker_irq_handler();
+}
+
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -47,7 +57,7 @@ void us_ticker_init(void)
     //Ticker
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, busClock / 1000000 - 1);
     PIT_SetTimerChainMode(PIT, kPIT_Chnl_3, true);
-    NVIC_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
+    NVIC_SetVector(PIT3_IRQn, (uint32_t)pit_isr);
     NVIC_EnableIRQ(PIT3_IRQn);
 }
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
-#define __DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
+#ifndef MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
+#define MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__
 
 #include "UUID.h"
 #include "Gap.h"
@@ -24,16 +24,32 @@
 #include "CharacteristicDescriptorDiscovery.h"
 
 /**
- * @brief Representation of a descriptor discovered during a GattClient
- * discovery procedure (see GattClient::discoverCharacteristicDescriptors or
- * DiscoveredCharacteristic::discoverDescriptors ).
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup client
+ * @{
+ */
+
+/**
+ * Representation of a characteristic descriptor discovered.
  *
- * @details Provide detailed informations about a discovered characteristic descriptor
- * like:
- *     - Its UUID (see #getUUID).
- *     - Its handle (see #getAttributeHandle)
- * Basic read (see GattClient::read) and write (see GattClient::write) procedure from
- * GattClient can be used access the value of the descriptor.
+ * Characteristic descriptors can be seen as the metadata of the characteristic.
+ * They can contain things such as the unit of the characteristic value, extra
+ * permission informations or the Client Configuration state in regard to
+ * notification or indication.
+ *
+ * The descriptors of a characterstic are discovered by a Characteristic
+ * Descriptor Discovery Procedure, which can be initiated by either
+ * GattClient::discoverCharacteristicDescriptors() or
+ * DiscoveredCharacteristic::discoverDescriptors().
+ *
+ * The discovery procedure returns the UUID of the descriptor (its type) and its
+ * handle.
+ *
+ * Read and write of the descriptor value can be initiated by
+ * GattClient::read and GattClient::write.
  *
  * @todo read member function
  * @todo write member function
@@ -44,60 +60,80 @@ class DiscoveredCharacteristicDescriptor {
 public:
 
     /**
-     * @brief construct a new instance of a DiscoveredCharacteristicDescriptor
+     * Construct a new instance of a DiscoveredCharacteristicDescriptor.
      *
-     * @param client The client from where the descriptor has been discovered
-     * @param connectionHandle The connection handle on which the descriptor has
-     * been discovered
-     * @param attributeHandle The handle of the attribute containing this descriptor
-     * @param uuid The UUID of the descriptor
+     * @param[in] client The client that has discovered the descriptor.
+     * @param[in] connectionHandle Handle of the connection to the GATT server
+     * containing the descriptor.
+     * @param[in] attributeHandle GATT attribute handle of the descriptor.
+     * @param[in] uuid UUID of the descriptor.
+     *
+     * @note This constructor is not meant to be called directly by application
+     * code. The Gattclient class generates descriptors discovered.
      */
     DiscoveredCharacteristicDescriptor(
-        GattClient* client, Gap::Handle_t connectionHandle,  GattAttribute::Handle_t attributeHandle, const UUID& uuid) :
-        _client(client), _connectionHandle(connectionHandle), _uuid(uuid), _gattHandle(attributeHandle) {
-
+        GattClient *client,
+        Gap::Handle_t connectionHandle,
+        GattAttribute::Handle_t attributeHandle,
+        const UUID &uuid
+    ) : _client(client),
+        _connectionHandle(connectionHandle),
+        _uuid(uuid),
+        _gattHandle(attributeHandle) {
     }
 
     /**
-     * @brief Return the GattClient which can operate on this descriptor.
-     * @return The GattClient which can operate on this descriptor.
+     * Return the GattClient, which can operate on this descriptor.
+     *
+     * @return GattClient, which can operate on this descriptor.
      */
-    GattClient* getGattClient() {
+    GattClient* getGattClient()
+    {
         return _client;
     }
 
     /**
-     * @brief Return the GattClient which can operate on this descriptor.
-     * @return The GattClient which can operate on this descriptor.
+     * Return the GattClient, which can operate on this descriptor.
+     *
+     * @return GattClient, which can operate on this descriptor.
      */
-    const GattClient* getGattClient() const {
+    const GattClient* getGattClient() const
+    {
         return _client;
     }
 
     /**
-     * @brief Return the connection handle to the GattServer which contain
-     * this descriptor.
-     * @return the connection handle to the GattServer which contain
-     * this descriptor.
+     * Return the connection handle to the GattServer containing this
+     * descriptor.
+     *
+     * @return the connection handle to the GattServer containing this
+     * descriptor.
      */
-    Gap::Handle_t getConnectionHandle() const {
+    Gap::Handle_t getConnectionHandle() const
+    {
         return _connectionHandle;
     }
 
     /**
-     * @brief Return the UUID of this descriptor
-     * @return the UUID of this descriptor
+     * Return the UUID of this descriptor.
+     *
+     * @return UUID of this descriptor.
      */
-    const UUID& getUUID(void) const {
+    const UUID& getUUID(void) const
+    {
         return _uuid;
     }
 
     /**
-     * @brief Return the attribute handle to use to access to this descriptor
-     * on the gatt server.
-     * @return The attribute handle of the descriptor
+     * Return the attribute handle of this descriptor.
+     *
+     * This attribute handle can be used to interact with the descriptor on its
+     * gatt server.
+     *
+     * @return Attribute handle of the descriptor
      */
-    GattAttribute::Handle_t getAttributeHandle() const {
+    GattAttribute::Handle_t getAttributeHandle() const
+    {
         return _gattHandle;
     }
 
@@ -108,4 +144,10 @@ private:
     GattAttribute::Handle_t _gattHandle;
 };
 
-#endif /*__DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__*/
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /* MBED_DISCOVERED_CHARACTERISTIC_DESCRIPTOR_H__ */

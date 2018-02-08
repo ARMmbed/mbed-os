@@ -27,7 +27,7 @@
 
 namespace rtos {
 
-Mutex::Mutex()
+Mutex::Mutex(): _count(0)
 {
     constructor();
 }
@@ -40,25 +40,39 @@ Mutex::Mutex(const char *name)
 void Mutex::constructor(const char *name)
 {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
-    memset(&_attr, 0, sizeof(_attr));
-    _attr.name = name ? name : "aplication_unnamed_mutex";
-    _attr.cb_mem = &_obj_mem;
-    _attr.cb_size = sizeof(_obj_mem);
-    _attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
-    _id = osMutexNew(&_attr);
+    osMutexAttr_t attr = { 0 };
+    attr.name = name ? name : "aplication_unnamed_mutex";
+    attr.cb_mem = &_obj_mem;
+    attr.cb_size = sizeof(_obj_mem);
+    attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
+    _id = osMutexNew(&attr);
     MBED_ASSERT(_id);
 }
 
 osStatus Mutex::lock(uint32_t millisec) {
-    return osMutexAcquire(_id, millisec);
+    osStatus status = osMutexAcquire(_id, millisec);
+    if (osOK == status) {
+        _count++;
+    }
+    return status;
 }
 
 bool Mutex::trylock() {
-    return (osMutexAcquire(_id, 0) == osOK);
+    if (osMutexAcquire(_id, 0) == osOK) {
+        _count++;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 osStatus Mutex::unlock() {
+    _count--;
     return osMutexRelease(_id);
+}
+
+osThreadId Mutex::get_owner() {
+    return osMutexGetOwner(_id);
 }
 
 Mutex::~Mutex() {

@@ -1,6 +1,11 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_interface Network interface and other utility functions
+ * @{
+ */
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -41,6 +46,11 @@ extern "C" {
 #endif
 
 #if DEVICE_SEMIHOST
+
+/**
+ * \defgroup platform_interface interface functions
+ * @{
+ */
 
 /** Functions to control the mbed interface
  *
@@ -137,6 +147,7 @@ void mbed_error_printf(const char* format, ...);
  *
  */
 void mbed_error_vfprintf(const char * format, va_list arg);
+/** @}*/
 
 #ifdef __cplusplus
 }

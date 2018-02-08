@@ -2003,7 +2003,7 @@ def get_test_config(config_name, target_name):
     """Finds the path to a test configuration file
     config_name: path to a custom configuration file OR mbed OS interface "ethernet, wifi_odin, etc"
     target_name: name of target to determing if mbed OS interface given is valid
-    returns path to config, boolean of whether it is a module or mbed OS interface
+    returns path to config, will return None if no valid config is found
     """
     # If they passed in a full path
     if exists(config_name):

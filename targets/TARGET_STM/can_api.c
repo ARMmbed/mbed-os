@@ -57,11 +57,17 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
         __HAL_RCC_CAN1_CLK_ENABLE();
         obj->index = 0;
     }
-#if defined(CAN2_BASE) && (CAN_NUM == 2)
+#if defined(CAN2_BASE) && defined(CAN_2)
     else if (can == CAN_2) {
         __HAL_RCC_CAN1_CLK_ENABLE(); // needed to set filters
         __HAL_RCC_CAN2_CLK_ENABLE();
         obj->index = 1;
+    }
+#endif
+#if defined(CAN3_BASE) && defined(CAN_3)
+    else if (can == CAN_3) {
+        __HAL_RCC_CAN3_CLK_ENABLE();
+        obj->index = 2;
     }
 #endif
     else {
@@ -126,11 +132,18 @@ void can_free(can_t *obj)
         __HAL_RCC_CAN1_RELEASE_RESET();
         __HAL_RCC_CAN1_CLK_DISABLE();
     }
-#if defined(CAN2_BASE) && (CAN_NUM == 2)
+#if defined(CAN2_BASE) && defined(CAN_2)
     if (can == CAN_2) {
         __HAL_RCC_CAN2_FORCE_RESET();
         __HAL_RCC_CAN2_RELEASE_RESET();
         __HAL_RCC_CAN2_CLK_DISABLE();
+    }
+#endif
+#if defined(CAN3_BASE) && defined(CAN_3)
+    if (can == CAN_3) {
+        __HAL_RCC_CAN3_FORCE_RESET();
+        __HAL_RCC_CAN3_RELEASE_RESET();
+        __HAL_RCC_CAN3_CLK_DISABLE();
     }
 #endif
 }
@@ -549,7 +562,7 @@ void CAN1_SCE_IRQHandler(void)
 {
     can_irq(CAN_1, 0);
 }
-#if defined(CAN2_BASE) && (CAN_NUM == 2)
+#if defined(CAN2_BASE) && defined(CAN_2)
 void CAN2_RX0_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
@@ -562,7 +575,21 @@ void CAN2_SCE_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
 }
-#endif // defined(CAN2_BASE) && (CAN_NUM == 2)
+#endif
+#if defined(CAN3_BASE) && defined(CAN_3)
+void CAN3_RX0_IRQHandler(void)
+{
+    can_irq(CAN_3, 1);
+}
+void CAN3_TX_IRQHandler(void)
+{
+    can_irq(CAN_3, 1);
+}
+void CAN3_SCE_IRQHandler(void)
+{
+    can_irq(CAN_3, 1);
+}
+#endif
 #endif // else
 
 void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
@@ -603,7 +630,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 return;
         }
     }
-#if defined(CAN2_BASE) && (CAN_NUM == 2)
+#if defined(CAN2_BASE) && defined(CAN_2)
     else if ((CANName) can == CAN_2) {
         switch (type) {
             case IRQ_RX:
@@ -630,6 +657,39 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 ier = CAN_IT_BOF;
                 irq_n = CAN2_IRQ_BUS_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_BUS_VECT;
+                break;
+            default:
+                return;
+        }
+    }
+#endif
+#if defined(CAN3_BASE) && defined(CAN_3)
+    else if ((CANName) can == CAN_3) {
+        switch (type) {
+            case IRQ_RX:
+                ier = CAN_IT_FMP0;
+                irq_n = CAN3_IRQ_RX_IRQN;
+                vector = (uint32_t)&CAN3_IRQ_RX_VECT;
+                break;
+            case IRQ_TX:
+                ier = CAN_IT_TME;
+                irq_n = CAN3_IRQ_TX_IRQN;
+                vector = (uint32_t)&CAN3_IRQ_TX_VECT;
+                break;
+            case IRQ_ERROR:
+                ier = CAN_IT_ERR;
+                irq_n = CAN3_IRQ_ERROR_IRQN;
+                vector = (uint32_t)&CAN3_IRQ_ERROR_VECT;
+                break;
+            case IRQ_PASSIVE:
+                ier = CAN_IT_EPV;
+                irq_n = CAN3_IRQ_PASSIVE_IRQN;
+                vector = (uint32_t)&CAN3_IRQ_PASSIVE_VECT;
+                break;
+            case IRQ_BUS:
+                ier = CAN_IT_BOF;
+                irq_n = CAN3_IRQ_BUS_IRQN;
+                vector = (uint32_t)&CAN3_IRQ_BUS_VECT;
                 break;
             default:
                 return;

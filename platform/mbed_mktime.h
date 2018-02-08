@@ -28,6 +28,11 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup platform_mktime mktime functions
+ * @{
+ */
+
 /** Compute if a year is a leap year or not.
  *
  * @param year The year to test it shall be in the range [70:138]. Year 0 is
@@ -88,6 +93,8 @@ time_t _rtc_mktime(const struct tm* calendar_time);
  * @note - For use by the HAL only
  */
 bool _rtc_localtime(time_t timestamp, struct tm* calendar_time);
+
+/** @}*/
 
 #ifdef __cplusplus
 }

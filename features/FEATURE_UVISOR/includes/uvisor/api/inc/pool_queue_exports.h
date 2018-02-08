@@ -19,7 +19,6 @@
 
 #include "api/inc/magic_exports.h"
 #include "api/inc/uvisor_exports.h"
-#include "api/inc/uvisor_semaphore_exports.h"
 #include "api/inc/uvisor_spinlock_exports.h"
 #include <stdint.h>
 #include <stddef.h>
@@ -115,8 +114,8 @@ UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_allocate(uvisor_pool_t * pool);
 UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_try_allocate(uvisor_pool_t * pool);
 
 /* Enqueue the specified slot into the queue. */
-UVISOR_EXTERN void uvisor_pool_queue_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
-UVISOR_EXTERN int uvisor_pool_queue_try_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
+UVISOR_EXTERN uvisor_pool_slot_t uvisor_pool_queue_try_enqueue(uvisor_pool_queue_t * pool_queue, uvisor_pool_slot_t slot);
 
 /* Free the specified slot back into the pool. Invalid slots are ignored.
  * Return the slot that was freed, or UVISOR_POOL_SLOT_IS_FREE if the slot was

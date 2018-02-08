@@ -54,18 +54,25 @@ typedef enum {
     UART1_TX = p18,
     UART1_CTS = p12,
     UART1_RTS = p11,
+
     I2C_SCL = p0,
     I2C_SDA = p1,
+
     SPI_CS = p2,
     SPI_CLK = p3,
     SPI_MOSI = p4,
     SPI_MISO = p5,
+
     UART2_RX = p7,
     UART2_TX = p6,
-    LED1 = p2,
-    LED2 = p3,
-    LED3 = p4,
-    LED4 = p5,
+
+    LED0 = p0,
+    LED1 = p1,
+    LED2 = p2,
+    LED3 = p3,
+    LED4 = p4,
+    LED5 = p5,
+    LED6 = p6,
     
     // mBed interface Pins
     USBTX = UART1_TX,
@@ -100,9 +107,10 @@ typedef enum {
 typedef enum {
     PullNone = 0,
     PullDown = 1,
-    PullUp = 0xff,  // TODO: current HI2110 chip does not have pull-up 
-    PullDefault = PullDown // TODO: mbed requires PullUp as default but HI2110 doesn't have it 
+    PullUp = 2,  
+    PullDefault = PullDown 
 } PinMode;
+
 
 #ifdef __cplusplus
 }

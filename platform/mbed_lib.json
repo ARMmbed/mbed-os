@@ -19,6 +19,11 @@
         "default-serial-baud-rate": {
             "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
             "value": 9600
+        },
+
+        "force-non-copyable-error": {
+            "help": "Force compile time error when a NonCopyable object is copied",
+            "value": false
         }
     },
     "target_overrides": {

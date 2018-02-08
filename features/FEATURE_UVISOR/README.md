@@ -248,7 +248,7 @@ static void private_button_on_press(void)
         for (int i = 0; i < PRIVATE_BUTTON_BUFFER_COUNT; ++i) {
             uvisor_ctx->pc->printf("%lu ", uvisor_ctx->buffer[i]);
         }
-        uvisor_ctx->pc->printf("\r\n");
+        uvisor_ctx->pc->printf("\n");
     }
 
 }
@@ -265,7 +265,7 @@ static void private_button_main_thread(const void *)
     /* Create the buffer and cache its pointer to the private static memory. */
     uvisor_ctx->buffer = (uint32_t *) malloc(PRIVATE_BUTTON_BUFFER_COUNT * sizeof(uint32_t));
     if (uvisor_ctx->buffer == NULL) {
-        uvisor_ctx->pc->printf("ERROR: Failed to allocate memory for the button buffer\r\n");
+        uvisor_ctx->pc->printf("ERROR: Failed to allocate memory for the button buffer\n");
         mbed_die();
     }
     uvisor_ctx->index = 0;
@@ -408,7 +408,7 @@ int main(void)
 {
     while (true) {
         led = !led;
-        printf("Secure index is %d\r\n", secure_get_index());
+        printf("Secure index is %d\n", secure_get_index());
         Thread::wait(500);
     }
 }
@@ -482,5 +482,6 @@ Repeat the process multiple times until all ACLs have been added to the list. Wh
 
 - [uVisor API documentation](API.md).
 - [Debugging uVisor on mbed OS](DEBUGGING.md).
+- [Using nonvolatile storage from uVisor on mbed OS](manual/Flash.md).
 
 If you found any bug or inconsistency in this guide, please [raise an issue](https://github.com/ARMmbed/uvisor/issues/new).

@@ -20,36 +20,73 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
+
 namespace ble {
 
 /**
- * A connection handle is an unsigned integer capable of holding a pointer.
- * The real type (either a pointer to an object or an integer) is opaque and
- * platform dependent.
+ * Opaque reference to a connection.
+ *
+ * Internally a connection handle is an unsigned integer capable of holding a
+ * pointer.
+ *
+ * The real type (either a pointer to an object or an integer) is opaque for
+ * users and platform dependent.
  */
 typedef uintptr_t connection_handle_t;
 
 /**
- * Model an attribute handle in a GATT database.
+ * Reference to an attribute in a GATT database.
  */
 typedef uint16_t attribute_handle_t;
 
 
  /**
-  * Model an inclusive range of GATT attributes handles.
+  * Inclusive range of GATT attributes handles.
+  *
+  * @note Instances can be constructed with the help of the factory function
+  * attribute_handle_range().
   */
 struct attribute_handle_range_t {
+    /**
+     * Begining of the range.
+     */
     attribute_handle_t begin;
+
+    /**
+     * End of the range.
+     */
     attribute_handle_t end;
 
+    /**
+     * Equal operator for attribute_handle_range_t.
+     *
+     * @param[in] lhs Left hand side of the expression.
+     * @param[in] rhs Right hand side of the expression.
+     *
+     * @return true if lhs is equal to rhs and false otherwise.
+     */
     friend bool operator==(
-        const attribute_handle_range_t& lhs, const attribute_handle_range_t& rhs
+        const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
     ) {
         return (lhs.begin == rhs.begin) && (lhs.end == rhs.end);
     }
 
+    /**
+     * Not equal operator for attribute_handle_range_t.
+     *
+     * @param[in] lhs Left hand side of the expression.
+     * @param[in] rhs Right hand side of the expression.
+     *
+     * @return true if lhs is not equal to rhs and false otherwise.
+     */
     friend bool operator!=(
-        const attribute_handle_range_t& lhs, const attribute_handle_range_t& rhs
+        const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
     ) {
         return !(lhs == rhs);
     }
@@ -57,7 +94,15 @@ struct attribute_handle_range_t {
 
 
 /**
- * Construct an attribute_handle_range_t from its start and end handle.
+ * Construct an attribute_handle_range_t from its first and last attribute handle.
+ *
+ * @param begin Handle at the begining of the range.
+ * @param end Handle at the end of the range.
+ *
+ * @return An instance of attribute_handle_range_t where
+ * attribute_handle_range_t::begin is equal to begin and
+ * attribute_handle_range_t::end is equal to end.
+ *
  * @note This function is defined instead of a constructor to keep "POD-ness"
  * of attribute_handle_range_t.
  */
@@ -73,5 +118,10 @@ static inline attribute_handle_range_t attribute_handle_range(
 }
 
 } // namespace ble
+
+/**
+ * @}
+ * @}
+ */
 
 #endif /* BLE_TYPES_H_ */

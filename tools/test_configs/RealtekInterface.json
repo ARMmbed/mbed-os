@@ -1,0 +1,27 @@
+{
+    "config": {
+        "header-file": {
+            "help" : "String for including your driver header file",
+            "value" : "\"RTWInterface.h\""
+        },
+        "object-construction" : {
+            "value" : "new RTWInterface()"
+        },
+        "connect-statement" : {
+            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL with your WiFi settings",
+            "value" : "((RTWInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL)"
+        },
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"195.34.89.241\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "tcp-echo-prefix" : {
+            "help" : "Some servers send a prefix before echoed message",
+            "value" : "\"Realtek Ameba TCP/UDP test service\\n\""
+        }
+    }
+}

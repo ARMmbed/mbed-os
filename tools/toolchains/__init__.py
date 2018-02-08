@@ -615,7 +615,8 @@ class mbedToolchain:
             self.ignore_patterns.extend(normcase(p) for p in patterns)
         else:
             self.ignore_patterns.extend(normcase(join(real_base, pat)) for pat in patterns)
-        self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
+        if self.ignore_patterns:
+            self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
 
     # Create a Resources object from the path pointed to by *path* by either traversing a
     # a directory structure, when *path* is a directory, or adding *path* to the resources,
