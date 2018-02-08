@@ -958,12 +958,15 @@ public:
      * If the verification failed this will not be called and cancel_pairing will be called instead.
      *
      * @param[in] connection connection handle
+     * @param[in] oob_rand_t random number sent from the local device to be used in further
+     *                       calculations by the stack, set to 0 if peer reported no OOB present
      * @param[in] oob_rand_t random number from the peer to be used in further
      *                       calculations by the stack, set to 0 if no OOB data received
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t oob_data_verified(
         connection_handle_t connection,
+        const oob_rand_t &local_random,
         const oob_rand_t &peer_random
     ) = 0;
 

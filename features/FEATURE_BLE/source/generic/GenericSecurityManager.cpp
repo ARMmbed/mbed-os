@@ -641,6 +641,7 @@ void GenericSecurityManager::generate_secure_connections_oob(
 ) {
     address_t local_address;
     oob_confirm_t confirm;
+    /* @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6 */
     /*TODO:generate*/
     _app_event_handler->oobGenerated(&local_address, &_sc_oob_local_random, &confirm);
 }
@@ -859,7 +860,12 @@ void GenericSecurityManager::on_oob_data_verification_request(
     const public_key_t &peer_public_key_x,
     const public_key_t &peer_public_key_y
 ) {
-
+    /*TODO:verify*/
+    if (true) {
+        _pal.oob_data_verified(connection, _sc_oob_local_random, _sc_oob_peer_random);
+    } else {
+        _pal.cancel_pairing(connection, pairing_failure_t::CONFIRM_VALUE_FAILED);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
