@@ -17,11 +17,11 @@
 #include "min_battery_voltage.h"
 #include "battery_charger_i2c.h"
 
-/** Defining HAL_MspInit strong function
+/** Defining mbed_main strong function
  * in user defined file as described in documentation
  */
 
-void HAL_MspInit(void)
+void mbed_main(void)
 {
 	set_minimum_battery_voltage();
 }
