@@ -48,8 +48,44 @@ class GenericSecurityManager : public SecurityManager,
                                public ble::pal::SecurityManagerEventHandler {
 public:
     ////////////////////////////////////////////////////////////////////////////
+    // GAP integration
+    //
+
+    /**
+     * Inform the security manager that a device has been disconnected and its
+     * entry can be put in NVM storage. Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual void disconnected(
+        connection_handle_t connection
+    );
+
+    /**
+     * Inform the Security manager of a new connection. This will create
+     * or retrieve an existing security manager entry for the connected device.
+     * Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] is_master True if device is the master.
+     * @param[in] peer_address_type type of address
+     * @param[in] peer_address Address of the connected device.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual void connected(
+        connection_handle_t connection,
+        bool is_master,
+        connection_peer_address_type_t::type peer_address_type,
+        const address_t &peer_address
+    );
+
+    /* implements SecurityManager */
+
+    ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
     //
+
     virtual ble_error_t init(
         bool bondable = true,
         bool mitm = true,
@@ -58,45 +94,65 @@ public:
         bool signing = true
     );
 
-    virtual ble_error_t reset(void);
+    virtual ble_error_t reset();
 
-    virtual ble_error_t preserveBondingStateOnReset(bool enabled);
+    virtual ble_error_t preserveBondingStateOnReset(
+        bool enabled
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // List management
     //
 
-    virtual ble_error_t purgeAllBondingState(void);
+    virtual ble_error_t purgeAllBondingState();
 
-    virtual ble_error_t generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const;
+    virtual ble_error_t generateWhitelistFromBondTable(
+        Gap::Whitelist_t *whitelist
+    ) const;
 
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
 
-    virtual ble_error_t requestPairing(connection_handle_t connection);
+    virtual ble_error_t requestPairing(
+        connection_handle_t connection
+    );
 
-    virtual ble_error_t acceptPairingRequest(connection_handle_t connection);
+    virtual ble_error_t acceptPairingRequest(
+        connection_handle_t connection
+    );
 
-    virtual ble_error_t canceltPairingRequest(connection_handle_t connection);
+    virtual ble_error_t canceltPairingRequest(
+        connection_handle_t connection
+    );
 
-    virtual ble_error_t setPairingRequestAuthorisation(bool required = true);
+    virtual ble_error_t setPairingRequestAuthorisation(
+        bool required = true
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Feature support
     //
 
-    virtual ble_error_t allowLegacyPairing(bool allow = true);
+    virtual ble_error_t allowLegacyPairing(
+        bool allow = true
+    );
 
-    virtual ble_error_t getSecureConnectionsSupport(bool *enabled);
+    virtual ble_error_t getSecureConnectionsSupport(
+        bool *enabled
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
 
-    virtual ble_error_t setIoCapability(SecurityIOCapabilities_t iocaps);
+    virtual ble_error_t setIoCapability(
+        SecurityIOCapabilities_t iocaps
+    );
 
-    virtual ble_error_t setDisplayPasskey(const Passkey_t passkey);
+    virtual ble_error_t setDisplayPasskey(
+        const Passkey_t passkey
+    );
 
     virtual ble_error_t setAuthenticationTimeout(
         connection_handle_t connection,
@@ -113,14 +169,18 @@ public:
         SecurityMode_t securityMode
     );
 
-    virtual ble_error_t setKeypressNotification(bool enabled = true);
+    virtual ble_error_t setKeypressNotification(
+        bool enabled = true
+    );
 
     virtual ble_error_t enableSigning(
         connection_handle_t connection,
         bool enabled = true
     );
 
-    virtual ble_error_t setHintFutureRoleReversal(bool enable = true);
+    virtual ble_error_t setHintFutureRoleReversal(
+        bool enable = true
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
@@ -150,7 +210,9 @@ public:
     // Privacy
     //
 
-    virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds);
+    virtual ble_error_t setPrivateAddressTimeout(
+        uint16_t timeout_in_seconds
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -165,7 +227,9 @@ public:
     // Authentication
     //
 
-    virtual ble_error_t requestAuthentication(connection_handle_t connection);
+    virtual ble_error_t requestAuthentication(
+        connection_handle_t connection
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -202,6 +266,8 @@ public:
         const oob_rand_t *random,
         const oob_confirm_t *confirm
     );
+
+    /* ends implements SecurityManager */
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
@@ -281,16 +347,21 @@ private:
     ble::pal::SecurityManager& _pal;
     GenericSecurityDb& _db;
 
-    bool _pairing_authorisation_required;
-    bool _legacy_pairing_allowed;
-    bool _master_sends_keys;
-
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;
 
-    /*  implements ble::pal::SecurityManagerEventHandler */
-public:
+    address_t _sc_oob_address;
+    oob_rand_t _sc_oob_random;
+    oob_confirm_t _sc_oob_confirm;
 
+    bool _pairing_authorisation_required;
+    bool _legacy_pairing_allowed;
+    bool _master_sends_keys;
+    bool _public_keys_generated;
+
+
+    /* implements ble::pal::SecurityManagerEventHandler */
+public:
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
@@ -390,13 +461,6 @@ public:
      */
     virtual void on_oob_request(connection_handle_t connection);
 
-    /** @copydoc SecurityManagerEventHandler::on_public_key_generated
-     */
-    virtual void on_public_key_generated(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
-    );
-
     /** @copydoc SecurityManagerEventHandler::on_oob_data_verification_request
      */
     virtual void on_oob_data_verification_request(
@@ -408,6 +472,13 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
+
+    /** @copydoc SecurityManagerEventHandler::on_public_key_generated
+     */
+    virtual void on_public_key_generated(
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_secure_connections_ltk_generated
      */
@@ -490,38 +561,6 @@ public:
     );
 
     /* end implements ble::pal::SecurityManagerEventHandler */
-
-    /* GAP integration */
-public:
-
-    /**
-     * Inform the security manager that a device has been disconnected and its
-     * entry can be put in NVM storage. Called by GAP.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual void on_disconnected(
-        connection_handle_t connection
-    );
-
-    /**
-     * Inform the Security manager of a new connection. This will create
-     * or retrieve an existing security manager entry for the connected device.
-     * Called by GAP.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] is_master True if device is the master.
-     * @param[in] peer_address_type type of address
-     * @param[in] peer_address Address of the connected device.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual void on_connected(
-        connection_handle_t connection,
-        bool is_master,
-        connection_peer_address_type_t::type peer_address_type,
-        const address_t &peer_address
-    );
 
 private:
     /* handler is always a valid pointer */

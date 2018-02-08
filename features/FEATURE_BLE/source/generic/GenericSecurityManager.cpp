@@ -24,8 +24,42 @@ namespace generic {
 /* Implements SecurityManager */
 
 ////////////////////////////////////////////////////////////////////////////
+// GAP integration
+//
+
+void GenericSecurityManager::disconnected(connection_handle_t connection) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return;
+    }
+    entry->connected = false;
+    _db.sync();
+}
+
+void GenericSecurityManager::connected(
+    connection_handle_t connection,
+    bool is_master,
+    connection_peer_address_type_t::type peer_address_type,
+    const address_t &peer_address
+) {
+    SecurityEntry_t *entry = _db.connect_entry(
+        connection,
+        peer_address_type,
+        peer_address
+    );
+
+    if (!entry) {
+        return;
+    }
+
+    entry->reset();
+    entry->master = is_master;
+}
+
+////////////////////////////////////////////////////////////////////////////
 // SM lifecycle management
 //
+
 ble_error_t GenericSecurityManager::init(
     bool bondable,
     bool mitm,
@@ -50,6 +84,8 @@ ble_error_t GenericSecurityManager::init(
     if (signing) {
         init_signing();
     }
+
+    _pal.generate_public_key();
 
     return BLE_ERROR_NONE;
 }
@@ -790,13 +826,6 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
     eventHandler->legacyPairingOobRequest(connection);
 }
 
-void GenericSecurityManager::on_public_key_generated(
-    const public_key_t &public_key_x,
-    const public_key_t &public_key_y
-) {
-
-}
-
 void GenericSecurityManager::on_oob_data_verification_request(
     connection_handle_t connection,
     const public_key_t &peer_public_key_x,
@@ -808,6 +837,13 @@ void GenericSecurityManager::on_oob_data_verification_request(
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
+
+void GenericSecurityManager::on_public_key_generated(
+    const public_key_t &public_key_x,
+    const public_key_t &public_key_y
+) {
+
+}
 
 void GenericSecurityManager::on_secure_connections_ltk_generated(
     connection_handle_t connection,
@@ -945,35 +981,6 @@ void GenericSecurityManager::on_ltk_request(
         ediv,
         rand
     );
-}
-
-void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return;
-    }
-    entry->connected = false;
-    _db.sync();
-}
-
-void GenericSecurityManager::on_connected(
-    connection_handle_t connection,
-    bool is_master,
-    connection_peer_address_type_t::type peer_address_type,
-    const address_t &peer_address
-) {
-    SecurityEntry_t *entry = _db.connect_entry(
-        connection,
-        peer_address_type,
-        peer_address
-    );
-
-    if (!entry) {
-        return;
-    }
-
-    entry->reset();
-    entry->master = is_master;
 }
 
 } /* namespace generic */
