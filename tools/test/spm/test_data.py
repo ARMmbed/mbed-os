@@ -8,14 +8,38 @@ manifests = [
         'stack_size': 512,  # 512 == 0x200
         'heap_size': 2048,
         'mmio_regions': [
-            {'name': 'PERIPH1', 'permission': 'READ-ONLY'},
-            {'name': 'PERIPH2', 'permission': 'READ-ONLY'},
-            {'base': '0xCCCCCCCC', 'size': 4096, 'permission': 'READ-ONLY'},
-            {'base': '0xDDDDDDDD', 'size': 33554432, 'permission': 'READ-WRITE'}
+            {
+                'name': 'PERIPH1',
+                'permission': 'READ-ONLY'
+            },
+            {
+                'name': 'PERIPH2',
+                'permission': 'READ-ONLY'
+            },
+            {
+                'base': '0xCCCCCCCC',
+                'size': 4096, 'permission': 'READ-ONLY'
+            },
+            {
+                'base': '0xDDDDDDDD',
+                'size': 33554432, 'permission': 'READ-WRITE'
+            }
         ],
         'secure_functions': [
-            {'sfid': 'SFID1', 'signal': 'SFID1', 'minor_version': 1, 'minor_policy': 'relaxed', 'non_secure_clients': True},
-            {'sfid': 'SFID2', 'signal': 'SFID2', 'minor_version': 2, 'minor_policy': 'strict', 'non_secure_clients': False},
+            {
+                'sfid': 'SFID1',
+                'signal': 'SFID1',
+                'minor_version': 1,
+                'minor_policy': 'relaxed',
+                'non_secure_clients': True
+            },
+            {
+                'sfid': 'SFID2',
+                'signal': 'SFID2',
+                'minor_version': 2,
+                'minor_policy': 'strict',
+                'non_secure_clients': False
+            },
         ],
         'source_files': ['src1.cpp', 'src2.cpp'],
         'irqs': [
@@ -33,14 +57,38 @@ manifests = [
         'stack_size': 512,  # 512 == 0x200
         'heap_size': 2048,
         'mmio_regions': [
-            {'name': 'PERIPH1', 'permission': 'READ-ONLY'},
-            {'name': 'PERIPH3', 'permission': 'READ-ONLY'},
-            {'base': '0xAAAAAAAA', 'size': 4096, 'permission': 'READ-ONLY'},
-            {'base': '0xBBBBBBBB', 'size': 33554432, 'permission': 'READ-WRITE'}
+            {
+                'name': 'PERIPH1',
+                'permission': 'READ-ONLY'
+            },
+            {
+                'name': 'PERIPH3',
+                'permission': 'READ-ONLY'
+            },
+            {
+                'base': '0xAAAAAAAA',
+                'size': 4096, 'permission': 'READ-ONLY'
+            },
+            {
+                'base': '0xBBBBBBBB',
+                'size': 33554432, 'permission': 'READ-WRITE'
+            }
         ],
         'secure_functions': [
-            {'sfid': 'SFID3', 'signal': 'SFID3', 'minor_version': 5, 'minor_policy': 'relaxed', 'non_secure_clients': True},
-            {'sfid': 'SFID4', 'signal': 'SFID4', 'minor_version': 12, 'minor_policy': 'strict', 'non_secure_clients': False},
+            {
+                'sfid': 'SFID3',
+                'signal': 'SFID3',
+                'minor_version': 5,
+                'minor_policy': 'relaxed',
+                'non_secure_clients': True
+            },
+            {
+                'sfid': 'SFID4',
+                'signal': 'SFID4',
+                'minor_version': 12,
+                'minor_policy': 'strict',
+                'non_secure_clients': False
+            },
         ],
         'source_files': ['src3.cpp', 'src4.cpp'],
         'irqs': [
@@ -51,32 +99,71 @@ manifests = [
     }
 ]
 
-invalid_minor_version_policy_secure_functions = [
-    {'sfid': 'SFID1', 'signal': 'SFID1', 'minor_version': 1, 'minor_policy': 'invalid_policy', 'non_secure_clients': True}
+invalid_minor_version_policy_sf = [
+    {
+        'sfid': 'SFID1',
+        'signal': 'SFID1',
+        'minor_version': 1,
+        'minor_policy': 'invalid_policy',
+        'non_secure_clients': True
+    }
 ]
 
-invalid_nspe_callable_secure_functions = [
-    {'sfid': 'SFID1', 'signal': 'SFID1', 'minor_version': 1, 'minor_policy': 'strict', 'non_secure_clients': 'invalid_value'}
+invalid_nspe_callable_sf = [
+    {
+        'sfid': 'SFID1',
+        'signal': 'SFID1',
+        'minor_version': 1,
+        'minor_policy': 'strict',
+        'non_secure_clients': 'invalid_value'
+    }
 ]
 
-missing_nspe_callable_secure_functions = [
-    {'sfid': 'SFID1', 'signal': 'SFID1', 'minor_version': 1, 'minor_policy': 'strict'}
+missing_nspe_callable_sf = [
+    {
+        'sfid': 'SFID1',
+        'signal': 'SFID1',
+        'minor_version': 1,
+        'minor_policy': 'strict'
+    }
 ]
 
 duplicate_signal_secure_functions = [
-    {'sfid': 'SFID3', 'signal': 'SFID1', 'minor_version': 5, 'minor_policy': 'relaxed', 'non_secure_clients': True},
-    {'sfid': 'SFID4', 'signal': 'SFID2', 'minor_version': 12, 'minor_policy': 'strict', 'non_secure_clients': False},
+    {
+        'sfid': 'SFID3',
+        'signal': 'SFID1',
+        'minor_version': 5,
+        'minor_policy': 'relaxed',
+        'non_secure_clients': True
+    },
+    {
+        'sfid': 'SFID4',
+        'signal': 'SFID2',
+        'minor_version': 12,
+        'minor_policy': 'strict',
+        'non_secure_clients': False
+    },
 ]
 
-missing_minor_version_secure_functions = [
-    {'sfid': 'SFID1', 'signal': 'SFID1', 'minor_policy': 'relaxed', 'non_secure_clients': True}
+missing_minor_version_sf = [
+    {
+        'sfid': 'SFID1',
+        'signal': 'SFID1',
+        'minor_policy': 'relaxed',
+        'non_secure_clients': True
+    }
 ]
 
-missing_minor_version_policy_secure_functions = [
-    {'sfid': 'SFID2', 'signal': 'SFID2', 'minor_version': 1, 'non_secure_clients': True}
+missing_minor_version_policy_sf = [
+    {
+        'sfid': 'SFID2',
+        'signal': 'SFID2',
+        'minor_version': 1,
+        'non_secure_clients': True
+    }
 ]
 
-missing_minor_completley_secure_functions = [
+missing_minor_completley_sf = [
     {'sfid': 'SFID2', 'signal': 'SFID2', 'non_secure_clients': False}
 ]
 
@@ -88,9 +175,17 @@ duplicate_line_num_irqs = [
     {"line_num": 21, "signal": "ISR22"}
 ]
 
-invalid_mmioregion_base = {'base': 'str', 'size': 4096, 'permission': 'READ-ONLY'}
+invalid_mmioregion_base = {
+    'base': 'str',
+    'size': 4096,
+    'permission': 'READ-ONLY'
+}
 
-invalid_mmioregion_size = {'base': '0xEEEEEEEE', 'size': 'str', 'permission': 'READ-ONLY'}
+invalid_mmioregion_size = {
+    'base': '0xEEEEEEEE',
+    'size': 'str',
+    'permission': 'READ-ONLY'
+}
 
 test_mock_files = {
     'manifest1': 1,
