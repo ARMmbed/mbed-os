@@ -541,9 +541,11 @@ ble_error_t GenericSecurityManager::oobReceived(
     const oob_confirm_t *confirm
 ) {
     if (address && random && confirm) {
-        _sc_oob_peer_address = *address;
-        _sc_oob_local_random = *random;
-        _sc_oob_peer_confirm = *confirm;
+        _db.set_peer_sc_oob_data(
+            *address,
+            *random,
+            *confirm
+        );
 
         return BLE_ERROR_NONE;
     }
@@ -564,8 +566,7 @@ ble_error_t GenericSecurityManager::init_signing() {
         pcsrk = &csrk;
         _db.set_local_csrk(pcsrk);
     }
-    _pal.set_csrk(pcsrk);
-    return BLE_ERROR_NONE;
+    return _pal.set_csrk(pcsrk);
 }
 
 ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
@@ -639,20 +640,40 @@ void GenericSecurityManager::return_csrk_cb(
 void GenericSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
-    address_t local_address;
-    oob_confirm_t confirm;
-    /* @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6 */
-    /*TODO:generate*/
-    _app_event_handler->oobGenerated(&local_address, &_sc_oob_local_random, &confirm);
+     address_t local_address;
+     /*TODO: get local address*/
+     oob_confirm_t confirm;
+
+     crypto_toolbox_f4(
+         _db.get_public_key_x(),
+         _db.get_public_key_y(),
+         _db.get_local_sc_oob_random(),
+         confirm
+     );
+
+    _app_event_handler->oobGenerated(
+        &local_address,
+        &_db.get_local_sc_oob_random(),
+        &confirm
+    );
 }
 
 void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (entry) {
-        if (entry->peer_address == _sc_oob_peer_address) {
+        if (entry->peer_address == _db.get_peer_sc_oob_address()) {
             entry->oob = true;
         }
     }
+}
+
+void GenericSecurityManager::crypto_toolbox_f4(
+    const public_key_t& U,
+    const public_key_t& V,
+    const oob_rand_t& X,
+    oob_confirm_t& confirm
+) {
+
 }
 
 /* Implements ble::pal::SecurityManagerEventHandler */
@@ -860,9 +881,31 @@ void GenericSecurityManager::on_oob_data_verification_request(
     const public_key_t &peer_public_key_x,
     const public_key_t &peer_public_key_y
 ) {
-    /*TODO:verify*/
-    if (true) {
-        _pal.oob_data_verified(connection, _sc_oob_local_random, _sc_oob_peer_random);
+    SecurityEntry_t *entry = _db.get_entry(connection);
+
+    oob_confirm_t confirm_verify;
+
+    address_t peer_oob_address;
+    oob_rand_t peer_oob_random;
+    oob_confirm_t peer_oob_confirm;
+    oob_rand_t local_oob_random;
+    _db.get_sc_oob_data(
+        peer_oob_address,
+        peer_oob_random,
+        peer_oob_confirm,
+        local_oob_random
+    );
+
+    crypto_toolbox_f4(
+        peer_public_key_x,
+        peer_public_key_y,
+        peer_oob_random,
+        confirm_verify
+    );
+
+    if (entry && (entry->peer_address == peer_oob_address)
+        && (confirm_verify == peer_oob_confirm)) {
+        _pal.oob_data_verified(connection, local_oob_random, peer_oob_random);
     } else {
         _pal.cancel_pairing(connection, pairing_failure_t::CONFIRM_VALUE_FAILED);
     }

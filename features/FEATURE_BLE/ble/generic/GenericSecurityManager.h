@@ -361,6 +361,22 @@ private:
     void update_oob_presence(
         connection_handle_t connection
     );
+    /**
+     * Calculate the confirmation value for secure connections OOB data based
+     * on local public key and a random number.
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
+
+     * @param[in] U public key x component
+     * @param[in] V public key y component
+     * @param[in] X random number
+     * @param[out] confirm confirmation value
+     */
+    static void crypto_toolbox_f4(
+        const public_key_t& U,
+        const public_key_t& V,
+        const oob_rand_t& X,
+        oob_confirm_t& confirm
+    );
 
 private:
     ble::pal::SecurityManager& _pal;
@@ -368,11 +384,6 @@ private:
 
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;
-
-    address_t _sc_oob_peer_address;
-    oob_rand_t _sc_oob_peer_random;
-    oob_confirm_t _sc_oob_peer_confirm;
-    oob_rand_t _sc_oob_local_random;
 
     bool _pairing_authorisation_required;
     bool _legacy_pairing_allowed;

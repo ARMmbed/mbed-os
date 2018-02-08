@@ -353,6 +353,33 @@ public:
         const public_key_t& public_key_y
     ) = 0;
 
+    /* oob data */
+
+    /** There is always only one OOB data set stored at a time */
+
+    virtual const address_t& get_peer_sc_oob_address() = 0;
+    virtual const oob_rand_t& get_peer_sc_oob_random() = 0;
+    virtual const oob_confirm_t& get_peer_sc_oob_confirm() = 0;
+
+    virtual void get_sc_oob_data(
+        const address_t& peer_address,
+        const oob_rand_t& peer_random,
+        const oob_confirm_t& peer_confirm,
+        const oob_rand_t& local_random
+    ) = 0;
+
+    virtual const oob_rand_t& get_local_sc_oob_random() = 0;
+
+    virtual void set_peer_sc_oob_data(
+        const address_t& address,
+        const oob_rand_t& random,
+        const oob_confirm_t& confirm
+    ) = 0;
+
+    virtual void set_local_sc_oob_random(
+        const oob_rand_t& random
+    ) = 0;
+
     /* list management */
 
     /**
@@ -475,7 +502,8 @@ public:
     virtual void set_restore(bool reload) = 0;
 };
 
-/* naive memory implementation for verification */
+/* naive memory implementation for verification
+ * TODO: make thread safe */
 class MemoryGenericSecurityDb : public GenericSecurityDb {
 private:
     struct db_store_t {
@@ -804,6 +832,11 @@ private:
     csrk_t _local_csrk;
     public_key_t _public_key_x;
     public_key_t _public_key_y;
+
+    address_t _sc_oob_peer_address;
+    oob_rand_t _sc_oob_peer_random;
+    oob_confirm_t _sc_oob_peer_confirm;
+    oob_rand_t _sc_oob_local_random;
 };
 
 } /* namespace generic */
