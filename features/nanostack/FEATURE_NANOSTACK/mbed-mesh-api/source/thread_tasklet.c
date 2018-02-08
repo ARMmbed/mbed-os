@@ -278,14 +278,11 @@ void thread_tasklet_configure_and_connect_to_network(void)
 
     // PSKd
     const char PSKd[] = MBED_CONF_MBED_MESH_API_THREAD_PSKD;
-    MBED_ASSERT(sizeof(PSKd) > 5 && sizeof(PSKd) < 33);
+    if(device_configuration.PSKd_len==0) {
+        int ret = thread_tasklet_device_pskd_set(PSKd);
+        MBED_ASSERT(!ret);
+    }
 
-    char *dyn_buf = ns_dyn_mem_alloc(sizeof(PSKd));
-    strcpy(dyn_buf, PSKd);
-    ns_dyn_mem_free(device_configuration.PSKd_ptr);
-    device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
-    device_configuration.PSKd_len = sizeof(PSKd) - 1;  
-    
     if (true == MBED_CONF_MBED_MESH_API_THREAD_USE_STATIC_LINK_CONFIG) {
         read_link_configuration();
         temp_link_config = &thread_tasklet_data_ptr->link_config;
@@ -436,11 +433,28 @@ int8_t thread_tasklet_network_init(int8_t device_id)
     return arm_nwk_interface_lowpan_init(api, INTERFACE_NAME);
 }
 
-void thread_tasklet_device_config_set(uint8_t *eui64, char *pskd)
+void thread_tasklet_device_eui64_set(const uint8_t *eui64)
 {
-    (void) pskd; // this parameter is delivered via mbed configuration
     memcpy(device_configuration.eui64, eui64, 8);
 }
+
+uint8_t thread_tasklet_device_pskd_set(const char *pskd)
+{
+    int len = strlen(pskd);
+    if(len < 6 || len > 32) {
+        return MESH_ERROR_PARAM;
+    }
+    char *dyn_buf = ns_dyn_mem_alloc(strlen(pskd)+1);
+    if (!dyn_buf) {
+        return MESH_ERROR_MEMORY;
+    }
+    strcpy(dyn_buf, pskd);
+    ns_dyn_mem_free(device_configuration.PSKd_ptr);
+    device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
+    device_configuration.PSKd_len = strlen(pskd);
+    return 0;
+}
+
 
 int8_t thread_tasklet_data_poll_rate_set(uint32_t timeout)
 {

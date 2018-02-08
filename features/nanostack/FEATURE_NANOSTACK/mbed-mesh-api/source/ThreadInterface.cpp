@@ -20,7 +20,6 @@ int ThreadInterface::connect()
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-
     // After the RF is up, we can seed the random from it.
     randLIB_seed_random();
 
@@ -64,12 +63,9 @@ int ThreadInterface::disconnect()
 
 mesh_error_t ThreadInterface::init()
 {
-    if (eui64 == NULL) {
-        return MESH_ERROR_PARAM;
-    }
     thread_tasklet_init();
     __mesh_handler_set_callback(this);
-    thread_tasklet_device_config_set(eui64, NULL);
+    thread_tasklet_device_eui64_set(_eui64);
     _network_interface_id = thread_tasklet_network_init(_device_id);
 
     if (_network_interface_id == -2) {
@@ -111,6 +107,15 @@ mesh_error_t ThreadInterface::mesh_connect()
     }
 }
 
+void ThreadInterface::device_eui64_set(const uint8_t *eui64)
+{
+    memcpy(_eui64, eui64, 8);
+}
+
+mesh_error_t ThreadInterface::device_pskd_set(const char *pskd)
+{
+    return (mesh_error_t)thread_tasklet_device_pskd_set(pskd);
+}
 
 mesh_error_t ThreadInterface::mesh_disconnect()
 {

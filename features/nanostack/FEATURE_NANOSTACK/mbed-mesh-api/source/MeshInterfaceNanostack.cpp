@@ -19,7 +19,7 @@
 #include "mesh_system.h"
 
 MeshInterfaceNanostack::MeshInterfaceNanostack()
-    : phy(NULL), _network_interface_id(-1), _device_id(-1), eui64(),
+    : phy(NULL), _network_interface_id(-1), _device_id(-1), _eui64(),
       ip_addr_str(), mac_addr_str(), connect_semaphore(0)
 {
     // Nothing to do
@@ -62,8 +62,13 @@ nsapi_error_t MeshInterfaceNanostack::register_phy()
         return -1;
     }
     // Read mac address after registering the device.
-    phy->get_mac_address(eui64);
-    sprintf(mac_addr_str, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", eui64[0], eui64[1], eui64[2], eui64[3], eui64[4], eui64[5], eui64[6], eui64[7]);
+    const uint8_t empty_eui64[8] = {0,0,0,0,0,0,0,0};
+    // if not set by application then read from rf driver
+    if(!memcmp(_eui64, empty_eui64,8)) {
+        phy->get_mac_address(_eui64);
+    }
+
+    sprintf(mac_addr_str, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", _eui64[0], _eui64[1], _eui64[2], _eui64[3], _eui64[4], _eui64[5], _eui64[6], _eui64[7]);
 
     nanostack_unlock();
 

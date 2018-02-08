@@ -82,7 +82,7 @@ protected:
     int8_t _network_interface_id;
     /** Registered device ID */
     int8_t _device_id;
-    uint8_t eui64[8];
+    uint8_t _eui64[8];
     char ip_addr_str[40];
     char mac_addr_str[24];
     Semaphore connect_semaphore;
