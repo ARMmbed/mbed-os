@@ -265,7 +265,7 @@ struct octet_type_t {
      * Default to all zeroes
      */
     octet_type_t() {
-        memset(value, 0x00, sizeof(value));
+        memset(_value, 0x00, sizeof(_value));
     }
 
     /**
@@ -274,7 +274,7 @@ struct octet_type_t {
      * @param input_value value of the data.
      */
     octet_type_t(const uint8_t (&input_value)[octet_size]) {
-        memcpy(value, input_value, sizeof(value));
+        memcpy(_value, input_value, sizeof(_value));
     }
 
     /**
@@ -284,14 +284,14 @@ struct octet_type_t {
      * @param size buffer size
      */
     octet_type_t(const uint8_t* input_value, size_t size) {
-        memcpy(value, input_value, size);
+        memcpy(_value, input_value, size);
     }
 
     /**
      * Equal operator between two octet types.
      */
     friend bool operator==(const octet_type_t& lhs, const octet_type_t& rhs) {
-        return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
+        return memcmp(lhs._value, rhs._value, sizeof(lhs._value)) == 0;
     }
 
     /**
@@ -305,25 +305,25 @@ struct octet_type_t {
      * Subscript operator to access data content
      */
     uint8_t& operator[](uint8_t i) {
-        return value[i];
+        return _value[i];
     }
 
     /**
      * Return the pointer to the buffer holding data.
      */
     const uint8_t* data() const {
-        return value;
+        return _value;
     }
 
     /**
      * Size in byte of a data.
      */
     static uint8_t size() {
-        return sizeof(value);
+        return sizeof(_value);
     }
 
 protected:
-    uint8_t value[octet_size];
+    uint8_t _value[octet_size];
 };
 
 /** 128 bit keys used by paired devices */
@@ -351,6 +351,13 @@ typedef octet_type_t<32> public_key_t;
 typedef octet_type_t<32> private_key_t;
 typedef octet_type_t<32> dhkey_t;
 
+/* X and Y coordinate pair of the public key */
+struct public_key_pair_t {
+    public_key_pair_t() {};
+    public_key_t x;
+    public_key_t y;
+};
+
 
 /**
  * MAC address data type.
@@ -360,7 +367,7 @@ struct address_t : public octet_type_t<6>{
      * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
      */
     address_t() {
-        memset(value, 0xFF, sizeof(value));
+        memset(_value, 0xFF, sizeof(_value));
     }
 
     /**
@@ -369,7 +376,7 @@ struct address_t : public octet_type_t<6>{
      * @param input_value value of the MAC address.
      */
     address_t(const uint8_t (&input_value)[6]) {
-        memcpy(value, input_value, sizeof(value));
+        memcpy(_value, input_value, sizeof(_value));
     }
 
     /**
@@ -381,7 +388,7 @@ struct address_t : public octet_type_t<6>{
      * @param tag Tag used to select this constructor. The value does not matter.
      */
     address_t(const uint8_t* input_value, bool tag) {
-        memcpy(value, input_value, sizeof(value));
+        memcpy(_value, input_value, sizeof(_value));
     }
 };
 

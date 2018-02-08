@@ -362,6 +362,29 @@ public:
         connection_handle_t connection
     ) = 0;
 
+    /**
+     * Provide the local public key.
+     *
+     * @param[in] public_key_x newly generated public key (x coordinate)
+     * @param[in] public_key_y newly generated public key (y coordinate)
+     */
+    virtual void on_public_key_generated(
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    ) = 0;
+
+    /**
+     * Request OOB data to be verified against received public keys.
+     *
+     * @param[in] public_key_x newly generated public key (x coordinate)
+     * @param[in] public_key_y newly generated public key (y coordinate)
+     */
+    virtual void on_oob_data_verification_request(
+        connection_handle_t connection,
+        const public_key_t &peer_public_key_x,
+        const public_key_t &peer_public_key_y
+    ) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
@@ -500,43 +523,6 @@ public:
         connection_handle_t connection,
         const ediv_t *ediv,
         const rand_t *rand
-    ) = 0;
-
-    /**
-     * Store the peer's public keys.
-     *
-     * @param[in] connection connection handle
-     * @param[in] public_key_x peer public key (x coordinate) received during pairing
-     * @param[in] public_key_y peer public key (y coordinate) received during pairing
-     */
-    virtual void on_keys_distributed_public_key(
-        connection_handle_t connection,
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
-    ) = 0;
-
-    /**
-     * Provide the local public key.
-     *
-     * @param[in] public_key_x newly generated public key (x coordinate)
-     * @param[in] public_key_y newly generated public key (y coordinate)
-     */
-    virtual void on_public_key_generated(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
-    ) = 0;
-
-    /**
-     * Provide data for secure connections OOB exchange
-     * generated based on local public keys and a random value.
-     *
-     * @param[in] random random number used to generate the data
-     * @param[in] confirm the resulting confirmation value, based on the oublic keys and a random number
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
-     */
-    virtual void on_local_secure_connections_oob_data_generated(
-        const oob_confirm_t &confirm,
-        const oob_rand_t &random
     ) = 0;
 };
 
@@ -968,25 +954,17 @@ public:
     ) = 0;
 
     /**
-     * Derive oob data based on the local public key and random number. Data is returned through an event.
-     */
-    virtual ble_error_t get_local_secure_connections_oob_data() = 0;
-
-    /**
-     * Set the OOB data received from the peer. This will be used during authentication stage
-     * of secure connections OOB pairing.
+     * Notify the stack that the OOB data has been verified and supply the peer's random number.
+     * If the verification failed this will not be called and cancel_pairing will be called instead.
      *
      * @param[in] connection connection handle
-     * @param[in] random random number used to generate the data
-     * @param[in] confirm the resulting confirmation value, based on the peer's public keys
-     *                    and a random number
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
+     * @param[in] oob_rand_t random number from the peer to be used in further
+     *                       calculations by the stack, set to 0 if no OOB data received
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t set_peer_secure_connections_oob_data(
+    virtual ble_error_t oob_data_verified(
         connection_handle_t connection,
-        const oob_rand_t &random,
-        const oob_confirm_t &confirm
+        const oob_rand_t &peer_random
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */

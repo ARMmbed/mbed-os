@@ -501,7 +501,6 @@ ble_error_t GenericSecurityManager::oobReceived(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        return _pal.set_peer_secure_connections_oob_data(entry->handle, *random, *confirm);
     }
     return BLE_ERROR_NONE;
 }
@@ -791,9 +790,19 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
     eventHandler->legacyPairingOobRequest(connection);
 }
 
-void GenericSecurityManager::on_oob_request(connection_handle_t connection) {
-    set_mitm_performed(connection);
-    eventHandler->oobRequest(connection);
+void GenericSecurityManager::on_public_key_generated(
+    const public_key_t &public_key_x,
+    const public_key_t &public_key_y
+) {
+
+}
+
+void GenericSecurityManager::on_oob_data_verification_request(
+    connection_handle_t connection,
+    const public_key_t &peer_public_key_x,
+    const public_key_t &peer_public_key_y
+) {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////

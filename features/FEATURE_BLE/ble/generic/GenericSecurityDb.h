@@ -326,6 +326,24 @@ public:
         const csrk_t *csrk
     ) = 0;
 
+    /* public keys */
+
+    /**
+     * Return local public key.
+     *
+     * @return pointer to x and y component of public key
+     */
+    virtual const public_key_pair_t* get_public_key() = 0;
+
+    /**
+     * Set local public key.
+     *
+     * @param[in] public_key new public key value
+     */
+    virtual void set_public_key(
+        const public_key_pair_t* public_key
+    ) = 0;
+
     /* list management */
 
     /**
@@ -656,6 +674,18 @@ public:
         _local_csrk = *csrk;
     }
 
+    /* public key */
+
+    virtual const public_key_pair_t* get_public_key() {
+        return &_public_key;
+    }
+
+    virtual void set_public_key(
+        const public_key_pair_t* public_key
+    ) {
+        _public_key = *public_key;
+    }
+
     /* list management */
 
     virtual SecurityEntry_t* connect_entry(
@@ -757,6 +787,7 @@ private:
     SecurityEntryIdentity_t _identities[MAX_ENTRIES];
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
+    public_key_pair_t _public_key;
 };
 
 } /* namespace generic */

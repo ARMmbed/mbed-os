@@ -390,6 +390,21 @@ public:
      */
     virtual void on_oob_request(connection_handle_t connection);
 
+    /** @copydoc SecurityManagerEventHandler::on_public_key_generated
+     */
+    virtual void on_public_key_generated(
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    );
+
+    /** @copydoc SecurityManagerEventHandler::on_oob_data_verification_request
+     */
+    virtual void on_oob_data_verification_request(
+        connection_handle_t connection,
+        const public_key_t &peer_public_key_x,
+        const public_key_t &peer_public_key_y
+    );
+
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
