@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "rtc_api.h"
 
 #if DEVICE_RTC
@@ -24,8 +24,65 @@
 #include "nu_miscutil.h"
 #include "mbed_mktime.h"
 
-#define YEAR0           1900
+/* Micro seconds per second */
+#define NU_US_PER_SEC               1000000
+/* Timer clock per second
+ *
+ * NOTE: This dependents on real hardware.
+ */
+#define NU_RTCCLK_PER_SEC           (__LXT)
 
+/* Strategy for implementation of RTC HAL
+ *
+ * H/W RTC just supports year range 2000~2099, which cannot fully cover POSIX time (starting since 2970)
+ * and date time of struct TM (starting since 1900).
+ *
+ * To conquer the difficulty, we don't use H/W RTC to keep real date time. Instead, we use it to keep
+ * elapsed time in seconds since one reference time point. The strategy would be:
+ *
+ * 1. Choose DATETIME_HWRTC_ORIGIN (00:00:00 UTC, Saturday, 1 January 2000) as reference time point of H/W RTC.
+ * 2. t_hwrtc_origin = DATETIME_HWRTC_ORIGIN in POSIX time
+ * 3. t_hwrtc_elapsed = t_hwrtc_origin + elapsed time since t_hwrtc_origin
+ * 4. t_write = POSIX time set by rtc_write().
+ * 5. t_present = rtc_read() = t_write + (t_hwrtc_elapsed - t_hwrtc_origin)
+ *
+ * 1900
+ * |---------------------------------------------------------------------------------|
+ *           1970    t_write           t_present
+ * |---------|-------|-----------------|---------------------------------------------|
+ * 
+ * 2000 
+ * |-----------------|---------------------------------------------------------------|
+ * t_hwrtc_origin    t_hwrtc_elapsed
+ *
+ */
+/* Start year of struct TM*/
+#define NU_TM_YEAR0         1900
+/* Start year of POSIX time (set_time()/time()) */
+#define NU_POSIX_YEAR0      1970
+/* Start year of H/W RTC */
+#define NU_HWRTC_YEAR0      2000
+
+/* RTC H/W origin time: 00:00:00 UTC, Saturday, 1 January 2000 */
+static const S_RTC_TIME_DATA_T DATETIME_HWRTC_ORIGIN = {
+    2000,           /* Year value, range between 2000 ~ 2099 */
+    1,              /* Month value, range between 1 ~ 12 */
+    1,              /* Day value, range between 1 ~ 31 */
+    RTC_SATURDAY,   /* Day of the week */
+    0,              /* Hour value, range between 0 ~ 23 */
+    0,              /* Minute value, range between 0 ~ 59 */
+    0,              /* Second value, range between 0 ~ 59 */
+    RTC_CLOCK_24,   /* 12-Hour (RTC_CLOCK_12) / 24-Hour (RTC_CLOCK_24) */
+    0               /* RTC_AM / RTC_PM (used only for 12-Hour) */
+};
+/* t_hwrtc_origin initialized or not? */
+static bool t_hwrtc_origin_inited = 0;
+/* POSIX time of DATETIME_HWRTC_ORIGIN (since 00:00:00 UTC, Thursday, 1 January 1970) */
+static time_t t_hwrtc_origin = 0;
+/* POSIX time set by rtc_write() */
+static time_t t_write = 0;
+/* Convert date time from H/W RTC to struct TM */
+static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC_TIME_DATA_T *datetime_hwrtc);
 
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
@@ -34,8 +91,11 @@ void rtc_init(void)
     if (rtc_isenabled()) {
         return;
     }
-    
+
     RTC_Open(NULL);
+
+    /* POSIX time origin (00:00:00 UTC, Thursday, 1 January 1970) */
+    rtc_write(0);
 }
 
 void rtc_free(void)
@@ -50,9 +110,60 @@ int rtc_isenabled(void)
         // Enable IP clock
         CLK_EnableModuleClock(rtc_modinit.clkidx);
     }
-    
+
     // NOTE: Check RTC Init Active flag to support crossing reset cycle.
     return !! (RTC->INIR & RTC_INIR_ACTIVE_Msk);
+}
+
+time_t rtc_read(void)
+{
+    /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
+     *       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
+     */
+    if (! rtc_isenabled()) {
+        rtc_init();
+    }
+
+    /* Used for intermediary between date time of H/W RTC and POSIX time */
+    struct tm datetime_tm;
+
+    if (! t_hwrtc_origin_inited) {
+        t_hwrtc_origin_inited = 1;
+        
+        /* Convert date time from H/W RTC to struct TM */     
+        rtc_convert_datetime_hwrtc_to_tm(&datetime_tm, &DATETIME_HWRTC_ORIGIN);
+        /* Convert date time of struct TM to POSIX time */
+        if (! _rtc_maketime(&datetime_tm, &t_hwrtc_origin, RTC_FULL_LEAP_YEAR_SUPPORT)) {
+            return 0;
+        }
+    }
+
+    S_RTC_TIME_DATA_T hwrtc_datetime_2K_present;
+    RTC_GetDateAndTime(&hwrtc_datetime_2K_present);
+    /* Convert date time from H/W RTC to struct TM */
+    rtc_convert_datetime_hwrtc_to_tm(&datetime_tm, &hwrtc_datetime_2K_present);
+    /* Convert date time of struct TM to POSIX time */
+    time_t t_hwrtc_elapsed;
+    if (! _rtc_maketime(&datetime_tm, &t_hwrtc_elapsed, RTC_FULL_LEAP_YEAR_SUPPORT)) {
+        return 0;
+    }
+
+    /* Present time in POSIX time */
+    time_t t_present = t_write + (t_hwrtc_elapsed - t_hwrtc_origin);
+    return t_present;
+}
+
+void rtc_write(time_t t)
+{
+    if (! rtc_isenabled()) {
+        rtc_init();
+    }
+
+    t_write = t;
+
+    RTC_SetDateAndTime((S_RTC_TIME_DATA_T *) &DATETIME_HWRTC_ORIGIN);
+    /* NOTE: When engine is clocked by low power clock source (LXT/LIRC), we need to wait for 3 engine clocks. */
+    wait_us((NU_US_PER_SEC / NU_RTCCLK_PER_SEC) * 3);
 }
 
 /*
@@ -67,68 +178,19 @@ int rtc_isenabled(void)
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-
-time_t rtc_read(void)
+static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC_TIME_DATA_T *datetime_hwrtc)
 {
-    // NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
-    //       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
-    if (! rtc_isenabled()) {
-        rtc_init();
+    datetime_tm->tm_year = datetime_hwrtc->u32Year - NU_TM_YEAR0;
+    datetime_tm->tm_mon  = datetime_hwrtc->u32Month - 1;
+    datetime_tm->tm_mday = datetime_hwrtc->u32Day;
+    datetime_tm->tm_wday = datetime_hwrtc->u32DayOfWeek;
+    datetime_tm->tm_hour = datetime_hwrtc->u32Hour;
+    if (datetime_hwrtc->u32TimeScale == RTC_CLOCK_12 && datetime_hwrtc->u32AmPm == RTC_PM) {
+        datetime_tm->tm_hour += 12;
     }
-    
-    S_RTC_TIME_DATA_T rtc_datetime;
-    RTC_GetDateAndTime(&rtc_datetime);
-    
-    struct tm timeinfo;
-
-    // Convert struct tm to S_RTC_TIME_DATA_T
-    timeinfo.tm_year = rtc_datetime.u32Year - YEAR0;
-    timeinfo.tm_mon  = rtc_datetime.u32Month - 1;
-    timeinfo.tm_mday = rtc_datetime.u32Day;
-    timeinfo.tm_wday = rtc_datetime.u32DayOfWeek;
-    timeinfo.tm_hour = rtc_datetime.u32Hour;
-    if (rtc_datetime.u32TimeScale == RTC_CLOCK_12 && rtc_datetime.u32AmPm == RTC_PM) {
-        timeinfo.tm_hour += 12;
-    }
-    timeinfo.tm_min  = rtc_datetime.u32Minute;
-    timeinfo.tm_sec  = rtc_datetime.u32Second;
-
-    // Convert to timestamp
-    time_t t;
-    if (_rtc_maketime(&timeinfo, &t, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
-        return 0;
-    }
-
-    return t;
-}
-
-void rtc_write(time_t t)
-{
-    if (! rtc_isenabled()) {
-        rtc_init();
-    }
-
-    // Convert timestamp to struct tm
-    struct tm timeinfo;
-    if (_rtc_localtime(t, &timeinfo, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
-        return;
-    }
-
-    S_RTC_TIME_DATA_T rtc_datetime;
-    
-    // Convert S_RTC_TIME_DATA_T to struct tm
-    rtc_datetime.u32Year        = timeinfo.tm_year + YEAR0;
-    rtc_datetime.u32Month       = timeinfo.tm_mon + 1;
-    rtc_datetime.u32Day         = timeinfo.tm_mday;
-    rtc_datetime.u32DayOfWeek   = timeinfo.tm_wday;
-    rtc_datetime.u32Hour        = timeinfo.tm_hour;
-    rtc_datetime.u32Minute      = timeinfo.tm_min;
-    rtc_datetime.u32Second      = timeinfo.tm_sec;
-    rtc_datetime.u32TimeScale   = RTC_CLOCK_24;
-    
-    RTC_SetDateAndTime(&rtc_datetime);
-    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
-    wait_us(30 * 3);
+    datetime_tm->tm_min  = datetime_hwrtc->u32Minute;
+    datetime_tm->tm_sec  = datetime_hwrtc->u32Second;
 }
 
 #endif
+
