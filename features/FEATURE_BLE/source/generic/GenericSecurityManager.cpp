@@ -842,7 +842,7 @@ void GenericSecurityManager::on_public_key_generated(
     const public_key_t &public_key_x,
     const public_key_t &public_key_y
 ) {
-
+    _db.set_public_key(public_key_x, public_key_y);
 }
 
 void GenericSecurityManager::on_secure_connections_ltk_generated(

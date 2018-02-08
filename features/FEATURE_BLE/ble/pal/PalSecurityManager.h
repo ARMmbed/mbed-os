@@ -363,17 +363,6 @@ public:
     ) = 0;
 
     /**
-     * Provide the local public key.
-     *
-     * @param[in] public_key_x newly generated public key (x coordinate)
-     * @param[in] public_key_y newly generated public key (y coordinate)
-     */
-    virtual void on_public_key_generated(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
-    ) = 0;
-
-    /**
      * Request OOB data to be verified against received public keys.
      *
      * @param[in] public_key_x newly generated public key (x coordinate)
@@ -388,6 +377,17 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
+
+    /**
+     * Provide the local public key.
+     *
+     * @param[in] public_key_x newly generated public key (x coordinate)
+     * @param[in] public_key_y newly generated public key (y coordinate)
+     */
+    virtual void on_public_key_generated(
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
+    ) = 0;
 
     /**
      * Store the results of key generation of the stage 2 of secure connections pairing

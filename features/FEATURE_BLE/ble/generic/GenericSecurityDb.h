@@ -331,17 +331,26 @@ public:
     /**
      * Return local public key.
      *
-     * @return pointer to x and y component of public key
+     * @return ref to x component of public key
      */
-    virtual const public_key_pair_t* get_public_key() = 0;
+    virtual const public_key_t& get_public_key_x() = 0;
+
+    /**
+     * Return local public key.
+     *
+     * @return ref to y component of public key
+     */
+    virtual const public_key_t& get_public_key_y() = 0;
 
     /**
      * Set local public key.
      *
-     * @param[in] public_key new public key value
+     * @param[in] public_key_x new public key value of the x coordinate
+     * @param[in] public_key_y new public key value of the y coordinate
      */
     virtual void set_public_key(
-        const public_key_pair_t* public_key
+        const public_key_t& public_key_x,
+        const public_key_t& public_key_y
     ) = 0;
 
     /* list management */
@@ -676,14 +685,20 @@ public:
 
     /* public key */
 
-    virtual const public_key_pair_t* get_public_key() {
-        return &_public_key;
+    virtual const public_key_t& get_public_key_x() {
+        return _public_key_x;
+    }
+
+    virtual const public_key_t& get_public_key_y() {
+        return _public_key_y;
     }
 
     virtual void set_public_key(
-        const public_key_pair_t* public_key
+        const public_key_t& public_key_x,
+        const public_key_t& public_key_y
     ) {
-        _public_key = *public_key;
+        _public_key_x = public_key_x;
+        _public_key_y = public_key_y;
     }
 
     /* list management */
@@ -787,7 +802,8 @@ private:
     SecurityEntryIdentity_t _identities[MAX_ENTRIES];
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
-    public_key_pair_t _public_key;
+    public_key_t _public_key_x;
+    public_key_t _public_key_y;
 };
 
 } /* namespace generic */
