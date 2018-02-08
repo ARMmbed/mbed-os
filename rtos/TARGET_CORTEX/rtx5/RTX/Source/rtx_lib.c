@@ -128,7 +128,12 @@ static const osThreadAttr_t os_idle_thread_attr = {
   &os_idle_thread_stack,
   (uint32_t)sizeof(os_idle_thread_stack),
   osPriorityIdle,
-  0U, 0U
+#if defined(OS_IDLE_THREAD_TZ_MOD_ID)
+  (uint32_t)OS_IDLE_THREAD_TZ_MOD_ID,
+#else
+  0U,
+#endif
+  0U
 };
 
 
@@ -176,7 +181,12 @@ static const osThreadAttr_t os_timer_thread_attr = {
   &os_timer_thread_stack,
   (uint32_t)sizeof(os_timer_thread_stack),
   (osPriority_t)OS_TIMER_THREAD_PRIO,
-  0U, 0U
+#if defined(OS_TIMER_THREAD_TZ_MOD_ID)
+  (uint32_t)OS_TIMER_THREAD_TZ_MOD_ID,
+#else
+  0U,
+#endif
+  0U
 };
 
 // Timer Message Queue Control Block
