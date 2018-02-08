@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,49 +27,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "mbed_assert.h"
-#include "mbed_error.h"
-#include "spi_api.h"
-
-#if DEVICE_SPI
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
-#include "pinmap.h"
-#include "PeripheralPins.h"
 
-
-#if DEVICE_SPI_ASYNCH
-    #define SPI_S(obj)    (( struct spi_s *)(&(obj->spi)))
-#else
-    #define SPI_S(obj)    (( struct spi_s *)(obj))
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/*
- * Only the frequency is managed in the family specific part
- * the rest of SPI management is common to all STM32 families
- */
-int spi_get_clock_freq(spi_t *obj) {
-    struct spi_s *spiobj = SPI_S(obj);
-	int spi_hz = 0;
+typedef enum {
+    ADC_1 = (int)ADC1_BASE
+} ADCName;
 
-	/* Get source clock depending on SPI instance */
-    switch ((int)spiobj->spi) {
-        case SPI_1:
-			/* SPI_1. Source CLK is PCKL2 */
-			spi_hz = HAL_RCC_GetPCLK2Freq();
-			break;
-		case SPI_2:
-#ifdef SPI_3
-        case SPI_3:
-#endif
-			/* SPI_2, SPI_3. Source CLK is PCKL1 */
-			spi_hz = HAL_RCC_GetPCLK1Freq();
-			break;
-		default:
-			error("CLK: SPI instance not set");
-            break;
-    }
-    return spi_hz;
+typedef enum {
+    DAC_1 = (int)DAC_BASE
+} DACName;
+
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    UART_3 = (int)USART3_BASE
+} UARTName;
+
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE
+} SPIName;
+
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE
+} I2CName;
+
+typedef enum {
+    PWM_2  = (int)TIM2_BASE,
+    PWM_3  = (int)TIM3_BASE,
+    PWM_4  = (int)TIM4_BASE, // used as us_ticker
+    PWM_9  = (int)TIM9_BASE,
+    PWM_10 = (int)TIM10_BASE,
+    PWM_11 = (int)TIM11_BASE
+} PWMName;
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

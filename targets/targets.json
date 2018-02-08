@@ -2028,6 +2028,17 @@
         "device_name": "STM32L151CC",
         "bootloader_supported": true
     },
+    "MTB_RAK811": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151xB", "STM32L151CB"],
+        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "device_has_add": ["ANALOGOUT", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CB",
+        "bootloader_supported": true
+    },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
