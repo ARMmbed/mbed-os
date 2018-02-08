@@ -37,7 +37,6 @@
 #define __STARTUP_CLEAR_BSS
 
     .syntax    unified
-
     .arch    armv7e-m
 
     .section .stack
