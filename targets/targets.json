@@ -1357,7 +1357,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "FRAMEWORK_5_3_3", "NXP"],
         "is_disk_virtual": true,
         "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
@@ -1381,11 +1381,15 @@
             "SPISLAVE",
             "TRNG",
             "STDIO_MESSAGES",
-            "FLASH"
+            "FLASH",
+            "802_15_4_PHY"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "MESH"
+        }
     },
     "MCU_K24F1M": {
         "core": "Cortex-M4F",
