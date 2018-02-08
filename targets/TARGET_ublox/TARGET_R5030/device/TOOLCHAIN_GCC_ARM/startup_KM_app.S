@@ -37,7 +37,7 @@
 
 
     .syntax    unified
-    .arch    armv7-m
+    .arch      armv7e-m
 
     .section .stack
     .align    3

@@ -129,6 +129,7 @@ SECTIONS
     {
         __end__ = .;
         end = __end__;
+        __HeapBase = .;
         *(.heap*)
         __HeapLimit = .;
     } > RAM
