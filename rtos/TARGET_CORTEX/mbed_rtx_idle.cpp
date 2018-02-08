@@ -28,9 +28,6 @@
 #include "mbed_assert.h"
 #include <new>
 #include "rtx_os.h"
-extern "C" {
-#include "rtx_lib.h"
-}
 
 using namespace mbed;
 
@@ -193,7 +190,7 @@ static void default_idle_hook(void)
     uint32_t elapsed_ticks = 0;
 
     core_util_critical_section_enter();
-    uint32_t ticks_to_sleep = svcRtxKernelSuspend();
+    uint32_t ticks_to_sleep = osKernelSuspend();
     if (ticks_to_sleep) {
         os_timer->schedule_tick(ticks_to_sleep);
 
