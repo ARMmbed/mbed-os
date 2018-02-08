@@ -27,7 +27,7 @@
 
 #define FORCE_OVERFLOW_TEST (false)
 #define TICKER_INT_VAL 500
-#define TICKER_DELTA 50
+#define TICKER_DELTA 10
 
 #define LP_TICKER_OVERFLOW_DELTA 0 // this will allow to detect that ticker counter rollovers to 0
 #define HF_TICKER_OVERFLOW_DELTA 50
@@ -147,17 +147,17 @@ void ticker_interrupt_test(void)
             TEST_ASSERT_EQUAL_INT_MESSAGE(0, intFlag, "Interrupt fired too early");
         }
 
-        /* Wait until ticker count reach value: tick_count + ticker_timeout[i].
+        /* Wait until ticker count reach value: tick_count + ticker_timeout[i] + TICKER_DELTA.
          * Interrupt should be fired after this time. */
-        while (intf->read() < (tick_count + ticker_timeout[i])) {
+        while (intf->read() < (tick_count + ticker_timeout[i] + TICKER_DELTA)) {
             /* Just wait. */
         }
 
         TEST_ASSERT_EQUAL(1, intFlag);
 
-        /* Wait until ticker count reach value: tick_count + 3 * ticker_timeout[i].
+        /* Wait until ticker count reach value: tick_count + 2 * ticker_timeout[i] + TICKER_DELTA.
          * Interrupt should not be triggered again. */
-        while (intf->read() < (tick_count + 3 * ticker_timeout[i])) {
+        while (intf->read() < (tick_count + 2 * ticker_timeout[i] + TICKER_DELTA)) {
             /* Just wait. */
         }
 
