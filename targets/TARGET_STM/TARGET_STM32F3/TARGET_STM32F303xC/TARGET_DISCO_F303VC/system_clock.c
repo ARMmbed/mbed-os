@@ -17,9 +17,9 @@
 /**
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------
-  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
+  * System clock source                | 1- USE_PLL_HSE_EXTC    | 3- USE_PLL_HSI
   *                                    | (external 8 MHz clock) | (internal 8 MHz)
-  *                                    | 2- PLL_HSE_XTAL        |
+  *                                    | 2- USE_PLL_HSE_XTAL    |
   *                                    | (external 8 MHz xtal)  |
   *-----------------------------------------------------------------------------
   * SYSCLK(MHz)                        | 72                     | 64
@@ -35,6 +35,7 @@
 **/
 
 #include "stm32f3xx.h"
+#include "mbed_assert.h"
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
@@ -42,16 +43,18 @@
 #define VECT_TAB_OFFSET  0x0 /*!< Vector Table base offset field.
                                   This value must be a multiple of 0x200. */
 
-/* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (1) /* Use external clock */
-#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+// clock source is selected with CLOCK_SOURCE in json config
+#define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
+#define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
+#define USE_PLL_HSI          0x2  // Use HSI internal clock
 
-
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
+#if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
-#endif
+#endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
 
+#if ((CLOCK_SOURCE) & USE_PLL_HSI)
 uint8_t SetSysClock_PLL_HSI(void);
+#endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
 
 /**
   * @brief  Setup the microcontroller system
@@ -108,22 +111,26 @@ void SystemInit(void)
   * @param  None
   * @retval None
   */
+
 void SetSysClock(void)
 {
+#if ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC)
     /* 1- Try to start with HSE and external clock */
-#if USE_PLL_HSE_EXTC != 0
     if (SetSysClock_PLL_HSE(1) == 0)
 #endif
     {
+#if ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL)
         /* 2- If fail try to start with HSE and external xtal */
-#if USE_PLL_HSE_XTAL != 0
         if (SetSysClock_PLL_HSE(0) == 0)
 #endif
         {
+#if ((CLOCK_SOURCE) & USE_PLL_HSI)
             /* 3- If fail start with HSI clock */
-            if (SetSysClock_PLL_HSI() == 0) {
+            if (SetSysClock_PLL_HSI() == 0)
+#endif
+            {
                 while(1) {
-                    // [TODO] Put something here to tell the user that a problem occured...
+                    MBED_ASSERT(1);
                 }
             }
         }
@@ -133,7 +140,7 @@ void SetSysClock(void)
     //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_DIV1); // 72 MHz or 64 MHz
 }
 
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
+#if ( ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) )
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
@@ -141,6 +148,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
     /* Enable HSE oscillator and activate PLL with HSE as source */
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
@@ -167,6 +175,12 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
         return 0; // FAIL
     }
 
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    RCC_PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
+        return 0; // FAIL
+    }
+
     /* Output clock on MCO1 pin(PA8) for debugging purpose */
     //if (bypass == 0)
     //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV2); // 4 MHz with xtal
@@ -175,8 +189,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     return 1; // OK
 }
-#endif
+#endif /* ((CLOCK_SOURCE) & USE_PLL_HSE_XTAL) || ((CLOCK_SOURCE) & USE_PLL_HSE_EXTC) */
 
+#if ((CLOCK_SOURCE) & USE_PLL_HSI)
 /******************************************************************************/
 /*            PLL (clocked by HSI) used as System clock source                */
 /******************************************************************************/
@@ -189,7 +204,7 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
     RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
-    RCC_OscInitStruct.HSICalibrationValue = 16;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL16; // 64 MHz (8 MHz/2 * 16)
@@ -212,4 +227,4 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     return 1; // OK
 }
-
+#endif /* ((CLOCK_SOURCE) & USE_PLL_HSI) */
