@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_ll_tim.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    30-December-2016
   * @brief   Header file of TIM LL module.
   ******************************************************************************
   * @attention
@@ -1313,7 +1311,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsEnabledCounter(TIM_TypeDef *TIMx)
   */
 __STATIC_INLINE void LL_TIM_EnableUpdateEvent(TIM_TypeDef *TIMx)
 {
-  SET_BIT(TIMx->CR1, TIM_CR1_UDIS);
+  CLEAR_BIT(TIMx->CR1, TIM_CR1_UDIS);
 }
 
 /**
@@ -1324,7 +1322,7 @@ __STATIC_INLINE void LL_TIM_EnableUpdateEvent(TIM_TypeDef *TIMx)
   */
 __STATIC_INLINE void LL_TIM_DisableUpdateEvent(TIM_TypeDef *TIMx)
 {
-  CLEAR_BIT(TIMx->CR1, TIM_CR1_UDIS);
+  SET_BIT(TIMx->CR1, TIM_CR1_UDIS);
 }
 
 /**
