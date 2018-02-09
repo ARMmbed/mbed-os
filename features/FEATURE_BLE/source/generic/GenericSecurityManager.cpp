@@ -563,7 +563,6 @@ ble_error_t GenericSecurityManager::oobReceived(
 //
 
 ble_error_t GenericSecurityManager::init_signing() {
-    /* TODO: store init bit to avoid rerunning needlessly*/
     const csrk_t *pcsrk = _db.get_local_csrk();
     if (!pcsrk) {
         csrk_t csrk;
