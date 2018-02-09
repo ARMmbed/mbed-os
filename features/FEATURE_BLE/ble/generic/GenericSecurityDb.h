@@ -360,25 +360,71 @@ public:
 
     /** There is always only one OOB data set stored at a time */
 
+    /**
+     * Return peer address the OOB data belongs to.
+     *
+     * @return peer address
+     */
     virtual const address_t& get_peer_sc_oob_address() = 0;
+
+    /**
+     * Return random number from the peer received in OOB data.
+     *
+     * @return random number the peer chose
+     */
     virtual const oob_rand_t& get_peer_sc_oob_random() = 0;
+
+    /**
+     * Return confirm number from the peer received in OOB data.
+     *
+     * @return confirm value calculated by peer based
+     * on the random number, its public key and address
+     */
     virtual const oob_confirm_t& get_peer_sc_oob_confirm() = 0;
 
+    /**
+     * Return OOB data in a single transaction.
+     *
+     * @param[out] peer_address peer address OOB data belongs to
+     * @param[out] peer_random random number the peer chose
+     * @param[out] peer_confirm confirm value calculated by peer based
+     *                          on the random number, its public key and address
+     * @param[out] local_random random number chosen by the local device
+     */
     virtual void get_sc_oob_data(
-        const address_t& peer_address,
-        const oob_rand_t& peer_random,
-        const oob_confirm_t& peer_confirm,
-        const oob_rand_t& local_random
+        address_t& peer_address,
+        oob_rand_t& peer_random,
+        oob_confirm_t& peer_confirm,
+        oob_rand_t& local_random
     ) = 0;
 
+    /**
+     * Return random number used by the local device to calculate
+     * the confirm value sent the peer in OOB data.
+     *
+     * @return random number chosen by local device
+     */
     virtual const oob_rand_t& get_local_sc_oob_random() = 0;
 
+    /**
+     * Store the OOB data received from the peer.
+     *
+     * @param address peer address OOB data belongs to
+     * @param random random number the peer chose
+     * @param confirm confirm value calculated by peer based
+     *                on the random number, its public key and address
+     */
     virtual void set_peer_sc_oob_data(
         const address_t& address,
         const oob_rand_t& random,
         const oob_confirm_t& confirm
     ) = 0;
 
+    /**
+     * Set random number used for OOB data calculation on the local device.
+     *
+     * @param random random number chosen by the local device
+     */
     virtual void set_local_sc_oob_random(
         const oob_rand_t& random
     ) = 0;
@@ -732,6 +778,54 @@ public:
         _public_key_y = public_key_y;
     }
 
+    /* oob data */
+
+    /** There is always only one OOB data set stored at a time */
+
+    virtual const address_t& get_peer_sc_oob_address() {
+        return _peer_sc_oob_address;
+    }
+
+    virtual const oob_rand_t& get_peer_sc_oob_random() {
+        return _peer_sc_oob_random;
+    }
+
+    virtual const oob_confirm_t& get_peer_sc_oob_confirm() {
+        return _peer_sc_oob_confirm;
+    }
+
+    virtual void get_sc_oob_data(
+        address_t& peer_address,
+        oob_rand_t& peer_random,
+        oob_confirm_t& peer_confirm,
+        oob_rand_t& local_random
+    ) {
+        peer_address = _peer_sc_oob_address;
+        peer_random = _peer_sc_oob_random;
+        peer_confirm = _peer_sc_oob_confirm;
+        local_random = _local_sc_oob_random;
+    }
+
+    virtual const oob_rand_t& get_local_sc_oob_random() {
+        return _local_sc_oob_random;
+    }
+
+    virtual void set_peer_sc_oob_data(
+        const address_t& address,
+        const oob_rand_t& random,
+        const oob_confirm_t& confirm
+    ) {
+        _peer_sc_oob_address = address;
+        _peer_sc_oob_random = random;
+        _peer_sc_oob_confirm = confirm;
+    }
+
+    virtual void set_local_sc_oob_random(
+        const oob_rand_t& random
+    ) {
+        _local_sc_oob_random = random;
+    }
+
     /* list management */
 
     virtual SecurityEntry_t* connect_entry(
@@ -836,10 +930,10 @@ private:
     public_key_t _public_key_x;
     public_key_t _public_key_y;
 
-    address_t _sc_oob_peer_address;
-    oob_rand_t _sc_oob_peer_random;
-    oob_confirm_t _sc_oob_peer_confirm;
-    oob_rand_t _sc_oob_local_random;
+    address_t _peer_sc_oob_address;
+    oob_rand_t _peer_sc_oob_random;
+    oob_confirm_t _peer_sc_oob_confirm;
+    oob_rand_t _local_sc_oob_random;
 };
 
 } /* namespace generic */
