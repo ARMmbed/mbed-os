@@ -57,8 +57,9 @@ struct SecurityEntry_t {
         signing_requested(false),
         mitm_requested(false),
         mitm_performed(false),
-        oob(false),
-        oob_mitm_protection(false) { }
+        attempt_oob(false),
+        oob_mitm_protection(false),
+        oob_present(false) { }
 
     /**
      * Reset state of the connection when disconnected.
@@ -72,8 +73,9 @@ struct SecurityEntry_t {
         encryption_failed = false;
         encrypted = false;
         signing_requested = false;
-        oob = false;
+        attempt_oob = false;
         oob_mitm_protection = false;
+        oob_present = false;
     }
 
     connection_handle_t handle;
@@ -102,8 +104,9 @@ struct SecurityEntry_t {
     uint8_t mitm_requested:1;
     uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
 
-    uint8_t oob:1;
+    uint8_t attempt_oob:1;
     uint8_t oob_mitm_protection:1;
+    uint8_t oob_present:1;
 };
 
 struct SecurityEntryKeys_t {

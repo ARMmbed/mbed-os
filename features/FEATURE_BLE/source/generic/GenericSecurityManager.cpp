@@ -152,7 +152,7 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
 
     return _pal.send_pairing_request(
         connection,
-        entry->oob,
+        entry->oob_present,
         link_authentication,
         link_key_distribution,
         link_key_distribution
@@ -175,7 +175,7 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
 
     return _pal.send_pairing_response(
         connection,
-        entry->oob,
+        entry->oob_present,
         link_authentication,
         link_key_distribution,
         link_key_distribution
@@ -486,7 +486,7 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    entry->oob = useOOB;
+    entry->attempt_oob = useOOB;
     entry->oob_mitm_protection = OOBProvidesMITM;
 
     if (_public_keys_generated) {
@@ -660,9 +660,20 @@ void GenericSecurityManager::generate_secure_connections_oob(
 
 void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
     SecurityEntry_t *entry = _db.get_entry(connection);
-    if (entry) {
+    if (!entry) {
+        return;
+    }
+
+    /* only update the oob state if we support secure connections,
+     * otherwise follow the user set preference for providing legacy
+     * pairing oob data */
+    entry->oob_present = entry->attempt_oob;
+
+    if (_default_authentication.get_secure_connections()) {
         if (entry->peer_address == _db.get_peer_sc_oob_address()) {
-            entry->oob = true;
+            entry->oob_present = true;
+        } else {
+            entry->oob_present = false;
         }
     }
 }
