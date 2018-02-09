@@ -27,39 +27,6 @@ namespace generic {
 /* Implements SecurityManager */
 
 ////////////////////////////////////////////////////////////////////////////
-// GAP integration
-//
-
-void GenericSecurityManager::disconnected(connection_handle_t connection) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return;
-    }
-    entry->connected = false;
-    _db.sync();
-}
-
-void GenericSecurityManager::connected(
-    connection_handle_t connection,
-    bool is_master,
-    connection_peer_address_type_t::type peer_address_type,
-    const address_t &peer_address
-) {
-    SecurityEntry_t *entry = _db.connect_entry(
-        connection,
-        peer_address_type,
-        peer_address
-    );
-
-    if (!entry) {
-        return;
-    }
-
-    entry->reset();
-    entry->master = is_master;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // SM lifecycle management
 //
 
@@ -87,6 +54,9 @@ ble_error_t GenericSecurityManager::init(
     if (signing) {
         init_signing();
     }
+
+    _gap.onConnection(this, &GenericSecurityManager::connection_callback);
+    _gap.onDisconnection(this, &GenericSecurityManager::disconnection_callback);
 
     _pal.generate_public_key();
 
@@ -134,10 +104,6 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     if (!entry) {
         return BLE_ERROR_INVALID_PARAM;
     }
-
-    /* TODO: remove */
-    _db.get_entry(connection)->master = true;
-    /* end temp code */
 
     if (!_legacy_pairing_allowed && !_default_authentication.get_secure_connections()) {
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
@@ -291,7 +257,7 @@ ble_error_t GenericSecurityManager::enableSigning(
     }
     if (!entry->csrk_stored && entry->signing_requested) {
         init_signing();
-        if (entry->master) {
+        if (entry->is_master) {
             return requestPairing(connection);
         } else {
             return slave_security_request(connection);
@@ -321,7 +287,7 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
     }
 
     if (entry->encrypted) {
-        if (entry->mitm_ltk) {
+        if (entry->ltk_mitm_protected) {
             *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
         } else {
             *encryption = link_encryption_t::ENCRYPTED;
@@ -373,7 +339,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
 
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
-        if (entry->mitm_ltk && !entry->encrypted) {
+        if (entry->ltk_mitm_protected && !entry->encrypted) {
             entry->encryption_requested = true;
             return enable_encryption(connection);
         } else {
@@ -418,7 +384,7 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (entry->csrk_stored && (entry->mitm_csrk || !authenticated)) {
+    if (entry->csrk_stored && (entry->csrk_mitm_protected || !authenticated)) {
         /* we have a key that is either authenticated or we don't care if it is
          * so retrieve it from the db now */
         _db.get_entry_peer_csrk(
@@ -432,7 +398,7 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
          * keys exchange will create the signingKey event */
         if (authenticated) {
             return requestAuthentication(connection);
-        } else if (entry->master) {
+        } else if (entry->is_master) {
             return requestPairing(connection);
         } else {
             return slave_security_request(connection);
@@ -458,7 +424,7 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (entry->mitm_ltk) {
+    if (entry->ltk_mitm_protected) {
         if (entry->authenticated) {
             return BLE_ERROR_NONE;
         } else {
@@ -467,7 +433,7 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
         }
     } else {
         entry->mitm_requested = true;
-        if (entry->master) {
+        if (entry->is_master) {
             return requestPairing(connection);
         } else {
             return slave_security_request(connection);
@@ -612,7 +578,7 @@ ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connec
     if (!entry) {
         return BLE_ERROR_INVALID_PARAM;
     }
-    if (entry->master) {
+    if (entry->is_master) {
         if (entry->ltk_stored) {
             _db.get_entry_peer_keys(
                 mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
@@ -661,7 +627,7 @@ void GenericSecurityManager::return_csrk_cb(
     eventHandler->signingKey(
         connection,
         csrk,
-        entry->mitm_csrk
+        entry->csrk_mitm_protected
     );
 }
 
@@ -669,11 +635,13 @@ void GenericSecurityManager::return_csrk_cb(
 void GenericSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
-     address_t local_address;
      oob_confirm_t confirm;
      oob_rand_t random;
 
-     /*TODO: get local address*/
+     SecurityEntry_t *entry = _db.get_entry(connection);
+     if (!entry) {
+         return;
+     }
 
      ble_error_t ret = get_random_data(random.buffer(), random.size());
      if (ret != BLE_ERROR_NONE) {
@@ -688,7 +656,7 @@ void GenericSecurityManager::generate_secure_connections_oob(
      );
 
     _app_event_handler->oobGenerated(
-        &local_address,
+        &entry->local_address,
         &random,
         &confirm
     );
@@ -748,6 +716,54 @@ bool GenericSecurityManager::crypto_toolbox_f4(
 }
 #endif
 
+void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return;
+    }
+    entry->connected = false;
+    _db.sync();
+}
+
+void GenericSecurityManager::on_connected(
+    connection_handle_t connection,
+    bool is_master,
+    BLEProtocol::AddressType_t peer_address_type,
+    const address_t &peer_address,
+    const address_t &local_address
+) {
+    SecurityEntry_t *entry = _db.connect_entry(
+        connection,
+        peer_address_type,
+        peer_address,
+        local_address
+    );
+
+    if (!entry) {
+        return;
+    }
+
+    entry->reset();
+    entry->is_master = is_master;
+}
+
+void GenericSecurityManager::connection_callback(
+    const Gap::ConnectionCallbackParams_t* params
+) {
+    on_connected(
+        params->handle,
+        (params->role == Gap::CENTRAL),
+        params->peerAddrType,
+        address_t(params->peerAddr),
+        address_t(params->ownAddr)
+    );
+}
+void GenericSecurityManager::disconnection_callback(
+    const Gap::DisconnectionCallbackParams_t* params
+) {
+    on_disconnected(params->handle);
+}
+
 /* Implements ble::pal::SecurityManagerEventHandler */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -761,10 +777,6 @@ void GenericSecurityManager::on_pairing_request(
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 ) {
-    /* TODO: remove */
-    _db.get_entry(connection)->master = false;
-    /* end temp code */
-
     /* cancel pairing if secure connection paring is not possible */
     if (!_legacy_pairing_allowed && !authentication.get_secure_connections()) {
         canceltPairingRequest(connection);
@@ -816,8 +828,8 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
         }
 
         /* sc doesn't need to exchange ltk */
-        if (entry->secure_connections) {
-            entry->mitm_ltk = entry->mitm_performed;
+        if (entry->secure_connections_paired) {
+            entry->ltk_mitm_protected = entry->mitm_performed;
         }
     }
 
@@ -846,12 +858,12 @@ void GenericSecurityManager::on_slave_security_request(
 
     if (authentication.get_secure_connections()
         && _default_authentication.get_secure_connections()
-        && !entry->secure_connections) {
+        && !entry->secure_connections_paired) {
         requestPairing(connection);
     }
 
     if (authentication.get_mitm()
-        && !entry->mitm_ltk) {
+        && !entry->ltk_mitm_protected) {
         entry->mitm_requested = true;
         requestPairing(connection);
     }
@@ -1006,8 +1018,8 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
         return;
     }
 
-    entry->mitm_ltk = entry->mitm_performed;
-    entry->secure_connections = true;
+    entry->ltk_mitm_protected = entry->mitm_performed;
+    entry->secure_connections_paired = true;
 
     _db.set_entry_peer_ltk(connection, ltk);
 }
@@ -1027,8 +1039,8 @@ void GenericSecurityManager::on_keys_distributed(
         return;
     }
 
-    entry->mitm_ltk = entry->mitm_performed;
-    entry->mitm_csrk = entry->mitm_performed;
+    entry->ltk_mitm_protected = entry->mitm_performed;
+    entry->csrk_mitm_protected = entry->mitm_performed;
 
     _db.set_entry_peer(
         connection,
@@ -1044,7 +1056,7 @@ void GenericSecurityManager::on_keys_distributed(
     eventHandler->signingKey(
         connection,
         csrk,
-        entry->mitm_csrk
+        entry->csrk_mitm_protected
     );
 }
 
@@ -1056,7 +1068,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
     if (!entry) {
         return;
     }
-    entry->mitm_ltk = entry->mitm_performed;
+    entry->ltk_mitm_protected = entry->mitm_performed;
     _db.set_entry_peer_ltk(connection, ltk);
 }
 
@@ -1111,14 +1123,14 @@ void GenericSecurityManager::on_keys_distributed_csrk(
         return;
     }
 
-    entry->mitm_csrk = entry->mitm_performed;
+    entry->csrk_mitm_protected = entry->mitm_performed;
 
     _db.set_entry_peer_csrk(connection, csrk);
 
     eventHandler->signingKey(
         connection,
         csrk,
-        entry->mitm_csrk
+        entry->csrk_mitm_protected
     );
 }
 

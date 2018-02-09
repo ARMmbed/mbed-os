@@ -21,6 +21,7 @@
 #include "ble/BLETypes.h"
 #include "ble/generic/GenericSecurityDb.h"
 #include "Callback.h"
+#include "ble/Gap.h"
 
 namespace ble {
 namespace generic {
@@ -47,39 +48,6 @@ class GenericSecurityManagerEventHandler;
 class GenericSecurityManager : public SecurityManager,
                                public ble::pal::SecurityManagerEventHandler {
 public:
-    ////////////////////////////////////////////////////////////////////////////
-    // GAP integration
-    //
-
-    /**
-     * Inform the security manager that a device has been disconnected and its
-     * entry can be put in NVM storage. Called by GAP.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual void disconnected(
-        connection_handle_t connection
-    );
-
-    /**
-     * Inform the Security manager of a new connection. This will create
-     * or retrieve an existing security manager entry for the connected device.
-     * Called by GAP.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] is_master True if device is the master.
-     * @param[in] peer_address_type type of address
-     * @param[in] peer_address Address of the connected device.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual void connected(
-        connection_handle_t connection,
-        bool is_master,
-        connection_peer_address_type_t::type peer_address_type,
-        const address_t &peer_address
-    );
-
     /* implements SecurityManager */
 
     ////////////////////////////////////////////////////////////////////////////
@@ -270,9 +238,10 @@ public:
     /* ends implements SecurityManager */
 
 protected:
-    GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl)
+    GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl, Gap& gapImpl)
         : _pal(palImpl),
           _db(dbImpl),
+          _gap(gapImpl),
           _default_authentication(0),
           _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
           _pairing_authorisation_required(false),
@@ -394,9 +363,48 @@ private:
     );
 #endif
 
+    /**
+     * Inform the security manager that a device has been disconnected and its
+     * entry can be put in NVM storage. Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    void on_disconnected(
+        connection_handle_t connection
+    );
+
+    /**
+     * Inform the Security manager of a new connection. This will create
+     * or retrieve an existing security manager entry for the connected device.
+     * Called by GAP.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] is_master True if device is the master.
+     * @param[in] peer_address_type type of address
+     * @param[in] peer_address Address of the connected device.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    void on_connected(
+        connection_handle_t connection,
+        bool is_master,
+        BLEProtocol::AddressType_t peer_address_type,
+        const address_t &peer_address,
+        const address_t &local_address
+    );
+
+    void connection_callback(
+        const Gap::ConnectionCallbackParams_t* params
+    );
+
+    void disconnection_callback(
+        const Gap::DisconnectionCallbackParams_t* params
+    );
+
 private:
     ble::pal::SecurityManager& _pal;
     GenericSecurityDb& _db;
+    Gap& _gap;
 
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;

@@ -41,16 +41,16 @@ struct SecurityEntry_t {
     SecurityEntry_t()
         : handle(0),
         encryption_key_size(0),
-        peer_address_public(false),
-        local_address_public(false),
+        peer_address_is_public(false),
+        local_address_is_public(false),
         csrk_stored(false),
-        mitm_csrk(false),
+        csrk_mitm_protected(false),
         ltk_stored(false),
-        mitm_ltk(false),
-        secure_connections(false),
+        ltk_mitm_protected(false),
+        secure_connections_paired(false),
         connected(false),
         authenticated(false),
-        master(false),
+        is_master(false),
         encryption_requested(false),
         encryption_failed(false),
         encrypted(false),
@@ -65,14 +65,20 @@ struct SecurityEntry_t {
      * Reset state of the connection when disconnected.
      */
     void reset() {
-        mitm_requested = false;
-        mitm_performed = false;
+        local_address = address_t();
+
         connected = true;
         authenticated = false;
+        is_master = false;
+
         encryption_requested = false;
         encryption_failed = false;
         encrypted = false;
         signing_requested = false;
+
+        mitm_requested = false;
+        mitm_performed = false;
+
         attempt_oob = false;
         oob_mitm_protection = false;
         oob_present = false;
@@ -80,21 +86,24 @@ struct SecurityEntry_t {
 
     connection_handle_t handle;
     address_t peer_address;
+
     uint8_t encryption_key_size;
-    uint8_t peer_address_public:1;
-    uint8_t local_address_public:1;
+    uint8_t peer_address_is_public:1;
+    uint8_t local_address_is_public:1;
 
     uint8_t csrk_stored:1;
-    uint8_t mitm_csrk:1;
+    uint8_t csrk_mitm_protected:1;
     uint8_t ltk_stored:1;
-    uint8_t mitm_ltk:1;
-    uint8_t secure_connections:1;
+    uint8_t ltk_mitm_protected:1;
+    uint8_t secure_connections_paired:1;
 
     /* do not store in NVM */
 
+    address_t local_address; /**< address used for connection, possibly different from identity */
+
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we turned encryption on during this connection */
-    uint8_t master:1;
+    uint8_t is_master:1;
 
     uint8_t encryption_requested:1;
     uint8_t encryption_failed:1;
@@ -444,8 +453,9 @@ public:
      */
     virtual SecurityEntry_t* connect_entry(
         connection_handle_t connection,
-        connection_peer_address_type_t::type peer_address_type,
-        const address_t& peer_address
+        BLEProtocol::AddressType_t peer_address_type,
+        const address_t& peer_address,
+        const address_t& local_address
     ) = 0;
 
     /**
@@ -830,17 +840,18 @@ public:
 
     virtual SecurityEntry_t* connect_entry(
         connection_handle_t connection,
-        connection_peer_address_type_t::type peer_address_type,
-        const address_t& peer_address
+        BLEProtocol::AddressType_t peer_address_type,
+        const address_t& peer_address,
+        const address_t& local_address
     ) {
         const bool peer_address_public =
-            (peer_address_type == connection_peer_address_type_t::PUBLIC_ADDRESS);
+            (peer_address_type == BLEProtocol::AddressType::PUBLIC);
 
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_db[i].entry.connected) {
                 continue;
             } else if (peer_address == _identities[i].identity_address
-                && _db[i].entry.peer_address_public == peer_address_public) {
+                && _db[i].entry.peer_address_is_public == peer_address_public) {
                 return &_db[i].entry;
             }
         }
@@ -850,8 +861,9 @@ public:
             if (!_db[i].entry.connected) {
                 _db[i] = db_store_t();
                 _identities[i] = SecurityEntryIdentity_t();
-                _identities[i].identity_address = peer_address;
-                _db[i].entry.peer_address_public = peer_address_public;
+                _db[i].entry.peer_address = peer_address;
+                _db[i].entry.local_address = local_address;
+                _db[i].entry.peer_address_is_public = peer_address_public;
                 return &_db[i].entry;
             }
         }
@@ -878,7 +890,7 @@ public:
 
     virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, Gap::Whitelist_t *whitelist) {
         for (size_t i = 0; i < MAX_ENTRIES && i < whitelist->capacity; i++) {
-            if (_db[i].entry.peer_address_public) {
+            if (_db[i].entry.peer_address_is_public) {
                 whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;
             } else {
                 whitelist->addresses[i].type = BLEProtocol::AddressType::RANDOM_STATIC;
