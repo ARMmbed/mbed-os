@@ -168,6 +168,13 @@ ble_error_t CordioSecurityManager::set_private_address_timeout(
 ble_error_t CordioSecurityManager::set_ltk(
     connection_handle_t connection, const ltk_t ltk
 ) {
+    // FIXME: get access to the security level of a key
+    DmSecLtkRsp(
+        connection,
+        /* key found */ true,
+        /* sec level ??? */ DM_SEC_LEVEL_ENC_AUTH,
+        const_cast<uint8_t*>(ltk)
+    );
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -241,6 +248,9 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 ) {
+    //FIXME: understand if this is required
+    pSmpCfg->auth = authentication_requirements.value();
+
     DmSecPairReq(
         connection,
         oob_data_flag,
@@ -428,14 +438,29 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
 
             switch(evt->type) {
                 case DM_KEY_LOCAL_LTK:
-                    // TODO: usefull ???
+                    // FIXME: forward local ltk
+#if 0
+                    printf("local ltk: ");
+                    for (size_t i = 0; i < sizeof(ltk_t); ++i) {
+                        printf("%02X ", evt->keyData.ltk.key[i]);
+                    }
+                    printf("\r\n");
+
+                    printf("local ediv: %04X\r\n", evt->keyData.ltk.ediv);
+                    printf("local rand: ");
+                    for (size_t i = 0; i < sizeof(rand_t); ++i) {
+                        printf("%02X ", evt->keyData.ltk.rand[i]);
+                    }
+                    printf("\r\n");
+                    memcpy(local_ltk, evt->keyData.ltk.key, sizeof(local_ltk));
+#endif
                     break;
 
                 case DM_KEY_PEER_LTK:
                     handler->on_keys_distributed_ltk(connection, evt->keyData.ltk.key);
                     handler->on_keys_distributed_ediv_rand(
                         connection,
-                        reinterpret_cast<uint8_t*>(evt->keyData.ltk.ediv),
+                        reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv)),
                         evt->keyData.ltk.rand
                     );
                     break;
