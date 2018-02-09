@@ -22,7 +22,7 @@
 // RTOS present, this is valid only for mbed OS 5
 #define MBED_MAJOR_VERSION 5
 #define MBED_MINOR_VERSION 7
-#define MBED_PATCH_VERSION 4
+#define MBED_PATCH_VERSION 5
 
 #else
 // mbed 2
