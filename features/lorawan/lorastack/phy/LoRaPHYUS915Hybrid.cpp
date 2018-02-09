@@ -629,7 +629,7 @@ bool LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t* params,
         }
     }
 
-    if (params->aggregate_timeoff <= _lora_time.TimerGetElapsedTime( params->last_aggregate_tx_time)) {
+    if (params->aggregate_timeoff <= _lora_time.get_elapsed_time( params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeOff = 0;
 
@@ -646,7 +646,7 @@ bool LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t* params,
                                                     enabled_channels, &delay_tx);
     } else {
         delay_tx++;
-        next_tx_delay = params->aggregate_timeoff - _lora_time.TimerGetElapsedTime(params->last_aggregate_tx_time);
+        next_tx_delay = params->aggregate_timeoff - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

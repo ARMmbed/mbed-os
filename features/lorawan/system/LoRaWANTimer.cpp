@@ -29,35 +29,35 @@ LoRaWANTimeHandler::~LoRaWANTimeHandler()
 {
 }
 
-void LoRaWANTimeHandler::TimerTimeCounterInit(events::EventQueue *queue)
+void LoRaWANTimeHandler::activate_timer_subsystem(events::EventQueue *queue)
 {
     _queue = queue;
 }
 
-lorawan_time_t LoRaWANTimeHandler::TimerGetCurrentTime( void )
+lorawan_time_t LoRaWANTimeHandler::get_current_time( void )
 {
     const uint32_t current_time = _queue->tick();
     return (lorawan_time_t)current_time;
 }
 
-lorawan_time_t LoRaWANTimeHandler::TimerGetElapsedTime( lorawan_time_t savedTime )
+lorawan_time_t LoRaWANTimeHandler::get_elapsed_time(lorawan_time_t saved_time)
 {
-    return TimerGetCurrentTime() - savedTime;
+    return get_current_time() - saved_time;
 }
 
-void LoRaWANTimeHandler::TimerInit( timer_event_t &obj, mbed::Callback<void()> callback)
+void LoRaWANTimeHandler::init(timer_event_t &obj, mbed::Callback<void()> callback)
 {
     obj.callback = callback;
     obj.timer_id = 0;
 }
 
-void LoRaWANTimeHandler::TimerStart( timer_event_t &obj, const uint32_t timeout )
+void LoRaWANTimeHandler::start(timer_event_t &obj, const uint32_t timeout)
 {
     obj.timer_id = _queue->call_in(timeout, obj.callback);
     MBED_ASSERT(obj.timer_id != 0);
 }
 
-void LoRaWANTimeHandler::TimerStop( timer_event_t &obj )
+void LoRaWANTimeHandler::stop(timer_event_t &obj)
 {
     _queue->cancel(obj.timer_id);
     obj.timer_id = 0;

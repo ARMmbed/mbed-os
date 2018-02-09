@@ -578,7 +578,7 @@ bool LoRaPHYAU915::set_next_channel(channel_selection_params_t* next_chan_params
         }
     }
 
-    if (next_chan_params->aggregate_timeoff <= _lora_time.TimerGetElapsedTime(next_chan_params->last_aggregate_tx_time)) {
+    if (next_chan_params->aggregate_timeoff <= _lora_time.get_elapsed_time(next_chan_params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregated_timeOff = 0;
 
@@ -595,7 +595,7 @@ bool LoRaPHYAU915::set_next_channel(channel_selection_params_t* next_chan_params
                                                      enabled_channels, &delay_tx);
     } else {
         delay_tx++;
-        next_tx_delay = next_chan_params->aggregate_timeoff - _lora_time.TimerGetElapsedTime(next_chan_params->last_aggregate_tx_time);
+        next_tx_delay = next_chan_params->aggregate_timeoff - _lora_time.get_elapsed_time(next_chan_params->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

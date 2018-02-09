@@ -264,9 +264,9 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
     for (uint8_t i = 0; i < nb_bands; i++) {
 
         if (joined == false) {
-            uint32_t txDoneTime =  MAX(_lora_time.TimerGetElapsedTime(bands[i].last_join_tx_time),
+            uint32_t txDoneTime =  MAX(_lora_time.get_elapsed_time(bands[i].last_join_tx_time),
                                         (duty_cycle == true) ?
-                                        _lora_time.TimerGetElapsedTime(bands[i].last_tx_time) : 0);
+                                        _lora_time.get_elapsed_time(bands[i].last_tx_time) : 0);
 
             if (bands[i].off_time <= txDoneTime) {
                 bands[i].off_time = 0;
@@ -280,12 +280,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
             // if network has been joined
             if (duty_cycle == true) {
 
-                if( bands[i].off_time <= _lora_time.TimerGetElapsedTime(bands[i].last_tx_time)) {
+                if( bands[i].off_time <= _lora_time.get_elapsed_time(bands[i].last_tx_time)) {
                     bands[i].off_time = 0;
                 }
 
                 if(bands[i].off_time != 0 ) {
-                    next_tx_delay = MIN(bands[i].off_time - _lora_time.TimerGetElapsedTime(bands[i].last_tx_time),
+                    next_tx_delay = MIN(bands[i].off_time - _lora_time.get_elapsed_time(bands[i].last_tx_time),
                                        next_tx_delay);
                 }
             } else {
@@ -1230,7 +1230,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     }
 
     if (params->aggregate_timeoff
-            <= _lora_time.TimerGetElapsedTime(params->last_aggregate_tx_time)) {
+            <= _lora_time.get_elapsed_time(params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeoff = 0;
 
@@ -1247,7 +1247,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     } else {
         delay_tx++;
         next_tx_delay = params->aggregate_timeoff
-                - _lora_time.TimerGetElapsedTime(params->last_aggregate_tx_time);
+                - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (channel_count > 0) {

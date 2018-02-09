@@ -153,7 +153,7 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     _compliance_test.app_data_buffer = compliance_test_buffer;
 #endif
 
-    _lora_time.TimerTimeCounterInit(queue);
+    _lora_time.activate_timer_subsystem(queue);
     _loramac.LoRaMacInitialization(&LoRaMacPrimitives, &_lora_phy, queue);
 
     loramac_mib_req_confirm_t mib_req;
@@ -680,7 +680,7 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
 
     // send user the length of data which is scheduled now.
     // user should take care of the pending data.
-    return (status == LORAWAN_STATUS_OK) ? _tx_msg.f_buffer_size : status;
+    return (status == LORAWAN_STATUS_OK) ? _tx_msg.f_buffer_size : (int16_t) status;
 }
 
 int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,

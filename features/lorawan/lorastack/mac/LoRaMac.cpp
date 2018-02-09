@@ -222,7 +222,7 @@ void LoRaMac::OnRadioTxDone( void )
     get_phy_params_t getPhy;
     phy_param_t phyParam;
     set_band_txdone_params_t txDone;
-    lorawan_time_t curTime = _lora_time.TimerGetCurrentTime( );
+    lorawan_time_t curTime = _lora_time.get_current_time( );
     loramac_mlme_confirm_t mlme_confirm = mlme.get_confirmation();
 
     if( _params.dev_class != CLASS_C )
@@ -237,16 +237,16 @@ void LoRaMac::OnRadioTxDone( void )
     // Setup timers
     if( _params.is_rx_window_enabled == true )
     {
-        _lora_time.TimerStart( _params.timers.rx_window1_timer, _params.rx_window1_delay );
+        _lora_time.start( _params.timers.rx_window1_timer, _params.rx_window1_delay );
         if( _params.dev_class != CLASS_C )
         {
-            _lora_time.TimerStart( _params.timers.rx_window2_timer, _params.rx_window2_delay );
+            _lora_time.start( _params.timers.rx_window2_timer, _params.rx_window2_delay );
         }
         if( ( _params.dev_class == CLASS_C ) || ( _params.is_node_ack_requested == true ) )
         {
             getPhy.attribute = PHY_ACK_TIMEOUT;
             phyParam = lora_phy->get_phy_params(&getPhy);
-            _lora_time.TimerStart( _params.timers.ack_timeout_timer, _params.rx_window2_delay + phyParam.value );
+            _lora_time.start( _params.timers.ack_timeout_timer, _params.rx_window2_delay + phyParam.value );
         }
     }
     else
@@ -301,7 +301,7 @@ void LoRaMac::PrepareRxDoneAbort( void )
     _params.flags.bits.mac_done = 1;
 
     // Trig OnMacCheckTimerEvent call as soon as possible
-    _lora_time.TimerStart( _params.timers.mac_state_check_timer, 1 );
+    _lora_time.start( _params.timers.mac_state_check_timer, 1 );
 }
 
 void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
@@ -349,7 +349,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
 
     lora_phy->put_radio_to_sleep();
 
-    _lora_time.TimerStop( _params.timers.rx_window2_timer );
+    _lora_time.stop( _params.timers.rx_window2_timer );
 
     macHdr.value = payload[pktHeaderLen++];
 
@@ -702,7 +702,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
 
                             // Stop the AckTimeout timer as no more retransmissions
                             // are needed.
-                            _lora_time.TimerStop( _params.timers.ack_timeout_timer );
+                            _lora_time.stop( _params.timers.ack_timeout_timer );
                         }
                         else
                         {
@@ -712,7 +712,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                             {
                                 // Stop the AckTimeout timer as no more retransmissions
                                 // are needed.
-                                _lora_time.TimerStop( _params.timers.ack_timeout_timer );
+                                _lora_time.stop( _params.timers.ack_timeout_timer );
                             }
                         }
                     }
@@ -750,7 +750,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
     _params.flags.bits.mac_done = 1;
 
     // Trig OnMacCheckTimerEvent call as soon as possible
-    _lora_time.TimerStart( _params.timers.mac_state_check_timer, 1 );
+    _lora_time.start( _params.timers.mac_state_check_timer, 1 );
 }
 
 void LoRaMac::OnRadioTxTimeout( void )
@@ -791,9 +791,9 @@ void LoRaMac::OnRadioRxError( void )
 
         mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
 
-        if( _lora_time.TimerGetElapsedTime( _params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay )
+        if( _lora_time.get_elapsed_time( _params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay )
         {
-            _lora_time.TimerStop( _params.timers.rx_window2_timer );
+            _lora_time.stop( _params.timers.rx_window2_timer );
             _params.flags.bits.mac_done = 1;
         }
     }
@@ -829,9 +829,9 @@ void LoRaMac::OnRadioRxTimeout( void )
         }
         mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
 
-        if( _lora_time.TimerGetElapsedTime( _params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay )
+        if( _lora_time.get_elapsed_time( _params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay )
         {
-            _lora_time.TimerStop( _params.timers.rx_window2_timer );
+            _lora_time.stop( _params.timers.rx_window2_timer );
             _params.flags.bits.mac_done = 1;
         }
     }
@@ -860,7 +860,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
     phy_param_t phyParam;
     bool txTimeout = false;
 
-    _lora_time.TimerStop( _params.timers.mac_state_check_timer );
+    _lora_time.stop( _params.timers.mac_state_check_timer );
 
     if( _params.flags.bits.mac_done == 1 )
     {
@@ -1045,7 +1045,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
     else
     {
         // Operation not finished restart timer
-        _lora_time.TimerStart( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
+        _lora_time.start( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
     }
 
     // Handle MCPS indication
@@ -1078,7 +1078,7 @@ void LoRaMac::OnTxDelayedTimerEvent( void )
 
     lorawan_status_t status = LORAWAN_STATUS_OK;
 
-    _lora_time.TimerStop( _params.timers.tx_delayed_timer );
+    _lora_time.stop( _params.timers.tx_delayed_timer );
     _params.mac_state &= ~LORAMAC_TX_DELAYED;
 
     if( ( _params.flags.bits.mlme_req == 1 ) && ( mlme.get_confirmation().req_type == MLME_JOIN ) )
@@ -1108,7 +1108,7 @@ void LoRaMac::OnTxDelayedTimerEvent( void )
 
 void LoRaMac::OnRxWindow1TimerEvent( void )
 {
-    _lora_time.TimerStop( _params.timers.rx_window1_timer );
+    _lora_time.stop( _params.timers.rx_window1_timer );
     _params.rx_slot= RX_SLOT_WIN_1;
 
     _params.rx_window1_config.channel = _params.channel;
@@ -1129,7 +1129,7 @@ void LoRaMac::OnRxWindow1TimerEvent( void )
 
 void LoRaMac::OnRxWindow2TimerEvent( void )
 {
-    _lora_time.TimerStop( _params.timers.rx_window2_timer );
+    _lora_time.stop( _params.timers.rx_window2_timer );
 
     _params.rx_window2_config.channel = _params.channel;
     _params.rx_window2_config.frequency = _params.sys_params.rx2_channel.frequency;
@@ -1156,7 +1156,7 @@ void LoRaMac::OnRxWindow2TimerEvent( void )
 
 void LoRaMac::OnAckTimeoutTimerEvent( void )
 {
-    _lora_time.TimerStop( _params.timers.ack_timeout_timer );
+    _lora_time.stop( _params.timers.ack_timeout_timer );
 
     if( _params.is_node_ack_requested == true )
     {
@@ -1325,7 +1325,7 @@ lorawan_status_t LoRaMac::ScheduleTx( void )
         _params.mac_state |= LORAMAC_TX_DELAYED;
         tr_debug("Next Transmission in %lu ms", dutyCycleTimeOff);
 
-        _lora_time.TimerStart( _params.timers.tx_delayed_timer, dutyCycleTimeOff );
+        _lora_time.start( _params.timers.tx_delayed_timer, dutyCycleTimeOff );
 
         return LORAWAN_STATUS_OK;
     }
@@ -1339,7 +1339,7 @@ void LoRaMac::CalculateBackOff( uint8_t channel )
     _params.is_dutycycle_on = MBED_CONF_LORA_DUTY_CYCLE_ON;
     calcBackOff.dc_enabled = _params.is_dutycycle_on;
     calcBackOff.channel = channel;
-    calcBackOff.elapsed_time = _lora_time.TimerGetElapsedTime( _params.timers.mac_init_time );
+    calcBackOff.elapsed_time = _lora_time.get_elapsed_time( _params.timers.mac_init_time );
     calcBackOff.tx_toa = _params.timers.tx_toa;
     calcBackOff.last_tx_was_join_req = _params.is_last_tx_join_request;
 
@@ -1668,7 +1668,7 @@ lorawan_status_t LoRaMac::SendFrameOnChannel( uint8_t channel )
     mlme.get_confirmation().tx_toa = _params.timers.tx_toa;
 
     // Starts the MAC layer status check timer
-    _lora_time.TimerStart( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
+    _lora_time.start( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
 
     if( _params.is_nwk_joined == false )
     {
@@ -1697,7 +1697,7 @@ lorawan_status_t LoRaMac::SetTxContinuousWave( uint16_t timeout )
     lora_phy->set_tx_cont_mode(&continuousWave);
 
     // Starts the MAC layer status check timer
-    _lora_time.TimerStart( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
+    _lora_time.start( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
 
     _params.mac_state |= LORAMAC_TX_RUNNING;
 
@@ -1718,7 +1718,7 @@ lorawan_status_t LoRaMac::SetTxContinuousWave1( uint16_t timeout, uint32_t frequ
     lora_phy->set_tx_cont_mode(&continuousWave);
 
     // Starts the MAC layer status check timer
-    _lora_time.TimerStart( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
+    _lora_time.start( _params.timers.mac_state_check_timer, MAC_STATE_CHECK_TIMEOUT );
 
     _params.mac_state |= LORAMAC_TX_RUNNING;
 
@@ -1846,19 +1846,19 @@ lorawan_status_t LoRaMac::LoRaMacInitialization(loramac_primitives_t *primitives
     lora_phy->put_radio_to_sleep();
 
     // Initialize timers
-    _lora_time.TimerInit(_params.timers.mac_state_check_timer,
+    _lora_time.init(_params.timers.mac_state_check_timer,
                          mbed::callback(this, &LoRaMac::handle_mac_state_check_timer_event));
-    _lora_time.TimerInit(_params.timers.tx_delayed_timer,
+    _lora_time.init(_params.timers.tx_delayed_timer,
                          mbed::callback(this, &LoRaMac::handle_delayed_tx_timer_event));
-    _lora_time.TimerInit(_params.timers.rx_window1_timer,
+    _lora_time.init(_params.timers.rx_window1_timer,
                          mbed::callback(this, &LoRaMac::handle_rx1_timer_event));
-    _lora_time.TimerInit(_params.timers.rx_window2_timer,
+    _lora_time.init(_params.timers.rx_window2_timer,
                          mbed::callback(this, &LoRaMac::handle_rx2_timer_event));
-    _lora_time.TimerInit(_params.timers.ack_timeout_timer,
+    _lora_time.init(_params.timers.ack_timeout_timer,
                          mbed::callback(this, &LoRaMac::handle_ack_timeout));
 
     // Store the current initialization time
-    _params.timers.mac_init_time = _lora_time.TimerGetCurrentTime();
+    _params.timers.mac_init_time = _lora_time.get_current_time();
 
     return LORAWAN_STATUS_OK;
 }
@@ -1866,11 +1866,11 @@ lorawan_status_t LoRaMac::LoRaMacInitialization(loramac_primitives_t *primitives
 void LoRaMac::disconnect()
 {
     // Cancel all timers
-    _lora_time.TimerStop(_params.timers.mac_state_check_timer);
-    _lora_time.TimerStop(_params.timers.tx_delayed_timer);
-    _lora_time.TimerStop(_params.timers.rx_window1_timer);
-    _lora_time.TimerStop(_params.timers.rx_window2_timer);
-    _lora_time.TimerStop(_params.timers.ack_timeout_timer);
+    _lora_time.stop(_params.timers.mac_state_check_timer);
+    _lora_time.stop(_params.timers.tx_delayed_timer);
+    _lora_time.stop(_params.timers.rx_window1_timer);
+    _lora_time.stop(_params.timers.rx_window2_timer);
+    _lora_time.stop(_params.timers.ack_timeout_timer);
 
     // Put radio to sleep
     lora_phy->put_radio_to_sleep();
@@ -2110,13 +2110,13 @@ radio_events_t *LoRaMac::GetPhyEventHandlers()
 
 lorawan_status_t LoRaMac::LoRaMacSetTxTimer( uint32_t TxDutyCycleTime )
 {
-    _lora_time.TimerStart(tx_next_packet_timer, TxDutyCycleTime);
+    _lora_time.start(tx_next_packet_timer, TxDutyCycleTime);
     return LORAWAN_STATUS_OK;
 }
 
  lorawan_status_t LoRaMac::LoRaMacStopTxTimer( )
 {
-    _lora_time.TimerStop(tx_next_packet_timer);
+    _lora_time.stop(tx_next_packet_timer);
     return LORAWAN_STATUS_OK;
 }
 

@@ -349,7 +349,7 @@ bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_pra
         channel_masks[0] |= LC(1) + LC(2);
     }
 
-    if (next_channel_prams->aggregate_timeoff <= _lora_time.TimerGetElapsedTime(next_channel_prams->last_aggregate_tx_time)) {
+    if (next_channel_prams->aggregate_timeoff <= _lora_time.get_elapsed_time(next_channel_prams->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeoff = 0;
 
@@ -366,7 +366,7 @@ bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_pra
                                                     enabled_channels, &delay_tx);
     }  else {
         delay_tx++;
-        next_tx_delay = next_channel_prams->aggregate_timeoff - _lora_time.TimerGetElapsedTime(next_channel_prams->last_aggregate_tx_time);
+        next_tx_delay = next_channel_prams->aggregate_timeoff - _lora_time.get_elapsed_time(next_channel_prams->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {
