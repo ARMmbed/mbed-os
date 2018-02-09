@@ -322,8 +322,10 @@ public:
     /** Shuts down the LoRaWAN protocol.
      *
      * In response to the user call for disconnection, the stack shuts down itself.
+     *
+     * @return          LORAWAN_STATUS_DEVICE_OFF on successfully shutdown.
      */
-    void shutdown();
+    lorawan_status_t shutdown();
 
 private:
     LoRaWANStack();
@@ -442,8 +444,10 @@ private:
     LoRaWANTimeHandler _lora_time;
     LoRaMac _loramac;
     LoRaPHY_region _lora_phy;
+    loramac_primitives_t LoRaMacPrimitives;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
+    uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
     compliance_test_t _compliance_test;
 #endif
 

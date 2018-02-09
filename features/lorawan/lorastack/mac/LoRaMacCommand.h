@@ -60,7 +60,7 @@ public:
     /*!
      * \brief Adds a new MAC command to be sent.
      *
-     * \Remark MAC layer internal function
+     * \remark MAC layer internal function
      *
      * \param [in] cmd MAC command to be added
      *                 [MOTE_MAC_LINK_CHECK_REQ,
@@ -131,12 +131,14 @@ public:
 
     /*!
      * \brief Decodes MAC commands in the fOpts field and in the payload
+
+     * \retval status  Function status. LORAWAN_STATUS_OK if command successful.
      */
-    void ProcessMacCommands(uint8_t *payload, uint8_t macIndex,
-                            uint8_t commandsSize, uint8_t snr,
-                            loramac_mlme_confirm_t& MlmeConfirm,
-                            lora_mac_system_params_t& LoRaMacParams,
-                            LoRaPHY& lora_phy);
+    lorawan_status_t ProcessMacCommands(uint8_t *payload, uint8_t macIndex,
+                                        uint8_t commandsSize, uint8_t snr,
+                                        loramac_mlme_confirm_t& MlmeConfirm,
+                                        lora_mac_system_params_t& LoRaMacParams,
+                                        LoRaPHY& lora_phy);
 
     /*!
      * \brief Verifies if sticky MAC commands are pending.

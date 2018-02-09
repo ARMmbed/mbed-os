@@ -69,14 +69,11 @@ public:
      *
      * \details In addition to the initialization of the LoRaMAC layer, this
      *          function initializes the callback primitives of the MCPS and
-     *          MLME services. Every data field of \ref LoRaMacPrimitives_t must be
+     *          MLME services. Every data field of \ref loramac_primitives_t must be
      *          set to a valid callback function.
      *
      * \param   primitives [in] - A pointer to the structure defining the LoRaMAC
-     *                            event functions. Refer to \ref LoRaMacPrimitives_t.
-     *
-     * \param   callbacks [in] - A pointer to the structure defining the LoRaMAC
-     *                        callback functions. Refer to \ref LoRaMacCallback_t.
+     *                            event functions. Refer to \ref loramac_primitives_t.
      *
      * \param   phy [in]- A pointer to the selected PHY layer.
      *
@@ -85,7 +82,6 @@ public:
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     *          \ref LORAWAN_STATUS_REGION_NOT_SUPPORTED.
      */
     lorawan_status_t LoRaMacInitialization(loramac_primitives_t *primitives,
                                           LoRaPHY *phy,
@@ -105,7 +101,7 @@ public:
      *          account and reports when the frame can be sent.
      *
      * \param   size [in]- The size of the applicable payload to be sent next.
-     * \param   txInfo  [out] - The structure \ref LoRaMacTxInfo_t contains
+     * \param   txInfo  [out] - The structure \ref loramac_tx_info_t contains
      *                         information on the actual maximum payload possible
      *                         (according to the configured datarate or the next
      *                         datarate according to ADR), and the maximum frame
@@ -231,7 +227,7 @@ public:
      * }
      * \endcode
      *
-     * \param   [in] mibGet - The MIB-GET request to perform. Refer to \ref MibRequestConfirm_t.
+     * \param   [in] mibGet - The MIB-GET request to perform. Refer to \ref loramac_mib_req_confirm_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
@@ -260,7 +256,7 @@ public:
      * }
      * \endcode
      *
-     * \param   [in] mibSet - The MIB-SET request to perform. Refer to \ref MibRequestConfirm_t.
+     * \param   [in] mibSet - The MIB-SET request to perform. Refer to \ref loramac_mib_req_confirm_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
@@ -304,7 +300,7 @@ public:
      * }
      * \endcode
      *
-     * \param   [in] mlmeRequest - The MLME request to perform. Refer to \ref MlmeReq_t.
+     * \param   [in] mlmeRequest - The MLME request to perform. Refer to \ref loramac_mlme_req_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
@@ -339,7 +335,7 @@ public:
      * }
      * \endcode
      *
-     * \param   [in] mcpsRequest - The MCPS request to perform. Refer to \ref McpsReq_t.
+     * \param   [in] mcpsRequest - The MCPS request to perform. Refer to \ref loramac_mcps_req_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
@@ -369,10 +365,10 @@ public:
     /*!
      * \brief LoRaMAC layer generic send frame
      *
-     * \param [IN] macHdr      MAC header field
-     * \param [IN] fPort       MAC payload port
-     * \param [IN] fBuffer     MAC data buffer to be sent
-     * \param [IN] fBufferSize MAC data buffer size
+     * \param [in] macHdr      MAC header field
+     * \param [in] fPort       MAC payload port
+     * \param [in] fBuffer     MAC data buffer to be sent
+     * \param [in] fBufferSize MAC data buffer size
      * \retval status          Status of the operation.
      */
     lorawan_status_t Send( loramac_mhdr_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
@@ -382,7 +378,7 @@ public:
      *
      * \remark Uses the radio parameters set on the previous transmission.
      *
-     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
+     * \param [in] timeout     Time in seconds while the radio is kept in continuous wave mode
      * \retval status          Status of the operation.
      */
     lorawan_status_t SetTxContinuousWave( uint16_t timeout );
@@ -392,9 +388,9 @@ public:
      *
      * \remark Uses the radio parameters set on the previous transmission.
      *
-     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
-     * \param [IN] frequency   RF frequency to be set.
-     * \param [IN] power       RF output power to be set.
+     * \param [in] timeout     Time in seconds while the radio is kept in continuous wave mode
+     * \param [in] frequency   RF frequency to be set.
+     * \param [in] power       RF output power to be set.
      * \retval status          Status of the operation.
      */
     lorawan_status_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
@@ -549,8 +545,8 @@ private:
     /*!
      * \brief Initializes and opens the reception window
      *
-     * \param [IN] rxContinuous Set to true, if the RX is in continuous mode
-     * \param [IN] maxRxWindow Maximum RX window timeout
+     * \param [in] rxContinuous Set to true, if the RX is in continuous mode
+     * \param [in] maxRxWindow Maximum RX window timeout
      */
     void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow );
 
@@ -575,12 +571,11 @@ private:
     /*!
      * \brief LoRaMAC layer frame buffer initialization
      *
-     * \param [IN] macHdr      MAC header field
-     * \param [IN] fCtrl       MAC frame control field
-     * \param [IN] fOpts       MAC commands buffer
-     * \param [IN] fPort       MAC payload port
-     * \param [IN] fBuffer     MAC data buffer to be sent
-     * \param [IN] fBufferSize MAC data buffer size
+     * \param [in] macHdr      MAC header field
+     * \param [in] fCtrl       MAC frame control field
+     * \param [in] fPort       MAC payload port
+     * \param [in] fBuffer     MAC data buffer to be sent
+     * \param [in] fBufferSize MAC data buffer size
      * \retval status          Status of the operation.
      */
     lorawan_status_t PrepareFrame( loramac_mhdr_t *macHdr, loramac_frame_ctrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
@@ -595,7 +590,7 @@ private:
     /*
      * \brief Calculates the back-off time for the band of a channel.
      *
-     * \param [IN] channel     The last Tx channel index
+     * \param [in] channel     The last Tx channel index
      */
     void CalculateBackOff( uint8_t channel );
 
@@ -605,7 +600,7 @@ private:
      * \remark PrepareFrame must be called at least once before calling this
      *         function.
      *
-     * \param [IN] channel     Channel to transmit on
+     * \param [in] channel     Channel to transmit on
      * \retval status          Status of the operation.
      */
     lorawan_status_t SendFrameOnChannel( uint8_t channel );
@@ -613,7 +608,7 @@ private:
     /*!
      * \brief Resets MAC specific parameters to default
      *
-     * \param [IN] fPort     The fPort
+     * \param [in] fPort     The fPort
      *
      * \retval [false: fPort not allowed, true: fPort allowed]
      */
@@ -687,6 +682,11 @@ private:
      * LoRaMac upper layer event functions
      */
     loramac_primitives_t *LoRaMacPrimitives;
+
+    /**
+     * EventQueue object storage
+     */
+    events::EventQueue *ev_queue;
 };
 
 #endif // __LORAMAC_H__

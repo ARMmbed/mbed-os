@@ -125,8 +125,7 @@ public:
 
     /** Disconnect the current session.
      *
-     * @return         LORAWAN_STATUS_OK on success, a negative error code on
-     *                 failure.
+     * @return         LORAWAN_STATUS_DEVICE_OFF on successfully shutdown.
      */
     virtual lorawan_status_t disconnect();
 

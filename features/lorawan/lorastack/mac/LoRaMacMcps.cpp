@@ -121,7 +121,7 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
 
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX(datarate, phyParam.Value);
+    datarate = MAX(datarate, (int8_t)phyParam.Value);
 
     if (readyToSend == true) {
         if (params->sys_params.adr_on == false) {

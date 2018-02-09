@@ -1,4 +1,5 @@
 /**
+ \code
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
@@ -10,6 +11,7 @@
 \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
 |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
 embedded.connectivity.solutions===============
+\endcode
 
 Description: LoRaWAN stack layer that controls both MAC and PHY underneath
 

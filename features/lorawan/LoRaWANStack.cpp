@@ -107,11 +107,15 @@ LoRaWANStack::LoRaWANStack()
      memset(&_lw_session, 0, sizeof(_lw_session));
      memset(&_tx_msg, 0, sizeof(_tx_msg));
      memset(&_rx_msg, 0, sizeof(_rx_msg));
+
+     LoRaMacPrimitives.mcps_confirm     = callback(this, &LoRaWANStack::mcps_confirm_handler);
+     LoRaMacPrimitives.mcps_indication  = callback(this, &LoRaWANStack::mcps_indication_handler);
+     LoRaMacPrimitives.mlme_confirm     = callback(this, &LoRaWANStack::mlme_confirm_handler);
+     LoRaMacPrimitives.mlme_indication  = callback(this, &LoRaWANStack::mlme_indication_handler);
 }
 
 LoRaWANStack::~LoRaWANStack()
 {
-
 }
 
 /*****************************************************************************
@@ -131,6 +135,7 @@ radio_events_t *LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
     _lora_phy.set_radio_instance(radio);
     return _mac_handlers;
 }
+
 lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
 {
     if (DEVICE_STATE_NOT_INITIALIZED != _device_current_state)
@@ -139,30 +144,19 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
         return LORAWAN_STATUS_OK;
     }
 
-    static loramac_primitives_t LoRaMacPrimitives;
-    static loramac_mib_req_confirm_t mib_req;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    static uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
-#endif
-
     tr_debug("Initializing MAC layer");
 
     //store a pointer to Event Queue
     _queue = queue;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
-    // Allocate memory for compliance test
     _compliance_test.app_data_buffer = compliance_test_buffer;
 #endif
 
     _lora_time.TimerTimeCounterInit(queue);
-
-    LoRaMacPrimitives.mcps_confirm = callback(this, &LoRaWANStack::mcps_confirm_handler);
-    LoRaMacPrimitives.mcps_indication = callback(this, &LoRaWANStack::mcps_indication_handler);
-    LoRaMacPrimitives.mlme_confirm = callback(this, &LoRaWANStack::mlme_confirm_handler);
-    LoRaMacPrimitives.mlme_indication = callback(this, &LoRaWANStack::mlme_indication_handler);
     _loramac.LoRaMacInitialization(&LoRaMacPrimitives, &_lora_phy, queue);
+
+    loramac_mib_req_confirm_t mib_req;
 
     mib_req.type = MIB_ADR;
     mib_req.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
@@ -385,7 +379,6 @@ void LoRaWANStack::mlme_indication_handler(loramac_mlme_indication_t *mlmeIndica
     }
 }
 
-
 void LoRaWANStack::set_lora_callbacks(lorawan_app_callbacks_t *cbs)
 {
     if (cbs) {
@@ -597,6 +590,10 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         return LORAWAN_STATUS_WOULD_BLOCK;
     }
 
+    if (!data && length > 0) {
+        return LORAWAN_STATUS_PARAMETER_INVALID;
+    }
+
 #if defined(LORAWAN_COMPLIANCE_TEST)
     if (_compliance_test.running) {
         return LORAWAN_STATUS_COMPLIANCE_TEST_ON;
@@ -653,7 +650,7 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         _tx_msg.f_buffer_size = length;
         _tx_msg.pending_size = 0;
         // copy user buffer upto the max_possible_size
-        if (data && length > 0) {
+        if (length > 0) {
             memcpy(_tx_msg.f_buffer, data, length);
         }
     }
@@ -679,11 +676,11 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
 
     tr_info("RTS = %u bytes, PEND = %u", _tx_msg.f_buffer_size, _tx_msg.pending_size);
     set_device_state(DEVICE_STATE_SEND);
-    lora_state_machine();
+    status = lora_state_machine();
 
     // send user the length of data which is scheduled now.
     // user should take care of the pending data.
-    return _tx_msg.f_buffer_size;
+    return (status == LORAWAN_STATUS_OK) ? _tx_msg.f_buffer_size : status;
 }
 
 int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
@@ -785,6 +782,8 @@ lorawan_status_t LoRaWANStack::mlme_request_handler(loramac_mlme_req_t *mlme_req
 void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm)
 {
     if (NULL == mlme_confirm) {
+        tr_error("mlme_confirm: struct [in] is null!");
+        MBED_ASSERT(0);
         return;
     }
 
@@ -793,14 +792,20 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm)
             if (mlme_confirm->status == LORAMAC_EVENT_INFO_STATUS_OK) {
                 // Status is OK, node has joined the network
                 set_device_state(DEVICE_STATE_JOINED);
-                lora_state_machine();
+                if (lora_state_machine() != LORAWAN_STATUS_OK) {
+                    tr_error("Lora state machine did not return LORAWAN_STATUS_OK");
+                }
             } else {
                 // Join attempt failed.
                 set_device_state(DEVICE_STATE_IDLE);
-                lora_state_machine();
+                if (lora_state_machine() != LORAWAN_STATUS_IDLE) {
+                    tr_error("Lora state machine did not return DEVICE_STATE_IDLE !");
+                }
 
                 if (_callbacks.events) {
-                    _queue->call(_callbacks.events, JOIN_FAILURE);
+                    const int ret = _queue->call(_callbacks.events, JOIN_FAILURE);
+                    MBED_ASSERT(ret != 0);
+                    (void)ret;
                 }
             }
             break;
@@ -818,15 +823,16 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm)
                 {
                     // normal operation as oppose to compliance testing
                     if (_callbacks.link_check_resp) {
-                        _queue->call(_callbacks.link_check_resp,
-                                     mlme_confirm->demod_margin,
-                                     mlme_confirm->nb_gateways);
+                        const int ret = _queue->call(_callbacks.link_check_resp,
+                                                     mlme_confirm->demod_margin,
+                                                     mlme_confirm->nb_gateways);
+                        MBED_ASSERT(ret != 0);
+                        (void)ret;
                     }
                 }
             }
             break;
         default:
-            return;
             break;
     }
 }
@@ -848,7 +854,8 @@ lorawan_status_t LoRaWANStack::mcps_request_handler(loramac_mcps_req_t *mcps_req
 void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
 {
     if (mcps_confirm == NULL) {
-        tr_error("mcps_confirm: struct [in] is null.");
+        tr_error("mcps_confirm: struct [in] is null!");
+        MBED_ASSERT(0);
         return;
     }
 
@@ -865,7 +872,9 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
         // If sending timed out, we have a special event for that
         if (mcps_confirm->status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT) {
             if (_callbacks.events) {
-                _queue->call(_callbacks.events, TX_TIMEOUT);
+                const int ret = _queue->call(_callbacks.events, TX_TIMEOUT);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
             }
             return;
         } if (mcps_confirm->status == LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT) {
@@ -874,7 +883,9 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
 
         // Otherwise send a general TX_ERROR event
         if (_callbacks.events) {
-            _queue->call(_callbacks.events, TX_ERROR);
+            const int ret = _queue->call(_callbacks.events, TX_ERROR);
+            MBED_ASSERT(ret != 0);
+            (void)ret;
         }
         return;
     }
@@ -896,7 +907,9 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
     _lw_session.uplink_counter = mcps_confirm->ul_frame_counter;
     _tx_msg.tx_ongoing = false;
      if (_callbacks.events) {
-         _queue->call(_callbacks.events, TX_DONE);
+         const int ret = _queue->call(_callbacks.events, TX_DONE);
+         MBED_ASSERT(ret != 0);
+         (void)ret;
      }
 }
 
@@ -914,7 +927,9 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
 
     if (mcps_indication->status != LORAMAC_EVENT_INFO_STATUS_OK) {
         if (_callbacks.events) {
-            _queue->call(_callbacks.events, RX_ERROR);
+            const int ret = _queue->call(_callbacks.events, RX_ERROR);
+            MBED_ASSERT(ret != 0);
+            (void)ret;
         }
         return;
     }
@@ -971,7 +986,9 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                     // to the size 255 bytes
                     tr_debug("Cannot receive more than buffer capacity!");
                     if (_callbacks.events) {
-                        _queue->call(_callbacks.events, RX_ERROR);
+                        const int ret = _queue->call(_callbacks.events, RX_ERROR);
+                        MBED_ASSERT(ret != 0);
+                        (void)ret;
                     }
                     return;
                 } else {
@@ -987,7 +1004,9 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
                 _rx_msg.receive_ready = true;
                 if (_callbacks.events) {
-                    _queue->call(_callbacks.events, RX_DONE);
+                    const int ret = _queue->call(_callbacks.events, RX_DONE);
+                    MBED_ASSERT(ret != 0);
+                    (void)ret;
                 }
 
                 // If fPending bit is set we try to generate an empty packet
@@ -1146,7 +1165,6 @@ lorawan_status_t LoRaWANStack::mib_set_request(loramac_mib_req_confirm_t *mib_se
     if (NULL == mib_set_params) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
-
     return _loramac.LoRaMacMibSetRequestConfirm(mib_set_params);
 }
 
@@ -1155,10 +1173,7 @@ lorawan_status_t LoRaWANStack::mib_get_request(loramac_mib_req_confirm_t *mib_ge
     if(NULL == mib_get_params) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
-
     return _loramac.LoRaMacMibGetRequestConfirm(mib_get_params);
-
-
 }
 
 lorawan_status_t LoRaWANStack::set_link_check_request()
@@ -1174,10 +1189,10 @@ lorawan_status_t LoRaWANStack::set_link_check_request()
     return mlme_request_handler(&mlme_req);
 }
 
-void LoRaWANStack::shutdown()
+lorawan_status_t LoRaWANStack::shutdown()
 {
     set_device_state(DEVICE_STATE_SHUTDOWN);
-    lora_state_machine();
+    return lora_state_machine();
 }
 
 lorawan_status_t LoRaWANStack::lora_state_machine()
@@ -1219,7 +1234,9 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
 
             tr_debug("LoRaWAN protocol has been shut down.");
             if (_callbacks.events) {
-                _queue->call(_callbacks.events, DISCONNECTED);
+                const int ret = _queue->call(_callbacks.events, DISCONNECTED);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
             }
             status = LORAWAN_STATUS_DEVICE_OFF;
             break;
@@ -1254,7 +1271,6 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
                 return LORAWAN_STATUS_CONNECT_IN_PROGRESS;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
-                break;
             }
             break;
         case DEVICE_STATE_JOINED:
@@ -1263,8 +1279,11 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
             _lw_session.active = true;
             // Tell the application that we are connected
             if (_callbacks.events) {
-                _queue->call(_callbacks.events, CONNECTED);
+                const int ret = _queue->call(_callbacks.events, CONNECTED);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
             }
+            status = LORAWAN_STATUS_OK;
             break;
         case DEVICE_STATE_ABP_CONNECTING:
             /*
@@ -1297,7 +1316,9 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
             // Session is now active
             _lw_session.active = true;
             if (_callbacks.events) {
-                _queue->call(_callbacks.events, CONNECTED);
+                const int ret = _queue->call(_callbacks.events, CONNECTED);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
             }
             break;
         case DEVICE_STATE_SEND:
@@ -1315,13 +1336,17 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
                     case LORAWAN_STATUS_CRYPTO_FAIL:
                         tr_error("Crypto failed. Clearing TX buffers");
                         if (_callbacks.events) {
-                            _queue->call(_callbacks.events, TX_CRYPTO_ERROR);
+                            const int ret = _queue->call(_callbacks.events, TX_CRYPTO_ERROR);
+                            MBED_ASSERT(ret != 0);
+                            (void)ret;
                         }
                         break;
                     default:
                         tr_error("Failure to schedule TX!");
                         if (_callbacks.events) {
-                            _queue->call(_callbacks.events, TX_SCHEDULING_ERROR);
+                            const int ret = _queue->call(_callbacks.events, TX_SCHEDULING_ERROR);
+                            MBED_ASSERT(ret != 0);
+                            (void)ret;
                         }
                         break;
                 }

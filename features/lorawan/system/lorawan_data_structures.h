@@ -705,9 +705,9 @@ typedef union {
  *
  * Primitive        | Function
  * ---------------- | :---------------------:
- * MCPS-Request     | \ref LoRaMacMlmeRequest
- * MCPS-Confirm     | MacMcpsConfirm in \ref LoRaMacPrimitives_t
- * MCPS-Indication  | MacMcpsIndication in \ref LoRaMacPrimitives_t
+ * MCPS-Request     | LoRaMacMlmeRequest
+ * MCPS-Confirm     | MacMcpsConfirm in \ref loramac_primitives_t
+ * MCPS-Indication  | MacMcpsIndication in \ref loramac_primitives_t
  */
 typedef enum {
     /*!
@@ -961,9 +961,9 @@ typedef struct {
  *
  * Primitive        | Function
  * ---------------- | :---------------------:
- * MLME-Request     | \ref LoRaMacMlmeRequest
- * MLME-Confirm     | MacMlmeConfirm in \ref LoRaMacPrimitives_t
- * MLME-Indication  | MacMlmeIndication in \ref LoRaMacPrimitives_t
+ * MLME-Request     | LoRaMacMlmeRequest
+ * MLME-Confirm     | MacMlmeConfirm in \ref loramac_primitives_t
+ * MLME-Indication  | MacMlmeIndication in \ref loramac_primitives_t
  */
 typedef enum {
     /*!
@@ -1151,8 +1151,8 @@ typedef struct {
  *
  * Primitive        | Function
  * ---------------- | :---------------------:
- * MIB-Set          | \ref LoRaMacMibSetRequestConfirm
- * MIB-Get          | \ref LoRaMacMibGetRequestConfirm
+ * MIB-Set          | LoRaMacMibSetRequestConfirm
+ * MIB-Get          | LoRaMacMibGetRequestConfirm
  */
 typedef enum {
     /*!

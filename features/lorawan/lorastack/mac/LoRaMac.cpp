@@ -36,10 +36,6 @@ SPDX-License-Identifier: BSD-3-Clause
 
 using namespace events;
 
-/**
- * EventQueue object storage
- */
-static EventQueue *ev_queue;
 
 /*!
  * Maximum length of the fOpts field
@@ -119,6 +115,8 @@ LoRaMac::LoRaMac(LoRaWANTimeHandler &lora_time)
 
     _params.sys_params.adr_on = false;
     _params.sys_params.max_duty_cycle = 0;
+
+    LoRaMacPrimitives = NULL;
 }
 
 LoRaMac::~LoRaMac()
@@ -131,64 +129,88 @@ LoRaMac::~LoRaMac()
  **************************************************************************/
 void LoRaMac::handle_tx_done(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRadioTxDone);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRadioTxDone);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    ev_queue->call(this, &LoRaMac::OnRadioRxDone, payload, size, rssi, snr);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRadioRxDone, payload, size, rssi, snr);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_rx_error(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRadioRxError);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRadioRxError);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_rx_timeout(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRadioRxTimeout);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRadioRxTimeout);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_tx_timeout(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRadioTxTimeout);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRadioTxTimeout);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_cad_done(bool cad)
 {
     //TODO Not implemented yet
-    //ev_queue->call(this, &LoRaMac::OnRadioCadDone, cad);
+    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioCadDone, cad);
+    //MBED_ASSERT(ret != 0);
+    //(void)ret;
 }
 
 void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
 {
     // TODO Not implemented yet
-    //ev_queue->call(this, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
+    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
+    //MBED_ASSERT(ret != 0);
+    //(void)ret;
 }
 
 void LoRaMac::handle_mac_state_check_timer_event(void)
 {
-    ev_queue->call(this, &LoRaMac::OnMacStateCheckTimerEvent);
+    const int ret = ev_queue->call(this, &LoRaMac::OnMacStateCheckTimerEvent);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_delayed_tx_timer_event(void)
 {
-    ev_queue->call(this, &LoRaMac::OnTxDelayedTimerEvent);
+    const int ret = ev_queue->call(this, &LoRaMac::OnTxDelayedTimerEvent);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_ack_timeout()
 {
-    ev_queue->call(this, &LoRaMac::OnAckTimeoutTimerEvent);
+    const int ret = ev_queue->call(this, &LoRaMac::OnAckTimeoutTimerEvent);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_rx1_timer_event(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRxWindow1TimerEvent);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRxWindow1TimerEvent);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 void LoRaMac::handle_rx2_timer_event(void)
 {
-    ev_queue->call(this, &LoRaMac::OnRxWindow2TimerEvent);
+    const int ret = ev_queue->call(this, &LoRaMac::OnRxWindow2TimerEvent);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
 }
 
 /***************************************************************************
@@ -293,7 +315,6 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
     uint8_t pktHeaderLen = 0;
     uint32_t address = 0;
     uint8_t appPayloadStartIndex = 0;
-    uint8_t port = 0xFF;
     uint8_t frameLen = 0;
     uint32_t mic = 0;
     uint32_t micRx = 0;
@@ -596,7 +617,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                     // Process payload and MAC commands
                     if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
                     {
-                        port = payload[appPayloadStartIndex++];
+                        uint8_t port = payload[appPayloadStartIndex++];
                         frameLen = ( size - 4 ) - appPayloadStartIndex;
 
                         mcps.get_indication().port = port;
@@ -617,9 +638,11 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                                 }
 
                                 // Decode frame payload MAC commands
-                                mac_commands.ProcessMacCommands( _params.payload, 0, frameLen, snr,
-                                                                 mlme.get_confirmation(),
-                                                                 _params.sys_params, *lora_phy );
+                                if (mac_commands.ProcessMacCommands( _params.payload, 0, frameLen, snr,
+                                                                     mlme.get_confirmation(),
+                                                                     _params.sys_params, *lora_phy ) != LORAWAN_STATUS_OK ) {
+                                    mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                                }
                             }
                             else
                             {
@@ -631,9 +654,11 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                             if( fCtrl.bits.fopts_len > 0 )
                             {
                                 // Decode Options field MAC commands. Omit the fPort.
-                                mac_commands.ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr,
-                                                                 mlme.get_confirmation(),
-                                                                 _params.sys_params, *lora_phy );
+                                if (mac_commands.ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr,
+                                                                     mlme.get_confirmation(),
+                                                                     _params.sys_params, *lora_phy ) != LORAWAN_STATUS_OK ) {
+                                    mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                                }
                             }
 
                             if (0 != LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
@@ -659,9 +684,11 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         if( fCtrl.bits.fopts_len > 0 )
                         {
                             // Decode Options field MAC commands
-                            mac_commands.ProcessMacCommands( payload, 8, appPayloadStartIndex, snr,
-                                                             mlme.get_confirmation(),
-                                                             _params.sys_params, *lora_phy );
+                            if (mac_commands.ProcessMacCommands( payload, 8, appPayloadStartIndex, snr,
+                                                                 mlme.get_confirmation(),
+                                                                 _params.sys_params, *lora_phy ) != LORAWAN_STATUS_OK ) {
+                                mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                            }
                         }
                     }
 
@@ -1051,6 +1078,8 @@ void LoRaMac::OnTxDelayedTimerEvent( void )
     loramac_frame_ctrl_t fCtrl;
     AlternateDrParams_t altDr;
 
+    lorawan_status_t status = LORAWAN_STATUS_OK;
+
     _lora_time.TimerStop( _params.timers.tx_delayed_timer );
     _params.mac_state &= ~LORAMAC_TX_DELAYED;
 
@@ -1070,10 +1099,14 @@ void LoRaMac::OnTxDelayedTimerEvent( void )
         /* In case of join request retransmissions, the stack must prepare
          * the frame again, because the network server keeps track of the random
          * LoRaMacDevNonce values to prevent reply attacks. */
-        PrepareFrame( &macHdr, &fCtrl, 0, NULL, 0 );
+        status = PrepareFrame( &macHdr, &fCtrl, 0, NULL, 0 );
     }
 
-    ScheduleTx( );
+    if (status == LORAWAN_STATUS_OK) {
+        ScheduleTx( );
+    } else {
+        tr_error("Delayed TX: PrepareFrame returned error %d", status);
+    }
 }
 
 void LoRaMac::OnRxWindow1TimerEvent( void )
@@ -1186,7 +1219,6 @@ void LoRaMac::SetMlmeScheduleUplinkIndication( void )
 lorawan_status_t LoRaMac::Send( loramac_mhdr_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
 {
     loramac_frame_ctrl_t fCtrl;
-    lorawan_status_t status = LORAWAN_STATUS_PARAMETER_INVALID;
 
     fCtrl.value = 0;
     fCtrl.bits.fopts_len     = 0;
@@ -1196,7 +1228,7 @@ lorawan_status_t LoRaMac::Send( loramac_mhdr_t *macHdr, uint8_t fPort, void *fBu
     fCtrl.bits.adr           = _params.sys_params.adr_on;
 
     // Prepare the frame
-    status = PrepareFrame( macHdr, &fCtrl, fPort, fBuffer, fBufferSize );
+    lorawan_status_t status = PrepareFrame( macHdr, &fCtrl, fPort, fBuffer, fBufferSize );
 
     // Validate status
     if( status != LORAWAN_STATUS_OK )

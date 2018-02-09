@@ -84,7 +84,6 @@ public:
      * transmission, until/unless application explicitly turns it off using
      * remove_link_check_request() API.
      *
-     * @param cb        A callback function to receive link check response
      * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
      *                  a negative error code on failure.
      *

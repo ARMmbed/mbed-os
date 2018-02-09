@@ -113,8 +113,7 @@ lorawan_status_t LoRaWANInterface::connect(const lorawan_connect_t &connect)
 
 lorawan_status_t LoRaWANInterface::disconnect()
 {
-    stk_obj().shutdown();
-    return LORAWAN_STATUS_OK;
+    return stk_obj().shutdown();
 }
 
 lorawan_status_t LoRaWANInterface::add_link_check_request()

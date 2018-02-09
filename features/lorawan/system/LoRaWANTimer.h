@@ -70,7 +70,7 @@ public:
      * \brief Starts and adds the timer object to the list of timer events.
      *
      * \param [in] obj The structure containing the timer object parameters.
-     * \param [in] value The new timeout value.
+     * \param [in] timeout The new timeout value.
      */
     void TimerStart( timer_event_t &obj, const uint32_t timeout );
 
