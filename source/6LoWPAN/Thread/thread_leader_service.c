@@ -54,6 +54,7 @@
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
+#include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "6LoWPAN/Thread/thread_host_bootstrap.h"
 #include "6LoWPAN/Thread/thread_border_router_api_internal.h"
@@ -1121,7 +1122,7 @@ send_error_response:
 
 static int thread_leader_service_network_data_register(protocol_interface_info_entry_t *cur, uint8_t *network_data_ptr, uint16_t network_data_length, uint16_t routerId)
 {
-    tr_debug("thread leader Register request");
+    tr_debug("Register network data for %x", routerId);
     // Mark all data to be cleared
     thread_network_data_router_id_mark_delete(&cur->thread_info->networkDataStorage, routerId, true);
 
@@ -1175,8 +1176,8 @@ static int thread_leader_service_register_cb(int8_t service_id, uint8_t source_a
 
     if (2 <= thread_tmfcop_tlv_data_get_uint16(payload_ptr, payload_len, TMFCOP_TLV_RLOC16, &old_rloc)) {
         // This will delete everything from old rloc
+        tr_warn("Remove network data from: %x", old_rloc);
         ret = thread_leader_service_network_data_register(cur, NULL, 0, old_rloc);
-        tr_warn("Removed network data from: %x", old_rloc);
     }
 
     if (!thread_tmfcop_tlv_exist(payload_ptr, payload_len, TMFCOP_TLV_NETWORK_DATA)) {
@@ -1256,6 +1257,9 @@ static int thread_leader_service_leader_init(protocol_interface_info_entry_t *cu
 {
     //Clean All allocated stuff's
     thread_info_t *thread_info = cur->thread_info;
+    // mark and delete previous leader network data information
+    thread_network_data_router_id_mark_delete(&thread_info->networkDataStorage,thread_router_addr_from_id(cur->thread_info->thread_leader_data->leaderRouterId), true);
+    thread_network_data_router_id_free(&thread_info->networkDataStorage, false, cur);
     thread_leader_service_leader_data_free(thread_info);
 
     thread_info->rfc6775 = false;
@@ -1273,14 +1277,16 @@ static int thread_leader_service_leader_init(protocol_interface_info_entry_t *cu
     return thread_leader_service_leader_start(cur);
 }
 
-static void thread_leader_service_leader_data_initialize(thread_leader_data_t *leader_data, uint8_t routerId)
+static void thread_leader_service_leader_data_initialize(protocol_interface_info_entry_t *cur, uint8_t routerId)
 {
-    if (leader_data) {
+    thread_leader_data_t *leader_data = cur->thread_info->thread_leader_data;
+
+    if (cur->thread_info->thread_leader_data) {
         leader_data->partitionId = randLIB_get_32bit(); //Generate Random Instance
         leader_data->leaderRouterId = routerId; //Set leader data to zero by Default
         leader_data->dataVersion = randLIB_get_8bit();
         leader_data->stableDataVersion = randLIB_get_8bit();
-        leader_data->weighting = THREAD_DEFAULT_WEIGHTING;
+        leader_data->weighting = cur->thread_info->partition_weighting;
     }
 }
 
@@ -1302,7 +1308,7 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
 
     routerId = thread_router_id_from_addr(cur->thread_info->routerShortAddress);
 
-    thread_leader_service_leader_data_initialize(cur->thread_info->thread_leader_data, routerId);
+    thread_leader_service_leader_data_initialize(cur, routerId);
     // Test code
     if(cur->thread_info->testRandomPartitionId != 0){
         cur->thread_info->thread_leader_data->partitionId = cur->thread_info->testRandomPartitionId;
@@ -1311,7 +1317,7 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
     thread_leader_service_private_routemask_init(private);
     //SET Router ID
     thread_leader_allocate_router_id_by_allocated_id(private, routerId, cur->mac);
-    thread_old_partition_data_purge(cur->thread_info);
+    thread_old_partition_data_purge(cur);
     cur->lowpan_address_mode = NET_6LOWPAN_GP16_ADDRESS;
     thread_bootstrap_update_ml16_address(cur, cur->thread_info->routerShortAddress);
     thread_generate_ml64_address(cur);
@@ -1507,11 +1513,10 @@ void thread_leader_service_leader_data_free(thread_info_t *thread_info)
 
 void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool newPartition)
 {
-    uint16_t leaderRloc;
     protocol_interface_info_entry_t *cur;
-    link_configuration_s *linkConfiguration;
-    linkConfiguration = thread_joiner_application_get_config(interface_id);
-
+    link_configuration_s *linkConfiguration = thread_joiner_application_get_config(interface_id);
+    uint8_t *parent_mac_addr = NULL;
+    uint16_t leaderRloc;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur || !cur->thread_info) {
@@ -1580,7 +1585,10 @@ void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool
     cur->nwk_mode = ARM_NWK_GP_IP_MODE;
     thread_bootstrap_ready(cur);
     thread_configuration_mle_activate(cur);
-    thread_nvm_store_link_info_file_write(cur);
+    if (cur->thread_info->thread_endnode_parent) {
+        parent_mac_addr = cur->thread_info->thread_endnode_parent->mac64;
+    }
+    thread_nvm_store_link_info_write(parent_mac_addr, mac_helper_mac16_address_get(cur));
 
     if (thread_nd_own_service_list_data_size(&cur->thread_info->localServerDataBase)) {
         // We publish our services if we have some BUG leader cannot remove old ones
@@ -1629,7 +1637,6 @@ int thread_leader_service_thread_partitition_restart(int8_t interface_id, mle_tl
     // Clear network data (if exists) and propagate new empty network data
     thread_network_data_free_and_clean(&cur->thread_info->networkDataStorage);
     thread_network_data_base_init(&cur->thread_info->networkDataStorage);
-    thread_leader_service_network_data_changed(cur, true, true);
     return 0;
 }
 
@@ -1806,6 +1813,5 @@ void thread_leader_service_router_state_changed(thread_info_t *thread_info, uint
         }
     }
 }
-
 
 #endif // HAVE_THREAD_LEADER_SERVICE */

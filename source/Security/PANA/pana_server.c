@@ -741,13 +741,14 @@ static void pana_server_state_machine_func(sec_suite_t *suite)
 #ifdef ECC
             if (sec_auth_re_check(suite)) {
                 bool tx_start_OK = false;
-                if (suite->pana_session.assy_length && suite->pana_session.frag_length) {
+                if (suite->pana_session.assy_length || suite->pana_session.frag_length || suite->pana_session.packet_delivered) {
                     //Build next EAP Packet
                     //tr_debug("TX same again fragment piece");
                     tx_start_OK = pana_eap_frag_re_tx(suite);
 
                 } else {
                     if (tls_pana_server_exchange_build(suite)) {
+                        suite->pana_session.packet_delivered = false;
                         tx_start_OK = true;
                     }
 

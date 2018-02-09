@@ -36,6 +36,7 @@
 #include "RPL/rpl_data.h"
 #endif
 #include "ccmLIB.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "6LoWPAN/Bootstraps/network_lib.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan_bootstrap.h"
@@ -1415,3 +1416,16 @@ void arm_ncache_flush(void)
 {
     nwk_interface_flush_neigh_cache();
 }
+
+int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count)
+{
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (cur) {
+        return lowpan_adaptation_indirect_queue_params_set(cur, big_packet_threshold,
+            big_packets_total_count, small_packets_per_child_count);
+    }
+    return -1;
+}
+
