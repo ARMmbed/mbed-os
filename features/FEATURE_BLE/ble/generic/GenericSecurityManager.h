@@ -268,8 +268,8 @@ private:
      * Fills the buffer with the specified number of bytes of random data
      * produced by the link controller
      *
-     * @param buffer buffer to be filled with random data
-     * @param size number of bytes to fill with random data
+     * @param[out] buffer buffer to be filled with random data
+     * @param[in] size number of bytes to fill with random data
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     ble_error_t get_random_data(uint8_t *buffer, size_t size);
@@ -381,7 +381,7 @@ private:
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] is_master True if device is the master.
-     * @param[in] peer_address_type type of address
+     * @param[in] peer_address_type type of address.
      * @param[in] peer_address Address of the connected device.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
@@ -393,10 +393,20 @@ private:
         const address_t &local_address
     );
 
+    /**
+     * Inform the security manager of a new connection.
+     *
+     * @param[in] params information about the new connection.
+     */
     void connection_callback(
         const Gap::ConnectionCallbackParams_t* params
     );
 
+    /**
+     * Iform the security manager that a connection ended.
+     *
+     * @param[in] params handle and reason of the disconnection.
+     */
     void disconnection_callback(
         const Gap::DisconnectionCallbackParams_t* params
     );
