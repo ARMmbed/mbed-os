@@ -583,6 +583,8 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
     random_data_t random_data;
 
     while (size) {
+        /* fill out the buffer by reading the random data in chunks
+         * and copying it until reaching the set size */
         size_t copy_size = std::max(size, random_data.size());
         ble_error_t ret = _pal.get_random_data(random_data);
         if (ret != BLE_ERROR_NONE) {
@@ -590,6 +592,7 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
         }
         memcpy(buffer, random_data.buffer(), copy_size);
         size -= copy_size;
+        buffer += copy_size;
     }
 
     return BLE_ERROR_NONE;
