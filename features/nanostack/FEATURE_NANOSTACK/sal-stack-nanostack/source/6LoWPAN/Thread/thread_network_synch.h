@@ -58,9 +58,4 @@ int thread_pending_data_delete(int8_t interfaceId);
 void thread_dynamic_storage_device_configuration_read(int8_t interface_id, uint8_t *mac_ptr, uint8_t *mleid_ptr);
 void thread_dynamic_storage_device_configuration_store(int8_t interface_id, uint8_t *mac_ptr, uint8_t *mleid_ptr);
 
-void thread_nvm_store_link_info_file_read();
-bool thread_nvm_store_link_info_get(uint8_t *parent_mac64, uint16_t *my_short_address);
-void thread_nvm_store_link_info_clear();
-void thread_nvm_store_link_info_file_write(protocol_interface_info_entry_t *cur);
-
 #endif /* THREAD_NETWORK_SYNCH_H_ */

@@ -263,22 +263,25 @@ void net_load_balance_internal_state_activate(protocol_interface_info_entry_t *i
 
 }
 
-
+#ifdef HAVE_RPL
+#ifdef HAVE_6LOWPAN_BORDER_ROUTER
 static int8_t net_load_balance_api_get_node_count_cb(void *lb_user, uint16_t *node_count)
 {
-#ifdef HAVE_RPL
     protocol_interface_info_entry_t *interface_ptr = lb_user;
     if (rpl_control_get_instance_dao_target_count(interface_ptr->rpl_domain, 1, NULL, node_count) ) {
         return 0;
     }
-#endif
+
     return -1;
 }
+#endif
+#endif
 
+#ifdef HAVE_RPL
+#ifdef HAVE_6LOWPAN_BORDER_ROUTER
 static int8_t net_load_balance_api_get_set_load_level_cb(void *lb_user, uint8_t load_level)
 {
     //Call DODAG preference
-#ifdef HAVE_RPL
     protocol_interface_info_entry_t *interface_ptr = lb_user;
     if (!interface_ptr->rpl_domain || interface_ptr->rpl_domain != protocol_6lowpan_rpl_domain || !protocol_6lowpan_rpl_root_dodag) {
         return -1;
@@ -290,12 +293,9 @@ static int8_t net_load_balance_api_get_set_load_level_cb(void *lb_user, uint8_t 
 
     rpl_control_set_dodag_pref(protocol_6lowpan_rpl_root_dodag, RPL_DODAG_PREF_MASK - load_level);
     return 0;
-
-#else
-    return -1;
-#endif
 }
-
+#endif
+#endif
 
 int8_t net_load_balance_load_level_update_enable(int8_t interface_id, uint16_t expected_device_count)
 {
