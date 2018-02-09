@@ -52,15 +52,15 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
     get_phy_params_t get_phy;
     phy_param_t phyParam;
     lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
-    loramac_mhdr_t macHdr;
+    loramac_mhdr_t machdr;
     verification_params_t verify;
-    uint8_t fPort = 0;
-    void *fBuffer;
-    uint16_t fBufferSize;
+    uint8_t fport = 0;
+    void *fbuffer;
+    uint16_t fbuffer_size;
     int8_t datarate = DR_0;
-    bool readyToSend = false;
+    bool ready_to_send = false;
 
-    macHdr.value = 0;
+    machdr.value = 0;
 
     // Before performing any MCPS request, clear the confirmation structure
     memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
@@ -72,34 +72,34 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
 
     switch (mcpsRequest->type) {
         case MCPS_UNCONFIRMED: {
-            readyToSend = true;
+            ready_to_send = true;
             params->max_ack_timeout_retries = 1;
 
-            macHdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            fPort = mcpsRequest->req.unconfirmed.fport;
-            fBuffer = mcpsRequest->f_buffer;
-            fBufferSize = mcpsRequest->f_buffer_size;
+            machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
+            fport = mcpsRequest->req.unconfirmed.fport;
+            fbuffer = mcpsRequest->f_buffer;
+            fbuffer_size = mcpsRequest->f_buffer_size;
             datarate = mcpsRequest->req.unconfirmed.data_rate;
             break;
         }
         case MCPS_CONFIRMED: {
-            readyToSend = true;
+            ready_to_send = true;
             params->max_ack_timeout_retries = mcpsRequest->req.confirmed.nb_trials;
 
-            macHdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
-            fPort = mcpsRequest->req.confirmed.fport;
-            fBuffer = mcpsRequest->f_buffer;
-            fBufferSize = mcpsRequest->f_buffer_size;
+            machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
+            fport = mcpsRequest->req.confirmed.fport;
+            fbuffer = mcpsRequest->f_buffer;
+            fbuffer_size = mcpsRequest->f_buffer_size;
             datarate = mcpsRequest->req.confirmed.data_rate;
             break;
         }
         case MCPS_PROPRIETARY: {
-            readyToSend = true;
+            ready_to_send = true;
             params->max_ack_timeout_retries = 1;
 
-            macHdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
-            fBuffer = mcpsRequest->f_buffer;
-            fBufferSize = mcpsRequest->f_buffer_size;
+            machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
+            fbuffer = mcpsRequest->f_buffer;
+            fbuffer_size = mcpsRequest->f_buffer_size;
             datarate = mcpsRequest->req.proprietary.data_rate;
             break;
         }
@@ -122,7 +122,7 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
     // Some regions have limitations for the minimum datarate.
     datarate = MAX(datarate, (int8_t)phyParam.value);
 
-    if (readyToSend == true) {
+    if (ready_to_send == true) {
         if (params->sys_params.adr_on == false) {
             verify.datarate = datarate;
 
@@ -133,7 +133,7 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
             }
         }
 
-        status = _lora_mac->Send(&macHdr, fPort, fBuffer, fBufferSize);
+        status = _lora_mac->send(&machdr, fport, fbuffer, fbuffer_size);
         if (status == LORAWAN_STATUS_OK) {
             confirmation.req_type = mcpsRequest->type;
             params->flags.bits.mcps_req = 1;

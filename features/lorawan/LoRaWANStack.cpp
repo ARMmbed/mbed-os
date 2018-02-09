@@ -130,7 +130,7 @@ LoRaWANStack& LoRaWANStack::get_lorawan_stack()
 radio_events_t *LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
 {
     // Store pointer to callback routines inside MAC layer (non-IRQ safe)
-    _mac_handlers = _loramac.GetPhyEventHandlers();
+    _mac_handlers = _loramac.get_phy_event_handlers();
     //  passes the reference to radio driver down to PHY layer
     _lora_phy.set_radio_instance(radio);
     return _mac_handlers;
@@ -154,7 +154,7 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
 #endif
 
     _lora_time.activate_timer_subsystem(queue);
-    _loramac.LoRaMacInitialization(&LoRaMacPrimitives, &_lora_phy, queue);
+    _loramac.initialize(&LoRaMacPrimitives, &_lora_phy, queue);
 
     loramac_mib_req_confirm_t mib_req;
 
@@ -267,7 +267,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 uint16_t LoRaWANStack::check_possible_tx_size(uint16_t size)
 {
     loramac_tx_info_t tx_info;
-    if (_loramac.LoRaMacQueryTxPossible(size, &tx_info) == LORAWAN_STATUS_LENGTH_ERROR) {
+    if (_loramac.query_tx_possible(size, &tx_info) == LORAWAN_STATUS_LENGTH_ERROR) {
         // Cannot transmit this much. Return how much data can be sent
         // at the moment
         return tx_info.max_possible_payload_size;
@@ -404,7 +404,7 @@ lorawan_status_t LoRaWANStack::add_channels(const lorawan_channelplan_t &channel
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    return _loramac.AddChannelPlan(channel_plan);
+    return _loramac.add_channel_plan(channel_plan);
 }
 
 lorawan_status_t LoRaWANStack::drop_channel_list()
@@ -414,7 +414,7 @@ lorawan_status_t LoRaWANStack::drop_channel_list()
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    return _loramac.RemoveChannelPlan();
+    return _loramac.remove_channel_plan();
 }
 
 lorawan_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
@@ -425,7 +425,7 @@ lorawan_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    return _loramac.RemoveSingleChannel(channel_id);
+    return _loramac.remove_single_channel(channel_id);
 }
 
 lorawan_status_t LoRaWANStack::get_enabled_channels(lorawan_channelplan_t& channel_plan)
@@ -438,7 +438,7 @@ lorawan_status_t LoRaWANStack::get_enabled_channels(lorawan_channelplan_t& chann
         return LORAWAN_STATUS_BUSY;
     }
 
-  return _loramac.GetChannelPlan(channel_plan);
+  return _loramac.get_channel_plan(channel_plan);
 }
 
 lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
@@ -771,7 +771,7 @@ lorawan_status_t LoRaWANStack::mlme_request_handler(loramac_mlme_req_t *mlme_req
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    return _loramac.LoRaMacMlmeRequest(mlme_request);
+    return _loramac.mlme_request(mlme_request);
 }
 
 /** MLME-Confirm event function
@@ -843,7 +843,7 @@ lorawan_status_t LoRaWANStack::mcps_request_handler(loramac_mcps_req_t *mcps_req
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    return _loramac.LoRaMacMcpsRequest(mcps_request);
+    return _loramac.mcps_request(mcps_request);
 }
 
 /** MCPS-Confirm event function
@@ -1154,7 +1154,7 @@ lorawan_status_t LoRaWANStack::mib_set_request(loramac_mib_req_confirm_t *mib_se
     if (NULL == mib_set_params) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
-    return _loramac.LoRaMacMibSetRequestConfirm(mib_set_params);
+    return _loramac.mib_set_request_confirm(mib_set_params);
 }
 
 lorawan_status_t LoRaWANStack::mib_get_request(loramac_mib_req_confirm_t *mib_get_params)
@@ -1162,7 +1162,7 @@ lorawan_status_t LoRaWANStack::mib_get_request(loramac_mib_req_confirm_t *mib_ge
     if(NULL == mib_get_params) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
-    return _loramac.LoRaMacMibGetRequestConfirm(mib_get_params);
+    return _loramac.mib_get_request_confirm(mib_get_params);
 }
 
 lorawan_status_t LoRaWANStack::set_link_check_request()

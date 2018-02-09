@@ -41,251 +41,253 @@
 /**
  * MIC field computation initial data
  */
-static uint8_t MicBlockB0[] = { 0x49, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-                              };
+static uint8_t mic_block_b0[] = {0x49, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 /**
  * Contains the computed MIC field.
  *
  * \remark Only the 4 first bytes are used
  */
-static uint8_t Mic[16];
+static uint8_t computed_mic[16];
 
 /**
  * Encryption aBlock and sBlock
  */
-static uint8_t aBlock[] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-                          };
-static uint8_t sBlock[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-                          };
+static uint8_t a_block[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+static uint8_t s_block[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 /**
  * AES computation context variable
  */
-static mbedtls_aes_context AesContext;
+static mbedtls_aes_context aes_ctx;
 
 /**
  * CMAC computation context variable
  */
-static mbedtls_cipher_context_t AesCmacCtx[1];
+static mbedtls_cipher_context_t aes_cmac_ctx[1];
 
 #define AES_CMAC_KEY_LENGTH     16
 
-/**
- * \brief Computes the LoRaMAC frame MIC field
- *
- * \param [in]  buffer          Data buffer
- * \param [in]  size            Data buffer size
- * \param [in]  key             AES key to be used
- * \param [in]  address         Frame address
- * \param [in]  dir             Frame direction [0: uplink, 1: downlink]
- * \param [in]  sequenceCounter Frame sequence counter
- * \param [out] mic Computed MIC field
- */
-int LoRaMacComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint32_t *mic )
+int compute_mic(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                uint32_t address, uint8_t dir, uint32_t seq_counter,
+                uint32_t *mic)
 {
 
     int ret = 0;
 
-    MicBlockB0[5] = dir;
+    mic_block_b0[5] = dir;
 
-    MicBlockB0[6] = ( address ) & 0xFF;
-    MicBlockB0[7] = ( address >> 8 ) & 0xFF;
-    MicBlockB0[8] = ( address >> 16 ) & 0xFF;
-    MicBlockB0[9] = ( address >> 24 ) & 0xFF;
+    mic_block_b0[6] = (address) & 0xFF;
+    mic_block_b0[7] = (address >> 8) & 0xFF;
+    mic_block_b0[8] = (address >> 16) & 0xFF;
+    mic_block_b0[9] = (address >> 24) & 0xFF;
 
-    MicBlockB0[10] = ( sequenceCounter ) & 0xFF;
-    MicBlockB0[11] = ( sequenceCounter >> 8 ) & 0xFF;
-    MicBlockB0[12] = ( sequenceCounter >> 16 ) & 0xFF;
-    MicBlockB0[13] = ( sequenceCounter >> 24 ) & 0xFF;
+    mic_block_b0[10] = (seq_counter) & 0xFF;
+    mic_block_b0[11] = (seq_counter >> 8) & 0xFF;
+    mic_block_b0[12] = (seq_counter >> 16) & 0xFF;
+    mic_block_b0[13] = (seq_counter >> 24) & 0xFF;
 
-    MicBlockB0[15] = size & 0xFF;
+    mic_block_b0[15] = size & 0xFF;
 
-    mbedtls_cipher_init(AesCmacCtx);
+    mbedtls_cipher_init(aes_cmac_ctx);
+
     const mbedtls_cipher_info_t* cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
+
     if (NULL != cipher_info) {
-        ret = mbedtls_cipher_setup(AesCmacCtx, cipher_info);
+        ret = mbedtls_cipher_setup(aes_cmac_ctx, cipher_info);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_starts(AesCmacCtx, key, AES_CMAC_KEY_LENGTH*8);
+        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key,
+                                         AES_CMAC_KEY_LENGTH * 8);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_update(AesCmacCtx, MicBlockB0, LORAMAC_MIC_BLOCK_B0_SIZE);
+        ret = mbedtls_cipher_cmac_update(aes_cmac_ctx, mic_block_b0,
+                                         LORAMAC_MIC_BLOCK_B0_SIZE);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_update(AesCmacCtx, buffer, size & 0xFF);
+        ret = mbedtls_cipher_cmac_update(aes_cmac_ctx, buffer, size & 0xFF);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_finish(AesCmacCtx, Mic);
+        ret = mbedtls_cipher_cmac_finish(aes_cmac_ctx, computed_mic);
         if (0 != ret)
             goto exit;
 
-        *mic = ( uint32_t )( ( uint32_t )Mic[3] << 24 | ( uint32_t )Mic[2] << 16 | ( uint32_t )Mic[1] << 8 | ( uint32_t )Mic[0] );
+        *mic = (uint32_t) ((uint32_t) computed_mic[3] << 24
+                | (uint32_t) computed_mic[2] << 16
+                | (uint32_t) computed_mic[1] << 8 | (uint32_t) computed_mic[0]);
     } else {
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
 
-exit:
-    mbedtls_cipher_free( AesCmacCtx );
+exit: mbedtls_cipher_free(aes_cmac_ctx);
     return ret;
 }
 
-int LoRaMacPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *encBuffer )
+int encrypt_payload(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                    uint32_t address, uint8_t dir, uint32_t seq_counter,
+                    uint8_t *enc_buffer)
 {
     uint16_t i;
     uint8_t bufferIndex = 0;
     uint16_t ctr = 1;
     int ret = 0;
 
-    mbedtls_aes_init(&AesContext);
-    ret = mbedtls_aes_setkey_enc(&AesContext, key, 16*8);
+    mbedtls_aes_init(&aes_ctx);
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, 16 * 8);
     if (0 != ret)
         goto exit;
 
-    aBlock[5] = dir;
+    a_block[5] = dir;
 
-    aBlock[6] = ( address ) & 0xFF;
-    aBlock[7] = ( address >> 8 ) & 0xFF;
-    aBlock[8] = ( address >> 16 ) & 0xFF;
-    aBlock[9] = ( address >> 24 ) & 0xFF;
+    a_block[6] = (address) & 0xFF;
+    a_block[7] = (address >> 8) & 0xFF;
+    a_block[8] = (address >> 16) & 0xFF;
+    a_block[9] = (address >> 24) & 0xFF;
 
-    aBlock[10] = ( sequenceCounter ) & 0xFF;
-    aBlock[11] = ( sequenceCounter >> 8 ) & 0xFF;
-    aBlock[12] = ( sequenceCounter >> 16 ) & 0xFF;
-    aBlock[13] = ( sequenceCounter >> 24 ) & 0xFF;
+    a_block[10] = (seq_counter) & 0xFF;
+    a_block[11] = (seq_counter >> 8) & 0xFF;
+    a_block[12] = (seq_counter >> 16) & 0xFF;
+    a_block[13] = (seq_counter >> 24) & 0xFF;
 
-    while( size >= 16 )
-    {
-        aBlock[15] = ( ( ctr ) & 0xFF );
+    while (size >= 16) {
+        a_block[15] = ((ctr) & 0xFF);
         ctr++;
-        ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, aBlock, sBlock);
+        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
+                                    s_block);
         if (0 != ret)
             goto exit;
 
-        for( i = 0; i < 16; i++ )
-        {
-            encBuffer[bufferIndex + i] = buffer[bufferIndex + i] ^ sBlock[i];
+        for (i = 0; i < 16; i++) {
+            enc_buffer[bufferIndex + i] = buffer[bufferIndex + i] ^ s_block[i];
         }
         size -= 16;
         bufferIndex += 16;
     }
 
-    if( size > 0 )
-    {
-        aBlock[15] = ( ( ctr ) & 0xFF );
-        ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, aBlock, sBlock);
+    if (size > 0) {
+        a_block[15] = ((ctr) & 0xFF);
+        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
+                                    s_block);
         if (0 != ret)
             goto exit;
 
-        for( i = 0; i < size; i++ )
-        {
-            encBuffer[bufferIndex + i] = buffer[bufferIndex + i] ^ sBlock[i];
+        for (i = 0; i < size; i++) {
+            enc_buffer[bufferIndex + i] = buffer[bufferIndex + i] ^ s_block[i];
         }
     }
 
-exit:
-    mbedtls_aes_free(&AesContext);
+exit: mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
-int LoRaMacPayloadDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *decBuffer )
+int decrypt_payload(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                    uint32_t address, uint8_t dir, uint32_t seq_counter,
+                    uint8_t *dec_buffer)
 {
-    return LoRaMacPayloadEncrypt( buffer, size, key, address, dir, sequenceCounter, decBuffer );
+    return encrypt_payload(buffer, size, key, address, dir, seq_counter,
+                           dec_buffer);
 }
 
-int LoRaMacJoinComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic )
+int compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
+                           const uint8_t *key, uint32_t *mic)
 {
     int ret = 0;
 
-    mbedtls_cipher_init(AesCmacCtx);
+    mbedtls_cipher_init(aes_cmac_ctx);
     const mbedtls_cipher_info_t* cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
+
     if (NULL != cipher_info) {
-        ret = mbedtls_cipher_setup(AesCmacCtx, cipher_info);
+        ret = mbedtls_cipher_setup(aes_cmac_ctx, cipher_info);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_starts(AesCmacCtx, key, AES_CMAC_KEY_LENGTH*8);
+        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key,
+                                         AES_CMAC_KEY_LENGTH * 8);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_update(AesCmacCtx, buffer, size & 0xFF);
+        ret = mbedtls_cipher_cmac_update(aes_cmac_ctx, buffer, size & 0xFF);
         if (0 != ret)
             goto exit;
 
-        ret = mbedtls_cipher_cmac_finish(AesCmacCtx, Mic);
+        ret = mbedtls_cipher_cmac_finish(aes_cmac_ctx, computed_mic);
         if (0 != ret)
             goto exit;
 
-        *mic = ( uint32_t )( ( uint32_t )Mic[3] << 24 | ( uint32_t )Mic[2] << 16 | ( uint32_t )Mic[1] << 8 | ( uint32_t )Mic[0] );
+        *mic = (uint32_t) ((uint32_t) computed_mic[3] << 24
+                | (uint32_t) computed_mic[2] << 16
+                | (uint32_t) computed_mic[1] << 8 | (uint32_t) computed_mic[0]);
     } else {
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
 
-exit:
-    mbedtls_cipher_free(AesCmacCtx);
+exit: mbedtls_cipher_free(aes_cmac_ctx);
     return ret;
 }
 
-int LoRaMacJoinDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer )
+int decrypt_join_frame(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                       uint8_t *dec_buffer)
 {
     int ret = 0;
 
-    mbedtls_aes_init(&AesContext);
+    mbedtls_aes_init(&aes_ctx);
 
-    ret = mbedtls_aes_setkey_enc(&AesContext, key, 16*8);
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, 16 * 8);
     if (0 != ret)
         goto exit;
 
-    ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, buffer, decBuffer);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, buffer,
+                                dec_buffer);
     if (0 != ret)
         goto exit;
 
     // Check if optional CFList is included
-    if( size >= 16 )
-    {
-        ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, buffer + 16, decBuffer + 16);
+    if (size >= 16) {
+        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, buffer + 16,
+                                    dec_buffer + 16);
     }
 
-exit:
-    mbedtls_aes_free(&AesContext);
+exit: mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
-int LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey )
+int compute_skeys_for_join_frame(const uint8_t *key, const uint8_t *app_nonce,
+                                 uint16_t dev_nonce, uint8_t *nwk_skey,
+                                 uint8_t *app_skey)
 {
     uint8_t nonce[16];
-    uint8_t *pDevNonce = ( uint8_t * )&devNonce;
+    uint8_t *p_dev_nonce = (uint8_t *) &dev_nonce;
     int ret = 0;
 
-    mbedtls_aes_init(&AesContext);
+    mbedtls_aes_init(&aes_ctx);
 
-    ret = mbedtls_aes_setkey_enc(&AesContext, key, 16*8);
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, 16 * 8);
     if (0 != ret)
         goto exit;
 
-    memset( nonce, 0, sizeof( nonce ) );
+    memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x01;
-    memcpy( nonce + 1, appNonce, 6 );
-    memcpy( nonce + 7, pDevNonce, 2 );
-    ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, nonce, nwkSKey);
+    memcpy(nonce + 1, app_nonce, 6);
+    memcpy(nonce + 7, p_dev_nonce, 2);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, nwk_skey);
     if (0 != ret)
         goto exit;
 
-    memset( nonce, 0, sizeof( nonce ) );
+    memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x02;
-    memcpy( nonce + 1, appNonce, 6 );
-    memcpy( nonce + 7, pDevNonce, 2 );
-    ret = mbedtls_aes_crypt_ecb(&AesContext, MBEDTLS_AES_ENCRYPT, nonce, appSKey);
+    memcpy(nonce + 1, app_nonce, 6);
+    memcpy(nonce + 7, p_dev_nonce, 2);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, app_skey);
 
-exit:
-    mbedtls_aes_free(&AesContext);
+    exit: mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 #else
@@ -294,8 +296,8 @@ exit:
 // user knows what is wrong and in addition to that these ensure that
 // Mbed-OS compiles properly under normal conditions where LoRaWAN in conjunction
 // with mbedTLS is not being used.
-int LoRaMacComputeMic( const uint8_t *, uint16_t , const uint8_t *, uint32_t,
-                       uint8_t dir, uint32_t, uint32_t * )
+int compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
+                uint8_t dir, uint32_t, uint32_t *)
 {
     MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -303,8 +305,8 @@ int LoRaMacComputeMic( const uint8_t *, uint16_t , const uint8_t *, uint32_t,
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacPayloadEncrypt( const uint8_t *, uint16_t , const uint8_t *, uint32_t,
-                           uint8_t , uint32_t , uint8_t * )
+int encrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
+                    uint8_t , uint32_t , uint8_t *)
 {
     MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -312,15 +314,8 @@ int LoRaMacPayloadEncrypt( const uint8_t *, uint16_t , const uint8_t *, uint32_t
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacPayloadDecrypt( const uint8_t *, uint16_t , const uint8_t *, uint32_t,
-                           uint8_t , uint32_t , uint8_t * )
-{
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
-
-    // Never actually reaches here
-    return LORAWAN_STATUS_CRYPTO_FAIL;
-}
-int LoRaMacJoinComputeMic( const uint8_t *, uint16_t , const uint8_t *, uint32_t * )
+int decrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
+                    uint8_t , uint32_t , uint8_t *)
 {
     MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -328,7 +323,7 @@ int LoRaMacJoinComputeMic( const uint8_t *, uint16_t , const uint8_t *, uint32_t
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacJoinDecrypt( const uint8_t *, uint16_t , const uint8_t *, uint8_t * )
+int compute_join_frame_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t *)
 {
     MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -336,7 +331,16 @@ int LoRaMacJoinDecrypt( const uint8_t *, uint16_t , const uint8_t *, uint8_t * )
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacJoinComputeSKeys( const uint8_t *, const uint8_t *, uint16_t , uint8_t *, uint8_t * )
+int decrypt_join_frame(const uint8_t *, uint16_t , const uint8_t *, uint8_t *)
+{
+    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+
+    // Never actually reaches here
+    return LORAWAN_STATUS_CRYPTO_FAIL;
+}
+
+int compute_skeys_for_join_frame(const uint8_t *, const uint8_t *, uint16_t ,
+                                 uint8_t *, uint8_t *)
 {
     MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 

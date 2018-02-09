@@ -368,7 +368,7 @@ typedef struct multicast_params_s {
     /*!
      * A reference pointer to the next multicast channel parameters in the list.
      */
-    struct multicast_params_s *Next;
+    struct multicast_params_s *next;
 } multicast_params_t;
 
 /*!

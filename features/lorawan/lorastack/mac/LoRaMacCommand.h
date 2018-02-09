@@ -51,129 +51,130 @@
 
 class LoRaMac;
 
-class LoRaMacCommand
-{
+class LoRaMacCommand {
+
 public:
     LoRaMacCommand(LoRaMac &lora_mac);
     ~LoRaMacCommand();
 
-    /*!
-     * \brief Adds a new MAC command to be sent.
+    /**
+     * @brief Adds a new MAC command to be sent.
      *
-     * \remark MAC layer internal function
+     * @remark MAC layer internal function
      *
-     * \param [in] cmd MAC command to be added
-     *                 [MOTE_MAC_LINK_CHECK_REQ,
-     *                  MOTE_MAC_LINK_ADR_ANS,
-     *                  MOTE_MAC_DUTY_CYCLE_ANS,
-     *                  MOTE_MAC_RX2_PARAM_SET_ANS,
-     *                  MOTE_MAC_DEV_STATUS_ANS
-     *                  MOTE_MAC_NEW_CHANNEL_ANS]
-     * \param [in] p1  1st parameter ( optional depends on the command )
-     * \param [in] p2  2nd parameter ( optional depends on the command )
+     * @param [in] cmd    MAC command to be added
+     *                    [MOTE_MAC_LINK_CHECK_REQ,
+     *                     MOTE_MAC_LINK_ADR_ANS,
+     *                     MOTE_MAC_DUTY_CYCLE_ANS,
+     *                     MOTE_MAC_RX2_PARAM_SET_ANS,
+     *                     MOTE_MAC_DEV_STATUS_ANS
+     *                     MOTE_MAC_NEW_CHANNEL_ANS]
+     * @param [in] p1  1st parameter (optional depends on the command)
+     * @param [in] p2  2nd parameter (optional depends on the command)
      *
-     * \retval status  Function status [0: OK, 1: Unknown command, 2: Buffer full]
+     * @return status  Function status [0: OK, 1: Unknown command, 2: Buffer full]
      */
-    lorawan_status_t AddMacCommand(uint8_t cmd, uint8_t p1, uint8_t p2);
+    lorawan_status_t add_mac_command(uint8_t cmd, uint8_t p1, uint8_t p2);
 
-    /*!
-     * \brief Clear MAC command buffer.
+    /**
+     * @brief Clear MAC command buffer.
      */
-    void ClearCommandBuffer();
+    void clear_command_buffer(void);
 
-    /*!
-     * \brief Get the length of MAC commands
+    /**
+     * @brief Get the length of MAC commands
      *
-     * \retval status  Length of used MAC buffer (bytes)
+     * @return status    Length of used MAC buffer (bytes)
      */
-    uint8_t GetLength() const;
+    uint8_t get_mac_cmd_length() const;
 
-    /*!
-     * \brief Get MAC command buffer
+    /**
+     * @brief Get MAC command buffer
      *
-     * \retval  Pointer to MAC command buffer
+     * @return    Pointer to MAC command buffer
      */
-    uint8_t *GetMacCommandsBuffer();
+    uint8_t *get_mac_commands_buffer();
 
-    /*!
-     * \brief Parses the MAC commands which must be resent.
+    /**
+     * @brief Parses the MAC commands which must be resent.
      */
-    void ParseMacCommandsToRepeat();
+    void parse_mac_commands_to_repeat();
 
-    /*!
-     * \brief Clear  MAC command repeat buffer.
+    /**
+     * @brief Clear  MAC command repeat buffer.
      */
-    void ClearRepeatBuffer();
+    void clear_repeat_buffer();
 
-    /*!
-     * \brief Copy MAC commands from repeat buffer to actual MAC command buffer.
+    /**
+     * @brief Copy MAC commands from repeat buffer to actual MAC command buffer.
      */
-    void CopyRepeatCommandsToBuffer();
+    void copy_repeat_commands_to_buffer();
 
-    /*!
-     * \brief Get the length of MAC commands in repeat buffer
+    /**
+     * @brief Get the length of MAC commands in repeat buffer
      *
-     * \retval status  Length of used MAC Repeat buffer (bytes)
+     * @return status  Length of used MAC Repeat buffer (bytes)
      */
-    uint8_t GetRepeatLength() const;
+    uint8_t get_repeat_commands_length() const;
 
-    /*!
-     * \brief Clear MAC commands in next TX.
+    /**
+     * @brief Clear MAC commands in next TX.
      */
-    void ClearMacCommandsInNextTx();
+    void clear_mac_commands_in_next_tx();
 
-    /*!
-     * \brief Check if MAC command buffer has commands to be sent in next TX
+    /**
+     * @brief Check if MAC command buffer has commands to be sent in next TX
      *
-      * \retval status  True: buffer has MAC commands to be sent, false: no commands in buffer]
+     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer]
      */
-    bool IsMacCommandsInNextTx() const;
+    bool is_mac_command_in_next_tx() const;
 
-    /*!
-     * \brief Decodes MAC commands in the fOpts field and in the payload
-
-     * \retval status  Function status. LORAWAN_STATUS_OK if command successful.
-     */
-    lorawan_status_t ProcessMacCommands(uint8_t *payload, uint8_t macIndex,
-                                        uint8_t commandsSize, uint8_t snr,
-                                        loramac_mlme_confirm_t& MlmeConfirm,
-                                        lora_mac_system_params_t& LoRaMacParams,
-                                        LoRaPHY& lora_phy);
-
-    /*!
-     * \brief Verifies if sticky MAC commands are pending.
+    /**
+     * @brief Decodes MAC commands in the fOpts field and in the payload
      *
-     * \retval [true: sticky MAC commands pending, false: No MAC commands pending]
+     * @return status  Function status. LORAWAN_STATUS_OK if command successful.
      */
-    bool IsStickyMacCommandPending();
+    lorawan_status_t process_mac_commands(uint8_t *payload, uint8_t mac_index,
+                                          uint8_t commands_size, uint8_t snr,
+                                          loramac_mlme_confirm_t& mlme_conf,
+                                          lora_mac_system_params_t& mac_params,
+                                          LoRaPHY& lora_phy);
+
+    /**
+     * @brief Verifies if sticky MAC commands are pending.
+     *
+     * @return [true: sticky MAC commands pending, false: No MAC commands pending]
+     */
+    bool is_sticky_mac_command_pending();
 
 private:
     LoRaMac& _lora_mac;
 
-    /*!
+    /**
      * Indicates if the MAC layer wants to send MAC commands
      */
-    bool MacCommandsInNextTx;
+    bool mac_cmd_in_next_tx;
 
-    /*!
-     * Contains the current MacCommandsBuffer index
+    /**
+     * Contains the current Mac command buffer index in 'mac_cmd_buffer'
      */
-    uint8_t MacCommandsBufferIndex;
+    uint8_t mac_cmd_buf_idx;
 
-    /*!
-     * Contains the current MacCommandsBuffer index for MAC commands to repeat
+    /**
+     * Contains the current Mac command buffer index for MAC commands to repeat in
+     * 'mac_cmd_buffer_to_repeat'
      */
-    uint8_t MacCommandsBufferToRepeatIndex;
+    uint8_t mac_cmd_buf_idx_to_repeat;
 
-    /*!
+    /**
      * Buffer containing the MAC layer commands
      */
-    uint8_t MacCommandsBuffer[LORA_MAC_COMMAND_MAX_LENGTH];
+    uint8_t mac_cmd_buffer[LORA_MAC_COMMAND_MAX_LENGTH];
 
-    /*!
+    /**
      * Buffer containing the MAC layer commands which must be repeated
      */
-    uint8_t MacCommandsBufferToRepeat[LORA_MAC_COMMAND_MAX_LENGTH];
+    uint8_t mac_cmd_buffer_to_repeat[LORA_MAC_COMMAND_MAX_LENGTH];
 };
 
 #endif //__LORAMACCOMMAND_H__

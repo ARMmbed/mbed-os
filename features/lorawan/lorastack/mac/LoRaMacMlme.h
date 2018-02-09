@@ -66,13 +66,13 @@ public:
      * to the central MAC control. It also modifies or uses protocol information
      * provided in the MAC protocol data structure.
      *
-     * @param mlmeRequest    pointer to MLME request structure
+     * @param request        pointer to MLME request structure
      * @param params         pointer to MAC protocol parameters
      *
      * @return               LORAWAN_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    lorawan_status_t set_request(loramac_mlme_req_t *mlmeRequest, loramac_protocol_params *params);
+    lorawan_status_t set_request(loramac_mlme_req_t *request, loramac_protocol_params *params);
 
     /** Grants access to MLME confirmation data
      *
