@@ -318,14 +318,14 @@ struct octet_type_t {
     /**
      * Return the pointer to the buffer holding data.
      */
-    uint8_t* buffer() const {
+    uint8_t* buffer() {
         return _value;
     }
 
     /**
      * Size in byte of a data.
      */
-    static uint8_t size() {
+    static size_t size() {
         return sizeof(_value);
     }
 

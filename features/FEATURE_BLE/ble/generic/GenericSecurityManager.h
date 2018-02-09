@@ -296,6 +296,16 @@ private:
     ble_error_t init_signing();
 
     /**
+     * Fills the buffer with the specified number of bytes of random data
+     * produced by the link controller
+     *
+     * @param buffer buffer to be filled with random data
+     * @param size number of bytes to fill with random data
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t get_random_data(uint8_t *buffer, size_t size);
+
+    /**
      * Send slave security request based on current link settings.
      *
      * @param[in] connectionHandle Handle to identify the connection.

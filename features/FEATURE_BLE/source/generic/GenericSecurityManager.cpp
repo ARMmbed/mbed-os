@@ -567,11 +567,32 @@ ble_error_t GenericSecurityManager::init_signing() {
     const csrk_t *pcsrk = _db.get_local_csrk();
     if (!pcsrk) {
         csrk_t csrk;
-        /* TODO: generate csrk */
+
+        ble_error_t ret = get_random_data(csrk.buffer(), csrk.size());
+        if (ret != BLE_ERROR_NONE) {
+            return ret;
+        }
+
         pcsrk = &csrk;
         _db.set_local_csrk(pcsrk);
     }
     return _pal.set_csrk(pcsrk);
+}
+
+ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
+    random_data_t random_data;
+
+    while (size) {
+        size_t copy_size = std::max(size, random_data.size());
+        ble_error_t ret = _pal.get_random_data(random_data);
+        if (ret != BLE_ERROR_NONE) {
+            return ret;
+        }
+        memcpy(buffer, random_data.buffer(), copy_size);
+        size -= copy_size;
+    }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
@@ -649,14 +670,13 @@ void GenericSecurityManager::generate_secure_connections_oob(
      address_t local_address;
      oob_confirm_t confirm;
      oob_rand_t random;
-     random_data_t random_data;
 
      /*TODO: get local address*/
 
-     _pal.get_random_data(random_data);
-     memcpy(random.buffer(), random_data.buffer(), random_data_t.size());
-     _pal.get_random_data(random_data);
-     memcpy(random.buffer() + random_data_t.size(), &random_data.buffer(), random_data_t.size());
+     ble_error_t ret = get_random_data(random.buffer(), random.size());
+     if (ret != BLE_ERROR_NONE) {
+         return;
+     }
 
      crypto_toolbox_f4(
          _db.get_public_key_x(),
