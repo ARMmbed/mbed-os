@@ -77,7 +77,7 @@ static void enet_tasklet_main(arm_event_s *event);
 static void enet_tasklet_network_state_changed(mesh_connection_status_t status);
 static void enet_tasklet_parse_network_event(arm_event_s *event);
 static void enet_tasklet_configure_and_connect_to_network(void);
-static void enet_tasklet_poll_network_status();
+static void enet_tasklet_poll_network_status(void *param);
 /*
  * \brief A function which will be eventually called by NanoStack OS when ever the OS has an event to deliver.
  * @param event, describes the sender, receiver and event type.
@@ -148,7 +148,7 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
             if (tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
                 tr_info("IPv6 bootstrap ready");
                 tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
-                enet_tasklet_poll_network_status();
+                enet_tasklet_poll_network_status(NULL);
             }
             break;
         case ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL:
@@ -177,7 +177,7 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
     }
 }
 
-static void enet_tasklet_poll_network_status(void)
+static void enet_tasklet_poll_network_status(void *param)
 {
     /* Check if we do have an IP */
     uint8_t temp_ipv6[16];

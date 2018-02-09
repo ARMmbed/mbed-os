@@ -91,7 +91,7 @@ void thread_tasklet_main(arm_event_s *event);
 void thread_tasklet_network_state_changed(mesh_connection_status_t status);
 void thread_tasklet_parse_network_event(arm_event_s *event);
 void thread_tasklet_configure_and_connect_to_network(void);
-void thread_tasklet_poll_network_status();
+void thread_tasklet_poll_network_status(void *param);
 #define TRACE_THREAD_TASKLET
 #ifndef TRACE_THREAD_TASKLET
 #define thread_tasklet_trace_bootstrap_info() ((void) 0)
@@ -181,7 +181,7 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
                 thread_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
                 thread_tasklet_trace_bootstrap_info();
                 /* We are connected, for Local or Global IP */
-                thread_tasklet_poll_network_status();
+                thread_tasklet_poll_network_status(NULL);
             }
             break;
         case ARM_NWK_NWK_SCAN_FAIL:
@@ -225,7 +225,7 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
     }
 }
 
-void thread_tasklet_poll_network_status()
+void thread_tasklet_poll_network_status(void *param)
 {
     /* Check if we do have an IP */
     uint8_t temp_ipv6[16];
