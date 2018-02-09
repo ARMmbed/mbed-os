@@ -34,9 +34,9 @@
 #ifndef MBED_OS_LORAPHY_BASE_
 #define MBED_OS_LORAPHY_BASE_
 
+#include "lorawan/LoRaRadio.h"
 #include "lorawan/system/LoRaWANTimer.h"
 #include "lorawan/lorastack/phy/lora_phy_ds.h"
-#include "netsocket/LoRaRadio.h"
 #include "platform/NonCopyable.h"
 
 class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {

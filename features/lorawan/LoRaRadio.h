@@ -18,9 +18,8 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
-#include <stdint.h>
+#include "platform/Callback.h"
 #include "PinNames.h"
-#include "Callback.h"
 
 /**
  * Structure to hold RF controls for LoRa Radio.
