@@ -344,6 +344,7 @@ private:
         const csrk_t *csrk
     );
 
+#if defined(MBEDTLS_CMAC_C)
     /**
      * Generate local OOB data to be sent to the application which sends it to the peer.
      *
@@ -352,6 +353,7 @@ private:
     void generate_secure_connections_oob(
         connection_handle_t connection
     );
+#endif
 
     /**
      * Updates the entry for the connection with OOB data presence.

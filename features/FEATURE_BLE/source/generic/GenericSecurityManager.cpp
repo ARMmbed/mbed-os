@@ -492,9 +492,11 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     entry->attempt_oob = useOOB;
     entry->oob_mitm_protection = OOBProvidesMITM;
 
+#if defined(MBEDTLS_CMAC_C)
     if (_public_keys_generated) {
         generate_secure_connections_oob(connection);
     }
+#endif
 
     return BLE_ERROR_NONE;
 }
@@ -640,28 +642,38 @@ void GenericSecurityManager::return_csrk_cb(
     );
 }
 
+#if defined(MBEDTLS_CMAC_C)
 void GenericSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
-#if defined(MBEDTLS_CMAC_C)
      address_t local_address;
-     /*TODO: get local address*/
      oob_confirm_t confirm;
+     oob_rand_t random;
+     random_data_t random_data;
+
+     /*TODO: get local address*/
+
+     _pal.get_random_data(random_data);
+     memcpy(random.buffer(), random_data.buffer(), random_data_t.size());
+     _pal.get_random_data(random_data);
+     memcpy(random.buffer() + random_data_t.size(), &random_data.buffer(), random_data_t.size());
 
      crypto_toolbox_f4(
          _db.get_public_key_x(),
          _db.get_public_key_y(),
-         _db.get_local_sc_oob_random(),
+         random,
          confirm
      );
 
     _app_event_handler->oobGenerated(
         &local_address,
-        &_db.get_local_sc_oob_random(),
+        &random,
         &confirm
     );
-#endif
+
+    _db.set_local_sc_oob_random(random);
 }
+#endif
 
 void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
     SecurityEntry_t *entry = _db.get_entry(connection);

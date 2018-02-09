@@ -316,6 +316,13 @@ struct octet_type_t {
     }
 
     /**
+     * Return the pointer to the buffer holding data.
+     */
+    uint8_t* buffer() const {
+        return _value;
+    }
+
+    /**
      * Size in byte of a data.
      */
     static uint8_t size() {
