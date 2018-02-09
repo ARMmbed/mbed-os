@@ -17,6 +17,9 @@
 #include "SecurityManager.h"
 #include "PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
+#if defined(MBEDTLS_CMAC_C)
+#include "mbedtls/cmac.h"
+#endif
 
 namespace ble {
 namespace generic {
@@ -640,6 +643,7 @@ void GenericSecurityManager::return_csrk_cb(
 void GenericSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
+#if defined(MBEDTLS_CMAC_C)
      address_t local_address;
      /*TODO: get local address*/
      oob_confirm_t confirm;
@@ -656,6 +660,7 @@ void GenericSecurityManager::generate_secure_connections_oob(
         &_db.get_local_sc_oob_random(),
         &confirm
     );
+#endif
 }
 
 void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
@@ -670,22 +675,44 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
     entry->oob_present = entry->attempt_oob;
 
     if (_default_authentication.get_secure_connections()) {
+        entry->oob_present = false;
+#if defined(MBEDTLS_CMAC_C)
         if (entry->peer_address == _db.get_peer_sc_oob_address()) {
             entry->oob_present = true;
-        } else {
-            entry->oob_present = false;
         }
+#endif
     }
 }
 
-void GenericSecurityManager::crypto_toolbox_f4(
+#if defined(MBEDTLS_CMAC_C)
+bool GenericSecurityManager::crypto_toolbox_f4(
     const public_key_t& U,
     const public_key_t& V,
     const oob_rand_t& X,
     oob_confirm_t& confirm
 ) {
 
+    mbedtls_cipher_context_t context;
+    const mbedtls_cipher_info_t *info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
+    const unsigned char Z = 0;
+    bool success = false;
+
+    mbedtls_cipher_init(&context);
+
+    /* it's either this chaining or a goto */
+    if (mbedtls_cipher_setup(&context, info) == 0
+        && mbedtls_cipher_cmac_starts(&context, X.data(), 128) == 0
+        && mbedtls_cipher_cmac_update(&context, U.data(), 16) == 0
+        && mbedtls_cipher_cmac_update(&context, V.data(), 16) == 0
+        && mbedtls_cipher_cmac_update(&context, &Z, 1) == 0
+        && mbedtls_cipher_cmac_finish(&context, &confirm[0]) == 0) {
+        success = true;
+    }
+
+    mbedtls_cipher_free(&context);
+    return success;
 }
+#endif
 
 /* Implements ble::pal::SecurityManagerEventHandler */
 
@@ -892,6 +919,7 @@ void GenericSecurityManager::on_oob_data_verification_request(
     const public_key_t &peer_public_key_x,
     const public_key_t &peer_public_key_y
 ) {
+#if defined(MBEDTLS_CMAC_C)
     SecurityEntry_t *entry = _db.get_entry(connection);
 
     oob_confirm_t confirm_verify;
@@ -920,6 +948,7 @@ void GenericSecurityManager::on_oob_data_verification_request(
     } else {
         _pal.cancel_pairing(connection, pairing_failure_t::CONFIRM_VALUE_FAILED);
     }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////

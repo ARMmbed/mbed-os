@@ -361,6 +361,8 @@ private:
     void update_oob_presence(
         connection_handle_t connection
     );
+
+#if defined(MBEDTLS_CMAC_C)
     /**
      * Calculate the confirmation value for secure connections OOB data based
      * on local public key and a random number.
@@ -370,13 +372,15 @@ private:
      * @param[in] V public key y component
      * @param[in] X random number
      * @param[out] confirm confirmation value
+     * @return true if cryptography functioned worked
      */
-    static void crypto_toolbox_f4(
+    static bool crypto_toolbox_f4(
         const public_key_t& U,
         const public_key_t& V,
         const oob_rand_t& X,
         oob_confirm_t& confirm
     );
+#endif
 
 private:
     ble::pal::SecurityManager& _pal;
