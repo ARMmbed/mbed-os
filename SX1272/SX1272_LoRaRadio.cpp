@@ -1053,7 +1053,7 @@ bool SX1272_LoRaRadio::perform_carrier_sense(radio_modems_t modem,
     elapsed_time.start();
 
     // Perform carrier sense for maxCarrierSenseTime
-    while (elapsed_time.read_ms() < max_carrier_sense_time) {
+    while (elapsed_time.read_ms() < (int)max_carrier_sense_time) {
         rssi = get_rssi(modem);
 
         if (rssi > rssi_threshold) {

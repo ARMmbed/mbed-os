@@ -35,7 +35,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifdef MBED_CONF_RTOS_PRESENT
  #include "rtos/Thread.h"
 #endif
-#include "netsocket/LoRaRadio.h"
+#include "lorawan/LoRaRadio.h"
 
 
 #ifdef MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
