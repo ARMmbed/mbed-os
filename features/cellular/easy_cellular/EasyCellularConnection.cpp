@@ -24,12 +24,13 @@
 
 #include "CellularLog.h"
 
+#include "CellularConnectionUtil.h"
 static CellularConnectionUtil cellularConnection;
-static rtos::Semaphore cellularSemaphore(0);
+static Semaphore cellularSemaphore(0);
 static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_APP_CELLULAR_SERIAL_SPEED);
-
 static int cellular_status(int state, int next_state)
 {
+    printf("cellular_status %d=>%d", state, next_state);
     if (state == CellularConnectionUtil::STATE_READY) {
         MBED_ASSERT(cellularSemaphore.release() == osOK);
     }
@@ -39,24 +40,6 @@ static int cellular_status(int state, int next_state)
 EasyCellularConnection::EasyCellularConnection()
 {
     log_info("EasyCellularConnection start");
-#if defined (MDMRTS) && defined (MDMCTS)
-    log_info("Serial RTS/CTS flow control in use");
-    cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
-#endif
-    cellularConnection.set_serial(&cellularSerial);
-    cellularConnection.set_callback(callback(cellular_status));
-/*    if (cellularConnection.start()) {
-        int ret_wait = cellularSemaphore.wait(180*1000);
-        if (ret_wait == 1) {
-            network_interface = cellularConnection.get_network();
-            if (network_interface) {
-                connect_success = true;
-            }
-            if (log_messages) {
-                printf("[EasyConnect] Cellular connection %s!\n", connect_success?"succesful":"failed");
-            }
-        }
-    }*/
 }
 
 EasyCellularConnection::~EasyCellularConnection()
@@ -74,18 +57,24 @@ void EasyCellularConnection::set_sim_pin(const char *sim_pin)
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
-    /*if (!connected) {
-        wait();
-    }
-    cellularConnection.connect(sim_pin, apn, uname, pwd);*/
-    return 0;
+    return connect();
 }
 
 nsapi_error_t EasyCellularConnection::connect()
 {
-    /*attach();
-    cellularConnection.connect();*/
-    return 0;
+#if defined (MDMRTS) && defined (MDMCTS)
+    cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
+#endif
+    cellularConnection.set_serial(&cellularSerial);
+    cellularConnection.set_callback(callback(cellular_status));
+    if (cellularConnection.start()) {
+        int ret_wait = cellularSemaphore.wait(10*60*1000); // cellular network searching may take several minutes
+        if (ret_wait != 1) {
+            log_error("No cellular connection");
+        }
+    }
+
+    return cellularConnection.get_network()?NSAPI_ERROR_OK:NSAPI_ERROR_NO_CONNECTION;
 }
 
 nsapi_error_t EasyCellularConnection::disconnect()
@@ -100,20 +89,20 @@ bool EasyCellularConnection::is_connected()
 
 const char *EasyCellularConnection::get_ip_address()
 {
-    return 0;
+    return cellularConnection.get_network()->get_ip_address();
 }
 
 const char *EasyCellularConnection::get_netmask()
 {
-    return 0;
+    return cellularConnection.get_network()->get_netmask();
 }
 
 const char *EasyCellularConnection::get_gateway()
 {
-    return 0;
+    return cellularConnection.get_network()->get_gateway();
 }
 
 NetworkStack *EasyCellularConnection::get_stack()
 {
-    return 0;
+    return nsapi_ppp_get_stack();
 }
