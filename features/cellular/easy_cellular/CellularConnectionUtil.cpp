@@ -114,7 +114,7 @@ bool CellularConnectionUtil::open_sim()
 #endif
 }
 
-bool CellularConnectionUtil::run_self_tests()
+void CellularConnectionUtil::device_ready()
 {
     CellularInformation *info = _cellularDevice->open_information(_serial);
 
@@ -128,7 +128,6 @@ bool CellularConnectionUtil::run_self_tests()
     if (info->get_revision(buf, sizeof(buf)) == NSAPI_ERROR_OK) {
         log_info("Cellular device revision: %s", buf);
     }
-    return true;
 }
 
 bool CellularConnectionUtil::open_network()
@@ -152,7 +151,11 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
 {
     is_registered = false;
     bool is_roaming = false;
-    if (_network->get_registration_status(type, status) !=  NSAPI_ERROR_OK) {
+    nsapi_error_t err = _network->get_registration_status(type, status);
+    if (err !=  NSAPI_ERROR_OK) {
+        if (err != NSAPI_ERROR_UNSUPPORTED) {
+            log_warn("Get network registration failed (type %d)!", type);
+        }
         return false;
     }
     switch (status) {
@@ -177,6 +180,9 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
             is_registered = true;
             break;
         case CellularNetwork::AttachedEmergencyOnly:
+            log_warn("Emergency only network registration!");
+            is_registered = true;
+            break;
         case CellularNetwork::RegistrationDenied:
         case CellularNetwork::NotRegistered:
         case CellularNetwork::Unknown:
@@ -238,10 +244,10 @@ void CellularConnectionUtil::event()
             cellularDevice.set_timeout(TIMEOUT_POWER_ON);
             log_info("Cellular power ON (timeout %d ms)", TIMEOUT_POWER_ON);
             if (open_power(_serial)) {
-                _next_state = STATE_SELF_TEST;
+                _next_state = STATE_DEVICE_READY;
             } else {
                 static int retry_count;
-                if (++retry_count < 10) {
+                if (++retry_count <= 10) {
                     log_warn("Power ON retry %d", retry_count);
                     event_timeout = 1000;
                 } else {
@@ -250,16 +256,16 @@ void CellularConnectionUtil::event()
                 }
             }
             break;
-        case STATE_SELF_TEST:
+        case STATE_DEVICE_READY:
             cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-            log_info("Cellular self-test (timeout %d ms)", TIMEOUT_POWER_ON);
             if (_power->set_at_mode() == NSAPI_ERROR_OK) {
+                log_info("Cellular device ready");
                 _next_state = STATE_START_CELLULAR;
-                run_self_tests();
+                device_ready();
             } else {
                 static int retry_count = 0;
-                if (++retry_count < 10) {
-                    log_warn("Waiting for cellular %d", retry_count);
+                log_info("Waiting for cellular device (retry %d/10, timeout %d ms)", retry_count, TIMEOUT_POWER_ON);
+                if (++retry_count <= 10) {
                     event_timeout = 1000;
                 } else {
                     report_failure("Power");
@@ -281,7 +287,7 @@ void CellularConnectionUtil::event()
                 log_info("Check for network registration");
             } else {
                 static int retry_count;
-                if (++retry_count < 10) {
+                if (++retry_count <= 10) {
                     log_warn("Waiting for SIM %d", retry_count);
                     event_timeout = 1000;
                 } else {
@@ -294,46 +300,39 @@ void CellularConnectionUtil::event()
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
             CellularNetwork::RegistrationStatus status;
             bool is_registered;
+            _next_state = STATE_REGISTER_NETWORK;
             for (int type = 0; type < CellularNetwork::C_MAX; type++) {
                 if (get_network_registration((CellularNetwork::RegistrationType)type, status, is_registered)) {
+                    log_debug("get_network_registration: type=%d, status=%d", type, status);
                     if (is_registered) {
-                        log_info("Registered to cellular network (status %d)", status);
+                        log_info("Registered to cellular network (type %d, status %d)", type, status);
                         _next_state = STATE_ATTACH_NETWORK;
                         log_info("Check cellular network attach state");
-                        event_timeout = 0;
                         break;
                     } else {
                         if (status == CellularNetwork::RegistrationDenied) {
                             static int backoff_timeout = 1;
-                            log_warn("Network registration denied! Retry after %d seconds.", backoff_timeout);
+                            log_warn("Network registration denied (type %d)! Retry after %d seconds.", type, backoff_timeout);
                             event_timeout = backoff_timeout * 1000;
                             backoff_timeout *= 2;
-                            _next_state = STATE_REGISTERING_NETWORK;
                             break;
-                        } else if (status == CellularNetwork::NotRegistered) {
-                            log_info("(STATE_REGISTERING_NETWORK), not registered");
-                            if (event_timeout == -1) {
-                                _next_state = STATE_REGISTER_NETWORK;
-                                event_timeout = 0;
-                            }
-                        } else {
+                        } else if (status == CellularNetwork::SearchingNetwork || status == CellularNetwork::Unknown) {
                             static int retry_count;
-                            if (++retry_count < 18) {
-                                log_info("Waiting for registration");
+                            if (++retry_count <= 180) {
+                                log_info("Waiting for registration %d/180 (type %d, status %d)", retry_count, type, status);
                                 event_timeout = 1*1000;
                                 _next_state = STATE_REGISTERING_NETWORK;
                             } else {
-                                if (event_timeout == -1) {
-                                    log_info("Start cellular registration");
-                                    _next_state = STATE_REGISTER_NETWORK;
-                                }
+                                log_info("Start cellular registration");
+                                _next_state = STATE_REGISTER_NETWORK;
+                                retry_count = 0;
+                                break;
                             }
+                        } else {
+                            // modem is not yet searching network for this technology
                         }
                     }
                 }
-            }
-            if (_state == _next_state && event_timeout == -1) {
-                event_timeout = 0;
             }
             break;
         case STATE_REGISTER_NETWORK:
@@ -343,8 +342,8 @@ void CellularConnectionUtil::event()
                 _next_state = STATE_REGISTERING_NETWORK;
             } else {
                 static int retry_count;
-                if (++retry_count < 3) {
-                event_timeout = 1000;
+                if (++retry_count <= 3) {
+                    event_timeout = 1000;
                 } else {
                     report_failure("Registration");
                     return;
@@ -410,7 +409,7 @@ void CellularConnectionUtil::event()
         } else {
             if (event_timeout == 0) {
                 static int retry_count = 0;
-                if (++retry_count < 3) {
+                if (++retry_count <= 3) {
                     log_info("Cellular event retry %d", retry_count);
                 } else {
                     report_failure("Cellular connection failed!");

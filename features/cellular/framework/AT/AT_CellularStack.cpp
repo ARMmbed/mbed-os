@@ -258,7 +258,7 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 
     /* Check parameters */
     if (size < max_packet_size) {
-        log_warn("Socket receive buffer smaller than max packet size! size:%d max_packet_size:%d", size, max_packet_size);
+        //log_warn("Socket receive buffer smaller than max packet size! size:%d max_packet_size:%d", size, max_packet_size);
     }
 
     _at.lock();
