@@ -39,10 +39,6 @@
 static EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
 
-#define ENUM_MACRO(name, v1, v2, v3, v4, v5, v6, v7)\
-    enum name { v1, v2, v3, v4, v5, v6, v7};\
-    const char *name##Strings[] = { #v1, #v2, #v3, #v4, #v5, #v6, #v7};
-
 CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state), _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(&cellularDevice)
 {
 }
