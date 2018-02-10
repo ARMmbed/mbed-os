@@ -27,7 +27,7 @@
 #include "CellularConnectionUtil.h"
 static CellularConnectionUtil cellularConnection;
 static Semaphore cellularSemaphore(0);
-static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_APP_CELLULAR_SERIAL_SPEED);
+static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 static int cellular_status(int state, int next_state)
 {
     printf("cellular_status %d=>%d", state, next_state);
