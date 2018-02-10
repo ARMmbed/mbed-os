@@ -45,17 +45,6 @@ EasyCellularConnection::EasyCellularConnection()
 #endif
     cellularConnection.set_serial(&cellularSerial);
     cellularConnection.set_callback(callback(cellular_status));
-}
-
-EasyCellularConnection::~EasyCellularConnection()
-{
-    cellularConnection.stop();
-}
-
-void EasyCellularConnection::set_credentials(const char *apn, const char *uname, const char *pwd)
-{
-}
-
 /*    if (cellularConnection.start()) {
         int ret_wait = cellularSemaphore.wait(180*1000);
         if (ret_wait == 1) {
@@ -68,19 +57,34 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
             }
         }
     }*/
+}
+
+EasyCellularConnection::~EasyCellularConnection()
+{
+    cellularConnection.stop();
+}
+
+void EasyCellularConnection::set_credentials(const char *apn, const char *uname, const char *pwd)
+{
+}
 
 void EasyCellularConnection::set_sim_pin(const char *sim_pin)
 {
-    //go_to_state();
 }
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
+    /*if (!connected) {
+        wait();
+    }
+    cellularConnection.connect(sim_pin, apn, uname, pwd);*/
     return 0;
 }
 
 nsapi_error_t EasyCellularConnection::connect()
 {
+    /*attach();
+    cellularConnection.connect();*/
     return 0;
 }
 

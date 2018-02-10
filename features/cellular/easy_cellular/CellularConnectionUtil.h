@@ -36,7 +36,7 @@ class CellularConnectionUtil
 public:
     enum CellularState {
         STATE_POWER_ON = 0,
-        STATE_SELF_TEST = 1,
+        STATE_DEVICE_READY = 1,
         STATE_START_CELLULAR = 2,
         STATE_SIM_PIN = 3,
         STATE_REGISTER_NETWORK = 4,
@@ -69,7 +69,7 @@ protected:
     bool set_attach_network();
 
 private:
-    bool run_self_tests();
+    void device_ready();
     void report_failure(const char* msg);
     void event();
 

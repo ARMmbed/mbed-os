@@ -130,12 +130,29 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
     if (!_stack) {
         return err;
     }
-    log_info("Activate PDP context");
-    _at.cmd_start("AT+CGACT=1,");
-    _at.write_int(_cid);
+
+    bool is_context_active = false;
+    _at.cmd_start("AT+CGACT?");
     _at.cmd_stop();
-    _at.resp_start();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        int context_activation_state = _at.read_int();
+        if (context_id == _cid && context_activation_state == 1) {
+            is_context_active = true;
+        }
+    }
     _at.resp_stop();
+
+    if (!is_context_active) {
+        log_info("Activate PDP context");
+        _at.cmd_start("AT+CGACT=1,");
+        _at.write_int(_cid);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
+
     err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
 #endif
     return err;
@@ -266,19 +283,19 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
                     if (get_modem_stack_type(pdp_stack)) {
                         if (requested_stack == IPV4_STACK) {
                             if (pdp_stack == IPV4_STACK || pdp_stack == IPV4V6_STACK) {
-                                _ip_stack_type = pdp_stack;
+                                _ip_stack_type = requested_stack;
                                 _cid = cid;
                                 break;
                             }
                         } else if (requested_stack == IPV6_STACK) {
                             if (pdp_stack == IPV6_STACK || pdp_stack == IPV4V6_STACK) {
-                                _ip_stack_type = pdp_stack;
+                                _ip_stack_type = requested_stack;
                                 _cid = cid;
                                 break;
                             }
                         } else { // accept any but prefer to IPv6
                             if (pdp_stack == IPV6_STACK || pdp_stack == IPV4V6_STACK) {
-                                _ip_stack_type = pdp_stack;
+                                _ip_stack_type = requested_stack;
                                 _cid = cid;
                                 break;
                             }
@@ -353,7 +370,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(char *plmn)
     nsapi_error_t ret = set_registration_urc(false);
     if (ret) {
         log_error("Setting registration URC failed!");
-        return ret;
+        _at.clear_error(); // allow temporary failures here
     }
 
     if (!plmn) {
