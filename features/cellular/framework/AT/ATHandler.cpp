@@ -21,6 +21,9 @@
 #include "Timer.h"
 #include "mbed_wait_api.h"
 #include "mbed_debug.h"
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "rtos/Thread.h"
+#endif
 
 using namespace mbed;
 using namespace events;
@@ -223,7 +226,7 @@ void ATHandler::restore_at_timeout()
 void ATHandler::process_oob()
 {
     lock();
-    log_info("process_oob %d", (_fileHandle->readable() || (_recv_pos < _recv_len)));
+    log_debug("process_oob %d", (_fileHandle->readable() || (_recv_pos < _recv_len)));
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
         _current_scope = NotSet;
         Timer timer;
@@ -242,7 +245,9 @@ void ATHandler::process_oob()
                 if (_fileHandle->readable()) {
                     fill_buffer();
                 } else {
-                    wait_us(100); // wait for more incoming data
+#ifdef MBED_CONF_RTOS_PRESENT
+                    rtos::Thread::yield();
+#endif
                 }
 
             }
@@ -314,9 +319,8 @@ void ATHandler::fill_buffer()
            at_debug("\n----------readable----------\n");
            return;
        }
-
 #ifdef MBED_CONF_RTOS_PRESENT
-       wait_us(1000); // let other threads run for 1 milisecond
+        rtos::Thread::yield();
 #endif
     } while (timer.read_ms() < _at_timeout);
 
