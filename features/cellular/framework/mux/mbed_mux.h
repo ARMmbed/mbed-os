@@ -117,7 +117,7 @@ public:
 
     /* @ref MuxEstablishStatus type assigned to _shared_memory variable, which has sizeof(uint8_t) storage class. Enforce
        expected behaviour compile time. */
-    MBED_STATIC_ASSERT(sizeof(MuxEstablishStatus) == sizeof(uint8_t), "");
+    MBED_STATIC_ASSERT(sizeof(MuxEstablishStatus) == sizeof(uint), "");
 
     /* Definition for multiplexer establishment return code type. */
     enum MuxReturnStatus {

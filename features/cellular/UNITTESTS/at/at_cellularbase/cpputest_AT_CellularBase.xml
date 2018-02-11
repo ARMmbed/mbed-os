@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="AT_CellularBase" tests="3" time="0.000" timestamp="2018-02-11T22:58:53">
+<properties>
+</properties>
+<testcase classname="AT_CellularBase" name="test_AT_CellularBase_get_device_error" time="0.000">
+</testcase>
+<testcase classname="AT_CellularBase" name="test_AT_CellularBase_get_at_handler" time="0.000">
+</testcase>
+<testcase classname="AT_CellularBase" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

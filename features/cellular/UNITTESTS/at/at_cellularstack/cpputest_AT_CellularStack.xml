@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="AT_CellularStack" tests="14" time="0.000" timestamp="2018-02-11T22:59:04">
+<properties>
+</properties>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_attach" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_recvfrom" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_sendto" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_recv" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_send" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_accept" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_connect" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_listen" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_bind" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_close" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_socket_open" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_get_ip_address" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="test_AT_CellularStack_constructor" time="0.000">
+</testcase>
+<testcase classname="AT_CellularStack" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

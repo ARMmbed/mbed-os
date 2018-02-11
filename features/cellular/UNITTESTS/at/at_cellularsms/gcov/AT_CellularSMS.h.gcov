@@ -1,0 +1,250 @@
+        -:    0:Source:../../../framework/AT/AT_CellularSMS.h
+        -:    0:Graph:objs/AT_CellularSMS_unit/AT_CellularSMS.gcno
+        -:    0:Data:objs/AT_CellularSMS_unit/AT_CellularSMS.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef AT_CELLULAR_SMS_H_
+        -:   19:#define AT_CELLULAR_SMS_H_
+        -:   20:
+        -:   21:#include "CellularSMS.h"
+        -:   22:#include "AT_CellularBase.h"
+        -:   23:#include <Callback.h>
+        -:   24:#include <time.h>
+        -:   25:
+        -:   26:namespace mbed {
+        -:   27:
+        -:   28:class AT_CellularSMS: public CellularSMS, public AT_CellularBase
+        -:   29:{
+        -:   30:
+        -:   31:public:
+        -:   32:    AT_CellularSMS(ATHandler &atHandler);
+        -:   33:    virtual ~AT_CellularSMS();
+        -:   34:
+        -:   35:public:
+        -:   36:    // from CellularSMS
+        -:   37:
+        -:   38:    /** Does all the necessary initializations needed for receiving and sending sms.
+        -:   39:     *
+        -:   40:     *  @param mode          enumeration for choosing the correct mode: text/pdu
+        -:   41:     *  @return              zero on success
+        -:   42:     */
+        -:   43:    virtual nsapi_error_t initialize(CellularSMSMmode mode);
+        -:   44:
+        -:   45:    /** Send the SMS with the given parameters
+        -:   46:     *
+        -:   47:     *  @param phone_number  Phone number where to send sms
+        -:   48:     *  @param message       SMS message content
+        -:   49:     *  @param msg_len       Length of the message
+        -:   50:     *  @return              possible error code or length of the sent sms
+        -:   51:     */
+        -:   52:    virtual nsapi_size_or_error_t send_sms(const char* phone_number, const char* message, int msg_len);
+        -:   53:
+        -:   54:    /** Gets the oldest received sms.
+        -:   55:     *
+        -:   56:     *  @param buf           preallocated buffer for sms message content
+        -:   57:     *  @param buf_len       length of allocated buf
+        -:   58:     *  @param phone_num     preallocated buffer for phone number where sms was sent
+        -:   59:     *  @param phone_len     length of allocated phone_num  buffer
+        -:   60:     *  @param time_stamp    preallocated buffer for TP-Service Centre Time Stamp (format: yy/MM/dd,hh:mm:ss-+zz). +-zz is timezone.
+        -:   61:     *                       The unit of time zone is a quarter of an hour relative to GMT. For example +32 would be GMT+8.
+        -:   62:     *  @param time_len      length of allocated time_stamp buffer
+        -:   63:     *  @param buf_size      if method return error NSAPI_ERROR_NO_MEMORY because the given buf was not big enough this will
+        -:   64:     *                       hold the size which is enough. Otherwise zero.
+        -:   65:     *  @return              possible error code or size of buf. Will return SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ
+        -:   66:     *                       if sms was multipart but not all parts are present/failed to read.
+        -:   67:     */
+        -:   68:    virtual nsapi_size_or_error_t get_sms(char* buf, uint16_t buf_len, char* phone_num, uint16_t phone_len,
+        -:   69:            char* time_stamp, uint16_t time_len, int *buf_size);
+        -:   70:
+        -:   71:    /** Callback which is called when new sms is received. SMS can be fetched via method get_sms().
+        -:   72:     *
+        -:   73:     *  @remark      In PDU mode there can be multipart sms and callback is called for every received part.
+        -:   74:     *
+        -:   75:     *  @param func  Callback function which is called when new sms is received.
+        -:   76:     */
+        -:   77:    virtual void set_sms_callback(Callback<void()> func);
+        -:   78:
+        -:   79:    /** CPMS preferred message storage
+        -:   80:     *
+        -:   81:     *  @param memr        memory from which messages are read and deleted
+        -:   82:     *                     "SM" - SIM SMS memory storage (default)
+        -:   83:     *                     "ME" - NVM SMS storage
+        -:   84:     *  @param memw        memory to which writing and sending operations are made
+        -:   85:     *                     "SM" - SIM SMS memory storage (default)
+        -:   86:     *                     "ME" - NVM SMS storage
+        -:   87:     *  @param mems        memory to which received SMs are preferred to be stored
+        -:   88:     *                     "SM" - SIM SMS memory storage (default)
+        -:   89:     *                     "ME" - NVM SMS storage
+        -:   90:     *
+        -:   91:     * @return             zero for success
+        -:   92:     */
+        -:   93:    virtual nsapi_error_t set_cpms(const char *memr, const char *memw, const char *mems);
+        -:   94:
+        -:   95:    /** CSCA - set Service Center Address
+        -:   96:     *
+        -:   97:     *  @param sca        Service Center Address to be used for mobile originated SMS transmissions.
+        -:   98:     *  @param type       129 - national numbering scheme, 145 - international numbering scheme (contains the character "+")
+        -:   99:     *
+        -:  100:     *  @return           zero for success
+        -:  101:     */
+        -:  102:    virtual nsapi_error_t set_csca(const char *sca, int type);
+        -:  103:
+        -:  104:    /** Set command sets the current character set used by the device. "GSM", "IRA",....
+        -:  105:     *
+        -:  106:     *  @remark Current implementation support only ASCII so choose the correct character set.
+        -:  107:     *
+        -:  108:     *  @param chr_set   preferred character set list (comma separated). Modem might not support the wanted character set
+        -:  109:     *                   so chr_set list is looped from start until supported set is found. Used character set index is returned.
+        -:  110:     *                   See more from 3GPP TS 27.005.
+        -:  111:     * @return           Used character set index from the given list in case of success. Otherwise negative errorcode.
+        -:  112:     */
+        -:  113:    virtual nsapi_size_or_error_t set_cscs(const char *chr_set);
+        -:  114:
+        -:  115:    /** Deletes all messages from the currently set memory/SIM
+        -:  116:     *
+        -:  117:     *  @return zero for success
+        -:  118:     */
+        -:  119:    virtual nsapi_error_t delete_all_messages();
+        -:  120:
+        -:  121:    /** Some modems need extra time between AT commands and responses or there will be error -314, SIM busy.
+        -:  122:     *  If SIM busy errors are an issue this time should be increased. It can also be set to zero to make
+        -:  123:     *  operations faster and more energy efficient if no errors will follow. By default wait time is zero.
+        -:  124:     *
+        -:  125:     *  @param sim_wait_time
+        -:  126:     */
+        -:  127:    virtual void set_extra_sim_wait_time(int sim_wait_time);
+        -:  128:
+        -:  129:private:
+        -:  130:
+        -:  131:    struct sms_info_t {
+        -:  132:        char date[SMS_MAX_TIME_STAMP_SIZE];
+        -:  133:        uint16_t msg_index[50]; // can hold up to 50 concatenated msg parts, indexes are in correct order. So max sms size is 50*140 =  7kb
+        -:  134:        uint16_t msg_size;
+        -:  135:        uint8_t parts;
+        -:  136:        uint8_t parts_added;
+        -:  137:        uint16_t msg_ref_number;
+        -:  138:        struct sms_info_t *next_info;
+    #####:  139:        sms_info_t() : msg_size(0), parts(1), parts_added(1), msg_ref_number(0), next_info(0){};
+        -:  140:    };
+        -:  141:
+        -:  142:    // application callback function for received sms
+        -:  143:    Callback<void()> _cb;
+        -:  144:    CellularSMSMmode _mode;
+        -:  145:    bool _use_8bit_encoding;
+        -:  146:    uint32_t _sim_wait_time;
+        -:  147:    uint16_t _sms_message_ref_number;
+        -:  148:    sms_info_t *_sms_info;
+        -:  149:
+        -:  150:    // SMS urc's
+        -:  151:    void cmt_urc();
+        -:  152:    void cmti_urc();
+        -:  153:
+        -:  154:    /** Set command selects the format of messages used with send, list, read and write commands.
+        -:  155:     *
+        -:  156:     *  @param   msg_format 0 PDU mode, 1 text mode
+        -:  157:     *  @return  zero for success
+        -:  158:     */
+        -:  159:    nsapi_error_t set_cmgf(int msg_format);
+        -:  160:
+        -:  161:    /** Select message service (AT+CSMS select message service)
+        -:  162:     *
+        -:  163:     *  @param msg_service   0 or 1. See more from 3GPP TS 27.005
+        -:  164:     *
+        -:  165:     *  @return              zero for success
+        -:  166:     */
+        -:  167:    nsapi_error_t set_csms(int msg_service);
+        -:  168:
+        -:  169:    /* Set how receiving of new messages from the network is indicated to the TE.
+        -:  170:     *
+        -:  171:     * @return zero for success
+        -:  172:     */
+        -:  173:    nsapi_error_t set_cnmi();
+        -:  174:
+        -:  175:    /** Set Text Mode Parameters
+        -:  176:     *
+        -:  177:     * @param fo    See more from 3GPP TS 27.005 for all params.
+        -:  178:     * @param vp
+        -:  179:     * @param pid
+        -:  180:     * @param dcs
+        -:  181:     * @return      zero for success
+        -:  182:     */
+        -:  183:    nsapi_error_t set_csmp(int fo, int vp, int pid, int dcs);
+        -:  184:
+        -:  185:    /** CSDH - Set command controls whether detailed header information is shown in text mode (AT+CMGF=1) result codes.
+        -:  186:     *
+        -:  187:     *  @param show_header  1 to show detailed header in text mode, 0 for not showing.
+        -:  188:     *  @return             zero for success
+        -:  189:     */
+        -:  190:    nsapi_error_t set_csdh(int show_header);
+        -:  191:
+        -:  192:    /** Delete SMS in the given message position(s) in the storage
+        -:  193:     *
+        -:  194:     *  @param sms  struct containing index array to delete
+        -:  195:     *  @return     zero for success
+        -:  196:     */
+        -:  197:    nsapi_error_t delete_sms(sms_info_t* sms);
+        -:  198:
+        -:  199:    /**
+        -:  200:     * Internal helper methods
+        -:  201:     */
+        -:  202:    nsapi_error_t list_messages();
+        -:  203:    int read_sms_params(char *, char *);
+        -:  204:    void free_linked_list();
+        -:  205:    void add_info(sms_info_t* info, int index, int part_number);
+        -:  206:    int read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &parts, int &padding_bits);
+        -:  207:    nsapi_size_or_error_t get_data_from_pdu(const char* pdu, sms_info_t *info, int *part_number,
+        -:  208:                                            char *phone_number = NULL, char *msg = NULL);
+        -:  209:    nsapi_size_or_error_t read_pdu_payload(const char* pdu, int scheme, char *msg, int padding_bits, bool last_part);
+        -:  210:    sms_info_t* get_oldest_sms_index();
+        -:  211:    bool create_time(const char* time_string, time_t* time);
+        -:  212:    int compare_time_strings(const char* time_string_1, const char* time_string_2);
+        -:  213:    char* create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
+        -:  214:                     uint8_t msg_part_number);
+        -:  215:    nsapi_size_or_error_t read_sms_from_index(int msg_index, char* buf, uint16_t len, char* phone_num,
+        -:  216:                                              char* time_stamp);
+        -:  217:    nsapi_size_or_error_t read_sms(sms_info_t* sms, char* buf, char* phone_num, char* time_stamp);
+        -:  218:
+        -:  219:    /** Packs the given str from ascii to 7bit gsm format and converts it to hex to the given buf.
+        -:  220:     *
+        -:  221:     *  @param str                   string which is to be converted
+        -:  222:     *  @param len                   length of the str buffer
+        -:  223:     *  @param buf                   preallocated buffer which holds the converted string in hex format after successful call
+        -:  224:     *  @param number_of_padding_bit padding bits needed to keep the octet boundary
+        -:  225:     *  @return                      length of buffer buf or zero on failure
+        -:  226:     */
+        -:  227:    uint16_t pack_7_bit_gsm_and_hex(const char* str, uint16_t len, char *buf, int number_of_padding_bit);
+        -:  228:
+        -:  229:    /** Unpacks the given hex- and 7-bit gsm encoded str to ascii string
+        -:  230:     *
+        -:  231:     *  @param str          string which converted to ascii string to buf
+        -:  232:     *  @param len          length of the str divided by two as str is hexencoded
+        -:  233:     *  @param buf          preallocated destination buffer
+        -:  234:     *  @param padding_bits number of padding bits which were needed to hold the octet boundary
+        -:  235:     *  @param last_part    true is last part of the encoded message
+        -:  236:     *  @return             length of the destination buffer buf
+        -:  237:     *
+        -:  238:     */
+        -:  239:    uint16_t unpack_7_bit_gsm_to_str(const char* str, int len, char *buf, int padding_bits,
+        -:  240:                                         bool last_part);
+        -:  241:};
+        -:  242:
+        -:  243:} // namespace mbed
+        -:  244:
+        -:  245:#endif // AT_CELLULAR_SMS_H_

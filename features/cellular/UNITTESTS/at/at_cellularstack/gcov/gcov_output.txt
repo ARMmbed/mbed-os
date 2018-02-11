@@ -1,0 +1,12 @@
+File '../../../framework/AT/AT_CellularStack.cpp'
+Lines executed:4.62% of 130
+Creating 'AT_CellularStack.cpp.gcov'
+
+File '../../../framework/AT/AT_CellularStack.h'
+Lines executed:0.00% of 1
+Creating 'AT_CellularStack.h.gcov'
+
+File '../../../../../features/netsocket/NetworkStack.h'
+Lines executed:100.00% of 2
+Creating 'NetworkStack.h.gcov'
+

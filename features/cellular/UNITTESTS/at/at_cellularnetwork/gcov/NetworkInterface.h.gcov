@@ -1,0 +1,151 @@
+        -:    0:Source:../../../../../features/netsocket/NetworkInterface.h
+        -:    0:Graph:objs/AT_CellularNetwork_unit/AT_CellularNetwork.gcno
+        -:    0:Data:objs/AT_CellularNetwork_unit/AT_CellularNetwork.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* NetworkStack
+        -:    2: * Copyright (c) 2015 ARM Limited
+        -:    3: *
+        -:    4: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    5: * you may not use this file except in compliance with the License.
+        -:    6: * You may obtain a copy of the License at
+        -:    7: *
+        -:    8: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:    9: *
+        -:   10: * Unless required by applicable law or agreed to in writing, software
+        -:   11: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   12: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   13: * See the License for the specific language governing permissions and
+        -:   14: * limitations under the License.
+        -:   15: */
+        -:   16:
+        -:   17:#ifndef NETWORK_INTERFACE_H
+        -:   18:#define NETWORK_INTERFACE_H
+        -:   19:
+        -:   20:#include "netsocket/nsapi_types.h"
+        -:   21:#include "netsocket/SocketAddress.h"
+        -:   22:
+        -:   23:// Predeclared class
+        -:   24:class NetworkStack;
+        -:   25:
+        -:   26:
+        -:   27:/** NetworkInterface class
+        -:   28: *
+        -:   29: *  Common interface that is shared between network devices
+        -:   30: *  @addtogroup netsocket
+        -:   31: */
+       25:   32:class NetworkInterface {
+        -:   33:public:
+       25:   34:    virtual ~NetworkInterface() {};
+        -:   35:
+        -:   36:    /** Get the local MAC address
+        -:   37:     *
+        -:   38:     *  Provided MAC address is intended for info or debug purposes and
+        -:   39:     *  may not be provided if the underlying network interface does not
+        -:   40:     *  provide a MAC address
+        -:   41:     *  
+        -:   42:     *  @return         Null-terminated representation of the local MAC address
+        -:   43:     *                  or null if no MAC address is available
+        -:   44:     */
+        -:   45:    virtual const char *get_mac_address();
+        -:   46:
+        -:   47:    /** Get the local IP address
+        -:   48:     *
+        -:   49:     *  @return         Null-terminated representation of the local IP address
+        -:   50:     *                  or null if no IP address has been recieved
+        -:   51:     */
+        -:   52:    virtual const char *get_ip_address();
+        -:   53:
+        -:   54:    /** Get the local network mask
+        -:   55:     *
+        -:   56:     *  @return         Null-terminated representation of the local network mask 
+        -:   57:     *                  or null if no network mask has been recieved
+        -:   58:     */
+        -:   59:    virtual const char *get_netmask();
+        -:   60:
+        -:   61:    /** Get the local gateway
+        -:   62:     *
+        -:   63:     *  @return         Null-terminated representation of the local gateway
+        -:   64:     *                  or null if no network mask has been recieved
+        -:   65:     */
+        -:   66:    virtual const char *get_gateway();
+        -:   67:
+        -:   68:    /** Set a static IP address
+        -:   69:     *
+        -:   70:     *  Configures this network interface to use a static IP address.
+        -:   71:     *  Implicitly disables DHCP, which can be enabled in set_dhcp.
+        -:   72:     *  Requires that the network is disconnected.
+        -:   73:     *
+        -:   74:     *  @param ip_address Null-terminated representation of the local IP address
+        -:   75:     *  @param netmask    Null-terminated representation of the local network mask
+        -:   76:     *  @param gateway    Null-terminated representation of the local gateway
+        -:   77:     *  @return           0 on success, negative error code on failure
+        -:   78:     */
+        -:   79:    virtual nsapi_error_t set_network(
+        -:   80:            const char *ip_address, const char *netmask, const char *gateway);
+        -:   81:
+        -:   82:    /** Enable or disable DHCP on the network
+        -:   83:     *
+        -:   84:     *  Enables DHCP on connecting the network. Defaults to enabled unless
+        -:   85:     *  a static IP address has been assigned. Requires that the network is
+        -:   86:     *  disconnected.
+        -:   87:     *
+        -:   88:     *  @param dhcp     True to enable DHCP
+        -:   89:     *  @return         0 on success, negative error code on failure
+        -:   90:     */
+        -:   91:    virtual nsapi_error_t set_dhcp(bool dhcp);
+        -:   92:
+        -:   93:    /** Start the interface
+        -:   94:     *
+        -:   95:     *  @return     0 on success, negative error code on failure
+        -:   96:     */
+        -:   97:    virtual nsapi_error_t connect() = 0;
+        -:   98:
+        -:   99:    /** Stop the interface
+        -:  100:     *
+        -:  101:     *  @return     0 on success, negative error code on failure
+        -:  102:     */
+        -:  103:    virtual nsapi_error_t disconnect() = 0;
+        -:  104:
+        -:  105:    /** Translates a hostname to an IP address with specific version
+        -:  106:     *
+        -:  107:     *  The hostname may be either a domain name or an IP address. If the
+        -:  108:     *  hostname is an IP address, no network transactions will be performed.
+        -:  109:     *
+        -:  110:     *  If no stack-specific DNS resolution is provided, the hostname
+        -:  111:     *  will be resolve using a UDP socket on the stack.
+        -:  112:     *
+        -:  113:     *  @param address  Destination for the host SocketAddress
+        -:  114:     *  @param host     Hostname to resolve
+        -:  115:     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+        -:  116:     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+        -:  117:     *  @return         0 on success, negative error code on failure
+        -:  118:     */
+        -:  119:    virtual nsapi_error_t gethostbyname(const char *host,
+        -:  120:            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+        -:  121:
+        -:  122:    /** Add a domain name server to list of servers to query
+        -:  123:     *
+        -:  124:     *  @param address  Destination for the host address
+        -:  125:     *  @return         0 on success, negative error code on failure
+        -:  126:     */
+        -:  127:    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+        -:  128:
+        -:  129:protected:
+        -:  130:    friend class Socket;
+        -:  131:    friend class UDPSocket;
+        -:  132:    friend class TCPSocket;
+        -:  133:    friend class TCPServer;
+        -:  134:    friend class SocketAddress;
+        -:  135:    template <typename IF>
+        -:  136:    friend NetworkStack *nsapi_create_stack(IF *iface);
+        -:  137:
+        -:  138:    /** Provide access to the NetworkStack object
+        -:  139:     *
+        -:  140:     *  @return The underlying NetworkStack object
+        -:  141:     */
+        -:  142:    virtual NetworkStack *get_stack() = 0;
+        -:  143:};
+        -:  144:
+        -:  145:
+        -:  146:#endif

@@ -1,0 +1,58 @@
+        -:    0:Source:../../../framework/mux/mbed_mux_data_service.cpp
+        -:    0:Graph:objs/mbed_mux_data_service_unit/mbed_mux_data_service.gcno
+        -:    0:Data:objs/mbed_mux_data_service_unit/mbed_mux_data_service.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) , Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:#include "mbed_mux.h"
+        -:   18:
+        -:   19:namespace mbed
+        -:   20:{
+        -:   21:
+        1:   22:ssize_t MuxDataService::write(const void* buffer, size_t size)
+        -:   23:{
+        1:   24:    return Mux::user_data_tx(_dlci, buffer, size);
+        -:   25:}
+        -:   26:
+        -:   27:
+        1:   28:ssize_t MuxDataService::read(void *buffer, size_t size)
+        -:   29:{
+        1:   30:    return Mux::user_data_rx(buffer, size);
+        -:   31:}
+        -:   32:
+        -:   33:
+        1:   34:off_t MuxDataService::seek(off_t offset, int whence)
+        -:   35:{
+        1:   36:    MBED_ASSERT(false);
+        1:   37:    return 0;
+        -:   38:}
+        -:   39:
+        -:   40:
+        1:   41:int MuxDataService::close()
+        -:   42:{
+        1:   43:    MBED_ASSERT(false);
+        1:   44:    return 0;
+        -:   45:}
+        -:   46:
+        -:   47:
+        1:   48:void MuxDataService::sigio(Callback<void()> func)
+        -:   49:{
+        1:   50:    _sigio_cb = func;
+        1:   51:}
+        -:   52:
+        -:   53:} // namespace mbed

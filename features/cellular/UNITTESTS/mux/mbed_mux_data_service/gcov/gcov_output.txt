@@ -1,0 +1,24 @@
+File '../../../framework/mux/mbed_mux.h'
+Lines executed:0.00% of 1
+Creating 'mbed_mux.h.gcov'
+
+File '../../../../../platform/Callback.h'
+Lines executed:71.43% of 14
+Creating 'Callback.h.gcov'
+
+File '../../../../../platform/NonCopyable.h'
+Lines executed:0.00% of 1
+Creating 'NonCopyable.h.gcov'
+
+File '../../../framework/mux/mbed_mux_data_service.cpp'
+Lines executed:100.00% of 13
+Creating 'mbed_mux_data_service.cpp.gcov'
+
+File '../../../../../platform/FileHandle.h'
+Lines executed:0.00% of 20
+Creating 'FileHandle.h.gcov'
+
+File '/usr/include/c++/5/new'
+Lines executed:0.00% of 3
+Creating 'new.gcov'
+

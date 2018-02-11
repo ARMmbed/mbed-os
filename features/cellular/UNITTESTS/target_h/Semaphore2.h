@@ -1,0 +1,4 @@
+namespace rtos {
+class Semaphore {
+};
+}

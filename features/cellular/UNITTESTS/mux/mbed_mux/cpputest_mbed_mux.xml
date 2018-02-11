@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="mbed_mux" tests="1" time="0.000" timestamp="2018-02-11T22:59:08">
+<properties>
+</properties>
+<testcase classname="mbed_mux" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

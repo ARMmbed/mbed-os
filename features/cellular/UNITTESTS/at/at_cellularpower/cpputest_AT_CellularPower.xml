@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="AT_CellularPower" tests="9" time="0.000" timestamp="2018-02-11T22:59:00">
+<properties>
+</properties>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_opt_receive_period" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_opt_power_save_mode" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_reset" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_set_power_level" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_set_at_mode" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_off" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_on" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="test_AT_CellularPower_constructor" time="0.000">
+</testcase>
+<testcase classname="AT_CellularPower" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

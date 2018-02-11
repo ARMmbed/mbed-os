@@ -1,0 +1,107 @@
+        -:    0:Source:../../../framework/common/CellularList.h
+        -:    0:Graph:objs/AT_CellularNetwork_unit/AT_CellularNetwork.gcno
+        -:    0:Data:objs/AT_CellularNetwork_unit/AT_CellularNetwork.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef CELLULAR_LIST_H_
+        -:   19:#define CELLULAR_LIST_H_
+        -:   20:
+        -:   21:#include <stddef.h>
+        -:   22:
+        -:   23:namespace mbed {
+        -:   24:
+        -:   25:/** Class CellularList
+        -:   26: *
+        -:   27: *  Templated linked list class for common usage.
+        -:   28: *
+        -:   29: */
+        -:   30:template <class T> class CellularList
+        -:   31:{
+        -:   32:private:
+        -:   33:    T *_head, *_tail;
+        -:   34:public:
+        -:   35:    CellularList()
+        -:   36:    {
+        -:   37:      _head=NULL;
+        -:   38:      _tail=NULL;
+        -:   39:    }
+        -:   40:
+    #####:   41:    T* add_new()
+        -:   42:    {
+    #####:   43:      T *temp=new T;
+    #####:   44:      if (!temp) {
+    #####:   45:          return NULL;
+        -:   46:      }
+    #####:   47:      temp->next = NULL;
+    #####:   48:      if (_head == NULL) {
+    #####:   49:        _head = temp;
+        -:   50:      } else {
+    #####:   51:        _tail->next=temp;
+        -:   52:      }
+    #####:   53:      _tail = temp;
+        -:   54:
+    #####:   55:      return _tail;
+        -:   56:    }
+        -:   57:
+    #####:   58:    void delete_last()
+        -:   59:    {
+    #####:   60:        T* previous = NULL;
+    #####:   61:        T *current=_head;
+        -:   62:
+    #####:   63:        if (!current) {
+    #####:   64:            return;
+        -:   65:        }
+        -:   66:
+    #####:   67:        while (current->next != NULL) {
+    #####:   68:            previous=current;
+    #####:   69:            current=current->next;
+        -:   70:        }
+        -:   71:
+    #####:   72:        if (previous) {
+    #####:   73:            _tail=previous;
+    #####:   74:            previous->next=NULL;
+        -:   75:        } else {
+    #####:   76:            _head = NULL;
+    #####:   77:            _tail = NULL;
+        -:   78:        }
+        -:   79:
+    #####:   80:        delete current;
+        -:   81:    }
+        -:   82:
+    #####:   83:    void delete_all()
+        -:   84:    {
+    #####:   85:        T *temp = _head;
+    #####:   86:        while (temp) {
+    #####:   87:            _head = _head->next;
+    #####:   88:            delete temp;
+    #####:   89:            temp = _head;
+        -:   90:        }
+    #####:   91:    }
+        -:   92:
+        -:   93:
+        -:   94:    T *get_head()
+        -:   95:    {
+        -:   96:        return _head;
+        -:   97:    }
+        -:   98:};
+        -:   99:
+        -:  100:} // namespace mbed
+        -:  101:
+        -:  102:#endif // CELLULAR_LIST_H_
