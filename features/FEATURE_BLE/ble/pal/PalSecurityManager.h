@@ -575,7 +575,7 @@ public:
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
         address_t peer_identity_address,
-        const irk_t peer_irk
+        const irk_t &peer_irk
     ) = 0;
 
     /**
