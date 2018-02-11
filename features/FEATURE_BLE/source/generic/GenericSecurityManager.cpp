@@ -539,9 +539,9 @@ ble_error_t GenericSecurityManager::init_signing() {
         }
 
         pcsrk = &csrk;
-        _db.set_local_csrk(pcsrk);
+        _db.set_local_csrk(csrk);
     }
-    return _pal.set_csrk(pcsrk);
+    return _pal.set_csrk(*pcsrk);
 }
 
 ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
@@ -598,7 +598,11 @@ void GenericSecurityManager::enable_encryption_cb(
     const SecurityEntryKeys_t* entryKeys
 ) {
     if (entry && entryKeys) {
-        _pal.enable_encryption(entry->handle, &entryKeys->ltk, &entryKeys->rand, &entryKeys->ediv);
+        if (entry->secure_connections_paired) {
+            _pal.enable_encryption(entry->handle, entryKeys->ltk);
+        } else {
+            _pal.enable_encryption(entry->handle, entryKeys->ltk, entryKeys->rand, entryKeys->ediv);
+        }
     }
 }
 
@@ -608,9 +612,9 @@ void GenericSecurityManager::set_ltk_cb(
 ) {
     if (entry) {
         if (entryKeys) {
-            _pal.set_ltk(entry->handle, &entryKeys->ltk);
+            _pal.set_ltk(entry->handle, entryKeys->ltk);
         } else {
-            _pal.set_ltk(entry->handle, NULL);
+            _pal.set_ltk_not_found(entry->handle);
         }
     }
 }
@@ -715,6 +719,13 @@ bool GenericSecurityManager::crypto_toolbox_f4(
     return success;
 }
 #endif
+
+void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (entry) {
+        entry->mitm_performed = true;
+    }
+}
 
 void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
     SecurityEntry_t *entry = _db.get_entry(connection);
@@ -922,13 +933,6 @@ void GenericSecurityManager::on_link_encryption_request_timed_out(
 // MITM
 //
 
-void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (entry) {
-        entry->mitm_performed = true;
-    }
-}
-
 void GenericSecurityManager::on_passkey_display(
     connection_handle_t connection,
     passkey_num_t passkey
@@ -1011,7 +1015,7 @@ void GenericSecurityManager::on_public_key_generated(
 
 void GenericSecurityManager::on_secure_connections_ltk_generated(
     connection_handle_t connection,
-    const ltk_t *ltk
+    const ltk_t &ltk
 ) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (!entry) {
@@ -1024,45 +1028,9 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
     _db.set_entry_peer_ltk(connection, ltk);
 }
 
-void GenericSecurityManager::on_keys_distributed(
-    connection_handle_t connection,
-    advertising_peer_address_type_t peer_address_type,
-    const address_t &peer_identity_address,
-    const ediv_t *ediv,
-    const rand_t *rand,
-    const ltk_t *ltk,
-    const irk_t *irk,
-    const csrk_t *csrk
-) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return;
-    }
-
-    entry->ltk_mitm_protected = entry->mitm_performed;
-    entry->csrk_mitm_protected = entry->mitm_performed;
-
-    _db.set_entry_peer(
-        connection,
-        (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
-        peer_identity_address,
-        ediv,
-        rand,
-        ltk,
-        irk,
-        csrk
-    );
-
-    eventHandler->signingKey(
-        connection,
-        csrk,
-        entry->csrk_mitm_protected
-    );
-}
-
 void GenericSecurityManager::on_keys_distributed_ltk(
     connection_handle_t connection,
-    const ltk_t *ltk
+    const ltk_t &ltk
 ) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (!entry) {
@@ -1074,30 +1042,30 @@ void GenericSecurityManager::on_keys_distributed_ltk(
 
 void GenericSecurityManager::on_keys_distributed_ediv_rand(
     connection_handle_t connection,
-    const ediv_t *ediv,
-    const rand_t *rand
+    const ediv_t &ediv,
+    const rand_t &rand
 ) {
     _db.set_entry_peer_ediv_rand(connection, ediv, rand);
 }
 
 void GenericSecurityManager::on_keys_distributed_local_ltk(
     connection_handle_t connection,
-    const ltk_t *ltk
+    const ltk_t &ltk
 ) {
     _db.set_entry_local_ltk(connection, ltk);
 }
 
 void GenericSecurityManager::on_keys_distributed_local_ediv_rand(
     connection_handle_t connection,
-    const ediv_t *ediv,
-    const rand_t *rand
+    const ediv_t &ediv,
+    const rand_t &rand
 ) {
     _db.set_entry_local_ediv_rand(connection, ediv, rand);
 }
 
 void GenericSecurityManager::on_keys_distributed_irk(
     connection_handle_t connection,
-    const irk_t *irk
+    const irk_t &irk
 ) {
     _db.set_entry_peer_irk(connection, irk);
 }
@@ -1116,7 +1084,7 @@ void GenericSecurityManager::on_keys_distributed_bdaddr(
 
 void GenericSecurityManager::on_keys_distributed_csrk(
     connection_handle_t connection,
-    const csrk_t *csrk
+    const csrk_t &csrk
 ) {
     SecurityEntry_t *entry = _db.get_entry(connection);
     if (!entry) {
@@ -1129,21 +1097,30 @@ void GenericSecurityManager::on_keys_distributed_csrk(
 
     eventHandler->signingKey(
         connection,
-        csrk,
+        &csrk,
         entry->csrk_mitm_protected
     );
 }
 
 void GenericSecurityManager::on_ltk_request(
     connection_handle_t connection,
-    const ediv_t *ediv,
-    const rand_t *rand
+    const ediv_t &ediv,
+    const rand_t &rand
 ) {
     _db.get_entry_local_keys(
         mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
         connection,
         ediv,
         rand
+    );
+}
+
+void GenericSecurityManager::on_ltk_request(
+    connection_handle_t connection
+) {
+    _db.get_entry_local_keys(
+        mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
+        connection
     );
 }
 

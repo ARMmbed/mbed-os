@@ -364,6 +364,14 @@ private:
 #endif
 
     /**
+     * Set the MITM protection setting on the database entry
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] enable if true set the MITM protection to on.
+     */
+    virtual void set_mitm_performed(connection_handle_t connection, bool enable = true);
+
+    /**
      * Inform the security manager that a device has been disconnected and its
      * entry can be put in NVM storage. Called by GAP.
      *
@@ -492,10 +500,6 @@ public:
     // MITM
     //
 
-    /** @copydoc SecurityManagerEventHandler::set_mitm_performed
-     */
-    virtual void set_mitm_performed(connection_handle_t connection, bool enable = true);
-
     /** @copydoc SecurityManagerEventHandler::on_passkey_display
      */
     virtual void on_passkey_display(
@@ -549,57 +553,44 @@ public:
      */
     virtual void on_secure_connections_ltk_generated(
         connection_handle_t connection,
-        const ltk_t *ltk
-    );
-
-    /** @copydoc SecurityManagerEventHandler::on_keys_distributed
-     */
-    virtual void on_keys_distributed(
-        connection_handle_t connection,
-        advertising_peer_address_type_t peer_address_type,
-        const address_t &peer_identity_address,
-        const ediv_t *ediv,
-        const rand_t *rand,
-        const ltk_t *ltk,
-        const irk_t *irk,
-        const csrk_t *csrk
+        const ltk_t &ltk
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_ltk
      */
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_ediv_rand
      */
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_local_ltk
      */
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_local_ediv_rand
      */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_irk
      */
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        const irk_t *irk
+        const irk_t &irk
     );
 
     /** @copydoc SecurityManagerEventHandler::on_keys_distributed_bdaddr
@@ -614,15 +605,21 @@ public:
      */
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t &csrk
     );
 
     /** @copydoc SecurityManagerEventHandler::on_ltk_requeston_ltk_request
      */
     virtual void on_ltk_request(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
+    );
+
+    /** @copydoc SecurityManagerEventHandler::on_ltk_requeston_ltk_request
+     */
+    virtual void on_ltk_request(
+        connection_handle_t connection
     );
 
     /* end implements ble::pal::SecurityManagerEventHandler */

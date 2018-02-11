@@ -182,8 +182,19 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
+    ) = 0;
+
+    /**
+     * Retrieve stored LTK generated during secure connections pairing.
+     *
+     * @param[in] cb callback that will receive the LTK struct
+     * @param[in] connection handle for the connection requesting the key
+     */
+    virtual void get_entry_local_keys(
+        SecurityEntryKeysDbCb_t cb,
+        connection_handle_t connection
     ) = 0;
 
     /**
@@ -195,7 +206,7 @@ public:
      */
     virtual void set_entry_local_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) = 0;
 
     /**
@@ -207,8 +218,8 @@ public:
      */
     virtual void set_entry_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) = 0;
 
     /* peer's keys */
@@ -238,29 +249,6 @@ public:
     ) = 0;
 
     /**
-     * Update all values in one call.
-     *
-     * @param[in] connection for which the values are being updated
-     * @param[in] address_is_public is the address public or private
-     * @param[in] peer_address identity address of the peer
-     * @param[in] ediv EDIV value
-     * @param[in] rand RAND value
-     * @param[in] ltk LTK value
-     * @param[in] irk IRK value
-     * @param[in] csrk CSRK value
-     */
-    virtual void set_entry_peer(
-        connection_handle_t connection,
-        bool address_is_public,
-        const address_t &peer_address,
-        const ediv_t *ediv,
-        const rand_t *rand,
-        const ltk_t *ltk,
-        const irk_t *irk,
-        const csrk_t *csrk
-    ) = 0;
-
-    /**
      * Save new LTK received from the peer.
      *
      * @param[in] connection handle for which the LTK is being updated
@@ -269,7 +257,7 @@ public:
      */
     virtual void set_entry_peer_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) = 0;
 
     /**
@@ -281,8 +269,8 @@ public:
      */
     virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) = 0;
 
     /**
@@ -293,7 +281,7 @@ public:
      */
     virtual void set_entry_peer_irk(
         connection_handle_t connection,
-        const irk_t *irk
+        const irk_t &irk
     ) = 0;
 
     /**
@@ -317,7 +305,7 @@ public:
      */
     virtual void set_entry_peer_csrk(
         connection_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t &csrk
     ) = 0;
 
     /* local csrk */
@@ -335,7 +323,7 @@ public:
      * @param[in] csrk new CSRK value
      */
     virtual void set_local_csrk(
-        const csrk_t *csrk
+        const csrk_t &csrk
     ) = 0;
 
     /* public keys */
@@ -361,8 +349,8 @@ public:
      * @param[in] public_key_y new public key value of the y coordinate
      */
     virtual void set_public_key(
-        const public_key_t& public_key_x,
-        const public_key_t& public_key_y
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
     ) = 0;
 
     /* oob data */
@@ -401,10 +389,10 @@ public:
      * @param[out] local_random random number chosen by the local device
      */
     virtual void get_sc_oob_data(
-        address_t& peer_address,
-        oob_rand_t& peer_random,
-        oob_confirm_t& peer_confirm,
-        oob_rand_t& local_random
+        address_t &peer_address,
+        oob_rand_t &peer_random,
+        oob_confirm_t &peer_confirm,
+        oob_rand_t &local_random
     ) = 0;
 
     /**
@@ -424,9 +412,9 @@ public:
      *                on the random number, its public key and address
      */
     virtual void set_peer_sc_oob_data(
-        const address_t& address,
-        const oob_rand_t& random,
-        const oob_confirm_t& confirm
+        const address_t &address,
+        const oob_rand_t &random,
+        const oob_confirm_t &confirm
     ) = 0;
 
     /**
@@ -435,7 +423,7 @@ public:
      * @param random random number chosen by the local device
      */
     virtual void set_local_sc_oob_random(
-        const oob_rand_t& random
+        const oob_rand_t &random
     ) = 0;
 
     /* list management */
@@ -454,8 +442,8 @@ public:
     virtual SecurityEntry_t* connect_entry(
         connection_handle_t connection,
         BLEProtocol::AddressType_t peer_address_type,
-        const address_t& peer_address,
-        const address_t& local_address
+        const address_t &peer_address,
+        const address_t &local_address
     ) = 0;
 
     /**
@@ -515,7 +503,7 @@ public:
      * @param[in] whitelist
      */
     virtual void set_whitelist(
-        const Gap::Whitelist_t& whitelist
+        const Gap::Whitelist_t &whitelist
     ) = 0;
 
     /**
@@ -609,8 +597,8 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) {
         SecurityEntry_t *entry = NULL;
         db_store_t *store = get_store(connection);
@@ -619,35 +607,53 @@ public:
         }
 
         /* validate we have the correct key */
-        if (ediv && rand
-            && *ediv == store->local_keys.ediv
-            && *rand == store->local_keys.rand) {
+        if (ediv == store->local_keys.ediv
+            && rand == store->local_keys.rand) {
             cb(entry, &store->local_keys);
         } else {
             cb(entry, NULL);
         }
     }
 
+    virtual void get_entry_local_keys(
+        SecurityEntryKeysDbCb_t cb,
+        connection_handle_t connection
+    ) {
+        SecurityEntry_t *entry = NULL;
+        db_store_t *store = get_store(connection);
+        if (store) {
+            entry = &store->entry;
+        }
+
+        /* validate we have the correct key */
+        if (entry->secure_connections_paired) {
+            cb(entry, &store->local_keys);
+        } else {
+            cb(entry, NULL);
+        }
+    }
+
+
     /* set */
     virtual void set_entry_local_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->local_keys.ltk = *ltk;
+            store->local_keys.ltk = ltk;
         }
     }
 
     virtual void set_entry_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->local_keys.ediv = *ediv;
-            store->local_keys.rand = *rand;
+            store->local_keys.ediv = ediv;
+            store->local_keys.rand = rand;
         }
     }
 
@@ -683,27 +689,6 @@ public:
     }
 
     /* set */
-    virtual void set_entry_peer(
-        connection_handle_t connection,
-        bool address_is_public,
-        const address_t &peer_address,
-        const ediv_t *ediv,
-        const rand_t *rand,
-        const ltk_t *ltk,
-        const irk_t *irk,
-        const csrk_t *csrk
-    ) {
-        db_store_t *store = get_store(connection);
-        if (store) {
-            store->peer_keys.ltk = *ltk;
-            store->peer_keys.ediv = *ediv;
-            store->peer_keys.rand = *rand;
-            store->csrk = *csrk;
-            size_t index = store - _db;
-            _identities[index].irk = *irk;
-            _identities[index].identity_address = peer_address;
-        }
-    }
 
     virtual void set_entry_peer_ltk(
         connection_handle_t connection,
@@ -717,24 +702,24 @@ public:
 
     virtual void set_entry_peer_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->peer_keys.ediv = *ediv;
-            store->peer_keys.rand = *rand;
+            store->peer_keys.ediv = ediv;
+            store->peer_keys.rand = rand;
         }
     }
 
     virtual void set_entry_peer_irk(
         connection_handle_t connection,
-        const irk_t *irk
+        const irk_t &irk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
             size_t index = store - _db;
-            _identities[index].irk = *irk;
+            _identities[index].irk = irk;
         }
     }
 
@@ -752,11 +737,11 @@ public:
 
     virtual void set_entry_peer_csrk(
         connection_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t &csrk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->csrk = *csrk;
+            store->csrk = csrk;
         }
     }
 
@@ -766,8 +751,8 @@ public:
         return &_local_csrk;
     }
 
-    virtual void set_local_csrk(const csrk_t *csrk) {
-        _local_csrk = *csrk;
+    virtual void set_local_csrk(const csrk_t &csrk) {
+        _local_csrk = csrk;
     }
 
     /* public key */
@@ -781,8 +766,8 @@ public:
     }
 
     virtual void set_public_key(
-        const public_key_t& public_key_x,
-        const public_key_t& public_key_y
+        const public_key_t &public_key_x,
+        const public_key_t &public_key_y
     ) {
         _public_key_x = public_key_x;
         _public_key_y = public_key_y;
@@ -805,10 +790,10 @@ public:
     }
 
     virtual void get_sc_oob_data(
-        address_t& peer_address,
-        oob_rand_t& peer_random,
-        oob_confirm_t& peer_confirm,
-        oob_rand_t& local_random
+        address_t &peer_address,
+        oob_rand_t &peer_random,
+        oob_confirm_t &peer_confirm,
+        oob_rand_t &local_random
     ) {
         peer_address = _peer_sc_oob_address;
         peer_random = _peer_sc_oob_random;
@@ -821,9 +806,9 @@ public:
     }
 
     virtual void set_peer_sc_oob_data(
-        const address_t& address,
-        const oob_rand_t& random,
-        const oob_confirm_t& confirm
+        const address_t &address,
+        const oob_rand_t &random,
+        const oob_confirm_t &confirm
     ) {
         _peer_sc_oob_address = address;
         _peer_sc_oob_random = random;
@@ -831,7 +816,7 @@ public:
     }
 
     virtual void set_local_sc_oob_random(
-        const oob_rand_t& random
+        const oob_rand_t &random
     ) {
         _local_sc_oob_random = random;
     }
@@ -841,8 +826,8 @@ public:
     virtual SecurityEntry_t* connect_entry(
         connection_handle_t connection,
         BLEProtocol::AddressType_t peer_address_type,
-        const address_t& peer_address,
-        const address_t& local_address
+        const address_t &peer_address,
+        const address_t &local_address
     ) {
         const bool peer_address_public =
             (peer_address_type == BLEProtocol::AddressType::PUBLIC);
@@ -906,7 +891,7 @@ public:
         cb(whitelist);
     }
 
-    virtual void update_whitelist(Gap::Whitelist_t& whitelist) { }
+    virtual void update_whitelist(Gap::Whitelist_t &whitelist) { }
 
     virtual void add_whitelist_entry(const address_t &address) { }
 

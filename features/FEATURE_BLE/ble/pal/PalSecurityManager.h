@@ -398,30 +398,7 @@ public:
      */
     virtual void on_secure_connections_ltk_generated(
         connection_handle_t connection,
-        const ltk_t *ltk
-    ) = 0;
-
-    /**
-     * Store the results of key distribution after all the keys have been received.
-     *
-     * @param[in] connection connection handle
-     * @param[in] peer_address_type public or private address indication from the SMP
-     * @param[in] peer_address identity address from the peer
-     * @param[in] ediv encryption diversifier from the peer
-     * @param[in] rand random value from the peer
-     * @param[in] ltk long term key from the peer
-     * @param[in] irk identity resolution key
-     * @param[in] csrk signing key
-     */
-    virtual void on_keys_distributed(
-        connection_handle_t connection,
-        advertising_peer_address_type_t peer_address_type,
-        const address_t &peer_address,
-        const ediv_t *ediv,
-        const rand_t *rand,
-        const ltk_t *ltk,
-        const irk_t *irk,
-        const csrk_t *csrk
+        const ltk_t &ltk
     ) = 0;
 
     /**
@@ -432,7 +409,7 @@ public:
      */
     virtual void on_keys_distributed_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) = 0;
 
     /**
@@ -443,8 +420,8 @@ public:
      */
     virtual void on_keys_distributed_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) = 0;
 
     /**
@@ -456,7 +433,7 @@ public:
      */
     virtual void on_keys_distributed_local_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) = 0;
 
     /**
@@ -471,8 +448,8 @@ public:
      */
     virtual void on_keys_distributed_local_ediv_rand(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
     ) = 0;
 
     /**
@@ -483,7 +460,7 @@ public:
      */
     virtual void on_keys_distributed_irk(
         connection_handle_t connection,
-        const irk_t *irk
+        const irk_t &irk
     ) = 0;
 
     /**
@@ -507,7 +484,7 @@ public:
      */
     virtual void on_keys_distributed_csrk(
         connection_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t &csrk
     ) = 0;
 
     /**
@@ -521,8 +498,19 @@ public:
      */
     virtual void on_ltk_request(
         connection_handle_t connection,
-        const ediv_t *ediv,
-        const rand_t *rand
+        const ediv_t &ediv,
+        const rand_t &rand
+    ) = 0;
+
+    /**
+     * Request the LTK since the peer is asking us to encrypt the link.
+     * @note No EDIV or RAND is provided as this requests a secure
+     * connections LTK where their values are all zeroes
+     *
+     * @param[in] connection connection handle
+     */
+    virtual void on_ltk_request(
+        connection_handle_t connection
     ) = 0;
 };
 
@@ -770,9 +758,22 @@ public:
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
-        const ltk_t *ltk,
-        const rand_t *rand = NULL,
-        const ediv_t *ediv = NULL
+        const ltk_t &ltk,
+        const rand_t &rand,
+        const ediv_t &ediv
+    ) = 0;
+
+    /**
+     * Enabled encryption using the LTK given on a connection established with secure
+     * connections pairing.
+     *
+     * @param[in] connection connection handle
+     * @param[in] ltk long term key from the peer
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t enable_encryption(
+        connection_handle_t connection,
+        const ltk_t &ltk
     ) = 0;
 
     virtual ble_error_t disable_encryption(
@@ -800,7 +801,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t encrypt_data(
-        const key_t *key,
+        const key_t &key,
         encryption_block_t &data
     ) = 0;
 
@@ -820,12 +821,22 @@ public:
      * Set the LTK that is to be used for encryption.
      *
      * @param[in] connection connection handle
-     * @param[in] ltk long term key, NULL if key has not been found
+     * @param[in] ltk long term key
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
+    ) = 0;
+
+    /**
+     * Inform the stack we don't have the LTK.
+     *
+     * @param[in] connection connection handle
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t set_ltk_not_found(
+        connection_handle_t connection
     ) = 0;
 
     /**
@@ -835,7 +846,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_irk(
-        const irk_t *irk
+        const irk_t &irk
     ) = 0;
 
     /**
@@ -845,7 +856,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_csrk(
-        const csrk_t *csrk
+        const csrk_t &csrk
     ) = 0;
 
     /**

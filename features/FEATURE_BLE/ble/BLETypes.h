@@ -334,10 +334,10 @@ protected:
 };
 
 /** 128 bit keys used by paired devices */
-class key_t : public octet_type_t<16> {} ;
-class irk_t : public key_t {};
-class csrk_t : public key_t {};
-class ltk_t : public key_t {};
+struct key_t : public octet_type_t<16> {} ;
+struct irk_t : public key_t {};
+struct csrk_t : public key_t {};
+struct ltk_t : public key_t {};
 
 /** Used to identify LTK for legacy pairing connections */
 typedef octet_type_t<2> ediv_t;
@@ -361,7 +361,7 @@ typedef octet_type_t<32> dhkey_t;
 /**
  * MAC address data type.
  */
-struct address_t : public octet_type_t<6>{
+struct address_t : public octet_type_t<6> {
     /**
      * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
      */
