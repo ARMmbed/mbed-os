@@ -1,0 +1,4 @@
+File '../../../framework/common/CellularUtil.cpp'
+Lines executed:76.14% of 176
+Creating 'CellularUtil.cpp.gcov'
+

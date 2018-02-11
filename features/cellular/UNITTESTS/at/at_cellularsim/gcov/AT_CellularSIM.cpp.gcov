@@ -1,0 +1,119 @@
+        -:    0:Source:../../../framework/AT/AT_CellularSIM.cpp
+        -:    0:Graph:objs/AT_CellularSIM_unit/AT_CellularSIM.gcno
+        -:    0:Data:objs/AT_CellularSIM_unit/AT_CellularSIM.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#include "AT_CellularSIM.h"
+        -:   19:#include "CellularLog.h"
+        -:   20:
+        -:   21:using namespace mbed;
+        -:   22:
+        1:   23:AT_CellularSIM::AT_CellularSIM(ATHandler &at) : AT_CellularBase(at)
+        -:   24:{
+        1:   25:}
+        -:   26:
+        2:   27:AT_CellularSIM::~AT_CellularSIM()
+        -:   28:{
+        2:   29:}
+        -:   30:
+    #####:   31:nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
+        -:   32:{
+        -:   33:    char simstr[16];
+    #####:   34:    _at.lock();
+    #####:   35:    _at.flush();
+    #####:   36:    _at.cmd_start("AT+CPIN?");
+    #####:   37:    _at.cmd_stop();
+    #####:   38:    _at.resp_start("+CPIN:");
+    #####:   39:    ssize_t len = _at.read_string(simstr, sizeof (simstr));
+    #####:   40:    if (len != -1) {
+    #####:   41:        if (len >= 5 && memcmp(simstr, "READY", 5) == 0) {
+    #####:   42:            state = SimStateReady;
+    #####:   43:        } else if (len >= 6 && memcmp(simstr, "SIM PIN", 6) == 0) {
+    #####:   44:            state = SimStatePinNeeded;
+    #####:   45:        } else if (len >= 6 && memcmp(simstr, "SIM PUK", 6) == 0) {
+    #####:   46:            state = SimStatePukNeeded;
+        -:   47:        } else {
+    #####:   48:            simstr[len] = '\0';
+    #####:   49:            log_error("Unknown SIM state %s", simstr);
+    #####:   50:            state = SimStateUnknown;
+        -:   51:        }
+        -:   52:    } else {
+        -:   53:        log_warn("SIM not readable.");
+    #####:   54:        state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
+        -:   55:    }
+    #####:   56:    _at.resp_stop();
+    #####:   57:    return _at.unlock_return_error();
+        -:   58:}
+        -:   59:
+    #####:   60:nsapi_error_t AT_CellularSIM::set_pin(const char *sim_pin)
+        -:   61:{
+        -:   62:    // if SIM is already in ready state then settings the PIN
+        -:   63:    // will return error so let's check the state before settings the pin.
+        -:   64:    SimState state;
+    #####:   65:    if (get_sim_state(state) == NSAPI_ERROR_OK && state == SimStateReady) {
+    #####:   66:        return NSAPI_ERROR_OK;
+        -:   67:    }
+        -:   68:
+    #####:   69:    _at.lock();
+    #####:   70:    _at.cmd_start("AT+CPIN=");
+    #####:   71:    _at.write_string(sim_pin);
+    #####:   72:    _at.cmd_stop();
+    #####:   73:    _at.resp_start();
+    #####:   74:    _at.resp_stop();
+    #####:   75:    return _at.unlock_return_error();
+        -:   76:}
+        -:   77:
+    #####:   78:nsapi_error_t AT_CellularSIM::change_pin(const char *sim_pin, const char *new_pin)
+        -:   79:{
+    #####:   80:    _at.lock();
+    #####:   81:    _at.cmd_start("AT+CPWD=");
+    #####:   82:    _at.write_string("SC");
+    #####:   83:    _at.write_string(sim_pin);
+    #####:   84:    _at.write_string(new_pin);
+    #####:   85:    _at.cmd_stop();
+    #####:   86:    _at.resp_start();
+    #####:   87:    _at.resp_stop();
+    #####:   88:    return _at.unlock_return_error();
+        -:   89:}
+        -:   90:
+    #####:   91:nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
+        -:   92:{
+    #####:   93:    _at.lock();
+    #####:   94:    if (query_pin) {
+        -:   95:        /* use the SIM locked */
+    #####:   96:        _at.cmd_start("AT+CLCK=");
+    #####:   97:        _at.write_string("SC");
+    #####:   98:        _at.write_int(1);
+    #####:   99:        _at.write_string(sim_pin);
+    #####:  100:        _at.cmd_stop();
+    #####:  101:        _at.resp_start();
+    #####:  102:        _at.resp_stop();
+        -:  103:    } else {
+        -:  104:        /* use the SIM unlocked */
+    #####:  105:        _at.cmd_start("AT+CLCK=");
+    #####:  106:        _at.write_string("SC");
+    #####:  107:        _at.write_int(0);
+    #####:  108:        _at.write_string(sim_pin);
+    #####:  109:        _at.cmd_stop();
+    #####:  110:        _at.resp_start();
+    #####:  111:        _at.resp_stop();
+        -:  112:    }
+    #####:  113:    return _at.unlock_return_error();
+        -:  114:}

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="ATHandler" tests="37" time="0.001" timestamp="2018-02-11T22:59:06">
+<properties>
+</properties>
+<testcase classname="ATHandler" name="test_ATHandler_get_3gpp_error" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_enable_debug" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_consume_to_stop_tag" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_info_elem" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_info_resp" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_resp_stop" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_resp_start" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_read_int" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_read_string" time="0.001">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_read_bytes" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_skip_param" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_delimiter" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_stop_tag" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_write_bytes" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_cmd_stop" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_write_string" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_write_int" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_cmd_start" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_flush" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_filehandle_sigio" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_process_oob" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_clear_error" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_restore_at_timeout" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_at_timeout" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_get_ref_count" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_dec_ref_count" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_inc_ref_count" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_get_last_device_error" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_get_last_error" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_urc_handler" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_unlock_return_error" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_unlock" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_lock" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_set_file_handle" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_get_file_handle" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="test_ATHandler_constructor" time="0.000">
+</testcase>
+<testcase classname="ATHandler" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

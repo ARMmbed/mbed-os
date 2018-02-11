@@ -1,0 +1,1308 @@
+        -:    0:Source:../../../framework/AT/AT_CellularSMS.cpp
+        -:    0:Graph:objs/AT_CellularSMS_unit/AT_CellularSMS.gcno
+        -:    0:Data:objs/AT_CellularSMS_unit/AT_CellularSMS.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#include <time.h>
+        -:   19:#include <stdlib.h>
+        -:   20:#include "mbed_wait_api.h"
+        -:   21:#include "AT_CellularSMS.h"
+        -:   22:#include "CellularUtil.h"
+        -:   23:#include "CellularLog.h"
+        -:   24:
+        -:   25:using namespace mbed_cellular_util;
+        -:   26:using namespace mbed;
+        -:   27:using namespace std;
+        -:   28:
+        -:   29:#define CTRL_Z  "\x1a"
+        -:   30:#define ESC     "\x1b"
+        -:   31:
+        -:   32:const uint8_t SMS_STATUS_SIZE = 12 + 1;
+        -:   33:const uint8_t FIRST_OCTET_DELIVER_SUBMIT = 17;
+        -:   34:const uint8_t TP_VALIDITY_PERIOD_24_HOURS = 167;
+        -:   35:const uint8_t TP_PROTOCOL_IDENTIFIER = 0;
+        -:   36:const uint8_t SMS_DATA_CODING_SCHEME = 0;
+        -:   37:
+        -:   38:const uint8_t SMS_MAX_8BIT_CONCATENATED_SINGLE_SMS_SIZE = 134;
+        -:   39:const uint8_t SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE = 153;
+        -:   40:#define NVAM '?' // Not Valid ascii, ISO-8859-1 mark
+        -:   41:
+        -:   42:// mapping table from 7-bit GSM to ascii (ISO-8859-1)
+        -:   43:static const int gsm_to_ascii[] = {
+        -:   44:    64,     // 0
+        -:   45:    163,    // 1
+        -:   46:    36,     // 2
+        -:   47:    165,    // 3
+        -:   48:    232,    // 4
+        -:   49:    233,    // 5
+        -:   50:    249,    // 6
+        -:   51:    236,    // 7
+        -:   52:    242,    // 8
+        -:   53:    199,    // 9
+        -:   54:    10,     // 10
+        -:   55:    216,    // 11
+        -:   56:    248,    // 12
+        -:   57:    13,     // 13
+        -:   58:    197,    // 14
+        -:   59:    229,    // 15
+        -:   60:    NVAM,   // 16
+        -:   61:    95,     // 17
+        -:   62:    NVAM,   // 18
+        -:   63:    NVAM,   // 19
+        -:   64:    NVAM,   // 20
+        -:   65:    NVAM,   // 21
+        -:   66:    NVAM,   // 22
+        -:   67:    NVAM,   // 23
+        -:   68:    NVAM,   // 24
+        -:   69:    NVAM,   // 25
+        -:   70:    NVAM,   // 26
+        -:   71:    27,     // 27
+        -:   72:    198,    // 28
+        -:   73:    230,    // 29
+        -:   74:    223,    // 30
+        -:   75:    201,    // 31
+        -:   76:    32,     // 32
+        -:   77:    33,     // 33
+        -:   78:    34,     // 34
+        -:   79:    35,     // 35
+        -:   80:    164,    // 36
+        -:   81:    37,     // 37
+        -:   82:    38,     // 38
+        -:   83:    39,     // 39
+        -:   84:    40,     // 40
+        -:   85:    41,     // 41
+        -:   86:    42,     // 42
+        -:   87:    43,     // 43
+        -:   88:    44,     // 44
+        -:   89:    45,     // 45
+        -:   90:    46,     // 46
+        -:   91:    47,     // 47
+        -:   92:    48,     // 48
+        -:   93:    49,     // 49
+        -:   94:    50,     // 50
+        -:   95:    51,     // 51
+        -:   96:    52,     // 52
+        -:   97:    53,     // 53
+        -:   98:    54,     // 54
+        -:   99:    55,     // 55
+        -:  100:    56,     // 56
+        -:  101:    57,     // 57
+        -:  102:    58,     // 58
+        -:  103:    59,     // 59
+        -:  104:    60,     // 60
+        -:  105:    61,     // 61
+        -:  106:    62,     // 62
+        -:  107:    63,     // 63
+        -:  108:    161,    // 64
+        -:  109:    65,     // 65
+        -:  110:    66,     // 66
+        -:  111:    67,     // 67
+        -:  112:    68,     // 68
+        -:  113:    69,     // 69
+        -:  114:    70,     // 70
+        -:  115:    71,     // 71
+        -:  116:    72,     // 72
+        -:  117:    73,     // 73
+        -:  118:    74,     // 74
+        -:  119:    75,     // 75
+        -:  120:    76,     // 76
+        -:  121:    77,     // 77
+        -:  122:    78,     // 78
+        -:  123:    79,     // 79
+        -:  124:    80,     // 80
+        -:  125:    81,     // 81
+        -:  126:    82,     // 82
+        -:  127:    83,     // 83
+        -:  128:    84,     // 84
+        -:  129:    85,     // 85
+        -:  130:    86,     // 86
+        -:  131:    87,     // 87
+        -:  132:    88,     // 88
+        -:  133:    89,     // 89
+        -:  134:    90,     // 90
+        -:  135:    196,    // 91
+        -:  136:    214,    // 92
+        -:  137:    209,    // 93
+        -:  138:    220,    // 94
+        -:  139:    167,    // 95
+        -:  140:    191,    // 96
+        -:  141:    97,     // 97
+        -:  142:    98,     // 98
+        -:  143:    99,     // 99
+        -:  144:    100,    // 100
+        -:  145:    101,    // 101
+        -:  146:    102,    // 102
+        -:  147:    103,    // 103
+        -:  148:    104,    // 104
+        -:  149:    105,    // 105
+        -:  150:    106,    // 106
+        -:  151:    107,    // 107
+        -:  152:    108,    // 108
+        -:  153:    109,    // 109
+        -:  154:    110,    // 110
+        -:  155:    111,    // 111
+        -:  156:    112,    // 112
+        -:  157:    113,    // 113
+        -:  158:    114,    // 114
+        -:  159:    115,    // 115
+        -:  160:    116,    // 116
+        -:  161:    117,    // 117
+        -:  162:    118,    // 118
+        -:  163:    119,    // 119
+        -:  164:    120,    // 120
+        -:  165:    121,    // 121
+        -:  166:    122,    // 122
+        -:  167:    228,    // 123
+        -:  168:    246,    // 124
+        -:  169:    241,    // 125
+        -:  170:    252,    // 126
+        -:  171:    224     // 127
+        -:  172:};
+        -:  173:
+        -:  174:const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii)/sizeof(gsm_to_ascii[0]);
+        -:  175:
+        1:  176:AT_CellularSMS::AT_CellularSMS(ATHandler &at) : AT_CellularBase(at), _cb(0), _mode(CellularSMSMmodeText),
+        1:  177:        _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
+        -:  178:{
+        -:  179:    /* URCs, handled out of band */
+        1:  180:    _at.set_urc_handler("+CMTI: ", callback(this, &AT_CellularSMS::cmti_urc));
+        1:  181:    _at.set_urc_handler("+CMT: ", callback(this, &AT_CellularSMS::cmt_urc));
+        1:  182:}
+        -:  183:
+        2:  184:AT_CellularSMS::~AT_CellularSMS()
+        -:  185:{
+        2:  186:}
+        -:  187:
+    #####:  188:void AT_CellularSMS::cmt_urc()
+        -:  189:{
+        -:  190:    log_debug("CMT_URC called");
+        -:  191:    //+CMT: <oa>,[<alpha>],<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data>
+    #####:  192:    _at.consume_to_stop_tag();
+        -:  193:    // call user defined callback function
+    #####:  194:    if (_cb) {
+    #####:  195:        _cb();
+        -:  196:    } else {
+        -:  197:        log_warn("cmt_urc, no user defined callback for receiving sms!");
+        -:  198:    }
+    #####:  199:}
+        -:  200:
+    #####:  201:void AT_CellularSMS::cmti_urc()
+        -:  202:{
+        -:  203:    //+CMTI: <mem>,<index>,
+        -:  204:    log_debug("CMTI_URC called");
+        -:  205:    // call user defined callback function
+    #####:  206:    if (_cb) {
+    #####:  207:        _cb();
+        -:  208:    } else {
+        -:  209:        log_warn("cmti_urc, no user defined callback for receiving sms!");
+        -:  210:    }
+    #####:  211:}
+        -:  212:
+    #####:  213:nsapi_error_t AT_CellularSMS::set_cnmi()
+        -:  214:{
+    #####:  215:    _at.lock();
+    #####:  216:    _at.cmd_start("AT+CNMI=2,1");
+    #####:  217:    _at.cmd_stop();
+    #####:  218:    _at.resp_start();
+    #####:  219:    _at.resp_stop();
+    #####:  220:    return _at.unlock_return_error();
+        -:  221:}
+        -:  222:
+    #####:  223:nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
+        -:  224:{
+    #####:  225:    _at.lock();
+    #####:  226:    _at.cmd_start("AT+CMGF=");
+    #####:  227:    _at.write_int(msg_format);
+    #####:  228:    _at.cmd_stop();
+    #####:  229:    _at.resp_start();
+    #####:  230:    _at.resp_stop();
+    #####:  231:    return _at.unlock_return_error();
+        -:  232:}
+        -:  233:
+    #####:  234:nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
+        -:  235:{
+    #####:  236:    _at.lock();
+    #####:  237:    _at.cmd_start("AT+CSMP=");
+    #####:  238:    _at.write_int(fo);
+    #####:  239:    _at.write_int(vp);
+    #####:  240:    _at.write_int(pid);
+    #####:  241:    _at.write_int(dcs);
+    #####:  242:    _at.cmd_stop();
+    #####:  243:    _at.resp_start();
+    #####:  244:    _at.resp_stop();
+    #####:  245:    return _at.unlock_return_error();
+        -:  246:}
+        -:  247:
+    #####:  248:nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
+        -:  249:{
+    #####:  250:    _at.lock();
+    #####:  251:    _at.cmd_start("AT+CSDH=");
+    #####:  252:    _at.write_int(show_header);
+    #####:  253:    _at.cmd_stop();
+    #####:  254:    _at.resp_start();
+    #####:  255:    _at.resp_stop();
+    #####:  256:    return _at.unlock_return_error();
+        -:  257:}
+        -:  258:
+    #####:  259:nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
+        -:  260:{
+    #####:  261:    _at.lock();
+    #####:  262:    set_cnmi();     //set new SMS indication
+    #####:  263:    set_cmgf(mode); //set message format/PDU
+        -:  264:
+    #####:  265:    if (mode == CellularSMSMmodeText) {
+        -:  266:        set_csmp(FIRST_OCTET_DELIVER_SUBMIT, TP_VALIDITY_PERIOD_24_HOURS, TP_PROTOCOL_IDENTIFIER,
+    #####:  267:                 SMS_DATA_CODING_SCHEME);    //set Set Text Mode Parameters(default values for SMS-SUBMIT and RECEIVE)
+    #####:  268:        set_csdh(1);//set header extra info as it's needed
+        -:  269:    }
+        -:  270:
+    #####:  271:    _mode = mode;
+        -:  272:
+    #####:  273:    return _at.unlock_return_error();
+        -:  274:}
+        -:  275:
+    #####:  276:void AT_CellularSMS::set_extra_sim_wait_time(int sim_wait_time)
+        -:  277:{
+    #####:  278:    _sim_wait_time = sim_wait_time;
+    #####:  279:}
+        -:  280:
+    #####:  281:char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
+        -:  282:        uint8_t msg_part_number)
+        -:  283:{
+    #####:  284:    int totalPDULength = 0;
+    #####:  285:    int number_len = strlen(phone_number);
+        -:  286:
+    #####:  287:    totalPDULength += number_len;
+    #####:  288:    if (number_len&0x01) {// if phone number length is not even length we must pad it and so +1
+    #####:  289:        totalPDULength += 1;
+        -:  290:    }
+        -:  291:
+    #####:  292:    totalPDULength += 16; // all other than phone number and message length
+    #####:  293:    if (msg_parts > 1) {// add more space for UDH
+    #####:  294:        totalPDULength += 12;
+        -:  295:    }
+        -:  296:    // there might be need for padding so some more space
+    #####:  297:    totalPDULength +=2;
+        -:  298:
+        -:  299:    // message 7-bit padded and it will be converted to hex so it will take twice as much space
+    #####:  300:    totalPDULength += (message_length - (message_length/8))*2;
+        -:  301:
+    #####:  302:    char* pdu = (char*)calloc(totalPDULength, sizeof(char));
+    #####:  303:    if (!pdu) {
+    #####:  304:        return NULL;
+        -:  305:    }
+        -:  306:
+    #####:  307:    int x = 0;
+        -:  308:    // See more how to create PDU from 3GPP specification 23040
+        -:  309:    // first two define that we use service center number which is set with +CSCA
+    #####:  310:    pdu[x++] = '0';
+    #####:  311:    pdu[x++] = '0';
+        -:  312:    // First Octet of the TPDU. 41 means SMS SUBMIT, no validity period, no status report, use User Data Header.
+        -:  313:    // 01 means SMS SUBMIT, no validity period, no status report, NO User Data Header.
+    #####:  314:    if (msg_parts > 1) { // concatenated, must use UDH
+    #####:  315:        pdu[x++] = '4';
+        -:  316:    } else {
+    #####:  317:        pdu[x++] = '0';
+        -:  318:    }
+    #####:  319:    pdu[x++] = '1';
+        -:  320:    // assign a message reference automatically. We have defined TP-RD bit as 0 so duplicates are not rejected.
+    #####:  321:    pdu[x++] = '0';
+    #####:  322:    pdu[x++] = '0';
+        -:  323:    // [6] and [7] Length of the Destination Phone Number
+    #####:  324:    int_to_hex_str(number_len, pdu+x);
+    #####:  325:    x+=2;
+        -:  326:    // Type of the Destination Phone Number
+    #####:  327:    pdu[x++] = '8';
+    #####:  328:    pdu[x++] = '1';
+        -:  329:
+        -:  330:    // phone number as reverse nibble encoded
+    #####:  331:    int i = 0;
+    #####:  332:    for (; i < number_len; i += 2) {
+    #####:  333:        if (i+1 == number_len) {
+    #####:  334:            pdu[x++] = 'f';
+        -:  335:        } else {
+    #####:  336:            pdu[x++] = phone_number[i+1];
+        -:  337:        }
+    #####:  338:        pdu[x++] = phone_number[i];
+        -:  339:    }
+        -:  340:
+        -:  341:    // Protocol Identifier
+    #####:  342:    pdu[x++] = '0';
+    #####:  343:    pdu[x++] = '0';
+        -:  344:    // Data Coding Scheme, GSM 7-bit default alphabet = '00', 8-bit '04'
+    #####:  345:    pdu[x++] = '0';
+        -:  346:
+    #####:  347:    if (_use_8bit_encoding) {
+    #####:  348:        pdu[x++] = '4';
+        -:  349:    } else {
+    #####:  350:        pdu[x++] = '0';
+        -:  351:    }
+        -:  352:
+        -:  353:    // possible to use 16 bit identifier, can't be defined yet from outside
+    #####:  354:    bool use_16_bit_identifier = false;
+    #####:  355:    uint8_t udhlen = 0;
+        -:  356:    // Length can be update after we have created PDU, store position for later use.
+    #####:  357:    int lengthPos = x;
+    #####:  358:    x +=2;
+        -:  359:
+    #####:  360:    int paddingBits = 0;
+    #####:  361:    if (msg_parts > 1) { // concatenated, must use UDH
+        -:  362:        // user data header length in chars
+    #####:  363:        pdu[x++] = '0';
+    #####:  364:        if (use_16_bit_identifier) {
+    #####:  365:            udhlen = 7; // udh length in chars (6) + udhl length in chars
+    #####:  366:            pdu[x++] = '6';
+        -:  367:        } else {
+    #####:  368:            udhlen = 6; // udh length in chars (5) + udhl length in chars
+    #####:  369:            pdu[x++] = '5';
+        -:  370:        }
+        -:  371:        // Information element identifier
+    #####:  372:        pdu[x++] = '0';
+    #####:  373:        if (use_16_bit_identifier) {
+    #####:  374:            pdu[x++] = '8';
+        -:  375:        } else {
+    #####:  376:            pdu[x++] = '0';
+        -:  377:        }
+        -:  378:        //  Information element data length
+    #####:  379:        pdu[x++] = '0';
+    #####:  380:        if (use_16_bit_identifier) {
+    #####:  381:            pdu[x++] = '4';
+        -:  382:        } else {
+    #####:  383:            pdu[x++] = '3';
+        -:  384:        }
+        -:  385:        //  A reference number (must be the same for all parts of the same larger messages)
+    #####:  386:        int_to_hex_str(_sms_message_ref_number&0xFF, pdu+x);
+    #####:  387:        x +=2;
+    #####:  388:        if (use_16_bit_identifier) {
+    #####:  389:            int_to_hex_str((_sms_message_ref_number>>16)&0xFF, pdu+x);
+    #####:  390:            x +=2;
+        -:  391:        }
+        -:  392:        // How many parts does this message have?
+    #####:  393:        int_to_hex_str(msg_parts, pdu+x);
+    #####:  394:        x +=2;
+        -:  395:        // this is a part number
+    #####:  396:        int_to_hex_str(msg_part_number, pdu+x);
+    #####:  397:        x +=2;
+        -:  398:
+        -:  399:        // if there is padding bits then udhlen is octet bigger as we need to keep septet boundary
+    #####:  400:        paddingBits = (udhlen * 8 ) % 7;
+    #####:  401:        if (paddingBits) {
+    #####:  402:            paddingBits = 7 - paddingBits;
+    #####:  403:            udhlen += 1;
+        -:  404:        }
+        -:  405:    }
+        -:  406:
+    #####:  407:    if (_use_8bit_encoding) {
+    #####:  408:        char_str_to_hex_str(message, message_length, pdu+x);
+        -:  409:    } else {
+        -:  410:        // we might need to send zero length sms
+    #####:  411:        if (message_length) {
+    #####:  412:            if (pack_7_bit_gsm_and_hex(message, message_length, pdu+x, paddingBits) == 0) {
+    #####:  413:                free(pdu);
+    #####:  414:                return NULL;
+        -:  415:            }
+        -:  416:        }
+        -:  417:    }
+        -:  418:
+        -:  419:    // now we know the correct length of the UDL (User Data Length)
+    #####:  420:    int_to_hex_str(message_length + udhlen, pdu+lengthPos);
+        -:  421:
+    #####:  422:    return pdu;
+        -:  423:}
+        -:  424:
+    #####:  425:nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const char* message, int msg_len)
+        -:  426:{
+    #####:  427:    int single_sms_max_length = _use_8bit_encoding ? SMS_MAX_SIZE_8BIT_SINGLE_SMS_SIZE :
+    #####:  428:            SMS_MAX_SIZE_GSM7_SINGLE_SMS_SIZE;
+    #####:  429:    if ((_mode == CellularSMSMmodeText && msg_len > single_sms_max_length) || !phone_number) {
+    #####:  430:        return NSAPI_ERROR_PARAMETER;
+        -:  431:    }
+        -:  432:
+    #####:  433:    _at.lock();
+        -:  434:
+    #####:  435:    int write_size = 0;
+    #####:  436:    int remove_plus_sign = (phone_number[0] == '+') ? 1 : 0;
+        -:  437:
+    #####:  438:    wait_ms(_sim_wait_time);
+        -:  439:
+    #####:  440:    if (_mode == CellularSMSMmodeText) {
+    #####:  441:        _at.cmd_start("AT+CMGS=");
+    #####:  442:        _at.write_string(phone_number+remove_plus_sign);
+    #####:  443:        _at.cmd_stop();
+        -:  444:
+    #####:  445:        wait_ms(_sim_wait_time);
+    #####:  446:        _at.resp_start("> ", true);
+        -:  447:
+    #####:  448:        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    #####:  449:            write_size = _at.write_bytes((uint8_t*)message, msg_len);
+    #####:  450:            if (write_size < msg_len) {
+        -:  451:                // sending can be cancelled by giving <ESC> character (IRA 27).
+    #####:  452:                _at.cmd_start(ESC);
+    #####:  453:                _at.cmd_stop();
+    #####:  454:                _at.unlock();
+    #####:  455:                return write_size;
+        -:  456:            }
+        -:  457:            // <ctrl-Z> (IRA 26) must be used to indicate the ending of the message body.
+    #####:  458:            _at.cmd_start(CTRL_Z);
+    #####:  459:            _at.cmd_stop();
+    #####:  460:            _at.resp_start("+CMGS: ");
+    #####:  461:            _at.resp_stop();
+        -:  462:        }
+        -:  463:    } else {
+        -:  464:        // supports uncompressed 8 bit data and GSM 7 bit default alphabet data. Current implementation uses only
+        -:  465:        // GSM 7 bit default but support is done for 8 bit data.
+        -:  466:        int sms_count;
+    #####:  467:        int concatenated_sms_length = _use_8bit_encoding ? SMS_MAX_8BIT_CONCATENATED_SINGLE_SMS_SIZE :
+    #####:  468:                SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE;
+        -:  469:
+    #####:  470:        if (msg_len <= single_sms_max_length) {
+        -:  471:            // single message
+    #####:  472:            sms_count = 1;
+        -:  473:        } else {
+        -:  474:            // concatenated message
+    #####:  475:            sms_count = msg_len/concatenated_sms_length;
+    #####:  476:            if (msg_len%concatenated_sms_length != 0) {
+    #####:  477:                sms_count++;
+        -:  478:            }
+        -:  479:        }
+        -:  480:
+    #####:  481:        int remaining_len = msg_len;
+        -:  482:        int pdu_len;
+        -:  483:        char *pdu_str;
+    #####:  484:        for (int i = 0; i< sms_count; i++) {
+        -:  485:
+    #####:  486:            if (sms_count == 1) {
+    #####:  487:                pdu_len = msg_len;
+        -:  488:            } else {
+    #####:  489:                pdu_len = remaining_len > concatenated_sms_length ? concatenated_sms_length : remaining_len;
+        -:  490:            }
+        -:  491:
+    #####:  492:            pdu_str = create_pdu(phone_number+remove_plus_sign, message + i*concatenated_sms_length, pdu_len,
+    #####:  493:                    sms_count, i+1);
+    #####:  494:            if (!pdu_str) {
+    #####:  495:                _at.unlock();
+    #####:  496:                return NSAPI_ERROR_NO_MEMORY;
+        -:  497:            }
+    #####:  498:            pdu_len = strlen(pdu_str);
+        -:  499:
+        -:  500:            // specification says that service center number should not be included so we subtract -2 from pdu_len as we use '00' for automatic service center number
+    #####:  501:            _at.cmd_start("AT+CMGS=");
+    #####:  502:            _at.write_int((pdu_len-2)/2);
+    #####:  503:            _at.cmd_stop();
+        -:  504:
+    #####:  505:            wait_ms(_sim_wait_time);
+    #####:  506:            _at.resp_start("> ", true);
+        -:  507:
+    #####:  508:            if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    #####:  509:                write_size = _at.write_bytes((uint8_t*)pdu_str, pdu_len);
+    #####:  510:                if (write_size < pdu_len) {
+        -:  511:                    // sending can be cancelled by giving <ESC> character (IRA 27).
+    #####:  512:                    _at.cmd_start(ESC);
+    #####:  513:                    _at.cmd_stop();
+    #####:  514:                    _at.unlock();
+    #####:  515:                    free(pdu_str);
+    #####:  516:                    return write_size;
+        -:  517:                }
+        -:  518:
+        -:  519:                // <ctrl-Z> (IRA 26) must be used to indicate the ending of the message body.
+    #####:  520:                _at.cmd_start(CTRL_Z);
+    #####:  521:                _at.cmd_stop();
+    #####:  522:                _at.resp_start("+CMGS: ");
+    #####:  523:                _at.resp_stop();
+        -:  524:            }
+    #####:  525:            free(pdu_str);
+    #####:  526:            remaining_len -= concatenated_sms_length;
+    #####:  527:            if (_at.get_last_error() != NSAPI_ERROR_OK) {
+    #####:  528:                return _at.unlock_return_error();
+        -:  529:            }
+        -:  530:        }
+        -:  531:    }
+        -:  532:
+    #####:  533:    _sms_message_ref_number++;
+    #####:  534:    nsapi_error_t ret = _at.get_last_error();
+    #####:  535:    _at.unlock();
+        -:  536:
+    #####:  537:    return (ret == NSAPI_ERROR_OK) ? write_size : ret;
+        -:  538:}
+        -:  539:
+    #####:  540:void AT_CellularSMS::set_sms_callback(Callback<void()> func)
+        -:  541:{
+    #####:  542:    _cb = func;
+    #####:  543:}
+        -:  544:
+    #####:  545:nsapi_error_t AT_CellularSMS::set_cpms(const char *memr, const char *memw, const char *mems)
+        -:  546:{
+    #####:  547:    _at.lock();
+    #####:  548:    _at.cmd_start("AT+CPMS=");
+    #####:  549:    _at.write_string(memr);
+    #####:  550:    _at.write_string(memw);
+    #####:  551:    _at.write_string(mems);
+    #####:  552:    _at.cmd_stop();
+    #####:  553:    _at.resp_start();
+    #####:  554:    _at.resp_stop();
+        -:  555:
+    #####:  556:    return _at.unlock_return_error();
+        -:  557:}
+        -:  558:
+    #####:  559:nsapi_error_t AT_CellularSMS::set_csca(const char *sca, int type)
+        -:  560:{
+    #####:  561:    _at.lock();
+    #####:  562:    _at.cmd_start("AT+CSCA=");
+    #####:  563:    _at.write_string(sca);
+    #####:  564:    _at.write_int(type);
+    #####:  565:    _at.cmd_stop();
+    #####:  566:    _at.resp_start();
+    #####:  567:    _at.resp_stop();
+        -:  568:
+    #####:  569:    return _at.unlock_return_error();
+        -:  570:}
+        -:  571:
+    #####:  572:nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
+        -:  573:{
+    #####:  574:    _at.lock();
+    #####:  575:    _at.cmd_start("AT+CSCS=");
+    #####:  576:    _at.write_string(chr_set);
+    #####:  577:    _at.cmd_stop();
+    #####:  578:    _at.resp_start();
+    #####:  579:    _at.resp_stop();
+        -:  580:
+    #####:  581:    return _at.unlock_return_error();
+        -:  582:}
+        -:  583:
+    #####:  584:nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
+        -:  585:{
+    #####:  586:    _at.lock();
+    #####:  587:    _at.cmd_start("AT+CSMS=");
+    #####:  588:    _at.write_int(msg_service);
+    #####:  589:    _at.cmd_stop();
+    #####:  590:    _at.resp_start();
+    #####:  591:    _at.resp_stop();
+        -:  592:
+    #####:  593:    return _at.unlock_return_error();
+        -:  594:}
+        -:  595:
+    #####:  596:nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t* sms)
+        -:  597:{
+    #####:  598:    _at.lock();
+    #####:  599:    for (int i = 0; i < sms->parts; i++) {
+    #####:  600:        _at.cmd_start("AT+CMGD=");
+    #####:  601:        _at.write_int(sms->msg_index[i]);
+    #####:  602:        _at.cmd_stop();
+    #####:  603:        _at.resp_start();
+    #####:  604:        _at.resp_stop();
+        -:  605:    }
+        -:  606:
+    #####:  607:    return _at.unlock_return_error();
+        -:  608:}
+        -:  609:
+        -:  610:// we need this as for example concatenated sms can get different sms reference numbers
+        -:  611:// if for example last part take much more time to arrive. This situation happened while testing.
+        -:  612:// What this means that after this we can't read another sms because we always read the oldest sms
+        -:  613:// that was corrupted. So we need to have delete all messages.
+    #####:  614:nsapi_error_t AT_CellularSMS::delete_all_messages()
+        -:  615:{
+    #####:  616:    _at.lock();
+    #####:  617:    _at.cmd_start("AT+CMGD=1,4");
+    #####:  618:    _at.cmd_stop();
+    #####:  619:    _at.resp_start();
+    #####:  620:    _at.resp_stop();
+    #####:  621:    return _at.unlock_return_error();
+        -:  622:}
+        -:  623:
+        -:  624:// read msg in text mode
+    #####:  625:nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* buf, uint16_t len, char* phone_num,
+        -:  626:        char* time_stamp)
+        -:  627:{
+        -:  628:    /*
+        -:  629:     * +CMGR: <stat>,<oa>,<alpha>,<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data><CR><LF>OK<CR><LF>
+        -:  630:     */
+    #####:  631:    wait_ms(_sim_wait_time);
+    #####:  632:    _at.cmd_start("AT+CMGR=");
+    #####:  633:    _at.write_int(msg_index);
+    #####:  634:    _at.cmd_stop();
+        -:  635:
+        -:  636:    // TODO: NOTE:    If the selected <mem1> can contain different types of SMs (e.g. SMS-DELIVERs, SMS-SUBMITs, SMS-STATUS-REPORTs and SMS-COMMANDs),
+        -:  637:    // the response may be a mix of the responses of different SM types. TE application can recognize the response format by examining the third response parameter.
+        -:  638:    // for now we support sms reading of received messages
+    #####:  639:    int buf_len = 0;
+    #####:  640:    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        -:  641:        char status[SMS_STATUS_SIZE];
+        -:  642:        // first we read msg status and with that we can decide how the rest of message format
+    #####:  643:        _at.resp_start("+CMGR: ");
+        -:  644:
+    #####:  645:        if (_at.info_resp()) {
+    #####:  646:            _at.read_string(status, SMS_STATUS_SIZE);
+    #####:  647:            uint16_t status_len = strlen(status);
+    #####:  648:            if (((status_len == sizeof("REC READ") - 1) && memcmp("REC READ", status, status_len) == 0)
+    #####:  649:                    || ((status_len == sizeof("REC UNREAD") - 1) && memcmp("REC UNREAD", status, status_len) == 0)) {
+        -:  650:                // Received message
+    #####:  651:                if (phone_num) {
+    #####:  652:                    _at.read_string(phone_num, SMS_MAX_PHONE_NUMBER_SIZE);
+        -:  653:                }
+        -:  654:                else {
+    #####:  655:                    _at.skip_param(); // <oa>,<alpha>
+        -:  656:                }
+    #####:  657:                _at.skip_param(); // <alpha>
+    #####:  658:                if (time_stamp) {
+    #####:  659:                    _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
+        -:  660:                }
+    #####:  661:                (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
+    #####:  662:                if (buf) {
+    #####:  663:                    _at.read_string(buf, len);
+    #####:  664:                    buf_len = strlen(buf);
+        -:  665:                }
+        -:  666:            }
+        -:  667:        }
+    #####:  668:        _at.resp_stop();
+        -:  669:    }
+        -:  670:
+    #####:  671:    return (_at.get_last_error() == NSAPI_ERROR_OK) ? buf_len : _at.get_last_error();
+        -:  672:}
+        -:  673:
+        -:  674:// read msg in PDU mode
+    #####:  675:nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char* phone_num, char* time_stamp)
+        -:  676:{
+        -:  677:    // +CMGR: <stat>,[<alpha>],<length><CR><LF><pdu>
+    #####:  678:    int index = -1;
+    #####:  679:    if (sms->parts == sms->parts_added) {
+        -:  680:        char *pdu; // we need a temp buffer as payload is hexencoded ---> can't use buf as it might be enough for message but not hexenconded pdu.
+    #####:  681:        int status = -1;
+    #####:  682:        int msg_len = 0;
+    #####:  683:        index = 0;
+    #####:  684:        int pduSize = 0;
+        -:  685:
+    #####:  686:        for (int i = 0; i < sms->parts; i++) {
+    #####:  687:            wait_ms(_sim_wait_time);
+    #####:  688:            _at.cmd_start("AT+CMGR=");
+    #####:  689:            _at.write_int(sms->msg_index[i]);
+    #####:  690:            _at.cmd_stop();
+    #####:  691:            _at.resp_start("+CMGR: ");
+        -:  692:
+    #####:  693:            if (_at.info_resp()) {
+    #####:  694:                status = _at.read_int();
+    #####:  695:                _at.skip_param(); // <alpha>
+    #####:  696:                if ((_at.get_last_error() == NSAPI_ERROR_OK) && (status == 0 || status == 1)) {
+    #####:  697:                    msg_len = _at.read_int();
+    #####:  698:                    if (msg_len > 0) {
+    #####:  699:                        pduSize = msg_len*2 + 20;// *2 as it's hex encoded and +20 as service center number is not included in size given by CMGR
+    #####:  700:                        pdu = (char*)calloc(pduSize, sizeof(char));
+    #####:  701:                        if (!pdu) {
+    #####:  702:                            _at.resp_stop();
+    #####:  703:                            return NSAPI_ERROR_NO_MEMORY;
+        -:  704:                        }
+    #####:  705:                        _at.read_string(pdu, pduSize, true);
+    #####:  706:                        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    #####:  707:                            msg_len = get_data_from_pdu(pdu, NULL, NULL, phone_num, buf+index);
+    #####:  708:                            if (msg_len >= 0) { // we need to allow zero length messages
+    #####:  709:                                index += msg_len;
+        -:  710:                            } else {
+    #####:  711:                                free(pdu);
+    #####:  712:                                _at.resp_stop();
+    #####:  713:                                return -1;
+        -:  714:                            }
+        -:  715:                        }
+    #####:  716:                        free(pdu);
+        -:  717:                    }
+        -:  718:                }
+        -:  719:            }
+    #####:  720:            _at.resp_stop();
+        -:  721:        }
+        -:  722:
+    #####:  723:        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    #####:  724:            if (time_stamp) {
+    #####:  725:                strcpy(time_stamp, sms->date);
+        -:  726:            }
+    #####:  727:            buf[index] = '\0';
+        -:  728:        }
+        -:  729:    }
+        -:  730:    else {
+        -:  731:        log_warn("NOT all concatenated parts were received...");
+    #####:  732:        index = SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ;
+        -:  733:    }
+        -:  734:
+    #####:  735:    return index;
+        -:  736:}
+        -:  737:
+    #####:  738:nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* phone_num, uint16_t phone_len,
+        -:  739:        char* time_stamp, uint16_t time_len, int *buf_size)
+        -:  740:{
+        -:  741:    // validate buffer sizes already here to avoid any necessary function calls and locking of _at
+    #####:  742:    if ((phone_num && phone_len < SMS_MAX_PHONE_NUMBER_SIZE) || (time_stamp && time_len < SMS_MAX_TIME_STAMP_SIZE) ||
+        -:  743:            buf == NULL) {
+    #####:  744:        return NSAPI_ERROR_PARAMETER;
+        -:  745:    }
+        -:  746:
+    #####:  747:    _at.lock();
+        -:  748:
+    #####:  749:    nsapi_size_or_error_t err = list_messages();
+    #####:  750:    if (err == NSAPI_ERROR_OK) {
+        -:  751:        // we return the oldest sms and delete it after successful read
+    #####:  752:        sms_info_t* info = get_oldest_sms_index();
+        -:  753:
+    #####:  754:        if (info) {
+    #####:  755:            if (info->msg_size+1 > len) { // +1 for '\0'
+        -:  756:                log_warn("Given buf too small, len is: %d but is must be: %d", len, info->msg_size);
+    #####:  757:                if (buf_size) {
+    #####:  758:                    *buf_size = info->msg_size;
+        -:  759:                }
+    #####:  760:                free_linked_list();
+    #####:  761:                _at.unlock();
+    #####:  762:                return NSAPI_ERROR_PARAMETER;
+        -:  763:            }
+        -:  764:
+    #####:  765:            if (_mode == CellularSMSMmodePDU) {
+    #####:  766:                err = read_sms(info, buf, phone_num, time_stamp);
+        -:  767:            } else {
+    #####:  768:                err = read_sms_from_index(info->msg_index[0], buf, len, phone_num, time_stamp);
+        -:  769:            }
+        -:  770:
+    #####:  771:            if (err > 0) {
+    #####:  772:                int delerr = delete_sms(info);
+    #####:  773:                if (delerr) {
+    #####:  774:                    err = delerr;
+        -:  775:                }
+        -:  776:            }
+        -:  777:        } else {
+        -:  778:            // No messages were found, return -1
+    #####:  779:            err = -1;
+        -:  780:        }
+        -:  781:    }
+        -:  782:
+    #####:  783:    free_linked_list();
+        -:  784:
+    #####:  785:    _at.unlock();
+        -:  786:
+        -:  787:    // update error only when there really was an error, otherwise we return the length
+    #####:  788:    if (_at.get_last_error()) {
+    #####:  789:        err = _at.get_last_error();
+        -:  790:    }
+    #####:  791:    return err;
+        -:  792:}
+        -:  793:
+    #####:  794: nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char* pdu, sms_info_t *info, int *part_number,
+        -:  795:         char *phone_number, char *msg)
+        -:  796:{
+    #####:  797:    int index = 0;
+        -:  798:    int tmp;
+        -:  799:    bool userDataHeader;
+        -:  800:    int oaLength;
+        -:  801:    int dataScheme;
+    #####:  802:    nsapi_size_or_error_t err = NSAPI_ERROR_OK;
+        -:  803:
+        -:  804:    // read Length of the SMSC information
+    #####:  805:    oaLength = hex_str_to_int(pdu, 2);
+    #####:  806:    index += 2; // length we just read
+    #####:  807:    index += oaLength*2; // skip service center number
+        -:  808:
+        -:  809:    // read first the lower part of first octet as there is message type
+    #####:  810:    index++;
+    #####:  811:    tmp = hex_str_to_int(pdu+index, 1);
+        -:  812:    //wait_ms(200);
+    #####:  813:    if ((tmp & 0x03) == 0) {// SMS-DELIVER type, last two bits should be zero
+        -:  814:        // UDH present? Check from first octets higher part
+    #####:  815:        tmp = hex_str_to_int(pdu + (--index), 1);
+    #####:  816:        userDataHeader = ((tmp & 0x04) == 0) ? false : true;
+        -:  817:
+    #####:  818:        index +=2; // we just read the high bits of first octet so move +2
+        -:  819:        // originating address length
+    #####:  820:        oaLength = hex_str_to_int(pdu+index, 2);
+    #####:  821:        index +=2; // add  index over address length
+    #####:  822:        index +=2; // skip number type
+    #####:  823:        if (phone_number) {
+        -:  824:            // phone number as reverse nibble encoded
+    #####:  825:            int a = 0;
+    #####:  826:            for (; a < oaLength; a +=2) {
+    #####:  827:                if (a+1 == oaLength) {
+    #####:  828:                    phone_number[a] = pdu[index+a+1];
+        -:  829:                } else {
+    #####:  830:                    phone_number[a] = pdu[index+a+1];
+    #####:  831:                    phone_number[a+1] = pdu[index+a];
+        -:  832:                }
+        -:  833:            }
+    #####:  834:            phone_number[oaLength] = '\0';
+        -:  835:        }
+        -:  836:
+    #####:  837:        index += oaLength;
+    #####:  838:        if (oaLength&0x01) { // if phone number length is odd then it has padded F so skip that
+    #####:  839:            index++;
+        -:  840:        }
+    #####:  841:        index +=2; // skip TP-Protocol identifier
+        -:  842:
+    #####:  843:        dataScheme = hex_str_to_int(pdu+index, 2);
+    #####:  844:        index +=2; // skip TP-Data-Coding-Scheme
+        -:  845:
+        -:  846:        // next one is date, it's length is 7 octets according to 3GPP TS 23.040
+        -:  847:        // create time string
+    #####:  848:        if (info) {
+    #####:  849:            int i = 0;
+        -:  850:            // year
+    #####:  851:            info->date[i++] = pdu[index+1];
+    #####:  852:            info->date[i++] = pdu[index];
+    #####:  853:            index+=2;
+    #####:  854:            info->date[i++] = '/';
+        -:  855:            // month
+    #####:  856:            info->date[i++] = pdu[index+1];
+    #####:  857:            info->date[i++] = pdu[index];
+    #####:  858:            index+=2;
+    #####:  859:            info->date[i++] = '/';
+        -:  860:            // Day
+    #####:  861:            info->date[i++] = pdu[index+1];
+    #####:  862:            info->date[i++] = pdu[index];
+    #####:  863:            index+=2;
+    #####:  864:            info->date[i++] = ',';
+        -:  865:            // Hour
+    #####:  866:            info->date[i++] = pdu[index+1];
+    #####:  867:            info->date[i++] = pdu[index];
+    #####:  868:            index+=2;
+    #####:  869:            info->date[i++] = ':';
+        -:  870:            // Minute
+    #####:  871:            info->date[i++] = pdu[index+1];
+    #####:  872:            info->date[i++] = pdu[index];
+    #####:  873:            index+=2;
+    #####:  874:            info->date[i++] = ':';
+        -:  875:            // Second
+    #####:  876:            info->date[i++] = pdu[index+1];
+    #####:  877:            info->date[i++] = pdu[index];
+    #####:  878:            index+=2;
+        -:  879:            // timezone related to GMT. pdu[index+1] most significant bit indicates the sign related to gmt
+    #####:  880:            tmp = hex_str_to_int(pdu+index+1, 1);
+    #####:  881:            if (tmp&0x08) {
+    #####:  882:                info->date[i++] = '-';
+        -:  883:            } else {
+    #####:  884:                info->date[i++] = '+';
+        -:  885:            }
+        -:  886:
+        -:  887:            // pdu[index+1 & 0x07 is the most significant bits of the timezone
+        -:  888:            // pdu [index] is the least significant bits
+    #####:  889:            info->date[i++] = '0' + (tmp & 0x07);
+    #####:  890:            info->date[i++] = pdu[index];
+    #####:  891:            info->date[i] = '\0';
+    #####:  892:            index+=2;
+        -:  893:        } else {
+    #####:  894:            index+=14;
+        -:  895:        }
+        -:  896:
+    #####:  897:        index +=2;
+    #####:  898:        int paddingBits = 0;
+    #####:  899:        int parts = 1;
+    #####:  900:        int partnro = 1;
+    #####:  901:        if (userDataHeader) {
+        -:  902:            // we need to read User Defined Header to know what part number this message is.
+    #####:  903:            index += read_udh_from_pdu(pdu+index, info, partnro, parts, paddingBits);
+        -:  904:        }
+        -:  905:
+    #####:  906:        if (part_number) {
+    #####:  907:            *part_number = partnro;
+        -:  908:        }
+        -:  909:
+    #####:  910:        if (msg) {
+        -:  911:            // we are reading the message
+    #####:  912:            err = read_pdu_payload(pdu+index, dataScheme, msg, paddingBits, partnro == parts);
+        -:  913:        }
+        -:  914:        else {
+    #####:  915:            if (dataScheme == 0x00) {
+        -:  916:                // when listing messages we need to calculated length. Other way would be unpacking the whole message.
+    #####:  917:                err = strlen(pdu+index) >> 1;
+    #####:  918:                err *= 8;
+    #####:  919:                err /= 7;
+    #####:  920:            } else if (dataScheme == 0x04) {
+    #####:  921:                err = strlen(pdu+index) >> 1;
+        -:  922:            } else {
+    #####:  923:                return NSAPI_ERROR_UNSUPPORTED;
+        -:  924:            }
+        -:  925:        }
+        -:  926:
+    #####:  927:        return err;
+        -:  928:    }
+        -:  929:    else {
+        -:  930:        // message was not DELIVER so discard it
+    #####:  931:        return NSAPI_ERROR_UNSUPPORTED;
+        -:  932:    }
+        -:  933:}
+        -:  934:
+        -:  935: // read params from User DEfined Header
+    #####:  936:int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &parts,
+        -:  937:        int &padding_bits) {
+        -:  938:
+    #####:  939:    int index = 0;
+    #####:  940:    int udhLength = hex_str_to_int(pdu, 2);
+    #####:  941:    index +=2;
+        -:  942:
+        -:  943:    // if there is padding bits then udhlen is octet bigger as we need to keep septet boundary
+    #####:  944:    padding_bits = ((udhLength+1) * 8 ) % 7; // +1 is for udhLength itself
+    #####:  945:    if (padding_bits) {
+    #####:  946:        padding_bits = 7 - padding_bits;
+        -:  947:    } else {
+    #####:  948:        padding_bits = 0;
+        -:  949:    }
+        -:  950:
+    #####:  951:    int tmp = hex_str_to_int(pdu+index, 2);
+    #####:  952:    index +=4;
+        -:  953:
+    #####:  954:    if (tmp == 0) { // 8-bit reference number
+    #####:  955:        if (info) {
+    #####:  956:            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu+index, 2);
+        -:  957:        }
+    #####:  958:        index +=2;
+        -:  959:    } else {                  // 16-bit reference number
+    #####:  960:        if (info) {
+    #####:  961:            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu+index+2, 2);
+    #####:  962:            tmp = hex_str_to_int(pdu+index, 2);
+    #####:  963:            info->msg_ref_number |= (tmp << 8);
+        -:  964:        }
+    #####:  965:        index +=4;
+        -:  966:    }
+        -:  967:
+    #####:  968:    parts = hex_str_to_int(pdu+index, 2);
+    #####:  969:    if (info) {
+    #####:  970:        info->parts = parts;
+        -:  971:    }
+    #####:  972:    index +=2;
+        -:  973:
+    #####:  974:    part_number = hex_str_to_int(pdu+index, 2);
+    #####:  975:    index +=2;
+        -:  976:
+    #####:  977:    return (udhLength*2 + 2); // udh in hex and udhl
+        -:  978:}
+        -:  979:
+    #####:  980:nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int scheme, char *msg, int padding_bits,
+        -:  981:        bool last_part)
+        -:  982:{
+    #####:  983:    if (scheme == 0x00) {
+        -:  984:        // 7 bit gsm encoding, must do the conversions from hex to 7-bit encoding and to ascii
+    #####:  985:        return unpack_7_bit_gsm_to_str(pdu, strlen(pdu)/2, msg, padding_bits, last_part);
+        -:  986:
+    #####:  987:    } else if (scheme == 0x04) {
+        -:  988:        // 8bit scheme so just convert hexstring to charstring
+    #####:  989:        return hex_str_to_char_str(pdu, strlen(pdu), msg);
+        -:  990:    } else {
+    #####:  991:        log_error("Received unsupported data coding scheme: 0x%02x", scheme);
+    #####:  992:        return NSAPI_ERROR_UNSUPPORTED;
+        -:  993:    }
+        -:  994:}
+        -:  995:
+    #####:  996:void AT_CellularSMS::free_linked_list()
+        -:  997:{
+    #####:  998:    sms_info_t* info = _sms_info;
+        -:  999:    sms_info_t* old;
+    #####: 1000:    while (info) {
+    #####: 1001:        old = info;
+    #####: 1002:        info = info->next_info;
+    #####: 1003:        delete old;
+        -: 1004:    }
+    #####: 1005:    _sms_info = NULL;
+    #####: 1006:}
+        -: 1007:
+    #####: 1008:void AT_CellularSMS::add_info(sms_info_t* info, int index, int part_number) {
+        -: 1009:    // check for same message reference id. If found, update it and delete the given info.
+        -: 1010:    // if NOT found then add to the end of the list.
+        -: 1011:
+    #####: 1012:    if (!_sms_info) {
+    #####: 1013:        info->msg_index[part_number-1] = index; // part numbering starts from 1 so -1 to put to right index
+    #####: 1014:        _sms_info = info;
+    #####: 1015:        return;
+        -: 1016:    }
+    #####: 1017:    sms_info_t* current = _sms_info;
+        -: 1018:    sms_info_t* prev;
+    #####: 1019:    bool found_msg = false;
+    #####: 1020:    while (current) {
+    #####: 1021:        prev = current;
+        -: 1022:        // sms messages can have same reference number so additional checks are needed.
+        -: 1023:        // TODO: should we include phone number also?
+    #####: 1024:        if (current->msg_ref_number == info->msg_ref_number && current->parts > current->parts_added &&
+    #####: 1025:                info->parts > info->parts_added) {
+        -: 1026:            // multipart sms, update msg size and index
+    #####: 1027:            current->msg_size += info->msg_size;
+    #####: 1028:            current->msg_index[part_number-1] = index; // part numbering starts from 1 so -1 to put to right index
+    #####: 1029:            current->parts_added++;
+        -: 1030:            // update oldest part as date
+    #####: 1031:            if (compare_time_strings(info->date, current->date) == -1) {
+    #####: 1032:                strcpy(current->date, info->date);
+        -: 1033:            }
+    #####: 1034:            found_msg = true;
+    #####: 1035:            break;
+        -: 1036:        }
+    #####: 1037:        current = current->next_info;
+        -: 1038:    }
+        -: 1039:
+    #####: 1040:    if (found_msg) {
+        -: 1041:        // info was added to existing item in linked list, must be deleted
+    #####: 1042:        delete info;
+        -: 1043:    } else {
+        -: 1044:        // message not found, add to linked list
+    #####: 1045:        info->msg_index[part_number-1] = index;
+    #####: 1046:        prev->next_info = info;
+        -: 1047:    }
+        -: 1048:}
+        -: 1049:
+        -: 1050:// reads all the messages to the linked list AT_CellularSMS::_sms_info
+    #####: 1051:nsapi_error_t AT_CellularSMS::list_messages()
+        -: 1052:{
+        -: 1053:    // TODO: NOTE:  If the selected <mem1> can contain different types of SMs (e.g. SMS-DELIVERs, SMS-SUBMITs, SMS-STATUS-REPORTs and SMS-COMMANDs),
+        -: 1054:    // the response may be a mix of the responses of different SM types. TE application can recognize the response format by examining the third response parameter.
+        -: 1055:    // for now we assume that only SMS-DELIVER messages are read.
+    #####: 1056:    if (_mode == CellularSMSMmodePDU) {
+    #####: 1057:        _at.cmd_start("AT+CMGL=4");
+        -: 1058:    } else {
+    #####: 1059:        _at.cmd_start("AT+CMGL=\"ALL\"");
+        -: 1060:    }
+    #####: 1061:    _at.cmd_stop();
+        -: 1062:
+    #####: 1063:    sms_info_t* info = NULL;
+        -: 1064:    // init for 1 so that in text mode we will add to the correct place without any additional logic in addInfo() in text mode
+    #####: 1065:    int part_number = 1;
+    #####: 1066:    int index = 0;
+    #####: 1067:    int length = 0;
+    #####: 1068:    char *pdu = NULL;
+        -: 1069:
+    #####: 1070:    _at.resp_start("+CMGL: ");
+    #####: 1071:    while (_at.info_resp()) {
+    #####: 1072:        info = new sms_info_t();
+    #####: 1073:        if (!info) {
+    #####: 1074:            _at.resp_stop();
+    #####: 1075:            return NSAPI_ERROR_NO_MEMORY;
+        -: 1076:        }
+        -: 1077:
+    #####: 1078:        if (_mode == CellularSMSMmodePDU) {
+        -: 1079:            //+CMGL: <index>,<stat>,[<alpha>],<length><CR><LF><pdu>[<CR><LF>
+        -: 1080:            // +CMGL:<index>,<stat>,[<alpha>],<length><CR><LF><pdu>
+        -: 1081:            //[...]]
+    #####: 1082:            index = _at.read_int();
+    #####: 1083:            _at.skip_param(2); // <stat>,[<alpha>]
+    #####: 1084:            length = _at.read_int();
+    #####: 1085:            length = length*2 + 20;// *2 as it's hex encoded and +20 as service center number is not included in size given by CMGL
+    #####: 1086:            pdu = (char*)calloc(length, sizeof(char));
+    #####: 1087:            if (!pdu) {
+    #####: 1088:                delete info;
+    #####: 1089:                _at.resp_stop();
+    #####: 1090:                return NSAPI_ERROR_NO_MEMORY;
+        -: 1091:            }
+    #####: 1092:            _at.read_string(pdu, length, true);
+    #####: 1093:            if (_at.get_last_error() == NSAPI_ERROR_OK) {
+    #####: 1094:                info->msg_size = get_data_from_pdu(pdu, info, &part_number);
+        -: 1095:            }
+        -: 1096:        } else {
+        -: 1097:            // +CMGL: <index>,<stat>,<oa/da>,[<alpha>],[<scts>][,<tooa/toda>,<length>]<CR><LF><data>[<CR><LF>
+        -: 1098:            // +CMGL: <index>,<stat>,<da/oa>,[<alpha>],[<scts>][,<tooa/toda>,<length>]<CR><LF><data>[...]]
+    #####: 1099:            index = _at.read_int();
+    #####: 1100:            (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
+    #####: 1101:            (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
+        -: 1102:        }
+        -: 1103:
+    #####: 1104:        if (index > 0) {
+    #####: 1105:            add_info(info, index, part_number);
+        -: 1106:        } else {
+    #####: 1107:            delete info;
+    #####: 1108:            info = NULL;
+        -: 1109:        }
+    #####: 1110:        free(pdu);
+    #####: 1111:        pdu = NULL;
+        -: 1112:    }
+        -: 1113:
+        -: 1114:
+    #####: 1115:    _at.resp_stop();
+        -: 1116:
+    #####: 1117:    return _at.get_last_error();
+        -: 1118:}
+        -: 1119:
+    #####: 1120:AT_CellularSMS::sms_info_t* AT_CellularSMS::get_oldest_sms_index()
+        -: 1121:{
+        -: 1122:    /*
+        -: 1123:     * Different scenarios when finding the oldest concatenated sms
+        -: 1124:     *
+        -: 1125:     * 1. Find first parts first and it was received first
+        -: 1126:     * 2. Find first parts first and it was NOT received first -> older timestamp might exist in some other part
+        -: 1127:     * 3. Find other than first part first and it was received first
+        -: 1128:     * 4. Find other than first part first and it was NOT received first -> older timestamp might exist in some other part
+        -: 1129:     *
+        -: 1130:     * So must take all message to a linked list and loop that for the oldest
+        -: 1131:     */
+        -: 1132:
+        -: 1133:    // if text mode we need to read sms with +CMGR because time stamp is optional while looping with +CMGL
+    #####: 1134:    sms_info_t* retVal = NULL;
+    #####: 1135:    sms_info_t* current = _sms_info;
+    #####: 1136:    nsapi_size_or_error_t err = 0;
+    #####: 1137:    while (current) {
+    #####: 1138:        if (_mode == CellularSMSMmodeText) {
+    #####: 1139:            wait_ms(_sim_wait_time);
+    #####: 1140:            err = read_sms_from_index(current->msg_index[0], NULL, 0, NULL, current->date);
+    #####: 1141:            if (err != 0) {
+    #####: 1142:                return NULL;
+        -: 1143:            }
+        -: 1144:        }
+        -: 1145:
+    #####: 1146:        if (retVal == NULL) {
+    #####: 1147:            retVal = current;
+    #####: 1148:        } else if (compare_time_strings(current->date, retVal->date) == -1) {
+        -: 1149:            // found older sms, update return value to oldest
+    #####: 1150:            retVal = current;
+        -: 1151:        }
+    #####: 1152:        current = current->next_info;
+        -: 1153:    }
+        -: 1154:
+    #####: 1155:    return retVal;
+        -: 1156:}
+        -: 1157:
+        -: 1158:// if time_string_1 is greater (more fresh date) then return 1, same 0, smaller -1. Error -2
+    #####: 1159:int AT_CellularSMS::compare_time_strings(const char* time_string_1, const char* time_string_2)
+        -: 1160:{
+        -: 1161:    time_t t1;
+        -: 1162:    time_t t2;
+        -: 1163:
+    #####: 1164:    bool success = create_time(time_string_1, &t1) && create_time(time_string_2, &t2);
+    #####: 1165:    int retVal = -2;
+        -: 1166:
+    #####: 1167:    if (success) {
+    #####: 1168:        double diff = difftime(t1, t2);
+        -: 1169:
+    #####: 1170:        if (diff > 0) {
+    #####: 1171:            retVal = 1;
+    #####: 1172:        } else if (diff == 0) {
+    #####: 1173:            retVal = 0;
+        -: 1174:        } else {
+    #####: 1175:            retVal = -1;
+        -: 1176:        }
+        -: 1177:    }
+        -: 1178:
+    #####: 1179:    return retVal;
+        -: 1180:}
+        -: 1181:
+    #####: 1182:bool AT_CellularSMS::create_time(const char* time_string, time_t* time)
+        -: 1183:{
+    #####: 1184:    const int kNumberOfElements = 8;
+    #####: 1185:    tm time_struct = { 0 };
+    #####: 1186:    int gmt = 0;
+        -: 1187:    char sign;
+    #####: 1188:    bool retVal = false;
+        -: 1189:
+    #####: 1190:    if (sscanf(time_string, "%d/%d/%d,%d:%d:%d%c%d", &time_struct.tm_year, &time_struct.tm_mon, &time_struct.tm_mday,
+        -: 1191:               &time_struct.tm_hour, &time_struct.tm_min, &time_struct.tm_sec, &sign, &gmt) == kNumberOfElements) {
+    #####: 1192:        *time = mktime(&time_struct);
+        -: 1193:        // add timezone as seconds. gmt is in quarter of hours.
+    #####: 1194:        int x = 60 * 60 * gmt * 0.25;
+    #####: 1195:        if (sign == '+') {
+    #####: 1196:            *time += x;
+        -: 1197:        } else {
+    #####: 1198:            *time -= x;
+        -: 1199:        }
+    #####: 1200:        retVal = true;
+        -: 1201:    }
+        -: 1202:
+    #####: 1203:    return retVal;
+        -: 1204:}
+        -: 1205:
+    #####: 1206:uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, char *buf,
+        -: 1207:        int number_of_padding_bit)
+        -: 1208:{
+    #####: 1209:    uint16_t strCnt = 0;
+    #####: 1210:    uint16_t i = 0;
+        -: 1211:    uint8_t shift;
+        -: 1212:    char tmp;
+        -: 1213:
+        -: 1214:    // convert to 7bit gsm first
+    #####: 1215:    char* gsm_str = (char*)malloc(len);
+    #####: 1216:    if (!gsm_str) {
+    #####: 1217:        return 0;
+        -: 1218:    }
+    #####: 1219:    for (uint16_t y = 0; y < len; y++) {
+    #####: 1220:        for (int x=0;  x < GSM_TO_ASCII_TABLE_SIZE; x++) {
+    #####: 1221:            if (gsm_to_ascii[x] == str[y]) {
+    #####: 1222:                gsm_str[y] = x;
+        -: 1223:            }
+        -: 1224:        }
+        -: 1225:    }
+        -: 1226:
+        -: 1227:    // then packing and converting to hex
+    #####: 1228:    if (number_of_padding_bit) {
+    #####: 1229:        tmp = gsm_str[strCnt]<<number_of_padding_bit;
+    #####: 1230:        strCnt++;
+    #####: 1231:        char_str_to_hex_str(&tmp, 1, &buf[i*2]);
+    #####: 1232:        i++;
+        -: 1233:    }
+        -: 1234:
+    #####: 1235:    while (strCnt < len) {
+    #####: 1236:        if (number_of_padding_bit) {
+    #####: 1237:            shift = (i+number_of_padding_bit-2)%7;
+        -: 1238:        } else {
+    #####: 1239:            shift = i%7;
+        -: 1240:        }
+        -: 1241:
+    #####: 1242:        if (strCnt+1 == len) {
+    #####: 1243:            tmp = (gsm_str[strCnt]>>shift);
+        -: 1244:        } else {
+    #####: 1245:            tmp = (gsm_str[strCnt]>>shift) | (gsm_str[strCnt+1] <<(7-shift));
+        -: 1246:        }
+        -: 1247:
+    #####: 1248:        char_str_to_hex_str(&tmp, 1, buf+(i*2));
+        -: 1249:
+    #####: 1250:        if (shift == 6) {
+    #####: 1251:            strCnt++;
+        -: 1252:        }
+    #####: 1253:        strCnt++;
+    #####: 1254:        i++;
+        -: 1255:    }
+        -: 1256:
+    #####: 1257:    free(gsm_str);
+        -: 1258:
+    #####: 1259:    return i;
+        -: 1260:}
+        -: 1261:
+    #####: 1262: uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char* str, int len, char *buf, int padding_bits,
+        -: 1263:                                            bool last_part)
+        -: 1264:{
+    #####: 1265:    int strCount = 0;
+    #####: 1266:    uint16_t decodedCount = 0;
+        -: 1267:    uint8_t shift;
+        -: 1268:    char tmp;
+        -: 1269:    char tmp1;
+        -: 1270:
+    #####: 1271:    if (padding_bits) {
+    #####: 1272:        hex_str_to_char_str(str, 2, &tmp);
+    #####: 1273:        buf[decodedCount] = gsm_to_ascii[(tmp>>padding_bits) & 0x7F];
+    #####: 1274:        strCount++;
+    #####: 1275:        decodedCount++;
+        -: 1276:    }
+        -: 1277:
+    #####: 1278:    while (strCount < len) {
+    #####: 1279:        shift = (strCount-padding_bits)%7;
+    #####: 1280:        hex_str_to_char_str(str + strCount*2, 2, &tmp);
+    #####: 1281:        if (shift == 0) {
+    #####: 1282:            buf[decodedCount] = gsm_to_ascii[tmp & 0x7F];
+    #####: 1283:        } else if (shift == 6) {
+    #####: 1284:            hex_str_to_char_str(str + (strCount-1)*2, 2, &tmp1);
+    #####: 1285:            buf[decodedCount] = gsm_to_ascii[(((tmp1>>2)) | (tmp << 6)) & 0x7F];
+        -: 1286:            // we are unpacking the last byte and so tmp is not complete as it's not completed by the next byte.
+        -: 1287:            // unless this is a multipart message and not the last part.
+    #####: 1288:            if (!((strCount+1 == len) && last_part)) {
+    #####: 1289:                hex_str_to_char_str(str + strCount*2, 2, &tmp);
+    #####: 1290:                decodedCount++;
+    #####: 1291:                buf[decodedCount] = gsm_to_ascii[(tmp>>1) & 0x7F];
+        -: 1292:            }
+        -: 1293:        } else {
+    #####: 1294:            hex_str_to_char_str(str + (strCount-1)*2, 2, &tmp1);
+    #####: 1295:            buf[decodedCount] = gsm_to_ascii[(((tmp1>>(8- shift))) | ((tmp << shift))) & 0x7F];
+        -: 1296:        }
+        -: 1297:
+    #####: 1298:        strCount++;
+    #####: 1299:        decodedCount++;
+        -: 1300:    }
+        -: 1301:
+    #####: 1302:    return decodedCount;
+        -: 1303:}
