@@ -326,7 +326,7 @@ struct octet_type_t {
      * Size in byte of a data.
      */
     static size_t size() {
-        return sizeof(_value);
+        return octet_size;
     }
 
 protected:
