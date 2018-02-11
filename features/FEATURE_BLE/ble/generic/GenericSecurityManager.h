@@ -411,7 +411,7 @@ private:
     );
 
     /**
-     * Iform the security manager that a connection ended.
+     * Inform the security manager that a connection ended.
      *
      * @param[in] params handle and reason of the disconnection.
      */
