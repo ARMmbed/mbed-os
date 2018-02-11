@@ -1,0 +1,283 @@
+        -:    0:Source:../../../framework/AT/AT_CellularStack.cpp
+        -:    0:Graph:objs/AT_CellularStack_unit/AT_CellularStack.gcno
+        -:    0:Data:objs/AT_CellularStack_unit/AT_CellularStack.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#include "AT_CellularStack.h"
+        -:   19:#include "CellularUtil.h"
+        -:   20:#include "CellularLog.h"
+        -:   21:
+        -:   22:using namespace mbed_cellular_util;
+        -:   23:using namespace mbed;
+        -:   24:
+        1:   25:AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL),_socket_count(0),_cid(cid), _stack_type(stack_type)
+        -:   26:{
+        1:   27:}
+        -:   28:
+        2:   29:AT_CellularStack::~AT_CellularStack()
+        -:   30:{
+        1:   31:    for (int i = 0; i < _socket_count; i++) {
+    #####:   32:        if (_socket[i]) {
+    #####:   33:            delete _socket[i];
+        -:   34:        }
+        -:   35:    }
+        -:   36:
+        1:   37:    delete [] _socket;
+        1:   38:}
+        -:   39:
+        -:   40:/** NetworkStack
+        -:   41: */
+        -:   42:
+    #####:   43:const char * AT_CellularStack::get_ip_address()
+        -:   44:{
+    #####:   45:    _at.lock();
+        -:   46:
+    #####:   47:    _at.cmd_start("AT+CGPADDR=");
+    #####:   48:    _at.write_int(_cid);
+    #####:   49:    _at.cmd_stop();
+        -:   50:
+    #####:   51:    _at.resp_start("+CGPADDR:");
+        -:   52:
+    #####:   53:    if (_at.info_resp()) {
+        -:   54:
+    #####:   55:        _at.skip_param();
+        -:   56:
+    #####:   57:        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE-1);
+    #####:   58:        if (len == -1) {
+    #####:   59:            _ip[0] = '\0';
+    #####:   60:            _at.unlock();
+        -:   61:            // no IPV4 address, return
+    #####:   62:            return NULL;
+        -:   63:        }
+        -:   64:
+        -:   65:        // in case stack type is not IPV4 only, try to look also for IPV6 address
+    #####:   66:        if (_stack_type != IPV4_STACK) {
+    #####:   67:            len = _at.read_string(_ip, PDP_IPV6_SIZE-1);
+        -:   68:        }
+        -:   69:    }
+        -:   70:
+    #####:   71:    _at.resp_stop();
+    #####:   72:    _at.unlock();
+        -:   73:
+        -:   74:    // we have at least IPV4 address
+    #####:   75:    convert_ipv6(_ip);
+        -:   76:
+    #####:   77:    return _ip;
+        -:   78:}
+        -:   79:
+    #####:   80:nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
+        -:   81:{
+    #####:   82:    if (!is_protocol_supported(proto)) {
+    #####:   83:        return NSAPI_ERROR_UNSUPPORTED;
+        -:   84:    }
+        -:   85:
+    #####:   86:    int max_socket_count = get_max_socket_count();
+        -:   87:
+    #####:   88:    if (!_socket) {
+    #####:   89:        _socket = new CellularSocket*[max_socket_count];
+    #####:   90:        if (!_socket) {
+    #####:   91:            return NSAPI_ERROR_NO_SOCKET;
+        -:   92:        }
+    #####:   93:        _socket_count = max_socket_count;
+    #####:   94:        for (int i = 0; i < max_socket_count; i++) {
+    #####:   95:            _socket[i] = 0;
+        -:   96:        }
+        -:   97:    }
+        -:   98:
+    #####:   99:    int index = -1;
+    #####:  100:    for (int i = 0; i < max_socket_count; i++) {
+    #####:  101:        if (!_socket[i]) {
+    #####:  102:            index = i;
+    #####:  103:            break;
+        -:  104:        }
+        -:  105:    }
+        -:  106:
+    #####:  107:    if (index == -1) {
+    #####:  108:        return NSAPI_ERROR_NO_SOCKET;
+        -:  109:    }
+        -:  110:
+        -:  111:    // create local socket structure, socket on modem is created when app calls sendto/recvfrom
+    #####:  112:    _socket[index] = new CellularSocket;
+        -:  113:    CellularSocket *psock;
+    #####:  114:    psock = _socket[index];
+    #####:  115:    memset(psock, 0, sizeof(CellularSocket));
+    #####:  116:    SocketAddress addr(0, get_dynamic_ip_port());
+    #####:  117:    psock->id = index;
+    #####:  118:    psock->localAddress = addr;
+    #####:  119:    psock->proto = proto;
+    #####:  120:    *handle = psock;
+        -:  121:
+    #####:  122:    return NSAPI_ERROR_OK;
+        -:  123:}
+        -:  124:
+    #####:  125:nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
+        -:  126:{
+    #####:  127:    int err = NSAPI_ERROR_DEVICE_ERROR;
+        -:  128:
+    #####:  129:    struct CellularSocket *socket = (struct CellularSocket *)handle;
+    #####:  130:    int sock_id = socket->id;
+    #####:  131:    int max_socket_count = get_max_socket_count();
+        -:  132:
+    #####:  133:    int index = -1;
+    #####:  134:    for (int i = 0; i < max_socket_count; i++) {
+    #####:  135:        if (_socket[i] && _socket[i]->id == sock_id) {
+    #####:  136:            index = i;
+    #####:  137:            break;
+        -:  138:        }
+        -:  139:    }
+        -:  140:
+    #####:  141:    if (index != -1) {
+    #####:  142:        _socket[index] = NULL;
+    #####:  143:        err = NSAPI_ERROR_OK;
+        -:  144:    }
+        -:  145:
+    #####:  146:    _at.lock();
+        -:  147:
+        -:  148:    //_atHandler.setTimeout(...)
+        -:  149:
+    #####:  150:    err = socket_close_impl(sock_id);
+        -:  151:
+    #####:  152:    _at.unlock();
+        -:  153:
+    #####:  154:    delete socket;
+        -:  155:
+    #####:  156:    return err;
+        -:  157:}
+        -:  158:
+    #####:  159:nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketAddress &addr)
+        -:  160:{
+    #####:  161:    struct CellularSocket *socket = (CellularSocket *)handle;
+    #####:  162:    socket->localAddress = addr;
+        -:  163:
+    #####:  164:    _at.lock();
+        -:  165:
+    #####:  166:    if (!socket->created) {
+    #####:  167:        create_socket_impl(socket);
+        -:  168:    }
+        -:  169:
+    #####:  170:    return _at.unlock_return_error();
+        -:  171:}
+        -:  172:
+    #####:  173:nsapi_error_t AT_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
+        -:  174:{
+    #####:  175:    return 0;
+        -:  176:}
+        -:  177:
+    #####:  178:nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
+        -:  179:{
+    #####:  180:    CellularSocket *socket = (CellularSocket *)handle;
+    #####:  181:    socket->remoteAddress = addr;
+    #####:  182:    socket->connected = true;
+        -:  183:
+    #####:  184:    return NSAPI_ERROR_OK;
+        -:  185:}
+        -:  186:
+    #####:  187:nsapi_error_t AT_CellularStack::socket_accept(void *server, void **socket, SocketAddress *addr)
+        -:  188:{
+    #####:  189:    return 0;
+        -:  190:}
+        -:  191:
+    #####:  192:nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
+        -:  193:{
+    #####:  194:    CellularSocket *socket = (CellularSocket *)handle;
+    #####:  195:    if (!socket->connected) {
+    #####:  196:        return NSAPI_ERROR_DEVICE_ERROR;
+        -:  197:    }
+    #####:  198:    return socket_sendto(handle, socket->remoteAddress, data, size);
+        -:  199:}
+        -:  200:
+    #####:  201:nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, const SocketAddress &addr, const void *data, unsigned size)
+        -:  202:{
+    #####:  203:    CellularSocket *socket = (CellularSocket *)handle;
+        -:  204:
+    #####:  205:    nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
+        -:  206:
+    #####:  207:    if (!socket->created) {
+    #####:  208:        _at.lock();
+        -:  209:
+    #####:  210:        ret_val = create_socket_impl(socket);
+        -:  211:
+    #####:  212:        _at.unlock();
+    #####:  213:        if (ret_val != NSAPI_ERROR_OK) {
+    #####:  214:            return ret_val;
+        -:  215:        }
+        -:  216:    }
+        -:  217:
+    #####:  218:    unsigned max_packet_size = get_max_packet_size();
+        -:  219:
+        -:  220:    /* Check parameters */
+    #####:  221:    if (addr.get_ip_version() == NSAPI_UNSPEC ||
+        -:  222:            size > max_packet_size) {
+    #####:  223:        return NSAPI_ERROR_DEVICE_ERROR;
+        -:  224:    }
+        -:  225:
+    #####:  226:    _at.lock();
+        -:  227:
+    #####:  228:    ret_val = socket_sendto_impl(socket, addr, data, size);
+        -:  229:
+    #####:  230:    _at.unlock();
+        -:  231:
+    #####:  232:    return ret_val;
+        -:  233:}
+        -:  234:
+    #####:  235:nsapi_size_or_error_t AT_CellularStack::socket_recv(nsapi_socket_t handle, void *data, unsigned size)
+        -:  236:{
+    #####:  237:    return socket_recvfrom(handle, NULL, data, size);
+        -:  238:}
+        -:  239:
+    #####:  240:nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, SocketAddress *addr, void *buffer, unsigned size)
+        -:  241:{
+    #####:  242:    CellularSocket *socket = (CellularSocket *)handle;
+        -:  243:
+    #####:  244:    nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
+        -:  245:
+    #####:  246:    if (!socket->created) {
+    #####:  247:        _at.lock();
+        -:  248:
+    #####:  249:        ret_val = create_socket_impl(socket);
+        -:  250:
+    #####:  251:        _at.unlock();
+    #####:  252:        if (ret_val != NSAPI_ERROR_OK) {
+    #####:  253:            return ret_val;
+        -:  254:        }
+        -:  255:    }
+        -:  256:
+    #####:  257:    unsigned max_packet_size = get_max_packet_size();
+        -:  258:
+        -:  259:    /* Check parameters */
+        -:  260:    if (size < max_packet_size) {
+        -:  261:        //log_warn("Socket receive buffer smaller than max packet size! size:%d max_packet_size:%d", size, max_packet_size);
+        -:  262:    }
+        -:  263:
+    #####:  264:    _at.lock();
+        -:  265:
+    #####:  266:    ret_val = socket_recvfrom_impl(socket, addr, buffer, size);
+        -:  267:
+    #####:  268:    _at.unlock();
+        -:  269:
+    #####:  270:    return ret_val;
+        -:  271:}
+        -:  272:
+    #####:  273:void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data)
+        -:  274:{
+    #####:  275:    CellularSocket *socket = (CellularSocket *)handle;
+    #####:  276:    socket->_cb = callback;
+    #####:  277:    socket->_data = data;
+    #####:  278:}

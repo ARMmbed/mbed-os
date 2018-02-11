@@ -1,0 +1,331 @@
+        -:    0:Source:../../../framework/common/CellularUtil.cpp
+        -:    0:Graph:objs/util_unit/CellularUtil.gcno
+        -:    0:Data:objs/util_unit/CellularUtil.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) , Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:#include "CellularUtil.h"
+        -:   18:#include <string.h>
+        -:   19:#include <stdlib.h>
+        -:   20:
+        -:   21:namespace mbed_cellular_util {
+        -:   22:
+        7:   23:void convert_ipv6(char* ip)
+        -:   24:{
+        7:   25:    if (!ip) {
+        1:   26:        return;
+        -:   27:    }
+        -:   28:
+        6:   29:    int len = strlen(ip);
+        6:   30:    int pos = 0;
+        -:   31:    int i;
+        -:   32:
+       57:   33:    for (i = 0; i < len; i++) {
+       57:   34:        if (ip[i] == '.') {
+       24:   35:            pos++;
+        -:   36:        }
+       57:   37:        if (pos > 3) {
+        6:   38:            break;
+        -:   39:        }
+        -:   40:    }
+        -:   41:
+        -:   42:    // more that 3 periods mean that it was ipv6 but in format of a1.a2.a3.a4.a5.a6.a7.a8.a9.a10.a11.a12.a13.a14.a15.a16
+        -:   43:    // we need to convert it to hexadecimal format separated with colons
+        6:   44:    if (pos > 3) {
+        6:   45:        pos = 0;
+        6:   46:        int ip_pos = 0;
+        -:   47:        char b;
+        6:   48:        bool set_colon = false;
+      262:   49:        for (i = 0; i < len; i++) {
+      256:   50:            if (ip[i] == '.') {
+       90:   51:                b = (char)strtol (ip+ip_pos, NULL, 10); // convert to char to int so we can change it to hex string
+       90:   52:                pos += char_str_to_hex_str(&b, 1, ip+pos, !set_colon); // omit leading zeroes with using set_colon flag
+       90:   53:                if (set_colon) {
+       42:   54:                    ip[pos++] = ':';
+       42:   55:                    set_colon = false;
+        -:   56:                } else {
+       48:   57:                    set_colon = true;
+        -:   58:                }
+       90:   59:                ip_pos = i+1; // skip the '.'
+        -:   60:            }
+        -:   61:
+        -:   62:            // handle the last part which does not end with '.' but '\0'
+      256:   63:            if (i == len -1) {
+        6:   64:                b = (char)strtol(ip+ip_pos, NULL, 10);
+        6:   65:                pos += char_str_to_hex_str(&b, 1, ip+pos, !set_colon);
+        6:   66:                ip[pos] = '\0';
+        -:   67:            }
+        -:   68:        }
+        -:   69:    }
+        -:   70:}
+        -:   71:
+        -:   72:// For example "32.1.13.184.0.0.205.48.0.0.0.0.0.0.0.0"
+        6:   73:void separate_ip4like_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+        -:   74:{
+        -:   75:    // ipv4-like notation
+        6:   76:    int len = strlen(orig);
+        6:   77:    int count = 0, i = 0, pos = 0;
+        -:   78:    char *temp;
+        -:   79:
+      414:   80:    for (; i < len; i++) {
+      204:   81:        if (orig[i] == '.') {
+       74:   82:            count++;
+       74:   83:            if (count == 4) {
+        4:   84:                pos = i;
+       70:   85:            } else if (count == 16) {
+        1:   86:                pos = i;
+        -:   87:            }
+        -:   88:        }
+        -:   89:    }
+        -:   90:
+        6:   91:    if (count == 3) { // normal ipv4, copy to ip
+        2:   92:        if (ip_size > strlen(orig)) {
+        2:   93:            memcpy(ip, orig, strlen(orig));
+        2:   94:            ip[strlen(orig)] = '\0';
+        -:   95:        } else {
+    #####:   96:            ip[0] = '\0';
+        -:   97:        }
+        2:   98:        if (ip2) {
+        1:   99:            ip2[0] = '\0';
+        -:  100:        }
+        4:  101:    } else if (count == 7) { // ipv4 and subnet mask. Need to separate those.
+        1:  102:        temp = &orig[pos];
+        1:  103:        if ((uint8_t)ip_size > temp-orig) {
+        1:  104:            memcpy(ip, orig, temp-orig);
+        1:  105:            ip[temp-orig] = '\0';
+        -:  106:        }
+        1:  107:        temp++; // skip the '.'
+        1:  108:        if (ip2 && (ip2_size > strlen(temp))) {
+        1:  109:            memcpy(ip2, temp, strlen(temp));
+        1:  110:            ip2[strlen(temp)] = '\0';
+        -:  111:        }
+        3:  112:    } else if (count == 15) { // only one ipv6 address in ipv4-like notation
+        2:  113:        if (ip_size > strlen(orig)) {
+        2:  114:            memcpy(ip, orig, strlen(orig));
+        2:  115:            ip[strlen(orig)] = '\0';
+        2:  116:            convert_ipv6(ip);
+        -:  117:        } else {
+    #####:  118:            ip[0] = '\0';
+        -:  119:        }
+        2:  120:        if (ip2) {
+        1:  121:            ip2[0] = '\0';
+        -:  122:        }
+        1:  123:    } else if (count == 31){ // ipv6 + ipv6subnet mask in ipv4-like notation separated by dot '.'
+        1:  124:        temp = &orig[pos];
+        1:  125:        if ((uint8_t)ip_size > temp-orig) {
+        1:  126:            memcpy(ip, orig, temp-orig);
+        1:  127:            ip[temp-orig] = '\0';
+        1:  128:            convert_ipv6(ip);
+        -:  129:        }
+        1:  130:        temp++; // skip the '.'
+        1:  131:        if (ip2 && (ip2_size > strlen(temp))) {
+        1:  132:            memcpy(ip2, temp, strlen(temp));
+        1:  133:            ip2[strlen(temp)] = '\0';
+        1:  134:            convert_ipv6(ip2);
+        -:  135:        }
+        -:  136:    }
+        6:  137:}
+        -:  138:
+        8:  139:void separate_ip_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+        -:  140:{
+        -:  141:    // orig can include ipv4, ipv6, both or two ip4/ipv6 addresses.
+        -:  142:    // also format depends on possible AT+CGPIAF
+        8:  143:    if (!orig || !ip) {
+    #####:  144:        if (ip) {
+    #####:  145:            ip[0] = '\0';
+        -:  146:        }
+    #####:  147:        if (ip2) {
+    #####:  148:            ip2[0] = '\0';
+        -:  149:        }
+    #####:  150:        return;
+        -:  151:    }
+        -:  152:    // 1. try to found ':'. If it's found then we know that possible addresses are separated with space
+        -:  153:    char *temp;
+        8:  154:    temp = strchr(orig, ':');
+        -:  155:
+        8:  156:    if (temp != NULL) {
+        -:  157:        // found ':'
+        3:  158:        temp = strstr(orig, " ");
+        -:  159:        // found space as separator and it wasn't in beginning --> contains 2 ip addresses
+        3:  160:        if (temp && temp != orig) {
+        2:  161:            if ((uint8_t)ip_size > temp-orig) {
+        2:  162:                memcpy(ip, orig, temp-orig);
+        2:  163:                ip[temp-orig] = '\0';
+        -:  164:            } else {
+    #####:  165:                ip[0] = '\0';
+        -:  166:            }
+        2:  167:            temp++; // skip the space
+        4:  168:            if (ip2 && (ip2_size > strlen(temp))) {
+        2:  169:                memcpy(ip2, temp, strlen(temp));
+        2:  170:                ip2[strlen(temp)] = '\0';
+        -:  171:            } else {
+    #####:  172:                ip2[0] = '\0';
+        -:  173:            }
+        -:  174:        } else {
+        -:  175:            // Space was the first char or no space found ---> only one ip, copy to ip
+        1:  176:            size_t size = strlen(orig);
+        1:  177:            if (temp) {
+    #####:  178:                size = strlen(temp);
+        -:  179:            }
+        -:  180:
+        1:  181:            if (ip_size > size) {
+        1:  182:                memcpy(ip, orig, size);
+        1:  183:                ip[size] = '\0';
+        -:  184:            } else {
+    #####:  185:                ip[0] = '\0';
+        -:  186:            }
+        1:  187:            if (ip2) {
+        1:  188:                ip2[0] = '\0';
+        -:  189:            }
+        -:  190:        }
+        -:  191:    } else {
+        5:  192:        temp = strstr(orig, " ");
+        -:  193:        // found space as separator and it wasn't in beginning --> contains 2 ip addresses
+        5:  194:        if (temp && temp != orig) {
+        1:  195:            separate_ip4like_addresses(temp++, ip2, ip2_size, NULL, 0);
+        1:  196:            orig[temp-orig-1] = '\0';
+        1:  197:            separate_ip4like_addresses(orig, ip, ip_size, NULL, 0);
+        1:  198:            orig[temp-orig-1] = ' '; // put space back to keep orig as original
+        -:  199:        }
+        -:  200:        else {
+        4:  201:            separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
+        -:  202:        }
+        -:  203:    }
+        -:  204:}
+        -:  205:
+        2:  206:void prefer_ipv6(char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+        -:  207:{
+        2:  208:    if (!ip || !ip2) {
+    #####:  209:        return;
+        -:  210:    }
+        -:  211:    // assume that that ipv6 is already in formatted to use ':'
+        -:  212:    // 1. try to found ':'. If it's found then we know that this is ipv6
+        -:  213:    char *temp;
+        2:  214:    temp = strchr(ip, ':');
+        2:  215:    if (temp) {
+        -:  216:        // ip has ipv6 address, we can leave
+    #####:  217:        return;
+        -:  218:    } else {
+        -:  219:        // ip was not ipv6, check if ip2 is
+        2:  220:        temp = strchr(ip2, ':');
+        2:  221:        if (temp) {
+        -:  222:            // ipv6 was found in ip2 but not in ip ---> we must swap them. Sadly ip and ip2 might not be pointers
+        -:  223:            // so we can't just swap them, must use copy.
+        2:  224:            if (strlen(ip) < ip2_size && strlen(ip2) < ip_size && strlen(ip) < 64) {
+        -:  225:                char tmp[64];
+        1:  226:                strncpy(tmp, ip, strlen(ip));
+        1:  227:                tmp[strlen(ip)] = '\0';
+        1:  228:                strncpy(ip, ip2, strlen(ip2));
+        1:  229:                ip[strlen(ip2)] = '\0';
+        1:  230:                strncpy(ip2, tmp, strlen(tmp));
+        1:  231:                ip2[strlen(tmp)] = '\0';
+        -:  232:            }
+        -:  233:        }
+        -:  234:    }
+        -:  235:}
+        -:  236:
+    #####:  237:void int_to_hex_str(uint8_t num, char* buf)
+        -:  238:{
+    #####:  239:    char charNum = num;
+    #####:  240:    char_str_to_hex_str(&charNum, 1, buf);
+    #####:  241:}
+        -:  242:
+    #####:  243:int hex_str_to_int(const char *hex_string, int hex_string_length)
+        -:  244:{
+    #####:  245:    const int base = 16;
+    #####:  246:    int character_as_integer, integer_output = 0;
+        -:  247:
+    #####:  248:    for (int i=0;i<hex_string_length && hex_string[i] != '\0';i++) {
+    #####:  249:        if (hex_string[i] >= '0' && hex_string[i] <= '9') {
+    #####:  250:            character_as_integer = hex_string[i] - '0';
+    #####:  251:        } else if (hex_string[i] >= 'A' && hex_string[i] <= 'F') {
+    #####:  252:            character_as_integer = hex_string[i] - 'A' + 10;
+        -:  253:        } else {
+    #####:  254:            character_as_integer = hex_string[i] - 'a' + 10;
+        -:  255:        }
+    #####:  256:        integer_output *= base;
+    #####:  257:        integer_output += character_as_integer;
+        -:  258:    }
+        -:  259:
+    #####:  260:    return integer_output;
+        -:  261:}
+        -:  262:
+    #####:  263:int hex_str_to_char_str(const char* str, uint16_t len, char *buf)
+        -:  264:{
+    #####:  265:    int strcount = 0;
+    #####:  266:    for (int i = 0; i+1 < len; i += 2) {
+    #####:  267:        int upper = hex_str_to_int(str+i, 1);
+    #####:  268:        int lower = hex_str_to_int(str+i+1, 1);
+    #####:  269:        buf[strcount] = ((upper<<4) & 0xF0) | (lower & 0x0F);
+    #####:  270:        strcount++;
+        -:  271:    }
+        -:  272:
+    #####:  273:    return strcount;
+        -:  274:}
+        -:  275:
+        3:  276:void uint_to_binary_str(uint32_t num, char* str, int str_size, int bit_cnt)
+        -:  277:{
+        3:  278:    if (!str || str_size < bit_cnt) {
+        2:  279:        return;
+        -:  280:    }
+        1:  281:    int tmp, pos = 0;
+        -:  282:
+       33:  283:    for (int i = 31; i >= 0; i--) {
+       32:  284:        tmp = num >> i;
+       32:  285:        if (i < bit_cnt) {
+       32:  286:            if (tmp&1) {
+        4:  287:                str[pos] = 1 + '0';
+        -:  288:            } else {
+       28:  289:                str[pos] = 0 + '0';
+        -:  290:            }
+       32:  291:            pos++;
+        -:  292:        }
+        -:  293:    }
+        -:  294:}
+        -:  295:
+      102:  296:int char_str_to_hex_str(const char* str, uint16_t len, char *buf, bool omit_leading_zero)
+        -:  297:{
+      102:  298:    if (!str || !buf) {
+        2:  299:        return 0;
+        -:  300:    }
+        -:  301:
+      100:  302:    char *ptr = buf;
+      100:  303:    int i=0;
+      334:  304:    while (i < len) {
+      117:  305:        if (omit_leading_zero == true && i == 0 && !(str[i]>>4 & 0x0F)) {
+       33:  306:            *ptr++ = hex_values[(str[i]) & 0x0F];
+        -:  307:        } else {
+       84:  308:            *ptr++ = hex_values[((str[i])>>4) & 0x0F];
+       84:  309:            *ptr++ = hex_values[(str[i]) & 0x0F];
+        -:  310:        }
+      117:  311:        i++;
+        -:  312:    }
+      100:  313:    return ptr-buf;
+        -:  314:}
+        -:  315:
+    #####:  316:uint16_t get_dynamic_ip_port()
+        -:  317:{
+        -:  318:    static uint16_t port;
+    #####:  319:    port++;
+    #####:  320:    if (port < 49152) {
+    #####:  321:        port = 49152;
+        -:  322:    }
+    #####:  323:    return port;
+        -:  324:}
+        -:  325:
+        -:  326:} // namespace mbed_cellular_util

@@ -1,0 +1,12 @@
+File '../../../framework/AT/AT_CellularSIM.cpp'
+Lines executed:6.45% of 62
+Creating 'AT_CellularSIM.cpp.gcov'
+
+File '../../../framework/API/CellularSIM.h'
+Lines executed:100.00% of 2
+Creating 'CellularSIM.h.gcov'
+
+File '../../../../../platform/mbed_debug.h'
+Lines executed:0.00% of 2
+Creating 'mbed_debug.h.gcov'
+

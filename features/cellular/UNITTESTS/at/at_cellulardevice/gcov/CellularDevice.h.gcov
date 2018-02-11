@@ -1,0 +1,126 @@
+        -:    0:Source:../../../framework/API/CellularDevice.h
+        -:    0:Graph:objs/AT_CellularDevice_unit/AT_CellularDevice.gcno
+        -:    0:Data:objs/AT_CellularDevice_unit/AT_CellularDevice.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef CELLULAR_DEVICE_H_
+        -:   19:#define CELLULAR_DEVICE_H_
+        -:   20:
+        -:   21:#include "FileHandle.h"
+        -:   22:
+        -:   23:#include "CellularSIM.h"
+        -:   24:#include "CellularNetwork.h"
+        -:   25:#include "CellularSMS.h"
+        -:   26:#include "CellularPower.h"
+        -:   27:#include "CellularMultiplexer.h"
+        -:   28:#include "CellularInformation.h"
+        -:   29:
+        -:   30:namespace mbed {
+        -:   31:
+        -:   32:/**
+        -:   33: *  Class CellularDevice
+        -:   34: *
+        -:   35: *  An abstract interface that defines opening and closing of cellular interfaces.
+        -:   36: *  Deleting/Closing of opened interfaces can be done only via this class.
+        -:   37: */
+       10:   38:class CellularDevice
+        -:   39:{
+        -:   40:public:
+        -:   41:    /** virtual Destructor
+        -:   42:     */
+       10:   43:    virtual ~CellularDevice() {}
+        -:   44:
+        -:   45:public:
+        -:   46:    /** Create new CellularNetwork interface.
+        -:   47:     *
+        -:   48:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   49:     *  @return      New instance of interface CellularNetwork.
+        -:   50:     */
+        -:   51:    virtual CellularNetwork *open_network(FileHandle *fh) = 0;
+        -:   52:
+        -:   53:    /** Create new CellularSMS interface.
+        -:   54:     *
+        -:   55:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   56:     *  @return      New instance of interface CellularSMS.
+        -:   57:     */
+        -:   58:    virtual CellularSMS *open_sms(FileHandle *fh) = 0;
+        -:   59:
+        -:   60:    /** Create new CellularPower interface.
+        -:   61:     *
+        -:   62:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   63:     *  @return      New instance of interface CellularPower.
+        -:   64:     */
+        -:   65:    virtual CellularPower *open_power(FileHandle *fh) = 0;
+        -:   66:
+        -:   67:    /** Create new CellularSIM interface.
+        -:   68:     *
+        -:   69:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   70:     *  @return      New instance of interface CellularSIM.
+        -:   71:     */
+        -:   72:    virtual CellularSIM *open_sim(FileHandle *fh) = 0;
+        -:   73:
+        -:   74:    /** Create new CellularMultiplexer interface.
+        -:   75:     *
+        -:   76:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   77:     *  @return      New instance of interface CellularMultiplexer.
+        -:   78:     */
+        -:   79:    virtual CellularMultiplexer *open_multiplexer(FileHandle *fh) = 0;
+        -:   80:
+        -:   81:    /** Create new CellularInformation interface.
+        -:   82:     *
+        -:   83:     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+        -:   84:     *  @return      New instance of interface CellularInformation.
+        -:   85:     */
+        -:   86:    virtual CellularInformation *open_information(FileHandle *fh) = 0;
+        -:   87:
+        -:   88:    /** Closes the opened CellularNetwork by deleting the CellularNetwork instance.
+        -:   89:     */
+        -:   90:    virtual void close_network() = 0;
+        -:   91:
+        -:   92:    /** Closes the opened CellularNetwork by deleting the CellularSMS instance.
+        -:   93:     */
+        -:   94:    virtual void close_sms() = 0;
+        -:   95:
+        -:   96:    /** Closes the opened CellularNetwork by deleting the CellularPower instance.
+        -:   97:     */
+        -:   98:    virtual void close_power() = 0;
+        -:   99:
+        -:  100:    /** Closes the opened CellularNetwork by deleting the CellularSIM instance.
+        -:  101:     */
+        -:  102:    virtual void close_sim() = 0;
+        -:  103:
+        -:  104:    /** Closes the opened CellularNetwork by deleting the CellularMultiplexer instance.
+        -:  105:     */
+        -:  106:    virtual void close_multiplexer() = 0;
+        -:  107:
+        -:  108:    /** Closes the opened CellularNetwork by deleting the CellularInformation instance.
+        -:  109:     */
+        -:  110:    virtual void close_information() = 0;
+        -:  111:
+        -:  112:    /** Set the default response timeout.
+        -:  113:     *
+        -:  114:     *  @param timeout    milliseconds to wait response from modem
+        -:  115:     */
+        -:  116:    virtual void set_timeout(int timeout) = 0;
+        -:  117:};
+        -:  118:
+        -:  119:} // namespace mbed
+        -:  120:
+        -:  121:#endif // CELLULAR_DEVICE_H_

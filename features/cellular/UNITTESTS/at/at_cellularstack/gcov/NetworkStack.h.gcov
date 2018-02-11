@@ -1,0 +1,328 @@
+        -:    0:Source:../../../../../features/netsocket/NetworkStack.h
+        -:    0:Graph:objs/AT_CellularStack_unit/AT_CellularStack.gcno
+        -:    0:Data:objs/AT_CellularStack_unit/AT_CellularStack.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:
+        -:    2:/* NetworkStack
+        -:    3: * Copyright (c) 2015 ARM Limited
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef NETWORK_STACK_H
+        -:   19:#define NETWORK_STACK_H
+        -:   20:
+        -:   21:#include "nsapi_types.h"
+        -:   22:#include "netsocket/SocketAddress.h"
+        -:   23:#include "netsocket/NetworkInterface.h"
+        -:   24:
+        -:   25:
+        -:   26:/** NetworkStack class
+        -:   27: *
+        -:   28: *  Common interface that is shared between hardware that
+        -:   29: *  can connect to a network over IP. By implementing the
+        -:   30: *  NetworkStack, a network stack can be used as a target
+        -:   31: *  for instantiating network sockets.
+        -:   32: *  @addtogroup netsocket
+        -:   33: */
+        1:   34:class NetworkStack
+        -:   35:{
+        -:   36:public:
+        1:   37:    virtual ~NetworkStack() {};
+        -:   38:
+        -:   39:    /** Get the local IP address
+        -:   40:     *
+        -:   41:     *  @return         Null-terminated representation of the local IP address
+        -:   42:     *                  or null if not yet connected
+        -:   43:     */
+        -:   44:    virtual const char *get_ip_address() = 0;
+        -:   45:
+        -:   46:    /** Translates a hostname to an IP address with specific version
+        -:   47:     *
+        -:   48:     *  The hostname may be either a domain name or an IP address. If the
+        -:   49:     *  hostname is an IP address, no network transactions will be performed.
+        -:   50:     *
+        -:   51:     *  If no stack-specific DNS resolution is provided, the hostname
+        -:   52:     *  will be resolve using a UDP socket on the stack.
+        -:   53:     *
+        -:   54:     *  @param host     Hostname to resolve
+        -:   55:     *  @param address  Destination for the host SocketAddress
+        -:   56:     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+        -:   57:     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+        -:   58:     *  @return         0 on success, negative error code on failure
+        -:   59:     */
+        -:   60:    virtual nsapi_error_t gethostbyname(const char *host,
+        -:   61:            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+        -:   62:
+        -:   63:    /** Add a domain name server to list of servers to query
+        -:   64:     *
+        -:   65:     *  @param address  Destination for the host address
+        -:   66:     *  @return         0 on success, negative error code on failure
+        -:   67:     */
+        -:   68:    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+        -:   69:
+        -:   70:    /*  Set stack options
+        -:   71:     *
+        -:   72:     *  setstackopt allows an application to pass stack-specific options
+        -:   73:     *  to the underlying stack using stack-specific level and option names,
+        -:   74:     *  or to request generic options using levels from nsapi_stack_level_t.
+        -:   75:     *
+        -:   76:     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+        -:   77:     *  and the stack is unmodified.
+        -:   78:     *
+        -:   79:     *  @param level    Stack-specific protocol level or nsapi_stack_level_t
+        -:   80:     *  @param optname  Level-specific option name
+        -:   81:     *  @param optval   Option value
+        -:   82:     *  @param optlen   Length of the option value
+        -:   83:     *  @return         0 on success, negative error code on failure
+        -:   84:     */
+        -:   85:    virtual nsapi_error_t setstackopt(int level, int optname, const void *optval, unsigned optlen);
+        -:   86:
+        -:   87:    /*  Get stack options
+        -:   88:     *
+        -:   89:     *  getstackopt allows an application to retrieve stack-specific options
+        -:   90:     *  to the underlying stack using stack-specific level and option names,
+        -:   91:     *  or to request generic options using levels from nsapi_stack_level_t.
+        -:   92:     *
+        -:   93:     *  @param level    Stack-specific protocol level or nsapi_stack_level_t
+        -:   94:     *  @param optname  Level-specific option name
+        -:   95:     *  @param optval   Destination for option value
+        -:   96:     *  @param optlen   Length of the option value
+        -:   97:     *  @return         0 on success, negative error code on failure
+        -:   98:     */
+        -:   99:    virtual nsapi_error_t getstackopt(int level, int optname, void *optval, unsigned *optlen);
+        -:  100:
+        -:  101:protected:
+        -:  102:    friend class Socket;
+        -:  103:    friend class UDPSocket;
+        -:  104:    friend class TCPSocket;
+        -:  105:    friend class TCPServer;
+        -:  106:
+        -:  107:    /** Opens a socket
+        -:  108:     *
+        -:  109:     *  Creates a network socket and stores it in the specified handle.
+        -:  110:     *  The handle must be passed to following calls on the socket.
+        -:  111:     *
+        -:  112:     *  A stack may have a finite number of sockets, in this case
+        -:  113:     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+        -:  114:     *
+        -:  115:     *  @param handle   Destination for the handle to a newly created socket
+        -:  116:     *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
+        -:  117:     *  @return         0 on success, negative error code on failure
+        -:  118:     */
+        -:  119:    virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto) = 0;
+        -:  120:
+        -:  121:    /** Close the socket
+        -:  122:     *
+        -:  123:     *  Closes any open connection and deallocates any memory associated
+        -:  124:     *  with the socket.
+        -:  125:     *
+        -:  126:     *  @param handle   Socket handle
+        -:  127:     *  @return         0 on success, negative error code on failure
+        -:  128:     */
+        -:  129:    virtual nsapi_error_t socket_close(nsapi_socket_t handle) = 0;
+        -:  130:
+        -:  131:    /** Bind a specific address to a socket
+        -:  132:     *
+        -:  133:     *  Binding a socket specifies the address and port on which to recieve
+        -:  134:     *  data. If the IP address is zeroed, only the port is bound.
+        -:  135:     *
+        -:  136:     *  @param handle   Socket handle
+        -:  137:     *  @param address  Local address to bind
+        -:  138:     *  @return         0 on success, negative error code on failure.
+        -:  139:     */
+        -:  140:    virtual nsapi_error_t socket_bind(nsapi_socket_t handle, const SocketAddress &address) = 0;
+        -:  141:
+        -:  142:    /** Listen for connections on a TCP socket
+        -:  143:     *
+        -:  144:     *  Marks the socket as a passive socket that can be used to accept
+        -:  145:     *  incoming connections.
+        -:  146:     *
+        -:  147:     *  @param handle   Socket handle
+        -:  148:     *  @param backlog  Number of pending connections that can be queued
+        -:  149:     *                  simultaneously
+        -:  150:     *  @return         0 on success, negative error code on failure
+        -:  151:     */
+        -:  152:    virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog) = 0;
+        -:  153:
+        -:  154:    /** Connects TCP socket to a remote host
+        -:  155:     *
+        -:  156:     *  Initiates a connection to a remote server specified by the
+        -:  157:     *  indicated address.
+        -:  158:     *
+        -:  159:     *  @param handle   Socket handle
+        -:  160:     *  @param address  The SocketAddress of the remote host
+        -:  161:     *  @return         0 on success, negative error code on failure
+        -:  162:     */
+        -:  163:    virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address) = 0;
+        -:  164:
+        -:  165:    /** Accepts a connection on a TCP socket
+        -:  166:     *
+        -:  167:     *  The server socket must be bound and set to listen for connections.
+        -:  168:     *  On a new connection, creates a network socket and stores it in the
+        -:  169:     *  specified handle. The handle must be passed to following calls on
+        -:  170:     *  the socket.
+        -:  171:     *
+        -:  172:     *  A stack may have a finite number of sockets, in this case
+        -:  173:     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+        -:  174:     *
+        -:  175:     *  This call is non-blocking. If accept would block,
+        -:  176:     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+        -:  177:     *
+        -:  178:     *  @param server   Socket handle to server to accept from
+        -:  179:     *  @param handle   Destination for a handle to the newly created socket
+        -:  180:     *  @param address  Destination for the remote address or NULL
+        -:  181:     *  @return         0 on success, negative error code on failure
+        -:  182:     */
+        -:  183:    virtual nsapi_error_t socket_accept(nsapi_socket_t server,
+        -:  184:            nsapi_socket_t *handle, SocketAddress *address=0) = 0;
+        -:  185:
+        -:  186:    /** Send data over a TCP socket
+        -:  187:     *
+        -:  188:     *  The socket must be connected to a remote host. Returns the number of
+        -:  189:     *  bytes sent from the buffer.
+        -:  190:     *
+        -:  191:     *  This call is non-blocking. If send would block,
+        -:  192:     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+        -:  193:     *
+        -:  194:     *  @param handle   Socket handle
+        -:  195:     *  @param data     Buffer of data to send to the host
+        -:  196:     *  @param size     Size of the buffer in bytes
+        -:  197:     *  @return         Number of sent bytes on success, negative error
+        -:  198:     *                  code on failure
+        -:  199:     */
+        -:  200:    virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
+        -:  201:            const void *data, nsapi_size_t size) = 0;
+        -:  202:
+        -:  203:    /** Receive data over a TCP socket
+        -:  204:     *
+        -:  205:     *  The socket must be connected to a remote host. Returns the number of
+        -:  206:     *  bytes received into the buffer.
+        -:  207:     *
+        -:  208:     *  This call is non-blocking. If recv would block,
+        -:  209:     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+        -:  210:     *
+        -:  211:     *  @param handle   Socket handle
+        -:  212:     *  @param data     Destination buffer for data received from the host
+        -:  213:     *  @param size     Size of the buffer in bytes
+        -:  214:     *  @return         Number of received bytes on success, negative error
+        -:  215:     *                  code on failure
+        -:  216:     */
+        -:  217:    virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
+        -:  218:            void *data, nsapi_size_t size) = 0;
+        -:  219:
+        -:  220:    /** Send a packet over a UDP socket
+        -:  221:     *
+        -:  222:     *  Sends data to the specified address. Returns the number of bytes
+        -:  223:     *  sent from the buffer.
+        -:  224:     *
+        -:  225:     *  This call is non-blocking. If sendto would block,
+        -:  226:     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+        -:  227:     *
+        -:  228:     *  @param handle   Socket handle
+        -:  229:     *  @param address  The SocketAddress of the remote host
+        -:  230:     *  @param data     Buffer of data to send to the host
+        -:  231:     *  @param size     Size of the buffer in bytes
+        -:  232:     *  @return         Number of sent bytes on success, negative error
+        -:  233:     *                  code on failure
+        -:  234:     */
+        -:  235:    virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
+        -:  236:            const void *data, nsapi_size_t size) = 0;
+        -:  237:
+        -:  238:    /** Receive a packet over a UDP socket
+        -:  239:     *
+        -:  240:     *  Receives data and stores the source address in address if address
+        -:  241:     *  is not NULL. Returns the number of bytes received into the buffer.
+        -:  242:     *
+        -:  243:     *  This call is non-blocking. If recvfrom would block,
+        -:  244:     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+        -:  245:     *
+        -:  246:     *  @param handle   Socket handle
+        -:  247:     *  @param address  Destination for the source address or NULL
+        -:  248:     *  @param buffer   Destination buffer for data received from the host
+        -:  249:     *  @param size     Size of the buffer in bytes
+        -:  250:     *  @return         Number of received bytes on success, negative error
+        -:  251:     *                  code on failure
+        -:  252:     */
+        -:  253:    virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
+        -:  254:            void *buffer, nsapi_size_t size) = 0;
+        -:  255:
+        -:  256:    /** Register a callback on state change of the socket
+        -:  257:     *
+        -:  258:     *  The specified callback will be called on state changes such as when
+        -:  259:     *  the socket can recv/send/accept successfully and on when an error
+        -:  260:     *  occurs. The callback may also be called spuriously without reason.
+        -:  261:     *
+        -:  262:     *  The callback may be called in an interrupt context and should not
+        -:  263:     *  perform expensive operations such as recv/send calls.
+        -:  264:     *
+        -:  265:     *  @param handle   Socket handle
+        -:  266:     *  @param callback Function to call on state change
+        -:  267:     *  @param data     Argument to pass to callback
+        -:  268:     */
+        -:  269:    virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) = 0;
+        -:  270:
+        -:  271:    /*  Set stack-specific socket options
+        -:  272:     *
+        -:  273:     *  The setsockopt allow an application to pass stack-specific hints
+        -:  274:     *  to the underlying stack. For unsupported options,
+        -:  275:     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+        -:  276:     *
+        -:  277:     *  @param handle   Socket handle
+        -:  278:     *  @param level    Stack-specific protocol level
+        -:  279:     *  @param optname  Stack-specific option identifier
+        -:  280:     *  @param optval   Option value
+        -:  281:     *  @param optlen   Length of the option value
+        -:  282:     *  @return         0 on success, negative error code on failure
+        -:  283:     */
+        -:  284:    virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
+        -:  285:            int optname, const void *optval, unsigned optlen);
+        -:  286:
+        -:  287:    /*  Get stack-specific socket options
+        -:  288:     *
+        -:  289:     *  The getstackopt allow an application to retrieve stack-specific hints
+        -:  290:     *  from the underlying stack. For unsupported options,
+        -:  291:     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+        -:  292:     *
+        -:  293:     *  @param handle   Socket handle
+        -:  294:     *  @param level    Stack-specific protocol level
+        -:  295:     *  @param optname  Stack-specific option identifier
+        -:  296:     *  @param optval   Destination for option value
+        -:  297:     *  @param optlen   Length of the option value
+        -:  298:     *  @return         0 on success, negative error code on failure
+        -:  299:     */
+        -:  300:    virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level,
+        -:  301:            int optname, void *optval, unsigned *optlen);
+        -:  302:};
+        -:  303:
+        -:  304:
+        -:  305:/** Convert a raw nsapi_stack_t object into a C++ NetworkStack object
+        -:  306: *
+        -:  307: *  @param stack    Reference to an object that can be converted to a stack
+        -:  308: *                  - A raw nsapi_stack_t object
+        -:  309: *                  - A reference to a network stack
+        -:  310: *                  - A reference to a network interface
+        -:  311: *  @return         Reference to the underlying network stack
+        -:  312: */
+        -:  313:NetworkStack *nsapi_create_stack(nsapi_stack_t *stack);
+        -:  314:NetworkStack *nsapi_create_stack(NetworkStack *stack);
+        -:  315:
+        -:  316:template <typename IF>
+        -:  317:NetworkStack *nsapi_create_stack(IF *iface)
+        -:  318:{
+        -:  319:    return nsapi_create_stack(static_cast<NetworkInterface *>(iface)->get_stack());
+        -:  320:}
+        -:  321:
+        -:  322:
+        -:  323:#endif

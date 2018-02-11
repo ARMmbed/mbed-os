@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="localhost" name="AT_CellularNetwork" tests="26" time="0.000" timestamp="2018-02-11T22:58:59">
+<properties>
+</properties>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_operator_params" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_3gpp_error" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_cell_id" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_signal_quality" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_extended_signal_quality" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_pdpcontext_params" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_stack_type" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_stack_type" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_ciot_optimization_config" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_ciot_optimization_config" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_scan_plmn" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_access_technology" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_ip_address" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_connection_status_cb" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_backoff_time" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_rate_control" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_attach" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_attach" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_registration_status" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_registration" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_get_stack" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_disconnect" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_connect" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_set_credentials" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="test_AT_CellularNetwork_constructor" time="0.000">
+</testcase>
+<testcase classname="AT_CellularNetwork" name="Create" time="0.000">
+</testcase>
+<system-out></system-out>
+<system-err></system-err>
+</testsuite>

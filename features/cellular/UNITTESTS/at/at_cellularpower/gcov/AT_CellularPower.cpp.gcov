@@ -1,0 +1,237 @@
+        -:    0:Source:../../../framework/AT/AT_CellularPower.cpp
+        -:    0:Graph:objs/AT_CellularPower_unit/AT_CellularPower.gcno
+        -:    0:Data:objs/AT_CellularPower_unit/AT_CellularPower.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#include "AT_CellularPower.h"
+        -:   19:#include "CellularUtil.h"
+        -:   20:#include "CellularLog.h"
+        -:   21:
+        -:   22:static const int PSMTimerBits = 5;
+        -:   23:
+        -:   24:using namespace mbed_cellular_util;
+        -:   25:using namespace mbed;
+        -:   26:
+        1:   27:AT_CellularPower::AT_CellularPower(ATHandler &at) : AT_CellularBase(at)
+        -:   28:{
+        1:   29:}
+        -:   30:
+        2:   31:AT_CellularPower::~AT_CellularPower()
+        -:   32:{
+        2:   33:}
+        -:   34:
+    #####:   35:nsapi_error_t AT_CellularPower::on()
+        -:   36:{
+    #####:   37:    return NSAPI_ERROR_UNSUPPORTED;
+        -:   38:}
+        -:   39:
+    #####:   40:nsapi_error_t AT_CellularPower::off()
+        -:   41:{
+    #####:   42:    return NSAPI_ERROR_UNSUPPORTED;
+        -:   43:}
+        -:   44:
+    #####:   45:nsapi_error_t AT_CellularPower::set_at_mode()
+        -:   46:{
+    #####:   47:    _at.lock();
+    #####:   48:    _at.flush();
+    #####:   49:    _at.cmd_start("ATE0"); // echo off
+    #####:   50:    _at.cmd_stop();
+    #####:   51:    _at.resp_start();
+    #####:   52:    _at.resp_stop();
+        -:   53:
+    #####:   54:    _at.cmd_start("AT+CMEE=1"); // verbose responses
+    #####:   55:    _at.cmd_stop();
+    #####:   56:    _at.resp_start();
+    #####:   57:    _at.resp_stop();
+    #####:   58:    return _at.unlock_return_error();
+        -:   59:}
+        -:   60:
+    #####:   61:nsapi_error_t AT_CellularPower::set_power_level(int func_level)
+        -:   62:{
+    #####:   63:    _at.lock();
+    #####:   64:    _at.cmd_start("AT+CFUN=");
+    #####:   65:    _at.write_int(func_level);
+    #####:   66:    _at.cmd_stop();
+    #####:   67:    _at.resp_start();
+    #####:   68:    _at.resp_stop();
+    #####:   69:    return _at.unlock_return_error();
+        -:   70:}
+        -:   71:
+    #####:   72:nsapi_error_t AT_CellularPower::reset()
+        -:   73:{
+    #####:   74:    _at.lock();
+    #####:   75:    _at.cmd_start("AT+CFUN=");// reset to full power levels
+    #####:   76:    _at.write_int(1);
+    #####:   77:    _at.write_int(1);
+    #####:   78:    _at.cmd_stop();
+    #####:   79:    _at.resp_start();
+    #####:   80:    _at.resp_stop();
+    #####:   81:    return _at.unlock_return_error();
+        -:   82:}
+        -:   83:
+    #####:   84:nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int active_time)
+        -:   85:{
+    #####:   86:    _at.lock();
+        -:   87:
+    #####:   88:    if (periodic_time == 0 && active_time == 0) {
+        -:   89:        // disable PSM
+    #####:   90:        _at.cmd_start("AT+CPSMS=");
+    #####:   91:        _at.write_int(0);
+    #####:   92:        _at.cmd_stop();
+    #####:   93:        _at.resp_start();
+    #####:   94:        _at.resp_stop();
+        -:   95:    } else {
+        -:   96:        /**
+        -:   97:            Table 10.5.163a/3GPP TS 24.008: GPRS Timer 3 information element
+        -:   98:
+        -:   99:            Bits 5 to 1 represent the binary coded timer value.
+        -:  100:
+        -:  101:            Bits 6 to 8 defines the timer value unit for the GPRS timer as follows:
+        -:  102:            8 7 6
+        -:  103:            0 0 0 value is incremented in multiples of 10 minutes
+        -:  104:            0 0 1 value is incremented in multiples of 1 hour
+        -:  105:            0 1 0 value is incremented in multiples of 10 hours
+        -:  106:            0 1 1 value is incremented in multiples of 2 seconds
+        -:  107:            1 0 0 value is incremented in multiples of 30 seconds
+        -:  108:            1 0 1 value is incremented in multiples of 1 minute
+        -:  109:            1 1 0 value is incremented in multiples of 320 hours (NOTE 1)
+        -:  110:            1 1 1 value indicates that the timer is deactivated (NOTE 2).
+        -:  111:         */
+        -:  112:        char pt[8+1];// timer value encoded as 3GPP IE
+    #####:  113:        const int ie_value_max = 0x1f;
+    #####:  114:        uint32_t periodic_timer = 0;
+    #####:  115:        if (periodic_time <= 2*ie_value_max) { // multiples of 2 seconds
+    #####:  116:            periodic_timer = periodic_time/2;
+    #####:  117:            strcpy(pt, "01100000");
+        -:  118:        } else {
+    #####:  119:            if (periodic_time <= 30*ie_value_max) { // multiples of 30 seconds
+    #####:  120:                periodic_timer = periodic_time/30;
+    #####:  121:                strcpy(pt, "10000000");
+        -:  122:            } else {
+    #####:  123:                if (periodic_time <= 60*ie_value_max) { // multiples of 1 minute
+    #####:  124:                    periodic_timer = periodic_time/60;
+    #####:  125:                    strcpy(pt, "10100000");
+        -:  126:                } else {
+    #####:  127:                    if (periodic_time <= 10*60*ie_value_max) { // multiples of 10 minutes
+    #####:  128:                        periodic_timer = periodic_time/(10*60);
+    #####:  129:                        strcpy(pt, "00000000");
+        -:  130:                    } else {
+    #####:  131:                        if (periodic_time <= 60*60*ie_value_max) { // multiples of 1 hour
+    #####:  132:                            periodic_timer = periodic_time/(60*60);
+    #####:  133:                            strcpy(pt, "00100000");
+        -:  134:                        } else {
+    #####:  135:                            if (periodic_time <= 10*60*60*ie_value_max) { // multiples of 10 hours
+    #####:  136:                                periodic_timer = periodic_time/(10*60*60);
+    #####:  137:                                strcpy(pt, "01000000");
+        -:  138:                            } else { // multiples of 320 hours
+    #####:  139:                                int t = periodic_time / (320*60*60);
+    #####:  140:                                if (t > ie_value_max) {
+    #####:  141:                                    t = ie_value_max;
+        -:  142:                                }
+    #####:  143:                                periodic_timer = t;
+    #####:  144:                                strcpy(pt, "11000000");
+        -:  145:                            }
+        -:  146:                        }
+        -:  147:                    }
+        -:  148:                }
+        -:  149:            }
+        -:  150:        }
+        -:  151:
+    #####:  152:        uint_to_binary_str(periodic_timer, &pt[3], sizeof(pt)-3, PSMTimerBits);
+    #####:  153:        pt[8] = '\0';
+        -:  154:
+        -:  155:        /**
+        -:  156:            Table 10.5.172/3GPP TS 24.008: GPRS Timer information element
+        -:  157:
+        -:  158:            Bits 5 to 1 represent the binary coded timer value.
+        -:  159:
+        -:  160:            Bits 6 to 8 defines the timer value unit for the GPRS timer as follows:
+        -:  161:
+        -:  162:            8 7 6
+        -:  163:            0 0 0  value is incremented in multiples of 2 seconds
+        -:  164:            0 0 1  value is incremented in multiples of 1 minute
+        -:  165:            0 1 0  value is incremented in multiples of decihours
+        -:  166:            1 1 1  value indicates that the timer is deactivated.
+        -:  167:
+        -:  168:            Other values shall be interpreted as multiples of 1 minute in this version of the protocol.
+        -:  169:        */
+        -:  170:        char at[8+1];
+        -:  171:        uint32_t active_timer; // timer value encoded as 3GPP IE
+    #####:  172:        if (active_time <= 2*ie_value_max) { // multiples of 2 seconds
+    #####:  173:            active_timer = active_time/2;
+    #####:  174:            strcpy(at, "00000000");
+        -:  175:        } else {
+    #####:  176:            if (active_time <= 60*ie_value_max) { // multiples of 1 minute
+    #####:  177:                active_timer = (1<<5) | (active_time/60);
+    #####:  178:                strcpy(at, "00100000");
+        -:  179:            } else { // multiples of decihours
+    #####:  180:                int t = active_time / (6*60);
+    #####:  181:                if (t > ie_value_max) {
+    #####:  182:                    t = ie_value_max;
+        -:  183:                }
+    #####:  184:                active_timer = t;
+    #####:  185:                strcpy(at, "01000000");
+        -:  186:            }
+        -:  187:        }
+        -:  188:
+    #####:  189:        uint_to_binary_str(active_timer, &at[3], sizeof(at)-3, PSMTimerBits);
+    #####:  190:        pt[8] = '\0';
+        -:  191:
+        -:  192:        // request for both GPRS and LTE
+    #####:  193:        _at.cmd_start("AT+CPSMS=");
+    #####:  194:        _at.write_int(1);
+    #####:  195:        _at.write_string(pt);
+    #####:  196:        _at.write_string(at);
+    #####:  197:        _at.write_string(pt);
+    #####:  198:        _at.write_string(at);
+    #####:  199:        _at.cmd_stop();
+    #####:  200:        _at.resp_start();
+    #####:  201:        _at.resp_stop();
+        -:  202:
+        -:  203:
+    #####:  204:        if (_at.get_last_error() != NSAPI_ERROR_OK) {
+        -:  205:            log_warn("Power save mode not enabled!");
+        -:  206:        } else {
+        -:  207:            // network may not agree with power save options but
+        -:  208:            // that should be fine as timeout is not longer than requested
+        -:  209:        }
+        -:  210:    }
+        -:  211:
+    #####:  212:    return _at.unlock_return_error();
+        -:  213:}
+        -:  214:
+    #####:  215:nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value)
+        -:  216:{
+        -:  217:    char edrx[5];
+    #####:  218:    uint_to_binary_str(edrx_value, edrx, 5, 4);
+    #####:  219:    edrx[4] = '\0';
+        -:  220:
+    #####:  221:    _at.lock();
+        -:  222:
+    #####:  223:    _at.cmd_start("AT+CEDRXS=");
+    #####:  224:    _at.write_int(mode);
+    #####:  225:    _at.write_int(act_type);
+    #####:  226:    _at.write_string(edrx);
+    #####:  227:    _at.cmd_stop();
+    #####:  228:    _at.resp_start();
+    #####:  229:    _at.resp_stop();
+        -:  230:
+    #####:  231:    return _at.unlock_return_error();
+        -:  232:}

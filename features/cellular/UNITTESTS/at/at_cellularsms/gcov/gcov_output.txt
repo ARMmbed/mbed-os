@@ -1,0 +1,24 @@
+File '../../../../../platform/Callback.h'
+Lines executed:36.17% of 47
+Creating 'Callback.h.gcov'
+
+File '../../../framework/AT/AT_CellularSMS.cpp'
+Lines executed:1.10% of 637
+Creating 'AT_CellularSMS.cpp.gcov'
+
+File '../../../framework/API/CellularSMS.h'
+Lines executed:100.00% of 2
+Creating 'CellularSMS.h.gcov'
+
+File '../../../framework/AT/AT_CellularSMS.h'
+Lines executed:0.00% of 1
+Creating 'AT_CellularSMS.h.gcov'
+
+File '../../../../../platform/mbed_debug.h'
+Lines executed:0.00% of 2
+Creating 'mbed_debug.h.gcov'
+
+File '/usr/include/c++/5/new'
+Lines executed:0.00% of 3
+Creating 'new.gcov'
+

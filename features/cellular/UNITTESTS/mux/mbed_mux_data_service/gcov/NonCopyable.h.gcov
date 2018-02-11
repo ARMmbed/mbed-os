@@ -1,0 +1,216 @@
+        -:    0:Source:../../../../../platform/NonCopyable.h
+        -:    0:Graph:objs/mbed_mux_data_service_unit/mbed_mux_data_service.gcno
+        -:    0:Data:objs/mbed_mux_data_service_unit/mbed_mux_data_service.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/* Copyright (c) 2017 ARM Limited
+        -:    2: *
+        -:    3: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    4: * you may not use this file except in compliance with the License.
+        -:    5: * You may obtain a copy of the License at
+        -:    6: *
+        -:    7: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:    8: *
+        -:    9: * Unless required by applicable law or agreed to in writing, software
+        -:   10: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   11: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   12: * See the License for the specific language governing permissions and
+        -:   13: * limitations under the License.
+        -:   14: */
+        -:   15:
+        -:   16:#ifndef MBED_NONCOPYABLE_H_
+        -:   17:#define MBED_NONCOPYABLE_H_
+        -:   18:
+        -:   19:#if (!defined(MBED_DEBUG) && (MBED_CONF_PLATFORM_FORCE_NON_COPYABLE_ERROR == 0))
+        -:   20:#include "mbed_toolchain.h"
+        -:   21:#include "mbed_debug.h"
+        -:   22:#endif
+        -:   23:
+        -:   24:namespace mbed {
+        -:   25:
+        -:   26:/**
+        -:   27: * Inheriting from this class autogeneration of copy construction and copy
+        -:   28: * assignement operations.
+        -:   29: *
+        -:   30: * Classes which are not value type should inherit privately from this class
+        -:   31: * to avoid generation of invalid copy constructor or copy assignement operator
+        -:   32: * which can lead to unoticeable programming errors.
+        -:   33: *
+        -:   34: * As an example consider the following signature:
+        -:   35: *
+        -:   36: * @code
+        -:   37: * class Resource;
+        -:   38: *
+        -:   39: * class Foo {
+        -:   40: * public:
+        -:   41: *   Foo() : _resource(new Resource()) { }
+        -:   42: *   ~Foo() { delete _resource; }
+        -:   43: * private:
+        -:   44: *   Resource* _resource;
+        -:   45: * }
+        -:   46: *
+        -:   47: * Foo get_foo();
+        -:   48: *
+        -:   49: * Foo foo = get_foo();
+        -:   50: * @endcode
+        -:   51: *
+        -:   52: * There is a bug in this function, it returns a temporary value which will be
+        -:   53: * byte copied into foo then destroyed. Unfortunately, internaly the Foo class
+        -:   54: * manage a pointer to a Resource object. This pointer will be released when the
+        -:   55: * temporary is destroyed and foo will manage a pointer to an already released
+        -:   56: * Resource.
+        -:   57: *
+        -:   58: * Two issues has to be fixed in the example above:
+        -:   59: *   - Function signature has to be changed to reflect the fact that Foo
+        -:   60: *     instances cannot be copied. In that case accessor should return a
+        -:   61: *     reference to give access to objects already existing and managed.
+        -:   62: *     Generator on the other hand should return a pointer to the created object.
+        -:   63: *
+        -:   64: * @code
+        -:   65: * // return a reference to an already managed Foo instance
+        -:   66: * Foo& get_foo();
+        -:   67: * Foo& foo = get_foo();
+        -:   68: *
+        -:   69: * // create a new Foo instance
+        -:   70: * Foo* make_foo();
+        -:   71: * Foo* m = make_foo();
+        -:   72: * @endcode
+        -:   73: *
+        -:   74: *   - Copy constructor and copy assignement operator has to be made private
+        -:   75: *     in the Foo class. It prevents unwanted copy of Foo objects. This can be
+        -:   76: *     done by declaring copy constructor and copy assignement in the private
+        -:   77: *     section of the Foo class.
+        -:   78: *
+        -:   79: * @code
+        -:   80: * class Foo {
+        -:   81: * public:
+        -:   82: *   Foo() : _resource(new Resource()) { }
+        -:   83: *   ~Foo() { delete _resource; }
+        -:   84: * private:
+        -:   85: *   // disallow copy operations
+        -:   86: *   Foo(const Foo&);
+        -:   87: *   Foo& operator=(const Foo&);
+        -:   88: *   // data members
+        -:   89: *   Resource* _resource;
+        -:   90: * }
+        -:   91: * @endcode
+        -:   92: *
+        -:   93: * Another solution is to inherit privately from the NonCopyable class.
+        -:   94: * It reduces the boiler plate needed to avoid copy operations but more
+        -:   95: * importantly it clarifies the programer intent and the object semantic.
+        -:   96: *
+        -:   97: * class Foo : private NonCopyable<Foo> {
+        -:   98: * public:
+        -:   99: *   Foo() : _resource(new Resource()) { }
+        -:  100: *   ~Foo() { delete _resource; }
+        -:  101: * private:
+        -:  102: *   Resource* _resource;
+        -:  103: * }
+        -:  104: *
+        -:  105: * @tparam T The type that should be made non copyable. It prevent cases where
+        -:  106: * the empty base optimization cannot be applied and therefore ensure that the
+        -:  107: * cost of this semantic sugar is null.
+        -:  108: *
+        -:  109: * As an example, the empty base optimization is prohibited if one of the empty
+        -:  110: * base class is also a base type of the first non static data member:
+        -:  111: *
+        -:  112: * @code
+        -:  113: * struct A { };
+        -:  114: * struct B : A {
+        -:  115: *    int foo;
+        -:  116: * };
+        -:  117: * // thanks to empty base optimization, sizeof(B) == sizeof(int)
+        -:  118: *
+        -:  119: * struct C : A {
+        -:  120: *   B b;
+        -:  121: * };
+        -:  122: *
+        -:  123: * // empty base optimization cannot be applied here because A from C and A from
+        -:  124: * // B shall have a different address. In that case, with the alignement
+        -:  125: * // sizeof(C) == 2* sizeof(int)
+        -:  126: * @endcode
+        -:  127: *
+        -:  128: * The solution to that problem is to templatize the empty class to makes it
+        -:  129: * unique to the type it is applied to:
+        -:  130: *
+        -:  131: * @code
+        -:  132: * template<typename T>
+        -:  133: * struct A<T> { };
+        -:  134: * struct B : A<B> {
+        -:  135: *    int foo;
+        -:  136: * };
+        -:  137: * struct C : A<C> {
+        -:  138: *   B b;
+        -:  139: * };
+        -:  140: *
+        -:  141: * // empty base optimization can be applied B and C does not refer to the same
+        -:  142: * // kind of A. sizeof(C) == sizeof(B) == sizeof(int).
+        -:  143: * @endcode
+        -:  144: *
+        -:  145: * @note Compile time errors are disabled if the develop or the release profile
+        -:  146: * is used. To override this behavior and force compile time errors in all profile
+        -:  147: * set the configuration parameter "platform.force-non-copyable-error" to true.
+        -:  148: */
+        -:  149:template<typename T>
+        -:  150:class NonCopyable {
+        -:  151:protected:
+        -:  152:    /**
+        -:  153:     * Disalow construction of NonCopyable objects from outside of its hierarchy.
+        -:  154:     */
+        -:  155:    NonCopyable() { }
+        -:  156:    /**
+        -:  157:     * Disalow destruction of NonCopyable objects from outside of its hierarchy.
+        -:  158:     */
+    #####:  159:    ~NonCopyable() { }
+        -:  160:
+        -:  161:#if (!defined(MBED_DEBUG) && (MBED_CONF_PLATFORM_FORCE_NON_COPYABLE_ERROR == 0))
+        -:  162:    /**
+        -:  163:     * NonCopyable copy constructor.
+        -:  164:     *
+        -:  165:     * A compile time warning is issued when this function is used and a runtime
+        -:  166:     * warning is printed when the copy construction of the non copyable happens.
+        -:  167:     *
+        -:  168:     * If you see this warning, your code is probably doing something unspecified.
+        -:  169:     * Copy of non copyable resources can lead to resource leak and random error.
+        -:  170:     */
+        -:  171:    MBED_DEPRECATED("Invalid copy construction of a NonCopyable resource.")
+        -:  172:    NonCopyable(const NonCopyable&)
+        -:  173:    {
+        -:  174:        debug("Invalid copy construction of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
+        -:  175:    }
+        -:  176:
+        -:  177:    /**
+        -:  178:     * NonCopyable copy assignment operator.
+        -:  179:     *
+        -:  180:     * A compile time warning is issued when this function is used and a runtime
+        -:  181:     * warning is printed when the copy construction of the non copyable happens.
+        -:  182:     *
+        -:  183:     * If you see this warning, your code is probably doing something unspecified.
+        -:  184:     * Copy of non copyable resources can lead to resource leak and random error.
+        -:  185:     */
+        -:  186:    MBED_DEPRECATED("Invalid copy assignment of a NonCopyable resource.")
+        -:  187:    NonCopyable& operator=(const NonCopyable&)
+        -:  188:    {
+        -:  189:        debug("Invalid copy assignment of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
+        -:  190:        return *this;
+        -:  191:    }
+        -:  192:
+        -:  193:#else
+        -:  194:private:
+        -:  195:    /**
+        -:  196:     * Declare copy constructor as private, any attempt to copy construct
+        -:  197:     * a NonCopyable will fail at compile time.
+        -:  198:     */
+        -:  199:    NonCopyable(const NonCopyable&);
+        -:  200:
+        -:  201:    /**
+        -:  202:     * Declare copy assignement operator as private, any attempt to copy assign
+        -:  203:     * a NonCopyable will fail at compile time.
+        -:  204:     */
+        -:  205:    NonCopyable& operator=(const NonCopyable&);
+        -:  206:#endif
+        -:  207:};
+        -:  208:
+        -:  209:} // namespace mbed
+        -:  210:
+        -:  211:#endif /* MBED_NONCOPYABLE_H_ */

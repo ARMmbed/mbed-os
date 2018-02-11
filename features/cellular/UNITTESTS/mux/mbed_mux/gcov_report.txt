@@ -1,0 +1,9 @@
+
+  0.00%   objs/mbed_mux_unit/mbed_mux., assuming not executed
+No executable lines   File ../events/EventQueue.h
+No executable lines   File ../framework/mux/mbed_mux.cpp
+No executable lines   File ../framework/mux/mbed_mux.h
+No executable lines   File ../platform/Callback.h
+No executable lines   File ../platform/FileHandle.h
+No executable lines   File ../platform/NonCopyable.h
+No executable lines   File ../platform/PlatformMutex.h

@@ -86,6 +86,8 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
 {
     //enable_debug(true);
 
+    clear_error();
+
     if (output_delimiter) {
         _output_delimiter_length = strlen(output_delimiter);
         _output_delimiter = new char[_output_delimiter_length];
@@ -261,6 +263,7 @@ void ATHandler::process_oob()
 }
 
 // oob match settings
+//DEAD CODE?
 void ATHandler::set_oobs_matching_param(bool is_it_a_match_or_not)
 {
     for (struct oob_t *oob = _oobs; oob; oob = oob->next) {
@@ -348,7 +351,7 @@ int16_t ATHandler::get_char()
 void ATHandler::skip_param(uint32_t count)
 {
     log_debug("%s", __func__);
-    if (_last_err || _stop_tag->found) {
+    if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
 
@@ -378,7 +381,7 @@ void ATHandler::skip_param(uint32_t count)
 void ATHandler::skip_param(ssize_t len, uint32_t count)
 {
     log_debug("%s", __func__);
-    if (_last_err || _stop_tag->found) {
+    if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
 
@@ -424,7 +427,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
     }
     at_debug("\n----------buff----------\n");
 
-    if (_last_err || (_stop_tag->found && read_even_stop_tag == false)) {
+    if (_last_err || !_stop_tag || (_stop_tag->found && read_even_stop_tag == false)) {
         return -1;
     }
 
@@ -472,7 +475,7 @@ int32_t ATHandler::read_int()
 {
     log_debug("%s", __func__);
 
-     if (_last_err || _stop_tag->found) {
+     if (_last_err || !_stop_tag || _stop_tag->found) {
          return -1;
      }
 
@@ -539,6 +542,7 @@ void ATHandler::set_scope(ScopeType scope_type, const char* stop_tag)
         }
     }
 
+    //CURRENTLY DEAD CODE
     if (stop_tag) {
         set_stop_tag(stop_tag);
     }
@@ -573,7 +577,9 @@ bool ATHandler::match_urc()
             if (match(oob->prefix, prefix_len)) {
                 log_debug("URC!");
                 set_scope(InfoType);
-                oob->cb();
+                if(oob->cb){
+                    oob->cb();
+                }
                 information_response_stop();
                 return true;
             }
@@ -981,6 +987,7 @@ void ATHandler::write_int(int32_t param)
             }
         }
     } else {
+        //This is DEAD CODE: longest value is "-2147483648" which is 11 characters long and passing int64 is not possible!
         // must have been 64-bit integer, not supported
         set_error(NSAPI_ERROR_PARAMETER);
     }

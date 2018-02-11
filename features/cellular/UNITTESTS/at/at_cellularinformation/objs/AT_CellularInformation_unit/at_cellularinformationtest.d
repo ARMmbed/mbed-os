@@ -1,0 +1,4 @@
+objs/AT_CellularInformation_unit/at_cellularinformationtest.o: \
+ at_cellularinformationtest.cpp test_at_cellularinformation.h
+
+test_at_cellularinformation.h:

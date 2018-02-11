@@ -1,0 +1,56 @@
+        -:    0:Source:../../../framework/API/CellularMultiplexer.h
+        -:    0:Graph:objs/AT_CellularMultiplexer_unit/AT_CellularMultiplexer.gcno
+        -:    0:Data:objs/AT_CellularMultiplexer_unit/AT_CellularMultiplexer.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2: * Copyright (c) 2017, Arm Limited and affiliates.
+        -:    3: * SPDX-License-Identifier: Apache-2.0
+        -:    4: *
+        -:    5: * Licensed under the Apache License, Version 2.0 (the "License");
+        -:    6: * you may not use this file except in compliance with the License.
+        -:    7: * You may obtain a copy of the License at
+        -:    8: *
+        -:    9: *     http://www.apache.org/licenses/LICENSE-2.0
+        -:   10: *
+        -:   11: * Unless required by applicable law or agreed to in writing, software
+        -:   12: * distributed under the License is distributed on an "AS IS" BASIS,
+        -:   13: * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        -:   14: * See the License for the specific language governing permissions and
+        -:   15: * limitations under the License.
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef CELLULAR_MULTIPLEXER_H_
+        -:   19:#define CELLULAR_MULTIPLEXER_H_
+        -:   20:
+        -:   21:#include "nsapi_types.h"
+        -:   22:
+        -:   23:namespace mbed {
+        -:   24:
+        -:   25:/**
+        -:   26: *  Class CellularMultiplexer
+        -:   27: *
+        -:   28: *  An abstract interface that provides a way to start multiplexer mode in modem.
+        -:   29: */
+        2:   30:class CellularMultiplexer
+        -:   31:{
+        -:   32:protected:
+        -:   33:    // friend of CellularDevice so that it's the only way to close/delete this class.
+        -:   34:    friend class CellularDevice;
+        -:   35:
+        -:   36:    /** virtual Destructor
+        -:   37:     */
+        2:   38:    virtual ~CellularMultiplexer() {};
+        -:   39:
+        -:   40:public:
+        -:   41:
+        -:   42:    /** Starts modem multiplexer mode specified by 3GPP TS 27.010.
+        -:   43:     *
+        -:   44:     *  @return zero on success, negative error code on failure
+        -:   45:     */
+        -:   46:    virtual nsapi_error_t multiplexer_mode_start() = 0;
+        -:   47:};
+        -:   48:
+        -:   49:} // namespace mbed
+        -:   50:
+        -:   51:#endif // CELLULAR_MULTIPLEXER_H_
