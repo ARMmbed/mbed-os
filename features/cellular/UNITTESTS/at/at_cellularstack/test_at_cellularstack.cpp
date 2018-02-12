@@ -10,6 +10,8 @@
 #include "AT_CellularStack.h"
 #include "FileHandle_stub.h"
 #include "CellularLog.h"
+#include "ATHandler_stub.h"
+#include "SocketAddress.h"
 
 using namespace mbed;
 using namespace events;
@@ -18,17 +20,28 @@ uint32_t mbed::cellular_log_time = 0;
 
 class MyStack : public AT_CellularStack {
 public:
-    MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ) : AT_CellularStack(atr, cid, typ){}
+    bool bool_value;
+    bool max_sock_value;
+    nsapi_error_t create_error;
+    int max_packet_size;
 
-    virtual int get_max_socket_count(){return 0;}
+    MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ) : AT_CellularStack(atr, cid, typ)
+    {
+        bool_value = false;
+        max_sock_value = 0;
+        create_error = NSAPI_ERROR_OK;
+        max_packet_size = 0;
+    }
 
-    virtual int get_max_packet_size(){return 0;}
+    virtual int get_max_socket_count(){return max_sock_value;}
 
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol){return false;}
+    virtual int get_max_packet_size(){return max_packet_size;}
+
+    virtual bool is_protocol_supported(nsapi_protocol_t protocol){return bool_value;}
 
     virtual nsapi_error_t socket_close_impl(int sock_id){return NSAPI_ERROR_OK;}
 
-    virtual nsapi_error_t create_socket_impl(CellularSocket *socket){return NSAPI_ERROR_OK;}
+    virtual nsapi_error_t create_socket_impl(CellularSocket *socket){return create_error;}
 
     virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
             const void *data, nsapi_size_t size){return NSAPI_ERROR_OK;}
@@ -39,7 +52,9 @@ public:
 
 Test_AT_CellularStack::Test_AT_CellularStack()
 {
-
+    ATHandler_stub::ssize_value = 0;
+    ATHandler_stub::bool_value = false;
+    ATHandler_stub::read_string_value = NULL;
 }
 
 Test_AT_CellularStack::~Test_AT_CellularStack()
@@ -59,60 +74,214 @@ void Test_AT_CellularStack::test_AT_CellularStack_constructor()
 
 void Test_AT_CellularStack::test_AT_CellularStack_get_ip_address()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    CHECK(0 == strlen(st.get_ip_address()));
+
+    char table[] = "1.2.3.4.5.65.7.8.9.10.11\0";
+    ATHandler_stub::ssize_value = -1;
+    ATHandler_stub::bool_value = true;
+    ATHandler_stub::read_string_value = table;
+    CHECK(NULL == st.get_ip_address());
+
+    ATHandler_stub::ssize_value = strlen(table);
+    ATHandler_stub::bool_value = true;
+    ATHandler_stub::read_string_value = table;
+    CHECK(st.get_ip_address());
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_open()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    st.bool_value = false;
+    CHECK(NSAPI_ERROR_UNSUPPORTED == st.socket_open(NULL, NSAPI_TCP));
+
+    st.bool_value = true;
+    st.max_sock_value = 0;
+    nsapi_socket_t sock;
+    CHECK(NSAPI_ERROR_NO_SOCKET == st.socket_open(&sock, NSAPI_TCP));
+
+    MyStack st2(at, 0, IPV6_STACK);
+    st2.bool_value = true;
+    st2.max_sock_value = 1;
+    nsapi_socket_t sock2;
+    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock2, NSAPI_TCP));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_close()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    nsapi_socket_t soc = NULL;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_close(soc));
+
+    st.bool_value = true;
+    st.max_sock_value = 1;
+    nsapi_socket_t sock;
+    CHECK(NSAPI_ERROR_OK == st.socket_open(&sock, NSAPI_TCP));
+    st.max_sock_value = 0;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_close(sock));
+
+    MyStack st2(at, 0, IPV6_STACK);
+    st2.max_sock_value = 1;
+    st2.bool_value = true;
+    nsapi_socket_t sock2;
+    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock2, NSAPI_TCP));
+    CHECK(NSAPI_ERROR_OK == st2.socket_close(sock2));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_bind()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    nsapi_socket_t sock;
+    SocketAddress addr;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_ALREADY;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_bind(NULL, addr));
+
+    CHECK(NSAPI_ERROR_ALREADY == st.socket_bind(sock, addr));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_listen()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    nsapi_socket_t sock;
+    CHECK(0 == st.socket_listen(sock, 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_connect()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    SocketAddress addr;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_connect(NULL, addr));
+
+    nsapi_socket_t sock;
+    CHECK(NSAPI_ERROR_OK == st.socket_connect(sock, addr));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_accept()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    nsapi_socket_t sock;
+    CHECK(0 == st.socket_accept(NULL, &sock));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_send()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
-}
+    MyStack st(at, 0, IPV6_STACK);
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(NULL, "addr", 4));
 
-void Test_AT_CellularStack::test_AT_CellularStack_socket_recv()
-{
+    nsapi_socket_t sock;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(sock, "addr", 4));
 
+    SocketAddress addr;
+    st.max_sock_value = 1;
+    st.bool_value = true;
+    st.socket_open(&sock, NSAPI_TCP);
+    st.socket_connect(sock, addr);
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(sock, "addr", 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_sendto()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+
+    nsapi_socket_t sock;
+    SocketAddress addr;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_sendto(NULL, addr, "addr", 4));
+
+    st.max_sock_value = 1;
+    st.bool_value = true;
+    st.socket_open(&sock, NSAPI_TCP);
+    st.socket_connect(sock, addr);
+    st.create_error = NSAPI_ERROR_CONNECTION_LOST;
+    CHECK(NSAPI_ERROR_CONNECTION_LOST == st.socket_sendto(sock, addr, "addr", 4));
+
+    st.create_error = NSAPI_ERROR_OK;
+    st.max_packet_size = 6;
+    CHECK(NSAPI_ERROR_OK == st.socket_sendto(sock, addr, "addr", 4));
+}
+
+void Test_AT_CellularStack::test_AT_CellularStack_socket_recv()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
+
+    MyStack st(at, 0, IPV6_STACK);
+    char table[4];
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_recv(NULL, table, 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_recvfrom()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+    char table[4];
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_recvfrom(NULL, NULL, table, 4));
+
+    nsapi_socket_t sock;
+    SocketAddress addr;
+    st.max_sock_value = 1;
+    st.bool_value = true;
+    st.socket_open(&sock, NSAPI_TCP);
+    st.socket_connect(sock, addr);
+    st.create_error = NSAPI_ERROR_CONNECTION_LOST;
+    CHECK(NSAPI_ERROR_CONNECTION_LOST == st.socket_recvfrom(sock, &addr, table, 4));
+
+    st.create_error = NSAPI_ERROR_OK;
+    st.max_packet_size = 6;
+    CHECK(NSAPI_ERROR_OK == st.socket_recvfrom(sock, &addr, table, 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_attach()
 {
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0);
 
+    MyStack st(at, 0, IPV6_STACK);
+
+    st.socket_attach(NULL, NULL, NULL);
+    nsapi_socket_t sock;
+    st.max_sock_value = 1;
+    st.bool_value = true;
+    st.socket_open(&sock, NSAPI_TCP);
+    st.socket_attach(sock, NULL, NULL);
 }

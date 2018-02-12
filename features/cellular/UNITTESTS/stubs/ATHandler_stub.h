@@ -26,10 +26,14 @@
 
 namespace ATHandler_stub {
     extern nsapi_error_t nsapi_error_value;
+    extern uint8_t nsapi_error_ok_counter;
     extern int int_value;
     extern ssize_t ssize_value;
+    extern char* read_string_value;
     extern size_t size_value;
+    extern size_t return_given_size;
     extern bool bool_value;
+    extern uint8_t resp_info_true_counter;
     extern uint8_t uint8_value;
     extern mbed::FileHandle_stub *fh_value;
     extern mbed::device_err_t device_err_value;
