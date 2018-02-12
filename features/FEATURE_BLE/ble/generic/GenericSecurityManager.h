@@ -238,16 +238,19 @@ public:
     /* ends implements SecurityManager */
 
 protected:
-    GenericSecurityManager(ble::pal::SecurityManager& palImpl, GenericSecurityDb& dbImpl, Gap& gapImpl)
-        : _pal(palImpl),
-          _db(dbImpl),
-          _gap(gapImpl),
-          _default_authentication(0),
-          _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
-          _pairing_authorisation_required(false),
-          _legacy_pairing_allowed(true),
-          _master_sends_keys(false),
-          _public_keys_generated(false) {
+    GenericSecurityManager(
+        ble::pal::SecurityManager &palImpl,
+        GenericSecurityDb &dbImpl,
+        Gap &gapImpl
+    ) : _pal(palImpl),
+        _db(dbImpl),
+        _gap(gapImpl),
+        _default_authentication(0),
+        _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
+        _pairing_authorisation_required(false),
+        _legacy_pairing_allowed(true),
+        _master_sends_keys(false),
+        _public_keys_generated(false) {
         _app_event_handler = &defaultEventHandler;
         _pal.set_event_handler(this);
     }
@@ -272,7 +275,10 @@ private:
      * @param[in] size number of bytes to fill with random data
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t get_random_data(uint8_t *buffer, size_t size);
+    ble_error_t get_random_data(
+        uint8_t *buffer,
+        size_t size
+    );
 
     /**
      * Send slave security request based on current link settings.
@@ -280,7 +286,9 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t slave_security_request(connection_handle_t connection);
+    ble_error_t slave_security_request(
+        connection_handle_t connection
+    );
 
     /**
      * Enable encryption on the link, depending on whether device is master or slave.
@@ -288,7 +296,9 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t enable_encryption(connection_handle_t connection);
+    ble_error_t enable_encryption(
+        connection_handle_t connection
+    );
 
     /**
      * Returns the requested LTK to the PAL. Called by the security db.
@@ -356,10 +366,10 @@ private:
      * @return true if cryptography functioned worked
      */
     static bool crypto_toolbox_f4(
-        const public_key_t& U,
-        const public_key_t& V,
-        const oob_rand_t& X,
-        oob_confirm_t& confirm
+        const public_key_t &U,
+        const public_key_t &V,
+        const oob_rand_t &X,
+        oob_confirm_t &confirm
     );
 #endif
 
@@ -369,7 +379,10 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] enable if true set the MITM protection to on.
      */
-    virtual void set_mitm_performed(connection_handle_t connection, bool enable = true);
+    virtual void set_mitm_performed(
+        connection_handle_t connection,
+        bool enable = true
+    );
 
     /**
      * Inform the security manager that a device has been disconnected and its
@@ -420,9 +433,9 @@ private:
     );
 
 private:
-    ble::pal::SecurityManager& _pal;
-    GenericSecurityDb& _db;
-    Gap& _gap;
+    ble::pal::SecurityManager &_pal;
+    GenericSecurityDb &_db;
+    Gap &_gap;
 
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;
@@ -458,11 +471,15 @@ public:
 
     /** @copydoc SecurityManagerEventHandler::on_pairing_timed_out
      */
-    virtual void on_pairing_timed_out(connection_handle_t connection);
+    virtual void on_pairing_timed_out(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_pairing_completed
      */
-    virtual void on_pairing_completed(connection_handle_t connection);
+    virtual void on_pairing_completed(
+        connection_handle_t connection
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Security
@@ -470,7 +487,9 @@ public:
 
     /** @copydoc SecurityManagerEventHandler::on_valid_mic_timeout
      */
-    virtual void on_valid_mic_timeout(connection_handle_t connection);
+    virtual void on_valid_mic_timeout(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_slave_security_request
      */
@@ -516,19 +535,27 @@ public:
 
     /** @copydoc SecurityManagerEventHandler::on_passkey_request
      */
-    virtual void on_passkey_request(connection_handle_t connection);
+    virtual void on_passkey_request(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_confirmation_request
      */
-    virtual void on_confirmation_request(connection_handle_t connection);
+    virtual void on_confirmation_request(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_legacy_pairing_oob_request
      */
-    virtual void on_legacy_pairing_oob_request(connection_handle_t connection);
+    virtual void on_legacy_pairing_oob_request(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_oob_request
      */
-    virtual void on_oob_request(connection_handle_t connection);
+    virtual void on_oob_request(
+        connection_handle_t connection
+    );
 
     /** @copydoc SecurityManagerEventHandler::on_oob_data_verification_request
      */
