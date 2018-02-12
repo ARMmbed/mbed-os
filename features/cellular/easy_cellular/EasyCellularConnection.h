@@ -126,9 +126,8 @@ private:
      */
     bool cellular_status(int state, int next_state);
 
-
-    CellularConnectionUtil::CellularState _target_state;
     bool _is_connected;
+    CellularConnectionUtil::CellularState _target_state;
 };
 
 #endif // EASY_CELLULAR_CONNECTION_H
