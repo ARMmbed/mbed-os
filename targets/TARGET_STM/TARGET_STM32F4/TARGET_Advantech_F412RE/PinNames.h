@@ -189,10 +189,22 @@ typedef enum {
 	SERIAL_TX   = PA_9,
     SERIAL_RX   = PA_10,
 
-	USBTX       = SERIAL_TX,
-    USBRX       = SERIAL_RX,
-	UART2_TX    = PB_10,
+    UART2_TX    = PB_10,
     UART2_RX    = PC_11,
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = SERIAL_TX,
+#endif
+
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = SERIAL_RX,
+#endif
+
+    USBRX      = STDIO_UART_RX,
+    USBTX      = STDIO_UART_TX,
 
     I2C0_SCL    = PB_6,
     I2C0_SDA    = PB_7,
