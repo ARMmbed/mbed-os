@@ -1,2 +1,0 @@
-100.00%   ../framework/API/CellularInformation.h
-100.00%   ../framework/AT/AT_CellularInformation.cpp
