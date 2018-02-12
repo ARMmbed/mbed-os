@@ -100,7 +100,7 @@ void crypto_uninit(void)
 /* Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n)
 {
-    volatile unsigned char *p = (unsigned char*) v;
+    volatile unsigned char *p = (volatile unsigned char*) v;
     while (n--) {
         *p++ = 0;
     }

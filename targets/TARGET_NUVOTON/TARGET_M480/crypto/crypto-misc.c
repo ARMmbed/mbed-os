@@ -104,7 +104,7 @@ void crypto_uninit(void)
 /* Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n)
 {
-    volatile unsigned char *p = (unsigned char*) v;
+    volatile unsigned char *p = (volatile unsigned char*) v;
     while (n--) {
         *p++ = 0;
     }
@@ -113,7 +113,7 @@ void crypto_zeroize(void *v, size_t n)
 /* Implementation that should never be optimized out by the compiler */
 void crypto_zeroize32(uint32_t *v, size_t n)
 {
-    volatile uint32_t *p = (uint32_t*) v;
+    volatile uint32_t *p = (volatile uint32_t*) v;
     while (n--) {
         *p++ = 0;
     }
