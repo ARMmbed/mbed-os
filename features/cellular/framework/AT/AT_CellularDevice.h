@@ -127,6 +127,12 @@ public: // CellularDevice
      */
     virtual void set_timeout(int timeout);
 
+    /** Get network stack.
+     *
+     *  @return network stack
+     */
+    NetworkStack *get_stack();
+    
 protected:
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
