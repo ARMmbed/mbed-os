@@ -31,6 +31,8 @@
 #include "CellularTargets.h"
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
+const int PIN_SIZE = 8;
+
 class CellularConnectionUtil
 {
 public:
@@ -44,20 +46,26 @@ public:
         STATE_ATTACH_NETWORK = 7,
         STATE_ATTACHING_NETWORK = 8,
         STATE_CONNECT_NETWORK = 9,
-        STATE_READY = 10,
+        STATE_CONNECTED = 10,
     };
 
 public:
     CellularConnectionUtil();
     virtual ~CellularConnectionUtil();
     void set_serial(UARTSerial *serial);
-    void set_callback(mbed::Callback<int(int, int)> status_callback);
+    void set_callback(mbed::Callback<bool(int, int)> status_callback);
     EventQueue* get_queue();
-    bool start(bool start_dispatch = true);
+    nsapi_error_t start_dispatch();
+    nsapi_error_t init();
+
+
+    nsapi_error_t disconnect();
     void stop();
     CellularNetwork* get_network();
     CellularDevice* get_device();
-    bool continue_with_state(CellularState state);
+    nsapi_error_t continue_to_state(CellularState state);
+
+    void set_sim_pin(const char * sim_pin);
 
 protected:
     bool open_power(FileHandle *fh);
@@ -77,13 +85,14 @@ private:
     CellularState _state;
     CellularState _next_state;
 
-    mbed::Callback<int(int, int)> _status_callback;
+    mbed::Callback<bool(int, int)> _status_callback;
 
     CellularNetwork *_network;
     CellularPower *_power;
     EventQueue _queue;
     Thread *_queue_thread;
     CellularDevice *_cellularDevice;
+    char _sim_pin[PIN_SIZE+1];
 };
 
 
