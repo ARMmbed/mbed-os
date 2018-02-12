@@ -797,7 +797,7 @@ NU_STATIC int internal_mpi_write_eccreg( const mbedtls_mpi *x, volatile uint32_t
      *
      * crypto_zeroize32() has excluded optimization doubt, so we can safely set H/W registers to 0 via it.
      */
-    crypto_zeroize32((uint32_t *) eccreg + i, eccreg_num - i);
+    crypto_zeroize32((uint32_t *) eccreg + n, eccreg_num - n);
     
     return 0;
 }
