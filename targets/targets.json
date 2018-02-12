@@ -3718,7 +3718,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
@@ -3756,7 +3756,7 @@
         "inherits": ["Target"],
         "detect_code": ["4600"],
         "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
-        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
+        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC", "FLASH"],
         "features": ["LWIP"],
