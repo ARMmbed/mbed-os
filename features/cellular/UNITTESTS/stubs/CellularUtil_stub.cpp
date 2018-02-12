@@ -43,51 +43,7 @@ uint16_t char_str_to_hex(const char* str, uint16_t len, char *buf, bool omit_lea
 
 void convert_ipv6(char* ip)
 {
-    if (!ip) {
-        return;
-    }
 
-    int len = strlen(ip);
-    int pos = 0;
-    int i;
-
-    for (i = 0; i < len; i++) {
-        if (ip[i] == '.') {
-            pos++;
-        }
-        if (pos > 3) {
-            break;
-        }
-    }
-
-    // more that 3 periods mean that it was ipv6 but in format of a1.a2.a3.a4.a5.a6.a7.a8.a9.a10.a11.a12.a13.a14.a15.a16
-    // we need to convert it to hexadecimal format separated with colons
-    if (pos > 3) {
-        pos = 0;
-        int ip_pos = 0;
-        char b;
-        bool set_colon = false;
-        for (i = 0; i < len; i++) {
-            if (ip[i] == '.') {
-                b = (char)strtol (ip+ip_pos, NULL, 10); // convert to char to int so we can change it to hex string
-                pos += char_str_to_hex(&b, 1, ip+pos, !set_colon); // omit leading zeroes with using set_colon flag
-                if (set_colon) {
-                    ip[pos++] = ':';
-                    set_colon = false;
-                } else {
-                    set_colon = true;
-                }
-                ip_pos = i+1; // skip the '.'
-            }
-
-            // handle the last part which does not end with '.' but '\0'
-            if (i == len -1) {
-                b = (char)strtol(ip+ip_pos, NULL, 10);
-                pos += char_str_to_hex(&b, 1, ip+pos, !set_colon);
-                ip[pos] = '\0';
-            }
-        }
-    }
 }
 
 char* find_dot_number(char* str, int dot_number)
@@ -109,7 +65,8 @@ void prefer_ipv6(char* ip, size_t ip_size, char* ip2, size_t ip2_size)
 
 void int_to_hex_str(uint8_t num, char* buf)
 {
-
+    buf[0] = '0';
+    buf[1] = '2';
 }
 
 int hex_str_to_int(const char *hex_string, int hex_string_length)
@@ -129,7 +86,23 @@ void uint_to_binary_str(uint32_t num, char* str, int str_size, int bit_cnt)
 
 int char_str_to_hex_str(const char* str, uint16_t len, char *buf, bool omit_leading_zero)
 {
-    return 0;
+    //The code is dependent on this, so this is easiest just to put here
+    if (!str || !buf) {
+        return 0;
+    }
+
+    char *ptr = buf;
+    int i=0;
+    while (i < len) {
+        if (omit_leading_zero == true && i == 0 && !(str[i]>>4 & 0x0F)) {
+            *ptr++ = hex_values[(str[i]) & 0x0F];
+        } else {
+            *ptr++ = hex_values[((str[i])>>4) & 0x0F];
+            *ptr++ = hex_values[(str[i]) & 0x0F];
+        }
+        i++;
+    }
+    return ptr-buf;
 }
 
 uint16_t get_dynamic_ip_port()

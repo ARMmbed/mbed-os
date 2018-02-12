@@ -109,10 +109,10 @@ nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
-{
-    return NSAPI_ERROR_OK;
-}
+//nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
+//{
+//    return NSAPI_ERROR_OK;
+//}
 
 nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t* sms)
 {

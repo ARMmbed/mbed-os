@@ -29,14 +29,18 @@ using namespace events;
 const int DEFAULT_AT_TIMEOUT = 1000; // at default timeout in milliseconds
 
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
+uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
 int ATHandler_stub::int_value = -1;
 ssize_t ATHandler_stub::ssize_value = 0;
+char* ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
+size_t ATHandler_stub::return_given_size = false;
 bool ATHandler_stub::bool_value = false;
 uint8_t ATHandler_stub::uint8_value = 0;
 FileHandle_stub *ATHandler_stub::fh_value = NULL;
 device_err_t ATHandler_stub::device_err_value;
 Callback<void()> ATHandler_stub::callback = NULL;
+uint8_t ATHandler_stub::resp_info_true_counter = false;
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter) :
     _nextATHandler(0),
@@ -82,6 +86,10 @@ void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 
 nsapi_error_t ATHandler::get_last_error() const
 {
+    if (ATHandler_stub::nsapi_error_ok_counter) {
+        ATHandler_stub::nsapi_error_ok_counter--;
+        return NSAPI_ERROR_OK;
+    }
     return ATHandler_stub::nsapi_error_value;
 }
 
@@ -129,6 +137,9 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
+    if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
+        memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value);
+    }
     return ATHandler_stub::ssize_value;
 }
 
@@ -156,6 +167,10 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 
 bool ATHandler::info_resp()
 {
+    if (ATHandler_stub::resp_info_true_counter) {
+        ATHandler_stub::resp_info_true_counter--;
+        return true;
+    }
     return ATHandler_stub::bool_value;
 }
 
@@ -187,6 +202,9 @@ void ATHandler::write_string(const char* param, bool useQuotations)
 
 size_t ATHandler::write_bytes(uint8_t* param, size_t len)
 {
+    if (ATHandler_stub::return_given_size) {
+        return len;
+    }
     return ATHandler_stub::size_value;
 }
 
