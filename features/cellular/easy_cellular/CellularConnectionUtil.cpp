@@ -533,3 +533,8 @@ CellularDevice* CellularConnectionUtil::get_device()
         return NULL;
     }
 }
+
+NetworkStack *CellularConnectionUtil::get_stack()
+{
+    return _cellularDevice->get_stack();
+}

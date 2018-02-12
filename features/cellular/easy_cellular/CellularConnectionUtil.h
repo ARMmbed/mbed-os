@@ -76,6 +76,10 @@ protected:
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
 
+protected:
+    friend class EasyCellularConnection;
+    NetworkStack *get_stack();
+
 private:
     void device_ready();
     void report_failure(const char* msg);

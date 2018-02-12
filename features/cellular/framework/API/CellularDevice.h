@@ -26,6 +26,7 @@
 #include "CellularPower.h"
 #include "CellularMultiplexer.h"
 #include "CellularInformation.h"
+#include "NetworkStack.h"
 
 namespace mbed {
 
@@ -114,6 +115,12 @@ public:
      *  @param timeout    milliseconds to wait response from modem
      */
     virtual void set_timeout(int timeout) = 0;
+    
+    /** Get network stack.
+     *
+     *  @return network stack
+     */
+    virtual NetworkStack *get_stack() = 0;
 };
 
 } // namespace mbed

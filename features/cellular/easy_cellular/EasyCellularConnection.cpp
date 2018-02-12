@@ -149,6 +149,6 @@ NetworkStack *EasyCellularConnection::get_stack()
 #if NSAPI_PPP_AVAILABLE
     return nsapi_ppp_get_stack();
 #else
-    return NULL;//cellularConnection.get_network();
+    return cellularConnection.get_stack();
 #endif // #if NSAPI_PPP_AVAILABLE
 }
