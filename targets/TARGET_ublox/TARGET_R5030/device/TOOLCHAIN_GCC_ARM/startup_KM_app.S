@@ -190,7 +190,7 @@ Reset_Handler:
     b    .L_loop0
 
 .L_loop0_done:
-#else
+#elif defined (__STARTUP_COPY_DATA)
 /*  Single section scheme.
  *
  *  The ranges of copy from/to are specified by following symbols
