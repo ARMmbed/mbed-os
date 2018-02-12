@@ -467,7 +467,7 @@ lorawan_status_t LoRaWANStack::set_channel_data_rate(uint8_t data_rate)
 
     loramac_mib_req_confirm_t mib_params;
     mib_params.type = MIB_ADR;
-    if (mib_get_request(&mib_params) == true) {
+    if (mib_get_request(&mib_params) != LORAWAN_STATUS_OK) {
         tr_error("Cannot set data rate. Please turn off ADR first.");
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
