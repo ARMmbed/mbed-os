@@ -11,3 +11,4 @@ mbed-host-tests>=1.1.2
 mbed-greentea>=0.2.24
 beautifulsoup4>=4
 fuzzywuzzy>=0.11
+pyelftools>=0.24

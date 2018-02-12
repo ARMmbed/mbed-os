@@ -17,7 +17,7 @@ limitations under the License.
 
 from copy import deepcopy
 import os
-from os.path import dirname, abspath, exists, join
+from os.path import dirname, abspath, exists, join, isabs
 import sys
 from collections import namedtuple
 from os.path import splitext, relpath
@@ -29,6 +29,10 @@ from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
+
+PATH_OVERRIDES = set(["target.bootloader_img"])
+BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
+                            "target.mbed_app_start", "target.mbed_app_size"])
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -84,6 +88,8 @@ class ConfigParameter(object):
             else:
                 prefix = unit_name + '.'
             return prefix + name
+        if name in BOOTLOADER_OVERRIDES:
+            return name
         # The name has a prefix, so check if it is valid
         if not allow_prefix:
             raise ConfigException("Invalid parameter name '%s' in '%s'" %
@@ -362,8 +368,6 @@ class Config(object):
                         "artifact_name": str}
     }
 
-    __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
-                              "target.mbed_app_start", "target.mbed_app_size"])
 
     # Allowed features in configurations
     __allowed_features = [
@@ -435,6 +439,9 @@ class Config(object):
             self.target = tgt
         self.target = deepcopy(self.target)
         self.target_labels = self.target.labels
+        for override in BOOTLOADER_OVERRIDES:
+            _, attr = override.split(".")
+            setattr(self.target, attr, None)
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
@@ -482,15 +489,25 @@ class Config(object):
     @property
     def has_regions(self):
         """Does this config have regions defined?"""
-        if 'target_overrides' in self.app_config_data:
-            target_overrides = self.app_config_data['target_overrides'].get(
-                self.target.name, {})
-            return ('target.bootloader_img' in target_overrides or
-                    'target.restrict_size' in target_overrides or
-                    'target.mbed_app_start' in target_overrides or
-                    'target.mbed_app_size' in target_overrides)
-        else:
-            return False
+        for override in BOOTLOADER_OVERRIDES:
+            _, attr = override.split(".")
+            if getattr(self.target, attr, None):
+                return True
+        return False
+
+    @property
+    def sectors(self):
+        """Return a list of tuples of sector start,size"""
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        cmsis_part = cache.index[self.target.device_name]
+        sectors = cmsis_part['sectors']
+        if sectors:
+            return sectors
+        raise ConfigException("No sector info available")
 
     @property
     def regions(self):
@@ -506,12 +523,8 @@ class Config(object):
                                   "targets.json `device_name` not found in "
                                   "arm_pack_manager index.")
         cmsis_part = cache.index[self.target.device_name]
-        target_overrides = self.app_config_data['target_overrides'].get(
-            self.target.name, {})
-        if  (('target.bootloader_img' in target_overrides or
-              'target.restrict_size' in target_overrides) and
-             ('target.mbed_app_start' in target_overrides or
-              'target.mbed_app_size' in target_overrides)):
+        if  ((self.target.bootloader_img or self.target.restrict_size) and
+             (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
                 "target.bootloader_img and target.restirct_size are "
                 "incompatible with target.mbed_app_start and "
@@ -520,25 +533,29 @@ class Config(object):
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
-            raise ConfigException("Not enough information in CMSIS packs to "
-                                  "build a bootloader project")
-        if  ('target.bootloader_img' in target_overrides or
-             'target.restrict_size' in target_overrides):
-            return self._generate_booloader_build(target_overrides,
-                                                  rom_start, rom_size)
-        elif ('target.mbed_app_start' in target_overrides or
-              'target.mbed_app_size' in target_overrides):
-            return self._generate_linker_overrides(target_overrides,
-                                                   rom_start, rom_size)
+            try:
+                rom_size = int(cmsis_part['memory']['PROGRAM_FLASH']['size'], 0)
+                rom_start = int(cmsis_part['memory']['PROGRAM_FLASH']['start'], 0)
+            except KeyError:
+                raise ConfigException("Not enough information in CMSIS packs to "
+                                      "build a bootloader project")
+        if self.target.bootloader_img or self.target.restrict_size:
+            return self._generate_bootloader_build(rom_start, rom_size)
+        elif self.target.mbed_app_start or self.target.mbed_app_size:
+            return self._generate_linker_overrides(rom_start, rom_size)
         else:
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
-    def _generate_booloader_build(self, target_overrides, rom_start, rom_size):
-        start = 0
-        if 'target.bootloader_img' in target_overrides:
-            basedir = abspath(dirname(self.app_config_location))
-            filename = join(basedir, target_overrides['target.bootloader_img'])
+    def _generate_bootloader_build(self, rom_start, rom_size):
+        start = rom_start
+        rom_end = rom_start + rom_size
+        if self.target.bootloader_img:
+            if isabs(self.target.bootloader_img):
+                filename = self.target.bootloader_img
+            else:
+                basedir = abspath(dirname(self.app_config_location))
+                filename = join(basedir, self.target.bootloader_img)
             if not exists(filename):
                 raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
@@ -546,35 +563,61 @@ class Config(object):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
-            yield Region("bootloader", rom_start + start, part_size, False,
+            part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
+            yield Region("bootloader", rom_start, part_size, False,
                          filename)
-            start += part_size
-        if 'target.restrict_size' in target_overrides:
-            new_size = int(target_overrides['target.restrict_size'], 0)
-            yield Region("application", rom_start + start, new_size, True, None)
+            start = rom_start + part_size
+        if self.target.restrict_size is not None:
+            new_size = int(self.target.restrict_size, 0)
+            new_size = Config._align_floor(start + new_size, self.sectors) - start
+            yield Region("application", start, new_size, True, None)
             start += new_size
-            yield Region("post_application", rom_start +start, rom_size - start,
+            yield Region("post_application", start, rom_end - start,
                          False, None)
         else:
-            yield Region("application", rom_start + start, rom_size - start,
+            yield Region("application", start, rom_end - start,
                          True, None)
-        if start > rom_size:
+        if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+    
+    @staticmethod
+    def _find_sector(address, sectors):
+        target_size = -1
+        target_start = -1
+        for (start, size) in sectors:
+            if address < start:
+                break
+            target_start = start
+            target_size = size
+        if (target_size < 0):
+            raise ConfigException("No valid sector found")
+        return target_start, target_size
+        
+    @staticmethod
+    def _align_floor(address, sectors):
+        target_start, target_size = Config._find_sector(address, sectors)
+        sector_num = (address - target_start) // target_size
+        return target_start + (sector_num * target_size)
+    
+    @staticmethod
+    def _align_ceiling(address, sectors):
+        target_start, target_size = Config._find_sector(address, sectors)
+        sector_num = ((address - target_start) + target_size - 1) // target_size
+        return target_start + (sector_num * target_size)
 
     @property
     def report(self):
         return {'app_config': self.app_config_location,
                 'library_configs': map(relpath, self.processed_configs.keys())}
 
-    @staticmethod
-    def _generate_linker_overrides(target_overrides, rom_start, rom_size):
-        if 'target.mbed_app_start' in target_overrides:
-            start = int(target_overrides['target.mbed_app_start'], 0)
+    def _generate_linker_overrides(self, rom_start, rom_size):
+        if self.target.mbed_app_start is not None:
+            start = int(self.target.mbed_app_start, 0)
         else:
             start = rom_start
-        if 'target.mbed_app_size' in target_overrides:
-            size = int(target_overrides['target.mbed_app_size'], 0)
+        if self.target.mbed_app_size is not None:
+            size = int(self.target.mbed_app_size, 0)
         else:
             size = (rom_size + rom_start) - start
         if start < rom_start:
@@ -644,18 +687,22 @@ class Config(object):
 
                 # Consider the others as overrides
                 for name, val in overrides.items():
+                    if (name in PATH_OVERRIDES and "__config_path" in data):
+                        val = os.path.join(
+                            os.path.dirname(data["__config_path"]), val)
+
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name,
                                                               unit_kind, label)
                     if full_name in params:
                         params[full_name].set_value(val, unit_name, unit_kind,
                                                     label)
-                    elif name in self.__unused_overrides:
-                        pass
                     elif (name.startswith("target.") and
-                          unit_kind is "application"):
+                        (unit_kind is "application" or
+                         name in BOOTLOADER_OVERRIDES)):
                         _, attribute = name.split(".")
                         setattr(self.target, attribute, val)
+                        continue
                     else:
                         self.config_errors.append(
                             ConfigException(
@@ -708,7 +755,7 @@ class Config(object):
                 rel_names = [tgt for tgt, _ in
                              get_resolution_order(self.target.json_data, tname,
                                                   [])]
-                if full_name in self.__unused_overrides:
+                if full_name in BOOTLOADER_OVERRIDES:
                     continue
                 if (full_name not in params) or \
                    (params[full_name].defined_by[7:] not in rel_names):

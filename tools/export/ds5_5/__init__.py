@@ -30,6 +30,7 @@ class DS5_5(Exporter):
         'ARCH_PRO',
         'RZ_A1H',
         'VK_RZ_A1H',
+        'GR_LYCHEE',
     ]
 
     USING_MICROLIB = [

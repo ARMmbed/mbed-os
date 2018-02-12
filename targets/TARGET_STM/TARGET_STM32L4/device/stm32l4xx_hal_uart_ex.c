@@ -472,6 +472,32 @@ HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
   return HAL_OK;
 }
 
+/* MBED */
+/**
+  * @brief Enable UART Clock in Stop Mode
+  * The UART keeps the Clock ON during Stop mode
+  * @param huart: uart handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_UARTEx_EnableClockStopMode(UART_HandleTypeDef *huart)
+{
+  /* Process Locked */
+  __HAL_LOCK(huart);
+
+  huart->gState = HAL_UART_STATE_BUSY;
+
+  /* Set the USART UESM bit */
+  huart->Instance->CR3 |= USART_CR3_UCESM;
+
+  huart->gState = HAL_UART_STATE_READY;
+
+  /* Process Unlocked */
+  __HAL_UNLOCK(huart);
+
+  return HAL_OK;
+}
+/* MBED */
+
 /**
   * @brief Disable UART Stop Mode.
   * @param huart UART handle.
@@ -494,6 +520,33 @@ HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
   
   return HAL_OK;
 }
+
+
+/* MBED */
+/**
+  * @brief Disable UART Clock in Stop Mode
+  * @param huart: uart handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_UARTEx_DisableClockStopMode(UART_HandleTypeDef *huart)
+{
+  /* Process Locked */
+  __HAL_LOCK(huart);
+
+  huart->gState = HAL_UART_STATE_BUSY;
+
+  /* Clear USART UESM bit */
+  huart->Instance->CR3 &= ~(USART_CR3_UCESM);
+
+  huart->gState = HAL_UART_STATE_READY;
+
+  /* Process Unlocked */
+  __HAL_UNLOCK(huart);
+
+  return HAL_OK;
+}
+/* MBED */
+
 
 #if defined(USART_CR2_SLVEN)
 /**

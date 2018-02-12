@@ -17,8 +17,8 @@
  *  limitations under the License.
  *
  */
-#if defined(MBEDTLS_MD5_C)
 #include "mbedtls/md5.h"
+#if defined(MBEDTLS_MD5_C)
 
 #if defined(MBEDTLS_MD5_ALT)
 #include "mbedtls/platform.h"
@@ -127,41 +127,39 @@ void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_
 void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen )
 {
     size_t currentlen = ilen;
-    if (st_md5_restore_hw_context(ctx) != 1) {
-        return; // Return HASH_BUSY timout error here
-    }
-    // store mechanism to accumulate ST_MD5_BLOCK_SIZE bytes (512 bits) in the HW
-    if (currentlen == 0){ // only change HW status is size if 0
-        if(ctx->hhash_md5.Phase == HAL_HASH_PHASE_READY) {
-          /* Select the MD5 mode and reset the HASH processor core, so that the HASH will be ready to compute
-             the message digest of a new message */
-          HASH->CR |= HASH_ALGOSELECTION_MD5 | HASH_CR_INIT;
+    /* If ilen = 0 : do nothing */
+    if (currentlen != 0) {
+        if (st_md5_restore_hw_context(ctx) != 1) {
+            return; // Return HASH_BUSY timout error here
         }
-        ctx->hhash_md5.Phase = HAL_HASH_PHASE_PROCESS;
-    } else if (currentlen < (ST_MD5_BLOCK_SIZE - ctx->sbuf_len)) {
-        // only buffurize
-        memcpy(ctx->sbuf+ctx->sbuf_len, input, currentlen);
-        ctx->sbuf_len += currentlen;
-    } else {
-        // fill buffer and process it
-        memcpy(ctx->sbuf + ctx->sbuf_len, input, (ST_MD5_BLOCK_SIZE - ctx->sbuf_len));
-        currentlen -= (ST_MD5_BLOCK_SIZE - ctx->sbuf_len);
-        mbedtls_md5_process(ctx, ctx->sbuf);
-        // Process every input as long as it is %64 bytes, ie 512 bits
-        size_t iter = currentlen / ST_MD5_BLOCK_SIZE;
-        if (iter !=0) {
-            if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)(input + ST_MD5_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_MD5_BLOCK_SIZE)) != 0) {
-                return; // Return error code here
+
+        // store mechanism to accumulate ST_MD5_BLOCK_SIZE bytes (512 bits) in the HW
+        if (currentlen < (ST_MD5_BLOCK_SIZE - ctx->sbuf_len)) {
+            // only buffurize
+            memcpy(ctx->sbuf+ctx->sbuf_len, input, currentlen);
+            ctx->sbuf_len += currentlen;
+        } else {
+            // fill buffer and process it
+            memcpy(ctx->sbuf + ctx->sbuf_len, input, (ST_MD5_BLOCK_SIZE - ctx->sbuf_len));
+            currentlen -= (ST_MD5_BLOCK_SIZE - ctx->sbuf_len);
+            mbedtls_md5_process(ctx, ctx->sbuf);
+            // Process every input as long as it is %64 bytes, ie 512 bits
+            size_t iter = currentlen / ST_MD5_BLOCK_SIZE;
+            if (iter !=0) {
+                if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)(input + ST_MD5_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_MD5_BLOCK_SIZE)) != 0) {
+                    return; // Return error code here
+                }
+            }
+            // sbuf is completely accumulated, now copy up to 63 remaining bytes
+            ctx->sbuf_len = currentlen % ST_MD5_BLOCK_SIZE;
+            if (ctx->sbuf_len !=0) {
+                memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
             }
         }
-        // sbuf is completely accumulated, now copy up to 63 remaining bytes
-        ctx->sbuf_len = currentlen % ST_MD5_BLOCK_SIZE;
-        if (ctx->sbuf_len !=0) {
-            memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
+
+        if (st_md5_save_hw_context(ctx) != 1) {
+            return; // return HASH_BUSY timeout Error here
         }
-    }
-    if (st_md5_save_hw_context(ctx) != 1) {
-        return; // return HASH_BUSY timeout Error here
     }
 }
 
@@ -170,11 +168,12 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
     if (st_md5_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here
     }
-    if (ctx->sbuf_len > 0) {
-        if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len) != 0) {
-            return; // Return error code here
-        }
+    /* Last accumulation for extra bytes in sbuf_len */
+    /* This sets HW flags in case mbedtls_md5_update has not been called yet */
+    if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len) != 0) {
+        return; // Return error code here
     }
+
     mbedtls_zeroize( ctx->sbuf, ST_MD5_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
