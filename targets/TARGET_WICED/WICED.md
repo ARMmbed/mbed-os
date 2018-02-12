@@ -36,32 +36,25 @@ in your mbed_app.json:
 ``` json
 {
     "target_overrides": {
-        "WISE1530_F412RE": {
+        "MTB_ADV_WISE_1530": {
             "target.extra_labels_add": ["WICED"],
             "target.features_add": ["BLE"]
-        }
+        },
+        "MTB_MXCHIP_EMW3166": {
+            "target.extra_labels_add": ["WICED"]
+        },
     }
 }
 ```
 
 ## Modify the WICED SDK to support Mbed OS's build tools
 
-1. Remove these files because they are unnecessary and large:
-   - `targets/TARGET_WICED/WICED/tools`
-   - `targets/TARGET_WICED/WICED/apps`
-   - `targets/TARGET_WICED/WICED/doc`
-   - `targets/TARGET_WICED/WICED/RTOS/NoOS`
-   - `targets/TARGET_WICED/WICED/RTOS/NuttX`
-   - `targets/TARGET_WICED/WICED/RTOS/ThreadX`
-   - `targets/TARGET_WICED/WICED/network/NetX`
-   - `targets/TARGET_WICED/WICED/network/NetX_Duo`
-   - `targets/TARGET_WICED/WICED/network/NoNS`
-   - `targets/TARGET_WICED/WICED/network/NuttX_NS`
+1. files and folder mentioned at .mbedignore can be removed because they are unnecessary and large:
 
 1. Add the `w_` prefix to all c/h files in WICED that do not begin with
    `wiced_` or `wwd_`.
 
-   Edit all c/h files and change the relevant `#include` statments to use the
+   Edit all c/h files and change the relevant `#include` statements to use the
    updated file names.
 
    This is required to avoid naming conflicts between Mbed OS and the WICED SDK.
@@ -86,11 +79,17 @@ in your mbed_app.json:
    ``` diff
    - #include "wicedfs.h"
    ```
+1. Rename folders:
+   WICED/platforms/WISE_1530A1/ as WICED/platforms/TARGET_MTB_ADV_WISE_1530
+   WICED/WICED/WWD/internal/chips/43362/ as WICED/WICED/WWD/internal/chips/TARGET_MTB_MXCHIP_EMW3166
+   WICED/WICED/WWD/internal/chips/4343x/ as WICED/WICED/WWD/internal/chips/TARGET_MTB_ADV_WISE_1530
+   WICED/resources/firmware/4343W/ as WICED/resources/firmware/TARGET_MTB_ADV_WISE_1530
+   WICED/resources/firmware/43362/ as WICED/resources/firmware/TARGET_MTB_MXCHIP_EMW3166
 
-1. Create a C wrapper for the firmware image.
+1. Create a C wrapper for the wise-1530 firmware image.
 
-   In `targets/TARGET_WICED/WICED/resources/firmware/4343W`:
-   
+   In `targets/TARGET_WICED/WICED/resources/firmware/TARGET_MTB_ADV_WISE_1530`:
+
    ``` bash
    xxd -i 4343WA1.bin > 4343WA1.c
    sed -i 's/__4343WA1_bin/wifi_firmware_image_data/' 4343WA1.c
@@ -100,8 +99,8 @@ in your mbed_app.json:
    Then, modify the firmware image in the C wrapper to match WICED's link-time
    resource API.
 
-   In `targets/TARGET_WICED/WICED/resources/firmware/4343W/4343WA1.c`:
-   
+   In `targets/TARGET_WICED/WICED/resources/firmware/TARGET_MTB_ADV_WISE_1530/4343WA1.c`:
+
    ``` c
    #include "w_resources.h"
 
@@ -128,6 +127,48 @@ in your mbed_app.json:
    extern const char wifi_firmware_image_data[383156];
    #endif
    ```
+1. Create a C wrapper for the emw3166 firmware image.
+
+   In `targets/TARGET_WICED/WICED/resources/firmware/TARGET_MTB_MXCHIP_EMW3166`:
+
+   ``` bash
+   xxd -i 43362A2.bin > 43362A2.c
+   sed -i 's/__43362A2_bin/wifi_firmware_image_data/' 43362A2.c
+   sed -i 's/unsigned/const unsigned/' 43362A2.c
+   ```
+
+   Then, modify the firmware image in the C wrapper to match WICED's link-time
+   resource API.
+
+   In `targets/TARGET_WICED/WICED/resources/firmware/TARGET_MTB_MXCHIP_EMW3166/43362A2.c`:
+
+   ``` c
+   #include "w_resources.h"
+
+   extern const resource_hnd_t wifi_firmware_image;
+   extern const char wifi_firmware_image_data[215172];
+
+   const resource_hnd_t wifi_firmware_image = {
+       .location = RESOURCE_IN_MEMORY,
+       .size = sizeof(wifi_firmware_image_data),
+       .val.mem.data = wifi_firmware_image_data,
+   };
+
+   const char wifi_firmware_image_data[215172] = {
+       ...
+   ```
+
+   Then, create a `w_resources.h` file to reference the above firmware image.
+
+   ``` c
+   #ifndef INCLUDED_RESOURCES_H_
+   #define INCLUDED_RESOURCES_H_
+   #include "wiced_resource.h"
+   extern const resource_hnd_t wifi_firmware_image;
+   extern const char wifi_firmware_image_data[215172];
+   #endif
+   ```
+
 
 1. Create the `w_generated_security_dct.h` file that
    the WICED SDK tools would normally generate.
@@ -220,7 +261,7 @@ in your mbed_app.json:
    depending on the current platform.
 
    In `targets/TARGET_WICED/WICED/WICED/platform/MCU/STM32F4xx/WWD/wwd_SDIO.c` line 66:
-   
+
    ``` diff
      #define SDIO_IRQ_CHANNEL                     ((u8)0x31)
      #define DMA2_3_IRQ_CHANNEL                   ((u8)DMA2_Stream3_IRQn)
@@ -231,15 +272,19 @@ in your mbed_app.json:
    + #endif
    ```
 
+1. Increase HT_AVAIL_TIMEOUT_MS
+
+   In `targets/TARGET_WICED/WICED/WICED/WWD/internal/bus_protocols/SDIO/wwd_bus_protocol.c` line 62:
+
+   ``` diff
+   -#define HT_AVAIL_TIMEOUT_MS   (500)
+   +#define HT_AVAIL_TIMEOUT_MS   (2200)
+   ```
+
+
 ## Running the Mbed OS socket demo
 
-For the WISE1530, you now have access to the Mbed OS WISE1530Interface class.
+For the WISE1530, you now have access to the Mbed OS WicedInterface class.
 
 You can try this class with the Mbed OS socket example:  
 https://github.com/armmbed/mbed-os-example-sockets
- 
- 
- 
- 
- 
- 
