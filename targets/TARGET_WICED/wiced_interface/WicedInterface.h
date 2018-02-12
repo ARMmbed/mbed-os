@@ -1,4 +1,4 @@
-/* mbed Microcontroller Library
+/* Wiced implementation of NetworkInterfaceAPI
  * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef WISE1530_INTERFACE_H
-#define WISE1530_INTERFACE_H
+
+#ifndef WICED_INTERFACE_H
+#define WICED_INTERFACE_H
 
 #include "mbed.h"
 #include "EthernetInterface.h"
 
 
-/** WISE1530Interface class
- *  Implementation of the NetworkStack for the WISE1530
+/** WicedInterface class
+ *  Implementation of the NetworkStack for the Wiced
  */
-class WISE1530Interface : public WiFiInterface
+class WicedInterface : public WiFiInterface
 {
 public:
     /** Start the interface
