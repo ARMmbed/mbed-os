@@ -513,6 +513,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
                     _at.cmd_stop();
                     _at.unlock();
                     free(pdu_str);
+                    //TODO: Fix this (might be bigger value than msg_len!)
                     return write_size;
                 }
 
@@ -534,6 +535,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
     nsapi_error_t ret = _at.get_last_error();
     _at.unlock();
 
+    //TODO: fix this also: msg_len should be returned instead of write_size!
     return (ret == NSAPI_ERROR_OK) ? write_size : ret;
 }
 
@@ -581,17 +583,17 @@ nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
-{
-    _at.lock();
-    _at.cmd_start("AT+CSMS=");
-    _at.write_int(msg_service);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+//nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
+//{
+//    _at.lock();
+//    _at.cmd_start("AT+CSMS=");
+//    _at.write_int(msg_service);
+//    _at.cmd_stop();
+//    _at.resp_start();
+//    _at.resp_stop();
 
-    return _at.unlock_return_error();
-}
+//    return _at.unlock_return_error();
+//}
 
 nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t* sms)
 {
