@@ -19,9 +19,9 @@
 #include "netsocket/CellularBase.h"
 #include "CellularConnectionUtil.h"
 
-/** ExampleCellularBase class
+/** EasyCellularConnection class
  *
- *  A simplified example about how to use cellular
+ *  Simplified adapter for cellular connection
  */
 class EasyCellularConnection: public CellularBase {
 
@@ -30,9 +30,9 @@ public:
     virtual ~EasyCellularConnection();
 
 public:
-
-    /**
-     * MUST CALL, create power and start dispatcher
+    /** Create cellular power and start dispatcher
+     *  @remark Must be called before any other methods
+     *  @return see nsapi_error_t, 0 on success
      */
     nsapi_error_t init();
 
