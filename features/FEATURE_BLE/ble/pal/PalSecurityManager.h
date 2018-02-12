@@ -348,7 +348,7 @@ public:
      */
     virtual void on_keypress_notification(
         connection_handle_t connection,
-        SecurityManager::Keypress_t keypress
+        Keypress_t keypress
     ) = 0;
 
     /**

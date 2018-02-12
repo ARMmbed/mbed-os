@@ -659,7 +659,7 @@ void GenericSecurityManager::generate_secure_connections_oob(
          confirm
      );
 
-    _app_event_handler->oobGenerated(
+    eventHandler->oobGenerated(
         &entry->local_address,
         &random,
         &confirm

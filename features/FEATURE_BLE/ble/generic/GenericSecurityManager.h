@@ -26,27 +26,17 @@
 namespace ble {
 namespace generic {
 
-using ble::pal::advertising_peer_address_type_t;
-using ble::pal::AuthenticationMask;
-using ble::pal::KeyDistribution;
-using ble::pal::connection_peer_address_type_t;
-
-using ble::address_t;
-using ble::irk_t;
-using ble::csrk_t;
-using ble::ltk_t;
-using ble::ediv_t;
-using ble::rand_t;
-using ble::pairing_failure_t;
-using ble::PasskeyAscii;
-using ble::passkey_num_t;
+using pal::advertising_peer_address_type_t;
+using pal::AuthenticationMask;
+using pal::KeyDistribution;
+using pal::connection_peer_address_type_t;
 
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class GenericSecurityManagerEventHandler;
 
 class GenericSecurityManager : public SecurityManager,
-                               public ble::pal::SecurityManagerEventHandler {
+                               public pal::SecurityManagerEventHandler {
 public:
     /* implements SecurityManager */
 
@@ -251,7 +241,6 @@ protected:
         _legacy_pairing_allowed(true),
         _master_sends_keys(false),
         _public_keys_generated(false) {
-        _app_event_handler = &defaultEventHandler;
         _pal.set_event_handler(this);
     }
 
@@ -650,10 +639,6 @@ public:
     );
 
     /* end implements ble::pal::SecurityManagerEventHandler */
-
-private:
-    /* handler is always a valid pointer */
-    ::SecurityManager::SecurityManagerEventHandler *_app_event_handler;
 };
 
 

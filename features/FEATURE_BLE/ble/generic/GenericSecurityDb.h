@@ -25,13 +25,7 @@
 namespace ble {
 namespace generic {
 
-using ble::address_t;
-using ble::irk_t;
-using ble::csrk_t;
-using ble::ltk_t;
-using ble::ediv_t;
-using ble::rand_t;
-using ble::pal::connection_peer_address_type_t;
+using pal::connection_peer_address_type_t;
 
 /* separate structs for keys to allow db implementation
  * to minimise memory usage, only holding live connection
