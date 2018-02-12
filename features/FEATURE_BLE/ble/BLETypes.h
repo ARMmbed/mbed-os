@@ -56,7 +56,7 @@ typedef uint16_t attribute_handle_t;
   */
 struct attribute_handle_range_t {
     /**
-     * Begining of the range.
+     * Beginning of the range.
      */
     attribute_handle_t begin;
 
@@ -98,7 +98,7 @@ struct attribute_handle_range_t {
 /**
  * Construct an attribute_handle_range_t from its first and last attribute handle.
  *
- * @param begin Handle at the begining of the range.
+ * @param begin Handle at the beginning of the range.
  * @param end Handle at the end of the range.
  *
  * @return An instance of attribute_handle_range_t where
