@@ -246,3 +246,11 @@ void AT_CellularDevice::set_timeout(int timeout)
         atHandler = atHandler->_nextATHandler;
     }
 }
+
+NetworkStack *AT_CellularDevice::get_stack()
+{
+    if (!_network) {
+        return NULL;
+    }
+    return _network->get_stack();
+}

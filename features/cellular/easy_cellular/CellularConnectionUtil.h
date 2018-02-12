@@ -31,9 +31,21 @@
 #include "CellularTargets.h"
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
+const int PIN_SIZE = 8;
+
+/** CellularConnectionUtil class
+ *
+ *  Utility class for cellular connection
+ */
 class CellularConnectionUtil
 {
 public:
+    CellularConnectionUtil();
+    virtual ~CellularConnectionUtil();
+
+public:
+    /** Cellular connection states
+     */
     enum CellularState {
         STATE_POWER_ON = 0,
         STATE_DEVICE_READY = 1,
@@ -44,22 +56,62 @@ public:
         STATE_ATTACH_NETWORK = 7,
         STATE_ATTACHING_NETWORK = 8,
         STATE_CONNECT_NETWORK = 9,
-        STATE_READY = 10,
+        STATE_CONNECTED = 10,
     };
 
 public:
-    CellularConnectionUtil();
-    virtual ~CellularConnectionUtil();
-    void set_serial(UARTSerial *serial);
-    void set_callback(mbed::Callback<int(int, int)> status_callback);
-    EventQueue* get_queue();
-    bool start(bool start_dispatch = true);
-    void stop();
-    CellularNetwork* get_network();
-    CellularDevice* get_device();
-    bool continue_with_state(CellularState state);
+    /** Initialize cellular device
+     *  @remark Must be called before any other methods
+     *  @return see nsapi_error_t, 0 on success
+     */
+    nsapi_error_t init();
 
-protected:
+    /** Set serial connection for cellular device
+     *  @param serial UART driver
+     */
+    void set_serial(UARTSerial *serial);
+
+    /** Set callback for state update
+     *  @param status_callback function to call on state changes
+     */
+    void set_callback(mbed::Callback<bool(int, int)> status_callback);
+    
+    /** Get event queue that can be chained to main event queue (or use start_dispatch)
+     *  @return event queue
+     */
+    EventQueue* get_queue();
+
+    /** Start event queue dispatching
+     *  @return see nsapi_error_t, 0 on success
+     */
+    nsapi_error_t start_dispatch();
+
+    /** Stop event queue dispatching and close cellular interfaces
+     */
+    void stop();
+    
+    /** Get cellular network interface
+     *  @return network interface, NULL on failure
+     */
+    CellularNetwork* get_network();
+
+    /** Get cellular device interface
+     *  @return device interface, NULL on failure
+     */
+    CellularDevice* get_device();
+
+    /** Change cellular connection to the target state
+     *  @param state to continue
+     *  @return see nsapi_error_t, 0 on success
+     */
+    nsapi_error_t continue_to_state(CellularState state);
+
+    /** Set cellular device SIM PIN code
+     *  @param sim_pin PIN code
+     */
+    void set_sim_pin(const char *sim_pin);
+
+private:
     bool open_power(FileHandle *fh);
     bool open_sim();
     bool open_network();
@@ -67,6 +119,10 @@ protected:
     bool set_network_registration(char *plmn = 0);
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
+
+private:
+    friend class EasyCellularConnection;
+    NetworkStack *get_stack();
 
 private:
     void device_ready();
@@ -77,13 +133,14 @@ private:
     CellularState _state;
     CellularState _next_state;
 
-    mbed::Callback<int(int, int)> _status_callback;
+    mbed::Callback<bool(int, int)> _status_callback;
 
     CellularNetwork *_network;
     CellularPower *_power;
     EventQueue _queue;
     Thread *_queue_thread;
     CellularDevice *_cellularDevice;
+    char _sim_pin[PIN_SIZE+1];
 };
 
 

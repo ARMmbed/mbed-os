@@ -176,7 +176,6 @@ protected:
 private:
 
     void set_error(nsapi_error_t err);
-    void set_oobs_matching_param(bool);
 
     events::EventQueue &_queue;
     nsapi_error_t _last_err;
@@ -361,7 +360,7 @@ private:
     //            information response contains parameters or subsets of parameters(elements), both separated by comma
     // elem_type: subsets of parameters that are part of information response, its parameters are separated by comma
     enum ScopeType {RespType, InfoType, ElemType, NotSet};
-    void set_scope(ScopeType scope_type, const char* stop_tag = NULL);
+    void set_scope(ScopeType scope_type);
     ScopeType _current_scope;
 
     struct tag_t {
