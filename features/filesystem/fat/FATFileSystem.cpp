@@ -712,13 +712,14 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    off_t dptr = static_cast<off_t>(dh->dptr);
 
     lock();
 
-    if (offset < dh->dptr) {
+    if (offset < dptr) {
         f_rewinddir(dh);
     }
-    while (dh->dptr < offset) {
+    while (dptr < offset) {
         FILINFO finfo;
         FRESULT res;
 
