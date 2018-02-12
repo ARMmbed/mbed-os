@@ -116,7 +116,10 @@ nsapi_error_t EasyCellularConnection::connect()
 nsapi_error_t EasyCellularConnection::disconnect()
 {
     _is_connected = false;
-    return cellularConnection.disconnect();
+    if (!cellularConnection.get_network()) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    return cellularConnection.get_network()->disconnect();
 }
 
 bool EasyCellularConnection::is_connected()

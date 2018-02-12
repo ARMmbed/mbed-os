@@ -477,17 +477,6 @@ nsapi_error_t CellularConnectionUtil::start_dispatch()
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t CellularConnectionUtil::disconnect()
-{
-    log_info("CellularConnectionUtil::disconnect");
-    nsapi_error_t err = NSAPI_ERROR_OK;
-    if (_network) {
-        err = _network->disconnect();
-    }
-
-    return err;
-}
-
 void CellularConnectionUtil::stop()
 {
     log_info("CellularConnectionUtil::stop");
