@@ -1,8 +1,0 @@
-File '../../../framework/AT/AT_CellularDevice.cpp'
-Lines executed:90.65% of 139
-Creating 'AT_CellularDevice.cpp.gcov'
-
-File '../../../framework/API/CellularDevice.h'
-Lines executed:100.00% of 2
-Creating 'CellularDevice.h.gcov'
-

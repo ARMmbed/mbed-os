@@ -1,4 +1,0 @@
-objs/AT_CellularMultiplexer_unit/at_cellularmultiplexertest.o: \
- at_cellularmultiplexertest.cpp test_at_cellularmultiplexer.h
-
-test_at_cellularmultiplexer.h:
