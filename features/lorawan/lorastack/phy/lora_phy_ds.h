@@ -620,11 +620,11 @@ typedef enum phy_attributes__e
     /*!
      * The channels mask.
      */
-    PHY_CHANNELS_MASK,
+    PHY_CHANNEL_MASK,
     /*!
-     * The channels default mask.
+     * The default channel mask.
      */
-    PHY_CHANNELS_DEFAULT_MASK,
+    PHY_DEFAULT_CHANNEL_MASK,
     /*!
      * The maximum number of supported channels.
      */
@@ -633,6 +633,13 @@ typedef enum phy_attributes__e
      * The channels.
      */
     PHY_CHANNELS,
+    /*!
+     * The PHYs that support dynamic channel plan (non-custom)
+     * support do not let the user add/remove to the channel plan.
+     * The network guides the device for the plan. So only
+     * EU like regions support custom channel planning.
+     */
+    PHY_CUSTOM_CHANNEL_PLAN_SUPPORT,
     /*!
      * The default value of the uplink dwell time.
      */
@@ -1073,9 +1080,9 @@ typedef struct {
     channel_params_t *channel_list;
     uint8_t channel_list_size;
 
-    uint16_t *mask_list;
-    uint16_t *default_mask_list;
-    uint8_t  mask_list_size;
+    uint16_t *mask;
+    uint16_t *default_mask;
+    uint8_t  mask_size;
 
 } loraphy_channels_t;
 

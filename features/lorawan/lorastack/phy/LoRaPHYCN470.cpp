@@ -219,22 +219,22 @@ LoRaPHYCN470::LoRaPHYCN470(LoRaWANTimeHandler &lora_time)
     }
 
     // Initialize the channels default mask
-    default_channel_masks[0] = 0xFFFF;
-    default_channel_masks[1] = 0xFFFF;
-    default_channel_masks[2] = 0xFFFF;
-    default_channel_masks[3] = 0xFFFF;
-    default_channel_masks[4] = 0xFFFF;
-    default_channel_masks[5] = 0xFFFF;
+    default_channel_mask[0] = 0xFFFF;
+    default_channel_mask[1] = 0xFFFF;
+    default_channel_mask[2] = 0xFFFF;
+    default_channel_mask[3] = 0xFFFF;
+    default_channel_mask[4] = 0xFFFF;
+    default_channel_mask[5] = 0xFFFF;
 
     // Update the channels mask
-    copy_channel_mask(channel_masks, default_channel_masks, CN470_CHANNELS_MASK_SIZE);
+    copy_channel_mask(channel_mask, default_channel_mask, CN470_CHANNEL_MASK_SIZE);
 
     // set default channels
     phy_params.channels.channel_list = channels;
     phy_params.channels.channel_list_size = CN470_MAX_NB_CHANNELS;
-    phy_params.channels.mask_list = channel_masks;
-    phy_params.channels.default_mask_list = default_channel_masks;
-    phy_params.channels.mask_list_size = CN470_CHANNELS_MASK_SIZE;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = CN470_CHANNEL_MASK_SIZE;
 
     // set bands for CN470 spectrum
     phy_params.bands.table = (void *) bands;
@@ -398,12 +398,12 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
     link_adr_params_t adr_settings;
     uint8_t next_index = 0;
     uint8_t bytes_processed = 0;
-    uint16_t temp_channel_masks[CN470_CHANNELS_MASK_SIZE] = {0, 0, 0, 0, 0, 0};
+    uint16_t temp_channel_masks[CN470_CHANNEL_MASK_SIZE] = {0, 0, 0, 0, 0, 0};
 
     verify_adr_params_t verify_params;
 
     // Initialize local copy of channels mask
-    copy_channel_mask(temp_channel_masks, channel_masks, CN470_CHANNELS_MASK_SIZE);
+    copy_channel_mask(temp_channel_masks, channel_mask, CN470_CHANNEL_MASK_SIZE);
 
     while(bytes_processed < params->payload_size) {
 
@@ -467,7 +467,7 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
     // Update channelsMask if everything is correct
     if (status == 0x07) {
         // Copy Mask
-        copy_channel_mask(channel_masks, temp_channel_masks, CN470_CHANNELS_MASK_SIZE);
+        copy_channel_mask(channel_mask, temp_channel_masks, CN470_CHANNEL_MASK_SIZE);
     }
 
     // Update status variables

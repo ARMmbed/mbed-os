@@ -272,16 +272,16 @@ LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
     channels[2] = EU868_LC3;
 
     // Initialize the channels default mask
-    default_channel_masks[0] = LC(1) + LC(2) + LC(3);
+    default_channel_mask[0] = LC(1) + LC(2) + LC(3);
     // Update the channels mask
-    copy_channel_mask(channel_masks, default_channel_masks, 1);
+    copy_channel_mask(channel_mask, default_channel_mask, 1);
 
     // set default channels
     phy_params.channels.channel_list = channels;
     phy_params.channels.channel_list_size = EU868_MAX_NB_CHANNELS;
-    phy_params.channels.mask_list = channel_masks;
-    phy_params.channels.default_mask_list = default_channel_masks;
-    phy_params.channels.mask_list_size = EU868_CHANNELS_MASK_SIZE;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = EU868_CHANNEL_MASK_SIZE;
 
     // set bands for EU868 spectrum
     phy_params.bands.table = (void *) bands;

@@ -38,7 +38,7 @@
 
 #define CN779_MAX_NB_BANDS                           1
 
-#define CN779_CHANNELS_MASK_SIZE                     1
+#define CN779_CHANNEL_MASK_SIZE                     1
 
 
 class LoRaPHYCN779 : public LoRaPHY {
@@ -60,14 +60,14 @@ private:
     band_t bands[CN779_MAX_NB_BANDS];
 
     /*!
-     * LoRaMac channels mask
+     * LoRaMac channel mask
      */
-    uint16_t channel_masks[CN779_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[CN779_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[CN779_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[CN779_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_CN779_H_ */

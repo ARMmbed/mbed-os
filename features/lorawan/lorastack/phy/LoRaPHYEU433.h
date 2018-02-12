@@ -44,7 +44,7 @@
  */
 #define EU433_MAX_NB_BANDS                          1
 
-#define EU433_CHANNELS_MASK_SIZE                    1
+#define EU433_CHANNEL_MASK_SIZE                    1
 
 
 class LoRaPHYEU433 : public LoRaPHY {
@@ -66,14 +66,14 @@ private:
     band_t bands[EU433_MAX_NB_BANDS];
 
     /*!
-     * LoRaMac channels mask
+     * LoRaMac channel mask
      */
-    uint16_t channel_masks[EU433_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[EU433_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[EU433_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[EU433_CHANNEL_MASK_SIZE];
 };
 
 

@@ -241,16 +241,16 @@ LoRaPHYCN779::LoRaPHYCN779(LoRaWANTimeHandler &lora_time)
     channels[2] = CN779_LC3;
 
     // Initialize the channels default mask
-    default_channel_masks[0] = LC(1) + LC(2) + LC(3);
+    default_channel_mask[0] = LC(1) + LC(2) + LC(3);
     // Update the channels mask
-    copy_channel_mask(channel_masks, default_channel_masks, CN779_CHANNELS_MASK_SIZE);
+    copy_channel_mask(channel_mask, default_channel_mask, CN779_CHANNEL_MASK_SIZE);
 
     // set default channels
     phy_params.channels.channel_list = channels;
     phy_params.channels.channel_list_size = CN779_MAX_NB_CHANNELS;
-    phy_params.channels.mask_list = channel_masks;
-    phy_params.channels.default_mask_list = default_channel_masks;
-    phy_params.channels.mask_list_size = CN779_CHANNELS_MASK_SIZE;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = CN779_CHANNEL_MASK_SIZE;
 
     // set bands for CN779 spectrum
     phy_params.bands.table = bands;

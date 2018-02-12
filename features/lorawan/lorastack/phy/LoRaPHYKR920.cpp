@@ -252,16 +252,16 @@ LoRaPHYKR920::LoRaPHYKR920(LoRaWANTimeHandler &lora_time)
     channels[2] = KR920_LC3;
 
     // Initialize the channels default mask
-    default_channel_masks[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
+    default_channel_mask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
     // Update the channels mask
-    copy_channel_mask(channel_masks, default_channel_masks, KR920_CHANNELS_MASK_SIZE);
+    copy_channel_mask(channel_mask, default_channel_mask, KR920_CHANNEL_MASK_SIZE);
 
     // set default channels
     phy_params.channels.channel_list = channels;
     phy_params.channels.channel_list_size = KR920_MAX_NB_CHANNELS;
-    phy_params.channels.mask_list = channel_masks;
-    phy_params.channels.default_mask_list = default_channel_masks;
-    phy_params.channels.mask_list_size = KR920_CHANNELS_MASK_SIZE;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = KR920_CHANNEL_MASK_SIZE;
 
     // set bands for KR920 spectrum
     phy_params.bands.table = (void *) bands;
@@ -341,11 +341,11 @@ int8_t LoRaPHYKR920::get_max_eirp(uint32_t freq)
 
 bool LoRaPHYKR920::verify_frequency(uint32_t freq)
 {
-    uint32_t tmpFreq = freq;
+    uint32_t tmp_freq = freq;
 
     _radio->lock();
 
-    if (_radio->check_rf_frequency(tmpFreq) == false) {
+    if (_radio->check_rf_frequency(tmp_freq) == false) {
         _radio->unlock();
         return false;
     }
@@ -354,10 +354,10 @@ bool LoRaPHYKR920::verify_frequency(uint32_t freq)
 
     // Verify if the frequency is valid. The frequency must be in a specified
     // range and can be set to specific values.
-    if ((tmpFreq >= 920900000) && (tmpFreq <=923300000)) {
+    if ((tmp_freq >= 920900000) && (tmp_freq <=923300000)) {
         // Range ok, check for specific value
-        tmpFreq -= 920900000;
-        if ((tmpFreq % 200000) == 0) {
+        tmp_freq -= 920900000;
+        if ((tmp_freq % 200000) == 0) {
             return true;
         }
     }
@@ -414,9 +414,9 @@ bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
     uint8_t enabled_channels[KR920_MAX_NB_CHANNELS] = {0};
     lorawan_time_t nextTxDelay = 0;
 
-    if (num_active_channels(channel_masks, 0, 1) == 0) {
+    if (num_active_channels(channel_mask, 0, 1) == 0) {
         // Reactivate default channels
-        channel_masks[0] |= LC(1) + LC(2) + LC(3);
+        channel_mask[0] |= LC(1) + LC(2) + LC(3);
     }
 
     if (params->aggregate_timeoff <= _lora_time.get_elapsed_time(params->last_aggregate_tx_time)) {
@@ -429,7 +429,7 @@ bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
 
         // Search how many channels are enabled
         nb_enabled_channels = enabled_channel_count(params->joined, params->current_datarate,
-                                                     channel_masks, KR920_CHANNELS_MASK_SIZE,
+                                                     channel_mask,
                                                      enabled_channels, &delay_tx);
     } else {
         delay_tx++;
@@ -472,7 +472,7 @@ bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
         }
 
         // Datarate not supported by any channel, restore defaults
-        channel_masks[0] |= LC(1) + LC(2) + LC(3);
+        channel_mask[0] |= LC(1) + LC(2) + LC(3);
         *time = 0;
         return false;
     }

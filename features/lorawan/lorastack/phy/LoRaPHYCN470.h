@@ -46,7 +46,7 @@
 #define CN470_MAX_NB_BANDS                           1
 
 
-#define CN470_CHANNELS_MASK_SIZE                     6
+#define CN470_CHANNEL_MASK_SIZE                     6
 
 
 class LoRaPHYCN470 : public LoRaPHY {
@@ -80,14 +80,14 @@ private:
     band_t bands[CN470_MAX_NB_BANDS];
 
     /*!
-     * LoRaMac channels mask
+     * LoRaMac channel mask
      */
-    uint16_t channel_masks[CN470_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[CN470_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[CN470_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[CN470_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_CN470_H_ */

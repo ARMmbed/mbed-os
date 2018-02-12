@@ -48,6 +48,14 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
     phy_param_t phy_param;
     uint8_t max_num_channels;
 
+    // Check if the PHY layer supports custom channel plans or not.
+    get_phy.attribute = PHY_CUSTOM_CHANNEL_PLAN_SUPPORT;
+    phy_param = _lora_phy->get_phy_params(&get_phy);
+
+    if (!phy_param.value) {
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
+
     // Check first how many channels the selected PHY layer supports
     get_phy.attribute = PHY_MAX_NB_CHANNELS;
     phy_param = _lora_phy->get_phy_params(&get_phy);
@@ -91,8 +99,16 @@ lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
     get_phy_params_t get_phy;
     phy_param_t phy_param;
     uint8_t max_num_channels;
-    uint16_t *channel_masks;
+    uint16_t *channel_mask;
     uint8_t count = 0;
+
+    // Check if the PHY layer supports custom channel plans or not.
+    get_phy.attribute = PHY_CUSTOM_CHANNEL_PLAN_SUPPORT;
+    phy_param = _lora_phy->get_phy_params(&get_phy);
+
+    if (!phy_param.value) {
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
 
     // Check first how many channels the selected PHY layer supports
     get_phy.attribute = PHY_MAX_NB_CHANNELS;
@@ -100,9 +116,9 @@ lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
     max_num_channels = (uint8_t) phy_param.value;
 
     // Now check the Default channel mask
-    get_phy.attribute = PHY_CHANNELS_MASK;
+    get_phy.attribute = PHY_CHANNEL_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.channel_mask;
+    channel_mask = phy_param.channel_mask;
 
     // Request Mib to get channels
     memset(&mib_confirm, 0, sizeof(mib_confirm));
@@ -116,7 +132,7 @@ lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
 
     for (uint8_t i = 0; i < max_num_channels; i++) {
         // skip the channels which are not enabled
-        if ((channel_masks[0] & (1U << i)) == 0) {
+        if (_lora_phy->mask_bit_test(channel_mask, i) == 0) {
             continue;
         }
 
@@ -143,8 +159,16 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
     get_phy_params_t get_phy;
     phy_param_t phy_param;
     uint8_t max_num_channels;
-    uint16_t *channel_masks;
-    uint16_t *default_channel_masks;
+    uint16_t *channel_mask;
+    uint16_t *default_channel_mask;
+
+    // Check if the PHY layer supports custom channel plans or not.
+    get_phy.attribute = PHY_CUSTOM_CHANNEL_PLAN_SUPPORT;
+    phy_param = _lora_phy->get_phy_params(&get_phy);
+
+    if (!phy_param.value) {
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
 
     // Check first how many channels the selected PHY layer supports
     get_phy.attribute = PHY_MAX_NB_CHANNELS;
@@ -152,23 +176,23 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
     max_num_channels = (uint8_t) phy_param.value;
 
     // Now check the channel mask for enabled channels
-    get_phy.attribute = PHY_CHANNELS_MASK;
+    get_phy.attribute = PHY_CHANNEL_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.channel_mask;
+    channel_mask = phy_param.channel_mask;
 
     // Now check the channel mask for default channels
-    get_phy.attribute = PHY_CHANNELS_DEFAULT_MASK;
+    get_phy.attribute = PHY_DEFAULT_CHANNEL_MASK;
     phy_param = _lora_phy->get_phy_params(&get_phy);
-    default_channel_masks = phy_param.channel_mask;
+    default_channel_mask = phy_param.channel_mask;
 
     for (uint8_t i = 0; i < max_num_channels; i++) {
         // skip any default channels
-        if ((default_channel_masks[0] & (1U<<i)) != 0) {
+        if (_lora_phy->mask_bit_test(default_channel_mask, i) != 0) {
             continue;
         }
 
         // skip any channels which are not currently enabled
-        if ((channel_masks[0] & (1U<<i)) == 0) {
+        if (_lora_phy->mask_bit_test(channel_mask, i) == 0) {
             continue;
         }
 
@@ -187,7 +211,14 @@ lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
     get_phy_params_t get_phy;
     phy_param_t phy_param;
     uint8_t max_num_channels;
-    uint16_t *channel_masks;
+
+    // Check if the PHY layer supports custom channel plans or not.
+    get_phy.attribute = PHY_CUSTOM_CHANNEL_PLAN_SUPPORT;
+    phy_param = _lora_phy->get_phy_params(&get_phy);
+
+    if (!phy_param.value) {
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
 
     // Check first how many channels the selected PHY layer supports
     get_phy.attribute = PHY_MAX_NB_CHANNELS;
@@ -201,21 +232,7 @@ lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    // Now check the Default channel mask
-    get_phy.attribute = PHY_CHANNELS_DEFAULT_MASK;
-    phy_param = _lora_phy->get_phy_params(&get_phy);
-    channel_masks = phy_param.channel_mask;
-
-    // check if the channel ID give belongs to a default channel
-    // Mostly the default channels are in the first mask if the region
-    // have multiple channel masks for various sub-bands. So we check the first
-    // mask only and return an error code if user sent a default channel id
-    if ((channel_masks[0] & (1U << channel_id)) != 0) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
-    if(_lora_phy->remove_channel(channel_id) == false)
-    {
+    if (_lora_phy->remove_channel(channel_id) == false) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 

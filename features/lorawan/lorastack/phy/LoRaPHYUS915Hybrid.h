@@ -45,7 +45,7 @@
  */
 #define US915_HYBRID_MAX_NB_BANDS                   1
 
-#define US915_HYBRID_CHANNELS_MASK_SIZE             5
+#define US915_HYBRID_CHANNEL_MASK_SIZE             5
 
 
 class LoRaPHYUS915Hybrid : public LoRaPHY {
@@ -101,17 +101,17 @@ private:
     /*!
      * LoRaMac channels mask
      */
-    uint16_t channel_masks[US915_HYBRID_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[US915_HYBRID_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels remaining
+     * Previously used channel mask
      */
-    uint16_t current_channel_masks[US915_HYBRID_CHANNELS_MASK_SIZE];
+    uint16_t current_channel_mask[US915_HYBRID_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[US915_HYBRID_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[US915_HYBRID_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_US915HYBRID_H_ */

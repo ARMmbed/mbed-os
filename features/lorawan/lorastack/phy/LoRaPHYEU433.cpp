@@ -242,16 +242,16 @@ LoRaPHYEU433::LoRaPHYEU433(LoRaWANTimeHandler &lora_time)
     channels[2] = EU433_LC3;;
 
     // Initialize the channels default mask
-    default_channel_masks[0] = LC(1) + LC(2) + LC(3);
+    default_channel_mask[0] = LC(1) + LC(2) + LC(3);
     // Update the channels mask
-    copy_channel_mask(channel_masks, default_channel_masks, EU433_CHANNELS_MASK_SIZE);
+    copy_channel_mask(channel_mask, default_channel_mask, EU433_CHANNEL_MASK_SIZE);
 
     // set default channels
     phy_params.channels.channel_list = channels;
     phy_params.channels.channel_list_size = EU433_MAX_NB_CHANNELS;
-    phy_params.channels.mask_list = channel_masks;
-    phy_params.channels.default_mask_list = default_channel_masks;
-    phy_params.channels.mask_list_size = EU433_CHANNELS_MASK_SIZE;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = EU433_CHANNEL_MASK_SIZE;
 
     // set bands for EU433 spectrum
     phy_params.bands.table = bands;

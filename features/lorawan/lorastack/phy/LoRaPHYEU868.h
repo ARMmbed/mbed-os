@@ -49,7 +49,7 @@
  */
 #define EU868_MAX_NB_BANDS                          6
 
-#define EU868_CHANNELS_MASK_SIZE                    1
+#define EU868_CHANNEL_MASK_SIZE                    1
 
 class LoRaPHYEU868 : public LoRaPHY {
 
@@ -71,12 +71,12 @@ private:
     /*!
      * LoRaMac channels mask
      */
-    uint16_t channel_masks[EU868_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[EU868_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[EU868_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[EU868_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_EU868_H_ */

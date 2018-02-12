@@ -355,7 +355,7 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_CHANNELS_DEFAULT_MASK:
         {
-            get_phy.attribute = PHY_CHANNELS_DEFAULT_MASK;
+            get_phy.attribute = PHY_DEFAULT_CHANNEL_MASK;
             phy_param = _lora_phy->get_phy_params( &get_phy );
 
             mibGet->param.default_channel_mask = phy_param.channel_mask;
@@ -363,7 +363,7 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_CHANNELS_MASK:
         {
-            get_phy.attribute = PHY_CHANNELS_MASK;
+            get_phy.attribute = PHY_CHANNEL_MASK;
             phy_param = _lora_phy->get_phy_params( &get_phy );
 
             mibGet->param.channel_mask = phy_param.channel_mask;

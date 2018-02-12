@@ -112,6 +112,27 @@ public:
      */
      void calculate_backoff(backoff_params_t* backoff_params);
 
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline bool mask_bit_test(const uint16_t *mask, unsigned bit) {
+         return mask[bit/16] & (1U << (bit % 16));
+     }
+
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline void mask_bit_set(uint16_t *mask, unsigned bit) {
+          mask[bit/16] |= (1U << (bit % 16));
+     }
+
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline void mask_bit_clear(uint16_t *mask, unsigned bit) {
+          mask[bit/16] &= ~(1U << (bit % 16));
+     }
+
     /** Entertain a new channel request MAC command.
      *
      * MAC command subsystem processes the new channel request coming form
@@ -407,66 +428,68 @@ protected:
      * Verifies, if a datarate is available on an active channel.
      */
     bool verify_channel_DR(uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
-                           int8_t minDr, int8_t maxDr, channel_params_t* channels );
+                           int8_t minDr, int8_t maxDr, channel_params_t* channels);
 
     /**
      * Disables a channel in a given channels mask.
      */
-    bool disable_channel( uint16_t* channelsMask, uint8_t id, uint8_t maxChannels );
+    bool disable_channel(uint16_t* channel_mask, uint8_t id, uint8_t max_channels);
 
     /**
      * Counts number of bits on in a given mask
      */
-    uint8_t count_bits(uint16_t mask, uint8_t nbBits);
+    uint8_t count_bits(uint16_t mask, uint8_t nb_bits);
 
     /**
      * Counts the number of active channels in a given channels mask.
      */
-    uint8_t num_active_channels(uint16_t* channelsMask, uint8_t startIdx,
-                                uint8_t stopIdx);
+    uint8_t num_active_channels(uint16_t* channel_mask, uint8_t start_idx,
+                                uint8_t stop_idx);
 
     /**
      * Copy channel masks.
      */
-    void copy_channel_mask(uint16_t* channelsMaskDest, uint16_t* channelsMaskSrc,
-                           uint8_t len );
+    void copy_channel_mask(uint16_t* dest_mask, uint16_t* src_mask, uint8_t len);
 
     /**
      * Updates the time-offs of the bands.
      */
     lorawan_time_t update_band_timeoff(bool joined, bool dutyCycle, band_t* bands,
-                                       uint8_t nbBands);
+                                       uint8_t nb_bands);
 
     /**
      * Parses the parameter of an LinkAdrRequest.
      */
-    uint8_t parse_link_ADR_req(uint8_t* payload, link_adr_params_t* parseLinkAdr );
+    uint8_t parse_link_ADR_req(uint8_t* payload, link_adr_params_t* adr_params);
 
     /**
      * Verifies and updates the datarate, the TX power and the number of repetitions
      * of a LinkAdrRequest.
      */
-    uint8_t verify_link_ADR_req( verify_adr_params_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep );
+    uint8_t verify_link_ADR_req(verify_adr_params_t* verify_params, int8_t* dr,
+                                int8_t* tx_pow, uint8_t* nb_rep);
 
     /**
      * Computes the symbol time for LoRa modulation.
      */
-    double compute_symb_timeout_lora( uint8_t phyDr, uint32_t bandwidth );
+    double compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth );
 
     /**
      * Computes the symbol time for FSK modulation.
      */
-    double compute_symb_timeout_fsk( uint8_t phyDr );
+    double compute_symb_timeout_fsk(uint8_t phy_dr);
 
     /**
      * Computes the RX window timeout and the RX window offset.
      */
-    void get_rx_window_params( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+    void get_rx_window_params(double t_symbol, uint8_t min_rx_symbols,
+                              uint32_t rx_error, uint32_t wakeup_time,
+                              uint32_t* window_timeout, int32_t* window_offset);
 
     /**
      * Computes the txPower, based on the max EIRP and the antenna gain.
      */
-    int8_t compute_tx_power( int8_t txPowerIndex, float maxEirp, float antennaGain );
+    int8_t compute_tx_power(int8_t txPowerIndex, float maxEirp, float antennaGain);
 
     /**
      * Provides a random number in the range provided.
@@ -484,8 +507,7 @@ protected:
     uint8_t get_bandwidth(uint8_t dr_index);
 
     uint8_t enabled_channel_count(bool joined, uint8_t datarate,
-                                  uint16_t *mask_list, uint8_t mask_list_size,
-                                  uint8_t* enabledChannels,
+                                  const uint16_t *mask, uint8_t* enabledChannels,
                                   uint8_t* delayTx);
 };
 

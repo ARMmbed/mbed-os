@@ -46,7 +46,7 @@
  */
 #define AU915_MAX_NB_BANDS                          1
 
-#define AU915_CHANNELS_MASK_SIZE                    5
+#define AU915_CHANNEL_MASK_SIZE                    5
 
 
 class LoRaPHYAU915 : public LoRaPHY{
@@ -89,19 +89,19 @@ private:
     band_t bands[AU915_MAX_NB_BANDS];
 
     /*!
-     * LoRaMac channels mask
+     * LoRaMac channel mask
      */
-    uint16_t channel_masks[AU915_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[AU915_CHANNEL_MASK_SIZE];
 
     /*!
-     * LoRaMac channels remaining
+     * Previously used channel mask
      */
-    uint16_t current_channel_masks[AU915_CHANNELS_MASK_SIZE];
+    uint16_t current_channel_mask[AU915_CHANNEL_MASK_SIZE];
 
     /*!
      * LoRaMac channels default mask
      */
-    uint16_t default_channel_masks[AU915_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[AU915_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_AU915_H_ */

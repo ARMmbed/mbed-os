@@ -44,7 +44,7 @@
  */
 #define KR920_MAX_NB_BANDS                          1
 
-#define KR920_CHANNELS_MASK_SIZE                    1
+#define KR920_CHANNEL_MASK_SIZE                    1
 
 
 class LoRaPHYKR920 : public LoRaPHY {
@@ -82,14 +82,14 @@ private:
     band_t bands[KR920_MAX_NB_BANDS];
 
     /**
-     * LoRaMac channels mask
+     * LoRaMac channel mask
      */
-    uint16_t channel_masks[KR920_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[KR920_CHANNEL_MASK_SIZE];
 
     /**
-     * LoRaMac channels default mask
+     * LoRaMac default channel mask
      */
-    uint16_t default_channel_masks[KR920_CHANNELS_MASK_SIZE];
+    uint16_t default_channel_mask[KR920_CHANNEL_MASK_SIZE];
 };
 
 #endif // MBED_OS_LORAPHY_KR920_H_

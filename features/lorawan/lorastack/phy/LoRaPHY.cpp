@@ -151,23 +151,21 @@ int32_t LoRaPHY::get_random(int32_t min, int32_t max)
     return (int32_t) rand() % (max - min + 1) + min;
 }
 
-bool LoRaPHY::verify_channel_DR(uint8_t nbChannels, uint16_t* channelsMask,
-                                int8_t dr, int8_t minDr, int8_t maxDr,
+bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
+                                int8_t dr, int8_t min_dr, int8_t max_dr,
                                 channel_params_t* channels)
 {
-    if (val_in_range(dr, minDr, maxDr) == 0) {
+    if (val_in_range(dr, min_dr, max_dr) == 0) {
         return false;
     }
 
-    for (uint8_t i = 0, k = 0; i < nbChannels; i += 16, k++) {
-        for( uint8_t j = 0; j < 16; j++ ) {
-            if( ((channelsMask[k] & (1 << j)) != 0)) {
-                // Check datarate validity for enabled channels
-                if (val_in_range(dr, (channels[i + j].dr_range.fields.min & 0x0F),
-                                     (channels[i + j].dr_range.fields.max & 0x0F)) == 1 ) {
-                    // At least 1 channel has been found we can return OK.
-                    return true;
-                }
+    for (uint8_t i; i < phy_params.max_channel_cnt; i++) {
+        if (mask_bit_test(channel_mask, i)) {
+            // Check datarate validity for enabled channels
+            if (val_in_range(dr, (channels[i].dr_range.fields.min & 0x0F),
+                                 (channels[i].dr_range.fields.max & 0x0F))) {
+                // At least 1 channel has been found we can return OK.
+                return true;
             }
         }
     }
@@ -184,17 +182,17 @@ uint8_t LoRaPHY::val_in_range( int8_t value, int8_t min, int8_t max )
     return 0;
 }
 
-bool LoRaPHY::disable_channel(uint16_t* channelsMask, uint8_t id,
-                              uint8_t maxChannels)
+bool LoRaPHY::disable_channel(uint16_t* channel_mask, uint8_t id,
+                              uint8_t max_channels_num)
 {
     uint8_t index = id / 16;
 
-    if ((index > phy_params.channels.mask_list_size) || (id >= maxChannels)) {
+    if ((index > phy_params.channels.mask_size) || (id >= max_channels_num)) {
         return false;
     }
 
     // Deactivate channel
-    channelsMask[index] &= ~(1 << (id % 16));
+    mask_bit_clear(channel_mask, id);
 
     return true;
 }
@@ -204,7 +202,7 @@ uint8_t LoRaPHY::count_bits(uint16_t mask, uint8_t nbBits)
     uint8_t nbActiveBits = 0;
 
     for(uint8_t j = 0; j < nbBits; j++) {
-        if ((mask & (1 << j)) == (1 << j)) {
+        if (mask_bit_test(&mask, j)) {
             nbActiveBits++;
         }
     }
@@ -212,26 +210,27 @@ uint8_t LoRaPHY::count_bits(uint16_t mask, uint8_t nbBits)
     return nbActiveBits;
 }
 
-uint8_t LoRaPHY::num_active_channels( uint16_t* channelsMask, uint8_t startIdx, uint8_t stopIdx )
+uint8_t LoRaPHY::num_active_channels(uint16_t* channel_mask, uint8_t start_idx,
+                                     uint8_t stop_idx)
 {
-    uint8_t nbChannels = 0;
+    uint8_t nb_channels = 0;
 
-    if (channelsMask == NULL) {
+    if (channel_mask == NULL) {
         return 0;
     }
 
-    for (uint8_t i = startIdx; i < stopIdx; i++) {
-        nbChannels += count_bits(channelsMask[i], 16);
+    for (uint8_t i = start_idx; i < stop_idx; i++) {
+        nb_channels += count_bits(channel_mask[i], 16);
     }
 
-    return nbChannels;
+    return nb_channels;
 }
 
-void LoRaPHY::copy_channel_mask(uint16_t* channelsMaskDest, uint16_t* channelsMaskSrc, uint8_t len)
+void LoRaPHY::copy_channel_mask(uint16_t* dest_mask, uint16_t* src_mask, uint8_t len)
 {
-    if ((channelsMaskDest != NULL) && (channelsMaskSrc != NULL)) {
+    if ((dest_mask != NULL) && (src_mask != NULL)) {
         for( uint8_t i = 0; i < len; i++ ) {
-            channelsMaskDest[i] = channelsMaskSrc[i];
+            dest_mask[i] = src_mask[i];
         }
     }
 }
@@ -443,36 +442,31 @@ uint8_t LoRaPHY::get_bandwidth(uint8_t dr)
 }
 
 uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
-                                       uint16_t *mask_list,
-                                       uint8_t mask_list_size,
+                                       const uint16_t *channel_mask,
                                        uint8_t *channel_indices,
                                        uint8_t *delayTx)
 {
     uint8_t count = 0;
     uint8_t delay_transmission = 0;
 
-    for (uint8_t i = 0, k = 0; i < phy_params.max_channel_cnt && k < mask_list_size;
-         i += CHANNELS_IN_MASK, k++) {
+    for (uint8_t i = 0; i < phy_params.max_channel_cnt; i++) {
+        if (mask_bit_test(channel_mask, i)) {
 
-        for (uint8_t j = 0; j < CHANNELS_IN_MASK; j++) {
-
-            if ((mask_list[k] & (1 << j)) != 0) {
-                if (val_in_range(datarate, phy_params.channels.channel_list[i + j].dr_range.fields.min,
-                                  phy_params.channels.channel_list[i + j].dr_range.fields.max ) == 0) {
-                    // data rate range invalid for this channel
-                    continue;
-                }
-
-                band_t *band_table = (band_t *) phy_params.bands.table;
-                if (band_table[phy_params.channels.channel_list[i + j].band].off_time > 0) {
-                    // Check if the band is available for transmission
-                    delay_transmission++;
-                    continue;
-                }
-
-                // otherwise count the channel as enabled
-                channel_indices[count++] = i + j;
+            if (val_in_range(datarate, phy_params.channels.channel_list[i].dr_range.fields.min,
+                             phy_params.channels.channel_list[i].dr_range.fields.max ) == 0) {
+                // data rate range invalid for this channel
+                continue;
             }
+
+            band_t *band_table = (band_t *) phy_params.bands.table;
+            if (band_table[phy_params.channels.channel_list[i].band].off_time > 0) {
+                // Check if the band is available for transmission
+                delay_transmission++;
+                continue;
+            }
+
+            // otherwise count the channel as enabled
+            channel_indices[count++] = i;
         }
     }
 
@@ -526,8 +520,7 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
             break;
         }
         case PHY_MAX_PAYLOAD_REPEATER: {
-            uint8_t *payload_table =
-                    (uint8_t *) phy_params.payloads_with_repeater.table;
+            uint8_t *payload_table = (uint8_t *) phy_params.payloads_with_repeater.table;
             phyParam.value = payload_table[getPhy->datarate];
             break;
         }
@@ -578,12 +571,12 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
             phyParam.value = phy_params.rx_window2_datarate;
             break;
         }
-        case PHY_CHANNELS_MASK: {
-            phyParam.channel_mask = phy_params.channels.mask_list;
+        case PHY_CHANNEL_MASK: {
+            phyParam.channel_mask = phy_params.channels.mask;
             break;
         }
-        case PHY_CHANNELS_DEFAULT_MASK: {
-            phyParam.channel_mask = phy_params.channels.default_mask_list;
+        case PHY_DEFAULT_CHANNEL_MASK: {
+            phyParam.channel_mask = phy_params.channels.default_mask;
             break;
         }
         case PHY_MAX_NB_CHANNELS: {
@@ -594,6 +587,12 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
             phyParam.channel_params = phy_params.channels.channel_list;
             break;
         }
+        case PHY_CUSTOM_CHANNEL_PLAN_SUPPORT:
+            // 0 if custom channel plans are not supported (in LoRaWAN terms
+            // the regions who do not support custom channels are called as
+            // regions with dynamic channel plans)
+            phyParam.value = (uint32_t) phy_params.custom_channelplans_supported;
+            break;
         case PHY_DEF_UPLINK_DWELL_TIME: {
             phyParam.value = phy_params.ul_dwell_time_setting;
             break;
@@ -626,8 +625,8 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
 void LoRaPHY::restore_default_channels()
 {
     // Restore channels default mask
-    for (uint8_t i=0; i < phy_params.channels.mask_list_size; i++) {
-        phy_params.channels.mask_list[i] |= phy_params.channels.default_mask_list[i];
+    for (uint8_t i=0; i < phy_params.channels.mask_size; i++) {
+        phy_params.channels.mask[i] |= phy_params.channels.default_mask[i];
     }
 }
 
@@ -767,7 +766,6 @@ bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
     // ADR ack counter is larger than ADR-ACK-LIMIT
     set_adr_ack_bit = true;
     tx_power_out = phy_params.max_tx_power;
-
 
     if (adr_ack_cnt >= ack_limit_plus_delay) {
         if ((adr_ack_cnt % phy_params.adr_ack_delay) == 1) {
@@ -943,7 +941,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
     // a channel mask list size of unity here as we know that all
     // the PHY layer implementations who have more than 16 channels, i.e.,
     // have channel mask list size more than unity, override this method.
-    uint16_t temp_channel_masks[1] = {0};
+    uint16_t temp_channel_mask[1] = {0};
 
     verify_adr_params_t verify_params;
 
@@ -963,10 +961,10 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
         status = 0x07;
 
         // Setup temporary channels mask
-        temp_channel_masks[0] = adr_settings.channel_mask;
+        temp_channel_mask[0] = adr_settings.channel_mask;
 
         // Verify channels mask
-        if (adr_settings.ch_mask_ctrl == 0 && temp_channel_masks[0] == 0) {
+        if (adr_settings.ch_mask_ctrl == 0 && temp_channel_mask[0] == 0) {
             status &= 0xFE; // Channel mask KO
         }
 
@@ -979,7 +977,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
                 // turn on all channels if channel mask control is 6
                 if (adr_settings.ch_mask_ctrl == 6) {
                     if (phy_params.channels.channel_list[i].frequency != 0) {
-                        temp_channel_masks[0] |= 1 << i;
+                        mask_bit_set(temp_channel_mask, i);
                     }
 
                     continue;
@@ -987,8 +985,8 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
 
                 // if channel mask control is 0, we test the bits and
                 // frequencies and change the status if we find a discrepancy
-                if (((temp_channel_masks[0] & (1 << i)) != 0)
-                        && (phy_params.channels.channel_list[i].frequency == 0)) {
+                if ((mask_bit_test(temp_channel_mask, i)) &&
+                    (phy_params.channels.channel_list[i].frequency == 0)) {
                     // Trying to enable an undefined channel
                     status &= 0xFE; // Channel mask KO
                 }
@@ -1011,7 +1009,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
     verify_params.nb_rep = adr_settings.nb_rep;
 
 
-    verify_params.channel_mask = temp_channel_masks;
+    verify_params.channel_mask = temp_channel_mask;
 
     // Verify the parameters and update, if necessary
     status = verify_link_ADR_req(&verify_params, &adr_settings.datarate,
@@ -1020,12 +1018,12 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
     // Update channelsMask if everything is correct
     if (status == 0x07) {
         // Set the channels mask to a default value
-        memset(phy_params.channels.mask_list, 0,
-               sizeof(uint16_t)*phy_params.channels.mask_list_size);
+        memset(phy_params.channels.mask, 0,
+               sizeof(uint16_t)*phy_params.channels.mask_size);
 
         // Update the channels mask
-        copy_channel_mask(phy_params.channels.mask_list, temp_channel_masks,
-                          phy_params.channels.mask_list_size);
+        copy_channel_mask(phy_params.channels.mask, temp_channel_mask,
+                          phy_params.channels.mask_size);
     }
 
     // Update status variables
@@ -1108,8 +1106,7 @@ uint8_t LoRaPHY::dl_channel_request(dl_channel_req_params_t* params)
 
     // Apply Rx1 frequency, if the status is OK
     if (status == 0x03) {
-        phy_params.channels.channel_list[params->channel_id].rx1_frequency
-        = params->rx1_frequency;
+        phy_params.channels.channel_list[params->channel_id].rx1_frequency = params->rx1_frequency;
     }
 
     return status;
@@ -1196,8 +1193,7 @@ void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
         band_table[band_idx].off_time = 0;
     } else {
         // Apply band time-off.
-        band_table[band_idx].off_time = calc_backoff->tx_toa * duty_cycle
-                - calc_backoff->tx_toa;
+        band_table[band_idx].off_time = calc_backoff->tx_toa * duty_cycle - calc_backoff->tx_toa;
     }
 }
 
@@ -1220,13 +1216,13 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     lorawan_time_t next_tx_delay = 0;
     band_t *band_table = (band_t *) phy_params.bands.table;
 
-    if (num_active_channels(phy_params.channels.mask_list, 0,
-                            phy_params.channels.mask_list_size) == 0) {
+    if (num_active_channels(phy_params.channels.mask, 0,
+                            phy_params.channels.mask_size) == 0) {
 
         // Reactivate default channels
-        copy_channel_mask(phy_params.channels.mask_list,
-                          phy_params.channels.default_mask_list,
-                          phy_params.channels.mask_list_size);
+        copy_channel_mask(phy_params.channels.mask,
+                          phy_params.channels.default_mask,
+                          phy_params.channels.mask_size);
     }
 
     if (params->aggregate_timeoff
@@ -1241,8 +1237,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
 
         // Search how many channels are enabled
         channel_count = enabled_channel_count(params->joined, params->current_datarate,
-                                                  phy_params.channels.mask_list,
-                                                  phy_params.channels.mask_list_size,
+                                                  phy_params.channels.mask,
                                                   enabled_channels, &delay_tx);
     } else {
         delay_tx++;
@@ -1264,9 +1259,9 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     }
 
     // Datarate not supported by any channel, restore defaults
-    copy_channel_mask(phy_params.channels.mask_list,
-                      phy_params.channels.default_mask_list,
-                      phy_params.channels.mask_list_size);
+    copy_channel_mask(phy_params.channels.mask,
+                      phy_params.channels.default_mask,
+                      phy_params.channels.mask_size);
     *time = 0;
     return false;
 }
@@ -1338,38 +1333,29 @@ lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)
         return LORAWAN_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy(&(phy_params.channels.channel_list[id]), new_channel,
-             sizeof(phy_params.channels.channel_list[id]));
+    memcpy(&(phy_params.channels.channel_list[id]), new_channel, sizeof(channel_params_t));
 
     phy_params.channels.channel_list[id].band = new_channel->band;
 
-    // if there are multiple channel masks, i.e., there are more than 16 channels
-    // defined by the PHY layer, we search the channel index in all masks and
-    // set the appropriate bit in the appropriate mask
-    for (uint8_t i = 0; i < phy_params.max_channel_cnt; i ++) {
-        if (i == id) {
-            phy_params.channels.mask_list[i/16] |= (1 << (i%16));
-        }
-    }
+    mask_bit_set(phy_params.channels.mask, id);
 
     return LORAWAN_STATUS_OK;
 }
 
 bool LoRaPHY::remove_channel(uint8_t channel_id)
 {
-    if (!phy_params.custom_channelplans_supported) {
+    // upper layers are checking if the custom channel planning is supported or
+    // not. So we don't need to worry about that
+    if (mask_bit_test(phy_params.channels.default_mask, channel_id)) {
         return false;
     }
 
-    if (channel_id < phy_params.default_channel_cnt) {
-        return false;
-    }
 
     // Remove the channel from the list of channels
     const channel_params_t empty_channel = { 0, 0, { 0 }, 0 };
     phy_params.channels.channel_list[channel_id] = empty_channel;
 
-    return disable_channel(phy_params.channels.mask_list, channel_id,
+    return disable_channel(phy_params.channels.mask, channel_id,
                            phy_params.max_channel_cnt);
 }
 

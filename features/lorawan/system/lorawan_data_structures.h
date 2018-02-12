@@ -45,6 +45,21 @@ typedef uint32_t lorawan_time_t;
 #define MSG_PROPRIETARY_FLAG                  0x08
 
 /**
+ * A macro to test a if a bit is on in a channel mask or not.
+ */
+//#define MASK_BIT_TEST(mask, bit)    (mask & (1U << bit))
+//#define MASK_BIT_TEST(mask, bit)    ((mask)[(bit) / 16] & (1U << ((bit) % 16)))
+/**
+ * A macro to clear a bit in a channel mask.
+ */
+//#define MASK_BIT_CLEAR(mask, bit)   (mask &= ~(1 << bit))
+
+/**
+ * A macro to clear a bit in a channel mask.
+ */
+//#define MASK_BIT_SET(mask, bit)   (mask |= (1 << bit))
+
+/**
  * Bit mask for message flags
  */
 
@@ -2361,11 +2376,11 @@ typedef enum lora_events {
     RX_TIMEOUT,
     RX_ERROR,
     JOIN_FAILURE,
-} lorawan_events_t;
+} lorawan_event_t;
 
 typedef struct  {
      // Mandatory. Event Callback must be provided
-     mbed::Callback<void(lorawan_events_t)> events;
+     mbed::Callback<void(lorawan_event_t)> events;
 
      // Rest are optional
      // If the user do not assign these callbacks, these callbacks would return

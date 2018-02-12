@@ -44,7 +44,7 @@
  */
 #define AS923_MAX_NB_BANDS                          1
 
-#define AS923_CHANNELS_MASK_SIZE                    1
+#define AS923_CHANNEL_MASK_SIZE                    1
 
 
 class LoRaPHYAS923 : public LoRaPHY {
@@ -64,8 +64,8 @@ public:
 private:
     channel_params_t channels[AS923_MAX_NB_CHANNELS];
     band_t bands[AS923_MAX_NB_BANDS];
-    uint16_t channel_masks[AS923_CHANNELS_MASK_SIZE];
-    uint16_t default_channel_masks[AS923_CHANNELS_MASK_SIZE];
+    uint16_t channel_mask[AS923_CHANNEL_MASK_SIZE];
+    uint16_t default_channel_mask[AS923_CHANNEL_MASK_SIZE];
 };
 
 #endif /* MBED_OS_LORAPHY_AS923_H_ */
