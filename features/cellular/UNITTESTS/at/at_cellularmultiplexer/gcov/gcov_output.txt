@@ -1,8 +1,0 @@
-File '../../../framework/AT/AT_CellularMultiplexer.cpp'
-Lines executed:100.00% of 11
-Creating 'AT_CellularMultiplexer.cpp.gcov'
-
-File '../../../framework/API/CellularMultiplexer.h'
-Lines executed:100.00% of 2
-Creating 'CellularMultiplexer.h.gcov'
-

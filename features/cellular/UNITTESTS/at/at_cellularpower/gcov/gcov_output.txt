@@ -1,8 +1,0 @@
-File '../../../framework/AT/AT_CellularPower.cpp'
-Lines executed:3.70% of 108
-Creating 'AT_CellularPower.cpp.gcov'
-
-File '../../../framework/API/CellularPower.h'
-Lines executed:100.00% of 2
-Creating 'CellularPower.h.gcov'
-

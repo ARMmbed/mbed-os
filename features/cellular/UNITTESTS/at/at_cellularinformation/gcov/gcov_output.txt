@@ -1,8 +1,0 @@
-File '../../../framework/AT/AT_CellularInformation.cpp'
-Lines executed:100.00% of 18
-Creating 'AT_CellularInformation.cpp.gcov'
-
-File '../../../framework/API/CellularInformation.h'
-Lines executed:100.00% of 2
-Creating 'CellularInformation.h.gcov'
-
