@@ -19,6 +19,9 @@
 
 #ifdef DEVICE_TRNG
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
 
 void trng_init(trng_t *obj)
 {

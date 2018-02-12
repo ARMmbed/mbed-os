@@ -68,6 +68,8 @@ static HAL_GDMA_OP UartGdmaOp;
 
 #ifdef CONFIG_MBED_ENABLED
 #include "log_uart_api.h"
+#include "platform_stdlib.h"
+
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 log_uart_t stdio_uart_log;

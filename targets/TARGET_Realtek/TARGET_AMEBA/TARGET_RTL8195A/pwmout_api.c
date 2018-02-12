@@ -22,6 +22,10 @@
 
 #ifdef CONFIG_PWM_EN
 #include "pwmout_api.h"
+
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
      
 static const PinMap PinMap_PWM[] = {
     {PB_4,  RTL_PIN_PERI(PWM0, 0, S0), RTL_PIN_FUNC(PWM0, S0)},
