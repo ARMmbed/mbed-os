@@ -16,6 +16,8 @@
  */
 #include "stm32f4xx_hal.h"
 
+HAL_StatusTypeDef HAL_InitPre(void);
+
 /* this function is needed to peform hardware initialization that must happen
  * before the uVisor; the whole SystemInit function for the STM32F4 cannot be
  * put here as it depends on some APIs that need uVisor to be enabled */
