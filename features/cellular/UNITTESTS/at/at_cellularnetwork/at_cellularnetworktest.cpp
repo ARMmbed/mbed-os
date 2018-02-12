@@ -1,0 +1,151 @@
+/*
+ * Copyright (c) 2015 ARM. All rights reserved.
+ */
+#include "CppUTest/TestHarness.h"
+#include "test_at_cellularnetwork.h"
+
+TEST_GROUP(AT_CellularNetwork)
+{
+    Test_AT_CellularNetwork* unit;
+
+    void setup()
+    {
+        unit = new Test_AT_CellularNetwork();
+    }
+
+    void teardown()
+    {
+        delete unit;
+    }
+};
+
+TEST(AT_CellularNetwork, Create)
+{
+    CHECK(unit != NULL);
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_constructor)
+{
+    unit->test_AT_CellularNetwork_constructor();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_credentials)
+{
+    unit->test_AT_CellularNetwork_set_credentials();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_connect)
+{
+    unit->test_AT_CellularNetwork_connect();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_disconnect)
+{
+    unit->test_AT_CellularNetwork_disconnect();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_stack)
+{
+    unit->test_AT_CellularNetwork_get_stack();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_registration)
+{
+    unit->test_AT_CellularNetwork_set_registration();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_registration_status)
+{
+    unit->test_AT_CellularNetwork_get_registration_status();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_attach)
+{
+    unit->test_AT_CellularNetwork_set_attach();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_attach)
+{
+    unit->test_AT_CellularNetwork_get_attach();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_rate_control)
+{
+    unit->test_AT_CellularNetwork_get_rate_control();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_backoff_time)
+{
+    unit->test_AT_CellularNetwork_get_backoff_time();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_connection_status_cb)
+{
+    unit->test_AT_CellularNetwork_connection_status_cb();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_ip_address)
+{
+    unit->test_AT_CellularNetwork_get_ip_address();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_access_technology)
+{
+    unit->test_AT_CellularNetwork_set_access_technology();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_scan_plmn)
+{
+    unit->test_AT_CellularNetwork_scan_plmn();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_ciot_optimization_config)
+{
+    unit->test_AT_CellularNetwork_set_ciot_optimization_config();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_ciot_optimization_config)
+{
+    unit->test_AT_CellularNetwork_get_ciot_optimization_config();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_stack_type)
+{
+    unit->test_AT_CellularNetwork_set_stack_type();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_stack_type)
+{
+    unit->test_AT_CellularNetwork_get_stack_type();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_pdpcontext_params)
+{
+    unit->test_AT_CellularNetwork_get_pdpcontext_params();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_extended_signal_quality)
+{
+    unit->test_AT_CellularNetwork_get_extended_signal_quality();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_signal_quality)
+{
+    unit->test_AT_CellularNetwork_get_signal_quality();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_cell_id)
+{
+    unit->test_AT_CellularNetwork_get_cell_id();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_3gpp_error)
+{
+    unit->test_AT_CellularNetwork_get_3gpp_error();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
+{
+    unit->test_AT_CellularNetwork_get_operator_params();
+}
+
