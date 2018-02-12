@@ -260,14 +260,6 @@ void ATHandler::process_oob()
     unlock();
 }
 
-// oob match settings
-void ATHandler::set_oobs_matching_param(bool is_it_a_match_or_not)
-{
-    for (struct oob_t *oob = _oobs; oob; oob = oob->next) {
-        oob->matching_to_received = is_it_a_match_or_not;
-    }
-}
-
 void ATHandler::set_filehandle_sigio()
 {
     if (_fh_sigio_set) {
@@ -512,7 +504,7 @@ void ATHandler::set_stop_tag(const char *stop_tag_seq)
     set_tag(_stop_tag, stop_tag_seq);
 }
 
-void ATHandler::set_scope(ScopeType scope_type, const char* stop_tag)
+void ATHandler::set_scope(ScopeType scope_type)
 {
     log_debug("%s: %d", __func__, scope_type);
     if (_current_scope != scope_type) {
@@ -537,10 +529,6 @@ void ATHandler::set_scope(ScopeType scope_type, const char* stop_tag)
         default:
             break;
         }
-    }
-
-    if (stop_tag) {
-        set_stop_tag(stop_tag);
     }
 }
 
@@ -980,9 +968,6 @@ void ATHandler::write_int(int32_t param)
                 break;
             }
         }
-    } else {
-        // must have been 64-bit integer, not supported
-        set_error(NSAPI_ERROR_PARAMETER);
     }
 }
 
