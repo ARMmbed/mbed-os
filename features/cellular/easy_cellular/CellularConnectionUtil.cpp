@@ -39,13 +39,35 @@
 static EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
 
-CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state), _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(&cellularDevice)
+CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state),
+        _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE),
+        _queue_thread(0), _cellularDevice(&cellularDevice)
 {
+    memset(_sim_pin, sizeof(_sim_pin), 0);
 }
 
 CellularConnectionUtil::~CellularConnectionUtil()
 {
     stop();
+}
+
+nsapi_error_t CellularConnectionUtil::init()
+{
+    _power = _cellularDevice->open_power(_serial);
+    if (!_power) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+    _network = _cellularDevice->open_network(_serial);
+    if (!_network) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    at_queue.chain(&_queue);
+
+    log_info("init done...");
+    return NSAPI_ERROR_OK;
 }
 
 bool CellularConnectionUtil::open_power(FileHandle *fh)
@@ -69,45 +91,50 @@ bool CellularConnectionUtil::open_power(FileHandle *fh)
     return true;
 }
 
+void CellularConnectionUtil::set_sim_pin(const char * sim_pin)
+{
+    strncpy(_sim_pin, sim_pin, PIN_SIZE);
+}
+
 bool CellularConnectionUtil::open_sim()
 {
-#ifdef MBED_CONF_APP_CELLULAR_SIM_PIN
-    nsapi_error_t err;
-    static CellularSIM *sim;
-    if (!sim) {
-        sim = _cellularDevice->open_sim(_serial);
-    }
-    if (!sim) {
-        return false;
-    }
-    CellularSIM::SimState state = CellularSIM::SimStateUnknown;
-    // wait until SIM is readable
-    // here you could add wait(secs) if you know start delay of your SIM
-    while (sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
-        log_debug("Waiting for SIM (state %d)...", state);
-        return false;
-    }
-    if (state == CellularSIM::SimStatePinNeeded) {
-        log_info("SIM pin required, entering pin: %s", MBED_CONF_APP_CELLULAR_SIM_PIN);
-        err = sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
-        if (err) {
-            log_error("SIM pin set failed with: %d, bailing out...", err);
+    if (strlen(_sim_pin)) {
+        nsapi_error_t err;
+        static CellularSIM *sim;
+        if (!sim) {
+            sim = _cellularDevice->open_sim(_serial);
+        }
+        if (!sim) {
             return false;
         }
-        // here you could add wait(secs) if you know delay of changing PIN on your SIM
-        for (int i = 0; i < MAX_SIM_READY_WAITING_TIME; i++) {
-            if (sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
-                break;
+        CellularSIM::SimState state = CellularSIM::SimStateUnknown;
+        // wait until SIM is readable
+        // here you could add wait(secs) if you know start delay of your SIM
+        while (sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
+            log_debug("Waiting for SIM (state %d)...", state);
+            return false;
+        }
+        if (state == CellularSIM::SimStatePinNeeded) {
+            log_info("SIM pin required, entering pin: %s", _sim_pin);
+            err = sim->set_pin(_sim_pin);
+            if (err) {
+                log_error("SIM pin set failed with: %d, bailing out...", err);
+                return false;
             }
-            log_debug("SIM state: %d", state);
-            return false;
+            // here you could add wait(secs) if you know delay of changing PIN on your SIM
+            for (int i = 0; i < MAX_SIM_READY_WAITING_TIME; i++) {
+                if (sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
+                    break;
+                }
+                log_debug("SIM state: %d", state);
+                return false;
+            }
         }
+        return state == CellularSIM::SimStateReady;
+    } else {
+        log_info("Continue without SIM.");
+        return true;
     }
-    return state == CellularSIM::SimStateReady;
-#else
-    log_info("Continue without SIM.");
-    return true;
-#endif
 }
 
 void CellularConnectionUtil::device_ready()
@@ -143,7 +170,8 @@ bool CellularConnectionUtil::set_network_registration(char *plmn)
     return true;
 }
 
-bool CellularConnectionUtil::get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered)
+bool CellularConnectionUtil::get_network_registration(CellularNetwork::RegistrationType type,
+        CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
     bool is_roaming = false;
@@ -220,9 +248,11 @@ void CellularConnectionUtil::report_failure(const char* msg)
     }
 }
 
-bool CellularConnectionUtil::continue_with_state(CellularState state)
+nsapi_error_t CellularConnectionUtil::continue_to_state(CellularState state)
 {
-    _state = state;
+    if (state < _state) {
+        _state = state;
+    }
     if (!_queue.call_in(0, callback(this, &CellularConnectionUtil::event))) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -235,6 +265,7 @@ void CellularConnectionUtil::event()
 {
     nsapi_error_t err;
     int event_timeout = -1;
+
     switch (_state) {
         case STATE_POWER_ON:
             cellularDevice.set_timeout(TIMEOUT_POWER_ON);
@@ -376,18 +407,15 @@ void CellularConnectionUtil::event()
             //network->set_credentials("internet");
             err = _network->connect();
             if (!err) {
-                _next_state = STATE_READY;
+                _next_state = STATE_CONNECTED;
             } else {
                 report_failure("Network connect");
                 return;
             }
             break;
-        case STATE_READY:
+        case STATE_CONNECTED:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
             log_debug("Cellular ready! (timeout %d ms)", TIMEOUT_NETWORK);
-            if (_status_callback) {
-                _status_callback(_state, _next_state);
-            }
             break;
         default:
             MBED_ASSERT(0);
@@ -426,40 +454,36 @@ void CellularConnectionUtil::event()
     }
 }
 
-bool CellularConnectionUtil::start(bool start_dispatch)
+nsapi_error_t CellularConnectionUtil::start_dispatch()
 {
     log_info("CellularConnectionUtil::start");
-    _power = _cellularDevice->open_power(_serial);
-    if (!_power) {
+    log_info("Create cellular thread");
+
+    MBED_ASSERT(!_queue_thread);
+
+    _queue_thread = new Thread();
+    if (!_queue_thread) {
         stop();
-        return false;
+        return NSAPI_ERROR_NO_MEMORY;
     }
-    _network = _cellularDevice->open_network(_serial);
-    if (!_network) {
+    if (_queue_thread->start(callback(&_queue, &EventQueue::dispatch_forever)) != osOK) {
         stop();
-        return false;
-    }
-    if (!_queue.call_in(0, callback(this, &CellularConnectionUtil::event))) {
-        stop();
-        return false;
+        return NSAPI_ERROR_NO_MEMORY;
     }
 
-    at_queue.chain(&_queue);
-
-    if (start_dispatch) {
-        log_info("Create cellular thread");
-        _queue_thread = new Thread();
-        if (!_queue_thread) {
-            stop();
-            return false;
-        }
-        if (_queue_thread->start(callback(&_queue, &EventQueue::dispatch_forever)) != osOK) {
-            stop();
-            return false;
-        }
-    }
     log_info("CellularConnectionUtil::started");
-    return true;
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularConnectionUtil::disconnect()
+{
+    log_info("CellularConnectionUtil::disconnect");
+    nsapi_error_t err = NSAPI_ERROR_OK;
+    if (_network) {
+        err = _network->disconnect();
+    }
+
+    return err;
 }
 
 void CellularConnectionUtil::stop()
@@ -478,7 +502,7 @@ void CellularConnectionUtil::set_serial(UARTSerial *serial)
     _serial = serial;
 }
 
-void CellularConnectionUtil::set_callback(mbed::Callback<int(int, int)> status_callback)
+void CellularConnectionUtil::set_callback(mbed::Callback<bool(int, int)> status_callback)
 {
     _status_callback = status_callback;
 }
@@ -490,7 +514,7 @@ EventQueue *CellularConnectionUtil::get_queue()
 
 CellularNetwork* CellularConnectionUtil::get_network()
 {
-    if (_state != STATE_READY) {
+    if (_state != STATE_CONNECTED) {
         return NULL;
     }
     return _network;
@@ -498,11 +522,9 @@ CellularNetwork* CellularConnectionUtil::get_network()
 
 CellularDevice* CellularConnectionUtil::get_device()
 {
-
     if (_cellularDevice) {
         return _cellularDevice;
     } else {
         return NULL;
     }
 }
-
