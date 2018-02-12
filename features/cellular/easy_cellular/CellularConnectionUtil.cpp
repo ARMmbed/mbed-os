@@ -416,6 +416,11 @@ void CellularConnectionUtil::event()
         case STATE_CONNECTED:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
             log_debug("Cellular ready! (timeout %d ms)", TIMEOUT_NETWORK);
+            if (_status_callback) {
+                if (!_status_callback(_state, _next_state)) {
+                    return;
+                }
+            }
             break;
         default:
             MBED_ASSERT(0);
