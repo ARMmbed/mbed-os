@@ -32,6 +32,7 @@
 #include "mbed_assert.h"
 #include "i2c_api.h"
 #include "platform/mbed_wait_api.h"
+#include "hal/us_ticker_api.h"
 
 #if DEVICE_I2C
 
@@ -754,7 +755,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
+            int start = us_ticker_read();
+            while ((us_ticker_read() - start) < 1);
         }
 
         i2c_ev_err_disable(obj);
@@ -805,7 +807,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
+            int start = us_ticker_read();
+            while ((us_ticker_read() - start) < 1);
         }
 
         i2c_ev_err_disable(obj);
@@ -986,7 +989,8 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     if(ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
         while(obj_s->pending_slave_rx_maxter_tx && (--timeout != 0)) {
-            wait_us(1);
+            int start = us_ticker_read();
+            while ((us_ticker_read() - start) < 1);
         }
 
          if(timeout != 0) {
@@ -1011,7 +1015,8 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     if(ret == HAL_OK) {
         timeout = BYTE_TIMEOUT_US * (length + 1);
         while(obj_s->pending_slave_tx_master_rx && (--timeout != 0)) {
-            wait_us(1);
+            int start = us_ticker_read();
+            while ((us_ticker_read() - start) < 1);
         }
 
          if(timeout != 0) {
