@@ -194,18 +194,15 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
         // fall-through
         case CellularNetwork::RegisteredSMSOnlyHome:
             log_warn("SMS only network registration!");
-            is_registered = true;
             break;
         case CellularNetwork::RegisteredCSFBNotPreferredRoaming:
             is_roaming = true;
         // fall-through
         case CellularNetwork::RegisteredCSFBNotPreferredHome:
             log_warn("Not preferred network registration!");
-            is_registered = true;
             break;
         case CellularNetwork::AttachedEmergencyOnly:
             log_warn("Emergency only network registration!");
-            is_registered = true;
             break;
         case CellularNetwork::RegistrationDenied:
         case CellularNetwork::NotRegistered:
@@ -343,7 +340,7 @@ void CellularConnectionUtil::event()
                             event_timeout = backoff_timeout * 1000;
                             backoff_timeout *= 2;
                             break;
-                        } else if (status == CellularNetwork::SearchingNetwork || status == CellularNetwork::Unknown) {
+                        } else if (status != CellularNetwork::NotRegistered) {
                             static int retry_count;
                             if (++retry_count <= 180) {
                                 log_info("Waiting for registration %d/180 (type %d, status %d)", retry_count, type, status);
