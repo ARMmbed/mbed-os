@@ -24,6 +24,9 @@
 #if CONFIG_ADC_EN
 #include "pinmap.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
 
 extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;

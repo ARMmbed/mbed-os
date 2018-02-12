@@ -19,6 +19,10 @@
 
 #include <string.h>
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 const u32 log_uart_support_rate[] = {
     UART_BAUD_RATE_2400,   UART_BAUD_RATE_4800,   UART_BAUD_RATE_9600,
     UART_BAUD_RATE_19200,  UART_BAUD_RATE_38400,  UART_BAUD_RATE_57600, 
