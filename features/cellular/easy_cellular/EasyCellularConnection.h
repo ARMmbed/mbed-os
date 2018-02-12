@@ -17,6 +17,7 @@
 #define EASY_CELLULAR_CONNECTION_H
 
 #include "netsocket/CellularBase.h"
+#include "CellularConnectionUtil.h"
 
 /** ExampleCellularBase class
  *
@@ -29,6 +30,11 @@ public:
     virtual ~EasyCellularConnection();
 
 public:
+
+    /**
+     * MUST CALL, create power and start dispatcher
+     */
+    nsapi_error_t init();
 
     /** Set the Cellular network credentials
      *
@@ -112,6 +118,17 @@ protected:
      *  @return The underlying NetworkStack object
      */
     virtual NetworkStack *get_stack();
+
+private:
+    /** Callback for cellular status changes
+     *
+     *  @return true to continue state machine
+     */
+    bool cellular_status(int state, int next_state);
+
+
+    CellularConnectionUtil::CellularState _target_state;
+    bool _is_connected;
 };
 
 #endif // EASY_CELLULAR_CONNECTION_H
