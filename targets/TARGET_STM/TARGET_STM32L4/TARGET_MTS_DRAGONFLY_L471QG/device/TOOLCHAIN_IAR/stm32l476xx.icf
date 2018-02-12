@@ -1,0 +1,38 @@
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x08000000; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x100000; }
+
+/* [ROM = 1024kb = 0x100000] */
+define symbol __intvec_start__     = MBED_APP_START;
+define symbol __region_ROM_start__ = MBED_APP_START;
+define symbol __region_ROM_end__   = MBED_APP_START + MBED_APP_SIZE - 1;
+
+/* [RAM = 96kb + 32kb = 0x20000] */
+/* Vector table dynamic copy: Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM */
+define symbol __NVIC_start__          = 0x10000000;
+define symbol __NVIC_end__            = 0x10000187; /* Aligned on 8 bytes (392 = 49 x 8) */
+define symbol __region_SRAM2_start__  = 0x10000188;
+define symbol __region_SRAM2_end__    = 0x10007FFF;
+define symbol __region_SRAM1_start__  = 0x20000000;
+define symbol __region_SRAM1_end__    = 0x20017FFF;
+
+/* Memory regions */
+define memory mem with size = 4G;
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region SRAM2_region = mem:[from __region_SRAM2_start__ to __region_SRAM2_end__];
+define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_end__];
+
+/* Stack 1/8 and Heap 1/4 of RAM */
+define symbol __size_cstack__ = 0x8000;
+define symbol __size_heap__   = 0xa000;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
+
+initialize by copy with packing = zeros { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem:__intvec_start__ { readonly section .intvec };
+
+place in ROM_region   { readonly };
+place in SRAM1_region   { readwrite, block STACKHEAP };
+place in SRAM2_region { };
