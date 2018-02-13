@@ -755,7 +755,10 @@ void GenericSecurityManager::on_connected(
     }
 
     entry->reset();
+
     entry->is_master = is_master;
+    entry->handle = connection;
+    entry->connected = true;
 }
 
 void GenericSecurityManager::connection_callback(

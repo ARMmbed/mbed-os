@@ -61,7 +61,7 @@ struct SecurityEntry_t {
     void reset() {
         local_address = address_t();
 
-        connected = true;
+        connected = false;
         authenticated = false;
         is_master = false;
 
