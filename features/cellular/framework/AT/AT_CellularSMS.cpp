@@ -583,18 +583,6 @@ nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
     return _at.unlock_return_error();
 }
 
-//nsapi_error_t AT_CellularSMS::set_csms(int msg_service)
-//{
-//    _at.lock();
-//    _at.cmd_start("AT+CSMS=");
-//    _at.write_int(msg_service);
-//    _at.cmd_stop();
-//    _at.resp_start();
-//    _at.resp_stop();
-
-//    return _at.unlock_return_error();
-//}
-
 nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t* sms)
 {
     _at.lock();
