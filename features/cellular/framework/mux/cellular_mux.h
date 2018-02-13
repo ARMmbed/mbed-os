@@ -115,10 +115,6 @@ public:
         MUX_ESTABLISH_MAX          /* Enumeration upper bound. */
     };
 
-    /* @ref MuxEstablishStatus type assigned to _shared_memory variable, which has sizeof(uint8_t) storage class. Enforce
-       expected behaviour compile time. */
-    MBED_STATIC_ASSERT(sizeof(MuxEstablishStatus) == sizeof(uint), "");
-
     /* Definition for multiplexer establishment return code type. */
     enum MuxReturnStatus {
         MUX_STATUS_SUCCESS = 0,
