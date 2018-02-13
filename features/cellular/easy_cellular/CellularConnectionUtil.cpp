@@ -400,8 +400,6 @@ void CellularConnectionUtil::event()
         case STATE_CONNECT_NETWORK:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
             log_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
-            // Set APN
-            //network->set_credentials("internet");
             err = _network->connect();
             if (!err) {
                 _next_state = STATE_CONNECTED;
@@ -463,7 +461,7 @@ nsapi_error_t CellularConnectionUtil::start_dispatch()
 
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread();
+    _queue_thread = new rtos::Thread(osPriorityNormal, 1024);
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
