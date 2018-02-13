@@ -128,7 +128,7 @@ matrix:
         # Compile the tests
         - mkdir $BLE_HOST_TESTS/build
         - cd $BLE_HOST_TESTS/build && cmake .. -G "Unix Makefiles"
-        - make -C BLE_HOST_TESTS/build
+        - make -C $BLE_HOST_TESTS/build
         # Run ble host tests
         - $BLE_HOST_TESTS/build/gatt-client-tests
 
