@@ -20,41 +20,45 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/LoRaWANTimer.h"
 
-static events::EventQueue *_queue = NULL;
+LoRaWANTimeHandler::LoRaWANTimeHandler()
+    : _queue(NULL)
+{
+}
 
-void TimerTimeCounterInit(events::EventQueue *queue)
+LoRaWANTimeHandler::~LoRaWANTimeHandler()
+{
+}
+
+void LoRaWANTimeHandler::activate_timer_subsystem(events::EventQueue *queue)
 {
     _queue = queue;
 }
 
-TimerTime_t TimerGetCurrentTime( void )
+lorawan_time_t LoRaWANTimeHandler::get_current_time( void )
 {
     const uint32_t current_time = _queue->tick();
-    return (TimerTime_t)current_time;
+    return (lorawan_time_t)current_time;
 }
 
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
+lorawan_time_t LoRaWANTimeHandler::get_elapsed_time(lorawan_time_t saved_time)
 {
-    return TimerGetCurrentTime() - savedTime;
+    return get_current_time() - saved_time;
 }
 
-void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
+void LoRaWANTimeHandler::init(timer_event_t &obj, mbed::Callback<void()> callback)
 {
-    obj->value = 0;
-    obj->Callback = callback;
+    obj.callback = callback;
+    obj.timer_id = 0;
 }
 
-void TimerStart( TimerEvent_t *obj )
+void LoRaWANTimeHandler::start(timer_event_t &obj, const uint32_t timeout)
 {
-    obj->Timer.get()->attach_us( mbed::callback( obj->Callback ), obj->value * 1000 );
+    obj.timer_id = _queue->call_in(timeout, obj.callback);
+    MBED_ASSERT(obj.timer_id != 0);
 }
 
-void TimerStop( TimerEvent_t *obj )
+void LoRaWANTimeHandler::stop(timer_event_t &obj)
 {
-    obj->Timer.get()->detach( );
-}
-
-void TimerSetValue( TimerEvent_t *obj, uint32_t value )
-{
-    obj->value = value;
+    _queue->cancel(obj.timer_id);
+    obj.timer_id = 0;
 }

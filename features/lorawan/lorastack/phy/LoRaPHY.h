@@ -34,112 +34,192 @@
 #ifndef MBED_OS_LORAPHY_BASE_
 #define MBED_OS_LORAPHY_BASE_
 
+#include "lorawan/LoRaRadio.h"
 #include "lorawan/system/LoRaWANTimer.h"
 #include "lorawan/lorastack/phy/lora_phy_ds.h"
-#include "netsocket/LoRaRadio.h"
+#include "platform/NonCopyable.h"
 
-class LoRaPHY {
+class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {
 
 public:
-    LoRaPHY();
     virtual ~LoRaPHY();
 
+    /** Stores a reference to Radio object.
+     *
+     * Application is responsible for constructing a 'LoRaRadio' object
+     * which is passed down to the PHY layer.
+     *
+     * @param radio    a reference to radio driver object
+     */
     void set_radio_instance(LoRaRadio& radio);
 
+    /** Puts radio in sleep mode.
+     *
+     * Requests the radio driver to enter sleep mode.
+     */
     void put_radio_to_sleep(void);
 
+    /** Puts radio in standby mode.
+     *
+     * Requests the radio driver to enter standby mode.
+     */
     void put_radio_to_standby(void);
 
+    /** Puts radio in receive mode.
+     *
+     * Requests the radio driver to enter receive mode for a given time or to
+     * enter continuous reception mode.
+     *
+     * @param is_rx_continuous    if true, sets the radio to enter continuous
+     *                            reception mode.
+     *
+     * @param max_rx_window       duration of receive window
+     */
     void setup_rx_window(bool is_rx_continuous, uint32_t max_rx_window);
 
-    void setup_tx_cont_wave_mode(uint16_t timeout, uint32_t frequency,
-                                          uint8_t power);
-
+    /** Delegates MAC layer request to transmit packet.
+     *
+     * @param buf    a pointer to the data which needs to be transmitted
+     *
+     * @param size   size of the data in bytes
+     */
     void handle_send(uint8_t *buf, uint8_t size);
 
+    /** Enables/Disables public network mode.
+     *
+     * Public and private LoRaWAN network constitute different preambles and
+     * Net IDs. This API isused to tell the radio which network mode is in use.
+     *
+     * @param set    true or false
+     */
     void setup_public_network_mode(bool set);
 
+    /** Provides a random number from radio.
+     *
+     * Returns a 32-bit random unsigned integer value based upon RSSI
+     * measurements.
+     *
+     * @return    a 32-bit long random number
+     *
+     */
     uint32_t get_radio_rng();
 
-    /*!
-     * \brief The function gets a value of a specific PHY attribute.
+    /** Calculates and applies duty cycle back-off time.
      *
-     * \param [in] getPhy A pointer to the function parameters.
+     * Explicitly updates the band time-off.
      *
-     * \retval A structure containing the PHY parameter.
+     * @param [in] backoff_params    A pointer to backoff parameters.
      */
-    virtual PhyParam_t get_phy_params(GetPhyParams_t* getPhy ) = 0;
+     void calculate_backoff(backoff_params_t* backoff_params);
 
-    /*!
-     * \brief Updates the last TX done parameters of the current channel.
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline bool mask_bit_test(const uint16_t *mask, unsigned bit) {
+         return mask[bit/16] & (1U << (bit % 16));
+     }
+
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline void mask_bit_set(uint16_t *mask, unsigned bit) {
+          mask[bit/16] |= (1U << (bit % 16));
+     }
+
+     /**
+      * Tests if a channel is on or off in the channel mask
+      */
+     inline void mask_bit_clear(uint16_t *mask, unsigned bit) {
+          mask[bit/16] &= ~(1U << (bit % 16));
+     }
+
+    /** Entertain a new channel request MAC command.
      *
-     * \param [in] txDone A pointer to the function parameters.
+     * MAC command subsystem processes the new channel request coming form
+     * the network server and then MAC layer asks the PHY layer to entertain
+     * the request.
+     *
+     * @param [in] new_channel_req    A pointer to the new_channel_req_params_t.
+     *
+     * @return bit mask, according to the LoRaWAN spec 1.0.2.
      */
-    virtual void set_band_tx_done(SetBandTxDoneParams_t* txDone ) = 0;
+    virtual uint8_t request_new_channel(new_channel_req_params_t* new_channel_req);
 
-    /*!
-     * \brief Initializes the channels masks and the channels.
+    /** Grants access to PHY layer parameters.
      *
-     * \param [in] type Sets the initialization type.
+     * This is essentially a PHY layer parameter retrieval system.
+     * A request is made for a certain parameter by setting an appropriate
+     * attribute.
+     *
+     * @param [in] get_phy A pointer to get_phy_params_t
+     *
+     * @return A structure containing the requested PHY parameter value.
      */
-    virtual void load_defaults(InitType_t type ) = 0;
+    virtual phy_param_t get_phy_params(get_phy_params_t* get_phy);
 
-    /*!
-     * \brief Verifies a parameter.
+    /** Process PHY layer state after a successful transmission.
      *
-     * \param [in] verify A pointer to the function parameters.
+     * Updates times of the last transmission for the particular channel and
+     * band upon which last transmission took place.
      *
-     * \param [in] phyAttribute The attribute for which the verification is needed.
-     *
-     * \retval True, if the parameter is valid.
+     * @param [in] tx_done    A pointer to set_band_txdone_params_t
      */
-   virtual bool verify(VerifyParams_t* verify, PhyAttribute_t phyAttribute ) = 0;
+    virtual void set_last_tx_done(set_band_txdone_params_t* tx_done);
 
-    /*!
-     * \brief The function parses the input buffer and sets up the channels of the CF list.
+    /** Enables default channels only.
      *
-     * \param [in] applyCFList A pointer to the function parameters.
+     * Falls back to a channel mask where only default channels are enabled, all
+     * other channels are disabled.
      */
-   virtual void apply_cf_list(ApplyCFListParams_t* applyCFList ) = 0;
+    virtual void restore_default_channels();
 
-    /*!
-     * \brief Sets a channels mask.
+    /** Verify if a parameter is eligible.
      *
-     * \param [in] chanMaskSet A pointer to the function parameters.
+     * @param verify    A pointer to the verification_params_t that contains
+     *                  parameters which we need to check for validity.
      *
-     * \retval True, if the channels mask could be set.
+     * @param phy_attr  The attribute for which the verification is needed.
+     *
+     * @return          True, if the parameter is valid.
      */
-    virtual bool set_channel_mask(ChanMaskSetParams_t* chanMaskSet ) = 0;
+    virtual bool verify(verification_params_t* verify, phy_attributes_t phy_attr);
 
-    /*!
-     * \brief Calculates the next datarate to set, when ADR is on or off.
+    /** Processes the incoming CF-list.
      *
-     * \param [in] adrNext A pointer to the function parameters.
+     * Handles the payload containing CF-list and enables channels defined
+     * therein.
      *
-     * \param [out] drOut The calculated datarate for the next TX.
-     *
-     * \param [out] txPowOut The TX power for the next TX.
-     *
-     * \param [out] adrAckCounter The calculated ADR acknowledgement counter.
-     *
-     * \retval True, if an ADR request should be performed.
+     * @param cflist_params    A pointer to cflist_params_t.
      */
-    virtual bool get_next_ADR(AdrNextParams_t* adrNext, int8_t* drOut,
-                               int8_t* txPowOut, uint32_t* adrAckCounter ) = 0;
+   virtual void apply_cf_list(cflist_params_t* cflist_params);
 
-    /*!
-     * \brief Configuration of the RX windows.
+    /** Calculates the next datarate to set, when ADR is on or off.
      *
-     * \param [in] rxConfig A pointer to the function parameters.
+     * @param restore_channel_mask    A boolean set restore channel mask in case
+     *                                of failure.
      *
-     * \param [out] datarate The datarate index set.
+     * @param dr_out                  The calculated datarate for the next TX.
      *
-     * \retval True, if the configuration was applied successfully.
+     * @param tx_power_out            The TX power for the next TX.
+     *
+     * @param adr_ack_counter         The calculated ADR acknowledgement counter.
+     *
+     * @return True, if an ADR request should be performed.
      */
-    virtual bool rx_config(RxConfigParams_t* rxConfig, int8_t* datarate ) = 0;
+    bool get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
+                      int8_t& tx_power_out, uint32_t& adr_ack_counter);
 
-    /*
-     * RX window precise timing
+    /** Configure radio reception.
+     *
+     * @param [in] config    A pointer to the RX configuration.
+     *
+     * @param [out] datarate The datarate index set.
+     *
+     * @return True, if the configuration was applied successfully.
+     */
+    virtual bool rx_config(rx_config_params_t* config, int8_t* datarate);
+
+    /** Computing Receive Windows
      *
      * For more details please consult the following document, chapter 3.1.2.
      * http://www.semtech.com/images/datasheet/SX1272_settings_for_LoRaWAN_v2.0.pdf
@@ -179,499 +259,258 @@ public:
     /*!
      * Computes the RX window timeout and offset.
      *
-     * \param [in] datarate     The RX window datarate index to be used.
+     * @param [in] datarate         The RX window datarate index to be used.
      *
-     * \param [in] minRxSymbols The minimum number of symbols required to detect an RX frame.
+     * @param [in] min_rx_symbols   The minimum number of symbols required to
+     *                              detect an RX frame.
      *
-     * \param [in] rxError      The maximum timing error of the receiver in milliseconds.
-     *                          The receiver will turn on in a [-rxError : +rxError] ms
-     *                          interval around RxOffset.
+     * @param [in] rx_error         The maximum timing error of the receiver
+     *                              in milliseconds. The receiver will turn on
+     *                              in a [-rxError : +rxError] ms interval around
+     *                              RxOffset.
      *
-     * \param [out] rxConfigParams Returns the updated WindowTimeout and WindowOffset fields.
+     * @param [out] rx_conf_params  Pointer to the structure that needs to be
+     *                              filled with receive window parameters.
      *
      */
-    virtual void compute_rx_win_params(int8_t datarate,
-                                                 uint8_t minRxSymbols,
-                                                 uint32_t rxError,
-                                                 RxConfigParams_t *rxConfigParams) = 0;
-    /*!
-     * \brief TX configuration.
-     *
-     * \param [in] txConfig A pointer to the function parameters.
-     *
-     * \param [out] txPower The TX power index set.
-     *
-     * \param [out] txTimeOnAir The time-on-air of the frame.
-     *
-     * \retval True, if the configuration was applied successfully.
-     */
-    virtual bool tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
-                                TimerTime_t* txTimeOnAir ) = 0;
+    virtual void compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
+                                       uint32_t rx_error,
+                                       rx_config_params_t *rx_conf_params);
 
-    /*!
-     * \brief The function processes a Link ADR Request.
+    /** Configure radio transmission.
      *
-     * \param [in] linkAdrReq A pointer to the function parameters.
+     * @param [in]  tx_config    Structure containing tx parameters.
      *
-     * \param [out] drOut The datarate applied.
+     * @param [out] tx_power     The TX power which will be set.
      *
-     * \param [out] txPowOut The TX power applied.
+     * @param [out] tx_toa       The time-on-air of the frame.
      *
-     * \param [out] nbRepOut The number of repetitions to apply.
-     *
-     * \param [out] nbBytesParsed The number of bytes parsed.
-     *
-     * \retval The status of the operation, according to the LoRaMAC specification.
+     * @return True, if the configuration was applied successfully.
      */
-    virtual uint8_t link_ADR_request(LinkAdrReqParams_t* linkAdrReq,
-                                     int8_t* drOut, int8_t* txPowOut,
-                                     uint8_t* nbRepOut,
-                                     uint8_t* nbBytesParsed ) = 0;
+    virtual bool tx_config(tx_config_params_t* tx_config, int8_t* tx_power,
+                                lorawan_time_t* tx_toa);
 
-    /*!
-     * \brief The function processes a RX Parameter Setup Request.
+    /** Processes a Link ADR Request.
      *
-     * \param [in] rxParamSetupReq A pointer to the function parameters.
+     * @param [in]  params          A pointer ADR request parameters.
      *
-     * \retval The status of the operation, according to the LoRaMAC specification.
+     * @param [out] dr_out          The datarate applied.
+     *
+     * @param [out] tx_power_out    The TX power applied.
+     *
+     * @param [out] nb_rep_out      The number of repetitions to apply.
+     *
+     * @param [out] nb_bytes_parsed The number of bytes parsed.
+     *
+     * @return The status of the operation, according to the LoRaMAC specification.
      */
-    virtual uint8_t setup_rx_params(RxParamSetupReqParams_t* rxParamSetupReq ) = 0;
+    virtual uint8_t link_ADR_request(adr_req_params_t* params,
+                                     int8_t* dr_out, int8_t* tx_power_out,
+                                     uint8_t* nb_rep_out,
+                                     uint8_t* nb_bytes_parsed);
 
-    /*!
-     * \brief The function processes a New Channel Request.
+    /** Accept or rejects RxParamSetupReq MAC command
      *
-     * \param [in] newChannelReq A pointer to the function parameters.
+     * The function processes a RX parameter setup request in response to
+     * server MAC command for RX setup.
      *
-     * \retval The status of the operation, according to the LoRaMAC specification.
+     * @param [in] params    A pointer to rx parameter setup request.
+     *
+     * @return The status of the operation, according to the LoRaWAN specification.
      */
-    virtual uint8_t request_new_channel(NewChannelReqParams_t* newChannelReq ) = 0;
+    virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t* params);
 
-    /*!
-     * \brief The function processes a TX ParamSetup Request.
+    /** Makes decision whether to accept or reject TxParamSetupReq MAC command
      *
-     * \param [in] txParamSetupReq A pointer to the function parameters.
+     * @param [in] params    A pointer to tx parameter setup request.
      *
-     * \retval The status of the operation, according to the LoRaMAC specification.
-     *         Returns -1, if the functionality is not implemented. In this case, the end node
-     *         shall ignore the command.
+     * @return               True to let the MAC know that the request is
+     *                       accepted and MAC can apply TX parameters received
+     *                       form Network Server. Otherwise false is returned.
      */
-    virtual int8_t setup_tx_params(TxParamSetupReqParams_t* txParamSetupReq ) = 0;
+    virtual bool accept_tx_param_setup_req(tx_param_setup_req_t* params);
 
-    /*!
-     * \brief The function processes a DlChannel Request.
+    /** Processes a DlChannelReq MAC command.
      *
-     * \param [in] dlChannelReq A pointer to the function parameters.
+     * @param [in] params    A pointer to downlink channel request.
      *
-     * \retval The status of the operation, according to the LoRaMAC specification.
+     * @return The status of the operation, according to the LoRaWAN specification.
      */
-    virtual uint8_t dl_channel_request(DlChannelReqParams_t* dlChannelReq ) = 0;
+    virtual uint8_t dl_channel_request(dl_channel_req_params_t* params);
 
-    /*!
-     * \brief Alternates the datarate of the channel for the join request.
+    /** Alternates the datarate of the channel for the join request.
      *
-     * \param [in] alternateDr A pointer to the function parameters.
+     * @param nb_trials    Number of trials to be made on one given data rate.
      *
-     * \retval The datarate to apply.
+     * @return             The datarate to apply .
      */
-    virtual int8_t get_alternate_DR(AlternateDrParams_t* alternateDr ) = 0;
+    virtual int8_t get_alternate_DR(uint8_t nb_trials);
 
-    /*!
-     * \brief Calculates the back-off time.
+    /** Searches and sets the next available channel.
      *
-     * \param [in] calcBackOff A pointer to the function parameters.
+     * If there are multiple channels found available, one of them is selected
+     * randomly.
+     *
+     * @param [in]  nextChanParams Parameters for the next channel.
+     *
+     * @param [out] channel The next channel to use for TX.
+     *
+     * @param [out] time The time to wait for the next transmission according to the duty cycle.
+     *
+     * @param [out] aggregatedTimeOff Updates the aggregated time off.
+     *
+     * @return Function status [1: OK, 0: Unable to find a channel on the current datarate].
      */
-    virtual void calculate_backoff(CalcBackOffParams_t* calcBackOff ) = 0;
+    virtual bool set_next_channel(channel_selection_params_t* nextChanParams,
+                                   uint8_t* channel, lorawan_time_t* time,
+                                   lorawan_time_t* aggregatedTimeOff);
 
-    /*!
-     * \brief Searches and sets the next random available channel.
+    /** Adds a channel to the channel list.
      *
-     * \param [in]  nextChanParams Parameters for the next channel.
+     * Verifies the channel parameters and if everything is found legitimate,
+     * adds that particular channel to the channel list and updates the channel
+     * mask.
      *
-     * \param [out] channel The next channel to use for TX.
+     * @param [in] new_channel A pointer to the parameters for the new channel.
+     * @param [in] id          Channel ID
      *
-     * \param [out] time The time to wait for the next transmission according to the duty cycle.
-     *
-     * \param [out] aggregatedTimeOff Updates the aggregated time off.
-     *
-     * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate].
+     * @return LORAWAN_STATUS_OK if everything goes fine, negative error code
+     *         otherwise.
      */
-    virtual bool set_next_channel(NextChanParams_t* nextChanParams,
-                                   uint8_t* channel, TimerTime_t* time,
-                                   TimerTime_t* aggregatedTimeOff ) = 0;
+    virtual lorawan_status_t add_channel(channel_params_t* new_channel, uint8_t id);
 
-    /*!
-     * \brief Adds a channel.
+    /** Removes a channel from the channel list.
      *
-     * \param [in] channelAdd A pointer to the function parameters.
+     * @param [in] channel_id Index of the channel to be removed
      *
-     * \retval The status of the operation.
+     * @return True, if the channel was removed successfully.
      */
-    virtual LoRaMacStatus_t add_channel(ChannelAddParams_t* channelAdd ) = 0;
+    virtual bool remove_channel(uint8_t channel_id);
 
-    /*!
-     * \brief Removes a channel.
+    /** Puts the radio into continuous wave mode.
      *
-     * \param [in] channelRemove A pointer to the function parameters.
+     * @param [in] continuous_wave   A pointer to the function parameters.
      *
-     * \retval True, if the channel was removed successfully.
+     * @param [in] frequency         Frequency to transmit at
      */
-    virtual bool remove_channel(ChannelRemoveParams_t* channelRemove ) = 0;
+    virtual void set_tx_cont_mode(cw_mode_params_t* continuous_wave,
+                                  uint32_t frequency = 0);
 
-    /*!
-     * \brief Sets the radio into continuous wave mode.
+    /** Computes new data rate according to the given offset
      *
-     * \param [in] continuousWave A pointer to the function parameters.
+     * @param [in] dr The current datarate.
+     *
+     * @param [in] dr_offset The offset to be applied.
+     *
+     * @return     The computed datarate.
      */
-    virtual void set_tx_cont_mode(ContinuousWaveParams_t* continuousWave ) = 0;
-
-    /*!
-     * \brief Computes new datarate according to the given offset
-     *
-     * \param [in] downlinkDwellTime The downlink dwell time configuration. 0: No limit, 1: 400ms
-     *
-     * \param [in] dr The current datarate.
-     *
-     * \param [in] drOffset The offset to be applied.
-     *
-     * \retval newDr The computed datarate.
-     */
-    virtual uint8_t apply_DR_offset(uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset ) = 0;
+    virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
 
 protected:
     LoRaRadio *_radio;
+    LoRaWANTimeHandler &_lora_time;
+    loraphy_params_t phy_params;
 
-    typedef struct sRegionCommonLinkAdrParams
-    {
-        /*!
-         * The number of repetitions.
-         */
-        uint8_t NbRep;
-        /*!
-         * Datarate.
-         */
-        int8_t Datarate;
-        /*!
-         * TX power.
-         */
-        int8_t TxPower;
-        /*!
-         * Channels mask control field.
-         */
-        uint8_t ChMaskCtrl;
-        /*!
-         * Channels mask field.
-         */
-        uint16_t ChMask;
-    }RegionCommonLinkAdrParams_t;
+    LoRaPHY(LoRaWANTimeHandler &lora_time);
 
-    typedef struct sRegionCommonLinkAdrReqVerifyParams
-    {
-        /*!
-         * The current status of the AdrLinkRequest.
-         */
-        uint8_t Status;
-        /*!
-         * Set to true, if ADR is enabled.
-         */
-        bool AdrEnabled;
-        /*!
-         * The datarate the AdrLinkRequest wants to set.
-         */
-        int8_t Datarate;
-        /*!
-         * The TX power the AdrLinkRequest wants to set.
-         */
-        int8_t TxPower;
-        /*!
-         * The number of repetitions the AdrLinkRequest wants to set.
-         */
-        uint8_t NbRep;
-        /*!
-         * The current datarate the node is using.
-         */
-        int8_t CurrentDatarate;
-        /*!
-         * The current TX power the node is using.
-         */
-        int8_t CurrentTxPower;
-        /*!
-         * The current number of repetitions the node is using.
-         */
-        int8_t CurrentNbRep;
-        /*!
-         * The number of channels.
-         */
-        uint8_t NbChannels;
-        /*!
-         * A pointer to the first element of the channels mask.
-         */
-        uint16_t* ChannelsMask;
-        /*!
-         * The minimum possible datarate.
-         */
-        int8_t MinDatarate;
-        /*!
-         * The maximum possible datarate.
-         */
-        int8_t MaxDatarate;
-        /*!
-         * A pointer to the channels.
-         */
-        ChannelParams_t* Channels;
-        /*!
-         * The minimum possible TX power.
-         */
-        int8_t MinTxPower;
-        /*!
-         * The maximum possible TX power.
-         */
-        int8_t MaxTxPower;
-    }RegionCommonLinkAdrReqVerifyParams_t;
-
-    typedef struct sRegionCommonCalcBackOffParams
-    {
-        /*!
-         * A pointer to region specific channels.
-         */
-        ChannelParams_t* Channels;
-        /*!
-         * A pointer to region specific bands.
-         */
-        Band_t* Bands;
-        /*!
-         * Set to true, if the last uplink was a join request.
-         */
-        bool LastTxIsJoinRequest;
-        /*!
-         * Set to true, if the node is joined.
-         */
-        bool Joined;
-        /*!
-         * Set to true, if the duty cycle is enabled.
-         */
-        bool DutyCycleEnabled;
-        /*!
-         * The current channel.
-         */
-        uint8_t Channel;
-        /*!
-         * The elapsed time since initialization.
-         */
-        TimerTime_t ElapsedTime;
-        /*!
-         * The time on air of the last TX frame.
-         */
-        TimerTime_t TxTimeOnAir;
-    }RegionCommonCalcBackOffParams_t;
-
-    /*!
-     * \brief Calculates the join duty cycle.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] elapsedTime The time elapsed since starting the device.
-     *
-     * \retval Duty cycle restriction.
+    /**
+     * Verifies the given frequency.
      */
-    uint16_t get_join_DC( TimerTime_t elapsedTime );
+    virtual bool verify_frequency(uint32_t freq);
 
-    /*!
-     * \brief Verifies, if a value is in a given range.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] value The value to verify, if it is in range.
-     *
-     * \param [in] min The minimum possible value.
-     *
-     * \param [in] max The maximum possible value.
-     *
-     * \retval 1 if the value is in range, otherwise 0.
+
+    /**
+     * Verifies, if a value is in a given range.
      */
-    uint8_t val_in_range( int8_t value, int8_t min, int8_t max );
+    uint8_t val_in_range(int8_t value, int8_t min, int8_t max);
 
-    /*!
-     * \brief Verifies, if a datarate is available on an active channel.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] nbChannels The number of channels.
-     *
-     * \param [in] channelsMask The channels mask of the region.
-     *
-     * \param [in] dr The datarate to verify.
-     *
-     * \param [in] minDr The minimum datarate.
-     *
-     * \param [in] maxDr The maximum datarate.
-     *
-     * \param [in] channels The channels of the region.
-     *
-     * \retval True if the datarate is supported, false if not.
+    /**
+     * Verifies, if a datarate is available on an active channel.
      */
-    bool verify_channel_DR( uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
-                                int8_t minDr, int8_t maxDr, ChannelParams_t* channels );
+    bool verify_channel_DR(uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
+                           int8_t minDr, int8_t maxDr, channel_params_t* channels);
 
-    /*!
-     * \brief Disables a channel in a given channels mask.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] channelsMask The channels mask of the region.
-     *
-     * \param [in] id The ID of the channels mask to disable.
-     *
-     * \param [in] maxChannels The maximum number of channels.
-     *
-     * \retval True if the channel could be disabled, false if not.
+    /**
+     * Disables a channel in a given channels mask.
      */
-    bool disable_channel( uint16_t* channelsMask, uint8_t id, uint8_t maxChannels );
+    bool disable_channel(uint16_t* channel_mask, uint8_t id, uint8_t max_channels);
 
-    /*!
-     * \brief Counts the number of active channels in a given channels mask.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] channelsMask The channels mask of the region.
-     *
-     * \param [in] startIdx The start index.
-     *
-     * \param [in] stopIdx The stop index (the channels of this index will not be counted).
-     *
-     * \retval The number of active channels.
+    /**
+     * Counts number of bits on in a given mask
      */
-    uint8_t num_active_channels( uint16_t* channelsMask, uint8_t startIdx, uint8_t stopIdx );
+    uint8_t count_bits(uint16_t mask, uint8_t nb_bits);
 
-    /*!
-     * \brief Copy a channels mask.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] channelsMaskDest The destination channels mask.
-     *
-     * \param [in] channelsMaskSrc The source channels mask.
-     *
-     * \param [in] len The index length to copy.
+    /**
+     * Counts the number of active channels in a given channels mask.
      */
-    void copy_channel_mask( uint16_t* channelsMaskDest, uint16_t* channelsMaskSrc, uint8_t len );
+    uint8_t num_active_channels(uint16_t* channel_mask, uint8_t start_idx,
+                                uint8_t stop_idx);
 
-    /*!
-     * \brief Sets the last TX done property.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] joined Set to true, if the node has joined the network
-     *
-     * \param [in] band The band to be updated.
-     *
-     * \param [in] lastTxDone The time of the last TX done.
+    /**
+     * Copy channel masks.
      */
-    void set_last_tx_done( bool joined, Band_t* band, TimerTime_t lastTxDone );
+    void copy_channel_mask(uint16_t* dest_mask, uint16_t* src_mask, uint8_t len);
 
-    /*!
-     * \brief Updates the time-offs of the bands.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] joined Set to true, if the node has joined the network
-     *
-     * \param [in] dutyCycle Set to true, if the duty cycle is enabled.
-     *
-     * \param [in] bands A pointer to the bands.
-     *
-     * \param [in] nbBands The number of bands available.
-     *
-     * \retval The time which must be waited to perform the next uplink.
+    /**
+     * Updates the time-offs of the bands.
      */
-    TimerTime_t update_band_timeoff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands );
+    lorawan_time_t update_band_timeoff(bool joined, bool dutyCycle, band_t* bands,
+                                       uint8_t nb_bands);
 
-    /*!
-     * \brief Parses the parameter of an LinkAdrRequest.
-     *        This is a generic function and valid for all regions.
-     *
-     * \param [in] payload A pointer to the payload containing the MAC commands. The payload
-     *                     must contain the CMD identifier, followed by the parameters.
-     *
-     * \param [out] parseLinkAdr The function fills the structure with the ADR parameters.
-     *
-     * \retval The length of the ADR request, if a request was found. Otherwise, the
-     *         function returns 0.
+    /**
+     * Parses the parameter of an LinkAdrRequest.
      */
-    uint8_t parse_link_ADR_req( uint8_t* payload, RegionCommonLinkAdrParams_t* parseLinkAdr );
+    uint8_t parse_link_ADR_req(uint8_t* payload, link_adr_params_t* adr_params);
 
-    /*!
-     * \brief Verifies and updates the datarate, the TX power and the number of repetitions
-     *        of a LinkAdrRequest. This also depends on the ADR configuration.
-     *
-     * \param [in] verifyParams A pointer to a structure containing the input parameters.
-     *
-     * \param [out] dr The updated datarate.
-     *
-     * \param [out] txPow The updated TX power.
-     *
-     * \param [out] nbRep The updated number of repetitions.
-     *
-     * \retval The status according to the LinkAdrRequest definition.
+    /**
+     * Verifies and updates the datarate, the TX power and the number of repetitions
+     * of a LinkAdrRequest.
      */
-    uint8_t verify_link_ADR_req( RegionCommonLinkAdrReqVerifyParams_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep );
+    uint8_t verify_link_ADR_req(verify_adr_params_t* verify_params, int8_t* dr,
+                                int8_t* tx_pow, uint8_t* nb_rep);
 
-    /*!
-     * \brief Computes the symbol time for LoRa modulation.
-     *
-     * \param [in] phyDr The physical datarate to use.
-     *
-     * \param [in] bandwidth The bandwidth to use.
-     *
-     * \retval The symbol time.
+    /**
+     * Computes the symbol time for LoRa modulation.
      */
-    double compute_symb_timeout_lora( uint8_t phyDr, uint32_t bandwidth );
+    double compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth );
 
-    /*!
-     * \brief Computes the symbol time for FSK modulation.
-     *
-     * \param [in] phyDr The physical datarate to use.
-     *
-     * \retval The symbol time.
+    /**
+     * Computes the symbol time for FSK modulation.
      */
-    double compute_symb_timeout_fsk( uint8_t phyDr );
+    double compute_symb_timeout_fsk(uint8_t phy_dr);
 
-    /*!
-     * \brief Computes the RX window timeout and the RX window offset.
-     *
-     * \param [in] tSymbol The symbol timeout.
-     *
-     * \param [in] minRxSymbols The minimum required number of symbols to detect an RX frame.
-     *
-     * \param [in] rxError The system maximum timing error of the receiver in milliseconds
-     *                     The receiver will turn on in a [-rxError : +rxError] ms interval around RxOffset.
-     *
-     * \param [in] wakeUpTime The wakeup time of the system.
-     *
-     * \param [out] windowTimeout The RX window timeout.
-     *
-     * \param [out] windowOffset The RX window time offset to be applied to the RX delay.
+    /**
+     * Computes the RX window timeout and the RX window offset.
      */
-    void get_rx_window_params( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+    void get_rx_window_params(double t_symbol, uint8_t min_rx_symbols,
+                              uint32_t rx_error, uint32_t wakeup_time,
+                              uint32_t* window_timeout, int32_t* window_offset);
 
-    /*!
-     * \brief Computes the txPower, based on the max EIRP and the antenna gain.
-     *
-     * \param [in] txPowerIndex The TX power index.
-     *
-     * \param [in] maxEirp The maximum EIRP.
-     *
-     * \param [in] antennaGain The antenna gain.
-     *
-     * \retval The physical TX power.
+    /**
+     * Computes the txPower, based on the max EIRP and the antenna gain.
      */
-    int8_t compute_tx_power( int8_t txPowerIndex, float maxEirp, float antennaGain );
+    int8_t compute_tx_power(int8_t txPowerIndex, float maxEirp, float antennaGain);
 
-    /*!
-     * \brief Provides a random number in the range provided.
-     *
-     * \param [in] min lower boundary
-     * \param [in] max upper boundary
+    /**
+     * Provides a random number in the range provided.
      */
     int32_t get_random(int32_t min, int32_t max);
 
-    /*!
-     * \brief Calculates the duty cycle for the current band.
-     *
-     * \param [in] calcBackOffParams A pointer to the input parameters.
+    /**
+     * Get next lower data rate
      */
-    void get_DC_backoff( RegionCommonCalcBackOffParams_t* calcBackOffParams );
+    int8_t get_next_lower_dr(int8_t dr, int8_t min_dr);
+
+    /**
+     * Get channel bandwidth depending upon data rate table index
+     */
+    uint8_t get_bandwidth(uint8_t dr_index);
+
+    uint8_t enabled_channel_count(bool joined, uint8_t datarate,
+                                  const uint16_t *mask, uint8_t* enabledChannels,
+                                  uint8_t* delayTx);
 };
+
+
 
 #endif /* MBED_OS_LORAPHY_BASE_ */

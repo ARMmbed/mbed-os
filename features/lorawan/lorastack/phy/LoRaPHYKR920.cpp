@@ -30,9 +30,7 @@
  */
 
 #include "LoRaPHYKR920.h"
-
 #include "lora_phy_ds.h"
-#include "LoRaRadio.h"
 
 
 /*!
@@ -186,27 +184,27 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define KR920_BAND0                                 { 1 , KR920_MAX_TX_POWER, 0,  0 } //  100.0 %
+static const band_t KR920_BAND0 = { 1 , KR920_MAX_TX_POWER, 0, 0, 0 }; //  100.0 %
 
 /*!
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define KR920_LC1                                   { 922100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+static const channel_params_t KR920_LC1 = { 922100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define KR920_LC2                                   { 922300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+static const channel_params_t KR920_LC2 = { 922300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define KR920_LC3                                   { 922500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+static const channel_params_t KR920_LC3 = { 922500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -226,1033 +224,282 @@
 /*!
  * Data rates table definition
  */
-static const uint8_t DataratesKR920[]  = { 12, 11, 10,  9,  8,  7 };
+static const uint8_t datarates_KR920[]  = { 12, 11, 10,  9,  8,  7 };
 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsKR920[] = { 125000, 125000, 125000, 125000, 125000, 125000 };
+static const uint32_t bandwidths_KR920[] = { 125000, 125000, 125000, 125000, 125000, 125000 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with and without a repeater.
  */
-static const uint8_t MaxPayloadOfDatarateKR920[] = { 51, 51, 51, 115, 242, 242 };
+static const uint8_t max_payloads_KR920[] = { 51, 51, 51, 115, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterKR920[] = { 51, 51, 51, 115, 222, 222 };
+static const uint8_t max_payloads_with_repeater_KR920[] = { 51, 51, 51, 115, 222, 222 };
 
-
-// Static functions
-static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
+LoRaPHYKR920::LoRaPHYKR920(LoRaWANTimeHandler &lora_time)
+    : LoRaPHY(lora_time)
 {
-    uint8_t nextLowerDr = 0;
+    bands[0] = KR920_BAND0;
 
-    if( dr == minDr )
-    {
-        nextLowerDr = minDr;
-    }
-    else
-    {
-        nextLowerDr = dr - 1;
-    }
-    return nextLowerDr;
-}
+    // Channels
+    channels[0] = KR920_LC1;
+    channels[1] = KR920_LC2;
+    channels[2] = KR920_LC3;
 
-static int8_t GetMaxEIRP( uint32_t freq )
-{
-    if( freq >= 922100000 )
-    {// Limit to 14dBm
-        return KR920_DEFAULT_MAX_EIRP_HIGH;
-    }
-    // Limit to 10dBm
-    return KR920_DEFAULT_MAX_EIRP_LOW;
-}
+    // Initialize the channels default mask
+    default_channel_mask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
+    // Update the channels mask
+    copy_channel_mask(channel_mask, default_channel_mask, KR920_CHANNEL_MASK_SIZE);
 
-static uint32_t GetBandwidth( uint32_t drIndex )
-{
-    switch( BandwidthsKR920[drIndex] )
-    {
-        default:
-        case 125000:
-            return 0;
-        case 250000:
-            return 1;
-        case 500000:
-            return 2;
-    }
-}
+    // set default channels
+    phy_params.channels.channel_list = channels;
+    phy_params.channels.channel_list_size = KR920_MAX_NB_CHANNELS;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = KR920_CHANNEL_MASK_SIZE;
 
-static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
-{
-    int8_t txPowerResult = txPower;
+    // set bands for KR920 spectrum
+    phy_params.bands.table = (void *) bands;
+    phy_params.bands.size = KR920_MAX_NB_BANDS;
 
-    // Limit tx power to the band max
-    txPowerResult =  MAX( txPower, maxBandTxPower );
+    // set bandwidths available in KR920 spectrum
+    phy_params.bandwidths.table = (void *) bandwidths_KR920;
+    phy_params.bandwidths.size = 6;
 
-    return txPowerResult;
-}
+    // set data rates available in KR920 spectrum
+    phy_params.datarates.table = (void *) datarates_KR920;
+    phy_params.datarates.size = 6;
 
-static bool VerifyTxFreq( uint32_t freq, LoRaRadio *radio )
-{
-    uint32_t tmpFreq = freq;
+    // set payload sizes with respect to data rates
+    phy_params.payloads.table = (void *) max_payloads_KR920;
+    phy_params.payloads.size = 6;
+    phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater_KR920;
+    phy_params.payloads.size = 6;
 
-    // Check radio driver support
-    if( radio->check_rf_frequency( tmpFreq ) == false )
-    {
-        return false;
-    }
+    // dwell time setting
+    phy_params.ul_dwell_time_setting = 0;
+    phy_params.dl_dwell_time_setting = 0;
 
-    // Verify if the frequency is valid. The frequency must be in a specified
-    // range and can be set to specific values.
-    if( ( tmpFreq >= 920900000 ) && ( tmpFreq <=923300000 ) )
-    {
-        // Range ok, check for specific value
-        tmpFreq -= 920900000;
-        if( ( tmpFreq % 200000 ) == 0 )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-uint8_t LoRaPHYKR920::CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t* channelsMask, ChannelParams_t* channels, Band_t* bands, uint8_t* enabledChannels, uint8_t* delayTx )
-{
-    uint8_t nbEnabledChannels = 0;
-    uint8_t delayTransmission = 0;
-
-    for( uint8_t i = 0, k = 0; i < KR920_MAX_NB_CHANNELS; i += 16, k++ )
-    {
-        for( uint8_t j = 0; j < 16; j++ )
-        {
-            if( ( channelsMask[k] & ( 1 << j ) ) != 0 )
-            {
-                if( channels[i + j].Frequency == 0 )
-                { // Check if the channel is enabled
-                    continue;
-                }
-                if( joined == false )
-                {
-                    if( ( KR920_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
-                    {
-                        continue;
-                    }
-                }
-                if( val_in_range( datarate, channels[i + j].DrRange.Fields.Min,
-                                              channels[i + j].DrRange.Fields.Max ) == 0 )
-                { // Check if the current channel selection supports the given datarate
-                    continue;
-                }
-                if( bands[channels[i + j].Band].TimeOff > 0 )
-                { // Check if the band is available for transmission
-                    delayTransmission++;
-                    continue;
-                }
-                enabledChannels[nbEnabledChannels++] = i + j;
-            }
-        }
-    }
-
-    *delayTx = delayTransmission;
-    return nbEnabledChannels;
-}
-
-LoRaPHYKR920::LoRaPHYKR920()
-{
-    const Band_t band0 = KR920_BAND0;
-    Bands[0] = band0;
+    // set initial and default parameters
+    phy_params.duty_cycle_enabled = KR920_DUTY_CYCLE_ENABLED;
+    phy_params.accept_tx_param_setup_req = false;
+    phy_params.fsk_supported = false;
+    phy_params.cflist_supported = true;
+    phy_params.dl_channel_req_supported = true;
+    phy_params.custom_channelplans_supported = true;
+    phy_params.default_channel_cnt = KR920_NUMB_DEFAULT_CHANNELS;
+    phy_params.max_channel_cnt = KR920_MAX_NB_CHANNELS;
+    phy_params.cflist_channel_cnt = KR920_NUMB_CHANNELS_CF_LIST;
+    phy_params.min_tx_datarate = KR920_TX_MIN_DATARATE;
+    phy_params.max_tx_datarate = KR920_TX_MAX_DATARATE;
+    phy_params.min_rx_datarate = KR920_RX_MIN_DATARATE;
+    phy_params.max_rx_datarate = KR920_RX_MAX_DATARATE;
+    phy_params.default_datarate = KR920_DEFAULT_DATARATE;
+    phy_params.default_max_datarate = KR920_TX_MAX_DATARATE;
+    phy_params.min_rx1_dr_offset = KR920_MIN_RX1_DR_OFFSET;
+    phy_params.max_rx1_dr_offset = KR920_MAX_RX1_DR_OFFSET;
+    phy_params.default_rx1_dr_offset = KR920_DEFAULT_RX1_DR_OFFSET;
+    phy_params.min_tx_power = KR920_MIN_TX_POWER;
+    phy_params.max_tx_power = KR920_MAX_TX_POWER;
+    phy_params.default_tx_power = KR920_DEFAULT_TX_POWER;
+    phy_params.default_max_eirp = KR920_DEFAULT_MAX_EIRP_HIGH;
+    phy_params.default_antenna_gain = KR920_DEFAULT_ANTENNA_GAIN;
+    phy_params.adr_ack_limit = KR920_ADR_ACK_LIMIT;
+    phy_params.adr_ack_delay = KR920_ADR_ACK_DELAY;
+    phy_params.max_rx_window = KR920_MAX_RX_WINDOW;
+    phy_params.recv_delay1 = KR920_RECEIVE_DELAY1;
+    phy_params.recv_delay2 = KR920_RECEIVE_DELAY2;
+    phy_params.join_channel_mask = KR920_JOIN_CHANNELS;
+    phy_params.join_accept_delay1 = KR920_JOIN_ACCEPT_DELAY1;
+    phy_params.join_accept_delay2 = KR920_JOIN_ACCEPT_DELAY2;
+    phy_params.max_fcnt_gap = KR920_MAX_FCNT_GAP;
+    phy_params.ack_timeout = KR920_ACKTIMEOUT;
+    phy_params.ack_timeout_rnd = KR920_ACK_TIMEOUT_RND;
+    phy_params.rx_window2_datarate = KR920_RX_WND_2_DR;
+    phy_params.rx_window2_frequency = KR920_RX_WND_2_FREQ;
 }
 
 LoRaPHYKR920::~LoRaPHYKR920()
 {
 }
 
-PhyParam_t LoRaPHYKR920::get_phy_params(GetPhyParams_t* getPhy)
+int8_t LoRaPHYKR920::get_max_eirp(uint32_t freq)
 {
-    PhyParam_t phyParam = { 0 };
-
-    switch( getPhy->Attribute )
-    {
-        case PHY_MIN_RX_DR:
-        {
-            phyParam.Value = KR920_RX_MIN_DATARATE;
-            break;
-        }
-        case PHY_MIN_TX_DR:
-        {
-            phyParam.Value = KR920_TX_MIN_DATARATE;
-            break;
-        }
-        case PHY_DEF_TX_DR:
-        {
-            phyParam.Value = KR920_DEFAULT_DATARATE;
-            break;
-        }
-        case PHY_NEXT_LOWER_TX_DR:
-        {
-            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, KR920_TX_MIN_DATARATE );
-            break;
-        }
-        case PHY_DEF_TX_POWER:
-        {
-            phyParam.Value = KR920_DEFAULT_TX_POWER;
-            break;
-        }
-        case PHY_MAX_PAYLOAD:
-        {
-            phyParam.Value = MaxPayloadOfDatarateKR920[getPhy->Datarate];
-            break;
-        }
-        case PHY_MAX_PAYLOAD_REPEATER:
-        {
-            phyParam.Value = MaxPayloadOfDatarateRepeaterKR920[getPhy->Datarate];
-            break;
-        }
-        case PHY_DUTY_CYCLE:
-        {
-            phyParam.Value = KR920_DUTY_CYCLE_ENABLED;
-            break;
-        }
-        case PHY_MAX_RX_WINDOW:
-        {
-            phyParam.Value = KR920_MAX_RX_WINDOW;
-            break;
-        }
-        case PHY_RECEIVE_DELAY1:
-        {
-            phyParam.Value = KR920_RECEIVE_DELAY1;
-            break;
-        }
-        case PHY_RECEIVE_DELAY2:
-        {
-            phyParam.Value = KR920_RECEIVE_DELAY2;
-            break;
-        }
-        case PHY_JOIN_ACCEPT_DELAY1:
-        {
-            phyParam.Value = KR920_JOIN_ACCEPT_DELAY1;
-            break;
-        }
-        case PHY_JOIN_ACCEPT_DELAY2:
-        {
-            phyParam.Value = KR920_JOIN_ACCEPT_DELAY2;
-            break;
-        }
-        case PHY_MAX_FCNT_GAP:
-        {
-            phyParam.Value = KR920_MAX_FCNT_GAP;
-            break;
-        }
-        case PHY_ACK_TIMEOUT:
-        {
-            phyParam.Value = ( KR920_ACKTIMEOUT + get_random( -KR920_ACK_TIMEOUT_RND, KR920_ACK_TIMEOUT_RND ) );
-            break;
-        }
-        case PHY_DEF_DR1_OFFSET:
-        {
-            phyParam.Value = KR920_DEFAULT_RX1_DR_OFFSET;
-            break;
-        }
-        case PHY_DEF_RX2_FREQUENCY:
-        {
-            phyParam.Value = KR920_RX_WND_2_FREQ;
-            break;
-        }
-        case PHY_DEF_RX2_DR:
-        {
-            phyParam.Value = KR920_RX_WND_2_DR;
-            break;
-        }
-        case PHY_CHANNELS_MASK:
-        {
-            phyParam.ChannelsMask = ChannelsMask;
-            break;
-        }
-        case PHY_CHANNELS_DEFAULT_MASK:
-        {
-            phyParam.ChannelsMask = ChannelsDefaultMask;
-            break;
-        }
-        case PHY_MAX_NB_CHANNELS:
-        {
-            phyParam.Value = KR920_MAX_NB_CHANNELS;
-            break;
-        }
-        case PHY_CHANNELS:
-        {
-            phyParam.Channels = Channels;
-            break;
-        }
-        case PHY_DEF_UPLINK_DWELL_TIME:
-        case PHY_DEF_DOWNLINK_DWELL_TIME:
-        {
-            phyParam.Value = 0;
-            break;
-        }
-        case PHY_DEF_MAX_EIRP:
-        {
-            // We set the higher maximum EIRP as default value.
-            // The reason for this is, that the frequency may
-            // change during a channel selection for the next uplink.
-            // The value has to be recalculated in the TX configuration.
-            phyParam.fValue = KR920_DEFAULT_MAX_EIRP_HIGH;
-            break;
-        }
-        case PHY_DEF_ANTENNA_GAIN:
-        {
-            phyParam.fValue = KR920_DEFAULT_ANTENNA_GAIN;
-            break;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
-        default:
-        {
-            break;
-        }
+    if (freq >= 922100000) {// Limit to 14dBm
+        return KR920_DEFAULT_MAX_EIRP_HIGH;
     }
 
-    return phyParam;
+    // Limit to 10dBm
+    return KR920_DEFAULT_MAX_EIRP_LOW;
 }
 
-void LoRaPHYKR920::set_band_tx_done(SetBandTxDoneParams_t* txDone)
+
+bool LoRaPHYKR920::verify_frequency(uint32_t freq)
 {
-    set_last_tx_done( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
-}
+    uint32_t tmp_freq = freq;
 
-void LoRaPHYKR920::load_defaults(InitType_t type)
-{
-    switch( type )
-    {
-        case INIT_TYPE_INIT:
-        {
-            // Channels
-            const ChannelParams_t channel1 = KR920_LC1;
-            const ChannelParams_t channel2 = KR920_LC2;
-            const ChannelParams_t channel3 = KR920_LC3;
-            Channels[0] = channel1;
-            Channels[1] = channel2;
-            Channels[2] = channel3;
+    _radio->lock();
 
-            // Initialize the channels default mask
-            ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-            // Update the channels mask
-            copy_channel_mask( ChannelsMask, ChannelsDefaultMask, 1 );
-            break;
-        }
-        case INIT_TYPE_RESTORE:
-        {
-            // Restore channels default mask
-            ChannelsMask[0] |= ChannelsDefaultMask[0];
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
-}
-
-bool LoRaPHYKR920::verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
-{
-    switch( phyAttribute )
-    {
-        case PHY_TX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, KR920_TX_MIN_DATARATE, KR920_TX_MAX_DATARATE );
-        }
-        case PHY_DEF_TX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, DR_0, DR_5 );
-        }
-        case PHY_RX_DR:
-        {
-            return val_in_range( verify->DatarateParams.Datarate, KR920_RX_MIN_DATARATE, KR920_RX_MAX_DATARATE );
-        }
-        case PHY_DEF_TX_POWER:
-        case PHY_TX_POWER:
-        {
-            // Remark: switched min and max!
-            return val_in_range( verify->TxPower, KR920_MAX_TX_POWER, KR920_MIN_TX_POWER );
-        }
-        case PHY_DUTY_CYCLE:
-        {
-            return KR920_DUTY_CYCLE_ENABLED;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
-        default:
-            return false;
-    }
-    return true;
-}
-
-void LoRaPHYKR920::apply_cf_list(ApplyCFListParams_t* applyCFList)
-{
-    ChannelParams_t newChannel;
-    ChannelAddParams_t channelAdd;
-    ChannelRemoveParams_t channelRemove;
-
-    // Setup default datarate range
-    newChannel.DrRange.Value = ( DR_5 << 4 ) | DR_0;
-
-    // Size of the optional CF list
-    if( applyCFList->Size != 16 )
-    {
-        return;
-    }
-
-    // Last byte is RFU, don't take it into account
-    for( uint8_t i = 0, chanIdx = KR920_NUMB_DEFAULT_CHANNELS; chanIdx < KR920_MAX_NB_CHANNELS; i+=3, chanIdx++ )
-    {
-        if( chanIdx < ( KR920_NUMB_CHANNELS_CF_LIST + KR920_NUMB_DEFAULT_CHANNELS ) )
-        {
-            // Channel frequency
-            newChannel.Frequency = (uint32_t) applyCFList->Payload[i];
-            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
-            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
-            newChannel.Frequency *= 100;
-
-            // Initialize alternative frequency to 0
-            newChannel.Rx1Frequency = 0;
-        }
-        else
-        {
-            newChannel.Frequency = 0;
-            newChannel.DrRange.Value = 0;
-            newChannel.Rx1Frequency = 0;
-        }
-
-        if( newChannel.Frequency != 0 )
-        {
-            channelAdd.NewChannel = &newChannel;
-            channelAdd.ChannelId = chanIdx;
-
-            // Try to add all channels
-            add_channel( &channelAdd );
-        }
-        else
-        {
-            channelRemove.ChannelId = chanIdx;
-
-            remove_channel( &channelRemove );
-        }
-    }
-}
-
-bool LoRaPHYKR920::set_channel_mask(ChanMaskSetParams_t* chanMaskSet)
-{
-    switch( chanMaskSet->ChannelsMaskType )
-    {
-        case CHANNELS_MASK:
-        {
-            copy_channel_mask( ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
-            break;
-        }
-        case CHANNELS_DEFAULT_MASK:
-        {
-            copy_channel_mask( ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
-            break;
-        }
-        default:
-            return false;
-    }
-    return true;
-}
-
-bool LoRaPHYKR920::get_next_ADR(AdrNextParams_t* adrNext, int8_t* drOut,
-                                int8_t* txPowOut, uint32_t* adrAckCounter)
-{
-    bool adrAckReq = false;
-    int8_t datarate = adrNext->Datarate;
-    int8_t txPower = adrNext->TxPower;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-
-    // Report back the adr ack counter
-    *adrAckCounter = adrNext->AdrAckCounter;
-
-    if( adrNext->AdrEnabled == true )
-    {
-        if( datarate == KR920_TX_MIN_DATARATE )
-        {
-            *adrAckCounter = 0;
-            adrAckReq = false;
-        }
-        else
-        {
-            if( adrNext->AdrAckCounter >= KR920_ADR_ACK_LIMIT )
-            {
-                adrAckReq = true;
-                txPower = KR920_MAX_TX_POWER;
-            }
-            else
-            {
-                adrAckReq = false;
-            }
-            if( adrNext->AdrAckCounter >= ( KR920_ADR_ACK_LIMIT + KR920_ADR_ACK_DELAY ) )
-            {
-                if( ( adrNext->AdrAckCounter % KR920_ADR_ACK_DELAY ) == 1 )
-                {
-                    // Decrease the datarate
-                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
-                    getPhy.Datarate = datarate;
-                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-                    phyParam = get_phy_params( &getPhy );
-                    datarate = phyParam.Value;
-
-                    if( datarate == KR920_TX_MIN_DATARATE )
-                    {
-                        // We must set adrAckReq to false as soon as we reach the lowest datarate
-                        adrAckReq = false;
-                        if( adrNext->UpdateChanMask == true )
-                        {
-                            // Re-enable default channels
-                            ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    *drOut = datarate;
-    *txPowOut = txPower;
-    return adrAckReq;
-}
-
-void LoRaPHYKR920::compute_rx_win_params(int8_t datarate, uint8_t minRxSymbols,
-                                         uint32_t rxError,
-                                         RxConfigParams_t *rxConfigParams)
-{
-    double tSymbol = 0.0;
-
-    // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, KR920_RX_MAX_DATARATE );
-    rxConfigParams->Bandwidth = GetBandwidth( rxConfigParams->Datarate );
-
-    tSymbol = compute_symb_timeout_lora( DataratesKR920[rxConfigParams->Datarate], BandwidthsKR920[rxConfigParams->Datarate] );
-
-    get_rx_window_params( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
-}
-
-bool LoRaPHYKR920::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
-{
-    int8_t dr = rxConfig->Datarate;
-    uint8_t maxPayload = 0;
-    int8_t phyDr = 0;
-    uint32_t frequency = rxConfig->Frequency;
-
-    if( _radio->get_status() != RF_IDLE )
-    {
+    if (_radio->check_rf_frequency(tmp_freq) == false) {
+        _radio->unlock();
         return false;
     }
 
-    if( rxConfig->Window == 0 )
-    {
-        // Apply window 1 frequency
-        frequency = Channels[rxConfig->Channel].Frequency;
-        // Apply the alternative RX 1 window frequency, if it is available
-        if( Channels[rxConfig->Channel].Rx1Frequency != 0 )
-        {
-            frequency = Channels[rxConfig->Channel].Rx1Frequency;
+    _radio->unlock();
+
+    // Verify if the frequency is valid. The frequency must be in a specified
+    // range and can be set to specific values.
+    if ((tmp_freq >= 920900000) && (tmp_freq <=923300000)) {
+        // Range ok, check for specific value
+        tmp_freq -= 920900000;
+        if ((tmp_freq % 200000) == 0) {
+            return true;
         }
     }
 
-    // Read the physical datarate from the datarates table
-    phyDr = DataratesKR920[dr];
-
-    _radio->set_channel( frequency );
-
-    // Radio configuration
-    _radio->set_rx_config( MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8,
-                           rxConfig->WindowTimeout, false, 0, false, 0, 0, true,
-                           rxConfig->RxContinuous );
-    maxPayload = MaxPayloadOfDatarateKR920[dr];
-    _radio->set_max_payload_length( MODEM_LORA, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
-
-    *datarate = (uint8_t) dr;
-    return true;
+    return false;
 }
 
-bool LoRaPHYKR920::tx_config(TxConfigParams_t* txConfig, int8_t* txPower, TimerTime_t* txTimeOnAir)
+bool LoRaPHYKR920::tx_config(tx_config_params_t* config, int8_t* tx_power,
+                             lorawan_time_t* tx_toa)
 {
-    int8_t phyDr = DataratesKR920[txConfig->Datarate];
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
-    uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
-    float maxEIRP = GetMaxEIRP( Channels[txConfig->Channel].Frequency );
-    int8_t phyTxPower = 0;
+    int8_t phy_dr = datarates_KR920[config->datarate];
 
-    // Take the minimum between the maxEIRP and txConfig->MaxEirp.
+    if (config->tx_power > bands[channels[config->channel].band].max_tx_pwr) {
+        config->tx_power = bands[channels[config->channel].band].max_tx_pwr;
+    }
+
+    uint32_t bandwidth = get_bandwidth(config->datarate);
+    float max_eirp = get_max_eirp(channels[config->channel].frequency);
+    int8_t phy_tx_power = 0;
+
+    // Take the minimum between the max_eirp and txConfig->MaxEirp.
     // The value of txConfig->MaxEirp could have changed during runtime, e.g. due to a MAC command.
-    maxEIRP = MIN( txConfig->MaxEirp, maxEIRP );
+    max_eirp = MIN(config->max_eirp, max_eirp);
 
     // Calculate physical TX power
-    phyTxPower = compute_tx_power( txPowerLimited, maxEIRP, txConfig->AntennaGain );
+    phy_tx_power = compute_tx_power(config->tx_power, max_eirp, config->antenna_gain);
 
     // Setup the radio frequency
-    _radio->set_channel( Channels[txConfig->Channel].Frequency );
+    _radio->lock();
 
-    _radio->set_tx_config( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
+    _radio->set_channel(channels[config->channel].frequency);
+
+    _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, bandwidth, phy_dr, 1, 8,
+                          false, true, 0, 0, false, 3000 );
 
     // Setup maximum payload lenght of the radio driver
-    _radio->set_max_payload_length( MODEM_LORA, txConfig->PktLen );
+    _radio->set_max_payload_length(MODEM_LORA, config->pkt_len);
     // Get the time-on-air of the next tx frame
-    *txTimeOnAir =_radio->time_on_air( MODEM_LORA, txConfig->PktLen );
+    *tx_toa =_radio->time_on_air(MODEM_LORA, config->pkt_len);
 
-    *txPower = txPowerLimited;
+    _radio->unlock();
+
+    *tx_power = config->tx_power;
     return true;
 }
 
-uint8_t LoRaPHYKR920::link_ADR_request(LinkAdrReqParams_t* linkAdrReq,
-                                       int8_t* drOut, int8_t* txPowOut,
-                                       uint8_t* nbRepOut, uint8_t* nbBytesParsed)
+bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
+                                    uint8_t* channel, lorawan_time_t* time,
+                                    lorawan_time_t* aggregate_timeoff)
 {
-    uint8_t status = 0x07;
-    RegionCommonLinkAdrParams_t linkAdrParams;
-    uint8_t nextIndex = 0;
-    uint8_t bytesProcessed = 0;
-    uint16_t chMask = 0;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
+    uint8_t next_channel_idx = 0;
+    uint8_t nb_enabled_channels = 0;
+    uint8_t delay_tx = 0;
+    uint8_t enabled_channels[KR920_MAX_NB_CHANNELS] = {0};
+    lorawan_time_t nextTxDelay = 0;
 
-    while( bytesProcessed < linkAdrReq->PayloadSize )
-    {
-        // Get ADR request parameters
-        nextIndex = parse_link_ADR_req( &( linkAdrReq->Payload[bytesProcessed] ), &linkAdrParams );
-
-        if( nextIndex == 0 )
-            break; // break loop, since no more request has been found
-
-        // Update bytes processed
-        bytesProcessed += nextIndex;
-
-        // Revert status, as we only check the last ADR request for the channel mask KO
-        status = 0x07;
-
-        // Setup temporary channels mask
-        chMask = linkAdrParams.ChMask;
-
-        // Verify channels mask
-        if( ( linkAdrParams.ChMaskCtrl == 0 ) && ( chMask == 0 ) )
-        {
-            status &= 0xFE; // Channel mask KO
-        }
-        else if( ( ( linkAdrParams.ChMaskCtrl >= 1 ) && ( linkAdrParams.ChMaskCtrl <= 5 )) ||
-                ( linkAdrParams.ChMaskCtrl >= 7 ) )
-        {
-            // RFU
-            status &= 0xFE; // Channel mask KO
-        }
-        else
-        {
-            for( uint8_t i = 0; i < KR920_MAX_NB_CHANNELS; i++ )
-            {
-                if( linkAdrParams.ChMaskCtrl == 6 )
-                {
-                    if( Channels[i].Frequency != 0 )
-                    {
-                        chMask |= 1 << i;
-                    }
-                }
-                else
-                {
-                    if( ( ( chMask & ( 1 << i ) ) != 0 ) &&
-                        ( Channels[i].Frequency == 0 ) )
-                    {// Trying to enable an undefined channel
-                        status &= 0xFE; // Channel mask KO
-                    }
-                }
-            }
-        }
+    if (num_active_channels(channel_mask, 0, 1) == 0) {
+        // Reactivate default channels
+        channel_mask[0] |= LC(1) + LC(2) + LC(3);
     }
 
-    // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
-    phyParam = get_phy_params( &getPhy );
-
-    linkAdrVerifyParams.Status = status;
-    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
-    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
-    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
-    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
-    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
-    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
-    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
-    linkAdrVerifyParams.NbChannels = KR920_MAX_NB_CHANNELS;
-    linkAdrVerifyParams.ChannelsMask = &chMask;
-    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
-    linkAdrVerifyParams.MaxDatarate = KR920_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = Channels;
-    linkAdrVerifyParams.MinTxPower = KR920_MIN_TX_POWER;
-    linkAdrVerifyParams.MaxTxPower = KR920_MAX_TX_POWER;
-
-    // Verify the parameters and update, if necessary
-    status = verify_link_ADR_req( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
-
-    // Update channelsMask if everything is correct
-    if( status == 0x07 )
-    {
-        // Set the channels mask to a default value
-        memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
-        // Update the channels mask
-        ChannelsMask[0] = chMask;
-    }
-
-    // Update status variables
-    *drOut = linkAdrParams.Datarate;
-    *txPowOut = linkAdrParams.TxPower;
-    *nbRepOut = linkAdrParams.NbRep;
-    *nbBytesParsed = bytesProcessed;
-
-    return status;
-}
-
-uint8_t LoRaPHYKR920::setup_rx_params(RxParamSetupReqParams_t* rxParamSetupReq)
-{
-    uint8_t status = 0x07;
-
-    // Verify radio frequency
-    if(_radio->check_rf_frequency( rxParamSetupReq->Frequency ) == false )
-    {
-        status &= 0xFE; // Channel frequency KO
-    }
-
-    // Verify datarate
-    if( val_in_range( rxParamSetupReq->Datarate, KR920_RX_MIN_DATARATE, KR920_RX_MAX_DATARATE ) == 0 )
-    {
-        status &= 0xFD; // Datarate KO
-    }
-
-    // Verify datarate offset
-    if( val_in_range( rxParamSetupReq->DrOffset, KR920_MIN_RX1_DR_OFFSET, KR920_MAX_RX1_DR_OFFSET ) == 0 )
-    {
-        status &= 0xFB; // Rx1DrOffset range KO
-    }
-
-    return status;
-}
-
-uint8_t LoRaPHYKR920::request_new_channel(NewChannelReqParams_t* newChannelReq)
-{
-    uint8_t status = 0x03;
-    ChannelAddParams_t channelAdd;
-    ChannelRemoveParams_t channelRemove;
-
-    if( newChannelReq->NewChannel->Frequency == 0 )
-    {
-        channelRemove.ChannelId = newChannelReq->ChannelId;
-
-        // Remove
-        if( remove_channel( &channelRemove ) == false )
-        {
-            status &= 0xFC;
-        }
-    }
-    else
-    {
-        channelAdd.NewChannel = newChannelReq->NewChannel;
-        channelAdd.ChannelId = newChannelReq->ChannelId;
-
-        switch( add_channel( &channelAdd ) )
-        {
-            case LORAMAC_STATUS_OK:
-            {
-                break;
-            }
-            case LORAMAC_STATUS_FREQUENCY_INVALID:
-            {
-                status &= 0xFE;
-                break;
-            }
-            case LORAMAC_STATUS_DATARATE_INVALID:
-            {
-                status &= 0xFD;
-                break;
-            }
-            case LORAMAC_STATUS_FREQ_AND_DR_INVALID:
-            {
-                status &= 0xFC;
-                break;
-            }
-            default:
-            {
-                status &= 0xFC;
-                break;
-            }
-        }
-    }
-
-    return status;
-}
-
-int8_t LoRaPHYKR920::setup_tx_params(TxParamSetupReqParams_t* txParamSetupReq)
-{
-    return -1;
-}
-
-uint8_t LoRaPHYKR920::dl_channel_request(DlChannelReqParams_t* dlChannelReq)
-{
-    uint8_t status = 0x03;
-
-    // Verify if the frequency is supported
-    if( VerifyTxFreq( dlChannelReq->Rx1Frequency, _radio ) == false )
-    {
-        status &= 0xFE;
-    }
-
-    // Verify if an uplink frequency exists
-    if( Channels[dlChannelReq->ChannelId].Frequency == 0 )
-    {
-        status &= 0xFD;
-    }
-
-    // Apply Rx1 frequency, if the status is OK
-    if( status == 0x03 )
-    {
-        Channels[dlChannelReq->ChannelId].Rx1Frequency = dlChannelReq->Rx1Frequency;
-    }
-
-    return status;
-}
-
-int8_t LoRaPHYKR920::get_alternate_DR(AlternateDrParams_t* alternateDr)
-{
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
-}
-
-void LoRaPHYKR920::calculate_backoff(CalcBackOffParams_t* calcBackOff)
-{
-    RegionCommonCalcBackOffParams_t calcBackOffParams;
-
-    calcBackOffParams.Channels = Channels;
-    calcBackOffParams.Bands = Bands;
-    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
-    calcBackOffParams.Joined = calcBackOff->Joined;
-    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
-    calcBackOffParams.Channel = calcBackOff->Channel;
-    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
-    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
-
-    get_DC_backoff( &calcBackOffParams );
-}
-
-bool LoRaPHYKR920::set_next_channel(NextChanParams_t* nextChanParams,
-                                    uint8_t* channel, TimerTime_t* time,
-                                    TimerTime_t* aggregatedTimeOff)
-{
-    uint8_t channelNext = 0;
-    uint8_t nbEnabledChannels = 0;
-    uint8_t delayTx = 0;
-    uint8_t enabledChannels[KR920_MAX_NB_CHANNELS] = { 0 };
-    TimerTime_t nextTxDelay = 0;
-
-    if( num_active_channels( ChannelsMask, 0, 1 ) == 0 )
-    { // Reactivate default channels
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
-    }
-
-    if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
-    {
+    if (params->aggregate_timeoff <= _lora_time.get_elapsed_time(params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
-        *aggregatedTimeOff = 0;
+        *aggregate_timeoff = 0;
 
         // Update bands Time OFF
-        nextTxDelay = update_band_timeoff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, KR920_MAX_NB_BANDS );
+        nextTxDelay = update_band_timeoff(params->joined, params->dc_enabled,
+                                          bands, KR920_MAX_NB_BANDS);
 
         // Search how many channels are enabled
-        nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
-                                                      ChannelsMask, Channels,
-                                                      Bands, enabledChannels, &delayTx );
-    }
-    else
-    {
-        delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - TimerGetElapsedTime( nextChanParams->LastAggrTx );
+        nb_enabled_channels = enabled_channel_count(params->joined, params->current_datarate,
+                                                     channel_mask,
+                                                     enabled_channels, &delay_tx);
+    } else {
+        delay_tx++;
+        nextTxDelay = params->aggregate_timeoff - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
     }
 
-    if( nbEnabledChannels > 0 )
-    {
-        for( uint8_t  i = 0, j = get_random( 0, nbEnabledChannels - 1 ); i < KR920_MAX_NB_CHANNELS; i++ )
-        {
-            channelNext = enabledChannels[j];
-            j = ( j + 1 ) % nbEnabledChannels;
+    if (nb_enabled_channels > 0) {
+
+        for (uint8_t  i = 0, j = get_random(0, nb_enabled_channels - 1);
+                      i < KR920_MAX_NB_CHANNELS; i++) {
+            next_channel_idx = enabled_channels[j];
+            j = ( j + 1 ) % nb_enabled_channels;
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( _radio->perform_carrier_sense( MODEM_LORA,
-                                               Channels[channelNext].Frequency,
-                                               KR920_RSSI_FREE_TH,
-                                               KR920_CARRIER_SENSE_TIME ) == true )
-            {
+            _radio->lock();
+
+            if (_radio->perform_carrier_sense(MODEM_LORA,
+                                              channels[next_channel_idx].frequency,
+                                              KR920_RSSI_FREE_TH,
+                                              KR920_CARRIER_SENSE_TIME ) == true) {
                 // Free channel found
-                *channel = channelNext;
+                *channel = next_channel_idx;
                 *time = 0;
+                _radio->unlock();
                 return true;
             }
+
+            _radio->unlock();
         }
+
         return false;
-    }
-    else
-    {
-        if( delayTx > 0 )
-        {
+
+    } else {
+
+        if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
             return true;
         }
+
         // Datarate not supported by any channel, restore defaults
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
+        channel_mask[0] |= LC(1) + LC(2) + LC(3);
         *time = 0;
         return false;
     }
 }
 
-LoRaMacStatus_t LoRaPHYKR920::add_channel(ChannelAddParams_t* channelAdd)
+void LoRaPHYKR920::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequency)
 {
-    uint8_t band = 0;
-    bool drInvalid = false;
-    bool freqInvalid = false;
-    uint8_t id = channelAdd->ChannelId;
+    (void)given_frequency;
 
-    if( id >= KR920_MAX_NB_CHANNELS )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+    if (params->tx_power > bands[channels[params->channel].band].max_tx_pwr) {
+        params->tx_power = bands[channels[params->channel].band].max_tx_pwr;
     }
 
-    // Validate the datarate range
-    if( val_in_range( channelAdd->NewChannel->DrRange.Fields.Min, KR920_TX_MIN_DATARATE, KR920_TX_MAX_DATARATE ) == 0 )
-    {
-        drInvalid = true;
-    }
-    if( val_in_range( channelAdd->NewChannel->DrRange.Fields.Max, KR920_TX_MIN_DATARATE, KR920_TX_MAX_DATARATE ) == 0 )
-    {
-        drInvalid = true;
-    }
-    if( channelAdd->NewChannel->DrRange.Fields.Min > channelAdd->NewChannel->DrRange.Fields.Max )
-    {
-        drInvalid = true;
-    }
+    float max_eirp = get_max_eirp(channels[params->channel].frequency);
+    int8_t phy_tx_power = 0;
+    uint32_t frequency = channels[params->channel].frequency;
 
-    // Default channels don't accept all values
-    if( id < KR920_NUMB_DEFAULT_CHANNELS )
-    {
-        // All datarates are supported
-        // We are not allowed to change the frequency
-        if( channelAdd->NewChannel->Frequency != Channels[id].Frequency )
-        {
-            freqInvalid = true;
-        }
-    }
-
-    // Check frequency
-    if( freqInvalid == false )
-    {
-        if( VerifyTxFreq( channelAdd->NewChannel->Frequency, _radio ) == false )
-        {
-            freqInvalid = true;
-        }
-    }
-
-    // Check status
-    if( ( drInvalid == true ) && ( freqInvalid == true ) )
-    {
-        return LORAMAC_STATUS_FREQ_AND_DR_INVALID;
-    }
-    if( drInvalid == true )
-    {
-        return LORAMAC_STATUS_DATARATE_INVALID;
-    }
-    if( freqInvalid == true )
-    {
-        return LORAMAC_STATUS_FREQUENCY_INVALID;
-    }
-
-    memcpy( &(Channels[id]), channelAdd->NewChannel, sizeof( Channels[id] ) );
-    Channels[id].Band = band;
-    ChannelsMask[0] |= ( 1 << id );
-    return LORAMAC_STATUS_OK;
-}
-
-bool LoRaPHYKR920::remove_channel(ChannelRemoveParams_t* channelRemove)
-{
-    uint8_t id = channelRemove->ChannelId;
-
-    if( id < KR920_NUMB_DEFAULT_CHANNELS )
-    {
-        return false;
-    }
-
-    // Remove the channel from the list of channels
-    const ChannelParams_t empty_channel = { 0, 0, { 0 }, 0 };
-    Channels[id] = empty_channel;
-
-    return disable_channel( ChannelsMask, id, KR920_MAX_NB_CHANNELS );
-}
-
-void LoRaPHYKR920::set_tx_cont_mode(ContinuousWaveParams_t* continuousWave)
-{
-    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, Bands[Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, ChannelsMask );
-    float maxEIRP = GetMaxEIRP( Channels[continuousWave->Channel].Frequency );
-    int8_t phyTxPower = 0;
-    uint32_t frequency = Channels[continuousWave->Channel].Frequency;
-
-    // Take the minimum between the maxEIRP and continuousWave->MaxEirp.
-    // The value of continuousWave->MaxEirp could have changed during runtime, e.g. due to a MAC command.
-    maxEIRP = MIN( continuousWave->MaxEirp, maxEIRP );
+    // Take the minimum between the max_eirp and params->max_eirp.
+    // The value of params->max_eirp could have changed during runtime,
+    // e.g. due to a MAC command.
+    max_eirp = MIN (params->max_eirp, max_eirp);
 
     // Calculate physical TX power
-    phyTxPower = compute_tx_power( txPowerLimited, maxEIRP, continuousWave->AntennaGain );
+    phy_tx_power = compute_tx_power(params->tx_power, max_eirp, params->antenna_gain);
 
-    _radio->set_tx_continuous_wave( frequency, phyTxPower, continuousWave->Timeout );
+    _radio->lock();
+    _radio->set_tx_continuous_wave(frequency, phy_tx_power, params->timeout);
+    _radio->unlock();
 }
 
-uint8_t LoRaPHYKR920::apply_DR_offset(uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset)
-{
-    int8_t datarate = dr - drOffset;
-
-    if( datarate < 0 )
-    {
-        datarate = DR_0;
-    }
-    return datarate;
-}

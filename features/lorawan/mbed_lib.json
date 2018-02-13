@@ -2,16 +2,7 @@
     "name": "lora",
     "config": {
         "phy": {
-            "help": ["Select LoRa PHY layer. See README.md for more information. Default: 0 = LORA_PHY_EU868",
-            "                                                                             1 = LORA_PHY_AS923",
-            "                                                                             2 = LORA_PHY_AU915",
-            "                                                                             3 = LORA_PHY_CN470",
-            "                                                                             4 = LORA_PHY_CN779",
-            "                                                                             5 = LORA_PHY_EU433",
-            "                                                                             6 = LORA_PHY_IN865",
-            "                                                                             7 = LORA_PHY_KR920",
-            "                                                                             8 = LORA_PHY_US915",
-            "                                                                             9 = LORA_PHY_US915_HYBRID"],
+            "help": "LoRa PHY region. 0 = EU868 (default), 1 = AS923, 2 = AU915, 3 = CN470, 4 = CN779, 5 = EU433, 6 = IN865, 7 = KR920, 8 = US915, 9 = US915_HYBRID",
             "value": "0"
         },
         "over-the-air-activation": {
@@ -19,8 +10,8 @@
             "value": true
         },
         "nb-trials": {
-            "help": "Indicates how many times join can be tried, default: 8",
-            "value": 8
+            "help": "Indicates how many times join can be tried, default: 12",
+            "value": 12
         },
         "device-eui": {
             "help": "Mote device IEEE EUI",
@@ -33,10 +24,6 @@
         "application-key": {
             "help": "AES encryption/decryption cipher application key",
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
-        },
-        "network-id": {
-            "help": "Current network ID",
-            "value": 0
         },
         "device-address": {
             "help": "Device address on the network",
@@ -67,12 +54,12 @@
             "value": true
         },
         "duty-cycle-on": {
-        	"help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
-        	"value": true
+            "help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
+            "value": true
         },
         "lbt-on": {
-        	"help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
-        	"value": false
+            "help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
+            "value": false
         }
     }
 }

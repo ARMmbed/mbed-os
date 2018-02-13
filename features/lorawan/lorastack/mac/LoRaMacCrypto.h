@@ -29,84 +29,94 @@ SPDX-License-Identifier: BSD-3-Clause
 /**
  * Computes the LoRaMAC frame MIC field
  *
- * \param [in]  buffer          - Data buffer
- * \param [in]  size            - Data buffer size
- * \param [in]  key             - AES key to be used
- * \param [in]  address         - Frame address
- * \param [in]  dir             - Frame direction [0: uplink, 1: downlink]
- * \param [in]  sequenceCounter - Frame sequence counter
- * \param [out] mic             - Computed MIC field
+ * @param [in]  buffer          - Data buffer
+ * @param [in]  size            - Data buffer size
+ * @param [in]  key             - AES key to be used
+ * @param [in]  address         - Frame address
+ * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
+ * @param [in]  seq_counter     - Frame sequence counter
+ * @param [out] mic             - Computed MIC field
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  */
-int LoRaMacComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint32_t *mic );
+int compute_mic(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                      uint32_t address, uint8_t dir, uint32_t seq_counter,
+                      uint32_t *mic);
 
 /**
- * Computes the LoRaMAC payload encryption
+ * Performs payload encryption
  *
- * \param [in]  buffer          - Data buffer
- * \param [in]  size            - Data buffer size
- * \param [in]  key             - AES key to be used
- * \param [in]  address         - Frame address
- * \param [in]  dir             - Frame direction [0: uplink, 1: downlink]
- * \param [in]  sequenceCounter - Frame sequence counter
- * \param [out] encBuffer       - Encrypted buffer
+ * @param [in]  buffer          - Data buffer
+ * @param [in]  size            - Data buffer size
+ * @param [in]  key             - AES key to be used
+ * @param [in]  address         - Frame address
+ * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
+ * @param [in]  seq_counter     - Frame sequence counter
+ * @param [out] enc_buffer      - Encrypted buffer
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  */
-int LoRaMacPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *encBuffer );
+int encrypt_payload(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                    uint32_t address, uint8_t dir, uint32_t seq_counter,
+                    uint8_t *enc_buffer);
 
 /**
- * Computes the LoRaMAC payload decryption
+ * Performs payload decryption
  *
- * \param [in]  buffer          - Data buffer
- * \param [in]  size            - Data buffer size
- * \param [in]  key             - AES key to be used
- * \param [in]  address         - Frame address
- * \param [in]  dir             - Frame direction [0: uplink, 1: downlink]
- * \param [in]  sequenceCounter - Frame sequence counter
- * \param [out] decBuffer       - Decrypted buffer
+ * @param [in]  buffer          - Data buffer
+ * @param [in]  size            - Data buffer size
+ * @param [in]  key             - AES key to be used
+ * @param [in]  address         - Frame address
+ * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
+ * @param [in]  seq_counter     - Frame sequence counter
+ * @param [out] dec_buffer      - Decrypted buffer
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  */
-int LoRaMacPayloadDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *decBuffer );
+int decrypt_payload(const uint8_t *buffer, uint16_t size, const uint8_t *key,
+                    uint32_t address, uint8_t dir, uint32_t seq_counter,
+                    uint8_t *dec_buffer);
 
 /**
  * Computes the LoRaMAC Join Request frame MIC field
  *
- * \param [in]  buffer          - Data buffer
- * \param [in]  size            - Data buffer size
- * \param [in]  key             - AES key to be used
- * \param [out] mic             - Computed MIC field
+ * @param [in]  buffer          - Data buffer
+ * @param [in]  size            - Data buffer size
+ * @param [in]  key             - AES key to be used
+ * @param [out] mic             - Computed MIC field
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  *
  */
-int LoRaMacJoinComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic );
+int compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
+                         const uint8_t *key, uint32_t *mic);
 
 /**
  * Computes the LoRaMAC join frame decryption
  *
- * \param [in]  buffer          - Data buffer
- * \param [in]  size            - Data buffer size
- * \param [in]  key             - AES key to be used
- * \param [out] decBuffer       - Decrypted buffer
+ * @param [in]  buffer          - Data buffer
+ * @param [in]  size            - Data buffer size
+ * @param [in]  key             - AES key to be used
+ * @param [out] dec_buffer      - Decrypted buffer
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  */
-int LoRaMacJoinDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer );
+int decrypt_join_frame(const uint8_t *buffer, uint16_t size,
+                         const uint8_t *key, uint8_t *dec_buffer);
 
 /**
  * Computes the LoRaMAC join frame decryption
  *
- * \param [in]  key             - AES key to be used
- * \param [in]  appNonce        - Application nonce
- * \param [in]  devNonce        - Device nonce
- * \param [out] nwkSKey         - Network session key
- * \param [out] appSKey         - Application session key
+ * @param [in]  key              - AES key to be used
+ * @param [in]  app_nonce        - Application nonce
+ * @param [in]  dev_nonce        - Device nonce
+ * @param [out] nwk_skey         - Network session key
+ * @param [out] app_skey         - Application session key
  *
- * \return                        0 if successful, or a cipher specific error code
+ * @return                        0 if successful, or a cipher specific error code
  */
-int LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey );
+int compute_skeys_for_join_frame(const uint8_t *key, const uint8_t *app_nonce,
+                                 uint16_t dev_nonce, uint8_t *nwk_skey,
+                                 uint8_t *app_skey );
 
 #endif // MBED_LORAWAN_MAC_LORAMAC_CRYPTO_H__

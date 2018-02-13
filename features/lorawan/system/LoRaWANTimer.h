@@ -21,92 +21,63 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORAWAN_SYS_TIMER_H__
 #define MBED_LORAWAN_SYS_TIMER_H__
 
-#include "drivers/Timer.h"
-#include "drivers/Ticker.h"
+#include <stdint.h>
 #include "lorawan/system/lorawan_data_structures.h"
 #include "events/EventQueue.h"
-#include "platform/SingletonPtr.h"
 
-/*!
- * \brief Timer object description
- */
-typedef struct TimerEvent_s
+class LoRaWANTimeHandler
 {
-    uint32_t value;
-    void ( *Callback )( void );
-    SingletonPtr<mbed::Ticker> Timer;
-}TimerEvent_t;
+public:
+    LoRaWANTimeHandler();
+    ~LoRaWANTimeHandler();
 
-/*!
- * \brief Initializes the timer object.
- *
- * \remark The TimerSetValue function must be called before starting the timer.
- *         This function initializes the timestamp and reloads the value at 0.
- *
- * \param [in] obj          The structure containing the timer object parameters.
- * \param [in] callback     The function callback called at the end of the timeout.
- */
-void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) );
+    /** Activates the timer subsystem.
+     *
+     * Embeds EventQueue object to timer subsystem which is subsequently
+     * used to extract timer information.
+     *
+     * @param [in] queue  Handle to EventQueue object
+     */
+    void activate_timer_subsystem(events::EventQueue *queue);
 
-/*!
- * \brief Starts and adds the timer object to the list of timer events.
- *
- * \param [in] obj The structure containing the timer object parameters.
- */
-void TimerStart( TimerEvent_t *obj );
+    /** Read the current time.
+     *
+     * @return time The current time.
+     */
+    lorawan_time_t get_current_time(void);
 
-/*!
- * \brief Stops and removes the timer object from the list of timer events.
- *
- * \param [in] obj The structure containing the timer object parameters.
- */
-void TimerStop( TimerEvent_t *obj );
+    /** Return the time elapsed since a fixed moment in time.
+     *
+     * @param [in] saved_time    The fixed moment in time.
+     * @return     time          The elapsed time.
+     */
+    lorawan_time_t get_elapsed_time(lorawan_time_t saved_time);
 
-/*!
- * \brief Resets the timer object.
- *
- * \param [in] obj The structure containing the timer object parameters.
- */
-void TimerReset( TimerEvent_t *obj );
+    /** Initializes the timer object.
+     *
+     * @remark The TimerSetValue function must be called before starting the timer.
+     *         This function initializes the time-stamp and reloads the value at 0.
+     *
+     * @param [in] obj          The structure containing the timer object parameters.
+     * @param [in] callback     The function callback called at the end of the timeout.
+     */
+     void init(timer_event_t &obj, mbed::Callback<void()> callback);
 
-/*!
- * \brief Set a new timeout value.
- *
- * \param [in] obj   The structure containing the timer object parameters.
- * \param [in] value The new timeout value.
- */
-void TimerSetValue( TimerEvent_t *obj, uint32_t value );
+    /** Starts and adds the timer object to the list of timer events.
+     *
+     * @param [in] obj     The structure containing the timer object parameters.
+     * @param [in] timeout The new timeout value.
+     */
+    void start(timer_event_t &obj, const uint32_t timeout);
 
-/*!
- * \brief Initializes the timer used to get the current time.
- *
- * \remark The current time corresponds to the time since system startup.
- *
- * \param [in] queue  Handle to EventQueue object
- */
-void TimerTimeCounterInit(events::EventQueue *queue);
+    /** Stops and removes the timer object from the list of timer events.
+     *
+     * @param [in] obj The structure containing the timer object parameters.
+     */
+    void stop(timer_event_t &obj);
 
-/*!
- * \brief Read the current time.
- *
- * \retval time The current time.
- */
-TimerTime_t TimerGetCurrentTime( void );
-
-/*!
- * \brief Return the time elapsed since a fixed moment in time.
- *
- * \param [in] savedTime    The fixed moment in time.
- * \retval time             The elapsed time.
- */
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
-
-/*!
- * \brief Return the time elapsed since a fixed moment in time.
- *
- * \param [in] eventInFuture    The fixed moment in the future.
- * \retval time             The difference between now and a future event.
- */
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
+private:
+    events::EventQueue *_queue;
+};
 
 #endif // MBED_LORAWAN_SYS_TIMER_H__

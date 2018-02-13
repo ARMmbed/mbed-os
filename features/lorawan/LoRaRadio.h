@@ -18,6 +18,9 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
+#include "platform/Callback.h"
+#include "PinNames.h"
+
 /**
  * Structure to hold RF controls for LoRa Radio.
  * SX1276 have an extra control for the crystal (used in DOSCO-L072CZ)
@@ -131,17 +134,18 @@ typedef struct radio_settings {
  *
  */
 typedef struct radio_events {
-    /*  Tx Done callback prototype.
-     *
+    /**
+     * Callback when Transmission is done
      */
-    void (*tx_done) (void);
+    mbed::Callback<void()> tx_done;
 
-    /*  Tx Timeout callback prototype.
-     *
+    /**
+     * Callback when Transmission is timed out
      */
-    void (*tx_timeout) (void);
+    mbed::Callback<void()> tx_timeout;
 
-    /*  Rx Done callback prototype.
+    /**
+     * Rx Done callback prototype.
      *
      *  @param payload Received buffer pointer.
      *  @param size    Received buffer size.
@@ -150,29 +154,31 @@ typedef struct radio_events {
      *                     FSK : N/A (set to 0)
      *                     LoRa: SNR value in dB
      */
-    void (*rx_done) (uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+    mbed::Callback<void(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)> rx_done;
 
-    /*  Rx Timeout callback prototype.
-     *
+    /**
+     * Callback when Reception is timed out
      */
-    void (*rx_timeout) (void);
+    mbed::Callback<void()> rx_timeout;
 
-    /*  Rx Error callback prototype.
-     *
+    /**
+     * Callback when Reception ends up in error
      */
-    void (*rx_error) (void);
+    mbed::Callback<void()> rx_error;
 
-    /*  FHSS Change Channel callback prototype.
-     *
-     *  @param current_channel   The index number of the current channel.
-     */
-    void (*fhss_change_channel) (uint8_t current_channel);
+   /**
+    * FHSS Change Channel callback prototype.
+    *
+    *  @param current_channel   The index number of the current channel.
+    */
+    mbed::Callback<void(uint8_t current_channel)> fhss_change_channel;
 
-    /*  CAD Done callback prototype.
+    /**
+     * CAD Done callback prototype.
      *
-     *  @param channel_activity_detected    Channel activity detected during the CAD.
+     *  @param channel_busy    True, if Channel activity detected.
      */
-    void (*cad_done) (bool channel_activity_detected);
+    mbed::Callback<void(bool channel_busy)> cad_done;
 } radio_events_t;
 
 /**
