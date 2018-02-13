@@ -139,9 +139,7 @@ class CCES(Exporter):
         # remove these flags without converting to option
         # since they are added by CCES
         remove = ["-c"]
-        for flag in remove:
-            if flag in flags:
-                flags.remove(flag)
+        CCES.clean_flags(flags, remove)
 
         value = prefix + "option.dwarfversion.enumerated.v2"
         for flag in flags:
@@ -163,9 +161,7 @@ class CCES(Exporter):
         # remove these flags without converting to option
         # since they are added by CCES
         remove = ["-x", "assembler-with-cpp"]
-        for flag in remove:
-            if flag in flags:
-                flags.remove(flag)
+        CCES.clean_flags(flags, remove)
 
         booleans = {"-v": "arm.assembler.option.verbose",
                     "-g": "arm.assembler.option.debuginfo"}
@@ -389,11 +385,23 @@ class CCES(Exporter):
         # generate a readme on how to create the CCES project
         # using the generated .json file
 
+        cces_paths = {
+            "Windows" : "%CCES_HOME%\\Eclipse\\ccesc.exe",
+            "Linux" : "${CCES_HOME}/Eclipse/cces",
+            "MacOS" : "${CCES_HOME}/MacOS/cces"
+        }
+
+        commands = {"create":{}, "build":{}}
+        for operating_system, path in cces_paths.items():
+            commands["create"][operating_system] = \
+                                CCES.get_project_create_command(path, \
+                                "WORKSPACE", project)
+            commands["build"][operating_system] = \
+                                CCES.get_project_build_command(path, \
+                                "WORKSPACE", project)
+
         jinja_ctx = {
-            'project_create_command' : CCES.get_project_create_command("cces", \
-                                            "WORKSPACE", project),
-            'project_build_command' : CCES.get_project_build_command("cces", \
-                                            "WORKSPACE", project)
+            'commands' : commands
         }
 
         self.gen_file('cces/README.md.tmpl', jinja_ctx, "README.md")
