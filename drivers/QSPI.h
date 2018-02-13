@@ -159,6 +159,7 @@ public:
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
      *  @param instruction Instruction value to be used in instruction phase
+     *  @param address Some instruction might require address. Use -1 for ignoring the address value
      *  @param tx_buffer Buffer containing data to be sent to peripheral                          
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *  @param rx_buffer Buffer for data to be read from the peripheral                          
@@ -167,7 +168,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
     /** Acquire exclusive access to this SPI bus
      */
