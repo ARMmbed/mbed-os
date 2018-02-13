@@ -131,7 +131,7 @@ public: // CellularDevice
      *
      *  @return network stack
      */
-    NetworkStack *get_stack();
+    virtual NetworkStack *get_stack();
     
 protected:
     AT_CellularNetwork *_network;
