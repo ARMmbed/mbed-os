@@ -195,6 +195,22 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
+#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
+osThreadAttr_t _log_thread_attr;
+#ifndef MBED_CONF_APP_LOG_STACK_SIZE
+#define MBED_CONF_APP_LOG_STACK_SIZE    768
+#endif
+
+#ifndef MBED_CONF_LOG_THREAD_PRIORITY
+#define MBED_CONF_LOG_THREAD_PRIORITY   osPriorityNormal1
+#endif
+
+MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
+mbed_rtos_storage_thread_t _log_obj;
+void log_thread(void);
+
+#endif
+
 /*
  * Sanity check values
  */
@@ -329,6 +345,24 @@ void mbed_start_main(void)
     osKernelStart();
 }
 
+void mbed_logging_start(void)
+{
+#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
+    // Create an additional logging thread
+    _log_thread_attr.stack_mem = _log_stack;
+    _log_thread_attr.stack_size = sizeof(_log_stack);
+    _log_thread_attr.cb_size = sizeof(_log_obj);
+    _log_thread_attr.cb_mem = &_log_obj;
+    _log_thread_attr.priority = MBED_CONF_LOG_THREAD_PRIORITY;
+    _log_thread_attr.name = "logging_thread";
+    osThreadId_t result = osThreadNew((osThreadFunc_t)log_thread, NULL, &_log_thread_attr);
+
+    if ((void *)result == NULL) {
+        error("Logging thread not created");
+    }
+#endif
+}
+
 /******************** Toolchain specific code ********************/
 
 #if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
@@ -374,6 +408,7 @@ void pre_main()
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     $Super$$__cpp_initialize__aeabi_();
+    mbed_logging_start();
     main();
 }
 
@@ -394,7 +429,7 @@ void pre_main (void)
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
-
+    mbed_logging_start();
     main(0, NULL);
 }
 
@@ -552,7 +587,7 @@ void pre_main(void)
     env_mutex_id = osMutexNew(&env_mutex_attr);
 
     __libc_init_array();
-
+    mbed_logging_start();
     main(0, NULL);
 }
 
@@ -634,6 +669,7 @@ void pre_main(void)
     }
 
     mbed_main();
+    mbed_logging_start();
     main();
 }
 
