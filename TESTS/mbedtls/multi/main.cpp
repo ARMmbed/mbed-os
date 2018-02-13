@@ -23,6 +23,68 @@
 
 #include "mbedtls/sha256.h"
 
+/**
+ * \name SECTION: Compatibility code
+ *
+ * Depending on whether the alternative (hatdware accelerated) hashing
+ * functions are provided or not, different API should be used for hashing.
+ * \{
+ */
+
+#if defined(MBEDTLS_SHA256_ALT)
+
+/**
+ * \brief          This function starts a SHA-256 checksum calculation.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_starts_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context to initialize.
+ * \param is224    Determines which function to use.
+ *                 <ul><li>0: Use SHA-256.</li>
+ *                 <li>1: Use SHA-224.</li></ul>
+ */
+void mbedtls_sha256_starts( mbedtls_sha256_context *ctx,
+                            int is224 )
+{
+    mbedtls_sha256_starts_ret( ctx, is224 );
+}
+
+/**
+ * \brief          This function feeds an input buffer into an ongoing
+ *                 SHA-256 checksum calculation.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_update_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context to initialize.
+ * \param input    The buffer holding the data.
+ * \param ilen     The length of the input data.
+ */
+void mbedtls_sha256_update( mbedtls_sha256_context *ctx,
+                            const unsigned char *input,
+                            size_t ilen )
+{
+    mbedtls_sha256_update_ret( ctx, input, ilen );
+}
+
+/**
+ * \brief          This function finishes the SHA-256 operation, and writes
+ *                 the result to the output buffer.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_finish_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context.
+ * \param output   The SHA-224or SHA-256 checksum result.
+ */
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
+                            unsigned char output[32] )
+{
+    mbedtls_sha256_finish_ret( ctx, output );
+}
+
+#endif /* defined(MBEDTLS_SHA256_ALT) */
+
+/* \} name SECTION: Compatibility code */
+
 using namespace utest::v1;
 
 #if defined(MBEDTLS_SHA256_C)
@@ -41,18 +103,18 @@ void test_case_sha256_split() {
   mbedtls_sha256_context ctx;
   printf("test sha256\n");
   mbedtls_sha256_init( &ctx );
-  mbedtls_sha256_starts_ret( &ctx, 0);
+  mbedtls_sha256_starts( &ctx, 0);
   #if 0
     printf("test not splitted\n");
     mbedtls_sha256_update( &ctx, test_buf, 168 );
   #else
     printf("test splitted into 3 pieces\n");
-    mbedtls_sha256_update_ret( &ctx, test_buf, 2 );
-    mbedtls_sha256_update_ret( &ctx, test_buf+2, 66 );
-    mbedtls_sha256_update_ret( &ctx, test_buf+68, 100 );
+    mbedtls_sha256_update( &ctx, test_buf, 2 );
+    mbedtls_sha256_update( &ctx, test_buf+2, 66 );
+    mbedtls_sha256_update( &ctx, test_buf+68, 100 );
   #endif
   
-    mbedtls_sha256_finish_ret( &ctx, outsum );
+    mbedtls_sha256_finish( &ctx, outsum );
     mbedtls_sha256_free( &ctx );
   
     printf("\nreceived result : ");
@@ -98,29 +160,29 @@ void test_case_sha256_multi() {
     mbedtls_sha256_init( &ctx2);
     mbedtls_sha256_init( &ctx3);
     //Start both contexts
-    mbedtls_sha256_starts_ret( &ctx1, 0);
-    mbedtls_sha256_starts_ret( &ctx2, 0);
+    mbedtls_sha256_starts( &ctx1, 0);
+    mbedtls_sha256_starts( &ctx2, 0);
 
     printf("upd ctx1\n");
-    mbedtls_sha256_update_ret( &ctx1, test_buf, 56 );
+    mbedtls_sha256_update( &ctx1, test_buf, 56 );
     printf("upd ctx2\n");
-    mbedtls_sha256_update_ret( &ctx2, test_buf, 66 );
+    mbedtls_sha256_update( &ctx2, test_buf, 66 );
     printf("finish ctx1\n");
-    mbedtls_sha256_finish_ret( &ctx1, outsum1 );
+    mbedtls_sha256_finish( &ctx1, outsum1 );
     printf("upd ctx2\n");
-    mbedtls_sha256_update_ret( &ctx2, test_buf+66, 46 );
+    mbedtls_sha256_update( &ctx2, test_buf+66, 46 );
     printf("clone ctx2 in ctx3\n");
     mbedtls_sha256_clone(&ctx3, (const mbedtls_sha256_context *)&ctx2);
     printf("free ctx1\n");
     mbedtls_sha256_free( &ctx1 );
     printf("upd ctx2\n");
-    mbedtls_sha256_update_ret( &ctx2, test_buf+112, 56 );
+    mbedtls_sha256_update( &ctx2, test_buf+112, 56 );
     printf("upd ctx3 with different values than ctx2\n");
-    mbedtls_sha256_update_ret( &ctx3, test_buf2, 56 );
+    mbedtls_sha256_update( &ctx3, test_buf2, 56 );
     printf("finish ctx2\n");
-    mbedtls_sha256_finish_ret( &ctx2, outsum2 );
+    mbedtls_sha256_finish( &ctx2, outsum2 );
     printf("finish ctx3\n");
-    mbedtls_sha256_finish_ret( &ctx3, outsum3 );
+    mbedtls_sha256_finish( &ctx3, outsum3 );
     printf("free ctx2\n");
     mbedtls_sha256_free( &ctx2 );
     printf("free ctx3\n");
