@@ -116,6 +116,23 @@ matrix:
         - make -C $EVENTS/equeue test
 
     - env:
+        - NAME=ble-host-tests
+        - BLE_HOST_TESTS=features/FEATURE_BLE/tests
+      install:
+        # Install dependencies
+        - sudo apt-get install cmake
+        # Print versions we use
+        - gcc --version
+        - cmake --version
+      script:
+        # Compile the tests
+        - mkdir $BLE_HOST_TESTS/build
+        - cd $BLE_HOST_TESTS/build && cmake .. -G "Unix Makefiles"
+        - make -C BLE_HOST_TESTS/build
+        # Run ble host tests
+        - $BLE_HOST_TESTS/build/gatt-client-tests
+
+    - env:
         - NAME=littlefs
         - LITTLEFS=features/filesystem/littlefs
       install:
