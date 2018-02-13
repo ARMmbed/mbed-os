@@ -18,9 +18,13 @@
 #ifndef EASY_CELLULAR_CONNECTION_H
 #define EASY_CELLULAR_CONNECTION_H
 
-#include "netsocket/CellularBase.h"
 #include "CellularConnectionUtil.h"
+#ifdef CELLULAR_DEVICE
+ 
+#include "netsocket/CellularBase.h"
 
+namespace mbed {
+    
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
@@ -131,6 +135,10 @@ private:
     bool _is_connected;
     CellularConnectionUtil::CellularState _target_state;
 };
+
+} // namespace
+
+#endif // CELLULAR_DEVICE
 
 #endif // EASY_CELLULAR_CONNECTION_H
 

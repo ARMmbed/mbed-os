@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 
-#include <mbed.h>
-
-
 #include "CellularConnectionUtil.h"
+#ifdef CELLULAR_DEVICE
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
@@ -36,7 +34,9 @@
 #define TIMEOUT_NETWORK      (10*1000)
 #define TIMEOUT_REGISTRATION (180*1000)
 
-static EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
+namespace mbed {
+    
+static events::EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
 
 CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state),
@@ -463,12 +463,12 @@ nsapi_error_t CellularConnectionUtil::start_dispatch()
 
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new Thread();
+    _queue_thread = new rtos::Thread();
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
-    if (_queue_thread->start(callback(&_queue, &EventQueue::dispatch_forever)) != osOK) {
+    if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -498,7 +498,7 @@ void CellularConnectionUtil::set_callback(mbed::Callback<bool(int, int)> status_
     _status_callback = status_callback;
 }
 
-EventQueue *CellularConnectionUtil::get_queue()
+events::EventQueue *CellularConnectionUtil::get_queue()
 {
     return &_queue;
 }
@@ -524,3 +524,7 @@ NetworkStack *CellularConnectionUtil::get_stack()
 {
     return _cellularDevice->get_stack();
 }
+
+} // namespace
+
+#endif // CELLULAR_DEVICE

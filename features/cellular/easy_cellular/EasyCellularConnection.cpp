@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-#include <mbed.h>
+#include "CellularTargets.h"
+#ifdef CELLULAR_DEVICE
+ 
+#if NSAPI_PPP_AVAILABLE
+#include "nsapi_ppp.h"
+#endif
 
 #include "CellularConnectionUtil.h"
-#include "CellularTargets.h"
 #include "CellularUtil.h"
 
 #include "EasyCellularConnection.h"
 
 #include "CellularLog.h"
 
-#include "CellularConnectionUtil.h"
+namespace mbed {
+
 static CellularConnectionUtil cellularConnection;
-static Semaphore cellularSemaphore(0);
+static rtos::Semaphore cellularSemaphore(0);
 static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
 
@@ -157,3 +162,7 @@ NetworkStack *EasyCellularConnection::get_stack()
     return cellularConnection.get_stack();
 #endif // #if NSAPI_PPP_AVAILABLE
 }
+
+} // namespace
+
+#endif // CELLULAR_DEVICE
