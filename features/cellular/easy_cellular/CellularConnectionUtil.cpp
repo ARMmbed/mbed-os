@@ -35,7 +35,7 @@
 #define TIMEOUT_REGISTRATION (180*1000)
 
 namespace mbed {
-    
+
 static events::EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
 
@@ -93,7 +93,7 @@ bool CellularConnectionUtil::open_power(FileHandle *fh)
 
 void CellularConnectionUtil::set_sim_pin(const char * sim_pin)
 {
-    strncpy(_sim_pin, sim_pin, PIN_SIZE);
+    strncpy(_sim_pin, sim_pin, PIN_SIZE+1);
 }
 
 bool CellularConnectionUtil::open_sim()
