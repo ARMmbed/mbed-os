@@ -158,13 +158,13 @@ private:
      */
     nsapi_error_t set_cmgf(int msg_format);
 
-    /** Select message service (AT+CSMS select message service)
-     *
-     *  @param msg_service   0 or 1. See more from 3GPP TS 27.005
-     *
-     *  @return              zero for success
-     */
-    nsapi_error_t set_csms(int msg_service);
+//    /** Select message service (AT+CSMS select message service)
+//     *
+//     *  @param msg_service   0 or 1. See more from 3GPP TS 27.005
+//     *
+//     *  @return              zero for success
+//     */
+//    nsapi_error_t set_csms(int msg_service);
 
     /* Set how receiving of new messages from the network is indicated to the TE.
      *

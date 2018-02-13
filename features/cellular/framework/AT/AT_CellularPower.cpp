@@ -18,6 +18,7 @@
 #include "AT_CellularPower.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
+#include "nsapi_types.h"
 
 static const int PSMTimerBits = 5;
 

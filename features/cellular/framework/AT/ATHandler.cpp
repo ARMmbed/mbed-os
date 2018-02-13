@@ -86,6 +86,8 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
 {
     //enable_debug(true);
 
+    clear_error();
+
     if (output_delimiter) {
         _output_delimiter_length = strlen(output_delimiter);
         _output_delimiter = new char[_output_delimiter_length];
@@ -340,7 +342,7 @@ int16_t ATHandler::get_char()
 void ATHandler::skip_param(uint32_t count)
 {
     log_debug("%s", __func__);
-    if (_last_err || _stop_tag->found) {
+    if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
 
@@ -370,7 +372,7 @@ void ATHandler::skip_param(uint32_t count)
 void ATHandler::skip_param(ssize_t len, uint32_t count)
 {
     log_debug("%s", __func__);
-    if (_last_err || _stop_tag->found) {
+    if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
 
@@ -416,7 +418,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
     }
     at_debug("\n----------buff----------\n");
 
-    if (_last_err || (_stop_tag->found && read_even_stop_tag == false)) {
+    if (_last_err || !_stop_tag || (_stop_tag->found && read_even_stop_tag == false)) {
         return -1;
     }
 
@@ -464,7 +466,7 @@ int32_t ATHandler::read_int()
 {
     log_debug("%s", __func__);
 
-     if (_last_err || _stop_tag->found) {
+     if (_last_err || !_stop_tag || _stop_tag->found) {
          return -1;
      }
 
@@ -561,7 +563,9 @@ bool ATHandler::match_urc()
             if (match(oob->prefix, prefix_len)) {
                 log_debug("URC!");
                 set_scope(InfoType);
-                oob->cb();
+                if(oob->cb){
+                    oob->cb();
+                }
                 information_response_stop();
                 return true;
             }

@@ -16,7 +16,7 @@
  */
 
 #include <errno.h>
-#include "mbed_mux.h"
+#include "cellular_mux.h"
 #include "mbed_retarget.h"
 
 using namespace rtos;

@@ -24,6 +24,7 @@ using namespace mbed;
 
 AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL),_socket_count(0),_cid(cid), _stack_type(stack_type)
 {
+    memset(_ip,0, PDP_IPV6_SIZE);
 }
 
 AT_CellularStack::~AT_CellularStack()
@@ -31,10 +32,13 @@ AT_CellularStack::~AT_CellularStack()
     for (int i = 0; i < _socket_count; i++) {
         if (_socket[i]) {
             delete _socket[i];
+            _socket[i] = NULL;
         }
     }
+    _socket_count = 0;
 
     delete [] _socket;
+    _socket = NULL;
 }
 
 /** NetworkStack
@@ -79,7 +83,7 @@ const char * AT_CellularStack::get_ip_address()
 
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
-    if (!is_protocol_supported(proto)) {
+    if (!is_protocol_supported(proto) || !handle) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
@@ -127,6 +131,9 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
     int err = NSAPI_ERROR_DEVICE_ERROR;
 
     struct CellularSocket *socket = (struct CellularSocket *)handle;
+    if (!socket){
+        return err;
+    }
     int sock_id = socket->id;
     int max_socket_count = get_max_socket_count();
 
@@ -138,10 +145,11 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
         }
     }
 
-    if (index != -1) {
-        _socket[index] = NULL;
-        err = NSAPI_ERROR_OK;
+    if (index == -1) {
+        return err;
     }
+    _socket[index] = NULL;
+    err = NSAPI_ERROR_OK;
 
     _at.lock();
 
@@ -152,6 +160,7 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
     _at.unlock();
 
     delete socket;
+    socket = NULL;
 
     return err;
 }
@@ -159,6 +168,9 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
 nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketAddress &addr)
 {
     struct CellularSocket *socket = (CellularSocket *)handle;
+    if (!socket) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
     socket->localAddress = addr;
 
     _at.lock();
@@ -178,6 +190,9 @@ nsapi_error_t AT_CellularStack::socket_listen(nsapi_socket_t handle, int backlog
 nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
 {
     CellularSocket *socket = (CellularSocket *)handle;
+    if (!socket) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
     socket->remoteAddress = addr;
     socket->connected = true;
 
@@ -192,7 +207,7 @@ nsapi_error_t AT_CellularStack::socket_accept(void *server, void **socket, Socke
 nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
 {
     CellularSocket *socket = (CellularSocket *)handle;
-    if (!socket->connected) {
+    if (!socket || !socket->connected) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     return socket_sendto(handle, socket->remoteAddress, data, size);
@@ -201,6 +216,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const
 nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, const SocketAddress &addr, const void *data, unsigned size)
 {
     CellularSocket *socket = (CellularSocket *)handle;
+    if (!socket) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
 
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
@@ -240,6 +258,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_recv(nsapi_socket_t handle, void 
 nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, SocketAddress *addr, void *buffer, unsigned size)
 {
     CellularSocket *socket = (CellularSocket *)handle;
+    if (!socket) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
 
     nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
 
@@ -273,6 +294,9 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
 void AT_CellularStack::socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data)
 {
     CellularSocket *socket = (CellularSocket *)handle;
+    if (!socket) {
+        return;
+    }
     socket->_cb = callback;
     socket->_data = data;
 }
