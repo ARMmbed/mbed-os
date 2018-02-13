@@ -24,6 +24,18 @@
 
 #if defined (MBEDTLS_SHA1_ALT)
 
+/**
+ * \name SECTION: Temporary compatibility code
+ *
+ * This section contains code to be added up stream in Mbed TLS. Once that
+ * has been provided, this section should be removed as the code will be
+ * provided elsewhere.
+ * \{
+ */
+
+#define MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED -0x0035 /**< SHA-1 hardware accelerator failed */
+
+/* \} name SECTION:  Temporary compatibility code */
 
 #include "cmsis.h"
 #include <string.h>

@@ -27,6 +27,19 @@
 #include "cmsis.h"
 #include <string.h>
 
+/**
+ * \name SECTION: Temporary compatibility code
+ *
+ * This section contains code to be added up stream in Mbed TLS. Once that
+ * has been provided, this section should be removed as the code will be
+ * provided elsewhere.
+ * \{
+ */
+
+#define MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED -0x0037 /**< SHA-256 hardware accelerator failed */
+
+/* \} name SECTION:  Temporary compatibility code */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
