@@ -34,9 +34,8 @@ namespace mbed {
 #define CELLULAR_DEVICE UBLOX_C027
 #elif TARGET_UBLOX_C027
 #define CELLULAR_DEVICE UBLOX_C027
-
 #else
-#error Cellular target not defined, see cellular/targets.h
+//#error Cellular target not defined, see cellular/targets.h
 //#define CELLULAR_TARGET <target-modem>
 //#define MDMTXD <pin-name>
 //#define MDMRXD <pin-name>

@@ -18,9 +18,13 @@
 #ifndef _CELLULAR_CONNECTION_UTIL_H
 #define _CELLULAR_CONNECTION_UTIL_H
 
+#include "CellularTargets.h"
+#ifdef CELLULAR_DEVICE
+
 #include <UARTSerial.h>
 #include <NetworkInterface.h>
 #include <EventQueue.h>
+#include <Thread.h>
 
 #include "CellularNetwork.h"
 #include "CellularPower.h"
@@ -28,9 +32,10 @@
 // modem type is defined as CELLULAR_DEVICE macro
 #define _CELLULAR_STRINGIFY(a) #a
 #define CELLULAR_STRINGIFY(a) _CELLULAR_STRINGIFY(a)
-#include "CellularTargets.h"
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
+namespace mbed {
+    
 const int PIN_SIZE = 8;
 
 /** CellularConnectionUtil class
@@ -79,7 +84,7 @@ public:
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
-    EventQueue* get_queue();
+    events::EventQueue* get_queue();
 
     /** Start event queue dispatching
      *  @return see nsapi_error_t, 0 on success
@@ -133,15 +138,18 @@ private:
     CellularState _state;
     CellularState _next_state;
 
-    mbed::Callback<bool(int, int)> _status_callback;
+    Callback<bool(int, int)> _status_callback;
 
     CellularNetwork *_network;
     CellularPower *_power;
-    EventQueue _queue;
-    Thread *_queue_thread;
+    events::EventQueue _queue;
+    rtos::Thread *_queue_thread;
     CellularDevice *_cellularDevice;
     char _sim_pin[PIN_SIZE+1];
 };
 
+} // namespace
+
+#endif // CELLULAR_DEVICE
 
 #endif /* _CELLULAR_CONNECTION_UTIL_H */
