@@ -349,10 +349,7 @@ public:
         /* Notify that the instance is about to shutdown */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
-        if (eventHandler != &defaultEventHandler) {
-            delete eventHandler;
-            eventHandler = &defaultEventHandler;
-        }
+        eventHandler = &defaultEventHandler;
 
         return BLE_ERROR_NONE;
     }
@@ -843,10 +840,9 @@ public:
      */
     virtual void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         if (handler) {
-            if (eventHandler && (eventHandler != &defaultEventHandler)) {
-                delete eventHandler;
-            }
             eventHandler = handler;
+        } else {
+            eventHandler = &defaultEventHandler;
         }
     }
 
