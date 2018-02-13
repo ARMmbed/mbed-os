@@ -194,14 +194,14 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int alt, unsigned i
     return ret_status;
 }
 
-qspi_status_t QSPI::command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length) 
+qspi_status_t QSPI::command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length) 
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
     
     if (_initialized) {
         lock();
         if (true == _acquire()) {
-            _build_qspi_command(instruction, -1, -1); //We just need the command
+            _build_qspi_command(instruction, address, -1); //We just need the command
             if (QSPI_STATUS_OK == qspi_command_transfer(&_qspi, &_qspi_command, (const void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length)) {
                 ret_status = QSPI_STATUS_OK;
             }
