@@ -173,6 +173,10 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
     }
     socket->localAddress = addr;
 
+    if (socket->localAddress.get_port() == 0) {
+        socket->localAddress.set_port(get_dynamic_ip_port());
+    }
+
     _at.lock();
 
     if (!socket->created) {
