@@ -311,7 +311,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
     }
     _at.resp_stop();
     if (_cid == -1) { // no suitable context was found so create a new one
-        if (!set_new_context(_ip_stack_type, cid_max+1)) {
+        if (!set_new_context(requested_stack, cid_max+1)) {
             return false;
         }
     }
