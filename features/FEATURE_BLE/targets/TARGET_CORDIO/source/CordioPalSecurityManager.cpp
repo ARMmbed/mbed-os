@@ -68,9 +68,8 @@ uint8_t CordioSecurityManager::read_resolving_list_capacity()
 
 ble_error_t CordioSecurityManager::add_device_to_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
-    address_t peer_identity_address,
-    const irk_t peer_irk,
-    const irk_t local_irk
+    const address_t &peer_identity_address,
+    const irk_t &peer_irk
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -119,12 +118,30 @@ ble_error_t CordioSecurityManager::get_authentication_timeout(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t CordioSecurityManager::slave_security_request(
+    connection_handle_t connection,
+    AuthenticationMask authentication
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
 
-ble_error_t CordioSecurityManager::enable_encryption(connection_handle_t connection)
-{
+ble_error_t CordioSecurityManager::enable_encryption(
+    connection_handle_t connection,
+    const ltk_t &ltk,
+    const rand_t &rand,
+    const ediv_t &ediv
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t CordioSecurityManager::enable_encryption(
+    connection_handle_t connection,
+    const ltk_t &ltk
+) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -145,8 +162,10 @@ ble_error_t CordioSecurityManager::get_encryption_key_size(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::refresh_encryption_key(connection_handle_t connection)
-{
+ble_error_t CordioSecurityManager::encrypt_data(
+    const key_t &key,
+    encryption_block_t &data
+) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -166,36 +185,39 @@ ble_error_t CordioSecurityManager::set_private_address_timeout(
 //
 
 ble_error_t CordioSecurityManager::set_ltk(
-    connection_handle_t connection, const ltk_t ltk
+    connection_handle_t connection, const ltk_t& ltk
 ) {
     // FIXME: get access to the security level of a key
     DmSecLtkRsp(
         connection,
         /* key found */ true,
         /* sec level ??? */ DM_SEC_LEVEL_ENC_AUTH,
-        const_cast<uint8_t*>(ltk)
+        const_cast<uint8_t*>(ltk.data())
     );
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::set_irk(const irk_t irk)
-{
-    DmSecSetLocalIrk(const_cast<uint8_t*>(irk));
-    return BLE_ERROR_NONE;
-}
-
-ble_error_t CordioSecurityManager::set_csrk(const csrk_t csrk)
-{
-    DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk));
-    return BLE_ERROR_NONE;
-}
-
-ble_error_t CordioSecurityManager::generate_irk()
-{
+ble_error_t CordioSecurityManager::set_ltk_not_found(
+    connection_handle_t connection
+) {
+    ltk_t ltk;
+    set_ltk(connection, ltk);
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::generate_csrk()
+ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
+{
+    DmSecSetLocalIrk(const_cast<uint8_t*>(irk.data()));
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
+{
+    DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t CordioSecurityManager::generate_public_key()
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -204,7 +226,7 @@ ble_error_t CordioSecurityManager::generate_csrk()
 // Global parameters
 //
 
-ble_error_t CordioSecurityManager::set_display_passkey(const passkey_num_t passkey)
+ble_error_t CordioSecurityManager::set_display_passkey(passkey_num_t passkey)
 {
     if (passkey) {
         _use_default_passkey = true;
@@ -302,24 +324,25 @@ ble_error_t CordioSecurityManager::get_random_data(random_data_t &random_data)
 //
 
 ble_error_t CordioSecurityManager::passkey_request_reply(
-    connection_handle_t connection, const passkey_num_t passkey
+    connection_handle_t connection, passkey_num_t passkey
 ) {
     DmSecAuthRsp(
         connection,
         3,
-        reinterpret_cast<uint8_t*>(const_cast<passkey_num_t*>(&passkey))
+        reinterpret_cast<uint8_t*>(&passkey)
     );
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::oob_data_request_reply(
-    connection_handle_t connection, const oob_data_t oob_data
+ble_error_t CordioSecurityManager::legacy_pairing_oob_data_request_reply(
+    connection_handle_t connection,
+    const oob_tk_t &oob_data
 ) {
     DmSecAuthRsp(
         connection,
         16,
-        const_cast<uint8_t*>(oob_data)
+        const_cast<uint8_t*>(oob_data.data())
     );
 
     return BLE_ERROR_NONE;
@@ -333,6 +356,14 @@ ble_error_t CordioSecurityManager::confirmation_entered(
 
 ble_error_t CordioSecurityManager::send_keypress_notification(
     connection_handle_t connection, Keypress_t keypress
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t CordioSecurityManager::oob_data_verified(
+    connection_handle_t connection,
+    const oob_rand_t &local_random,
+    const oob_rand_t &peer_random
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -391,13 +422,13 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             dmSecEncryptIndEvt_t* evt = (dmSecEncryptIndEvt_t*) msg;
             // note: the field usingLtk of the message indicates if an LTK was
             // used to encrypt the link
-            handler->on_link_encryption_result(evt->hdr.param, true);
+            handler->on_link_encryption_result(evt->hdr.param, link_encryption_t::ENCRYPTED);
             return true;
         }
 
         case DM_SEC_ENCRYPT_FAIL_IND: {
             // note: msg->status contains the encryption failure status
-            handler->on_link_encryption_result(msg->param, false);
+            handler->on_link_encryption_result(msg->param, link_encryption_t::NOT_ENCRYPTED);
             return true;
         }
 
@@ -406,7 +437,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             connection_handle_t connection = evt->hdr.param;
 
             if (evt->oob) {
-                handler->on_oob_request(connection);
+                handler->on_legacy_pairing_oob_request(connection);
             } else if (evt->display) {
                 if (get_security_manager()._use_default_passkey) {
                     handler->on_passkey_display(
@@ -457,10 +488,13 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                     break;
 
                 case DM_KEY_PEER_LTK:
-                    handler->on_keys_distributed_ltk(connection, evt->keyData.ltk.key);
+                    handler->on_keys_distributed_ltk(
+                        connection,
+                        ltk_t(reinterpret_cast<uint8_t*>(evt->keyData.ltk.key))
+                    );
                     handler->on_keys_distributed_ediv_rand(
                         connection,
-                        reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv)),
+                        ediv_t(reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv))),
                         evt->keyData.ltk.rand
                     );
                     break;
@@ -471,7 +505,10 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                         (advertising_peer_address_type_t::type) evt->keyData.irk.addrType,
                         evt->keyData.irk.bdAddr
                     );
-                    handler->on_keys_distributed_irk(connection, evt->keyData.irk.key);
+                    handler->on_keys_distributed_irk(
+                        connection,
+                        irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
+                    );
                     break;
 
                 case DM_KEY_CSRK:

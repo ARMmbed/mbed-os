@@ -65,9 +65,8 @@ public:
      */
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t peer_identity_address,
-        const irk_t peer_irk,
-        const irk_t local_irk
+        const address_t &peer_identity_address,
+        const irk_t &peer_irk
     );
 
     /**
@@ -75,7 +74,7 @@ public:
      */
     virtual ble_error_t remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        const address_t& peer_identity_address
+        const address_t &peer_identity_address
     );
 
     /**
@@ -119,6 +118,11 @@ public:
         connection_handle_t, uint16_t &timeout_in_10ms
     );
 
+    virtual ble_error_t slave_security_request(
+        connection_handle_t connection,
+        AuthenticationMask authentication
+    );
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -126,7 +130,20 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::enable_encryption
      */
-    virtual ble_error_t enable_encryption(connection_handle_t connection);
+    virtual ble_error_t enable_encryption(
+        connection_handle_t connection,
+        const ltk_t &ltk,
+        const rand_t &rand,
+        const ediv_t &ediv
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::enable_encryption
+     */
+    virtual ble_error_t enable_encryption(
+        connection_handle_t connection,
+        const ltk_t &ltk
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::disable_encryption
@@ -148,9 +165,12 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::refresh_encryption_key
+     * @see ::ble::pal::SecurityManager::encrypt_data
      */
-    virtual ble_error_t refresh_encryption_key(connection_handle_t connection);
+    virtual ble_error_t encrypt_data(
+        const key_t &key,
+        encryption_block_t &data
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
@@ -168,27 +188,29 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_ltk
      */
-    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t ltk);
+    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t &ltk);
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_ltk_not_found
+     */
+    virtual ble_error_t set_ltk_not_found(
+        connection_handle_t connection
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::set_irk
      */
-    virtual ble_error_t set_irk(const irk_t irk);
+    virtual ble_error_t set_irk(const irk_t &irk);
 
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t csrk);
+    virtual ble_error_t set_csrk(const csrk_t &csrk);
 
     /**
-     * @see ::ble::pal::SecurityManager::generate_irk
+     * @see ::ble::pal::SecurityManager::generate_public_key
      */
-    virtual ble_error_t generate_irk();
-
-    /**
-     * @see ::ble::pal::SecurityManager::generate_csrk
-     */
-    virtual ble_error_t generate_csrk();
+    virtual ble_error_t generate_public_key();
 
     ////////////////////////////////////////////////////////////////////////////
     // Global parameters
@@ -197,7 +219,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_display_passkey
      */
-    virtual ble_error_t set_display_passkey(const passkey_num_t passkey);
+    virtual ble_error_t set_display_passkey(passkey_num_t passkey);
 
     /**
      * @see ::ble::pal::SecurityManager::set_io_capability
@@ -263,14 +285,16 @@ public:
      * @see ::ble::pal::SecurityManager::passkey_request_reply
      */
     virtual ble_error_t passkey_request_reply(
-        connection_handle_t connection, const passkey_num_t passkey
+        connection_handle_t connection,
+        passkey_num_t passkey
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::oob_data_request_reply
+     * @see ::ble::pal::SecurityManager::legacy_pairing_oob_data_request_reply
      */
-    virtual ble_error_t oob_data_request_reply(
-        connection_handle_t connection, const oob_data_t oob_data
+    virtual ble_error_t legacy_pairing_oob_data_request_reply(
+        connection_handle_t connection,
+        const oob_tk_t &oob_data
     );
 
     /**
@@ -287,8 +311,17 @@ public:
         connection_handle_t connection, Keypress_t keypress
     );
 
+    /**
+     * @see ::ble::pal::SecurityManager::oob_data_verified
+     */
+    virtual ble_error_t oob_data_verified(
+        connection_handle_t connection,
+        const oob_rand_t &local_random,
+        const oob_rand_t &peer_random
+    );
+
     // singleton of the ARM Cordio Security Manager
-    static CordioSecurityManager& get_security_manager();
+    static CordioSecurityManager &get_security_manager();
 
     // Event handler
     static bool sm_handler(const wsfMsgHdr_t* msg);

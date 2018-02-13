@@ -314,7 +314,7 @@ public:
      */
     virtual void on_passkey_display(
         connection_handle_t connection,
-        const passkey_num_t passkey
+        passkey_num_t passkey
     ) = 0;
 
     /**
@@ -574,7 +574,7 @@ public:
      */
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t peer_identity_address,
+        const address_t &peer_identity_address,
         const irk_t &peer_irk
     ) = 0;
 
@@ -620,7 +620,7 @@ public:
         AuthenticationMask authentication_requirements,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
-    );
+    ) = 0;
 
     /**
      * Send a pairing response to a master.
@@ -862,8 +862,10 @@ public:
     /**
      * Generate the Public key. This will also generate the private key.
      * Public key will be returned as an event handler callback when it's ready.
+     *
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual void generate_public_key() = 0;
+    virtual ble_error_t generate_public_key() = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -916,7 +918,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_display_passkey(
-        const passkey_num_t passkey
+        passkey_num_t passkey
     ) = 0;
 
     /**
@@ -926,7 +928,7 @@ public:
      */
     virtual ble_error_t passkey_request_reply(
         connection_handle_t connection,
-        const passkey_num_t passkey
+        passkey_num_t passkey
     ) = 0;
 
     /**

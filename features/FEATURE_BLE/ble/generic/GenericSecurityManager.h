@@ -22,6 +22,7 @@
 #include "ble/generic/GenericSecurityDb.h"
 #include "Callback.h"
 #include "ble/Gap.h"
+#include "ble/pal/PalSecurityManager.h"
 
 namespace ble {
 namespace generic {
@@ -227,7 +228,7 @@ public:
 
     /* ends implements SecurityManager */
 
-protected:
+public:
     GenericSecurityManager(
         ble::pal::SecurityManager &palImpl,
         GenericSecurityDb &dbImpl,
@@ -537,12 +538,6 @@ public:
     /** @copydoc SecurityManagerEventHandler::on_legacy_pairing_oob_request
      */
     virtual void on_legacy_pairing_oob_request(
-        connection_handle_t connection
-    );
-
-    /** @copydoc SecurityManagerEventHandler::on_oob_request
-     */
-    virtual void on_oob_request(
         connection_handle_t connection
     );
 

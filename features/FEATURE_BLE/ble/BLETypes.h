@@ -273,7 +273,7 @@ struct octet_type_t {
      *
      * @param input_value value of the data.
      */
-    octet_type_t(const uint8_t (&input_value)[octet_size]) {
+    octet_type_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));
     }
 
@@ -334,10 +334,10 @@ protected:
 };
 
 /** 128 bit keys used by paired devices */
-struct key_t : public octet_type_t<16> {} ;
-struct irk_t : public key_t {};
-struct csrk_t : public key_t {};
-struct ltk_t : public key_t {};
+typedef octet_type_t<16> key_t;
+typedef octet_type_t<16> irk_t;
+typedef octet_type_t<16> csrk_t;
+typedef octet_type_t<16> ltk_t;
 
 /** Used to identify LTK for legacy pairing connections */
 typedef octet_type_t<2> ediv_t;

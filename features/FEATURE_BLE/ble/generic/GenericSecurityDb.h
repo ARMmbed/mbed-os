@@ -686,11 +686,11 @@ public:
 
     virtual void set_entry_peer_ltk(
         connection_handle_t connection,
-        const ltk_t *ltk
+        const ltk_t &ltk
     ) {
         db_store_t *store = get_store(connection);
         if (store) {
-            store->peer_keys.ltk = *ltk;
+            store->peer_keys.ltk = ltk;
         }
     }
 
@@ -852,7 +852,7 @@ public:
 
     virtual void disconnect_entry(connection_handle_t connection) { }
 
-    virtual void remove_entry(address_t peer_identity_address);
+    virtual void remove_entry(address_t peer_identity_address) { }
 
     virtual void clear_entries() {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
@@ -886,6 +886,8 @@ public:
     }
 
     virtual void update_whitelist(Gap::Whitelist_t &whitelist) { }
+
+    virtual void set_whitelist(const Gap::Whitelist_t &whitelist) { };
 
     virtual void add_whitelist_entry(const address_t &address) { }
 

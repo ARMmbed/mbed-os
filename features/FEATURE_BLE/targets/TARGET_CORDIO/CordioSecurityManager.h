@@ -19,24 +19,34 @@
 
 #include <stddef.h>
 
+#include "ble/generic/GenericSecurityManager.h"
+#include "ble/generic/GenericSecurityDb.h"
+#include "ble/pal/PalSecurityManager.h"
+#include "CordioPalSecurityManager.h"
+#include "CordioGap.h"
 #include "ble/SecurityManager.h"
 
 namespace ble {
 namespace vendor {
 namespace cordio {
 
-class SecurityManager : public ::SecurityManager
+class SecurityManager : public generic::GenericSecurityManager
 {
 public:
     static SecurityManager &getInstance()
     {
-        static SecurityManager m_instance;
+        static generic::MemoryGenericSecurityDb m_db;
+        static pal::vendor::cordio::CordioSecurityManager m_pal;
+        static SecurityManager m_instance(m_pal, m_db, cordio::Gap::getInstance());
         return m_instance;
     }
 
 public:
-    SecurityManager()
-    {
+    SecurityManager(
+        pal::SecurityManager &palImpl,
+        generic::GenericSecurityDb &dbImpl,
+        Gap &gapImpl
+    ) : generic::GenericSecurityManager(palImpl, dbImpl, gapImpl) {
         /* empty */
     }
 };
