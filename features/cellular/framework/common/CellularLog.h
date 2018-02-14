@@ -18,7 +18,7 @@
 #ifndef CELLULAR_LOG_H_
 #define CELLULAR_LOG_H_
 
-#include <stdint.h>
+#include <inttypes.h>
 #ifdef FEATURE_COMMON_PAL
 #include <stdarg.h>
 #endif // FEATURE_COMMON_PAL

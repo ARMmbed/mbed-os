@@ -19,7 +19,7 @@
 #define CELLULAR_UTIL_H_
 
 #include <stddef.h>
-#include <stdint.h>
+#include <inttypes.h>
 
 namespace mbed_cellular_util {
 
