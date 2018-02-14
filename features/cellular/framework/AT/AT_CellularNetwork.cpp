@@ -32,10 +32,10 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
 
-    memset(_apn, 0, MAX_APN_LENGTH);
+    memset(_apn, 0, MAX_ACCESSPOINT_NAME_LENGTH);
 
 #ifdef MBED_CONF_APP_CELLULAR_APN
-    strncpy(_apn, MBED_CONF_APP_CELLULAR_APN, MAX_APN_LENGTH);
+    strncpy(_apn, MBED_CONF_APP_CELLULAR_APN, MAX_ACCESSPOINT_NAME_LENGTH);
     log_debug("Using APN [%s] from json", _apn);
 #endif
 
@@ -55,7 +55,7 @@ void AT_CellularNetwork::urc_no_carrier()
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_APN_LENGTH);
+    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     _uname = username;
     _pwd = password;
 
@@ -65,7 +65,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
      AuthenticationType type, const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_APN_LENGTH);
+    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     _uname = username;
     _pwd = password;
     _authentication_type = type;
@@ -76,7 +76,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 nsapi_error_t AT_CellularNetwork::connect(const char *apn,
         const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_APN_LENGTH);
+    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     _uname = username;
     _pwd = password;
 
@@ -262,7 +262,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
     _at.resp_start("+CGDCONT:");
     _cid = -1;
     int cid_max = 0; // needed when creating new context
-    char apn[MAX_APN_LENGTH] = {0};
+    char apn[MAX_ACCESSPOINT_NAME_LENGTH] = {0};
     int apn_len = 0;
 
     while (_at.info_resp()) {
@@ -318,7 +318,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
 
     // save the apn
     if (apn_len > 0 && !strlen(_apn)) {
-        strncpy(_apn, apn, MAX_APN_LENGTH);
+        strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     }
 
     log_debug("Context id %d", _cid);
@@ -437,8 +437,6 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     if (memcmp(cell_id_string, "ffffffff", CELL_ID_LENGTH-1) && len >= 0) {
         cell_id_read = true;
     }
-
-    _AcT = (operator_t::RadioAccessTechnology)_at.read_int();
 
     _at.resp_stop();
 
@@ -884,15 +882,15 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
 
         switch (format) {
             case 0:
-                _at.read_string(operator_params.op_long, 16+9);
+                _at.read_string(operator_params.op_long, sizeof(operator_params.op_long));
                 break;
 
             case 1:
-                _at.read_string(operator_params.op_short, 8+4);
+                _at.read_string(operator_params.op_short, sizeof(operator_params.op_short));
                 break;
 
             default:
-                _at.read_string(operator_params.op_num, 8+4);
+                _at.read_string(operator_params.op_num, sizeof(operator_params.op_num));
                 break;
         }
 

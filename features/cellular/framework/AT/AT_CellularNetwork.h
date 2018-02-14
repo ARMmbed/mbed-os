@@ -25,7 +25,6 @@
 namespace mbed {
 
 #define AT_NETWORK_TRIALS 5
-#define MAX_APN_LENGTH 63
 
 class AT_CellularNetwork : public CellularNetwork, public AT_CellularBase
 {
@@ -280,7 +279,7 @@ private:
 
 protected:
     NetworkStack *_stack;
-    char _apn[MAX_APN_LENGTH];
+    char _apn[MAX_ACCESSPOINT_NAME_LENGTH];
     const char *_uname;
     const char *_pwd;
     nsapi_ip_stack_t _ip_stack_type_requested;
@@ -291,7 +290,6 @@ protected:
     AuthenticationType _authentication_type;
     int _lac;
     int _cell_id;
-    operator_t::RadioAccessTechnology _AcT;
     RegistrationType _last_reg_type;
 };
 

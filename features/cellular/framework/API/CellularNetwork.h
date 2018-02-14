@@ -24,6 +24,13 @@
 
 namespace mbed {
 
+/* Maximum length of IPV6 address in ipv4-like dotted format. More info in 3gpp 27007.*/
+const int MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT = 63;
+/* Maximum length of access point name */
+const int MAX_ACCESSPOINT_NAME_LENGTH = 100;
+const int MAX_OPERATOR_NAME_LONG = 16;
+const int MAX_OPERATOR_NAME_SHORT = 8;
+
 /**
  *  Class CellularNetwork
  *
@@ -135,9 +142,9 @@ public:
 
 
         Status op_status;
-        char op_long[16+9];
-        char op_short[8+4];
-        char op_num[8+4];
+        char op_long[MAX_OPERATOR_NAME_LONG+1];
+        char op_short[MAX_OPERATOR_NAME_SHORT+1];
+        char op_num[MAX_OPERATOR_NAME_SHORT+1];
         RadioAccessTechnology op_rat;
         operator_t *next;
 
@@ -152,14 +159,14 @@ public:
 
     /* PDP Context information */
     struct pdpcontext_params_t {
-        char apn[100+1];
-        char local_addr[63+1];
-        char local_subnet_mask[63+1];
-        char gateway_addr[63+1];
-        char dns_primary_addr[63+1];
-        char dns_secondary_addr[63+1];
-        char p_cscf_prim_addr[63+1];
-        char p_cscf_sec_addr[63+1];
+        char apn[MAX_ACCESSPOINT_NAME_LENGTH+1];
+        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
         int cid;
         int bearer_id;
         int im_signalling_flag;

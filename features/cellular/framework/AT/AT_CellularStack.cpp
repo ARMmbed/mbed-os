@@ -153,8 +153,6 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
 
     _at.lock();
 
-    //_atHandler.setTimeout(...)
-
     err = socket_close_impl(sock_id);
 
     _at.unlock();
@@ -277,13 +275,6 @@ nsapi_size_or_error_t AT_CellularStack::socket_recvfrom(nsapi_socket_t handle, S
         if (ret_val != NSAPI_ERROR_OK) {
             return ret_val;
         }
-    }
-
-    unsigned max_packet_size = get_max_packet_size();
-
-    /* Check parameters */
-    if (size < max_packet_size) {
-        //log_warn("Socket receive buffer smaller than max packet size! size:%d max_packet_size:%d", size, max_packet_size);
     }
 
     _at.lock();

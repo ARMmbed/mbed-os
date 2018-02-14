@@ -22,11 +22,6 @@
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_INFO
 #endif
 #include "CellularLog.h"
-/*#define log_debug printf
-#define log_info printf
-#define log_warn printf
-#define log_error printf
-*/
 
 // timeout to wait for AT responses
 #define TIMEOUT_POWER_ON     (1*1000)
@@ -43,7 +38,7 @@ CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWE
         _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE),
         _queue_thread(0), _cellularDevice(&cellularDevice)
 {
-    memset(_sim_pin, sizeof(_sim_pin), 0);
+    memset(_sim_pin, 0, sizeof(_sim_pin));
 }
 
 CellularConnectionUtil::~CellularConnectionUtil()
@@ -93,7 +88,7 @@ bool CellularConnectionUtil::open_power(FileHandle *fh)
 
 void CellularConnectionUtil::set_sim_pin(const char * sim_pin)
 {
-    strncpy(_sim_pin, sim_pin, PIN_SIZE+1);
+    strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
 }
 
 bool CellularConnectionUtil::open_sim()

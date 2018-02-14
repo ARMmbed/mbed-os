@@ -56,8 +56,6 @@ void log_init(PinName tx, PinName rx, int baud)
     mbed_trace_mutex_release_function_set(serial_unlock);
     mbed_trace_init();
 #else
-    /*UARTSerial trace_serial(tx, rx, baud);
-    FILE *trace = fdopen(&trace_serial, "w");*/
     serial_init(&stdio_uart, tx, rx);
     serial_baud(&stdio_uart, baud);
     stdio_uart_inited = 1;
