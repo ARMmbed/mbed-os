@@ -1491,7 +1491,8 @@
             "STDIO_MESSAGES",
             "STORAGE",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "USBDEVICE"
         ],
         "features": ["STORAGE"],
         "release_versions": ["2", "5"],
