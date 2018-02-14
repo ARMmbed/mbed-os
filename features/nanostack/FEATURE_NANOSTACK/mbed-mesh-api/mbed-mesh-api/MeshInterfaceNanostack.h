@@ -56,6 +56,11 @@ public:
     */
     virtual const char *get_mac_address();
 
+    /** Get the interface ID
+    /return     Interface identifier
+    */
+    int8_t get_interface_id() const { return _network_interface_id; }
+
     /**
      * \brief Callback from C-layer
      * \param state state of the network

@@ -1128,9 +1128,6 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
                 buf->options.ip_extflags &=~ IPEXT_HBH_MPL_UNFILLED;
                 buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
                 mpl_forwarder_process_message(buf, domain, true);
-            } else {
-                uint8_t *iphdr = buffer_data_pointer(buf);
-                uint8_t *ext = iphdr + IPV6_HDRLEN;
             }
             *result = 0;
             return buf;

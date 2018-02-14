@@ -115,21 +115,6 @@ static void thread_bootsrap_network_join_start(struct protocol_interface_info_en
 static int8_t thread_child_keep_alive(int8_t interface_id, const uint8_t *mac64);
 
 
-int thread_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *child)
-{
-    thread_dynamic_storage_child_info_clear(cur->id, child);
-
-    // If Child's RLOC16 appears in the Network Data send the RLOC16 to the Leader
-    if (thread_network_data_services_registered(&cur->thread_info->networkDataStorage, child->short_adr)) {
-        tr_debug("Remove references to Child's RLOC16 from the Network Data");
-        thread_management_client_network_data_unregister(cur->id, child->short_adr);
-    }
-
-    // Clear all (sleepy) child registrations to multicast groups
-    thread_child_mcast_entries_remove(cur, child->mac64);
-
-    return 0;
-}
 
 static bool thread_interface_is_active(int8_t interface_id) {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -146,57 +131,7 @@ static void thread_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t 
     if (!cur_interface) {
         return;
     }
-    if (thread_info(cur_interface)->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE || thread_info(cur_interface)->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
-        thread_parent_info_t *thread_endnode_parent = thread_info(cur_interface)->thread_endnode_parent;
-        //Compare Parent
-        if (thread_endnode_parent) {
-            if (thread_endnode_parent->shortAddress == cur->short_adr) {
-                tr_warn("End device lost Parent!\n");
-                thread_bootstrap_connection_error(cur_interface->id, CON_PARENT_CONNECT_DOWN, NULL);
-            }
-        }
-    }
-    else {
-        if (thread_info(cur_interface)->thread_attached_state == THREAD_STATE_CONNECTED)
-        {
-            thread_parent_info_t *thread_endnode_parent = thread_info(cur_interface)->thread_endnode_parent;
-            if (thread_endnode_parent->shortAddress == cur->short_adr) {
-                tr_warn("REED has lost Parent!\n");
-                thread_routing_remove_link(cur_interface, cur->short_adr);
-                if(cur_interface->nwk_bootstrap_state != ER_CHILD_ID_REQ) {
-                    thread_bootstrap_connection_error(cur_interface->id, CON_PARENT_CONNECT_DOWN, NULL);
-                }
-            }
-            else{
-                tr_debug("Delete REED Neighbor");
-                if (thread_is_router_addr(cur->short_adr)) {
-                tr_debug("Router Free");
-                thread_routing_remove_link(cur_interface, cur->short_adr);
-                }
-            }
-        }
-        else if (thread_info(cur_interface)->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER)
-        {
-            tr_debug("Delete Router Neighbor");
-            if (thread_is_router_addr(cur->short_adr)) {
-                tr_debug("Router Free");
-                thread_routing_remove_link(cur_interface, cur->short_adr);
-            } else if (thread_addr_is_child(mac_helper_mac16_address_get(cur_interface), cur->short_adr)) {
-                tr_debug("Child Free");
-                /* 16-bit neighbour cache entries are mesh addresses, so remain potentially valid even if an
-                 * MLE link fails. This is the only exception - if it was the link from us as a router to a
-                 * child. That means that device must be off the mesh (at that 16-bit address, at least).
-                 * This will actually clear either a GC cache entry for a FTD or a registered entry
-                 * for a MTD.
-                 */
-                protocol_6lowpan_release_short_link_address_from_neighcache(cur_interface, cur->short_adr);
-                thread_bootstrap_reset_child_info(cur_interface, cur);
-            }
-        }
-    }
-
-    protocol_6lowpan_release_long_link_address_from_neighcache(cur_interface, cur->mac64);
-    mac_helper_devicetable_remove(cur_interface->mac_api, cur->attribute_index);
+    thread_reset_neighbour_info(cur_interface, cur);
 }
 
 
@@ -247,7 +182,7 @@ int8_t thread_mle_class_init(int8_t interface_id)
         return -1;
     }
 
-    if (mle_class_init(interface_id, buffer.device_decription_table_size, &thread_neighbor_remove, &thread_child_keep_alive, &thread_interface_is_active) != 0) {
+    if (mle_class_init(interface_id, buffer.device_decription_table_size - 1, &thread_neighbor_remove, &thread_child_keep_alive, &thread_interface_is_active) != 0) {
         return -1;
     }
 
@@ -448,8 +383,10 @@ static int thread_router_check_previous_partition_info(protocol_interface_info_e
         //check for parameters
         return -1;
     }
-    if ((leaderData->partitionId == cur->thread_info->previous_partition_info.partitionId) && (routeTlv->dataPtr[0] == cur->thread_info->previous_partition_info.idSequence)) {
-        //drop the advertisement
+    if ((leaderData->partitionId == cur->thread_info->previous_partition_info.partitionId) &&
+        (leaderData->weighting == cur->thread_info->previous_partition_info.weighting) &&
+        (routeTlv->dataPtr[0] == cur->thread_info->previous_partition_info.idSequence)) {
+        //drop the advertisement from previuos partition
         return 1;
     }
     else {
@@ -487,6 +424,14 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur, uin
         tr_debug("Heard a REED and I am a singleton - merge");
         return 2;
     }
+    /*Rule 0: If we are going to form Higher partition than heard we dont try to attach to lower ones
+     */
+    if (thread_extension_enabled(cur) &&
+        thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER &&
+        heard_partition_leader_data->weighting < thread_info(cur)->partition_weighting) {
+        return -2;
+    }
+
     //Rule 1: A non-singleton Thread Network Partition always has higher priority than a singleton Thread Network Partition
     if (heard_partition_routers > 1 && active_routers == 1) {
         tr_debug("Heard a nonsingleton and i am a singleton");
@@ -499,6 +444,7 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur, uin
     /*Rule 2: When comparing two singleton or two non-singleton Thread Network Partitions,
     the one with the higher 8-bit weight value has higher priority. */
     if (heard_partition_leader_data->weighting > current_leader_data->weighting) {
+        tr_debug("Heard a greater weighting");
         return 2;
     }
 
@@ -526,7 +472,8 @@ int thread_leader_data_validation(protocol_interface_info_entry_t *cur, thread_l
     if (!thread_info(cur)->thread_leader_data) {
         return -1;
     }
-    if (thread_info(cur)->thread_leader_data->partitionId != leaderData->partitionId) {
+    if ((thread_info(cur)->thread_leader_data->partitionId != leaderData->partitionId) ||
+        (thread_info(cur)->thread_leader_data->weighting != leaderData->weighting)) {
         uint8_t routers_in_route_tlv = thread_get_router_count_from_route_tlv(routeTlv);
         //partition checks
         return thread_bootstrap_partition_process(cur,routers_in_route_tlv,leaderData, routeTlv);
@@ -535,10 +482,10 @@ int thread_leader_data_validation(protocol_interface_info_entry_t *cur, thread_l
     //Should check is there new version numbers
     if (common_serial_number_greater_8(leaderData->dataVersion, thread_info(cur)->thread_leader_data->dataVersion) ||
         common_serial_number_greater_8(leaderData->stableDataVersion, thread_info(cur)->thread_leader_data->stableDataVersion)) {
-        // Version number increased
+        // Version number increased by some-one else -> there is leader in the network
         if (thread_info(cur)->leader_private_data) {
-            tr_error("SEq synch error");
-            // MUST  restart partition
+            tr_error("Another leader detected -> bootstrap");
+            thread_bootstrap_reset_restart(cur->id);
             return -1;
             }
         tr_debug("NEW Network Data available");
@@ -790,7 +737,9 @@ static void thread_bootstrap_ml_address_update(protocol_interface_info_entry_t *
     }
 
     // Set new ML-EID and ULA prefix
-    memcpy(cur->iid_slaac, conf->mesh_local_eid, 8);
+    uint8_t *ml_eid = thread_joiner_application_ml_eid_get(cur->id);
+    memcpy(cur->iid_slaac, ml_eid, 8);
+
     arm_thread_private_ula_prefix_set(cur, conf->mesh_local_ula_prefix);
 
     // Generate new ML64 address
@@ -864,7 +813,7 @@ int thread_link_configuration_activate(protocol_interface_info_entry_t *cur, lin
         return -1;
     }
 
-    if (thread_configuration_mac_activate(cur, linkConfiguration->rfChannel, linkConfiguration->panId,linkConfiguration->extended_random_mac)) {
+    if (thread_configuration_mac_activate(cur, linkConfiguration->rfChannel, linkConfiguration->panId,thread_joiner_application_random_mac_get(cur->id))) {
         return -1;
     }
 
@@ -1153,10 +1102,12 @@ void thread_tasklet(arm_event_s *event)
             thread_router_bootstrap_active_router_attach(cur);
             thread_bootstrap_child_id_request(cur);
             if (thread_nd_own_service_list_data_size(&cur->thread_info->localServerDataBase)) {
-                // We publish our services if we have some BUG leader cannot remove old ones
+                // publish our services to allow leader to remove old ones
                 thread_border_router_publish(cur->id);
             }
             thread_router_bootstrap_address_change_notify_send(cur);
+            // Validate network data after a short period
+            thread_border_router_resubmit_timer_set(cur->id, 5);
             break;
         case THREAD_ATTACH_ROUTER_ID_GET_FAIL:
             tr_debug_extra("Thread SM THREAD_ATTACH_ROUTER_ID_GET_FAIL");
@@ -1171,7 +1122,7 @@ void thread_tasklet(arm_event_s *event)
         case THREAD_ATTACH_ROUTER_ID_RELEASED:
             tr_debug_extra("Thread SM THREAD_ATTACH_ROUTER_ID_RELEASED");
             if (thread_nd_own_service_list_data_size(&cur->thread_info->localServerDataBase)) {
-                // We publish our services if we have some BUG leader cannot remove old ones
+                // publish our services to allow leader to remove old ones
                 thread_border_router_publish(cur->id);
             }
             break;
@@ -1342,6 +1293,7 @@ static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_st
             tr_debug("Thread ReAttach");
             //save the current partition id and sequence number before trying reattach
             cur->thread_info->previous_partition_info.partitionId = cur->thread_info->thread_leader_data->partitionId;
+            cur->thread_info->previous_partition_info.weighting = cur->thread_info->thread_leader_data->weighting;
             cur->thread_info->previous_partition_info.idSequence = cur->thread_info->routing.router_id_sequence;
             cur->thread_info->routerShortAddress = mac_helper_mac16_address_get(cur);
             if(cur->thread_info->thread_attached_state != THREAD_STATE_REATTACH_RETRY){
@@ -1410,9 +1362,9 @@ static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_en
 static int8_t thread_bootstrap_attempt_attach_with_pending_set(protocol_interface_info_entry_t *cur)
 {
     tr_debug("Attempting to attach with pending set");
-    uint32_t pending_timestamp = thread_joiner_application_pending_config_timeout_get(cur->id);
-    if (pending_timestamp > 0) {
-        tr_debug("We have a pending timestamp running");
+    uint32_t pending_delay_timer = thread_joiner_application_pending_config_timeout_get(cur->id);
+    if (pending_delay_timer > 0 && thread_joiner_application_pending_delay_timer_in_sync(cur->id)) {
+        tr_debug("We have a pending delay timer running");
         //we already have a pending set that can be activated so return
         return -1;
     }
@@ -1769,7 +1721,11 @@ void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur)
     if (cur->thread_info->releaseRouterId) {
         thread_router_bootstrap_router_id_release(cur);
     }
-    thread_nvm_store_link_info_file_write(cur);
+    uint8_t *parent_mac_addr = NULL;
+    if (cur->thread_info->thread_endnode_parent) {
+        parent_mac_addr = cur->thread_info->thread_endnode_parent->mac64;
+    }
+    thread_nvm_store_link_info_write(parent_mac_addr, mac_helper_mac16_address_get(cur));
     thread_bootstrap_ready(cur);
 
     if(thread_is_router_addr(mac_helper_mac16_address_get(cur))) {
@@ -2219,10 +2175,15 @@ static bool thread_bootstrap_sync_after_reset_start(protocol_interface_info_entr
     uint16_t my_short_address;
     uint8_t parent_mac64[8];
 
-    if (!thread_nvm_store_link_info_get(parent_mac64, &my_short_address)) {
+    int link_info_err = thread_nvm_store_link_info_get(parent_mac64, &my_short_address);
+    if ( link_info_err!= THREAD_NVM_FILE_SUCCESS) {
+        tr_warning("thread_nvm_store_link_info_get returned %d", link_info_err);
         return false;
     }
-    thread_nvm_store_link_info_clear();
+    link_info_err = thread_nvm_store_link_info_clear();
+    if ( link_info_err!= THREAD_NVM_FILE_SUCCESS) {
+        tr_warning("thread_nvm_store_link_info_clear returned %d", link_info_err);
+        }
     if (thread_is_router_addr(my_short_address)) {
         thread_info(cur)->routerShortAddress = my_short_address;
         thread_dynamic_storage_build_mle_table(cur->id);
@@ -2230,6 +2191,7 @@ static bool thread_bootstrap_sync_after_reset_start(protocol_interface_info_entr
         return true;
     }
     if (!thread_parent_data_allocate(cur->thread_info)) {
+        tr_info("parent alloc failed");
         return false;
     }
 
@@ -2292,16 +2254,6 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
             tr_debug("Thread SM:Active Scan");
 
             thread_joiner_application_nvm_link_configuration_load(cur->id);
-
-            if (thread_joiner_application_nvm_operation_in_progress(cur->id)) {
-                /*
-                 *  joiner application has pending NVM operation in progress,
-                 *  wait it to complete before continuing startup
-                 */
-                cur->bootsrap_state_machine_cnt = 1;
-                return;
-            }
-
             linkConfiguration = thread_joiner_application_get_config(cur->id);
             if (!linkConfiguration) {
                 thread_bootstrap_start_network_discovery(cur);
@@ -2310,7 +2262,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
 
             //SET Link by Static configuration
             tr_info("thread network attach start");
-            if (thread_mle_service_register(cur->id,linkConfiguration->extended_random_mac) != 0 ||
+            if (thread_mle_service_register(cur->id,thread_joiner_application_random_mac_get(cur->id)) != 0 ||
                 thread_link_configuration_activate(cur, linkConfiguration) != 0) {
                 tr_error("Network Bootsrap Start Fail");
                 bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, cur);
@@ -3021,10 +2973,10 @@ void thread_bootstrap_dynamic_configuration_save(protocol_interface_info_entry_t
     // in error situation this returns 0 !!!!
     uint32_t mle_frame_counter = mle_service_security_get_frame_counter(cur->id);
     if (linkConfiguration) {
-            thread_nvm_store_fast_data_check_and_store(mac_frame_counter, mle_frame_counter, linkConfiguration->key_sequence);
+            thread_nvm_store_fast_data_check_and_write(mac_frame_counter, mle_frame_counter, linkConfiguration->key_sequence);
     }
     else {
-        thread_nvm_store_frame_counters_check_and_store(mac_frame_counter, mle_frame_counter);
+        thread_nvm_store_frame_counters_check_and_write(mac_frame_counter, mle_frame_counter);
     }
 }
 
