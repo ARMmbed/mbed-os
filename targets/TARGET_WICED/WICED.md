@@ -281,6 +281,8 @@ in your mbed_app.json:
    +#define HT_AVAIL_TIMEOUT_MS   (2200)
    ```
 
+1. If building binaries for mw3166 move directory wiced_port/platforms/TARGET_MTB_MXCHIP_EMW3166/ to WICED/platforms/TARGET_MTB_MXCHIP_EMW3166/
+
 
 ## Running the Mbed OS socket demo
 
