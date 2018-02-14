@@ -3433,6 +3433,12 @@
         "device_has": ["I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"]
     },
+    "OSHCHIP": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
+        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
+        "device_name": "nRF51822_xxAC"
+    },
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
