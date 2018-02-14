@@ -347,11 +347,14 @@ void STM32_EMAC::thread_function(void* pvParameters)
 void STM32_EMAC::phy_task()
 {
     uint32_t status;
+
     if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
-        if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
-            emac_link_state_cb(true);
-        } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
-            emac_link_state_cb(false);
+        if (emac_link_state_cb) {
+            if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
+                emac_link_state_cb(true);
+            } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
+                emac_link_state_cb(false);
+            }
         }
         phy_status = status;
     }
@@ -516,7 +519,17 @@ void STM32_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
   emac_link_state_cb = state_cb;
 }
 
-void STM32_EMAC::add_multicast_group(uint8_t *addr)
+void STM32_EMAC::add_multicast_group(const uint8_t *addr)
+{
+  /* No-op at this stage */
+}
+
+void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
+{
+  /* No-op at this stage */
+}
+
+void STM32_EMAC::set_all_multicast(bool all)
 {
   /* No-op at this stage */
 }

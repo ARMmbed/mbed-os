@@ -20,32 +20,47 @@
 
 #include "MeshInterface.h"
 #include "NanostackRfPhy.h"
+#include "Nanostack.h"
 #include "mesh_interface_types.h"
 
-class MeshInterfaceNanostack : public MeshInterface {
+class Nanostack::Interface : public OnboardNetworkStack::Interface, private mbed::NonCopyable<Nanostack::Interface> {
 public:
+    virtual char *get_ip_address(char *buf, nsapi_size_t buflen);
+    virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
+    virtual char *get_netmask(char *buf, nsapi_size_t buflen);
+    virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
-    /** Attach phy and initialize the mesh
-     *
-     *  Initializes a mesh interface on the given phy. Not needed if
-     *  the phy is passed to the mesh's constructor.
-     *
-     *  @return     0 on success, negative on failure
-     */
-    nsapi_error_t initialize(NanostackPhy *phy);
+    void get_mac_address(uint8_t *buf) const { interface_phy.get_mac_address(buf); }
 
-    /** Start the interface
-     *
-     *  @return     0 on success, negative on failure
-     */
-    virtual nsapi_error_t connect() = 0;
+    /**
+     * \brief Callback from C-layer
+     * \param state state of the network
+     * */
+    void network_handler(mesh_connection_status_t status);
 
-    /** Stop the interface
-     *
-     *  @return     0 on success, negative on failure
-     */
-    virtual nsapi_error_t disconnect() = 0;
+    int8_t get_interface_id() const { return interface_id; }
+    int8_t get_driver_id() const { return _device_id; }
 
+private:
+    NanostackPhy &interface_phy;
+protected:
+    Interface(NanostackPhy &phy);
+    virtual nsapi_error_t register_phy();
+    NanostackPhy &get_phy() const { return interface_phy; }
+    int8_t interface_id;
+    int8_t _device_id;
+    Semaphore connect_semaphore;
+};
+
+class Nanostack::MeshInterface : public Nanostack::Interface {
+protected:
+    MeshInterface(NanostackRfPhy &phy) : Interface(phy) { }
+    NanostackRfPhy &get_phy() const { return static_cast<NanostackRfPhy &>(Interface::get_phy()); }
+};
+
+
+class InterfaceNanostack : public virtual NetworkInterface {
+public:
     /** Get the internally stored IP address
     /return     IP address of the interface or null if not yet connected
     */
@@ -56,36 +71,34 @@ public:
     */
     virtual const char *get_mac_address();
 
-    /**
-     * \brief Callback from C-layer
-     * \param state state of the network
-     * */
-    void mesh_network_handler(mesh_connection_status_t status);
-
 protected:
-    MeshInterfaceNanostack();
-    MeshInterfaceNanostack(NanostackPhy *phy);
-    nsapi_error_t register_phy();
-    virtual NetworkStack * get_stack(void);
+    InterfaceNanostack();
+    virtual Nanostack *get_stack(void);
+    Nanostack::Interface *get_interface() const { return _interface; }
 
-    /**
-     * \brief Read own global IP address
-     *
-     * \param address is where the IP address will be copied
-     * \param len is the length of the address buffer, must be at least 40 bytes
-     * \return true if address is read successfully, false otherwise
-     */
-    virtual bool getOwnIpAddress(char *address, int8_t len) = 0;
+    Nanostack::Interface *_interface;
 
-    NanostackPhy *phy;
-    /** Network interface ID */
-    int8_t _network_interface_id;
-    /** Registered device ID */
-    int8_t _device_id;
-    uint8_t _eui64[8];
     char ip_addr_str[40];
     char mac_addr_str[24];
-    Semaphore connect_semaphore;
+};
+
+class MeshInterfaceNanostack : public InterfaceNanostack, public MeshInterface, private mbed::NonCopyable<MeshInterfaceNanostack> {
+public:
+
+    /** Attach phy and initialize the mesh
+     *
+     *  Initializes a mesh interface on the given phy. Not needed if
+     *  the phy is passed to the mesh's constructor.
+     *
+     *  @return     0 on success, negative on failure
+     */
+    nsapi_error_t initialize(NanostackRfPhy *phy);
+
+protected:
+    MeshInterfaceNanostack() : _phy(NULL) { }
+    MeshInterfaceNanostack(NanostackRfPhy *phy) : _phy(phy) { }
+    Nanostack::MeshInterface *get_interface() const { return static_cast<Nanostack::MeshInterface *>(_interface); }
+    NanostackRfPhy *_phy;
 };
 
 #endif /* MESHINTERFACENANOSTACK_H */

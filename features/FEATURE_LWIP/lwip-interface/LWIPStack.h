@@ -159,7 +159,7 @@ public:
      * @param[out] interface_out    pointer to stack interface object controlling the EMAC
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
-    nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out);
+    virtual nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out);
 
     /** Register a PPP interface with the IP stack
      *
@@ -193,7 +193,7 @@ public:
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t gethostbyname(const char *host,
+    virtual nsapi_error_t gethostbyname(const char *host,
             SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Add a domain name server to list of servers to query

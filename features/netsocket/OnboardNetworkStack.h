@@ -20,8 +20,7 @@
 #include "nsapi.h"
 
 #include "NetworkStack.h"
-
-class EMAC;
+#include "EMAC.h"
 
 /**
  * mbed OS API for onboard IP stack abstraction
