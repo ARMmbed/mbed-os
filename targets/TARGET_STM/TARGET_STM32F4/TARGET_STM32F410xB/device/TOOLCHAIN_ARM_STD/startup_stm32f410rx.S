@@ -1,8 +1,6 @@
-;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f410rx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.4.1
-;* Date               : 09-October-2015
 ;* Description        : STM32F410Rx devices vector table for MDK-ARM_STD toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
