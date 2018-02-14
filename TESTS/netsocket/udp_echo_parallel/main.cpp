@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Parallel tests are not supported by default
+#error [NOT_SUPPORTED] Parallel tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -33,16 +33,16 @@
 using namespace utest::v1;
 
 
-#ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
-#define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 64
+#ifndef MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE
+#define MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE 64
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT
-#define MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT 500
+#ifndef MBED_CONF_APP_UDP_CLIENT_ECHO_TIMEOUT
+#define MBED_CONF_APP_UDP_CLIENT_ECHO_TIMEOUT 500
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_ECHO_THREADS
-#define MBED_CFG_UDP_CLIENT_ECHO_THREADS 3
+#ifndef MBED_CONF_APP_UDP_CLIENT_ECHO_THREADS
+#define MBED_CONF_APP_UDP_CLIENT_ECHO_THREADS 3
 #endif
 
 #define STRINGIZE(x) STRINGIZE2(x)
@@ -56,28 +56,30 @@ Mutex iomutex;
 char uuid[48] = {0};
 
 // NOTE: assuming that "id" stays in the single digits
-void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
+void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size)
+{
     size_t i = 0;
 
     tx_buffer[i++] = '0' + id;
     tx_buffer[i++] = ' ';
 
-    memcpy(tx_buffer+i, uuid, strlen(uuid));
+    memcpy(tx_buffer + i, uuid, strlen(uuid));
     i += strlen(uuid);
 
     tx_buffer[i++] = ' ';
 
-    for (; i<tx_size; ++i) {
+    for (; i < tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
 
 
 // Each echo class is in charge of one parallel transaction
-class Echo {
+class Echo
+{
 private:
-    char tx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE];
-    char rx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE];
+    char tx_buffer[MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE];
+    char rx_buffer[MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE];
 
     UDPSocket sock;
     Thread thread;
@@ -87,27 +89,31 @@ private:
 
 public:
     // Limiting stack size to 1k
-    Echo(): thread(osPriorityNormal, 1024), result(false) {
+    Echo(): thread(osPriorityNormal, 1024), result(false)
+    {
     }
 
-    void start(int id, char *uuid) {
+    void start(int id, char *uuid)
+    {
         this->id = id;
         this->uuid = uuid;
         osStatus status = thread.start(callback(this, &Echo::echo));
     }
 
-    void join() {
+    void join()
+    {
         osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void echo() {
+    void echo()
+    {
         int success = 0;
 
         int err = sock.open(net);
         TEST_ASSERT_EQUAL(0, err);
 
-        sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
+        sock.set_timeout(MBED_CONF_APP_UDP_CLIENT_ECHO_TIMEOUT);
 
         for (int i = 0; success < ECHO_LOOPS; i++) {
             prep_buffer(id, uuid, tx_buffer, sizeof(tx_buffer));
@@ -137,8 +143,8 @@ public:
             }
 
             if ((temp_addr == udp_addr &&
-                 n == sizeof(tx_buffer) &&
-                 memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
+                    n == sizeof(tx_buffer) &&
+                    memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
                 success += 1;
                 iomutex.lock();
                 printf("[ID:%01d][%02d] success #%d\n", id, i, success);
@@ -154,7 +160,7 @@ public:
                     break;
                 }
             }
-            sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
+            sock.set_timeout(MBED_CONF_APP_UDP_CLIENT_ECHO_TIMEOUT);
         }
 
         result = success == ECHO_LOOPS;
@@ -166,15 +172,17 @@ public:
         }
     }
 
-    bool get_result() {
+    bool get_result()
+    {
         return result;
     }
 };
 
-Echo *echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
+Echo *echoers[MBED_CONF_APP_UDP_CLIENT_ECHO_THREADS];
 
 
-void test_udp_echo_parallel() {
+void test_udp_echo_parallel()
+{
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
@@ -185,18 +193,37 @@ void test_udp_echo_parallel() {
     } else {
         printf("UDP client IP Address is %s\n", net->get_ip_address());
 
+#if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
         udp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
         udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+#else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
+        char recv_key[] = "host_port";
+        char ipbuf[60] = {0};
+        char portbuf[16] = {0};
+        unsigned int port = 0;
+
+        greentea_send_kv("target_ip", net->get_ip_address());
+        greentea_send_kv("host_ip", " ");
+        greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+
+        greentea_send_kv("host_port", " ");
+        greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+        sscanf(portbuf, "%u", &port);
+
+        printf("UDP Connect to %s:%d\r\n", ipbuf, port);
+        udp_addr.set_ip_address(ipbuf);
+        udp_addr.set_port(port);
+#endif /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
 
         // Startup echo threads in parallel
-        for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
+        for (int i = 0; i < MBED_CONF_APP_UDP_CLIENT_ECHO_THREADS; i++) {
             echoers[i] = new Echo;
             echoers[i]->start(i, uuid);
         }
 
         bool result = true;
 
-        for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
+        for (int i = 0; i < MBED_CONF_APP_UDP_CLIENT_ECHO_THREADS; i++) {
             echoers[i]->join();
             result = result && echoers[i]->get_result();
             delete echoers[i];
@@ -209,7 +236,8 @@ void test_udp_echo_parallel() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "udp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -220,6 +248,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
