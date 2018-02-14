@@ -5,7 +5,7 @@
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha512.h"
 
-#if defined(MBEDTLS_MD2_ALT)
+#if defined(MBEDTLS_MD2_C) && defined(MBEDTLS_MD2_ALT)
 
 /**
  * \brief          MD2 context setup
@@ -66,7 +66,7 @@ void mbedtls_md2_finish( mbedtls_md2_context *ctx,
 
 #endif /* defined(MBEDTLS_MD2_ALT) */
 
-#if defined(MBEDTLS_MD4_ALT)
+#if defined(MBEDTLS_MD4_C) && defined(MBEDTLS_MD4_ALT)
 
 /**
  * \brief          MD4 context setup
@@ -127,7 +127,7 @@ void mbedtls_md4_finish( mbedtls_md4_context *ctx,
 
 #endif /* defined(MBEDTLS_MD4_ALT) */
 
-#if defined(MBEDTLS_MD5_ALT)
+#if defined(MBEDTLS_MD5_C) && defined(MBEDTLS_MD5_ALT)
 
 /**
  * \brief          MD5 context setup
@@ -188,7 +188,7 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx,
 
 #endif /* defined(MBEDTLS_MD5_ALT) */
 
-#if defined(MBEDTLS_SHA1_ALT)
+#if defined(MBEDTLS_SHA1_C) && defined(MBEDTLS_SHA1_ALT)
 
 /**
  * \brief          SHA-1 context setup
@@ -249,7 +249,7 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
 
 #endif /* defined(MBEDTLS_SHA1_ALT) */
 
-#if defined(MBEDTLS_SHA256_ALT)
+#if defined(MBEDTLS_SHA256_C) && defined(MBEDTLS_SHA256_ALT)
 
 /**
  * \brief          This function starts a SHA-256 checksum calculation.
@@ -301,7 +301,7 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
 
 #endif /* defined(MBEDTLS_SHA256_ALT) */
 
-#if defined(MBEDTLS_SHA512_ALT)
+#if defined(MBEDTLS_SHA512_C) && defined(MBEDTLS_SHA512_ALT)
 
 /**
  * \brief          This function starts a SHA-384 or SHA-512 checksum
