@@ -1,8 +1,6 @@
-;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f446xx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.3.2
-;* Date               : 26-June-2015
 ;* Description        : STM32F446x devices vector table for MDK-ARM_STD toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
