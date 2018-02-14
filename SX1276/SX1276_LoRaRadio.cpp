@@ -196,6 +196,10 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi, PinName spi_miso,
         is_murata = false;
     }
 
+    if (tcxo != NC) {
+        _tcxo = 1;
+    }
+
 #ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.start(mbed::callback(this, &SX1276_LoRaRadio::rf_irq_task));
 #endif
@@ -238,10 +242,7 @@ void SX1276_LoRaRadio::init_radio(radio_events_t *events)
     // Reset the radio transceiver
     radio_reset();
 
-    if (is_murata) {
-        // Only used for bands < 125 kHz, so probably not needed?
-        _tcxo = 1;
-    } else {
+    if (!is_murata) {
         // Setup radio variant type
         set_sx1276_variant_type();
     }
