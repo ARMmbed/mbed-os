@@ -33,6 +33,7 @@ namespace mbed {
 
 static events::EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
+static char device_info_buf[2048];
 
 CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state),
         _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE),
@@ -136,15 +137,14 @@ void CellularConnectionUtil::device_ready()
 {
     CellularInformation *info = _cellularDevice->open_information(_serial);
 
-    char buf[2048];
-    if (info->get_manufacturer(buf, sizeof(buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device manufacturer: %s", buf);
+    if (info->get_manufacturer(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
+        log_info("Cellular device manufacturer: %s", device_info_buf);
     }
-    if (info->get_model(buf, sizeof(buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device model: %s", buf);
+    if (info->get_model(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
+        log_info("Cellular device model: %s", device_info_buf);
     }
-    if (info->get_revision(buf, sizeof(buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device revision: %s", buf);
+    if (info->get_revision(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
+        log_info("Cellular device revision: %s", device_info_buf);
     }
 }
 

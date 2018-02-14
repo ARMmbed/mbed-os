@@ -66,7 +66,7 @@ EasyCellularConnection::~EasyCellularConnection()
 
 nsapi_error_t EasyCellularConnection::init()
 {
-    log_init(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    log_init(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 
 #if defined (MDMRTS) && defined (MDMCTS)
     cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
