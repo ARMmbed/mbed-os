@@ -211,7 +211,11 @@ int MBRBlockDevice::init()
     }
 
     // Check for valid entry
-    if (table->entries[_part-1].type == 0x00) {
+    // 0x00 = no entry
+    // 0x05, 0x0f = extended partitions, currently not supported
+    if ((table->entries[_part-1].type == 0x00 ||
+         table->entries[_part-1].type == 0x05 ||
+         table->entries[_part-1].type == 0x0f)) {
         delete[] buffer;
         return BD_ERROR_INVALID_PARTITION;
     }
