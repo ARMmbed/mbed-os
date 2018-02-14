@@ -100,7 +100,7 @@ typedef enum {
     UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
 #endif    
     // NOTE: board-specific
-    STDIO_UART  = UART_3
+    STDIO_UART  = UART_0
 } UARTName;
 
 typedef enum {
