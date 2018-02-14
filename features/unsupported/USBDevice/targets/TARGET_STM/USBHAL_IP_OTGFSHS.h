@@ -202,6 +202,12 @@ USBHAL::USBHAL(void) {
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
+#elif defined(TARGET_STEVAL_3DP001V1)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
 #else
 #error "USB pins are not configured !"
 #endif

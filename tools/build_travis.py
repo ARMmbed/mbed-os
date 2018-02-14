@@ -50,6 +50,7 @@ build_list = [
         { "target": "NUCLEO_F303ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F334R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+        { "target": "STEVAL_3DP001V1",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
