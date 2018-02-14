@@ -20,9 +20,6 @@
 
 namespace mbed {
 
-#define UART 1
-#define MUX 2
-
 #ifndef CELLULAR_DEVICE
 #if defined(TARGET_ADV_WISE_1570) || defined(TARGET_MTB_ADV_WISE_1570)
 #define CELLULAR_DEVICE QUECTEL_BC95

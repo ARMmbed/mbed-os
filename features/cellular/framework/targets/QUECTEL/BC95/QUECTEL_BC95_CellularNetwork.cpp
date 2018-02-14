@@ -22,8 +22,7 @@ using namespace mbed;
 
 QUECTEL_BC95_CellularNetwork::QUECTEL_BC95_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
 {
-    //TODO Set default to NB1 or leave it UNKNOWN
-    //_ops_act = operator_t::OPS_NB1;
+    _op_act = operator_t::RAT_NB1;
 }
 
 QUECTEL_BC95_CellularNetwork::~QUECTEL_BC95_CellularNetwork()

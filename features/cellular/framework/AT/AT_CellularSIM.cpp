@@ -20,6 +20,8 @@
 
 using namespace mbed;
 
+const int MAX_SIM_RESPONSE_LENGTH = 16;
+
 AT_CellularSIM::AT_CellularSIM(ATHandler &at) : AT_CellularBase(at)
 {
 }
@@ -30,7 +32,7 @@ AT_CellularSIM::~AT_CellularSIM()
 
 nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
 {
-    char simstr[16];
+    char simstr[MAX_SIM_RESPONSE_LENGTH];
     _at.lock();
     _at.flush();
     _at.cmd_start("AT+CPIN?");

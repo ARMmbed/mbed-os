@@ -872,9 +872,6 @@ bool ATHandler::consume_to_stop_tag()
 void ATHandler::resp_stop()
 {
     // Do not return on error so that we can consume whatever there is in the buffer
-    /*if (_last_err) {
-        return;
-    }*/
 
     log_debug("%s", __func__);
 
