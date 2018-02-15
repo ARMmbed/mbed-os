@@ -169,10 +169,13 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
     if (!socket) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    socket->localAddress = addr;
 
-    if (socket->localAddress.get_port() == 0) {
-        socket->localAddress.set_port(get_dynamic_ip_port());
+    if (addr) {
+        socket->localAddress.set_addr(addr.get_addr());
+    }
+
+    if (addr.get_port()) {
+        socket->localAddress.set_port(addr.get_port());
     }
 
     _at.lock();
