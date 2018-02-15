@@ -45,9 +45,12 @@ typedef enum {
  */
 typedef enum {
     MESH_CONNECTED = 0,             /*<! connected to network */
+    MESH_CONNECTED_LOCAL,           /*<! connected to network, got local IP */
+    MESH_CONNECTED_GLOBAL,          /*<! connected to network, got global IP */
     MESH_DISCONNECTED,              /*<! disconnected from network */
     MESH_BOOTSTRAP_START_FAILED,    /*<! error during bootstrap start */
-    MESH_BOOTSTRAP_FAILED           /*<! error in bootstrap */
+    MESH_BOOTSTRAP_FAILED,          /*<! error in bootstrap */
+    MESH_BOOTSTRAP_STARTED          /*<! bootstrap started */
 } mesh_connection_status_t;
 
 /*
