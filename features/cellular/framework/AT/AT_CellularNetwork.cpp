@@ -195,7 +195,20 @@ nsapi_error_t AT_CellularNetwork::disconnect()
 #if NSAPI_PPP_AVAILABLE
     return nsapi_ppp_disconnect(_at.get_file_handle());
 #else
-    return NSAPI_ERROR_OK;
+    _at.lock();
+    _at.cmd_start("AT+CGACT=0,");
+    _at.write_int(_cid);
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+    _at.restore_at_timeout();
+
+    _connect_status = NSAPI_STATUS_DISCONNECTED;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+    }
+
+    return _at.unlock_return_error();
 #endif
 }
 
