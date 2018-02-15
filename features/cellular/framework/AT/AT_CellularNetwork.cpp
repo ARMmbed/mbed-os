@@ -27,7 +27,8 @@ using namespace mbed;
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
     _stack(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK), _ip_stack_type(DEFAULT_STACK), _cid(-1),
-    _op_act(operator_t::RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG)
+    _connection_status_cb(NULL), _op_act(operator_t::RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG),
+    _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
 
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
@@ -47,8 +48,9 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
 void AT_CellularNetwork::urc_no_carrier()
 {
+    _connect_status = NSAPI_STATUS_DISCONNECTED;
     if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_ERROR_CONNECTION_LOST);
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
     }
 }
 
@@ -87,10 +89,21 @@ nsapi_error_t AT_CellularNetwork::connect()
 {
     _at.lock();
 
+    _connect_status = NSAPI_STATUS_CONNECTING;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
+
     nsapi_error_t err = set_context_to_be_activated();
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         log_error("Failed to activate network context!");
+
+        _connect_status = NSAPI_STATUS_DISCONNECTED;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        }
+
         return err;
     }
 
@@ -98,10 +111,23 @@ nsapi_error_t AT_CellularNetwork::connect()
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         log_error("Failed to open data channel!");
+
+        _connect_status = NSAPI_STATUS_DISCONNECTED;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        }
+
         return err;
     }
 
     _at.unlock();
+
+#if !NSAPI_PPP_AVAILABLE
+    _connect_status = NSAPI_STATUS_GLOBAL_UP;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_GLOBAL_UP);
+    }
+#endif
 
     return NSAPI_ERROR_OK;
 }
@@ -123,7 +149,7 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
     /* Initialize PPP
      * mbed_ppp_init() is a blocking call, it will block until
      * connected, or timeout after 30 seconds*/
-    err = nsapi_ppp_connect(_at.get_file_handle(), _connection_status_cb, _uname, _pwd, _ip_stack_type);
+    err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularNetwork::ppp_status_cb), _uname, _pwd, _ip_stack_type);
 #else
     // do check for stack to validate that we have support for stack
     _stack = get_stack();
@@ -173,10 +199,38 @@ nsapi_error_t AT_CellularNetwork::disconnect()
 #endif
 }
 
-void AT_CellularNetwork::connection_status_cb(Callback<void(nsapi_error_t)> cb)
+void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
-    _connection_status_cb = cb;
+    _connection_status_cb = status_cb;
 }
+
+nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
+{
+    return _connect_status;
+}
+
+nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
+{
+#if NSAPI_PPP_AVAILABLE
+    return nsapi_ppp_set_blocking(blocking);
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
+}
+
+
+#if NSAPI_PPP_AVAILABLE
+void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
+{
+    _connect_status = (nsapi_connection_status_t)parameter;
+
+    if (_connection_status_cb) {
+        _connection_status_cb(event, parameter);
+    }
+}
+#endif
+
+
 
 nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
 {
