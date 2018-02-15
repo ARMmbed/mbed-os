@@ -1118,7 +1118,7 @@
             }
         }
     },
-    "WISE1530_F412RE": {
+    "MTB_ADV_WISE_1530": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM", "STM32F4", "Advantech_F412RE", "CORDIO"],
@@ -1127,6 +1127,18 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "stdio_uart_tx": {
+                "help": "Value PB_10",
+                "value": "PB_10"
+            },
+            "stdio_uart_rx": {
+                "help": "Value PC_11",
+                "value": "PC_11"
+            },
+            "stdio_uart": {
+                "help": "Value UART_3",
+                "value": "UART_3"
             }
         },
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],

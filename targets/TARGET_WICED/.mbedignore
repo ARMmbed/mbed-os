@@ -64,7 +64,6 @@ WICED/libraries/protocols/AMQP/
 WICED/libraries/protocols/wiced_hci/
 WICED/WICED/WWD/internal/chips/4334x/
 WICED/WICED/WWD/internal/chips/4390x/
-WICED/WICED/WWD/internal/chips/43362/
 WICED/WICED/WWD/internal/bus_protocols/SoC/
 WICED/WICED/WWD/internal/bus_protocols/SPI/
 WICED/WICED/RTOS/ThreadX/
