@@ -154,3 +154,14 @@ bool LoWPANNDInterface::getRouterIpAddress(char *address, int8_t len)
 {
     return _interface->get_gateway(address, len);
 }
+
+#define MESH 0x2345
+#define LOWPAN 0x2345
+#if MBED_CONF_NSAPI_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == LOWPAN
+MBED_WEAK NetworkInterface &NetworkInterface::get_default_instance()
+{
+    static LoWPANNDInterface lowpan(NanostackRfPhy::get_default_instance());
+
+    return lowpan;
+}
+#endif

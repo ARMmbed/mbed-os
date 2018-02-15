@@ -37,6 +37,33 @@ class NetworkInterface {
 public:
     virtual ~NetworkInterface() {};
 
+    /** Return the default network interface
+     *
+     * Returns the default network interface, as determined by JSON option
+     * nsapi.default-interface-type and other overrides.
+     *
+     * The core code provides default weak implementations of this in a number
+     * of circumstances:
+     *   * if default-interface-type is ETHERNET and target has DEVICE_EMAC
+     *   * if default-interface-type is MESH and the RF phy has been located
+     *   * if default-interface-type is CELLULAR and OnboardCellularModem is available
+     *
+     * Targets can guide this default behaviour by setting nsapi.default-interface-type
+     * in their targets.json. Or they can completely override by implementing
+     * NetworkInterface::get_default_instance() themselves - they should do this
+     * weakly, and not to conflict with the core definition.
+     *
+     * For example, a device with both Ethernet and Wi-fi could be set up so that
+     *    * DEVICE_EMAC is set, pointing at the Ethernet MAC
+     *    * The core will automatically provide EthernetInterface if default-interface-type is ETHERNET
+     *    * The target should provide its Wi-Fi driver if default-interface-type is WIFI
+     *    * The target could dynamically provide either depending on Ethernet cable detect if default-interface-type was AUTO
+     *
+     * Targets and core both provide weak definitions, so that an application or library
+     * can provide an overriding normal definition.
+     */
+    static NetworkInterface &get_default_instance();
+
     /** Get the local MAC address
      *
      *  Provided MAC address is intended for info or debug purposes and
