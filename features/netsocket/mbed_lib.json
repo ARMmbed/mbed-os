@@ -3,6 +3,17 @@
     "config": {
         "present": 1,
         "default-stack": "LWIP",
+        "default-interface-type": {
+            "help": "This guides the choice of the default NetworkInterface. Exactly what effect it has, and what settings are available, will depend on the target platform. Suggested values: ETHERNET, WIFI, CELLULAR, MESH.",
+            "value": "ETHERNET"
+        },
+        "default-wifi-ssid": null,
+        "default-wifi-password": null,
+        "default-wifi-security": "NONE",
+        "default-cellular-apn": null,
+        "default-cellular-username": null,
+        "default-cellular-password": null,
+        "default-mesh-type": "THREAD",
         "dns-response-wait-time": {
             "help": "How long the DNS translator waits for a reply from a server in milliseconds",
             "value": 5000
