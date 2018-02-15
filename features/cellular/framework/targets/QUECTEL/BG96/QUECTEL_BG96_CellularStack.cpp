@@ -22,7 +22,7 @@ using namespace mbed;
 
 QUECTEL_BG96_CellularStack::QUECTEL_BG96_CellularStack(ATHandler &atHandler, int cid, nsapi_ip_stack_t stack_type) : AT_CellularStack(atHandler, cid, stack_type)
 {
-    _at.set_urc_handler("+QIURC: ", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc));
+    _at.set_urc_handler("+QIURC:", mbed::Callback<void()>(this, &QUECTEL_BG96_CellularStack::urc_qiurc));
 }
 
 QUECTEL_BG96_CellularStack::~QUECTEL_BG96_CellularStack()
