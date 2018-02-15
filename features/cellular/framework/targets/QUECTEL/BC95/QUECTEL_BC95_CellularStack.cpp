@@ -167,7 +167,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     nsapi_size_or_error_t recv_len=0;
     int port;
     char ip_address[NSAPI_IP_SIZE];
-    char hexstr[BC95_MAX_PACKET_SIZE*2 + 1] = {0};
+    char hexstr[BC95_MAX_PACKET_SIZE*2 + 1];
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
