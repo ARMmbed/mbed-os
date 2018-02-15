@@ -456,7 +456,7 @@ nsapi_error_t CellularConnectionUtil::start_dispatch()
 
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread(osPriorityNormal, 1024);
+    _queue_thread = new rtos::Thread;
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;

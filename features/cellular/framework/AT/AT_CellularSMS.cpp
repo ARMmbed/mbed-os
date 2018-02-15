@@ -177,8 +177,8 @@ AT_CellularSMS::AT_CellularSMS(ATHandler &at) : AT_CellularBase(at), _cb(0), _mo
         _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
 {
     /* URCs, handled out of band */
-    _at.set_urc_handler("+CMTI: ", callback(this, &AT_CellularSMS::cmti_urc));
-    _at.set_urc_handler("+CMT: ", callback(this, &AT_CellularSMS::cmt_urc));
+    _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
+    _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 }
 
 AT_CellularSMS::~AT_CellularSMS()
@@ -457,7 +457,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
             // <ctrl-Z> (IRA 26) must be used to indicate the ending of the message body.
             _at.cmd_start(CTRL_Z);
             _at.cmd_stop();
-            _at.resp_start("+CMGS: ");
+            _at.resp_start("+CMGS:");
             _at.resp_stop();
         }
     } else {
@@ -520,7 +520,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
                 // <ctrl-Z> (IRA 26) must be used to indicate the ending of the message body.
                 _at.cmd_start(CTRL_Z);
                 _at.cmd_stop();
-                _at.resp_start("+CMGS: ");
+                _at.resp_start("+CMGS:");
                 _at.resp_stop();
             }
             free(pdu_str);
@@ -630,7 +630,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* b
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         char status[SMS_STATUS_SIZE];
         // first we read msg status and with that we can decide how the rest of message format
-        _at.resp_start("+CMGR: ");
+        _at.resp_start("+CMGR:");
 
         if (_at.info_resp()) {
             _at.read_string(status, SMS_STATUS_SIZE);
@@ -678,7 +678,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char*
             _at.cmd_start("AT+CMGR=");
             _at.write_int(sms->msg_index[i]);
             _at.cmd_stop();
-            _at.resp_start("+CMGR: ");
+            _at.resp_start("+CMGR:");
 
             if (_at.info_resp()) {
                 status = _at.read_int();
@@ -1057,7 +1057,7 @@ nsapi_error_t AT_CellularSMS::list_messages()
     int length = 0;
     char *pdu = NULL;
 
-    _at.resp_start("+CMGL: ");
+    _at.resp_start("+CMGL:");
     while (_at.info_resp()) {
         info = new sms_info_t();
         if (!info) {

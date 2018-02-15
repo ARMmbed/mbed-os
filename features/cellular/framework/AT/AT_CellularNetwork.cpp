@@ -398,7 +398,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
     RegistrationType reg_types[] = { C_EREG,       C_GREG,       C_REG};
     const char *cmd[] =            { "AT+CEREG",   "AT+CGREG",    "AT+CREG"};
-    const char *rsp[] =            { "+CEREG: ",    "+CGREG: ",     "+CREG: "};
+    const char *rsp[] =            { "+CEREG:",    "+CGREG:",     "+CREG:"};
 
     const int LAC_LENGTH = 5, CELL_ID_LENGTH = 9;
     char lac_string[LAC_LENGTH] = {0}, cell_id_string[CELL_ID_LENGTH] = {0};
@@ -874,7 +874,7 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
     _at.cmd_start("AT+COPS?");
     _at.cmd_stop();
 
-    _at.resp_start("+COPS: ");
+    _at.resp_start("+COPS:");
     _at.read_int(); //ignore mode
     format = _at.read_int();
 
