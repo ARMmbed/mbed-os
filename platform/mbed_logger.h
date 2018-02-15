@@ -18,6 +18,43 @@
 /** @{*/
 /**
  * \defgroup platform_log_api Logging API functions
+ *
+ * Example: Logging module usage
+ * @code
+ *
+ *  #include "mbed.h"
+ *  int main() {
+ *      MBED_CRIT("main", "This is critical error. Action Required: %s", "Restart");
+ *      MBED_ERR("main", "Error performing XYZ operation, errno = %d", -10);
+ *      MBED_WARN("main", "This is warning message");
+ *      MBED_DBG_IF("main", 1, "%d %s ", 1, "hello");
+ *      MBED_INFO("main", "%s %s 0x%lx", "world", "!", 2);
+ *  }
+ *
+ * @endcode
+ * 
+ * Example: Prints in interrupt context using logging module
+ * @code
+ *
+ *  #include "mbed.h"
+ *
+ *  void periodicCallback(void)
+ *  {
+ *      MBED_WARN("ISR", "Print in interrupt context");
+ *  }
+ *
+ *  int main() {
+ *      Ticker ticker1;
+ *      ticker1.attach_us(periodicCallback, 500000);
+ *      int count = 1; 
+ *      while(count++) {
+ *          wait(0.2);
+ *          MBED_DBG_IF("main", (0 == count%10), "Count = %d", count);
+ *      }
+ *  }
+ *
+ * @endcode
+ *
  * @{
  */
 #ifndef MBED_LOGGER_H
@@ -35,7 +72,7 @@ extern "C" {
 #endif
 
 #ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL             LOG_LEVEL_WARN
+#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_WARN
 #endif
 
 /** Critical level log
@@ -45,12 +82,12 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR_CRITICAL
 #if MBED_ID_BASED_TRACING
-#define tr_critical(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define tr_critical(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_ERR_CRITICAL_, ##__VA_ARGS__)
 #endif
 #else
-#define tr_critical(mod, ...)
+#define MBED_CRIT(mod, ...)
 #endif
 
 /** Error level log
@@ -60,12 +97,12 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR
 #if MBED_ID_BASED_TRACING
-#define tr_err(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_ERR_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_ERR(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_ERR_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define tr_err(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_ERR_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#define MBED_ERR(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_ERR_, ##__VA_ARGS__)
 #endif
 #else
-#define tr_err(mod, ...)
+#define MBED_ERR(mod, ...)
 #endif
 
 /** Warning level log
@@ -75,12 +112,12 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_WARN
 #if MBED_ID_BASED_TRACING
-#define tr_warn(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_WARN_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_WARN(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_WARN_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define tr_warn(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_WARN_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#define MBED_WARN(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_WARN_, ##__VA_ARGS__)
 #endif
 #else
-#define tr_warn(mod, ...)
+#define MBED_WARN(mod, ...)
 #endif
 
 /** Debug level log
@@ -90,12 +127,12 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_DEBUG
 #if MBED_ID_BASED_TRACING
-#define tr_debug(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_DEBUG_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_DBG(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_DEBUG_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define tr_debug(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_DEBUG_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#define MBED_DBG(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_DEBUG_, ##__VA_ARGS__)
 #endif
 #else
-#define tr_debug(mod, ...)
+#define MBED_DBG(mod, ...)
 #endif
 
 /** Debug level log
@@ -106,20 +143,20 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_DEBUG
 #if MBED_ID_BASED_TRACING
-#define tr_debug_if(mod, condition, fmt, ...)  do { if(condition) \
+#define MBED_DBG_IF(mod, condition, fmt, ...)  do { if(condition) \
                                                       { \
                                                          MBED_LOG_ID_1(mod, fmt, LOG_DEBUG_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__); \
                                                       } \
                                                } while(0);
 #else
-#define tr_debug_if(mod, condition, fmt, ...)  do { if(condition) \
+#define MBED_DBG_IF(mod, condition, fmt, ...)  do { if(condition) \
                                                       { \
-                                                         MBED_LOG_STR_1(mod, fmt, LOG_DEBUG_, FILE_NAME_, __LINE__, ##__VA_ARGS__);\
+                                                         MBED_LOG_STR_1(mod, fmt, LOG_DEBUG_, ##__VA_ARGS__);\
                                                       } \
                                                } while(0);
 #endif
 #else
-#define tr_debug_if(mod, condition, ...)
+#define MBED_DBG_IF(mod, condition, ...)
 #endif
 
 /** Information level log
@@ -129,12 +166,12 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
-#define tr_info(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_INFO_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_INFO(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_INFO_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define tr_info(mod, fmt, ...)   MBED_LOG_STR_1(mod, fmt, LOG_INFO_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#define MBED_INFO(mod, fmt, ...)   MBED_LOG_STR_1(mod, fmt, LOG_INFO_, ##__VA_ARGS__)
 #endif
 #else
-#define tr_info(mod, ...)
+#define MBED_INFO(mod, ...)
 #endif
 
 /** Information level log
@@ -145,21 +182,35 @@ extern "C" {
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
-#define tr_info_if(mod, condition, fmt, ...)   do { if(condition) \
+#define MBED_INFO_IF(mod, condition, fmt, ...)   do { if(condition) \
                                                       { \
                                                          MBED_LOG_ID_1(mod, fmt, LOG_INFO_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__); \
                                                       } \
                                                  } while(0);
 #else
-#define tr_info_if(mod, condition, fmt, ...)   do { if(condition) \
+#define MBED_INFO_IF(mod, condition, fmt, ...)   do { if(condition) \
                                                       { \
-                                                         MBED_LOG_STR_1(mod, fmt, LOG_INFO_, FILE_NAME_, __LINE__, ##__VA_ARGS__);\
+                                                         MBED_LOG_STR_1(mod, fmt, LOG_INFO_, ##__VA_ARGS__);\
                                                       } \
                                                  } while(0);
 
 #endif
 #else
-#define tr_info_if(mod, condition, ...)
+#define MBED_INFO_IF(mod, condition, ...)
+#endif
+
+/** General trace function
+ * Generic fucntion to print user data
+ *
+ * @param ll   Log level
+ * @param mod  Module name
+ * @param fmt  trace format (like printf)
+ * @param ...  variable arguments related to fmt
+ */
+#if MBED_ID_BASED_TRACING
+#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_ID_1(mod, fmt, ll, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#else
+#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_STR_1(mod, fmt, ll, ##__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus

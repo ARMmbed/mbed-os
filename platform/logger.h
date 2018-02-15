@@ -45,10 +45,8 @@ extern "C" {
 
 #if defined(__ARMCC_VERSION)
 #define FILE_NAME_                  __MODULE__
-#define FILE_INFO_                  __MODULE__ " " MBED_STRINGIFY(__LINE__) " "
 #else
 #define FILE_NAME_                  __BASE_FILE__
-#define FILE_INFO_                  __BASE_FILE__ " " MBED_STRINGIFY(__LINE__) " "
 #endif
 
 #define LOG_LEVEL_ERR_CRITICAL      0
@@ -86,14 +84,14 @@ typedef struct trace_id {
                                                        MBED_LOG_ID_4(args, id, ##__VA_ARGS__); \
                                                       })
 #define MBED_LOG_ID_2(counter, id, ...)               MBED_LOG_ID_3(counter, id, MBED_COUNT_VA_ARGS(__VA_ARGS__), ##__VA_ARGS__)
-#define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), mod " " f " " MBED_STRINGIFY(l) " : " fmt "\n", ##__VA_ARGS__)
-                                                      
+#define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), mod " " f " " MBED_STRINGIFY(l) " : " fmt", ##__VA_ARGS__)
+
 // Macros to log string data
 #define MBED_LOG_STR(...)                          log_buffer_string_data(__VA_ARGS__)
-#define MBED_LOG_STR_1(mod, fmt, ll, f, l, ...)    MBED_LOG_STR("%-3.3s %-4.4s %-15s %5d : " fmt "\n", ll, mod, f, l, ##__VA_ARGS__)
+#define MBED_LOG_STR_1(mod, fmt, ll, ...)          MBED_LOG_STR("[%-3.3s] [%-4.4s] : " fmt, ll, mod, ##__VA_ARGS__)
 
 void log_buffer_id_data(uint8_t argCount, ...);
-void log_buffer_string_data(const char *format, ...);
+void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 
 #ifdef __cplusplus
 }
