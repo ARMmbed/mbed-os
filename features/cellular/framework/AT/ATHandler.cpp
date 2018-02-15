@@ -32,7 +32,7 @@ using namespace events;
 #include "CellularLog.h"
 
 // this is intentionally TRACE_LEVEL_INFO
-#if MBED_TRACE_MAX_LEVEL <= TRACE_LEVEL_INFO
+#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_INFO
 #define at_debug(format, ...) do { if (_debug_on) debug(format, ## __VA_ARGS__); } while (0)
 #else
 #define at_debug(...)
