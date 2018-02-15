@@ -55,13 +55,24 @@ public:
      * The pins that are marked NC are optional. It is assumed that these
      * pins are not connected until/unless configured otherwise.
      */
-    SX1272_LoRaRadio(PinName mosi, PinName miso, PinName sclk, PinName nss,
-                     PinName reset, PinName dio0, PinName dio1, PinName dio2,
-                     PinName dio3, PinName dio4, PinName dio5,
-                     PinName rf_switch_ctl1=NC,
-                     PinName rf_switch_ctl2=NC, PinName txctl = NC,
-                     PinName rxctl = NC, PinName ant_switch = NC,
-                     PinName pwr_amp_ctl = NC);
+    SX1272_LoRaRadio(PinName mosi,
+                     PinName miso,
+                     PinName sclk,
+                     PinName nss,
+                     PinName reset,
+                     PinName dio0,
+                     PinName dio1,
+                     PinName dio2,
+                     PinName dio3,
+                     PinName dio4,
+                     PinName dio5,
+                     PinName rf_switch_ctl1 = NC,
+                     PinName rf_switch_ctl2 = NC,
+                     PinName txctl = NC,
+                     PinName rxctl = NC,
+                     PinName ant_switch = NC,
+                     PinName pwr_amp_ctl = NC,
+                     PinName tcxo = NC);
 
     /**
      * Destructor
@@ -323,6 +334,7 @@ private:
     mbed::DigitalOut _rxctl;
     mbed::DigitalInOut _ant_switch;
     mbed::DigitalOut _pwr_amp_ctl;
+    mbed::DigitalOut _tcxo;
 
     // Contains all RF control pin names
     // This storage is needed even after assigning the

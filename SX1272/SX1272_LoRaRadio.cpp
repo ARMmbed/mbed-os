@@ -163,17 +163,33 @@ static bool RadioIsActive = false;
 /**
  * Constructor
  */
-SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi, PinName spi_miso,
-               PinName spi_sclk, PinName nss, PinName reset, PinName dio0, PinName dio1,
-               PinName dio2, PinName dio3, PinName dio4, PinName dio5,  PinName rf_switch_ctl1,
-               PinName rf_switch_ctl2,
-               PinName txctl, PinName rxctl, PinName antswitch, PinName pwr_amp_ctl)
+SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi,
+                                   PinName spi_miso,
+                                   PinName spi_sclk,
+                                   PinName nss,
+                                   PinName reset,
+                                   PinName dio0,
+                                   PinName dio1,
+                                   PinName dio2,
+                                   PinName dio3,
+                                   PinName dio4,
+                                   PinName dio5,
+                                   PinName rf_switch_ctl1,
+                                   PinName rf_switch_ctl2,
+                                   PinName txctl,
+                                   PinName rxctl,
+                                   PinName antswitch,
+                                   PinName pwr_amp_ctl,
+                                   PinName tcxo)
     :   _spi(spi_mosi, spi_miso, spi_sclk),
-        _chip_select(nss, 1), _reset_ctl(reset),
-        _dio0_ctl(dio0), _dio1_ctl(dio1), _dio2_ctl(dio2), _dio3_ctl(dio3),
-        _dio4_ctl(dio4), _dio5_ctl(dio5), _rf_switch_ctl1(rf_switch_ctl1, 0),
-        _rf_switch_ctl2(rf_switch_ctl2, 0),_txctl(txctl, 0), _rxctl(rxctl, 0),
-        _ant_switch(antswitch, PIN_INPUT, PullUp, 0), _pwr_amp_ctl(pwr_amp_ctl)
+        _chip_select(nss, 1),
+        _reset_ctl(reset),
+        _dio0_ctl(dio0), _dio1_ctl(dio1), _dio2_ctl(dio2), _dio3_ctl(dio3), _dio4_ctl(dio4), _dio5_ctl(dio5),
+        _rf_switch_ctl1(rf_switch_ctl1, 0), _rf_switch_ctl2(rf_switch_ctl2, 0), _txctl(txctl, 0), _rxctl(rxctl, 0),
+        _ant_switch(antswitch, PIN_INPUT, PullUp, 0),
+        _pwr_amp_ctl(pwr_amp_ctl),
+        _tcxo(tcxo)
+
 #ifdef MBED_CONF_RTOS_PRESENT
         , irq_thread(osPriorityRealtime, 1024)
 #endif
@@ -189,6 +205,10 @@ SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi, PinName spi_miso,
     _dio5_pin = dio5;
 
     _radio_events = NULL;
+
+    if (tcxo != NC) {
+        _tcxo = 1;
+    }
 
 #ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.start(mbed::callback(this, &SX1272_LoRaRadio::rf_irq_task));

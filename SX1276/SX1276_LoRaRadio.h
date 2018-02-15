@@ -69,12 +69,22 @@ public:
      * setting SX1276 radio module gets connected to an external power amplifier
      * or radio  latch controls are connected.
      */
-    SX1276_LoRaRadio(PinName mosi, PinName miso, PinName sclk, PinName nss,
-                     PinName reset, PinName dio0, PinName dio1, PinName dio2,
-                     PinName dio3, PinName dio4, PinName dio5,
-                     PinName rf_switch_ctl1=NC,
-                     PinName rf_switch_ctl2=NC, PinName txctl = NC,
-                     PinName rxctl = NC, PinName ant_switch = NC,
+    SX1276_LoRaRadio(PinName mosi,
+                     PinName miso,
+                     PinName sclk,
+                     PinName nss,
+                     PinName reset,
+                     PinName dio0,
+                     PinName dio1,
+                     PinName dio2,
+                     PinName dio3,
+                     PinName dio4,
+                     PinName dio5,
+                     PinName rf_switch_ctl1 = NC,
+                     PinName rf_switch_ctl2 = NC,
+                     PinName txctl = NC,
+                     PinName rxctl = NC,
+                     PinName ant_switch = NC,
                      PinName pwr_amp_ctl = NC,
                      PinName tcxo = NC);
 
