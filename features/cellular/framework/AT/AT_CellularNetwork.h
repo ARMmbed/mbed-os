@@ -136,9 +136,22 @@ public: // CellularNetwork
 
     /** Get notified if the connection gets lost
      *
-     *  @param cb         user defined callback
+     *  @param status_cb         user defined callback
      */
-    void connection_status_cb(Callback<void(nsapi_error_t)> cb);
+    virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
 
     /** Get the local IP address
      *
@@ -276,6 +289,9 @@ private:
     bool get_context(nsapi_ip_stack_t supported_stack);
     bool set_new_context(nsapi_ip_stack_t stack, int cid);
     nsapi_error_t set_registration_urc(bool on);
+#if NSAPI_PPP_AVAILABLE
+    void ppp_status_cb(nsapi_event_t, intptr_t);
+#endif
 
 protected:
     NetworkStack *_stack;
@@ -285,12 +301,13 @@ protected:
     nsapi_ip_stack_t _ip_stack_type_requested;
     nsapi_ip_stack_t _ip_stack_type;
     int _cid;
-    Callback<void(nsapi_error_t)> _connection_status_cb;
+    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     operator_t::RadioAccessTechnology _op_act;
     AuthenticationType _authentication_type;
     int _lac;
     int _cell_id;
     RegistrationType _last_reg_type;
+    nsapi_connection_status_t _connect_status;
 };
 
 } // namespace mbed
