@@ -19,6 +19,7 @@
 
 #include "netsocket/nsapi_types.h"
 #include "netsocket/SocketAddress.h"
+#include "Callback.h"
 
 // Predeclared class
 class NetworkStack;
@@ -31,6 +32,9 @@ class NetworkStack;
  */
 class NetworkInterface {
 public:
+
+
+
     virtual ~NetworkInterface() {};
 
     /** Get the local MAC address
@@ -125,6 +129,30 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+
+    /** Register callback for status reporting
+     *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
+
 
 protected:
     friend class Socket;

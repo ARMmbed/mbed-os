@@ -528,7 +528,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''
         if memap_instance:
-            real_stats_depth = stats_depth if stats_depth is None else 2
+            real_stats_depth = stats_depth if stats_depth is not None else 2
             memap_table = memap_instance.generate_output('table', real_stats_depth)
             if not silent:
                 if not stats_depth:

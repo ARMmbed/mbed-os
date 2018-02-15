@@ -23,6 +23,67 @@
 
 #include "mbedtls/sha256.h"
 
+/**
+ * \name SECTION: Compatibility code
+ *
+ * Depending on whether the alternative (hatdware accelerated) hashing
+ * functions are provided or not, different API should be used for hashing.
+ * \{
+ */
+
+#if defined(MBEDTLS_SHA256_ALT)
+
+/**
+ * \brief          This function starts a SHA-256 checksum calculation.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_starts_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context to initialize.
+ * \param is224    Determines which function to use.
+ *                 <ul><li>0: Use SHA-256.</li>
+ *                 <li>1: Use SHA-224.</li></ul>
+ */
+void mbedtls_sha256_starts( mbedtls_sha256_context *ctx,
+                            int is224 )
+{
+    mbedtls_sha256_starts_ret( ctx, is224 );
+}
+
+/**
+ * \brief          This function feeds an input buffer into an ongoing
+ *                 SHA-256 checksum calculation.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_update_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context to initialize.
+ * \param input    The buffer holding the data.
+ * \param ilen     The length of the input data.
+ */
+void mbedtls_sha256_update( mbedtls_sha256_context *ctx,
+                            const unsigned char *input,
+                            size_t ilen )
+{
+    mbedtls_sha256_update_ret( ctx, input, ilen );
+}
+
+/**
+ * \brief          This function finishes the SHA-256 operation, and writes
+ *                 the result to the output buffer.
+ *
+ * \deprecated     Superseded by mbedtls_sha256_finish_ret() in 2.7.0.
+ *
+ * \param ctx      The SHA-256 context.
+ * \param output   The SHA-224or SHA-256 checksum result.
+ */
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
+                            unsigned char output[32] )
+{
+    mbedtls_sha256_finish_ret( ctx, output );
+}
+
+#endif /* defined(MBEDTLS_SHA256_ALT) */
+
+/* \} name SECTION: Compatibility code */
 
 using namespace utest::v1;
 

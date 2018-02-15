@@ -57,6 +57,8 @@ void pan_blacklist_cache_init(pan_blaclist_cache_s *blacklist_cache);
 
 void pan_coordinator_blacklist_cache_init(pan_coordinator_blaclist_cache_s *blacklist_cache);
 
+void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr);
+
 void pan_blacklist_pan_set(pan_blaclist_cache_s *list_ptr, uint16_t panid, uint16_t timeout);
 
 void pan_cordinator_blacklist_pan_set(pan_coordinator_blaclist_cache_s *list_ptr, uint8_t *cordinator_data, uint16_t timeout);

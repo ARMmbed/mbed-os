@@ -68,9 +68,13 @@ static HAL_GDMA_OP UartGdmaOp;
 
 #ifdef CONFIG_MBED_ENABLED
 #include "log_uart_api.h"
+#include "hal_log_uart.h"
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 log_uart_t stdio_uart_log;
+static uint32_t serial_log_irq_ids;
+static uart_irq_handler log_irq_handler;
+static uint32_t serial_log_irq_en;
 #endif
 
 static void SerialTxDoneCallBack(VOID *pAdapter);
@@ -99,7 +103,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         return;
     }
 #ifdef CONFIG_MBED_ENABLED 
-    else if(uart_idx == UART_3){
+    else if (uart_idx == UART_3) {
         obj->index = UART_3;
         goto init_stdio;
     }
@@ -158,11 +162,11 @@ void serial_free(serial_t *obj)
 {
     PHAL_RUART_ADAPTER pHalRuartAdapter;
 #ifdef CONFIG_GDMA_EN
-    u8  uart_idx;
+    u8 uart_idx;
     PUART_DMA_CONFIG   pHalRuartDmaCfg;
 #endif
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_free(&stdio_uart_log);
         return;
     }
@@ -189,7 +193,7 @@ void serial_free(serial_t *obj)
 void serial_baud(serial_t *obj, int baudrate)
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         return;
     }
 #endif
@@ -204,7 +208,7 @@ void serial_baud(serial_t *obj, int baudrate)
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_format(&stdio_uart_log, data_bits, parity, stop_bits);
         return;
     }
@@ -271,30 +275,64 @@ static void SerialRxDoneCallBack(VOID *pAdapter)
     }
 }
 
+
+#ifdef CONFIG_MBED_ENABLED
+static void serial_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
+{
+    if (event == IIR_RX_RDY || event == IIR_CHAR_TIMEOUT)
+    {
+        if (log_irq_handler) {
+            log_irq_handler(serial_log_irq_ids, RxIrq);
+            }
+    } else if (event == IIR_THR_EMPTY) {
+        if (log_irq_handler) {
+                log_irq_handler(serial_log_irq_ids, TxIrq);
+            }
+    }
+    return;
+}
+#endif
+
+
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) 
 {
+
+#ifdef CONFIG_MBED_ENABLED
+            if (obj->index == UART_3) {
+                log_irq_handler = handler;
+                serial_log_irq_ids = id;
+                log_uart_irq_handler(&stdio_uart_log, serial_loguart_irq_handler, id);
+                return;
+            }             
+#endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     u8 uart_idx;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);    
+    pHalRuartAdapter = &(obj->hal_uart_adp);
     uart_idx = pHalRuartAdapter->UartIndex;
-    
     irq_handler[uart_idx] = handler;
-    serial_irq_ids[uart_idx] = id;        
-
+    serial_irq_ids[uart_idx] = id;
     pHalRuartAdapter->TxTDCallback = SerialTxDoneCallBack;
     pHalRuartAdapter->TxTDCbPara = (void*)pHalRuartAdapter;
     pHalRuartAdapter->RxDRCallback = SerialRxDoneCallBack;
     pHalRuartAdapter->RxDRCbPara = (void*)pHalRuartAdapter;    
 }
 
-
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) 
 {
+#ifdef CONFIG_MBED_ENABLED
+        if (obj->index == UART_3) {
+            if (irq == RxIrq) {
+                log_uart_irq_set(&stdio_uart_log, IIR_RX_RDY, enable);
+            } else {
+                log_uart_irq_set(&stdio_uart_log, IIR_THR_EMPTY, enable);
+            }
+            return;
+        }
+#endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     PHAL_RUART_OP pHalRuartOp;
     u8 uart_idx;
-
     pHalRuartAdapter = &(obj->hal_uart_adp);
     pHalRuartOp = &(obj->hal_uart_op);
     uart_idx = pHalRuartAdapter->UartIndex;
@@ -304,10 +342,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             pHalRuartAdapter->Interrupts |= RUART_IER_ERBI | RUART_IER_ELSI;
             serial_irq_en[uart_idx] |= SERIAL_RX_IRQ_EN;
             HalRuartSetIMRRtl8195a (pHalRuartAdapter);
-         } else {
+        } else {
             serial_irq_en[uart_idx] |= SERIAL_TX_IRQ_EN;
         }
+         
         pHalRuartOp->HalRuartRegIrq(pHalRuartAdapter);
+        //log_uart
         pHalRuartOp->HalRuartIntEnable(pHalRuartAdapter);
     } else { // disable
         if (irq == RxIrq) {
@@ -318,6 +358,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             serial_irq_en[uart_idx] &= ~SERIAL_TX_IRQ_EN;
         }
         HalRuartSetIMRRtl8195a (pHalRuartAdapter);
+        
         if (pHalRuartAdapter->Interrupts == 0) {
             InterruptUnRegister(&pHalRuartAdapter->IrqHandle);
             InterruptDis(&pHalRuartAdapter->IrqHandle);
@@ -332,7 +373,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 int serial_getc(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         return log_uart_getc(&stdio_uart_log);
     }
 #endif
@@ -346,7 +387,7 @@ int serial_getc(serial_t *obj)
 void serial_putc(serial_t *obj, int c) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_putc(&stdio_uart_log, (char)c);
         return;
     }
@@ -367,7 +408,7 @@ void serial_putc(serial_t *obj, int c)
 int serial_readable(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         return log_uart_readable(&stdio_uart_log);
     }
 #endif
@@ -385,7 +426,7 @@ int serial_readable(serial_t *obj)
 int serial_writable(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         return log_uart_writable(&stdio_uart_log);
     }
 #endif
@@ -393,8 +434,7 @@ int serial_writable(serial_t *obj)
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
 
-    if (HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF) & 
-                        (RUART_LINE_STATUS_REG_THRE)) {
+    if (HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF) & (RUART_LINE_STATUS_REG_THRE)) {
        return 1;
     } else {
         return 0;
@@ -404,7 +444,7 @@ int serial_writable(serial_t *obj)
 void serial_clear(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_clear(&stdio_uart_log);
         return;
     }
@@ -419,7 +459,7 @@ void serial_clear(serial_t *obj)
 void serial_break_set(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_break_set(&stdio_uart_log);
         return;
     }
@@ -428,7 +468,6 @@ void serial_break_set(serial_t *obj)
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
     u32 RegValue;
-
     RegValue = HAL_RUART_READ32(uart_idx, RUART_LINE_CTL_REG_OFF);
     RegValue |= BIT_UART_LCR_BREAK_CTRL;
     HAL_RUART_WRITE32(uart_idx, RUART_LINE_CTL_REG_OFF, RegValue);
@@ -437,16 +476,14 @@ void serial_break_set(serial_t *obj)
 void serial_break_clear(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-    if(obj->index == UART_3){
+    if (obj->index == UART_3) {
         log_uart_break_clear(&stdio_uart_log);
         return;
     }
 #endif
-
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
     u32 RegValue;
-
     RegValue = HAL_RUART_READ32(uart_idx, RUART_LINE_CTL_REG_OFF);
     RegValue &= ~(BIT_UART_LCR_BREAK_CTRL);
     HAL_RUART_WRITE32(uart_idx, RUART_LINE_CTL_REG_OFF, RegValue);

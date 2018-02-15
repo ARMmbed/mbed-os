@@ -24,6 +24,18 @@
 
 #if defined (MBEDTLS_SHA1_ALT)
 
+/**
+ * \name SECTION: Temporary compatibility code
+ *
+ * This section contains code to be added up stream in Mbed TLS. Once that
+ * has been provided, this section should be removed as the code will be
+ * provided elsewhere.
+ * \{
+ */
+
+#define MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED -0x0035 /**< SHA-1 hardware accelerator failed */
+
+/* \} name SECTION:  Temporary compatibility code */
 
 #include "cmsis.h"
 #include <string.h>
@@ -79,8 +91,10 @@ void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
  * \brief          SHA-1 context setup
  *
  * \param ctx      context to be initialized
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
+int mbedtls_sha1_starts_ret( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          SHA-1 process buffer
@@ -88,19 +102,23 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
  * \param ctx      SHA-1 context
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
+int mbedtls_sha1_update_ret( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          SHA-1 final digest
  *
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
+int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] );
+int mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }

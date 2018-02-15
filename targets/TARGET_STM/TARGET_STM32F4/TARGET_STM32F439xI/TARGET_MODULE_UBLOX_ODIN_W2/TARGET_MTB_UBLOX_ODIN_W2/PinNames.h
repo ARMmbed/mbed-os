@@ -185,7 +185,7 @@ typedef enum {
 #elif MBED_CONF_TARGET_USB_TX
     STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
 #else
-    STDIO_UART_TX = PA_11,
+    STDIO_UART_TX = PA_9,
 #endif
 
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
@@ -193,7 +193,7 @@ typedef enum {
 #elif MBED_CONF_TARGET_USB_RX
     STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
 #else
-    STDIO_UART_RX = PA_13,
+    STDIO_UART_RX = PA_10,
 #endif
 
     // DAPLink
@@ -208,8 +208,8 @@ typedef enum {
     TGT_SWDIO      = SWDIO,
     TGT_SWCLK      = SWCLK,
     TGT_RESET      = NTRST,
-    TG_TX          = USBTX,
-    TG_RX          = USBRX,
+    TGT_TX          = USBTX,
+    TGT_RX          = USBRX,
     TX1            = P_A15,
     RX1            = P_A14,
     SDA1           = P_C18,

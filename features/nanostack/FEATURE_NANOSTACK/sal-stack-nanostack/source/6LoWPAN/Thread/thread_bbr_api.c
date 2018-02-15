@@ -60,6 +60,7 @@
 #include "thread_management_server.h"
 #include "socket_api.h"
 #include "coap_service_api.h"
+#include "Common_Protocols/icmpv6.h"
 
 #define TRACE_GROUP "tBBR"
 
@@ -511,6 +512,7 @@ static int thread_border_relay_to_leader_cb(int8_t service_id, uint8_t source_ad
     return -1;
 }
 
+#ifdef HAVE_THREAD_BORDER_ROUTER
 static bool thread_bbr_i_host_prefix(struct protocol_interface_info_entry *cur, uint8_t prefix_ptr[8], uint8_t *br_count, bool *i_am_lowest)
 {
     bool i_host_this_prefix = false;
@@ -567,6 +569,7 @@ static void thread_bbr_network_data_remove(thread_bbr_t *this)
     memset(this->bbr_prefix,0,8);
     this->br_info_published = false;
 }
+
 static void thread_bbr_network_data_send(thread_bbr_t *this, uint8_t prefix[8], uint8_t eui64[8])
 {
     thread_border_router_info_t br_info = { 0 };
@@ -593,8 +596,8 @@ static void thread_bbr_network_data_send(thread_bbr_t *this, uint8_t prefix[8], 
     thread_border_router_prefix_add(this->interface_id, this->bbr_prefix, 64, &br_info);
     thread_border_router_publish(this->interface_id);
     this->br_info_published = true;
-
 }
+
 static void thread_bbr_routing_enable(thread_bbr_t *this)
 {
     if (this->routing_enabled) {
@@ -684,23 +687,24 @@ static void thread_bbr_status_check(thread_bbr_t *this, uint32_t seconds)
         // Check states when we need to remove our BR from network
         if (this->br_hosted && this->br_count > 1) {
             // Race condition More border routers than there should trigger random delay to remove BR
-            // our implementation prefers lowest RLOC to drop out to reduce problem time
+            // our implementation prefers lowest RLOC to to stay to reduce problem time
             if (br_lowest_host) {
-                this->br_delete_timer = randLIB_get_random_in_range(5,10);
-            } else {
                 this->br_delete_timer = randLIB_get_random_in_range(20,60);
+            } else {
+                this->br_delete_timer = randLIB_get_random_in_range(5,10);
             }
-            tr_info("br: too many BRs start remove jitter: %d", this->br_delete_timer);
+            tr_info("br: too many BRs start remove jitter:%"PRIu32, this->br_delete_timer);
             return;
         }
         if (this->br_info_published && !bbr_prefix_ptr ) {
             // Need to disable ND proxy will give a 20 second delay for it We could also disable routing immediately
             this->br_delete_timer = 20;
-            tr_info("br: can not be border router need to remove after: %d", this->br_delete_timer);
+            tr_info("br: can not be border router need to remove after: %"PRIu32, this->br_delete_timer);
             return;
         }
     }
 }
+
 static bool thread_bbr_activated(thread_bbr_t *this, uint32_t seconds)
 {
     protocol_interface_info_entry_t *cur;
@@ -739,7 +743,6 @@ static bool thread_bbr_activated(thread_bbr_t *this, uint32_t seconds)
     return false;
 }
 
-#ifdef HAVE_THREAD_BORDER_ROUTER
 bool thread_bbr_routing_enabled(protocol_interface_info_entry_t *cur)
 {
     thread_bbr_t *this = thread_bbr_find_by_interface(cur->thread_info->interface_id);
@@ -755,7 +758,7 @@ void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur)
     (void) cur;
     thread_mdns_network_data_update_notify();
 }
-#endif
+#endif /* HAVE_THREAD_BORDER_ROUTER*/
 
 static void thread_bbr_udp_proxy_service_stop(int8_t interface_id)
 {
@@ -765,7 +768,6 @@ static void thread_bbr_udp_proxy_service_stop(int8_t interface_id)
         tr_error("Failed to find BA instance");
         return;
     }
-    tr_debug("thread_border_router_udp_proxy_service_stop %d", interface_id);
 
     socket_close(this->udp_proxy_socket);
     this->udp_proxy_socket = -1;
@@ -786,19 +788,18 @@ int thread_bbr_commissioner_proxy_service_update(int8_t interface_id)
         goto return_fail;
     }
 
-    if (cur->thread_info->registered_commissioner.commissioner_valid) {
-        // relay is needed
+    if (!cur->thread_info->registered_commissioner.commissioner_valid) {
+        // commissioner not enabled
         if (this->udp_proxy_socket != -1) {
-            // UDP service is already running
-            return 0;
+            thread_bbr_udp_proxy_service_stop(interface_id);
         }
-    } else if (this->udp_proxy_socket != -1) {
-        // UDP service is running and need to delete
-        thread_bbr_udp_proxy_service_stop(interface_id);
         return 0;
     }
-    tr_debug("thread_border_router_udp_proxy_service_start %d", interface_id);
 
+    if (this->udp_proxy_socket != -1) {
+        // commissioner is valid and UDP service is already running
+        return 0;
+    }
 
     // Set source parameters, if commissioner is available
     ret_val = thread_management_get_commissioner_address(this->interface_id, &ns_source_addr.address[0], 0);
@@ -942,6 +943,48 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t seconds)
 #endif // HAVE_THREAD_ROUTER
 
 #ifdef HAVE_THREAD_BORDER_ROUTER
+static int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return -1;
+    }
+
+    buffer_t *buffer = icmpv6_build_na(cur, false, true, true, target, NULL, ADDR_UNSPECIFIED);
+    protocol_push(buffer);
+    return 0;
+
+}
+int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info, const uint8_t *mleid_ptr) {
+    (void) mleid_ptr;
+    thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
+    if (!this || this->backbone_interface_id < 0) {
+        tr_err("bbr not ready");
+        return -1;
+    }
+    ipv6_route_t *route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_HOST, info, 0, lifetime, 0);
+    // We are using route info field to store sequence number
+    if (!route) {
+        // Direct route to host allows ND proxying to work
+        tr_err("out of resources");
+        return -2;
+    }
+    // send NA
+    thread_bbr_na_send(this->backbone_interface_id, addr_data_ptr);
+
+    return 0;
+}
+
+int thread_bbr_nd_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr) {
+    ipv6_route_t *route = ipv6_route_choose_next_hop(addr_data_ptr, interface_id, NULL);
+    if (!route || route->prefix_len < 128 || !route->on_link || route->info.source != ROUTE_THREAD_PROXIED_HOST ) {
+        //Not found
+        return -1;
+    }
+    //TODO get information to route to parameters eq mleid, timeout
+    return 0;
+}
+
 int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(handler_interface_id);
@@ -998,6 +1041,7 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
 #ifdef HAVE_THREAD_BORDER_ROUTER
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
     link_configuration_s *link_configuration_ptr = thread_joiner_application_get_config(interface_id);
+    uint8_t *extended_random_mac = thread_joiner_application_random_mac_get(interface_id);
     char service_name[30] = {0};
     char *ptr;
 
@@ -1009,10 +1053,10 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
 
     this->backbone_interface_id = backbone_interface_id;
     ptr = service_name;
-    *ptr++ = 'a' + link_configuration_ptr->extended_random_mac[0] % 26;
-    *ptr++ = 'a' + link_configuration_ptr->extended_random_mac[1] % 26;
-    *ptr++ = 'a' + link_configuration_ptr->extended_random_mac[2] % 26;
-    *ptr++ = 'a' + link_configuration_ptr->extended_random_mac[3] % 26;
+    *ptr++ = 'a' + extended_random_mac[0] % 26;
+    *ptr++ = 'a' + extended_random_mac[1] % 26;
+    *ptr++ = 'a' + extended_random_mac[2] % 26;
+    *ptr++ = 'a' + extended_random_mac[3] % 26;
     memcpy(ptr,"-ARM-",5);
     ptr += 5;
     memcpy(ptr,link_configuration_ptr->name,16);
@@ -1020,7 +1064,8 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     // Start mdns service
     thread_mdns_start(this->interface_id, this->backbone_interface_id, service_name);
     multicast_fwd_set_proxy_upstream(this->backbone_interface_id);
-    multicast_fwd_full_for_scope(this->interface_id, IPV6_SCOPE_SITE_LOCAL);
+    multicast_fwd_full_for_scope(this->interface_id, 0);
+    multicast_fwd_full_for_scope(this->backbone_interface_id, 0);
     // By default multicast forwarding is not enabled as it causes multicast loops
     multicast_fwd_set_forwarding(this->interface_id, false);
 
@@ -1070,6 +1115,9 @@ void thread_bbr_stop(int8_t interface_id)
         return;
     }
     thread_extension_bbr_delete(interface_id);
+    thread_bbr_network_data_remove(this);
+    thread_bbr_routing_disable(this);
+    thread_border_router_publish(interface_id);
     thread_mdns_stop();
     this->backbone_interface_id = -1;
 

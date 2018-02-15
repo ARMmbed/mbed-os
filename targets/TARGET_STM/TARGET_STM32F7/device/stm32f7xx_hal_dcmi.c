@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_dcmi.c
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   DCMI HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Digital Camera Interface (DCMI) peripheral:
@@ -108,13 +106,6 @@
 /* Private define ------------------------------------------------------------*/
 #define HAL_TIMEOUT_DCMI_STOP    ((uint32_t)1000) /* Set timeout to 1s  */
 
-#define DCMI_POSITION_CWSIZE_VLINE (uint32_t)POSITION_VAL(DCMI_CWSIZE_VLINE) /*!< Required left shift to set crop window vertical line count       */
-#define DCMI_POSITION_CWSTRT_VST   (uint32_t)POSITION_VAL(DCMI_CWSTRT_VST)   /*!< Required left shift to set crop window vertical start line count */
-
-#define DCMI_POSITION_ESCR_LSC     (uint32_t)POSITION_VAL(DCMI_ESCR_LSC)     /*!< Required left shift to set line start delimiter */
-#define DCMI_POSITION_ESCR_LEC     (uint32_t)POSITION_VAL(DCMI_ESCR_LEC)     /*!< Required left shift to set line end delimiter   */
-#define DCMI_POSITION_ESCR_FEC     (uint32_t)POSITION_VAL(DCMI_ESCR_FEC)     /*!< Required left shift to set frame end delimiter  */
-
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -145,7 +136,7 @@ static void       DCMI_DMAError(DMA_HandleTypeDef *hdma);
 /**
   * @brief  Initializes the DCMI according to the specified
   *         parameters in the DCMI_InitTypeDef and create the associated handle.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL status
   */
@@ -196,9 +187,9 @@ HAL_StatusTypeDef HAL_DCMI_Init(DCMI_HandleTypeDef *hdcmi)
   if(hdcmi->Init.SynchroMode == DCMI_SYNCHRO_EMBEDDED)
   {
     hdcmi->Instance->ESCR = (((uint32_t)hdcmi->Init.SyncroCode.FrameStartCode)    |\
-                             ((uint32_t)hdcmi->Init.SyncroCode.LineStartCode << DCMI_POSITION_ESCR_LSC)|\
-                             ((uint32_t)hdcmi->Init.SyncroCode.LineEndCode << DCMI_POSITION_ESCR_LEC) |\
-                             ((uint32_t)hdcmi->Init.SyncroCode.FrameEndCode << DCMI_POSITION_ESCR_FEC));
+                             ((uint32_t)hdcmi->Init.SyncroCode.LineStartCode << DCMI_ESCR_LSC_Pos)|\
+                             ((uint32_t)hdcmi->Init.SyncroCode.LineEndCode << DCMI_ESCR_LEC_Pos) |\
+                             ((uint32_t)hdcmi->Init.SyncroCode.FrameEndCode << DCMI_ESCR_FEC_Pos));
 
   }
 
@@ -217,7 +208,7 @@ HAL_StatusTypeDef HAL_DCMI_Init(DCMI_HandleTypeDef *hdcmi)
 /**
   * @brief  Deinitializes the DCMI peripheral registers to their default reset
   *         values.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL status
   */
@@ -241,7 +232,7 @@ HAL_StatusTypeDef HAL_DCMI_DeInit(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Initializes the DCMI MSP.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -257,7 +248,7 @@ __weak void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
 
 /**
   * @brief  DeInitializes the DCMI MSP.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -293,11 +284,11 @@ __weak void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi)
 
 /**
   * @brief  Enables DCMI DMA request and enables DCMI capture  
-  * @param  hdcmi:     pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi     pointer to a DCMI_HandleTypeDef structure that contains
   *                    the configuration information for DCMI.
-  * @param  DCMI_Mode: DCMI capture mode snapshot or continuous grab.
-  * @param  pData:     The destination memory Buffer address (LCD Frame buffer).
-  * @param  Length:    The length of capture to be transferred.
+  * @param  DCMI_Mode DCMI capture mode snapshot or continuous grab.
+  * @param  pData     The destination memory Buffer address (LCD Frame buffer).
+  * @param  Length    The length of capture to be transferred.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mode, uint32_t pData, uint32_t Length)
@@ -379,7 +370,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
 
 /**
   * @brief  Disable DCMI DMA request and Disable DCMI capture  
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
   */
@@ -432,7 +423,7 @@ HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
 
 /**
   * @brief  Suspend DCMI capture  
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
   */
@@ -478,7 +469,7 @@ HAL_StatusTypeDef HAL_DCMI_Suspend(DCMI_HandleTypeDef* hdcmi)
 
 /**
   * @brief  Resume DCMI capture  
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
   */
@@ -504,7 +495,7 @@ HAL_StatusTypeDef HAL_DCMI_Resume(DCMI_HandleTypeDef* hdcmi)
 
 /**
   * @brief  Handles DCMI interrupt request.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for the DCMI.
   * @retval None
   */
@@ -589,7 +580,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Error DCMI callback.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -605,7 +596,7 @@ __weak void HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Line Event callback.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -618,7 +609,7 @@ __weak void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  VSYNC Event callback.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -634,7 +625,7 @@ __weak void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Frame Event callback.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval None
   */
@@ -670,12 +661,12 @@ __weak void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Configure the DCMI CROP coordinate.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
-  * @param  YSize: DCMI Line number
-  * @param  XSize: DCMI Pixel per line
-  * @param  X0:    DCMI window X offset
-  * @param  Y0:    DCMI window Y offset
+  * @param  YSize DCMI Line number
+  * @param  XSize DCMI Pixel per line
+  * @param  X0    DCMI window X offset
+  * @param  Y0    DCMI window Y offset
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DCMI_ConfigCrop(DCMI_HandleTypeDef *hdcmi, uint32_t X0, uint32_t Y0, uint32_t XSize, uint32_t YSize)
@@ -693,8 +684,8 @@ HAL_StatusTypeDef HAL_DCMI_ConfigCrop(DCMI_HandleTypeDef *hdcmi, uint32_t X0, ui
   assert_param(IS_DCMI_WINDOW_COORDINATE(YSize));
 	
   /* Configure CROP */
-  hdcmi->Instance->CWSIZER = (XSize | (YSize << DCMI_POSITION_CWSIZE_VLINE));
-  hdcmi->Instance->CWSTRTR = (X0 | (Y0 << DCMI_POSITION_CWSTRT_VST));
+  hdcmi->Instance->CWSIZER = (XSize | (YSize << DCMI_CWSIZE_VLINE_Pos));
+  hdcmi->Instance->CWSTRTR = (X0 | (Y0 << DCMI_CWSTRT_VST_Pos));
 
   /* Initialize the DCMI state*/
   hdcmi->State  = HAL_DCMI_STATE_READY;
@@ -707,7 +698,7 @@ HAL_StatusTypeDef HAL_DCMI_ConfigCrop(DCMI_HandleTypeDef *hdcmi, uint32_t X0, ui
 
 /**
   * @brief  Disable the Crop feature.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL status
   */
@@ -733,7 +724,7 @@ HAL_StatusTypeDef HAL_DCMI_DisableCrop(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Enable the Crop feature.
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL status
   */
@@ -779,7 +770,7 @@ HAL_StatusTypeDef HAL_DCMI_EnableCrop(DCMI_HandleTypeDef *hdcmi)
 
 /**
   * @brief  Return the DCMI state
-  * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
+  * @param  hdcmi pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL state
   */
@@ -790,7 +781,7 @@ HAL_DCMI_StateTypeDef HAL_DCMI_GetState(DCMI_HandleTypeDef *hdcmi)
 
 /**
 * @brief  Return the DCMI error code
-* @param  hdcmi : pointer to a DCMI_HandleTypeDef structure that contains
+* @param  hdcmi  pointer to a DCMI_HandleTypeDef structure that contains
   *               the configuration information for DCMI.
 * @retval DCMI Error Code
 */
@@ -808,7 +799,7 @@ uint32_t HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi)
   */
   /**
   * @brief  DMA conversion complete callback. 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
   *                the configuration information for the specified DMA module.
   * @retval None
   */
@@ -865,7 +856,7 @@ static void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  DMA error callback 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
   *                the configuration information for the specified DMA module.
   * @retval None
   */
