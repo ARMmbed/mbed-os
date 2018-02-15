@@ -427,13 +427,13 @@ int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
 
 int8_t LoRaPHY::get_next_lower_dr(int8_t dr, int8_t min_dr)
 {
-    uint8_t next_lower_dr = 0;
+    uint8_t next_lower_dr = dr;
 
-    if (dr == min_dr) {
-        next_lower_dr = min_dr;
-    } else {
-        next_lower_dr = dr - 1;
-    }
+    do {
+        if (next_lower_dr != min_dr) {
+            next_lower_dr -= 1;
+        }
+    } while((next_lower_dr != min_dr) && !is_datarate_supported(next_lower_dr));
 
     return next_lower_dr;
 }
@@ -485,6 +485,15 @@ uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
     *delayTx = delay_transmission;
 
     return count;
+}
+
+bool LoRaPHY::is_datarate_supported(const int8_t datarate) const
+{
+    if (datarate < phy_params.datarates.size) {
+        return (((uint8_t *)phy_params.datarates.table)[datarate] != 0) ? true : false;
+    } else {
+        return false;
+    }
 }
 
 void LoRaPHY::reset_to_default_values(loramac_protocol_params *params, bool init)
@@ -629,30 +638,36 @@ void LoRaPHY::restore_default_channels()
 
 bool LoRaPHY::verify_rx_datarate(uint8_t datarate)
 {
-    if (phy_params.dl_dwell_time_setting == 0) {
-        //TODO: Check this! datarate must be same as minimum! Can be compared directly if OK
-        return val_in_range(datarate,
-                            phy_params.min_rx_datarate,
-                            phy_params.min_rx_datarate);
-    } else {
-        return val_in_range(datarate,
-                            phy_params.dwell_limit_datarate,
-                            phy_params.min_rx_datarate );
+    if (is_datarate_supported(datarate)) {
+        if (phy_params.dl_dwell_time_setting == 0) {
+            //TODO: Check this! datarate must be same as minimum! Can be compared directly if OK
+            return val_in_range(datarate,
+                                phy_params.min_rx_datarate,
+                                phy_params.max_rx_datarate);
+        } else {
+            return val_in_range(datarate,
+                                phy_params.dwell_limit_datarate,
+                                phy_params.max_rx_datarate );
+        }
     }
+    return false;
 }
 
 bool LoRaPHY::verify_tx_datarate(uint8_t datarate, bool use_default)
 {
-    if (use_default) {
-        return val_in_range(datarate, phy_params.default_datarate,
-                            phy_params.default_max_datarate);
-    } else if (phy_params.ul_dwell_time_setting == 0) {
-        return val_in_range(datarate, phy_params.min_tx_datarate,
-                            phy_params.max_tx_datarate);
-    } else {
-        return val_in_range(datarate, phy_params.dwell_limit_datarate,
-                            phy_params.max_tx_datarate);
+    if (is_datarate_supported(datarate)) {
+        if (use_default) {
+            return val_in_range(datarate, phy_params.default_datarate,
+                                phy_params.default_max_datarate);
+        } else if (phy_params.ul_dwell_time_setting == 0) {
+            return val_in_range(datarate, phy_params.min_tx_datarate,
+                                phy_params.max_tx_datarate);
+        } else {
+            return val_in_range(datarate, phy_params.dwell_limit_datarate,
+                                phy_params.max_tx_datarate);
+        }
     }
+    return false;
 }
 
 bool LoRaPHY::verify_tx_power(uint8_t tx_power)
@@ -976,23 +991,27 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
         }
     }
 
-    verify_params.status = status;
+    if (is_datarate_supported(adr_settings.datarate)) {
+        verify_params.status = status;
 
-    verify_params.adr_enabled = link_adr_req->adr_enabled;
-    verify_params.current_datarate = link_adr_req->current_datarate;
-    verify_params.current_tx_power = link_adr_req->current_tx_power;
-    verify_params.current_nb_rep = link_adr_req->current_nb_rep;
+        verify_params.adr_enabled = link_adr_req->adr_enabled;
+        verify_params.current_datarate = link_adr_req->current_datarate;
+        verify_params.current_tx_power = link_adr_req->current_tx_power;
+        verify_params.current_nb_rep = link_adr_req->current_nb_rep;
 
-    verify_params.datarate = adr_settings.datarate;
-    verify_params.tx_power = adr_settings.tx_power;
-    verify_params.nb_rep = adr_settings.nb_rep;
+        verify_params.datarate = adr_settings.datarate;
+        verify_params.tx_power = adr_settings.tx_power;
+        verify_params.nb_rep = adr_settings.nb_rep;
 
 
-    verify_params.channel_mask = temp_channel_mask;
+        verify_params.channel_mask = temp_channel_mask;
 
-    // Verify the parameters and update, if necessary
-    status = verify_link_ADR_req(&verify_params, &adr_settings.datarate,
-                                 &adr_settings.tx_power, &adr_settings.nb_rep);
+        // Verify the parameters and update, if necessary
+        status = verify_link_ADR_req(&verify_params, &adr_settings.datarate,
+                                     &adr_settings.tx_power, &adr_settings.nb_rep);
+    } else {
+        status &= 0xFD; // Datarate KO
+    }
 
     // Update channelsMask if everything is correct
     if (status == 0x07) {

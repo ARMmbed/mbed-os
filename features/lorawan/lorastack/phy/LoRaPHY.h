@@ -614,8 +614,8 @@ protected:
     uint8_t enabled_channel_count(bool joined, uint8_t datarate,
                                   const uint16_t *mask, uint8_t* enabledChannels,
                                   uint8_t* delayTx);
+
+    bool is_datarate_supported(const int8_t datarate) const;
 };
-
-
 
 #endif /* MBED_OS_LORAPHY_BASE_ */
