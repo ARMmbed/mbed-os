@@ -26,6 +26,17 @@ class CellularBase: public NetworkInterface {
 
 public:
 
+    /** Get the default Cellular interface.
+     *
+     * This is provided as a weak method so applications can override.
+     * Default behaviour is to get the target's default interface, if
+     * any.
+     *
+     * @return pointer to interface, if any
+     */
+
+    static CellularBase *get_default_instance();
+
     /** Set the Cellular network credentials
      *
      *  Please check documentation of connect() for default behaviour of APN settings.
@@ -104,6 +115,17 @@ public:
     virtual CellularBase *cellularBase() {
         return this;
     }
+
+protected:
+    /** Get the target's default Cellular interface.
+     *
+     * This is provided as a weak method so targets can override. The
+     * default implementation configures and returns the OnBoardModemInterface
+     * if available.
+     *
+     * @return pointer to interface, if any
+     */
+    static CellularBase *get_target_default_instance();
 };
 
 #endif //CELLULAR_BASE_H

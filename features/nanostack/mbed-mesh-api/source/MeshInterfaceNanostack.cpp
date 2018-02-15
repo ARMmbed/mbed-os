@@ -182,3 +182,10 @@ nsapi_error_t InterfaceNanostack::set_blocking(bool blocking)
     _blocking = blocking;
     return NSAPI_ERROR_OK;
 }
+
+#if !DEVICE_802_15_4_PHY
+MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
+{
+    return NULL;
+}
+#endif

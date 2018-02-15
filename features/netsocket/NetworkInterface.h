@@ -39,9 +39,45 @@ class EMACInterface;
 class NetworkInterface: public DNS {
 public:
 
-
-
     virtual ~NetworkInterface() {};
+
+    /** Return the default network interface
+     *
+     * Returns the default network interface, as determined by JSON option
+     * target.network-default-interface-type or other overrides.
+     *
+     * The type of the interface returned can be tested via the ethInterface()
+     * etc downcasts.
+     *
+     * The default behaviour is to return the default interface for the
+     * interface type specified by target.network-default-interface-type. Targets
+     * should set this in their targets.json to guide default selection,
+     * and applications may override.
+     *
+     * The interface returned should be already configured for use such that its
+     * connect() method works with no parameters. For connection types needing
+     * configuration, settings should normally be obtained from JSON - the
+     * settings for the core types are under the "nsapi" JSON config tree.
+     *
+     * The list of possible settings for default interface type is open-ended,
+     * as is the number of possible providers. Core providers are:
+     *
+     * * ETHERNET: EthernetInterface, using default EMAC and OnboardNetworkStack
+     * * MESH: ThreadInterface or LoWPANNDInterface, using default NanostackRfPhy
+     * * CELLULAR: OnboardModemInterface
+     * * WIFI: None - always provided by a specific class
+     *
+     * Specific drivers may be activated by other settings of the
+     * default-network-interface-type configuration.  This will depend on the
+     * target and the driver. For example a board may have its default setting
+     * as "AUTO" which causes it to autodetect an Ethernet cable. This should
+     * be described in the target's documentation.
+     *
+     * An application can override all target settings by implementing
+     * NetworkInterface::get_default_instance() themselves - the default
+     * definition is weak, and calls get_target_default_instance().
+     */
+    static NetworkInterface *get_default_instance();
 
     /** Get the local MAC address
      *
@@ -247,6 +283,37 @@ protected:
      *  @return The underlying NetworkStack object
      */
     virtual NetworkStack *get_stack() = 0;
+
+    /** Get the target's default network instance.
+     *
+     * This method can be overridden by the target. Default implementations
+     * are provided weakly by various subsystems as described in
+     * NetworkInterface::get_default_instance(), so targets should not
+     * need to override in simple cases.
+     *
+     * If a target has more elaborate interface selection, it can completely
+     * override this behaviour by implementing
+     * NetworkInterface::get_target_default_instance() themselves, either
+     * unconditionally, or for a specific network-default-interface-type setting
+     *
+     * For example, a device with both Ethernet and Wi-fi could be set up its
+     * target so that:
+     *    * DEVICE_EMAC is set, and it provides EMAC::get_default_instance(),
+     *      which means EthernetInterface provides EthInterface::get_target_instance()
+     *      based on that EMAC.
+     *    * It provides WifiInterface::get_target_default_instance().
+     *    * The core will route NetworkInterface::get_default_instance() to
+     *      either of those if network-default-interface-type is set to
+     *      ETHERNET or WIFI.
+     *    * The board overrides NetworkInterface::get_target_default_instance()
+     *      if network-default-interface-type is set to AUTO. This returns
+     *      either EthInterface::get_default_instance() or WiFIInterface::get_default_instance()
+     *      depending on a cable detection.
+     *
+     *
+     * performs the search described by get_default_instance.
+     */
+    static NetworkInterface *get_target_default_instance();
 };
 
 

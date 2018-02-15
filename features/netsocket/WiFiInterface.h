@@ -30,9 +30,15 @@
 class WiFiInterface: public virtual NetworkInterface
 {
 public:
-    /** WiFiInterface lifetime
+    /** Get the default WiFi interface.
+     *
+     * This is provided as a weak method so applications can override.
+     * Default behaviour is to get the target's default interface, if
+     * any.
+     *
+     * @return pointer to interface, if any
      */
-    virtual ~WiFiInterface() {};
+    static WiFiInterface *get_default_instance();
 
     /** Set the WiFi network credentials
      *
@@ -103,6 +109,17 @@ public:
     virtual WiFiInterface *wifiInterface() {
         return this;
     }
+
+protected:
+
+    /** Get the target's default WiFi interface.
+     *
+     * This is provided as a weak method so targets can override. The
+     * default implementation returns NULL.
+     *
+     * @return pointer to interface, if any
+     */
+    static WiFiInterface *get_target_default_instance();
 };
 
 #endif
