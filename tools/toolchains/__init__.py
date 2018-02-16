@@ -337,8 +337,10 @@ class mbedToolchain:
         "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
         "Cortex-M23-NS": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M23": ["__CORTEX_M23", "ARM_MATH_ARMV8MBL", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__DOMAIN_NS=1", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__DOMAIN_NS=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F-NS": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__DOMAIN_NS=1", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M33F": ["__CORTEX_M33", "ARM_MATH_ARMV8MML", "__FPU_PRESENT", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
