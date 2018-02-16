@@ -221,7 +221,7 @@ def main():
     if options.update_packs:
         from tools.arm_pack_manager import Cache
         cache = Cache(True, True)
-        cache.cache_descriptors()
+        cache.cache_everything()
 
     # Target
     if not options.mcu:
