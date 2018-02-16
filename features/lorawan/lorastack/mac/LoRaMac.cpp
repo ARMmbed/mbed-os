@@ -1152,6 +1152,7 @@ lorawan_status_t LoRaMac::schedule_tx(void)
 {
     lorawan_time_t dutyCycleTimeOff = 0;
     channel_selection_params_t nextChan;
+    lorawan_status_t status = LORAWAN_STATUS_PARAMETER_INVALID;
 
     // Check if the device is off
     if (_params.sys_params.max_duty_cycle == 255) {
@@ -1173,12 +1174,23 @@ lorawan_status_t LoRaMac::schedule_tx(void)
     nextChan.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
     // Select channel
-    while (lora_phy->set_next_channel(&nextChan, &_params.channel,
-                                      &dutyCycleTimeOff,
-                                      &_params.timers.aggregated_timeoff) == false) {
-        _params.sys_params.channel_data_rate = lora_phy->get_default_tx_datarate();
-        // Update datarate in the function parameters
-        nextChan.current_datarate = _params.sys_params.channel_data_rate;
+    status = lora_phy->set_next_channel(&nextChan, &_params.channel,
+                                        &dutyCycleTimeOff,
+                                        &_params.timers.aggregated_timeoff);
+    switch (status) {
+        case LORAWAN_STATUS_NO_CHANNEL_FOUND:
+        case LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND:
+            return status;
+        case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
+            if (dutyCycleTimeOff != 0) {
+                // Send later - prepare timer
+                tr_debug("Next Transmission in %lu ms", dutyCycleTimeOff);
+                _params.mac_state |= LORAMAC_TX_DELAYED;
+                _lora_time.start(_params.timers.tx_delayed_timer, dutyCycleTimeOff);
+            }
+            return LORAWAN_STATUS_OK;
+        default:
+            break;
     }
 
     tr_debug("Next Channel Idx=%d, DR=%d", _params.channel, nextChan.current_datarate);
@@ -1214,19 +1226,8 @@ lorawan_status_t LoRaMac::schedule_tx(void)
                 + _params.rx_window2_config.window_offset;
     }
 
-    // Schedule transmission of frame
-    if (dutyCycleTimeOff == 0) {
-        // Try to send now
-        return send_frame_on_channel(_params.channel);
-    } else {
-        // Send later - prepare timer
-        _params.mac_state |= LORAMAC_TX_DELAYED;
-        tr_debug("Next Transmission in %lu ms", dutyCycleTimeOff);
-
-        _lora_time.start(_params.timers.tx_delayed_timer, dutyCycleTimeOff);
-
-        return LORAWAN_STATUS_OK;
-    }
+    // Try to send now
+    return send_frame_on_channel(_params.channel);
 }
 
 void LoRaMac::calculate_backOff(uint8_t channel)

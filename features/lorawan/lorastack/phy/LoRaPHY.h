@@ -332,9 +332,9 @@ public:
      *
      * @return Function status [1: OK, 0: Unable to find a channel on the current datarate].
      */
-    virtual bool set_next_channel(channel_selection_params_t* nextChanParams,
-                                   uint8_t* channel, lorawan_time_t* time,
-                                   lorawan_time_t* aggregatedTimeOff);
+    virtual lorawan_status_t set_next_channel(channel_selection_params_t* nextChanParams,
+                                              uint8_t* channel, lorawan_time_t* time,
+                                              lorawan_time_t* aggregatedTimeOff);
 
     /** Adds a channel to the channel list.
      *
