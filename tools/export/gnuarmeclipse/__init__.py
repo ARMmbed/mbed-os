@@ -293,7 +293,8 @@ class GNUARMEclipse(Exporter):
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('gnuarmeclipse/mbedignore.tmpl', jinja_ctx,
+                                   '.mbedignore')
 
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
