@@ -24,19 +24,82 @@
 
 #include "lwip/opt.h" /* ETH_PAD_SIZE */
 
+#include "mbed.h"
+
+#if MBED_CONF_APP_TEST_EMAC
+
+#include "EMAC.h"
+#include "EMACMemoryManager.h"
+#include "emac_TestMemoryManager.h"
+
+#else
+
 #include "emac_api.h"
 #include "emac_stack_mem.h"
 
+#endif
+
+#include "emac_initialize.h"
 #include "emac_membuf.h"
 #include "emac_util.h"
 
-int emac_if_memory_buffer_read(emac_stack_mem_chain_t *mem_chain_p, unsigned char *eth_frame)
+#if MBED_CONF_APP_TEST_EMAC
+
+int emac_if_memory_buffer_read(void *buf, unsigned char *eth_frame)
+{
+    int eth_frame_index = 0;
+    int invalid_data_index = 0;
+
+    for (emac_mem_buf_t *mem_buf = buf; mem_buf != NULL; mem_buf = emac_m_mngr_get()->get_next(mem_buf)) {
+        unsigned char *buf_payload = (unsigned char *) emac_m_mngr_get()->get_ptr(mem_buf);
+        int buf_payload_len = emac_m_mngr_get()->get_len(mem_buf);
+
+        for (int index = 0; index < buf_payload_len; index++) {
+            if (eth_frame_index < ETH_FRAME_HEADER_LEN) {
+                eth_frame[eth_frame_index] = buf_payload[index];
+            } else {
+                if (buf_payload[index] != (uint8_t) eth_frame_index) {
+                    invalid_data_index = eth_frame_index;
+                    break;
+                }
+            }
+            eth_frame_index++;
+        }
+    }
+
+    return invalid_data_index;
+}
+
+void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write_data)
+{
+    int eth_frame_index = 0;
+
+    for (emac_mem_buf_t *mem_buf = buf; mem_buf != NULL; mem_buf = emac_m_mngr_get()->get_next(mem_buf)) {
+        unsigned char *buf_payload = (unsigned char *) emac_m_mngr_get()->get_ptr(mem_buf);
+        int buf_payload_len = emac_m_mngr_get()->get_len(mem_buf);
+
+        for (int index = 0; index < buf_payload_len; index++) {
+            if (eth_frame_index < ETH_FRAME_HEADER_LEN) {
+                buf_payload[index] = eth_frame[eth_frame_index];
+            } else if (write_data) {
+                buf_payload[index] = (char) eth_frame_index;
+            } else {
+                break;
+            }
+            eth_frame_index++;
+        }
+    }
+}
+
+#else
+
+int emac_if_memory_buffer_read(void *buf, unsigned char *eth_frame)
 {
     int eth_frame_index = 0;
     int invalid_data_index = 0;
     int index = ETH_PAD_SIZE;
 
-    for (emac_stack_mem_t *mem_p = emac_stack_mem_chain_dequeue(0, &mem_chain_p); mem_p != NULL; mem_p = emac_stack_mem_chain_dequeue(0, &mem_chain_p)) {
+    for (emac_stack_mem_t *mem_p = emac_stack_mem_chain_dequeue(0, &buf); mem_p != NULL; mem_p = emac_stack_mem_chain_dequeue(0, &buf)) {
         unsigned char *buf_payload = (unsigned char *) emac_stack_mem_ptr(0, mem_p);
         int buf_payload_len = emac_stack_mem_len(0, mem_p);
 
@@ -57,12 +120,12 @@ int emac_if_memory_buffer_read(emac_stack_mem_chain_t *mem_chain_p, unsigned cha
     return invalid_data_index;
 }
 
-void emac_if_memory_buffer_write(emac_stack_mem_chain_t *mem_chain_p, unsigned char *eth_frame, bool write_data)
+void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write_data)
 {
     int eth_frame_index = 0;
     int index = ETH_PAD_SIZE;
 
-    for (emac_stack_mem_t *mem_p = emac_stack_mem_chain_dequeue(0, &mem_chain_p); mem_p != NULL; mem_p = emac_stack_mem_chain_dequeue(0, &mem_chain_p)) {
+    for (emac_stack_mem_t *mem_p = emac_stack_mem_chain_dequeue(0, &buf); mem_p != NULL; mem_p = emac_stack_mem_chain_dequeue(0, &buf)) {
         unsigned char *buf_payload = (unsigned char *) emac_stack_mem_ptr(0, mem_p);
         int buf_payload_len = emac_stack_mem_len(0, mem_p);
 
@@ -79,5 +142,7 @@ void emac_if_memory_buffer_write(emac_stack_mem_chain_t *mem_chain_p, unsigned c
         index = 0;
     }
 }
+
+#endif
 
 #endif
