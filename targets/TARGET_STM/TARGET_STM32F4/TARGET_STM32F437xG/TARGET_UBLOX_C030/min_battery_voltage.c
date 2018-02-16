@@ -22,7 +22,7 @@
 
 void HAL_MspInit(void)
 {
-	set_minimum_battery_voltage();
+    set_minimum_battery_voltage();
 }
 
 void set_minimum_battery_voltage()
