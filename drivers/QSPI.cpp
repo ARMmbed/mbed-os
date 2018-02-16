@@ -16,6 +16,7 @@
 
 #include "drivers/QSPI.h"
 #include "platform/mbed_critical.h"
+#include <string.h>
 
 #if DEVICE_QSPI
 
