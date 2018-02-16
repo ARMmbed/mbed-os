@@ -5,7 +5,7 @@ python:
 env:
   global:
     - >
-      STATUS=$'curl -so/dev/null --user $MBED_BOT --request POST
+      STATUS=$'curl -so/dev/null --user "$MBED_BOT" --request POST
       https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
       --data @- << DATA\n{
       "state": "$0",
