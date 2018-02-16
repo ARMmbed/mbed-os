@@ -744,7 +744,9 @@ void LoRaMac::on_radio_rx_error( void )
 
         mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
 
-        _params.flags.bits.mac_done = 1;
+        if (_params.dev_class != CLASS_C) {
+            _params.flags.bits.mac_done = 1;
+        }
     }
 }
 
