@@ -2953,6 +2953,50 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "NUCLEO_H743ZI": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M7FD",
+        "extra_labels_add": [
+            "STM32H7",
+            "STM32H743",
+            "STM32H743xI",
+            "STM32H743ZI"
+        ],
+        "config": {
+            "d11_configuration": {
+                "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
+                "value": "PA_7",
+                "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
+            },
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            },
+            "hse_value": {
+                "help": "HSE default value is 25MHz in HAL",
+                "value": "8000000",
+                "macro_name": "HSE_VALUE"
+            }
+        },
+        "overrides": { "lpticker_delay_ticks": 3 },
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["0813"],
+        "device_has_add": [
+            "ANALOGOUT",
+            "CRC",
+            "TRNG",
+            "FLASH",
+            "MPU"
+        ],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32H743ZI",
+        "bootloader_supported": true
+    },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
