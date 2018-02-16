@@ -4223,6 +4223,7 @@
         "core": "Cortex-M23",
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351K1AAEES"],
+        "macros": ["MBED_FAULT_HANDLER_DISABLED"],
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "inherits": ["Target"],
