@@ -25,7 +25,7 @@
     @returns
 */
 /**************************************************************************/
-error_t btle_advertising_start(void)
+nrf_error_t btle_advertising_start(void)
 {
     ble_gap_adv_params_t adv_para = {0};
 

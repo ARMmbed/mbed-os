@@ -165,7 +165,7 @@ uint8_t custom_add_uuid_base(uint8_t const *const p_uuid_base)
 
 */
 /**************************************************************************/
-error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
+nrf_error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
                                 ble_uuid_t          *p_uuid)
 {
     UUID::LongUUIDBytes_t uuid_base_le;
@@ -200,7 +200,7 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
     @retval     ERROR_NONE        Everything executed normally
 */
 /**************************************************************************/
-error_t custom_add_in_characteristic(uint16_t                  service_handle,
+nrf_error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,
                                      uint8_t                   properties,
                                      SecurityManager::SecurityMode_t       requiredSecurity,
@@ -336,7 +336,7 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     @retval     ERROR_NONE        Everything executed normally
 */
 /**************************************************************************/
-error_t custom_add_in_descriptor(uint16_t    char_handle,
+nrf_error_t custom_add_in_descriptor(uint16_t    char_handle,
                                  ble_uuid_t *p_uuid,
                                  uint8_t    *p_data,
                                  uint16_t    length,

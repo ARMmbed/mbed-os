@@ -96,7 +96,7 @@ static uint32_t signalEvent()
 }
 
 
-error_t btle_init(void)
+nrf_error_t btle_init(void)
 {
     nrf_clock_lf_cfg_t clockConfiguration;
 

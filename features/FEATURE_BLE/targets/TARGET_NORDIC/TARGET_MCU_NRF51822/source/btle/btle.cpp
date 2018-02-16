@@ -75,7 +75,7 @@ static uint32_t signalEvent()
     return NRF_SUCCESS;
 }
 
-error_t btle_init(void)
+nrf_error_t btle_init(void)
 {
     nrf_clock_lfclksrc_t clockSource;
     if (NRF_CLOCK->LFCLKSRC & (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos)) {

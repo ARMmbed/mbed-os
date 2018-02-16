@@ -108,18 +108,18 @@ static inline void debugger_breakpoint(void)
 #define ASSERT_DEFINE(...) ASSERT_DEFINE_WITH_HANDLER(ASSERT_ERROR_HANDLER, NULL, __VA_ARGS__)
 
 //--------------------------------------------------------------------+
-// error_t Status Assert TODO use ASSERT_DEFINE
+// nrf_error_t Status Assert TODO use ASSERT_DEFINE
 //--------------------------------------------------------------------+
 #define ASSERT_STATUS_MESSAGE(sts, message) \
-    ASSERT_DEFINE(error_t status = (error_t)(sts),\
+    ASSERT_DEFINE(nrf_error_t status = (nrf_error_t)(sts),\
                   ERROR_NONE == status, status, "%s: %s", ErrorStr[status], message)
 
 #define ASSERT_STATUS(sts) \
-    ASSERT_DEFINE(error_t status = (error_t)(sts),\
+    ASSERT_DEFINE(nrf_error_t status = (nrf_error_t)(sts),\
                   ERROR_NONE == status, status, "error = %d", status)
 
 #define ASSERT_STATUS_RET_VOID(sts) \
-    ASSERT_DEFINE(error_t status = (error_t)(sts),\
+    ASSERT_DEFINE(nrf_error_t status = (nrf_error_t)(sts),\
                   ERROR_NONE == status, (void) 0, "error = %d", status)
 
 //--------------------------------------------------------------------+
