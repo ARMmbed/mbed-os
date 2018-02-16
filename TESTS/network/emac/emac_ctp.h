@@ -24,8 +24,18 @@ enum ctp_function {
     CTP_REPLY
 };
 
+// Test memory manager options
+#define CTP_OPT_HEAP           0x01   // Allocate link_out() frame from heap
+#define CTP_OPT_NON_ALIGNED    0x02   // Force memory buffers to be non-aligned
+
+/* Builds and sends CTP message. Forward to address is the address where echo server sends the reply.
+   Default is own Ethernet MAC address. Options can be used to specify test memory manager options.
+ */
+#define CTP_MSG_SEND(length, send_to_address, own_address, forward_to_address, mem_mngr_options) \
+    emac_if_ctp_msg_build(length, send_to_address, own_address, forward_to_address, mem_mngr_options)
+
 ctp_function emac_if_ctp_header_handle(unsigned char *eth_input_frame, unsigned char *eth_output_frame, unsigned char *origin_addr, int *receipt_number);
-void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, const unsigned char *origin_addr, const unsigned char *forward_addr);
+void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, const unsigned char *origin_addr, const unsigned char *forward_addr, int options);
 void emac_if_ctp_reply_handle(int lenght, int invalid_data_index);
 
 #endif /* EMAC_CTP_H */
