@@ -59,9 +59,9 @@ public:
     virtual bool tx_config(tx_config_params_t* config, int8_t* tx_power,
                            lorawan_time_t* tx_toa);
 
-    virtual bool set_next_channel(channel_selection_params_t* params, uint8_t* channel,
-                                  lorawan_time_t* time,
-                                  lorawan_time_t* aggregate_timeOff);
+    virtual lorawan_status_t set_next_channel(channel_selection_params_t* params, uint8_t* channel,
+                                              lorawan_time_t* time,
+                                              lorawan_time_t* aggregate_timeOff);
 
     virtual void set_tx_cont_mode(cw_mode_params_t* continuousWave,
                                   uint32_t frequency = 0);

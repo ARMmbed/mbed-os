@@ -1195,9 +1195,9 @@ void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
     }
 }
 
-bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
-                               uint8_t* channel, lorawan_time_t* time,
-                               lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHY::set_next_channel(channel_selection_params_t* params,
+                                           uint8_t* channel, lorawan_time_t* time,
+                                           lorawan_time_t* aggregate_timeoff)
 {
     uint8_t channel_count = 0;
     uint8_t delay_tx = 0;
@@ -1247,13 +1247,13 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
         // We found a valid channel
         *channel = enabled_channels[get_random(0, channel_count - 1)];
         *time = 0;
-        return true;
+        return LORAWAN_STATUS_OK;
     }
 
     if (delay_tx > 0) {
         // Delay transmission due to AggregatedTimeOff or to a band time off
         *time = next_tx_delay;
-        return true;
+        return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
     }
 
     // Datarate not supported by any channel, restore defaults
@@ -1261,7 +1261,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
                       phy_params.channels.default_mask,
                       phy_params.channels.mask_size);
     *time = 0;
-    return false;
+    return LORAWAN_STATUS_NO_CHANNEL_FOUND;
 }
 
 lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)

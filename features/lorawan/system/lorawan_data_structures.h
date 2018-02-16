@@ -1575,6 +1575,9 @@ typedef enum lorawan_status {
 #if defined(LORAWAN_COMPLIANCE_TEST)
     LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
 #endif
+    LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,
+    LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,
+    LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,
 } lorawan_status_t;
 
 /*!
