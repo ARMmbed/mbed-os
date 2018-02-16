@@ -718,13 +718,15 @@ void LoRaMac::on_radio_tx_timeout( void )
 
 void LoRaMac::on_radio_rx_error( void )
 {
+    const rx_slot_t rx_slot = _params.rx_slot;
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
         open_continuous_rx2_window();
     }
 
-    if (_params.rx_slot == RX_SLOT_WIN_1) {
+    if (rx_slot == RX_SLOT_WIN_1) {
         if (_params.is_node_ack_requested == true) {
             mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
         }
@@ -752,13 +754,15 @@ void LoRaMac::on_radio_rx_error( void )
 
 void LoRaMac::on_radio_rx_timeout(void)
 {
+    const rx_slot_t rx_slot = _params.rx_slot;
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
         open_continuous_rx2_window();
     }
 
-    if (_params.rx_slot == RX_SLOT_WIN_1) {
+    if (rx_slot == RX_SLOT_WIN_1) {
         if (_params.is_node_ack_requested == true) {
             mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
         }
