@@ -1273,10 +1273,10 @@ void LoRaMac::calculate_backOff(uint8_t channel)
     // Update regional back-off
     lora_phy->calculate_backoff(&backoff_params);
 
-    // Update aggregated time-off
-    _params.timers.aggregated_timeoff = _params.timers.aggregated_timeoff
-            + (_params.timers.tx_toa * _params.sys_params.aggregated_duty_cycle
-            - _params.timers.tx_toa);
+    // Update aggregated time-off. This must be an assignment and no incremental
+    // update as we do only calculate the time-off based on the last transmission
+    _params.timers.aggregated_timeoff = (_params.timers.tx_toa * _params.sys_params.aggregated_duty_cycle
+                                         - _params.timers.tx_toa);
 }
 
 void LoRaMac::reset_mac_parameters(void)
