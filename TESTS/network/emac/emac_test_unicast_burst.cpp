@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -28,44 +28,24 @@
 
 using namespace utest::v1;
 
-void test_emac_broadcast_cb(int opt)
+void test_emac_unicast_burst_cb(int opt)
 {
     static bool send_request = true;
     static int no_response_cnt = 0;
     static int retries = 0;
+    static int msg_len = 0;
     static int test_step = 0;
-    static int msg_len = 100;
-    static int wait = 0;
-
-    if (wait) {
-        --wait;
-        return;
-    }
-
-#if MBED_CONF_APP_ECHO_SERVER
-    static bool echo_server_started = false;
-    if (!echo_server_started) {
-        SET_TRACE_LEVEL(TRACE_NONE);
-        printf("echo server started successfully\r\n\r\n");
-        echo_server_started = true;
-    } else {
-        // Sends broadcast every 60 seconds
-        CTP_MSG_SEND(msg_len, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
-        wait = 60;
-    }
-    return;
-#endif
 
     // Timeout
     if (opt == TIMEOUT && send_request) {
-        CTP_MSG_SEND(msg_len, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
+        CTP_MSG_SEND(msg_len, emac_if_get_echo_server_addr(0), emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
         send_request = false;
         no_response_cnt = 0;
     } else if (opt == TIMEOUT) {
-        if (++no_response_cnt > 3) {
-            if (++retries > 6) {
+        if (++no_response_cnt > 50) {
+            if (++retries > 5) {
                 printf("too many retries\r\n\r\n");
-                RESET_ERROR_FLAGS(NO_RESPONSE);
+                SET_ERROR_FLAGS(TEST_FAILED);
                 END_TEST_LOOP;
             } else {
                 printf("retry count %i\r\n\r\n", retries);
@@ -76,24 +56,31 @@ void test_emac_broadcast_cb(int opt)
 
     // Echo response received
     if (opt == INPUT) {
-        ++test_step;
-        if (test_step == 3) {
-            msg_len = 60;
-            wait = 3;
-        } else if (test_step == 6) {
-            END_TEST_LOOP;
+        if (msg_len == ETH_MAX_LEN) {
+            if (++test_step > 10) {
+                END_TEST_LOOP;
+            } else {
+                msg_len = 0;
+            }
+        } else if (msg_len + 50 >= ETH_MAX_LEN) {
+            msg_len = ETH_MAX_LEN;
+        } else {
+            msg_len += 50;
         }
+        printf("message length %i\r\n\r\n", msg_len);
         retries = 0;
         send_request = true;
     }
 }
 
-void test_emac_broadcast(void)
+void test_emac_unicast_burst()
 {
     RESET_ALL_ERROR_FLAGS;
-    SET_TRACE_LEVEL(TRACE_SEND | TRACE_ETH_FRAMES | TRACE_SUCCESS | TRACE_FAILURE);
+    SET_TRACE_LEVEL(TRACE_SEND | TRACE_SUCCESS | TRACE_FAILURE);
 
-    START_TEST_LOOP(test_emac_broadcast_cb, 1 * SECOND_TO_MS);
+    if (ECHO_SERVER_ADDRESS_KNOWN) {
+        START_TEST_LOOP(test_emac_unicast_burst_cb, 100);
+    }
 
     PRINT_ERROR_FLAGS;
     TEST_ASSERT_FALSE(ERROR_FLAGS);
