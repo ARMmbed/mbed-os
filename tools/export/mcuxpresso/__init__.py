@@ -224,7 +224,8 @@ class MCUXpresso(GNUARMEclipse):
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/makefile.targets.tmpl', jinja_ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('mcuxpresso/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('mcuxpresso/mbedignore.tmpl', jinja_ctx,
+                                   '.mbedignore')
 
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
