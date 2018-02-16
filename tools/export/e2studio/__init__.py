@@ -37,5 +37,5 @@ class E2Studio(GNUARMEclipse):
         self.gen_file('e2studio/launch.tmpl', jinja_ctx, '%s OpenOCD.launch' % self.project_name, trim_blocks=True, lstrip_blocks=True)
 
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx, '.project', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
         self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx, 'makefile.targets', trim_blocks=True, lstrip_blocks=True)
