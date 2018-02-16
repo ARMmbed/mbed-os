@@ -299,7 +299,6 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
     cflist_params_t cflist;
-    bool skip_indication = false;
 
     uint8_t pkt_header_len = 0;
     uint32_t address = 0;
@@ -549,8 +548,8 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                 // In this case, the MAC layer shall accept the MAC commands
                                 // which are included in the downlink retransmission.
                                 // It should not provide the same frame to the application
-                                // layer again.
-                                skip_indication = true;
+                                // layer again. The MAC layer accepts the acknowledgement.
+                                _params.flags.bits.mcps_ind_skip = 1;
                             }
                         } else {
                             _params.is_srv_ack_requested = false;
@@ -575,6 +574,9 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                         if (fctrl.bits.ack == 1) {
                             // Reset MacCommandsBufferIndex when we have received an ACK.
                             mac_commands.clear_command_buffer();
+                            // Update aknowledgement information
+                            mcps.get_confirmation().ack_received = fctrl.bits.ack;
+                            mcps.get_indication().is_ack_recvd = fctrl.bits.ack;
                         }
                     } else {
                         // Reset the variable if we have received any valid frame.
@@ -611,7 +613,10 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                     mac_commands.clear_sticky_mac_cmd();
                                 }
                             } else {
-                                skip_indication = true;
+                                _params.flags.bits.mcps_ind_skip = 1;
+                                // This is not a valid frame. Drop it and reset the ACK bits
+                                mcps.get_confirmation().ack_received = false;
+                                mcps.get_indication().is_ack_recvd = false;
                             }
                         } else {
                             if (fctrl.bits.fopts_len > 0) {
@@ -636,11 +641,9 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                 mcps.get_indication().status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                             }
 
-                            if (skip_indication == false) {
-                                mcps.get_indication().buffer = _params.payload;
-                                mcps.get_indication().buffer_size = frame_len;
-                                mcps.get_indication().is_data_recvd = true;
-                            }
+                            mcps.get_indication().buffer = _params.payload;
+                            mcps.get_indication().buffer_size = frame_len;
+                            mcps.get_indication().is_data_recvd = true;
                         }
                     } else {
                         if (fctrl.bits.fopts_len > 0) {
@@ -657,29 +660,9 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                         }
                     }
 
-                    if (skip_indication == false) {
-                        // Check if the frame is an acknowledgement
-                        if (fctrl.bits.ack == 1) {
-                            mcps.get_confirmation().ack_received = true;
-                            mcps.get_indication().is_ack_recvd = true;
-
-                            // Stop the AckTimeout timer as no more retransmissions
-                            // are needed.
-                            _lora_time.stop(_params.timers.ack_timeout_timer);
-                        } else {
-                            mcps.get_confirmation().ack_received = false;
-
-                            if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
-                                // Stop the AckTimeout timer as no more retransmissions
-                                // are needed.
-                                _lora_time.stop( _params.timers.ack_timeout_timer );
-                            }
-                        }
-                    }
                     // Provide always an indication, skip the callback to the user application,
                     // in case of a confirmed downlink retransmission.
                     _params.flags.bits.mcps_ind = 1;
-                    _params.flags.bits.mcps_ind_skip = skip_indication;
                 } else {
                     mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
 
@@ -687,7 +670,6 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                     return;
                 }
             }
-
             break;
 
         case FRAME_TYPE_PROPRIETARY:
@@ -707,9 +689,16 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
             prepare_rx_done_abort();
             break;
     }
-    _params.flags.bits.mac_done = 1;
 
-    _lora_time.start(_params.timers.mac_state_check_timer, 1);
+    // Verify if we need to disable the AckTimeoutTimer
+    check_to_disable_ack_timeout(_params.is_node_ack_requested, _params.dev_class, mcps.get_confirmation().ack_received,
+                                 _params.ack_timeout_retry_counter, _params.max_ack_timeout_retries );
+
+    if(_params.timers.ack_timeout_timer.timer_id == 0) {
+        _params.flags.bits.mac_done = 1;
+
+        _lora_time.start(_params.timers.mac_state_check_timer, 1);
+    }
 }
 
 void LoRaMac::on_radio_tx_timeout( void )
@@ -1069,6 +1058,39 @@ void LoRaMac::on_rx_window2_timer_event(void)
                         _params.sys_params.max_rx_win_time);
 
         _params.rx_slot = RX_SLOT_WIN_2;
+    }
+}
+
+void LoRaMac::check_to_disable_ack_timeout(bool node_ack_requested,
+                                           device_class_t dev_class,
+                                           bool ack_received,
+                                           uint8_t ack_timeout_retries_counter,
+                                           uint8_t ack_timeout_retries)
+{
+    // There are three cases where we need to stop the AckTimeoutTimer:
+    if( node_ack_requested == false ) {
+        if( dev_class == CLASS_C ) {
+            // FIRST CASE
+            // We have performed an unconfirmed uplink in class c mode
+            // and have received a downlink in RX1 or RX2.
+            _lora_time.stop(_params.timers.ack_timeout_timer);
+        }
+    } else {
+        if( ack_received == 1 ) {
+            // SECOND CASE
+            // We have performed a confirmed uplink and have received a
+            // downlink with a valid ACK.
+            _lora_time.stop(_params.timers.ack_timeout_timer);
+        } else {
+            // THIRD CASE
+            if( ack_timeout_retries_counter > ack_timeout_retries ) {
+                // We have performed a confirmed uplink and have not
+                // received a downlink with a valid ACK. In this case
+                // we need to verify if the maximum retries have been
+                // elapsed. If so, stop the timer.
+                _lora_time.stop(_params.timers.ack_timeout_timer);
+            }
+        }
     }
 }
 

@@ -482,6 +482,23 @@ private:
      */
     void on_rx_window2_timer_event(void);
 
+
+    /*!
+     * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
+     *        function disables it.
+     *
+     * \param [in] node_ack_requested Set to true, if the node has requested an ACK
+     * \param [in] dev_class The device class
+     * \param [in] ack_received Set to true, if the node has received an ACK
+     * \param [in] ack_timeout_retries_counter Retries counter for confirmed uplinks
+     * \param [in] ack_timeout_retries Maximum retries for confirmed uplinks
+     */
+    void check_to_disable_ack_timeout(bool node_ack_requested,
+                                      device_class_t dev_class,
+                                      bool ack_received,
+                                      uint8_t ack_timeout_retries_counter,
+                                      uint8_t ack_timeout_retries);
+
     /**
      * Function executed on AckTimeout timer event
      */
