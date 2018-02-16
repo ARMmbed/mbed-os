@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_APP_TEST_WIFI)      || \
+#if !defined(MBED_CONF_APP_TEST_EMAC)      || \
+    !defined(MBED_CONF_APP_TEST_WIFI)      || \
     !defined(MBED_CONF_APP_TEST_ETHERNET)  || \
     !defined(MBED_CONF_APP_ECHO_SERVER)    || \
     !defined(MBED_CONF_APP_WIFI_SCAN)      || \
@@ -28,17 +29,21 @@
 #if !MBED_CONF_APP_TEST_WIFI && !MBED_CONF_APP_TEST_ETHERNET
 #error [NOT_SUPPORTED] Either wifi or ethernet testing need to be enabled
 #endif
+#if MBED_CONF_APP_TEST_WIFI && MBED_CONF_APP_TEST_ETHERNET
+#error [NOT_SUPPORTED] Both wifi and ethernet testing cannot be enabled
+#endif
 #if MBED_CONF_APP_TEST_WIFI
 #if !defined(TARGET_UBLOX_EVK_ODIN_W2) && !defined(TARGET_REALTEK_RTL8195AM)
 #error [NOT_SUPPORTED] Tests are valid only for UBLOX_EVK_ODIN_W2 and REALTEK_RTL8195AM
 #endif
 #endif
-#if MBED_CONF_APP_TEST_ETHERNET
-#error [NOT_SUPPORTED] Ethernet testing not supported
+
+#ifndef DEVICE_EMAC
+#error [NOT_SUPPORTED] Device EMAC has to be enabled for the target
 #endif
 
 #include "greentea-client/test_env.h"
-#include "unity/unity.h"
+#include "unity.h"
 #include "utest.h"
 
 #include "emac_tests.h"
@@ -55,11 +60,13 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 }
 
 Case cases[] = {
-    Case("EMAC interface initialize", test_emac_initialize),
-    Case("EMAC interface broadcast", test_emac_broadcast),
-    Case("EMAC interface unicast", test_emac_unicast),
-    Case("EMAC interface unicast frame length", test_emac_unicast_frame_len),
-    Case("EMAC interface broadcast (run again)", test_emac_broadcast)
+    Case("EMAC initialize", test_emac_initialize),
+    Case("EMAC broadcast", test_emac_broadcast),
+    Case("EMAC unicast", test_emac_unicast),
+    Case("EMAC unicast frame length", test_emac_unicast_frame_len),
+    Case("EMAC unicast burst", test_emac_unicast_burst),
+    Case("EMAC multicast filter", test_emac_multicast_filter),
+    Case("EMAC memory", test_emac_memory)
 };
 
 Specification specification(test_setup, cases);

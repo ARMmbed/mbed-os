@@ -1,12 +1,16 @@
 {
     "config": {
+        "test-emac": {
+            "help": "Test feature-emac version of the emac",
+            "value": 1
+        },
         "test-ethernet": {
             "help": "Enable ethernet testing",
-            "value": 0
+            "value": 1
         },
         "test-wifi": {
             "help": "Enable wifi testing",
-            "value": 1
+            "value": 0
         },
         "echo-server": {
             "help": "Build test to be echo server",
@@ -27,6 +31,11 @@
         "wifi-password": {
             "help": "WiFi Password",
             "value": "\"PASSWORD\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "nsapi.default-stack": "TEST"
         }
     }
 }
