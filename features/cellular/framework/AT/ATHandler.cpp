@@ -241,7 +241,7 @@ void ATHandler::process_oob()
                 break;
             }
             // If no match found, look for CRLF and consume everything up to CRLF
-            if (mem_str(_recv_buff, sizeof(_recv_buff), CRLF, CRLF_LENGTH)) {
+            if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
                 consume_to_tag(CRLF, true);
             } else {
                 if (_fileHandle->readable()) {
@@ -274,7 +274,6 @@ void ATHandler::set_filehandle_sigio()
 void ATHandler::reset_buffer()
 {
     log_debug("%s", __func__);
-    memset(_recv_buff, 0, sizeof(_recv_buff));
     _recv_pos = 0; _recv_len = 0;
 }
 
@@ -286,8 +285,6 @@ void ATHandler::rewind_buffer()
         // move what is not read to beginning of buffer
         memmove(_recv_buff, _recv_buff + _recv_pos, _recv_len);
         _recv_pos = 0;
-        // reset rest of buffer
-        memset(_recv_buff + _recv_len, 0, sizeof(_recv_buff) - _recv_len);
     }
 }
 
@@ -706,7 +703,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
         }
 
         // If no match found, look for CRLF and consume everything up to and including CRLF
-        if (mem_str(_recv_buff, sizeof(_recv_buff), CRLF, CRLF_LENGTH)) {
+        if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
             // If no prefix, return on CRLF - means data to read
             if (!prefix) {
                 return;
@@ -924,12 +921,15 @@ void ATHandler::set_string(char *dest, const char *src, size_t src_len)
 
 const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len)
 {
-   for(size_t i = 0; i < dest_len-src_len; ++i) {
-      if(memcmp(dest+i, src, src_len) == 0) {
-         return dest+i;
-      }
-   }
-   return NULL;
+    if (dest_len > src_len) {
+        for(size_t i = 0; i < dest_len-src_len; ++i) {
+            if(memcmp(dest+i, src, src_len) == 0) {
+                at_debug("mem_str i: %d", i);
+                return dest+i;
+            }
+        }
+    }
+    return NULL;
 }
 
 void ATHandler::cmd_start(const char* cmd)
