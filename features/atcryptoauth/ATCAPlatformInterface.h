@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,57 @@
 #include <stddef.h>
 #include "ATCAError.h"
 
-/** Abstract interface class for required platform interface.
+/** Platform interface required for serving I2C based ATCA device.
  */
 class ATCAPlatformInterface {
 protected:
-    uint8_t     addr;
+    uint8_t     addr; /** I2C device address */
 public:
     ATCAPlatformInterface(uint8_t i2c_addr)
         : addr(i2c_addr) {
     }
     virtual ~ATCAPlatformInterface(){}
 
+    /** Initialize I2C.
+     *
+     *  @return         Error code from enum ATCAError.
+     */
     virtual ATCAError   Init() = 0;
+
+    /** Deinit I2C. Particularly useful when ATCAECC508A watchdog timer is to
+     *  be reset. That requires pulling SDA low. Hence requiring a re-init
+     *  of I2C afterwords.
+     *
+     *  @return     Error code from enum ATCAError.
+     */
     virtual void        Deinit() = 0;
+
+    /** Pull SDA pin low for given amount of time.
+     *
+     *  @param us   Delay in micro seconds
+     */
     virtual void        SDALow(uint32_t us) = 0;
+
+    /** Wait for given amount of time.
+     *
+     *  @param us   Delay in micro seconds
+     */
     virtual void        WaitUs(uint32_t us) = 0;
+
+    /** Read data from I2C.
+     *
+     *  @param buf  Buffer to receive data in.
+     *  @param len  Buffer length.
+     *  @return     Error code from enum ATCAError.
+     */
     virtual ATCAError   Read(uint8_t * buf, size_t len) = 0;
+
+    /** Write data on I2C.
+     *
+     *  @param buf  Buffer containing send data.
+     *  @param len  Buffer length.
+     *  @return     Error code from enum ATCAError.
+     */
     virtual ATCAError   Write(uint8_t * buf, size_t len) = 0;
 };
 

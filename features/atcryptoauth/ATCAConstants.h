@@ -17,9 +17,8 @@
 #ifndef ATCAECCCONSTANTS_H
 #define ATCAECCCONSTANTS_H
 
-/* Datasheet defined constants */
+/** Datasheet defined constants */
 #define ATCA_ECC_508A_I2C_ADDR          0xC0
-#define ATCA_ECC_ON_WAKE_RESP           {0x04, 0x11, 0x33, 0x43}
 #define ATCA_ECC_508A_REVISION          {0x00, 0x00, 0x50, 0x00}
 #define ATCA_ECC_WORD_SZ                4
 #define ATCA_ECC_STATUS_RESP_LEN        4
@@ -32,19 +31,23 @@
 #define ATCA_ECC_SIG_LEN                64
 #define ATCA_ECC_CRC_POLYNOMIAL         0x8005
 
-/* Device functions */
+/** Device functions */
 #define ATCA_ECC_FUNC_RST_IO_ADDR       0x00
 #define ATCA_ECC_FUNC_SLEEP             0x01
 #define ATCA_ECC_FUNC_IDLE              0x02
 #define ATCA_ECC_FUNC_COMMAND           0x03
 
-/* EEPROM Zones */
+
+/** EEPROM Zones */
 enum ATCAZone
 {
     ATCA_ECC_ZONE_CONFIG              = 0x0
+
+    /* Data and OTP zones are not defined here as this driver does not make
+     * use of them. */
 };
 
-/* Command opcodes */
+/** Command opcodes */
 enum ATCAOpCode
 {
     ATCA_ECC_CMD_OPCODE_READ        = 0x02,
@@ -56,12 +59,12 @@ enum ATCAOpCode
     ATCA_ECC_CMD_OPCODE_VERIFY      = 0x45,
 };
 
-/* Key ID/Slot no. Type */
+/** Key ID/Slot no. Type */
 typedef uint32_t ATCAKeyID;
 #define ATCA_ECC_KEY_ID_0               0 
 #define ATCA_ECC_KEY_ID_INVALID         0xFFFFFFFF
 
-/* Command and responce length */
+/** Command and responce length */
 #define ATCA_ECC_MAX_CMD_LEN            132 /* Bytes device allocates for constructing command */
 #define ATCA_ECC_MAX_RESP_LEN           67  /* Bytes device allocates for constructing responce */
 #define ATCA_ECC_FUNCTION_LEN           1   /* Device function (Write address) */
@@ -81,21 +84,21 @@ typedef uint32_t ATCAKeyID;
 #define ATCA_ECC_RESP_SIGN_LEN          67
 #define ATCA_ECC_CMD_VERIFY_LEN         132
 
-/* EEPROM addresses */
+/** EEPROM addresses */
 #define ATCA_ECC_CFG_ADDR_REVISION      4
 #define ATCA_ECC_CFG_ADDR_SLOT_CFG      20
 #define ATCA_ECC_CFG_ADDR_KEY_CFG       96
 #define ATCA_ECC_CFG_ADDR_LCK_CFG       87
 
-/* Flags */
+/** Flags */
 #define ATCA_ECC_FLG_READ_SZ_32         0x80
 
-/* Devices Delays */
+/** Devices Delays */
 #define ATCA_ECC_DELAY_TPU_US           100
 #define ATCA_ECC_DELAY_TWLO_US          60
 #define ATCA_ECC_DELAY_TWHI_US          1500
 
-/* Command execution times */
+/** Command execution times */
 #define ATCA_ECC_EXEC_TIME_READ_TYP_US      100
 #define ATCA_ECC_EXEC_TIME_READ_MAX_US      1000
 #define ATCA_ECC_EXEC_TIME_WRITE_TYP_US     7000
@@ -111,7 +114,7 @@ typedef uint32_t ATCAKeyID;
 #define ATCA_ECC_EXEC_TIME_VERIFY_TYP_US    38000
 #define ATCA_ECC_EXEC_TIME_VERIFY_MAX_US    58000
 
-/* Driver defined constants */
+/** Driver defined constants */
 #define ATCA_ECC_I2C_FREQUENCY          10000
 
 #endif /* ATCAECCCONSTANTS_H */

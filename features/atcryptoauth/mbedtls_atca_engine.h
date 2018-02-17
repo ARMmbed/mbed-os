@@ -17,4 +17,11 @@
 #include "mbedtls/pk_info.h"
 #include "ATCAConstants.h"
 
+/** PK Setup function for ATCA crypto engine.
+ *
+ * @param ctx       Key context
+ * @param keyId     Private key Id representing a hardware Key.
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
 int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId );

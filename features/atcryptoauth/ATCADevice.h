@@ -20,6 +20,7 @@
 #include "ATCAPlatformInterface.h"
 #include "ATCAError.h"
 #include "ATCAConstants.h"
+#include "CryptoEngineInterface.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -39,7 +40,8 @@ struct ATCACmdInfo
 
 /** ATCAxxxx device driver class
  */
-class ATCADevice {
+class ATCADevice  : public CryptoEngineInterface
+{
 private:
     /** Platform interface for I2C and timer access  */
     ATCAPlatformInterface & plt;
@@ -52,9 +54,18 @@ private:
     /** Rx buffer */
     uint8_t                 rx_buf[ATCA_ECC_MAX_RESP_LEN];
 public:
+    /** Instantiate ATCAECC508A device driver class with paltform reference.
+     *
+     *  Platform reference provides interface with I2C bus and platform
+     *  delay functions.
+     *
+     *  @param plt_in   Platform object reference.
+     */
     ATCADevice(ATCAPlatformInterface & plt_in)
         : plt(plt_in), polynom(ATCA_ECC_CRC_POLYNOMIAL) {
     }
+
+    virtual ~ATCADevice() {}
 
     /** Initialise ATCA Device.
      */
@@ -122,7 +133,8 @@ public:
      *  @param sig_len  Signature output length.
      *  @return         Error code from enum ATCAError.
      */
-    ATCAError Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len, uint8_t * sig, size_t sig_buf_len, size_t * sig_len);
+    virtual ATCAError Sign(uint32_t keyId, const uint8_t * hash, size_t len,
+                           uint8_t * sig, size_t sig_buf_len, size_t * sig_len);
 
     /** Verify input signature against input message digest.
      *
@@ -134,7 +146,8 @@ public:
      *  @param msg_len  Message buffer length.
      *  @return         Error code from enum ATCAError.
      */
-    ATCAError Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig, size_t sig_len, const uint8_t * msg, size_t msg_len);
+    virtual ATCAError Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
+                             size_t sig_len, const uint8_t * msg, size_t msg_len);
 
     /** Check if configuration zone is locked.
      *
@@ -142,6 +155,16 @@ public:
      *  @return         Error code from enum ATCAError.
      */
     ATCAError CheckConfigLock(bool * locked);
+
+    /** Get a key pair object for a requested Private key slot.
+     *  Key pair object of ATCAKey is allocated on heap.
+     *  It is callers responsibility to delete the pointer after use.
+     *
+     *  @param keyId    Key Id of Private slot.
+     *  @param err      Out parameter. ATCAError code.
+     *  @return         Pointer to ATCAKey.
+     */
+    ATCAKey * GetKeyToken(ATCAKeyID keyId, ATCAError & err);
 
     /** Dump config zone registers on standard output.
      */
@@ -167,7 +190,7 @@ private:
 
     /** Execute a command.
      *
-     *  This function performs following operations:
+     *  This function performs command execution based on datasheet section 9.1:
      *      - Constructs command tx buffer based on device IO protocol.
      *      - Transmit tx buffer.
      *      - Receive response.
@@ -209,7 +232,7 @@ private:
     /** Execute a Nonce command.
      *
      *  It loads data into Device Tempkey that is used as input in subsequent
-     *  Sign or Verify command.
+     *  Sign or Verify commands.
      *
      *  @param message  Data(generally message digest) to load in Tempkey.
      *  @param len      message length.
@@ -226,7 +249,8 @@ private:
      */
     ATCAError   ReadConfig(uint8_t byte_address, size_t len, uint8_t * obuf);
 
-    /** Write 4 bytes in configuration zone.
+    /** Write 4 bytes or less in configuration zone. Writing across 4 byte word
+     *  boundary is not allowed.
      *
      *  @param address  Byte address in data zone. Should be 4 byte aligned.
      *  @param len      input buffer length.
