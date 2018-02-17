@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@
 
 const uint8_t ATCADevice::expected_revision[] = ATCA_ECC_508A_REVISION;
 
-/** Initialise ATCA Device.
- */
 ATCAError ATCADevice::Init()
 {
     /* Send wakeup token */
@@ -40,9 +38,6 @@ ATCAError ATCADevice::Init()
     return ATCA_ERR_NO_ERROR;
 }
 
-/** Device wakeup operation based on Datasheet section x.y TBD
- *
- */
 ATCAError ATCADevice::Wakeup()
 {
     /* Disconnect I2C */
@@ -72,11 +67,11 @@ ATCAError ATCADevice::Wakeup()
 
 ATCAError ATCADevice::ResetWatchdog()
 {
-    // Send Idle command
+    /* Send Idle command */
     uint8_t func = ATCA_ECC_FUNC_IDLE;
     plt.Write(&func, sizeof(func));
-    // Write status is not checked as device might have already gone in sleep.
-    // Send Wakeup token and check wake up successfull
+    /* Write status is not checked as device might have already gone in sleep.
+     * Send Wakeup token. */
     ATCAError err = Wakeup();
     return err;
 }
@@ -87,12 +82,12 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
     uint16_t crc = GetCrc16(info->cmd - 1, info->cmd_len + 1); // Calculate CRC with count byte
     int retries = 0;
 
-    info->cmd[info->cmd_len] = (crc & 0xff); // LSB first
+    /* Device is little endian */
+    info->cmd[info->cmd_len] = (crc & 0xff);
     info->cmd[info->cmd_len + 1] = crc >> 8;
 
     while ( (err != ATCA_ERR_NO_ERROR) && ( (retries++) < 3))
     {
-        // Write Word address
         err = plt.Write(info->tx_buf, info->cmd_len + ATCA_ECC_FUNCTION_LEN + ATCA_ECC_CMD_IO_WRAPER_LEN);
         if (err != ATCA_ERR_NO_ERROR)
         {
@@ -100,19 +95,19 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
             continue;
         }
 
-        // Wait for execution time
+        /* Wait for execution time */
         plt.WaitUs(info->typ_exec_time);
 
-        // Trying reading after typical exec time.
+        /* Trying reading after typical exec time. */
         err = plt.Read(info->rx_buf, info->resp_len);
         if (err != ATCA_ERR_NO_ERROR)
         {
-            // Retry reading after max execution time
+            /* Retry reading after max execution time */
             plt.WaitUs(info->max_exec_time);
             err = plt.Read(info->rx_buf, info->resp_len);
         }
 
-        // Reset device if error persists
+        /* Reset device if error persists */
         if (err != ATCA_ERR_NO_ERROR)
         {
             ResetWatchdog();
@@ -125,14 +120,14 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
             break;
         }
 
-        // Check for errors
+        /* Check for errors */
         if (count != info->resp_len)
         {
-            // Try to recover from errors like watchdog expiry or invalid count
+            /* Try to recover from errors like watchdog expiry or invalid count */
             err = (ATCAError)info->resp[0];
             if (err == ATCA_ERR_WAKE_TOKEN_RECVD        ||
                 err == ATCA_ERR_CRC_OR_OTHR_ERROR)
-                // Wake token received or temporary communication error. Retry
+                /* Wake token received or temporary communication error. Retry */
                 continue;
             else if (err == ATCA_ERR_WATCHDOG_WILL_EXPIRE)
             {
@@ -141,7 +136,8 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
             }
             else if (err == ATCA_ERR_NO_ERROR)
             {
-                // Response isn't loaded in SRAM. Retry reading after max execution time
+                /* Response isn't loaded in SRAM.
+                 * Retry reading after max execution time */
                 plt.WaitUs(info->max_exec_time);
                 continue;
             }
@@ -151,7 +147,8 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
     return err;
 }
 
-ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address, uint8_t * word, size_t wlen)
+ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address,
+                                  uint8_t * word, size_t wlen)
 {
     ATCACmdInfo cmd_info;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_READ, &cmd_info);
@@ -163,7 +160,7 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address, uint8_t * wor
     /* Fill the command */
     cmd[0] = ATCA_ECC_CMD_OPCODE_READ;
     cmd[1] = zone;
-    cmd[2] = address & 0xFF; // LSB first.
+    cmd[2] = address & 0xFF; /* Device is little endian */
     cmd[3] = (address >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
@@ -177,7 +174,8 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address, uint8_t * wor
     return err;
 }
 
-ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address, const uint8_t * word, size_t wlen)
+ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address,
+                                   const uint8_t * word, size_t wlen)
 {
     ATCACmdInfo cmd_info;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_WRITE, &cmd_info);
@@ -188,7 +186,7 @@ ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address, const uint8_
 
     /* Fill the command */
     cmd[1] = zone;
-    cmd[2] = address & 0xFF; // LSB first.
+    cmd[2] = address & 0xFF;
     cmd[3] = (address >> 8) & 0xFF;
     cmd[4] = word[0];
     cmd[5] = word[1];
@@ -204,7 +202,7 @@ ATCAError ATCADevice::LockCommand(const uint8_t * change_summary, size_t len)
     ATCACmdInfo cmd_info;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_LOCK, &cmd_info);
 
-    /* summary should be dump of whole config zone */
+    /* Summary should be dump of whole config zone */
     if (len != ATCA_ECC_CONFIG_ZONE_SZ)
         return ATCA_ERR_INVALID_PARAM;
 
@@ -219,14 +217,6 @@ ATCAError ATCADevice::LockCommand(const uint8_t * change_summary, size_t len)
     return err;
 }
 
-/** Generate a private key. 
- *  This driver defines a key index input parameter that can be used to
- *  specify the key instances created/updated in the device by the user.
- *  These keys are persistent and key index can be used by the application
- *  at the commissioning stage and usage stage.
- *  Key Index (0-7)
- *  pk_len == 64
- */
 ATCAError ATCADevice::GenPrivateKey(ATCAKeyID keyId, uint8_t *pk,
                                     size_t pk_buf_len, size_t * pk_len)
 {
@@ -239,8 +229,8 @@ ATCAError ATCADevice::GenPrivateKey(ATCAKeyID keyId, uint8_t *pk,
         return ATCA_ERR_SMALL_BUFFER;
 
     /* Fill the command */
-    cmd[1] = 0x04; // Generate a random Private key and store in keyId slot
-    cmd[2] = keyId & 0xFF; // LSB first. Only LSB 4 bits are used to indicate a slot.
+    cmd[1] = 0x04; /* Generate a random ECC Private key in slot keyId. */
+    cmd[2] = keyId & 0xFF;
     cmd[3] = (keyId >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
@@ -265,8 +255,8 @@ ATCAError ATCADevice::GenPubKey(ATCAKeyID keyId, uint8_t *pk,
         return ATCA_ERR_SMALL_BUFFER;
 
     /* Fill the command */
-    cmd[1] = 0x00; // Generate a Public key based on the Private stored in slot<keyId>
-    cmd[2] = keyId & 0xFF; // LSB first. Only LSB 4 bits are used to indicate a slot.
+    cmd[1] = 0x00; /* Generate Public key from the Private key in slot<keyId> */
+    cmd[2] = keyId & 0xFF;
     cmd[3] = (keyId >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
@@ -288,8 +278,8 @@ ATCAError ATCADevice::Nonce(const uint8_t * message, size_t len)
         return ATCA_ERR_INVALID_PARAM;
 
     /* Fill the command */
-    cmd[1] = 0x03; // Passthrough mode to load input message in TempKey
-    cmd[2] = 0x00; // Param2 is 0 for Passthrough mode.
+    cmd[1] = 0x03; /* Passthrough mode to load external message in device TempKey */
+    cmd[2] = 0x00; /* Param2 is 0 for Passthrough mode. */
     cmd[3] = 0x00;
     for (size_t i = 0; i < len; i++)
         cmd[4 + i] = message[i];
@@ -317,8 +307,8 @@ ATCAError ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_SIGN, cmd_info);
 
     /* Fill the command */
-    cmd[1] = 0x80; // Mode indicating external message loaded in TempKey
-    cmd[2] = keyId & 0xFF; // LSB first. Only LSB 4 bits are used to indicate a slot.
+    cmd[1] = 0x80; /* Mode indicating external message loaded in TempKey. */
+    cmd[2] = keyId & 0xFF;
     cmd[3] = (keyId >> 8) & 0xFF;
 
     err = RunCommand(cmd_info);
@@ -350,8 +340,10 @@ ATCAError ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_VERIFY, &cmd_info);
 
     /* Fill the command */
-    cmd[1] = 0x02; // External PK mode
-    cmd[2] = 0x04; // For external mode KeyID is encoded identical to KeyType in KeyConfig. 0x4 / 0x0010 ?
+    cmd[1] = 0x02; /* External Public Key mode */
+    /* For external mode KeyID param should be encoded identical to KeyType in
+     * KeyConfig i.e. contain the curve type = P256 NIST ECC key = 0b100. */
+    cmd[2] = 0x04;
     cmd[3] = 0x00;
     size_t i = 0;
     for ( ; i < 64; i++)
@@ -369,22 +361,24 @@ ATCAError ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
 
 ATCAError ATCADevice::ReadConfig(uint8_t byte_address, size_t len, uint8_t * obuf)
 {
-    uint8_t address = byte_address / ATCA_ECC_WORD_SZ;    // Address on 4 byte word boundary
-
     /* This function assumes 4 byte reads at word boundary */
     if (byte_address + len >= ATCA_ECC_CONFIG_ZONE_SZ  ||
         len > ATCA_ECC_WORD_SZ ||
         (byte_address % ATCA_ECC_WORD_SZ) != 0)
         return ATCA_ERR_INVALID_PARAM;
 
+    /* Find address on 4 byte word boundary */
+    uint8_t address = byte_address / ATCA_ECC_WORD_SZ;
+
     return ReadCommand(ATCA_ECC_ZONE_CONFIG, address, obuf, len);
 }
 
 ATCAError ATCADevice::WriteConfig(uint8_t byte_address, size_t len, uint8_t * data)
 {
-    // find offset from word boundary
+    /* Find offset from word boundary. */
     uint8_t offset = byte_address % ATCA_ECC_WORD_SZ;
-    uint8_t address = (byte_address - offset) / ATCA_ECC_WORD_SZ;         // Address on 4 byte word boundary
+    /* Find address on 4 byte word boundary. */
+    uint8_t address = (byte_address - offset) / ATCA_ECC_WORD_SZ;
     uint8_t word[] = {0x00, 0x00, 0x00, 0x00};
 
     /* This function assumes 4 byte write not exceeding word boundary */
@@ -400,8 +394,6 @@ ATCAError ATCADevice::WriteConfig(uint8_t byte_address, size_t len, uint8_t * da
     return WriteCommand(ATCA_ECC_ZONE_CONFIG, address, word, sizeof(word));
 }
 
-/** Configure a Data zone slot for an ECC Private Key.
- */
 ATCAError ATCADevice::ConfigPrivKey(ATCAKeyID keyId)
 {
     ATCAError err;
@@ -432,12 +424,10 @@ ATCAError ATCADevice::ConfigPrivKey(ATCAKeyID keyId)
     return err;
 }
 
-/** Configure a Data zone slot for an ECC Public Key.
- */
 ATCAError ATCADevice::ConfigPubKey(ATCAKeyID keyId)
 {
     ATCAError err;
-    SlotConfig sc; // Slot config for Public key does not have any flags.
+    SlotConfig sc; /* Slot config for Public key needs no flags set. */
 
     KeyConfig kc;
     kc.SetECCKeyType();
@@ -459,12 +449,10 @@ ATCAError ATCADevice::ConfigPubKey(ATCAKeyID keyId)
     return err;
 }
 
-/** Configure a Data zone slot for certificate storage.
- */
 ATCAError ATCADevice::ConfigCertStore()
 {
     ATCAError err;
-    SlotConfig sc; // Slot config for Public key does not have any flags.
+    SlotConfig sc; /* Slot config for Public key needs no flags set. */
 
     KeyConfig kc;
     kc.SetNonECCKeyType();
@@ -592,8 +580,30 @@ uint8_t * ATCADevice::GetCmdBuffer(ATCAOpCode op, ATCACmdInfo * info)
     info->tx_buf[offset++] = info->cmd_len + ATCA_ECC_CMD_IO_WRAPER_LEN;
     info->tx_buf[offset] = op;
     info->cmd = info->tx_buf + offset;
-    info->resp = info->rx_buf + 1; // Response starts after count
+    info->resp = info->rx_buf + 1; /* Response starts after count. */
 
     return info->cmd;
+}
+
+ATCAKey * ATCADevice::GetKeyToken(ATCAKeyID keyId, ATCAError & err)
+{
+    size_t pk_len = 0;
+    uint8_t pk[ATCA_ECC_ECC_PK_LEN];
+
+    err = GenPubKey(keyId, pk, sizeof(pk), &pk_len);
+    if (err != ATCA_ERR_NO_ERROR )
+    {
+        return NULL;
+    }
+    if ( pk_len != ATCA_ECC_ECC_PK_LEN )
+    {
+        err = ATCA_ERR_DEVICE_ERROR;
+        return NULL;
+    }
+
+    ATCAKey * key = new ATCAKey( *this, keyId, pk );
+    if ( key == NULL )
+        err = ATCA_ERR_MEM_ALLOC_FAILURE;
+    return key;
 }
 
