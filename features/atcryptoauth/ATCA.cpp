@@ -26,6 +26,10 @@ ATCAFactory::ATCAFactory()
 {
 }
 
+ATCAFactory::~ATCAFactory()
+{
+}
+
 ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
 {
     if ( instance == NULL )
