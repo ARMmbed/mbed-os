@@ -17,12 +17,16 @@
 #ifndef CRYPTOENGINEINTERFACE_H
 #define CRYPTOENGINEINTERFACE_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 /** Interface definition for a Crypto Engine.
  *
  *  Currently interface is only defined for sign and verify functions.
  */
 class CryptoEngineInterface
 {
+public:
     /** Sign message digest(hash) and output signature R & S as concatenated
      *  buffer.
      *

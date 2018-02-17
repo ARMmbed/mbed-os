@@ -21,6 +21,7 @@
 #include "ATCAError.h"
 #include "ATCAConstants.h"
 #include "CryptoEngineInterface.h"
+#include "ATCAKey.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -131,9 +132,9 @@ public:
      *  @param sig      Signature output buffer.
      *  @param sig_buf_len Signature output buffer length.
      *  @param sig_len  Signature output length.
-     *  @return         Error code from enum ATCAError.
+     *  @return         0 for success else Error code from enum ATCAError.
      */
-    virtual ATCAError Sign(uint32_t keyId, const uint8_t * hash, size_t len,
+    virtual int Sign(uint32_t keyId, const uint8_t * hash, size_t len,
                            uint8_t * sig, size_t sig_buf_len, size_t * sig_len);
 
     /** Verify input signature against input message digest.
@@ -144,9 +145,9 @@ public:
      *  @param sig_len  Signature buffer length.
      *  @param msg      Message buffer.
      *  @param msg_len  Message buffer length.
-     *  @return         Error code from enum ATCAError.
+     *  @return         0 for success else Error code from enum ATCAError.
      */
-    virtual ATCAError Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
+    virtual int Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
                              size_t sig_len, const uint8_t * msg, size_t msg_len);
 
     /** Check if configuration zone is locked.
