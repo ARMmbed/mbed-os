@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ATCA.h"
+#include "ATCAFactory.h"
 
 ATCAFactory * ATCAFactory::instance = NULL;
 
