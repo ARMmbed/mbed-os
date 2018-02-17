@@ -25,14 +25,14 @@ ATCAKey::ATCAKey(CryptoEngineInterface & dev, ATCAKeyID keyId_in, uint8_t * pk_i
 ATCAError ATCAKey::Sign( const uint8_t * hash, size_t hash_len, uint8_t * sig,
                          size_t sig_buf_len, size_t * sig_len)
 {
-    return device.Sign(keyId, hash, hash_len, sig, sig_buf_len, sig_len);
+    return (ATCAError)device.Sign(keyId, hash, hash_len, sig, sig_buf_len, sig_len);
 }
 
 ATCAError ATCAKey::Verify( const unsigned char *hash, size_t hash_len,
                            const unsigned char *sig,
                            size_t sig_len )
 {
-    return device.Verify(pk, ATCA_ECC_ECC_PK_LEN, hash, hash_len, sig,
+    return (ATCAError)device.Verify(pk, ATCA_ECC_ECC_PK_LEN, hash, hash_len, sig,
                          sig_len);
 }
 

@@ -17,7 +17,9 @@
 #ifndef ATCAKEY_H
 #define ATCAKEY_H
 
-#include "ATCADevice.h"
+#include "CryptoEngineInterface.h"
+#include "ATCAConstants.h"
+#include "ATCAError.h"
 
 /** Key class representing an ECC Key pair stored in an ATCA device.
  */
