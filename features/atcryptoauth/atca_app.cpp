@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ATCA.h"
+#include "ATCAFactory.h"
 #include "samples.h"
 #include "mbedtls/pk_info.h"
 #include "mbedtls/ecdsa.h"
