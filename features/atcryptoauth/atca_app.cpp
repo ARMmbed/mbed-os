@@ -17,6 +17,7 @@
 #include "ATCA.h"
 #include "samples.h"
 #include "mbedtls/pk_info.h"
+#include "mbedtls/ecdsa.h"
 
 #if defined (MBED_CONF_ATCAECC_APP_ENABLE)
 
@@ -272,7 +273,7 @@ ATCAError commission()
 
     /* check if the device is locked? */
     bool locked;
-    ATCAError err = device->CheckConfigLock( &locked );
+    err = device->CheckConfigLock( &locked );
     if (err != ATCA_ERR_NO_ERROR)
     {
         return ( err );
@@ -322,7 +323,7 @@ int main()
     size_t magic_pattern_idx = 0;
     mbed::RawSerial * serial = new mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
     ATCAError err = ATCA_ERR_NO_ERROR;
-    ATCAFactory * device = ATCAFactory::GetDevice( err );
+    ATCADevice * device = ATCAFactory::GetDevice( err );
 
     printf("\r\n*****************************************\r\n");
     printf(    "*          MBED ATCA ECC App           **\r\n");

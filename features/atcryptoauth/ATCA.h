@@ -46,8 +46,11 @@ public:
     ~ATCAFactory();
 
     /** Create and/or return instantiated device pointer.
+     *
+     *  @param err      Out error to indicate failure.
+     *  @return         Pointer to the device.
      */
-    static ATCADevice * GetDevice();
+    static ATCADevice * GetDevice( ATCAError & err );
 
     /** Cleans up device.
      */

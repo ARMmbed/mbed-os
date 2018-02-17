@@ -15,6 +15,7 @@
  */
 /* Mbed TLS includes */
 #include "mbedtls/asn1.h"
+#include "mbedtls/ecdsa.h"
 #include "mbedtls/pk_info.h"
 
 #include "ATCA.h"

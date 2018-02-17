@@ -288,22 +288,22 @@ ATCAError ATCADevice::Nonce(const uint8_t * message, size_t len)
     return err;
 }
 
-ATCAError ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
+int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
                            uint8_t * sig, size_t sig_buf_len, size_t * sig_len)
 {
     if (len != ATCA_ECC_HASH_256_LEN )
-        return ATCA_ERR_INVALID_PARAM;
+        return (int)ATCA_ERR_INVALID_PARAM;
 
     if ( sig_buf_len < ATCA_ECC_SIG_LEN )
-        return ATCA_ERR_SMALL_BUFFER;
+        return (int)ATCA_ERR_SMALL_BUFFER;
 
     ATCAError err = Nonce(hash, len);
     if (err != ATCA_ERR_NO_ERROR)
-        return err;
+        return (int)err;
 
     ATCACmdInfo * cmd_info = new ATCACmdInfo();
     if ( cmd_info == NULL )
-        return ATCA_ERR_MEM_ALLOC_FAILURE;
+        return (int)ATCA_ERR_MEM_ALLOC_FAILURE;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_SIGN, cmd_info);
 
     /* Fill the command */
@@ -319,22 +319,22 @@ ATCAError ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
     }
 
     delete  cmd_info;
-    return err;
+    return (int)err;
 }
 
-ATCAError ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
+int ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
                              size_t sig_len, const uint8_t * msg,
                              size_t msg_len)
 {
     if (pk_len != ATCA_ECC_ECC_PK_LEN ||
         sig_len != ATCA_ECC_SIG_LEN ||
         msg_len != ATCA_ECC_HASH_256_LEN )
-        return ATCA_ERR_INVALID_PARAM;
+        return (int)ATCA_ERR_INVALID_PARAM;
 
     /* Load message in TempKey */
     ATCAError err = Nonce(msg, msg_len);
     if (err != ATCA_ERR_NO_ERROR)
-        return err;
+        return (int)err;
 
     ATCACmdInfo cmd_info;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_VERIFY, &cmd_info);
@@ -356,7 +356,7 @@ ATCAError ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
     {
         err = (ATCAError)cmd_info.resp[0];
     }
-    return err;
+    return (int)err;
 }
 
 ATCAError ATCADevice::ReadConfig(uint8_t byte_address, size_t len, uint8_t * obuf)
