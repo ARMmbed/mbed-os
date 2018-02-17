@@ -14,4 +14,6 @@
  * limitations under the License.
  */
 
+/** SSL client sample for testing ATCAECC508A driver.
+ */
 void run_ssl_client();

@@ -21,9 +21,10 @@
 
 #define UNUSED(x) ((void)(x))
 
-/**
- * @brief           Tell if can do the operation given by type
+/** Tell if can do the operation given by type.
  *
+ *
+ * @param ctx       Key context.
  * @param type      Target type
  *
  * @return          0 if context can't do the operations,
@@ -35,20 +36,20 @@ static int atca_can_do_func(const void *ctx, mbedtls_pk_type_t type)
     return (MBEDTLS_PK_ECDSA == type);
 }
 
-/**
-  * @brief  Use STSAFE private key for signature.
-  *
-  * @param ctx       ECDSA context
-  * @param md_alg    Algorithm that was used to hash the message
-  * @param hash      Message hash
-  * @param hash_len  Length of hash
-  * @param sig       Buffer that will hold the signature
-  * @param sig_len   Length of the signature written
-  * @param f_rng     RNG function
-  * @param p_rng     RNG parameter
-  *
-  * @retval 0 if successful, or 1.
-  */
+/** Sign message.
+ *
+ *
+ * @param ctx       Key context
+ * @param md_alg    Algorithm that was used to hash the message
+ * @param hash      Message hash
+ * @param hash_len  Length of hash
+ * @param sig       Buffer that will hold the signature
+ * @param sig_len   Length of the signature written
+ * @param f_rng     RNG function
+ * @param p_rng     RNG parameter
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
 static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
                             const unsigned char *hash, size_t hash_len,
                             unsigned char *sig, size_t *sig_len,
@@ -73,10 +74,10 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
         printf ("Sign failed %02x!\r\n", err );
         return -1;
     }
-    // import r & s from buffer
+    /* import r & s from buffer */
     mbedtls_mpi_read_binary(&r, rs, rs_len/2);
     mbedtls_mpi_read_binary(&s, rs + rs_len/2, rs_len/2);
-    // create asn1 from r & s
+    /* create asn1 from r & s */
     ecdsa_signature_to_asn1( &r, &s, sig, sig_len, 100 );
     printf ("Signature:\r\n");
     for (size_t i = 0; i < *sig_len; i++)
@@ -90,10 +91,18 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     return (err == ATCA_ERR_NO_ERROR)?0:1;
 }
 
-/*
- * Read and check signature
+/** Extract ECDSA signature components R & S from ASN.1
+ *
+ * @param sig       Input signature
+ * @param sig_len   Input signature length
+ * @param R         Buffer to hold the R
+ * @param R_len     Length of the R buffer
+ * @param S         Buffer to hold the S
+ * @param S_len     Length of the S buffer
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
  */
-int mbedtls_ecdsa_asn1_to_signature(const unsigned char *sig, size_t slen,
+static int mbedtls_ecdsa_asn1_to_signature(const unsigned char *sig, size_t slen,
                                     uint8_t * R, size_t R_len, uint8_t * S, size_t S_len)
 {
     int ret;
@@ -143,6 +152,18 @@ cleanup:
     return( ret );
 }
 
+/** Verify signature.
+ *
+ *
+ * @param ctx       Key context
+ * @param md_alg    Algorithm that was used to hash the message
+ * @param hash      Message hash
+ * @param hash_len  Length of hash
+ * @param sig       Signature buffer
+ * @param sig_len   Length of the signature buffer
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
 static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
                         const unsigned char *hash, size_t hash_len,
                         const unsigned char *sig, size_t sig_len )
@@ -153,13 +174,13 @@ static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
     if ( md_alg != MBEDTLS_MD_SHA256 )
         return -1;
 
-    // Get R & S concatenantion from signature
+    /* Get R & S concatenantion from signature */
     if (mbedtls_ecdsa_asn1_to_signature(sig, sig_len, rs, sizeof(rs)/2, rs + sizeof(rs)/2, sizeof(rs)/2) != 0)
     {
         printf ("R & S import failed\r\n");
         return -1;
     }
-    // Verify the signature
+    /* Verify the signature */
     ATCAError err = key->Verify( rs, sizeof(rs), hash, hash_len);
     if (err != ATCA_ERR_NO_ERROR)
     {
@@ -169,21 +190,35 @@ static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
     return 0;
 }
 
+/** Cleanup Key context.
+ *
+ * @param ctx       Key context
+ */
 static void atca_ctx_free( void * ctx )
 {
     ATCAKey * key = (ATCAKey *)ctx;
     delete key;
 }
 
+/** PK Setup function for ATCA crypto engine.
+ *
+ * @param ctx       Key context
+ * @param keyId     Private key Id representing a hardware Key.
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
 int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 {
-    ATCA * atca = ATCA::GetInstance();
     ATCAKey * key = NULL;
     ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCADevice * device = ATCAFactory::GetDevice( err );
     
-    if ( atca == NULL )
+    if ( err != ATCA_ERR_NO_ERROR )
+    {
+        assert( device == NULL );
         return( -1 );
-    key = atca->GetKeyToken( keyId, err );
+    }
+    key = device->GetKeyToken( keyId, err );
 
     static const mbedtls_pk_info_t atca_pk_info =
     {

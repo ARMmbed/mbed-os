@@ -22,27 +22,36 @@
 #include "ATCAKey.h"
 #include "MbedPlatform.h"
 
-// Integrates ATCA with mbed-os and manages SE device instance
-class ATCA
+/** ATCA device factory.
+ *
+ * It bootstraps device creation and provides high level interface for the
+ * application.
+ * In current implementation it is assumed that only one device of type
+ * ATCAECC508A is required to be handled.
+ * This may need replacing if in the future more than one ATCA devices of same
+ * or different types will be required to be handled.
+ */
+class ATCAFactory
 {
 private:
-    MbedPlatform    plt;
-    ATCADevice      device;
-    static ATCA *   instance;
-    static uint8_t  sample_config[];
+    MbedPlatform            plt;
+    ATCADevice              device;
+    static ATCAFactory *    instance;
 
-    ATCA();
+    /** Private constructor to allow controlled instantiation of devices
+     *  using method GetDevice().
+     */
+    ATCAFactory();
 public:
-    ~ATCA();
+    ~ATCAFactory();
 
-    static ATCA *   GetInstance();
-    static void     Deinit();
-    ATCADevice *    GetDevice(){ return &device; }
-    ATCAKey *       GetKeyToken(ATCAKeyID keyId, ATCAError & err_out );
-    ATCAError       Commission();
-    ATCAError       LockConfig();
-    void            DumpDeviceConfig();
-    ATCAError       GenPrivKey(ATCAKeyID keyIdx);
+    /** Create and/or return instantiated device pointer.
+     */
+    static ATCADevice * GetDevice();
+
+    /** Cleans up device.
+     */
+    static void Deinit();
 };
 
 
