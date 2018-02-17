@@ -18,7 +18,7 @@
 #include "mbedtls/ecdsa.h"
 #include "mbedtls/pk_info.h"
 
-#include "ATCA.h"
+#include "ATCAFactory.h"
 
 #define UNUSED(x) ((void)(x))
 
