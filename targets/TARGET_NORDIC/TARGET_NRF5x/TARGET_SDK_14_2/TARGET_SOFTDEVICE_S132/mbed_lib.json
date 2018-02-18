@@ -3,6 +3,10 @@
     "macros": [
         "SOFTDEVICE_PRESENT=1",
         "BLE_STACK_SUPPORT_REQD=1",
+        "NRF_SDH_ENABLED=1",
+        "NRF_SDH_SOC_ENABLED=1",
+        "NRF_SDH_DISPATCH_MODEL=2",
+        "FDS_BACKEND=2",
         "S132=1"
     ],
     "target_overrides": {
