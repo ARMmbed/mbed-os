@@ -3508,6 +3508,7 @@
             "ITM",
             "TRNG",
             "FLASH",
+            "TRNG",
             "STCLK_OFF_DURING_SLEEP"
         ],
         "extra_labels": [
@@ -3541,7 +3542,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "TRNG"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
@@ -3638,6 +3639,7 @@
         "device_has": [
             "ITM",
             "FLASH",
+            "TRNG",
             "STCLK_OFF_DURING_SLEEP"
         ],
         "extra_labels": [
@@ -3671,7 +3673,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
         "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA",
         "bootloader_supported": true

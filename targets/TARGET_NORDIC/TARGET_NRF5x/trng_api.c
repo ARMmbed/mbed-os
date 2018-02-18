@@ -37,21 +37,39 @@
  */
 
 #if defined(DEVICE_TRNG)
-#include "trng_api.h"
+
+#include "hal/trng_api.h"
+#include "hal/critical_section_api.h"
+
 #include "nrf_drv_rng.h"
+
+/* Keep track of instantiated FlashIAP objects. */
+static int nordic_trng_counter = 0;
 
 void trng_init(trng_t *obj)
 {
-    (void) obj;
+    MBED_ASSERT(obj);
 
-    (void)nrf_drv_rng_init(NULL);
+    /* Increment global counter. */
+    nordic_trng_counter++;
+
+    /* Initialize TRNG on first object only. */
+    if (nordic_trng_counter == 1) {
+        nrf_drv_rng_init(NULL);
+    }
 }
 
 void trng_free(trng_t *obj)
 {
-    (void) obj;
+    MBED_ASSERT(obj);
 
-    nrf_drv_rng_uninit();
+    /* Decrement global counter. */
+    nordic_trng_counter--;
+
+    /* Deinitialize TRNG when all objects have been freed. */
+    if (nordic_trng_counter == 0) {
+        nrf_drv_rng_uninit();
+    }
 }
 
 /* Get random data from NRF5x TRNG peripheral.
@@ -61,30 +79,45 @@ void trng_free(trng_t *obj)
  */
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-    uint8_t bytes_available;
+    MBED_ASSERT(obj);
+    MBED_ASSERT(output);
+    MBED_ASSERT(output_length);
 
-    (void) obj;
+    int result = 0;
 
-    nrf_drv_rng_bytes_available(&bytes_available);
+    /* Return immediately if requested length is zero. */
+    if (length != 0) {
 
-    if (bytes_available == 0) {
-        nrf_drv_rng_block_rand(output, 1);
-        *output_length = 1;
-    } else {
+        /* Query how many bytes are available. */
+        uint8_t bytes_available;
+        nrf_drv_rng_bytes_available(&bytes_available);
 
-        if (bytes_available > length) {
-            bytes_available = length;
-        }
-
-        if (nrf_drv_rng_rand(output, bytes_available) != NRF_SUCCESS) {
-            *output_length = 0;
-            return -1;
+        /* If no bytes are cached, block until at least 1 byte is available. */
+        if (bytes_available == 0) {
+            nrf_drv_rng_block_rand(output, 1);
+            *output_length = 1;
         } else {
-            *output_length = bytes_available;
+
+            /* Get up to the requested number of bytes. */
+            if (bytes_available > length) {
+                bytes_available = length;
+            }
+
+            ret_code_t result = nrf_drv_rng_rand(output, bytes_available);
+
+            /* Set output length with available bytes. */
+            if (result == NRF_SUCCESS) {
+                *output_length = bytes_available;
+            } else {
+                *output_length = 0;
+            }
         }
+
+        /* Set return value based on how many bytes were read. */
+        result = (*output_length == 0) ? -1 : 0;
     }
 
-    return 0;
+    return result;
 }
 
 #endif
