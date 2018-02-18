@@ -3507,6 +3507,7 @@
         "device_has": [
             "ITM",
             "TRNG",
+            "FLASH",
             "STCLK_OFF_DURING_SLEEP"
         ],
         "extra_labels": [
@@ -3636,6 +3637,7 @@
         ],
         "device_has": [
             "ITM",
+            "FLASH",
             "STCLK_OFF_DURING_SLEEP"
         ],
         "extra_labels": [
@@ -3669,7 +3671,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
         "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
-        "device_has_add": ["FLASH", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52840_xxAA",
         "bootloader_supported": true
