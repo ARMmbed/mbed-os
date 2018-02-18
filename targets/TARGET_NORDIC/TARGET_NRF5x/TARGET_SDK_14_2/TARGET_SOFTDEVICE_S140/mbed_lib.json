@@ -5,6 +5,10 @@
         "BLE_STACK_SUPPORT_REQD=1", 
         "NRF_DFU_SETTINGS_VERSION=1", 
         "NRF_SD_BLE_API_VERSION=5", 
+        "NRF_SDH_ENABLED=1",
+        "NRF_SDH_SOC_ENABLED=1",
+        "NRF_SDH_DISPATCH_MODEL=2",
+        "FDS_BACKEND=2",
         "S140=1"
     ],
     "target_overrides": {
