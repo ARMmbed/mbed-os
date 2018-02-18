@@ -18,8 +18,9 @@
 #include "samples.h"
 #include "mbedtls/pk_info.h"
 #include "mbedtls/ecdsa.h"
+#include "mbedtls_atca_engine.h"
 
-#if defined (MBED_CONF_ATCAECC_APP_ENABLE)
+#if MBED_CONF_ATCAECC_APP_ENABLE
 
 /** ATCAECC508A sample config zone data. Required for calculating CRC while
  *  locking the config zone.
@@ -58,37 +59,6 @@ uint8_t atcaecc508a_sample_config[] = {
     0x10, 0x00, 0x10, 0x00,
     0x10, 0x00, 0x1C, 0x00
 };
-
-/** Encode ECC Public key in ASN.1 format.
- *
- *  @param ecc_pk       ECC Public key input.
- *  @param asn_out      ASN.1 out buffer.
- *  @param asn_out_len  Out buffer length.
- *  @return             0 on success, -1 on failure
- */
-int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len, size_t * asn_out_len )
-{
-    int ret = 0;
-    mbedtls_ecp_keypair ecp_key;
-    mbedtls_ecp_keypair_init(&ecp_key);
-
-    if (mbedtls_ecp_group_load(&ecp_key.grp, MBEDTLS_ECP_DP_SECP256R1) != 0)
-    {
-        goto cleanup;
-    }
-    MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.X, ecc_pk, 32 ) );
-    MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.Y, ecc_pk + 32, 32 ) );
-    MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &ecp_key.Q.Z, 1 ) );
-    if( mbedtls_ecp_point_write_binary( &ecp_key.grp, &ecp_key.Q,
-                MBEDTLS_ECP_PF_UNCOMPRESSED, asn_out_len, asn_out, asn_len ) != 0 )
-    {
-        goto cleanup;
-    }
-    return( 0 );
-cleanup:
-    return( -1 );
-}
-
 
 /** Handle request over serial interface from host certificate creation app.
  *
