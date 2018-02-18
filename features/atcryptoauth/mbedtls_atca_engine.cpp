@@ -23,8 +23,6 @@
 
 #define UNUSED(x) ((void)(x))
 
-extern mbedtls_pk_info_t mbedtls_eckey_info;
-
 /** Tell if can do the operation given by type.
  *
  *
@@ -300,7 +298,7 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
         printf( " failed\n  !  Failed to read ecp key from binary\n\n" );
         return( ret );
     }
-    ctx->pk_info = &mbedtls_eckey_info;
+    ctx->pk_info = mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY );
     ctx->pk_ctx = &ecp_key;
     return( 0 );
 }
