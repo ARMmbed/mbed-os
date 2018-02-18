@@ -1,6 +1,7 @@
 # Folder origin
 
 components/softdevice
+components/libraries/fstorage/nrf_fstorage_sd.*
 
 # Modifications
 
