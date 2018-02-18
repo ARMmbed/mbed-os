@@ -7,7 +7,6 @@ components/libraries
 Only essential folders have been copied over.
 
 Removed:
- * atomic_fifo/
  * block_dev/
  * bootloader/
  * bsp/
@@ -24,9 +23,7 @@ Removed:
  * experimental_ringbuf/
  * experimental_stack_guard/
  * experimental_task_manager/
- * fds/
  * fifo/
- * fstorage/
  * gfx/
  * gpiote/
  * hardfault/
@@ -52,4 +49,3 @@ Removed:
  * twi_mngr/
  * uart/
  * usbd/
-

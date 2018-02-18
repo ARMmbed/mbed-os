@@ -3351,7 +3351,10 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS"
         ],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],
+        "device_has": [
+            "FLASH",
+            "STCLK_OFF_DURING_SLEEP"
+        ],
         "extra_labels": [
             "NORDIC", 
             "NRF5x", 
@@ -3454,7 +3457,9 @@
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "MBED_TICKLESS"
         ],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],
+        "device_has": [
+            "STCLK_OFF_DURING_SLEEP"
+        ],
         "extra_labels": [
             "NORDIC", 
             "NRF5x", 

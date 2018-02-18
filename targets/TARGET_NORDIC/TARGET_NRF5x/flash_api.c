@@ -38,82 +38,172 @@
 
 #if DEVICE_FLASH
 
-#include "flash_api.h"
-#include "nrf_nvmc.h"
-#include "nrf_soc.h"
+#include "hal/flash_api.h"
+#include "hal/lp_ticker_api.h"
+
+#include "nrf_fstorage.h"
 
 #if defined(SOFTDEVICE_PRESENT)
-#include "nrf_sdm.h"
+#include "nrf_fstorage_sd.h"
+#else
+#include "nrf_fstorage_nvmc.h"
 #endif
+
+#include <stdbool.h>
+
+#define PAGE_ERASE_TIMEOUT_US (200 * 1000)  // Max. value from datasheet: 89.7 ms
+#define WORD_SIZE_IN_BYTES 4
+
+NRF_FSTORAGE_DEF(static nrf_fstorage_t nordic_fstorage) = { 0 };
 
 int32_t flash_init(flash_t *obj)
 {
     (void)(obj);
+
+    ret_code_t result = NRF_SUCCESS;
+
+    /* Only initialize once. */
+    static bool do_init = true;
+
+    if (do_init) {
+        do_init = false;
+
+        /* Set instance to cover the whole flash. */
+        nordic_fstorage.p_flash_info    = NULL;
+        nordic_fstorage.evt_handler     = NULL;
+        nordic_fstorage.start_addr      = 0;
+        nordic_fstorage.end_addr        = NRF_FICR->CODESIZE * NRF_FICR->CODEPAGESIZE;
+
+        /* Initialize either SoftDevice API or NVMC API. 
+         * SoftDevice API should work both when the SoftDevice is enabled or disabled.
+         * NVMC API is used when the SoftDevice is not present.
+         */
 #if defined(SOFTDEVICE_PRESENT)
-    uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
-        return -1;
-    }
+        result = nrf_fstorage_init(&nordic_fstorage, &nrf_fstorage_sd, NULL);
+#else
+        result = nrf_fstorage_init(&nordic_fstorage, &nrf_fstorage_nvmc, NULL);
 #endif
-    return 0;
+
+        /* Initialize low power ticker for timeouts. */
+        lp_ticker_init();
+    }
+
+    /* Convert Nordic SDK error code to mbed HAL. */
+    return (result == NRF_SUCCESS) ? 0 : -1;
 }
 
 int32_t flash_free(flash_t *obj)
 {
     (void)(obj);
+
     return 0;
 }
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     (void)(obj);
-#if defined(SOFTDEVICE_PRESENT)
-    uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
-        return -1;
+
+    ret_code_t result = NRF_ERROR_NO_MEM;
+
+    /* Setup stop watch for timeout. */
+    uint32_t start_us = lp_ticker_read();
+    uint32_t now_us = start_us;
+
+    /* Retry if flash is busy until timeout is reached. */
+    while (((now_us - start_us) < PAGE_ERASE_TIMEOUT_US) &&
+           (result == NRF_ERROR_NO_MEM)) {
+
+        /* Map mbed HAL call to Nordic fstorage call. */
+        result = nrf_fstorage_erase(&nordic_fstorage, address, 1, NULL);
+
+        /* Read timeout timer. */
+        now_us = lp_ticker_read();
     }
-#endif
-    nrf_nvmc_page_erase(address);
-    return 0;
+
+    /* Convert Nordic SDK error code to mbed HAL. */
+    return (result == NRF_SUCCESS) ? 0 : -1;
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
-#if defined(SOFTDEVICE_PRESENT)
-    uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
-        return -1;
+    (void)(obj);
+
+    /* Check that data pointer is not NULL. */
+    ret_code_t result = NRF_ERROR_NULL;
+
+    if (data) {
+
+        /* nrf_fstorage_write only accepts word aligned input buffers.
+         * Cast data pointer to word pointer and read word into temporary word variable
+         * which should be word aligned. This should be safe on Cortex-m4 which is able
+         * to load unaligned data.
+         */
+        const uint32_t *data_word = (const uint32_t *) data;
+
+        /* Loop through input buffer 4 bytes at a time. */
+        for (size_t index = 0; index < (size / WORD_SIZE_IN_BYTES); index++) {
+
+            /* Load 4 bytes into temporary variable. */
+            uint32_t word = data_word[index];
+
+            /* Setup stop watch for timeout. */
+            uint32_t start_us = lp_ticker_read();
+            uint32_t now_us = start_us;
+
+            /* Retry if flash is busy until timeout is reached. */
+            do {
+                /* Write one word at a time. */
+                result = nrf_fstorage_write(&nordic_fstorage, 
+                                            address + (WORD_SIZE_IN_BYTES * index), 
+                                            &word, 
+                                            WORD_SIZE_IN_BYTES, 
+                                            NULL);
+
+                /* Read timeout timer. */
+                now_us = lp_ticker_read();            
+
+            /* Loop if queue is full or until time runs out. */
+            } while (((now_us - start_us) < PAGE_ERASE_TIMEOUT_US) &&
+                     (result == NRF_ERROR_NO_MEM));
+
+            /* Break loop if write command wasn't accepted. */
+            if (result != NRF_SUCCESS) {
+                break;
+            }
+        }
     }
-#endif
-    /* We will use *_words function to speed up flashing code. Word means 32bit -> 4B
-     * or sizeof(uint32_t).
-     */
-    nrf_nvmc_write_words(address, (const uint32_t *) data, (size / sizeof(uint32_t)));
-    return 0;
+
+    /* Convert Nordic SDK error code to mbed HAL. */
+    return (result == NRF_SUCCESS) ? 0 : -1;
 }
 
 uint32_t flash_get_size(const flash_t *obj)
 {
     (void)(obj);
-    /* Just count flash size. */
-    return NRF_FICR->CODESIZE * NRF_FICR->CODEPAGESIZE;
+
+    return nordic_fstorage.end_addr - nordic_fstorage.start_addr;
+    ;
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     (void)(obj);
-    /* Test if passed address is in flash space. */
-    if (address < flash_get_size(obj)) {
-        return NRF_FICR->CODEPAGESIZE;
+
+    /* Check if passed address is in flash area. Note end_addr is outside valid range. */
+    if ((address >= nordic_fstorage.start_addr) && (address < nordic_fstorage.end_addr)) {
+        return nordic_fstorage.p_flash_info->erase_unit;
     }
-    /* Something goes wrong, return invalid size error code. */
+
+    /* Return invalid size if request is outisde flash area. */
     return MBED_FLASH_INVALID_SIZE;
 }
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
     (void)(obj);
-    return NRF_FICR->CODEPAGESIZE;
+
+    /* Return minimum writeable page size. */
+    return WORD_SIZE_IN_BYTES;
 }
 
 uint32_t flash_get_start_address(const flash_t *obj)
@@ -122,5 +212,3 @@ uint32_t flash_get_start_address(const flash_t *obj)
 }
 
 #endif
-
-/** @}*/
