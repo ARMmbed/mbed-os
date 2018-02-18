@@ -19,8 +19,11 @@
 #include "mbedtls/pk_info.h"
 
 #include "ATCAFactory.h"
+#include "mbedtls_atca_engine.h"
 
 #define UNUSED(x) ((void)(x))
+
+extern mbedtls_pk_info_t mbedtls_eckey_info;
 
 /** Tell if can do the operation given by type.
  *
@@ -91,6 +94,10 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
 
     return (err == ATCA_ERR_NO_ERROR)?0:1;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Extract ECDSA signature components R & S from ASN.1
  *
@@ -247,4 +254,87 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 
     return( 0 );
 }
+
+/** Setup transparent PK context using Public key from ATCA crypto engine.
+ *
+ * @param ctx       Key context
+ * @param keyId     Private key Id representing a hardware Key.
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
+int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
+{
+    ATCAKey * key = NULL;
+    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCADevice * device = ATCAFactory::GetDevice( err );
+    if ( err != ATCA_ERR_NO_ERROR )
+    {
+        assert( device == NULL );
+        return( -1 );
+    }
+
+    /* Import public key from binary */
+    static mbedtls_ecp_keypair ecp_key;
+    mbedtls_ecp_keypair_init(&ecp_key);
+    int ret = mbedtls_ecp_group_load(&ecp_key.grp, MBEDTLS_ECP_DP_SECP256R1);
+    if ( ret != 0 )
+        return( ret );
+    key = device->GetKeyToken( keyId, err );
+    if ( ret != 0 )
+    {
+        printf( " failed\n  !  to retrieve Public key from ATCA508A\n\n" );
+        return( ret );
+    }
+    uint8_t pubkey_asn1[ATCA_ECC_ECC_PK_LEN + 10];
+    size_t asn_len = 0;
+    ret = ecc_key_to_asn1( key->GetPubKey(), pubkey_asn1, sizeof(pubkey_asn1), &asn_len);
+    delete key;
+    if ( ret != 0 )
+    {
+        printf( " failed\n  !  to ASN.1 encode ECDSA Public key binary\n\n" );
+        return( ret );
+    }
+    ret = mbedtls_ecp_point_read_binary(&ecp_key.grp, &ecp_key.Q, pubkey_asn1, asn_len );
+    if ( ret != 0 )
+    {
+        printf( " failed\n  !  Failed to read ecp key from binary\n\n" );
+        return( ret );
+    }
+    ctx->pk_info = &mbedtls_eckey_info;
+    ctx->pk_ctx = &ecp_key;
+    return( 0 );
+}
+
+/** Encode ECC Public key in ASN.1 format.
+ *
+ *  @param ecc_pk       ECC Public key input.
+ *  @param asn_out      ASN.1 out buffer.
+ *  @param asn_out_len  Out buffer length.
+ *  @return             0 on success, -1 on failure
+ */
+int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len, size_t * asn_out_len )
+{
+    int ret = 0;
+    mbedtls_ecp_keypair ecp_key;
+    mbedtls_ecp_keypair_init(&ecp_key);
+
+    if (mbedtls_ecp_group_load(&ecp_key.grp, MBEDTLS_ECP_DP_SECP256R1) != 0)
+    {
+        goto cleanup;
+    }
+    MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.X, ecc_pk, 32 ) );
+    MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.Y, ecc_pk + 32, 32 ) );
+    MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &ecp_key.Q.Z, 1 ) );
+    if( mbedtls_ecp_point_write_binary( &ecp_key.grp, &ecp_key.Q,
+                MBEDTLS_ECP_PF_UNCOMPRESSED, asn_out_len, asn_out, asn_len ) != 0 )
+    {
+        goto cleanup;
+    }
+cleanup:
+    return( ret );
+}
+
+#ifdef __cplusplus
+}
+#endif
 

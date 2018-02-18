@@ -17,7 +17,11 @@
 #include "mbedtls/pk_info.h"
 #include "ATCAConstants.h"
 
-/** PK Setup function for ATCA crypto engine.
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** Setup opaque PK context for ATCA crypto engine.
  *
  * @param ctx       Key context
  * @param keyId     Private key Id representing a hardware Key.
@@ -25,3 +29,28 @@
  * @retval          0 if successful, or appropriate Mbed TLS error code.
  */
 int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId );
+
+/** Setup transparent PK context using Public key from ATCA crypto engine.
+ *
+ * @param ctx       Key context
+ * @param keyId     Private key Id representing a hardware Key.
+ *
+ * @retval          0 if successful, or appropriate Mbed TLS error code.
+ */
+int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx,
+                                       ATCAKeyID keyId );
+
+/** Encode ECC Public key in ASN.1 format.
+ *
+ *  @param ecc_pk       ECC Public key input.
+ *  @param asn_out      ASN.1 out buffer.
+ *  @param asn_out_len  Out buffer length.
+ *  @return             0 on success, -1 on failure
+ */
+int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len,
+                     size_t * asn_out_len );
+
+#ifdef __cplusplus
+}
+#endif
+
