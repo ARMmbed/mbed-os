@@ -25,6 +25,17 @@ using namespace std;
 using namespace mbed_cellular_util;
 using namespace mbed;
 
+struct at_reg_t {
+    const CellularNetwork::RegistrationType type;
+    const char *const cmd;
+};
+
+static const at_reg_t at_reg[] = {
+    { CellularNetwork::C_EREG, "AT+CEREG" },
+    { CellularNetwork::C_GREG, "AT+CGREG" },
+    { CellularNetwork::C_REG,  "AT+CREG"  },
+};
+
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
     _stack(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK), _ip_stack_type(DEFAULT_STACK), _cid(-1),
     _connection_status_cb(NULL), _op_act(operator_t::RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG),
@@ -65,7 +76,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-     AuthenticationType type, const char *username, const char *password)
+        AuthenticationType type, const char *username, const char *password)
 {
     strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     _uname = username;
@@ -319,7 +330,7 @@ bool AT_CellularNetwork::set_new_context(nsapi_ip_stack_t stack, int cid)
         _cid = cid;
     }
 
-  return success;
+    return success;
 }
 
 bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
@@ -409,17 +420,16 @@ nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 
 nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
 {
-    RegistrationType reg_types[] = {C_EREG,        C_GREG,       C_REG};
-    const char *cmd_on[]  =       {"AT+CEREG=2",   "AT+CGREG=2",    "AT+CREG=2"};
-    const char *cmd_off[] =       {"AT+CEREG=0",   "AT+CGREG=0",    "AT+CREG=0"};
-    for (uint8_t i=0; i<sizeof(reg_types)/sizeof(reg_types[0]); i++) {
-        if (has_registration(reg_types[i])) {
-            _last_reg_type = reg_types[i];
+    for (int i = 0; i < sizeof(at_reg)/sizeof(at_reg[0]); i++) {
+        if (has_registration(at_reg[i].type)) {
+            _last_reg_type = at_reg[i].type;
             if (urc_on) {
-                _at.cmd_start(cmd_on[i]);
+                _at.cmd_start(at_reg[i].cmd);
+                _at.write_string("=2", false);
                 _at.cmd_stop();
             } else {
-                _at.cmd_start(cmd_off[i]);
+                _at.cmd_start(at_reg[i].cmd);
+                _at.write_string("=0", false);
                 _at.cmd_stop();
             }
 
@@ -463,8 +473,6 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     int i = (int)type;
     MBED_ASSERT(i >= 0 && i < C_MAX);
 
-    RegistrationType reg_types[] = { C_EREG,       C_GREG,       C_REG};
-    const char *cmd[] =            { "AT+CEREG",   "AT+CGREG",    "AT+CREG"};
     const char *rsp[] =            { "+CEREG:",    "+CGREG:",     "+CREG:"};
 
     const int LAC_LENGTH = 5, CELL_ID_LENGTH = 9;
@@ -474,20 +482,20 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     _cell_id = -1;
     _lac = -1;
 
-     _at.lock();
+    _at.lock();
 
-    if (!has_registration(reg_types[i])) {
+    if (!has_registration(at_reg[i].type)) {
         _at.unlock();
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    _at.cmd_start(cmd[i]);
+    _at.cmd_start(at_reg[i].cmd);
     _at.write_string("=2", false);
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
 
-    _at.cmd_start(cmd[i]);
+    _at.cmd_start(at_reg[i].cmd);
     _at.write_string("?", false);
 
     _at.cmd_stop();
@@ -507,7 +515,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
     _at.resp_stop();
 
-    _at.cmd_start(cmd[i]);
+    _at.cmd_start(at_reg[i].cmd);
     _at.write_string("=0", false);
     _at.cmd_stop();
     _at.resp_start();
@@ -699,7 +707,7 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
         op->op_rat = (ret == error_code) ? operator_t::RAT_UNKNOWN:(operator_t::RadioAccessTechnology)ret;
 
         if ((_op_act == operator_t::RAT_UNKNOWN) ||
-           ((op->op_rat != operator_t::RAT_UNKNOWN) && (op->op_rat == _op_act))) {
+                ((op->op_rat != operator_t::RAT_UNKNOWN) && (op->op_rat == _op_act))) {
             idx++;
         } else {
             operators.delete_last();
@@ -714,7 +722,7 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 }
 
 nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                               Preferred_UE_Opt preferred_opt)
+        Preferred_UE_Opt preferred_opt)
 {
     _at.lock();
 
@@ -731,7 +739,7 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
 }
 
 nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                               Preferred_UE_Opt& preferred_opt)
+        Preferred_UE_Opt& preferred_opt)
 {
     _at.lock();
 
@@ -751,8 +759,8 @@ nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt&
 }
 
 nsapi_error_t AT_CellularNetwork::get_rate_control(
-        CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
+    CellularNetwork::RateControlExceptionReports &reports,
+    CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
 {
 
     _at.lock();
