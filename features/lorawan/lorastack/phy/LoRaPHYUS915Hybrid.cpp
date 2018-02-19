@@ -757,7 +757,7 @@ bool LoRaPHYUS915Hybrid::validate_channel_mask(uint16_t* channel_masks)
         block1 = temp_channel_masks[i] & 0x00FF;
         block2 = temp_channel_masks[i] & 0xFF00;
 
-        if (count_bits(block1, 16) > 5) {
+        if (count_bits(block1, 16) > 1) {
 
             temp_channel_masks[i] &= block1;
             temp_channel_masks[4] = 1 << ( i * 2 );
@@ -765,7 +765,7 @@ bool LoRaPHYUS915Hybrid::validate_channel_mask(uint16_t* channel_masks)
             index = i;
             break;
 
-        } else if( count_bits( block2, 16 ) > 5 ) {
+        } else if( count_bits( block2, 16 ) > 1 ) {
 
             temp_channel_masks[i] &= block2;
             temp_channel_masks[4] = 1 << ( i * 2 + 1 );
