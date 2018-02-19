@@ -61,6 +61,7 @@
 #include "drivers/AnalogOut.h"
 #include "drivers/PwmOut.h"
 #include "drivers/Serial.h"
+#include "drivers/SAI.h"
 #include "drivers/SPI.h"
 #include "drivers/SPISlave.h"
 #include "drivers/I2C.h"
