@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the IrDA (Infrared Data Association) Peripheral
@@ -266,7 +264,7 @@ static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda);
 /**
   * @brief Initialize the IRDA mode according to the specified
   *        parameters in the IRDA_InitTypeDef and initialize the associated handle.
-  * @param hirda: Pointer to a IRDA_HandleTypeDef structure that contains
+  * @param hirda Pointer to a IRDA_HandleTypeDef structure that contains
   *               the configuration information for the specified IRDA module.
   * @retval HAL status
   */
@@ -319,7 +317,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 
 /**
   * @brief DeInitialize the IRDA peripheral.
-  * @param hirda: Pointer to a IRDA_HandleTypeDef structure that contains
+  * @param hirda Pointer to a IRDA_HandleTypeDef structure that contains
   *               the configuration information for the specified IRDA module.
   * @retval HAL status
   */
@@ -353,7 +351,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 
 /**
   * @brief Initialize the IRDA MSP.
-  * @param hirda: Pointer to a IRDA_HandleTypeDef structure that contains
+  * @param hirda Pointer to a IRDA_HandleTypeDef structure that contains
   *               the configuration information for the specified IRDA module.
   * @retval None
   */
@@ -369,7 +367,7 @@ __weak void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda)
 
 /**
   * @brief DeInitialize the IRDA MSP.
-  * @param hirda: Pointer to a IRDA_HandleTypeDef structure that contains
+  * @param hirda Pointer to a IRDA_HandleTypeDef structure that contains
   *               the configuration information for the specified IRDA module.
   * @retval None
   */
@@ -1653,7 +1651,7 @@ __weak void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda)
 
 /**
   * @brief  Rx Half Transfer complete callback.
-  * @param  hirda: Pointer to a IRDA_HandleTypeDef structure that contains
+  * @param  hirda Pointer to a IRDA_HandleTypeDef structure that contains
   *                the configuration information for the specified IRDA module.
   * @retval None
   */
@@ -2025,7 +2023,7 @@ static void IRDA_DMATransmitHalfCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  DMA IRDA receive process complete callback.
-  * @param  hdma: Pointer to a DMA_HandleTypeDef structure that contains
+  * @param  hdma Pointer to a DMA_HandleTypeDef structure that contains
   *               the configuration information for the specified DMA module.
   * @retval None
   */
@@ -2055,7 +2053,7 @@ static void IRDA_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief DMA IRDA receive process half complete callback.
-  * @param hdma: Pointer to a DMA_HandleTypeDef structure that contains
+  * @param hdma Pointer to a DMA_HandleTypeDef structure that contains
   *              the configuration information for the specified DMA module.
   * @retval None
   */

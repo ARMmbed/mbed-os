@@ -15,14 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from tools.paths import *
-from tools.data.support import *
+from tools.data.support import DEFAULT_SUPPORT, CORTEX_ARM_SUPPORT
 from argparse import ArgumentTypeError
-from utils import columnate
-
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
+from tools.utils import columnate
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
@@ -320,7 +315,7 @@ TESTS = [
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
         "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC", "NUCLEO_F412ZG",
-        "DISCO_F413ZH"]
+        "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_A28", "description": "CAN loopback test",
@@ -334,7 +329,7 @@ TESTS = [
 
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
         "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC", "NUCLEO_F412ZG",
-        "DISCO_F413ZH"]
+        "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_A29", "description": "i2c_master_slave_asynch",
@@ -584,23 +579,23 @@ TESTS = [
         "id": "MBED_29", "description": "CAN network test",
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
+        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE", "DISCO_F469NI", "NUCLEO_F207ZG",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
                 "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC", "NUCLEO_F412ZG",
-                "DISCO_F413ZH"]
+                "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
+        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "GR_LYCHEE", "B96B_F446VE", "NUCLEO_F091RC", "NUCLEO_F207ZG",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "NUCLEO_F446ZE", "DISCO_F469NI",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
                 "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC", "NUCLEO_F412ZG",
-                "DISCO_F413ZH"]
+                "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",
@@ -916,9 +911,7 @@ def test_known(string):
         raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
 
 def test_name_known(string):
-    if string not in TEST_MAP.keys() and \
-       (getattr(ps, "test_alias", None) is None or \
-        ps.test_alias.get(string, "") not in TEST_MAP.keys()):
+    if string not in TEST_MAP.keys():
         raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(string, columnate([t['id'] for t in TESTS])))
 
     return TEST_MAP[string].n

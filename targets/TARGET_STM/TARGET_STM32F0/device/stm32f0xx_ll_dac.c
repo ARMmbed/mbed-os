@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_dac.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   DAC LL module driver
   ******************************************************************************
   * @attention
@@ -40,7 +38,7 @@
 #include "stm32f0xx_ll_dac.h"
 #include "stm32f0xx_ll_bus.h"
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
   #include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0U)

@@ -163,7 +163,7 @@ BOARD_FORMAT_STRING = {1: "Board (%s)",
 def _generate_hierarchy_string(mcus, boards):
     global_errors = []
     if len(mcus) < 1:
-        global_errors.append("No MCUS found in heirarchy")
+        global_errors.append("No MCUS found in hierarchy")
         mcus_string = "??? ->"
     elif len(mcus) > 3:
         global_errors.append("No name for targets %s" % ", ".join(mcus[3:]))
@@ -174,7 +174,7 @@ def _generate_hierarchy_string(mcus, boards):
         mcus_string = MCU_FORMAT_STRING[len(mcus)] % tuple(mcus)
 
     if len(boards) < 1:
-        global_errors.append("no boards found in heirarchy")
+        global_errors.append("no boards found in hierarchy")
         boards_string = "???"
     elif len(boards) > 2:
         global_errors.append("no name for targets %s" % ", ".join(boards[2:]))
@@ -187,7 +187,7 @@ def _generate_hierarchy_string(mcus, boards):
 
 
 def check_hierarchy(tgt):
-    """Atempts to assign labels to the heirarchy"""
+    """Atempts to assign labels to the hierarchy"""
     resolution_order = copy(tgt.resolution_order_names[:-1])
     mcus, boards = _split_boards(resolution_order, tgt)
 

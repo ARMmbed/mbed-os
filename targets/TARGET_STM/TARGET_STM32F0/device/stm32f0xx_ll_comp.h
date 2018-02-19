@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_comp.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of COMP LL module.
   ******************************************************************************
   * @attention
@@ -716,7 +714,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputPolarity(COMP_TypeDef *COMPx)
   *         to reach reach propagation delay specification.
   *         Refer to device datasheet, parameter "tSTART".
   * @rmtoll CSR      COMP1EN        LL_COMP_Enable\n
-  *                  COMP2EN        LL_COMP_Enable
+  *         CSR      COMP2EN        LL_COMP_Enable
   * @param  COMPx Comparator instance
   * @retval None
   */
@@ -728,7 +726,7 @@ __STATIC_INLINE void LL_COMP_Enable(COMP_TypeDef *COMPx)
 /**
   * @brief  Disable comparator instance.
   * @rmtoll CSR      COMP1EN        LL_COMP_Disable\n
-  *                  COMP2EN        LL_COMP_Disable
+  *         CSR      COMP2EN        LL_COMP_Disable
   * @param  COMPx Comparator instance
   * @retval None
   */
@@ -741,7 +739,7 @@ __STATIC_INLINE void LL_COMP_Disable(COMP_TypeDef *COMPx)
   * @brief  Get comparator enable state
   *         (0: COMP is disabled, 1: COMP is enabled)
   * @rmtoll CSR      COMP1EN        LL_COMP_IsEnabled\n
-  *                  COMP2EN        LL_COMP_IsEnabled
+  *         CSR      COMP2EN        LL_COMP_IsEnabled
   * @param  COMPx Comparator instance
   * @retval State of bit (1 or 0).
   */
@@ -755,7 +753,7 @@ __STATIC_INLINE uint32_t LL_COMP_IsEnabled(COMP_TypeDef *COMPx)
   * @note   Once locked, comparator configuration can be accessed in read-only.
   * @note   The only way to unlock the comparator is a device hardware reset.
   * @rmtoll CSR      COMP1LOCK      LL_COMP_Lock\n
-  *                  COMP2LOCK      LL_COMP_Lock
+  *         CSR      COMP2LOCK      LL_COMP_Lock
   * @param  COMPx Comparator instance
   * @retval None
   */
@@ -770,7 +768,7 @@ __STATIC_INLINE void LL_COMP_Lock(COMP_TypeDef *COMPx)
   * @note   Once locked, comparator configuration can be accessed in read-only.
   * @note   The only way to unlock the comparator is a device hardware reset.
   * @rmtoll CSR      COMP1LOCK      LL_COMP_IsLocked\n
-  *                  COMP2LOCK      LL_COMP_IsLocked
+  *         CSR      COMP2LOCK      LL_COMP_IsLocked
   * @param  COMPx Comparator instance
   * @retval State of bit (1 or 0).
   */
@@ -794,7 +792,7 @@ __STATIC_INLINE uint32_t LL_COMP_IsLocked(COMP_TypeDef *COMPx)
   *          - Comparator output is low when the input plus
   *            is at a higher voltage than the input minus
   * @rmtoll CSR      COMP1OUT       LL_COMP_ReadOutputLevel\n
-  *                  COMP2OUT       LL_COMP_ReadOutputLevel
+  *         CSR      COMP2OUT       LL_COMP_ReadOutputLevel
   * @param  COMPx Comparator instance
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_COMP_OUTPUT_LEVEL_LOW

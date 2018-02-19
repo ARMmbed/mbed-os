@@ -85,24 +85,25 @@ static int lfs_totype(int type)
 static int lfs_bd_read(const struct lfs_config *c, lfs_block_t block,
         lfs_off_t off, void *buffer, lfs_size_t size) {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->read(buffer, block*c->block_size + off, size);
+    return bd->read(buffer, (bd_addr_t)block*c->block_size + off, size);
 }
 
 static int lfs_bd_prog(const struct lfs_config *c, lfs_block_t block,
         lfs_off_t off, const void *buffer, lfs_size_t size) {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->program(buffer, block*c->block_size + off, size);
+    return bd->program(buffer, (bd_addr_t)block*c->block_size + off, size);
 }
 
 static int lfs_bd_erase(const struct lfs_config *c, lfs_block_t block)
 {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->erase(block*c->block_size, c->block_size);
+    return bd->erase((bd_addr_t)block*c->block_size, c->block_size);
 }
 
 static int lfs_bd_sync(const struct lfs_config *c)
 {
-    return 0;
+    BlockDevice *bd = (BlockDevice *)c->context;
+    return bd->sync();
 }
 
 
@@ -336,6 +337,34 @@ int LittleFileSystem::stat(const char *name, struct stat *st)
     return lfs_toerror(err);
 }
 
+static int lfs_statvfs_count(void *p, lfs_block_t b)
+{
+    *(lfs_size_t *)p += 1;
+    return 0;
+}
+
+int LittleFileSystem::statvfs(const char *name, struct statvfs *st)
+{
+    memset(st, 0, sizeof(struct statvfs));
+
+    lfs_size_t in_use = 0;
+    _mutex.lock();
+    LFS_INFO("statvfs(\"%s\", %p)", name, st);
+    int err = lfs_traverse(&_lfs, lfs_statvfs_count, &in_use);
+    LFS_INFO("statvfs -> %d", lfs_toerror(err));
+    _mutex.unlock();
+    if (err) {
+        return err;
+    }
+
+    st->f_bsize  = _config.block_size;
+    st->f_frsize = _config.block_size;
+    st->f_blocks = _config.block_count;
+    st->f_bfree  = _config.block_count - in_use;
+    st->f_bavail = _config.block_count - in_use;
+    st->f_namemax = LFS_NAME_MAX;
+    return 0;
+}
 
 ////// File operations //////
 int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags)

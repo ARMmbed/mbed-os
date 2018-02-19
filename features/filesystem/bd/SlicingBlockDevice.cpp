@@ -64,6 +64,11 @@ int SlicingBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int SlicingBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int SlicingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_read(addr, size));
@@ -95,6 +100,11 @@ bd_size_t SlicingBlockDevice::get_program_size() const
 bd_size_t SlicingBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int SlicingBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t SlicingBlockDevice::size() const

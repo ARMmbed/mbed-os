@@ -237,12 +237,12 @@
  * least one (1) 106-octet IPv6 datagram per attached SED".
  *
  * The defines below tell how many small (i.e. up to the big packet
- * threshold) packets total and big (i.e. over the big packet threshold)
- * packets per sleepy child we buffer in the indirect TX queue. The
- * minimum values are 1 for both, but here we use 2 for better
- * performance.
+ * threshold) packets per sleepy child and big (i.e. over the big 
+ * packet threshold) packets total we buffer in the indirect TX 
+ * queue. The minimum values are 1 for both, but here we use larger
+ * value for better performance.
  */
-#define THREAD_INDIRECT_BIG_PACKETS_TOTAL 2
+#define THREAD_INDIRECT_BIG_PACKETS_TOTAL 10
 #define THREAD_INDIRECT_SMALL_PACKETS_PER_CHILD 2
 
 /**

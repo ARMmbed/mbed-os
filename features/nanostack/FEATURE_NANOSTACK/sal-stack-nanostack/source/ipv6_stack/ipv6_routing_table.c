@@ -401,6 +401,15 @@ void ipv6_neighbour_invalidate_ll_addr(ipv6_neighbour_cache_t *cache, addrtype_t
     }
 }
 
+void ipv6_neighbour_delete_registered_by_eui64(ipv6_neighbour_cache_t *cache, const uint8_t *eui64)
+{
+    ns_list_foreach_safe(ipv6_neighbour_t, cur, &cache->list) {
+        if (cur->type != IP_NEIGHBOUR_GARBAGE_COLLECTIBLE && memcmp(ipv6_neighbour_eui64(cache, cur), eui64, 8) == 0) {
+            ipv6_neighbour_entry_remove(cache, cur);
+        }
+    }
+}
+
 void ipv6_neighbour_set_state(ipv6_neighbour_cache_t *cache, ipv6_neighbour_t *entry, ip_neighbour_cache_state_t state)
 {
     if (!ipv6_neighbour_state_is_probably_reachable(entry->state) &&

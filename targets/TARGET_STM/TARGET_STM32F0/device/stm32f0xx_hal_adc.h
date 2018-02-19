@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
@@ -332,7 +330,6 @@ typedef struct
   */ 
 #define ADC_EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
 #define ADC_EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
-#define ADC_EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
 /**
   * @}
   */ 
@@ -463,7 +460,7 @@ typedef struct
 
 /**
   * @brief Enable the ADC peripheral
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval None
   */
 #define __HAL_ADC_ENABLE(__HANDLE__)                                           \
@@ -471,7 +468,7 @@ typedef struct
 
 /**
   * @brief Disable the ADC peripheral
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval None
   */
 #define __HAL_ADC_DISABLE(__HANDLE__)                                          \
@@ -482,8 +479,8 @@ typedef struct
 
 /**
   * @brief Enable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
+  * @param __HANDLE__ ADC handle
+  * @param __INTERRUPT__ ADC Interrupt
   *          This parameter can be any combination of the following values:
   *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
   *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
@@ -498,8 +495,8 @@ typedef struct
 
 /**
   * @brief Disable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
+  * @param __HANDLE__ ADC handle
+  * @param __INTERRUPT__ ADC Interrupt
   *          This parameter can be any combination of the following values:
   *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
   *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
@@ -513,8 +510,8 @@ typedef struct
   (((__HANDLE__)->Instance->IER) &= ~(__INTERRUPT__))
 
 /** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC interrupt source to check
+  * @param __HANDLE__ ADC handle
+  * @param __INTERRUPT__ ADC interrupt source to check
   *          This parameter can be any combination of the following values:
   *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
   *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
@@ -529,8 +526,8 @@ typedef struct
     
 /**
   * @brief Get the selected ADC's flag status.
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
+  * @param __HANDLE__ ADC handle
+  * @param __FLAG__ ADC flag
   *          This parameter can be any combination of the following values:
   *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
   *            @arg ADC_FLAG_EOS: ADC End of Regular sequence of Conversions flag
@@ -545,8 +542,8 @@ typedef struct
 
 /**
   * @brief Clear the ADC's pending flags
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
+  * @param __HANDLE__ ADC handle
+  * @param __FLAG__ ADC flag
   *          This parameter can be any combination of the following values:
   *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
   *            @arg ADC_FLAG_EOS: ADC End of Regular sequence of Conversions flag
@@ -561,7 +558,7 @@ typedef struct
   (((__HANDLE__)->Instance->ISR) = (__FLAG__))
 
 /** @brief  Reset ADC handle state
-  * @param  __HANDLE__: ADC handle
+  * @param  __HANDLE__ ADC handle
   * @retval None
   */
 #define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
@@ -583,7 +580,7 @@ typedef struct
 
 /**
   * @brief Verification of hardware constraints before ADC can be enabled
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
   */
 #define ADC_ENABLING_CONDITIONS(__HANDLE__)                                        \
@@ -594,7 +591,7 @@ typedef struct
 
 /**
   * @brief Verification of hardware constraints before ADC can be disabled
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval SET (ADC can be disabled) or RESET (ADC cannot be disabled)
   */
 #define ADC_DISABLING_CONDITIONS(__HANDLE__)                                   \
@@ -604,7 +601,7 @@ typedef struct
 
 /**
   * @brief Verification of ADC state: enabled or disabled
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval SET (ADC enabled) or RESET (ADC disabled)
   */
 /* Note: If low power mode AutoPowerOff is enabled, power-on/off phases are   */
@@ -619,7 +616,7 @@ typedef struct
 /**
   * @brief Test if conversion trigger of regular group is software start
   *        or external trigger.
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval SET (software start) or RESET (external trigger)
   */
 #define ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                              \
@@ -627,7 +624,7 @@ typedef struct
 
 /**
   * @brief Check if no conversion on going on regular group
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
 #define ADC_IS_CONVERSION_ONGOING_REGULAR(__HANDLE__)                          \
@@ -637,7 +634,7 @@ typedef struct
 /**
   * @brief Returns resolution bits in CFGR1 register: RES[1:0].
   *        Returned value is among parameters to @ref ADC_Resolution.
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval None
   */
 #define ADC_GET_RESOLUTION(__HANDLE__)                                         \
@@ -646,7 +643,7 @@ typedef struct
 /**
   * @brief Returns ADC sample time bits in SMPR register: SMP[2:0].
   *        Returned value is among parameters to @ref ADC_Resolution.
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval None
   */
 #define ADC_GET_SAMPLINGTIME(__HANDLE__)                                       \
@@ -663,7 +660,7 @@ typedef struct
 
 /**
   * @brief Clear ADC error code (set it to error code: "no error")
-  * @param __HANDLE__: ADC handle
+  * @param __HANDLE__ ADC handle
   * @retval None
   */
 #define ADC_CLEAR_ERRORCODE(__HANDLE__)                                        \
@@ -672,7 +669,7 @@ typedef struct
 
 /**
   * @brief Configure the channel number into channel selection register
-  * @param _CHANNEL_: ADC Channel
+  * @param _CHANNEL_ ADC Channel
   * @retval None
   */
 /* This function converts ADC channels from numbers (see defgroup ADC_channels) 
@@ -702,7 +699,7 @@ typedef struct
 
 /**
   * @brief Set the ADC's sample time
-  * @param _SAMPLETIME_: Sample time parameter.
+  * @param _SAMPLETIME_ Sample time parameter.
   * @retval None
   */
 /* Note: ADC sampling time set using mask ADC_SMPR_SMP due to parameter       */
@@ -715,7 +712,7 @@ typedef struct
 
 /**
   * @brief Set the Analog Watchdog 1 channel.
-  * @param _CHANNEL_: channel to be monitored by Analog Watchdog 1.
+  * @param _CHANNEL_ channel to be monitored by Analog Watchdog 1.
   * @retval None
   */
 #define ADC_CFGR_AWDCH(_CHANNEL_)                                              \
@@ -723,7 +720,7 @@ typedef struct
 
 /**
   * @brief Enable ADC discontinuous conversion mode for regular group
-  * @param _REG_DISCONTINUOUS_MODE_: Regular discontinuous mode.
+  * @param _REG_DISCONTINUOUS_MODE_ Regular discontinuous mode.
   * @retval None
   */
 #define ADC_CFGR1_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_)                 \
@@ -731,7 +728,7 @@ typedef struct
   
 /**
   * @brief Enable the ADC auto off mode.
-  * @param _AUTOOFF_: Auto off bit enable or disable.
+  * @param _AUTOOFF_ Auto off bit enable or disable.
   * @retval None
   */
 #define ADC_CFGR1_AUTOOFF(_AUTOOFF_)                                           \
@@ -739,7 +736,7 @@ typedef struct
       
 /**
   * @brief Enable the ADC auto delay mode.
-  * @param _AUTOWAIT_: Auto delay bit enable or disable.
+  * @param _AUTOWAIT_ Auto delay bit enable or disable.
   * @retval None
   */
 #define ADC_CFGR1_AUTOWAIT(_AUTOWAIT_)                                         \
@@ -747,7 +744,7 @@ typedef struct
 
 /**
   * @brief Enable ADC continuous conversion mode.
-  * @param _CONTINUOUS_MODE_: Continuous mode.
+  * @param _CONTINUOUS_MODE_ Continuous mode.
   * @retval None
   */
 #define ADC_CFGR1_CONTINUOUS(_CONTINUOUS_MODE_)                                \
@@ -755,7 +752,7 @@ typedef struct
     
 /**
   * @brief Enable ADC overrun mode.
-  * @param _OVERRUN_MODE_: Overrun mode.
+  * @param _OVERRUN_MODE_ Overrun mode.
   * @retval Overun bit setting to be programmed into CFGR register
   */
 /* Note: Bit ADC_CFGR1_OVRMOD not used directly in constant                   */
@@ -768,7 +765,7 @@ typedef struct
 
 /**
   * @brief Enable ADC scan mode to convert multiple ranks with sequencer.
-  * @param _SCAN_MODE_: Scan conversion mode.
+  * @param _SCAN_MODE_ Scan conversion mode.
   * @retval None
   */
 /* Note: Scan mode set using this macro (instead of parameter direct set)     */
@@ -782,7 +779,7 @@ typedef struct
 
 /**
   * @brief Enable the ADC DMA continuous request.
-  * @param _DMACONTREQ_MODE_: DMA continuous request mode.
+  * @param _DMACONTREQ_MODE_ DMA continuous request mode.
   * @retval None
   */
 #define ADC_CFGR1_DMACONTREQ(_DMACONTREQ_MODE_)                                \
@@ -790,7 +787,7 @@ typedef struct
 
 /**
   * @brief Configure the analog watchdog high threshold into register TR.
-  * @param _Threshold_: Threshold value
+  * @param _Threshold_ Threshold value
   * @retval None
   */
 #define ADC_TRX_HIGHTHRESHOLD(_Threshold_)                                     \
@@ -804,8 +801,8 @@ typedef struct
   *        If resolution 8 bits, shift of 4 ranks on the left.
   *        If resolution 6 bits, shift of 6 ranks on the left.
   *        therefore, shift = (12 - resolution) = 12 - (12- (((RES[1:0]) >> 3)*2))
-  * @param __HANDLE__: ADC handle
-  * @param _Threshold_: Value to be shifted
+  * @param __HANDLE__ ADC handle
+  * @param _Threshold_ Value to be shifted
   * @retval None
   */
 #define ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_)            \
@@ -833,8 +830,7 @@ typedef struct
                                    ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING)  )
 
 #define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == ADC_EOC_SINGLE_CONV)    || \
-                                             ((EOC_SELECTION) == ADC_EOC_SEQ_CONV)       || \
-                                             ((EOC_SELECTION) == ADC_EOC_SINGLE_SEQ_CONV)  )
+                                             ((EOC_SELECTION) == ADC_EOC_SEQ_CONV)  )
 
 #define IS_ADC_OVERRUN(OVR) (((OVR) == ADC_OVR_DATA_PRESERVED)  || \
                              ((OVR) == ADC_OVR_DATA_OVERWRITTEN)  )

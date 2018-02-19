@@ -13,26 +13,26 @@
 LR_IRAM 0x10007000 (0x70000 - 0x7000) {
 
   IMAGE2_TABLE 0x10007000 FIXED {
-    *rtl8195a_init.o(.image2.ram.data*, +FIRST)
-    *rtl8195a_init.o(.image2.validate.rodata*)
+    *rtl8195a_init*.o(.image2.ram.data*, +FIRST)
+    *rtl8195a_init*.o(.image2.validate.rodata*)
   }
 
   ER_IRAM +0 FIXED {
-    *rtl8195a_crypto.o (+RO)
+    *rtl8195a_crypto*.o (+RO)
     *(i.mbedtls*)
     *libc.a (+RO)
     *rtx_*.o (+RO)
   }
 
   RW_IRAM1 +0 UNINIT FIXED {
-    *rtl8195a_crypto.o(+RW)
+    *rtl8195a_crypto*.o(+RW)
     *libc.a (+RW)
     *(.sdram.data*)
     *lib_peripheral_mbed_arm.ar (+RW)
   }
 
   RW_IRAM2 +0 UNINIT FIXED {
-    *rtl8195a_crypto.o(+ZI, COMMON)
+    *rtl8195a_crypto*.o(+ZI, COMMON)
     *libc.a (+ZI, COMMON)
     *(.bss.thread_stack_main)
     *lib_peripheral_mbed_arm.ar (+ZI, COMMON)
@@ -44,8 +44,8 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
 
 LR_TCM 0x1FFF0000 0x10000 {
     TCM_OVERLAY 0x1FFF0000 0x10000 {
-        *lwip_mem.o(.bss*)
-        *lwip_memp.o(.bss*)
+        *lwip_mem*.o(.bss*)
+        *lwip_memp*.o(.bss*)
         *.o(.tcm.heap*)
     }
 }

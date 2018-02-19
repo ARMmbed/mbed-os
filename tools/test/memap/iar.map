@@ -10,12 +10,9 @@
 #    Command line =  
 #        -f
 #        /common/path/.link_files.txt
-#        (-o
-#        --map=/common/path/project.map
-#        /common/path/project.elf
-#        /common/path/main.o
-#        /common/path/startup/startup.o
-#        /common/path/irqs/irqs.o
+#        (-o /common/path/project.elf
+#        --map=/common/path/project.map /common/path/main.o
+#        /common/path/startup/startup.o /common/path/irqs/irqs.o
 #        /common/path/data/data.o
 #
 ###############################################################################

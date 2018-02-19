@@ -31,6 +31,8 @@ extern "C" {
 #include "softdevice_handler.h"
 }
 
+#include "nRF5XPalGattClient.h"
+
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
  */
@@ -60,7 +62,7 @@ nRF5xn::nRF5xn(void) :
     instanceID(BLE::DEFAULT_INSTANCE),
     gapInstance(),
     gattServerInstance(NULL),
-    gattClientInstance(NULL),
+    gattClient(&(ble::pal::vendor::nordic::nRF5XGattClient::get_client())),
     securityManagerInstance(NULL)
 {
 }
@@ -189,11 +191,9 @@ ble_error_t nRF5xn::shutdown(void)
 
     /* S110 does not support BLE client features, nothing to reset. */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    if (gattClientInstance != NULL) {
-        error = gattClientInstance->reset();
-        if (error != BLE_ERROR_NONE) {
-            return error;
-        }
+    error = getGattClient().reset();
+    if (error != BLE_ERROR_NONE) {
+        return error;
     }
 #endif
 

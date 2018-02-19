@@ -17,6 +17,7 @@
 #ifndef MBED_UUID_H__
 #define MBED_UUID_H__
 
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <algorithm>

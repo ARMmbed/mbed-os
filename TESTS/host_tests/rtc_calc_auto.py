@@ -47,9 +47,14 @@ class RTC_time_calc_test(BaseHostTest):
 
     edge_date = datetime.datetime(2100, 2, 28, 0, 0, 0)
     
-    years = [1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980,
-             2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
-             2099, 2100, 2101, 2102, 2103, 2104, 2105, 2106]
+    # Test the following years:
+    # - first - 1970
+    # - example not leap year (not divisible by 4)
+    # - example leap year (divisible by 4 and by 100 and by 400) 
+    # - example leap year (divisible by 4 and not by 100) 
+    # - example not leap year (divisible by 4 and by 100) 
+    # - last fully supported  - 2105
+    years = [1970, 1971, 2000, 2096, 2100, 2105]
     year_id = 0
              
              
@@ -123,6 +128,9 @@ class RTC_time_calc_test(BaseHostTest):
             self.date += datetime.timedelta(days = 1)
             if (self.date.month == 1):
                 self.year_id += 1
+                if (len(self.years) == self.year_id):
+                    # All years were processed, no need to calc next date
+                    return
                 self.date = self.date.replace(year = self.years[self.year_id])
             self.date = self.date.replace(day = 1, minute = 0, second = 0)
             self.first = not self.first
@@ -130,9 +138,3 @@ class RTC_time_calc_test(BaseHostTest):
     def setup(self):
         self.register_callback('timestamp', self._verify_timestamp)
         self.register_callback('leap_year_setup', self._set_leap_year_support)
-
-    def result(self):
-        return self.__result
-
-    def teardown(self):
-        pass

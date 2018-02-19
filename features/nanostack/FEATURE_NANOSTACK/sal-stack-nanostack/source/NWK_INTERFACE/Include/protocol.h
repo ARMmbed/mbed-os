@@ -102,7 +102,9 @@ typedef enum icmp_state {
     ER_MLE_LINK_REQ = 13,
     ER_MLE_LINK_SHORT_SYNCH = 14,
     ER_MLE_LINK_ADDRESS_SYNCH = 15,
+#ifdef HAVE_RPL
     ER_ROUTER_SYNCH = 17,
+#endif
     ER_PANA_PING = 18,
     ER_PARENT_SYNCH_LOST = 19,
     ER_MLE_SCAN = 20,

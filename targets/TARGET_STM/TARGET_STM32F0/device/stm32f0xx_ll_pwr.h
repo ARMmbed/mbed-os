@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_pwr.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of PWR LL module.
   ******************************************************************************
   * @attention
@@ -58,11 +56,8 @@ extern "C" {
 
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
 /* Private constants ---------------------------------------------------------*/
-
 /* Private macros ------------------------------------------------------------*/
-
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup PWR_LL_Exported_Constants PWR Exported Constants
@@ -85,30 +80,30 @@ extern "C" {
   */
 #define LL_PWR_CSR_WUF                     PWR_CSR_WUF            /*!< Wakeup flag */
 #define LL_PWR_CSR_SBF                     PWR_CSR_SBF            /*!< Standby flag */
-#if defined (PWR_PVD_SUPPORT)
+#if defined(PWR_PVD_SUPPORT)
 #define LL_PWR_CSR_PVDO                    PWR_CSR_PVDO           /*!< Power voltage detector output flag */
-#endif
-#if defined (PWR_CSR_VREFINTRDYF)
+#endif /* PWR_PVD_SUPPORT */
+#if defined(PWR_CSR_VREFINTRDYF)
 #define LL_PWR_CSR_VREFINTRDYF             PWR_CSR_VREFINTRDYF    /*!< VREFINT ready flag */
-#endif
+#endif /* PWR_CSR_VREFINTRDYF */
 #define LL_PWR_CSR_EWUP1                   PWR_CSR_EWUP1          /*!< Enable WKUP pin 1 */
 #define LL_PWR_CSR_EWUP2                   PWR_CSR_EWUP2          /*!< Enable WKUP pin 2 */
-#if defined (PWR_CSR_EWUP3)
+#if defined(PWR_CSR_EWUP3)
 #define LL_PWR_CSR_EWUP3                   PWR_CSR_EWUP3          /*!< Enable WKUP pin 3 */
 #endif /* PWR_CSR_EWUP3 */
-#if defined (PWR_CSR_EWUP4)
+#if defined(PWR_CSR_EWUP4)
 #define LL_PWR_CSR_EWUP4                   PWR_CSR_EWUP4          /*!< Enable WKUP pin 4 */
 #endif /* PWR_CSR_EWUP4 */
-#if defined (PWR_CSR_EWUP5)
+#if defined(PWR_CSR_EWUP5)
 #define LL_PWR_CSR_EWUP5                   PWR_CSR_EWUP5          /*!< Enable WKUP pin 5 */
 #endif /* PWR_CSR_EWUP5 */
-#if defined (PWR_CSR_EWUP6)
+#if defined(PWR_CSR_EWUP6)
 #define LL_PWR_CSR_EWUP6                   PWR_CSR_EWUP6          /*!< Enable WKUP pin 6 */
 #endif /* PWR_CSR_EWUP6 */
-#if defined (PWR_CSR_EWUP7)
+#if defined(PWR_CSR_EWUP7)
 #define LL_PWR_CSR_EWUP7                   PWR_CSR_EWUP7          /*!< Enable WKUP pin 7 */
 #endif /* PWR_CSR_EWUP7 */
-#if defined (PWR_CSR_EWUP8)
+#if defined(PWR_CSR_EWUP8)
 #define LL_PWR_CSR_EWUP8                   PWR_CSR_EWUP8          /*!< Enable WKUP pin 8 */
 #endif /* PWR_CSR_EWUP8 */
 /**
@@ -119,9 +114,9 @@ extern "C" {
 /** @defgroup PWR_LL_EC_MODE_PWR Mode Power
   * @{
   */
-#define LL_PWR_MODE_STOP_MAINREGU          ((uint32_t)0x00000000U)        /*!< Enter Stop mode when the CPU enters deepsleep */
-#define LL_PWR_MODE_STOP_LPREGU            (PWR_CR_LPDS)                  /*!< Enter Stop mode (ith low power regulator ON) when the CPU enters deepsleep */
-#define LL_PWR_MODE_STANDBY                (PWR_CR_PDDS)                  /*!< Enter Standby mode when the CPU enters deepsleep */
+#define LL_PWR_MODE_STOP_MAINREGU             0x00000000U                    /*!< Enter Stop mode when the CPU enters deepsleep */
+#define LL_PWR_MODE_STOP_LPREGU               (PWR_CR_LPDS)                  /*!< Enter Stop mode (with low power Regulator ON) when the CPU enters deepsleep */
+#define LL_PWR_MODE_STANDBY                   (PWR_CR_PDDS)                  /*!< Enter Standby mode when the CPU enters deepsleep */
 /**
   * @}
   */
@@ -130,14 +125,14 @@ extern "C" {
 /** @defgroup PWR_LL_EC_REGU_MODE_DS_MODE  Regulator Mode In Deep Sleep Mode
  * @{
  */
-#define LL_PWR_REGU_DSMODE_MAIN       ((uint32_t)0x00000000U)        /*!< Voltage regulator in main mode during deepsleep mode */
-#define LL_PWR_REGU_DSMODE_LOW_POWER  (PWR_CR_LPDS)                  /*!< Voltage regulator in low-power mode during deepsleep mode */
+#define LL_PWR_REGU_DSMODE_MAIN        0x00000000U           /*!< Voltage Regulator in main mode during deepsleep mode */
+#define LL_PWR_REGU_DSMODE_LOW_POWER   (PWR_CR_LPDS)         /*!< Voltage Regulator in low-power mode during deepsleep mode */
 /**
- * @}
- */
+  * @}
+  */
 #endif /* PWR_CR_LPDS */
 
-#if defined (PWR_PVD_SUPPORT)
+#if defined(PWR_PVD_SUPPORT)
 /** @defgroup PWR_LL_EC_PVDLEVEL Power Voltage Detector Level
   * @{
   */
@@ -152,29 +147,28 @@ extern "C" {
 /**
   * @}
   */
-#endif
-
+#endif /* PWR_PVD_SUPPORT */
 /** @defgroup PWR_LL_EC_WAKEUP_PIN  Wakeup Pins
-* @{
-*/
+  * @{
+  */
 #define LL_PWR_WAKEUP_PIN1                 (PWR_CSR_EWUP1)        /*!< WKUP pin 1 : PA0 */
 #define LL_PWR_WAKEUP_PIN2                 (PWR_CSR_EWUP2)        /*!< WKUP pin 2 : PC13 */
-#if defined (PWR_CSR_EWUP3)
+#if defined(PWR_CSR_EWUP3)
 #define LL_PWR_WAKEUP_PIN3                 (PWR_CSR_EWUP3)        /*!< WKUP pin 3 : PE6 or PA2 according to device */
 #endif /* PWR_CSR_EWUP3 */
-#if defined (PWR_CSR_EWUP4)
+#if defined(PWR_CSR_EWUP4)
 #define LL_PWR_WAKEUP_PIN4                 (PWR_CSR_EWUP4)        /*!< WKUP pin 4 : LLG TBD */
 #endif /* PWR_CSR_EWUP4 */
-#if defined (PWR_CSR_EWUP5)
+#if defined(PWR_CSR_EWUP5)
 #define LL_PWR_WAKEUP_PIN5                 (PWR_CSR_EWUP5)        /*!< WKUP pin 5 : LLG TBD */
 #endif /* PWR_CSR_EWUP5 */
-#if defined (PWR_CSR_EWUP6)
+#if defined(PWR_CSR_EWUP6)
 #define LL_PWR_WAKEUP_PIN6                 (PWR_CSR_EWUP6)        /*!< WKUP pin 6 : LLG TBD */
 #endif /* PWR_CSR_EWUP6 */
-#if defined (PWR_CSR_EWUP7)
+#if defined(PWR_CSR_EWUP7)
 #define LL_PWR_WAKEUP_PIN7                 (PWR_CSR_EWUP7)        /*!< WKUP pin 7 : LLG TBD */
 #endif /* PWR_CSR_EWUP7 */
-#if defined (PWR_CSR_EWUP8)
+#if defined(PWR_CSR_EWUP8)
 #define LL_PWR_WAKEUP_PIN8                 (PWR_CSR_EWUP8)        /*!< WKUP pin 8 : LLG TBD */
 #endif /* PWR_CSR_EWUP8 */
 /**
@@ -217,7 +211,6 @@ extern "C" {
   * @}
   */
 
-
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup PWR_LL_Exported_Functions PWR Exported Functions
   * @{
@@ -226,7 +219,6 @@ extern "C" {
 /** @defgroup PWR_LL_EF_Configuration Configuration
   * @{
   */
-
 
 /**
   * @brief  Enable access to the backup domain
@@ -260,7 +252,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledBkUpAccess(void)
 
 #if defined(PWR_CR_LPDS)
 /**
-  * @brief  Set voltage regulator mode during deep sleep mode
+  * @brief  Set voltage Regulator mode during deep sleep mode
   * @rmtoll CR    LPDS         LL_PWR_SetRegulModeDS
   * @param  RegulMode This parameter can be one of the following values:
   *         @arg @ref LL_PWR_REGU_DSMODE_MAIN
@@ -273,7 +265,7 @@ __STATIC_INLINE void LL_PWR_SetRegulModeDS(uint32_t RegulMode)
 }
 
 /**
-  * @brief  Get voltage regulator mode during deep sleep mode
+  * @brief  Get voltage Regulator mode during deep sleep mode
   * @rmtoll CR    LPDS         LL_PWR_GetRegulModeDS
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_PWR_REGU_DSMODE_MAIN
@@ -286,9 +278,9 @@ __STATIC_INLINE uint32_t LL_PWR_GetRegulModeDS(void)
 #endif /* PWR_CR_LPDS */
 
 /**
-  * @brief  Set power down mode when CPU enters deepsleep
+  * @brief  Set Power Down mode when CPU enters deepsleep
   * @rmtoll CR    PDDS         LL_PWR_SetPowerMode\n
-  *         CR    LPDS         LL_PWR_SetPowerMode
+  * @rmtoll CR    LPDS         LL_PWR_SetPowerMode
   * @param  PDMode This parameter can be one of the following values:
   *         @arg @ref LL_PWR_MODE_STOP_MAINREGU
   *         @arg @ref LL_PWR_MODE_STOP_LPREGU
@@ -301,9 +293,9 @@ __STATIC_INLINE void LL_PWR_SetPowerMode(uint32_t PDMode)
 }
 
 /**
-  * @brief  Get power down mode when CPU enters deepsleep
-  * @rmtoll CR    PDDS         LL_PWR_GetPowerMode
-  *         CR    LPDS         LL_PWR_SetPowerMode
+  * @brief  Get Power Down mode when CPU enters deepsleep
+  * @rmtoll CR    PDDS         LL_PWR_GetPowerMode\n
+  * @rmtoll CR    LPDS         LL_PWR_GetPowerMode
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_PWR_MODE_STOP_MAINREGU
   *         @arg @ref LL_PWR_MODE_STOP_LPREGU
@@ -314,7 +306,7 @@ __STATIC_INLINE uint32_t LL_PWR_GetPowerMode(void)
   return (uint32_t)(READ_BIT(PWR->CR, (PWR_CR_PDDS| PWR_CR_LPDS)));
 }
 
-#if defined (PWR_PVD_SUPPORT)
+#if defined(PWR_PVD_SUPPORT)
 /**
   * @brief  Configure the voltage threshold detected by the Power Voltage Detector
   * @rmtoll CR    PLS       LL_PWR_SetPVDLevel
@@ -381,13 +373,18 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledPVD(void)
 {
   return (READ_BIT(PWR->CR, PWR_CR_PVDE) == (PWR_CR_PVDE));
 }
-#endif
+#endif /* PWR_PVD_SUPPORT */
 
 /**
   * @brief  Enable the WakeUp PINx functionality
   * @rmtoll CSR   EWUP1       LL_PWR_EnableWakeUpPin\n
-  *         CSR   EWUP2       LL_PWR_EnableWakeUpPin\n
-  *         CSR   EWUP3       LL_PWR_EnableWakeUpPin
+  * @rmtoll CSR   EWUP2       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP3       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP4       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP5       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP6       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP7       LL_PWR_EnableWakeUpPin\n
+  * @rmtoll CSR   EWUP8       LL_PWR_EnableWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
   *         @arg @ref LL_PWR_WAKEUP_PIN2
@@ -409,8 +406,13 @@ __STATIC_INLINE void LL_PWR_EnableWakeUpPin(uint32_t WakeUpPin)
 /**
   * @brief  Disable the WakeUp PINx functionality
   * @rmtoll CSR   EWUP1       LL_PWR_DisableWakeUpPin\n
-  *         CSR   EWUP2       LL_PWR_DisableWakeUpPin\n
-  *         CSR   EWUP3       LL_PWR_DisableWakeUpPin
+  * @rmtoll CSR   EWUP2       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP3       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP4       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP5       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP6       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP7       LL_PWR_DisableWakeUpPin\n
+  * @rmtoll CSR   EWUP8       LL_PWR_DisableWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
   *         @arg @ref LL_PWR_WAKEUP_PIN2
@@ -432,8 +434,13 @@ __STATIC_INLINE void LL_PWR_DisableWakeUpPin(uint32_t WakeUpPin)
 /**
   * @brief  Check if the WakeUp PINx functionality is enabled
   * @rmtoll CSR   EWUP1       LL_PWR_IsEnabledWakeUpPin\n
-  *         CSR   EWUP2       LL_PWR_IsEnabledWakeUpPin\n
-  *         CSR   EWUP3       LL_PWR_IsEnabledWakeUpPin
+  * @rmtoll CSR   EWUP2       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP3       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP4       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP5       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP6       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP7       LL_PWR_IsEnabledWakeUpPin\n
+  * @rmtoll CSR   EWUP8       LL_PWR_IsEnabledWakeUpPin
   * @param  WakeUpPin This parameter can be one of the following values:
   *         @arg @ref LL_PWR_WAKEUP_PIN1
   *         @arg @ref LL_PWR_WAKEUP_PIN2
@@ -451,6 +458,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledWakeUpPin(uint32_t WakeUpPin)
 {
   return (READ_BIT(PWR->CSR, WakeUpPin) == (WakeUpPin));
 }
+
 
 /**
   * @}
@@ -480,7 +488,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_SB(void)
   return (READ_BIT(PWR->CSR, PWR_CSR_SBF) == (PWR_CSR_SBF));
 }
 
-#if defined (PWR_PVD_SUPPORT)
+#if defined(PWR_PVD_SUPPORT)
 /**
   * @brief  Indicate whether VDD voltage is below the selected PVD threshold
   * @rmtoll CSR   PVDO       LL_PWR_IsActiveFlag_PVDO
@@ -490,9 +498,9 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_PVDO(void)
 {
   return (READ_BIT(PWR->CSR, PWR_CSR_PVDO) == (PWR_CSR_PVDO));
 }
-#endif
+#endif /* PWR_PVD_SUPPORT */
 
-#if defined (PWR_CSR_VREFINTRDYF)
+#if defined(PWR_CSR_VREFINTRDYF)
 /**
   * @brief  Get Internal Reference VrefInt Flag
   * @rmtoll CSR   VREFINTRDYF       LL_PWR_IsActiveFlag_VREFINTRDY
@@ -502,10 +510,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_VREFINTRDY(void)
 {
   return (READ_BIT(PWR->CSR, PWR_CSR_VREFINTRDYF) == (PWR_CSR_VREFINTRDYF));
 }
-#endif
-
-
-
+#endif /* PWR_CSR_VREFINTRDYF */
 /**
   * @brief  Clear Standby Flag
   * @rmtoll CR   CSBF       LL_PWR_ClearFlag_SB
@@ -526,6 +531,9 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU(void)
   SET_BIT(PWR->CR, PWR_CR_CWUF);
 }
 
+/**
+  * @}
+  */
 
 #if defined(USE_FULL_LL_DRIVER)
 /** @defgroup PWR_LL_EF_Init De-initialization function
@@ -536,10 +544,6 @@ ErrorStatus LL_PWR_DeInit(void);
   * @}
   */
 #endif /* USE_FULL_LL_DRIVER */
-
-/**
-  * @}
-  */
 
 /**
   * @}

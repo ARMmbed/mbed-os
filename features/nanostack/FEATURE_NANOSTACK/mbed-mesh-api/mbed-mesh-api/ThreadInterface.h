@@ -34,6 +34,25 @@ public:
     ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
     nsapi_error_t initialize(NanostackRfPhy *phy);
+
+    /**
+     * \brief Sets the eui64 for the device configuration.
+     * By default this value is read from the radio driver.
+     * The value must be set before calling the connect function.
+     * */
+    void device_eui64_set(const uint8_t *eui64);
+
+    /**
+     * \brief sets the PSKd for the device configuration.
+     * The default value is overwritten, which is defined in the mbed_lib.json file in the mesh-api
+     * The value must be set before calling the connect function.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_PARAM in case of illegal parameters.
+     * \return MESH_ERROR_MEMORY in case of memory error.
+     * */
+
+    mesh_error_t device_pskd_set(const char *pskd);
+
     virtual int connect();
     virtual int disconnect();
 private:

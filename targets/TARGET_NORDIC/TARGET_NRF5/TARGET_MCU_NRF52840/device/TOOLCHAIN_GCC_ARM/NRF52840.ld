@@ -16,9 +16,17 @@
 
 /* Linker script to configure memory regions. */
 
+#if !defined(MBED_APP_START)
+    #define MBED_APP_START 0x21000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0xDF000
+#endif
+
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x21000, LENGTH = 0xDF000
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) :  ORIGIN = 0x20003288, LENGTH = 0x3cd78
 }
 
@@ -130,7 +138,7 @@ SECTIONS
         PROVIDE(__start_fs_data = .);
         KEEP(*(.fs_data))
         PROVIDE(__stop_fs_data = .);
-        
+
         *(.jcr)
         . = ALIGN(4);
         /* All data end */
@@ -146,7 +154,7 @@ SECTIONS
       KEEP(*(.noinit))
       PROVIDE(__stop_noinit = .);
     } > RAM
-    
+
     .bss :
     {
         . = ALIGN(4);

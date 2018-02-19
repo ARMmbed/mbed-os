@@ -54,4 +54,9 @@
   cmuOscMode_Crystal,                                                           \
 }
 #endif
+
+/* DCDC settings */
+#if !defined(EMU_DCDCINIT_STK_DEFAULT)
+#define EMU_DCDCINIT_STK_DEFAULT EMU_DCDCINIT_DEFAULT
+#endif
 #endif

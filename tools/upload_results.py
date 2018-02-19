@@ -181,10 +181,10 @@ def format_project_run_data(project_run_data, limit):
     ts_data = prep_ts_data()
     ts_data['projectRuns'] = []
 
-    for hostOs_name, hostOs in project_run_data['projectRuns'].iteritems():
-        for platform_name, platform in hostOs.iteritems():
-            for toolchain_name, toolchain in platform.iteritems():
-                for project_name, project in toolchain.iteritems():
+    for hostOs_name, hostOs in project_run_data['projectRuns'].items():
+        for platform_name, platform in hostOs.items():
+            for toolchain_name, toolchain in platform.items():
+                for project_name, project in toolchain.items():
                     if current_limit_count >= limit:
                         finish_ts_data(ts_data, project_run_data)
                         all_ts_data.append(ts_data)

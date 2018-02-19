@@ -111,7 +111,9 @@ public:
      *  @param data     Destination buffer for data received from the host
      *  @param size     Size of the buffer in bytes
      *  @return         Number of received bytes on success, negative error
-     *                  code on failure
+     *                  code on failure. If no data is available to be received
+     *                  and the peer has performed an orderly shutdown,
+     *                  recv() returns 0.
      */
     nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
 

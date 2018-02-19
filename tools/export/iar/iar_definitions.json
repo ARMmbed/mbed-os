@@ -77,6 +77,9 @@
     "MKW41Z512xxx4": {
         "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
     },
+    "MIMXRT1052xxx6A": {
+        "OGChipSelectEditMenu": "MIMXRT1052xxx6A\tNXP MIMXRT1052xxx6A"
+    },
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
     },
@@ -211,6 +214,13 @@
         "GBECoreSlave": 37,
         "NEON":1
     },
+    "GR_LYCHEE": {
+        "OGChipSelectEditMenu": "R7S721030\tRenesas R7S721030",
+        "CoreVariant": 37,
+        "GFPUCoreSlave": 37,
+        "GBECoreSlave": 37,
+        "NEON":1
+    },
     "MKL05Z32xxx4": {
         "OGChipSelectEditMenu": "MKL05Z32xxx4\tFreescale MKL05Z32xxx4"
     },
@@ -248,5 +258,11 @@
         "OGChipSelectEditMenu": "TMPM066FWUG\tToshiba TMPM066FWUG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "ADuCM3029": {
+        "OGChipSelectEditMenu": "ADuCM3029\tAnalogDevices ADuCM3029"
+    },
+    "ADuCM4050": {
+        "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
     }
 }

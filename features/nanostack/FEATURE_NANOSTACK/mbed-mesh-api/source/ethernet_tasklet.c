@@ -58,9 +58,12 @@ typedef enum {
 typedef struct {
     void (*mesh_api_cb)(mesh_connection_status_t nwk_status);
     tasklet_state_t tasklet_state;
+    mesh_connection_status_t connection_status;
+    timeout_t *poll_network_status_timeout;
     int8_t node_main_tasklet_id;
     int8_t network_interface_id;
     int8_t tasklet;
+    uint8_t ip[16];
 } tasklet_data_str_t;
 
 /* Tasklet data */
@@ -74,7 +77,7 @@ static void enet_tasklet_main(arm_event_s *event);
 static void enet_tasklet_network_state_changed(mesh_connection_status_t status);
 static void enet_tasklet_parse_network_event(arm_event_s *event);
 static void enet_tasklet_configure_and_connect_to_network(void);
-
+static void enet_tasklet_poll_network_status(void *param);
 /*
  * \brief A function which will be eventually called by NanoStack OS when ever the OS has an event to deliver.
  * @param event, describes the sender, receiver and event type.
@@ -145,18 +148,20 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
             if (tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
                 tr_info("IPv6 bootstrap ready");
                 tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
-                enet_tasklet_network_state_changed(MESH_CONNECTED);
+                enet_tasklet_poll_network_status(NULL);
             }
             break;
         case ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL:
             /* No ND Router at current Channel Stack is Already at Idle state */
             tr_info("Bootstrap fail");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            enet_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_NWK_CONNECTION_DOWN:
             /* Connection to Access point is lost wait for Scan Result */
             tr_info("Connection lost");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            enet_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         default:
             tr_warn("Unknown event %d", status);
@@ -172,6 +177,31 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
     }
 }
 
+static void enet_tasklet_poll_network_status(void *param)
+{
+    /* Check if we do have an IP */
+    uint8_t temp_ipv6[16];
+    if (arm_net_address_get(tasklet_data_ptr->network_interface_id, ADDR_IPV6_GP, temp_ipv6) == 0) {
+        /* Check if this is link local address or not */
+        if (memcmp(temp_ipv6, tasklet_data_ptr->ip, 16) == 0) {
+            return;
+        } else {
+            memcpy(tasklet_data_ptr->ip, temp_ipv6, 16);
+            uint8_t temp_ipv6_local[16];
+            if (arm_net_address_get(tasklet_data_ptr->network_interface_id, ADDR_IPV6_LL, temp_ipv6_local) == 0
+                && (memcmp(temp_ipv6, temp_ipv6_local, 16) != 0)) {
+                enet_tasklet_network_state_changed(MESH_CONNECTED_GLOBAL);
+            } else {
+                enet_tasklet_network_state_changed(MESH_CONNECTED_LOCAL);;
+            }
+        }
+    } else {
+        if (tasklet_data_ptr->connection_status != MESH_DISCONNECTED &&
+            tasklet_data_ptr->connection_status != MESH_BOOTSTRAP_STARTED)
+            enet_tasklet_network_state_changed(MESH_DISCONNECTED);
+    }
+}
+
 /*
  * \brief Configure and establish network connection
  *
@@ -179,6 +209,7 @@ void enet_tasklet_parse_network_event(arm_event_s *event)
 void enet_tasklet_configure_and_connect_to_network(void)
 {
     arm_nwk_interface_up(tasklet_data_ptr->network_interface_id);
+    enet_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
 }
 
 /*
@@ -186,6 +217,7 @@ void enet_tasklet_configure_and_connect_to_network(void)
  */
 void enet_tasklet_network_state_changed(mesh_connection_status_t status)
 {
+    tasklet_data_ptr->connection_status = status;
     if (tasklet_data_ptr->mesh_api_cb) {
         (tasklet_data_ptr->mesh_api_cb)(status);
     }
@@ -219,6 +251,8 @@ int8_t enet_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
     tasklet_data_ptr->mesh_api_cb = callback;
     tasklet_data_ptr->network_interface_id = nwk_interface_id;
     tasklet_data_ptr->tasklet_state = TASKLET_STATE_INITIALIZED;
+    tasklet_data_ptr->poll_network_status_timeout =
+        eventOS_timeout_every_ms(enet_tasklet_poll_network_status, 2000, NULL);
 
     if (re_connecting == false) {
         tasklet_data_ptr->tasklet = eventOS_event_handler_create(&enet_tasklet_main,
@@ -248,6 +282,7 @@ int8_t enet_tasklet_disconnect(bool send_cb)
             }
         }
         tasklet_data_ptr->mesh_api_cb = NULL;
+        eventOS_timeout_cancel(tasklet_data_ptr->poll_network_status_timeout);
     }
     return status;
 }

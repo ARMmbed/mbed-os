@@ -376,7 +376,6 @@ GenericGap::GenericGap(
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
     _address_type(BLEProtocol::AddressType::PUBLIC),
-    _address(),
     _initiator_policy_mode(pal::initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
@@ -440,7 +439,14 @@ ble_error_t GenericGap::getAddress(
     BLEProtocol::AddressBytes_t address
 ) {
     *type = _address_type;
-    memcpy(address, _address.data(), _address.size());
+    pal::address_t address_value;
+    if (_address_type == BLEProtocol::AddressType::PUBLIC) {
+        address_value = _pal_gap.get_device_address();
+    } else {
+        address_value = _pal_gap.get_random_address();
+    }
+
+    memcpy(address, address_value.data(), address_value.size());
     return BLE_ERROR_NONE;
 }
 
@@ -1040,6 +1046,12 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
             e.connection_latency,
             e.supervision_timeout
         };
+        pal::address_t address;
+        if (_address_type == BLEProtocol::AddressType::PUBLIC) {
+            address = _pal_gap.get_device_address();
+        } else {
+            address = _pal_gap.get_random_address();
+        }
 
         processConnectionEvent(
             e.connection_handle,
@@ -1047,7 +1059,7 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
             (BLEProtocol::AddressType_t) e.peer_address_type.value(),
             e.peer_address.data(),
             _address_type,
-            _address.data(),
+            address.data(),
             &connection_params
         );
     } else {

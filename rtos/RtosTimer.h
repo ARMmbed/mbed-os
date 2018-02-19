@@ -93,6 +93,8 @@ public:
       @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
+
+      @note You cannot call this function from ISR context.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
@@ -107,6 +109,8 @@ public:
       @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
+
+      @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.2",
         "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
@@ -123,6 +127,8 @@ public:
           RtosTimer(callback(obj, method), os_timer_type).
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
+
+      @note You cannot call this function from ISR context.
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
@@ -140,6 +146,8 @@ public:
           @a osErrorISR @a stop cannot be called from interrupt service routines.
           @a osErrorParameter internal error.
           @a osErrorResource the timer is not running.
+
+      @note You cannot call this function from ISR context.
     */
     osStatus stop(void);
 
@@ -150,9 +158,15 @@ public:
           @a osErrorISR @a start cannot be called from interrupt service routines.
           @a osErrorParameter internal error or incorrect parameter value.
           @a osErrorResource internal error (the timer is in an invalid timer state).
+
+      @note You cannot call this function from ISR context.
     */
     osStatus start(uint32_t millisec);
 
+    /** RtosTimer destructor
+     *
+     * @note You cannot call this function from ISR context.
+     */
     ~RtosTimer();
 
 private:

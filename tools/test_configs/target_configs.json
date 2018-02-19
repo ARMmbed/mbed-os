@@ -9,7 +9,7 @@
     },
     "K64F": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
-        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET"]
+        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "ESP8266_WIFI", "ETHERNET"]
     },
     "NUCLEO_F429ZI": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",

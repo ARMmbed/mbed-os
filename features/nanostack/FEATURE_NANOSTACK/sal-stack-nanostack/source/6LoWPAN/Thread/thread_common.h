@@ -70,9 +70,9 @@ extern uint16_t thread_joiner_port;
 
 typedef enum {
     THREAD_STATE_NETWORK_DISCOVER,      // Not commissioned to Thread network
-    THREAD_STATE_REATTACH,              // Connected to thread network, searching for better partition
-    THREAD_STATE_REATTACH_RETRY,        // Connected to thread network, searching for better partition with REED bit is set
-    THREAD_STATE_ATTACH_ANY,            // Connected to thread network, searching for all partitions with leader connectivity
+    THREAD_STATE_REATTACH,              // Connection to leader lost, searching for new parent
+    THREAD_STATE_REATTACH_RETRY,        // Connection to leader lost, searching for new parent with REED bit is set
+    THREAD_STATE_ATTACH_ANY,            // Searching for all partitions with leader connectivity
     THREAD_STATE_CONNECTED,             // Attached to Thread network - can't route
     THREAD_STATE_CONNECTED_ROUTER,      // Attached to Thread network - Routing enabled
 } thread_attach_state_e;
@@ -253,6 +253,7 @@ struct thread_extension_credentials;
 typedef struct thread_previous_partition_info_s {
     uint32_t partitionId; //partition ID of the previous partition
     uint8_t idSequence;   //idSequence last heard from the previous partition
+    uint8_t weighting;    //weighting last heard from the previous partition
 } thread_previous_partition_t;
 
 
@@ -294,6 +295,7 @@ typedef struct thread_info_s {
     uint8_t version;
     uint8_t testMaxActiveRouterIdLimit; //Default for this is 32
     uint8_t maxChildCount; //Default for this is 24
+    uint8_t partition_weighting;
     bool rfc6775: 1;
     bool requestFullNetworkData: 1;
     bool leaderCab: 1;
@@ -302,6 +304,7 @@ typedef struct thread_info_s {
     bool networkDataRequested: 1;
     bool end_device_link_synch: 1;
     bool router_mc_addrs_registered: 1;
+    bool leader_synced:1; // flag used by leader after restart
 } thread_info_t;
 
 #ifdef HAVE_THREAD
@@ -356,6 +359,7 @@ uint16_t thread_network_data_generate_stable_set(protocol_interface_info_entry_t
 
 void thread_set_active_router(protocol_interface_info_entry_t *cur, if_address_entry_t *address_entry, uint8_t *routerId);
 uint8_t thread_get_router_count_from_route_tlv(mle_tlv_info_t *routeTlv);
+void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *neighbour);
 
 void thread_child_id_request_entry_clean(protocol_interface_info_entry_t *cur);
 thread_pending_child_id_req_t *thread_child_id_request_entry_get(protocol_interface_info_entry_t *cur, uint8_t *euid64);
@@ -408,7 +412,7 @@ uint8_t thread_pending_timestamp_tlv_size(protocol_interface_info_entry_t *cur);
 void thread_calculate_key_guard_timer(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, bool is_init);
 void thread_set_link_local_address(protocol_interface_info_entry_t *cur);
 void thread_mcast_group_change(struct protocol_interface_info_entry *interface, struct if_group_entry *group, bool group_added);
-void thread_old_partition_data_purge(thread_info_t *thread_info);
+void thread_old_partition_data_purge(protocol_interface_info_entry_t *cur);
 
 #else // HAVE_THREAD
 

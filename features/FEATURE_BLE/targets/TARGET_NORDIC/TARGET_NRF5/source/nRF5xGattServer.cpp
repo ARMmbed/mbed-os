@@ -131,6 +131,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         }
         GattCharacteristic *p_char = service.getCharacteristic(i);
         GattAttribute *p_description_descriptor = NULL;
+        GattAttribute *p_presentation_format_descriptor = NULL;
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
@@ -141,17 +142,24 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
-        /* The user-description descriptor is a special case which needs to be
-         * handled at the time of adding the characteristic. The following block
-         * is meant to discover its presence. */
+        /* The user-description and presentation-format descriptors are special cases
+         * that need to be handled at the time of adding each characteristic. The
+         * following block is meant to discover their presence. */
         const uint8_t *userDescriptionDescriptorValuePtr = NULL;
         uint16_t userDescriptionDescriptorValueLen = 0;
+        const uint8_t *presentationFormatDescriptorValuePtr = NULL;
+        uint16_t presentationFormatDescriptorValueLen = 0;
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
             if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
                 p_description_descriptor = p_desc;
                 userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
                 userDescriptionDescriptorValueLen = p_desc->getLength();
+            }
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT) {
+                p_presentation_format_descriptor = p_desc;
+                presentationFormatDescriptorValuePtr = p_desc->getValuePtr();
+                presentationFormatDescriptorValueLen = p_desc->getLength();
             }
         }
 
@@ -166,6 +174,8 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                               p_char->getValueAttribute().hasVariableLength(),
                                               userDescriptionDescriptorValuePtr,
                                               userDescriptionDescriptorValueLen,
+                                              presentationFormatDescriptorValuePtr,
+                                              presentationFormatDescriptorValueLen,
                                               p_char->isReadAuthorizationEnabled(),
                                               p_char->isWriteAuthorizationEnabled(),
                                               &nrfCharacteristicHandles[characteristicCount]),
@@ -179,6 +189,10 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                 nrfCharacteristicHandles[characteristicCount].user_desc_handle
             );
         }
+        if (p_presentation_format_descriptor) {
+            // The handle is not available from the SoftDevice
+            p_presentation_format_descriptor->setHandle(GattAttribute::INVALID_HANDLE);
+        }
         characteristicCount++;
 
         /* Add optional descriptors if any */
@@ -188,8 +202,10 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             }
 
             GattAttribute *p_desc = p_char->getDescriptor(j);
-            /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+            /* skip the user-description or presentation-format descriptor here;
+             * they have already been handled when adding the characteristic (above). */
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC
+                || p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT) {
                 continue;
             }
 

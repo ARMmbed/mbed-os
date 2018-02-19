@@ -22,6 +22,7 @@
     defined(TARGET_NUCLEO_F401RE) || \
     defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F413ZH) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F446RE) || \
     defined(TARGET_NUCLEO_F446ZE) || \

@@ -1261,6 +1261,9 @@ int lfs_file_open(lfs_t *lfs, lfs_file_t *file,
     file->pos = 0;
 
     if (flags & LFS_O_TRUNC) {
+        if (file->size != 0) {
+            file->flags |= LFS_F_DIRTY;
+        }
         file->head = 0xffffffff;
         file->size = 0;
     }
@@ -1635,13 +1638,13 @@ lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file,
     if (whence == LFS_SEEK_SET) {
         file->pos = off;
     } else if (whence == LFS_SEEK_CUR) {
-        if ((lfs_off_t)-off > file->pos) {
+        if (off < 0 && (lfs_off_t)-off > file->pos) {
             return LFS_ERR_INVAL;
         }
 
         file->pos = file->pos + off;
     } else if (whence == LFS_SEEK_END) {
-        if ((lfs_off_t)-off > file->size) {
+        if (off < 0 && (lfs_off_t)-off > file->size) {
             return LFS_ERR_INVAL;
         }
 
@@ -2039,9 +2042,9 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg) {
         return err;
     }
 
-    // setup free lookahead
-    lfs->free.begin = -lfs->cfg->lookahead;
-    lfs->free.off = lfs->cfg->lookahead;
+    // setup free lookahead, rewind so first allocation triggers a scan
+    lfs->free.begin = -lfs_min(lfs->cfg->lookahead, lfs->cfg->block_count);
+    lfs->free.off = -lfs->free.begin;
     lfs->free.end = lfs->free.begin + lfs->free.off + lfs->cfg->block_count;
 
     // load superblock

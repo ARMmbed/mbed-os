@@ -71,7 +71,7 @@ static struct lwip_socket {
 } lwip_arena[MEMP_NUM_NETCONN];
 
 static bool lwip_inited = false;
-static bool lwip_connected = false;
+static nsapi_connection_status_t lwip_connected = NSAPI_STATUS_DISCONNECTED;
 static bool netif_inited = false;
 static bool netif_is_ppp = false;
 
@@ -155,6 +155,7 @@ static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u
 static struct netif lwip_netif;
 #if LWIP_DHCP
 static bool lwip_dhcp = false;
+static bool lwip_dhcp_has_to_be_set = false;
 #endif
 static char lwip_mac_address[NSAPI_MAC_SIZE];
 
@@ -274,6 +275,37 @@ static const ip_addr_t *mbed_lwip_get_ipv6_addr(const struct netif *netif)
     return NULL;
 }
 #endif
+
+static bool mbed_lwip_is_local_addr(const ip_addr_t *ip_addr)
+{
+    struct netif *netif;
+
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+        if (!netif_is_up(netif)) {
+            continue;
+        }
+#if LWIP_IPV6
+        if (IP_IS_V6(ip_addr)) {
+            for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+                if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
+                    ip6_addr_cmp(netif_ip6_addr(netif, i), ip_2_ip6(ip_addr))) {
+                    return true;
+                }
+            }
+        }
+#endif
+
+#if LWIP_IPV4
+        if (IP_IS_V4(ip_addr)) {
+            if (!ip4_addr_isany(netif_ip4_addr(netif)) &&
+                ip4_addr_cmp(netif_ip4_addr(netif), ip_2_ip4(ip_addr))) {
+                return true;
+            }
+        }
+#endif
+    }
+    return false;
+}
 
 const ip_addr_t *mbed_lwip_get_ip_addr(bool any_addr, const struct netif *netif)
 {
@@ -397,16 +429,65 @@ static void mbed_lwip_tcpip_init_irq(void *eh)
     sys_sem_signal(&lwip_tcpip_inited);
 }
 
+/** This is a pointer to an Ethernet IF, whose callback will be called in case
+ *  of network connection status changes
+ */
+static void *lwip_status_cb_handle = NULL;
+/** This function is called when the netif state is set to up or down
+ */
+static mbed_lwip_client_callback lwip_client_callback = NULL;
+/** The blocking status of the if
+ */
+static bool lwip_blocking = true; 
+static bool lwip_ppp = false;
+
+
+static nsapi_error_t mbed_set_dhcp(struct netif *lwip_netif)
+{
+    if (!lwip_ppp) {
+        netif_set_up(lwip_netif);
+    }
+
+#if LWIP_DHCP
+    if (lwip_dhcp && lwip_dhcp_has_to_be_set) {
+        err_t err = dhcp_start(lwip_netif);
+        lwip_dhcp_has_to_be_set = false;
+        if (err) {
+            lwip_connected = NSAPI_STATUS_DISCONNECTED;
+            if (lwip_client_callback) {
+                lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+            }
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+    }
+#endif
+
+    return NSAPI_ERROR_OK;
+}
+
 static sys_sem_t lwip_netif_linked;
 static sys_sem_t lwip_netif_unlinked;
 static void mbed_lwip_netif_link_irq(struct netif *lwip_netif)
 {
     if (netif_is_link_up(lwip_netif)) {
-        sys_sem_signal(&lwip_netif_linked);
+
+        nsapi_error_t dhcp_status = mbed_set_dhcp(lwip_netif);
+
+        if (lwip_blocking && dhcp_status == NSAPI_ERROR_OK) {
+            sys_sem_signal(&lwip_netif_linked);
+        } else if (dhcp_status != NSAPI_ERROR_OK) {
+            netif_set_down(lwip_netif);
+        }
+
+
     } else {
         sys_sem_signal(&lwip_netif_unlinked);
+        netif_set_down(lwip_netif);
     }
 }
+
+
+
 
 static char lwip_has_addr_state = 0;
 
@@ -421,27 +502,70 @@ static sys_sem_t lwip_netif_has_pref_addr;
 static sys_sem_t lwip_netif_has_both_addr;
 #endif
 
+
 static void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
 {
     if (netif_is_up(lwip_netif)) {
+        bool dns_addr_has_to_be_added = false;
         if (!(lwip_has_addr_state & HAS_ANY_ADDR) && mbed_lwip_get_ip_addr(true, lwip_netif)) {
-            sys_sem_signal(&lwip_netif_has_any_addr);
+            if (lwip_blocking) {
+                sys_sem_signal(&lwip_netif_has_any_addr);
+            }
             lwip_has_addr_state |= HAS_ANY_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #if PREF_ADDR_TIMEOUT
         if (!(lwip_has_addr_state & HAS_PREF_ADDR) && mbed_lwip_get_ip_addr(false, lwip_netif)) {
-            sys_sem_signal(&lwip_netif_has_pref_addr);
+            if (lwip_blocking) {
+                sys_sem_signal(&lwip_netif_has_pref_addr);
+            }
             lwip_has_addr_state |= HAS_PREF_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #endif
 #if BOTH_ADDR_TIMEOUT
         if (!(lwip_has_addr_state & HAS_BOTH_ADDR) && mbed_lwip_get_ipv4_addr(lwip_netif) && mbed_lwip_get_ipv6_addr(lwip_netif)) {
-            sys_sem_signal(&lwip_netif_has_both_addr);
+            if (lwip_blocking) {
+                sys_sem_signal(&lwip_netif_has_both_addr);
+            }
             lwip_has_addr_state |= HAS_BOTH_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #endif
+
+        if (dns_addr_has_to_be_added && !lwip_blocking) {
+            add_dns_addr(lwip_netif);
+        }
+
+    
+        if (lwip_has_addr_state & HAS_ANY_ADDR) {
+            lwip_connected = NSAPI_STATUS_GLOBAL_UP;
+        }
+    } else {
+        lwip_connected = NSAPI_STATUS_DISCONNECTED;
+    }
+
+    if (lwip_client_callback) {
+        lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, lwip_connected);
     }
 }
+
+void mbed_lwip_set_blocking(bool blocking)
+{
+    lwip_blocking = blocking;
+}
+
+void mbed_lwip_attach(mbed_lwip_client_callback client_callback, void *status_cb_handle)
+{
+    lwip_client_callback = client_callback;
+    lwip_status_cb_handle = status_cb_handle;
+}
+
+nsapi_connection_status_t mbed_lwip_netif_status_check(void)
+{
+    return lwip_connected;
+}
+
 
 #if LWIP_ETHERNET
 static void mbed_lwip_set_mac_address(struct netif *netif)
@@ -568,7 +692,6 @@ nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac)
 #if LWIP_ETHERNET
     // Choose a MAC address - driver can override
     mbed_lwip_set_mac_address(&lwip_netif);
-
     // Set up network
     if (!netif_add(&lwip_netif,
 #if LWIP_IPV4
@@ -577,10 +700,8 @@ nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac)
                    emac, MBED_NETIF_INIT_FN, tcpip_input)) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-
     // Note the MAC address actually in use
     mbed_lwip_record_mac_address(&lwip_netif);
-
 #if !DEVICE_EMAC
     eth_arch_enable_interrupts();
 #endif
@@ -603,19 +724,34 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
     return ret;
 }
 
+
 // Backwards compatibility with people using DEVICE_EMAC
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
     return mbed_lwip_bringup_2(dhcp, false, ip, netmask, gw, DEFAULT_STACK);
 }
 
-nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
+    const nsapi_ip_stack_t stack)
 {
     // Check if we've already connected
-    if (lwip_connected) {
-        return NSAPI_ERROR_PARAMETER;
+ 
+    if (lwip_connected == NSAPI_STATUS_GLOBAL_UP) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    } else if (lwip_connected == NSAPI_STATUS_CONNECTING) {
+        return NSAPI_ERROR_ALREADY;
     }
 
+    lwip_connected = NSAPI_STATUS_CONNECTING;
+    lwip_ppp = ppp;
+#if LWIP_DHCP
+    lwip_dhcp_has_to_be_set = true;
+    if (stack != IPV6_STACK) {
+        lwip_dhcp = dhcp;
+    } else {
+        lwip_dhcp = false;
+    }
+#endif
     mbed_lwip_core_init();
 
     nsapi_error_t ret;
@@ -635,7 +771,13 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     }
 
     if (ret != NSAPI_ERROR_OK) {
+        lwip_connected = NSAPI_STATUS_DISCONNECTED;
         return ret;
+    }
+
+    
+    if (lwip_client_callback) {
+        lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
     }
 
     netif_inited = true;
@@ -686,6 +828,10 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
             if (!inet_aton(ip, &ip_addr) ||
                 !inet_aton(netmask, &netmask_addr) ||
                 !inet_aton(gw, &gw_addr)) {
+                lwip_connected = NSAPI_STATUS_DISCONNECTED;
+                if (lwip_client_callback) {
+                    lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+                }
                 return NSAPI_ERROR_PARAMETER;
             }
 
@@ -697,45 +843,44 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     if (ppp) {
        err_t err = ppp_lwip_connect();
        if (err) {
+           lwip_connected = NSAPI_STATUS_DISCONNECTED;
+           if (lwip_client_callback) {
+               lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+           }
            return mbed_lwip_err_remap(err);
        }
     }
 
+
+
     if (!netif_is_link_up(&lwip_netif)) {
-        if (sys_arch_sem_wait(&lwip_netif_linked, 15000) == SYS_ARCH_TIMEOUT) {
-            if (ppp) {
-                (void) ppp_lwip_disconnect();
+        if (lwip_blocking) {
+            if (sys_arch_sem_wait(&lwip_netif_linked, 15000) == SYS_ARCH_TIMEOUT) {
+                if (ppp) {
+                    ppp_lwip_disconnect();
+                }
+                return NSAPI_ERROR_NO_CONNECTION;
             }
-            return NSAPI_ERROR_NO_CONNECTION;
+        }
+    } else {
+        ret = mbed_set_dhcp(&lwip_netif);
+        if (ret != NSAPI_ERROR_OK) {
+            return ret;
         }
     }
-
-    if (!ppp) {
-        netif_set_up(&lwip_netif);
-    }
-
-#if LWIP_DHCP
-    if (stack != IPV6_STACK) {
-        // Connect to the network
-        lwip_dhcp = dhcp;
-
-        if (lwip_dhcp) {
-            err_t err = dhcp_start(&lwip_netif);
-            if (err) {
+        
+    if (lwip_blocking) {
+        // If doesn't have address
+        if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
+            if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
+                if (ppp) {
+                    ppp_lwip_disconnect();
+                }
                 return NSAPI_ERROR_DHCP_FAILURE;
             }
         }
-    }
-#endif
-
-    // If doesn't have address
-    if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
-        if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
-            if (ppp) {
-                (void) ppp_lwip_disconnect();
-            }
-            return NSAPI_ERROR_DHCP_FAILURE;
-        }
+    } else {
+        return NSAPI_ERROR_OK;
     }
 
 #if PREF_ADDR_TIMEOUT
@@ -759,8 +904,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
 
     add_dns_addr(&lwip_netif);
 
-    lwip_connected = true;
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
 #if LWIP_IPV6
@@ -781,7 +925,7 @@ nsapi_error_t mbed_lwip_bringdown(void)
 nsapi_error_t mbed_lwip_bringdown_2(bool ppp)
 {
     // Check if we've connected
-    if (!lwip_connected) {
+    if (lwip_connected == NSAPI_STATUS_DISCONNECTED) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -791,6 +935,7 @@ nsapi_error_t mbed_lwip_bringdown_2(bool ppp)
         dhcp_release(&lwip_netif);
         dhcp_stop(&lwip_netif);
         lwip_dhcp = false;
+        lwip_dhcp_has_to_be_set = false;
     }
 #endif
 
@@ -825,7 +970,7 @@ nsapi_error_t mbed_lwip_bringdown_2(bool ppp)
     sys_sem_new(&lwip_netif_has_both_addr, 0);
 #endif
     lwip_has_addr_state = 0;
-    lwip_connected = false;
+    lwip_connected = NSAPI_STATUS_DISCONNECTED;
     return 0;
 }
 
@@ -936,7 +1081,7 @@ static nsapi_error_t mbed_lwip_add_dns_server(nsapi_stack_t *stack, nsapi_addr_t
 static nsapi_error_t mbed_lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     // check if network is connected
-    if (!lwip_connected) {
+    if (lwip_connected == NSAPI_STATUS_DISCONNECTED) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -992,6 +1137,10 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
+    if (!ip_addr_isany(&ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     err_t err = netconn_bind(s->conn, &ip_addr, port);
     return mbed_lwip_err_remap(err);
 }
@@ -999,6 +1148,10 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
 static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_t handle, int backlog)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
+
+    if (s->conn->pcb.tcp->local_port == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
 
     err_t err = netconn_listen_with_backlog(s->conn, backlog);
     return mbed_lwip_err_remap(err);
@@ -1026,6 +1179,10 @@ static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_
     struct lwip_socket *ns = mbed_lwip_arena_alloc();
     if (!ns) {
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (s->conn->pcb.tcp->state != LISTEN) {
+        return NSAPI_ERROR_PARAMETER;
     }
 
     err_t err = netconn_accept(s->conn, &ns->conn);

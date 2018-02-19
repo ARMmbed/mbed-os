@@ -83,9 +83,7 @@ void test_case_mktime_localtime()
     char _value[128] =
     { };
 
-    size_t years[] = {70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-                      100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
-                      199, 200, 201, 202, 203, 204, 205};
+    size_t years[] = {70, 71, 100, 196, 200, 205};
 
     /* Inform host part of the test about tested RTC type. */
     greentea_send_kv("leap_year_setup",  rtc_leap_year_support);

@@ -67,6 +67,7 @@ void thread_joiner_application_deinit(int8_t interface_id);
 struct link_configuration *thread_joiner_application_get_config(int8_t interface_id);
 
 uint64_t thread_joiner_application_active_timestamp_get(int8_t interface_id);
+uint8_t thread_joiner_application_security_policy_get(int8_t interface_id);
 void thread_joiner_application_active_timestamp_set(int8_t interface_id, uint64_t timestamp);
 uint8_t *thread_joiner_application_active_config_tlv_list_get(uint8_t interface_id, uint16_t *length);
 
@@ -91,6 +92,11 @@ device_configuration_s *thread_joiner_application_get_device_config(int8_t inter
  *\ return 0 if store request has been delivered to lower layers.
  *\ return -1 if store failed (store request not made)
  */
+
+uint8_t *thread_joiner_application_random_mac_get(int8_t interface_id);
+
+uint8_t *thread_joiner_application_ml_eid_get(int8_t interface_id);
+
 int thread_joiner_application_link_configuration_store(int8_t interface_id, link_configuration_s *link_config);
 
 /** Delete link configuration from platform NVM
@@ -105,14 +111,6 @@ int thread_joiner_application_link_configuration_store(int8_t interface_id, link
  *\ return -1 if delete failed (delete request not made)
  */
 int thread_joiner_application_link_configuration_delete(int8_t interface_id);
-
-/** Check in joiner application has pending NVM operations
- *
- * /param interface interface id of this thread instance.
- *
- * /return true if NVM operation is active, false otherwise
- */
-bool thread_joiner_application_nvm_operation_in_progress(int8_t interface_id);
 
 /** Check if link configuration settings should be loaded from NVM and make a read
  * request if settings needs to be loaded.
@@ -261,7 +259,7 @@ bool thread_joiner_application_next_pending_config_exists(int8_t interface_id);
 uint16_t thread_joiner_application_next_pending_config_length(int8_t interface_id);
 uint8_t *thread_joiner_application_next_pending_config_build(int8_t interface_id, uint8_t *ptr);
 void thread_joiner_application_next_pending_config_delete(int8_t interface_id);
-
+bool thread_joiner_application_pending_delay_timer_in_sync(int8_t interface_id);
 
 
 void thread_joiner_application_next_active_config_save(int8_t interface_id);

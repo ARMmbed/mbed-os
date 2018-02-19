@@ -457,6 +457,8 @@ void thread_routing_update_id_set(protocol_interface_info_entry_t *cur, uint8_t 
                 set_fast_route_entry(thread, i, FAST_ROUTE_INVALID_ID, THREAD_COST_INFINITE);
                 tr_info("Remove router (ID: %d)", i);
                 thread_nd_flush_neighbour_cache_for_short_addr(cur, thread_router_addr_from_id(i), true);
+                thread_routing_remove_link(cur, thread_router_addr_from_id(i));
+                thread_delete_route_entry_by_id(thread, i);
             }
         }
     }

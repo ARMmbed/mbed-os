@@ -16,13 +16,8 @@
 #ifndef MBEDTLS_SHA512_ALT_H
 #define MBEDTLS_SHA512_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha512.h"
 
-#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 #include "sha_alt_hw.h"
@@ -37,9 +32,8 @@ struct mbedtls_sha512_context_s;
 /**
  * \brief          SHA-512 context structure
  */
-typedef struct mbedtls_sha512_context_s
-{
-    int ishw;
+typedef struct mbedtls_sha512_context_s {
+    void *active_ctx;
     crypto_sha_context hw_ctx;
     mbedtls_sha512_sw_context sw_ctx;
 }
@@ -73,8 +67,10 @@ void mbedtls_sha512_clone( mbedtls_sha512_context *dst,
  *
  * \param ctx      context to be initialized
  * \param is384    0 = use SHA512, 1 = use SHA384
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 );
+int mbedtls_sha512_starts_ret( mbedtls_sha512_context *ctx, int is384 );
 
 /**
  * \brief          SHA-512 process buffer
@@ -82,17 +78,21 @@ void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 );
  * \param ctx      SHA-512 context
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *input,
-                    size_t ilen );
+int mbedtls_sha512_update_ret( mbedtls_sha512_context *ctx, const unsigned char *input,
+                               size_t ilen );
 
 /**
  * \brief          SHA-512 final digest
  *
  * \param ctx      SHA-512 context
  * \param output   SHA-384/512 checksum result
+ *
+ * \return         0 if successful
  */
-void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[64] );
+int mbedtls_sha512_finish_ret( mbedtls_sha512_context *ctx, unsigned char output[64] );
 
 /* Internal use */
 void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char data[128] );
@@ -102,6 +102,5 @@ void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char da
 #endif
 
 #endif /* MBEDTLS_SHA512_ALT */
-#endif /* MBEDTLS_SHA512_C */
 
 #endif /* sha512_alt.h */

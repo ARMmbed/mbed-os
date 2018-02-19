@@ -37,17 +37,21 @@
 #include "em_rtcc.h"
 #endif
 
-static bool         rtc_inited  = false;
-static time_t       time_base   = 0;
-static uint32_t     useflags    = 0;
-static uint32_t     time_extend = 0;
+static bool         rtc_inited      = false;
+static bool         rtc_cancelled   = false;
+static time_t       time_base       = 0;
+static uint32_t     useflags        = 0;
+static uint32_t     time_extend     = 0;
+static uint32_t     extended_comp0  = 0;
 
-static void (*comp0_handler)(void) = NULL;
+static void (*comp0_handler)(void)  = NULL;
 
-#ifndef RTCC_COUNT
-
+#ifndef RTCC_PRESENT
 /* Using RTC API */
-#define RTC_NUM_BITS                (24)
+
+#if RTC_CLOCKDIV_INT > 16
+#error invalid prescaler value RTC_CLOCKDIV_INT, since LP ticker resolution will exceed 1ms.
+#endif
 
 void RTC_IRQHandler(void)
 {
@@ -60,24 +64,31 @@ void RTC_IRQHandler(void)
     }
     if (flags & RTC_IF_COMP0) {
         RTC_IntClear(RTC_IF_COMP0);
-        if (comp0_handler != NULL) {
+        if (comp0_handler != NULL && ((time_extend == extended_comp0) || (rtc_cancelled))) {
+            rtc_cancelled = false;
             comp0_handler();
         }
     }
 }
 
-uint32_t rtc_get_32bit(void)
-{
-    uint32_t pending = (RTC_IntGet() & RTC_IF_OF) ? 1 : 0;
-    return (RTC_CounterGet() + ((time_extend + pending) << RTC_NUM_BITS));
-}
-
 uint64_t rtc_get_full(void)
 {
     uint64_t ticks = 0;
-    ticks += time_extend;
-    ticks = ticks << RTC_NUM_BITS;
-    ticks += RTC_CounterGet();
+
+    do
+    {
+        ticks = RTC_CounterGet();
+
+        if (RTC_IntGet() & RTC_IF_OF) {
+            RTC_IntClear(RTC_IF_OF);
+            /* RTC has overflowed in a critical section, so handle the overflow here */
+            time_extend += 1;
+        }
+
+        ticks += (uint64_t)time_extend << RTC_BITS;
+    }
+    while ( (ticks & RTC_MAX_VALUE) != RTC_CounterGet() );
+
     return ticks;
 }
 
@@ -131,10 +142,38 @@ void rtc_free_real(uint32_t flags)
     }
 }
 
-#else
+void rtc_enable_comp0(bool enable)
+{
+    RTC_FreezeEnable(true);
+    if (!enable) {
+        RTC_IntDisable(RTC_IF_COMP0);
+    } else {
+        RTC_IntEnable(RTC_IF_COMP0);
+    }
+    RTC_FreezeEnable(false);
+}
 
+void rtc_set_comp0_value(uint64_t value, bool enable)
+{
+    rtc_enable_comp0(false);
+
+    /* Set callback */
+    RTC_FreezeEnable(true);
+    extended_comp0 = (uint32_t) (value >> RTC_BITS);
+    RTC_CompareSet(0, (uint32_t) (value & RTC_MAX_VALUE));
+    RTC_FreezeEnable(false);
+
+    rtc_enable_comp0(enable);
+}
+
+void rtc_force_comp0(void)
+{
+    rtc_cancelled = true;
+    RTC_IntSet(RTC_IFS_COMP0);
+}
+
+#else
 /* Using RTCC API */
-#define RTCC_NUM_BITS                (32)
 
 void RTCC_IRQHandler(void)
 {
@@ -149,23 +188,30 @@ void RTCC_IRQHandler(void)
 
     if (flags & RTCC_IF_CC0) {
         RTCC_IntClear(RTCC_IF_CC0);
-        if (comp0_handler != NULL) {
+        if (comp0_handler != NULL && ((time_extend == extended_comp0) || (rtc_cancelled))) {
             comp0_handler();
         }
     }
 }
 
-uint32_t rtc_get_32bit(void)
-{
-    return RTCC_CounterGet();
-}
-
 uint64_t rtc_get_full(void)
 {
     uint64_t ticks = 0;
-    ticks += time_extend;
-    ticks = ticks << RTCC_NUM_BITS;
-    ticks += RTCC_CounterGet();
+
+    do
+    {
+        ticks = RTCC_CounterGet();
+
+        if (RTCC_IntGet() & RTCC_IF_OF) {
+            RTCC_IntClear(RTCC_IF_OF);
+            /* RTCC has overflowed in critical section, so handle the rollover here */
+            time_extend += 1;
+        }
+
+        ticks += (uint64_t)time_extend << RTC_BITS;
+    }
+    while ( (ticks & RTC_MAX_VALUE) != RTCC_CounterGet() );
+
     return ticks;
 }
 
@@ -184,10 +230,18 @@ void rtc_init_real(uint32_t flags)
         init.enable = 1;
         init.precntWrapOnCCV0 = false;
         init.cntWrapOnCCV1 = false;
-#if RTC_CLOCKDIV_INT == 8
+#if RTC_CLOCKDIV_INT == 1
+        init.presc = rtccCntPresc_1;
+#elif RTC_CLOCKDIV_INT == 2
+        init.presc = rtccCntPresc_2;
+#elif RTC_CLOCKDIV_INT == 4
+        init.presc = rtccCntPresc_4;
+#elif RTC_CLOCKDIV_INT == 8
         init.presc = rtccCntPresc_8;
+#elif RTC_CLOCKDIV_INT == 16
+        init.presc = rtccCntPresc_16;
 #else
-#error invalid prescaler value RTC_CLOCKDIV_INT
+#error invalid prescaler value RTC_CLOCKDIV_INT, since LP ticker resolution will exceed 1ms.
 #endif
 
         /* Enable Interrupt from RTC */
@@ -218,6 +272,35 @@ void rtc_free_real(uint32_t flags)
         CMU_ClockEnable(cmuClock_RTCC, false);
         rtc_inited = false;
     }
+}
+
+void rtc_enable_comp0(bool enable)
+{
+    if(!enable) {
+        RTCC_IntDisable(RTCC_IF_CC0);
+    } else {
+        RTCC_IntEnable(RTCC_IF_CC0);
+    }
+}
+
+void rtc_set_comp0_value(uint64_t value, bool enable)
+{
+    rtc_enable_comp0(false);
+
+    /* init channel */
+    RTCC_CCChConf_TypeDef ccchConf = RTCC_CH_INIT_COMPARE_DEFAULT;
+    RTCC_ChannelInit(0,&ccchConf);
+    /* Set callback */
+    extended_comp0 = (uint32_t) (value >> RTC_BITS);
+    RTCC_ChannelCCVSet(0, (uint32_t) (value & RTC_MAX_VALUE));
+
+    rtc_enable_comp0(enable);
+}
+
+void rtc_force_comp0(void)
+{
+    rtc_cancelled = true;
+    RTCC_IntSet(RTCC_IFS_CC0);
 }
 
 #endif /* RTCC_COUNT */

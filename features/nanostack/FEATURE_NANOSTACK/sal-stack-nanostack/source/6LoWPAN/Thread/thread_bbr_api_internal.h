@@ -65,6 +65,7 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t tics);
  */
 int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
 
+
 #else
 #define thread_bbr_init(interface_id, external_commisssioner_port)
 #define thread_bbr_delete(interface_id)
@@ -94,10 +95,26 @@ bool thread_bbr_routing_enabled(protocol_interface_info_entry_t *cur);
  */
 void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur);
 
+/**
+ * \brief Add new nd entry to bbr
+ *
+ * \param interface_id addr_data_ptr lifetime info mleid_ptr
+ */
+int thread_bbr_nd_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info, const uint8_t *mleid_ptr);
+
+/**
+ * \brief Find if bbr has nd entry
+ *
+ * \param interface_id addr_data_ptr
+ */
+int thread_bbr_nd_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr);
+
 #else
 #define thread_bbr_proxy_state_update(caller_interface_id , handler_interface_id, status) (NULL)
 #define thread_bbr_routing_enabled(cur) false
 #define thread_bbr_network_data_update_notify(cur)
+#define thread_bbr_nd_entry_add(interface_id, addr_data_ptr, lifetime, info, mleid_ptr) (0)
+#define thread_bbr_nd_entry_find(interface_id, addr_data_ptr) (0)
 #endif //HAVE_THREAD_BORDER_ROUTER
 
 

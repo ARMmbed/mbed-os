@@ -28,9 +28,10 @@ SingletonPtr<PlatformMutex> I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
-                                     _irq(this), _usage(DMA_USAGE_NEVER),
+    _irq(this), _usage(DMA_USAGE_NEVER), _deep_sleep_locked(false),
 #endif
-                                      _i2c(), _hz(100000) {
+    _i2c(), _hz(100000)
+{
     // No lock needed in the constructor
 
     // The init function also set the frequency to 100000
@@ -133,7 +134,7 @@ int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_bu
         unlock();
         return -1; // transaction ongoing
     }
-    sleep_manager_lock_deep_sleep();
+    lock_deep_sleep();
     aquire();
 
     _callback = callback;
@@ -148,7 +149,7 @@ void I2C::abort_transfer(void)
 {
     lock();
     i2c_abort_asynch(&_i2c);
-    sleep_manager_unlock_deep_sleep();
+    unlock_deep_sleep();
     unlock();
 }
 
@@ -159,11 +160,26 @@ void I2C::irq_handler_asynch(void)
         _callback.call(event);
     }
     if (event) {
-        sleep_manager_unlock_deep_sleep();
+        unlock_deep_sleep();
     }
 
 }
 
+void I2C::lock_deep_sleep()
+{
+    if (_deep_sleep_locked == false) {
+        sleep_manager_lock_deep_sleep();
+        _deep_sleep_locked = true;
+    }
+}
+
+void I2C::unlock_deep_sleep()
+{
+    if (_deep_sleep_locked == true) {
+        sleep_manager_unlock_deep_sleep();
+        _deep_sleep_locked = false;
+    }
+}
 
 #endif
 

@@ -22,12 +22,15 @@
 #include "ble/BLEInstanceBase.h"
 
 #include "CordioHCIDriver.h"
-#include "CordioGap.h"
 #include "CordioGattServer.h"
 #include "CordioSecurityManager.h"
 #include "CordioPalAttClient.h"
 #include "ble/pal/AttClientToGattClientAdapter.h"
 #include "ble/generic/GenericGattClient.h"
+#include "CordioPalGap.h"
+#include "CordioPalGenericAccessService.h"
+#include "ble/generic/GenericGap.h"
+#include "ble/pal/SimpleEventQueue.h"
 
 namespace ble {
 namespace vendor {
@@ -81,12 +84,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual Gap& getGap();
+    virtual ::Gap& getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const Gap& getGap() const;
+    virtual const ::Gap& getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -143,6 +146,7 @@ private:
     } initialization_status;
 
     ::BLE::InstanceID_t instanceID;
+    mutable pal::SimpleEventQueue _event_queue;
 };
 
 } // namespace cordio

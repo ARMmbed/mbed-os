@@ -23,13 +23,6 @@
 #ifndef MBEDTLS_SHA512_ALT_SW_H
 #define MBEDTLS_SHA512_ALT_SW_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
-
-#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 #include <stddef.h>
@@ -42,8 +35,7 @@ extern "C" {
 /**
  * \brief          SHA-512 context structure
  */
-typedef struct
-{
+typedef struct {
     uint64_t total[2];          /*!< number of bytes processed  */
     uint64_t state[8];          /*!< intermediate digest state  */
     unsigned char buffer[128];  /*!< data block being processed */
@@ -72,7 +64,7 @@ void mbedtls_sha512_sw_free( mbedtls_sha512_sw_context *ctx );
  * \param src      The context to be cloned
  */
 void mbedtls_sha512_sw_clone( mbedtls_sha512_sw_context *dst,
-                           const mbedtls_sha512_sw_context *src );
+                              const mbedtls_sha512_sw_context *src );
 
 /**
  * \brief          SHA-512 context setup
@@ -90,7 +82,7 @@ void mbedtls_sha512_sw_starts( mbedtls_sha512_sw_context *ctx, int is384 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha512_sw_update( mbedtls_sha512_sw_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                               size_t ilen );
 
 /**
  * \brief          SHA-512 final digest
@@ -108,6 +100,5 @@ void mbedtls_sha512_sw_process( mbedtls_sha512_sw_context *ctx, const unsigned c
 #endif
 
 #endif /* MBEDTLS_SHA512_ALT */
-#endif /* MBEDTLS_SHA512_C */
 
 #endif /* sha512_alt_sw.h */

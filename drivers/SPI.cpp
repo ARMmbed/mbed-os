@@ -33,6 +33,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
 #if DEVICE_SPI_ASYNCH
         _irq(this),
         _usage(DMA_USAGE_NEVER),
+        _deep_sleep_locked(false),
 #endif
         _bits(8),
         _mode(0),
@@ -140,7 +141,7 @@ int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_
 void SPI::abort_transfer()
 {
     spi_abort_asynch(&_spi);
-    sleep_manager_unlock_deep_sleep();
+    unlock_deep_sleep();
 #if TRANSACTION_QUEUE_SIZE_SPI
     dequeue_transaction();
 #endif
@@ -200,11 +201,27 @@ int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, i
 
 void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
-    sleep_manager_lock_deep_sleep();
+    lock_deep_sleep();
     _acquire();
     _callback = callback;
     _irq.callback(&SPI::irq_handler_asynch);
     spi_master_transfer(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, bit_width, _irq.entry(), event , _usage);
+}
+
+void SPI::lock_deep_sleep()
+{
+    if (_deep_sleep_locked == false) {
+        sleep_manager_lock_deep_sleep();
+        _deep_sleep_locked = true;
+    }
+}
+
+void SPI::unlock_deep_sleep()
+{
+    if (_deep_sleep_locked == true) {
+        sleep_manager_unlock_deep_sleep();
+        _deep_sleep_locked = false;
+    }
 }
 
 #if TRANSACTION_QUEUE_SIZE_SPI
@@ -230,7 +247,7 @@ void SPI::irq_handler_asynch(void)
 {
     int event = spi_irq_handler_asynch(&_spi);
     if (_callback && (event & SPI_EVENT_ALL)) {
-        sleep_manager_unlock_deep_sleep();
+        unlock_deep_sleep();
         _callback.call(event & SPI_EVENT_ALL);
     }
 #if TRANSACTION_QUEUE_SIZE_SPI

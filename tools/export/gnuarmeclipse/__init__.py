@@ -92,7 +92,7 @@ class GNUARMEclipse(Exporter):
 
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.iteritems()}
+                 in self.toolchain.flags.items()}
         if config_header:
             config_header = relpath(config_header,
                                     self.resources.file_basepath[config_header])
@@ -117,7 +117,7 @@ class GNUARMEclipse(Exporter):
         config_header = self.toolchain.get_config_header()
 
         flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in toolchain.flags.iteritems()}
+                 in toolchain.flags.items()}
         if config_header:
             config_header = relpath(config_header,
                                     self.resources.file_basepath[config_header])
@@ -210,6 +210,8 @@ class GNUARMEclipse(Exporter):
 
             # Hack to fill in build_dir
             toolchain.build_dir = self.toolchain.build_dir
+            toolchain.config = self.toolchain.config
+            toolchain.set_config_data(self.toolchain.config.get_config_data())
 
             flags = self.toolchain_flags(toolchain)
 

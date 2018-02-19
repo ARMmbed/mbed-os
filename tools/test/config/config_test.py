@@ -40,7 +40,7 @@ def compare_config(cfg, expected):
     except KeyError:
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
-        if k not in ["expected_macros", "expected_features"] + cfg.keys():
+        if k not in ["expected_macros", "expected_features"] + list(cfg.keys()):
             return "Expected key '%s' was not found in configuration data" % k
     return ""
 
@@ -85,7 +85,7 @@ def test_config(name):
             if expected_features is not None:
                 assert sorted(expected_features) == sorted(features)
         except ConfigException as e:
-            err_msg = e.message
+            err_msg = str(e)
             if "exception_msg" not in expected:
                 assert not(err_msg), "Unexpected Error: %s" % e
             else:
@@ -108,7 +108,8 @@ def test_init_app_config(target):
 
         config = Config(target, app_config=app_config)
 
-        mock_json_file_to_dict.assert_called_with(app_config)
+        mock_json_file_to_dict.assert_any_call("app_config")
+
         assert config.app_config_data == mock_return
 
 
@@ -149,7 +150,7 @@ def test_init_no_app_config_with_dir(target):
         config = Config(target, [directory])
 
         mock_isfile.assert_called_with(path)
-        mock_json_file_to_dict.assert_called_once_with(path)
+        mock_json_file_to_dict.assert_any_call(path)
         assert config.app_config_data == mock_return
 
 
@@ -171,5 +172,27 @@ def test_init_override_app_config(target):
 
         config = Config(target, [directory], app_config=app_config)
 
-        mock_json_file_to_dict.assert_called_once_with(app_config)
+        mock_json_file_to_dict.assert_any_call(app_config)
         assert config.app_config_data == mock_return
+
+@pytest.mark.parametrize("target", ["K64F", "UBLOX_EVK_ODIN_W2"])
+@pytest.mark.parametrize("overrides", [
+    {},
+    {"restrict_size": "0x200"},
+    {"mbed_app_start": "0x200"}
+])
+def test_basic_regions(target, overrides):
+    """
+    Test that the region lists are sane with various configurations
+    """
+    set_targets_json_location()
+    config = Config(target)
+    for o, v in overrides.items():
+        setattr(config.target, o, v)
+    try:
+        if config.has_regions:
+            regions = list(config.regions)
+            for r in regions:
+                assert r.size >= 0
+    except ConfigException:
+        pass

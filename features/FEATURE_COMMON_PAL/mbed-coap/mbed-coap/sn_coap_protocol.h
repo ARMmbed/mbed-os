@@ -203,6 +203,17 @@ extern void sn_coap_protocol_clear_retransmission_buffer(struct coap_s *handle);
 extern void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload);
 
 /**
+ * \fn sn_coap_protocol_remove_sent_blockwise_message
+ *
+ * \brief Remove sent blockwise message from the linked list.
+ *
+ * \param handle Pointer to CoAP library handle
+ * \param message_id Message id to be removed.
+ *
+ */
+extern void sn_coap_protocol_remove_sent_blockwise_message(struct coap_s *handle, uint16_t message_id);
+
+/**
  * \fn void sn_coap_protocol_delete_retransmission(struct coap_s *handle)
  *
  * \param *handle Pointer to CoAP library handle
@@ -212,6 +223,29 @@ extern void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s 
  * \brief If re-transmissions are enabled, this function removes message from retransmission buffer.
  */
 extern int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t msg_id);
+
+/**
+ * \fn int8_t sn_coap_convert_block_size(uint16_t block_size)
+ *
+ * \brief Utility function to convert block size.
+ *
+ * \param block_size Block size to convert.
+ *
+ * \return Value of range 0 - 6
+ */
+extern int8_t sn_coap_convert_block_size(uint16_t block_size);
+
+/**
+ * \fn int8_t sn_coap_protocol_handle_block2_response_internally(struct coap_s *handle, uint8_t handle_response)
+ *
+ * \brief This function change the state whether CoAP library sends the block 2 response automatically or not.
+ *
+ * \param *handle Pointer to CoAP library handle
+ * \param handle_response 1 if CoAP library handles the response sending otherwise 0.
+ *
+ * \return  0 = success, -1 = failure
+ */
+extern int8_t sn_coap_protocol_handle_block2_response_internally(struct coap_s *handle, uint8_t handle_response);
 
 #endif /* SN_COAP_PROTOCOL_H_ */
 

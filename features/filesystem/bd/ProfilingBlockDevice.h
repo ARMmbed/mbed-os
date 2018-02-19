@@ -71,6 +71,12 @@ public:
      */
     virtual int deinit();
 
+    /** Ensure data on storage is in sync with the driver
+     *
+     *  @return         0 on success or a negative error code on failure
+     */
+    virtual int sync();
+
     /** Read blocks from a block device
      *
      *  @param buffer   Buffer to read blocks into
@@ -93,7 +99,8 @@ public:
 
     /** Erase blocks on a block device
      *
-     *  The state of an erased block is undefined until it has been programmed
+     *  The state of an erased block is undefined until it has been programmed,
+     *  unless get_erase_value returns a non-negative byte value
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
@@ -120,6 +127,17 @@ public:
      *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size() const;
+
+    /** Get the value of storage when erased
+     *
+     *  If get_erase_value returns a non-negative byte value, the underlying
+     *  storage is set to that value when erased, and you can program storage
+     *  containing that value without another erase.
+     *
+     *  @return         The value of storage when erased, or -1 if you can't
+     *                  rely on the value of erased storage
+     */
+    virtual int get_erase_value() const;
 
     /** Get the total size of the underlying device
      *

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   USART HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Universal Synchronous Asynchronous Receiver Transmitter
@@ -369,7 +367,7 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
 
 /**
   * @brief Initialize the USART MSP.
-  * @param husart: USART handle.
+  * @param husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_MspInit(USART_HandleTypeDef *husart)
@@ -384,7 +382,7 @@ __weak void HAL_USART_MspInit(USART_HandleTypeDef *husart)
 
 /**
   * @brief DeInitialize the USART MSP.
-  * @param husart: USART handle.
+  * @param husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
@@ -1108,7 +1106,6 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
     /* Enable the USART transmit DMA channel: the transmit channel is used in order
        to generate in the non-blocking mode the clock to the slave device,
        this mode isn't a simplex receive mode but a full-duplex receive mode */
-    tmp = (uint32_t*)&pRxData;
     /* Set the USART DMA Tx Complete and Error callback to Null */
     husart->hdmatx->XferErrorCallback = NULL;
     husart->hdmatx->XferHalfCpltCallback = NULL;
@@ -1720,7 +1717,7 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Tx Transfer completed callback.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
@@ -1735,7 +1732,7 @@ __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Tx Half Transfer completed callback.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
@@ -1750,7 +1747,7 @@ __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Rx Transfer completed callback.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
@@ -1765,7 +1762,7 @@ __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Rx Half Transfer completed callback.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
@@ -1780,7 +1777,7 @@ __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Tx/Rx Transfers completed callback for the non-blocking process.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
@@ -1795,7 +1792,7 @@ __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
 
 /**
   * @brief  USART error callback.
-  * @param  husart: USART handle.
+  * @param  husart USART handle.
   * @retval None
   */
 __weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
@@ -1846,7 +1843,7 @@ __weak void HAL_USART_AbortCpltCallback (USART_HandleTypeDef *husart)
 
 /**
   * @brief  Return the USART handle state.
-  * @param  husart : pointer to a USART_HandleTypeDef structure that contains
+  * @param  husart pointer to a USART_HandleTypeDef structure that contains
   *                  the configuration information for the specified USART.
   * @retval USART handle state
   */
@@ -1857,7 +1854,7 @@ HAL_USART_StateTypeDef HAL_USART_GetState(USART_HandleTypeDef *husart)
 
 /**
   * @brief  Return the USART error code.
-  * @param  husart : pointer to a USART_HandleTypeDef structure that contains
+  * @param  husart pointer to a USART_HandleTypeDef structure that contains
   *                  the configuration information for the specified USART.
   * @retval USART handle Error Code
   */
@@ -2014,7 +2011,7 @@ static void USART_DMARxHalfCplt(DMA_HandleTypeDef *hdma)
 
 /**
   * @brief  DMA USART communication error callback.
-  * @param  hdma: DMA handle.
+  * @param  hdma DMA handle.
   * @retval None
   */
 static void USART_DMAError(DMA_HandleTypeDef *hdma)
@@ -2166,7 +2163,7 @@ static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husar
 
 /**
   * @brief Configure the USART peripheral.
-  * @param husart: USART handle.
+  * @param husart USART handle.
   * @retval HAL status
   */
 static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
@@ -2244,7 +2241,7 @@ static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
 
 /**
   * @brief Check the USART Idle State.
-  * @param husart: USART handle.
+  * @param husart USART handle.
   * @retval HAL status
   */
 static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
@@ -2430,7 +2427,7 @@ static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart)
   * @brief  Full-Duplex Send receive an amount of data in full-duplex mode (non-blocking).
   * @note   Function called under interruption only, once
   *         interruptions have been enabled by HAL_USART_TransmitReceive_IT().
-  * @param husart: USART handle.
+  * @param husart USART handle.
   * @retval HAL status
   */
 static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
