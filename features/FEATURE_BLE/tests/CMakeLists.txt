@@ -84,6 +84,27 @@ target_link_libraries(gatt-client-tests gmock_main)
 
 # This is so you can do 'make gatt-client-tests' to see all your tests run, instead of
 # manually running the executable runUnitTests to see those specific tests.
-add_test(NAME AllUnitTests COMMAND gatt-client-tests)
+add_test(NAME GattClientTests COMMAND gatt-client-tests)
 
+###############################
+# SecurityManager test
+###############################
 
+add_executable(security-manager-tests 
+  mbed_os_stub/mbed_assert.c
+  generic/SecurityManager/mock/MockPalSecurityManager.cpp
+  ${PROJECT_SOURCE_DIR}/../source/generic/GenericSecurityManager.cpp
+)
+
+target_include_directories(security-manager-tests PRIVATE 
+  "${PROJECT_SOURCE_DIR}/.." 
+  "${PROJECT_SOURCE_DIR}/../../.." 
+  "${PROJECT_SOURCE_DIR}/generic/SecurityManager"
+)
+
+# Standard linking to gtest stuff.
+target_link_libraries(security-manager-tests gmock_main)
+
+# This is so you can do 'make security-manager-tests' to see all your tests run, instead of
+# manually running the executable runUnitTests to see those specific tests.
+add_test(NAME SecurityManagerTests COMMAND security-manager-tests)
