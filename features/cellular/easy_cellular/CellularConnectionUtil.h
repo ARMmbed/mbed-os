@@ -21,10 +21,10 @@
 #include "CellularTargets.h"
 #ifdef CELLULAR_DEVICE
 
-#include <UARTSerial.h>
-#include <NetworkInterface.h>
-#include <EventQueue.h>
-#include <Thread.h>
+#include "UARTSerial.h"
+#include "NetworkInterface.h"
+#include "EventQueue.h"
+#include "Thread.h"
 
 #include "CellularNetwork.h"
 #include "CellularPower.h"
