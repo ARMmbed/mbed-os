@@ -5,7 +5,7 @@
  * \defgroup platform_sleep Sleep functions
  * @{
  */
- 
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2017 ARM Limited
  *
@@ -24,7 +24,7 @@
 #ifndef MBED_SLEEP_H
 #define MBED_SLEEP_H
 
-#include "sleep_api.h"
+#include "hal/sleep_api.h"
 #include "mbed_toolchain.h"
 #include <stdbool.h>
 
@@ -128,7 +128,7 @@ void sleep_manager_sleep_auto(void);
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
  */
-__INLINE static void sleep(void)
+static inline void sleep(void)
 {
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
 #if DEVICE_SLEEP
@@ -158,7 +158,7 @@ __INLINE static void sleep(void)
  */
 
 MBED_DEPRECATED_SINCE("mbed-os-5.6", "One entry point for an application, use sleep()")
-__INLINE static void deepsleep(void)
+static inline void deepsleep(void)
 {
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
 #if DEVICE_SLEEP
