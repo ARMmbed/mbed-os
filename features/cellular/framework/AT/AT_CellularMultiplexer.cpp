@@ -30,7 +30,7 @@ AT_CellularMultiplexer::~AT_CellularMultiplexer()
 
 nsapi_error_t AT_CellularMultiplexer::multiplexer_mode_start()
 {
-    log_info("multiplexer_mode_start()");
+    tr_info("multiplexer_mode_start()");
 
     _at.lock();
 

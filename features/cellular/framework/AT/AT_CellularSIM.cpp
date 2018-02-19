@@ -48,11 +48,11 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
             state = SimStatePukNeeded;
         } else {
             simstr[len] = '\0';
-            log_error("Unknown SIM state %s", simstr);
+            tr_error("Unknown SIM state %s", simstr);
             state = SimStateUnknown;
         }
     } else {
-        log_warn("SIM not readable.");
+        tr_warn("SIM not readable.");
         state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
     }
     _at.resp_stop();

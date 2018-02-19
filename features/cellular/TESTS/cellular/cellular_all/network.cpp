@@ -21,39 +21,39 @@ using namespace mbed;
 
 static bool wait_register()
 {
-    log_info("Try registering to network...");
+    tr_info("Try registering to network...");
     if (network->set_registration() != NSAPI_ERROR_OK) {
-        log_error("Network registration request failed.");
+        tr_error("Network registration request failed.");
         return false;
     }
 
     CellularNetwork::RegistrationStatus status;
     for (int i=0; i<180; i++) {
-        log_info("Register to network %d...", i);
+        tr_info("Register to network %d...", i);
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
             if (network->get_registration_status((CellularNetwork::RegistrationType)type, status) ==  NSAPI_ERROR_OK) {
-                log_info("status %d...", status);
+                tr_info("status %d...", status);
                 switch (status) {
                     case CellularNetwork::RegisteredRoaming:
                     // fall-through
                     case CellularNetwork::RegisteredHomeNetwork:
-                        log_info("Registered to network.");
+                        tr_info("Registered to network.");
                         return true;
                     case CellularNetwork::RegisteredSMSOnlyRoaming:
                     // fall-through
                     case CellularNetwork::RegisteredSMSOnlyHome:
-                        log_warn("SMS only network registration!");
+                        tr_warn("SMS only network registration!");
                         return true;
                     case CellularNetwork::RegisteredCSFBNotPreferredRoaming:
                     // fall-through
                     case CellularNetwork::RegisteredCSFBNotPreferredHome:
-                        log_warn("Not preferred network registration!");
+                        tr_warn("Not preferred network registration!");
                         return true;
                     case CellularNetwork::AttachedEmergencyOnly:
-                        log_warn("Emergency only network registration!");
+                        tr_warn("Emergency only network registration!");
                         return true;
                     case CellularNetwork::RegistrationDenied:
-                        log_warn("Network registration denied!");
+                        tr_warn("Network registration denied!");
                         wait(i);
                         break;
                     case CellularNetwork::NotRegistered:
@@ -71,9 +71,9 @@ static bool wait_register()
 
 void test_attach()
 {
-    log_info("Register to network.");
+    tr_info("Register to network.");
     TEST_ASSERT(wait_register());
-    log_info("Attach to network.");
+    tr_info("Attach to network.");
     nsapi_error_t err = network->set_attach();
     TEST_ASSERT(!err);
     CellularNetwork::AttachStatus status;
@@ -91,7 +91,7 @@ void test_get_ip_address()
 {
     const char *ip = network->get_ip_address();
     TEST_ASSERT(ip && ip[0]);
-    log_info("IP: %s\r\n", ip);
+    tr_info("IP: %s\r\n", ip);
 }
 
 void test_disconnect()

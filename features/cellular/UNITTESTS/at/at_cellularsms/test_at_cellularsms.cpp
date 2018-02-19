@@ -28,8 +28,6 @@
 using namespace mbed;
 using namespace events;
 
-uint32_t mbed::cellular_log_time = 0;
-
 Test_AT_CellularSMS::Test_AT_CellularSMS()
 {
     ATHandler_stub::return_given_size = false;

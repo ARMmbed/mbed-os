@@ -38,7 +38,7 @@ static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERI
 
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
-    log_info("cellular_status %d=>%d", state, next_state);
+    tr_info("cellular_status %d=>%d", state, next_state);
     if (_target_state == state) {
         if (state == CellularConnectionUtil::STATE_CONNECTED) {
             _is_connected = true;
@@ -56,7 +56,7 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
 
 EasyCellularConnection::EasyCellularConnection() :  _is_connected(false), _target_state(CellularConnectionUtil::STATE_POWER_ON)
 {
-    log_info("EasyCellularConnection()");
+    tr_info("EasyCellularConnection()");
 }
 
 EasyCellularConnection::~EasyCellularConnection()
@@ -66,8 +66,6 @@ EasyCellularConnection::~EasyCellularConnection()
 
 nsapi_error_t EasyCellularConnection::init()
 {
-    log_init(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
-
 #if defined (MDMRTS) && defined (MDMCTS)
     cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
 #endif
@@ -89,7 +87,7 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
     if (network) {
         network->set_credentials(apn, uname, pwd);
     } else {
-        log_error("NO Network...");
+        tr_error("NO Network...");
     }
 }
 
@@ -112,7 +110,7 @@ nsapi_error_t EasyCellularConnection::connect()
     if (err == NSAPI_ERROR_OK) {
         int ret_wait = cellularSemaphore.wait(10*60*1000); // cellular network searching may take several minutes
         if (ret_wait != 1) {
-            log_info("No cellular connection");
+            tr_info("No cellular connection");
             err = NSAPI_ERROR_NO_CONNECTION;
         }
     }

@@ -26,7 +26,7 @@ void test_get_sim_state()
 {
     wait(1);
     CellularSIM::SimState state = CellularSIM::SimStateUnknown;
-    log_info("Wait SIM for 180 seconds...");
+    tr_info("Wait SIM for 180 seconds...");
     for (int i = 0; i < 180; i++) {
         CellularSIM::SimState tmp_state;
         if ((sim->get_sim_state(tmp_state) == NSAPI_ERROR_OK) && tmp_state != CellularSIM::SimStateUnknown) {

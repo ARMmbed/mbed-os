@@ -18,65 +18,24 @@
 #ifndef CELLULAR_LOG_H_
 #define CELLULAR_LOG_H_
 
-#include <inttypes.h>
-#ifdef FEATURE_COMMON_PAL
-#include <stdarg.h>
-#endif // FEATURE_COMMON_PAL
-#include "PinNames.h"
-#include "us_ticker_api.h"
-#include "mbed_debug.h"
-
-namespace mbed {
-
-/** this print is some deep information for debug purpose */
-#define TRACE_LEVEL_DEBUG         0x10
-/** Info print, for general purpose prints */
-#define TRACE_LEVEL_INFO          0x08
-/** warning prints, which shouldn't causes any huge problems */
-#define TRACE_LEVEL_WARN          0x04
-/** Error prints, which causes probably problems, e.g. out of mem. */
-#define TRACE_LEVEL_ERROR         0x02
-/** special level for cmdline. Behaviours like "plain mode" */
-#define TRACE_LEVEL_CMD           0x01
-
-#define TRACE_GROUP "cellular"
-
-#ifndef MBED_TRACE_MAX_LEVEL
-#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_ERROR
+#if defined(HAVE_DEBUG) && !defined(FEA_TRACE_SUPPORT)
+#define FEA_TRACE_SUPPORT
 #endif
 
-#ifdef FEATURE_COMMON_PAL
+#if defined(FEATURE_COMMON_PAL)
+
 #include "mbed-trace/mbed_trace.h"
-#define log_debug tr_debug
-#define log_info tr_info
-#define log_warn tr_warn
-#define log_error tr_error
-#else
-extern uint32_t cellular_log_time;
-#if (MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_DEBUG)
-#define log_debug(format, ...) do { debug("DEBUG" " [" TRACE_GROUP " %ums] " format "\r\n", (us_ticker_read()-cellular_log_time) / 1000L, ## __VA_ARGS__); } while (0)
-#else
-#define log_debug(...)
-#endif
-#if (MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_INFO)
-#define log_info(format, ...)  do { debug("INFO" " [" TRACE_GROUP " %ums] " format "\r\n", (us_ticker_read()-cellular_log_time) / 1000L, ## __VA_ARGS__); } while (0)
-#else
-#define log_info(...)
-#endif
-#if (MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_WARN)
-#define log_warn(format, ...)  do { debug("WARN" " [" TRACE_GROUP " %ums] " format "\r\n", (us_ticker_read()-cellular_log_time) / 1000L, ## __VA_ARGS__); } while (0)
-#else
-#define log_warn(...)
-#endif
-#if (MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_ERROR)
-#define log_error(format, ...) do { debug("ERROR" " [" TRACE_GROUP " %ums] " format "\r\n", (us_ticker_read()-cellular_log_time) / 1000L, ## __VA_ARGS__); } while (0)
-#else
-#define log_error(...)
-#endif
-#endif
+#ifndef TRACE_GROUP
+#define TRACE_GROUP  "cellular"
+#endif // TRACE_GROUP
 
-extern void log_init(PinName tx, PinName rx, int baud);
+#else
 
-} // namespace mbed
+#define tr_debug(...) (void(0))
+#define tr_info(...)  (void(0))
+#define tr_error(...) (void(0))
+#define tr_warn(...) (void(0))
+
+#endif // FEATURE_COMMON_PAL
 
 #endif // CELLULAR_LOG_H_
