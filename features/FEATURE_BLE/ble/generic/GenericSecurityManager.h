@@ -20,7 +20,7 @@
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
 #include "ble/generic/GenericSecurityDb.h"
-#include "Callback.h"
+#include "platform/Callback.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalSecurityManager.h"
 

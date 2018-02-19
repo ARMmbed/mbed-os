@@ -17,7 +17,7 @@
 #ifndef __GENERIC_SECURITY_MANAGER_DB_H__
 #define __GENERIC_SECURITY_MANAGER_DB_H__
 
-#include "Callback.h"
+#include "platform/Callback.h"
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
 #include <stdlib.h>
