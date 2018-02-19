@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "SecurityManager.h"
-#include "PalSecurityManager.h"
+#include "ble/SecurityManager.h"
+#include "ble/pal/PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
 #if defined(MBEDTLS_CMAC_C)
 #include "mbedtls/cmac.h"
