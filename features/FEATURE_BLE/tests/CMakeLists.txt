@@ -94,6 +94,7 @@ add_executable(security-manager-tests
   mbed_os_stub/mbed_assert.c
   generic/SecurityManager/mock/MockPalSecurityManager.cpp
   generic/SecurityManager/mock/MockPalSecurityDb.cpp
+  generic/SecurityManager/mock/MockConnectionEventMonitor.cpp
   ${PROJECT_SOURCE_DIR}/../source/generic/GenericSecurityManager.cpp
 )
 
