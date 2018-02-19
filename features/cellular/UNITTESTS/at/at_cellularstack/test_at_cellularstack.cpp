@@ -29,8 +29,6 @@
 using namespace mbed;
 using namespace events;
 
-uint32_t mbed::cellular_log_time = 0;
-
 class MyStack : public AT_CellularStack {
 public:
     bool bool_value;

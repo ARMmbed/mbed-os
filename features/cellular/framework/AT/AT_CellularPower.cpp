@@ -203,7 +203,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
 
 
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
-            log_warn("Power save mode not enabled!");
+            tr_warn("Power save mode not enabled!");
         } else {
             // network may not agree with power save options but
             // that should be fine as timeout is not longer than requested

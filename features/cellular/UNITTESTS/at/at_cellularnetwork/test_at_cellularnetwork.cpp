@@ -28,8 +28,6 @@
 using namespace mbed;
 using namespace events;
 
-uint32_t mbed::cellular_log_time = 0;
-
 void conn_stat_cb(nsapi_error_t error)
 {
 

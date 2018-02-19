@@ -54,7 +54,7 @@ void test_socket_send_receive_blocking()
 
     // Send to echo server
     while (send_tries <= max_send_tries) {
-        log_info("ONE!!!");
+        tr_info("ONE!!!");
         send_count = socket.sendto(SERVER_IP_ADDR, SERVER_UDP_PORT, send_buffer, sizeof(send_buffer));
         TEST_ASSERT_MESSAGE(send_count == sizeof(send_buffer), "Sent count doesnt match sent buffer!");
         send_tries++;
@@ -65,7 +65,7 @@ void test_socket_send_receive_blocking()
         // 2 tries. First recv attempt should be blocked and wait for a max 5 seconds for socket read flag
         int recv_tries = 2;
         while (recv_tries >= 0) {
-            log_info("RECV!!!");
+            tr_info("RECV!!!");
             receive_count = socket.recvfrom(&address, receive_buffer, sizeof(receive_buffer));
             if (receive_count > 0) {
                 break;

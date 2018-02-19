@@ -28,8 +28,6 @@
 using namespace mbed;
 using namespace events;
 
-uint32_t mbed::cellular_log_time = 0;
-
 Test_AT_CellularSIM::Test_AT_CellularSIM()
 {
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;

@@ -228,7 +228,7 @@ void ATHandler::restore_at_timeout()
 void ATHandler::process_oob()
 {
     lock();
-    log_debug("process_oob %d", (_fileHandle->readable() || (_recv_pos < _recv_len)));
+    tr_debug("process_oob %d", (_fileHandle->readable() || (_recv_pos < _recv_len)));
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
         _current_scope = NotSet;
         Timer timer;
@@ -254,7 +254,7 @@ void ATHandler::process_oob()
             }
         } while (timer.read_ms() < 20); // URC's are very short so 20ms should be enough
     }
-    log_debug("process_oob exit");
+    tr_debug("process_oob exit");
 
     flush(); // consume anything that could not be handled
 
@@ -272,13 +272,13 @@ void ATHandler::set_filehandle_sigio()
 
 void ATHandler::reset_buffer()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     _recv_pos = 0; _recv_len = 0;
 }
 
 void ATHandler::rewind_buffer()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (_recv_pos > 0 && _recv_len >= _recv_pos) {
         _recv_len -= _recv_pos;
         // move what is not read to beginning of buffer
@@ -290,7 +290,7 @@ void ATHandler::rewind_buffer()
 // we are always expecting to receive something so there is wait timeout
 void ATHandler::fill_buffer()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         reset_buffer();
@@ -309,7 +309,7 @@ void ATHandler::fill_buffer()
            at_debug("\n----------readable----------\n");
            return;
        } else if (len != -EAGAIN && len != 0) {
-           log_warn("%s error: %d while reading", __func__, len);
+           tr_warn("%s error: %d while reading", __func__, len);
            break;
        }
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -318,29 +318,29 @@ void ATHandler::fill_buffer()
     } while ((uint32_t)timer.read_ms() < _at_timeout);
 
     set_error(NSAPI_ERROR_DEVICE_ERROR);
-    log_error("AT TIMEOUT, scope: %d timeout: %d", _current_scope, _at_timeout);
+    tr_error("AT TIMEOUT, scope: %d timeout: %lu", _current_scope, _at_timeout);
 }
 
 int ATHandler::get_char()
 {
     if (_recv_pos == _recv_len) {
-        log_debug("%s", __func__);
+        tr_debug("%s", __func__);
         reset_buffer(); // try to read as much as possible
         fill_buffer();
         if (get_last_error()) {
-            log_debug("%s: -1", __func__);
+            tr_debug("%s: -1", __func__);
             return -1; // timeout to read
         }
     }
 
-    log_debug("%s: %c", __func__, _recv_buff[_recv_pos]);
+    tr_debug("%s: %c", __func__, _recv_buff[_recv_pos]);
 
     return _recv_buff[_recv_pos++];
 }
 
 void ATHandler::skip_param(uint32_t count)
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
@@ -370,7 +370,7 @@ void ATHandler::skip_param(uint32_t count)
 
 void ATHandler::skip_param(ssize_t len, uint32_t count)
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (_last_err || !_stop_tag || _stop_tag->found) {
         return;
     }
@@ -391,7 +391,7 @@ void ATHandler::skip_param(ssize_t len, uint32_t count)
 
 ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (_last_err) {
         return -1;
     }
@@ -410,7 +410,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     at_debug("\n----------buff:----------\n");
     for (size_t i = _recv_pos; i < _recv_len; i++) {
         at_debug("%c", _recv_buff[i]);
@@ -463,7 +463,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
 int32_t ATHandler::read_int()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
 
      if (_last_err || !_stop_tag || _stop_tag->found) {
          return -1;
@@ -507,7 +507,7 @@ void ATHandler::set_stop_tag(const char *stop_tag_seq)
 
 void ATHandler::set_scope(ScopeType scope_type)
 {
-    log_debug("%s: %d", __func__, scope_type);
+    tr_debug("%s: %d", __func__, scope_type);
     if (_current_scope != scope_type) {
         _current_scope = scope_type;
         switch (_current_scope) {
@@ -536,7 +536,7 @@ void ATHandler::set_scope(ScopeType scope_type)
 // should match from recv_pos?
 bool ATHandler::match(const char* str, size_t size)
 {
-    log_debug("%s: %s", __func__, str);
+    tr_debug("%s: %s", __func__, str);
     rewind_buffer();
 
     if ((_recv_len - _recv_pos) < size) {
@@ -553,14 +553,14 @@ bool ATHandler::match(const char* str, size_t size)
 
 bool ATHandler::match_urc()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     rewind_buffer();
     size_t prefix_len = 0;
     for (struct oob_t *oob = _oobs; oob; oob = oob->next) {
         prefix_len = strlen(oob->prefix);
         if (_recv_len >= prefix_len) {
             if (match(oob->prefix, prefix_len)) {
-                log_debug("URC!");
+                tr_debug("URC!");
                 set_scope(InfoType);
                 if (oob->cb) {
                     oob->cb();
@@ -575,7 +575,7 @@ bool ATHandler::match_urc()
 
 bool ATHandler::match_error()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
 
     if (match(CME_ERROR, CME_ERROR_LENGTH)) {
         at_error(true, DeviceErrorTypeErrorCME);
@@ -616,7 +616,7 @@ void ATHandler::set_error(nsapi_error_t err)
     }
 
     if (_last_err != err) {
-        log_warn("AT error code changed from %d to %d!", _last_err, err);
+        tr_warn("AT error code changed from %d to %d!", _last_err, err);
     }
 }
 
@@ -638,7 +638,7 @@ void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
         for (size_t i = 0; i<sizeof(map_3gpp_errors)/sizeof(map_3gpp_errors[0]); i++) {
             if (map_3gpp_errors[i][0] == err) {
                 _last_3gpp_error = map_3gpp_errors[i][1];
-                log_debug("AT3GPP error code %d", get_3gpp_error());
+                tr_debug("AT3GPP error code %d", get_3gpp_error());
                 break;
             }
         }
@@ -657,9 +657,9 @@ void ATHandler::at_error(bool error_code_expected, DeviceErrorType error_type)
             set_3gpp_error(err, error_type);
             _last_at_err.errCode = err;
             _last_at_err.errType = error_type;
-            log_debug("ATHandler ERROR: %d", err);
+            tr_debug("ATHandler ERROR: %d", err);
         } else {
-            log_debug("ATHandler ERROR reading failed");
+            tr_debug("ATHandler ERROR reading failed");
         }
     }
 
@@ -668,7 +668,7 @@ void ATHandler::at_error(bool error_code_expected, DeviceErrorType error_type)
 
 void ATHandler::resp(const char *prefix, bool check_urc)
 {
-    log_debug("%s: %s", __func__, prefix);
+    tr_debug("%s: %s", __func__, prefix);
 
     at_debug("\n----------buff:----------\n");
     for (size_t i = _recv_pos; i < _recv_len; i++) {
@@ -727,7 +727,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 
 void ATHandler::resp_start(const char *prefix, bool stop)
 {
-    log_debug("%s: %s", __func__, prefix);
+    tr_debug("%s: %s", __func__, prefix);
 
     if (_last_err) {
         return;
@@ -757,7 +757,7 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 // check urc because of error as urc
 bool ATHandler::info_resp()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (_last_err || _resp_stop.found) {
         return false;
     }
@@ -788,7 +788,7 @@ bool ATHandler::info_resp()
 
 bool ATHandler::info_elem(char start_tag)
 {
-    log_debug("%s: %c", __func__, start_tag);
+    tr_debug("%s: %c", __func__, start_tag);
     if (_last_err) {
         return false;
     }
@@ -814,7 +814,7 @@ bool ATHandler::info_elem(char start_tag)
 
 bool ATHandler::consume_char(char ch)
 {
-    log_debug("%s: %c", __func__, ch);
+    tr_debug("%s: %c", __func__, ch);
     int read_char = get_char();
     // If we read something else than ch, recover it
     if (read_char != ch && read_char != -1) {
@@ -826,7 +826,7 @@ bool ATHandler::consume_char(char ch)
 
 bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
 {
-    log_debug("%s: %s", __func__, tag);
+    tr_debug("%s: %s", __func__, tag);
     size_t match_pos = 0;
 
     while (true) {
@@ -845,13 +845,13 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
             match_pos = 0;
         }
     }
-    log_error("consume_to_tag not found");
+    tr_error("consume_to_tag not found");
     return false;
 }
 
 bool ATHandler::consume_to_stop_tag()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
 
     if (!_stop_tag || (_stop_tag && _stop_tag->found) || _error_found) {
         return true;
@@ -861,7 +861,7 @@ bool ATHandler::consume_to_stop_tag()
         return true;
     }
 
-    log_error("consume_to_stop_tag not found");
+    tr_error("consume_to_stop_tag not found");
     set_error(NSAPI_ERROR_DEVICE_ERROR);
     return false;
 }
@@ -872,7 +872,7 @@ void ATHandler::resp_stop()
 {
     // Do not return on error so that we can consume whatever there is in the buffer
 
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
 
     if (_current_scope == ElemType) {
         information_response_element_stop();
@@ -896,7 +896,7 @@ void ATHandler::resp_stop()
 
 void ATHandler::information_response_stop()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (consume_to_stop_tag()) {
         set_scope(RespType);
     }
@@ -904,7 +904,7 @@ void ATHandler::information_response_stop()
 
 void ATHandler::information_response_element_stop()
 {
-    log_debug("%s", __func__);
+    tr_debug("%s", __func__);
     if (consume_to_stop_tag()) {
         set_scope(InfoType);
     }
@@ -936,7 +936,7 @@ const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* sr
 
 void ATHandler::cmd_start(const char* cmd)
 {
-    log_debug("AT> %s", cmd);
+    tr_debug("AT> %s", cmd);
 
     if (_last_err != NSAPI_ERROR_OK) {
         return;

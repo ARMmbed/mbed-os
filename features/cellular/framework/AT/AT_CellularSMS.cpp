@@ -187,26 +187,26 @@ AT_CellularSMS::~AT_CellularSMS()
 
 void AT_CellularSMS::cmt_urc()
 {
-    log_debug("CMT_URC called");
+    tr_debug("CMT_URC called");
     //+CMT: <oa>,[<alpha>],<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data>
     _at.consume_to_stop_tag();
     // call user defined callback function
     if (_cb) {
         _cb();
     } else {
-        log_warn("cmt_urc, no user defined callback for receiving sms!");
+        tr_warn("cmt_urc, no user defined callback for receiving sms!");
     }
 }
 
 void AT_CellularSMS::cmti_urc()
 {
     //+CMTI: <mem>,<index>,
-    log_debug("CMTI_URC called");
+    tr_debug("CMTI_URC called");
     // call user defined callback function
     if (_cb) {
         _cb();
     } else {
-        log_warn("cmti_urc, no user defined callback for receiving sms!");
+        tr_warn("cmti_urc, no user defined callback for receiving sms!");
     }
 }
 
@@ -718,7 +718,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char*
         }
     }
     else {
-        log_warn("NOT all concatenated parts were received...");
+        tr_warn("NOT all concatenated parts were received...");
         index = SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ;
     }
 
@@ -743,7 +743,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
 
         if (info) {
             if (info->msg_size+1 > len) { // +1 for '\0'
-                log_warn("Given buf too small, len is: %d but is must be: %d", len, info->msg_size);
+                tr_warn("Given buf too small, len is: %d but is must be: %d", len, info->msg_size);
                 if (buf_size) {
                     *buf_size = info->msg_size;
                 }
@@ -978,7 +978,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int sche
         // 8bit scheme so just convert hexstring to charstring
         return hex_str_to_char_str(pdu, strlen(pdu), msg);
     } else {
-        log_error("Received unsupported data coding scheme: 0x%02x", scheme);
+        tr_error("Received unsupported data coding scheme: 0x%02x", scheme);
         return NSAPI_ERROR_UNSUPPORTED;
     }
 }

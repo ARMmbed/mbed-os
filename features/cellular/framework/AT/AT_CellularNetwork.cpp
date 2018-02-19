@@ -48,7 +48,7 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 
 #ifdef MBED_CONF_APP_CELLULAR_APN
     strncpy(_apn, MBED_CONF_APP_CELLULAR_APN, MAX_ACCESSPOINT_NAME_LENGTH);
-    log_debug("Using APN [%s] from json", _apn);
+    tr_debug("Using APN [%s] from json", _apn);
 #endif
 
 }
@@ -108,7 +108,7 @@ nsapi_error_t AT_CellularNetwork::connect()
     nsapi_error_t err = set_context_to_be_activated();
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
-        log_error("Failed to activate network context!");
+        tr_error("Failed to activate network context!");
 
         _connect_status = NSAPI_STATUS_DISCONNECTED;
         if (_connection_status_cb) {
@@ -121,7 +121,7 @@ nsapi_error_t AT_CellularNetwork::connect()
     err = open_data_channel();
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
-        log_error("Failed to open data channel!");
+        tr_error("Failed to open data channel!");
 
         _connect_status = NSAPI_STATUS_DISCONNECTED;
         if (_connection_status_cb) {
@@ -148,14 +148,14 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
     //old way: _at.send("ATD*99***%d#", _cid) && _at.recv("CONNECT");
     nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
 #if NSAPI_PPP_AVAILABLE
-    log_info("Open data channel in PPP mode");
+    tr_info("Open data channel in PPP mode");
     _at.cmd_start("AT+CGDATA=\"PPP\",");
     _at.write_int(_cid);
     _at.cmd_stop();
 
     _at.resp_start("CONNECT", true);
     if (_at.get_last_error()) {
-        log_warn("Failed to CONNECT");
+        tr_warn("Failed to CONNECT");
     }
     /* Initialize PPP
      * mbed_ppp_init() is a blocking call, it will block until
@@ -182,7 +182,7 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
     _at.resp_stop();
 
     if (!is_context_active) {
-        log_info("Activate PDP context");
+        tr_info("Activate PDP context");
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
         _at.cmd_stop();
@@ -399,7 +399,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
         strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
     }
 
-    log_debug("Context id %d", _cid);
+    tr_debug("Context id %d", _cid);
     return true;
 }
 
@@ -446,18 +446,18 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 
     nsapi_error_t ret = set_registration_urc(false);
     if (ret) {
-        log_error("Setting registration URC failed!");
+        tr_error("Setting registration URC failed!");
         _at.clear_error(); // allow temporary failures here
     }
 
     if (!plmn) {
-        log_debug("Automatic network registration");
+        tr_debug("Automatic network registration");
         _at.cmd_start("AT+COPS=0");
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
     } else {
-        log_debug("Manual network registration to %s", plmn);
+        tr_debug("Manual network registration to %s", plmn);
         _at.cmd_start("AT+COPS=4,2,");
         _at.write_string(plmn);
         _at.cmd_stop();
@@ -525,12 +525,12 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
     if (lac_read) {
         _lac = hex_str_to_int(lac_string, LAC_LENGTH);
-        log_debug("lac %s %d", lac_string, _lac );
+        tr_debug("lac %s %d", lac_string, _lac );
     }
 
     if (cell_id_read) {
         _cell_id = hex_str_to_int(cell_id_string, CELL_ID_LENGTH);
-        log_debug("cell_id %s %d", cell_id_string, _cell_id );
+        tr_debug("cell_id %s %d", cell_id_string, _cell_id );
     }
 
     return ret;
@@ -563,7 +563,7 @@ nsapi_error_t AT_CellularNetwork::set_attach(int timeout)
     int attached_state = _at.read_int();
     _at.resp_stop();
     if (attached_state != 1) {
-        log_debug("Network attach");
+        tr_debug("Network attach");
         _at.cmd_start("AT+CGATT=1");
         _at.cmd_stop();
         _at.resp_start();
@@ -776,7 +776,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
         int next_element = _at.read_int();
         if (next_element >= 0) {
             reports = (RateControlExceptionReports)next_element;
-            log_debug("reports %d",reports);
+            tr_debug("reports %d",reports);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -784,7 +784,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             timeUnit = (RateControlUplinkTimeUnit)next_element;
-            log_debug("time %d",timeUnit);
+            tr_debug("time %d",timeUnit);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -792,7 +792,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             uplinkRate = next_element;
-            log_debug("rate %d",uplinkRate);
+            tr_debug("rate %d",uplinkRate);
         }
     }
     _at.resp_stop();
@@ -828,7 +828,7 @@ nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params
     while (_at.info_resp()) { // response can be zero or many +CGDCONT lines
         params = params_list.add_new();
         if (!params) {
-            log_warn("Could not allocate new pdpcontext_params_t");
+            tr_warn("Could not allocate new pdpcontext_params_t");
             params_list.delete_all();
             _at.resp_stop();
             free(temp);

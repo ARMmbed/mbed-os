@@ -30,7 +30,7 @@ static bool start_cellular_at(CellularPower *pwr)
     if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
         return false;
     }
-    log_info("Wait for cellular device 180 seconds...");
+    tr_info("Wait for cellular device 180 seconds...");
     for (int i = 0; i < 180; i++) {
         if (pwr->set_at_mode() == NSAPI_ERROR_OK) {
             return true;
@@ -44,7 +44,7 @@ void test_create_power()
 {
     TEST_ASSERT(start_cellular_at(pwr));
 
-    log_info("Cellular device is ready!");
+    tr_info("Cellular device is ready!");
 }
 
 // TODO: tests still missing for off, sleep, opt_power_save_mode, opt_receive_period

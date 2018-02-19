@@ -62,7 +62,7 @@ nsapi_error_t CellularConnectionUtil::init()
 
     at_queue.chain(&_queue);
 
-    log_info("init done...");
+    tr_info("init done...");
     return NSAPI_ERROR_OK;
 }
 
@@ -77,10 +77,10 @@ bool CellularConnectionUtil::open_power(FileHandle *fh)
 
     nsapi_error_t err = _power->on();
     if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
-        log_warn("Cellular start failed. Power off/on.");
+        tr_warn("Cellular start failed. Power off/on.");
         err = _power->off();
         if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
-            log_error("Cellular power down failed!");
+            tr_error("Cellular power down failed!");
         }
         return false;
     }
@@ -107,14 +107,14 @@ bool CellularConnectionUtil::open_sim()
         // wait until SIM is readable
         // here you could add wait(secs) if you know start delay of your SIM
         while (sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
-            log_debug("Waiting for SIM (state %d)...", state);
+            tr_debug("Waiting for SIM (state %d)...", state);
             return false;
         }
         if (state == CellularSIM::SimStatePinNeeded) {
-            log_info("SIM pin required, entering pin: %s", _sim_pin);
+            tr_info("SIM pin required, entering pin: %s", _sim_pin);
             err = sim->set_pin(_sim_pin);
             if (err) {
-                log_error("SIM pin set failed with: %d, bailing out...", err);
+                tr_error("SIM pin set failed with: %d, bailing out...", err);
                 return false;
             }
             // here you could add wait(secs) if you know delay of changing PIN on your SIM
@@ -122,13 +122,13 @@ bool CellularConnectionUtil::open_sim()
                 if (sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
                     break;
                 }
-                log_debug("SIM state: %d", state);
+                tr_debug("SIM state: %d", state);
                 return false;
             }
         }
         return state == CellularSIM::SimStateReady;
     } else {
-        log_info("Continue without SIM.");
+        tr_info("Continue without SIM.");
         return true;
     }
 }
@@ -138,13 +138,13 @@ void CellularConnectionUtil::device_ready()
     CellularInformation *info = _cellularDevice->open_information(_serial);
 
     if (info->get_manufacturer(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device manufacturer: %s", device_info_buf);
+        tr_info("Cellular device manufacturer: %s", device_info_buf);
     }
     if (info->get_model(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device model: %s", device_info_buf);
+        tr_info("Cellular device model: %s", device_info_buf);
     }
     if (info->get_revision(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        log_info("Cellular device revision: %s", device_info_buf);
+        tr_info("Cellular device revision: %s", device_info_buf);
     }
 }
 
@@ -159,7 +159,7 @@ bool CellularConnectionUtil::open_network()
 bool CellularConnectionUtil::set_network_registration(char *plmn)
 {
     if (_network->set_registration(plmn) != NSAPI_ERROR_OK) {
-        log_error("Failed to set network registration.");
+        tr_error("Failed to set network registration.");
         return false;
     }
     return true;
@@ -173,7 +173,7 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
     nsapi_error_t err = _network->get_registration_status(type, status);
     if (err !=  NSAPI_ERROR_OK) {
         if (err != NSAPI_ERROR_UNSUPPORTED) {
-            log_warn("Get network registration failed (type %d)!", type);
+            tr_warn("Get network registration failed (type %d)!", type);
         }
         return false;
     }
@@ -188,16 +188,16 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
             is_roaming = true;
         // fall-through
         case CellularNetwork::RegisteredSMSOnlyHome:
-            log_warn("SMS only network registration!");
+            tr_warn("SMS only network registration!");
             break;
         case CellularNetwork::RegisteredCSFBNotPreferredRoaming:
             is_roaming = true;
         // fall-through
         case CellularNetwork::RegisteredCSFBNotPreferredHome:
-            log_warn("Not preferred network registration!");
+            tr_warn("Not preferred network registration!");
             break;
         case CellularNetwork::AttachedEmergencyOnly:
-            log_warn("Emergency only network registration!");
+            tr_warn("Emergency only network registration!");
             break;
         case CellularNetwork::RegistrationDenied:
         case CellularNetwork::NotRegistered:
@@ -208,7 +208,7 @@ bool CellularConnectionUtil::get_network_registration(CellularNetwork::Registrat
     }
 
     if (is_roaming) {
-        log_warn("Roaming cellular network!");
+        tr_warn("Roaming cellular network!");
     }
 
     return true;
@@ -234,7 +234,7 @@ bool CellularConnectionUtil::set_attach_network()
 
 void CellularConnectionUtil::report_failure(const char* msg)
 {
-    log_error("Cellular network failed: %s", msg);
+    tr_error("Cellular network failed: %s", msg);
     if (_status_callback) {
         _status_callback(_state, _next_state);
     }
@@ -261,13 +261,13 @@ void CellularConnectionUtil::event()
     switch (_state) {
         case STATE_POWER_ON:
             cellularDevice.set_timeout(TIMEOUT_POWER_ON);
-            log_info("Cellular power ON (timeout %d ms)", TIMEOUT_POWER_ON);
+            tr_info("Cellular power ON (timeout %d ms)", TIMEOUT_POWER_ON);
             if (open_power(_serial)) {
                 _next_state = STATE_DEVICE_READY;
             } else {
                 static int retry_count;
                 if (++retry_count <= 10) {
-                    log_warn("Power ON retry %d", retry_count);
+                    tr_warn("Power ON retry %d", retry_count);
                     event_timeout = 1000;
                 } else {
                     report_failure("Power");
@@ -278,12 +278,12 @@ void CellularConnectionUtil::event()
         case STATE_DEVICE_READY:
             cellularDevice.set_timeout(TIMEOUT_POWER_ON);
             if (_power->set_at_mode() == NSAPI_ERROR_OK) {
-                log_info("Cellular device ready");
+                tr_info("Cellular device ready");
                 _next_state = STATE_START_CELLULAR;
                 device_ready();
             } else {
                 static int retry_count = 0;
-                log_info("Waiting for cellular device (retry %d/10, timeout %d ms)", retry_count, TIMEOUT_POWER_ON);
+                tr_info("Waiting for cellular device (retry %d/10, timeout %d ms)", retry_count, TIMEOUT_POWER_ON);
                 if (++retry_count <= 10) {
                     event_timeout = 1000;
                 } else {
@@ -294,20 +294,20 @@ void CellularConnectionUtil::event()
             break;
         case STATE_START_CELLULAR:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
-            log_info("Start cellular (timeout %d ms)", TIMEOUT_NETWORK);
+            tr_info("Start cellular (timeout %d ms)", TIMEOUT_NETWORK);
             open_network();
             _next_state = STATE_SIM_PIN;
             break;
         case STATE_SIM_PIN:
             cellularDevice.set_timeout(TIMEOUT_SIM_PIN);
-            log_info("Start cellular (timeout %d ms)", TIMEOUT_SIM_PIN);
+            tr_info("Start cellular (timeout %d ms)", TIMEOUT_SIM_PIN);
             if (open_sim()) {
                 _next_state = STATE_REGISTERING_NETWORK;
-                log_info("Check for network registration");
+                tr_info("Check for network registration");
             } else {
                 static int retry_count;
                 if (++retry_count <= 10) {
-                    log_warn("Waiting for SIM %d", retry_count);
+                    tr_warn("Waiting for SIM %d", retry_count);
                     event_timeout = 1000;
                 } else {
                     report_failure("Entering SIM PIN");
@@ -322,27 +322,27 @@ void CellularConnectionUtil::event()
             _next_state = STATE_REGISTER_NETWORK;
             for (int type = 0; type < CellularNetwork::C_MAX; type++) {
                 if (get_network_registration((CellularNetwork::RegistrationType)type, status, is_registered)) {
-                    log_debug("get_network_registration: type=%d, status=%d", type, status);
+                    tr_debug("get_network_registration: type=%d, status=%d", type, status);
                     if (is_registered) {
-                        log_info("Registered to cellular network (type %d, status %d)", type, status);
+                        tr_info("Registered to cellular network (type %d, status %d)", type, status);
                         _next_state = STATE_ATTACH_NETWORK;
-                        log_info("Check cellular network attach state");
+                        tr_info("Check cellular network attach state");
                         break;
                     } else {
                         if (status == CellularNetwork::RegistrationDenied) {
                             static int backoff_timeout = 1;
-                            log_warn("Network registration denied (type %d)! Retry after %d seconds.", type, backoff_timeout);
+                            tr_warn("Network registration denied (type %d)! Retry after %d seconds.", type, backoff_timeout);
                             event_timeout = backoff_timeout * 1000;
                             backoff_timeout *= 2;
                             break;
                         } else if (status != CellularNetwork::NotRegistered) {
                             static int retry_count;
                             if (++retry_count <= 180) {
-                                log_info("Waiting for registration %d/180 (type %d, status %d)", retry_count, type, status);
+                                tr_info("Waiting for registration %d/180 (type %d, status %d)", retry_count, type, status);
                                 event_timeout = 1*1000;
                                 _next_state = STATE_REGISTERING_NETWORK;
                             } else {
-                                log_info("Start cellular registration");
+                                tr_info("Start cellular registration");
                                 _next_state = STATE_REGISTER_NETWORK;
                                 retry_count = 0;
                                 break;
@@ -356,7 +356,7 @@ void CellularConnectionUtil::event()
             break;
         case STATE_REGISTER_NETWORK:
             cellularDevice.set_timeout(TIMEOUT_REGISTRATION);
-            log_info("Register to cellular network (timeout %d ms)", TIMEOUT_REGISTRATION);
+            tr_info("Register to cellular network (timeout %d ms)", TIMEOUT_REGISTRATION);
             if (set_network_registration()) {
                 _next_state = STATE_REGISTERING_NETWORK;
             } else {
@@ -384,17 +384,17 @@ void CellularConnectionUtil::event()
             break;
         case STATE_ATTACH_NETWORK:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
-            log_info("Attach to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
+            tr_info("Attach to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
             if (set_attach_network()) {
                 _next_state = STATE_ATTACHING_NETWORK;
-                log_info("Cellular network attaching");
+                tr_info("Cellular network attaching");
             } else {
                 event_timeout = 0;
             }
             break;
         case STATE_CONNECT_NETWORK:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
-            log_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
+            tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
             err = _network->connect();
             if (!err) {
                 _next_state = STATE_CONNECTED;
@@ -405,7 +405,7 @@ void CellularConnectionUtil::event()
             break;
         case STATE_CONNECTED:
             cellularDevice.set_timeout(TIMEOUT_NETWORK);
-            log_debug("Cellular ready! (timeout %d ms)", TIMEOUT_NETWORK);
+            tr_debug("Cellular ready! (timeout %d ms)", TIMEOUT_NETWORK);
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
                     return;
@@ -419,7 +419,7 @@ void CellularConnectionUtil::event()
 
     if (_next_state != _state || event_timeout >= 0) {
         if (_next_state != _state) {
-            log_info("Cellular state from %d to %d", _state, _next_state);
+            tr_info("Cellular state from %d to %d", _state, _next_state);
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
                     return;
@@ -429,13 +429,13 @@ void CellularConnectionUtil::event()
             if (event_timeout == 0) {
                 static int retry_count = 0;
                 if (++retry_count <= 3) {
-                    log_info("Cellular event retry %d", retry_count);
+                    tr_info("Cellular event retry %d", retry_count);
                 } else {
                     report_failure("Cellular connection failed!");
                     return;
                 }
             } else {
-                log_info("Cellular event in %d milliseconds", event_timeout);
+                tr_info("Cellular event in %d milliseconds", event_timeout);
             }
         }
         _state = _next_state;
@@ -451,8 +451,8 @@ void CellularConnectionUtil::event()
 
 nsapi_error_t CellularConnectionUtil::start_dispatch()
 {
-    log_info("CellularConnectionUtil::start");
-    log_info("Create cellular thread");
+    tr_info("CellularConnectionUtil::start");
+    tr_info("Create cellular thread");
 
     MBED_ASSERT(!_queue_thread);
 
@@ -466,13 +466,13 @@ nsapi_error_t CellularConnectionUtil::start_dispatch()
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    log_info("CellularConnectionUtil::started");
+    tr_info("CellularConnectionUtil::started");
     return NSAPI_ERROR_OK;
 }
 
 void CellularConnectionUtil::stop()
 {
-    log_info("CellularConnectionUtil::stop");
+    tr_info("CellularConnectionUtil::stop");
     _cellularDevice->close_power();
     _cellularDevice->close_network();
     if (_queue_thread) {
