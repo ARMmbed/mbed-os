@@ -21,7 +21,7 @@
 #include "ble/BLETypes.h"
 #include "ble/pal/SecurityDb.h"
 #include "platform/Callback.h"
-#include "ble/Gap.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
 
@@ -39,7 +39,7 @@ class GenericSecurityManagerEventHandler;
 
 class GenericSecurityManager : public SecurityManager,
                                public pal::SecurityManagerEventHandler,
-                               public ConnectionEventHandler {
+                               public pal::ConnectionEventHandler {
 public:
     typedef ble::pal::SecurityEntry_t SecurityEntry_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
@@ -237,10 +237,10 @@ public:
     GenericSecurityManager(
         pal::SecurityManager &palImpl,
         pal::SecurityDb &dbImpl,
-        GenericGap &gapImpl
+        pal::ConnectionEventMonitor &connMonitorImpl
     ) : _pal(palImpl),
         _db(dbImpl),
-        _gap(gapImpl),
+        _connection_monitor(connMonitorImpl),
         _default_authentication(0),
         _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -433,7 +433,7 @@ private:
 private:
     pal::SecurityManager &_pal;
     pal::SecurityDb &_db;
-    GenericGap &_gap;
+    pal::ConnectionEventMonitor &_connection_monitor;
 
     AuthenticationMask _default_authentication;
     KeyDistribution _default_key_distribution;
