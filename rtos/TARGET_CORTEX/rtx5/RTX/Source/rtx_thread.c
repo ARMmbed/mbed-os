@@ -520,7 +520,7 @@ __WEAK void osRtxThreadStackCheck (void) {
   if (thread != NULL) {
     if ((thread->sp <= (uint32_t)thread->stack_mem) ||
         (*((uint32_t *)thread->stack_mem) != osRtxStackMagicWord)) {
-      osRtxErrorNotify(osRtxErrorStackUnderflow, thread);
+      osRtxErrorNotify(osRtxErrorStackOverflow, thread);
     }
   }
 }
