@@ -30,22 +30,23 @@
 #include "ble/pal/EventQueue.h"
 
 namespace ble {
+namespace pal {
 
 class ConnectionEventHandler {
 public:
     virtual void on_connected(
         connection_handle_t connection,
-        Gap::Role_t role,
+        ::Gap::Role_t role,
         BLEProtocol::AddressType_t peer_address_type,
         const BLEProtocol::AddressBytes_t peer_address,
         BLEProtocol::AddressType_t local_address_type,
         const BLEProtocol::AddressBytes_t local_address,
-        const Gap::ConnectionParams_t *connection_params
+        const ::Gap::ConnectionParams_t *connection_params
     ) = 0;
 
     virtual void on_disconnected(
         connection_handle_t connection,
-        Gap::DisconnectionReason_t reason
+        ::Gap::DisconnectionReason_t reason
     ) = 0;
 };
 
@@ -59,6 +60,7 @@ public:
     virtual void set_connection_event_handler(ConnectionEventHandler *connection_event_handler) = 0;
 };
 
-}
+} // namespace pal
+} // namespace ble
 
 #endif /* MBED_BLE_CONNECTION_EVENT_MONITOR */

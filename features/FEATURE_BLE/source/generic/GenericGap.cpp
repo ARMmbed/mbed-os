@@ -1149,7 +1149,7 @@ bool GenericGap::initialize_whitelist() const
     return true;
 }
 
-void GenericGap::set_connection_event_handler(ConnectionEventHandler *connection_event_handler)
+void GenericGap::set_connection_event_handler(pal::ConnectionEventHandler *connection_event_handler)
 {
     _connection_event_handler = connection_event_handler;
 }

@@ -28,7 +28,7 @@
 #include "ble/BLETypes.h"
 #include "ble/pal/GenericAccessService.h"
 #include "ble/pal/EventQueue.h"
-#include "ble/ConnectionEventMonitor.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 
 #include "drivers/Timeout.h"
 
@@ -42,7 +42,7 @@ namespace generic {
  * @attention: Not part of the public interface of BLE API.
  */
 class GenericGap : public ::Gap,
-                   public ConnectionEventMonitor {
+                   public pal::ConnectionEventMonitor {
 
 public:
     /**
@@ -275,7 +275,7 @@ public:
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
-    virtual void set_connection_event_handler(ConnectionEventHandler *_connection_event_handler);
+    void set_connection_event_handler(pal::ConnectionEventHandler *_connection_event_handler);
 
 private:
     void on_scan_timeout();
@@ -317,7 +317,7 @@ private:
     mutable Whitelist_t _whitelist;
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
-    ConnectionEventHandler *_connection_event_handler;
+    pal::ConnectionEventHandler *_connection_event_handler;
 };
 
 }

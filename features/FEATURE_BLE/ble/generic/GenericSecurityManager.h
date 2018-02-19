@@ -39,7 +39,7 @@ class GenericSecurityManagerEventHandler;
 
 class GenericSecurityManager : public SecurityManager,
                                public pal::SecurityManagerEventHandler,
-                               public ConnectionEventHandler {
+                               public pal::ConnectionEventHandler {
 public:
     typedef ble::pal::SecurityEntry_t SecurityEntry_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
