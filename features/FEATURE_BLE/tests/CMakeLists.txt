@@ -100,6 +100,7 @@ add_executable(security-manager-tests
 target_include_directories(security-manager-tests PRIVATE 
   "${PROJECT_SOURCE_DIR}/.." 
   "${PROJECT_SOURCE_DIR}/../../.." 
+  "${PROJECT_SOURCE_DIR}/mbed_os_stub"
   "${PROJECT_SOURCE_DIR}/generic/SecurityManager"
 )
 
