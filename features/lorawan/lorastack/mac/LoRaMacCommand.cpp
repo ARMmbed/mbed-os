@@ -341,7 +341,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t 
                 // we don't have a mechanism at the moment to measure
                 // battery levels
                 ret_value = add_mac_command(MOTE_MAC_DEV_STATUS_ANS,
-                                            batteryLevel, snr);
+                                            batteryLevel, snr & 0x3F);
                 break;
             }
             case SRV_MAC_NEW_CHANNEL_REQ: {
