@@ -1811,7 +1811,7 @@
  *
  * This module provides debugging functions.
  */
-#define MBEDTLS_DEBUG_C
+//#define MBEDTLS_DEBUG_C
 
 /**
  * \def MBEDTLS_DES_C
@@ -2600,8 +2600,8 @@
  */
 
 /* MPI / BIGNUM options */
-//#define MBEDTLS_MPI_WINDOW_SIZE            6 /**< Maximum windows size used. */
-//#define MBEDTLS_MPI_MAX_SIZE            1024 /**< Maximum number of bytes for usable MPIs. */
+#define MBEDTLS_MPI_WINDOW_SIZE                 1 /**< Maximum windows size used = 6. */
+//#define MBEDTLS_MPI_MAX_SIZE                  1024 /**< Maximum number of bytes for usable MPIs. */
 
 /* CTR_DRBG options */
 //#define MBEDTLS_CTR_DRBG_ENTROPY_LEN               48 /**< Amount of entropy used per seed by default (48 with SHA-512, 32 with SHA-256) */
@@ -2618,7 +2618,7 @@
 
 /* ECP options */
 //#define MBEDTLS_ECP_MAX_BITS             521 /**< Maximum bit size of groups */
-//#define MBEDTLS_ECP_WINDOW_SIZE            6 /**< Maximum window size used */
+#define MBEDTLS_ECP_WINDOW_SIZE            2 /**< Maximum window size used = 6 */
 //#define MBEDTLS_ECP_FIXED_POINT_OPTIM      1 /**< Enable fixed-point speed-up */
 
 /* Entropy options */
@@ -2664,7 +2664,7 @@
 //#define MBEDTLS_SSL_CACHE_DEFAULT_MAX_ENTRIES      50 /**< Maximum entries in cache */
 
 /* SSL options */
-//#define MBEDTLS_SSL_MAX_CONTENT_LEN             16384 /**< Maxium fragment length in bytes, determines the size of each of the two internal I/O buffers */
+//#define MBEDTLS_SSL_MAX_CONTENT_LEN               16384 /**< Maxium fragment length in bytes, determines the size of each of the two internal I/O buffers = 16384 */
 //#define MBEDTLS_SSL_DEFAULT_TICKET_LIFETIME     86400 /**< Lifetime of session tickets (if enabled) */
 //#define MBEDTLS_PSK_MAX_LEN               32 /**< Max size of TLS pre-shared keys, in bytes (default 256 bits) */
 //#define MBEDTLS_SSL_COOKIE_TIMEOUT        60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
