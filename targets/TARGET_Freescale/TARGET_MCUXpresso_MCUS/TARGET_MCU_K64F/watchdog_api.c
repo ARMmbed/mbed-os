@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 #include "watchdog_api.h"
-
 #include "reset_reason_api.h"
-
 #include "fsl_wdog.h"
+#include "fsl_clock.h"
+#include "platform/mbed_wait_api.h"
 
 // Platform specific watchdog definitions
 #define LPO_CLOCK_FREQUENCY 1000
 #define MAX_PRESCALER       8
 #define MAX_TIMEOUT         0xFFFFFFFFUL
+#define WCT_IN_BUS_CYCLES   256U // Watchdog configuration time (WCT) in bus clock cycles.
 
 // Number of decrements in the timeout register per millisecond
 #define TICKS_PER_MS ((LPO_CLOCK_FREQUENCY) / 1000)
@@ -55,6 +56,11 @@ static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
   return 0;
 }
 
+// Wait until watchdog configuration time window closes.
+static inline void wait_WCT(void) {
+  uint32_t WCT_us = (WCT_IN_BUS_CYCLES) * 1000000UL / CLOCK_GetBusClkFreq();
+  wait_us(WCT_us);
+}
 
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
@@ -79,6 +85,7 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
   cfg.timeoutValue = (TICKS_PER_MS * config->timeout_ms) / prescaler;
 
   WDOG_Init(WDOG, &cfg);
+  wait_WCT(); // Updates in the write-once registers take effect only after the WCT window closes.
 
   return WATCHDOG_STATUS_OK;
 }
@@ -91,6 +98,7 @@ void hal_watchdog_kick(void)
 watchdog_status_t hal_watchdog_stop(void)
 {
   WDOG_Deinit(WDOG);
+  wait_WCT(); // Updates in the write-once registers take effect only after the WCT window closes.
 
   return WATCHDOG_STATUS_OK;
 }
