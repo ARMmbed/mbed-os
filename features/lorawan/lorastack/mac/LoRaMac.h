@@ -541,11 +541,6 @@ private:
     lorawan_status_t send_frame_on_channel(uint8_t channel);
 
     /**
-     * Checks for Port validity.
-     */
-    bool is_fPort_allowed(uint8_t fPort);
-
-    /**
      * Prototypes for ISR handlers
      */
     void handle_cad_done(bool cad);
