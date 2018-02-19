@@ -26,6 +26,11 @@ namespace mbed {
 
 #define AT_NETWORK_TRIALS 5
 
+/**
+ *  Class AT_CellularNetwork
+ *
+ *  Class for connecting to a network and getting information from it.
+ */
 class AT_CellularNetwork : public CellularNetwork, public AT_CellularBase
 {
 

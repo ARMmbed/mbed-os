@@ -23,6 +23,11 @@
 
 namespace mbed {
 
+/**
+ * Class AT_CellularMultiplexer
+ *
+ * Class that provides a way to start multiplexer mode in modem.
+ */
 class AT_CellularMultiplexer : public CellularMultiplexer, public AT_CellularBase
 {
 public:

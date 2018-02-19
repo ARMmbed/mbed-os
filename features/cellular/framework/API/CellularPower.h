@@ -24,7 +24,7 @@ namespace mbed {
 /**
  *  Class CellularPower
  *
- *  An abstract interface for connecting to a network and getting information from it.
+ *  An interface that provides power handling functions for modem/module.
  */
 class CellularPower
 {

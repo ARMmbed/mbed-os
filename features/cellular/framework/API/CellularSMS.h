@@ -38,7 +38,7 @@ const int SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ = -5001;
 /**
  *  Class CellularSMS
  *
- *  An abstract interface for SMS sending and reading.
+ *  An abstract interface for SMS sending, reading and deleting.
  */
 class CellularSMS
 {
