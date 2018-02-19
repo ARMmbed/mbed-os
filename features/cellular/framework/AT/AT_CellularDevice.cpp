@@ -60,7 +60,7 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
         atHandler = atHandler->_nextATHandler;
     }
 
-    atHandler = new ATHandler(fileHandle, _queue, _default_timeout);
+    atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r");
     if (atHandler) {
         atHandler->_nextATHandler = _atHandlers;
         _atHandlers = atHandler;

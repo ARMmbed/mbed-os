@@ -73,7 +73,7 @@ public:
      *  @param fh               file handle used for reading AT responses and writing AT commands
      *  @param queue            Event queue used to transfer sigio events to this thread
      *  @param timeout          Timeout when reading for AT response
-     *  @param output_delimiter Default delimiter used when parsing at responses
+     *  @param output_delimiter delimiter used when parsing at responses, "\r" should be used as output_delimiter
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter);
     ~ATHandler();

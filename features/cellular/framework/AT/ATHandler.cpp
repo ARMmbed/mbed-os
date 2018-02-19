@@ -65,8 +65,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
     _oob_string_max_length(0),
-    _output_delimiter("\r"),
-    _output_delimiter_length(1),
     _oobs(NULL),
     _at_timeout(timeout),
     _previous_at_timeout(timeout),
