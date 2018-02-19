@@ -81,10 +81,27 @@ void test_attach()
     TEST_ASSERT(!err);
 }
 
+static volatile bool _status_cb = false;
+static Semaphore _cb_semaphore(0);
+
+static void status_callback(nsapi_event_t event, intptr_t param)
+{
+    _status_cb = true;
+    /* Depending on mode of connect operation (async/sync) might get called before semaphore is acquired */
+    _cb_semaphore.release();
+}
+
 void test_connect()
 {
+    _status_cb = false;
+    network->attach(&status_callback);
     nsapi_error_t err = network->connect();
     TEST_ASSERT(!err);
+
+    if(!_status_cb) {
+        TEST_ASSERT(_cb_semaphore.wait(1000 * 10) == 1);
+    }
+    network->attach(NULL);
 }
 
 void test_get_ip_address()
