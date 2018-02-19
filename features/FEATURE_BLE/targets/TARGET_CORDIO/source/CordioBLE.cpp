@@ -173,6 +173,11 @@ const char* BLE::getVersion()
 
 const ::Gap& BLE::getGap() const
 {
+    return getGenericGap();
+};
+
+const generic::GenericGap& BLE::getGenericGap() const
+{
     static pal::vendor::cordio::Gap& cordio_pal_gap =
         pal::vendor::cordio::Gap::get_gap();
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
@@ -182,7 +187,7 @@ const ::Gap& BLE::getGap() const
         cordio_gap_service
     );
     return gap;
-};
+}
 
 GattServer& BLE::getGattServer()
 {
@@ -206,12 +211,22 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    return cordio::SecurityManager::getInstance();
+    const BLE* self = this;
+    return const_cast<SecurityManager&>(self->getSecurityManager());
 }
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    return cordio::SecurityManager::getInstance();
+    const BLE* self = this;
+    static pal::MemorySecurityDb m_db;
+    static pal::vendor::cordio::CordioSecurityManager m_pal;
+    static generic::GenericSecurityManager m_instance(
+        m_pal,
+        m_db,
+        const_cast<generic::GenericGap&>(self->getGenericGap())
+    );
+
+    return m_instance;
 }
 
 void BLE::waitForEvent()

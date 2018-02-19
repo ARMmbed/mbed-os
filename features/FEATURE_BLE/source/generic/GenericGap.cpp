@@ -439,7 +439,7 @@ ble_error_t GenericGap::getAddress(
     BLEProtocol::AddressBytes_t address
 ) {
     *type = _address_type;
-    pal::address_t address_value;
+    ble::address_t address_value;
     if (_address_type == BLEProtocol::AddressType::PUBLIC) {
         address_value = _pal_gap.get_device_address();
     } else {
@@ -1046,7 +1046,7 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
             e.connection_latency,
             e.supervision_timeout
         };
-        pal::address_t address;
+        ble::address_t address;
         if (_address_type == BLEProtocol::AddressType::PUBLIC) {
             address = _pal_gap.get_device_address();
         } else {
