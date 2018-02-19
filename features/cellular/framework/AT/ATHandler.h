@@ -179,7 +179,7 @@ private:
 
     events::EventQueue &_queue;
     nsapi_error_t _last_err;
-    nsapi_error_t _last_3gpp_error;
+    int _last_3gpp_error;
     device_err_t  _last_at_err;
     uint16_t _oob_string_max_length;
     char *_output_delimiter;
@@ -239,7 +239,7 @@ public:
      *
      *  @return     number of characters successfully written
      */
-    size_t write_bytes(uint8_t *data, size_t len);
+    size_t write_bytes(const uint8_t *data, size_t len);
 
     /** Sets the stop tag for the current scope(response/information response/element)
      *  Parameter's reading routines will stop the reading when such tag is found and will set the found flag.
@@ -343,7 +343,7 @@ public:
     /** Return the last 3GPP error code.
      *  @return last 3GPP error code
      */
-    uint8_t get_3gpp_error();
+    int get_3gpp_error();
 
 private:
 
@@ -396,7 +396,7 @@ private:
 
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
-    int16_t get_char();
+    int get_char();
     // Sets to 0 the reading position, reading length and the whole buffer content.
     void reset_buffer();
     // Reading position set to 0 and buffer's unread content moved to beginning
@@ -439,7 +439,7 @@ private:
      *  @param err AT error code read from CME/CMS ERROR responses
      *  @param error_type error type (CMS/CME/ERROR)
      */
-    void set_3gpp_error(uint8_t err, DeviceErrorType error_type);
+    void set_3gpp_error(int err, DeviceErrorType error_type);
 
     bool check_cmd_send();
     bool write_char(char c);

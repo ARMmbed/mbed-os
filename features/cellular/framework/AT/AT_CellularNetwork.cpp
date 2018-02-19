@@ -928,7 +928,7 @@ nsapi_error_t AT_CellularNetwork::get_signal_quality(int &rssi, int &ber)
 /** Get the last 3GPP error code
  *  @return see 3GPP TS 27.007 error codes
  */
-uint8_t AT_CellularNetwork::get_3gpp_error()
+int AT_CellularNetwork::get_3gpp_error()
 {
     return _at.get_3gpp_error();
 }

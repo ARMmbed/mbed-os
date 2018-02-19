@@ -246,7 +246,7 @@ public: // CellularNetwork
     /** Get the last 3GPP error code
      *  @return see 3GPP TS 27.007 error codes
      */
-    virtual uint8_t get_3gpp_error();
+    virtual int get_3gpp_error();
 
     /** Get the operator params
      *
