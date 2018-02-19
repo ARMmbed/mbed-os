@@ -17,7 +17,6 @@
 
 #include "QUECTEL_BC95_CellularPower.h"
 
-#include "onboard_modem_api.h"
 using namespace mbed;
 
 QUECTEL_BC95_CellularPower::QUECTEL_BC95_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
