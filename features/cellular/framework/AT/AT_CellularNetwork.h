@@ -91,7 +91,7 @@ public: // CellularNetwork
      *  @param plmn     format is in numeric format or 0 for automatic network registration
      *  @return         zero on success
      */
-    virtual nsapi_error_t set_registration(char *plmn = 0);
+    virtual nsapi_error_t set_registration(const char *plmn = 0);
 
     /**
      * Gets the network registration status.

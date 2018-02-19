@@ -95,7 +95,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::set_registration(char *plmn)
+nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 {
     return NSAPI_ERROR_OK;
 }
