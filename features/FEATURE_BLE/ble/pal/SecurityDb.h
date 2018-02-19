@@ -25,8 +25,6 @@
 namespace ble {
 namespace pal {
 
-using pal::connection_peer_address_type_t;
-
 /* separate structs for keys to allow db implementation
  * to minimise memory usage, only holding live connection
  * state in memory */
@@ -127,7 +125,7 @@ struct SecurityEntryIdentity_t {
 
 typedef mbed::Callback<void(const SecurityEntry_t*, const SecurityEntryKeys_t*)> SecurityEntryKeysDbCb_t;
 typedef mbed::Callback<void(connection_handle_t, const csrk_t*)> SecurityEntryCsrkDbCb_t;
-typedef mbed::Callback<void(Gap::Whitelist_t*)> WhitelistDbCb_t;
+typedef mbed::Callback<void(::Gap::Whitelist_t*)> WhitelistDbCb_t;
 
 /**
  * SecurityDB holds the state for active connections and bonded devices.
@@ -475,7 +473,7 @@ public:
      */
     virtual void get_whitelist(
         WhitelistDbCb_t cb,
-        Gap::Whitelist_t *whitelist
+        ::Gap::Whitelist_t *whitelist
     ) = 0;
 
     /**
@@ -488,7 +486,7 @@ public:
      */
     virtual void generate_whitelist_from_bond_table(
         WhitelistDbCb_t cb,
-        Gap::Whitelist_t *whitelist
+        ::Gap::Whitelist_t *whitelist
     ) = 0;
 
     /**
@@ -497,7 +495,7 @@ public:
      * @param[in] whitelist
      */
     virtual void set_whitelist(
-        const Gap::Whitelist_t &whitelist
+        const ::Gap::Whitelist_t &whitelist
     ) = 0;
 
     /**

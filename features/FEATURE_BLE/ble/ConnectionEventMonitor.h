@@ -32,6 +32,7 @@
 namespace ble {
 
 class ConnectionEventHandler {
+public:
     virtual void on_connected(
         connection_handle_t connection,
         Gap::Role_t role,
@@ -42,20 +43,21 @@ class ConnectionEventHandler {
         const Gap::ConnectionParams_t *connection_params
     ) = 0;
 
-    void on_disconnected(
+    virtual void on_disconnected(
         connection_handle_t connection,
         Gap::DisconnectionReason_t reason
     ) = 0;
 };
 
 class ConnectionEventMonitor {
+public:
     /**
      * Register a handler for connection events to be used internally and serviced first.
      *
      * @param[in] connection_event_handler Event handler being registered.
      */
-    void set_connection_event_handler(ConnectionEventHandler *connection_event_handler) = 0;
-}
+    virtual void set_connection_event_handler(ConnectionEventHandler *connection_event_handler) = 0;
+};
 
 }
 

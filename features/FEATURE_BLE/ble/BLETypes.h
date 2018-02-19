@@ -370,11 +370,11 @@ struct address_t : public octet_type_t<6> {
     }
 
     /**
-     * Initialize a mac address from an array of bytes.
+     * Initialize a data from an array of bytes.
      *
-     * @param input_value value of the MAC address.
+     * @param input_value value of the data.
      */
-    address_t(const uint8_t (&input_value)[6]) {
+    address_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));
     }
 
@@ -386,7 +386,7 @@ struct address_t : public octet_type_t<6> {
      *
      * @param tag Tag used to select this constructor. The value does not matter.
      */
-    address_t(const uint8_t* input_value, bool tag) {
+    address_t(const uint8_t *input_value, bool tag) {
         memcpy(_value, input_value, sizeof(_value));
     }
 };

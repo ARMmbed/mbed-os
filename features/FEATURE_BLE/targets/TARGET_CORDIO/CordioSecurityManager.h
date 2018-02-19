@@ -20,7 +20,7 @@
 #include <stddef.h>
 
 #include "ble/generic/GenericSecurityManager.h"
-#include "ble/generic/GenericSecurityDb.h"
+#include "ble/pal/MemorySecurityDb.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "CordioPalSecurityManager.h"
@@ -36,16 +36,16 @@ class SecurityManager : public generic::GenericSecurityManager
 public:
     static SecurityManager &getInstance()
     {
-        static generic::MemoryGenericSecurityDb m_db;
+        static pal::MemorySecurityDb m_db;
         static pal::vendor::cordio::CordioSecurityManager m_pal;
-        static SecurityManager m_instance(m_pal, m_db, cordio::Gap::getInstance());
+        static SecurityManager m_instance(m_pal, m_db, *(reinterpret_cast<generic::GenericGap*>(&(cordio::Gap::getInstance()))));
         return m_instance;
     }
 
 public:
     SecurityManager(
         pal::SecurityManager &palImpl,
-        generic::GenericSecurityDb &dbImpl,
+        pal::SecurityDb &dbImpl,
         generic::GenericGap &gapImpl
     ) : generic::GenericSecurityManager(palImpl, dbImpl, gapImpl) {
         /* empty */

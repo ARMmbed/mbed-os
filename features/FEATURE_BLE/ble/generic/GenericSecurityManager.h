@@ -390,7 +390,7 @@ private:
      * @param[in] peer_address Address of the connected device.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    void on_connected(
+    virtual void on_connected(
         connection_handle_t connection,
         Gap::Role_t role,
         BLEProtocol::AddressType_t peer_address_type,
@@ -407,7 +407,7 @@ private:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    void on_disconnected(
+    virtual void on_disconnected(
         connection_handle_t connection,
         Gap::DisconnectionReason_t reason
     );

@@ -18,6 +18,7 @@
 #define PAL_MEMORY_SECURITY_MANAGER_DB_H__
 
 #include "SecurityDB.h"
+#include "Gap.h"
 
 namespace ble {
 namespace pal {
@@ -341,12 +342,12 @@ public:
         _local_csrk = csrk_t();
     }
 
-    virtual void get_whitelist(WhitelistDbCb_t cb, Gap::Whitelist_t *whitelist) {
+    virtual void get_whitelist(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
         /*TODO: fill whitelist*/
         cb(whitelist);
     }
 
-    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, Gap::Whitelist_t *whitelist) {
+    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
         for (size_t i = 0; i < MAX_ENTRIES && i < whitelist->capacity; i++) {
             if (_db[i].entry.peer_address_is_public) {
                 whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;
@@ -364,9 +365,9 @@ public:
         cb(whitelist);
     }
 
-    virtual void update_whitelist(Gap::Whitelist_t &whitelist) { }
+    virtual void update_whitelist(::Gap::Whitelist_t &whitelist) { }
 
-    virtual void set_whitelist(const Gap::Whitelist_t &whitelist) { };
+    virtual void set_whitelist(const ::Gap::Whitelist_t &whitelist) { };
 
     virtual void add_whitelist_entry(const address_t &address) { }
 

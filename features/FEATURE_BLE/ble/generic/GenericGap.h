@@ -272,6 +272,11 @@ public:
         DisconnectionReason_t reason
     );
 
+    /** @note Implements ConnectionEventMonitor.
+     *  @copydoc ConnectionEventMonitor::set_connection_event_handler
+     */
+    virtual void set_connection_event_handler(ConnectionEventHandler *_connection_event_handler);
+
 private:
     void on_scan_timeout();
 
@@ -300,9 +305,6 @@ private:
     pal::own_address_type_t get_own_address_type();
 
     bool initialize_whitelist() const;
-
-    /** implements ConnectionEventMonitor */
-    void set_connection_event_handler(ConnectionEventHandler *_connection_event_handler);
 
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
