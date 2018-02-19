@@ -32,12 +32,11 @@ void set_minimum_battery_voltage()
     i2c_frequency(&i2c_obj, I2C_FREQUENCY);
     i2c_init(&i2c_obj, I2C_SDA_B, I2C_SCL_B);
 
-    if (read_from_i2c(BQ24295_I2C_ADDRESS, 0, &data_read, i2c_obj)){
+    if (read_from_i2c(BQ24295_I2C_ADDRESS, 0, &data_read, i2c_obj)) {
         data_read = data_read & MIN_BATTERY_VOLTAGE_MASK;
         write_to_i2c(BQ24295_I2C_ADDRESS, 0, data_read, i2c_obj);
             //Battery Voltage is set to 3880mV
-        }
-    else{
+    } else {
         // Minimum battery voltage could not be set.  This is not a critical error, no need to stop execution
         // It simply means that longer cabling or USB ports with lower output voltages may cause problems.
     }
@@ -46,11 +45,12 @@ void set_minimum_battery_voltage()
 char write_to_i2c(int slave_addr, int reg_addr, int data_write, i2c_t i2c_obj)
 {
     char ret_code = 0;
-    if(!i2c_start(&i2c_obj)){
-        if(i2c_byte_write(&i2c_obj, slave_addr << 1) == 1)
-            if(i2c_byte_write(&i2c_obj, reg_addr) == 1)
-                if(i2c_byte_write(&i2c_obj,data_write) ==1)
-                    ret_code = 1;
+    if (!i2c_start(&i2c_obj)) {
+        if ((i2c_byte_write(&i2c_obj, slave_addr << 1) == 1) &&
+            (i2c_byte_write(&i2c_obj, reg_addr) == 1) &&
+            (i2c_byte_write(&i2c_obj,data_write) ==1)) {
+                 ret_code = 1;
+        }
         i2c_stop(&i2c_obj);
     }
     return ret_code;
@@ -59,14 +59,14 @@ char write_to_i2c(int slave_addr, int reg_addr, int data_write, i2c_t i2c_obj)
 char read_from_i2c(int slave_addr, int reg_addr, int* data_read, i2c_t i2c_obj)
 {
     char ret_code = 0;
-    if(!i2c_start(&i2c_obj)){
-        if(i2c_byte_write(&i2c_obj,(slave_addr << 1))==1)
-            if(i2c_byte_write(&i2c_obj, reg_addr)==1)
-                if(!i2c_start(&i2c_obj))
-                    if(i2c_byte_write(&i2c_obj, ((slave_addr << 1) | 0x01)) == 1){
-                        *data_read = i2c_byte_read(&i2c_obj,1);
-                        ret_code = 1;
-                    }
+    if (!i2c_start(&i2c_obj)) {
+        if ((i2c_byte_write(&i2c_obj,(slave_addr << 1))==1) &&
+            (i2c_byte_write(&i2c_obj, reg_addr)==1) &&
+            (!i2c_start(&i2c_obj)) &&
+            (i2c_byte_write(&i2c_obj, ((slave_addr << 1) | 0x01)) == 1)) {
+             *data_read = i2c_byte_read(&i2c_obj,1);
+             ret_code = 1;
+        }
         i2c_stop(&i2c_obj);
     }
     return ret_code;
