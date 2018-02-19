@@ -23,6 +23,11 @@
 
 namespace mbed {
 
+/**
+ *  Class AT_CellularSIM
+ *
+ *  Class for SIM card handling.
+ */
 class AT_CellularSIM : public CellularSIM, public AT_CellularBase
 {
 

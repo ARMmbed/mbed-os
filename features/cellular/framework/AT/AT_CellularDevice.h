@@ -31,6 +31,12 @@
 
 namespace mbed {
 
+/**
+ *  Class AT_CellularDevice
+ *
+ *  A class defines opening and closing of cellular interfaces.
+ *  Deleting/Closing of opened interfaces can be done only via this class.
+ */
 class AT_CellularDevice : public CellularDevice
 {
 public:
@@ -132,7 +138,7 @@ public: // CellularDevice
      *  @return network stack
      */
     virtual NetworkStack *get_stack();
-    
+
 protected:
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;

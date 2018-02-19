@@ -25,6 +25,11 @@
 
 namespace mbed {
 
+/**
+ *  Class AT_CellularSMS
+ *
+ *  Class for SMS sending, reading and deleting.
+ */
 class AT_CellularSMS: public CellularSMS, public AT_CellularBase
 {
 
