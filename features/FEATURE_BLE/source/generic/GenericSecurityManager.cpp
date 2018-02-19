@@ -55,8 +55,7 @@ ble_error_t GenericSecurityManager::init(
         init_signing();
     }
 
-    _gap.onConnection(this, &GenericSecurityManager::connection_callback);
-    _gap.onDisconnection(this, &GenericSecurityManager::disconnection_callback);
+    _gap.set_connection_event_handler(this);
 
     _pal.generate_public_key();
 
@@ -727,27 +726,20 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
     }
 }
 
-void GenericSecurityManager::on_disconnected(connection_handle_t connection) {
-    SecurityEntry_t *entry = _db.get_entry(connection);
-    if (!entry) {
-        return;
-    }
-    entry->connected = false;
-    _db.sync();
-}
-
 void GenericSecurityManager::on_connected(
     connection_handle_t connection,
-    bool is_master,
+    Gap::Role_t role,
     BLEProtocol::AddressType_t peer_address_type,
-    const address_t &peer_address,
-    const address_t &local_address
+    const BLEProtocol::AddressBytes_t peer_address,
+    BLEProtocol::AddressType_t local_address_type,
+    const BLEProtocol::AddressBytes_t local_address,
+    const Gap::ConnectionParams_t *connection_params
 ) {
     SecurityEntry_t *entry = _db.connect_entry(
         connection,
         peer_address_type,
-        peer_address,
-        local_address
+        address_t(peer_address),
+        address_t(local_address)
     );
 
     if (!entry) {
@@ -756,26 +748,21 @@ void GenericSecurityManager::on_connected(
 
     entry->reset();
 
-    entry->is_master = is_master;
+    entry->is_master = (role == Gap::CENTRAL);
     entry->handle = connection;
     entry->connected = true;
 }
 
-void GenericSecurityManager::connection_callback(
-    const Gap::ConnectionCallbackParams_t* params
+void GenericSecurityManager::on_disconnected(
+    connection_handle_t connection,
+    Gap::DisconnectionReason_t reason
 ) {
-    on_connected(
-        params->handle,
-        (params->role == Gap::CENTRAL),
-        params->peerAddrType,
-        address_t(params->peerAddr),
-        address_t(params->ownAddr)
-    );
-}
-void GenericSecurityManager::disconnection_callback(
-    const Gap::DisconnectionCallbackParams_t* params
-) {
-    on_disconnected(params->handle);
+    SecurityEntry_t *entry = _db.get_entry(connection);
+    if (!entry) {
+        return;
+    }
+    entry->connected = false;
+    _db.sync();
 }
 
 /* Implements ble::pal::SecurityManagerEventHandler */

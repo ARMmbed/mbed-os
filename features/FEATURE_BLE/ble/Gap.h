@@ -2281,7 +2281,7 @@ public:
      * @param[in] ownAddr Address this device uses for this connection.
      * @param[in] connectionParams Parameters of the connection.
      */
-    void processConnectionEvent(
+    virtual void processConnectionEvent(
         Handle_t handle,
         Role_t role,
         BLEProtocol::AddressType_t peerAddrType,
@@ -2304,6 +2304,7 @@ public:
             ownAddr,
             connectionParams
         );
+
         connectionCallChain.call(&callbackParams);
     }
 
@@ -2316,7 +2317,7 @@ public:
      * @param[in] handle Handle of the terminated connection.
      * @param[in] reason Reason of the disconnection.
      */
-    void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
+    virtual void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
     {
         /* Update Gap state */
         --connectionCount;
@@ -2446,6 +2447,13 @@ protected:
      * events.
      */
     DisconnectionEventCallbackChain_t disconnectionCallChain;
+
+    /**
+     * Register a callback handling connection events to be used internally and serviced first.
+     *
+     * @param[in] callback Event handler being registered.
+     */
+    virtual void onConnectionPrivate(ConnectionEventCallback_t callback) { }
 
 private:
     /**

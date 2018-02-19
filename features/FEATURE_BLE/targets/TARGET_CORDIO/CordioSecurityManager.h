@@ -21,6 +21,7 @@
 
 #include "ble/generic/GenericSecurityManager.h"
 #include "ble/generic/GenericSecurityDb.h"
+#include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "CordioPalSecurityManager.h"
 #include "CordioGap.h"
@@ -45,7 +46,7 @@ public:
     SecurityManager(
         pal::SecurityManager &palImpl,
         generic::GenericSecurityDb &dbImpl,
-        Gap &gapImpl
+        generic::GenericGap &gapImpl
     ) : generic::GenericSecurityManager(palImpl, dbImpl, gapImpl) {
         /* empty */
     }

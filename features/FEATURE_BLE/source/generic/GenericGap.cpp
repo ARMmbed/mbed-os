@@ -382,7 +382,8 @@ GenericGap::GenericGap(
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
     _advertising_timeout(),
-    _scan_timeout()
+    _scan_timeout(),
+    _connection_event_handler(NULL)
 {
     _pal_gap.when_gap_event_received(
         mbed::callback(this, &GenericGap::on_gap_event_received)
@@ -896,6 +897,55 @@ ble_error_t GenericGap::reset(void)
     return BLE_ERROR_NONE;
 }
 
+void GenericGap::processConnectionEvent(
+    Handle_t handle,
+    Role_t role,
+    BLEProtocol::AddressType_t peerAddrType,
+    const BLEProtocol::AddressBytes_t peerAddr,
+    BLEProtocol::AddressType_t ownAddrType,
+    const BLEProtocol::AddressBytes_t ownAddr,
+    const ConnectionParams_t *connectionParams
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_connected(
+            handle,
+            role,
+            peerAddrType,
+            peerAddr,
+            ownAddrType,
+            ownAddr,
+            connectionParams
+        );
+    }
+
+    ::Gap::processConnectionEvent(
+        handle,
+        role,
+        peerAddrType,
+        peerAddr,
+        ownAddrType,
+        ownAddr,
+        connectionParams
+   );
+}
+
+void GenericGap::processDisconnectionEvent(
+    Handle_t handle,
+    DisconnectionReason_t reason
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_disconnected(
+            handle,
+            reason
+        );
+    }
+
+    ::Gap::processDisconnectionEvent(
+        handle,
+        reason
+    );
+}
+
 void GenericGap::on_scan_timeout()
 {
     _event_queue.post(mbed::callback(this, &GenericGap::process_scan_timeout));
@@ -1085,6 +1135,11 @@ bool GenericGap::initialize_whitelist() const
     _whitelist.capacity = whitelist_capacity;
 
     return true;
+}
+
+void GenericGap::set_connection_event_handler(ConnectionEventHandler *connection_event_handler)
+{
+    _connection_event_handler = connection_event_handler;
 }
 
 } // namespace generic
