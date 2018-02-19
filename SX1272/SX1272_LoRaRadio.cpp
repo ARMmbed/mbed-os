@@ -158,7 +158,7 @@ static uint8_t radio_variant;
 /**
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
  */
-static bool RadioIsActive = false;
+static bool radio_is_active = false;
 
 /**
  * Constructor
@@ -1614,23 +1614,34 @@ void SX1272_LoRaRadio::setup_interrupts()
  */
 void SX1272_LoRaRadio::set_low_power_mode(bool status)
 {
-    if( RadioIsActive != status )
-    {
-        RadioIsActive = status;
+    if (radio_is_active != status) {
+        radio_is_active = status;
 
-        if( status == false )
-        {
-            // Its safe to not check for pin connections here as the write()
-            // would do nothing if pin is not connected
-            _rf_switch_ctl1 = 0;
-            _rf_switch_ctl2 = 0;
-            _pwr_amp_ctl = 0;
-            _txctl = 0;
-            _rxctl = 0;
-        }
-        else
-        {
-            default_antenna_switch_ctrls( );
+        if (status == false) {
+            if (_rf_ctrls.rf_switch_ctl1 != NC) {
+                _rf_switch_ctl1 = 0;
+            }
+            if (_rf_ctrls.rf_switch_ctl2 != NC) {
+                _rf_switch_ctl2 = 0;
+            }
+
+            if (_rf_ctrls.pwr_amp_ctl != NC) {
+                _pwr_amp_ctl = 0;
+            }
+
+            if (_rf_ctrls.txctl != NC) {
+                _txctl = 0;
+            }
+
+            if (_rf_ctrls.txctl != NC) {
+                _rxctl = 0;
+            }
+
+            if (_rf_ctrls.ant_switch != NC) {
+                _ant_switch = 0;
+            }
+        } else {
+            default_antenna_switch_ctrls();
         }
     }
 }
