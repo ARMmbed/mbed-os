@@ -733,12 +733,17 @@ void LoRaMac::on_radio_rx_error( void )
 
         mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
 
-        if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time) >= _params.rx_window2_delay) {
-            _lora_time.stop(_params.timers.rx_window2_timer);
-            _params.flags.bits.mac_done = 1;
+        if (_params.dev_class != CLASS_C) {
+            if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time) >= _params.rx_window2_delay) {
+                _lora_time.stop(_params.timers.rx_window2_timer);
+                _params.flags.bits.mac_done = 1;
+            }
         }
-
-    } else {
+    }
+    if ((rx_slot == RX_SLOT_WIN_2) || (_params.dev_class == CLASS_C)) {
+        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
+        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
+        // as the 2nd window timer is not running.
 
         if (_params.is_node_ack_requested == true) {
             mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
@@ -768,12 +773,18 @@ void LoRaMac::on_radio_rx_timeout(void)
         }
         mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
 
-        if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay) {
-            _lora_time.stop(_params.timers.rx_window2_timer);
-            _params.flags.bits.mac_done = 1;
+        if (_params.dev_class != CLASS_C) {
+            if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time ) >= _params.rx_window2_delay) {
+                _lora_time.stop(_params.timers.rx_window2_timer);
+                _params.flags.bits.mac_done = 1;
+            }
         }
+    }
 
-    } else {
+    if ((rx_slot == RX_SLOT_WIN_2) || (_params.dev_class == CLASS_C)) {
+        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
+        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
+        // as the 2nd window timer is not running.
 
         if (_params.is_node_ack_requested == true) {
             mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
