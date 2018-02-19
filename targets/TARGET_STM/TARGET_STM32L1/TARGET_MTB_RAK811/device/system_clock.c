@@ -123,6 +123,7 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
     RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
     RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     // SYSCLK = 32 MHz ((16 MHz * 4) / 2)
     // USBCLK = 64 MHz (16 MHz * 4) --> USB not possible
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;

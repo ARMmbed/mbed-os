@@ -106,6 +106,7 @@ typedef enum {
     ANT_CTX_PA  = PA_4,
     ANT_CRX_RX  = PB_6,
     ANT_CBT_HF  = PB_7,
+    RF_TCXO_EN  = PH_1,
 
     SPI_MISO    = PB_4,
     SPI_MOSI    = PB_5,
