@@ -1331,14 +1331,6 @@ void LoRaMac::reset_mac_parameters(void)
     _params.last_channel_idx = _params.channel;
 }
 
-bool LoRaMac::is_fPort_allowed (uint8_t fPort)
-{
-    if ((fPort == 0) || (fPort > 224)) {
-        return false;
-    }
-    return true;
-}
-
 void LoRaMac::open_continuous_rx2_window (void)
 {
     handle_rx2_timer_event();
