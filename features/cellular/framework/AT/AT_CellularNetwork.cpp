@@ -420,7 +420,7 @@ nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 
 nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
 {
-    for (int i = 0; i < sizeof(at_reg)/sizeof(at_reg[0]); i++) {
+    for (unsigned int i = 0; i < sizeof(at_reg)/sizeof(at_reg[0]); i++) {
         if (has_registration(at_reg[i].type)) {
             _last_reg_type = at_reg[i].type;
             if (urc_on) {
@@ -440,7 +440,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
     return _at.get_last_error();
 }
 
-nsapi_error_t AT_CellularNetwork::set_registration(char *plmn)
+nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 {
     _at.lock();
 
