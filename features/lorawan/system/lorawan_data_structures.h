@@ -856,9 +856,9 @@ typedef struct {
      */
     uint32_t ul_frame_counter;
     /*!
-     * The uplink frequency related to the frame.
+     * The uplink channel related to the frame.
      */
-    uint32_t ul_frequency;
+    uint32_t channel;
 } loramac_mcps_confirm_t;
 
 /*!

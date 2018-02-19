@@ -1544,6 +1544,7 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     mcps.get_confirmation().data_rate = _params.sys_params.channel_data_rate;
     mcps.get_confirmation().tx_power = tx_power;
+    mcps.get_confirmation().channel = channel;
 
     // Store the time on air
     mcps.get_confirmation().tx_toa = _params.timers.tx_toa;
