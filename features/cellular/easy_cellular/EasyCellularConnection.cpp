@@ -17,7 +17,7 @@
 
 #include "CellularTargets.h"
 #ifdef CELLULAR_DEVICE
- 
+
 #if NSAPI_PPP_AVAILABLE
 #include "nsapi_ppp.h"
 #endif
@@ -152,6 +152,14 @@ const char *EasyCellularConnection::get_netmask()
 const char *EasyCellularConnection::get_gateway()
 {
     return cellularConnection.get_network()->get_gateway();
+}
+
+void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    CellularNetwork * network = cellularConnection.get_network();
+    if (network) {
+        network->attach(status_cb);
+    }
 }
 
 NetworkStack *EasyCellularConnection::get_stack()

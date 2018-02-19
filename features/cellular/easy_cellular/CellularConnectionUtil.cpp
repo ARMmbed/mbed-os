@@ -498,9 +498,6 @@ events::EventQueue *CellularConnectionUtil::get_queue()
 
 CellularNetwork* CellularConnectionUtil::get_network()
 {
-    if (_state != STATE_CONNECTED) {
-        return NULL;
-    }
     return _network;
 }
 

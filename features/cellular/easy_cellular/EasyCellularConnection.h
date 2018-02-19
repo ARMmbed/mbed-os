@@ -20,11 +20,11 @@
 
 #include "CellularConnectionUtil.h"
 #ifdef CELLULAR_DEVICE
- 
+
 #include "netsocket/CellularBase.h"
 
 namespace mbed {
-    
+
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
@@ -116,6 +116,12 @@ public:
      *                  or null if no network mask has been received
      */
     virtual const char *get_gateway();
+
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
 protected:
 
