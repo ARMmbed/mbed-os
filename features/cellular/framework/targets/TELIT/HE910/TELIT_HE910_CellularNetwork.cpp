@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include <TELIT_HE910_CellularNetwork.h>
+#include "TELIT_HE910_CellularNetwork.h"
 
 using namespace mbed;
 

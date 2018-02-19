@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include <QUECTEL_BC95_CellularPower.h>
+#include "QUECTEL_BC95_CellularPower.h"
 
 #include "onboard_modem_api.h"
 using namespace mbed;

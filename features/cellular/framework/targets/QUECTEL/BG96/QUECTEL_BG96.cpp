@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-#include <QUECTEL/BG96/QUECTEL_BG96.h>
-#include <QUECTEL/BG96/QUECTEL_BG96_CellularNetwork.h>
-#include <QUECTEL/BG96/QUECTEL_BG96_CellularStack.h>
+#include "QUECTEL/BG96/QUECTEL_BG96.h"
+#include "QUECTEL/BG96/QUECTEL_BG96_CellularNetwork.h"
+#include "QUECTEL/BG96/QUECTEL_BG96_CellularStack.h"
 
 using namespace mbed;
 using namespace events;
