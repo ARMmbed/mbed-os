@@ -217,13 +217,12 @@ SecurityManager& BLE::getSecurityManager()
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    const BLE* self = this;
     static pal::MemorySecurityDb m_db;
     static pal::vendor::cordio::CordioSecurityManager m_pal;
     static generic::GenericSecurityManager m_instance(
         m_pal,
         m_db,
-        const_cast<generic::GenericGap&>(self->getGenericGap())
+        const_cast<generic::GenericGap&>(getGenericGap())
     );
 
     return m_instance;
