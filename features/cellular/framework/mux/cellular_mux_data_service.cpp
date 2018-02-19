@@ -31,6 +31,12 @@ ssize_t MuxDataService::read(void *buffer, size_t size)
 }
 
 
+short MuxDataService::poll(short events) const
+{
+    return Mux::poll();
+}
+
+
 off_t MuxDataService::seek(off_t offset, int whence)
 {
     MBED_ASSERT(false);

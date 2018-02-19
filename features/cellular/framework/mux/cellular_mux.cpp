@@ -1238,4 +1238,16 @@ ssize_t Mux::user_data_rx(void* buffer, size_t size)
 }
 
 
+short Mux::poll()
+{
+    _mutex.lock();
+
+    const bool writable = (_tx_context.tx_state == TX_IDLE);
+    const bool readable = (_rx_context.rx_state == RX_SUSPEND);
+
+    _mutex.unlock();
+
+    return ((readable ? POLLIN : 0) | (writable ? POLLOUT : 0));
+}
+
 } // namespace mbed

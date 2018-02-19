@@ -72,6 +72,18 @@ public:
      */
     virtual ssize_t read(void *buffer, size_t size);
 
+    /** Check for poll event flags
+     *
+     *  The input parameter can be used or ignored - could always return all events, or could check just the events
+     *  listed in events.
+     *
+     *  Call is non-blocking - returns instantaneous state of events.
+     *
+     * @param events Bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
+     * @return       Bitmask of poll events that have occurred.
+     */
+    virtual short poll(short events) const;
+
     /** Not supported by the implementation. */
     virtual off_t seek(off_t offset, int whence = SEEK_SET);
 
@@ -433,6 +445,12 @@ private:
      *  @return       The number of bytes read, -EAGAIN if no data availabe for read.
      */
     static ssize_t user_data_rx(void* buffer, size_t size);
+
+    /** Check for poll event flags
+     *
+     * @return Bitmask of poll events that have occurred - POLLIN/POLLOUT.
+     */
+    static short poll();
 
     /** Clear TX callback pending bit.
      *
