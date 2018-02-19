@@ -95,6 +95,7 @@ add_executable(security-manager-tests
   generic/SecurityManager/mock/MockPalSecurityManager.cpp
   generic/SecurityManager/mock/MockPalSecurityDb.cpp
   generic/SecurityManager/mock/MockConnectionEventMonitor.cpp
+  generic/SecurityManager/mock/MockSecurityManagerEventHandler.cpp
   ${PROJECT_SOURCE_DIR}/../source/generic/GenericSecurityManager.cpp
 )
 
