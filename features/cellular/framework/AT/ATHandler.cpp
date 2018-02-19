@@ -251,9 +251,8 @@ void ATHandler::process_oob()
                     rtos::Thread::yield();
 #endif
                 }
-
             }
-        } while (timer.read_ms() < 100);
+        } while (timer.read_ms() < 20); // URC's are very short so 20ms should be enough
     }
     log_debug("process_oob exit");
 
@@ -309,17 +308,20 @@ void ATHandler::fill_buffer()
            }
            at_debug("\n----------readable----------\n");
            return;
+       } else if (len != -EAGAIN && len != 0) {
+           log_warn("%s error: %d while reading", __func__, len);
+           break;
        }
 #ifdef MBED_CONF_RTOS_PRESENT
         rtos::Thread::yield();
 #endif
-    } while (timer.read_ms() < _at_timeout);
+    } while ((uint32_t)timer.read_ms() < _at_timeout);
 
     set_error(NSAPI_ERROR_DEVICE_ERROR);
     log_error("AT TIMEOUT, scope: %d timeout: %d", _current_scope, _at_timeout);
 }
 
-int16_t ATHandler::get_char()
+int ATHandler::get_char()
 {
     if (_recv_pos == _recv_len) {
         log_debug("%s", __func__);
@@ -343,10 +345,10 @@ void ATHandler::skip_param(uint32_t count)
         return;
     }
 
-    for (uint32_t i=0; (i < count && !_stop_tag->found); i++) {
+    for (uint32_t i = 0; (i < count && !_stop_tag->found); i++) {
         size_t match_pos = 0;
         while (true) {
-            int16_t c = get_char();
+            int c = get_char();
             if (c == -1) {
                 set_error(NSAPI_ERROR_DEVICE_ERROR);
                 return;
@@ -373,10 +375,10 @@ void ATHandler::skip_param(ssize_t len, uint32_t count)
         return;
     }
 
-    for (uint32_t i=0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++) {
         ssize_t read_len = 0;
         while (read_len < len) {
-            int16_t c = get_char();
+            int c = get_char();
             if (c == -1) {
                 set_error(NSAPI_ERROR_DEVICE_ERROR);
                 return;
@@ -395,8 +397,8 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
     }
 
     size_t read_len = 0;
-    for (; read_len<len; read_len++) {
-        int16_t c = get_char();
+    for (; read_len < len; read_len++) {
+        int c = get_char();
         if (c == -1) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
             return -1;
@@ -426,8 +428,8 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     consume_char('\"');
 
-    for (; len<(size + match_pos); len++) {
-        int16_t c = get_char();
+    for (; len < (size + match_pos); len++) {
+        int c = get_char();
         if (c == -1) {
             pbuf[len] = '\0';
             set_error(NSAPI_ERROR_DEVICE_ERROR);
@@ -467,7 +469,7 @@ int32_t ATHandler::read_int()
          return -1;
      }
 
-    char buff[BUFF_SIZE] = {0};
+    char buff[BUFF_SIZE];
     char *first_no_digit;
 
     if (read_string(buff, (size_t)sizeof(buff)) == 0) {
@@ -618,12 +620,12 @@ void ATHandler::set_error(nsapi_error_t err)
     }
 }
 
-uint8_t ATHandler::get_3gpp_error()
+int ATHandler::get_3gpp_error()
 {
     return _last_3gpp_error;
 }
 
-void ATHandler::set_3gpp_error(uint8_t err, DeviceErrorType error_type)
+void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
 {
     if (_last_3gpp_error) { // don't overwrite likely root cause error
         return;
@@ -633,7 +635,7 @@ void ATHandler::set_3gpp_error(uint8_t err, DeviceErrorType error_type)
         // CMS errors 0-127 maps straight to 3GPP errors
         _last_3gpp_error = err;
     } else {
-        for (size_t i=0; i<sizeof(map_3gpp_errors)/sizeof(map_3gpp_errors[0]); i++) {
+        for (size_t i = 0; i<sizeof(map_3gpp_errors)/sizeof(map_3gpp_errors[0]); i++) {
             if (map_3gpp_errors[i][0] == err) {
                 _last_3gpp_error = map_3gpp_errors[i][1];
                 log_debug("AT3GPP error code %d", get_3gpp_error());
@@ -688,7 +690,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
             return;
         }
 
-        if(match_error()) {
+        if (match_error()) {
             _error_found = true;
             return;
         }
@@ -813,7 +815,7 @@ bool ATHandler::info_elem(char start_tag)
 bool ATHandler::consume_char(char ch)
 {
     log_debug("%s: %c", __func__, ch);
-    int16_t read_char = get_char();
+    int read_char = get_char();
     // If we read something else than ch, recover it
     if (read_char != ch && read_char != -1) {
         _recv_pos--;
@@ -828,7 +830,7 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
     size_t match_pos = 0;
 
     while (true) {
-        int16_t c = get_char();
+        int c = get_char();
         if (c == -1) {
             break;
         } else if (c == tag[match_pos]) {
@@ -959,7 +961,7 @@ void ATHandler::write_int(int32_t param)
     }
 
     // write the integer subparameter
-    const uint8_t str_len = 12;
+    const int32_t str_len = 12;
     char number_string[str_len];
     int32_t result = std::snprintf(number_string, str_len, "%ld", param);
     if (result > 0 && result < str_len) {
@@ -1010,7 +1012,7 @@ void ATHandler::cmd_stop()
     }
 }
 
-size_t ATHandler::write_bytes(uint8_t *data, size_t len)
+size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     if (_last_err != NSAPI_ERROR_OK) {
         return 0;
