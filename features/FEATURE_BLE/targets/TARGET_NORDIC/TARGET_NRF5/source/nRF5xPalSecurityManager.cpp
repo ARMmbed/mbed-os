@@ -31,7 +31,10 @@ static ble_error_t convert_sd_error(uint32_t err) {
 }
 
 
-nRF5xSecurityManager::nRF5xSecurityManager() : ::ble::pal::SecurityManager()
+nRF5xSecurityManager::nRF5xSecurityManager()
+    : ::ble::pal::SecurityManager(),
+    _io_capability(io_capability_t::NO_INPUT_NO_OUTPUT),
+    _max_encryption_key_size(16)
 {
 
 }
@@ -75,16 +78,15 @@ uint8_t nRF5xSecurityManager::read_resolving_list_capacity()
 
 ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
-    address_t peer_identity_address,
-    irk_t peer_irk,
-    irk_t local_irk
+    const address_t &peer_identity_address,
+    const irk_t &peer_irk
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
-    address_t peer_identity_address
+    const address_t &peer_identity_address
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -98,17 +100,19 @@ ble_error_t nRF5xSecurityManager::clear_resolving_list()
 // Feature support
 //
 
-ble_error_t nRF5xSecurityManager::set_secure_connections_support(
-    bool enabled, bool secure_connections_only
-) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
 ble_error_t nRF5xSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
+
+ble_error_t nRF5xSecurityManager::set_io_capability(
+    io_capability_t io_capability
+) {
+    _io_capability = io_capability;
+    return BLE_ERROR_NONE;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Security settings
@@ -127,12 +131,29 @@ ble_error_t nRF5xSecurityManager::get_authentication_timeout(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t nRF5xSecurityManager::set_encryption_key_requirements(
+    uint8_t min_encryption_key_size,
+    uint8_t max_encryption_key_size
+) {
+    _max_encryption_key_size = max_encryption_key_size;
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF5xSecurityManager::slave_security_request(
+    connection_handle_t connection,
+    AuthenticationMask authentication
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
 
-ble_error_t nRF5xSecurityManager::enable_encryption(connection_handle_t connection)
-{
+ble_error_t nRF5xSecurityManager::enable_encryption(
+    connection_handle_t connection,
+    const ltk_t &ltk
+) {
     // use sd_ble_gap_encrypt it requires:
     //  - ediv
     //  - rand
@@ -161,8 +182,21 @@ ble_error_t nRF5xSecurityManager::get_encryption_key_size(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t nRF5xSecurityManager::refresh_encryption_key(connection_handle_t connection)
-{
+ble_error_t nRF5xSecurityManager::enable_encryption(
+    connection_handle_t connection,
+    const ltk_t &ltk,
+    const rand_t &rand,
+    const ediv_t &ediv
+) {
+    // NO FUNCTION to disable encryption
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t nRF5xSecurityManager::encrypt_data(
+    const key_t &key,
+    encryption_block_t &data
+) {
+    // NO FUNCTION to disable encryption
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -180,8 +214,15 @@ ble_error_t nRF5xSecurityManager::set_private_address_timeout(
 // Keys
 //
 
+ble_error_t nRF5xSecurityManager::set_ltk_not_found(
+    connection_handle_t connection
+) {
+    // usefulness ?
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ble_error_t nRF5xSecurityManager::set_ltk(
-    connection_handle_t connection, ltk_t ltk
+    connection_handle_t connection, const ltk_t &ltk
 ) {
     // usefulness ?
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -189,24 +230,14 @@ ble_error_t nRF5xSecurityManager::set_ltk(
 
 ble_error_t nRF5xSecurityManager::set_irk(const irk_t& irk)
 {
-    memcpy(_irk, irk, sizeof(_irk));
+    memcpy(_irk.buffer(), irk.data(), _csrk.size());
     return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::set_csrk(const csrk_t& csrk)
 {
-    memcpy(_csrk, csrk, sizeof(_csrk));
+    memcpy(_csrk.buffer(), csrk.data(), _csrk.size());
     return BLE_ERROR_NONE;
-}
-
-ble_error_t nRF5xSecurityManager::generate_irk()
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-ble_error_t nRF5xSecurityManager::generate_csrk()
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -215,10 +246,8 @@ ble_error_t nRF5xSecurityManager::generate_csrk()
 
 ble_error_t nRF5xSecurityManager::send_pairing_request(
     connection_handle_t connection,
-    io_capability_t io_capability,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
-    uint8_t maximum_encryption_key_size,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 ) {
@@ -227,10 +256,10 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
         /* mitm */ authentication_requirements.get_mitm(),
         /* lesc */ authentication_requirements.get_secure_connections(),
         /* keypress */ authentication_requirements.get_keypress_notification(),
-        /* io_caps */ io_capability.value(),
+        /* io_caps */ _io_capability.value(),
         /* oob */ oob_data_flag,
         /* min_key_size */ 7, // FIXME!
-        /* max_key_size */ maximum_encryption_key_size,
+        /* max_key_size */ _max_encryption_key_size,
         /* kdist_periph */ {
             /* enc */ responder_dist.get_encryption(),
             /* id */ responder_dist.get_identity(),
@@ -255,10 +284,8 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
 
 ble_error_t nRF5xSecurityManager::send_pairing_response(
     connection_handle_t connection,
-    io_capability_t io_capability,
     bool oob_data_flag,
     AuthenticationMask authentication_requirements,
-    uint8_t maximum_encryption_key_size,
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 ) {
@@ -267,10 +294,10 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
         /* mitm */ authentication_requirements.get_mitm(),
         /* lesc */ authentication_requirements.get_secure_connections(),
         /* keypress */ authentication_requirements.get_keypress_notification(),
-        /* io_caps */ io_capability.value(),
+        /* io_caps */ _io_capability.value(),
         /* oob */ oob_data_flag,
         /* min_key_size */ 7, // FIXME!
-        /* max_key_size */ maximum_encryption_key_size,
+        /* max_key_size */ _max_encryption_key_size,
         /* kdist_periph */ {
             /* enc */ responder_dist.get_encryption(),
             /* id */ responder_dist.get_identity(),
@@ -352,9 +379,21 @@ ble_error_t nRF5xSecurityManager::get_random_data(random_data_t &random_data)
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t nRF5xSecurityManager::generate_public_key()
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 // MITM
 //
+
+ble_error_t nRF5xSecurityManager::set_display_passkey(
+    passkey_num_t passkey
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
 
 ble_error_t nRF5xSecurityManager::passkey_request_reply(
     connection_handle_t connection, const passkey_num_t passkey
@@ -368,13 +407,13 @@ ble_error_t nRF5xSecurityManager::passkey_request_reply(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::oob_data_request_reply(
-    connection_handle_t connection, const oob_data_t& oob_data
+ble_error_t nRF5xSecurityManager::legacy_pairing_oob_data_request_reply(
+    connection_handle_t connection, const oob_tk_t& oob_data
 ) {
     uint32_t err = sd_ble_gap_auth_key_reply(
         connection,
         BLE_GAP_AUTH_KEY_TYPE_OOB,
-        oob_data
+        oob_data.data()
     );
 
     return convert_sd_error(err);
@@ -388,6 +427,14 @@ ble_error_t nRF5xSecurityManager::confirmation_entered(
 
 ble_error_t nRF5xSecurityManager::send_keypress_notification(
     connection_handle_t connection, Keypress_t keypress
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t nRF5xSecurityManager::oob_data_verified(
+    connection_handle_t connection,
+    const oob_rand_t &local_random,
+    const oob_rand_t &peer_random
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -422,14 +469,14 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                 params.keypress
             );
 
-            KeyDistribution initiator_dist {
+            KeyDistribution initiator_dist(
                 params.kdist_peer.enc,
                 params.kdist_peer.id,
                 params.kdist_peer.sign,
                 params.kdist_peer.link
             );
 
-            KeyDistribution responder_dist() =
+            KeyDistribution responder_dist(
                 params.kdist_own.enc,
                 params.kdist_own.id,
                 params.kdist_own.sign,
@@ -439,10 +486,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             // FIXME: pass min key size
             handler->on_pairing_request(
                 connection,
-                (io_capability_t::type) params.io_caps,
                 params.oob,
                 authentication_requirements,
-                params.max_key_size,
                 initiator_dist,
                 responder_dist
             );
@@ -455,8 +500,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
 
             handler->on_ltk_request(
                 connection,
-                req.master_id.ediv,
-                req.master_id.rand
+                ediv_t((uint8_t*)(&req.master_id.ediv)),
+                rand_t(req.master_id.rand)
             );
 
             return true;
@@ -494,7 +539,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                     break;
 
                 case BLE_GAP_AUTH_KEY_TYPE_OOB:
-                    handler->on_oob_data_request(connection);
+                    handler->on_legacy_pairing_oob_request(connection);
                     break;
             }
 

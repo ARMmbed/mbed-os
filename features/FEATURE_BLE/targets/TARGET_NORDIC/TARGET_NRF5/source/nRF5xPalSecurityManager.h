@@ -64,9 +64,8 @@ public:
      */
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t peer_identity_address,
-        irk_t peer_irk,
-        irk_t local_irk
+        const address_t &peer_identity_address,
+        const irk_t &peer_irk
     );
 
     /**
@@ -74,7 +73,7 @@ public:
      */
     virtual ble_error_t remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t peer_identity_address
+        const address_t &peer_identity_address
     );
 
     /**
@@ -87,17 +86,17 @@ public:
     //
 
     /**
-     * @see ::ble::pal::SecurityManager::set_secure_connections_support
-     */
-    virtual ble_error_t set_secure_connections_support(
-        bool enabled, bool secure_connections_only = false
-    );
-
-    /**
      * @see ::ble::pal::SecurityManager::get_secure_connections_support
      */
     virtual ble_error_t get_secure_connections_support(
         bool &enabled
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_io_capability
+     */
+    virtual ble_error_t set_io_capability(
+        io_capability_t io_capability
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -118,6 +117,22 @@ public:
         connection_handle_t, uint16_t &timeout_in_10ms
     );
 
+    /**
+     * @see ::ble::pal::SecurityManager::set_encryption_key_requirements
+     */
+    virtual ble_error_t set_encryption_key_requirements(
+        uint8_t min_encryption_key_size,
+        uint8_t max_encryption_key_size
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::slave_security_request
+     */
+    virtual ble_error_t slave_security_request(
+        connection_handle_t connection,
+        AuthenticationMask authentication
+    );
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -125,7 +140,10 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::enable_encryption
      */
-    virtual ble_error_t enable_encryption(connection_handle_t connection);
+    virtual ble_error_t enable_encryption(
+        connection_handle_t connection,
+        const ltk_t &ltk
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::disable_encryption
@@ -147,9 +165,22 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::refresh_encryption_key
+     * @see ::ble::pal::SecurityManager::enable_encryption
      */
-    virtual ble_error_t refresh_encryption_key(connection_handle_t connection);
+    virtual ble_error_t enable_encryption(
+        connection_handle_t connection,
+        const ltk_t &ltk,
+        const rand_t &rand,
+        const ediv_t &ediv
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::encrypt_data
+     */
+    virtual ble_error_t encrypt_data(
+        const key_t &key,
+        encryption_block_t &data
+    );
 
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
@@ -167,7 +198,12 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_ltk
      */
-    virtual ble_error_t set_ltk(connection_handle_t connection, ltk_t ltk);
+    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t &ltk);
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_ltk
+     */
+    virtual ble_error_t set_ltk_not_found(connection_handle_t connection);
 
     /**
      * @see ::ble::pal::SecurityManager::set_irk
@@ -179,16 +215,6 @@ public:
      */
     virtual ble_error_t set_csrk(const csrk_t& csrk);
 
-    /**
-     * @see ::ble::pal::SecurityManager::generate_irk
-     */
-    virtual ble_error_t generate_irk();
-
-    /**
-     * @see ::ble::pal::SecurityManager::generate_csrk
-     */
-    virtual ble_error_t generate_csrk();
-
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
@@ -198,10 +224,8 @@ public:
      */
     virtual ble_error_t send_pairing_request(
         connection_handle_t connection,
-        io_capability_t io_capability,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
-        uint8_t maximum_encryption_key_size,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     );
@@ -211,10 +235,8 @@ public:
      */
     virtual ble_error_t send_pairing_response(
         connection_handle_t connection,
-        io_capability_t io_capability,
         bool oob_data_flag,
         AuthenticationMask authentication_requirements,
-        uint8_t maximum_encryption_key_size,
         KeyDistribution initiator_dist,
         KeyDistribution responder_dist
     );
@@ -236,9 +258,21 @@ public:
      */
     virtual ble_error_t get_random_data(random_data_t &random_data);
 
+    /**
+     * @see ::ble::pal::SecurityManager::generate_public_key
+     */
+    virtual ble_error_t generate_public_key();
+
     ////////////////////////////////////////////////////////////////////////////
     // MITM
     //
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_display_passkey
+     */
+    virtual ble_error_t set_display_passkey(
+        passkey_num_t passkey
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::passkey_request_reply
@@ -250,8 +284,8 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::oob_data_request_reply
      */
-    virtual ble_error_t oob_data_request_reply(
-        connection_handle_t connection, const oob_data_t& oob_data
+    virtual ble_error_t legacy_pairing_oob_data_request_reply(
+        connection_handle_t connection, const oob_tk_t& oob_data
     );
 
     /**
@@ -268,6 +302,15 @@ public:
         connection_handle_t connection, Keypress_t keypress
     );
 
+    /**
+     * @see ::ble::pal::SecurityManager::oob_data_verified
+     */
+    virtual ble_error_t oob_data_verified(
+        connection_handle_t connection,
+        const oob_rand_t &local_random,
+        const oob_rand_t &peer_random
+    );
+
     // singleton of nordic Security Manager
     static nRF5xSecurityManager& get_security_manager();
 
@@ -278,6 +321,8 @@ public:
 private:
     irk_t _irk;
     csrk_t _csrk;
+    io_capability_t _io_capability;
+    uint8_t _max_encryption_key_size;
 };
 
 } // nordic

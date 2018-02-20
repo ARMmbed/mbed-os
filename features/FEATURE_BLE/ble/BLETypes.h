@@ -377,18 +377,6 @@ struct address_t : public octet_type_t<6> {
     address_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));
     }
-
-    /**
-     * Initialize a mac address from a pointer to a buffer.
-     *
-     * @param input_value Buffer containing the mac address. It shall be at
-     * least 6 long.
-     *
-     * @param tag Tag used to select this constructor. The value does not matter.
-     */
-    address_t(const uint8_t *input_value, bool tag) {
-        memcpy(_value, input_value, sizeof(_value));
-    }
 };
 
 } // namespace ble

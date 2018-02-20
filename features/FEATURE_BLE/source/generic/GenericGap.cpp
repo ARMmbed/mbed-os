@@ -409,14 +409,14 @@ ble_error_t GenericGap::setAddress(
             }
 
             ble_error_t err = _pal_gap.set_random_address(
-                ble::address_t(address, true)
+                ble::address_t(address)
             );
             if (err) {
                 return err;
             }
 
             _address_type = type;
-            _address = ble::address_t(address, true);
+            _address = ble::address_t(address);
             return BLE_ERROR_NONE;
         }
 
@@ -508,7 +508,7 @@ ble_error_t GenericGap::connect(
         scanParams->getWindow(),
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
-        ble::address_t(peerAddr, true),
+        ble::address_t(peerAddr),
         (pal::own_address_type_t::type) _address_type,
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
