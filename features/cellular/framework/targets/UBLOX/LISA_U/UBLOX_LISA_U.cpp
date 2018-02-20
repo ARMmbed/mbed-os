@@ -15,31 +15,33 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_C027_CELLULARPOWER_H_
-#define UBLOX_C027_CELLULARPOWER_H_
+#include "UBLOX_LISA_U.h"
+#include "UBLOX_LISA_U_CellularNetwork.h"
+#include "UBLOX_LISA_U_CellularPower.h"
 
-#include "AT_CellularPower.h"
+using namespace mbed;
+using namespace events;
 
-namespace mbed {
-
-class UBLOX_C027_CellularPower : public AT_CellularPower
+UBLOX_LISA_U::UBLOX_LISA_U(EventQueue &queue) : AT_CellularDevice(queue)
 {
-public:
-    UBLOX_C027_CellularPower(ATHandler &atHandler);
-    virtual ~UBLOX_C027_CellularPower();
+}
 
-public: //from CellularPower
-    /**
-     * Set cellular device power on.
-     * @return zero on success
-     */
-    virtual nsapi_error_t on();
+UBLOX_LISA_U::~UBLOX_LISA_U()
+{
+}
 
-    /**
-     * Set cellular device power off.
-     * @return zero on success
-     */
-    virtual nsapi_error_t off();
-};
-} // namespace mbed
-#endif // UBLOX_C027_CELLULARPOWER_H_
+CellularNetwork *UBLOX_LISA_U::open_network(FileHandle *fh)
+{
+    if (!_network) {
+        _network = new UBLOX_LISA_U_CellularNetwork(*get_at_handler(fh));
+    }
+    return _network;
+}
+
+CellularPower *UBLOX_LISA_U::open_power(FileHandle *fh)
+{
+    if (!_power) {
+        _power = new UBLOX_LISA_U_CellularPower(*get_at_handler(fh));
+    }
+    return _power;
+}

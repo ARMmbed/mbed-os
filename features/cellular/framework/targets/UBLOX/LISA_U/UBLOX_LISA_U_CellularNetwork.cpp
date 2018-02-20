@@ -15,29 +15,29 @@
  * limitations under the License.
  */
 
-#include "UBLOX_C027_CellularNetwork.h"
+#include "UBLOX_LISA_U_CellularNetwork.h"
 
 using namespace mbed;
 
-UBLOX_C027_CellularNetwork::UBLOX_C027_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+UBLOX_LISA_U_CellularNetwork::UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
 {
 }
 
-UBLOX_C027_CellularNetwork::~UBLOX_C027_CellularNetwork()
+UBLOX_LISA_U_CellularNetwork::~UBLOX_LISA_U_CellularNetwork()
 {
 }
 
-bool UBLOX_C027_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
+bool UBLOX_LISA_U_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
 {
     return requested_stack == IPV4_STACK ? true : false;
 }
 
-bool UBLOX_C027_CellularNetwork::has_registration(RegistrationType reg_type)
+bool UBLOX_LISA_U_CellularNetwork::has_registration(RegistrationType reg_type)
 {
     return (reg_type == C_REG || reg_type == C_GREG);
 }
 
-nsapi_error_t UBLOX_C027_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opRat)
+nsapi_error_t UBLOX_LISA_U_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opRat)
 {
     _op_act = operator_t::RAT_UNKNOWN;
     return NSAPI_ERROR_UNSUPPORTED;
