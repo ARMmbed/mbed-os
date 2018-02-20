@@ -1,33 +1,31 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54618J512BD208
-**                          LPC54618J512ET180
-**
+**     Processor:           LPC54628J512ET180
 **     Compilers:           Keil ARM C/C++ Compiler
 **                          GNU C Compiler
 **                          IAR ANSI C/C++ Compiler for ARM
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    LPC54S60x/LPC5460x User manual Rev.0.9  7 Nov 2016
-**     Version:             rev. 1.1, 2016-11-25
-**     Build:               b170214
+**     Reference manual:    LPC546xx User manual Rev.1.9  5 June 2017
+**     Version:             rev. 1.2, 2017-06-08
+**     Build:               b170609
 **
 **     Abstract:
-**         CMSIS Peripheral Access Layer for LPC54618
+**         CMSIS Peripheral Access Layer for LPC54628
 **
 **     Copyright 1997-2016 Freescale Semiconductor, Inc.
 **     Copyright 2016-2017 NXP
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
-**     o Redistributions of source code must retain the above copyright notice, this list
+**     1. Redistributions of source code must retain the above copyright notice, this list
 **       of conditions and the following disclaimer.
 **
-**     o Redistributions in binary form must reproduce the above copyright notice, this
+**     2. Redistributions in binary form must reproduce the above copyright notice, this
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of the copyright holder nor the names of its
+**     3. Neither the name of the copyright holder nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **
@@ -51,27 +49,31 @@
 **     - rev. 1.1 (2016-11-25)
 **         Update CANFD and Classic CAN register.
 **         Add MAC TIMERSTAMP registers.
+**     - rev. 1.2 (2017-06-08)
+**         Remove RTC_CTRL_RTC_OSC_BYPASS.
+**         SYSCON_ARMTRCLKDIV rename to SYSCON_ARMTRACECLKDIV.
+**         Remove RESET and HALT from SYSCON_AHBCLKDIV.
 **
 ** ###################################################################
 */
 
 /*!
- * @file LPC54618.h
- * @version 1.1
- * @date 2016-11-25
- * @brief CMSIS Peripheral Access Layer for LPC54618
+ * @file LPC54628.h
+ * @version 1.2
+ * @date 2017-06-08
+ * @brief CMSIS Peripheral Access Layer for LPC54628
  *
- * CMSIS Peripheral Access Layer for LPC54618
+ * CMSIS Peripheral Access Layer for LPC54628
  */
 
-#ifndef _LPC54618_H_
-#define _LPC54618_H_                             /**< Symbol preventing repeated inclusion */
+#ifndef _LPC54628_H_
+#define _LPC54628_H_                             /**< Symbol preventing repeated inclusion */
 
 /** Memory map major version (memory maps with equal major version number are
  * compatible) */
 #define MCU_MEM_MAP_VERSION 0x0100U
 /** Memory map minor version */
-#define MCU_MEM_MAP_VERSION_MINOR 0x0001U
+#define MCU_MEM_MAP_VERSION_MINOR 0x0002U
 
 
 /* ----------------------------------------------------------------------------
@@ -181,27 +183,11 @@ typedef enum IRQn {
 #define __FPU_PRESENT                  1         /**< Defines if an FPU is present or not */
 
 #include "core_cm4.h"                  /* Core Peripheral Access Layer */
-#include "system_LPC54618.h"           /* Device specific configuration file */
+#include "system_LPC54628.h"           /* Device specific configuration file */
 
 /*!
  * @}
  */ /* end of group Cortex_Core_Configuration */
-
-
-/* ----------------------------------------------------------------------------
-   -- Mapping Information
-   ---------------------------------------------------------------------------- */
-
-/*!
- * @addtogroup Mapping_Information Mapping Information
- * @{
- */
-
-/** Mapping Information */
-
-/*!
- * @}
- */ /* end of group Mapping_Information */
 
 
 /* ----------------------------------------------------------------------------
@@ -7730,6 +7716,137 @@ typedef struct {
 
 
 /* ----------------------------------------------------------------------------
+   -- SHA Peripheral Access Layer
+   ---------------------------------------------------------------------------- */
+
+/*!
+ * @addtogroup SHA_Peripheral_Access_Layer SHA Peripheral Access Layer
+ * @{
+ */
+
+/** SHA - Register Layout Typedef */
+typedef struct {
+  __IO uint32_t CTRL;                              /**< Control register, offset: 0x0 */
+  __IO uint32_t STATUS;                            /**< Status register, offset: 0x4 */
+  __IO uint32_t INTENSET;                          /**< Interrupt Enable register, offset: 0x8 */
+  __IO uint32_t INTENCLR;                          /**< Interrupt Clear register, offset: 0xC */
+  __IO uint32_t MEMCTRL;                           /**< Memory Control register, offset: 0x10 */
+  __IO uint32_t MEMADDR;                           /**< Memory Address register, offset: 0x14 */
+       uint8_t RESERVED_0[8];
+  __IO uint32_t INDATA;                            /**< Input Data register, offset: 0x20 */
+  __IO uint32_t ALIAS[7];                          /**< Alias register, array offset: 0x24, array step: 0x4 */
+  __I  uint32_t DIGEST[8];                         /**< Digest register, array offset: 0x40, array step: 0x4 */
+} SHA_Type;
+
+/* ----------------------------------------------------------------------------
+   -- SHA Register Masks
+   ---------------------------------------------------------------------------- */
+
+/*!
+ * @addtogroup SHA_Register_Masks SHA Register Masks
+ * @{
+ */
+
+/*! @name CTRL - Control register */
+#define SHA_CTRL_MODE_MASK                       (0x3U)
+#define SHA_CTRL_MODE_SHIFT                      (0U)
+#define SHA_CTRL_MODE(x)                         (((uint32_t)(((uint32_t)(x)) << SHA_CTRL_MODE_SHIFT)) & SHA_CTRL_MODE_MASK)
+#define SHA_CTRL_NEW_MASK                        (0x10U)
+#define SHA_CTRL_NEW_SHIFT                       (4U)
+#define SHA_CTRL_NEW(x)                          (((uint32_t)(((uint32_t)(x)) << SHA_CTRL_NEW_SHIFT)) & SHA_CTRL_NEW_MASK)
+#define SHA_CTRL_DMA_MASK                        (0x100U)
+#define SHA_CTRL_DMA_SHIFT                       (8U)
+#define SHA_CTRL_DMA(x)                          (((uint32_t)(((uint32_t)(x)) << SHA_CTRL_DMA_SHIFT)) & SHA_CTRL_DMA_MASK)
+
+/*! @name STATUS - Status register */
+#define SHA_STATUS_WAITING_MASK                  (0x1U)
+#define SHA_STATUS_WAITING_SHIFT                 (0U)
+#define SHA_STATUS_WAITING(x)                    (((uint32_t)(((uint32_t)(x)) << SHA_STATUS_WAITING_SHIFT)) & SHA_STATUS_WAITING_MASK)
+#define SHA_STATUS_DIGEST_MASK                   (0x2U)
+#define SHA_STATUS_DIGEST_SHIFT                  (1U)
+#define SHA_STATUS_DIGEST(x)                     (((uint32_t)(((uint32_t)(x)) << SHA_STATUS_DIGEST_SHIFT)) & SHA_STATUS_DIGEST_MASK)
+#define SHA_STATUS_ERROR_MASK                    (0x4U)
+#define SHA_STATUS_ERROR_SHIFT                   (2U)
+#define SHA_STATUS_ERROR(x)                      (((uint32_t)(((uint32_t)(x)) << SHA_STATUS_ERROR_SHIFT)) & SHA_STATUS_ERROR_MASK)
+
+/*! @name INTENSET - Interrupt Enable register */
+#define SHA_INTENSET_WAITING_MASK                (0x1U)
+#define SHA_INTENSET_WAITING_SHIFT               (0U)
+#define SHA_INTENSET_WAITING(x)                  (((uint32_t)(((uint32_t)(x)) << SHA_INTENSET_WAITING_SHIFT)) & SHA_INTENSET_WAITING_MASK)
+#define SHA_INTENSET_DIGEST_MASK                 (0x2U)
+#define SHA_INTENSET_DIGEST_SHIFT                (1U)
+#define SHA_INTENSET_DIGEST(x)                   (((uint32_t)(((uint32_t)(x)) << SHA_INTENSET_DIGEST_SHIFT)) & SHA_INTENSET_DIGEST_MASK)
+#define SHA_INTENSET_ERROR_MASK                  (0x4U)
+#define SHA_INTENSET_ERROR_SHIFT                 (2U)
+#define SHA_INTENSET_ERROR(x)                    (((uint32_t)(((uint32_t)(x)) << SHA_INTENSET_ERROR_SHIFT)) & SHA_INTENSET_ERROR_MASK)
+
+/*! @name INTENCLR - Interrupt Clear register */
+#define SHA_INTENCLR_WAITING_MASK                (0x1U)
+#define SHA_INTENCLR_WAITING_SHIFT               (0U)
+#define SHA_INTENCLR_WAITING(x)                  (((uint32_t)(((uint32_t)(x)) << SHA_INTENCLR_WAITING_SHIFT)) & SHA_INTENCLR_WAITING_MASK)
+#define SHA_INTENCLR_DIGEST_MASK                 (0x2U)
+#define SHA_INTENCLR_DIGEST_SHIFT                (1U)
+#define SHA_INTENCLR_DIGEST(x)                   (((uint32_t)(((uint32_t)(x)) << SHA_INTENCLR_DIGEST_SHIFT)) & SHA_INTENCLR_DIGEST_MASK)
+#define SHA_INTENCLR_ERROR_MASK                  (0x4U)
+#define SHA_INTENCLR_ERROR_SHIFT                 (2U)
+#define SHA_INTENCLR_ERROR(x)                    (((uint32_t)(((uint32_t)(x)) << SHA_INTENCLR_ERROR_SHIFT)) & SHA_INTENCLR_ERROR_MASK)
+
+/*! @name MEMCTRL - Memory Control register */
+#define SHA_MEMCTRL_MASTER_MASK                  (0x1U)
+#define SHA_MEMCTRL_MASTER_SHIFT                 (0U)
+#define SHA_MEMCTRL_MASTER(x)                    (((uint32_t)(((uint32_t)(x)) << SHA_MEMCTRL_MASTER_SHIFT)) & SHA_MEMCTRL_MASTER_MASK)
+#define SHA_MEMCTRL_COUNT_MASK                   (0x7FF0000U)
+#define SHA_MEMCTRL_COUNT_SHIFT                  (16U)
+#define SHA_MEMCTRL_COUNT(x)                     (((uint32_t)(((uint32_t)(x)) << SHA_MEMCTRL_COUNT_SHIFT)) & SHA_MEMCTRL_COUNT_MASK)
+
+/*! @name MEMADDR - Memory Address register */
+#define SHA_MEMADDR_BASEADDR_MASK                (0xFFFFFFFFU)
+#define SHA_MEMADDR_BASEADDR_SHIFT               (0U)
+#define SHA_MEMADDR_BASEADDR(x)                  (((uint32_t)(((uint32_t)(x)) << SHA_MEMADDR_BASEADDR_SHIFT)) & SHA_MEMADDR_BASEADDR_MASK)
+
+/*! @name INDATA - Input Data register */
+#define SHA_INDATA_DATA_MASK                     (0xFFFFFFFFU)
+#define SHA_INDATA_DATA_SHIFT                    (0U)
+#define SHA_INDATA_DATA(x)                       (((uint32_t)(((uint32_t)(x)) << SHA_INDATA_DATA_SHIFT)) & SHA_INDATA_DATA_MASK)
+
+/*! @name ALIAS - Alias register */
+#define SHA_ALIAS_DATA_MASK                      (0xFFFFFFFFU)
+#define SHA_ALIAS_DATA_SHIFT                     (0U)
+#define SHA_ALIAS_DATA(x)                        (((uint32_t)(((uint32_t)(x)) << SHA_ALIAS_DATA_SHIFT)) & SHA_ALIAS_DATA_MASK)
+
+/* The count of SHA_ALIAS */
+#define SHA_ALIAS_COUNT                          (7U)
+
+/*! @name DIGEST - Digest register */
+#define SHA_DIGEST_DIGEST_MASK                   (0xFFFFFFFFU)
+#define SHA_DIGEST_DIGEST_SHIFT                  (0U)
+#define SHA_DIGEST_DIGEST(x)                     (((uint32_t)(((uint32_t)(x)) << SHA_DIGEST_DIGEST_SHIFT)) & SHA_DIGEST_DIGEST_MASK)
+
+/* The count of SHA_DIGEST */
+#define SHA_DIGEST_COUNT                         (8U)
+
+
+/*!
+ * @}
+ */ /* end of group SHA_Register_Masks */
+
+
+/* SHA - Peripheral instance base addresses */
+/** Peripheral SHA0 base address */
+#define SHA0_BASE                                (0x400A4000u)
+/** Peripheral SHA0 base pointer */
+#define SHA0                                     ((SHA_Type *)SHA0_BASE)
+/** Array initializer of SHA peripheral base addresses */
+#define SHA_BASE_ADDRS                           { SHA0_BASE }
+/** Array initializer of SHA peripheral base pointers */
+#define SHA_BASE_PTRS                            { SHA0 }
+
+/*!
+ * @}
+ */ /* end of group SHA_Peripheral_Access_Layer */
+
+
+/* ----------------------------------------------------------------------------
    -- SMARTCARD Peripheral Access Layer
    ---------------------------------------------------------------------------- */
 
@@ -12406,5 +12523,5 @@ typedef struct {
  */ /* end of group SDK_Compatibility_Symbols */
 
 
-#endif  /* _LPC54618_H_ */
+#endif  /* _LPC54628_H_ */
 
