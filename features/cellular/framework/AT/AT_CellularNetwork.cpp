@@ -46,11 +46,6 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 
     memset(_apn, 0, MAX_ACCESSPOINT_NAME_LENGTH);
 
-#ifdef MBED_CONF_APP_CELLULAR_APN
-    strncpy(_apn, MBED_CONF_APP_CELLULAR_APN, MAX_ACCESSPOINT_NAME_LENGTH);
-    tr_debug("Using APN [%s] from json", _apn);
-#endif
-
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
