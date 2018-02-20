@@ -189,7 +189,7 @@ nsapi_error_t AT_CellularStack::socket_bind(nsapi_socket_t handle, const SocketA
 
 nsapi_error_t AT_CellularStack::socket_listen(nsapi_socket_t handle, int backlog)
 {
-    return 0;
+    return NSAPI_ERROR_UNSUPPORTED;;
 }
 
 nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const SocketAddress &addr)
@@ -206,7 +206,7 @@ nsapi_error_t AT_CellularStack::socket_connect(nsapi_socket_t handle, const Sock
 
 nsapi_error_t AT_CellularStack::socket_accept(void *server, void **socket, SocketAddress *addr)
 {
-    return 0;
+    return NSAPI_ERROR_UNSUPPORTED;;
 }
 
 nsapi_size_or_error_t AT_CellularStack::socket_send(nsapi_socket_t handle, const void *data, unsigned size)
