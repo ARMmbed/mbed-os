@@ -96,7 +96,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
         sock_id = _at.read_int();
         _at.resp_stop();
 
-        bool socketOpenWorking = (_at.get_last_error() == NSAPI_ERROR_OK);
+        socketOpenWorking = (_at.get_last_error() == NSAPI_ERROR_OK);
 
         if (!socketOpenWorking) {
             _at.cmd_start("AT+NSOCL=0");
@@ -183,7 +183,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     // remaining length
     _at.skip_param();
 
-    if (!recv_len || (_at.get_last_error() != NSAPI_ERROR_OK)) {
+    if (!recv_len || (recv_len == -1) || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 

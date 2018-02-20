@@ -256,6 +256,10 @@ public:
      */
     void set_delimiter(char delimiter);
 
+    /** Sets the delimiter to default value defined by DEFAULT_DELIMITER.
+     */
+    void set_default_delimiter();
+
     /** Consumes the reading buffer up to the delimiter or stop_tag
      *
      *  @param count number of parameters to be skipped
