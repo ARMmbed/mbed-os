@@ -70,7 +70,7 @@
 #include "drivers/RawSerial.h"
 #include "drivers/UARTSerial.h"
 #include "drivers/FlashIAP.h"
-#include "drivers/TableCRC.h"
+#include "drivers/MbedCRC.h"
 
 // mbed Internal components
 #include "drivers/Timer.h"
