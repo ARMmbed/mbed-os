@@ -25,7 +25,7 @@ ATCAError MbedPlatform::Init()
     if (i2c == NULL)
         return ATCA_ERR_MEM_ALLOC_FAILURE;
     i2c->frequency(freq);
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 void MbedPlatform::Deinit()
@@ -53,14 +53,14 @@ ATCAError MbedPlatform::Read(uint8_t * buf, size_t len)
 {
     int status = i2c->read(addr, (char *)buf, len);
     //Dump(buf, len, false);
-    return (status != 0)?ATCA_ERR_I2C_READ_ERROR:ATCA_ERR_NO_ERROR;
+    return (status != 0)?ATCA_ERR_I2C_READ_ERROR:ATCA_SUCCESS;
 }
 
 ATCAError MbedPlatform::Write(uint8_t * buf, size_t len)
 {
     //Dump(buf, len, true);
     int status = i2c->write(addr, (const char *)buf, len);
-    return (status != 0)?ATCA_ERR_I2C_WRITE_ERROR:ATCA_ERR_NO_ERROR;
+    return (status != 0)?ATCA_ERR_I2C_WRITE_ERROR:ATCA_SUCCESS;
 }
 
 void MbedPlatform::Dump(uint8_t * buf, size_t len, bool tx)

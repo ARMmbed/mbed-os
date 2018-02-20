@@ -41,14 +41,14 @@ ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
             return NULL;
         }
         err = instance->device.Init();
-        if ( err != ATCA_ERR_NO_ERROR )
+        if ( err != ATCA_SUCCESS )
         {
             delete instance;
             instance = NULL;
             return NULL;
         }
     }
-    err = ATCA_ERR_NO_ERROR;
+    err = ATCA_SUCCESS;
     return &instance->device;
 }
 

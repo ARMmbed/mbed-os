@@ -100,10 +100,10 @@ void handle_host_req(mbed::RawSerial * serial)
 {
     int             status = 0;
     unsigned char   function = 0;
-    ATCAError       err = ATCA_ERR_NO_ERROR;
+    ATCAError       err = ATCA_SUCCESS;
     ATCADevice *    device = ATCAFactory::GetDevice( err );
 
-    if ( err != ATCA_ERR_NO_ERROR )
+    if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         /* Notify error by sending length indicator = 0 */
@@ -123,10 +123,10 @@ void handle_host_req(mbed::RawSerial * serial)
             {
                 unsigned char key_idx = serial->getc();
                 ATCAKey *     key = NULL;
-                ATCAError     err = ATCA_ERR_NO_ERROR;
+                ATCAError     err = ATCA_SUCCESS;
 
                 key = device->GetKeyToken( (ATCAKeyID)key_idx, err );
-                if ( err != ATCA_ERR_NO_ERROR )
+                if ( err != ATCA_SUCCESS )
                 {
                     assert( key == NULL );
                     status = -1;
@@ -177,10 +177,10 @@ void handle_host_req(mbed::RawSerial * serial)
                     size_t sig_len;
 
                     ATCAKey *     key = NULL;
-                    ATCAError     err = ATCA_ERR_NO_ERROR;
+                    ATCAError     err = ATCA_SUCCESS;
 
                     key = device->GetKeyToken( (ATCAKeyID)key_idx, err );
-                    if ( err != ATCA_ERR_NO_ERROR )
+                    if ( err != ATCA_SUCCESS )
                     {
                         assert( key == NULL );
                         status = -1;
@@ -188,7 +188,7 @@ void handle_host_req(mbed::RawSerial * serial)
                     else
                     {
                         ATCAError err = key->Sign( hash, hash_len, rs, sizeof(rs), &rs_len );
-                        if (err == ATCA_ERR_NO_ERROR)
+                        if (err == ATCA_SUCCESS)
                         {
                             // create asn1 from r & s
                             mbedtls_mpi_read_binary(&r, rs, rs_len/2);
@@ -235,9 +235,9 @@ void handle_host_req(mbed::RawSerial * serial)
  */
 ATCAError commission()
 {
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     ATCADevice * device = ATCAFactory::GetDevice(err);
-    if ( err != ATCA_ERR_NO_ERROR )
+    if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         return err;
@@ -246,7 +246,7 @@ ATCAError commission()
     /* check if the device is locked? */
     bool locked;
     err = device->CheckConfigLock( &locked );
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
     {
         return ( err );
     }
@@ -258,22 +258,22 @@ ATCAError commission()
     for (uint8_t i = 0; i < 8; i++)
     {
         err = device->ConfigPrivKey(i);
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
             return( err );
     }
     /* Configure slot 9-14 as ECC Public keys */
     for (uint8_t i = 9; i <= 14; i++)
     {
         err = device->ConfigPubKey(i);
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
             return( err );
     }
     /* Setup slot 8 for certificate storage. */
     err = device->ConfigCertStore();
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return( err );
 
-    return( ATCA_ERR_NO_ERROR );
+    return( ATCA_SUCCESS );
 }
 
 /** Provisioing application's main function.
@@ -294,14 +294,14 @@ int main()
 {
     size_t magic_pattern_idx = 0;
     mbed::RawSerial * serial = new mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     ATCADevice * device = ATCAFactory::GetDevice( err );
 
     printf("\r\n*****************************************\r\n");
     printf(    "*          MBED ATCA ECC App           **\r\n");
     printf(    "*****************************************\r\n");
 
-    if ( err != ATCA_ERR_NO_ERROR )
+    if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         printf("\r\nFailed to connect to device. error = 0x%02X\r\n", err);
@@ -328,7 +328,7 @@ int main()
             case 'a':
                 {
                     printf("\r\nCommissioning...\r\n");
-                    if ( ( err = commission()) != ATCA_ERR_NO_ERROR )
+                    if ( ( err = commission()) != ATCA_SUCCESS )
                     {
                         printf ("Failed to commission! %04X\r\n", err);
                         break;
@@ -340,7 +340,7 @@ int main()
                     if ( serial->getc() == 'y' )
                     {
                         err =  device->LockCommand(atcaecc508a_sample_config_crc);
-                        if (err != ATCA_ERR_NO_ERROR)
+                        if (err != ATCA_SUCCESS)
                         {
                             printf ("Failed to lock config! %04X\r\n", err);
                             break;
@@ -358,7 +358,7 @@ int main()
                 {
                     uint8_t pk_temp[ATCA_ECC_ECC_PK_LEN];
                     size_t len = 0;
-                    if ( device->GenPrivateKey(0, pk_temp, sizeof(pk_temp), &len) != ATCA_ERR_NO_ERROR )
+                    if ( device->GenPrivateKey(0, pk_temp, sizeof(pk_temp), &len) != ATCA_SUCCESS )
                         printf("Failed to generated key at slot 0. error %04X\r\n", err);
                     else
                         printf("\r\nThis sample generates only one private key\r\n"
