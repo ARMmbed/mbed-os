@@ -163,6 +163,12 @@ def main():
                         default=False,
                         help="writes tools/export/README.md")
 
+    parser.add_argument("--build",
+                        type=argparse_filestring_type,
+                        dest="build_dir",
+                        default=None,
+                        help="Directory for the exported project files")
+
     parser.add_argument("--source",
                         action="append",
                         type=argparse_filestring_type,
@@ -262,7 +268,8 @@ def main():
         export(mcu, options.ide, build=options.build,
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
-               build_profile=profile, app_config=options.app_config)
+               build_profile=profile, app_config=options.app_config,
+               export_path=options.build_dir)
     except NotSupportedException as exc:
         print("[ERROR] %s" % str(exc))
 
