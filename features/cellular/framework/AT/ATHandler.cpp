@@ -49,6 +49,7 @@ const uint8_t CMS_ERROR_LENGTH = 11;
 const char *ERROR_ = "ERROR\r\n";
 const uint8_t ERROR_LENGTH = 7;
 const uint8_t MAX_RESP_LENGTH = CMS_ERROR_LENGTH;
+const char DEFAULT_DELIMITER = ',';
 
 static const uint8_t map_3gpp_errors[][2] =  {
     { 103, 3 },  { 106, 6 },  { 107, 7 },  { 108, 8 },  { 111, 11 }, { 112, 12 }, { 113, 13 }, { 114, 14 },
@@ -72,7 +73,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _processing(false),
     _ref_count(1),
     _stop_tag(NULL),
-    _delimiter(','),
+    _delimiter(DEFAULT_DELIMITER),
     _prefix_matched(false),
     _urc_matched(false),
     _error_found(false),
@@ -411,7 +412,7 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
     tr_debug("%s", __func__);
-    at_debug("\n----------buff:----------\n");
+    at_debug("\n----------read_string buff:----------\n");
     for (size_t i = _recv_pos; i < _recv_len; i++) {
         at_debug("%c", _recv_buff[i]);
     }
@@ -482,6 +483,11 @@ int32_t ATHandler::read_int()
 void ATHandler::set_delimiter(char delimiter)
 {
     _delimiter = delimiter;
+}
+
+void ATHandler::set_default_delimiter()
+{
+    _delimiter = DEFAULT_DELIMITER;
 }
 
 void ATHandler::set_tag(tag_t* tag_dst, const char *tag_seq)
@@ -560,7 +566,7 @@ bool ATHandler::match_urc()
         prefix_len = strlen(oob->prefix);
         if (_recv_len >= prefix_len) {
             if (match(oob->prefix, prefix_len)) {
-                tr_debug("URC!");
+                tr_debug("URC! %s", oob->prefix);
                 set_scope(InfoType);
                 if (oob->cb) {
                     oob->cb();
@@ -670,7 +676,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 {
     tr_debug("%s: %s", __func__, prefix);
 
-    at_debug("\n----------buff:----------\n");
+    at_debug("\n----------resp buff:----------\n");
     for (size_t i = _recv_pos; i < _recv_len; i++) {
         at_debug("%c", _recv_buff[i]);
     }
@@ -926,7 +932,6 @@ const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* sr
     if (dest_len > src_len) {
         for(size_t i = 0; i < dest_len-src_len; ++i) {
             if(memcmp(dest+i, src, src_len) == 0) {
-                at_debug("mem_str i: %d", i);
                 return dest+i;
             }
         }
@@ -955,6 +960,7 @@ void ATHandler::cmd_start(const char* cmd)
 
 void ATHandler::write_int(int32_t param)
 {
+    log_debug("write_int: %d", param);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
@@ -976,6 +982,7 @@ void ATHandler::write_int(int32_t param)
 
 void ATHandler::write_string(const char* param, bool useQuotations)
 {
+    log_debug("write_string: %s, %d", param, useQuotations);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;

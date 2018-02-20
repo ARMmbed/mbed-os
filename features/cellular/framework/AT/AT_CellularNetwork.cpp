@@ -492,8 +492,8 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
     _at.cmd_start(at_reg[i].cmd);
     _at.write_string("?", false);
-
     _at.cmd_stop();
+
     _at.resp_start(rsp[i]);
     _at.read_int(); // ignore urc mode subparam
     status = (RegistrationStatus)_at.read_int();

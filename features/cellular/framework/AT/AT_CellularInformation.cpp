@@ -48,9 +48,11 @@ nsapi_error_t AT_CellularInformation::get_info(const char *cmd, char *buf, size_
 
     _at.cmd_start(cmd);
     _at.cmd_stop();
+    _at.set_delimiter(0);
     _at.resp_start();
-    _at.read_string(buf, buf_size-1); // stop tag OK\r\n
+    _at.read_string(buf, buf_size-1);
     _at.resp_stop();
+    _at.set_default_delimiter();
 
     return _at.unlock_return_error();
 }
