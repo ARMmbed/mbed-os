@@ -121,6 +121,11 @@ int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
 }
 
 lorawan_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
-  {
-     return stk_obj().set_lora_callbacks(callbacks);
-  }
+{
+    return stk_obj().set_lora_callbacks(callbacks);
+}
+
+lorawan_status_t LoRaWANInterface::set_device_class(const device_class_t device_class)
+{
+    return stk_obj().set_device_class(device_class);
+}
