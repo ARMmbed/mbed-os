@@ -65,7 +65,7 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     uint8_t rs[ATCA_ECC_SIG_LEN];
     size_t rs_len;
     int ret = 0;
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     printf("atca_sign_func called \r\n");
 
     if ( md_alg != MBEDTLS_MD_SHA256 )
@@ -79,7 +79,7 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     mbedtls_mpi_init( &s );
     err = key->Sign( (const uint8_t *)hash,
                                hash_len, rs, sizeof(rs), &rs_len);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
     {
         printf("Sign failed %02x!\r\n", err );
         ret = MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
@@ -201,7 +201,7 @@ static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
     {
         return MBEDTLS_ERR_PK_INVALID_SIGNATURE;
     }
-    else if (err != ATCA_ERR_NO_ERROR)
+    else if (err != ATCA_SUCCESS)
     {
         printf("Verify failed = 0x%x\r\n", err);
         return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
@@ -233,13 +233,13 @@ extern "C" {
 int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 {
     ATCAKey * key = NULL;
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     ATCADevice * device = ATCAFactory::GetDevice( err );
     
     if ( ctx == NULL )
         return( -1 );
 
-    if ( err != ATCA_ERR_NO_ERROR )
+    if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         return( -1 );
@@ -280,9 +280,9 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 {
     ATCAKey * key = NULL;
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     ATCADevice * device = ATCAFactory::GetDevice( err );
-    if ( err != ATCA_ERR_NO_ERROR )
+    if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;

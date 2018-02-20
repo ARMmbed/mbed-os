@@ -25,7 +25,7 @@ ATCAError ATCADevice::Init()
 {
     /* Send wakeup token */
     ATCAError err = Wakeup();
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
 
     /* Check revision.
@@ -35,7 +35,7 @@ ATCAError ATCADevice::Init()
     ReadConfig(ATCA_ECC_CFG_ADDR_REVISION, sizeof(resp), resp);
     if (memcmp(resp, expected_revision, sizeof(resp)) != 0)
         return ATCA_ERR_UNSUPPORTED_DEVICE_REVISION;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 ATCAError ATCADevice::Wakeup()
@@ -50,19 +50,19 @@ ATCAError ATCADevice::Wakeup()
     plt.WaitUs(ATCA_ECC_DELAY_TWHI_US);
 
     ATCAError err = plt.Init();
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
     uint8_t resp[] = {0x00, 0x00, 0x00, 0x00};
     int retries = 0;
     do{
         err = plt.Read(resp, sizeof(resp));
         plt.WaitUs(1000);
-    }while (err != ATCA_ERR_NO_ERROR && retries++ < 3);
-    if (err != ATCA_ERR_NO_ERROR)
+    }while (err != ATCA_SUCCESS && retries++ < 3);
+    if (err != ATCA_SUCCESS)
         return err;
     if (resp[1] != (uint8_t)ATCA_ERR_WAKE_TOKEN_RECVD)
         return ATCA_ERR_DEVICE_ERROR;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 ATCAError ATCADevice::ResetWatchdog()
@@ -86,10 +86,10 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
     info->cmd()[info->cmd_len] = (crc & 0xff);
     info->cmd()[info->cmd_len + 1] = crc >> 8;
 
-    while ( (err != ATCA_ERR_NO_ERROR) && ( (retries++) < 3))
+    while ( (err != ATCA_SUCCESS) && ( (retries++) < 3))
     {
         err = plt.Write(info->tx_buf, info->cmd_len + ATCA_ECC_FUNCTION_LEN + ATCA_ECC_CMD_IO_WRAPER_LEN);
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
         {
             ResetWatchdog();
             continue;
@@ -100,7 +100,7 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
 
         /* Trying reading after typical exec time. */
         err = plt.Read(info->rx_buf, info->resp_len);
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
         {
             /* Retry reading after max execution time */
             plt.WaitUs(info->max_exec_time);
@@ -108,7 +108,7 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
         }
 
         /* Reset device if error persists */
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
         {
             ResetWatchdog();
             continue;
@@ -131,10 +131,10 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
                 continue;
             else if (err == ATCA_ERR_WATCHDOG_WILL_EXPIRE)
             {
-                if (ResetWatchdog() == ATCA_ERR_NO_ERROR)
+                if (ResetWatchdog() == ATCA_SUCCESS)
                     continue;
             }
-            else if (err == ATCA_ERR_NO_ERROR)
+            else if (err == ATCA_SUCCESS)
             {
                 /* Response isn't loaded in SRAM.
                  * Retry reading after max execution time */
@@ -164,7 +164,7 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address,
     cmd[3] = (address >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
-    if (err == ATCA_ERR_NO_ERROR)
+    if (err == ATCA_SUCCESS)
     {
         memcpy(word, cmd_info.resp(), ATCA_ECC_WORD_SZ);
     }
@@ -225,7 +225,7 @@ ATCAError ATCADevice::GenPrivateKey(ATCAKeyID keyId, uint8_t *pk,
     cmd[3] = (keyId >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
-    if ( err == ATCA_ERR_NO_ERROR )
+    if ( err == ATCA_SUCCESS )
     {
         *pk_len = ATCA_ECC_ECC_PK_LEN;
         memcpy( pk, cmd_info.resp(), ATCA_ECC_ECC_PK_LEN );
@@ -251,7 +251,7 @@ ATCAError ATCADevice::GenPubKey(ATCAKeyID keyId, uint8_t *pk,
     cmd[3] = (keyId >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
-    if ( err == ATCA_ERR_NO_ERROR )
+    if ( err == ATCA_SUCCESS )
     {
         *pk_len = ATCA_ECC_ECC_PK_LEN;
         memcpy( pk, cmd_info.resp(), ATCA_ECC_ECC_PK_LEN );
@@ -288,7 +288,7 @@ int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
         return (int)ATCA_ERR_SMALL_BUFFER;
 
     ATCAError err = Nonce(hash, len);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return (int)err;
 
     ATCACmdInfo * cmd_info = new ATCACmdInfo();
@@ -302,7 +302,7 @@ int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
     cmd[3] = (keyId >> 8) & 0xFF;
 
     err = RunCommand(cmd_info);
-    if ( err == ATCA_ERR_NO_ERROR)
+    if ( err == ATCA_SUCCESS)
     {
         *sig_len = ATCA_ECC_SIG_LEN;
         memcpy( sig, cmd_info->resp(), ATCA_ECC_SIG_LEN );
@@ -323,7 +323,7 @@ int ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
 
     /* Load message in TempKey */
     ATCAError err = Nonce(msg, msg_len);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return (int)err;
 
     ATCACmdInfo cmd_info;
@@ -339,7 +339,7 @@ int ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
     memcpy(cmd + 4 + 64, pk, 64);
 
     err = RunCommand(&cmd_info);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
     {
         err = (ATCAError)cmd_info.resp()[0];
     }
@@ -374,7 +374,7 @@ ATCAError ATCADevice::WriteConfig(uint8_t byte_address, size_t len, uint8_t * da
         return ATCA_ERR_INVALID_PARAM;
 
     ATCAError err = ReadCommand(ATCA_ECC_ZONE_CONFIG, address, word, sizeof(word));
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
     memcpy(word + offset, data, len);
     return WriteCommand(ATCA_ECC_ZONE_CONFIG, address, word, sizeof(word));
@@ -400,7 +400,7 @@ ATCAError ATCADevice::ConfigPrivKey(ATCAKeyID keyId)
     data[0] = config & 0xFF;
     data[1] = config >> 8;
     err = WriteConfig(ATCA_ECC_CFG_ADDR_SLOT_CFG + keyId * 2, sizeof(data), data);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
 
     config = kc.Get();
@@ -425,7 +425,7 @@ ATCAError ATCADevice::ConfigPubKey(ATCAKeyID keyId)
     data[0] = config & 0xFF;
     data[1] = config >> 8;
     err = WriteConfig(ATCA_ECC_CFG_ADDR_SLOT_CFG + keyId * 2, sizeof(data), data);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
 
     config = kc.Get();
@@ -450,7 +450,7 @@ ATCAError ATCADevice::ConfigCertStore()
     data[0] = config & 0xFF;
     data[1] = config >> 8;
     err = WriteConfig(ATCA_ECC_CFG_ADDR_SLOT_CFG + 8 * 2, sizeof(data), data);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err != ATCA_SUCCESS)
         return err;
 
     config = kc.Get();
@@ -492,13 +492,13 @@ ATCAError ATCADevice::CheckConfigLock(bool * locked)
 
 void ATCADevice::DumpConfig()
 {
-    ATCAError err = ATCA_ERR_NO_ERROR;
+    ATCAError err = ATCA_SUCCESS;
     uint8_t word[ATCA_ECC_WORD_SZ] = {0x00, 0x00, 0x00, 0x00};
 
     for (int i = 0; i < ATCA_ECC_CONFIG_ZONE_SZ/ATCA_ECC_WORD_SZ; i++)
     {
         err = ReadCommand(ATCA_ECC_ZONE_CONFIG, i, word, sizeof(word));
-        if (err != ATCA_ERR_NO_ERROR)
+        if (err != ATCA_SUCCESS)
             printf ("Error reading 0x%x\r\n", err);
         else
             printf ("0x%02x: %02X %02X %02X %02X\r\n", i * ATCA_ECC_WORD_SZ,
@@ -575,7 +575,7 @@ ATCAKey * ATCADevice::GetKeyToken(ATCAKeyID keyId, ATCAError & err)
     uint8_t pk[ATCA_ECC_ECC_PK_LEN];
 
     err = GenPubKey(keyId, pk, sizeof(pk), &pk_len);
-    if (err != ATCA_ERR_NO_ERROR )
+    if (err != ATCA_SUCCESS )
     {
         return NULL;
     }

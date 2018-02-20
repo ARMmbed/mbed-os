@@ -21,7 +21,7 @@ ATCAError SlotConfig::EnableGenKey()
     if (!IsPrivKey())
         return ATCA_ERR_SLOT_NOT_PRIV_KEY;
     _register = (_register & ~SLOT_CONFIG_WRITE_CONFIG_MASK) | SLOT_CONFIG_GEN_KEY_ENABLE_FLAG;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 void SlotConfig::SetAsPrivKey()
@@ -57,14 +57,14 @@ ATCAError KeyConfig::SetECCKeyType()
 {
     _register &= ~KEY_CONFIG_KEY_TYPE_MASK;
     _register |= KEY_CONFIG_P256_ECC_KEY;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 ATCAError KeyConfig::SetNonECCKeyType()
 {
     _register &= ~KEY_CONFIG_KEY_TYPE_MASK;
     _register |= KEY_CONFIG_NON_ECC_KEY;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 ATCAError KeyConfig::EnablePubKeyGen()
@@ -72,7 +72,7 @@ ATCAError KeyConfig::EnablePubKeyGen()
     if (!IsPrivate())
         return ATCA_ERR_SLOT_NOT_PRIV_KEY;
     _register |= KEY_CONFIG_EN_PUB_KEY_MASK;
-    return ATCA_ERR_NO_ERROR;
+    return ATCA_SUCCESS;
 }
 
 void KeyConfig::SetPrivate()
