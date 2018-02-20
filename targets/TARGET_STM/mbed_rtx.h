@@ -19,7 +19,15 @@
 
 #ifndef INITIAL_SP
 
-#if (defined(TARGET_STM32F051R8) ||\
+#if (defined(TARGET_STM32L475VG))
+/* only GCC_ARM and IAR toolchain have the stack on SRAM2 */
+#if (defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR) || defined(__IAR_SYSTEMS_ICC__ ))
+#define INITIAL_SP              (0x10008000UL)
+#else
+#define INITIAL_SP              (0x20018000UL)
+#endif /* toolchains */
+
+#elif (defined(TARGET_STM32F051R8) ||\
      defined(TARGET_STM32F100RB) ||\
      defined(TARGET_STM32L031K6) ||\
      defined(TARGET_STM32L053C8) ||\
@@ -69,7 +77,6 @@
 #define INITIAL_SP              (0x20014000UL)
 
 #elif (defined(TARGET_STM32F401RE) ||\
-       defined(TARGET_STM32L475VG) ||\
        defined(TARGET_STM32L476RG) ||\
        defined(TARGET_STM32L476JG) ||\
        defined(TARGET_STM32L476VG) ||\
@@ -110,5 +117,17 @@
 #endif
 
 #endif // INITIAL_SP
+#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
+    extern uint32_t               __StackLimit[];
+    extern uint32_t               __StackTop[];
+    extern uint32_t               __end__[];
+    extern uint32_t               __HeapLimit[];
+    #define HEAP_START            ((unsigned char*)__end__)
+    #define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
+    #define ISR_STACK_START       ((unsigned char*)__StackLimit)
+    #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
+#elif defined(__ICCARM__)
+    /* No region declarations needed */
+#endif
 
 #endif  // MBED_MBED_RTX_H
