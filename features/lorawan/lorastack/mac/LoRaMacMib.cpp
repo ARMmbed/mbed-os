@@ -59,6 +59,7 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
                     break;
                 }
                 case CLASS_B: {
+                    status = LORAWAN_STATUS_UNSUPPORTED;
                     break;
                 }
                 case CLASS_C: {

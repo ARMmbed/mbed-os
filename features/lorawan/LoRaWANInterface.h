@@ -428,6 +428,18 @@ public:
        *                          callbacks.
        */
     virtual lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
+
+    /** Change device class
+     *
+     * Change current device class.
+     *
+     * @param    device_class   The device class
+     *
+     * @return                  LORAWAN_STATUS_OK on success,
+     *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
+     *                          or other negative error code if request failed.
+     */
+    virtual lorawan_status_t set_device_class(const device_class_t device_class);
 };
 
 #endif /* LORAWANINTERFACE_H_ */

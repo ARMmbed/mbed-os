@@ -360,6 +360,18 @@ public:
      */
     lorawan_status_t shutdown();
 
+    /** Change device class
+     *
+     * Change current device class.
+     *
+     * @param    device_class   The device class
+     *
+     * @return                  LORAWAN_STATUS_OK on success,
+     *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
+     *                          or other negative error code if request failed.
+     */
+    lorawan_status_t set_device_class(const device_class_t device_class);
+
 private:
     LoRaWANStack();
     ~LoRaWANStack();
