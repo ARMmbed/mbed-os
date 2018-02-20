@@ -1184,6 +1184,14 @@ lorawan_status_t LoRaWANStack::shutdown()
     return lora_state_machine();
 }
 
+lorawan_status_t LoRaWANStack::set_device_class(const device_class_t device_class)
+{
+    loramac_mib_req_confirm_t mib_req;
+    mib_req.type = MIB_DEVICE_CLASS;
+    mib_req.param.dev_class = device_class;
+    return mib_set_request(&mib_req);
+}
+
 lorawan_status_t LoRaWANStack::lora_state_machine()
 {
     loramac_mib_req_confirm_t mib_req;
