@@ -25,7 +25,7 @@ enum ATCAError {
     ATCA_ERR_ECC_FAULT                              = 0x0005,
     ATCA_ERR_WAKE_TOKEN_RECVD                       = 0x0011,
     ATCA_ERR_WATCHDOG_WILL_EXPIRE                   = 0x00EE,
-    ATCA_ERR_CRC_OR_OTHR_ERROR                      = 0x00FF,
+    ATCA_ERR_COMMUNICATION                          = 0x00FF,
 
     /* Driver defined errors have MSByte set to 0x1*/
     ATCA_ERR_DEVICE_ERROR                           = 0x0101, // rename to WAKE_TOKEN_NOT_RECVD
@@ -38,7 +38,7 @@ enum ATCAError {
     ATCA_ERR_CONFIG_LOCKED,
     ATCA_ERR_MEM_ALLOC_FAILURE,
     ATCA_ERR_I2C_READ_ERROR,
-    ATCA_ERR_I2C_WRITE_ERROR
+    ATCA_ERR_I2C_WRITE_ERROR,
 };
 
 #endif /* ATCAERROR_H */

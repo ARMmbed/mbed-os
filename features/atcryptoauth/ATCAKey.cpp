@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 #include "ATCAKey.h"
+#include "string.h"
 
 ATCAKey::ATCAKey(CryptoEngineInterface & dev, ATCAKeyID keyId_in, uint8_t * pk_in )
         :device(dev), keyId(keyId_in)
 {
-    for ( size_t i = 0; i < ATCA_ECC_ECC_PK_LEN; i++ )
-        pk[i] = pk_in[i];
+    memcpy(pk, pk_in, ATCA_ECC_ECC_PK_LEN);
 }
 
 ATCAError ATCAKey::Sign( const uint8_t * hash, size_t hash_len, uint8_t * sig,

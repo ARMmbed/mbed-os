@@ -34,6 +34,7 @@
 #include "mbedtls/error.h"
 #include "mbedtls/certs.h"
 #include "mbedtls/pk_info.h"
+#include "mbedtls/net_sockets.h"
 
 /* Mbed OS includes */
 #include "mbed.h"
@@ -95,7 +96,7 @@ int mbedtls_net_init()
     else
     {
         mbedtls_printf("No Client IP Address\r\n");
-        return 1;
+        return MBEDTLS_ERR_NET_UNKNOWN_HOST;
     }
 
     _tcpsocket = new TCPSocket(&eth_iface);
@@ -112,7 +113,7 @@ int mbedtls_net_connect(const char * server_name, uint16_t port)
         mbedtls_printf("Failed to connect\n");
         printf("MBED: Socket Error: %d\n", ret);
         _tcpsocket->close();
-        return 1;
+        return MBEDTLS_ERR_NET_CONNECT_FAILED;
     }
     return 0;
 }
@@ -123,7 +124,7 @@ void mbedtls_net_free()
     delete _tcpsocket;
 }
 
-static int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len) {
+int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len) {
     int size = -1;
     TCPSocket *socket = static_cast<TCPSocket *>(ctx);
     size = socket->send(buf, len);
@@ -132,13 +133,13 @@ static int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len) {
         return MBEDTLS_ERR_SSL_WANT_WRITE;
     }else if(size < 0){
         mbedtls_printf("Socket send error %d\n", size);
-        return -1;
+        return MBEDTLS_ERR_NET_SEND_FAILED;
     }else{
         return size;
     }
 }
 
-static int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len) {
+int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len) {
     int recv = -1;
     TCPSocket *socket = static_cast<TCPSocket *>(ctx);
     recv = socket->recv(buf, len);
@@ -147,16 +148,14 @@ static int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len) {
         return MBEDTLS_ERR_SSL_WANT_READ;
     }else if(recv < 0){
         mbedtls_printf("Socket recv error %d\n", recv);
-        return -1;
+        return MBEDTLS_ERR_NET_RECV_FAILED;
     }else{
         return recv;
     }
 }
 
-static uint32_t flags;
 static uint8_t buf[1024];
 static const uint8_t *pers = (uint8_t *)("ssl_client");
-static uint8_t vrfy_buf[512];
 static mbedtls_entropy_context entropy;
 static mbedtls_ctr_drbg_context ctr_drbg;
 static mbedtls_ssl_context ssl;
@@ -259,8 +258,6 @@ void run_ssl_client()
 
     mbedtls_printf( " ok\r\n" );
 
-    /* OPTIONAL is not optimal for security,
-     * but makes interop easier in this simplified example */
     mbedtls_ssl_conf_authmode( &conf, MBEDTLS_SSL_VERIFY_REQUIRED );
     mbedtls_ssl_conf_ca_chain( &conf, &cacert, NULL );
     mbedtls_ssl_conf_own_cert( &conf, &clientcert, &clientkey );
@@ -302,26 +299,7 @@ void run_ssl_client()
 
 
     /*
-     * 6. Verify the server certificate
-     */
-    mbedtls_printf( "  . Verifying peer X.509 certificate ..." );
-
-    if( ( flags = mbedtls_ssl_get_verify_result( &ssl ) ) != 0 )
-    {
-
-        mbedtls_printf( " failed\r\n" );
-        mbedtls_x509_crt_verify_info( (char *)vrfy_buf, sizeof( vrfy_buf ), "  ! ", flags );
-
-        mbedtls_printf( "%s\r\n", vrfy_buf );
-    }
-    else
-    {
-        mbedtls_printf( " ok\r\n" );
-    }
-
-
-    /*
-     * 7. Write the GET request
+     * 6. Write the GET request
      */
 
     mbedtls_printf( "  > Write to server:" );
@@ -341,7 +319,7 @@ void run_ssl_client()
 
 
     /*
-     * 8. Read the HTTP response
+     * 7. Read the HTTP response
      */
     mbedtls_printf( "  < Read from server:" );
 

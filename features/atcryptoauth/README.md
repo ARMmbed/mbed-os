@@ -23,14 +23,14 @@ ATCAECC508A has following features relevant for sample development. There are mo
 ## Design considerations 
 This is the first draft of the driver. It is developed for demonstrating ECDSA operations using Opaque keys feature. Following considerations are taken in this first draft:
 - Only ECDSA sign and verify operations are implemented.
-- The device is commissioned with a minimilistic configuration to allow ECDSA operations.
+- The device is commissioned with a minimalistic configuration to allow ECDSA operations.
 - Locking configuration zone (EEPROM region containing config) is locked as it is necessary to use the device.
 - Locking data zone is not required for sample or demo purposes.
 - The device is not configured to authenticate driver commands.
 - Public keys are not stored in the device but generated whenever required.
 
 ## ATCAECC508A configuration
-The device configuration should be **locked** before use. To achieve demo requirements it is commissioned with a minimilistic configuration. The commissioning can be done using the sample commissioning app contained in the driver code. This app commissions following configuration in the device:
+The device configuration must be **locked** before use. Locking means that the configuration cannot be changed afterwords. To achieve demo requirements it should be commissioned with a minimalistic configuration. The commissioning can be done using the sample commissioning app contained in the driver code. This app commissions following configuration in the device:
 - Data slots 0-7 are configured to contain ECC Private keys.
 - Slot 8 is configured to store a x509 certificate.
 - Slot 9-14 is configured to store ECC Public keys.
@@ -63,7 +63,7 @@ A self signed certificate can be generated using [modified](https://github.com/A
 - Run modified ```cert_write.exe``` with parameters shown below:
 
 ```
-mbedtls/programs/x509/cert_write.exe subject_key=remote0COM18 issuer_key=remote0COM18 issuer_name=CN=Cert,O=mbed TLS,C=UK authority_identifier=0 output_file=cert.pem
+mbedtls/programs/x509/cert_write.exe subject_key=///opaque_pk/ATCA/0/COM18 issuer_key=///opaque_pk/ATCA/0/COM18 issuer_name=CN=Cert,O=mbed TLS,C=UK authority_identifier=0 output_file=cert.pem
 ```
 Above command on success generates a certificate in ```cert.pem``` file. This certificate can be inspected with following command:
 ```
@@ -71,8 +71,9 @@ openssl x509 -in cert.pem -noout -text
 ```
 
 Modified ```cert_write.exe``` takes parameters ```subject_key``` and ```issuer_key``` formatted in a special way to identify HW keys. 
-The format is ```remote0COM18```. Here:
-- ```remote``` indiates a keys accessible via serial interface.
+The format is ```///opaque_pk/ATCA/0/COM18```. Here:
+- ```///opaque_pk``` indiates a cryptoprocessor accessed over serial interface.
+- ```ATCA``` indiates Atmel Crypto Auth device family
 - ```0``` indicates the key Id. It can be any key identifier supported by the device.
 - ```COM18``` is the serial port to communicate with the sample commissioning app running on the mbed-os platform.
 

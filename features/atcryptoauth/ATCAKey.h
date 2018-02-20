@@ -34,13 +34,13 @@ public:
      *  Key object uses device reference for sign and verify functions using
      *  private key stored in the device slot referred by the Key Id and the
      *  input pubic key respectively.
-     *  Public key can be re-generated from the device. It is generated
+     *  Public key can be re-calculated from the device. It is retrieved
      *  outside this class to avoid failure in this constructor or having
-     *  incomplete state object.
+     *  an incomplete state object.
      *
      *  @param dev      Device driver reference.
      *  @param keyId    Key Id/Slot number in device data zone.
-     *  @param pk       Public key buffer with X & Y concatenated.
+     *  @param pk       Public key input buffer with X & Y concatenated.
      */
     ATCAKey(CryptoEngineInterface & dev, ATCAKeyID keyId_in, uint8_t * pk);
 
