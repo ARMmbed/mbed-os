@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,11 +49,11 @@
 /* TEXT BELOW IS USED AS SETTING FOR THE CLOCKS TOOL *****************************
 !!ClocksProfile
 product: Clocks v1.0
-processor: LPC54618J512
-package_id: LPC54618J512ET180
+processor: LPC54628J512
+package_id: LPC54628J512ET180
 mcu_data: ksdk2_0
 processor_version: 0.0.0
-board: LPCXpresso54618
+board: LPCXpresso54628
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR THE CLOCKS TOOL **/
 
 #include "fsl_power.h"
@@ -244,5 +248,65 @@ void BOARD_BootClockPLL180M(void)
     CLOCK_AttachClk(kSYS_PLL_to_MAIN_CLK);         /*!< Switch System clock to SYS PLL 180MHz */
 
     /* Set SystemCoreClock variable. */
-    SystemCoreClock = BOARD_BootClockPLL180M_CORE_CLOCK;
+    SystemCoreClock = BOARD_BOOTCLOCKPLL180M_CORE_CLOCK;
 }
+
+/*******************************************************************************
+ ******************** Configuration BOARD_BootClockPLL220M *********************
+ ******************************************************************************/
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+!!Configuration
+name: BOARD_BootClockPLL220M
+called_from_default_init: true
+outputs:
+- {id: FRO12M_clock.outFreq, value: 12 MHz}
+- {id: FROHF_clock.outFreq, value: 48 MHz}
+- {id: MAIN_clock.outFreq, value: 220 MHz}
+- {id: SYSPLL_clock.outFreq, value: 220 MHz}
+- {id: System_clock.outFreq, value: 220 MHz}
+settings:
+- {id: SYSCON.MAINCLKSELB.sel, value: SYSCON.PLL_BYPASS}
+- {id: SYSCON.M_MULT.scale, value: '110', locked: true}
+- {id: SYSCON.N_DIV.scale, value: '3', locked: true}
+- {id: SYSCON.PDEC.scale, value: '2', locked: true}
+- {id: SYSCON_PDRUNCFG0_PDEN_SYS_PLL_CFG, value: Power_up}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+
+/*******************************************************************************
+ * Variables for BOARD_BootClockPLL220M configuration
+ ******************************************************************************/
+/*******************************************************************************
+ * Code for BOARD_BootClockPLL220M configuration
+ ******************************************************************************/
+void BOARD_BootClockPLL220M(void)
+{
+    /*!< Set up the clock sources */
+    /*!< Set up FRO */
+    POWER_DisablePD(kPDRUNCFG_PD_FRO_EN);                   /*!< Ensure FRO is on  */
+    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);                  /*!< Switch to FRO 12MHz first to ensure we can change voltage without accidentally
+                                                                being below the voltage for current speed */
+    POWER_SetVoltageForFreq(220000000U);             /*!< Set voltage for the one of the fastest clock outputs: System clock output */
+    CLOCK_SetFLASHAccessCyclesForFreq(220000000U);    /*!< Set FLASH wait states for core */
+
+    /*!< Set up SYS PLL */
+    const pll_setup_t pllSetup = {
+        .pllctrl =  SYSCON_SYSPLLCTRL_SELI(34U) | SYSCON_SYSPLLCTRL_SELP(31U) | SYSCON_SYSPLLCTRL_SELR(0U),
+        .pllmdec = (SYSCON_SYSPLLMDEC_MDEC(13243U)),
+        .pllndec = (SYSCON_SYSPLLNDEC_NDEC(1U)),
+        .pllpdec = (SYSCON_SYSPLLPDEC_PDEC(98U)),
+        .pllRate = 220000000U,
+        .flags =  PLL_SETUPFLAG_WAITLOCK | PLL_SETUPFLAG_POWERUP
+    };
+    CLOCK_AttachClk(kFRO12M_to_SYS_PLL);        /*!< Set sys pll clock source*/
+    CLOCK_SetPLLFreq(&pllSetup);                 /*!< Configure PLL to the desired value */
+
+    /*!< Set up dividers */
+    CLOCK_SetClkDiv(kCLOCK_DivAhbClk, 1U, false);                  /*!< Reset divider counter and set divider to value 1 */
+
+    /*!< Set up clock selectors - Attach clocks to the peripheries */
+    CLOCK_AttachClk(kSYS_PLL_to_MAIN_CLK);                  /*!< Switch MAIN_CLK to SYS_PLL */
+    SYSCON->MAINCLKSELA = ((SYSCON->MAINCLKSELA & ~SYSCON_MAINCLKSELA_SEL_MASK) | SYSCON_MAINCLKSELA_SEL(0U)); /*!< Switch MAINCLKSELA to FRO12M even it is not used for MAINCLKSELB */
+    /* Set SystemCoreClock variable. */
+    SystemCoreClock = BOARD_BOOTCLOCKPLL220M_CORE_CLOCK;
+}
+
