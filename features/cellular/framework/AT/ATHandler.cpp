@@ -960,7 +960,7 @@ void ATHandler::cmd_start(const char* cmd)
 
 void ATHandler::write_int(int32_t param)
 {
-    log_debug("write_int: %d", param);
+    tr_debug("write_int: %d", param);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
@@ -982,7 +982,7 @@ void ATHandler::write_int(int32_t param)
 
 void ATHandler::write_string(const char* param, bool useQuotations)
 {
-    log_debug("write_string: %s, %d", param, useQuotations);
+    tr_debug("write_string: %s, %d", param, useQuotations);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
