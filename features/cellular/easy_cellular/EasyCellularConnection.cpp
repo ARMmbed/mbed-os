@@ -31,11 +31,6 @@
 
 namespace mbed {
 
-static CellularConnectionUtil cellularConnection;
-static rtos::Semaphore cellularSemaphore(0);
-static UARTSerial cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-
-
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
     tr_info("cellular_status %d=>%d", state, next_state);
@@ -45,7 +40,7 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
         } else {
             _is_connected = false;
         }
-        MBED_ASSERT(cellularSemaphore.release() == osOK);
+        MBED_ASSERT(_cellularSemaphore.release() == osOK);
         return false;
     }
     else {
@@ -54,28 +49,35 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
     return true;
 }
 
-EasyCellularConnection::EasyCellularConnection() :  _is_connected(false), _target_state(CellularConnectionUtil::STATE_POWER_ON)
+EasyCellularConnection::EasyCellularConnection() :  _is_connected(false), _is_initialized(false),
+        _target_state(CellularConnectionUtil::STATE_POWER_ON),
+        _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE),
+        _cellularSemaphore(0), _cellularConnectionUtil(), _credentials_err(NSAPI_ERROR_OK)
 {
     tr_info("EasyCellularConnection()");
 }
 
 EasyCellularConnection::~EasyCellularConnection()
 {
-    cellularConnection.stop();
+    _cellularConnectionUtil.stop();
 }
 
 nsapi_error_t EasyCellularConnection::init()
 {
+    nsapi_error_t err = NSAPI_ERROR_OK;
+    if (!_is_initialized) {
 #if defined (MDMRTS) && defined (MDMCTS)
-    cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
+    _cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
 #endif
-    cellularConnection.set_serial(&cellularSerial);
-    cellularConnection.set_callback(callback(this, &EasyCellularConnection::cellular_status));
+        _cellularConnectionUtil.set_serial(&_cellularSerial);
+        _cellularConnectionUtil.set_callback(callback(this, &EasyCellularConnection::cellular_status));
 
-   nsapi_error_t err = cellularConnection.init();
+       err = _cellularConnectionUtil.init();
 
-    if (err == NSAPI_ERROR_OK) {
-        err = cellularConnection.start_dispatch();
+        if (err == NSAPI_ERROR_OK) {
+            err = _cellularConnectionUtil.start_dispatch();
+        }
+        _is_initialized = true;
     }
 
     return err;
@@ -83,9 +85,14 @@ nsapi_error_t EasyCellularConnection::init()
 
 void EasyCellularConnection::set_credentials(const char *apn, const char *uname, const char *pwd)
 {
-    CellularNetwork * network = cellularConnection.get_network();
+    _credentials_err = init();
+
+    if (_credentials_err) {
+        return;
+    }
+    CellularNetwork * network = _cellularConnectionUtil.get_network();
     if (network) {
-        network->set_credentials(apn, uname, pwd);
+        _credentials_err = network->set_credentials(apn, uname, pwd);
     } else {
         tr_error("NO Network...");
     }
@@ -93,22 +100,59 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
 
 void EasyCellularConnection::set_sim_pin(const char *sim_pin)
 {
-    cellularConnection.set_sim_pin(sim_pin);
+    if (sim_pin) {
+        _cellularConnectionUtil.set_sim_pin(sim_pin);
+    }
 }
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
-    cellularConnection.set_sim_pin(sim_pin);
-    cellularConnection.get_network()->set_credentials(apn, uname, pwd);
+    nsapi_error_t err = check_connect();
+    if (err) {
+        return err;
+    }
+
+    if (sim_pin) {
+        _cellularConnectionUtil.set_sim_pin(sim_pin);
+    }
+
+    err = _cellularConnectionUtil.get_network()->set_credentials(apn, uname, pwd);
+    if (err) {
+        return err;
+    }
+
     return connect();
+}
+
+nsapi_error_t EasyCellularConnection::check_connect()
+{
+    if (_is_connected) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    }
+    nsapi_error_t err = init();
+    if (err) {
+        return err;
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t EasyCellularConnection::connect()
 {
+    // there was an error while setting credentials but it's a void function so check error here...
+    if (_credentials_err) {
+        return _credentials_err;
+    }
+
+    nsapi_error_t err = check_connect();
+    if (err) {
+        return err;
+    }
+
     _target_state = CellularConnectionUtil::STATE_CONNECTED;
-    nsapi_error_t err = cellularConnection.continue_to_state(_target_state);
+    err = _cellularConnectionUtil.continue_to_state(_target_state);
     if (err == NSAPI_ERROR_OK) {
-        int ret_wait = cellularSemaphore.wait(10*60*1000); // cellular network searching may take several minutes
+        int ret_wait = _cellularSemaphore.wait(10*60*1000); // cellular network searching may take several minutes
         if (ret_wait != 1) {
             tr_info("No cellular connection");
             err = NSAPI_ERROR_NO_CONNECTION;
@@ -120,11 +164,12 @@ nsapi_error_t EasyCellularConnection::connect()
 
 nsapi_error_t EasyCellularConnection::disconnect()
 {
+    _credentials_err = NSAPI_ERROR_OK;
     _is_connected = false;
-    if (!cellularConnection.get_network()) {
+    if (!_cellularConnectionUtil.get_network()) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
-    return cellularConnection.get_network()->disconnect();
+    return _cellularConnectionUtil.get_network()->disconnect();
 }
 
 bool EasyCellularConnection::is_connected()
@@ -134,27 +179,36 @@ bool EasyCellularConnection::is_connected()
 
 const char *EasyCellularConnection::get_ip_address()
 {
-    CellularNetwork * network = cellularConnection.get_network();
-    if (network) {
-        return cellularConnection.get_network()->get_ip_address();
-    } else {
+    CellularNetwork *network = _cellularConnectionUtil.get_network();
+    if (!network) {
         return NULL;
     }
+    return _cellularConnectionUtil.get_network()->get_ip_address();
 }
 
 const char *EasyCellularConnection::get_netmask()
 {
-    return cellularConnection.get_network()->get_netmask();
+    CellularNetwork *network = _cellularConnectionUtil.get_network();
+    if (!network) {
+        return NULL;
+    }
+
+    return network->get_netmask();
 }
 
 const char *EasyCellularConnection::get_gateway()
 {
-    return cellularConnection.get_network()->get_gateway();
+    CellularNetwork *network = _cellularConnectionUtil.get_network();
+    if (!network) {
+        return NULL;
+    }
+
+    return network->get_gateway();
 }
 
 void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
-    CellularNetwork * network = cellularConnection.get_network();
+    CellularNetwork *network = _cellularConnectionUtil.get_network();
     if (network) {
         network->attach(status_cb);
     }
@@ -162,11 +216,7 @@ void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)
 
 NetworkStack *EasyCellularConnection::get_stack()
 {
-#if NSAPI_PPP_AVAILABLE
-    return nsapi_ppp_get_stack();
-#else
-    return cellularConnection.get_stack();
-#endif // #if NSAPI_PPP_AVAILABLE
+    return _cellularConnectionUtil.get_stack();
 }
 
 } // namespace

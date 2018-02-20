@@ -503,11 +503,7 @@ CellularNetwork* CellularConnectionUtil::get_network()
 
 CellularDevice* CellularConnectionUtil::get_device()
 {
-    if (_cellularDevice) {
-        return _cellularDevice;
-    } else {
-        return NULL;
-    }
+    return _cellularDevice;
 }
 
 NetworkStack *CellularConnectionUtil::get_stack()
