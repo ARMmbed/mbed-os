@@ -16,7 +16,11 @@
  */
 #include "CppUTest/TestHarness.h"
 #include "test_cellular_mux.h"
+#include "cellular_mux.h"
 #include <string.h>
+
+using namespace mbed;
+using namespace events;
 
 Test_cellular_mux::Test_cellular_mux()
 {
@@ -25,5 +29,29 @@ Test_cellular_mux::Test_cellular_mux()
 
 Test_cellular_mux::~Test_cellular_mux()
 {
+}
+
+void Test_cellular_mux::test_cellular_mux_module_init()
+{
+    Mux::module_init();
+}
+
+void Test_cellular_mux::test_cellular_mux_mux_start()
+{
+}
+
+void Test_cellular_mux::test_cellular_mux_dlci_establish()
+{
+
+}
+
+void Test_cellular_mux::test_cellular_mux_serial_attach()
+{
+
+}
+
+void Test_cellular_mux::test_cellular_mux_eventqueue_attach()
+{
+
 }
 

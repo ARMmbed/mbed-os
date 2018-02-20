@@ -14,7 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace rtos {
-class Semaphore {
-};
+#include "cellular_mux.h"
+
+namespace mbed
+{
+
+ssize_t MuxDataService::write(const void* buffer, size_t size)
+{
+    return 0;
+}
+
+
+ssize_t MuxDataService::read(void *buffer, size_t size)
+{
+    return 0;
+}
+
+
+off_t MuxDataService::seek(off_t offset, int whence)
+{
+    return 0;
+}
+
+
+int MuxDataService::close()
+{
+    return 0;
+}
+
+
+void MuxDataService::sigio(Callback<void()> func)
+{
+}
+
 }

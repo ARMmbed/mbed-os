@@ -17,4 +17,41 @@
 
 #include "Semaphore.h"
 
+namespace rtos {
 
+Semaphore::Semaphore(int32_t count) 
+{
+
+}
+
+Semaphore::Semaphore(int32_t count, uint16_t max_count) 
+{
+
+}
+
+void Semaphore::constructor(int32_t count, uint16_t max_count) 
+{
+    
+}
+
+int32_t Semaphore::wait(uint32_t millisec) 
+{
+    return 0;
+}
+
+int32_t Semaphore::wait_until(uint64_t millisec) 
+{
+    return 0;
+}
+
+osStatus Semaphore::release(void) 
+{
+    return 0;
+}
+
+Semaphore::~Semaphore() 
+{
+
+}
+
+}
