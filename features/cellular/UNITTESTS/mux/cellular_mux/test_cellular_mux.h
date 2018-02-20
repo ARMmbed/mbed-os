@@ -23,6 +23,16 @@ public:
     Test_cellular_mux();
 
     virtual ~Test_cellular_mux();
+
+    void test_cellular_mux_module_init();
+
+    void test_cellular_mux_mux_start();
+
+    void test_cellular_mux_dlci_establish();
+
+    void test_cellular_mux_serial_attach();
+
+    void test_cellular_mux_eventqueue_attach();
 };
 
 #endif // TEST_cellular_mux_H
