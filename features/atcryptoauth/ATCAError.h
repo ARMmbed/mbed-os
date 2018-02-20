@@ -19,7 +19,7 @@
 
 enum ATCAError {
     /* Device error codes from datasheet section 9.1.2 */
-    ATCA_ERR_NO_ERROR                               = 0x0000,
+    ATCA_SUCCESS                                    = 0x0000,
     ATCA_ERR_CHECK_MAC_OR_VERIFY_FAIL               = 0x0001,
     ATCA_ERR_PARSE_ERROR                            = 0x0003,
     ATCA_ERR_ECC_FAULT                              = 0x0005,
