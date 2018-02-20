@@ -38,6 +38,8 @@ public:
 
     AT_CellularNetwork(ATHandler &atHandler);
     virtual ~AT_CellularNetwork();
+    // declare friend so it can access stack
+    friend class AT_CellularDevice;
 
 public: // NetworkInterface
 
@@ -84,6 +86,7 @@ public: // NetworkInterface
      */
     virtual nsapi_error_t disconnect();
 
+protected:
     /** Provide access to the NetworkStack object
      *
      *  @return The underlying NetworkStack object
@@ -290,6 +293,8 @@ private:
     nsapi_error_t set_context_to_be_activated();
     nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
 
+    void free_credentials();
+
     nsapi_error_t open_data_channel();
     bool get_context(nsapi_ip_stack_t supported_stack);
     bool set_new_context(nsapi_ip_stack_t stack, int cid);
@@ -300,9 +305,9 @@ private:
 
 protected:
     NetworkStack *_stack;
-    char _apn[MAX_ACCESSPOINT_NAME_LENGTH];
-    const char *_uname;
-    const char *_pwd;
+    char *_apn;
+    char *_uname;
+    char *_pwd;
     nsapi_ip_stack_t _ip_stack_type_requested;
     nsapi_ip_stack_t _ip_stack_type;
     int _cid;

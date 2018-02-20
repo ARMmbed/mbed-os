@@ -35,7 +35,7 @@
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 namespace mbed {
-    
+
 const int PIN_SIZE = 8;
 
 /** CellularConnectionUtil class
@@ -80,7 +80,7 @@ public:
      *  @param status_callback function to call on state changes
      */
     void set_callback(mbed::Callback<bool(int, int)> status_callback);
-    
+
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
@@ -94,7 +94,7 @@ public:
     /** Stop event queue dispatching and close cellular interfaces
      */
     void stop();
-    
+
     /** Get cellular network interface
      *  @return network interface, NULL on failure
      */

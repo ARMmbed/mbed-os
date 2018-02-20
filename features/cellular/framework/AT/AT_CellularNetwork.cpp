@@ -37,19 +37,32 @@ static const at_reg_t at_reg[] = {
 };
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
-    _stack(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK), _ip_stack_type(DEFAULT_STACK), _cid(-1),
+    _stack(NULL), _apn(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK), _ip_stack_type(DEFAULT_STACK), _cid(-1),
     _connection_status_cb(NULL), _op_act(operator_t::RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG),
     _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
 
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
-
-    memset(_apn, 0, MAX_ACCESSPOINT_NAME_LENGTH);
-
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
 {
+    free_credentials();
+}
+
+void AT_CellularNetwork::free_credentials()
+{
+    if (_uname) {
+        free(_uname);
+    }
+
+    if (_pwd) {
+        free(_pwd);
+    }
+
+    if (_apn) {
+        free(_apn);
+    }
 }
 
 void AT_CellularNetwork::urc_no_carrier()
@@ -63,9 +76,36 @@ void AT_CellularNetwork::urc_no_carrier()
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
-    _uname = username;
-    _pwd = password;
+    size_t len;
+    if (apn) {
+        len = strlen(apn);
+        _apn = (char*)malloc(len*sizeof(char)+1);
+        if (_apn) {
+            memcpy(_apn, apn, len);
+        } else {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    if (username) {
+        len = strlen(username);
+        _uname = (char*)malloc(len*sizeof(char)+1);
+        if (_uname) {
+            memcpy(_uname, username, len);
+        } else {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    if (password) {
+        len = strlen(password);
+        _pwd = (char*)malloc(len*sizeof(char)+1);
+        if (_pwd) {
+            memcpy(_pwd, password, len);
+        } else {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
 
     return NSAPI_ERROR_OK;
 }
@@ -73,9 +113,11 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         AuthenticationType type, const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
-    _uname = username;
-    _pwd = password;
+    nsapi_error_t err = set_credentials(apn, username, password);
+    if (err) {
+        return err;
+    }
+
     _authentication_type = type;
 
     return NSAPI_ERROR_OK;
@@ -84,9 +126,10 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 nsapi_error_t AT_CellularNetwork::connect(const char *apn,
         const char *username, const char *password)
 {
-    strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
-    _uname = username;
-    _pwd = password;
+    nsapi_error_t err = set_credentials(apn, username, password);
+    if (err) {
+        return err;
+    }
 
     return connect();
 }
@@ -335,7 +378,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
     _at.resp_start("+CGDCONT:");
     _cid = -1;
     int cid_max = 0; // needed when creating new context
-    char apn[MAX_ACCESSPOINT_NAME_LENGTH] = {0};
+    char apn[MAX_ACCESSPOINT_NAME_LENGTH];
     int apn_len = 0;
 
     while (_at.info_resp()) {
@@ -348,7 +391,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
         if (pdp_type_len > 0) {
             apn_len = _at.read_string(apn, sizeof(apn) - 1);
             if (apn_len >= 0) {
-                if (strlen(_apn) && strcmp(apn, _apn) != 0 ) {
+                if (_apn && strcmp(apn, _apn) != 0 ) {
                     continue;
                 }
                 nsapi_ip_stack_t pdp_stack = string_to_stack_type(pdp_type_from_context);
@@ -390,8 +433,13 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
     }
 
     // save the apn
-    if (apn_len > 0 && !strlen(_apn)) {
-        strncpy(_apn, apn, MAX_ACCESSPOINT_NAME_LENGTH);
+    if (apn_len > 0 && !_apn) {
+        _apn = (char*)malloc(apn_len*sizeof(char)+1);
+        if (_apn) {
+            memcpy(_apn, apn, apn_len);
+        } else {
+            return false;
+        }
     }
 
     tr_debug("Context id %d", _cid);
@@ -591,7 +639,7 @@ nsapi_error_t AT_CellularNetwork::get_backoff_time(int &backoffTime)
     _at.lock();
 
     // If apn is set
-    if (strlen(_apn)) {
+    if (_apn) {
         _at.cmd_start("AT+CABTRDP=");
         _at.write_string(_apn);
         _at.cmd_stop();

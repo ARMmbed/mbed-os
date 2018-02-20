@@ -36,12 +36,6 @@ public:
     virtual ~EasyCellularConnection();
 
 public:
-    /** Create cellular power and start dispatcher
-     *  @remark Must be called before any other methods
-     *  @return see nsapi_error_t, 0 on success
-     */
-    nsapi_error_t init();
-
     /** Set the Cellular network credentials
      *
      *  Please check documentation of connect() for default behaviour of APN settings.
@@ -137,9 +131,18 @@ private:
      *  @return true to continue state machine
      */
     bool cellular_status(int state, int next_state);
+    nsapi_error_t init();
+    nsapi_error_t check_connect();
 
     bool _is_connected;
+    bool _is_initialized;
     CellularConnectionUtil::CellularState _target_state;
+
+    UARTSerial _cellularSerial;
+    rtos::Semaphore _cellularSemaphore;
+    CellularConnectionUtil _cellularConnectionUtil;
+
+    nsapi_error_t _credentials_err;
 };
 
 } // namespace
