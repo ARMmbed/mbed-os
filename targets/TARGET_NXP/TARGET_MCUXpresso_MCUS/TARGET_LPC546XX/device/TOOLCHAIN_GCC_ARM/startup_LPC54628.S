@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------------------*/
-/*  @file:    startup_LPC54618.S                                                          */
+/*  @file:    startup_LPC54628.S                                                          */
 /*  @purpose: CMSIS Cortex-M4 Core Device Startup File                                    */
-/*            LPC54618                                                                    */
+/*            LPC54628                                                                    */
 /*  @version: 1.0                                                                         */
 /*  @date:    2017-6-6                                                                    */
 /*  @build:   b161214                                                                     */
