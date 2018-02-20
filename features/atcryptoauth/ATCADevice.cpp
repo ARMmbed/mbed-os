@@ -79,12 +79,12 @@ ATCAError ATCADevice::ResetWatchdog()
 ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
 {
     ATCAError err = ATCA_ERR_DEVICE_ERROR;
-    uint16_t crc = GetCrc16(info->cmd - 1, info->cmd_len + 1); // Calculate CRC with count byte
+    uint16_t crc = GetCrc16(info->crc_input(), info->crc_input_len());
     int retries = 0;
 
     /* Device is little endian */
-    info->cmd[info->cmd_len] = (crc & 0xff);
-    info->cmd[info->cmd_len + 1] = crc >> 8;
+    info->cmd()[info->cmd_len] = (crc & 0xff);
+    info->cmd()[info->cmd_len + 1] = crc >> 8;
 
     while ( (err != ATCA_ERR_NO_ERROR) && ( (retries++) < 3))
     {
@@ -96,7 +96,7 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
         }
 
         /* Wait for execution time */
-        plt.WaitUs(info->typ_exec_time);
+        plt.WaitUs(info->typical_exec_time);
 
         /* Trying reading after typical exec time. */
         err = plt.Read(info->rx_buf, info->resp_len);
@@ -124,9 +124,9 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
         if (count != info->resp_len)
         {
             /* Try to recover from errors like watchdog expiry or invalid count */
-            err = (ATCAError)info->resp[0];
+            err = (ATCAError)info->resp()[0];
             if (err == ATCA_ERR_WAKE_TOKEN_RECVD        ||
-                err == ATCA_ERR_CRC_OR_OTHR_ERROR)
+                err == ATCA_ERR_COMMUNICATION)
                 /* Wake token received or temporary communication error. Retry */
                 continue;
             else if (err == ATCA_ERR_WATCHDOG_WILL_EXPIRE)
@@ -166,10 +166,7 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address,
     ATCAError err = RunCommand(&cmd_info);
     if (err == ATCA_ERR_NO_ERROR)
     {
-        for (int i = 0; i < ATCA_ECC_WORD_SZ; i++)
-        {
-            word[i] = cmd_info.resp[i];
-        }
+        memcpy(word, cmd_info.resp(), ATCA_ECC_WORD_SZ);
     }
     return err;
 }
@@ -197,21 +194,15 @@ ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address,
     return err;
 }
 
-ATCAError ATCADevice::LockCommand(const uint8_t * change_summary, size_t len)
+ATCAError ATCADevice::LockCommand(const uint16_t config_crc)
 {
     ATCACmdInfo cmd_info;
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_LOCK, &cmd_info);
 
-    /* Summary should be dump of whole config zone */
-    if (len != ATCA_ECC_CONFIG_ZONE_SZ)
-        return ATCA_ERR_INVALID_PARAM;
-
-    uint16_t crc = GetCrc16(change_summary, len);
-
     /* Fill the command */
     cmd[1] = 0x00; // Lock config zone and provide config CRC
-    cmd[2] = crc & 0xFF; // LSB first.
-    cmd[3] = (crc >> 8) & 0xFF;
+    cmd[2] = config_crc & 0xFF; // LSB first.
+    cmd[3] = (config_crc >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
     return err;
@@ -237,7 +228,7 @@ ATCAError ATCADevice::GenPrivateKey(ATCAKeyID keyId, uint8_t *pk,
     if ( err == ATCA_ERR_NO_ERROR )
     {
         *pk_len = ATCA_ECC_ECC_PK_LEN;
-        memcpy( pk, cmd_info.resp, ATCA_ECC_ECC_PK_LEN );
+        memcpy( pk, cmd_info.resp(), ATCA_ECC_ECC_PK_LEN );
     }
 
     return err;
@@ -263,7 +254,7 @@ ATCAError ATCADevice::GenPubKey(ATCAKeyID keyId, uint8_t *pk,
     if ( err == ATCA_ERR_NO_ERROR )
     {
         *pk_len = ATCA_ECC_ECC_PK_LEN;
-        memcpy( pk, cmd_info.resp, ATCA_ECC_ECC_PK_LEN );
+        memcpy( pk, cmd_info.resp(), ATCA_ECC_ECC_PK_LEN );
     }
 
     return err;
@@ -281,8 +272,7 @@ ATCAError ATCADevice::Nonce(const uint8_t * message, size_t len)
     cmd[1] = 0x03; /* Passthrough mode to load external message in device TempKey */
     cmd[2] = 0x00; /* Param2 is 0 for Passthrough mode. */
     cmd[3] = 0x00;
-    for (size_t i = 0; i < len; i++)
-        cmd[4 + i] = message[i];
+    memcpy(cmd + 4, message, len);
 
     ATCAError err = RunCommand(&cmd_info);
     return err;
@@ -315,7 +305,7 @@ int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
     if ( err == ATCA_ERR_NO_ERROR)
     {
         *sig_len = ATCA_ECC_SIG_LEN;
-        memcpy( sig, cmd_info->resp, ATCA_ECC_SIG_LEN );
+        memcpy( sig, cmd_info->resp(), ATCA_ECC_SIG_LEN );
     }
 
     delete  cmd_info;
@@ -345,16 +335,13 @@ int ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
      * KeyConfig i.e. contain the curve type = P256 NIST ECC key = 0b100. */
     cmd[2] = 0x04;
     cmd[3] = 0x00;
-    size_t i = 0;
-    for ( ; i < 64; i++)
-        cmd[4 + i] = sig[i];
-    for (size_t j = 0; j < 64; j++)
-        cmd[4 + i + j] = pk[j];
+    memcpy(cmd + 4, sig, 64);
+    memcpy(cmd + 4 + 64, pk, 64);
 
     err = RunCommand(&cmd_info);
     if (err != ATCA_ERR_NO_ERROR)
     {
-        err = (ATCAError)cmd_info.resp[0];
+        err = (ATCAError)cmd_info.resp()[0];
     }
     return (int)err;
 }
@@ -389,8 +376,7 @@ ATCAError ATCADevice::WriteConfig(uint8_t byte_address, size_t len, uint8_t * da
     ATCAError err = ReadCommand(ATCA_ECC_ZONE_CONFIG, address, word, sizeof(word));
     if (err != ATCA_ERR_NO_ERROR)
         return err;
-    for(size_t i = 0; i < len; i++)
-        word[offset + i] = data[i];
+    memcpy(word + offset, data, len);
     return WriteCommand(ATCA_ECC_ZONE_CONFIG, address, word, sizeof(word));
 }
 
@@ -533,43 +519,43 @@ uint8_t * ATCADevice::GetCmdBuffer(ATCAOpCode op, ATCACmdInfo * info)
         case ATCA_ECC_CMD_OPCODE_READ:
             info->cmd_len = ATCA_ECC_CMD_READ_LEN;
             info->resp_len = ATCA_ECC_RESP_READ_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_READ_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_READ_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_READ_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_WRITE:
             info->cmd_len = ATCA_ECC_CMD_WRITE_LEN;
             info->resp_len = ATCA_ECC_RESP_WRITE_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_WRITE_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_WRITE_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_WRITE_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_LOCK:
             info->cmd_len = ATCA_ECC_CMD_LOCK_LEN;
             info->resp_len = ATCA_ECC_STATUS_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_LOCK_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_LOCK_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_LOCK_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_GENKEY:
             info->cmd_len = ATCA_ECC_CMD_GENKEY_LEN;
             info->resp_len = ATCA_ECC_RESP_GENKEY_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_GENKEY_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_GENKEY_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_GENKEY_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_NONCE:
             info->cmd_len = ATCA_ECC_CMD_NONCE_LEN;
             info->resp_len = ATCA_ECC_STATUS_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_NONCE_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_NONCE_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_NONCE_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_SIGN:
             info->cmd_len = ATCA_ECC_CMD_SIGN_LEN;
             info->resp_len = ATCA_ECC_RESP_SIGN_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_SIGN_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_SIGN_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_SIGN_MAX_US;
             break;
         case ATCA_ECC_CMD_OPCODE_VERIFY:
             info->cmd_len = ATCA_ECC_CMD_VERIFY_LEN;
             info->resp_len = ATCA_ECC_STATUS_LEN;
-            info->typ_exec_time = ATCA_ECC_EXEC_TIME_VERIFY_TYP_US;
+            info->typical_exec_time = ATCA_ECC_EXEC_TIME_VERIFY_TYP_US;
             info->max_exec_time = ATCA_ECC_EXEC_TIME_VERIFY_MAX_US;
             break;
         default:
@@ -579,10 +565,8 @@ uint8_t * ATCADevice::GetCmdBuffer(ATCAOpCode op, ATCACmdInfo * info)
     assert(info->resp_len <= ATCA_ECC_MAX_RESP_LEN);
     info->tx_buf[offset++] = info->cmd_len + ATCA_ECC_CMD_IO_WRAPER_LEN;
     info->tx_buf[offset] = op;
-    info->cmd = info->tx_buf + offset;
-    info->resp = info->rx_buf + 1; /* Response starts after count. */
 
-    return info->cmd;
+    return info->cmd();
 }
 
 ATCAKey * ATCADevice::GetKeyToken(ATCAKeyID keyId, ATCAError & err)

@@ -65,6 +65,9 @@ typedef uint32_t ATCAKeyID;
 #define ATCA_ECC_KEY_ID_INVALID         0xFFFFFFFF
 
 /** Command and responce length */
+#define ATCA_ECC_CMD_OFFSET             2   /* Command offset in Tx buffer */
+#define ATCA_ECC_RESP_OFFSET            1   /* Response offset in Rx buffer */
+#define ATCA_ECC_CRC_INPUT_OFFSET       1   /* CRC input data offset in Tx buffer */
 #define ATCA_ECC_MAX_CMD_LEN            132 /* Bytes device allocates for constructing command */
 #define ATCA_ECC_MAX_RESP_LEN           67  /* Bytes device allocates for constructing responce */
 #define ATCA_ECC_FUNCTION_LEN           1   /* Device function (Write address) */
