@@ -23,6 +23,9 @@
 
 #define UNUSED(x) ((void)(x))
 
+/* Remove after rebase when this is available */
+#define MBEDTLS_ERR_PK_HW_ACCEL_FAILED (-1)
+
 /** Tell if can do the operation given by type.
  *
  *
@@ -61,41 +64,45 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     ATCAKey * key = (ATCAKey *)ctx;
     uint8_t rs[ATCA_ECC_SIG_LEN];
     size_t rs_len;
-    printf ("atca_sign_func called \r\n");
+    int ret = 0;
+    ATCAError err = ATCA_ERR_NO_ERROR;
+    printf("atca_sign_func called \r\n");
 
     if ( md_alg != MBEDTLS_MD_SHA256 )
-        return -1;
+    {
+        ret = MBEDTLS_ERR_MD_FEATURE_UNAVAILABLE;
+        goto exit;
+    }
 
     mbedtls_mpi r, s;
     mbedtls_mpi_init( &r );
     mbedtls_mpi_init( &s );
-    ATCAError err = key->Sign( (const uint8_t *)hash,
+    err = key->Sign( (const uint8_t *)hash,
                                hash_len, rs, sizeof(rs), &rs_len);
     if (err != ATCA_ERR_NO_ERROR)
     {
-        printf ("Sign failed %02x!\r\n", err );
-        return -1;
+        printf("Sign failed %02x!\r\n", err );
+        ret = MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
+        goto exit;
     }
     /* import r & s from buffer */
     mbedtls_mpi_read_binary(&r, rs, rs_len/2);
     mbedtls_mpi_read_binary(&s, rs + rs_len/2, rs_len/2);
     /* create asn1 from r & s */
     ecdsa_signature_to_asn1( &r, &s, sig, sig_len, 100 );
-    printf ("Signature:\r\n");
+    printf("Signature:\r\n");
     for (size_t i = 0; i < *sig_len; i++)
     {
         if (i && i % 4 == 0)
             printf ("\r\n");
         printf ("0x%02x ", sig[i]);
     }
-    printf ("\r\n");
-
-    return (err == ATCA_ERR_NO_ERROR)?0:1;
+    printf("\r\n");
+exit:
+    mbedtls_mpi_init( &r );
+    mbedtls_mpi_init( &s );
+    return ret;
 }
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /** Extract ECDSA signature components R & S from ASN.1
  *
@@ -176,22 +183,28 @@ static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
 {
     ATCAKey * key = (ATCAKey *)ctx;
     uint8_t rs[64];
+    int ret = 0;
 
     if ( md_alg != MBEDTLS_MD_SHA256 )
-        return -1;
+        return MBEDTLS_ERR_MD_FEATURE_UNAVAILABLE;
 
     /* Get R & S concatenantion from signature */
-    if (mbedtls_ecdsa_asn1_to_signature(sig, sig_len, rs, sizeof(rs)/2, rs + sizeof(rs)/2, sizeof(rs)/2) != 0)
+    if ( (ret = mbedtls_ecdsa_asn1_to_signature(sig, sig_len, rs, sizeof(rs)/2,
+                    rs + sizeof(rs)/2, sizeof(rs)/2)) != 0)
     {
-        printf ("R & S import failed\r\n");
-        return -1;
+        printf("R & S import failed\r\n");
+        return ret;
     }
     /* Verify the signature */
     ATCAError err = key->Verify( rs, sizeof(rs), hash, hash_len);
-    if (err != ATCA_ERR_NO_ERROR)
+    if (err == ATCA_ERR_CHECK_MAC_OR_VERIFY_FAIL)
     {
-        printf ("Verify failed = 0x%x\r\n", err);
-        return -1;
+        return MBEDTLS_ERR_PK_INVALID_SIGNATURE;
+    }
+    else if (err != ATCA_ERR_NO_ERROR)
+    {
+        printf("Verify failed = 0x%x\r\n", err);
+        return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
     }
     return 0;
 }
@@ -206,6 +219,10 @@ static void atca_ctx_free( void * ctx )
     delete key;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** PK Setup function for ATCA crypto engine.
  *
  * @param ctx       Key context
@@ -219,6 +236,9 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
     ATCAError err = ATCA_ERR_NO_ERROR;
     ATCADevice * device = ATCAFactory::GetDevice( err );
     
+    if ( ctx == NULL )
+        return( -1 );
+
     if ( err != ATCA_ERR_NO_ERROR )
     {
         assert( device == NULL );
@@ -244,9 +264,6 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
     };
 
 
-    if ( ctx == NULL )
-        return( -1 );
-
     ctx->pk_ctx = (void *)key;
     ctx->pk_info = &atca_pk_info;
 
@@ -268,7 +285,7 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
     if ( err != ATCA_ERR_NO_ERROR )
     {
         assert( device == NULL );
-        return( -1 );
+        return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
     }
 
     /* Import public key from binary */
@@ -280,7 +297,7 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
     key = device->GetKeyToken( keyId, err );
     if ( ret != 0 )
     {
-        printf( " failed\n  !  to retrieve Public key from ATCA508A\n\n" );
+        printf(" failed\n  !  to retrieve Public key from ATCA508A\n\n" );
         return( ret );
     }
     uint8_t pubkey_asn1[ATCA_ECC_ECC_PK_LEN + 10];

@@ -29,14 +29,21 @@
  */
 struct ATCACmdInfo
 {
-    uint32_t    typ_exec_time;  /** Typical execution time */
+    uint32_t    typical_exec_time;  /** Typical execution time */
     uint32_t    max_exec_time;  /** Maximum execution time */
     uint8_t *   tx_buf;         /** Transmit buffer */
     uint8_t *   rx_buf;         /** Receive buffer */
-    uint8_t *   cmd;            /** Point in tx_buf where command starts */
-    uint8_t *   resp;           /** Point in rx_buf where response starts */
     uint8_t     cmd_len;        /** Command length */
     uint8_t     resp_len;       /** Response length */
+
+    /** Return point in tx_buf where command starts */
+    uint8_t * cmd(){ return tx_buf + ATCA_ECC_CMD_OFFSET; }
+    /** Return point in tx_buf where crc should start */
+    uint8_t * crc_input(){ return tx_buf + ATCA_ECC_CRC_INPUT_OFFSET; }
+    /** Returns length of data on which CRC is calculated */
+    size_t    crc_input_len(){ return cmd_len + 1; }
+    /** Return point in rx_buf where response starts */
+    uint8_t * resp(){ return rx_buf + ATCA_ECC_RESP_OFFSET; }
 };
 
 /** ATCAxxxx device driver class
@@ -94,42 +101,50 @@ public:
 
     /** Lock configuration zone. Configuration zone locking is required
      *  for using cprypto functions of the device.
-     *  Note locking is irreversible. Once locked device behaviour
-     *  CAN NOT be changed!
      *
-     *  @param change_summary   Desired configuration zone data for calculating
-     *                          CRC for lock command verification.
-     *  @param len              change_summary length.
-     *  @return         Error code from enum ATCAError.
+     *  \note locking is irreversible. Once locked device behaviour
+     *  CAN NOT be changed forever!
+     *  In order to protect against most accidental errors, the lock command
+     *  compares configuration zone data upto a supplied CRC.
+     *
+     *  @param config_crc   CRC of the desired configuration zone data.
+     *  @return             Error code from enum ATCAError.
      */
-    ATCAError LockCommand(const uint8_t * change_summary, size_t len);
+    ATCAError LockCommand(const uint16_t config_crc);
 
     /** Genarate Private key in given slot (Key Id).
      *
      *  @param keyId    Key Id of Private slot.
-     *  @param pk       Public key output buffer.
+     *  @param pk       Public key output buffer. It should be at least 64 bytes
+     *                  long to store concatenated X & Y components of an ECC
+     *                  Public key.
      *  @param pk_buf_len Public key output buffer length.
      *  @param pk_len   Public key output length.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError GenPrivateKey(ATCAKeyID keyId, uint8_t *pk, size_t pk_buf_len, size_t * pk_len);
 
-    /** Generate Public key for corresponding Private Key Id.
+    /** Calculate Public key from corresponding Private Key Id in the device
+     *  and output it.
      *
      *  @param keyId    Key Id of Private slot.
-     *  @param pk       Public key output buffer.
+     *  @param pk       Public key output buffer. It should be at least 64 bytes
+     *                  long to store concatenated X & Y components of an ECC
+     *                  Public key.
      *  @param pk_buf_len Public key output buffer length.
      *  @param pk_len   Public key output length.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError GenPubKey(ATCAKeyID keyId, uint8_t *pk, size_t pk_buf_len, size_t * pk_len);
 
-    /** Sign message digest(hash) and output signature R & S as concatenated buffer.
+    /** Sign message digest(hash) and output ECDSA signature.
      *
      *  @param keyId    Key Id of Private slot.
      *  @param hash     Message digest. ATCAECC508A only accepts SHA256 digests.
      *  @param len      Hash length.
-     *  @param sig      Signature output buffer.
+     *  @param sig      Signature output buffer. It should be at least 64 bytes
+     *                  long to store concatenated R & S components of an ECDSA
+     *                  signature.
      *  @param sig_buf_len Signature output buffer length.
      *  @param sig_len  Signature output length.
      *  @return         0 for success else Error code from enum ATCAError.
@@ -184,8 +199,18 @@ private:
     ATCAError   Wakeup();
     /** Reset watchdog timer.
      *
-     *  Avoid deep sleep and loss of current command state on watchdog timer
-     *  expiry by putting device in Idle mode and straight away waking up.
+     *  Device goes to sleep on Twatchdog expiry. This driver uses default
+     *  timer value that is 1.3 sec. It is possible that the timer can expire
+     *  in the middle of processing a command. On expiry command processing is
+     *  halted and command context/data is lost.
+     *
+     *  In order to ensure completion of a command it is important to reset the
+     *  watchdog timer if it is about to expire. Device alerts the driver of
+     *  Twatchdog's near exipry by returning err ATCA_ERR_WATCHDOG_WILL_EXPIRE.
+     *
+     *  This function should be called on receiving ATCA_ERR_WATCHDOG_WILL_EXPIRE
+     *  It first puts device in the Idle mode that pauses processing but retains
+     *  the data. Then it wakes up the device and processing is resumed.
      */
     ATCAError   ResetWatchdog();
 
@@ -232,8 +257,8 @@ private:
 
     /** Execute a Nonce command.
      *
-     *  It loads data into Device Tempkey that is used as input in subsequent
-     *  Sign or Verify commands.
+     *  It loads data into the Device Tempkey buffer that is used as an input
+     *  in the subsequent Sign or Verify commands.
      *
      *  @param message  Data(generally message digest) to load in Tempkey.
      *  @param len      message length.
