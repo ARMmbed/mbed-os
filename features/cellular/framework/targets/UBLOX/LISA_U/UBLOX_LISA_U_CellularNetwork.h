@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_C027_CELLULAR_NETWORK_H_
-#define UBLOX_C027_CELLULAR_NETWORK_H_
+#ifndef UBLOX_LISA_U_CELLULAR_NETWORK_H_
+#define UBLOX_LISA_U_CELLULAR_NETWORK_H_
 
 #include "AT_CellularNetwork.h"
 
 namespace mbed {
 
-class UBLOX_C027_CellularNetwork : public AT_CellularNetwork
+class UBLOX_LISA_U_CellularNetwork : public AT_CellularNetwork
 {
 public:
-    UBLOX_C027_CellularNetwork(ATHandler &atHandler);
-    virtual ~UBLOX_C027_CellularNetwork();
+    UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler);
+    virtual ~UBLOX_LISA_U_CellularNetwork();
 
 protected:
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
@@ -48,5 +48,7 @@ protected:
      */
     virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
 };
+
 } // namespace mbed
-#endif // UBLOX_C027_CELLULAR_NETWORK_H_
+
+#endif // UBLOX_LISA_U_CELLULAR_NETWORK_H_

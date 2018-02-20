@@ -15,35 +15,33 @@
  * limitations under the License.
  */
 
-#include "onboard_modem_api.h"
+#ifndef UBLOX_LISA_U_CELLULARPOWER_H_
+#define UBLOX_LISA_U_CELLULARPOWER_H_
 
-#include "UBLOX_C027_CellularPower.h"
+#include "AT_CellularPower.h"
 
-using namespace mbed;
+namespace mbed {
 
-UBLOX_C027_CellularPower::UBLOX_C027_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
+class UBLOX_LISA_U_CellularPower : public AT_CellularPower
 {
+public:
+    UBLOX_LISA_U_CellularPower(ATHandler &atHandler);
+    virtual ~UBLOX_LISA_U_CellularPower();
 
-}
+public: //from CellularPower
+    /**
+     * Set cellular device power on.
+     * @return zero on success
+     */
+    virtual nsapi_error_t on();
 
-UBLOX_C027_CellularPower::~UBLOX_C027_CellularPower()
-{
+    /**
+     * Set cellular device power off.
+     * @return zero on success
+     */
+    virtual nsapi_error_t off();
+};
 
-}
+} // namespace mbed
 
-nsapi_error_t UBLOX_C027_CellularPower::on()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
-#endif
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t UBLOX_C027_CellularPower::off()
-{
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
-#endif
-    return NSAPI_ERROR_OK;
-}
+#endif // UBLOX_LISA_U_CELLULARPOWER_H_
