@@ -1,25 +1,25 @@
 ;/*****************************************************************************
-; * @file:    startup_LPC54618.s
+; * @file:    startup_LPC54628.s
 ; * @purpose: CMSIS Cortex-M4 Core Device Startup File
-; *           LPC54618
-; * @version: 1.1
-; * @date:    2016-11-25
+; *           LPC54628
+; * @version: 1.2
+; * @date:    2017-6-8
 ; *----------------------------------------------------------------------------
 ; *
-; * Copyright 1997 - 2016 Freescale Semiconductor.
-; * Copyright 2016 - 2017 NXP
+; * Copyright 1997-2016 Freescale Semiconductor, Inc.
+; * Copyright 2016-2017 NXP
 ; *
 ; Redistribution and use in source and binary forms, with or without modification,
 ; are permitted provided that the following conditions are met:
 ;
-; o Redistributions of source code must retain the above copyright notice, this list
+; 1. Redistributions of source code must retain the above copyright notice, this list
 ;   of conditions and the following disclaimer.
 ;
-; o Redistributions in binary form must reproduce the above copyright notice, this
+; 2. Redistributions in binary form must reproduce the above copyright notice, this
 ;   list of conditions and the following disclaimer in the documentation and/or
 ;   other materials provided with the distribution.
 ;
-; o Neither the name of the copyright holder nor the names of its
+; 3. Neither the name of the copyright holder nor the names of its
 ;   contributors may be used to endorse or promote products derived from this
 ;   software without specific prior written permission.
 ;
