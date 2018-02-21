@@ -30,6 +30,7 @@
 #define ATCA_ECC_HASH_256_LEN           32
 #define ATCA_ECC_SIG_LEN                64
 #define ATCA_ECC_CRC_POLYNOMIAL         0x8005
+#define ATCA_ECC_NUM_DEVICE_DATA_BLOCKS 4
 
 /** Device functions */
 #define ATCA_ECC_FUNC_RST_IO_ADDR       0x00
