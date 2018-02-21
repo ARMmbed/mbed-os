@@ -14,6 +14,7 @@
 
 #include "WatchDog.h"
 #include "wd_logging.h"
+//#include "mbed_memory_status.h"
 
 WatchDog::WatchDog(){
 	
@@ -66,6 +67,9 @@ void WatchDog::RegisterHealthCheck(HealthCheckBase * healthCheck) {
 
 void WatchDog::Check(){
 	
+	//print_all_thread_info();
+    //print_heap_and_isr_stack_info();
+
 	for (vector<HealthCheckBase*>::iterator it = _healthChecks.begin(); it != _healthChecks.end(); ++it) {
 		
 		if((*it)->GetState(this->_context) != HealthCheckBase::HEALTHIE){
