@@ -44,7 +44,7 @@ static const uint16_t advertising_interval_max = 0x4000;
 static const uint16_t supervision_timeout_min = 0x000A;
 static const uint16_t supervision_timeout_max = 0x0C80;
 
-static const ConnectionParams_t default_connection_params = {
+static const Gap::ConnectionParams_t default_connection_params = {
     /* min conn interval */ 50,
     /* max  conn interval */ 100,
     /* slave latency */ 0,

@@ -43,17 +43,17 @@ CordioSecurityManager::~CordioSecurityManager()
 
 ble_error_t CordioSecurityManager::initialize()
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::terminate()
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::reset()
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

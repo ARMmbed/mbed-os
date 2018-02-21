@@ -218,7 +218,7 @@ SecurityManager& BLE::getSecurityManager()
 const SecurityManager& BLE::getSecurityManager() const
 {
     static pal::MemorySecurityDb m_db;
-    static pal::vendor::cordio::CordioSecurityManager m_pal;
+    pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
     static generic::GenericSecurityManager m_instance(
         m_pal,
         m_db,
@@ -347,10 +347,8 @@ void BLE::stack_setup()
     DmSecInit();
 
     // Note: enable once security is supported
-#if 0
     DmSecLescInit();
     DmPrivInit();
-#endif
     DmHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
@@ -373,6 +371,8 @@ void BLE::stack_setup()
     SmpiScInit();
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
+
+    HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);

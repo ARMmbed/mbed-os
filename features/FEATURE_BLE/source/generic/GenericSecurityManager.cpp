@@ -56,6 +56,7 @@ ble_error_t GenericSecurityManager::init(
     }
 
     _connection_monitor.set_connection_event_handler(this);
+    _pal.set_event_handler(this);
 
     _pal.generate_public_key();
 
