@@ -104,15 +104,21 @@ public:
     /** Lock configuration zone. Configuration zone locking is required
      *  for using crypto functions of the device.
      *
-     *  \note locking is irreversible. Once locked device behaviour
+     *  \note Locking is irreversible. Once locked device behaviour
      *  CAN NOT be changed forever!
-     *  In order to protect against most accidental errors, the lock command
-     *  compares configuration zone data upto a supplied CRC.
+     *      In order to protect against most accidental errors, the device
+     *  compares configuration zone data upto a supplied CRC calculated on
+     *  the desired config supplied to this function.
+     *      The supplied configuration may not be specific to the device. As
+     *  First 4 blocks (4 bytes each) contain device specific data. Hence,
+     *  this function replaces these 4 blocks with data from the device before
+     *  calculating the CRC.
      *
-     *  @param config_crc   CRC of the desired configuration zone data.
+     *  @param config       Desired confiuration zone data.
+     *  @param config_len   Configuration data length.
      *  @return             Error code from enum ATCAError.
      */
-    ATCAError LockCommand(const uint16_t config_crc);
+    ATCAError LockCommand(uint8_t * config, size_t config_len);
 
     /** Genarate Private key in given slot (Key Id).
      *
