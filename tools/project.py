@@ -3,13 +3,14 @@ supported IDEs or project structures.
 """
 from __future__ import absolute_import, print_function
 import sys
-from os.path import join, abspath, dirname, exists, basename
+from os.path import (join, abspath, dirname, exists, basename, normpath,
+                     realpath, basename)
+from os import remove
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from argparse import ArgumentParser
-from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES, MBED_TARGETS_PATH
 from tools.settings import BUILD_DIR
@@ -247,7 +248,13 @@ def main():
         args_error(parser, "%s not supported by %s"%(mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
-        rmtree(BUILD_DIR)
+        for cls in EXPORTERS.values():
+            try:
+                cls.clean(basename(abspath(options.source_dir[0])))
+            except (NotImplementedError, IOError, OSError):
+                pass
+        for f in EXPORTERS.values()[0].CLEAN_FILES:
+            remove(f)
     try:
         export(mcu, options.ide, build=options.build,
                src=options.source_dir, macros=options.macros,

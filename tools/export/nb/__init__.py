@@ -1,5 +1,6 @@
 import os
 import copy
+import shutil
 
 from os.path import relpath, join, exists, dirname, basename
 from os import makedirs
@@ -274,6 +275,11 @@ class GNUARMNetbeans(Exporter):
 
         print
         print 'Done. Import the \'{0}\' project in Netbeans.'.format(self.project_name)
+
+    @staticmethod
+    def clean(_):
+        shutil.rmtree("nbproject")
+        remove("Makefile")
 
     # -------------------------------------------------------------------------
 

@@ -50,6 +50,7 @@ class Exporter(object):
     NAME = None
     TARGETS = set()
     TOOLCHAIN = None
+    CLEAN_FILES = ("GettingStarted.html",)
 
 
     def __init__(self, target, export_dir, project_name, toolchain,
@@ -217,12 +218,28 @@ class Exporter(object):
 
         Returns -1 on failure and 0 on success
         """
-        raise NotImplemented("Implement in derived Exporter class.")
+        raise NotImplementedError("Implement in derived Exporter class.")
+
+    @staticmethod
+    def clean(project_name):
+        """Clean a previously exported project
+        This method is assumed to be executed at the same level as exporter
+        project files and project source code.
+        See uvision/__init__.py, iar/__init__.py, and makefile/__init__.py for
+        example implemenation.
+
+        Positional Arguments:
+        project_name - the name of the project to build; often required by
+        exporter's build command.
+
+        Returns nothing. May raise exceptions
+        """
+        raise NotImplementedError("Implement in derived Exporter class.")
 
     @abstractmethod
     def generate(self):
         """Generate an IDE/tool specific project file"""
-        raise NotImplemented("Implement a generate function in Exporter child class")
+        raise NotImplementedError("Implement a generate function in Exporter child class")
 
     @classmethod
     def is_target_supported(cls, target_name):
