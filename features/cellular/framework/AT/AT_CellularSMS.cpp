@@ -279,7 +279,7 @@ void AT_CellularSMS::set_extra_sim_wait_time(int sim_wait_time)
 }
 
 char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
-        uint8_t msg_part_number)
+        uint8_t msg_part_number, uint8_t& header_size)
 {
     int totalPDULength = 0;
     int number_len = strlen(phone_number);
@@ -418,6 +418,7 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
 
     // now we know the correct length of the UDL (User Data Length)
     int_to_hex_str(message_length + udhlen, pdu+lengthPos);
+    header_size = x;
 
     return pdu;
 }
@@ -480,9 +481,12 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
 
         int remaining_len = msg_len;
         int pdu_len;
+        int msg_write_len = 0;
+        uint8_t header_len;
         char *pdu_str;
-        for (int i = 0; i< sms_count; i++) {
+        for (int i = 0; i < sms_count; i++) {
 
+            header_len = 0;
             if (sms_count == 1) {
                 pdu_len = msg_len;
             } else {
@@ -490,7 +494,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
             }
 
             pdu_str = create_pdu(phone_number+remove_plus_sign, message + i*concatenated_sms_length, pdu_len,
-                    sms_count, i+1);
+                    sms_count, i+1, header_len);
             if (!pdu_str) {
                 _at.unlock();
                 return NSAPI_ERROR_NO_MEMORY;
@@ -508,13 +512,21 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
             if (_at.get_last_error() == NSAPI_ERROR_OK) {
                 write_size = _at.write_bytes((uint8_t*)pdu_str, pdu_len);
                 if (write_size < pdu_len) {
+                    // calculate exact size of what we have send
+                    if (write_size <= header_len) {
+                        // managed only to write header or some of it so actual msg write size in this iteration is 0
+                        write_size = 0;
+                    } else {
+                        write_size = (write_size - header_len)/2; // as hex encoded so divide by two
+                    }
+                    msg_write_len += write_size;
+
                     // sending can be cancelled by giving <ESC> character (IRA 27).
                     _at.cmd_start(ESC);
                     _at.cmd_stop();
                     _at.unlock();
                     free(pdu_str);
-                    //TODO: Fix this (might be bigger value than msg_len!)
-                    return write_size;
+                    return msg_write_len;
                 }
 
                 // <ctrl-Z> (IRA 26) must be used to indicate the ending of the message body.
@@ -535,8 +547,7 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
     nsapi_error_t ret = _at.get_last_error();
     _at.unlock();
 
-    //TODO: fix this also: msg_len should be returned instead of write_size!
-    return (ret == NSAPI_ERROR_OK) ? write_size : ret;
+    return (ret == NSAPI_ERROR_OK) ? msg_len : ret;
 }
 
 void AT_CellularSMS::set_sms_callback(Callback<void()> func)
