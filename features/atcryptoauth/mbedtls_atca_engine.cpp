@@ -64,7 +64,7 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     ATCAKey * key = (ATCAKey *)ctx;
     uint8_t rs[ATCA_ECC_SIG_LEN];
     size_t rs_len;
-    int ret = 0;
+    int ret = -1;
     ATCAError err = ATCA_SUCCESS;
     printf("atca_sign_func called \r\n");
 
@@ -98,9 +98,10 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
         printf ("0x%02x ", sig[i]);
     }
     printf("\r\n");
+    ret = 0; /* Reaching here means success */
 exit:
-    mbedtls_mpi_init( &r );
-    mbedtls_mpi_init( &s );
+    mbedtls_mpi_free( &r );
+    mbedtls_mpi_free( &s );
     return ret;
 }
 
@@ -234,17 +235,22 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
 {
     ATCAKey * key = NULL;
     ATCAError err = ATCA_SUCCESS;
-    ATCADevice * device = ATCAFactory::GetDevice( err );
     
     if ( ctx == NULL )
         return( -1 );
 
+    ATCADevice * device = ATCAFactory::GetDevice( err );
     if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
         return( -1 );
     }
-    key = device->GetKeyToken( keyId, err );
+    err = device->GetKeyToken( keyId, key );
+    if ( err != ATCA_SUCCESS )
+    {
+        assert( key == NULL );
+        return( -1 );
+    }
 
     static const mbedtls_pk_info_t atca_pk_info =
     {
@@ -294,11 +300,12 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
     int ret = mbedtls_ecp_group_load(&ecp_key.grp, MBEDTLS_ECP_DP_SECP256R1);
     if ( ret != 0 )
         return( ret );
-    key = device->GetKeyToken( keyId, err );
-    if ( ret != 0 )
+    err = device->GetKeyToken( keyId, key );
+    if ( err != ATCA_SUCCESS )
     {
+        assert( key == NULL );
         printf(" failed\n  !  to retrieve Public key from ATCA508A\n\n" );
-        return( ret );
+        return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
     }
     uint8_t pubkey_asn1[ATCA_ECC_ECC_PK_LEN + 10];
     size_t asn_len = 0;
@@ -329,22 +336,25 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
  */
 int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len, size_t * asn_out_len )
 {
-    int ret = 0;
+    int ret = -1;
     mbedtls_ecp_keypair ecp_key;
     mbedtls_ecp_keypair_init(&ecp_key);
 
-    if (mbedtls_ecp_group_load(&ecp_key.grp, MBEDTLS_ECP_DP_SECP256R1) != 0)
+    if ( ( ret = mbedtls_ecp_group_load(&ecp_key.grp,
+                                        MBEDTLS_ECP_DP_SECP256R1) ) != 0)
     {
         goto cleanup;
     }
     MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.X, ecc_pk, 32 ) );
     MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &ecp_key.Q.Y, ecc_pk + 32, 32 ) );
     MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &ecp_key.Q.Z, 1 ) );
-    if( mbedtls_ecp_point_write_binary( &ecp_key.grp, &ecp_key.Q,
-                MBEDTLS_ECP_PF_UNCOMPRESSED, asn_out_len, asn_out, asn_len ) != 0 )
+    if( ( ret = mbedtls_ecp_point_write_binary( &ecp_key.grp, &ecp_key.Q,
+                MBEDTLS_ECP_PF_UNCOMPRESSED,
+                asn_out_len, asn_out, asn_len ) ) != 0 )
     {
         goto cleanup;
     }
+    ret = 0;
 cleanup:
     return( ret );
 }

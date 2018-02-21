@@ -86,12 +86,12 @@ uint16_t atcaecc508a_sample_config_crc = 0xFFED;
  *  On error both operations send length indicator 0.
  *
  *  This funtion returns after processing one request from the host. Host can
- *  request another operation by sending the magic token agains. Magic token
+ *  request another operation by sending the magic token again. Magic token
  *  is essentially required for synchronising the host and target.
  *
  *  Note: Between receiving the magic token and sending the response, target
  *        should not print anything on the serial or else the host will wrongly
- *        interprete the prints as reponse and fail to create a correct
+ *        interpret the prints as reponse and fail to create a correct
  *        certificate.
  *
  *  @param serial       Pointer to serial interface object.
@@ -125,7 +125,7 @@ void handle_host_req(mbed::RawSerial * serial)
                 ATCAKey *     key = NULL;
                 ATCAError     err = ATCA_SUCCESS;
 
-                key = device->GetKeyToken( (ATCAKeyID)key_idx, err );
+                err = device->GetKeyToken( (ATCAKeyID)key_idx, key );
                 if ( err != ATCA_SUCCESS )
                 {
                     assert( key == NULL );
@@ -133,7 +133,9 @@ void handle_host_req(mbed::RawSerial * serial)
                 }
                 else
                 {
-                    uint8_t resp[ATCA_ECC_ECC_PK_LEN + 4 + 10]; /* PK + LI + ASN.1? */
+                    /* Allocate a resp buffer that can contain Length indicator
+                     * + Public key + ASN.1 overhead (1 byte tag) */
+                    uint8_t resp[ATCA_ECC_ECC_PK_LEN + 4 + 1];
                     size_t asn_len = 0;
                     if ( ecc_key_to_asn1( key->GetPubKey(), resp + 4, sizeof(resp) - 4, &asn_len) != 0 )
                     {
@@ -173,13 +175,13 @@ void handle_host_req(mbed::RawSerial * serial)
                     mbedtls_mpi r, s;
                     mbedtls_mpi_init( &r );
                     mbedtls_mpi_init( &s );
-                    uint8_t resp[ATCA_ECC_SIG_LEN + 4 + 10]; /* RS + LI + ASN.1? */
+                    uint8_t resp[MBEDTLS_ECDSA_MAX_SIG_LEN(256) + 4]; /* LI + ASN.1 */
                     size_t sig_len;
 
                     ATCAKey *     key = NULL;
                     ATCAError     err = ATCA_SUCCESS;
 
-                    key = device->GetKeyToken( (ATCAKeyID)key_idx, err );
+                    err = device->GetKeyToken( (ATCAKeyID)key_idx, key );
                     if ( err != ATCA_SUCCESS )
                     {
                         assert( key == NULL );
@@ -208,7 +210,8 @@ void handle_host_req(mbed::RawSerial * serial)
 
                         delete key;
                     }
-
+                    mbedtls_mpi_free( &r );
+                    mbedtls_mpi_free( &s );
                 }
             }
             break;
@@ -333,9 +336,9 @@ int main()
                         printf ("Failed to commission! %04X\r\n", err);
                         break;
                     }
-                    printf ("\r\nConfiguration successful. Canfig zone can be locked now.\r\n"
+                    printf ("\r\nConfiguration successful. Config zone can be locked now.\r\n"
                             "\r\nWarning!!! Locking the config is irreversible!\r\n"
-                            "\r\nPress 'y' for locking or any key to skip: ");
+                            "\r\nPress 'y' to lock or any key to skip: ");
                     fflush( stdout );
                     if ( serial->getc() == 'y' )
                     {

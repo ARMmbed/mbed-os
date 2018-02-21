@@ -24,19 +24,19 @@ ATCAECC508A has following features relevant for sample development. There are mo
 This is the first draft of the driver. It is developed for demonstrating ECDSA operations using Opaque keys feature. Following considerations are taken in this first draft:
 - Only ECDSA sign and verify operations are implemented.
 - The device is commissioned with a minimalistic configuration to allow ECDSA operations.
-- Locking configuration zone (EEPROM region containing config) is locked as it is necessary to use the device.
+- Locking configuration zone (EEPROM region containing config) is performed as it is necessary to use the device.
 - Locking data zone is not required for sample or demo purposes.
 - The device is not configured to authenticate driver commands.
 - Public keys are not stored in the device but generated whenever required.
 
 ## ATCAECC508A configuration
-The device configuration must be **locked** before use. Locking means that the configuration cannot be changed afterwords. To achieve demo requirements it should be commissioned with a minimalistic configuration. The commissioning can be done using the sample commissioning app contained in the driver code. This app commissions following configuration in the device:
+The device configuration must be **locked** before use. Locking means that the configuration cannot be changed afterwards. To achieve demo requirements it should be commissioned with a minimalistic configuration. The commissioning can be done using the sample commissioning app contained in the driver code. This app commissions following configuration in the device:
 - Data slots 0-7 are configured to contain ECC Private keys.
 - Slot 8 is configured to store a x509 certificate.
-- Slot 9-14 is configured to store ECC Public keys.
+- Slot 9-14 are configured to store ECC Public keys.
 
 ## Commissioning Application.
-Commissioning app is part of the driver source. It is gaurded under compile flag ```MBED_CONF_ATCAECC_APP_ENABLE``` and disabled by default in ```mbed_lib.json```. In order to do commissioning mbed-os should be built with this flag enabled.
+Commissioning app is part of the driver source, but is disabled by default. To enable it, please enable flag ```MBED_CONF_ATCAECC_APP_ENABLE``` in ```mbed_lib.json```. In order to do commissioning mbed-os should be built with this flag enabled.
 
 On start it prints following options:
 ```
@@ -49,8 +49,8 @@ d) Run SSL client example.
 Enter choice:
 ```
 Commissioning is done in two steps:
-- First, pressing character 'a' configures the device as described above. This step challenges the user to lock the config. On pressing 'y' the configuration is locked. Note: this step is **irreversible**.
-- Next, pressing 'c' generated a persistent Private key in slot 0. This key can be referred as *Key Id 0* with the driver API.
+- First, pressing character 'a' configures the device as described above. This step prompts the user to lock the configuration. On pressing 'y' the configuration is locked. Note: this step is **irreversible**.
+- Next, pressing 'c' generates a persistent Private key in slot 0. This key can be referred to as *Key Id 0* with the driver API.
 
 ***The demo config is done!***
 
@@ -78,7 +78,7 @@ The format is ```///opaque_pk/ATCA/0/COM18```. Here:
 - ```COM18``` is the serial port to communicate with the sample commissioning app running on the mbed-os platform.
 
 ## SSL Client sample
-SSL client sample is provided is the driver source for testing. It can be run from the sample commissioning app by pressing option 'd'.
+SSL client sample is provided in the driver source for testing. It can be run from the sample commissioning app by pressing option 'd'.
 
 This sample runs against an SSL server specifically configured to demonstrate use of ECDSA keys. Since an ad hoc server is used for testing, change in the IP address requires changing the server certificate and client source code. From scratch following thing are required for the test setup:
 
@@ -115,7 +115,7 @@ private_key     = $dir/private/cakey.pem# The private key
 ```
 openssl ecparam -name prime256v1 -genkey -out private/cakey.pem
 ```
-Remember that this setup is for demonstrating ATCAECC508A that only do ECDSA with ECC NIST P256 curve. For this reason the CA key should also be of type ECC NIST P256 curve.
+Remember that this setup is for demonstrating ATCAECC508A that only does ECDSA with ECC NIST P256 curve. For this reason the CA key should also be of type ECC NIST P256 curve.
 
 #### Generate CA certificate:
 ```
@@ -123,7 +123,7 @@ openssl req -new -x509 -key ./private/cakey.pem -out cacert.pem -days 3650 -set_
 ```
 Answer appropriately to openssl prompts.
 
-#### Generate a server key(again an ECC NIST P256 curve):
+#### Generate a server key (again an ECC NIST P256 curve):
 ```
 openssl ecparam -name prime256v1 -genkey -out foreign_keys/server_prime256v1_priv.pem
 ```

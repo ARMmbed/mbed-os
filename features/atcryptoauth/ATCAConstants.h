@@ -97,9 +97,10 @@ typedef uint32_t ATCAKeyID;
 #define ATCA_ECC_FLG_READ_SZ_32         0x80
 
 /** Devices Delays */
-#define ATCA_ECC_DELAY_TPU_US           100
-#define ATCA_ECC_DELAY_TWLO_US          60
-#define ATCA_ECC_DELAY_TWHI_US          1500
+#define ATCA_ECC_DELAY_TPU_US               100
+#define ATCA_ECC_DELAY_TWLO_US              60
+#define ATCA_ECC_DELAY_TWHI_US              1500
+#define ATCA_ECC_DELAY_WAKE_TOKEN_RETRY_US  100
 
 /** Command execution times */
 #define ATCA_ECC_EXEC_TIME_READ_TYP_US      100
