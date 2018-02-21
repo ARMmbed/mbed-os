@@ -17,6 +17,10 @@
 
 #include "CellularTests.h"
 
+#if !defined(MBED_CONF_NSAPI_PRESENT)
+#error [NOT_SUPPORTED] A json configuration file is needed. Skipping this build.
+#endif
+
 #ifndef CELLULAR_DEVICE
 #error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined for this test
 #endif
