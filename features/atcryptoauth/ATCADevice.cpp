@@ -194,15 +194,30 @@ ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address,
     return err;
 }
 
-ATCAError ATCADevice::LockCommand(const uint16_t config_crc)
+ATCAError ATCADevice::LockCommand(uint8_t * config, size_t config_len)
 {
     ATCACmdInfo cmd_info;
+
+    if (config_len != ATCA_ECC_CONFIG_ZONE_SZ)
+        return ATCA_ERR_INVALID_PARAM;
+
+    /* Update first 4 blocks of 4 bytes device specific data in the config
+     * from the device */
+    for (int block = 0; block < ATCA_ECC_NUM_DEVICE_DATA_BLOCKS; block++)
+    {
+        ATCAError err = ReadCommand(ATCA_ECC_ZONE_CONFIG, block,
+                config + block * ATCA_ECC_WORD_SZ, ATCA_ECC_WORD_SZ);
+        if (err != ATCA_SUCCESS)
+            return err;
+    }
+
     uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_LOCK, &cmd_info);
+    uint16_t crc = GetCrc16(config, config_len);
 
     /* Fill the command */
     cmd[1] = 0x00; // Lock config zone and provide config CRC
-    cmd[2] = config_crc & 0xFF; // LSB first.
-    cmd[3] = (config_crc >> 8) & 0xFF;
+    cmd[2] = crc & 0xFF; // LSB first.
+    cmd[3] = (crc >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
     if (err == ATCA_SUCCESS)
