@@ -20,9 +20,6 @@
 #include "mbed.h"
 #include "ATCAPlatformInterface.h"
 
-#define DEV_DELAY_TPU_MS    (100 + 10)
-#define DEV_DELAY_TWLO_MS   (60 + 20)
-#define DEV_DELAY_TWHI_MS   (1500 + 10)
 
 /** Mbed implementation of abstract Platform interface.
  */
@@ -55,9 +52,7 @@ public:
 
     /** Deinit I2C. Particularly useful when ATCAECC508A watchdog timer is to be
      *  reset. That requires pulling SDA low. Hence requiring a re-init of I2C
-     *  afterwords.
-     *
-     *  @return     Error code from enum ATCAError.
+     *  afterwards.
      */
     virtual void Deinit();
 
@@ -94,9 +89,9 @@ private:
      *
      *  @param buf  Data buffer.
      *  @param len  Buffer length.
-     *  @param tx   True for Tx data, False for Rx data.
+     *  @param isTx True for Tx data, False for Rx data.
      */
-    void Dump(uint8_t * buf, size_t len, bool tx);
+    void Dump(uint8_t * buf, size_t len, bool isTx);
 };
 
 #endif /* MBEDPLATFORM_H */

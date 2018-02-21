@@ -53,11 +53,11 @@ ATCAError ATCADevice::Wakeup()
     if (err != ATCA_SUCCESS)
         return err;
     uint8_t resp[] = {0x00, 0x00, 0x00, 0x00};
-    int retries = 0;
+    uint32_t retries = 0;
     do{
         err = plt.Read(resp, sizeof(resp));
-        plt.WaitUs(1000);
-    }while (err != ATCA_SUCCESS && retries++ < 3);
+        plt.WaitUs(ATCA_ECC_DELAY_WAKE_TOKEN_RETRY_US);
+    }while (err != ATCA_SUCCESS && retries++ < comm_retries);
     if (err != ATCA_SUCCESS)
         return err;
     if (resp[1] != (uint8_t)ATCA_ERR_WAKE_TOKEN_RECVD)
@@ -80,15 +80,16 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
 {
     ATCAError err = ATCA_ERR_DEVICE_ERROR;
     uint16_t crc = GetCrc16(info->crc_input(), info->crc_input_len());
-    int retries = 0;
+    uint32_t retries = 0;
 
     /* Device is little endian */
     info->cmd()[info->cmd_len] = (crc & 0xff);
     info->cmd()[info->cmd_len + 1] = crc >> 8;
 
-    while ( (err != ATCA_SUCCESS) && ( (retries++) < 3))
+    while ( (err != ATCA_SUCCESS) && ( (retries++) < comm_retries))
     {
-        err = plt.Write(info->tx_buf, info->cmd_len + ATCA_ECC_FUNCTION_LEN + ATCA_ECC_CMD_IO_WRAPER_LEN);
+        err = plt.Write(info->tx_buf, info->cmd_len +
+                ATCA_ECC_FUNCTION_LEN + ATCA_ECC_CMD_IO_WRAPER_LEN);
         if (err != ATCA_SUCCESS)
         {
             ResetWatchdog();
@@ -158,7 +159,6 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address,
         return ATCA_ERR_SMALL_BUFFER;
 
     /* Fill the command */
-    cmd[0] = ATCA_ECC_CMD_OPCODE_READ;
     cmd[1] = zone;
     cmd[2] = address & 0xFF; /* Device is little endian */
     cmd[3] = (address >> 8) & 0xFF;
@@ -205,6 +205,8 @@ ATCAError ATCADevice::LockCommand(const uint16_t config_crc)
     cmd[3] = (config_crc >> 8) & 0xFF;
 
     ATCAError err = RunCommand(&cmd_info);
+    if (err == ATCA_SUCCESS)
+        err = (ATCAError)cmd_info.resp()[0];
     return err;
 }
 
@@ -291,24 +293,21 @@ int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
     if (err != ATCA_SUCCESS)
         return (int)err;
 
-    ATCACmdInfo * cmd_info = new ATCACmdInfo();
-    if ( cmd_info == NULL )
-        return (int)ATCA_ERR_MEM_ALLOC_FAILURE;
-    uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_SIGN, cmd_info);
+    ATCACmdInfo cmd_info;
+    uint8_t * cmd = GetCmdBuffer(ATCA_ECC_CMD_OPCODE_SIGN, &cmd_info);
 
     /* Fill the command */
     cmd[1] = 0x80; /* Mode indicating external message loaded in TempKey. */
     cmd[2] = keyId & 0xFF;
     cmd[3] = (keyId >> 8) & 0xFF;
 
-    err = RunCommand(cmd_info);
-    if ( err == ATCA_SUCCESS)
+    err = RunCommand(&cmd_info);
+    if ( err == ATCA_SUCCESS )
     {
         *sig_len = ATCA_ECC_SIG_LEN;
-        memcpy( sig, cmd_info->resp(), ATCA_ECC_SIG_LEN );
+        memcpy( sig, cmd_info.resp(), ATCA_ECC_SIG_LEN );
     }
 
-    delete  cmd_info;
     return (int)err;
 }
 
@@ -569,25 +568,24 @@ uint8_t * ATCADevice::GetCmdBuffer(ATCAOpCode op, ATCACmdInfo * info)
     return info->cmd();
 }
 
-ATCAKey * ATCADevice::GetKeyToken(ATCAKeyID keyId, ATCAError & err)
+ATCAError ATCADevice::GetKeyToken(ATCAKeyID keyId, ATCAKey *& key)
 {
     size_t pk_len = 0;
     uint8_t pk[ATCA_ECC_ECC_PK_LEN];
 
-    err = GenPubKey(keyId, pk, sizeof(pk), &pk_len);
+    ATCAError err = GenPubKey(keyId, pk, sizeof(pk), &pk_len);
     if (err != ATCA_SUCCESS )
     {
-        return NULL;
+        return err;
     }
     if ( pk_len != ATCA_ECC_ECC_PK_LEN )
     {
-        err = ATCA_ERR_DEVICE_ERROR;
-        return NULL;
+        return ATCA_ERR_DEVICE_ERROR;
     }
 
-    ATCAKey * key = new ATCAKey( *this, keyId, pk );
+    key = new ATCAKey( *this, keyId, pk );
     if ( key == NULL )
-        err = ATCA_ERR_MEM_ALLOC_FAILURE;
-    return key;
+        return ATCA_ERR_MEM_ALLOC_FAILURE;
+    return ATCA_SUCCESS;
 }
 
