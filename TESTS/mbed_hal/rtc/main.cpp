@@ -217,11 +217,15 @@ void rtc_write_read_test()
     rtc_free();
 }
 
-/* Test that ::is_enabled function returns 1 if the RTC is counting and the time has been set, 0 otherwise. */
+/* Test that ::is_enabled function returns 1 if the RTC is counting and the time has been set. */
 void rtc_enabled_test()
 {
+    /* Since some platforms use RTC for low power timer RTC may be already enabled.
+     * Because of that we will only verify if rtc_isenabled() returns 1 in case when init is done
+     * and RTC time is set.
+     */
+
     rtc_init();
-    TEST_ASSERT_EQUAL_INT(0, rtc_isenabled());
     rtc_write(0);
     TEST_ASSERT_EQUAL_INT(1, rtc_isenabled());
     rtc_free();
