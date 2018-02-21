@@ -618,9 +618,9 @@ class MemapParser(object):
         output += "Total Flash memory (text + data): %s bytes\n" % \
                         str(self.mem_summary['total_flash'])
 
-        return output
+        return output.strip()
 
-    def generate_bars(self, file_desc, device_name=None):
+    def generate_bars(self, file_desc, device_name=None, show_totals=False):
         """ Generates nice looking bars that represent the memory consumption
 
         Returns: string containing nice looking bars
@@ -663,10 +663,12 @@ class MemapParser(object):
             scale = math.floor(math.log(n, 1024))
             return '{1:.{0}g}{2}{3}'.format(p, n/(1024**scale), PREFIXES[int(scale)], u)
 
-        usage = "Text {} Data {} BSS {}".format(unit(text), unit(data), unit(bss))
-        avail = "ROM {} RAM {}".format(unit(rom_used), unit(ram_used))
-        output = ["{0} {1:>{2}}".format(usage, avail,
-            abs(WIDTH-len(usage)-1) if device_name is not None else 0)]
+        output =[]
+        if show_totals:
+            usage = "Text {} Data {} BSS {}".format(unit(text), unit(data), unit(bss))
+            avail = "ROM {} RAM {}".format(unit(rom_used), unit(ram_used))
+            output.append("{0} {1:>{2}}".format(usage, avail,
+                abs(WIDTH-len(usage)-1) if device_name is not None else 0))
 
         if device_name is not None:
             for region, avail, uses in [

@@ -531,13 +531,11 @@ def build_project(src_paths, build_path, target, toolchain_name,
             real_stats_depth = stats_depth if stats_depth is not None else 2
             memap_table = memap_instance.generate_output('table', real_stats_depth)
             if not silent:
-                if not stats_depth:
-                    memap_bars = memap_instance.generate_output('bars',
-                            real_stats_depth, None,
-                            getattr(toolchain.target, 'device_name', None))
-                    print(memap_bars)
-                else:
-                    print(memap_table)
+                memap_bars = memap_instance.generate_output('bars',
+                        real_stats_depth, None,
+                        getattr(toolchain.target, 'device_name', None))
+                print(memap_table)
+                print(memap_bars)
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
