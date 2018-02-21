@@ -23,6 +23,7 @@ enum ATCAError {
     ATCA_ERR_CHECK_MAC_OR_VERIFY_FAIL               = 0x0001,
     ATCA_ERR_PARSE_ERROR                            = 0x0003,
     ATCA_ERR_ECC_FAULT                              = 0x0005,
+    ATCA_ERR_EXECUTION_ERROR                        = 0x000F,
     ATCA_ERR_WAKE_TOKEN_RECVD                       = 0x0011,
     ATCA_ERR_WATCHDOG_WILL_EXPIRE                   = 0x00EE,
     ATCA_ERR_COMMUNICATION                          = 0x00FF,

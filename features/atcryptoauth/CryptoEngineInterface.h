@@ -34,7 +34,8 @@ public:
      *  @param hash     Message digest.
      *  @param len      Hash length.
      *  @param sig      Signature output buffer.
-     *  @param sig_buf_len Signature output buffer length.
+     *  @param sig_buf_len
+     *                  Signature output buffer length.
      *  @param sig_len  Signature output length.
      *  @return         0 on success else error code.
      */

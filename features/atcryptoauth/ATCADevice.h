@@ -48,7 +48,7 @@ struct ATCACmdInfo
 
 /** ATCAxxxx device driver class
  */
-class ATCADevice  : public CryptoEngineInterface
+class ATCADevice : public CryptoEngineInterface
 {
 private:
     /** Platform interface for I2C and timer access  */
@@ -61,8 +61,10 @@ private:
     uint8_t                 tx_buf[ATCA_ECC_MAX_CMD_LEN];
     /** Rx buffer */
     uint8_t                 rx_buf[ATCA_ECC_MAX_RESP_LEN];
+    /** No. of retries on communication errors */
+    const uint32_t          comm_retries;
 public:
-    /** Instantiate ATCAECC508A device driver class with paltform reference.
+    /** Instantiate ATCAECC508A device driver class with platform reference.
      *
      *  Platform reference provides interface with I2C bus and platform
      *  delay functions.
@@ -70,7 +72,7 @@ public:
      *  @param plt_in   Platform object reference.
      */
     ATCADevice(ATCAPlatformInterface & plt_in)
-        : plt(plt_in), polynom(ATCA_ECC_CRC_POLYNOMIAL) {
+        : plt(plt_in), polynom(ATCA_ECC_CRC_POLYNOMIAL), comm_retries(3) {
     }
 
     virtual ~ATCADevice() {}
@@ -79,14 +81,14 @@ public:
      */
     ATCAError Init();
 
-    /** Configure keyID (Slot) as a ECC Private key.
+    /** Configure keyID (Slot) as an ECC Private key.
      *
      *  @param keyId    Key Id/Slot number in device data zone.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError ConfigPrivKey(ATCAKeyID keyId);
 
-    /** Configure keyID (Slot) as a ECC Public key.
+    /** Configure keyID (Slot) as an ECC Public key.
      *
      *  @param keyId    Key Id/Slot number in device data zone.
      *  @return         Error code from enum ATCAError.
@@ -100,7 +102,7 @@ public:
     ATCAError ConfigCertStore();
 
     /** Lock configuration zone. Configuration zone locking is required
-     *  for using cprypto functions of the device.
+     *  for using crypto functions of the device.
      *
      *  \note locking is irreversible. Once locked device behaviour
      *  CAN NOT be changed forever!
@@ -118,7 +120,8 @@ public:
      *  @param pk       Public key output buffer. It should be at least 64 bytes
      *                  long to store concatenated X & Y components of an ECC
      *                  Public key.
-     *  @param pk_buf_len Public key output buffer length.
+     *  @param pk_buf_len
+     *                  Public key output buffer length.
      *  @param pk_len   Public key output length.
      *  @return         Error code from enum ATCAError.
      */
@@ -131,7 +134,8 @@ public:
      *  @param pk       Public key output buffer. It should be at least 64 bytes
      *                  long to store concatenated X & Y components of an ECC
      *                  Public key.
-     *  @param pk_buf_len Public key output buffer length.
+     *  @param pk_buf_len
+     *                  Public key output buffer length.
      *  @param pk_len   Public key output length.
      *  @return         Error code from enum ATCAError.
      */
@@ -145,7 +149,8 @@ public:
      *  @param sig      Signature output buffer. It should be at least 64 bytes
      *                  long to store concatenated R & S components of an ECDSA
      *                  signature.
-     *  @param sig_buf_len Signature output buffer length.
+     *  @param sig_buf_len
+     *                  Signature output buffer length.
      *  @param sig_len  Signature output length.
      *  @return         0 for success else Error code from enum ATCAError.
      */
@@ -177,17 +182,18 @@ public:
      *  It is callers responsibility to delete the pointer after use.
      *
      *  @param keyId    Key Id of Private slot.
-     *  @param err      Out parameter. ATCAError code.
-     *  @return         Pointer to ATCAKey.
+     *  @param key      Reference to ATCAKey pointer.
+     *                  Assigned by the function on success.
+     *  @return         Error code from enum ATCAError.
      */
-    ATCAKey * GetKeyToken(ATCAKeyID keyId, ATCAError & err);
+    ATCAError GetKeyToken(ATCAKeyID keyId, ATCAKey *& key);
 
     /** Dump config zone registers on standard output.
      */
     void      DumpConfig();
 
 private:
-    /** Perform device wakeup procedure.
+    /** Perform device wakeup procedure. See datasheet section 6.1.1.
      *
      * Wakeup procedure consists of:
      *  - Wait Tpu for device Up
@@ -231,25 +237,21 @@ private:
 
     /** Execute a read command. This function limits the read data to 4 bytes.
      *
-     *  Byte address is required to be 4 byte aligned.
-     *
      *  @param zone     Device EEPROM zone.
      *  @param address  Byte address within a zone.
-     *  @param word     output buffer of 4 bytes.
-     *  @param wlen     Output buffer length.
+     *  @param word     Output buffer of length bytes.
+     *  @param wlen     Output buffer length. Must be 4.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError   ReadCommand(ATCAZone zone, uint16_t address,
                             uint8_t * word, size_t wlen);
 
-    /** Execute a write command. Writes are also limited to 4 bytes.
-     *
-     *  Byte address is required to be 4 byte aligned.
+    /** Execute a write command. This function limits the write data to be 4 bytes.
      *
      *  @param zone     Device EEPROM zone.
      *  @param address  Byte address within a zone.
-     *  @param word     input buffer of 4 bytes.
-     *  @param wlen     input buffer length.
+     *  @param word     Input buffer of length bytes.
+     *  @param wlen     Input buffer length. Must be 4.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError   WriteCommand(ATCAZone zone, uint16_t address,
@@ -261,36 +263,39 @@ private:
      *  in the subsequent Sign or Verify commands.
      *
      *  @param message  Data(generally message digest) to load in Tempkey.
-     *  @param len      message length.
+     *  @param len      Message buffer length.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError   Nonce(const uint8_t * message, size_t len);
 
     /** Read 4 bytes from configuration zone.
      *
+     *  Byte address is required to be 4 byte aligned.
+     *
      *  @param address  Byte address in Data zone. Should be 4 byte aligned.
-     *  @param len      output buffer length.
-     *  @param obuf     output buffer of 4 bytes.
+     *  @param len      Output buffer length. Must be 4.
+     *  @param obuf     Output buffer of len bytes.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError   ReadConfig(uint8_t byte_address, size_t len, uint8_t * obuf);
 
     /** Write 4 bytes or less in configuration zone. Writing across 4 byte word
-     *  boundary is not allowed.
+     *  boundary is not allowed. Hence the length must be <= 4.
      *
-     *  @param address  Byte address in data zone. Should be 4 byte aligned.
-     *  @param len      input buffer length.
-     *  @param data     input buffer of 4 bytes.
+     *
+     *  @param address  Byte address in data zone. May not be 4 byte aligned.
+     *  @param len      Input buffer length. Must be <= 4.
+     *  @param data     Input buffer of length bytes.
      *  @return         Error code from enum ATCAError.
      */
     ATCAError   WriteConfig(uint8_t byte_address, size_t len, uint8_t * data);
 
     /** Calculates CRC16 on input data.
      *
-     *  Device specified olynomial 0x8005 is used.
+     *  Device specified polynomial 0x8005 is used.
      *
-     *  @param data     input buffer.
-     *  @param len      input buffer length.
+     *  @param data     Input buffer.
+     *  @param len      Input buffer length.
      *  @return         Error code from enum ATCAError.
      */
     uint16_t    GetCrc16(const uint8_t *data, uint8_t length);
