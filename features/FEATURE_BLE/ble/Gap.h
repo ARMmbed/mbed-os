@@ -237,7 +237,7 @@ class GapAdvertisingData;
  *    // Initiate the connection procedure
  *    gap.connect(
  *       packet->peerAddr,
- *       BLEProtocol::RANDOM_STATIC,
+ *       packet->addressType,
  *       &connection_parameters,
  *       &scanning_params
  *    );
@@ -608,6 +608,11 @@ public:
          * Pointer to the advertisement packet's data.
          */
         const uint8_t *advertisingData;
+
+        /**
+         * Type of the address received
+         */
+        AddressType_t addressType;
     };
 
     /**
@@ -2349,7 +2354,8 @@ public:
         bool isScanResponse,
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
-        const uint8_t *advertisingData
+        const uint8_t *advertisingData,
+        BLEProtocol::AddressType_t addressType
     ) {
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
@@ -2358,6 +2364,7 @@ public:
         params.type = type;
         params.advertisingDataLen = advertisingDataLen;
         params.advertisingData = advertisingData;
+        params.addressType = addressType;
         onAdvertisementReport.call(&params);
     }
 

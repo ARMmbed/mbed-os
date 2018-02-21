@@ -972,7 +972,8 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
             advertising.type == pal::received_advertising_type_t::SCAN_RESPONSE,
             (GapAdvertisingParams::AdvertisingType_t) advertising.type.value(),
             advertising.data.size(),
-            advertising.data.data()
+            advertising.data.data(),
+            (BLEProtocol::AddressType_t) advertising.address_type.value()
         );
     }
 }
