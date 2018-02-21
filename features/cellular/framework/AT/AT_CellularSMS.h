@@ -208,7 +208,7 @@ private:
     bool create_time(const char* time_string, time_t* time);
     int compare_time_strings(const char* time_string_1, const char* time_string_2);
     char* create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
-                     uint8_t msg_part_number);
+                     uint8_t msg_part_number, uint8_t& header_size);
     nsapi_size_or_error_t read_sms_from_index(int msg_index, char* buf, uint16_t len, char* phone_num,
                                               char* time_stamp);
     nsapi_size_or_error_t read_sms(sms_info_t* sms, char* buf, char* phone_num, char* time_stamp);
