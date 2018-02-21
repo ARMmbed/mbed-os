@@ -75,7 +75,7 @@ enum _mcan_status
  *
  * This provides constants for the MCAN status flags for use in the MCAN functions.
  * Note: The CPU read action clears MCAN_ErrorFlag, therefore user need to
- * read MCAN_ErrorFlag and distinguish which error is occur using
+ * read MCAN_ErrorFlag and distinguish which error has occurred using
  * @ref _mcan_error_flags enumerations.
  */
 enum _mcan_flags

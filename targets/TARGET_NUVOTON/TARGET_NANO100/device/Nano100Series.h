@@ -10976,18 +10976,18 @@ typedef struct {
      * |[0]     |BUS_STS   |BUS Interrupt Status
      * |        |          |The BUS event means there is bus suspense or bus resume in the bus.
      * |        |          |This bit is used to indicate that there is one of events in the bus.
-     * |        |          |0 = No BUS event is occurred.
+     * |        |          |0 = No BUS event has occurred.
      * |        |          |1 = BUS event occurred; check USB_BUSSTS [3:0] to know which kind of bus event was occurred, cleared by write "1" to USB_INTSTS [0].
      * |[1]     |USB_STS   |USB Interrupt Status
      * |        |          |The USB event means that there is Setup Token, IN token, OUT ACK, ISO IN, or ISO OUT event in the bus.
      * |        |          |This bit is used to indicate that there is one of events in the bus.
-     * |        |          |0 = No USB event is occurred.
+     * |        |          |0 = No USB event has occurred.
      * |        |          |1 = USB event occurred, check EPSTS0~7[3:0] in USB_EPSTS [31:8] to know which kind of USB event was occurred, cleared by write "1" to USB_INTSTS [1] or USB_INTSTS[31] or EPEVT0~7.
      * |[2]     |FLD_STS   |Floating Interrupt Status
      * |        |          |0 = There is not attached event in the USB.
      * |        |          |1 = There is attached event in the USB and it is cleared by write "1" to USB_INTSTS [2].
      * |[3]     |WKEUP_STS |Wake-Up Interrupt Status
-     * |        |          |0 = No wake-up event is occurred.
+     * |        |          |0 = No wake-up event has occurred.
      * |        |          |1 = Wake-up event occurred, cleared by write 1 to USB_INTSTS [3].
      * |[16]    |EPEVT0    |USB Event Status On EP0
      * |        |          |0 = No event occurred in Endpoint 0.

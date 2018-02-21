@@ -59,7 +59,7 @@ extern "C" {
         uint32_t TIDLE;         /*!< The status of TXDx pin after output of the
                                    last bit */
         uint32_t TXDEMP;        /*!< The status of TXDx pin when an under run error 
-                                   is  occurred in SCLK input mode */
+                                   has occurred in SCLK input mode */
         uint32_t EHOLDTime;     /*!< The last bit hold time of TXDx pin in SCLK
                                    input mode */
         uint32_t IntervalTime;  /*!< Setting interval time of continuous transmission which 
