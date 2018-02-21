@@ -44,6 +44,15 @@ static const uint16_t advertising_interval_max = 0x4000;
 static const uint16_t supervision_timeout_min = 0x000A;
 static const uint16_t supervision_timeout_max = 0x0C80;
 
+static const ConnectionParams_t default_connection_params = {
+    /* min conn interval */ 50,
+    /* max  conn interval */ 100,
+    /* slave latency */ 0,
+    /* supervision timeout */ 600
+};
+
+static const GapScanningParams default_scan_params;
+
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
  */
@@ -490,14 +499,6 @@ ble_error_t GenericGap::connect(
     const ConnectionParams_t* connectionParams,
     const GapScanningParams* scanParams
 ) {
-    ConnectionParams_t default_connection_params = {
-        /* min conn interval */ 50,
-        /* max  conn interval */ 100,
-        /* slave latency */ 0,
-        /* supervision timeout */ 600
-    };
-    GapScanningParams default_scan_params;
-
     if (connectionParams == NULL) {
         connectionParams = &default_connection_params;
     }
