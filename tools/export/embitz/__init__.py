@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import splitext, basename
+from os import remove
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, apply_supported_whitelist
 
@@ -87,3 +88,7 @@ class EmBitz(Exporter):
         }
 
         self.gen_file('embitz/eix.tmpl', ctx, '%s.eix' % self.project_name)
+
+    @staticmethod
+    def clean(project_name):
+        remove("%s.eix" % project_name)
