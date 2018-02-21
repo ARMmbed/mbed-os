@@ -1,0 +1,14 @@
+{
+    "name": "softdevice",
+    "macros": [
+        "SOFTDEVICE_PRESENT=1",
+        "BLE_STACK_SUPPORT_REQD=1",
+        "S132=1"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["BLE"],
+            "target.bootloader_img": "hex/s132_nrf52_5.0.0_softdevice.hex"
+        }
+    }
+}
