@@ -203,10 +203,15 @@ typedef enum {
 	ETH_nINT	= PE_4,
 	BUS_nINT	= PE_5,
 		
+    // Extension Socket X10
 	ONEWIRE_TxH	= PB_0,
 	ONEWIRE_Tx	= PB_1,
 	ONEWIRE_Rx	= PB_2,
-	
+    TX1         = PE_1,
+    RX1         = PE_0,
+    TX2         = PB_6,
+    RX2         = PB_7,
+
 	BUS_LED		= PE_10,
 	RGBLED1_BL	= PE_11,
 	LED_RED		= PE_12,	// for mbed_die() error signalling
