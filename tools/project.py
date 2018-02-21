@@ -1,6 +1,7 @@
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
 """
+from __future__ import absolute_import, print_function
 import sys
 from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -191,7 +192,7 @@ def main():
 
     # Print available tests in order and exit
     if options.list_tests is True:
-        print '\n'.join([str(test) for test in  sorted(TEST_MAP.values())])
+        print('\n'.join([str(test) for test in  sorted(TEST_MAP.values())]))
         sys.exit()
 
     # Only prints matrix of supported IDEs
@@ -199,7 +200,7 @@ def main():
         if options.supported_ides == "matrix":
             print_large_string(mcu_ide_matrix())
         elif options.supported_ides == "ides":
-            print mcu_ide_list()
+            print(mcu_ide_list())
         exit(0)
 
     # Only prints matrix of supported IDEs
@@ -212,9 +213,9 @@ def main():
                 readme.write("\n")
                 readme.write(html)
         except IOError as exc:
-            print "I/O error({0}): {1}".format(exc.errno, exc.strerror)
+            print("I/O error({0}): {1}".format(exc.errno, exc.strerror))
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print("Unexpected error:", sys.exc_info()[0])
             raise
         exit(0)
 
@@ -253,7 +254,7 @@ def main():
                project_id=options.program, zip_proj=zip_proj,
                build_profile=profile, app_config=options.app_config)
     except NotSupportedException as exc:
-        print "[ERROR] %s" % str(exc)
+        print("[ERROR] %s" % str(exc))
 
 if __name__ == "__main__":
     main()
