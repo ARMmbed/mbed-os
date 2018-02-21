@@ -930,7 +930,7 @@ void ATHandler::set_string(char *dest, const char *src, size_t src_len)
 const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len)
 {
     if (dest_len > src_len) {
-        for(size_t i = 0; i < dest_len-src_len; ++i) {
+        for(size_t i = 0; i < dest_len-src_len+1; ++i) {
             if(memcmp(dest+i, src, src_len) == 0) {
                 return dest+i;
             }
