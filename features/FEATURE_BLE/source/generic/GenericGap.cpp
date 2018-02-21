@@ -503,6 +503,9 @@ ble_error_t GenericGap::connect(
 
     // TODO fix upper layer API, address type factorization is incorrect.
 
+    // Force scan stop before initiating the scan used for connection
+    stopScan();
+
     return _pal_gap.create_connection(
         scanParams->getInterval(),
         scanParams->getWindow(),
