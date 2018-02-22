@@ -27,19 +27,6 @@
 #include "cmsis.h"
 #include <string.h>
 
-/**
- * \name SECTION: Temporary compatibility code
- *
- * This section contains code to be added up stream in Mbed TLS. Once that
- * has been provided, this section should be removed as the code will be
- * provided elsewhere.
- * \{
- */
-
-#define MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED -0x0037 /**< SHA-256 hardware accelerator failed */
-
-/* \} name SECTION:  Temporary compatibility code */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -93,10 +80,8 @@ void mbedtls_sha256_clone( mbedtls_sha256_context *dst,
  *
  * \param ctx      context to be initialized
  * \param is224    0 = use SHA256, 1 = use SHA224
- *
- * \return         0 if successful
  */
-int mbedtls_sha256_starts_ret( mbedtls_sha256_context *ctx, int is224 );
+void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 );
 
 /**
  * \brief          SHA-256 process buffer
@@ -104,10 +89,8 @@ int mbedtls_sha256_starts_ret( mbedtls_sha256_context *ctx, int is224 );
  * \param ctx      SHA-256 context
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
- *
- * \return         0 if successful
  */
-int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char *input,
+void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input,
                     size_t ilen );
 
 /**
@@ -115,13 +98,11 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char 
  *
  * \param ctx      SHA-256 context
  * \param output   SHA-224/256 checksum result
- *
- * \return         0 if successful
  */
-int mbedtls_sha256_finish_ret( mbedtls_sha256_context *ctx, unsigned char output[32] );
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] );
 
 /* Internal use */
-int mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE] );
+void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
