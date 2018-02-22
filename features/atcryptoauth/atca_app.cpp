@@ -199,7 +199,7 @@ void handle_host_req(mbed::RawSerial * serial)
                             // create asn1 from r & s
                             mbedtls_mpi_read_binary(&r, rs, rs_len/2);
                             mbedtls_mpi_read_binary(&s, rs + rs_len/2, rs_len/2);
-                            ecdsa_signature_to_asn1( &r, &s, resp + 4, &sig_len, sizeof(resp) - 4);
+                            mbedtls_ecdsa_signature_to_asn1( &r, &s, resp + 4, &sig_len, sizeof(resp) - 4);
 
                             resp[0] = sig_len >> 24;
                             resp[1] = sig_len >> 16;
