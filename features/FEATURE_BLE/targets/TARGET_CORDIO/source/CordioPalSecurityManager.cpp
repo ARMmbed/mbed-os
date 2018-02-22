@@ -122,7 +122,8 @@ ble_error_t CordioSecurityManager::slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecSlaveReq(connection, authentication.value());
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -135,14 +136,35 @@ ble_error_t CordioSecurityManager::enable_encryption(
     const rand_t &rand,
     const ediv_t &ediv
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    dmSecLtk_t sec_ltk;
+    memcpy(sec_ltk.key, ltk.data(), ltk.size());
+    memcpy(sec_ltk.rand, rand.data(), rand.size());
+    memcpy(&sec_ltk.ediv, ediv.data(), ediv.size());
+
+    DmSecEncryptReq(
+        connection,
+        /* FIXME: Security Level */ DM_SEC_LEVEL_ENC_AUTH,
+        &sec_ltk
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::enable_encryption(
     connection_handle_t connection,
     const ltk_t &ltk
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    dmSecLtk_t sec_ltk = { 0 };
+    memcpy(sec_ltk.key, ltk.data(), ltk.size());
+
+    DmSecEncryptReq(
+        connection,
+        DM_SEC_LEVEL_ENC_LESC,
+        &sec_ltk
+    );
+
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::disable_encryption(connection_handle_t connection)
@@ -194,15 +216,20 @@ ble_error_t CordioSecurityManager::set_ltk(
         /* sec level ??? */ DM_SEC_LEVEL_ENC_AUTH,
         const_cast<uint8_t*>(ltk.data())
     );
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::set_ltk_not_found(
     connection_handle_t connection
 ) {
-    ltk_t ltk;
-    set_ltk(connection, ltk);
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecLtkRsp(
+        connection,
+        /* key found */ false,
+        /* sec level ??? */ DM_SEC_LEVEL_NONE,
+        NULL
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
@@ -316,6 +343,7 @@ ble_error_t CordioSecurityManager::request_authentication(connection_handle_t co
 
 ble_error_t CordioSecurityManager::get_random_data(random_data_t &random_data)
 {
+    SecRand(random_data.buffer(), random_data.size());
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
