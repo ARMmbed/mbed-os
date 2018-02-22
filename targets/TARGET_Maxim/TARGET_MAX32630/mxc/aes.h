@@ -129,7 +129,7 @@ int AES_SetKey(const uint8_t *key, mxc_aes_mode_t mode);
  * @param       dir             Operation to perform, see #mxc_aes_dir_t for supported operations.
  * 
  * @return      #E_SUCCESS      Operation completed successfully, output data is stored in @a *out.
- * @return      ErrorCode       An @ref MXC_Error_Codes "Error Code" if an error occurred.
+ * @return      ErrorCode       An @ref MXC_Error_Codes "Error Code" if an error occured.
  */
 int AES_ECBOp(const uint8_t *in, uint8_t *out, mxc_aes_mode_t mode, mxc_aes_dir_t dir);
 
@@ -143,7 +143,7 @@ int AES_ECBOp(const uint8_t *in, uint8_t *out, mxc_aes_mode_t mode, mxc_aes_dir_
  * @return     #E_SUCCESS      Output data was written to the location pointed
  *             to by @a *out.
  * @return     A @ref MXC_Error_Codes "Error Code" indicating the error that
- *             occurred.
+ *             occured.
  */
 int AES_GetOutput(uint8_t *out);
 

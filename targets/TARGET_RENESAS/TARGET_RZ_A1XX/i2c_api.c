@@ -442,7 +442,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
                     i2c_set_err_noslave(obj);
                     return I2C_ERROR_NO_SLAVE;
                 }
-                /* Receive the data */
+                /* Recieve the data */
                 if (count == (length - 2)) {
                     value = i2c_do_read(obj, 1);
                 } else if ((length >= 3) && (count == (length - 3))) {

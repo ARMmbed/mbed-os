@@ -75,7 +75,7 @@ void TMR_Delay(mxc_tmr_regs_t* tmr, unsigned long us);
 void TMR_TO_Start(mxc_tmr_regs_t* tmr, unsigned long us);
 
 /**
- * @brief   Check if the timeout has occurred.
+ * @brief   Check if the timeout has occured.
  * @param   tmr     TMR module to operate on
  * @returns E_NO_ERROR if the timeout has not occurred, E_TIME_OUT if it has.
  */

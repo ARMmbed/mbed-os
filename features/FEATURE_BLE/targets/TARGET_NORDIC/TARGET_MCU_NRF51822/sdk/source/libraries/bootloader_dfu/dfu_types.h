@@ -152,10 +152,10 @@ typedef enum
 typedef struct
 {
     dfu_update_status_code_t status_code;                                                               /**< Device Firmware Update status. */
-    uint16_t                 app_crc;                                                                   /**< CRC of the received application. */
-    uint32_t                 sd_size;                                                                   /**< Size of the received SoftDevice. */
-    uint32_t                 bl_size;                                                                   /**< Size of the received BootLoader. */
-    uint32_t                 app_size;                                                                  /**< Size of the received Application. */
+    uint16_t                 app_crc;                                                                   /**< CRC of the recieved application. */
+    uint32_t                 sd_size;                                                                   /**< Size of the recieved SoftDevice. */
+    uint32_t                 bl_size;                                                                   /**< Size of the recieved BootLoader. */
+    uint32_t                 app_size;                                                                  /**< Size of the recieved Application. */
     uint32_t                 sd_image_start;                                                            /**< Location in flash where the received SoftDevice image is stored. */
 } dfu_update_status_t;
 

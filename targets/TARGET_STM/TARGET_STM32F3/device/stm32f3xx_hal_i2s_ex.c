@@ -435,7 +435,7 @@ void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s)
       I2S_FullDuplexRx_IT(hi2s, I2S_USE_I2SEXT);
     }
 
-    /* I2Sext Overrun error interrupt occurred -------------------------------*/
+    /* I2Sext Overrun error interrupt occured --------------------------------*/
     if(((i2sextsr & I2S_FLAG_OVR) == I2S_FLAG_OVR) && (__HAL_I2SEXT_GET_IT_SOURCE(hi2s, I2S_IT_ERR) != RESET))
     {
       /* Disable RXNE and ERR interrupt */
@@ -452,7 +452,7 @@ void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s)
       HAL_I2S_ErrorCallback(hi2s);
     }
 
-    /* I2S Underrun error interrupt occurred ---------------------------------*/
+    /* I2S Underrun error interrupt occured ----------------------------------*/
     if(((i2ssr & I2S_FLAG_UDR) == I2S_FLAG_UDR) && (__HAL_I2S_GET_IT_SOURCE(hi2s, I2S_IT_ERR) != RESET))
     {
       /* Disable TXE and ERR interrupt */
@@ -488,7 +488,7 @@ void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s)
       I2S_FullDuplexRx_IT(hi2s, I2S_USE_I2S);
     }
 
-    /* I2S Overrun error interrupt occurred ------------------------------------*/
+    /* I2S Overrun error interrupt occured -------------------------------------*/
     if(((i2ssr & I2S_FLAG_OVR) == I2S_FLAG_OVR) && (__HAL_I2S_GET_IT_SOURCE(hi2s, I2S_IT_ERR) != RESET))
     {
       /* Disable RXNE and ERR interrupt */
@@ -505,7 +505,7 @@ void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s)
       HAL_I2S_ErrorCallback(hi2s);
     }
 
-    /* I2Sext Underrun error interrupt occurred ------------------------------*/
+    /* I2Sext Underrun error interrupt occured -------------------------------*/
     if(((i2sextsr & I2S_FLAG_UDR) == I2S_FLAG_UDR) && (__HAL_I2SEXT_GET_IT_SOURCE(hi2s, I2S_IT_ERR) != RESET))
     {
       /* Disable TXE and ERR interrupt */

@@ -170,7 +170,7 @@ bool USBMSD::EPBULK_OUT_callback() {
             }
             break;
 
-            // an error has occurred: stall endpoint and send CSW
+            // an error has occured: stall endpoint and send CSW
         default:
             stallEndpoint(EPBULK_OUT);
             csw.Status = CSW_ERROR;
@@ -207,7 +207,7 @@ bool USBMSD::EPBULK_IN_callback() {
             stage = READ_CBW;
             break;
 
-        // an error has occurred
+        // an error has occured
         default:
             stallEndpoint(EPBULK_IN);
             sendCSW();

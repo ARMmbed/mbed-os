@@ -26,7 +26,7 @@
  *
  * @details
  * The character driver is intended for devices that allow read and write
- * operations with "streams" of data, such as UART devices, SPI or I2C, etc.
+ * operations with "streams" of data, such as UART devices, SPI or I2c, etc.
  *
  * The character driver derives from the generic driver template (see driver.h).
  * It does so by including an element of the generic driver_t type.

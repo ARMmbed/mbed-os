@@ -63,7 +63,7 @@ typedef struct
 /*! WSF buffer diagnostics - buffer allocation failure */
 typedef struct
 {
-  uint8_t    taskId;               /*! Task handler ID where failure occurred */
+  uint8_t    taskId;               /*! Task handler ID where failure occured */
   uint16_t   len;                  /*! Length of buffer being allocated */
 } wsfBufDiagAllocFail_t;
 

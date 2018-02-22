@@ -1358,7 +1358,7 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
     uint32_t cr1config = hsai->Instance->CR1;    
     uint32_t tmperror;
 
-    /* SAI Fifo request interrupt occurred -----------------------------------*/
+    /* SAI Fifo request interrupt occured ------------------------------------*/
     if(((itflags & SAI_xSR_FREQ) == SAI_xSR_FREQ) && ((itsources & SAI_IT_FREQ) == SAI_IT_FREQ))
     {
       hsai->InterruptServiceRoutine(hsai);

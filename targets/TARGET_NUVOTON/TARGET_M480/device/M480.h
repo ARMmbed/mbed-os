@@ -3469,7 +3469,7 @@ typedef struct {
      * |        |          |Note2: This bit is write protected. Refer to the SYS_REGLCTL register.
      * |[6]     |PDWKIF    |Power-down Mode Wake-up Interrupt Status
      * |        |          |Set by "Power-down wake-up event", it indicates that resume from Power-down mode.
-     * |        |          |The flag is set if any wake-up source has occurred. Refer Power Modes and Wake-up Sources chapter.
+     * |        |          |The flag is set if any wake-up source is occurred. Refer Power Modes and Wake-up Sources chapter.
      * |        |          |Note1: Write 1 to clear the bit to 0.
      * |        |          |Note2: This bit works only if PDWKIEN (CLK_PWRCTL[5]) set to 1.
      * |[7]     |PDEN      |System Power-down Enable (Write Protect)
@@ -25914,7 +25914,7 @@ typedef struct {
      * |        |          |0 = DMA Disabled.
      * |        |          |1 = DMA Enabled.
      * |        |          |If this bit is cleared, DMA will ignore all requests from SD host and force bus master into IDLE state.
-     * |        |          |Note: If target abort has occurred, DMAEN will be cleared.
+     * |        |          |Note: If target abort is occurred, DMAEN will be cleared.
      * |[1]     |DMARST    |Software Engine Reset
      * |        |          |0 = No effect.
      * |        |          |1 = Reset internal state machine and pointers
@@ -26006,7 +26006,7 @@ typedef struct {
      * | :----: | :----:   | :---- |
      * |[0]     |DTAIF     |DMA READ/WRITE Target Abort Interrupt Flag (Read Only)
      * |        |          |This bit indicates DMA received an ERROR response from internal AHB bus during DMA read/write operation
-     * |        |          |When Target Abort has occurred, please reset all engine.
+     * |        |          |When Target Abort is occurred, please reset all engine.
      * |        |          |0 = No bus ERROR response received.
      * |        |          |1 = Bus ERROR response received.
      * |        |          |Note: This bit is read only, but can be cleared by writing '1' to it.
@@ -26119,12 +26119,12 @@ typedef struct {
      * |        |          |Note: This bit is read only, but can be cleared by writing '1' to it.
      * |[1]     |CRCIF     |CRC7, CRC16 and CRC Status Error Interrupt Flag (Read Only)
      * |        |          |This bit indicates that SD host has occurred CRC error during response in, data-in or data-out (CRC status error) transfer
-     * |        |          |When CRC error has occurred, software should reset SD engine
+     * |        |          |When CRC error is occurred, software should reset SD engine
      * |        |          |Some response (ex
      * |        |          |R3) doesn't have CRC7 information with it; SD host will still calculate CRC7, get CRC error and set this flag
      * |        |          |In this condition, software should ignore CRC error and clears this bit manually.
-     * |        |          |0 = No CRC error has occurred.
-     * |        |          |1 = CRC error has occurred.
+     * |        |          |0 = No CRC error is occurred.
+     * |        |          |1 = CRC error is occurred.
      * |        |          |Note: This bit is read only, but can be cleared by writing '1' to it.
      * |[2]     |CRC7      |CRC7 Check Status (Read Only)
      * |        |          |SD host will check CRC7 correctness during each response in
@@ -27705,60 +27705,60 @@ typedef struct {
      * |        |          |This bit conveys the interrupt status for USB specific events endpoint
      * |        |          |When set, USB interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[1]     |CEPIF     |Control Endpoint Interrupt
      * |        |          |This bit conveys the interrupt status for control endpoint
      * |        |          |When set, Control-ep's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[2]     |EPAIF     |Endpoint a Interrupt
      * |        |          |When set, the corresponding Endpoint A's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[3]     |EPBIF     |Endpoint B Interrupt
      * |        |          |When set, the corresponding Endpoint B's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[4]     |EPCIF     |Endpoint C Interrupt
      * |        |          |When set, the corresponding Endpoint C's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[5]     |EPDIF     |Endpoint D Interrupt
      * |        |          |When set, the corresponding Endpoint D's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[6]     |EPEIF     |Endpoint E Interrupt
      * |        |          |When set, the corresponding Endpoint E's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[7]     |EPFIF     |Endpoint F Interrupt
      * |        |          |When set, the corresponding Endpoint F's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[8]     |EPGIF     |Endpoint G Interrupt
      * |        |          |When set, the corresponding Endpoint G's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[9]     |EPHIF     |Endpoint H Interrupt
      * |        |          |When set, the corresponding Endpoint H's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[10]    |EPIIF     |Endpoint I Interrupt
      * |        |          |When set, the corresponding Endpoint I's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[11]    |EPJIF     |Endpoint J Interrupt
      * |        |          |When set, the corresponding Endpoint J's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[12]    |EPKIF     |Endpoint K Interrupt
      * |        |          |When set, the corresponding Endpoint K's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * |[13]    |EPLIF     |Endpoint L Interrupt
      * |        |          |When set, the corresponding Endpoint L's interrupt status register should be read to determine the cause of the interrupt.
      * |        |          |0 = No interrupt event occurred.
-     * |        |          |1 = The related interrupt event has occurred.
+     * |        |          |1 = The related interrupt event is occurred.
      * @var HSUSBD_T::GINTEN
      * Offset: 0x08  Global Interrupt Enable Register
      * ---------------------------------------------------------------------------------------------------

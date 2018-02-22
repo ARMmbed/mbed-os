@@ -122,7 +122,7 @@ struct fnet_dns_params
     fnet_address_family_t           addr_family;        /**< @brief Family of the IP Address which is queried.*/
     fnet_dns_callback_resolved_t    callback;            /**< @brief Pointer to the callback function defined by
                                                         * @ref fnet_dns_callback_resolved_t. It is called when the
-                                                        * DNS-client resolving is finished or an error has occurred. */
+                                                        * DNS-client resolving is finished or an error is occurred. */
     fnet_uint32_t                   cookie;             /**< @brief Optional application-specific parameter. @n
                                                         * It's passed to the @c callback
                                                         * function as input parameter. */
@@ -155,7 +155,7 @@ extern "C" {
  * The resolved IP-address will be passed to the @ref fnet_dns_callback_resolved_t callback function,
  * which is set in @c params. @n
  * The DNS service is released automatically as soon as the
- * resolving is finished or an error has occurred.
+ * resolving is finished or an error is occurred.
  *
  ******************************************************************************/
 fnet_return_t fnet_dns_init( struct fnet_dns_params *params );

@@ -172,7 +172,7 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define TSV0_PKT_DEFER      0x00000040  /* Packet Deferred                   */
 #define TSV0_EXC_DEFER      0x00000080  /* Excessive Packet Deferral         */
 #define TSV0_EXC_COLL       0x00000100  /* Excessive Collision               */
-#define TSV0_LATE_COLL      0x00000200  /* Late Collision Occurred           */
+#define TSV0_LATE_COLL      0x00000200  /* Late Collision Occured            */
 #define TSV0_GIANT          0x00000400  /* Giant Frame                       */
 #define TSV0_UNDERRUN       0x00000800  /* Buffer Underrun                   */
 #define TSV0_BYTES          0x0FFFF000  /* Total Bytes Transferred           */
@@ -268,7 +268,7 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define RINFO_OVERRUN       0x10000000  /* Receive overrun                   */
 #define RINFO_NO_DESCR      0x20000000  /* No new Descriptor available       */
 #define RINFO_LAST_FLAG     0x40000000  /* Last Fragment in Frame            */
-#define RINFO_ERR           0x80000000  /* Error Occurred (OR of all errors) */
+#define RINFO_ERR           0x80000000  /* Error Occured (OR of all errors)  */
 
 //#define RINFO_ERR_MASK     (RINFO_FAIL_FILT | RINFO_CRC_ERR   | RINFO_SYM_ERR | RINFO_LEN_ERR   | RINFO_ALIGN_ERR | RINFO_OVERRUN)
 #define RINFO_ERR_MASK     (RINFO_FAIL_FILT | RINFO_SYM_ERR | \
@@ -289,10 +289,10 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define TINFO_DEFER         0x02000000  /* Packet Deferred (not an error)    */
 #define TINFO_EXCESS_DEF    0x04000000  /* Excessive Deferral                */
 #define TINFO_EXCESS_COL    0x08000000  /* Excessive Collision               */
-#define TINFO_LATE_COL      0x10000000  /* Late Collision Occurred           */
+#define TINFO_LATE_COL      0x10000000  /* Late Collision Occured            */
 #define TINFO_UNDERRUN      0x20000000  /* Transmit Underrun                 */
 #define TINFO_NO_DESCR      0x40000000  /* No new Descriptor available       */
-#define TINFO_ERR           0x80000000  /* Error Occurred (OR of all errors) */
+#define TINFO_ERR           0x80000000  /* Error Occured (OR of all errors)  */
 
 /* ENET Device Revision ID */
 #define OLD_EMAC_MODULE_ID  0x39022000  /* Rev. ID for first rev '-'         */
@@ -303,7 +303,7 @@ typedef struct TX_STAT_TypeDef TX_STAT_TypeDef;
 #define PHY_REG_IDR1        0x02        /* PHY Identifier 1                  */
 #define PHY_REG_IDR2        0x03        /* PHY Identifier 2                  */
 #define PHY_REG_ANAR        0x04        /* Auto-Negotiation Advertisement    */
-#define PHY_REG_ANLPAR      0x05        /* Auto-Neg. Link Partner Ability    */
+#define PHY_REG_ANLPAR      0x05        /* Auto-Neg. Link Partner Abitily    */
 #define PHY_REG_ANER        0x06        /* Auto-Neg. Expansion Register      */
 #define PHY_REG_ANNPTR      0x07        /* Auto-Neg. Next Page TX            */
 
@@ -540,8 +540,8 @@ void ethernet_free() {
 
 // if(TxProduceIndex == TxConsumeIndex) buffer array is empty
 // if(TxProduceIndex == TxConsumeIndex - 1) buffer is full, should not fill
-// TxProduceIndex - The buffer that will be / is being fileld by driver, s/w increment
-// TxConsumeIndex - The buffer that will be / is being sent by hardware
+// TxProduceIndex - The buffer that will/is being fileld by driver, s/w increment
+// TxConsumeIndex - The buffer that will/is beign sent by hardware
 
 int ethernet_write(const char *data, int slen) {
 
@@ -651,22 +651,22 @@ int ethernet_send() {
 #endif
 }
 
-// RxConsmeIndex - The index of buffer the driver will read / is reading from. Driver should inc once read
-// RxProduceIndex - The index of buffer that will be / is being filled by MAC. H/w will inc once rxd
+// RxConsmeIndex - The index of buffer the driver will/is reading from. Driver should inc once read
+// RxProduceIndex - The index of buffer that will/is being filled by MAC. H/w will inc once rxd
 //
 // if(RxConsumeIndex == RxProduceIndex) buffer array is empty
 // if(RxConsumeIndex == RxProduceIndex + 1) buffer array is full
 
-// Receives an arrived ethernet packet.
+// Recevies an arrived ethernet packet.
 // Receiving an ethernet packet will drop the last received ethernet packet
 // and make a new ethernet packet ready to read.
 // Returns size of packet, else 0 if nothing to receive
 
 // We read from RxConsumeIndex from position rx_consume_offset
-// if rx_consume_offset < 0, then we have not received the RxConsumeIndex packet for reading
+// if rx_consume_offset < 0, then we have not recieved the RxConsumeIndex packet for reading
 // rx_consume_offset = -1 // no frame
 // rx_consume_offset = 0  // start of frame
-// Assumption: A fragment should always be a whole frame
+// Assumption: A fragment should alway be a whole frame
 
 int ethernet_receive() {
 #if NEW_LOGIC
@@ -722,11 +722,11 @@ int ethernet_receive() {
 #endif
 }
 
-// Read from an received ethernet packet.
-// After receive returned a number bigger than 0 it is
+// Read from an recevied ethernet packet.
+// After receive returnd a number bigger than 0 it is
 // possible to read bytes from this packet.
 // Read will write up to size bytes into data.
-// It is possible to use read multiple times.
+// It is possible to use read multible times.
 // Each time read will start reading after the last read byte before.
 
 int ethernet_read(char *data, int dlen) {

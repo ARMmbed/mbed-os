@@ -555,7 +555,8 @@ fpu_init();
   LPC_SC->CLKOUTCFG = CLKOUTCFG_Val;    /* Clock Output Configuration         */
 #endif
 
-  LPC_SC->PBOOST 	|= 0x03;			/* Power Boost control				*/
+  //TODO: verify correct operation w/ this setting. Refer to Table 18 in UM10562.pdf.
+  LPC_SC->PBOOST 	|= 0x00;			/* Power Boost control				*/
 
 #if (FLASH_SETUP == 1)                  /* Flash Accelerator Setup            */
   LPC_SC->FLASHCFG  = FLASHCFG_Val|0x03A;

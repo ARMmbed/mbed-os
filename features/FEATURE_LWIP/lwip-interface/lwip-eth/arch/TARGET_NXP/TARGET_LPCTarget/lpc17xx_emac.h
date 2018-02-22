@@ -249,7 +249,7 @@ extern "C"
 #define EMAC_TSV0_PKT_DEFER      0x00000040  /**< Packet Deferred                   */
 #define EMAC_TSV0_EXC_DEFER      0x00000080  /**< Excessive Packet Deferral         */
 #define EMAC_TSV0_EXC_COLL       0x00000100  /**< Excessive Collision               */
-#define EMAC_TSV0_LATE_COLL      0x00000200  /**< Late Collision Occurred           */
+#define EMAC_TSV0_LATE_COLL      0x00000200  /**< Late Collision Occured            */
 #define EMAC_TSV0_GIANT          0x00000400  /**< Giant Frame                       */
 #define EMAC_TSV0_UNDERRUN       0x00000800  /**< Buffer Underrun                   */
 #define EMAC_TSV0_BYTES          0x0FFFF000  /**< Total Bytes Transferred           */
@@ -373,7 +373,7 @@ extern "C"
 #define EMAC_RINFO_OVERRUN       0x10000000  /**< Receive overrun                   */
 #define EMAC_RINFO_NO_DESCR      0x20000000  /**< No new Descriptor available       */
 #define EMAC_RINFO_LAST_FLAG     0x40000000  /**< Last Fragment in Frame            */
-#define EMAC_RINFO_ERR           0x80000000  /**< Error Occurred (OR of all errors) */
+#define EMAC_RINFO_ERR           0x80000000  /**< Error Occured (OR of all errors)  */
 #define EMAC_RINFO_ERR_MASK     (EMAC_RINFO_FAIL_FILT | EMAC_RINFO_CRC_ERR   | EMAC_RINFO_SYM_ERR | \
 EMAC_RINFO_LEN_ERR   | EMAC_RINFO_ALIGN_ERR | EMAC_RINFO_OVERRUN)
 
@@ -395,10 +395,10 @@ EMAC_RINFO_LEN_ERR   | EMAC_RINFO_ALIGN_ERR | EMAC_RINFO_OVERRUN)
 #define EMAC_TINFO_DEFER         0x02000000  /**< Packet Deferred (not an error)    */
 #define EMAC_TINFO_EXCESS_DEF    0x04000000  /**< Excessive Deferral                */
 #define EMAC_TINFO_EXCESS_COL    0x08000000  /**< Excessive Collision               */
-#define EMAC_TINFO_LATE_COL      0x10000000  /**< Late Collision Occurred           */
+#define EMAC_TINFO_LATE_COL      0x10000000  /**< Late Collision Occured            */
 #define EMAC_TINFO_UNDERRUN      0x20000000  /**< Transmit Underrun                 */
 #define EMAC_TINFO_NO_DESCR      0x40000000  /**< No new Descriptor available       */
-#define EMAC_TINFO_ERR           0x80000000  /**< Error Occurred (OR of all errors) */
+#define EMAC_TINFO_ERR           0x80000000  /**< Error Occured (OR of all errors)  */
 
 #ifdef MCB_LPC_1768
 /* DP83848C PHY definition ------------------------------------------------------------ */
@@ -417,7 +417,7 @@ EMAC_RINFO_LEN_ERR   | EMAC_RINFO_ALIGN_ERR | EMAC_RINFO_OVERRUN)
 #define EMAC_PHY_REG_IDR1        0x02        /**< PHY Identifier 1                  */
 #define EMAC_PHY_REG_IDR2        0x03        /**< PHY Identifier 2                  */
 #define EMAC_PHY_REG_ANAR        0x04        /**< Auto-Negotiation Advertisement    */
-#define EMAC_PHY_REG_ANLPAR      0x05        /**< Auto-Neg. Link Partner Ability    */
+#define EMAC_PHY_REG_ANLPAR      0x05        /**< Auto-Neg. Link Partner Abitily    */
 #define EMAC_PHY_REG_ANER        0x06        /**< Auto-Neg. Expansion Register      */
 #define EMAC_PHY_REG_ANNPTR      0x07        /**< Auto-Neg. Next Page TX            */
 #define EMAC_PHY_REG_LPNPA         0x08
@@ -504,7 +504,7 @@ EMAC_RINFO_LEN_ERR   | EMAC_RINFO_ALIGN_ERR | EMAC_RINFO_OVERRUN)
 #define EMAC_PHY_REG_IDR1        0x02        /**< PHY Identifier 1                  */
 #define EMAC_PHY_REG_IDR2        0x03        /**< PHY Identifier 2                  */
 #define EMAC_PHY_REG_ANAR        0x04        /**< Auto-Negotiation Advertisement    */
-#define EMAC_PHY_REG_ANLPAR      0x05        /**< Auto-Neg. Link Partner Ability    */
+#define EMAC_PHY_REG_ANLPAR      0x05        /**< Auto-Neg. Link Partner Abitily    */
 #define EMAC_PHY_REG_ANER        0x06        /**< Auto-Neg. Expansion Register      */
 #define EMAC_PHY_REG_ANNPTR      0x07        /**< Auto-Neg. Next Page TX            */
 #define EMAC_PHY_REG_LPNPA         0x08         /**< Link Partner Next Page Ability    */

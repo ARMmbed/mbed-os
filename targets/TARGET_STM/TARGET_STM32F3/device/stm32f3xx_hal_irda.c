@@ -1811,7 +1811,7 @@ static HAL_StatusTypeDef IRDA_CheckIdleState(IRDA_HandleTypeDef *hirda)
     /* Wait until REACK flag is set */
     if(IRDA_WaitOnFlagUntilTimeout(hirda, USART_ISR_REACK, RESET, tickstart, IRDA_TEACK_REACK_TIMEOUT) != HAL_OK)
     {
-      /* Timeout Occurred */
+      /* Timeout Occured */
       return HAL_TIMEOUT;
     }
   }

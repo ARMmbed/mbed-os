@@ -1814,7 +1814,7 @@ ADI_UART_RESULT adi_uart_GetBaudRate(
 
 #endif /* ADI_DEBUG */
 
-    /* If an error occurred during autobaud this value will be set to a
+    /* If an error occured during autobaud this value will be set to a
        non-zero value. The specific error can be found by checking against
        #ADI_UART_EVENT.
     */

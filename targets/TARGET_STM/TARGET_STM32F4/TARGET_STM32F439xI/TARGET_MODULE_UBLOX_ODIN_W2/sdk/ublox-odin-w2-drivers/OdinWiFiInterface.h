@@ -115,7 +115,7 @@ public:
     /** Get the local IP address
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been received
+     *                  or null if no IP address has been recieved
      */
     virtual const char *get_ip_address();
 
@@ -129,7 +129,7 @@ public:
     /** Get the local gateway
      *
      *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been received
+     *                  or null if no network mask has been recieved
      */
     virtual const char *get_gateway();
 

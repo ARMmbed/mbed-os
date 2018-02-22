@@ -1083,7 +1083,7 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   */
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
 {
-  /* UART parity error interrupt occurred -----------------------------------*/
+  /* UART parity error interrupt occurred ------------------------------------*/
 
   if((__HAL_UART_GET_IT(huart, UART_IT_PE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE) != RESET))
   { 
@@ -1095,7 +1095,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     huart->RxState = HAL_UART_STATE_READY;
   }
   
-  /* UART frame error interrupt occurred -------------------------------------*/
+  /* UART frame error interrupt occured --------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_FEF);
@@ -1106,7 +1106,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     huart->RxState = HAL_UART_STATE_READY;
   }
   
-  /* UART noise error interrupt occurred -------------------------------------*/
+  /* UART noise error interrupt occured --------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_NE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_NEF);
@@ -1117,7 +1117,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     huart->RxState = HAL_UART_STATE_READY;
   }
   
-  /* UART Over-Run interrupt occurred ----------------------------------------*/
+  /* UART Over-Run interrupt occurred -----------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
@@ -1128,7 +1128,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     huart->RxState = HAL_UART_STATE_READY;
   }
 
-  /* Call UART Error Call back function if need be ---------------------------*/
+  /* Call UART Error Call back function if need be --------------------------*/
   if(huart->ErrorCode != HAL_UART_ERROR_NONE)
   {
     /* Set the UART state ready to be able to start again the process */
@@ -1138,7 +1138,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
     HAL_UART_ErrorCallback(huart);
   }
 
-  /* UART Wake Up interrupt occurred -----------------------------------------*/
+  /* UART Wake Up interrupt occured ------------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_WUF) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_WUF) != RESET))
   { 
     __HAL_UART_CLEAR_IT(huart, UART_CLEAR_WUF);

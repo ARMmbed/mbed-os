@@ -860,7 +860,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
     }
 
     if (mcps_confirm->status != LORAMAC_EVENT_INFO_STATUS_OK) {
-        // Couldn't schedule packet, ack not received in CONFIRMED case
+        // Couldn't schedule packet, ack not recieved in CONFIRMED case
         // or some other error happened. Discard buffer, unset the tx-ongoing
         // flag and let the application know
         _tx_msg.tx_ongoing = false;

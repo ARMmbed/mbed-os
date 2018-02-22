@@ -56,7 +56,7 @@ struct _sai_dma_handle
     uint8_t bytesPerFrame;                        /*!< Bytes in a frame */
     uint8_t channel;                              /*!< Which Data channel SAI use */
     uint32_t state;                               /*!< SAI DMA transfer internal state */
-    sai_dma_callback_t callback;                  /*!< Callback for users while transfer finish or error occurred */
+    sai_dma_callback_t callback;                  /*!< Callback for users while transfer finish or error occured */
     void *userData;                               /*!< User callback parameter */
     sai_transfer_t saiQueue[SAI_XFER_QUEUE_SIZE]; /*!< Transfer queue storing queued transfer. */
     size_t transferSize[SAI_XFER_QUEUE_SIZE];     /*!< Data bytes need to transfer */

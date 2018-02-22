@@ -37,7 +37,7 @@ enum _sai_transfer_state
 {
     kSAI_Busy = 0x0U, /*!< SAI is busy */
     kSAI_Idle,        /*!< Transfer is done. */
-    kSAI_Error        /*!< Transfer error occurred. */
+    kSAI_Error        /*!< Transfer error occured. */
 };
 
 /*! @brief Typedef for sai tx interrupt handler. */

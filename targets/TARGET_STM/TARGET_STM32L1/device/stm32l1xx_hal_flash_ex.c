@@ -1056,7 +1056,7 @@ static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR)
     status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   }
   
-  /* Return the Option Byte BOR programming Status */
+  /* Return the Option Byte BOR programmation Status */
   return status;
 }
 

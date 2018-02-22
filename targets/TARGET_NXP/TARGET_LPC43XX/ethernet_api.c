@@ -148,7 +148,7 @@ typedef struct TX_DESC_TypeDef TX_DESC_TypeDef;
 #define PHY_REG_IDR1        0x02        /* PHY Identifier 1                  */
 #define PHY_REG_IDR2        0x03        /* PHY Identifier 2                  */
 #define PHY_REG_ANAR        0x04        /* Auto-Negotiation Advertisement    */
-#define PHY_REG_ANLPAR      0x05        /* Auto-Neg. Link Partner Ability    */
+#define PHY_REG_ANLPAR      0x05        /* Auto-Neg. Link Partner Abitily    */
 #define PHY_REG_ANER        0x06        /* Auto-Neg. Expansion Register      */
 #define PHY_REG_ANNPTR      0x07        /* Auto-Neg. Next Page TX            */
 
