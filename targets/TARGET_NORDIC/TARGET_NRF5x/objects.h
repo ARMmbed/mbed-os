@@ -43,6 +43,8 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "nrf_drv_spi.h"
+#include "nrf_twi.h"
 
 #include "nrf_pwm.h"
 
@@ -55,7 +57,16 @@ struct serial_s {
 };                        // but it must be not empty (required by strict compiler - IAR)
 
 struct spi_s {
-    uint8_t spi_idx;
+    int instance;
+    PinName cs;
+    nrf_drv_spi_config_t config;
+    bool update;
+
+#if DEVICE_SPI_ASYNCH
+    uint32_t handler;
+    uint32_t mask;
+    uint32_t event;
+#endif
 };
 
 struct port_s {
@@ -73,7 +84,19 @@ struct pwmout_s {
 };
 
 struct i2c_s {
-    uint8_t twi_idx;
+    int instance;
+    PinName sda;
+    PinName scl;
+    nrf_twi_frequency_t frequency;
+    int state;
+    int mode;
+    bool update;
+
+#if DEVICE_I2C_ASYNCH
+    uint32_t handler;
+    uint32_t mask;
+    uint32_t event;
+#endif
 };
 
 struct analogin_s {
