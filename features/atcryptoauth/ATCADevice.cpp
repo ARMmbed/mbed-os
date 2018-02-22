@@ -117,7 +117,7 @@ ATCAError ATCADevice::RunCommand(ATCACmdInfo * info)
         uint8_t count = info->rx_buf[0];
         if (count > info->resp_len)
         {
-            err = ATCA_ERR_SMALL_BUFFER;
+            err = ATCA_ERR_BUFFER_TOO_SMALL;
             break;
         }
 
@@ -156,7 +156,7 @@ ATCAError ATCADevice::ReadCommand(ATCAZone zone, uint16_t address,
 
     /* Assume word size reads only */
     if (wlen != ATCA_ECC_WORD_SZ)
-        return ATCA_ERR_SMALL_BUFFER;
+        return ATCA_ERR_INVALID_PARAM;
 
     /* Fill the command */
     cmd[1] = zone;
@@ -179,7 +179,7 @@ ATCAError ATCADevice::WriteCommand(ATCAZone zone, uint16_t address,
 
     /* Assume word size reads only */
     if (wlen != ATCA_ECC_WORD_SZ)
-        return ATCA_ERR_SMALL_BUFFER;
+        return ATCA_ERR_INVALID_PARAM;
 
     /* Fill the command */
     cmd[1] = zone;
@@ -234,7 +234,7 @@ ATCAError ATCADevice::GenPrivateKey(ATCAKeyID keyId, uint8_t *pk,
     if (keyId >= ATCA_ECC_NUM_PRIV_KEY_SLOTS)
         return ATCA_ERR_INVALID_PARAM;
     if ( pk_buf_len < ATCA_ECC_ECC_PK_LEN )
-        return ATCA_ERR_SMALL_BUFFER;
+        return ATCA_ERR_BUFFER_TOO_SMALL;
 
     /* Fill the command */
     cmd[1] = 0x04; /* Generate a random ECC Private key in slot keyId. */
@@ -260,7 +260,7 @@ ATCAError ATCADevice::GenPubKey(ATCAKeyID keyId, uint8_t *pk,
     if (keyId >= ATCA_ECC_NUM_PRIV_KEY_SLOTS)
         return ATCA_ERR_INVALID_PARAM;
     if ( pk_buf_len < ATCA_ECC_ECC_PK_LEN )
-        return ATCA_ERR_SMALL_BUFFER;
+        return ATCA_ERR_BUFFER_TOO_SMALL;
 
     /* Fill the command */
     cmd[1] = 0x00; /* Generate Public key from the Private key in slot<keyId> */
@@ -302,7 +302,7 @@ int ATCADevice::Sign(ATCAKeyID keyId, const uint8_t * hash, size_t len,
         return (int)ATCA_ERR_INVALID_PARAM;
 
     if ( sig_buf_len < ATCA_ECC_SIG_LEN )
-        return (int)ATCA_ERR_SMALL_BUFFER;
+        return (int)ATCA_ERR_BUFFER_TOO_SMALL;
 
     ATCAError err = Nonce(hash, len);
     if (err != ATCA_SUCCESS)
