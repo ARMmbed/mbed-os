@@ -109,10 +109,10 @@ public:
      *      In order to protect against most accidental errors, the device
      *  compares configuration zone data upto a supplied CRC calculated on
      *  the desired config supplied to this function.
-     *      The supplied configuration may not be specific to the device. As
-     *  First 4 blocks (4 bytes each) contain device specific data. Hence,
-     *  this function replaces these 4 blocks with data from the device before
-     *  calculating the CRC.
+     *      The first 16 bytes of the configuration contain the device unique
+     *  identifier. The rest does not depend on the device. Hence this function
+     *  reads the first 16 bytes from the device, replaces the corresponding
+     *  part of the reference configuration, and calculates the CRC from that.
      *
      *  @param config       Desired confiuration zone data.
      *  @param config_len   Configuration data length.
