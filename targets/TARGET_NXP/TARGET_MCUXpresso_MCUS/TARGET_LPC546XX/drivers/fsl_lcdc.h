@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -102,7 +106,7 @@ typedef enum _lcdc_display
     kLCDC_DisplayDualMonoSTN4Bit =
         LCD_CTRL_LCDBW_MASK | LCD_CTRL_LCDDUAL_MASK, /*!< Dual-panel monochrome STN (4-bit bus interface). */
     kLCDC_DisplayDualMonoSTN8Bit = LCD_CTRL_LCDBW_MASK | LCD_CTRL_LCDMONO8_MASK |
-                                  LCD_CTRL_LCDDUAL_MASK,  /*!< Dual-panel monochrome STN (8-bit bus interface). */
+                                   LCD_CTRL_LCDDUAL_MASK,  /*!< Dual-panel monochrome STN (8-bit bus interface). */
     kLCDC_DisplaySingleColorSTN8Bit = 0U,                  /*!< Single-panel color STN (8-bit bus interface). */
     kLCDC_DisplayDualColorSTN8Bit = LCD_CTRL_LCDDUAL_MASK, /*!< Dual-panel coor STN (8-bit bus interface). */
 } lcdc_display_t;
@@ -137,9 +141,9 @@ typedef struct _lcdc_config
     uint8_t lineEndDelay;    /*!< The panel clocks between the last pixel of line and the start of line end. */
     uint32_t upperPanelAddr; /*!< LCD upper panel base address, must be double-word(64-bit) align. */
     uint32_t lowerPanelAddr; /*!< LCD lower panel base address, must be double-word(64-bit) align. */
-    lcdc_bpp_t bpp;           /*!< LCD bits per pixel. */
+    lcdc_bpp_t bpp;          /*!< LCD bits per pixel. */
     lcdc_data_format_t dataFormat; /*!< Data format. */
-    bool swapRedBlue;             /*!< Set true to use BGR format, set false to choose RGB format. */
+    bool swapRedBlue;              /*!< Set true to use BGR format, set false to choose RGB format. */
     lcdc_display_t display;        /*!< The display type. */
 } lcdc_config_t;
 

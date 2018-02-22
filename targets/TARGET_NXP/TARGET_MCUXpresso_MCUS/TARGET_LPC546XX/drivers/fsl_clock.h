@@ -1,10 +1,13 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright (c) 2016 - 2017 , NXP
  * All rights reserved.
  *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -17,6 +20,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,6 +49,12 @@
 /*******************************************************************************
  * Definitions
  *****************************************************************************/
+
+/*! @name Driver version */
+/*@{*/
+/*! @brief CLOCK driver version 2.0.0. */
+#define FSL_CLOCK_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*@}*/
 
 /*! @brief Configure whether driver controls clock
  *
@@ -119,7 +129,7 @@
 /*! @brief Clock ip name array for GPIO. */
 #define GPIO_CLOCKS          \
     {                        \
-        kCLOCK_Gpio0, kCLOCK_Gpio1, kCLOCK_Gpio2, kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5     \
+        kCLOCK_Gpio0,kCLOCK_Gpio1, kCLOCK_Gpio2, kCLOCK_Gpio3, kCLOCK_Gpio4, kCLOCK_Gpio5     \
     }
 /*! @brief Clock ip name array for PINT. */
 #define PINT_CLOCKS          \
@@ -670,12 +680,12 @@ typedef enum _clock_attach_id
     kFRO_HF_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 3),
     kAUDIO_PLL_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 4),
     kNONE_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 7),
-
+    
     kMCLK_to_LCD_CLK = MUX_A(CM_LCDCLKSEL, 0),
     kLCDCLKIN_to_LCD_CLK = MUX_A(CM_LCDCLKSEL, 1),
     kFRO_HF_to_LCD_CLK = MUX_A(CM_LCDCLKSEL, 2),
     kNONE_to_LCD_CLK = MUX_A(CM_LCDCLKSEL, 3),
-
+    
     kMAIN_CLK_to_ASYNC_APB = MUX_A(CM_ASYNCAPB, 0),
     kFRO12M_to_ASYNC_APB = MUX_A(CM_ASYNCAPB, 1),
     kAUDIO_PLL_to_ASYNC_APB = MUX_A(CM_ASYNCAPB, 2),
@@ -988,10 +998,10 @@ __STATIC_INLINE  void CLOCK_Enable_SysOsc(bool enable)
         SYSCON->PDRUNCFGCLR[0] |= SYSCON_PDRUNCFG_PDEN_VD2_ANA_MASK;
         SYSCON->PDRUNCFGCLR[1] |= SYSCON_PDRUNCFG_PDEN_SYSOSC_MASK;
     }
-
+    
     else
     {
-        SYSCON->PDRUNCFGSET[0] = SYSCON_PDRUNCFG_PDEN_VD2_ANA_MASK;
+        SYSCON->PDRUNCFGSET[0] = SYSCON_PDRUNCFG_PDEN_VD2_ANA_MASK; 
         SYSCON->PDRUNCFGSET[1] = SYSCON_PDRUNCFG_PDEN_SYSOSC_MASK;
 
     }
@@ -1134,6 +1144,12 @@ uint32_t CLOCK_GetSystemPLLOutFromSetup(pll_setup_t *pSetup);
  */
 uint32_t CLOCK_GetAudioPLLOutFromSetup(pll_setup_t *pSetup);
 
+/*! @brief	Return System AUDIO PLL output clock rate from audio fractioanl setup structure
+ *  @param	pSetup	: Pointer to a PLL setup structure
+ *  @return	System PLL output clock rate the setup structure will generate
+ */
+uint32_t CLOCK_GetAudioPLLOutFromFractSetup(pll_setup_t *pSetup);
+
 /*! @brief	Return System USB PLL output clock rate from setup structure
  *  @param	pSetup	: Pointer to a PLL setup structure
  *  @return	System PLL output clock rate the setup structure will generate
@@ -1181,6 +1197,18 @@ pll_error_t CLOCK_SetupSystemPLLPrec(pll_setup_t *pSetup, uint32_t flagcfg);
  * so these should be setup prior to and after exiting the function.
  */
 pll_error_t CLOCK_SetupAudioPLLPrec(pll_setup_t *pSetup, uint32_t flagcfg);
+
+/*! @brief	Set AUDIO PLL output from AUDIOPLL setup structure using the Audio Fractional divider register(precise frequency)
+ * @param	pSetup	: Pointer to populated PLL setup structure
+* @param flagcfg : Flag configuration for PLL config structure
+ * @return	PLL_ERROR_SUCCESS on success, or PLL setup error code
+ * @note	This function will power off the PLL, setup the PLL with the
+ * new setup data, and then optionally powerup the AUDIO PLL, wait for PLL lock,
+ * and adjust system voltages to the new AUDIOPLL rate. The function will not
+ * alter any source clocks (ie, main systen clock) that may use the AUDIO PLL,
+ * so these should be setup prior to and after exiting the function.
+ */
+pll_error_t CLOCK_SetupAudioPLLPrecFract(pll_setup_t *pSetup, uint32_t flagcfg);
 
 /**
  * @brief	Set PLL output from PLL setup structure (precise frequency)
