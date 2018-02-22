@@ -1550,7 +1550,7 @@
             }
         },
         "detect_code": ["0765"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG",
@@ -1569,7 +1569,7 @@
             }
         },
         "detect_code": ["0766"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L476JG"
@@ -1861,7 +1861,7 @@
         },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
@@ -1883,7 +1883,7 @@
             }
         },
         "detect_code": ["0820"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
