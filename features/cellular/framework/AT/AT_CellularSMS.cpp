@@ -895,13 +895,14 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
             index+=14;
         }
 
+        int udl =  hex_str_to_int(pdu+index, 2);
         index +=2;
+
         int paddingBits = 0;
-        int parts = 1;
         int partnro = 1;
         if (userDataHeader) {
             // we need to read User Defined Header to know what part number this message is.
-            index += read_udh_from_pdu(pdu+index, info, partnro, parts, paddingBits);
+            index += read_udh_from_pdu(pdu+index, info, partnro, paddingBits);
         }
 
         if (part_number) {
@@ -910,7 +911,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
 
         if (msg) {
             // we are reading the message
-            err = read_pdu_payload(pdu+index, dataScheme, msg, paddingBits, partnro == parts);
+            err = read_pdu_payload(pdu+index, udl, dataScheme, msg, paddingBits);
         }
         else {
             if (dataScheme == 0x00) {
@@ -933,9 +934,8 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
     }
 }
 
- // read params from User DEfined Header
-int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &parts,
-        int &padding_bits) {
+ // read params from User Defined Header
+int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &padding_bits) {
 
     int index = 0;
     int udhLength = hex_str_to_int(pdu, 2);
@@ -943,6 +943,7 @@ int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &pa
 
     // if there is padding bits then udhlen is octet bigger as we need to keep septet boundary
     padding_bits = ((udhLength+1) * 8 ) % 7; // +1 is for udhLength itself
+
     if (padding_bits) {
         padding_bits = 7 - padding_bits;
     } else {
@@ -966,9 +967,8 @@ int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &pa
         index +=4;
     }
 
-    parts = hex_str_to_int(pdu+index, 2);
     if (info) {
-        info->parts = parts;
+        info->parts = hex_str_to_int(pdu+index, 2);
     }
     index +=2;
 
@@ -978,13 +978,11 @@ int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &pa
     return (udhLength*2 + 2); // udh in hex and udhl
 }
 
-nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int scheme, char *msg, int padding_bits,
-        bool last_part)
+nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int msg_len, int scheme, char *msg, int padding_bits)
 {
     if (scheme == 0x00) {
         // 7 bit gsm encoding, must do the conversions from hex to 7-bit encoding and to ascii
-        return unpack_7_bit_gsm_to_str(pdu, strlen(pdu)/2, msg, padding_bits, last_part);
-
+        return unpack_7_bit_gsm_to_str(pdu, strlen(pdu)/2, msg, padding_bits, msg_len);
     } else if (scheme == 0x04) {
         // 8bit scheme so just convert hexstring to charstring
         return hex_str_to_char_str(pdu, strlen(pdu), msg);
@@ -1261,7 +1259,7 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
 }
 
  uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char* str, int len, char *buf, int padding_bits,
-                                            bool last_part)
+                                            int msg_len)
 {
     int strCount = 0;
     uint16_t decodedCount = 0;
@@ -1284,9 +1282,7 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
         } else if (shift == 6) {
             hex_str_to_char_str(str + (strCount-1)*2, 2, &tmp1);
             buf[decodedCount] = gsm_to_ascii[(((tmp1>>2)) | (tmp << 6)) & 0x7F];
-            // we are unpacking the last byte and so tmp is not complete as it's not completed by the next byte.
-            // unless this is a multipart message and not the last part.
-            if (!((strCount+1 == len) && last_part)) {
+            if (decodedCount+1 < msg_len) {
                 hex_str_to_char_str(str + strCount*2, 2, &tmp);
                 decodedCount++;
                 buf[decodedCount] = gsm_to_ascii[(tmp>>1) & 0x7F];
