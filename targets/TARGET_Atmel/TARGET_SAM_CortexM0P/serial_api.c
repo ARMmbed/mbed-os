@@ -1024,7 +1024,7 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
 
-    /* Return to the call back if character match occurred */
+    /* Return to the call back if character match occured */
     if(event != 0) {
         serial_rx_abort_asynch(obj);
         return event & obj->serial.events;

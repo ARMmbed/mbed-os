@@ -112,7 +112,7 @@ typedef struct {
     void              (*tx_asynch_handler)();
 
     uint32_t            events_wanted;
-    uint32_t            events_occurred;
+    uint32_t            events_occured;
 
     #define UART_IRQ_TX 1
     #define UART_IRQ_RX 2
@@ -165,13 +165,13 @@ void UART_IRQ_HANDLER(void)
             if (UART_CB.char_match != SERIAL_RESERVED_CHAR_MATCH &&
                 rx_data == UART_CB.char_match) {
                 // If it does, report the match and abort further receiving.
-                UART_CB.events_occurred |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+                UART_CB.events_occured |= SERIAL_EVENT_RX_CHARACTER_MATCH;
                 if (UART_CB.events_wanted & SERIAL_EVENT_RX_CHARACTER_MATCH) {
                     end_rx = true;
                 }
             }
             if (++UART_CB.rx_pos >= UART_CB.rx_length) {
-                UART_CB.events_occurred |= SERIAL_EVENT_RX_COMPLETE;
+                UART_CB.events_occured |= SERIAL_EVENT_RX_COMPLETE;
                 end_rx = true;
             }
             if (end_rx) {
@@ -215,7 +215,7 @@ void UART_IRQ_HANDLER(void)
                 // 'serial_writable' function to work properly.
                 end_asynch_tx();
 
-                UART_CB.events_occurred |= SERIAL_EVENT_TX_COMPLETE;
+                UART_CB.events_occured |= SERIAL_EVENT_TX_COMPLETE;
                 if (UART_CB.tx_asynch_handler) {
                     // Use local variable to make it possible to start a next
                     // transfer from callback routine.
@@ -239,15 +239,15 @@ void UART_IRQ_HANDLER(void)
 
         uint8_t errorsrc = nrf_uart_errorsrc_get_and_clear(UART_INSTANCE);
         if (UART_CB.rx_asynch_handler) {
-            UART_CB.events_occurred |= SERIAL_EVENT_ERROR;
+            UART_CB.events_occured |= SERIAL_EVENT_ERROR;
             if (errorsrc & NRF_UART_ERROR_PARITY_MASK) {
-                UART_CB.events_occurred |= SERIAL_EVENT_RX_PARITY_ERROR;
+                UART_CB.events_occured |= SERIAL_EVENT_RX_PARITY_ERROR;
             }
             if (errorsrc & NRF_UART_ERROR_FRAMING_MASK) {
-                UART_CB.events_occurred |= SERIAL_EVENT_RX_FRAMING_ERROR;
+                UART_CB.events_occured |= SERIAL_EVENT_RX_FRAMING_ERROR;
             }
             if (errorsrc & NRF_UART_ERROR_OVERRUN_MASK) {
-                UART_CB.events_occurred |= SERIAL_EVENT_RX_OVERRUN_ERROR;
+                UART_CB.events_occured |= SERIAL_EVENT_RX_OVERRUN_ERROR;
             }
             UART_CB.rx_asynch_handler();
         }
@@ -641,8 +641,8 @@ uint8_t serial_rx_active(serial_t *obj)
 int serial_irq_handler_asynch(serial_t *obj)
 {
     (void)obj;
-    uint32_t events_to_report = UART_CB.events_wanted & UART_CB.events_occurred;
-    UART_CB.events_occurred &= (~events_to_report);
+    uint32_t events_to_report = UART_CB.events_wanted & UART_CB.events_occured;
+    UART_CB.events_occured &= (~events_to_report);
     return events_to_report;
 }
 

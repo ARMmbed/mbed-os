@@ -3918,7 +3918,7 @@ HISTORY
   ++ Bug fixes:
 
   * Fixed pool pbuf memory leak in pbuf_alloc().
-    Occurred if not enough PBUF_POOL pbufs for a packet pbuf chain.
+    Occured if not enough PBUF_POOL pbufs for a packet pbuf chain.
     Reported by Savin Zlobec.
 
   * PBUF_POOL chains had their tot_len field not set for non-first

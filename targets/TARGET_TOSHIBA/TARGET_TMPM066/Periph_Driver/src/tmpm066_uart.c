@@ -1121,7 +1121,7 @@ void SIO_Init(TSB_SC_TypeDef * SIOx, uint32_t IOClkSel, SIO_InitTypeDef * InitSt
     tmp &= (CR_IOC_MASK & CR_SCLKS_MASK & CR_TIDLE_MASK);
     tmp |= (IOClkSel | InitStruct->InputClkEdge | InitStruct->TIDLE);
 
-    /* Set status of TXDx pin when an under run error has occurred
+    /* Set status of TXDx pin when an under run error is occured
        and The last bit hold time of TXDx pin in SCLK input mode */
     if (IOClkSel == SIO_CLK_SCLKINPUT) {
         tmp &= (CR_TXDEMP_MASK & CR_EHOLD_MASK);

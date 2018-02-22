@@ -240,7 +240,7 @@ enum _flexcan_interrupt_enable
  *
  * This provides constants for the FlexCAN status flags for use in the FlexCAN functions.
  * Note: The CPU read action clears FlEXCAN_ErrorFlag, therefore user need to
- * read FlEXCAN_ErrorFlag and distinguish which error has occurred using
+ * read FlEXCAN_ErrorFlag and distinguish which error is occur using
  * @ref _flexcan_error_flags enumerations.
  */
 enum _flexcan_flags

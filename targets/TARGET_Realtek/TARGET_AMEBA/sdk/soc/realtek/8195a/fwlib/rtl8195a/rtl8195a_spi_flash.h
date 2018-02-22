@@ -1000,7 +1000,7 @@
 #define REG_SPIC_FLUSH_FIFO 0x0128//O
 
 VOID SpicInitRtl8195A(u8 InitBaudRate, u8 SpicBitMode);			// spi-flash controller initialization
-VOID SpicRxCmdRtl8195A(u8);			// receive command
+VOID SpicRxCmdRtl8195A(u8);			// recieve command
 VOID SpicTxCmdRtl8195A(u8 cmd, SPIC_INIT_PARA SpicInitPara);			// transfer command
 u8 SpicGetFlashStatusRtl8195A(SPIC_INIT_PARA SpicInitPara);		// RDSR, read spi-flash status register
 VOID SpicSetFlashStatusRtl8195A(u32 data, SPIC_INIT_PARA SpicInitPara);		// WRSR, write spi-flash status register

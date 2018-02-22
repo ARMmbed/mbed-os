@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 #define ST_AES_TIMEOUT    ((uint32_t) 0xFF) /* 255 ms timeout for the crypto processor */
-#define ST_ERR_AES_BUSY   (-0x0023)      /* Crypto processor is busy, timeout occurred */
+#define ST_ERR_AES_BUSY   (-0x0023)      /* Crypto processor is busy, timeout occured */
 /**
  * \brief          AES context structure
  *

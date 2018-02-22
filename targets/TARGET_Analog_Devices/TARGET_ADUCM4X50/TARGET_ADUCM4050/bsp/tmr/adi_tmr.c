@@ -284,7 +284,7 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
  *
  * @details     The timer can be configured to capture the timer value when a specific event occurs. The
  *              list of events can be found in the hardware reference manual. The callback function specified
- *              in #adi_tmr_Init will be supplied #ADI_TMR_EVENT_CAPTURE to indicate the event occurred. The 
+ *              in #adi_tmr_Init will be supplied #ADI_TMR_EVENT_CAPTURE to indicate the event occured. The 
  *              user can then read the captured value by calling #adi_tmr_GetCaptureCount.
  *
  * @note        This function can only be called when the timer is disabled.

@@ -68,7 +68,7 @@ protected:
 
     /** Bind a specific address to a socket
      *
-     *  Binding a socket specifies the address and port on which to receive
+     *  Binding a socket specifies the address and port on which to recieve
      *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param handle   Socket handle

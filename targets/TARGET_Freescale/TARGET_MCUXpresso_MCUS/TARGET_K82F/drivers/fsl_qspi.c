@@ -37,7 +37,7 @@ enum _qspi_transfer_state
 {
     kQSPI_TxBusy = 0x0U, /*!< QSPI is busy */
     kQSPI_TxIdle,        /*!< Transfer is done. */
-    kQSPI_TxError        /*!< Transfer error occurred. */
+    kQSPI_TxError        /*!< Transfer error occured. */
 };
 
 #define QSPI_AHB_BUFFER_REG(base, index) (*((uint32_t *)&(base->BUF0CR) + index))

@@ -2128,7 +2128,7 @@ static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
     /* Wait until TEACK flag is set */
     if(USART_WaitOnFlagUntilTimeout(husart, USART_ISR_TEACK, RESET, tickstart, USART_TEACK_REACK_TIMEOUT) != HAL_OK)
     {
-      /* Timeout Occurred */
+      /* Timeout Occured */
       return HAL_TIMEOUT;
     }
   }

@@ -52,7 +52,7 @@ typedef enum _adc_status_flags
     kADC_ConversionActiveFlag = ADC_GS_ADACT_MASK, /*!< Conversion is active,not support w1c. */
     kADC_CalibrationFailedFlag = ADC_GS_CALF_MASK, /*!< Calibration is failed,support w1c. */
     kADC_AsynchronousWakeupInterruptFlag =
-        ADC_GS_AWKST_MASK, /*!< Asynchronous wakeup interrupt occurred, support w1c. */
+        ADC_GS_AWKST_MASK, /*!< Asynchronous wakeup interrupt occured, support w1c. */
 } adc_status_flags_t;
 
 /*!

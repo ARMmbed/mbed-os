@@ -242,7 +242,7 @@ int mbedtls_mpi_copy( mbedtls_mpi *X, const mbedtls_mpi *Y );
 void mbedtls_mpi_swap( mbedtls_mpi *X, mbedtls_mpi *Y );
 
 /**
- * \brief          Safe conditional assignment X = Y if assign is 1
+ * \brief          Safe conditional assignement X = Y if assign is 1
  *
  * \param X        MPI to conditionally assign to
  * \param Y        Value to be assigned

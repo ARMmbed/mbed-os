@@ -1309,7 +1309,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_ADDR(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of 10-bit header sent (master mode).
-  * @note   RESET: When no ADD10 event occurred.
+  * @note   RESET: When no ADD10 event occured.
   *         SET: When the master has sent the first address byte (header).
   * @rmtoll SR1          ADD10         LL_I2C_IsActiveFlag_ADD10
   * @param  I2Cx I2C Instance.

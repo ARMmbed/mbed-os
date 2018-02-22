@@ -5978,7 +5978,7 @@ void HAL_HRTIM_IRQHandler(HRTIM_HandleTypeDef * hhrtim,
 }
 
 /**
-  * @brief  Callback function invoked when a fault 1 interrupt occurred
+  * @brief  Callback function invoked when a fault 1 interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle  * @retval None
   * @retval None
   */
@@ -5993,7 +5993,7 @@ __weak void HAL_HRTIM_Fault1Callback(HRTIM_HandleTypeDef * hhrtim)
 }
 
 /**
-  * @brief  Callback function invoked when a fault 2 interrupt occurred
+  * @brief  Callback function invoked when a fault 2 interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle
   * @retval None
   */
@@ -6008,7 +6008,7 @@ __weak void HAL_HRTIM_Fault2Callback(HRTIM_HandleTypeDef * hhrtim)
 }
 
 /**
-  * @brief  Callback function invoked when a fault 3 interrupt occurred
+  * @brief  Callback function invoked when a fault 3 interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle 
   * @retval None
   */
@@ -6023,7 +6023,7 @@ __weak void HAL_HRTIM_Fault3Callback(HRTIM_HandleTypeDef * hhrtim)
 }
 
 /**
-  * @brief  Callback function invoked when a fault 4 interrupt occurred
+  * @brief  Callback function invoked when a fault 4 interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle 
   * @retval None
   */
@@ -6038,7 +6038,7 @@ __weak void HAL_HRTIM_Fault4Callback(HRTIM_HandleTypeDef * hhrtim)
 }
 
 /**
-  * @brief  Callback function invoked when a fault 5 interrupt occurred
+  * @brief  Callback function invoked when a fault 5 interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle  
   * @retval None
   */
@@ -6053,7 +6053,7 @@ __weak void HAL_HRTIM_Fault5Callback(HRTIM_HandleTypeDef * hhrtim)
 }
 
 /**
-  * @brief  Callback function invoked when a system fault interrupt occurred
+  * @brief  Callback function invoked when a system fault interrupt occured
   * @param  hhrtim: pointer to HAL HRTIM handle  
   * @retval None
   */

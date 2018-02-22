@@ -246,7 +246,7 @@ public:
 
 private:
     // this class is not a value type.
-    // prohibit copy construction and copy assignment
+    // prohibit copy construction and copy assignement
     BLEInstanceBase(const BLEInstanceBase&);
     BLEInstanceBase &operator=(const BLEInstanceBase&);
 };
