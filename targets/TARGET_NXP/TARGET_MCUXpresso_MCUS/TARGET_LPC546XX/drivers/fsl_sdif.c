@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,6 +40,25 @@
 
 /* Typedef for interrupt handler. */
 typedef void (*sdif_isr_t)(SDIF_Type *base, sdif_handle_t *handle);
+
+/*! @brief convert the name here, due to RM use SDIO */
+#define SDIF_DriverIRQHandler SDIO_DriverIRQHandler
+/*! @brief define the controller support sd/sdio card version 2.0 */
+#define SDIF_SUPPORT_SD_VERSION (0x20)
+/*! @brief define the controller support mmc card version 4.4 */
+#define SDIF_SUPPORT_MMC_VERSION (0x44)
+/*! @brief define the timeout counter */
+#define SDIF_TIMEOUT_VALUE (65535U)
+/*! @brief this value can be any value */
+#define SDIF_POLL_DEMAND_VALUE (0xFFU)
+/*! @brief DMA descriptor buffer1 size */
+#define SDIF_DMA_DESCRIPTOR_BUFFER1_SIZE(x) (x & 0x1FFFU)
+/*! @brief DMA descriptor buffer2 size */
+#define SDIF_DMA_DESCRIPTOR_BUFFER2_SIZE(x) ((x & 0x1FFFU) << 13U)
+/*! @brief RX water mark value */
+#define SDIF_RX_WATERMARK (15U)
+/*! @brief TX water mark value */
+#define SDIF_TX_WATERMARK (16U)
 
 /*******************************************************************************
  * Prototypes
@@ -141,9 +164,18 @@ static status_t SDIF_WriteDataPortBlocking(SDIF_Type *base, sdif_data_t *data);
 /*
 * @brief handle sdio interrupt
 * This function will call the SDIO interrupt callback
+* @param SDIF base address
 * @param SDIF handle
 */
-static void SDIF_TransferHandleSDIOInterrupt(sdif_handle_t *handle);
+static void SDIF_TransferHandleSDIOInterrupt(SDIF_Type *base, sdif_handle_t *handle);
+
+/*
+* @brief handle card detect
+* This function will call the cardInserted callback
+* @param SDIF base addres
+* @param SDIF handle
+*/
+static void SDIF_TransferHandleCardDetect(SDIF_Type *base, sdif_handle_t *handle);
 
 /*******************************************************************************
  * Variables
@@ -288,19 +320,18 @@ static status_t SDIF_WaitCommandDone(SDIF_Type *base, sdif_command_t *command)
     do
     {
         status = SDIF_GetInterruptStatus(base);
-        if ((status &
-             (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout | kSDIF_HardwareLockError)) != 0u)
-        {
-            SDIF_ClearInterruptStatus(base, status & (kSDIF_ResponseError | kSDIF_ResponseCRCError |
-                                                      kSDIF_ResponseTimeout | kSDIF_HardwareLockError));
-            return kStatus_SDIF_SendCmdFail;
-        }
     } while ((status & kSDIF_CommandDone) != kSDIF_CommandDone);
-
-    /* clear the command done bit */
-    SDIF_ClearInterruptStatus(base, status & kSDIF_CommandDone);
-
-    return SDIF_ReadCommandResponse(base, command);
+    /* clear interrupt status flag first */
+    SDIF_ClearInterruptStatus(base, status);
+    if ((status & (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout | kSDIF_HardwareLockError)) !=
+        0u)
+    {
+        return kStatus_SDIF_SendCmdFail;
+    }
+    else
+    {
+        return SDIF_ReadCommandResponse(base, command);
+    }
 }
 
 status_t SDIF_ReleaseDMADescriptor(SDIF_Type *base, sdif_dma_config_t *dmaConfig)
@@ -675,68 +706,35 @@ bool SDIF_SendCardActive(SDIF_Type *base, uint32_t timeout)
 
 void SDIF_ConfigClockDelay(uint32_t target_HZ, uint32_t divider)
 {
-    /*config the clock delay and pharse shift
-     *should config the clk_in_drv,
-     *clk_in_sample to meet the min hold and
-     *setup time
-     */
-    if (target_HZ <= kSDIF_Freq400KHZ)
+    uint32_t sdioClkCtrl = SYSCON->SDIOCLKCTRL;
+
+    if (target_HZ >= SDIF_CLOCK_RANGE_NEED_DELAY)
     {
-        /*min hold time:5ns
-        * min setup time: 5ns
-        * delay = (x+1)*250ps
-        */
-        SYSCON->SDIOCLKCTRL = SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY(SDIF_INDENTIFICATION_MODE_SAMPLE_DELAY) |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY(SDIF_INDENTIFICATION_MODE_DRV_DELAY);
-    }
-    else if (target_HZ >= kSDIF_Freq50MHZ)
-    {
-        /*
-        * user need to pay attention to this parameter
-        * can be change the setting for you card and board
-        * min hold time:2ns
-        * min setup time: 6ns
-        * delay = (x+1)*250ps
-        */
-        SYSCON->SDIOCLKCTRL = SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY(SDIF_HIGHSPEED_50MHZ_SAMPLE_DELAY) |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY(SDIF_HIGHSPEED_50MHZ_DRV_DELAY);
-        /* means the input clock = 2 * card clock,
-        * can use clock pharse shift tech
-        */
         if (divider == 1U)
         {
-            SYSCON->SDIOCLKCTRL |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
-                                   SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_PHASE(kSDIF_ClcokPharseShift90) |
-                                   SYSCON_SDIOCLKCTRL_CCLK_DRV_PHASE(kSDIF_ClcokPharseShift180);
+#if defined(SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT) && (SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT != 0U)
+            sdioClkCtrl |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
+                           SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_PHASE(SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT);
+#endif
+#if defined(SDIF_HIGHSPEED_DRV_PHASE_SHIFT) && (SDIF_HIGHSPEED_DRV_PHASE_SHIFT != 0U)
+            sdioClkCtrl |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
+                           SYSCON_SDIOCLKCTRL_CCLK_DRV_PHASE(SDIF_HIGHSPEED_DRV_PHASE_SHIFT);
+#endif
         }
-    }
-    else
-    {
-        /*
-        * user need to pay attention to this parameter
-        * can be change the setting for you card and board
-        * min hold time:5ns
-        * min setup time: 5ns
-        * delay = (x+1)*250ps
-        */
-        SYSCON->SDIOCLKCTRL = SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY(SDIF_HIGHSPEED_25MHZ_SAMPLE_DELAY) |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY_ACTIVE_MASK |
-                              SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY(SDIF_HIGHSPEED_25MHZ_DRV_DELAY);
-        /* means the input clock = 2 * card clock,
-        * can use clock pharse shift tech
-        */
-        if (divider == 1U)
+        else
         {
-            SYSCON->SDIOCLKCTRL |= SYSCON_SDIOCLKCTRL_PHASE_ACTIVE_MASK |
-                                   SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_PHASE(kSDIF_ClcokPharseShift90) |
-                                   SYSCON_SDIOCLKCTRL_CCLK_DRV_PHASE(kSDIF_ClcokPharseShift90);
+#ifdef SDIF_HIGHSPEED_SAMPLE_DELAY
+            sdioClkCtrl |= SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY_ACTIVE_MASK |
+                           SYSCON_SDIOCLKCTRL_CCLK_SAMPLE_DELAY(SDIF_HIGHSPEED_SAMPLE_DELAY);
+#endif
+#ifdef SDIF_HIGHSPEED_DRV_DELAY
+            sdioClkCtrl |= SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY_ACTIVE_MASK |
+                           SYSCON_SDIOCLKCTRL_CCLK_DRV_DELAY(SDIF_HIGHSPEED_DRV_DELAY);
+#endif
         }
     }
+
+    SYSCON->SDIOCLKCTRL = sdioClkCtrl;
 }
 
 uint32_t SDIF_SetCardClock(SDIF_Type *base, uint32_t srcClock_Hz, uint32_t target_HZ)
@@ -1098,7 +1096,7 @@ void SDIF_TransferCreateHandle(SDIF_Type *base,
     handle->callback.DMADesUnavailable = callback->DMADesUnavailable;
     handle->callback.CommandReload = callback->CommandReload;
     handle->callback.TransferComplete = callback->TransferComplete;
-
+    handle->callback.cardInserted = callback->cardInserted;
     handle->userData = userData;
 
     /* Save the handle in global variables to support the double weak mechanism. */
@@ -1130,26 +1128,32 @@ static void SDIF_TransferHandleCommand(SDIF_Type *base, sdif_handle_t *handle, u
 {
     assert(handle->command);
 
-    /* transfer error */
-    if (interruptFlags & (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout))
-    {
-        handle->callback.TransferComplete(base, handle, kStatus_SDIF_SendCmdFail, handle->userData);
-    }
     /* cmd buffer full, in this condition user need re-send the command */
-    else if (interruptFlags & kSDIF_HardwareLockError)
+    if (interruptFlags & kSDIF_HardwareLockError)
     {
         if (handle->callback.CommandReload)
         {
-            handle->callback.CommandReload();
+            handle->callback.CommandReload(base, handle->userData);
         }
     }
-    /* transfer command success */
+    /* transfer command done */
     else
     {
-        SDIF_ReadCommandResponse(base, handle->command);
-        if (((handle->data) == NULL) && (handle->callback.TransferComplete))
+        if ((kSDIF_CommandDone & interruptFlags) != 0U)
         {
-            handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
+            /* transfer error */
+            if (interruptFlags & (kSDIF_ResponseError | kSDIF_ResponseCRCError | kSDIF_ResponseTimeout))
+            {
+                handle->callback.TransferComplete(base, handle, kStatus_SDIF_SendCmdFail, handle->userData);
+            }
+            else
+            {
+                SDIF_ReadCommandResponse(base, handle->command);
+                if (((handle->data) == NULL) && (handle->callback.TransferComplete))
+                {
+                    handle->callback.TransferComplete(base, handle, kStatus_Success, handle->userData);
+                }
+            }
         }
     }
 }
@@ -1217,7 +1221,7 @@ static void SDIF_TransferHandleDMA(SDIF_Type *base, sdif_handle_t *handle, uint3
     {
         if (handle->callback.DMADesUnavailable)
         {
-            handle->callback.DMADesUnavailable();
+            handle->callback.DMADesUnavailable(base, handle->userData);
         }
     }
     else if ((interruptFlags & (kSDIF_AbnormalInterruptSummary | kSDIF_DMACardErrorSummary)) &&
@@ -1232,11 +1236,29 @@ static void SDIF_TransferHandleDMA(SDIF_Type *base, sdif_handle_t *handle, uint3
     }
 }
 
-static void SDIF_TransferHandleSDIOInterrupt(sdif_handle_t *handle)
+static void SDIF_TransferHandleSDIOInterrupt(SDIF_Type *base, sdif_handle_t *handle)
 {
     if (handle->callback.SDIOInterrupt != NULL)
     {
-        handle->callback.SDIOInterrupt();
+        handle->callback.SDIOInterrupt(base, handle->userData);
+    }
+}
+
+static void SDIF_TransferHandleCardDetect(SDIF_Type *base, sdif_handle_t *handle)
+{
+    if (SDIF_DetectCardInsert(base, false))
+    {
+        if ((handle->callback.cardInserted) != NULL)
+        {
+            handle->callback.cardInserted(base, handle->userData);
+        }
+    }
+    else
+    {
+        if ((handle->callback.cardRemoved) != NULL)
+        {
+            handle->callback.cardRemoved(base, handle->userData);
+        }
     }
 }
 
@@ -1262,11 +1284,15 @@ static void SDIF_TransferHandleIRQ(SDIF_Type *base, sdif_handle_t *handle)
     }
     if (interruptFlags & kSDIF_SDIOInterrupt)
     {
-        SDIF_TransferHandleSDIOInterrupt(handle);
+        SDIF_TransferHandleSDIOInterrupt(base, handle);
     }
     if (dmaInterruptFlags & kSDIF_DMAAllStatus)
     {
         SDIF_TransferHandleDMA(base, handle, dmaInterruptFlags);
+    }
+    if (interruptFlags & kSDIF_CardDetect)
+    {
+        SDIF_TransferHandleCardDetect(base, handle);
     }
 
     SDIF_ClearInterruptStatus(base, interruptFlags);
@@ -1289,5 +1315,10 @@ void SDIF_DriverIRQHandler(void)
     assert(s_sdifHandle[0]);
 
     s_sdifIsr(SDIF, s_sdifHandle[0]);
+/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+  exception return operation might vector to incorrect interrupt */
+#if defined __CORTEX_M && (__CORTEX_M == 4U)
+    __DSB();
+#endif
 }
 #endif

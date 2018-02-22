@@ -31,13 +31,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _FSL_FMEAS_H_
-#define _FSL_FMEAS_H_
+#ifndef _FSL_SHA_H_
+#define _FSL_SHA_H_
 
 #include "fsl_common.h"
 
 /*!
- * @addtogroup fmeas
+ * @addtogroup sha
  * @{
  */
 
@@ -49,14 +49,30 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Defines LPC Frequency Measure driver version 2.0.0.
+/*! @brief Defines LPC SHA driver version 2.0.0.
  *
  * Change log:
  * - Version 2.0.0
  *   - initial version
  */
-#define FSL_FMEAS_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+#define FSL_SHA_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
 /*@}*/
+
+/*! Supported cryptographic block cipher functions for HASH creation */
+typedef enum _sha_algo_t
+{
+    kSHA_Sha1,   /*!< SHA_1 */
+    kSHA_Sha256, /*!< SHA_256  */
+} sha_algo_t;
+
+/*! @brief SHA Context size. */
+#define SHA_CTX_SIZE 20
+
+/*! @brief Storage type used to save hash context. */
+typedef struct _sha_ctx_t
+{
+    uint32_t x[SHA_CTX_SIZE];
+} sha_ctx_t;
 
 /*******************************************************************************
  * API
@@ -67,48 +83,63 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*!
- * @name FMEAS Functional Operation
+ * @name SHA Functional Operation
  * @{
  */
 
 /*!
- * @brief    Starts a frequency measurement cycle.
- *
- * @param    base : SYSCON peripheral base address.
+ * @addtogroup sha_algorithm_level_api
+ * @{
  */
-static inline void FMEAS_StartMeasure(SYSCON_Type *base)
-{
-    base->FREQMECTRL = 0;
-    base->FREQMECTRL = (1UL << 31);
-}
+/*!
+* @brief Initialize HASH context
+*
+* This function initializes new hash context.
+*
+* @param base SHA peripheral base address
+* @param[out] ctx Output hash context
+* @param algo Underlaying algorithm to use for hash computation. Either SHA-1 or SHA-256.
+* @return Status of initialization
+*/
+status_t SHA_Init(SHA_Type *base, sha_ctx_t *ctx, sha_algo_t algo);
 
 /*!
- * @brief    Indicates when a frequency measurement cycle is complete.
+ * @brief Add data to current HASH
  *
- * @param    base : SYSCON peripheral base address.
- * @return   true if a measurement cycle is active, otherwise false.
+ * Add data to current HASH. This can be called repeatedly with an arbitrary amount of data to be
+ * hashed.
+ *
+ * @param base SHA peripheral base address
+ * @param[in,out] ctx HASH context
+ * @param message Input message
+ * @param messageSize Size of input message in bytes
+ * @return Status of the hash update operation
  */
-static inline bool FMEAS_IsMeasureComplete(SYSCON_Type *base)
-{
-    return (bool)((base->FREQMECTRL & (1UL << 31)) == 0);
-}
+status_t SHA_Update(SHA_Type *base, sha_ctx_t *ctx, const uint8_t *message, size_t messageSize);
 
 /*!
- * @brief    Returns the computed value for a frequency measurement cycle
+ * @brief Finalize hashing
  *
- * @param    base         : SYSCON peripheral base address.
- * @param    refClockRate : Reference clock rate used during the frequency measurement cycle.
+ * Outputs the final hash and erases the context. SHA-1 or SHA-256 padding bits are automatically added by this
+ * function.
  *
- * @return   Frequency in Hz.
+ * @param base SHA peripheral base address
+ * @param[in,out] ctx HASH context
+ * @param[out] output Output hash data
+ * @param[in,out] outputSize On input, determines the size of bytes of the output array. On output, tells how many bytes
+ * have been written to output.
+ * @return Status of the hash finish operation
  */
-uint32_t FMEAS_GetFrequency(SYSCON_Type *base, uint32_t refClockRate);
-
-/*@}*/
+status_t SHA_Finish(SHA_Type *base, sha_ctx_t *ctx, uint8_t *output, size_t *outputSize);
+/*!
+ *@}
+ */ /* sha_algorithm_level_api */
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
 /*! @}*/
+/*! @}*/ /* end of group sha */
 
-#endif /* _FSL_FMEAS_H_ */
+#endif /* _FSL_SHA_H_ */
