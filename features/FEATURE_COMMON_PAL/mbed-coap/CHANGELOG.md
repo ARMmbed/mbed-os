@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.3.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.3.0) 
+**New feature:**
+-  Add new API which clears the whole sent blockwise message list
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.2.0...v4.3.0)
+
 ## [v4.2.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.2.0) 
 **New feature:**
 -  Add new API to remove sent blockwise message from the linked list

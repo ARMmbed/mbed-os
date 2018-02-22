@@ -247,6 +247,15 @@ extern int8_t sn_coap_convert_block_size(uint16_t block_size);
  */
 extern int8_t sn_coap_protocol_handle_block2_response_internally(struct coap_s *handle, uint8_t handle_response);
 
+/**
+ * \fn void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
+ *
+ * \brief This function clears all the sent blockwise messages from the linked list.
+ *
+ * \param *handle Pointer to CoAP library handle
+ */
+extern void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle);
+
 #endif /* SN_COAP_PROTOCOL_H_ */
 
 #ifdef __cplusplus
