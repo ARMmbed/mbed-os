@@ -1,9 +1,7 @@
 /**
  * \file aes.h
  *
- * \brief   This file contains AES definitions and functions.
- *
- *          The Advanced Encryption Standard (AES) specifies a FIPS-approved
+ * \brief   The Advanced Encryption Standard (AES) specifies a FIPS-approved
  *          cryptographic algorithm that can be used to protect electronic
  *          data.
  *
@@ -14,7 +12,6 @@
  *          techniques -- Encryption algorithms -- Part 2: Asymmetric
  *          ciphers</em>.
  */
-
 /*  Copyright (C) 2006-2018, Arm Limited (or its affiliates), All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  *
@@ -53,8 +50,7 @@
 #define MBEDTLS_ERR_AES_INVALID_KEY_LENGTH                -0x0020  /**< Invalid key length. */
 #define MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH              -0x0022  /**< Invalid data input length. */
 
-/* Error codes in range 0x0021-0x0025 */
-#define MBEDTLS_ERR_AES_BAD_INPUT_DATA                    -0x0021  /**< Invalid input data. */
+/* Error codes in range 0x0023-0x0025 */
 #define MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE               -0x0023  /**< Feature not available. For example, an unsupported AES key size. */
 #define MBEDTLS_ERR_AES_HW_ACCEL_FAILED                   -0x0025  /**< AES hardware accelerator failed. */
 
@@ -120,8 +116,8 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx );
  *                 <li>192 bits</li>
  *                 <li>256 bits</li></ul>
  *
- * \return         \c 0 on success.
- * \return         #MBEDTLS_ERR_AES_INVALID_KEY_LENGTH on failure.
+ * \return         \c 0 on success or #MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
+ *                 on failure.
  */
 int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits );
@@ -136,8 +132,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
  *                 <li>192 bits</li>
  *                 <li>256 bits</li></ul>
  *
- * \return         \c 0 on success.
- * \return         #MBEDTLS_ERR_AES_INVALID_KEY_LENGTH on failure.
+ * \return         \c 0 on success, or #MBEDTLS_ERR_AES_INVALID_KEY_LENGTH on failure.
  */
 int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits );
@@ -201,8 +196,7 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
  * \param input    The buffer holding the input data.
  * \param output   The buffer holding the output data.
  *
- * \return         \c 0 on success.
- * \return         #MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH
+ * \return         \c 0 on success, or #MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH
  *                 on failure.
  */
 int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
@@ -310,49 +304,7 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
  *             must use the context initialized with mbedtls_aes_setkey_enc()
  *             for both #MBEDTLS_AES_ENCRYPT and #MBEDTLS_AES_DECRYPT.
  *
- * \warning    You must never reuse a nonce value with the same key. Doing so
- *             would void the encryption for the two messages encrypted with
- *             the same nonce and key.
- *
- *             There are two common strategies for managing nonces with CTR:
- *
- *             1. You can handle everything as a single message processed over
- *             successive calls to this function. In that case, you want to
- *             set \p nonce_counter and \p nc_off to 0 for the first call, and
- *             then preserve the values of \p nonce_counter, \p nc_off and \p
- *             stream_block across calls to this function as they will be
- *             updated by this function.
- *
- *             With this strategy, you must not encrypt more than 2**128
- *             blocks of data with the same key.
- *
- *             2. You can encrypt separate messages by dividing the \p
- *             nonce_counter buffer in two areas: the first one used for a
- *             per-message nonce, handled by yourself, and the second one
- *             updated by this function internally.
- *
- *             For example, you might reserve the first 12 bytes for the
- *             per-message nonce, and the last 4 bytes for internal use. In that
- *             case, before calling this function on a new message you need to
- *             set the first 12 bytes of \p nonce_counter to your chosen nonce
- *             value, the last 4 to 0, and \p nc_off to 0 (which will cause \p
- *             stream_block to be ignored). That way, you can encrypt at most
- *             2**96 messages of up to 2**32 blocks each with the same key.
- *
- *             The per-message nonce (or information sufficient to reconstruct
- *             it) needs to be communicated with the ciphertext and must be unique.
- *             The recommended way to ensure uniqueness is to use a message
- *             counter. An alternative is to generate random nonces, but this
- *             limits the number of messages that can be securely encrypted:
- *             for example, with 96-bit random nonces, you should not encrypt
- *             more than 2**32 messages with the same key.
- *
- *             Note that for both stategies, sizes are measured in blocks and
- *             that an AES block is 16 bytes.
- *
- * \warning    Upon return, \p stream_block contains sensitive data. Its
- *             content must not be written to insecure storage and should be
- *             securely discarded as soon as it's no longer needed.
+ * \warning    You must keep the maximum use of your counter in mind.
  *
  * \param ctx              The AES context to use for encryption or decryption.
  * \param length           The length of the input data.
@@ -365,7 +317,7 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
  * \param input            The buffer holding the input data.
  * \param output           The buffer holding the output data.
  *
- * \return                 \c 0 on success.
+ * \return     \c 0 on success.
  */
 int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
                        size_t length,
@@ -446,8 +398,7 @@ MBEDTLS_DEPRECATED void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 /**
  * \brief          Checkup routine.
  *
- * \return         \c 0 on success.
- * \return         \c 1 on failure.
+ * \return         \c 0 on success, or \c 1 on failure.
  */
 int mbedtls_aes_self_test( int verbose );
 

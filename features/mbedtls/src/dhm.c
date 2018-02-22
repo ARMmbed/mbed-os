@@ -59,6 +59,10 @@
 #endif
 
 #if !defined(MBEDTLS_DHM_ALT)
+/* Implementation that should never be optimized out by the compiler */
+static void mbedtls_zeroize( void *v, size_t n ) {
+    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+}
 
 /*
  * helper to validate the mbedtls_mpi size and import it
@@ -572,7 +576,7 @@ static int load_file( const char *path, unsigned char **buf, size_t *n )
     {
         fclose( f );
 
-        mbedtls_platform_zeroize( *buf, *n + 1 );
+        mbedtls_zeroize( *buf, *n + 1 );
         mbedtls_free( *buf );
 
         return( MBEDTLS_ERR_DHM_FILE_IO_ERROR );

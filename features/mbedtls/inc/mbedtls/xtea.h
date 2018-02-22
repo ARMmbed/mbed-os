@@ -39,6 +39,10 @@
 #define MBEDTLS_ERR_XTEA_INVALID_INPUT_LENGTH             -0x0028  /**< The data input has an invalid length. */
 #define MBEDTLS_ERR_XTEA_HW_ACCEL_FAILED                  -0x0029  /**< XTEA hardware accelerator failed. */
 
+#if !defined(MBEDTLS_XTEA_ALT)
+// Regular implementation
+//
+
 #ifdef __cplusplus
 extern "C" {
 #endif

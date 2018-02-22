@@ -106,12 +106,6 @@ int mbedtls_sha1_starts_ret( mbedtls_sha1_context *ctx )
 
     return( 0 );
 }
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
-{
-    mbedtls_sha1_starts_ret( ctx );
-}
 #endif
 
 #if !defined(MBEDTLS_SHA1_PROCESS_ALT)
@@ -384,13 +378,6 @@ int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx,
 
     return( 0 );
 }
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
-                          unsigned char output[20] )
-{
-    mbedtls_sha1_finish_ret( ctx, output );
-}
 #endif
 
 #endif /* !MBEDTLS_SHA1_ALT */
@@ -420,14 +407,6 @@ exit:
     mbedtls_sha1_free( &ctx );
 
     return( ret );
-}
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_sha1( const unsigned char *input,
-                   size_t ilen,
-                   unsigned char output[20] )
-{
-    mbedtls_sha1_ret( input, ilen, output );
 }
 #endif
 

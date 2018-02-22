@@ -61,6 +61,14 @@
 #define mbedtls_free       free
 #endif
 
+#if defined(MBEDTLS_FS_IO) || \
+    defined(MBEDTLS_PKCS12_C) || defined(MBEDTLS_PKCS5_C)
+/* Implementation that should never be optimized out by the compiler */
+static void mbedtls_zeroize( void *v, size_t n ) {
+    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+}
+#endif
+
 #if defined(MBEDTLS_FS_IO)
 /*
  * Load all data from a file into a given buffer.
@@ -98,7 +106,7 @@ int mbedtls_pk_load_file( const char *path, unsigned char **buf, size_t *n )
     {
         fclose( f );
 
-        mbedtls_platform_zeroize( *buf, *n );
+        mbedtls_zeroize( *buf, *n );
         mbedtls_free( *buf );
 
         return( MBEDTLS_ERR_PK_FILE_IO_ERROR );
@@ -1277,9 +1285,6 @@ int mbedtls_pk_parse_key( mbedtls_pk_context *pk,
     {
         unsigned char *key_copy;
 
-        if( keylen == 0 )
-            return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT );
-
         if( ( key_copy = mbedtls_calloc( 1, keylen ) ) == NULL )
             return( MBEDTLS_ERR_PK_ALLOC_FAILED );
 
@@ -1288,7 +1293,7 @@ int mbedtls_pk_parse_key( mbedtls_pk_context *pk,
         ret = pk_parse_key_pkcs8_encrypted_der( pk, key_copy, keylen,
                                                 pwd, pwdlen );
 
-        mbedtls_platform_zeroize( key_copy, keylen );
+        mbedtls_zeroize( key_copy, keylen );
         mbedtls_free( key_copy );
     }
 

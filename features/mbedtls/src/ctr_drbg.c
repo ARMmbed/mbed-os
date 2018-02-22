@@ -241,16 +241,16 @@ exit:
     /*
     * tidy up the stack
     */
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
-    mbedtls_platform_zeroize( tmp, sizeof( tmp ) );
-    mbedtls_platform_zeroize( key, sizeof( key ) );
-    mbedtls_platform_zeroize( chain, sizeof( chain ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( tmp, sizeof( tmp ) );
+    mbedtls_zeroize( key, sizeof( key ) );
+    mbedtls_zeroize( chain, sizeof( chain ) );
     if( 0 != ret )
     {
         /*
         * wipe partial seed from memory
         */
-        mbedtls_platform_zeroize( output, MBEDTLS_CTR_DRBG_SEEDLEN );
+        mbedtls_zeroize( output, MBEDTLS_CTR_DRBG_SEEDLEN );
     }
 
     return( ret );
@@ -489,7 +489,7 @@ int mbedtls_ctr_drbg_write_seed_file( mbedtls_ctr_drbg_context *ctx, const char 
         ret = 0;
 
 exit:
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
 
     fclose( f );
     return( ret );
@@ -522,7 +522,7 @@ int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char
 
     fclose( f );
 
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
 
     if( ret != 0 )
         return( ret );

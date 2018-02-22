@@ -6107,7 +6107,7 @@ int mbedtls_ssl_conf_psk( mbedtls_ssl_config *conf,
 
     if( conf->psk != NULL )
     {
-        mbedtls_platform_zeroize( conf->psk, conf->psk_len );
+        mbedtls_zeroize( conf->psk, conf->psk_len );
 
         mbedtls_free( conf->psk );
         conf->psk = NULL;
@@ -6150,8 +6150,7 @@ int mbedtls_ssl_set_hs_psk( mbedtls_ssl_context *ssl,
 
     if( ssl->handshake->psk != NULL )
     {
-        mbedtls_platform_zeroize( ssl->handshake->psk,
-                                  ssl->handshake->psk_len );
+        mbedtls_zeroize( ssl->handshake->psk, ssl->handshake->psk_len );
         mbedtls_free( ssl->handshake->psk );
         ssl->handshake->psk_len = 0;
     }
@@ -6281,7 +6280,7 @@ int mbedtls_ssl_set_hostname( mbedtls_ssl_context *ssl, const char *hostname )
 
     if( ssl->hostname != NULL )
     {
-        mbedtls_platform_zeroize( ssl->hostname, strlen( ssl->hostname ) );
+        mbedtls_zeroize( ssl->hostname, strlen( ssl->hostname ) );
         mbedtls_free( ssl->hostname );
     }
 

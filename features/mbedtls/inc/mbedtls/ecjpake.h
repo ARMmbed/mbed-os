@@ -44,6 +44,8 @@
 #include "ecp.h"
 #include "md.h"
 
+#if !defined(MBEDTLS_ECJPAKE_ALT)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -228,9 +230,19 @@ int mbedtls_ecjpake_derive_secret( mbedtls_ecjpake_context *ctx,
  */
 void mbedtls_ecjpake_free( mbedtls_ecjpake_context *ctx );
 
+#ifdef __cplusplus
+}
+#endif
 
+#else  /* MBEDTLS_ECJPAKE_ALT */
+#include "ecjpake_alt.h"
+#endif /* MBEDTLS_ECJPAKE_ALT */
 
 #if defined(MBEDTLS_SELF_TEST)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \brief          Checkup routine
@@ -239,11 +251,10 @@ void mbedtls_ecjpake_free( mbedtls_ecjpake_context *ctx );
  */
 int mbedtls_ecjpake_self_test( int verbose );
 
-#endif /* MBEDTLS_SELF_TEST */
-
 #ifdef __cplusplus
 }
 #endif
 
+#endif /* MBEDTLS_SELF_TEST */
 
 #endif /* ecjpake.h */

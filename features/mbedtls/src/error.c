@@ -49,10 +49,6 @@
 #include "mbedtls/arc4.h"
 #endif
 
-#if defined(MBEDTLS_ARIA_C)
-#include "mbedtls/aria.h"
-#endif
-
 #if defined(MBEDTLS_BASE64_C)
 #include "mbedtls/base64.h"
 #endif
@@ -270,9 +266,9 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
         if( use_ret == -(MBEDTLS_ERR_ECP_INVALID_KEY) )
             mbedtls_snprintf( buf, buflen, "ECP - Invalid private or public key" );
         if( use_ret == -(MBEDTLS_ERR_ECP_SIG_LEN_MISMATCH) )
-            mbedtls_snprintf( buf, buflen, "ECP - The buffer contains a valid signature followed by more data" );
+            mbedtls_snprintf( buf, buflen, "ECP - Signature is valid but shorter than the user-supplied length" );
         if( use_ret == -(MBEDTLS_ERR_ECP_HW_ACCEL_FAILED) )
-            mbedtls_snprintf( buf, buflen, "ECP - The ECP hardware accelerator failed" );
+            mbedtls_snprintf( buf, buflen, "ECP - ECP hardware accelerator failed" );
 #endif /* MBEDTLS_ECP_C */
 
 #if defined(MBEDTLS_MD_C)
@@ -337,9 +333,15 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
         if( use_ret == -(MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE) )
             mbedtls_snprintf( buf, buflen, "PK - Unavailable feature, e.g. RSA disabled for RSA key" );
         if( use_ret == -(MBEDTLS_ERR_PK_SIG_LEN_MISMATCH) )
-            mbedtls_snprintf( buf, buflen, "PK - The buffer contains a valid signature followed by more data" );
+            mbedtls_snprintf( buf, buflen, "PK - The signature is valid but its length is less than expected" );
         if( use_ret == -(MBEDTLS_ERR_PK_HW_ACCEL_FAILED) )
             mbedtls_snprintf( buf, buflen, "PK - PK hardware accelerator failed" );
+        if( use_ret == -(MBEDTLS_ERR_PK_INVALID_SIGNATURE) )
+            mbedtls_snprintf( buf, buflen, "PK - Invalid signature" );
+        if( use_ret == -(MBEDTLS_ERR_PK_BUFFER_TOO_SMALL) )
+            mbedtls_snprintf( buf, buflen, "PK - Output buffer too small" );
+        if( use_ret == -(MBEDTLS_ERR_PK_NOT_PERMITTED) )
+            mbedtls_snprintf( buf, buflen, "PK - Operation not permitted" );
 #endif /* MBEDTLS_PK_C */
 
 #if defined(MBEDTLS_PKCS12_C)
@@ -576,8 +578,6 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
         mbedtls_snprintf( buf, buflen, "AES - Invalid key length" );
     if( use_ret == -(MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH) )
         mbedtls_snprintf( buf, buflen, "AES - Invalid data input length" );
-    if( use_ret == -(MBEDTLS_ERR_AES_BAD_INPUT_DATA) )
-        mbedtls_snprintf( buf, buflen, "AES - Invalid input data" );
     if( use_ret == -(MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE) )
         mbedtls_snprintf( buf, buflen, "AES - Feature not available. For example, an unsupported AES key size" );
     if( use_ret == -(MBEDTLS_ERR_AES_HW_ACCEL_FAILED) )
@@ -588,17 +588,6 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
     if( use_ret == -(MBEDTLS_ERR_ARC4_HW_ACCEL_FAILED) )
         mbedtls_snprintf( buf, buflen, "ARC4 - ARC4 hardware accelerator failed" );
 #endif /* MBEDTLS_ARC4_C */
-
-#if defined(MBEDTLS_ARIA_C)
-    if( use_ret == -(MBEDTLS_ERR_ARIA_INVALID_KEY_LENGTH) )
-        mbedtls_snprintf( buf, buflen, "ARIA - Invalid key length" );
-    if( use_ret == -(MBEDTLS_ERR_ARIA_INVALID_INPUT_LENGTH) )
-        mbedtls_snprintf( buf, buflen, "ARIA - Invalid data input length" );
-    if( use_ret == -(MBEDTLS_ERR_ARIA_FEATURE_UNAVAILABLE) )
-        mbedtls_snprintf( buf, buflen, "ARIA - Feature not available. For example, an unsupported ARIA key size" );
-    if( use_ret == -(MBEDTLS_ERR_ARIA_HW_ACCEL_FAILED) )
-        mbedtls_snprintf( buf, buflen, "ARIA - ARIA hardware accelerator failed" );
-#endif /* MBEDTLS_ARIA_C */
 
 #if defined(MBEDTLS_ASN1_PARSE_C)
     if( use_ret == -(MBEDTLS_ERR_ASN1_OUT_OF_DATA) )

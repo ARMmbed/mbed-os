@@ -360,7 +360,7 @@ int mbedtls_hmac_drbg_write_seed_file( mbedtls_hmac_drbg_context *ctx, const cha
 
 exit:
     fclose( f );
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
 
     return( ret );
 }
@@ -392,7 +392,7 @@ int mbedtls_hmac_drbg_update_seed_file( mbedtls_hmac_drbg_context *ctx, const ch
 
     fclose( f );
 
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
 
     if( ret != 0 )
         return( ret );

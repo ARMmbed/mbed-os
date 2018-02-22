@@ -53,7 +53,7 @@
  * GCM       3  0x0012-0x0014   0x0013-0x0013
  * BLOWFISH  3  0x0016-0x0018   0x0017-0x0017
  * THREADING 3  0x001A-0x001E
- * AES       5  0x0020-0x0022   0x0021-0x0025
+ * AES       4  0x0020-0x0022   0x0023-0x0025
  * CAMELLIA  3  0x0024-0x0026   0x0027-0x0027
  * XTEA      2  0x0028-0x0028   0x0029-0x0029
  * BASE64    2  0x002A-0x002C
@@ -85,7 +85,7 @@
  * X509      2   20
  * PKCS5     2   4 (Started from top)
  * DHM       3   11
- * PK        3   15 (Started from top)
+ * PK        3   18 (Started from top)
  * RSA       4   11
  * ECP       4   9 (Started from top)
  * MD        5   5

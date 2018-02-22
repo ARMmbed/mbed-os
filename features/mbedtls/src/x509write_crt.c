@@ -61,7 +61,7 @@ void mbedtls_x509write_crt_free( mbedtls_x509write_cert *ctx )
     mbedtls_asn1_free_named_data_list( &ctx->issuer );
     mbedtls_asn1_free_named_data_list( &ctx->extensions );
 
-    mbedtls_platform_zeroize( ctx, sizeof( mbedtls_x509write_cert ) );
+    mbedtls_zeroize( ctx, sizeof( mbedtls_x509write_cert ) );
 }
 
 void mbedtls_x509write_crt_set_version( mbedtls_x509write_cert *ctx, int version )

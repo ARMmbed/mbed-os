@@ -283,14 +283,6 @@ int mbedtls_md4_update_ret( mbedtls_md4_context *ctx,
 
     return( 0 );
 }
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_md4_update( mbedtls_md4_context *ctx,
-                         const unsigned char *input,
-                         size_t ilen )
-{
-    mbedtls_md4_update_ret( ctx, input, ilen );
-}
 #endif
 
 static const unsigned char md4_padding[64] =
@@ -373,14 +365,6 @@ exit:
     mbedtls_md4_free( &ctx );
 
     return( ret );
-}
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_md4( const unsigned char *input,
-                  size_t ilen,
-                  unsigned char output[16] )
-{
-    mbedtls_md4_ret( input, ilen, output );
 }
 #endif
 

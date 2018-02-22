@@ -308,7 +308,7 @@ int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path, unsigne
         ret = md_info->finish_func( ctx.md_ctx, output );
 
 cleanup:
-    mbedtls_platform_zeroize( buf, sizeof( buf ) );
+    mbedtls_zeroize( buf, sizeof( buf ) );
     fclose( f );
     mbedtls_md_free( &ctx );
 
@@ -358,7 +358,7 @@ int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
         goto cleanup;
 
 cleanup:
-    mbedtls_platform_zeroize( sum, sizeof( sum ) );
+    mbedtls_zeroize( sum, sizeof( sum ) );
 
     return( ret );
 }
