@@ -29,18 +29,11 @@ public:
     virtual ~QUECTEL_BC95_CellularPower();
 
 public: //from CellularPower
-    /**
-     * Set AT command mode.
-     * @remark must be called after power on to prepare correct AT mode
-     * @return blocking until success or failure
-     */
     virtual nsapi_error_t set_at_mode();
 
-    /**
-   * Reset and wake-up cellular device.
-   * @return zero on success
-   */
-  virtual nsapi_error_t reset();
+    virtual nsapi_error_t reset();
 };
+
 } // namespace mbed
+
 #endif // TELIT_HE910_CELLULAR_POWER_H_

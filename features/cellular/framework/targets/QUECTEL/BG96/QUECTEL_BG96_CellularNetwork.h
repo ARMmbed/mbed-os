@@ -28,23 +28,14 @@ public:
     QUECTEL_BG96_CellularNetwork(ATHandler &atHandler);
     virtual ~QUECTEL_BG96_CellularNetwork();
 
-    /** Provide access to the NetworkStack object
-     *
-     *  @return The underlying NetworkStack object
-     */
+protected:
     virtual NetworkStack *get_stack();
 
-    /**
-     * Sets radio access technology.
-     *
-     * @param opRat Access technology
-     *
-     * @return zero on success
-     */
     virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
 
-protected:
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 };
+
 } // namespace mbed
+
 #endif // QUECTEL_BG96_CELLULAR_NETWORK_H_

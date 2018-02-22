@@ -29,24 +29,14 @@ public:
     virtual ~TELIT_HE910_CellularPower();
 
 public: //from CellularPower
-    /**
-     * Set cellular device power on.
-     * @return zero on success
-     */
+
     virtual nsapi_error_t on();
 
-    /**
-     * Set cellular device power off.
-     * @return zero on success
-     */
     virtual nsapi_error_t off();
 
-    /**
-     * Set AT command mode.
-     * @remark must be called after power on to prepare correct AT mode
-     * @return blocking until success or failure
-     */
     virtual nsapi_error_t set_at_mode();
 };
+
 } // namespace mbed
+
 #endif // TELIT_HE910_CELLULAR_POWER_H_

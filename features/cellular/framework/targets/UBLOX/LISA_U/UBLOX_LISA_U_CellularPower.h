@@ -29,16 +29,9 @@ public:
     virtual ~UBLOX_LISA_U_CellularPower();
 
 public: //from CellularPower
-    /**
-     * Set cellular device power on.
-     * @return zero on success
-     */
+
     virtual nsapi_error_t on();
 
-    /**
-     * Set cellular device power off.
-     * @return zero on success
-     */
     virtual nsapi_error_t off();
 };
 

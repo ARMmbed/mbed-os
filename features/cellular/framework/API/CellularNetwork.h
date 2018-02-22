@@ -374,7 +374,7 @@ public:
      */
     virtual int get_3gpp_error() = 0;
 
-    /** Get the operator params
+    /** Get the operator parameters.
      *
      *  @param format format of the operator field
      *  @param operator_params applicable operator param fields filled

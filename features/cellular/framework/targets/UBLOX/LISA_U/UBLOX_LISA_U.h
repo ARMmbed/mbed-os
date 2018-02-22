@@ -26,15 +26,14 @@ class UBLOX_LISA_U : public AT_CellularDevice
 {
 
 public:
-
     UBLOX_LISA_U(events::EventQueue &queue);
     virtual ~UBLOX_LISA_U();
 
 public: // CellularDevice
     virtual CellularNetwork *open_network(FileHandle *fh);
     virtual CellularPower *open_power(FileHandle *fh);
-
-public: // NetworkInterface
 };
+
 } // namespace mbed
+
 #endif // UBLOX_LISA_U_H_

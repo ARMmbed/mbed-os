@@ -35,28 +35,10 @@ public:
     virtual ~AT_CellularInformation();
 
 public:
-    /** Request manufacturer identification of cellular device
-     *
-     *  @param buf      manufacturer identification
-     *  @param buf_size max length of manufacturer identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
-     */
     virtual nsapi_size_or_error_t get_manufacturer(char *buf, size_t buf_size);
 
-    /** Request model identification of cellular device
-     *
-     *  @param buf      model identification
-     *  @param buf_size max length of model identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
-     */
     virtual nsapi_size_or_error_t get_model(char *buf, size_t buf_size);
 
-    /** Request revision identification of cellular device
-     *
-     *  @param buf      revision identification
-     *  @param buf_size max length of revision identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
-     */
     virtual nsapi_size_or_error_t get_revision(char *buf, size_t buf_size);
 
 protected:

@@ -31,21 +31,8 @@ public:
 protected:
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 
-    /**
-     * Check if modem supports given registration type.
-     *
-     * @param rat enum RegistrationType
-     * @return true if given registration type is supported by modem
-     */
     virtual bool has_registration(RegistrationType rat);
 
-    /**
-     * Sets access technology to be scanned.
-     *
-     * @param opRat Access technology
-     *
-     * @return zero on success
-     */
     virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
 };
 

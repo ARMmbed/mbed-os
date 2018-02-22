@@ -36,34 +36,12 @@ public:
     virtual ~AT_CellularSIM();
 
 public:
-    /** Open the SIM card by setting the pin code for SIM.
-     *
-     *  @param sim_pin  PIN for the SIM card
-     *  @return         zero on success
-     */
     virtual nsapi_error_t set_pin(const char *sim_pin);
 
-    /**Change sim pin code.
-     *
-     *  @param sim_pin  Current PIN for sim
-     *  @param new_pin  New PIN for sim
-     *  @return         zero on success
-     */
     virtual nsapi_error_t change_pin(const char *sim_pin, const char *new_pin);
 
-    /** Change is pin query needed after boot
-     *
-     *  @param sim_pin      Valid PIN for SIM card
-     *  @param query_pin    False is PIN query not needed, True if PIN query needed after boot.
-     *  @return             zero on success
-     */
     virtual nsapi_error_t set_pin_query(const char *sim_pin, bool query_pin);
 
-    /** Get sim card's state
-     *
-     *  @param state    current state of SIM
-     *  @return         zero on success
-     */
     virtual nsapi_error_t get_sim_state(SimState &state);
 };
 
