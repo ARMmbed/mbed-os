@@ -200,10 +200,10 @@ private:
     int read_sms_params(char *, char *);
     void free_linked_list();
     void add_info(sms_info_t* info, int index, int part_number);
-    int read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &parts, int &padding_bits);
+    int read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &padding_bits);
     nsapi_size_or_error_t get_data_from_pdu(const char* pdu, sms_info_t *info, int *part_number,
                                             char *phone_number = NULL, char *msg = NULL);
-    nsapi_size_or_error_t read_pdu_payload(const char* pdu, int scheme, char *msg, int padding_bits, bool last_part);
+    nsapi_size_or_error_t read_pdu_payload(const char* pdu, int msg_len, int scheme, char *msg, int padding_bits);
     sms_info_t* get_oldest_sms_index();
     bool create_time(const char* time_string, time_t* time);
     int compare_time_strings(const char* time_string_1, const char* time_string_2);
@@ -229,12 +229,12 @@ private:
      *  @param len          length of the str divided by two as str is hexencoded
      *  @param buf          preallocated destination buffer
      *  @param padding_bits number of padding bits which were needed to hold the octet boundary
-     *  @param last_part    true is last part of the encoded message
+     *  @param msg_len      Length of the received message which is coded in str
      *  @return             length of the destination buffer buf
      *
      */
     uint16_t unpack_7_bit_gsm_to_str(const char* str, int len, char *buf, int padding_bits,
-                                         bool last_part);
+                                         int msg_len);
 };
 
 } // namespace mbed
