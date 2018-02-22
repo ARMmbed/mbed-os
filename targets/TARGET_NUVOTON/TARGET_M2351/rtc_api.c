@@ -100,7 +100,7 @@ void rtc_write(time_t t)
     
     // Convert timestamp to struct tm
     struct tm timeinfo;
-    if (_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo,RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
     }
 
