@@ -22,6 +22,13 @@ void wd_log(int level, const char *format, va_list args) {
 	mbed_error_printf("\r\n");
 }
 
+void wd_log_always(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	wd_log(WD_DEBUG_LEVEL_ERROR, format, args);
+	va_end(args);
+}
+
 void wd_log_debug(const char *format, ...) {
 	va_list args;
 	va_start(args, format);

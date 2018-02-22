@@ -43,6 +43,8 @@ void wd_log_warn(const char *format, ...);
 	
 void wd_log_error(const char *format, ...);
 
+void wd_log_always(const char *format, ...);
+
 #ifdef __cplusplus
 }
 #endif
