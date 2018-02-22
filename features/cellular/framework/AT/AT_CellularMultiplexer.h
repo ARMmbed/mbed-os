@@ -35,10 +35,6 @@ public:
     virtual ~AT_CellularMultiplexer();
 
 public:
-    /** Starts modem multiplexer mode specified by 3GPP TS 27.010.
-     *
-     *  @return zero on success, negative error code on failure
-     */
     virtual nsapi_error_t multiplexer_mode_start();
 };
 

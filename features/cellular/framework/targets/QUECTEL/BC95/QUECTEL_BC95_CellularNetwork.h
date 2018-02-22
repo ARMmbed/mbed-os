@@ -28,30 +28,13 @@ public:
     QUECTEL_BC95_CellularNetwork(ATHandler &atHandler);
     virtual ~QUECTEL_BC95_CellularNetwork();
 
-    /** Provide access to the NetworkStack object
-     *
-     *  @return The underlying NetworkStack object
-     */
+protected:
     virtual NetworkStack *get_stack();
 
-    /**
-     * Sets radio access technology.
-     *
-     * @param opRat Radio access technology
-     *
-     * @return zero on success
-     */
     virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
 
-protected:
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 
-    /**
-     * Check if modem supports given registration type.
-     *
-     * @param reg_type enum RegistrationType
-     * @return true if given registration type is supported by modem
-     */
     virtual bool has_registration(RegistrationType reg_type);
 };
 } // namespace mbed

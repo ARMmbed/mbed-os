@@ -27,7 +27,6 @@ public:
     TELIT_HE910_CellularMultiplexer(ATHandler &atHandler);
     virtual ~TELIT_HE910_CellularMultiplexer();
 
-    // override from AT_CellularMultiplexer
     virtual nsapi_error_t multiplexer_mode_start();
 };
 } // namespace mbed
