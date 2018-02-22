@@ -167,7 +167,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI_COUNT 3
 
 /* Serial Peripheral Interface Master with DMA */
-#define SPIM_PRESENT
+#define SPIM_PRESENT 0
 #define SPIM_COUNT 4
 
 #define SPIM0_MAX_DATARATE  8

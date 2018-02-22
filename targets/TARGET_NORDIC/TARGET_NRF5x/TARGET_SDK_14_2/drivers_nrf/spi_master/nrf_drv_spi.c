@@ -63,7 +63,7 @@ NRF_LOG_MODULE_REGISTER();
 
 #define SPIM_ONLY        ( defined(SPIM_PRESENT)  && !defined(SPI_PRESENT))
 #define SPI_SPIM_PRESENT ( defined(SPIM_PRESENT)  &&  defined(SPI_PRESENT))
-#define SPI_ONLY         (!defined(SPIM_PRESENT) &&   defined(SPI_PRESENT))
+#define SPI_ONLY         (!SPIM_PRESENT &&   defined(SPI_PRESENT))
 
 #define SPI0_WITH_DMA (defined(SPI0_USE_EASY_DMA) && SPI0_USE_EASY_DMA && SPI0_ENABLED)
 #define SPI1_WITH_DMA (defined(SPI1_USE_EASY_DMA) && SPI1_USE_EASY_DMA && SPI1_ENABLED)
@@ -344,6 +344,12 @@ void nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance)
 #endif
 
     p_cb->state = NRF_DRV_STATE_UNINITIALIZED;
+}
+
+bool nrf_drv_spi_busy(nrf_drv_spi_t const * const p_instance)
+{
+    spi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    return p_cb->transfer_in_progress;
 }
 
 ret_code_t nrf_drv_spi_transfer(nrf_drv_spi_t const * const p_instance,
