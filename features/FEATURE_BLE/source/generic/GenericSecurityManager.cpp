@@ -287,7 +287,7 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
     }
 
     if (entry->encrypted) {
-        if (entry->ltk_mitm_protected) {
+        if (entry->ltk_mitm_protected || entry->mitm_performed) {
             *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
         } else {
             *encryption = link_encryption_t::ENCRYPTED;
