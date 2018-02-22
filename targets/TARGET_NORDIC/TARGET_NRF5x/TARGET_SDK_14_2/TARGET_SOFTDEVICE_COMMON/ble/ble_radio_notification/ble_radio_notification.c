@@ -38,12 +38,10 @@
  * 
  */
 
-#warning arm porting pending
-#if ARM_PORTING_PENDING
-
 #include "ble_radio_notification.h"
 #include <stdlib.h>
 
+#include "nrf_nvic.h"
 
 static bool                                 m_radio_active = false;  /**< Current radio state. */
 static ble_radio_notification_evt_handler_t m_evt_handler  = NULL;   /**< Application event handler for handling Radio Notification events. */
@@ -89,5 +87,3 @@ uint32_t ble_radio_notification_init(uint32_t                             irq_pr
     // Configure the event
     return sd_radio_notification_cfg_set(NRF_RADIO_NOTIFICATION_TYPE_INT_ON_BOTH, distance);
 }
-
-#endif
