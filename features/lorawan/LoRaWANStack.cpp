@@ -888,8 +888,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 _rx_msg.msg.mcps_indication.port = mcps_indication->port;
 
                 // no copy, just set the pointer for the user
-                _rx_msg.msg.mcps_indication.buffer =
-                mcps_indication->buffer;
+                _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
 
                 // Notify application about received frame..
                 tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
@@ -901,11 +900,26 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                     (void)ret;
                 }
 
+                loramac_mib_req_confirm_t mib_req;
+                mib_req.type = MIB_DEVICE_CLASS;
+                lorawan_status_t status = mib_get_request(&mib_req);
+
                 // If fPending bit is set we try to generate an empty packet
                 // with CONFIRMED flag set. We always set a CONFIRMED flag so
                 // that we could retry a certain number of times if the uplink
                 // failed for some reason
                 if (mcps_indication->fpending_status) {
+                    if (status != LORAWAN_STATUS_OK || mib_req.param.dev_class != CLASS_C) {
+                        handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
+                    }
+                }
+
+                // Class C and node received a confirmed message so we need to
+                // send an empty packet to acknowledge the message.
+                // This scenario is unspecified by LoRaWAN 1.0.2 specification,
+                // but version 1.1.0 says that network SHALL not send any new
+                // confirmed messages until ack has been sent
+                if (mib_req.param.dev_class == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
                     handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
                 }
             } else {
