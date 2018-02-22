@@ -31,7 +31,7 @@ enum ATCAError {
     /* Driver defined errors have MSByte set to 0x1*/
     ATCA_ERR_DEVICE_ERROR                           = 0x0101, // rename to WAKE_TOKEN_NOT_RECVD
     ATCA_ERR_UNSUPPORTED_DEVICE_REVISION,
-    ATCA_ERR_SMALL_BUFFER,
+    ATCA_ERR_BUFFER_TOO_SMALL,
     ATCA_ERR_INVALID_PARAM,
     ATCA_ERR_SLOT_NOT_PRIV_KEY,
     ATCA_ERR_DEVICE_NOT_INITIALIZED,
