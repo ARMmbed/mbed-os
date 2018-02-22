@@ -235,19 +235,19 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
     ATCAError err = ATCA_SUCCESS;
     
     if ( ctx == NULL )
-        return( -1 );
+        return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
 
     ATCADevice * device = ATCAFactory::GetDevice( err );
     if ( err != ATCA_SUCCESS )
     {
         assert( device == NULL );
-        return( -1 );
+        return( MBEDTLS_ERR_PK_ALLOC_FAILED );
     }
     err = device->GetKeyToken( keyId, key );
     if ( err != ATCA_SUCCESS )
     {
         assert( key == NULL );
-        return( -1 );
+        return( MBEDTLS_ERR_PK_ALLOC_FAILED );
     }
 
     static const mbedtls_pk_info_t atca_pk_info =
@@ -268,8 +268,8 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId )
     };
 
 
+    mbedtls_pk_setup( ctx, &atca_pk_info );
     ctx->pk_ctx = (void *)key;
-    ctx->pk_info = &atca_pk_info;
 
     return( 0 );
 }
@@ -320,7 +320,7 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
         printf( " failed\n  !  Failed to read ecp key from binary\n\n" );
         return( ret );
     }
-    ctx->pk_info = mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY );
+    mbedtls_pk_setup( ctx, mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY ) );
     ctx->pk_ctx = &ecp_key;
     return( 0 );
 }
