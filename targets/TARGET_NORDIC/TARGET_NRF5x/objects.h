@@ -43,6 +43,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "nrf_drv_spi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +54,9 @@ struct serial_s {
 };                        // but it must be not empty (required by strict compiler - IAR)
 
 struct spi_s {
-    uint8_t spi_idx;
+    nrf_drv_spi_t spi_drv_inst;
+    nrf_drv_spi_config_t config;    
+    int instance;
 };
 
 struct port_s {
