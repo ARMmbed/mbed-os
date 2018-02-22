@@ -1075,9 +1075,6 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protoc
         cur->if_special_multicast_forwarding(cur, buf);
     }
 
-    uint_fast8_t group_scope = addr_ipv6_multicast_scope(buf->dst_sa.address);
-    uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address, cur);
-
 #ifdef HAVE_MPL
     /* MPL does its own thing - we do not perform any "native" forwarding */
     if (buf->options.ip_extflags & IPEXT_HBH_MPL) {
@@ -1086,6 +1083,9 @@ static buffer_t *ipv6_consider_forwarding_multicast_packet(buffer_t *buf, protoc
 #endif
 
 #ifdef MULTICAST_FORWARDING
+    uint_fast8_t group_scope = addr_ipv6_multicast_scope(buf->dst_sa.address);
+    uint_fast8_t src_scope = addr_ipv6_scope(buf->src_sa.address, cur);
+
     /* Look at reverse path - check our route to the source address */
     ipv6_route_t *route = ipv6_route_choose_next_hop(buf->src_sa.address, cur->id, NULL);
 

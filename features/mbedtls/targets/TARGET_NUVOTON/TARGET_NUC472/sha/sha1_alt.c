@@ -103,37 +103,40 @@ void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
 /*
  * SHA-1 context setup
  */
-void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
+int mbedtls_sha1_starts_ret(mbedtls_sha1_context *ctx)
 {
     if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha1_hw_starts(&ctx->hw_ctx);
     } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha1_sw_starts(&ctx->sw_ctx);
     }
+    return 0;
 }
 
 /*
  * SHA-1 process buffer
  */
-void mbedtls_sha1_update(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
+int mbedtls_sha1_update_ret(mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen)
 {
     if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha1_hw_update(&ctx->hw_ctx, input, ilen);
     } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha1_sw_update(&ctx->sw_ctx, input, ilen);
     }
+    return 0;
 }
 
 /*
  * SHA-1 final digest
  */
-void mbedtls_sha1_finish(mbedtls_sha1_context *ctx, unsigned char output[20])
+int mbedtls_sha1_finish_ret(mbedtls_sha1_context *ctx, unsigned char output[20])
 {
     if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha1_hw_finish(&ctx->hw_ctx, output);
     } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha1_sw_finish(&ctx->sw_ctx, output);
     }
+    return 0;
 }
 
 void mbedtls_sha1_process(mbedtls_sha1_context *ctx, const unsigned char data[64])

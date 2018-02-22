@@ -26,8 +26,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
     def __init__(self, target,  notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
@@ -88,6 +87,8 @@ class GCC(mbedToolchain):
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.cpu.append("-mcmse")
+        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
+             self.flags["ld"].append("-D__DOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
 
@@ -123,21 +124,12 @@ class GCC(mbedToolchain):
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
                     'line': match.group('line'),
-                    'col': 0,
+                    'col': match.group('col'),
                     'message': match.group('message'),
                     'text': '',
                     'target_name': self.target.name,
                     'toolchain_name': self.name
                 }
-            elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
-                match = self.INDEX_PATTERN.match(line)
-                if match is not None:
-                    msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
-                    msg = None
-                else:
-                    msg['text'] += line+"\n"
 
         if msg is not None:
             self.cc_info(msg)
@@ -214,6 +206,12 @@ class GCC(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+        # Create Secure library
+        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            secure_file = join(dirname(output), "cmse_lib.o")
+            cmd.extend(["-Wl,--cmse-implib"])
+            cmd.extend(["-Wl,--out-implib=%s" % secure_file])
+
         if mem_map:
             cmd.extend(['-T', mem_map])
 
@@ -233,6 +231,8 @@ class GCC(mbedToolchain):
         # Exec command
         self.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
+        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            self.info("Secure Library Object %s" %secure_file)
 
     @hook_tool
     def archive(self, objects, lib_path):

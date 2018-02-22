@@ -48,6 +48,7 @@ void thread_router_bootstrap_reed_advertisements_start(protocol_interface_info_e
 int thread_router_bootstrap_mle_advertise(struct protocol_interface_info_entry *cur);
 
 void thread_router_bootstrap_child_information_clear(protocol_interface_info_entry_t *cur);
+int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *child);
 uint16_t thread_router_bootstrap_child_count_get(protocol_interface_info_entry_t *cur);
 void thread_router_bootstrap_child_id_handler(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_child_id_reject(struct protocol_interface_info_entry *cur);
@@ -93,6 +94,7 @@ void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_
 #define thread_router_bootstrap_timer(cur, ticks)
 #define thread_router_bootstrap_random_upgrade_jitter() 0;
 #define thread_router_bootstrap_advertiment_analyze(cur, src_address, entry_temp, shortAddress)
+#define thread_router_bootstrap_reset_child_info(cur, child) 0
 
 #define thread_router_bootstrap_multicast_forwarder_enable(cur, buf) NULL
 #define thread_router_bootstrap_anycast_address_register(cur)

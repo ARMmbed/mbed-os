@@ -45,6 +45,13 @@
 
 #define TRACE_GROUP "6lAd"
 
+// #define EXTRA_DEBUG_EXTRA
+#ifdef EXTRA_DEBUG_EXTRA
+#define tr_debug_extra(...) tr_debug(__VA_ARGS__)
+#else
+#define tr_debug_extra(...)
+#endif
+
 typedef struct {
     uint16_t tag;   /*!< Fragmentation datagram TAG ID */
     uint16_t size;  /*!< Datagram Total Size (uncompressed) */
@@ -57,7 +64,8 @@ typedef struct {
     uint8_t unfrag_len; /*!< Length of headers that precede the FRAG header */
     bool fragmented_data:1;
     bool first_fragment:1;
-    bool indirectData:1;
+    bool indirect_data:1;
+    bool indirect_data_cached:1; /* Data cached for delayed transmission as mac request is already active */
     buffer_t *buf;
     uint8_t *fragmenter_buf;
     ns_list_link_t      link; /*!< List link entry */
@@ -115,6 +123,8 @@ static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr);
 static int8_t lowpan_message_fragmentation_init(buffer_t *buf, fragmenter_tx_entry_t *frag_entry, protocol_interface_info_entry_t *cur);
 static bool lowpan_message_fragmentation_message_write(const fragmenter_tx_entry_t *frag_entry, mcps_data_req_t *dataReq);
 static void lowpan_adaptation_indirect_queue_free_message(struct protocol_interface_info_entry *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
+
+static fragmenter_tx_entry_t* lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr);
 
 //Discover
 static fragmenter_interface_t *lowpan_adaptation_interface_discover(int8_t interfaceId)
@@ -362,6 +372,7 @@ static fragmenter_tx_entry_t *lowpan_indirect_entry_allocate(uint16_t fragment_b
     indirec_entry->buf = NULL;
     indirec_entry->fragmented_data = false;
     indirec_entry->first_fragment = true;
+    indirec_entry->indirect_data_cached = false;
 
     return indirec_entry;
 }
@@ -480,7 +491,7 @@ static fragmenter_tx_entry_t * lowpan_adaptation_tx_process_init(fragmenter_inte
 
     lowpan_active_buffer_state_reset(tx_entry);
 
-    tx_entry->indirectData = indirect;
+    tx_entry->indirect_data = indirect;
 
     return tx_entry;
 }
@@ -589,6 +600,80 @@ static void lowpan_adaptation_data_request_primitiv_set(const buffer_t *buf, mcp
     }
 }
 
+static bool lowpan_adaptation_indirect_cache_sanity_check(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr)
+{
+    fragmenter_tx_entry_t *active_tx_entry;
+    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
+        if (fragmenter_tx_entry->indirect_data_cached == false) {
+            // active entry, jump to next one
+            continue;
+        }
+
+        // cached entry found, check if it has pending data reguest
+        active_tx_entry = lowpan_adaptation_indirect_mac_data_request_active(interface_ptr, fragmenter_tx_entry);
+
+        if (active_tx_entry == NULL) {
+            // entry is in cache and is not sent to mac => trigger this
+            tr_debug_extra("sanity check, push seq %d to addr %s", fragmenter_tx_entry->buf->seq, trace_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
+            fragmenter_tx_entry->indirect_data_cached = false;
+            lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool lowpan_adaptation_indirect_cache_trigger(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
+{
+    tr_debug_extra("lowpan_adaptation_indirect_cache_trigger()");
+
+    if (ns_list_count(&interface_ptr->indirect_tx_queue) == 0) {
+        return false;
+    }
+
+    /* Trigger first cached entry */
+    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
+        if (fragmenter_tx_entry->indirect_data_cached) {
+            if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
+                tr_debug_extra("pushing seq %d to addr %s", fragmenter_tx_entry->buf->seq, trace_ipv6(fragmenter_tx_entry->buf->dst_sa.address));
+                fragmenter_tx_entry->indirect_data_cached = false;
+                lowpan_data_request_to_mac(cur, fragmenter_tx_entry->buf, fragmenter_tx_entry);
+                return true;
+            }
+        }
+    }
+
+    /* Sanity check, If nothing can be triggered from own address, check cache queue */
+    return lowpan_adaptation_indirect_cache_sanity_check(cur, interface_ptr);
+}
+
+static fragmenter_tx_entry_t* lowpan_adaptation_indirect_mac_data_request_active(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
+{
+    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
+        if (fragmenter_tx_entry->indirect_data_cached == false) {
+            if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
+                tr_debug_extra("active seq: %d", fragmenter_tx_entry->buf->seq);
+                return fragmenter_tx_entry;
+            }
+        }
+    }
+    return NULL;
+}
+
+static fragmenter_tx_entry_t* lowpan_adaptation_indirect_first_cached_request_get(fragmenter_interface_t *interface_ptr, fragmenter_tx_entry_t *tx_ptr)
+{
+    ns_list_foreach(fragmenter_tx_entry_t, fragmenter_tx_entry, &interface_ptr->indirect_tx_queue) {
+        if (fragmenter_tx_entry->indirect_data_cached == true) {
+            if (addr_ipv6_equal(tx_ptr->buf->dst_sa.address, fragmenter_tx_entry->buf->dst_sa.address)) {
+                tr_debug_extra("first cached seq: %d", fragmenter_tx_entry->buf->seq);
+                return fragmenter_tx_entry;
+            }
+        }
+    }
+    return NULL;
+}
+
 static void lowpan_adaptation_make_room_for_small_packet(protocol_interface_info_entry_t *cur, fragmenter_interface_t *interface_ptr, mle_neigh_table_entry_t *neighbour_to_count)
 {
     if (interface_ptr->max_indirect_small_packets_per_child == 0) {
@@ -618,6 +703,7 @@ static void lowpan_adaptation_make_room_for_big_packet(struct protocol_interface
     ns_list_foreach_reverse_safe(fragmenter_tx_entry_t, tx_entry, &interface_ptr->indirect_tx_queue) {
         if (buffer_data_length(tx_entry->buf) > interface_ptr->indirect_big_packet_threshold) {
             if (++count >= interface_ptr->max_indirect_big_packets_total) {
+                tr_debug_extra("free seq: %d", tx_entry->buf->seq);
                 lowpan_adaptation_indirect_queue_free_message(cur, interface_ptr, tx_entry);
             }
         }
@@ -714,21 +800,45 @@ int8_t lowpan_adaptation_interface_tx(protocol_interface_info_entry_t *cur, buff
 
     if (indirect) {
         //Add to indirectQUue
+        fragmenter_tx_entry_t *tx_ptr_cached;
         mle_neigh_table_entry_t *mle_entry = mle_class_get_by_link_address(cur->id, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
-
-        if (buffer_data_length(buf) <= interface_ptr->indirect_big_packet_threshold) {
-            lowpan_adaptation_make_room_for_small_packet(cur, interface_ptr, mle_entry);
-        } else {
-            lowpan_adaptation_make_room_for_big_packet(cur, interface_ptr);
-        }
-
-        ns_list_add_to_end(&interface_ptr->indirect_tx_queue, tx_ptr);
         if (mle_entry) {
             buf->link_specific.ieee802_15_4.indirectTTL = (uint32_t) mle_entry->timeout_rx * MLE_TIMER_TICKS_MS;
         } else {
             buf->link_specific.ieee802_15_4.indirectTTL = cur->mac_parameters->mac_in_direct_entry_timeout;
         }
 
+        tr_debug_extra("indirect seq: %d, addr=%s", tx_ptr->buf->seq, trace_ipv6(buf->dst_sa.address));
+
+        // Make room for new message if needed */
+        if (buffer_data_length(buf) <= interface_ptr->indirect_big_packet_threshold) {
+            lowpan_adaptation_make_room_for_small_packet(cur, interface_ptr, mle_entry);
+        } else {
+            lowpan_adaptation_make_room_for_big_packet(cur, interface_ptr);
+        }
+
+        if (lowpan_adaptation_indirect_mac_data_request_active(interface_ptr, tx_ptr)) {
+            // mac is handling previous data request, add new one to be cached */
+            tr_debug_extra("caching seq: %d", tx_ptr->buf->seq);
+            tx_ptr->indirect_data_cached = true;
+        }
+
+        ns_list_add_to_end(&interface_ptr->indirect_tx_queue, tx_ptr);
+
+        // Check if current message can be delivered to MAC or should some cached message be delivered first
+        tx_ptr_cached = lowpan_adaptation_indirect_first_cached_request_get(interface_ptr, tx_ptr);
+        if (tx_ptr->indirect_data_cached == false && tx_ptr_cached) {
+            tr_debug_extra("sending cached seq: %d", tx_ptr_cached->buf->seq);
+            // set current message to cache
+            tx_ptr->indirect_data_cached = true;
+            // swap entries
+            tx_ptr = tx_ptr_cached;
+            tx_ptr->indirect_data_cached = false;
+            buf = tx_ptr_cached->buf;
+        } else if (tx_ptr->indirect_data_cached == true) {
+            // There is mac data request ongoing and new req was sent to cache
+            return 0;
+        }
     }
 
     lowpan_data_request_to_mac(cur, buf, tx_ptr);
@@ -740,7 +850,6 @@ tx_error_handler:
     return -1;
 
 }
-
 
 static bool lowpan_adaptation_tx_process_ready(fragmenter_tx_entry_t *tx_ptr)
 {
@@ -880,11 +989,21 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
 
             //Check is there more packets
             if (lowpan_adaptation_tx_process_ready(tx_ptr)) {
+                bool triggered_from_indirect_cache = false;
                 if (tx_ptr->fragmented_data && active_direct_confirm) {
                     //Clean
                     interface_ptr->fragmenter_active = false;
                 }
+
+                if (tx_ptr->buf->link_specific.ieee802_15_4.indirectTxProcess) {
+                    triggered_from_indirect_cache = lowpan_adaptation_indirect_cache_trigger(cur, interface_ptr, tx_ptr);
+                }
+
                 lowpan_adaptation_data_process_clean(interface_ptr, tx_ptr, map_mlme_status_to_socket_event(confirm->status));
+
+                if (triggered_from_indirect_cache) {
+                    return 0;
+                }
             } else {
                 lowpan_data_request_to_mac(cur, buf, tx_ptr);
             }

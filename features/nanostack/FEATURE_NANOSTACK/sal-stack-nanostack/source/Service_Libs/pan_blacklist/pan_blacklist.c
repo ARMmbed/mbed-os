@@ -91,7 +91,13 @@ void pan_coordinator_blacklist_time_update(pan_coordinator_blaclist_cache_s *lis
     }
 }
 
-
+void pan_coordinator_blacklist_free(pan_coordinator_blaclist_cache_s *list_ptr)
+{
+    ns_list_foreach_safe(pan_coordinator_blacklist_entry_t, cur_ptr, &list_ptr->head) {
+        ns_list_remove(&list_ptr->head, cur_ptr);
+        ns_dyn_mem_free(cur_ptr);
+    }
+}
 
 bool pan_blacklist_filter(pan_blaclist_cache_s *list_ptr, uint16_t panid)
 {

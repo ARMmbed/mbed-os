@@ -80,7 +80,7 @@ def main():
 
         count = 0
         for mut in muts.values():
-            if re.match(mcu_filter, mut['mcu']):
+            if re.match(mcu_filter, mut['mcu'] or "Unknown"):
                 interface_version = get_interface_version(mut['disk'])
                 print("")
                 print("[mbed] Detected %s, port %s, mounted %s, interface "

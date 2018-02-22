@@ -60,7 +60,6 @@ int32_t Semaphore::wait(uint32_t millisec) {
 
 int32_t Semaphore::wait_until(uint64_t millisec) {
     uint64_t now = Kernel::get_ms_count();
-    uint32_t timeout;
 
     if (now >= millisec) {
         return wait(0);

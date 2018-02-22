@@ -340,7 +340,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, FM_ANY, cluster_size, NULL, 0);
+    FRESULT res = f_mkfs(fs._fsid, FM_ANY | FM_SFD, cluster_size, NULL, 0);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
@@ -712,13 +712,14 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    off_t dptr = static_cast<off_t>(dh->dptr);
 
     lock();
 
-    if (offset < dh->dptr) {
+    if (offset < dptr) {
         f_rewinddir(dh);
     }
-    while (dh->dptr < offset) {
+    while (dptr < offset) {
         FILINFO finfo;
         FRESULT res;
 

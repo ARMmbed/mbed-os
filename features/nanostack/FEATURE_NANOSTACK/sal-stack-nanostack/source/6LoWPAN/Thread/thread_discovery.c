@@ -559,7 +559,7 @@ static int thread_discovery_response_send(thread_discovery_class_t *class, threa
     *ptr++ = message_length;
     uint16_t discover_response_tlv = thread_discover_tlv_get(class->version, (linkConfiguration->securityPolicy & SECURITY_POLICY_NATIVE_COMMISSIONING_ALLOWED));
 
-    discover_response_tlv = thread_extension_discover_response_tlv_write(discover_response_tlv, class->version, thread_extension_security_policy_enabled(linkConfiguration->securityPolicy));
+    thread_extension_discover_response_tlv_write(&discover_response_tlv, class->version, linkConfiguration->securityPolicy);
 
     ptr = thread_meshcop_tlv_data_write_uint16(ptr, MESHCOP_TLV_DISCOVERY_RESPONSE, discover_response_tlv);
     ptr = thread_meshcop_tlv_data_write(ptr, MESHCOP_TLV_XPANID, 8, linkConfiguration->extented_pan_id);
