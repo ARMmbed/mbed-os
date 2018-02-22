@@ -38,9 +38,6 @@
  * 
  */
 
-#warning arm porting pending
-#if ARM_PORTING_PENDING
-
 #include "ble_advdata.h"
 #include "ble_gap.h"
 #include "ble_srv_common.h"
@@ -707,5 +704,3 @@ uint32_t ble_advdata_set(const ble_advdata_t * p_advdata, const ble_advdata_t * 
     // Pass encoded advertising data and/or scan response data to the stack.
     return sd_ble_gap_adv_data_set(p_encoded_advdata, len_advdata, p_encoded_srdata, len_srdata);
 }
-
-#endif
