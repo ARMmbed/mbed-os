@@ -352,6 +352,14 @@ ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const * const p_instance,
 void       nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance);
 
 /**
+ * @brief Function to return whether there is a transfer in progress 
+ *
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+bool       nrf_drv_spi_busy(nrf_drv_spi_t const * const p_instance);
+
+/**
  * @brief Function for starting the SPI data transfer.
  *
  * If an event handler was provided in the @ref nrf_drv_spi_init call, this function
