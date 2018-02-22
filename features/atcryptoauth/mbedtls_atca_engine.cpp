@@ -23,8 +23,6 @@
 
 #define UNUSED(x) ((void)(x))
 
-/* Remove after rebase when this is available */
-#define MBEDTLS_ERR_PK_HW_ACCEL_FAILED (-1)
 
 /** Tell if can do the operation given by type.
  *
@@ -89,7 +87,7 @@ static int atca_sign_func(void *ctx, mbedtls_md_type_t md_alg,
     mbedtls_mpi_read_binary(&r, rs, rs_len/2);
     mbedtls_mpi_read_binary(&s, rs + rs_len/2, rs_len/2);
     /* create asn1 from r & s */
-    ecdsa_signature_to_asn1( &r, &s, sig, sig_len, 100 );
+    mbedtls_ecdsa_signature_to_asn1( &r, &s, sig, sig_len, 100 );
     printf("Signature:\r\n");
     for (size_t i = 0; i < *sig_len; i++)
     {
