@@ -1,6 +1,4 @@
-#if MBED_CONF_LWIP_ETHERNET_ENABLED
-
-#include <stdlib.h> 
+#include <stdlib.h>
 
 #include "cmsis_os.h"
 
@@ -8,6 +6,8 @@
 #include "mbed_assert.h"
 #include "mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
+
+#if DEVICE_EMAC
 
 #include "stm32xx_emac_config.h"
 #include "stm32xx_emac.h"
@@ -69,7 +69,9 @@ void ETH_IRQHandler(void);
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
     STM32_EMAC &emac = STM32_EMAC::get_instance();
-    osThreadFlagsSet(emac.thread, FLAG_RX);
+    if (emac.thread) {
+        osThreadFlagsSet(emac.thread, FLAG_RX);
+    }
 }
 
 /**
@@ -85,6 +87,7 @@ void ETH_IRQHandler(void)
 }
 
 STM32_EMAC::STM32_EMAC()
+    : thread(0)
 {
 }
 
@@ -247,8 +250,10 @@ emac_mem_buf_t *STM32_EMAC::low_level_input()
     uint16_t len = 0;
     uint8_t *buffer;
     __IO ETH_DMADescTypeDef *dmarxdesc;
+    uint32_t bufferoffset = 0;
     uint32_t byteslefttocopy = 0;
     emac_mem_buf_t *buf = 0;
+    emac_mem_buf_t *q;
     uint32_t payloadoffset = 0;
 
     /* get received frame */
@@ -264,23 +269,34 @@ emac_mem_buf_t *STM32_EMAC::low_level_input()
     dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
 
     if (len > 0) {
-        /* Allocate a contiguous memory buffer, if not available drop incoming frame */
-        buf = memory_manager->alloc_heap(len, 0);
+        /* Allocate a memory buffer chain from buffer pool */
+        buf = memory_manager->alloc_pool(len, 0);
     }
 
-    if (buf) {
-        /* Check if the length of bytes to copy in current memory buffer is bigger than Rx buffer size*/
-        while (byteslefttocopy > ETH_RX_BUF_SIZE) {
-            memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(buf)) + payloadoffset, buffer, ETH_RX_BUF_SIZE);
+    if (buf != NULL) {
+        dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
+        bufferoffset = 0;
+        for (q = buf; q != NULL; q = memory_manager->get_next(q)) {
+            byteslefttocopy = memory_manager->get_len(q);
+            payloadoffset = 0;
 
-            /* Point to next descriptor */
-            dmarxdesc = reinterpret_cast<ETH_DMADescTypeDef *>(dmarxdesc->Buffer2NextDescAddr);
-            buffer = reinterpret_cast<uint8_t *>(dmarxdesc->Buffer1Addr);
+            /* Check if the length of bytes to copy in current pbuf is bigger than Rx buffer size*/
+            while ((byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE) {
+                /* Copy data to pbuf */
+                memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, static_cast<uint8_t *>(buffer) + bufferoffset, ETH_RX_BUF_SIZE - bufferoffset);
 
-            byteslefttocopy = byteslefttocopy - ETH_RX_BUF_SIZE;
-            payloadoffset = payloadoffset + ETH_RX_BUF_SIZE;
+                /* Point to next descriptor */
+                dmarxdesc = reinterpret_cast<ETH_DMADescTypeDef *>(dmarxdesc->Buffer2NextDescAddr);
+                buffer = reinterpret_cast<uint8_t *>(dmarxdesc->Buffer1Addr);
+
+                byteslefttocopy = byteslefttocopy - (ETH_RX_BUF_SIZE - bufferoffset);
+                payloadoffset = payloadoffset + (ETH_RX_BUF_SIZE - bufferoffset);
+                bufferoffset = 0;
+            }
+            /* Copy remaining data in pbuf */
+            memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, static_cast<uint8_t *>(buffer) + bufferoffset, byteslefttocopy);
+            bufferoffset = bufferoffset + byteslefttocopy;
         }
-        memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(buf)) + payloadoffset, buffer, byteslefttocopy);
     }
 
     /* Release descriptors to DMA */
