@@ -40,14 +40,14 @@ int mbedtls_atca_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId );
 int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx,
                                        ATCAKeyID keyId );
 
-/** Encode ECC Public key in ASN.1 format.
+/** Encode ECC Public key in octet string as defined in SEC1 §2.3.3–2.3.4.
  *
  *  @param ecc_pk       ECC Public key input.
  *  @param asn_out      ASN.1 out buffer.
  *  @param asn_out_len  Out buffer length.
  *  @return             0 on success, -1 on failure
  */
-int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len,
+int ecc_key_to_octet_string( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len,
                      size_t * asn_out_len );
 
 #ifdef __cplusplus

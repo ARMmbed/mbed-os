@@ -305,16 +305,16 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
         printf(" failed\n  !  to retrieve Public key from ATCA508A\n\n" );
         return MBEDTLS_ERR_PK_HW_ACCEL_FAILED;
     }
-    uint8_t pubkey_asn1[ATCA_ECC_ECC_PK_LEN + 10];
-    size_t asn_len = 0;
-    ret = ecc_key_to_asn1( key->GetPubKey(), pubkey_asn1, sizeof(pubkey_asn1), &asn_len);
+    uint8_t pubkey_octet_string[ATCA_ECC_ECC_PK_LEN + 10];
+    size_t str_len = 0;
+    ret = ecc_key_to_octet_string( key->GetPubKey(), pubkey_octet_string, sizeof(pubkey_octet_string), &str_len);
     delete key;
     if ( ret != 0 )
     {
-        printf( " failed\n  !  to ASN.1 encode ECDSA Public key binary\n\n" );
+        printf( " failed\n  !  EC key to octet string conversion\n\n" );
         return( ret );
     }
-    ret = mbedtls_ecp_point_read_binary(&ecp_key.grp, &ecp_key.Q, pubkey_asn1, asn_len );
+    ret = mbedtls_ecp_point_read_binary(&ecp_key.grp, &ecp_key.Q, pubkey_octet_string, str_len );
     if ( ret != 0 )
     {
         printf( " failed\n  !  Failed to read ecp key from binary\n\n" );
@@ -325,14 +325,16 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx, ATCAKeyID keyId
     return( 0 );
 }
 
-/** Encode ECC Public key in ASN.1 format.
+/** Convert ECC Public key in octet string as defined in SEC1 §2.3.3–2.3.4
  *
  *  @param ecc_pk       ECC Public key input.
- *  @param asn_out      ASN.1 out buffer.
- *  @param asn_out_len  Out buffer length.
+ *  @param str_out      EC octet string out buffer.
+ *  @param str_len      Out buffer length.
+ *  @param str_out_len  EC octet string out length.
  *  @return             0 on success, -1 on failure
  */
-int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len, size_t * asn_out_len )
+int ecc_key_to_octet_string( uint8_t * ecc_pk, uint8_t * str_out, size_t str_len,
+        size_t * str_out_len )
 {
     int ret = -1;
     mbedtls_ecp_keypair ecp_key;
@@ -348,7 +350,7 @@ int ecc_key_to_asn1( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len, size_t
     MBEDTLS_MPI_CHK( mbedtls_mpi_lset( &ecp_key.Q.Z, 1 ) );
     if( ( ret = mbedtls_ecp_point_write_binary( &ecp_key.grp, &ecp_key.Q,
                 MBEDTLS_ECP_PF_UNCOMPRESSED,
-                asn_out_len, asn_out, asn_len ) ) != 0 )
+                str_out_len, str_out, str_len ) ) != 0 )
     {
         goto cleanup;
     }

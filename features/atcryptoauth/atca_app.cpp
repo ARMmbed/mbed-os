@@ -32,10 +32,14 @@
  *  CRC.
  */
 uint8_t atcaecc508a_sample_config[] = {
-   0x01, 0x23, 0x95, 0x11,
-   0x00, 0x00, 0x50, 0x00,
-   0x5D, 0xCF, 0xD6, 0xCD,
-   0xEE, 0xC0, 0x1D, 0x00,
+   /* First 16 bytes that are device specific should be updated from the
+    * device before using it for CRC. */
+   0x00, 0x00, 0x00, 0x00,
+   0x00, 0x00, 0x00, 0x00,
+   0x00, 0x00, 0x00, 0x00,
+   0x00, 0x00, 0x00, 0x00,
+
+   /* 16+ bytes are fixed sample configuration data. */
    0xC0, 0x00, 0x55, 0x00,
    0x83, 0x20, 0x83, 0x20,
    0x83, 0x20, 0x83, 0x20,
@@ -82,7 +86,7 @@ uint8_t atcaecc508a_sample_config[] = {
  *      REMOTE_KEY_FUNC_GET_PUBKEY:
  *          - Desc:     Get public key from ATCAECC508A.
  *          - Params:   <KeyID:1 byte>
- *          - Resp:     <Length Indicator: 4 bytes><Public key in ASN.1 format>
+ *          - Resp:     <Length Indicator: 4 bytes><Public key in EC octet format>
  *      REMOTE_KEY_FUNC_SIGN:
  *          - Desc:     Sign message digest.
  *          - Params:   <KeyID:1 byte><Hash length:4 bytes><Message hash>
@@ -138,21 +142,21 @@ void handle_host_req(mbed::RawSerial * serial)
                 else
                 {
                     /* Allocate a resp buffer that can contain Length indicator
-                     * + Public key + ASN.1 overhead (1 byte tag) */
+                     * + Public key + EC octet format (1 byte tag) */
                     uint8_t resp[ATCA_ECC_ECC_PK_LEN + 4 + 1];
-                    size_t asn_len = 0;
-                    if ( ecc_key_to_asn1( key->GetPubKey(), resp + 4, sizeof(resp) - 4, &asn_len) != 0 )
+                    size_t str_len = 0;
+                    if ( ecc_key_to_octet_string( key->GetPubKey(), resp + 4, sizeof(resp) - 4, &str_len) != 0 )
                     {
                         status = -1;
                     }
                     else
                     {
-                        resp[0] = asn_len >> 24;
-                        resp[1] = asn_len >> 16;
-                        resp[2] = asn_len >> 8;
-                        resp[3] = asn_len & 0xff;
-                        asn_len += 4;
-                        for (size_t i = 0; i < asn_len; i++)
+                        resp[0] = str_len >> 24;
+                        resp[1] = str_len >> 16;
+                        resp[2] = str_len >> 8;
+                        resp[3] = str_len & 0xff;
+                        str_len += 4;
+                        for (size_t i = 0; i < str_len; i++)
                             serial->putc((char)resp[i]);
                     }
                     delete key;
