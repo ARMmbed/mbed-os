@@ -32,7 +32,7 @@
  *  }
  *
  * @endcode
- * 
+ *
  * Example: Prints in interrupt context using logging module
  * @code
  *
@@ -46,7 +46,7 @@
  *  int main() {
  *      Ticker ticker1;
  *      ticker1.attach_us(periodicCallback, 500000);
- *      int count = 1; 
+ *      int count = 1;
  *      while(count++) {
  *          wait(0.2);
  *          MBED_DBG_IF("main", (0 == count%10), "Count = %d", count);
@@ -77,15 +77,14 @@ extern "C" {
 
 /** Critical level log
  *
+ *  Critical level of log is equivalent to ASSERTS and it will dump all previous prints
+ *  before asserting.
+ *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
  **/
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR_CRITICAL
-#if MBED_ID_BASED_TRACING
-#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
-#else
-#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_ERR_CRITICAL_, ##__VA_ARGS__)
-#endif
+#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ASSERT_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
 #else
 #define MBED_CRIT(mod, ...)
 #endif

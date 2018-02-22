@@ -24,6 +24,7 @@
 #define MBED_ASSERT_H
 
 #include "mbed_preprocessor.h"
+#include "platform/mbed_logger.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +64,7 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
 #define MBED_ASSERT(expr)                                \
 do {                                                     \
     if (!(expr)) {                                       \
-        mbed_assert_internal(#expr, __FILE__, __LINE__); \
+        MBED_CRIT("ASRT", "mbed assertation failed: %s \n", #expr); \
     }                                                    \
 } while (0)
 #endif

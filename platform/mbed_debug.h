@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #endif
+#include "mbed_toolchain.h"
+#include "platform/logger.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,15 +39,16 @@ extern "C" {
  *
  * @param format printf-style format string, followed by variables
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug API is deprecated. "
+                      "Use MBED_DBG instead.")
 static inline void debug(const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    log_buffer_string_vdata(format, args);
     va_end(args);
 #endif
 }
-
 
 /** Conditionally output a debug message
  *
@@ -55,17 +58,18 @@ static inline void debug(const char *format, ...) {
  * @param condition output only if condition is true (!= 0)
  * @param format printf-style format string, followed by variables
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug_if API is deprecated. "
+                      "Use MBED_DBG_IF instead.")
 static inline void debug_if(int condition, const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     if (condition) {
         va_list args;
         va_start(args, format);
-        vfprintf(stderr, format, args);
+        log_buffer_string_vdata(format, args);
         va_end(args);
     }
 #endif
 }
-
 
 #ifdef __cplusplus
 }

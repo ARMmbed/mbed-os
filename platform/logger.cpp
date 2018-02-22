@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING)
+#if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
 #include <string.h>
 #include "platform/mbed_logger.h"
 #include "platform/CircularBuffer.h"
@@ -22,6 +22,7 @@
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_interface.h"
 
 using namespace mbed;
 
@@ -43,7 +44,7 @@ void log_thread(void)
     while (1) {
         while (!log_buffer.empty()) {
             log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
             fprintf(stderr, "0x%x ", data);
 #endif
         }
@@ -76,6 +77,27 @@ void log_buffer_id_data(uint8_t argCount, ...)
     va_end(args);
 }
 
+void log_assert(const char *format, ...)
+{
+#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    volatile uint64_t time = ticker_read_us(log_ticker);
+    uint32_t data;
+
+    // Empty the thread buffer first
+    while (!log_buffer.empty()) {
+        log_buffer.pop(data);
+        mbed_error_printf("0x%x ", data);
+    }
+    core_util_critical_section_enter();
+    va_list args;
+    va_start(args, format);
+    mbed_error_printf("\n %-8lld ", time);
+    mbed_error_vfprintf(format, args);
+    va_end(args);
+    mbed_die();
+#endif
+}
+
 #else
 void log_thread(void)
 {
@@ -83,7 +105,7 @@ void log_thread(void)
     while (1) {
         while (!log_buffer.empty()) {
             log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
             fputc(data, stderr);
 #endif
         }
@@ -93,13 +115,19 @@ void log_thread(void)
 
 void log_buffer_string_data(const char *format, ...)
 {
+    va_list args;
+    va_start(args, format);
+    log_buffer_string_vdata(format, args);
+    va_end(args);
+}
+
+void log_buffer_string_vdata(const char *format, va_list args)
+{
     volatile uint64_t time = ticker_read_us(log_ticker);
     char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
     uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "%-8lld ", time);
     uint8_t bytes_written = 0;
 
-    va_list args;
-    va_start(args, format);
     vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
     count = strlen(one_line);
     snprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), "\n");
@@ -110,8 +138,41 @@ void log_buffer_string_data(const char *format, ...)
         log_buffer.push(one_line[bytes_written++]);
     }
     core_util_critical_section_exit();
-    va_end(args);
 }
+
+void log_assert(const char *format, ...)
+{
+#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    volatile uint64_t time = ticker_read_us(log_ticker);
+#define ASSERT_BUF_LENGTH   10
+    char data[ASSERT_BUF_LENGTH];
+    memset((void *)data, 0, ASSERT_BUF_LENGTH);
+    int count = 0;
+
+    // Empty the thread buffer first
+    while (!log_buffer.empty()) {
+        log_buffer.pop(data[count++]);
+        if (count == ASSERT_BUF_LENGTH) {
+            mbed_error_printf("%s", data);
+            memset((void *)data, 0, ASSERT_BUF_LENGTH);
+            count = 0;
+        }
+    }
+    if (count) {
+        mbed_error_printf("%s", data);
+        count = 0;
+    }
+
+    core_util_critical_section_enter();
+    va_list args;
+    va_start(args, format);
+    mbed_error_printf("\n%-8lld ", time);
+    mbed_error_vfprintf(format, args);
+    va_end(args);
+    mbed_die();
+#endif
+}
+
 #endif
 
 #ifdef __cplusplus

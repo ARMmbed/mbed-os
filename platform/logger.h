@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include "platform/mbed_preprocessor.h"
@@ -87,11 +88,17 @@ typedef struct trace_id {
 #define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), mod " " f " " MBED_STRINGIFY(l) " : " fmt", ##__VA_ARGS__)
 
 // Macros to log string data
-#define MBED_LOG_STR(...)                          log_buffer_string_data(__VA_ARGS__)
-#define MBED_LOG_STR_1(mod, fmt, ll, ...)          MBED_LOG_STR("[%-3.3s] [%-4.4s] : " fmt, ll, mod, ##__VA_ARGS__)
+#define MBED_LOG_STR(...)                             log_buffer_string_data(__VA_ARGS__)
+#define MBED_LOG_STR_1(mod, fmt, ll, ...)             MBED_LOG_STR("[%-3.3s] [%-4.4s] : " fmt, ll, mod, ##__VA_ARGS__)
+
+// Assert string
+#define MBED_LOG_ASSERT(...)                          log_assert(__VA_ARGS__)
+#define MBED_LOG_ASSERT_1(mod, fmt, ll, f, l, ...)    MBED_LOG_ASSERT("[%-3.3s] [%-4.4s] [%-15s %5d]: " fmt, ll, mod, f, l, ##__VA_ARGS__)
 
 void log_buffer_id_data(uint8_t argCount, ...);
 void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+void log_buffer_string_vdata(const char *format, va_list args);
+void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 
 #ifdef __cplusplus
 }

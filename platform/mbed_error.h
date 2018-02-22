@@ -23,6 +23,7 @@
 #ifndef MBED_ERROR_H
 #define MBED_ERROR_H
 
+#include "mbed_toolchain.h"
 
 
 /** To generate a fatal compile-time error, you can use the pre-processor #error directive.
@@ -70,6 +71,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+MBED_DEPRECATED_SINCE("mbed-os-5.8", "The error API is deprecated. "
+                      "Use MBED_ERR / MBED_CRIT instead.")
 void error(const char* format, ...);
 
 #ifdef __cplusplus

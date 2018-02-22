@@ -16,6 +16,8 @@
 #if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT)
 
 #include "platform/mbed_logger.h"
+#include "platform/mbed_interface.h"
+#include "platform/mbed_critical.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,9 +28,16 @@ void log_buffer_string_data(const char *format, ...)
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
     va_start(args, format);
+    log_buffer_string_vdata(format, args);
+    va_end(args);
+#endif
+}
+
+void log_buffer_string_vdata(const char *format, va_list args)
+{
+#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     vfprintf(stderr, format, args);
     fputc('\n', stderr);
-    va_end(args);
 #endif
 }
 
@@ -43,6 +52,18 @@ void log_buffer_id_data(uint8_t argCount, ...)
     }
     fputc('\n', stderr);
     va_end(args);
+#endif
+}
+
+void log_assert(const char *format, ...)
+{
+#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    core_util_critical_section_enter();
+    va_list args;
+    va_start(args, format);
+    mbed_error_vfprintf(format, args);
+    va_end(args);
+    mbed_die();
 #endif
 }
 
