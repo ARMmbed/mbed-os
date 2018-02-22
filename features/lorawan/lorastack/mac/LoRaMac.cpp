@@ -334,7 +334,9 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
     mcps.get_indication().dl_frame_counter = 0;
     mcps.get_indication().type = MCPS_UNCONFIRMED;
 
-    lora_phy->put_radio_to_sleep();
+    if (_params.dev_class != CLASS_C) {
+        lora_phy->put_radio_to_sleep();
+    }
 
     _lora_time.stop( _params.timers.rx_window2_timer );
 
@@ -962,7 +964,7 @@ void LoRaMac::on_mac_state_check_timer_event(void)
     if (_params.flags.bits.mcps_ind == 1) {
         _params.flags.bits.mcps_ind = 0;
 
-        if (_params.dev_class== CLASS_C) {
+        if (_params.dev_class == CLASS_C) {
             // Activate RX2 window for Class C
             open_continuous_rx2_window();
         }
