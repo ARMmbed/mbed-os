@@ -27,19 +27,6 @@
 #include "cmsis.h"
 #include <string.h>
 
-/**
- * \name SECTION: Temporary compatibility code
- *
- * This section contains code to be added up stream in Mbed TLS. Once that
- * has been provided, this section should be removed as the code will be
- * provided elsewhere.
- * \{
- */
-
-#define MBEDTLS_ERR_MD5_HW_ACCEL_FAILED -0x002F /**< MD5 hardware accelerator failed */
-
-/* \} name SECTION:  Temporary compatibility code */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -92,10 +79,8 @@ void mbedtls_md5_clone( mbedtls_md5_context *dst,
  * \brief          MD5 context setup
  *
  * \param ctx      context to be initialized
- *
- * \return         0 if successful
  */
-int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx );
+void mbedtls_md5_starts( mbedtls_md5_context *ctx );
 
 /**
  * \brief          MD5 process buffer
@@ -103,23 +88,19 @@ int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx );
  * \param ctx      MD5 context
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
- *
- * \return         0 if successful
  */
-int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen );
+void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          MD5 final digest
  *
  * \param ctx      MD5 context
  * \param output   MD5 checksum result
- *
- * \return         0 if successful
  */
-int mbedtls_md5_finish_ret( mbedtls_md5_context *ctx, unsigned char output[16] );
+void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
 
 /* Internal use */
-int mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] );
+void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
