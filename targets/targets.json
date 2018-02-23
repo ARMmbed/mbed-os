@@ -3450,8 +3450,7 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "NO_SYSTICK",
-            "MBED_TICKLESS",
-            "DEBUG_NRF_USER"
+            "MBED_TICKLESS"
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": [
