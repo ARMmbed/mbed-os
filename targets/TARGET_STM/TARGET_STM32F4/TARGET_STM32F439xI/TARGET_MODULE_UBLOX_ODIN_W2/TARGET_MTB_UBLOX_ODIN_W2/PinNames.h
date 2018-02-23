@@ -148,16 +148,14 @@ typedef enum {
     //P_TP11,         // BOOT0
 
     // Internal
-    LED1       = PD_9,
-    LED2       = PA_12,
-    LED3       = PD_8,
-    LED4       = PA_11,
-    LED5       = PC_2,
-    LED6       = PA_3,
-    LED7       = PF_6,
     LED_RED    = PE_0,
     LED_GREEN  = PB_6,
     LED_BLUE   = PB_8,
+
+    LED1       = LED_RED,
+    LED2       = LED_GREEN,
+    LED3       = LED_BLUE,
+
     SW1        = PF_2,
     SW2        = PG_4,
 
