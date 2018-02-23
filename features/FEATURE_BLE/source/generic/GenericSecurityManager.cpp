@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "ble/pal/MemorySecurityDb.h"
 #include "ble/SecurityManager.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
