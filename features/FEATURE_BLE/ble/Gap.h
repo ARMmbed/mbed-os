@@ -2347,6 +2347,7 @@ public:
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
+     * @param[in] addressType Type of the address of the peer that has emitted the packet.
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
