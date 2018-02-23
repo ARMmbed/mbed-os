@@ -337,25 +337,6 @@ def check_required_modules(required_modules, verbose=True):
     else:
         return True
 
-def dict_to_ascii(dictionary):
-    """ Utility function: traverse a dictionary and change all the strings in
-    the dictionary to ASCII from Unicode. Useful when reading ASCII JSON data,
-    because the JSON decoder always returns Unicode string. Based on
-    http://stackoverflow.com/a/13105359
-
-    Positional arguments:
-    dictionary - The dict that contains some Unicode that should be ASCII
-    """
-    if isinstance(dictionary, dict):
-        return OrderedDict([(dict_to_ascii(key), dict_to_ascii(value))
-                            for key, value in dictionary.items()])
-    elif isinstance(dictionary, list):
-        return [dict_to_ascii(element) for element in dictionary]
-    elif isinstance(dictionary, unicode):
-        return dictionary.encode('ascii').decode()
-    else:
-        return dictionary
-
 def json_file_to_dict(fname):
     """ Read a JSON file and return its Python representation, transforming all
     the strings from Unicode to ASCII. The order of keys in the JSON file is
@@ -366,8 +347,8 @@ def json_file_to_dict(fname):
     """
     try:
         with open(fname, "r") as file_obj:
-            return dict_to_ascii(json.load(file_obj,
-                                           object_pairs_hook=OrderedDict))
+            return json.loads(file_obj.read().encode('ascii', 'ignore'),
+                              object_pairs_hook=OrderedDict)
     except (ValueError, IOError):
         sys.stderr.write("Error parsing '%s':\n" % fname)
         raise
