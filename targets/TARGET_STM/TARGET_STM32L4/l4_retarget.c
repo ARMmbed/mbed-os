@@ -32,9 +32,7 @@
   *
   ******************************************************************************  
   */ 
-#if defined(TWO_RAM_REGIONS)
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-
+#if (defined(TWO_RAM_REGIONS) && defined(__GNUC__) && !defined(__CC_ARM))
 #include <errno.h>
 #include "stm32l4xx.h"
 extern uint32_t __mbed_sbrk_start;
@@ -64,5 +62,5 @@ void *__wrap__sbrk(int incr)
     
     return (void *) heap_ind_old;
 }
-#endif /* GCC_ARM toolchain */
-#endif /* TWO_RAM_REGIONS */
+#endif /* GCC_ARM toolchain && TWO_RAM_REGIONS*/
+
