@@ -27,7 +27,7 @@
 // deep sleep locking counter. A target is allowed to deep sleep if counter == 0
 static uint16_t deep_sleep_lock = 0U;
 
-#ifdef SLEEP_PROFILING_ENABLED
+#ifdef MBED_SLEEP_STATS_ENABLED
 
 // Length of the identifier extracted from the driver name to store for logging.
 #define IDENTIFIER_WIDTH 7
@@ -128,7 +128,7 @@ void sleep_tracker_unlock(const char* const filename, int line)
     printf("\r\n");
 }
 
-#endif // SLEEP_PROFILING_ENABLED
+#endif // MBED_SLEEP_STATS_ENABLED
 
 void sleep_manager_lock_deep_sleep_internal(void)
 {
