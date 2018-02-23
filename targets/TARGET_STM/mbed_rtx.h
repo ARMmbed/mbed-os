@@ -119,7 +119,7 @@
 #endif
 
 #endif // INITIAL_SP
-#if (defined(__GNUC__) && !defined(__CC_ARM))
+#if (defined(__GNUC__) && !defined(__CC_ARM) && defined(TWO_RAM_REGIONS))
     extern uint32_t               __StackLimit[];
     extern uint32_t               __StackTop[];
     extern uint32_t               __end__[];
