@@ -155,14 +155,6 @@ int mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
 
     return( 0 );
 }
-#else
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
-{
-    mbedtls_md2_process( ctx );
-    return( 0 );
-}
-#endif
 #endif /* !MBEDTLS_MD2_PROCESS_ALT */
 
 /*
@@ -247,6 +239,15 @@ void mbedtls_md2_finish( mbedtls_md2_context *ctx,
 
 #endif /* !MBEDTLS_MD2_ALT */
 
+#if defined(MBEDTLS_MD2_ALT) && defined(MBEDTLS_MD2_PROCESS_ALT)
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
+{
+    mbedtls_md2_process( ctx );
+    return( 0 );
+}
+#endif
+#endif
 /*
  * output = MD2( input buffer )
  */

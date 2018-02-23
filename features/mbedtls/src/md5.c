@@ -240,15 +240,6 @@ int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
 
     return( 0 );
 }
-#else
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
-                          const unsigned char data[64] )
-{
-    mbedtls_md5_process( ctx, data );
-    return( 0 );
-}
-#endif
 #endif /* !MBEDTLS_MD5_PROCESS_ALT */
 
 /*
@@ -364,6 +355,16 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx,
 
 #endif /* !MBEDTLS_MD5_ALT */
 
+#if defined(MBEDTLS_MD5_ALT) && defined(MBEDTLS_MD5_PROCESS_ALT)
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
+                          const unsigned char data[64] )
+{
+    mbedtls_md5_process( ctx, data );
+    return( 0 );
+}
+#endif
+#endif
 /*
  * output = MD5( input buffer )
  */

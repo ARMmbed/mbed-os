@@ -274,15 +274,6 @@ int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
 
     return( 0 );
 }
-#else
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
-                           const unsigned char data[64] )
-{
-    mbedtls_sha1_process( ctx, data );
-    return( 0 );
-}
-#endif
 #endif /* !MBEDTLS_SHA1_PROCESS_ALT */
 
 /*
@@ -398,6 +389,16 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
 
 #endif /* !MBEDTLS_SHA1_ALT */
 
+#if defined(MBEDTLS_SHA1_ALT) && defined(MBEDTLS_SHA1_PROCESS_ALT)
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
+                           const unsigned char data[64] )
+{
+    mbedtls_sha1_process( ctx, data );
+    return( 0 );
+}
+#endif
+#endif
 /*
  * output = SHA-1( input buffer )
  */
