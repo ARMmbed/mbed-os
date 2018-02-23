@@ -1,35 +1,33 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54618J512BD208
-**                          LPC54618J512ET180
-**
+**     Processor:           LPC54628J512ET180
 **     Compilers:           Keil ARM C/C++ Compiler
 **                          GNU C Compiler
 **                          IAR ANSI C/C++ Compiler for ARM
 **                          MCUXpresso Compiler
 **
-**     Reference manual:    LPC54S60x/LPC5460x User manual Rev.0.9  7 Nov 2016
-**     Version:             rev. 1.1, 2016-11-25
-**     Build:               b161227
+**     Reference manual:    LPC546xx User manual Rev.1.9  5 June 2017
+**     Version:             rev. 1.2, 2017-06-08
+**     Build:               b170609
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
 **         contains the system frequency. It configures the device and initializes
 **         the oscillator (PLL) that is part of the microcontroller device.
 **
-**     Copyright (c) 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016 - 2017 NXP
+**     Copyright 2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2017 NXP
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
-**     o Redistributions of source code must retain the above copyright notice, this list
+**     1. Redistributions of source code must retain the above copyright notice, this list
 **       of conditions and the following disclaimer.
 **
-**     o Redistributions in binary form must reproduce the above copyright notice, this
+**     2. Redistributions in binary form must reproduce the above copyright notice, this
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of the copyright holder nor the names of its
+**     3. Neither the name of the copyright holder nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **
@@ -53,23 +51,27 @@
 **     - rev. 1.1 (2016-11-25)
 **         Update CANFD and Classic CAN register.
 **         Add MAC TIMERSTAMP registers.
+**     - rev. 1.2 (2017-06-08)
+**         Remove RTC_CTRL_RTC_OSC_BYPASS.
+**         SYSCON_ARMTRCLKDIV rename to SYSCON_ARMTRACECLKDIV.
+**         Remove RESET and HALT from SYSCON_AHBCLKDIV.
 **
 ** ###################################################################
 */
 
 /*!
- * @file LPC54618
- * @version 1.1
- * @date 2016-11-25
- * @brief Device specific configuration file for LPC54618 (header file)
+ * @file LPC54628
+ * @version 1.2
+ * @date 2017-06-08
+ * @brief Device specific configuration file for LPC54628 (header file)
  *
  * Provides a system configuration function and a global variable that contains
  * the system frequency. It configures the device and initializes the oscillator
  * (PLL) that is part of the microcontroller device.
  */
 
-#ifndef _SYSTEM_LPC54618_H_
-#define _SYSTEM_LPC54618_H_                      /**< Symbol preventing repeated inclusion */
+#ifndef _SYSTEM_LPC54628_H_
+#define _SYSTEM_LPC54628_H_                      /**< Symbol preventing repeated inclusion */
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,4 +120,4 @@ void SystemCoreClockUpdate (void);
 }
 #endif
 
-#endif  /* _SYSTEM_LPC54618_H_ */
+#endif  /* _SYSTEM_LPC54628_H_ */
