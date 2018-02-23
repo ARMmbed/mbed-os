@@ -710,6 +710,12 @@
             "lse_available": {
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
                 "value": "1"
+            },
+            "stdio_uart_tx": {
+                "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
+            },
+            "stdio_uart_rx": {
+                "help": "default RX STDIO pins is defined in PinNames.h file, but it can be overridden"
             }
         },
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"]
@@ -740,17 +746,17 @@
         "release_versions": ["2", "5"],
         "device_name" : "LPC54114J256BD64"
     },
-    "MCU_LPC546XX": {    
+    "MCU_LPC546XX": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
         "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX"],
         "is_disk_virtual": true,
-        "macros": ["CPU_LPC54618J512ET180", "FSL_RTOS_MBED"],
+        "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "LPC54618J512ET180"
+        "device_name" : "LPC54628J512ET180"
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
@@ -1103,14 +1109,6 @@
         "device_name": "STM32F412ZG",
         "bootloader_supported": true,
         "config": {
-            "stdio_uart_tx": {
-                "help": "Value PB_6",
-                "value": "PB_6"
-            },
-            "stdio_uart_rx": {
-                "help": "Value PB_7",
-                "value": "PB_7"
-            },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
@@ -1954,14 +1952,6 @@
                 "help": "Value: Defines how an on-board modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
                 "value": 1,
                 "macro_name": "MODEM_ON_BOARD_UART"
-            },
-            "stdio_uart_tx": {
-                "help": "Value PB_6",
-                "value": "PB_6"
-            },
-            "stdio_uart_rx": {
-                "help": "Value PB_7",
-                "value": "PB_7"
             }
         },
         "overrides": {
@@ -2007,15 +1997,11 @@
             "hse_value": {
             "value": "24000000",
             "macro_name": "HSE_VALUE"
-            },
-            "stdio_uart_tx": {
-                "help": "Value PA_2",
-                "value": "PA_2"
-            },
-            "stdio_uart_rx": {
-                "help": "Value PA_3",
-                "value": "PA_3"
             }
+        },
+        "overrides": {
+            "stdio_uart_tx": "PA_2",
+            "stdio_uart_rx": "PA_3"
         },
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT", "FLASH"],
@@ -2060,28 +2046,32 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "config": {
-            "stdio_uart_tx": {
-                "help": "Value: D8(default) or D1",
-                "value": "D8"
+            "stdio_uart_tx_help": {
+                "help": "Value: D8(default) or D1"
             },
-            "stdio_uart_rx": {
-                "help": "Value: D2(default) or D0",
-                "value": "D2"
+            "stdio_uart_rx_help": {
+                "help": "Value: D2(default) or D0"
             }
+        },
+        "overrides": {
+            "stdio_uart_tx": "D8",
+            "stdio_uart_rx": "D2"
         }
     },
     "MBED_CONNECT_ODIN": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "release_versions": ["5"],
         "config": {
-            "stdio_uart_tx": {
-                "help": "Value: PA_9(default) or PD_8",
-                "value": "PA_9"
+            "stdio_uart_tx_help": {
+                "help": "Value: PA_9(default) or PD_8"
             },
-            "stdio_uart_rx": {
-                "help": "Value: PA_10(default) or PD_9",
-                "value": "PA_10"
+            "stdio_uart_rx_help": {
+                "help": "Value: PA_10(default) or PD_9"
             }
+        },
+        "overrides": {
+            "stdio_uart_tx": "PA_9",
+            "stdio_uart_rx": "PA_10"
         }
     },
     "MTB_UBLOX_ODIN_W2": {
@@ -3481,7 +3471,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
     },

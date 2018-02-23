@@ -159,7 +159,7 @@ bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
         return false;
     }
 
-    for (uint8_t i; i < phy_params.max_channel_cnt; i++) {
+    for (uint8_t i = 0; i < phy_params.max_channel_cnt; i++) {
         if (mask_bit_test(channel_mask, i)) {
             // Check datarate validity for enabled channels
             if (val_in_range(dr, (channels[i].dr_range.fields.min & 0x0F),

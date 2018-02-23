@@ -163,10 +163,18 @@ class Cache () :
         """
         try:
             pack = self.pack_from_cache(device)
-            algo_itr = (pack.open(path) for path in device['algorithm'].keys())
-            algo_bin = algo_itr.next()
-            flm_file = algo_bin.read()
-            return PackFlashAlgo(flm_file).sector_sizes
+            ret = []
+            for filename in device['algorithm'].keys():
+                try:
+                    flm = pack.open(filename)
+                    flash_alg = PackFlashAlgo(flm.read())
+                    sectors = [(flash_alg.flash_start + offset, size)
+                               for offset, size in flash_alg.sector_sizes]
+                    ret.extend(sectors)
+                except Exception:
+                    pass
+            ret.sort(key=lambda sector: sector[0])
+            return ret
         except Exception:
             return None
 

@@ -2,7 +2,7 @@
 import os
 from abc import abstractmethod, ABCMeta
 import logging
-from os.path import join, dirname, relpath, basename, realpath, normpath
+from os.path import join, dirname, relpath, basename, realpath, normpath, exists
 from itertools import groupby
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
@@ -130,7 +130,34 @@ class Exporter(object):
             source_files.extend(getattr(self.resources, key))
         return list(set([os.path.dirname(src) for src in source_files]))
 
+    def gen_file_dest(self, target_file):
+        """Generate the project file location in an exported project"""
+        return join(self.export_dir, target_file)
+
     def gen_file(self, template_file, data, target_file, **kwargs):
+        """Generates a project file from a template using jinja"""
+        target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
+        target_path = self.gen_file_dest(target_file)
+        logging.debug("Generating: %s", target_path)
+        open(target_path, "w").write(target_text)
+        self.generated_files += [target_path]
+
+    def gen_file_nonoverwrite(self, template_file, data, target_file, **kwargs):
+        """Generates a project file from a template using jinja"""
+        target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
+        target_path = self.gen_file_dest(target_file)
+        if exists(target_path):
+            with open(target_path) as fdin:
+                old_text = fdin.read()
+            if target_text not in old_text:
+                with open(target_path, "a") as fdout:
+                    fdout.write(target_text)
+        else:
+            logging.debug("Generating: %s", target_path)
+            open(target_path, "w").write(target_text)
+        self.generated_files += [target_path]
+
+    def _gen_file_inner(self, template_file, data, target_file, **kwargs):
         """Generates a project file from a template using jinja"""
         jinja_loader = FileSystemLoader(
             os.path.dirname(os.path.abspath(__file__)))
@@ -139,6 +166,7 @@ class Exporter(object):
 
         template = jinja_environment.get_template(template_file)
         target_text = template.render(data)
+        return target_text
 
         target_path = join(self.export_dir, target_file)
         logging.debug("Generating: %s", target_path)

@@ -90,11 +90,12 @@ void mbedtls_md5_clone( mbedtls_md5_context *dst,
     *dst = *src;
 }
 
-int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx )
+void mbedtls_md5_starts( mbedtls_md5_context *ctx )
 {
     /* HASH IP initialization */
     if (HAL_HASH_DeInit(&ctx->hhash_md5) != 0) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED;
+        // error found to be returned
+        return;
     }
 
     /* HASH Configuration */
@@ -102,37 +103,34 @@ int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx )
     /* clear CR ALGO value */
     HASH->CR &= ~HASH_CR_ALGO_Msk;
     if (HAL_HASH_Init(&ctx->hhash_md5) != 0) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED;
+        // return error code
+        return;
     }
     if (st_md5_save_hw_context(ctx) != 1) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+        return; // return HASH_BUSY timeout Error here
     }
-
-    return 0;
 }
 
-int mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] )
+void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] )
 {
     if (st_md5_restore_hw_context(ctx) != 1) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+        return; // Return HASH_BUSY timout error here
     }
     if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)data, ST_MD5_BLOCK_SIZE) != 0) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED;
+        return; // Return error code here
     }
     if (st_md5_save_hw_context(ctx) != 1) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+        return; // return HASH_BUSY timeout Error here
     }
-
-    return 0;
 }
 
-int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen )
+void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen )
 {
     size_t currentlen = ilen;
     /* If ilen = 0 : do nothing */
     if (currentlen != 0) {
         if (st_md5_restore_hw_context(ctx) != 1) {
-            return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+            return; // Return HASH_BUSY timout error here
         }
 
         // store mechanism to accumulate ST_MD5_BLOCK_SIZE bytes (512 bits) in the HW
@@ -149,7 +147,7 @@ int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input
             size_t iter = currentlen / ST_MD5_BLOCK_SIZE;
             if (iter !=0) {
                 if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)(input + ST_MD5_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_MD5_BLOCK_SIZE)) != 0) {
-                    return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED;
+                    return; // Return error code here
                 }
             }
             // sbuf is completely accumulated, now copy up to 63 remaining bytes
@@ -160,20 +158,20 @@ int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input
         }
 
         if (st_md5_save_hw_context(ctx) != 1) {
-            return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+            return; // return HASH_BUSY timeout Error here
         }
     }
 }
 
-int mbedtls_md5_finish_ret( mbedtls_md5_context *ctx, unsigned char output[16] )
+void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
 {
     if (st_md5_restore_hw_context(ctx) != 1) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+        return; // Return HASH_BUSY timout error here
     }
     /* Last accumulation for extra bytes in sbuf_len */
     /* This sets HW flags in case mbedtls_md5_update has not been called yet */
     if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len) != 0) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Accumulation error
+        return; // Return error code here
     }
 
     mbedtls_zeroize( ctx->sbuf, ST_MD5_BLOCK_SIZE);
@@ -181,13 +179,11 @@ int mbedtls_md5_finish_ret( mbedtls_md5_context *ctx, unsigned char output[16] )
     __HAL_HASH_START_DIGEST();
 
     if (HAL_HASH_MD5_Finish(&ctx->hhash_md5, output, 10)) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Finish error
+        // error code to be returned
     }
     if (st_md5_save_hw_context(ctx) != 1) {
-        return MBEDTLS_ERR_MD5_HW_ACCEL_FAILED; // Hash busy timeout
+        return; // return HASH_BUSY timeout Error here
     }
-
-    return 0;
 }
 
 #endif /* MBEDTLS_MD5_ALT */

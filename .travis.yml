@@ -5,7 +5,7 @@ python:
 env:
   global:
     - >
-      STATUS=$'curl -so/dev/null --user $MBED_BOT --request POST
+      STATUS=$'curl -so/dev/null --user "$MBED_BOT" --request POST
       https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
       --data @- << DATA\n{
       "state": "$0",
@@ -30,7 +30,8 @@ before_install:
   - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  - sudo apt-get update -qq
+  # Loop until update succeeds (timeouts can occur)
+  - while [ -n "$(sudo apt-get update 2>&1 |grep Failed)" ]; do :; done
 
 after_success:
   - bash -c "$STATUS" success "Local $NAME testing has passed"

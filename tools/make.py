@@ -19,6 +19,7 @@ limitations under the License.
 TEST BUILD & RUN
 """
 from __future__ import print_function
+from builtins import str
 import sys
 import json
 from time import sleep

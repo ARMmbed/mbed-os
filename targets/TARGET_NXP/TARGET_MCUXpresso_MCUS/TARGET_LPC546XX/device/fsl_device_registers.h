@@ -1,20 +1,25 @@
 /*
- * Copyright (c) 2014 - 2016, Freescale Semiconductor, Inc.
- * Copyright 2016 - 2017 NXP
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * The Clear BSD License
+ * Copyright 2014-2016 Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
- * o Redistributions of source code must retain the above copyright notice, this list
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
  *
- * o Redistributions in binary form must reproduce the above copyright notice, this
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of the copyright holder nor the names of its
+ * 3. Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,14 +41,14 @@
  *
  * The CPU macro should be declared in the project or makefile.
  */
-#if (defined(CPU_LPC54618J512BD208) || defined(CPU_LPC54618J512ET180))
+#if (defined(CPU_LPC54628J512ET180))
 
-#define LPC54618_SERIES
+#define LPC54628_SERIES
 
 /* CMSIS-style register definitions */
-#include "LPC54618.h"
+#include "LPC54628.h"
 /* CPU specific feature definitions */
-#include "LPC54618_features.h"
+#include "LPC54628_features.h"
 
 #else
     #error "No valid CPU defined!"

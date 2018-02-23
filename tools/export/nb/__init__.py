@@ -268,7 +268,8 @@ class GNUARMNetbeans(Exporter):
 
         self.gen_file('nb/configurations.tmpl', jinja_ctx, 'nbproject/configurations.xml')
         self.gen_file('nb/project.tmpl', jinja_ctx, 'nbproject/project.xml')
-        self.gen_file('nb/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('nb/mbedignore.tmpl', jinja_ctx,
+                                   '.mbedignore')
         self.gen_file('nb/Makefile.tmpl', jinja_ctx, 'Makefile')
 
         print
