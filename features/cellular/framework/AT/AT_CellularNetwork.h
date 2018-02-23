@@ -139,9 +139,11 @@ private:
     void free_credentials();
 
     nsapi_error_t open_data_channel();
-    bool get_context(nsapi_ip_stack_t supported_stack);
-    bool set_new_context(nsapi_ip_stack_t stack, int cid);
+    bool get_context();
+    bool set_new_context(int cid);
     nsapi_error_t set_registration_urc(bool on);
+    nsapi_error_t delete_current_context();
+
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
 #endif
@@ -161,6 +163,7 @@ protected:
     int _cell_id;
     RegistrationType _last_reg_type;
     nsapi_connection_status_t _connect_status;
+    bool _new_context_set;
 };
 
 } // namespace mbed
