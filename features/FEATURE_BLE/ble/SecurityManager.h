@@ -435,7 +435,7 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t canceltPairingRequest(connection_handle_t connectionHandle) {
+    virtual ble_error_t cancelPairingRequest(connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -447,7 +447,7 @@ public:
      * @param[in] required If set to true, pairingRequest in the event handler will
      *                     will be called and will require an action from the application
      *                     to continue with pairing by calling acceptPairingRequest
-     *                     or canceltPairingRequest if the user wishes to reject it.
+     *                     or cancelPairingRequest if the user wishes to reject it.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
