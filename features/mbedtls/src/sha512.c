@@ -273,15 +273,16 @@ int mbedtls_internal_sha512_process( mbedtls_sha512_context *ctx,
 
     return( 0 );
 }
-#endif /* !MBEDTLS_SHA512_PROCESS_ALT */
-
+#else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_sha512_process( mbedtls_sha512_context *ctx,
+void mbedtls_internal_sha512_process( mbedtls_sha512_context *ctx,
                              const unsigned char data[128] )
 {
-    mbedtls_internal_sha512_process( ctx, data );
+    mbedtls_sha512_process( ctx, data );
+    return( 0 );
 }
 #endif
+#endif /* !MBEDTLS_SHA512_PROCESS_ALT */
 
 /*
  * SHA-512 process buffer

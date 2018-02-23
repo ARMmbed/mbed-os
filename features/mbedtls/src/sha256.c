@@ -243,15 +243,16 @@ int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
 
     return( 0 );
 }
-#endif /* !MBEDTLS_SHA256_PROCESS_ALT */
-
+#else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
+void mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
                              const unsigned char data[64] )
 {
-    mbedtls_internal_sha256_process( ctx, data );
+    mbedtls_sha256_process( ctx, data );
+    return( 0 );
 }
 #endif
+#endif /* !MBEDTLS_SHA256_PROCESS_ALT */
 
 /*
  * SHA-256 process buffer

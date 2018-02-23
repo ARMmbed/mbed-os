@@ -220,15 +220,16 @@ int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
 
     return( 0 );
 }
-#endif /* !MBEDTLS_MD4_PROCESS_ALT */
-
+#else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_md4_process( mbedtls_md4_context *ctx,
+int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
                           const unsigned char data[64] )
 {
-    mbedtls_internal_md4_process( ctx, data );
+    mbedtls_md4_process( ctx, data );
+    return( 0 );
 }
 #endif
+#endif /* !MBEDTLS_MD4_PROCESS_ALT */
 
 /*
  * MD4 process buffer
