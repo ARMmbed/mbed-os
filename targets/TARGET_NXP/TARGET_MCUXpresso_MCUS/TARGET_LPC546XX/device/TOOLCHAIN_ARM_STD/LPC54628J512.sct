@@ -1,30 +1,28 @@
 #! armcc -E
 /*
 ** ###################################################################
-**     Processors:          LPC54618J512BD208
-**                          LPC54618J512ET180
-**
+**     Processor:           LPC54628J512ET180
 **     Compiler:            Keil ARM C/C++ Compiler
-**     Reference manual:    LPC54S60x/LPC5460x User manual Rev.0.9  7 Nov 2016
-**     Version:             rev. 1.1, 2016-11-25
-**     Build:               b161227
+**     Reference manual:    LPC546xx User manual Rev.1.9  5 June 2017
+**     Version:             rev. 1.2, 2017-06-08
+**     Build:               b170821
 **
 **     Abstract:
 **         Linker file for the Keil ARM C/C++ Compiler
 **
-**     Copyright (c) 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016 - 2017 NXP
+**     Copyright 2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2017 NXP
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
-**     o Redistributions of source code must retain the above copyright notice, this list
+**     1. Redistributions of source code must retain the above copyright notice, this list
 **       of conditions and the following disclaimer.
 **
-**     o Redistributions in binary form must reproduce the above copyright notice, this
+**     2. Redistributions in binary form must reproduce the above copyright notice, this
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of the copyright holder nor the names of its
+**     3. Neither the name of the copyright holder nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **

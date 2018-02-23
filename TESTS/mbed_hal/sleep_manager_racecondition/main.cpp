@@ -67,12 +67,12 @@ void sleep_manager_irq_test()
         Ticker ticker1;
         Timer timer;
 
-        ticker1.attach_us(&sleep_manager_locking_irq_test, 500);
+        ticker1.attach_us(&sleep_manager_locking_irq_test, 1000);
 
-        // run this for 5 seconds
+        // run this for 10 seconds
         timer.start();
         int start = timer.read();
-        int end = start + 5;
+        int end = start + 10;
         while (timer.read() < end) {
             sleep_manager_locking_irq_test();
         }

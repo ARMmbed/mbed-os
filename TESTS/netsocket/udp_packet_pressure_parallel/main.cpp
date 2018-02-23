@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
+#error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
 #endif
 
 #include "mbed.h"
@@ -33,28 +33,28 @@
 using namespace utest::v1;
 
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN 64
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN 64
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX 0x80000
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX 0x80000
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT 100
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT 100
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_SEED
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_SEED 0x6d626564
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_SEED
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_SEED 0x6d626564
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS 3
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS 3
 #endif
 
-#ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG
-#define MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG false
+#ifndef MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG
+#define MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG false
 #endif
 
 #define STRINGIZE(x) STRINGIZE2(x)
@@ -62,7 +62,8 @@ using namespace utest::v1;
 
 
 // Simple xorshift pseudorandom number generator
-class RandSeq {
+class RandSeq
+{
 private:
     uint32_t x;
     uint32_t y;
@@ -71,23 +72,26 @@ private:
     static const int C = 11;
 
 public:
-    RandSeq(uint32_t seed=MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_SEED)
+    RandSeq(uint32_t seed = MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_SEED)
         : x(seed), y(seed) {}
 
-    uint32_t next(void) {
+    uint32_t next(void)
+    {
         x ^= x << A;
         x ^= x >> B;
         x ^= y ^ (y >> C);
         return x + y;
     }
 
-    void skip(size_t size) {
+    void skip(size_t size)
+    {
         for (size_t i = 0; i < size; i++) {
             next();
         }
     }
 
-    void buffer(uint8_t *buffer, size_t size) {
+    void buffer(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -95,7 +99,8 @@ public:
         }
     }
 
-    int cmp(uint8_t *buffer, size_t size) {
+    int cmp(uint8_t *buffer, size_t size)
+    {
         RandSeq lookahead = *this;
 
         for (size_t i = 0; i < size; i++) {
@@ -111,7 +116,8 @@ public:
 // Tries to get the biggest buffer possible on the device. Exponentially
 // grows a buffer until heap runs out of space, and uses half to leave
 // space for the rest of the program
-void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
+void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max)
+{
     size_t i = min;
     while (i < max) {
         void *b = malloc(i);
@@ -139,7 +145,8 @@ Timer timer;
 Mutex iomutex;
 
 // Single instance of a pressure test
-class PressureTest {
+class PressureTest
+{
 private:
     uint8_t *buffer;
     size_t buffer_size;
@@ -149,29 +156,33 @@ private:
 
 public:
     PressureTest(uint8_t *buffer, size_t buffer_size)
-        : buffer(buffer), buffer_size(buffer_size) {
+        : buffer(buffer), buffer_size(buffer_size)
+    {
     }
 
-    void start() {
+    void start()
+    {
         osStatus status = thread.start(callback(this, &PressureTest::run));
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void join() {
+    void join()
+    {
         osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
-    void run() {
+    void run()
+    {
         // Tests exponentially growing sequences
-        for (size_t size = MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN;
-             size < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX;
-             size *= 2) {
+        for (size_t size = MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN;
+                size < MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX;
+                size *= 2) {
             int err = sock.open(net);
             TEST_ASSERT_EQUAL(0, err);
             iomutex.lock();
             printf("UDP: %s:%d streaming %d bytes\r\n",
-                udp_addr.get_ip_address(), udp_addr.get_port(), size);
+                   udp_addr.get_ip_address(), udp_addr.get_port(), size);
             iomutex.unlock();
 
             sock.set_blocking(false);
@@ -196,7 +207,7 @@ public:
                     int td = sock.sendto(udp_addr, buffer, chunk_size);
 
                     if (td > 0) {
-                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        if (MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                             iomutex.lock();
                             printf("UDP: tx -> %d\r\n", td);
                             iomutex.unlock();
@@ -206,11 +217,11 @@ public:
                     } else if (td != NSAPI_ERROR_WOULD_BLOCK) {
                         // We may fail to send because of buffering issues, revert to
                         // last good sequence and cut buffer in half
-                        if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
+                        if (window > MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                             window /= 2;
                         }
 
-                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        if (MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                             iomutex.lock();
                             printf("UDP: Not sent (%d), window = %d\r\n", td, window);
                             iomutex.unlock();
@@ -225,7 +236,7 @@ public:
                     TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);
 
                     if (rd > 0) {
-                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        if (MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                             iomutex.lock();
                             printf("UDP: rx <- %d\r\n", rd);
                             iomutex.unlock();
@@ -235,22 +246,22 @@ public:
                             rx_seq.skip(rd);
                             rx_count += rd;
                             known_time = timer.read_ms();
-                            if (window < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX) {
-                                window += MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN;
+                            if (window < MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX) {
+                                window += MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN;
                             }
                         }
                     } else if (timer.read_ms() - known_time >
-                            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT) {
+                               MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_TIMEOUT) {
                         // Dropped packet or out of order, revert to last good sequence
                         // and cut buffer in half
                         tx_seq = rx_seq;
                         tx_count = rx_count;
                         known_time = timer.read_ms();
-                        if (window > MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) {
+                        if (window > MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN) {
                             window /= 2;
                         }
 
-                        if (MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
+                        if (MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_DEBUG) {
                             iomutex.lock();
                             printf("UDP: Dropped, window = %d\r\n", window);
                             iomutex.unlock();
@@ -267,21 +278,22 @@ public:
     }
 };
 
-PressureTest *pressure_tests[MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS];
+PressureTest *pressure_tests[MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
-void test_udp_packet_pressure_parallel() {
+void test_udp_packet_pressure_parallel()
+{
     uint8_t *buffer;
     size_t buffer_size;
     generate_buffer(&buffer, &buffer_size,
-        MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN,
-        MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX);
+                    MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN,
+                    MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX);
 
-    size_t buffer_subsize = buffer_size / MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS;
+    size_t buffer_subsize = buffer_size / MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS;
     printf("MBED: Generated buffer %d\r\n", buffer_size);
     printf("MBED: Split into %d buffers %d\r\n",
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS,
-            buffer_subsize);
+           MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS,
+           buffer_subsize);
 
     net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
@@ -289,18 +301,36 @@ void test_udp_packet_pressure_parallel() {
 
     printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
 
+#if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
     udp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+#else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
+    char recv_key[] = "host_port";
+    char ipbuf[60] = {0};
+    char portbuf[16] = {0};
+    unsigned int port = 0;
+
+    greentea_send_kv("target_ip", net->get_ip_address());
+    greentea_send_kv("host_ip", " ");
+    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+
+    greentea_send_kv("host_port", " ");
+    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+    sscanf(portbuf, "%u", &port);
+
+    udp_addr.set_ip_address(ipbuf);
+    udp_addr.set_port(port);
+#endif /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
 
     timer.start();
 
     // Startup pressure tests in parallel
-    for (int i = 0; i < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS; i++) {
-        pressure_tests[i] = new PressureTest(&buffer[i*buffer_subsize], buffer_subsize);
+    for (int i = 0; i < MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS; i++) {
+        pressure_tests[i] = new PressureTest(&buffer[i * buffer_subsize], buffer_subsize);
         pressure_tests[i]->start();
     }
 
-    for (int i = 0; i < MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS; i++) {
+    for (int i = 0; i < MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS; i++) {
         pressure_tests[i]->join();
         delete pressure_tests[i];
     }
@@ -308,16 +338,17 @@ void test_udp_packet_pressure_parallel() {
     timer.stop();
     printf("MBED: Time taken: %fs\r\n", timer.read());
     printf("MBED: Speed: %.3fkb/s\r\n",
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS*
-            8*(2*MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX -
-            MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
+           MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_THREADS *
+           8 * (2 * MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX -
+                MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000 * timer.read()));
 
     net->disconnect();
 }
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "udp_echo");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -328,6 +359,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

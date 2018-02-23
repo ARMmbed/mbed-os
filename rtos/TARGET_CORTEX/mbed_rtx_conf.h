@@ -54,4 +54,7 @@
 # define OS_PRIVILEGE_MODE           0
 #endif
 
+#define OS_IDLE_THREAD_TZ_MOD_ID     1
+#define OS_TIMER_THREAD_TZ_MOD_ID    1
+
 #endif /* MBED_RTX_CONF_H */

@@ -473,7 +473,7 @@ struct address_t {
     /**
      * Size in byte of a mac address.
      */
-    static uint8_t size() {
+    uint8_t size() const {
         return sizeof(value);
     }
 
@@ -543,7 +543,7 @@ struct advertising_data_t {
     /**
      * Return (fixed) size of advertising data.
      */
-    static uint8_t size() {
+    uint8_t size() const {
         return sizeof(value);
     }
 

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f410rx.h
   * @author  MCD Application Team
-  * @version V2.6.1
-  * @date    14-February-2017
   * @brief   CMSIS STM32F410Rx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
@@ -67,9 +65,11 @@
 #define __MPU_PRESENT             1U       /*!< STM32F4XX provides an MPU                     */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F4XX uses 4 Bits for the Priority Levels */
 #define __Vendor_SysTickConfig    0U       /*!< Set to 1 if different SysTick Config is used  */
+/* MBED */
 #ifndef __FPU_PRESENT
 #define __FPU_PRESENT             1U       /*!< FPU present                                   */
 #endif /* __FPU_PRESENT */
+/* MBED */
 
 /**
   * @}
@@ -4199,9 +4199,15 @@ typedef struct
 #define PWR_CSR_BRR_Pos        (3U)                                            
 #define PWR_CSR_BRR_Msk        (0x1U << PWR_CSR_BRR_Pos)                       /*!< 0x00000008 */
 #define PWR_CSR_BRR            PWR_CSR_BRR_Msk                                 /*!< Backup regulator ready                           */
-#define PWR_CSR_EWUP_Pos       (8U)                                            
-#define PWR_CSR_EWUP_Msk       (0x1U << PWR_CSR_EWUP_Pos)                      /*!< 0x00000100 */
-#define PWR_CSR_EWUP           PWR_CSR_EWUP_Msk                                /*!< Enable WKUP pin                                  */
+#define PWR_CSR_EWUP3_Pos      (6U)                                            
+#define PWR_CSR_EWUP3_Msk      (0x1U << PWR_CSR_EWUP1_Pos)                     /*!< 0x00000040 */
+#define PWR_CSR_EWUP3          PWR_CSR_EWUP3_Msk                               /*!< Enable WKUP pin 3                                */
+#define PWR_CSR_EWUP2_Pos      (7U)                                            
+#define PWR_CSR_EWUP2_Msk      (0x1U << PWR_CSR_EWUP2_Pos)                     /*!< 0x00000080 */
+#define PWR_CSR_EWUP2          PWR_CSR_EWUP2_Msk                               /*!< Enable WKUP pin 2                                */
+#define PWR_CSR_EWUP1_Pos      (8U)                                            
+#define PWR_CSR_EWUP1_Msk      (0x1U << PWR_CSR_EWUP1_Pos)                     /*!< 0x00000100 */
+#define PWR_CSR_EWUP1          PWR_CSR_EWUP1_Msk                               /*!< Enable WKUP pin 1                                */
 #define PWR_CSR_BRE_Pos        (9U)                                            
 #define PWR_CSR_BRE_Msk        (0x1U << PWR_CSR_BRE_Pos)                       /*!< 0x00000200 */
 #define PWR_CSR_BRE            PWR_CSR_BRE_Msk                                 /*!< Backup regulator enable                          */
@@ -6789,7 +6795,7 @@ typedef struct
 #define USART_CR1_TCIE                USART_CR1_TCIE_Msk                       /*!<Transmission Complete Interrupt Enable */
 #define USART_CR1_TXEIE_Pos           (7U)                                     
 #define USART_CR1_TXEIE_Msk           (0x1U << USART_CR1_TXEIE_Pos)            /*!< 0x00000080 */
-#define USART_CR1_TXEIE               USART_CR1_TXEIE_Msk                      /*!<PE Interrupt Enable                    */
+#define USART_CR1_TXEIE               USART_CR1_TXEIE_Msk                      /*!<TXE Interrupt Enable                   */
 #define USART_CR1_PEIE_Pos            (8U)                                     
 #define USART_CR1_PEIE_Msk            (0x1U << USART_CR1_PEIE_Pos)             /*!< 0x00000100 */
 #define USART_CR1_PEIE                USART_CR1_PEIE_Msk                       /*!<PE Interrupt Enable                    */
@@ -7043,7 +7049,6 @@ typedef struct
 #define DBGMCU_APB2_FZ_DBG_TIM11_STOP_Pos            (18U)                     
 #define DBGMCU_APB2_FZ_DBG_TIM11_STOP_Msk            (0x1U << DBGMCU_APB2_FZ_DBG_TIM11_STOP_Pos) /*!< 0x00040000 */
 #define DBGMCU_APB2_FZ_DBG_TIM11_STOP                DBGMCU_APB2_FZ_DBG_TIM11_STOP_Msk 
-
 /**
   * @}
   */ 

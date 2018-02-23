@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_rcc.c
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    14-April-2017
   * @brief   RCC LL module driver.
   ******************************************************************************
   * @attention
@@ -208,6 +206,10 @@ ErrorStatus LL_RCC_DeInit(void)
   /* Set HSION bit */
   LL_RCC_HSI_Enable();
 
+  /* Wait for HSI READY bit */
+  while(LL_RCC_HSI_IsReady() != 1U)
+  {}
+
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);
 
@@ -232,6 +234,10 @@ ErrorStatus LL_RCC_DeInit(void)
   /* Set HSITRIM bits to the reset value*/
   LL_RCC_HSI_SetCalibTrimming(0x10U);
 
+  /* Wait for PLL READY bit to be reset */
+  while(LL_RCC_PLL_IsReady() != 0U)
+  {}
+
   /* Reset PLLCFGR register */
   LL_RCC_WriteReg(PLLCFGR, RCC_PLLCFGR_RST_VALUE);
 
@@ -245,11 +251,33 @@ ErrorStatus LL_RCC_DeInit(void)
   LL_RCC_WriteReg(PLLSAICFGR, RCC_PLLSAICFGR_RST_VALUE);
 #endif /* RCC_PLLSAI_SUPPORT */
 
-  /* Reset HSEBYP bit */
-  LL_RCC_HSE_DisableBypass();
-
   /* Disable all interrupts */
-  LL_RCC_WriteReg(CIR, 0x00000000U);
+  CLEAR_BIT(RCC->CIR, RCC_CIR_LSIRDYIE | RCC_CIR_LSERDYIE | RCC_CIR_HSIRDYIE | RCC_CIR_HSERDYIE | RCC_CIR_PLLRDYIE);
+
+#if defined(RCC_CIR_PLLI2SRDYIE)
+  CLEAR_BIT(RCC->CIR, RCC_CIR_PLLI2SRDYIE);
+#endif /* RCC_CIR_PLLI2SRDYIE */
+
+#if defined(RCC_CIR_PLLSAIRDYIE)
+  CLEAR_BIT(RCC->CIR, RCC_CIR_PLLSAIRDYIE);
+#endif /* RCC_CIR_PLLSAIRDYIE */
+
+  /* Clear all interrupt flags */
+  SET_BIT(RCC->CIR, RCC_CIR_LSIRDYC | RCC_CIR_LSERDYC | RCC_CIR_HSIRDYC | RCC_CIR_HSERDYC | RCC_CIR_PLLRDYC | RCC_CIR_CSSC);
+
+#if defined(RCC_CIR_PLLI2SRDYC)
+  SET_BIT(RCC->CIR, RCC_CIR_PLLI2SRDYC);
+#endif /* RCC_CIR_PLLI2SRDYC */
+
+#if defined(RCC_CIR_PLLSAIRDYC)
+  SET_BIT(RCC->CIR, RCC_CIR_PLLSAIRDYC);
+#endif /* RCC_CIR_PLLSAIRDYC */
+
+  /* Clear LSION bit */
+  CLEAR_BIT(RCC->CSR, RCC_CSR_LSION);
+
+  /* Reset all CSR flags */
+  SET_BIT(RCC->CSR, RCC_CSR_RMVF);
 
   return SUCCESS;
 }

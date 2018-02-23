@@ -22,6 +22,7 @@
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
 #include "netif/etharp.h"
+#include "lwip/ethip6.h"
 
 static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 {
@@ -79,6 +80,9 @@ err_t emac_lwip_if_init(struct netif *netif)
 #if LWIP_IPV4
     netif->output = etharp_output;
 #endif /* LWIP_IPV4 */
+#if LWIP_IPV6
+    netif->output_ip6 = ethip6_output;
+#endif /* LWIP_IPV6 */
 
     netif->linkoutput = emac_lwip_low_level_output;
 

@@ -74,6 +74,12 @@ class IAR(mbedToolchain):
             c_flags_cmd.append("--fpu=VFPv5_sp")
         elif target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.flags["asm"] += ["--cmse"]
+            self.flags["common"] += ["--cmse"]
+
+        # Create Secure library
+        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            secure_file = join(build_dir, "cmse_lib.o")
+            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
