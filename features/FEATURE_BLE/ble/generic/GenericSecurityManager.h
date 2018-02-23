@@ -41,7 +41,7 @@ class GenericSecurityManager : public SecurityManager,
                                public pal::SecurityManagerEventHandler,
                                public pal::ConnectionEventHandler {
 public:
-    typedef ble::pal::SecurityEntry_t SecurityEntry_t;
+    typedef ble::pal::SecurityDistributionFlags_t SecurityDistributionFlags_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
 
     /* implements SecurityManager */
@@ -86,7 +86,7 @@ public:
         connection_handle_t connection
     );
 
-    virtual ble_error_t canceltPairingRequest(
+    virtual ble_error_t cancelPairingRequest(
         connection_handle_t connection
     );
 
@@ -302,7 +302,7 @@ private:
      * @param[in] entryKeys security entry containing keys.
      */
     void enable_encryption_cb(
-        const SecurityEntry_t* entry,
+        pal::SecurityDb::entry_handle_t entry,
         const SecurityEntryKeys_t* entryKeys
     );
 
@@ -313,7 +313,7 @@ private:
      * @param[in] entryKeys security entry containing keys.
      */
     void set_ltk_cb(
-        const SecurityEntry_t* entry,
+        pal::SecurityDb::entry_handle_t entry,
         const SecurityEntryKeys_t* entryKeys
     );
 
@@ -324,7 +324,7 @@ private:
      * @param[in] entryKeys security entry containing keys.
      */
     void return_csrk_cb(
-        connection_handle_t connection,
+        pal::SecurityDb::entry_handle_t connection,
         const csrk_t *csrk
     );
 
@@ -431,6 +431,31 @@ private:
     );
 
 private:
+    struct ControlBlock_t : public pal::SecurityDistributionFlags_t {
+        ControlBlock_t();
+
+        connection_handle_t connection;
+        pal::SecurityDb::entry_handle_t db_entry;
+
+        address_t local_address; /**< address used for connection, possibly different from identity */
+
+        uint8_t connected:1;
+        uint8_t authenticated:1; /**< have we turned encryption on during this connection */
+        uint8_t is_master:1;
+
+        uint8_t encryption_requested:1;
+        uint8_t encryption_failed:1;
+        uint8_t encrypted:1;
+        uint8_t signing_requested:1;
+
+        uint8_t mitm_requested:1;
+        uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
+
+        uint8_t attempt_oob:1;
+        uint8_t oob_mitm_protection:1;
+        uint8_t oob_present:1;
+    };
+
     pal::SecurityManager &_pal;
     pal::SecurityDb &_db;
     pal::ConnectionEventMonitor &_connection_monitor;
@@ -443,6 +468,14 @@ private:
     bool _master_sends_keys;
     bool _public_keys_generated;
 
+    /** There is always only one OOB data set stored at a time (for now) */
+    address_t _peer_sc_oob_address;
+    oob_rand_t _peer_sc_oob_random;
+    oob_confirm_t _peer_sc_oob_confirm;
+    oob_rand_t _local_sc_oob_random;
+
+    static const size_t MAX_CONTROL_BLOCKS = 5;
+    ControlBlock_t _control_blocks[MAX_CONTROL_BLOCKS];
 
     /* implements ble::pal::SecurityManagerEventHandler */
 public:
@@ -642,6 +675,18 @@ public:
     );
 
     /* end implements ble::pal::SecurityManagerEventHandler */
+
+    /* list management */
+
+    ControlBlock_t* acquire_control_block(connection_handle_t connection);
+
+    ControlBlock_t* get_control_block(connection_handle_t connection);
+
+    ControlBlock_t* get_control_block(const address_t &peer_address);
+
+    ControlBlock_t* get_control_block(pal::SecurityDb::entry_handle_t db_entry);
+
+    void release_control_block(ControlBlock_t* entry);
 };
 
 

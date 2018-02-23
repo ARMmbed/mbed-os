@@ -17,17 +17,9 @@
 #ifndef MBED_BLE_CONNECTION_EVENT_MONITOR
 #define MBED_BLE_CONNECTION_EVENT_MONITOR
 
-#include <algorithm>
-
-#include "ble/BLE.h"
 #include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
-#include "ble/pal/PalGap.h"
-#include "ble/pal/GapEvents.h"
-#include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
-#include "ble/pal/GenericAccessService.h"
-#include "ble/pal/EventQueue.h"
 
 namespace ble {
 namespace pal {
