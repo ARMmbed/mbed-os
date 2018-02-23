@@ -77,11 +77,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
 
     rtc_ovf_event_check();
 
-    if (m_common_sw_irq_flag & US_TICKER_SW_IRQ_MASK) {
-        m_common_sw_irq_flag &= ~US_TICKER_SW_IRQ_MASK;
-        us_ticker_irq_handler();
-    }
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
+    if ((m_common_sw_irq_flag & US_TICKER_SW_IRQ_MASK) || nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
         us_ticker_irq_handler();
     }
 
@@ -297,6 +293,7 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
+    m_common_sw_irq_flag &= ~US_TICKER_SW_IRQ_MASK;
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, US_TICKER_EVENT);
 }
 
