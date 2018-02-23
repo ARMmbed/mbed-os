@@ -1,9 +1,16 @@
 /* Linker script to configure memory regions. */
 
+#include "mbed_config.h"
+#ifdef MBED_CONF_SD_RAM_ALLOC
+#define APP_RAM_BASE (0x20000000 + MBED_CONF_SD_RAM_ALLOC)
+#else
+#define APP_RAM_BASE 0x20002800
+#endif
+
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x0001C000, LENGTH = 0x24000
-  RAM (rwx) :  ORIGIN = 0x20002800, LENGTH = 0x1800
+  RAM (rwx) :  ORIGIN = APP_RAM_BASE, LENGTH = 0x20004000-APP_RAM_BASE
 }
 
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")

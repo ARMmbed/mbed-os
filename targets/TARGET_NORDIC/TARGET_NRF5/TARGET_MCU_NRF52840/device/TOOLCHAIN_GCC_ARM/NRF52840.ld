@@ -24,10 +24,17 @@
   #define MBED_APP_SIZE 0xDF000
 #endif
 
+#include "mbed_config.h"
+#ifdef MBED_CONF_SD_RAM_ALLOC
+#define APP_RAM_BASE (0x20000000 + MBED_CONF_SD_RAM_ALLOC)
+#else
+#define APP_RAM_BASE 0x20003288
+#endif
+
 MEMORY
 {
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  RAM (rwx) :  ORIGIN = 0x20003288, LENGTH = 0x3cd78
+  RAM (rwx) :  ORIGIN = APP_RAM_BASE, LENGTH = 0x20040000-APP_RAM_BASE
 }
 
 
