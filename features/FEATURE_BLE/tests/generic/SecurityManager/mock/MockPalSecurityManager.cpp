@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017-2017 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef CORDIO_SECURITY_MANAGER_H_
-#define CORDIO_SECURITY_MANAGER_H_
-
-#include <stddef.h>
-
-#include "ble/SecurityManager.h"
+#include "MockPalSecurityManager.h"
 
 namespace ble {
+namespace pal {
 namespace vendor {
-namespace cordio {
+namespace mock {
 
-class SecurityManager : public ::SecurityManager
-{
-public:
-    static SecurityManager &getInstance()
-    {
-        static SecurityManager m_instance;
-        return m_instance;
-    }
+////////////////////////////////////////////////////////////////////////////////
+// Constructor implementation of the mocked pal security manager
+//
+// WARNING: Do not remove; it speedup compile time.
 
-public:
-    SecurityManager()
-    {
-        /* empty */
-    }
-};
+MockPalSecurityManager::MockPalSecurityManager() { }
+MockPalSecurityManager::~MockPalSecurityManager() { }
 
-} // namespace cordio
-} // namespace vendor
 } // namespace ble
-
-#endif /* CORDIO_SECURITY_MANAGER_H_ */
+} // namespace pal
+} // namespace vendor
+} // namespace mock
