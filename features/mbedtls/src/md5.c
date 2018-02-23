@@ -242,7 +242,7 @@ int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
 }
 #else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
+int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
                           const unsigned char data[64] )
 {
     mbedtls_md5_process( ctx, data );

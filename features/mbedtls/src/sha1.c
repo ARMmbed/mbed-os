@@ -276,7 +276,7 @@ int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
 }
 #else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
+int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
                            const unsigned char data[64] )
 {
     mbedtls_sha1_process( ctx, data );

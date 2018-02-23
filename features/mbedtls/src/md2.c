@@ -157,7 +157,7 @@ int mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
 }
 #else
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
-void mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
+int mbedtls_internal_md2_process( mbedtls_md2_context *ctx )
 {
     mbedtls_md2_process( ctx );
     return( 0 );
