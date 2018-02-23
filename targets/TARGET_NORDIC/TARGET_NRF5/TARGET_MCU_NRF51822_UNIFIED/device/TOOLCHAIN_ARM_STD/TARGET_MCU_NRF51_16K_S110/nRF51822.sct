@@ -12,16 +12,22 @@
 ;
 ;WITH SOFTDEVICE:
 
+#if defined(MBED_CONF_SD_RAM_ALLOC)
+  #define APP_RAM_BASE (0x20000000 + MBED_CONF_SD_RAM_ALLOC)
+#else
+  #define APP_RAM_BASE 0x20002000
+#endif
+
 LR_IROM1 0x18000 0x0028000  {
   ER_IROM1 0x18000 0x0028000  {
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM0 0x20002000 UNINIT 0x000000c0  { ;no init section
+  RW_IRAM0 APP_RAM_BASE UNINIT 0x000000c0  { ;no init section
         *(*noinit)
   }
-  RW_IRAM1 0x200020C0 0x00001F40  {
+  RW_IRAM1 (APP_RAM_BASE + 0xC0) (0x20004000 - APP_RAM_BASE - 0xC0)  {    
    .ANY (+RW +ZI)
   }
 }
