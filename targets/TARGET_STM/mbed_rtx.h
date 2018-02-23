@@ -19,7 +19,11 @@
 
 #ifndef INITIAL_SP
 
-#if (defined(TARGET_STM32L475VG))
+#if (defined(TARGET_STM32L475VG) ||\
+     defined(TARGET_STM32L476RG) ||\
+     defined(TARGET_STM32L476JG) ||\
+     defined(TARGET_STM32L476VG) ||\
+     defined(TARGET_STM32L486RG))
 /* only GCC_ARM and IAR toolchains have the stack on SRAM2 */
 #if (((defined(__GNUC__) && !defined(__CC_ARM)) ||\
        defined(__IAR_SYSTEMS_ICC__ )) &&\
@@ -78,11 +82,7 @@
 #elif defined(TARGET_STM32L152RE)
 #define INITIAL_SP              (0x20014000UL)
 
-#elif (defined(TARGET_STM32F401RE) ||\
-       defined(TARGET_STM32L476RG) ||\
-       defined(TARGET_STM32L476JG) ||\
-       defined(TARGET_STM32L476VG) ||\
-       defined(TARGET_STM32L486RG))
+#elif defined(TARGET_STM32F401RE)
 #define INITIAL_SP              (0x20018000UL)
 
 #elif (defined(TARGET_STM32F207ZG) ||\
