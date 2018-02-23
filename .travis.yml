@@ -78,7 +78,7 @@ matrix:
         # Install dependencies
         - sudo add-apt-repository -y ppa:deadsnakes/ppa
         - sudo apt-get update
-        - sudo apt-get install gcc-arm-embedded python{2.7,3.5,3.6} python{2.7,3.5,3.6}-pip
+        - sudo apt-get install gcc-arm-embedded python{2.7,3.5,3.6} python{2,3}-pip
         - pip2.7 install -r requirements.txt
         - pip3.5 install -r requirements.txt
         - pip3.6 install -r requirements.txt
