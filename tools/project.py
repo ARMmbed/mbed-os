@@ -1,7 +1,9 @@
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
 """
-from __future__ import absolute_import, print_function
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import sys
 from os.path import (join, abspath, dirname, exists, basename, normpath,
                      realpath, relpath, basename)
@@ -105,7 +107,7 @@ def main():
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = EXPORTERS.keys()
+    toolchainlist = list(EXPORTERS.keys())
     toolchainlist.sort()
 
     parser.add_argument("-m", "--mcu",
@@ -259,7 +261,7 @@ def main():
                 cls.clean(basename(abspath(options.source_dir[0])))
             except (NotImplementedError, IOError, OSError):
                 pass
-        for f in EXPORTERS.values()[0].CLEAN_FILES:
+        for f in list(EXPORTERS.values())[0].CLEAN_FILES:
             try:
                 remove(f)
             except (IOError, OSError):
