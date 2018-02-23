@@ -742,7 +742,7 @@
         "macros": ["CPU_LPC54114J256BD64_cm4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["1054"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name" : "LPC54114J256BD64"
     },
@@ -753,7 +753,7 @@
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "features": ["LWIP"],
         "device_name" : "LPC54628J512ET180"
     },
