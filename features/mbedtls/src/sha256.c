@@ -246,15 +246,6 @@ int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
 
     return( 0 );
 }
-#else
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
-                             const unsigned char data[64] )
-{
-    mbedtls_sha256_process( ctx, data );
-    return( 0 );
-}
-#endif
 #endif /* !MBEDTLS_SHA256_PROCESS_ALT */
 
 /*
@@ -375,6 +366,16 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
 
 #endif /* !MBEDTLS_SHA256_ALT */
 
+#if defined(MBEDTLS_SHA256_ALT) && defined(MBEDTLS_SHA256_PROCESS_ALT)
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
+                             const unsigned char data[64] )
+{
+    mbedtls_sha256_process( ctx, data );
+    return( 0 );
+}
+#endif
+#endif
 /*
  * output = SHA-256( input buffer )
  */

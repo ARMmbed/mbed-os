@@ -224,15 +224,6 @@ int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
 
     return( 0 );
 }
-#else
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
-                          const unsigned char data[64] )
-{
-    mbedtls_md4_process( ctx, data );
-    return( 0 );
-}
-#endif
 #endif /* !MBEDTLS_MD4_PROCESS_ALT */
 
 /*
@@ -353,6 +344,16 @@ void mbedtls_md4_finish( mbedtls_md4_context *ctx,
 
 #endif /* !MBEDTLS_MD4_ALT */
 
+#if defined(MBEDTLS_MD4_ALT) && defined(MBEDTLS_MD4_PROCESS_ALT)
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
+                          const unsigned char data[64] )
+{
+    mbedtls_md4_process( ctx, data );
+    return( 0 );
+}
+#endif
+#endif
 /*
  * output = MD4( input buffer )
  */
