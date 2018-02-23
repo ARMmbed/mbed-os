@@ -468,7 +468,7 @@ private:
     bool _master_sends_keys;
     bool _public_keys_generated;
 
-    /** There is always only one OOB data set stored at a time (for now) */
+    /** There is always only one OOB data set stored at a time */
     address_t _peer_sc_oob_address;
     oob_rand_t _peer_sc_oob_random;
     oob_confirm_t _peer_sc_oob_confirm;

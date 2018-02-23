@@ -27,6 +27,9 @@ namespace ble {
 namespace pal {
 
 
+/**
+ * Security flags associated with a bond.
+ */
 struct SecurityDistributionFlags_t {
     SecurityDistributionFlags_t() :
         peer_address(),
@@ -74,7 +77,7 @@ struct SecurityEntryIdentity_t {
 class SecurityDb {
 public:
     /**
-     * Opaque type representing an handle to a database entry.
+     * Opaque type representing a handle to a database entry.
      */
     typedef void* entry_handle_t;
 
@@ -91,18 +94,21 @@ public:
     virtual ~SecurityDb() { };
 
     /**
-     * Return immediately security entry containing the state
-     * information for active connection.
+     * Return immediately security flags associated to a db entry.
      *
-     * @param[in] handle valid connection handle
-     * @return pointer to security entry, NULL if handle was invalid
+     * @param[in] db_entry Entry of the database queried.
+     * @return pointer to the flags or NULL if the entry do not have any
+     * associated flags.
      */
     virtual const SecurityDistributionFlags_t* get_distribution_flags(
         entry_handle_t db_entry
     ) = 0;
 
     /**
-     * Set the distribution flags of the DB entry
+     * Set the distribution flags of a DB entry.
+     *
+     * @param[in] db_entry Entry of the database that will store the flags.
+     * @param[in] flags Distribution flags to store in @p db_entry.
      */
     virtual void set_distribution_flags(
         entry_handle_t db_entry,
@@ -115,7 +121,7 @@ public:
      * Retrieve stored LTK based on passed in EDIV and RAND values.
      *
      * @param[in] cb callback that will receive the LTK struct
-     * @param[in] connection handle for the connection requesting the key
+     * @param[in] db_entry handle of the entry being queried.
      * @param[in] ediv one of the values used to identify the LTK
      * @param[in] rand one of the values used to identify the LTK
      */
@@ -130,7 +136,7 @@ public:
      * Retrieve stored LTK generated during secure connections pairing.
      *
      * @param[in] cb callback that will receive the LTK struct
-     * @param[in] connection handle for the connection requesting the key
+     * @param[in] db_entry handle of the entry being queried.
      */
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
@@ -140,9 +146,9 @@ public:
     /**
      * Save new local LTK for a connection.
      *
-     * @param[in] connection handle for which the LTK is being updated
-     * @param[in] ltk the new LTK, if the device is slave, this is the LTK that will
-     *            be used when link is encrypted
+     * @param[in] db_entry handle of the entry being updated.
+     * @param[in] ltk the new LTK, if the device is slave, this is the LTK that
+     * will be used when link is encrypted
      */
     virtual void set_entry_local_ltk(
         entry_handle_t db_entry,
@@ -152,7 +158,7 @@ public:
     /**
      * Update EDIV and RAND used to identify the LTK.
      *
-     * @param[in] connection handle for the connection which values are being updated
+     * @param[in] db_entry handle of the entry being updated.
      * @param[in] ediv new EDIV value
      * @param[in] rand new RAND value
      */
@@ -169,7 +175,7 @@ public:
      * so that signed packets can be verified.
      *
      * @param[in] cb callback which will receive the key
-     * @param[in] connection handle of the connection queried
+     * @param[in] db_entry handle of the entry being queried.
      */
     virtual void get_entry_peer_csrk(
         SecurityEntryCsrkDbCb_t cb,
@@ -181,7 +187,7 @@ public:
      * so that encryption can be enabled.
      *
      * @param[in] cb callback which will receive the key
-     * @param[in] connection handle of the connection queried
+     * @param[in] db_entry handle of the entry being queried.
      */
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
@@ -191,9 +197,9 @@ public:
     /**
      * Save new LTK received from the peer.
      *
-     * @param[in] connection handle for which the LTK is being updated
-     * @param[in] ltk the new LTK, if the peer device is slave, this is the LTK that will
-     *            be used when link is encrypted
+     * @param[in] db_entry handle of the entry being updated.
+     * @param[in] ltk the new LTK, if the peer device is slave, this is the LTK
+     * that will be used when link is encrypted
      */
     virtual void set_entry_peer_ltk(
         entry_handle_t db_entry,
@@ -203,7 +209,7 @@ public:
     /**
      * Update EDIV and RAND used to identify the LTK sent by the peer.
      *
-     * @param[in] connection handle for the connection which values are being updated
+     * @param[in] db_entry handle of the entry being updated.
      * @param[in] ediv new EDIV value
      * @param[in] rand new RAND value
      */
@@ -216,7 +222,7 @@ public:
     /**
      * Update IRK for this connection.
      *
-     * @param[in] connection handle of the connection being updated
+     * @param[in] db_entry handle of the entry being updated.
      * @param[in] irk new IRK value
      */
     virtual void set_entry_peer_irk(
@@ -227,7 +233,7 @@ public:
     /**
      * Update the identity address of the peer.
      *
-     * @param[in] connection connection for the peer address being updated
+     * @param[in] db_entry handle of the entry being updated.
      * @param[in] address_is_public is the identity address public or private
      * @param[in] peer_address the new address
      */
@@ -240,7 +246,7 @@ public:
     /**
      * Update peer signing key.
      *
-     * @param[in] connection handle of the connection being updated
+     * @param[in] db_entry handle of the entry being updated.
      * @param[in] csrk new CSRK value
      */
     virtual void set_entry_peer_csrk(
@@ -296,14 +302,14 @@ public:
     /**
      * Open a database entry.
      *
-     * While this entry is opened; it can be queried and modified with the help
+     * While this entry is opened; it can be queried and updated with the help
      * of the database setter and getter functions.
      *
      * @param[in] peer_address_type type of address
      * @param[in] peer_address this address will be used to locate an existing
      * entry.
      *
-     * @return An handle to the entry.
+     * @return A handle to the entry.
      */
     virtual entry_handle_t open_entry(
         BLEProtocol::AddressType_t peer_address_type,
@@ -313,14 +319,15 @@ public:
     /**
      * Close a connection entry.
      *
-     * @param[in] entry this handle will be freed up from the security db.
+     * @param[in] db_entry this handle will be freed up from the security db.
      */
     virtual void close_entry(entry_handle_t db_entry) = 0;
 
     /**
      * Remove entry for this peer from NVM.
      *
-     * @param[in] peer_identity_address peer address that no longer needs NVM storage.
+     * @param[in] peer_identity_address peer address that no longer needs NVM
+     * storage.
      */
     virtual void remove_entry(const address_t peer_identity_address) = 0;
 
@@ -330,9 +337,9 @@ public:
     virtual void clear_entries() = 0;
 
     /**
-     * Asynchronously return the whitelist stored in NVM through a callback. Function
-     * takes ownership of the memory. The whitelist and the ownership will be returned
-     * in the callback.
+     * Asynchronously return the whitelist stored in NVM through a callback.
+     * Function takes ownership of the memory. The whitelist and the ownership
+     * will be returned in the callback.
      *
      * @param[in] cb callback that will receive the whitelist
      * @param[in] whitelist preallocated whitelist that will be filled in
@@ -343,9 +350,9 @@ public:
     ) = 0;
 
     /**
-     * Asynchronously return a whitelist through a callback, generated from the bond table.
-     * Function takes ownership of the memory. The whitelist and the ownership will be
-     * returned in the callback.
+     * Asynchronously return a whitelist through a callback, generated from the
+     * bond table. Function takes ownership of the memory. The whitelist and the
+     * ownership will be returned in the callback.
      *
      * @param[in] cb callback that will receive the whitelist
      * @param[in] whitelist preallocated whitelist that will be filled in
