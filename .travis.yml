@@ -79,8 +79,12 @@ matrix:
         - sudo add-apt-repository -y ppa:deadsnakes/ppa
         - sudo apt-get update
         - sudo apt-get install gcc-arm-embedded python{2.7,3.5,3.6}
-        - pip install -r requirements.txt
-        - pip install pytest pylint hypothesis mock coverage coveralls
+        - pip2.7 install -r requirements.txt
+        - pip3.5 install -r requirements.txt
+        - pip3.6 install -r requirements.txt
+        - pip2.7 install pytest pylint hypothesis mock coverage coveralls
+        - pip3.5 install pytest pylint hypothesis mock coverage coveralls
+        - pip3.6 install pytest pylint hypothesis mock coverage coveralls
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python2.7 --version
