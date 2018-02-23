@@ -109,6 +109,13 @@ int mbedtls_ripemd160_starts_ret( mbedtls_ripemd160_context *ctx )
 }
 #endif
 
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+void mbedtls_ripemd160_starts( mbedtls_ripemd160_context *ctx )
+{
+    mbedtls_ripemd160_starts_ret( ctx );
+}
+#endif
+
 #if !defined(MBEDTLS_RIPEMD160_PROCESS_ALT)
 /*
  * Process one block
@@ -408,6 +415,14 @@ int mbedtls_ripemd160_finish_ret( mbedtls_ripemd160_context *ctx,
 
     return( 0 );
 }
+
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+void mbedtls_ripemd160_finish( mbedtls_ripemd160_context *ctx,
+                               unsigned char output[20] )
+{
+    mbedtls_ripemd160_finish_ret( ctx, output );
+}
+#endif
 
 #endif /* ! MBEDTLS_RIPEMD160_ALT */
 

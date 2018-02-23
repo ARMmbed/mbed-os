@@ -39,11 +39,6 @@
 
 #define MBEDTLS_ERR_SHA1_HW_ACCEL_FAILED                  -0x0035  /**< SHA-1 hardware accelerator failed */
 
-#if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
-    !defined(inline) && !defined(__cplusplus)
-#define inline __inline
-#endif
-
 #if !defined(MBEDTLS_SHA1_ALT)
 // Regular implementation
 //
@@ -198,11 +193,7 @@ int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx,
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED static inline void mbedtls_sha1_starts(
-                                                mbedtls_sha1_context *ctx )
-{
-    mbedtls_sha1_starts_ret( ctx );
-}
+MBEDTLS_DEPRECATED void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          This function feeds an input buffer into an ongoing SHA-1
@@ -223,13 +214,9 @@ MBEDTLS_DEPRECATED static inline void mbedtls_sha1_starts(
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED static inline void mbedtls_sha1_update(
-                                                mbedtls_sha1_context *ctx,
-                                                const unsigned char *input,
-                                                size_t ilen )
-{
-    mbedtls_sha1_update_ret( ctx, input, ilen );
-}
+MBEDTLS_DEPRECATED void mbedtls_sha1_update( mbedtls_sha1_context *ctx,
+                                             const unsigned char *input,
+                                             size_t ilen );
 
 /**
  * \brief          This function finishes the SHA-1 operation, and writes
@@ -252,12 +239,8 @@ MBEDTLS_DEPRECATED static inline void mbedtls_sha1_update(
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED static inline void mbedtls_sha1_finish(
-                                                mbedtls_sha1_context *ctx,
-                                                unsigned char output[20] )
-{
-    mbedtls_sha1_finish_ret( ctx, output );
-}
+MBEDTLS_DEPRECATED void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
+                                             unsigned char output[20] );
 
 /**
  * \brief          SHA-1 process data block (internal use only)
@@ -272,12 +255,8 @@ MBEDTLS_DEPRECATED static inline void mbedtls_sha1_finish(
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED static inline void mbedtls_sha1_process(
-                                                mbedtls_sha1_context *ctx,
-                                                const unsigned char data[64] )
-{
-    mbedtls_internal_sha1_process( ctx, data );
-}
+MBEDTLS_DEPRECATED void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
+                                              const unsigned char data[64] );
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */
@@ -431,12 +410,9 @@ int mbedtls_sha1_ret( const unsigned char *input,
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED static inline void mbedtls_sha1( const unsigned char *input,
-                                                    size_t ilen,
-                                                    unsigned char output[20] )
-{
-    mbedtls_sha1_ret( input, ilen, output );
-}
+MBEDTLS_DEPRECATED void mbedtls_sha1( const unsigned char *input,
+                                      size_t ilen,
+                                      unsigned char output[20] );
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */

@@ -107,6 +107,13 @@ int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx )
 }
 #endif
 
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+void mbedtls_md5_starts( mbedtls_md5_context *ctx )
+{
+    mbedtls_md5_starts_ret( ctx );
+}
+#endif
+
 #if !defined(MBEDTLS_MD5_PROCESS_ALT)
 int mbedtls_internal_md5_process( mbedtls_md5_context *ctx,
                                   const unsigned char data[64] )
