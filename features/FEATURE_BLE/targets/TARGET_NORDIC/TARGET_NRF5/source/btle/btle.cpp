@@ -95,6 +95,69 @@ static uint32_t signalEvent()
     return NRF_SUCCESS;
 }
 
+/**
+ * This function is based on softdevice_enable() from 
+ * sdk\source\softdevice\common\softdevice_handler\softdevice_handler.c
+ * It has been updated to log adjustments mesired or required to mbed config 
+ * target.softdevice_ram_allocation setting
+
+/*lint --e{10} --e{27} --e{40} --e{529} -save */
+uint32_t btle_softdevice_enable(ble_enable_params_t * p_ble_enable_params)
+{
+#if (defined(S130) || defined(S132) || defined(S332) || defined(S140))
+    uint32_t err_code;
+    uint32_t app_ram_base;
+    const uint32_t ram_base = 0x20000000;
+
+#if defined ( __CC_ARM ) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+    extern uint32_t Image$$RW_IRAM1$$Base;
+    const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
+#elif defined ( __ICCARM__ )
+    extern uint32_t __ICFEDIT_region_RAM_start__;
+    volatile uint32_t ram_start = (uint32_t) &__ICFEDIT_region_RAM_start__;
+#elif defined   ( __GNUC__ )
+    extern uint32_t __data_start__;
+    volatile uint32_t ram_start = (uint32_t) &__data_start__;
+#endif
+
+    app_ram_base = ram_start;
+    NRF_LOG_DEBUG("sd_ble_enable: RAM start at 0x%x\r\n",
+                    app_ram_base);
+    err_code = sd_ble_enable(p_ble_enable_params, &app_ram_base);
+
+#if defined   ( __GNUC__ )
+    if (err_code == NRF_ERROR_NO_MEM)
+    {
+        error("sd_ble_enable: target.softdevice_ram_alloc must be increased to 0x%x\r\n",
+                app_ram_base-ram_base);
+    } 
+    else if (app_ram_base != ram_start)
+    {
+        #ifndef NDEBUG
+        printf("sd_ble_enable: target.softdevice_ram_alloc should be set to 0x%x\r\n",
+                app_ram_base-ram_base);
+        #endif
+    }
+#else
+    if (app_ram_base != ram_start)
+    {
+        #ifndef NDEBUG
+        printf("sd_ble_enable: RAM start should be adjusted to 0x%x\r\n",
+                app_ram_base);
+        #endif
+    }
+#endif
+    else if (err_code != NRF_SUCCESS)
+    {
+        error("sd_ble_enable: error 0x%x\r\n", err_code);
+    }
+    return err_code;
+#else
+    return NRF_SUCCESS;
+#endif   //defined(S130) || defined(S132) || defined(S332) || defined(S140)
+}
+/*lint -restore*/
+
 
 error_t btle_init(void)
 {
@@ -127,10 +190,7 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    err_code = softdevice_enable(&ble_enable_params);
-    if (err_code == NRF_ERROR_NO_MEM) {
-        error("Linker file has not enough ram assigned for softdevice config");
-    }
+    err_code = btle_softdevice_enable(&ble_enable_params);
     if (err_code != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
     }
