@@ -3261,6 +3261,11 @@
                 "value": "8",
                 "macro_name": "MBED_CONF_SD_RAM_ALLOC"
             },
+            "debug_softdevice_ram_alloc": {
+                "help": "If set, check RAM set aside for the softdevice. Will breakpoint/printf if a discrepancy is detected. GCC only.",
+                "value": "0",
+                "macro_name": "MBED_CONF_DEBUG_SD_RAM_ALLOC"
+            },
             "nrf_central_link_count": {
                 "help": "When acting as BLE central, how many peripherals can connect",
                 "value": "3",

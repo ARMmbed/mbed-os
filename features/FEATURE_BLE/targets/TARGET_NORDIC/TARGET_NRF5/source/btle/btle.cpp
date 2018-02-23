@@ -133,9 +133,11 @@ uint32_t btle_softdevice_enable(ble_enable_params_t * p_ble_enable_params)
     } 
     else if (app_ram_base != ram_start)
     {
-        #ifndef NDEBUG
+        #if MBED_CONF_DEBUG_SD_RAM_ALLOC
+        volatile uint32_t softdevice_ram_alloc = app_ram_base-ram_base;
+        __BKPT('0');
         printf("sd_ble_enable: target.softdevice_ram_alloc should be set to 0x%x\r\n",
-                app_ram_base-ram_base);
+               softdevice_ram_alloc);
         #endif
     }
 #else
