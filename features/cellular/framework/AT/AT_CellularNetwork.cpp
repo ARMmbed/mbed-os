@@ -80,7 +80,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
     if (apn && (len = strlen(apn)) > 0) {
         _apn = (char*)malloc(len*sizeof(char)+1);
         if (_apn) {
-            memcpy(_apn, apn, len);
+            memcpy(_apn, apn, len+1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -89,7 +89,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
     if (username && (len = strlen(username)) > 0) {
         _uname = (char*)malloc(len*sizeof(char)+1);
         if (_uname) {
-            memcpy(_uname, username, len);
+            memcpy(_uname, username, len+1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -98,7 +98,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
     if (password && (len = strlen(password)) > 0) {
         _pwd = (char*)malloc(len*sizeof(char)+1);
         if (_pwd) {
-            memcpy(_pwd, password, len);
+            memcpy(_pwd, password, len+1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -433,7 +433,7 @@ bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
     if (apn_len > 0 && !_apn) {
         _apn = (char*)malloc(apn_len*sizeof(char)+1);
         if (_apn) {
-            memcpy(_apn, apn, apn_len);
+            memcpy(_apn, apn, apn_len+1);
         } else {
             return false;
         }
