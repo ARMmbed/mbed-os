@@ -35,27 +35,48 @@
 static int fat_error_remap(FRESULT res)
 {
     switch(res) {
-        case FR_OK:                   return 0;           // (0) Succeeded
-        case FR_DISK_ERR:             return -EIO;        // (1) A hard error occurred in the low level disk I/O layer
-        case FR_INT_ERR:              return -1;          // (2) Assertion failed
-        case FR_NOT_READY:            return -EIO;        // (3) The physical drive cannot work
-        case FR_NO_FILE:              return -ENOENT;     // (4) Could not find the file
-        case FR_NO_PATH:              return -ENOTDIR;    // (5) Could not find the path
-        case FR_INVALID_NAME:         return -EINVAL;     // (6) The path name format is invalid
-        case FR_DENIED:               return -EACCES;     // (7) Access denied due to prohibited access or directory full
-        case FR_EXIST:                return -EEXIST;     // (8) Access denied due to prohibited access
-        case FR_INVALID_OBJECT:       return -EBADF;      // (9) The file/directory object is invalid
-        case FR_WRITE_PROTECTED:      return -EACCES;     // (10) The physical drive is write protected
-        case FR_INVALID_DRIVE:        return -ENODEV;     // (11) The logical drive number is invalid
-        case FR_NOT_ENABLED:          return -ENODEV;     // (12) The volume has no work area
-        case FR_NO_FILESYSTEM:        return -EINVAL;     // (13) There is no valid FAT volume
-        case FR_MKFS_ABORTED:         return -EIO;        // (14) The f_mkfs() aborted due to any problem
-        case FR_TIMEOUT:              return -ETIMEDOUT;  // (15) Could not get a grant to access the volume within defined period
-        case FR_LOCKED:               return -EBUSY;      // (16) The operation is rejected according to the file sharing policy
-        case FR_NOT_ENOUGH_CORE:      return -ENOMEM;     // (17) LFN working buffer could not be allocated
-        case FR_TOO_MANY_OPEN_FILES:  return -ENFILE;     // (18) Number of open files > FF_FS_LOCK
-        case FR_INVALID_PARAMETER:    return -EINVAL;     // (19) Given parameter is invalid
-        default:                      return -res;
+        case FR_OK:                   // (0) Succeeded
+            return 0;
+        case FR_DISK_ERR:             // (1) A hard error occurred in the low level disk I/O layer
+            return -EIO;
+        case FR_INT_ERR:              // (2) Assertion failed
+            return -1;
+        case FR_NOT_READY:            // (3) The physical drive cannot work
+            return -EIO;
+        case FR_NO_FILE:              // (4) Could not find the file
+            return -ENOENT;
+        case FR_NO_PATH:              // (5) Could not find the path
+            return -ENOTDIR;
+        case FR_INVALID_NAME:         // (6) The path name format is invalid
+            return -EINVAL;
+        case FR_DENIED:               // (7) Access denied due to prohibited access or directory full
+            return -EACCES;
+        case FR_EXIST:                // (8) Access denied due to prohibited access
+            return -EEXIST;
+        case FR_INVALID_OBJECT:       // (9) The file/directory object is invalid
+            return -EBADF;
+        case FR_WRITE_PROTECTED:      // (10) The physical drive is write protected
+            return -EACCES;
+        case FR_INVALID_DRIVE:        // (11) The logical drive number is invalid
+            return -ENODEV;
+        case FR_NOT_ENABLED:          // (12) The volume has no work area
+            return -ENODEV;
+        case FR_NO_FILESYSTEM:        // (13) There is no valid FAT volume
+            return -EINVAL;
+        case FR_MKFS_ABORTED:         // (14) The f_mkfs() aborted due to any problem
+            return -EIO;
+        case FR_TIMEOUT:              // (15) Could not get a grant to access the volume within defined period
+            return -ETIMEDOUT;
+        case FR_LOCKED:               // (16) The operation is rejected according to the file sharing policy
+            return -EBUSY;
+        case FR_NOT_ENOUGH_CORE:      // (17) LFN working buffer could not be allocated
+            return -ENOMEM;
+        case FR_TOO_MANY_OPEN_FILES:  // (18) Number of open files > FF_FS_LOCK
+            return -ENFILE;
+        case FR_INVALID_PARAMETER:    // (19) Given parameter is invalid
+            return -EINVAL;
+        default:
+            return -res;
     }
 }
 
