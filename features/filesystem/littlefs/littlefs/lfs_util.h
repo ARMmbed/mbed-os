@@ -37,16 +37,18 @@
 // macros must not have side-effects as the macros can be removed for a smaller
 // code footprint
 
-// Logging functions
 #ifdef __MBED__
 #include "mbed_debug.h"
+#include "mbed_assert.h"
 #else
-#define MBED_LFS_ENABLE_INFO  false
-#define MBED_LFS_ENABLE_DEBUG true
-#define MBED_LFS_ENABLE_WARN  true
-#define MBED_LFS_ENABLE_ERROR true
+#define MBED_LFS_ENABLE_INFO   false
+#define MBED_LFS_ENABLE_DEBUG  true
+#define MBED_LFS_ENABLE_WARN   true
+#define MBED_LFS_ENABLE_ERROR  true
+#define MBED_LFS_ENABLE_ASSERT true
 #endif
 
+// Logging functions
 #if !defined(LFS_NO_INFO) && MBED_LFS_ENABLE_INFO
 #define LFS_INFO(fmt, ...)  printf("lfs info:%d: " fmt "\n", __LINE__, __VA_ARGS__)
 #elif !defined(LFS_NO_INFO) && !defined(MBED_LFS_ENABLE_INFO)
@@ -80,8 +82,10 @@
 #endif
 
 // Runtime assertions
-#ifndef LFS_NO_ASSERT
+#if !defined(LFS_NO_ASSERT) && MBED_LFS_ENABLE_ASSERT
 #define LFS_ASSERT(test) assert(test)
+#elif !defined(LFS_NO_ASSERT) && !defined(MBED_LFS_ENABLE_ASSERT)
+#define LFS_ASSERT(test) MBED_ASSERT(test)
 #else
 #define LFS_ASSERT(test)
 #endif

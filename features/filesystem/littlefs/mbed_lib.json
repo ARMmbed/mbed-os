@@ -40,6 +40,11 @@
         "macro_name": "MBED_LFS_ENABLE_ERROR",
         "value": null,
         "help": "Enables error logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_assert": {
+        "macro_name": "MBED_LFS_ENABLE_ASSERT",
+        "value": null,
+        "help": "Enables asserts, true = enabled, false = disabled, null = disabled only in release builds"
     }
   }
 }
