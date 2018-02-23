@@ -702,6 +702,9 @@ nsapi_error_t PPPCellularInterface::connect()
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
         retcode = nsapi_ppp_connect(_fh, callback(this, &PPPCellularInterface::ppp_status_cb), _uname, _pwd, _stack);
+        if (retcode == NSAPI_ERROR_OK && _connect_is_blocking) {
+            _connect_status = NSAPI_STATUS_GLOBAL_UP;
+        }
     } while ((_connect_status == NSAPI_STATUS_CONNECTING && _connect_is_blocking) &&
             apn_config && *apn_config);
 

@@ -444,9 +444,7 @@ static bool lwip_ppp = false;
 
 static nsapi_error_t mbed_set_dhcp(struct netif *lwip_netif)
 {
-    if (!lwip_ppp) {
-        netif_set_up(lwip_netif);
-    }
+    netif_set_up(lwip_netif);
 
 #if LWIP_DHCP
     if (lwip_dhcp && lwip_dhcp_has_to_be_set) {
