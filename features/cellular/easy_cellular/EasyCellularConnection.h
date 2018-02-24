@@ -136,6 +136,7 @@ private:
 
     bool _is_connected;
     bool _is_initialized;
+    bool _credentials_set;
     CellularConnectionUtil::CellularState _target_state;
 
     UARTSerial _cellularSerial;

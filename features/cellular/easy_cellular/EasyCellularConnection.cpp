@@ -26,8 +26,11 @@
 #include "CellularUtil.h"
 
 #include "EasyCellularConnection.h"
-
 #include "CellularLog.h"
+
+#if MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP
+#include "APN_db.h"
+#endif //MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP
 
 namespace mbed {
 
@@ -50,7 +53,7 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
 }
 
 EasyCellularConnection::EasyCellularConnection() :  _is_connected(false), _is_initialized(false),
-        _target_state(CellularConnectionUtil::STATE_POWER_ON),
+        _credentials_set(false), _target_state(CellularConnectionUtil::STATE_POWER_ON),
         _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE),
         _cellularSemaphore(0), _cellularConnectionUtil(), _credentials_err(NSAPI_ERROR_OK)
 {
@@ -67,7 +70,7 @@ nsapi_error_t EasyCellularConnection::init()
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_is_initialized) {
 #if defined (MDMRTS) && defined (MDMCTS)
-    _cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
+        _cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
 #endif
         _cellularConnectionUtil.set_serial(&_cellularSerial);
         _cellularConnectionUtil.set_callback(callback(this, &EasyCellularConnection::cellular_status));
@@ -85,16 +88,21 @@ nsapi_error_t EasyCellularConnection::init()
 
 void EasyCellularConnection::set_credentials(const char *apn, const char *uname, const char *pwd)
 {
-    _credentials_err = init();
+    if (apn && strlen(apn) > 0) {
+        _credentials_err = init();
 
-    if (_credentials_err) {
-        return;
-    }
-    CellularNetwork * network = _cellularConnectionUtil.get_network();
-    if (network) {
-        _credentials_err = network->set_credentials(apn, uname, pwd);
-    } else {
-        tr_error("NO Network...");
+        if (_credentials_err) {
+            return;
+        }
+        CellularNetwork * network = _cellularConnectionUtil.get_network();
+        if (network) {
+            _credentials_err = network->set_credentials(apn, uname, pwd);
+            if (_credentials_err == NSAPI_ERROR_OK) {
+                _credentials_set = true;
+            }
+        } else {
+            tr_error("NO Network...");
+        }
     }
 }
 
@@ -107,18 +115,17 @@ void EasyCellularConnection::set_sim_pin(const char *sim_pin)
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
-    nsapi_error_t err = check_connect();
-    if (err) {
-        return err;
+    if (_is_connected) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    }
+
+    set_credentials(apn, uname, pwd);
+    if (_credentials_err) {
+        return _credentials_err;
     }
 
     if (sim_pin) {
         _cellularConnectionUtil.set_sim_pin(sim_pin);
-    }
-
-    err = _cellularConnectionUtil.get_network()->set_credentials(apn, uname, pwd);
-    if (err) {
-        return err;
     }
 
     return connect();
@@ -129,6 +136,12 @@ nsapi_error_t EasyCellularConnection::check_connect()
     if (_is_connected) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
+
+    // there was an error while setting credentials but it's a void function so check error here...
+    if (_credentials_err) {
+        return _credentials_err;
+    }
+
     nsapi_error_t err = init();
     if (err) {
         return err;
@@ -139,15 +152,39 @@ nsapi_error_t EasyCellularConnection::check_connect()
 
 nsapi_error_t EasyCellularConnection::connect()
 {
-    // there was an error while setting credentials but it's a void function so check error here...
-    if (_credentials_err) {
-        return _credentials_err;
-    }
-
     nsapi_error_t err = check_connect();
     if (err) {
         return err;
     }
+#if MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP
+    if (!_credentials_set) {
+        _target_state = CellularConnectionUtil::STATE_SIM_PIN;
+        err = _cellularConnectionUtil.continue_to_state(_target_state);
+        if (err == NSAPI_ERROR_OK) {
+            int sim_wait = _cellularSemaphore.wait(6*1000); // reserve 6 seconds to access to SIM
+            if (sim_wait != 1) {
+                tr_error("NO SIM ACCESS");
+                err = NSAPI_ERROR_NO_CONNECTION;
+            } else {
+                char imsi[MAX_IMSI_LENGTH+1];
+                err = _cellularConnectionUtil.get_sim()->get_imsi(imsi);
+                if (err == NSAPI_ERROR_OK) {
+                    const char *apn_config = apnconfig(imsi);
+                    if (apn_config) {
+                        const char* apn = _APN_GET(apn_config);
+                        const char* uname = _APN_GET(apn_config);
+                        const char* pwd = _APN_GET(apn_config);
+                        tr_info("Looked up APN %s", apn);
+                        err = _cellularConnectionUtil.get_network()->set_credentials(apn, uname, pwd);
+                    }
+                }
+            }
+        }
+        if (err) {
+            return err;
+        }
+    }
+#endif // MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP
 
     _target_state = CellularConnectionUtil::STATE_CONNECTED;
     err = _cellularConnectionUtil.continue_to_state(_target_state);
@@ -166,6 +203,7 @@ nsapi_error_t EasyCellularConnection::disconnect()
 {
     _credentials_err = NSAPI_ERROR_OK;
     _is_connected = false;
+    _credentials_set = false;
     if (!_cellularConnectionUtil.get_network()) {
         return NSAPI_ERROR_NO_CONNECTION;
     }

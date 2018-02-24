@@ -36,7 +36,7 @@ static CELLULAR_DEVICE cellularDevice(at_queue);
 static char device_info_buf[2048];
 
 CellularConnectionUtil::CellularConnectionUtil() : _serial(0), _state(STATE_POWER_ON), _next_state(_state),
-        _status_callback(0), _network(0), _power(0), _queue(8 * EVENTS_EVENT_SIZE),
+        _status_callback(0), _network(0), _power(0), _sim(0), _queue(8 * EVENTS_EVENT_SIZE),
         _queue_thread(0), _cellularDevice(&cellularDevice)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
@@ -56,6 +56,12 @@ nsapi_error_t CellularConnectionUtil::init()
     }
     _network = _cellularDevice->open_network(_serial);
     if (!_network) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    _sim = _cellularDevice->open_sim(_serial);
+    if (!_sim) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -94,43 +100,38 @@ void CellularConnectionUtil::set_sim_pin(const char * sim_pin)
 
 bool CellularConnectionUtil::open_sim()
 {
+    CellularSIM::SimState state = CellularSIM::SimStateUnknown;
+    // wait until SIM is readable
+    // here you could add wait(secs) if you know start delay of your SIM
+    while (_sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
+        tr_info("Waiting for SIM (state %d)...", state);
+        return false;
+    }
+    tr_info("Initial SIM state: %d", state);
+
     if (strlen(_sim_pin)) {
         nsapi_error_t err;
-        static CellularSIM *sim;
-        if (!sim) {
-            sim = _cellularDevice->open_sim(_serial);
-        }
-        if (!sim) {
-            return false;
-        }
-        CellularSIM::SimState state = CellularSIM::SimStateUnknown;
-        // wait until SIM is readable
-        // here you could add wait(secs) if you know start delay of your SIM
-        while (sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
-            tr_debug("Waiting for SIM (state %d)...", state);
-            return false;
-        }
         if (state == CellularSIM::SimStatePinNeeded) {
             tr_info("SIM pin required, entering pin: %s", _sim_pin);
-            err = sim->set_pin(_sim_pin);
+            err = _sim->set_pin(_sim_pin);
             if (err) {
                 tr_error("SIM pin set failed with: %d, bailing out...", err);
                 return false;
             }
             // here you could add wait(secs) if you know delay of changing PIN on your SIM
             for (int i = 0; i < MAX_SIM_READY_WAITING_TIME; i++) {
-                if (sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
+                if (_sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
                     break;
                 }
                 tr_debug("SIM state: %d", state);
                 return false;
             }
         }
-        return state == CellularSIM::SimStateReady;
     } else {
-        tr_info("Continue without SIM.");
-        return true;
+        tr_info("No SIM pin provided.");
     }
+
+    return state == CellularSIM::SimStateReady;
 }
 
 void CellularConnectionUtil::device_ready()
@@ -504,6 +505,11 @@ CellularNetwork* CellularConnectionUtil::get_network()
 CellularDevice* CellularConnectionUtil::get_device()
 {
     return _cellularDevice;
+}
+
+CellularSIM* CellularConnectionUtil::get_sim()
+{
+    return _sim;
 }
 
 NetworkStack *CellularConnectionUtil::get_stack()

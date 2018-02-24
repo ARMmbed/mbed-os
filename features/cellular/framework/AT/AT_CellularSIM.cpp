@@ -114,3 +114,17 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
     }
     return _at.unlock_return_error();
 }
+
+nsapi_error_t AT_CellularSIM::get_imsi(char* imsi)
+{
+    _at.lock();
+    _at.cmd_start("AT+CIMI");
+    _at.cmd_stop();
+    _at.resp_start();
+    int len = _at.read_string(imsi, MAX_IMSI_LENGTH);
+    if (len > 0) {
+        imsi[len] = '\0';
+    }
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}
