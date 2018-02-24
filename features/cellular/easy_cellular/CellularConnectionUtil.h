@@ -28,6 +28,7 @@
 
 #include "CellularNetwork.h"
 #include "CellularPower.h"
+#include "CellularSIM.h"
 
 // modem type is defined as CELLULAR_DEVICE macro
 #define _CELLULAR_STRINGIFY(a) #a
@@ -105,6 +106,11 @@ public:
      */
     CellularDevice* get_device();
 
+    /** Get cellular sim interface
+     *  @return sim interface, NULL on failure
+     */
+    CellularSIM* get_sim();
+
     /** Change cellular connection to the target state
      *  @param state to continue
      *  @return see nsapi_error_t, 0 on success
@@ -142,6 +148,7 @@ private:
 
     CellularNetwork *_network;
     CellularPower *_power;
+    CellularSIM *_sim;
     events::EventQueue _queue;
     rtos::Thread *_queue_thread;
     CellularDevice *_cellularDevice;

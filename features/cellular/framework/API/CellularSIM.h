@@ -23,7 +23,7 @@
 namespace mbed {
 
 const int MAX_SIM_READY_WAITING_TIME = 30;
-
+const int MAX_IMSI_LENGTH = 15;
 /**
  *  Class CellularSIM
  *
@@ -78,6 +78,13 @@ public:
      *  @return         zero on success
      */
     virtual nsapi_error_t get_sim_state(SimState &state) = 0;
+
+    /** Get IMSI from the sim card
+     *
+     *  @param imsi     preallocated char* which after successful request contains imsi
+     *  @return         zero on success
+     */
+    virtual nsapi_error_t get_imsi(char* imsi) = 0;
 };
 
 } // namespace mbed

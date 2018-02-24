@@ -43,6 +43,8 @@ public:
     virtual nsapi_error_t set_pin_query(const char *sim_pin, bool query_pin);
 
     virtual nsapi_error_t get_sim_state(SimState &state);
+
+    virtual nsapi_error_t get_imsi(char* imsi);
 };
 
 } // namespace mbed
