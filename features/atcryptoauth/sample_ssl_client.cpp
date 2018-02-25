@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if defined(DEVICE_ETHERNET)
 /* Mbed TLS includes */
 #if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
@@ -369,3 +370,11 @@ exit:
     mbedtls_pk_free( &clientkey);
 }
 
+#else
+#include <stdio.h>
+
+void run_ssl_client()
+{
+    printf( "\r\n****** No ethernet interface **********\r\n" );
+}
+#endif /* DEVICE_ETHERNET */
