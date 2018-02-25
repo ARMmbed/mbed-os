@@ -89,6 +89,8 @@ typedef enum {
     // I2C pins
     I2C0_SCL = P1_7,
     I2C0_SDA = P1_6,
+    I2C_SCL = P1_7,
+    I2C_SDA = P1_6,
 
     I2C1_SCL = P3_5,
     I2C1_SDA = P3_4,
