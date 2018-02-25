@@ -16,6 +16,7 @@ limitations under the License.
 
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
+from __future__ import print_function
 
 import os
 import re
@@ -29,13 +30,15 @@ import datetime
 import threading
 import ctypes
 import functools
-from types import ListType
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
 from copy import copy
 
 from time import sleep, time
-from Queue import Queue, Empty
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
 from os.path import join, exists, basename, relpath
 from threading import Thread, Lock
 from multiprocessing import Pool, cpu_count
@@ -50,7 +53,7 @@ from tools.utils import ToolException
 from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, Target
 import tools.test_configs as TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
@@ -100,7 +103,7 @@ class ProcessObserver(Thread):
         self.active = False
         try:
             self.proc.terminate()
-        except Exception, _:
+        except Exception:
             pass
 
 
@@ -120,12 +123,14 @@ class SingleTestExecutor(threading.Thread):
         # Human readable summary
         if not self.single_test.opts_suppress_summary:
             # prints well-formed summary with results (SQL table like)
-            print self.single_test.generate_test_summary(test_summary, shuffle_seed)
+            print(self.single_test.generate_test_summary(test_summary,
+                                                         shuffle_seed))
         if self.single_test.opts_test_x_toolchain_summary:
             # prints well-formed summary with results (SQL table like)
             # table shows text x toolchain test result matrix
-            print self.single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
-        print "Completed in %.2f sec"% (elapsed_time)
+            print(self.single_test.generate_test_summary_by_target(
+                test_summary, shuffle_seed))
+        print("Completed in %.2f sec"% (elapsed_time))
 
 
 class SingleTestRunner(object):
@@ -360,31 +365,40 @@ class SingleTestRunner(object):
             # print '=== %s::%s ===' % (target, toolchain)
             # Let's build our test
             if target not in TARGET_MAP:
-                print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
+                print(self.logger.log_line(
+                    self.logger.LogType.NOTIF,
+                    'Skipped tests for %s target. Target platform not found' %
+                    (target)))
                 continue
 
-            clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
+            clean_mbed_libs_options = (self.opts_goanna_for_mbed_sdk or
+                                       self.opts_clean or clean)
 
             profile = extract_profile(self.opts_parser, self.opts, toolchain)
             stats_depth = self.opts.stats_depth or 2
 
-
             try:
-                build_mbed_libs_result = build_mbed_libs(T,
-                                                         toolchain,
-                                                         clean=clean_mbed_libs_options,
-                                                         verbose=self.opts_verbose,
-                                                         jobs=self.opts_jobs,
-                                                         report=build_report,
-                                                         properties=build_properties,
-                                                         build_profile=profile)
+                build_mbed_libs_result = build_mbed_libs(
+                    T, toolchain,
+                    clean=clean_mbed_libs_options,
+                    verbose=self.opts_verbose,
+                    jobs=self.opts_jobs,
+                    report=build_report,
+                    properties=build_properties,
+                    build_profile=profile)
 
                 if not build_mbed_libs_result:
-                    print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
+                    print(self.logger.log_line(
+                        self.logger.LogType.NOTIF,
+                        'Skipped tests for %s target. Toolchain %s is not '
+                        'supported for this target'% (T.name, toolchain)))
                     continue
 
             except ToolException:
-                print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s'% (target, toolchain))
+                print(self.logger.log_line(
+                    self.logger.LogType.ERROR,
+                    'There were errors while building MBED libs for %s using %s'
+                    % (target, toolchain)))
                 continue
 
             build_dir = join(BUILD_DIR, "test", target, toolchain)
@@ -402,16 +416,22 @@ class SingleTestRunner(object):
                 if self.db_logger:
                     self.db_logger.reconnect();
                     if self.db_logger.is_connected():
-                        self.db_logger.update_build_id_info(self.db_logger_build_id, _shuffle_seed=self.shuffle_random_func())
+                        self.db_logger.update_build_id_info(
+                            self.db_logger_build_id,
+                            _shuffle_seed=self.shuffle_random_func())
                         self.db_logger.disconnect();
 
             if self.db_logger:
                 self.db_logger.reconnect();
                 if self.db_logger.is_connected():
                     # Update MUTs and Test Specification in database
-                    self.db_logger.update_build_id_info(self.db_logger_build_id, _muts=self.muts, _test_spec=self.test_spec)
+                    self.db_logger.update_build_id_info(
+                        self.db_logger_build_id,
+                        _muts=self.muts, _test_spec=self.test_spec)
                     # Update Extra information in database (some options passed to test suite)
-                    self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
+                    self.db_logger.update_build_id_info(
+                        self.db_logger_build_id,
+                        _extra=json.dumps(self.dump_options()))
                     self.db_logger.disconnect();
 
             valid_test_map_keys = self.get_valid_tests(test_map_keys, target, toolchain, test_ids, self.opts_include_non_automated)
@@ -449,7 +469,9 @@ class SingleTestRunner(object):
                               build_profile=profile)
 
                 except ToolException:
-                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
+                    print(self.logger.log_line(
+                        self.logger.LogType.ERROR,
+                        'There were errors while building library %s' % lib_id))
                     continue
 
 
@@ -491,23 +513,29 @@ class SingleTestRunner(object):
                         project_description=test.get_description(),
                         build_profile=profile, stats_depth=stats_depth)
 
-                except Exception, e:
+                except Exception as e:
                     project_name_str = project_name if project_name is not None else test_id
 
 
                     test_result = self.TEST_RESULT_FAIL
 
                     if isinstance(e, ToolException):
-                        print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
+                        print(self.logger.log_line(
+                            self.logger.LogType.ERROR,
+                            'There were errors while building project %s' %
+                            project_name_str))
                         test_result = self.TEST_RESULT_BUILD_FAILED
                     elif isinstance(e, NotSupportedException):
-                        print self.logger.log_line(self.logger.LogType.INFO, 'The project %s is not supported'% (project_name_str))
+                        print(elf.logger.log_line(
+                            self.logger.LogType.INFO,
+                            'Project %s is not supported' % project_name_str))
                         test_result = self.TEST_RESULT_NOT_SUPPORTED
 
 
                     # Append test results to global test summary
                     self.test_summary.append(
-                        (test_result, target, toolchain, test_id, test.get_description(), 0, 0, '-')
+                        (test_result, target, toolchain, test_id,
+                         test.get_description(), 0, 0, '-')
                     )
 
                     # Add detailed test result to test summary structure
@@ -603,7 +631,7 @@ class SingleTestRunner(object):
             # in separate threads do not collide.
             # Inside execute_thread_slice() function function handle() will be called to
             # get information about available MUTs (per target).
-            for target, toolchains in self.test_spec['targets'].iteritems():
+            for target, toolchains in self.test_spec['targets'].items():
                 self.test_suite_properties_ext[target] = {}
                 t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, self.build_report, self.build_properties))
                 t.daemon = True
@@ -614,7 +642,7 @@ class SingleTestRunner(object):
                 q.get() # t.join() would block some threads because we should not wait in any order for thread end
         else:
             # Serialized (not parallel) test execution
-            for target, toolchains in self.test_spec['targets'].iteritems():
+            for target, toolchains in self.test_spec['targets'].items():
                 if target not in self.test_suite_properties_ext:
                     self.test_suite_properties_ext[target] = {}
 
@@ -642,23 +670,33 @@ class SingleTestRunner(object):
 
             if self.opts_test_only_peripheral and not test.peripherals:
                 if self.opts_verbose_skipped_tests:
-                    print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                    print(self.logger.log_line(
+                        self.logger.LogType.INFO,
+                        'Common test skipped for target %s' % target))
                 continue
 
-            if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names]):
+            if (self.opts_peripheral_by_names and test.peripherals and
+                not any((i in self.opts_peripheral_by_names)
+                        for i in test.peripherals)):
                 # We will skip tests not forced with -p option
                 if self.opts_verbose_skipped_tests:
-                    print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
+                    print(self.logger.log_line(
+                        self.logger.LogType.INFO,
+                        'Common test skipped for target %s' % target))
                 continue
 
             if self.opts_test_only_common and test.peripherals:
                 if self.opts_verbose_skipped_tests:
-                    print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
+                    print(self.logger.log_line(
+                        self.logger.LogType.INFO,
+                        'Peripheral test skipped for target %s' % target))
                 continue
 
             if not include_non_automated and not test.automated:
                 if self.opts_verbose_skipped_tests:
-                    print self.logger.log_line(self.logger.LogType.INFO, 'Non automated test skipped for target %s'% (target))
+                    print(self.logger.log_line(
+                        self.logger.LogType.INFO,
+                        'Non automated test skipped for target %s' % target))
                 continue
 
             if test.is_supported(target, toolchain):
@@ -673,9 +711,15 @@ class SingleTestRunner(object):
                 elif not self.is_peripherals_available(target, test.peripherals):
                     if self.opts_verbose_skipped_tests:
                         if test.peripherals:
-                            print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral %s test skipped for target %s'% (",".join(test.peripherals), target))
+                            print(self.logger.log_line(
+                                self.logger.LogType.INFO,
+                                'Peripheral %s test skipped for target %s' %
+                                (",".join(test.peripherals), target)))
                         else:
-                            print self.logger.log_line(self.logger.LogType.INFO, 'Test %s skipped for target %s'% (test_id, target))
+                            print(self.logger.log_line(
+                                self.logger.LogType.INFO,
+                                'Test %s skipped for target %s' %
+                                (test_id, target)))
                     continue
 
                 # The test has made it through all the filters, so add it to the valid tests list
@@ -773,7 +817,7 @@ class SingleTestRunner(object):
         result += "\n"
 
         # Print result count
-        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.items()])
         shuffle_seed_text = "Shuffle Seed: %.*f\n"% (self.SHUFFLE_SEED_ROUND,
                                                     shuffle_seed if shuffle_seed else self.shuffle_random_seed)
         result += "\n%s"% (shuffle_seed_text if self.opts_shuffle_test_order else '')
@@ -812,7 +856,7 @@ class SingleTestRunner(object):
         resutl_msg = ""
         try:
             os.remove(file_path)
-        except Exception, e:
+        except Exception as e:
             resutl_msg = e
             result = False
         return result, resutl_msg
@@ -828,7 +872,7 @@ class SingleTestRunner(object):
         duration = data.get("duration", 10)
 
         if mut is None:
-            print "Error: No Mbed available: MUT[%s]" % data['mcu']
+            print("Error: No Mbed available: MUT[%s]" % data['mcu'])
             return None
 
         mcu = mut['mcu']
@@ -864,7 +908,7 @@ class SingleTestRunner(object):
                         break
 
                 if not found:
-                    print "Error: mbed not found with MBEDLS: %s" % data['mcu']
+                    print("Error: mbed not found with MBEDLS: %s" % data['mcu'])
                     return None
                 else:
                     mut = muts_list[1]
@@ -895,7 +939,7 @@ class SingleTestRunner(object):
                 single_test_result = self.TEST_RESULT_NO_IMAGE
                 elapsed_time = 0
                 single_test_output = self.logger.log_line(self.logger.LogType.ERROR, 'Image file does not exist: %s'% image_path)
-                print single_test_output
+                print(single_test_output)
             else:
                 # Host test execution
                 start_host_exec_time = time()
@@ -930,8 +974,9 @@ class SingleTestRunner(object):
                 'copy_method' : _copy_method,
             }
 
-            print self.print_test_result(single_test_result, target_name_unique, toolchain_name,
-                                         test_id, test_description, elapsed_time, single_timeout)
+            print(self.print_test_result(
+                single_test_result, target_name_unique, toolchain_name, test_id,
+                test_description, elapsed_time, single_timeout))
 
             # Update database entries for ongoing test
             if self.db_logger and self.db_logger.is_connected():
@@ -972,7 +1017,7 @@ class SingleTestRunner(object):
 
         # Find a suitable MUT:
         mut = None
-        for id, m in self.muts.iteritems():
+        for id, m in self.muts.items():
             if m['mcu'] == data['mcu']:
                 mut = m
                 handle_result = self.handle_mut(mut, data, target_name, toolchain_name, test_loops=test_loops)
@@ -1027,7 +1072,7 @@ class SingleTestRunner(object):
             """
             try:
                 c = obs.queue.get(block=True, timeout=0.5)
-            except Empty, _:
+            except Empty:
                 c = None
             return c
 
@@ -1060,7 +1105,6 @@ class SingleTestRunner(object):
                     result = property.groups()[0]
             return result
 
-        # print "{%s} port:%s disk:%s"  % (name, port, disk),
         cmd = ["python",
                '%s.py'% name,
                '-d', disk,
@@ -1083,8 +1127,8 @@ class SingleTestRunner(object):
             cmd += ["-R", str(reset_tout)]
 
         if verbose:
-            print Fore.MAGENTA + "Executing '" + " ".join(cmd) + "'" + Fore.RESET
-            print "Test::Output::Start"
+            print(Fore.MAGENTA + "Executing '" + " ".join(cmd) + "'" + Fore.RESET)
+            print("Test::Output::Start")
 
         proc = Popen(cmd, stdout=PIPE, cwd=HOST_TESTS)
         obs = ProcessObserver(proc)
@@ -1138,7 +1182,7 @@ class SingleTestRunner(object):
             output.append(c)
 
         if verbose:
-            print "Test::Output::Finish"
+            print("Test::Output::Finish")
         # Stop test process
         obs.stop()
 
@@ -1150,7 +1194,7 @@ class SingleTestRunner(object):
         """
         if peripherals is not None:
             peripherals = set(peripherals)
-        for id, mut in self.muts.iteritems():
+        for id, mut in self.muts.items():
             # Target MCU name check
             if mut["mcu"] != target_mcu_name:
                 continue
@@ -1205,9 +1249,10 @@ def show_json_file_format_error(json_spec_filename, line, column):
         line_no = 1
         for json_line in data_file:
             if line_no + 5 >= line: # Print last few lines before error
-                print 'Line %d:\t'%line_no + json_line, # Prints line
+                print('Line %d:\t'%line_no + json_line)
             if line_no == line:
-                print ' ' * len('Line %d:'%line_no) + '\t', '-' * (column-1) + '^'
+                print('%s\t%s^' (' ' * len('Line %d:' % line_no),
+                                 '-' * (column - 1)))
                 break
             line_no += 1
 
@@ -1244,18 +1289,19 @@ def get_json_data_from_file(json_spec_filename, verbose=False):
                 result = json.load(data_file)
             except ValueError as json_error_msg:
                 result = None
-                print 'JSON file %s parsing failed. Reason: %s' % (json_spec_filename, json_error_msg)
+                print('JSON file %s parsing failed. Reason: %s' %
+                      (json_spec_filename, json_error_msg))
                 # We can print where error occurred inside JSON file if we can parse exception msg
                 json_format_defect_pos = json_format_error_defect_pos(str(json_error_msg))
                 if json_format_defect_pos is not None:
                     line = json_format_defect_pos[0]
                     column = json_format_defect_pos[1]
-                    print
+                    print()
                     show_json_file_format_error(json_spec_filename, line, column)
 
     except IOError as fileopen_error_msg:
-        print 'JSON file %s not opened. Reason: %s'% (json_spec_filename, fileopen_error_msg)
-        print
+        print('JSON file %s not opened. Reason: %s\n'%
+              (json_spec_filename, fileopen_error_msg))
     if verbose and result:
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(result)
@@ -1290,7 +1336,7 @@ def print_muts_configuration_from_json(json_data, join_delim=", ", platform_filt
         if add_row:
             for col in muts_info_cols:
                 cell_val = mut_info[col] if col in mut_info else None
-                if type(cell_val) == ListType:
+                if isinstance(cell_val, list):
                     cell_val = join_delim.join(cell_val)
                 row.append(cell_val)
             pt.add_row(row)
@@ -1423,7 +1469,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
 
         for col in test_properties:
             col_value = test[col]
-            if type(test[col]) == ListType:
+            if isinstance(test[col], list):
                 col_value = join_delim.join(test[col])
             elif test[col] == None:
                 col_value = "-"
@@ -1502,13 +1548,14 @@ def singletest_in_cli_mode(single_test):
     # Human readable summary
     if not single_test.opts_suppress_summary:
         # prints well-formed summary with results (SQL table like)
-        print single_test.generate_test_summary(test_summary, shuffle_seed)
+        print(single_test.generate_test_summary(test_summary, shuffle_seed))
     if single_test.opts_test_x_toolchain_summary:
         # prints well-formed summary with results (SQL table like)
         # table shows text x toolchain test result matrix
-        print single_test.generate_test_summary_by_target(test_summary, shuffle_seed)
+        print(single_test.generate_test_summary_by_target(test_summary,
+                                                          shuffle_seed))
 
-    print "Completed in %.2f sec"% (elapsed_time)
+    print("Completed in %.2f sec" % elapsed_time)
     print
     # Write summary of the builds
 
@@ -1628,19 +1675,19 @@ def detect_database_verbose(db_url):
         # Let's try to connect
         db_ = factory_db_logger(db_url)
         if db_ is not None:
-            print "Connecting to database '%s'..."% db_url,
+            print("Connecting to database '%s'..." % db_url)
             db_.connect(host, username, password, db_name)
             if db_.is_connected():
-                print "ok"
-                print "Detecting database..."
-                print db_.detect_database(verbose=True)
-                print "Disconnecting...",
+                print("ok")
+                print("Detecting database...")
+                print(db_.detect_database(verbose=True))
+                print("Disconnecting...")
                 db_.disconnect()
-                print "done"
+                print("done")
         else:
-            print "Database type '%s' unknown"% db_type
+            print("Database type '%s' unknown" % db_type)
     else:
-        print "Parse error: '%s' - DB Url error"% (db_url)
+        print("Parse error: '%s' - DB Url error" % db_url)
 
 
 def get_module_avail(module_name):
@@ -2089,13 +2136,14 @@ def print_tests(tests, format="list", sort=True):
     if format == "list":
         for test_name in sorted(tests.keys()):
             test_path = tests[test_name][0]
-            print "Test Case:"
-            print "    Name: %s" % test_name
-            print "    Path: %s" % test_path
+            print("Test Case:")
+            print("    Name: %s" % test_name)
+            print("    Path: %s" % test_path)
     elif format == "json":
-        print json.dumps({test_name: test_path[0] for test_name, test_paths in tests}, indent=2)
+        print(json.dumps({test_name: test_path[0] for test_name, test_paths
+                          in tests}, indent=2))
     else:
-        print "Unknown format '%s'" % format
+        print("Unknown format '%s'" % format)
         sys.exit(1)
 
 def norm_relative_path(path, start):
@@ -2130,7 +2178,7 @@ def build_test_worker(*args, **kwargs):
     }
 
     # Use parent TOOLCHAIN_PATHS variable
-    for key, value in kwargs['toolchain_paths'].iteritems():
+    for key, value in kwargs['toolchain_paths'].items():
         TOOLCHAIN_PATHS[key] = value
 
     del kwargs['toolchain_paths']
@@ -2141,11 +2189,11 @@ def build_test_worker(*args, **kwargs):
         ret['bin_file'] = bin_file
         ret['kwargs'] = kwargs
 
-    except NotSupportedException, e:
+    except NotSupportedException as e:
         ret['reason'] = e
-    except ToolException, e:
+    except ToolException as e:
         ret['reason'] = e
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt as e:
         ret['reason'] = e
     except:
         # Print unhandled exceptions here
@@ -2169,7 +2217,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     execution_directory = "."
     base_path = norm_relative_path(build_path, execution_directory)
 
-    target_name = target if isinstance(target, str) else target.name
+    target_name = target.name if isinstance(target, Target) else target
     cfg, _, _ = get_config(base_source_paths, target_name, toolchain_name)
 
     baud_rate = 9600
@@ -2190,8 +2238,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     jobs_count = int(jobs if jobs else cpu_count())
     p = Pool(processes=jobs_count)
     results = []
-    for test_name, test_paths in tests.iteritems():
-        if type(test_paths) != ListType:
+    for test_name, test_paths in tests.items():
+        if not isinstance(test_paths, list):
             test_paths = [test_paths]
 
         test_build_path = os.path.join(build_path, test_paths[0])
@@ -2265,8 +2313,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
                             test_key = worker_result['kwargs']['project_id'].upper()
                             if report:
-                                print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
-                            print 'Image: %s\n' % bin_file
+                                print(report[target_name][toolchain_name][test_key][0][0]['output'].rstrip())
+                            print('Image: %s\n' % bin_file)
 
                     except:
                         if p._taskqueue.queue:

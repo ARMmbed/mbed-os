@@ -59,7 +59,7 @@ class BuildApiTests(unittest.TestCase):
     @patch('os.mkdir')
     @patch('tools.toolchains.exists', return_value=True)
     @patch('tools.toolchains.mbedToolchain.dump_build_profile')
-    @patch('tools.utils.run_cmd', return_value=("", "", 0))
+    @patch('tools.utils.run_cmd', return_value=(b'', b'', 0))
     def test_always_complete_build(self, *_):
         with MagicMock() as notify:
             toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,

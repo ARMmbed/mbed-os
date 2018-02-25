@@ -144,8 +144,8 @@ bool USBCDC::readEP_NB(uint8_t * buffer, uint32_t * size) {
 }
 
 
-uint8_t * USBCDC::deviceDesc() {
-    static uint8_t deviceDescriptor[] = {
+const uint8_t * USBCDC::deviceDesc() {
+    uint8_t deviceDescriptorTemp[] = {
         18,                   // bLength
         1,                    // bDescriptorType
         0x10, 0x01,           // bcdUSB
@@ -161,11 +161,13 @@ uint8_t * USBCDC::deviceDesc() {
         3,                    // iSerialNumber
         1                     // bNumConfigurations
     };
+    MBED_ASSERT(sizeof(deviceDescriptorTemp) == sizeof(deviceDescriptor));
+    memcpy(deviceDescriptor, deviceDescriptorTemp, sizeof(deviceDescriptor));
     return deviceDescriptor;
 }
 
-uint8_t * USBCDC::stringIinterfaceDesc() {
-    static uint8_t stringIinterfaceDescriptor[] = {
+const uint8_t * USBCDC::stringIinterfaceDesc() {
+    static const uint8_t stringIinterfaceDescriptor[] = {
         0x08,
         STRING_DESCRIPTOR,
         'C',0,'D',0,'C',0,
@@ -173,8 +175,8 @@ uint8_t * USBCDC::stringIinterfaceDesc() {
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBCDC::stringIproductDesc() {
-    static uint8_t stringIproductDescriptor[] = {
+const uint8_t * USBCDC::stringIproductDesc() {
+    static const uint8_t stringIproductDescriptor[] = {
         0x16,
         STRING_DESCRIPTOR,
         'C',0,'D',0,'C',0,' ',0,'D',0,'E',0,'V',0,'I',0,'C',0,'E',0
@@ -185,8 +187,8 @@ uint8_t * USBCDC::stringIproductDesc() {
 
 #define CONFIG1_DESC_SIZE (9+8+9+5+5+4+5+7+9+7+7)
 
-uint8_t * USBCDC::configurationDesc() {
-    static uint8_t configDescriptor[] = {
+const uint8_t * USBCDC::configurationDesc() {
+    static const uint8_t configDescriptor[] = {
         // configuration descriptor
         9,                      // bLength
         2,                      // bDescriptorType

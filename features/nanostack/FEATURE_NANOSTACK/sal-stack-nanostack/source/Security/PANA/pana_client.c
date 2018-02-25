@@ -657,8 +657,10 @@ static void pana_client_state_machine_func(sec_suite_t *suite)
 
             switch (suite->state) {
                 case TLS_KEY_CHANGE:
-                case TLS_INIT:
                     sec_lib_state_machine_trig(suite, TLS_ALERT_INTERNAL);
+                    break;
+                case TLS_INIT: //Trig pana failure if not get any response from server
+                    sec_lib_state_machine_trig(suite, PANA_FAILURE);
                     break;
 
                 default:

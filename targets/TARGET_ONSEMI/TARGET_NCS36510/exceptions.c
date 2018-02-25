@@ -68,12 +68,6 @@ void NotImplemented_Handler(void)
     while (1) {};
 }
 
-/** Hardware fault interrupt handler */
-void HardFault_Handler(void)
-{
-    while (1) {};
-}
-
 /*************************************************************************************************
 *                                                                                                *
 *  Functions                                                                                     *

@@ -100,6 +100,7 @@ static void protocol_6lowpan_neighbor_information_remove(int8_t interface_id, ml
 static int8_t protocol_6lowpan_host_challenge(int8_t interface_id, const uint8_t *mac64);
 static int8_t protocol_6lowpan_router_challenge(int8_t interface_id, const uint8_t *mac64);
 static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *cur_interface);
+static void coordinator_black_list(protocol_interface_info_entry_t *cur);
 
 static mle_6lowpan_data_t *mle_6lowpan_data;
 
@@ -663,17 +664,17 @@ static uint16_t mle_router_synch(protocol_interface_info_entry_t *cur, const uin
     if (retrans) {
         if (destAddress) {
             timeout.retrans_max = 3;
-            timeout.timeout_init = 1;
-            timeout.timeout_max = 3;
+            timeout.timeout_init = 2;
+            timeout.timeout_max = 4;
         } else {
             timeout.retrans_max = 2;
-            timeout.timeout_init = 2;
+            timeout.timeout_init = 4;
             timeout.timeout_max = 4;
         }
     } else {
         timeout.retrans_max = 1;
-        timeout.timeout_init = 1;
-        timeout.timeout_max = 3;
+        timeout.timeout_init = 2;
+        timeout.timeout_max = 4;
     }
 
     timeout.delay = delay;
@@ -706,7 +707,7 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
         bufId =  mle_service_msg_allocate(cur->id, 64, true,type);
         timeout.retrans_max = 2;
         timeout.timeout_init = 2;
-        timeout.timeout_max = 2;
+        timeout.timeout_max = 4;
     }
 
     if (bufId == 0) {
@@ -814,6 +815,7 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
         if (cur->nwk_bootstrap_state == ER_MLE_LINK_REQ) {
             //Enter ND scan
             bootsrap_next_state_kick(ER_SCAN, cur);
+            pan_coordinator_blacklist_free(&cur->pan_cordinator_black_list);
         }
 #ifdef HAVE_RPL
         else if (cur->nwk_bootstrap_state == ER_ROUTER_SYNCH) {
@@ -840,12 +842,19 @@ static bool mle_parent_link_req_cb(int8_t interface_id, uint16_t msgId, bool use
     if (usedAllRetries) {
         switch (cur->nwk_bootstrap_state) {
             case ER_MLE_LINK_REQ:
-            case ER_ROUTER_SYNCH:
             case ER_MLE_LINK_ADDRESS_SYNCH:
             case ER_MLE_LINK_SHORT_SYNCH:
+                if (cur->nwk_bootstrap_state == ER_MLE_LINK_REQ) {
+                    coordinator_black_list(cur);
+                }
                 tr_debug("Link synch fail %u", cur->nwk_bootstrap_state);
                 bootsrap_next_state_kick(ER_BOOTSTRAP_CONNECTION_DOWN, cur);
                 break;
+#ifdef HAVE_RPL
+            case ER_ROUTER_SYNCH:
+                bootsrap_next_state_kick(ER_RPL_MC, cur);
+                break;
+#endif // HAVE_RPL
             default:
                 break;
         }
@@ -869,6 +878,7 @@ static bool mle_accept_request_cb(int8_t interface_id, uint16_t msgId, bool used
         //If message has been sent by MLE service sends MLE reject to clear link
         if (mle_service_check_msg_sent(msgId)) {
             uint8_t *address_ptr = mle_service_get_msg_destination_address_pointer(msgId);
+            tr_debug("No accept for Accept/Request");
             mle_service_reject_message_build(cur->id, address_ptr, false);
         }
         return false;
@@ -2278,15 +2288,8 @@ static void nwk_6lowpan_bootsrap_pana_authentication_start(protocol_interface_in
 
 #endif
 
-static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entry_t *cur)
+static void coordinator_black_list(protocol_interface_info_entry_t *cur)
 {
-    nwk_scan_params_t *scan_params =
-            &cur->mac_parameters->nwk_scan_params;
-
-    tr_warn("Pana Auhth er");
-
-    scan_params->nwk_cur_active = mac_helper_free_pan_descriptions(scan_params->nwk_cur_active);
-    //Black List coordinator
     uint8_t coord_pan_address[10];
     addrtype_t cord_adr_type = mac_helper_coordinator_address_get(cur, coord_pan_address +2);
 
@@ -2299,6 +2302,18 @@ static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entr
 
         pan_cordinator_blacklist_pan_set(&cur->pan_cordinator_black_list, coord_pan_address, 300);
     }
+}
+
+static void nwk_6lowpan_network_authentication_fail(protocol_interface_info_entry_t *cur)
+{
+    nwk_scan_params_t *scan_params =
+            &cur->mac_parameters->nwk_scan_params;
+
+    tr_warn("Pana Auhth er");
+
+    scan_params->nwk_cur_active = mac_helper_free_pan_descriptions(scan_params->nwk_cur_active);
+    //Black List coordinator
+    coordinator_black_list(cur);
 
     nwk_bootsrap_state_update(ARM_NWK_AUHTENTICATION_FAIL, cur);
 }
@@ -2374,6 +2389,7 @@ static void nwk_6lowpan_network_authentication_done(protocol_interface_info_entr
             tr_debug("Link request start fail");
         }
 #else
+        pan_coordinator_blacklist_free(&cur->pan_cordinator_black_list);
         cur->nwk_bootstrap_state = ER_SCAN;
         nwk_6lowpan_router_scan_state(cur);
 #endif
@@ -2538,7 +2554,7 @@ void protocol_6lowpan_mac_scan_confirm(int8_t if_id, const mlme_scan_conf_t* con
 
 void bootstrap_timer_handle(uint16_t ticks)
 {
-    ticks;
+    (void)ticks;
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
         if (cur->nwk_id == IF_6LoWPAN) {
             if (cur->nwk_bootstrap_state == ER_ACTIVE_SCAN || cur->nwk_bootstrap_state == ER_WARM_ACTIVE_SCAN) {
@@ -2728,6 +2744,7 @@ static void protocol_6lowpan_generate_link_reject(protocol_interface_info_entry_
         address[8] ^= 2;
     }
     if (mac_helper_default_security_level_get(cur)) {
+        tr_debug("Drop link by asymmetric security");
         mle_service_reject_message_build(cur->id, address, false);
         return;
     }

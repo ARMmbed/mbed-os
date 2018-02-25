@@ -49,97 +49,107 @@ UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
+// Defined in serial_api.c
+inline int8_t get_uart_index(UARTName uart_name);
+
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int id)
+static void uart_irq(UARTName uart_name)
 {
-    UART_HandleTypeDef * huart = &uart_handlers[id];
-    
-    if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE) != RESET) {
-                irq_handler(serial_irq_ids[id], TxIrq);
+    int8_t id = get_uart_index(uart_name);
+
+    if (id >= 0) {
+        UART_HandleTypeDef * huart = &uart_handlers[id];
+        if (serial_irq_ids[id] != 0) {
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE) != RESET) {
+                    irq_handler(serial_irq_ids[id], TxIrq);
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
-                irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
+                    irq_handler(serial_irq_ids[id], RxIrq);
+                    /* Flag has been cleared when reading the content */
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
-                volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
+                if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+                    volatile uint32_t tmpval __attribute__((unused)) = huart->Instance->DR; // Clear ORE flag
+                }
             }
         }
     }
 }
 
+#if defined(USART1_BASE)
 static void uart1_irq(void)
 {
-    uart_irq(0);
+    uart_irq(UART_1);
 }
+#endif
 
+#if defined(USART2_BASE)
 static void uart2_irq(void)
 {
-    uart_irq(1);
+    uart_irq(UART_2);
 }
+#endif
 
 #if defined(USART3_BASE)
 static void uart3_irq(void)
 {
-    uart_irq(2);
+    uart_irq(UART_3);
 }
 #endif
 
 #if defined(UART4_BASE)
 static void uart4_irq(void)
 {
-    uart_irq(3);
+    uart_irq(UART_4);
 }
 #endif
 
 #if defined(UART5_BASE)
 static void uart5_irq(void)
 {
-    uart_irq(4);
+    uart_irq(UART_5);
 }
 #endif
 
 #if defined(USART6_BASE)
 static void uart6_irq(void)
 {
-    uart_irq(5);
+    uart_irq(UART_6);
 }
 #endif
 
 #if defined(UART7_BASE)
 static void uart7_irq(void)
 {
-    uart_irq(6);
+    uart_irq(UART_7);
 }
 #endif
 
 #if defined(UART8_BASE)
 static void uart8_irq(void)
 {
-    uart_irq(7);
+    uart_irq(UART_8);
 }
 #endif
 
 #if defined(UART9_BASE)
 static void uart9_irq(void)
 {
-    uart_irq(8);
+    uart_irq(UART_9);
 }
 #endif
 
 #if defined(UART10_BASE)
 static void uart10_irq(void)
 {
-    uart_irq(9);
+    uart_irq(UART_10);
 }
 #endif
 
@@ -158,60 +168,63 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
 
-    switch (obj_s->index) {
-        case 0:
+    switch (obj_s->uart) {
+#if defined(USART1_BASE)
+        case UART_1:
             irq_n = USART1_IRQn;
             vector = (uint32_t)&uart1_irq;
             break;
-
-        case 1:
+#endif
+#if defined(USART2_BASE)
+        case UART_2:
             irq_n = USART2_IRQn;
             vector = (uint32_t)&uart2_irq;
             break;
+#endif
 #if defined(USART3_BASE)
-        case 2:
+        case UART_3:
             irq_n = USART3_IRQn;
             vector = (uint32_t)&uart3_irq;
             break;
 #endif
 #if defined(UART4_BASE)
-        case 3:
+        case UART_4:
             irq_n = UART4_IRQn;
             vector = (uint32_t)&uart4_irq;
             break;
 #endif
 #if defined(UART5_BASE)
-        case 4:
+        case UART_5:
             irq_n = UART5_IRQn;
             vector = (uint32_t)&uart5_irq;
             break;
 #endif
 #if defined(USART6_BASE)
-        case 5:
+        case UART_6:
             irq_n = USART6_IRQn;
             vector = (uint32_t)&uart6_irq;
             break;
 #endif
 #if defined(UART7_BASE)
-        case 6:
+        case UART_7:
             irq_n = UART7_IRQn;
             vector = (uint32_t)&uart7_irq;
             break;
 #endif
 #if defined(UART8_BASE)
-        case 7:
+        case UART_8:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
             break;
 #endif
 #if defined(UART9_BASE)
-        case 8:
+        case UART_9:
             irq_n = UART9_IRQn;
             vector = (uint32_t)&uart9_irq;
             break;
 #endif
 #if defined(UART10_BASE)
-        case 9:
+        case UART_10:
             irq_n = UART10_IRQn;
             vector = (uint32_t)&uart10_irq;
             break;
@@ -224,8 +237,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         } else { // TxIrq
             __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
         }
-            NVIC_SetVector(irq_n, vector);
-            NVIC_EnableIRQ(irq_n);
+        NVIC_SetVector(irq_n, vector);
+        NVIC_EnableIRQ(irq_n);
 
     } else { // disable
         int all_disabled = 0;
@@ -244,7 +257,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         }
 
         if (all_disabled) {
-          NVIC_DisableIRQ(irq_n);
+            NVIC_DisableIRQ(irq_n);
         }
     }
 }
@@ -275,7 +288,7 @@ void serial_clear(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
+
     huart->TxXferCount = 0;
     huart->RxXferCount = 0;
 }
@@ -284,7 +297,7 @@ void serial_break_set(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
+
     HAL_LIN_SendBreak(huart);
 }
 
@@ -359,69 +372,68 @@ static void serial_enable_event(serial_t *obj, int event, uint8_t enable)
 /**
 * Get index of serial object TX IRQ, relating it to the physical peripheral.
 *
-* @param obj pointer to serial object
+* @param uart_name i.e. UART_1, UART_2, ...
 * @return internal NVIC TX IRQ index of U(S)ART peripheral
 */
-static IRQn_Type serial_get_irq_n(serial_t *obj)
+static IRQn_Type serial_get_irq_n(UARTName uart_name)
 {
-    struct serial_s *obj_s = SERIAL_S(obj);
     IRQn_Type irq_n;
 
-    switch (obj_s->index) {
+    switch (uart_name) {
 #if defined(USART1_BASE)
-        case 0:
+        case UART_1:
             irq_n = USART1_IRQn;
             break;
 #endif
 #if defined(USART2_BASE)
-        case 1:
+        case UART_2:
             irq_n = USART2_IRQn;
             break;
 #endif
 #if defined(USART3_BASE)
-        case 2:
+        case UART_3:
             irq_n = USART3_IRQn;
             break;
 #endif
 #if defined(UART4_BASE)
-        case 3:
+        case UART_4:
             irq_n = UART4_IRQn;
             break;
 #endif
-#if defined(USART5_BASE)
-        case 4:
+#if defined(UART5_BASE)
+        case UART_5:
             irq_n = UART5_IRQn;
             break;
 #endif
 #if defined(USART6_BASE)
-        case 5:
+        case UART_6:
             irq_n = USART6_IRQn;
             break;
 #endif
 #if defined(UART7_BASE)
-        case 6:
+        case UART_7:
             irq_n = UART7_IRQn;
             break;
 #endif
 #if defined(UART8_BASE)
-        case 7:
+        case UART_8:
             irq_n = UART8_IRQn;
             break;
 #endif
 #if defined(UART9_BASE)
-        case 8:
+        case UART_9:
             irq_n = UART9_IRQn;
             break;
 #endif
 #if defined(UART10_BASE)
-        case 9:
+        case UART_10:
             irq_n = UART10_IRQn;
             break;
 #endif
         default:
             irq_n = (IRQn_Type)0;
     }
-    
+
     return irq_n;
 }
 
@@ -466,7 +478,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_enable_event(obj, event, 1); // Set only the wanted events
     
     // Enable interrupt
-    IRQn_Type irq_n = serial_get_irq_n(obj);
+    IRQn_Type irq_n = serial_get_irq_n(obj_s->uart);
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
@@ -516,7 +528,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
-    IRQn_Type irq_n = serial_get_irq_n(obj);
+    IRQn_Type irq_n = serial_get_irq_n(obj_s->uart);
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
     NVIC_SetPriority(irq_n, 0);

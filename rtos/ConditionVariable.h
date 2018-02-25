@@ -120,7 +120,7 @@ class ConditionVariable : private mbed::NonCopyable<ConditionVariable> {
 public:
     /** Create and Initialize a ConditionVariable object
      *
-     * @note You may call this function from ISR context.
+     * @note You cannot call this function from ISR context.
     */
     ConditionVariable(Mutex &mutex);
 
@@ -150,6 +150,39 @@ public:
      */
     void wait();
 
+    /** Wait for a notification until specified time
+     *
+     * @param   millisec  absolute end time referenced to Kernel::get_ms_count()
+     * @return  true if a timeout occurred, false otherwise.
+     *
+     * @note - The thread calling this function must be the owner of the
+     * ConditionVariable's mutex and it must be locked exactly once
+     * @note - Spurious notifications can occur so the caller of this API
+     * should check to make sure the condition they are waiting on has
+     * been met
+     *
+     * Example:
+     * @code
+     * mutex.lock();
+     * uint64_t end_time = Kernel::get_ms_count() + COND_WAIT_TIMEOUT;
+     *
+     * while (!condition_met) {
+     *     if (cond.wait_until(end_time)) {
+     *         break;
+     *     }
+     * }
+     *
+     * if (condition_met) {
+     *     function_to_handle_condition();
+     * }
+     *
+     * mutex.unlock();
+     * @endcode
+     *
+     * @note You cannot call this function from ISR context.
+     */
+    bool wait_until(uint64_t millisec);
+
     /** Wait for a notification or timeout
      *
      * @param   millisec  timeout value or osWaitForever in case of no time-out.
@@ -164,15 +197,12 @@ public:
      * Example:
      * @code
      * mutex.lock();
-     * Timer timer;
-     * timer.start();
      *
-     * bool timed_out = false;
-     * uint32_t time_left = TIMEOUT;
-     * while (!condition_met && !timed_out) {
-     *     timed_out = cond.wait_for(time_left);
-     *     uint32_t elapsed = timer.read_ms();
-     *     time_left = elapsed > TIMEOUT ? 0 : TIMEOUT - elapsed;
+     * while (!condition_met) {
+     *     cond.wait_for(MAX_SLEEP_TIME);
+     *     if (!condition_met) {
+     *         do_other_work_while_condition_false();
+     *     }
      * }
      *
      * if (condition_met) {
@@ -190,7 +220,7 @@ public:
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
      *
-     * @note This function may be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     void notify_one();
 
@@ -198,13 +228,13 @@ public:
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
      *
-     * @note This function may be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     void notify_all();
 
     /** ConditionVariable destructor
      *
-     * @note You may call this function from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     ~ConditionVariable();
 

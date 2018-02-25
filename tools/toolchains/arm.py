@@ -16,8 +16,8 @@ limitations under the License.
 """
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists
-from os import makedirs, write
+from os.path import join, dirname, splitext, basename, exists, relpath
+from os import makedirs, write, curdir
 from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
@@ -80,6 +80,8 @@ class ARM(mbedToolchain):
 
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
+
+        self.SHEBANG += " --cpu=%s" % cpu
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -182,7 +184,7 @@ class ARM(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    def correct_scatter_shebang(self, scatter_file):
+    def correct_scatter_shebang(self, scatter_file, base_path=curdir):
         """Correct the shebang at the top of a scatter file.
 
         Positional arguments:
@@ -196,16 +198,19 @@ class ARM(mbedToolchain):
         """
         with open(scatter_file, "rb") as input:
             lines = input.readlines()
-            if  (lines[0].startswith(self.SHEBANG) or
-                 not lines[0].startswith("#!")):
+            if (lines[0].startswith(self.SHEBANG) or
+                not lines[0].startswith("#!")):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
+                self.SHEBANG += " -I %s" % relpath(dirname(scatter_file),
+                                                   base_path)
                 if self.need_update(new_scatter, [scatter_file]):
                     with open(new_scatter, "wb") as out:
                         out.write(self.SHEBANG)
                         out.write("\n")
                         out.write("".join(lines[1:]))
+
                 return new_scatter
 
     @hook_tool
@@ -310,15 +315,19 @@ class ARMC6(ARM_STD):
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
         elif target.core.lower().endswith("f"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
         elif target.core.lower().endswith("ns"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-3])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-3])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-3]
         else:
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()
 
         if target.core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
@@ -355,7 +364,6 @@ class ARMC6(ARM_STD):
         self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
-
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)

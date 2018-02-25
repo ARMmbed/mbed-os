@@ -157,8 +157,8 @@ bool USBMIDI::USBCallback_setConfiguration(uint8_t configuration) {
 }
 
 
-uint8_t * USBMIDI::stringIinterfaceDesc() {
-    static uint8_t stringIinterfaceDescriptor[] = {
+const uint8_t * USBMIDI::stringIinterfaceDesc() {
+    static const uint8_t stringIinterfaceDescriptor[] = {
         0x0c,                           //bLength
         STRING_DESCRIPTOR,              //bDescriptorType 0x03
         'A',0,'u',0,'d',0,'i',0,'o',0   //bString iInterface - Audio
@@ -166,8 +166,8 @@ uint8_t * USBMIDI::stringIinterfaceDesc() {
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBMIDI::stringIproductDesc() {
-    static uint8_t stringIproductDescriptor[] = {
+const uint8_t * USBMIDI::stringIproductDesc() {
+    static const uint8_t stringIproductDescriptor[] = {
         0x16,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
         'M',0,'b',0,'e',0,'d',0,' ',0,'A',0,'u',0,'d',0,'i',0,'o',0 //bString iProduct - Mbed Audio
@@ -176,8 +176,8 @@ uint8_t * USBMIDI::stringIproductDesc() {
 }
 
 
-uint8_t * USBMIDI::configurationDesc() {
-    static uint8_t configDescriptor[] = {
+const uint8_t * USBMIDI::configurationDesc() {
+    static const uint8_t configDescriptor[] = {
         // configuration descriptor
         0x09, 0x02, 0x65, 0x00, 0x02, 0x01, 0x00, 0xc0, 0x50,
 

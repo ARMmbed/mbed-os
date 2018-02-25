@@ -526,6 +526,11 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
 
+    // flush FIFO
+#if defined(SPI_FLAG_FRLVL) // STM32F0 STM32F3 STM32F7 STM32L4
+    HAL_SPIEx_FlushRxFifo(handle);
+#endif
+
     // enable the right hal transfer
     int rc = 0;
     switch(transfer_type) {

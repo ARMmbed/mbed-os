@@ -145,9 +145,26 @@ typedef enum {
     P_39 = PA_13,
     P_40 = PB_7,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#elif MBED_CONF_TARGET_USB_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
+#else
+    STDIO_UART_TX = PB_6,
+#endif
+
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#elif MBED_CONF_TARGET_USB_RX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
+#else
+    STDIO_UART_RX = PB_7,
+#endif
+
     //DAPLink
-    USBTX       = MBED_CONF_TARGET_USB_TX,
-    USBRX       = MBED_CONF_TARGET_USB_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     SWDIO      = PA_13,
     SWCLK      = PA_14,
 

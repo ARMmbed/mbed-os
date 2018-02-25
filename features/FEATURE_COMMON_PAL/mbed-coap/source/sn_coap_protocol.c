@@ -1552,9 +1552,26 @@ static uint16_t sn_coap_count_linked_list_size(const coap_send_msg_list_t *linke
 #endif
 
 #if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+void sn_coap_protocol_remove_sent_blockwise_message(struct coap_s *handle, uint16_t message_id)
+{
+    if (!handle) {
+        return;
+    }
+
+    ns_list_foreach_safe(coap_blockwise_msg_s, tmp, &handle->linked_list_blockwise_sent_msgs) {
+        if (tmp->coap == handle && tmp->coap_msg_ptr && tmp->coap_msg_ptr->msg_id == message_id) {
+            handle->sn_coap_protocol_free(tmp->coap_msg_ptr->payload_ptr);
+            sn_coap_parser_release_allocated_coap_msg_mem(tmp->coap, tmp->coap_msg_ptr);
+            ns_list_remove(&handle->linked_list_blockwise_sent_msgs, tmp);
+            handle->sn_coap_protocol_free(tmp);
+            break;
+        }
+    }
+}
+
 void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload)
 {
-    if(!handle || !source_address || !payload){
+    if (!handle || !source_address || !payload) {
         return;
     }
 

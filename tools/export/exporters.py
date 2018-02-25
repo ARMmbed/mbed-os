@@ -104,7 +104,7 @@ class Exporter(object):
         """
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.iteritems()}
+                 in self.toolchain.flags.items()}
         asm_defines = self.toolchain.get_compile_options(
             self.toolchain.get_symbols(for_asm=True),
             filter(None, self.resources.inc_dirs),

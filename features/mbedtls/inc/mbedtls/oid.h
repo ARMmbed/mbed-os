@@ -2,7 +2,8 @@
  * \file oid.h
  *
  * \brief Object Identifier (OID) database
- *
+ */
+/*
  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
@@ -282,6 +283,8 @@
 
 /*
  * ECParameters namedCurve identifiers, from RFC 5480, RFC 5639, and SEC2
+ * When adding new OID's, please update MBEDTLS_ECP_GRP_OID_MAX_SIZE
+ * in ecp.h
  */
 
 /* secp192r1 OBJECT IDENTIFIER ::= {

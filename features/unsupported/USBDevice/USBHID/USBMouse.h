@@ -190,7 +190,7 @@ class USBMouse: public USBHID
         *
         * @returns pointer to the report descriptor
         */
-        virtual uint8_t * reportDesc();
+        virtual const uint8_t * reportDesc();
 
     protected:
         /*
@@ -198,11 +198,12 @@ class USBMouse: public USBHID
         *
         * @returns pointer to the configuration descriptor
         */
-        virtual uint8_t * configurationDesc();
+        virtual const uint8_t * configurationDesc();
 
     private:
         MOUSE_TYPE mouse_type;
         uint8_t button;
+        uint8_t configurationDescriptor[41];
         bool mouseSend(int8_t x, int8_t y, uint8_t buttons, int8_t z);
 };
 

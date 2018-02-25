@@ -614,8 +614,9 @@ void thread_management_client_pending_coap_request_kill(int8_t interface_id)
         return;
     }
 
+    cur->thread_info->localServerDataBase.publish_active = false;
+
     if (this->coap_asd_msg_id != 0) {
-        cur->thread_info->localServerDataBase.publish_active = false;
         coap_service_request_delete(this->coap_service_id, this->coap_asd_msg_id);
         this->coap_asd_msg_id = 0;
     }

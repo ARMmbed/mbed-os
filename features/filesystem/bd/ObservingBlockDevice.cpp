@@ -51,6 +51,11 @@ int ObservingBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ObservingBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ObservingBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);
@@ -89,6 +94,11 @@ bd_size_t ObservingBlockDevice::get_program_size() const
 bd_size_t ObservingBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int ObservingBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t ObservingBlockDevice::size() const

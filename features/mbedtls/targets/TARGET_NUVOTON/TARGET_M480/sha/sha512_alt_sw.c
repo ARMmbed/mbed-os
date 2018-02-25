@@ -139,7 +139,6 @@ void mbedtls_sha512_sw_starts( mbedtls_sha512_sw_context *ctx, int is384 )
     ctx->is384 = is384;
 }
 
-#if !defined(MBEDTLS_SHA512_PROCESS_ALT)
 
 /*
  * Round constants
@@ -259,7 +258,6 @@ void mbedtls_sha512_sw_process( mbedtls_sha512_sw_context *ctx, const unsigned c
     ctx->state[6] += G;
     ctx->state[7] += H;
 }
-#endif /* !MBEDTLS_SHA512_PROCESS_ALT */
 
 /*
  * SHA-512 process buffer

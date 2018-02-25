@@ -47,6 +47,7 @@
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
+#include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "thread_diagnostic.h"
 #include "6LoWPAN/Thread/thread_dhcpv6_client.h"
@@ -361,7 +362,7 @@ uint8_t *thread_management_key_request(int8_t interface_id, uint8_t keyId)
                     //Get Default key
                     keyPtr =  mle_service_security_default_key_get(interface_id);
                 }
-                thread_nvm_store_seq_counter_store(linkConfiguration->key_sequence);
+                thread_nvm_store_seq_counter_write(linkConfiguration->key_sequence);
             }
         }
     }
@@ -493,7 +494,7 @@ int thread_management_key_sets_calc(protocol_interface_info_entry_t *cur, link_c
         fast_data.seq_counter = thrKeySequenceCounter;
         fast_data.mac_frame_counter = 0;
         fast_data.mle_frame_counter = mle_service_security_get_frame_counter(cur->interface_mode);
-        thread_nvm_store_fast_data_store(&fast_data);
+        thread_nvm_store_fast_data_write(&fast_data);
         mac_helper_link_frame_counter_set(cur->id, 0);
         thread_security_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
         thread_security_next_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
@@ -915,6 +916,9 @@ int thread_management_node_init(
     /* Thread will manage the address query timing, and report negatives. Set this high so as not to interfere. */
     cur->ipv6_neighbour_cache.retrans_timer = 10000;
 
+    // Set default partition weighting
+    cur->thread_info->partition_weighting = THREAD_DEFAULT_WEIGHTING;
+
     /* IP forwarding is off by default */
     cur->ip_forwarding = false;
 
@@ -1061,6 +1065,36 @@ int thread_management_link_configuration_store(int8_t interface_id, link_configu
 #else
     (void) interface_id;
     (void) link_config;
+    return -1;
+#endif
+}
+
+int thread_management_link_configuration_add(int8_t interface_id, uint8_t *additional_ptr, uint8_t additional_len)
+{
+#ifdef HAVE_THREAD
+    if (interface_id < 0) {
+        return -1;
+    }
+
+    int ret = thread_joiner_application_update_configuration(interface_id, additional_ptr, additional_len, true);
+    if (ret != 0) {
+        return ret;
+    }
+
+    protocol_interface_info_entry_t *cur =  protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur  || !cur->thread_info) {
+        return -2;
+    }
+    if ((cur->lowpan_info & INTERFACE_NWK_ACTIVE) !=  0) {
+        // take new settings into use after restart
+        thread_bootstrap_reset_restart(interface_id);
+    }
+
+    return ret;
+#else
+    (void) interface_id;
+    (void) additional_ptr;
+    (void) additional_len;
     return -1;
 #endif
 }
@@ -1344,11 +1378,6 @@ int8_t thread_management_get_request_full_nwk_data(int8_t interface_id, bool *fu
 
 int thread_management_device_certificate_set(int8_t interface_id, const unsigned char *device_certificate_ptr, uint16_t device_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len)
 {
-    (void) interface_id;
-    (void) device_certificate_ptr;
-    (void) device_certificate_len;
-    (void) priv_key_ptr;
-    (void) priv_key_len;
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
 
@@ -1361,16 +1390,16 @@ int thread_management_device_certificate_set(int8_t interface_id, const unsigned
     return thread_extension_bootstrap_device_certificate_set(cur, device_certificate_ptr, device_certificate_len, priv_key_ptr, priv_key_len);
 
 #else
+    (void) interface_id;
+    (void) device_certificate_ptr;
+    (void) device_certificate_len;
+    (void) priv_key_ptr;
+    (void) priv_key_len;
     return -1;
 #endif
 }
 int thread_management_network_certificate_set(int8_t interface_id, const unsigned char *network_certificate_ptr, uint16_t network_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len)
 {
-    (void) interface_id;
-    (void) network_certificate_ptr;
-    (void) network_certificate_len;
-    (void) priv_key_ptr;
-    (void) priv_key_len;
 #ifdef HAVE_THREAD
     protocol_interface_info_entry_t *cur;
 
@@ -1386,7 +1415,40 @@ int thread_management_network_certificate_set(int8_t interface_id, const unsigne
 
     return thread_extension_bootstrap_network_private_key_set(cur, priv_key_ptr, priv_key_len);
 #else
+    (void) interface_id;
+    (void) network_certificate_ptr;
+    (void) network_certificate_len;
+    (void) priv_key_ptr;
+    (void) priv_key_len;
     return -1;
 #endif
 }
 
+int thread_management_partition_weighting_set(int8_t interface_id, uint8_t partition_weighting)
+{
+#ifdef HAVE_THREAD
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->thread_info) {
+        tr_debug("Invalid interface id");
+        return -1;
+    }
+
+    if (cur->thread_info->partition_weighting == partition_weighting) {
+        return 0;
+    }
+
+    cur->thread_info->partition_weighting = partition_weighting;
+    if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
+        // bootstrap active and weighting has changed
+        thread_bootstrap_reset_restart(interface_id);
+    }
+
+    return 0;
+#else
+    (void) interface_id;
+    (void) partition_weighting;
+    return -1;
+#endif
+}
