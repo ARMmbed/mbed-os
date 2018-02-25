@@ -19,7 +19,8 @@
 ATCAFactory * ATCAFactory::instance = NULL;
 
 ATCAFactory::ATCAFactory()
-#if defined(DEVICE_I2C)
+/* By default only enable it for K64F */
+#if defined(DEVICE_I2C) && defined(TARGET_K64F)
     :plt(I2C_SDA, I2C_SCL,
 #else
     :plt(NC, NC,
@@ -36,7 +37,7 @@ ATCAFactory::~ATCAFactory()
 
 ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
 {
-#if defined(DEVICE_I2C)
+#if defined(DEVICE_I2C) && defined(TARGET_K64F)
     if ( instance == NULL )
     {
         instance = new ATCAFactory();
@@ -58,7 +59,7 @@ ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
 #else
     err = ATCA_ERR_NO_I2C;
     return NULL;
-#endif /* DEVICE_I2C */
+#endif /* DEVICE_I2C && TARGET_K64F */
 }
 
 void ATCAFactory::Deinit()
