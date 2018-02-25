@@ -19,7 +19,11 @@
 ATCAFactory * ATCAFactory::instance = NULL;
 
 ATCAFactory::ATCAFactory()
+#if defined(DEVICE_I2C)
     :plt(I2C_SDA, I2C_SCL,
+#else
+    :plt(NC, NC,
+#endif
          ATCA_ECC_I2C_FREQUENCY,
          ATCA_ECC_508A_I2C_ADDR),
     device(plt)
@@ -32,6 +36,7 @@ ATCAFactory::~ATCAFactory()
 
 ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
 {
+#if defined(DEVICE_I2C)
     if ( instance == NULL )
     {
         instance = new ATCAFactory();
@@ -50,6 +55,10 @@ ATCADevice * ATCAFactory::GetDevice( ATCAError & err )
     }
     err = ATCA_SUCCESS;
     return &instance->device;
+#else
+    err = ATCA_ERR_NO_I2C;
+    return NULL;
+#endif /* DEVICE_I2C */
 }
 
 void ATCAFactory::Deinit()
