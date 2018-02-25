@@ -20,6 +20,8 @@
 #include "mbedtls/ecdsa.h"
 #include "mbedtls_atca_engine.h"
 
+#include "assert.h"
+
 #if MBED_CONF_ATCAECC_APP_ENABLE
 
 /** Sample configuration data. It is supplied to the Lock command to

@@ -21,6 +21,8 @@
 #include "ATCAFactory.h"
 #include "mbedtls_atca_engine.h"
 
+#include "assert.h"
+
 #define UNUSED(x) ((void)(x))
 
 

@@ -18,6 +18,8 @@
 #include "ATCADevice.h"
 #include "ATCAConfig.h"
 
+#include "assert.h"
+
 
 const uint8_t ATCADevice::expected_revision[] = ATCA_ECC_508A_REVISION;
 
