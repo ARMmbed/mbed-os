@@ -200,6 +200,8 @@ typedef enum {
 
     I2C_SDA0 = p26,
     I2C_SCL0 = p27,
+    I2C_SDA = p26,
+    I2C_SCL = p27,
 
     D0 = P1_1,
     D1 = P1_2,
