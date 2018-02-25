@@ -130,6 +130,9 @@ typedef enum {
     // Button naming
     SW1 = PC_12,
     SW2 = PC_13,
+    // I2C naming
+    I2C_SDA = D10,
+    I2C_SCL = D11,
     
 } PinName;
 
