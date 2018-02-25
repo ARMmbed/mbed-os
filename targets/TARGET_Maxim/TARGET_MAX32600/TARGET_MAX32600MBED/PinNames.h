@@ -200,6 +200,8 @@ typedef enum {
 
     I2C1_SCL = P2_7,
     I2C1_SDA = P2_6,
+    I2C_SCL = P2_7,
+    I2C_SDA = P2_6,
 
     // UART pins
     UART0_RX  = P1_0,
