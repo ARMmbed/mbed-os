@@ -1,0 +1,10 @@
+host/src/tests/tztrng_test/tztrng_test.c
+host/src/tests/tztrng_test/pal/tztrng_test_pal_api.h
+host/src/tests/tztrng_test/pal/linux/tztrng_test_pal.c
+host/src/tests/tztrng_test/pal/linux/tztrng_test_pal.h
+host/src/tests/tztrng_test/pal/freertos/tztrng_test_pal.c
+host/src/tests/tztrng_test/pal/freertos/tztrng_test_pal.h
+host/src/tests/tztrng_test/tztrng_test.h
+host/src/tests/tztrng_test/tztrng_test_arm.c
+host/src/tztrng_lib/llf_rnd_fetrng.c
+host/src/tztrng_lib/include/config_fetrng.h

@@ -1,0 +1,7 @@
+PROJ_NAME = tztrng_integration_tests
+PROJ_VER = 2.0.0
+BUILD_MACHINE = Linux 3.13.0-87-generic x86_64
+BUILD_TIME = Tue Jul 4 14:50:50 IDT 2017
+TARGET_HOST_ARCH = arm
+SVN_BRANCH = tags/tztrng_integration_tests-2.0.0-rc9
+SVN_REV = 852

@@ -1,0 +1,9 @@
+That folder tracks the Arm TrustZone TRNG driver upstreamed at address:
+https://github.com/ARM-software/TZ-TRNG
+His current state is the commit 1eda2d7778338f841f9a6b350f074f612924ea12 of
+branch master.
+From that repository, the .git folder .gitignore and
+trustzone_trng_software_integrators_manual_101049_0000_00_en.pdf files have been
+deleted.
+The .mbedignore file has been added to make the compilation work for mbed OS.
+This file, version.txt, has been added.

@@ -1,0 +1,8 @@
+
+ifeq ($(TEE_OS), freertos)
+INCDIRS_EXTRA += $(KERNEL_DIR)/OS/FreeRTOS/Source/include
+INCDIRS_EXTRA += $(KERNEL_DIR)/OS/FreeRTOS-Plus-CLI
+INCDIRS_EXTRA += $(KERNEL_DIR)/board/MPS2+
+INCDIRS_EXTRA += $(KERNEL_DIR)/lib/main
+INCDIRS_EXTRA += $(KERNEL_DIR)/OS/FreeRTOS/Source/portable/RVDS/ARM_CM3
+endif
