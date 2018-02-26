@@ -1,14 +1,16 @@
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
 """
+from __future__ import absolute_import, print_function
 import sys
-from os.path import join, abspath, dirname, exists, basename
+from os.path import (join, abspath, dirname, exists, basename, normpath,
+                     realpath, basename)
+from os import remove
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from argparse import ArgumentParser
-from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES, MBED_TARGETS_PATH
 from tools.settings import BUILD_DIR
@@ -191,7 +193,7 @@ def main():
 
     # Print available tests in order and exit
     if options.list_tests is True:
-        print '\n'.join([str(test) for test in  sorted(TEST_MAP.values())])
+        print('\n'.join([str(test) for test in  sorted(TEST_MAP.values())]))
         sys.exit()
 
     # Only prints matrix of supported IDEs
@@ -199,7 +201,7 @@ def main():
         if options.supported_ides == "matrix":
             print_large_string(mcu_ide_matrix())
         elif options.supported_ides == "ides":
-            print mcu_ide_list()
+            print(mcu_ide_list())
         exit(0)
 
     # Only prints matrix of supported IDEs
@@ -212,9 +214,9 @@ def main():
                 readme.write("\n")
                 readme.write(html)
         except IOError as exc:
-            print "I/O error({0}): {1}".format(exc.errno, exc.strerror)
+            print("I/O error({0}): {1}".format(exc.errno, exc.strerror))
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print("Unexpected error:", sys.exc_info()[0])
             raise
         exit(0)
 
@@ -246,14 +248,20 @@ def main():
         args_error(parser, "%s not supported by %s"%(mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
-        rmtree(BUILD_DIR)
+        for cls in EXPORTERS.values():
+            try:
+                cls.clean(basename(abspath(options.source_dir[0])))
+            except (NotImplementedError, IOError, OSError):
+                pass
+        for f in EXPORTERS.values()[0].CLEAN_FILES:
+            remove(f)
     try:
         export(mcu, options.ide, build=options.build,
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
                build_profile=profile, app_config=options.app_config)
     except NotSupportedException as exc:
-        print "[ERROR] %s" % str(exc)
+        print("[ERROR] %s" % str(exc))
 
 if __name__ == "__main__":
     main()

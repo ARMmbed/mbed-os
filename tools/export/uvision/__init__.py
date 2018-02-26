@@ -239,6 +239,16 @@ class Uvision(Exporter):
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
 
     @staticmethod
+    def clean(project_name):
+        os.remove(project_name + ".uvprojx")
+        os.remove(project_name + ".uvoptx")
+        # legacy .build directory cleaned if exists
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
+
+    @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
         """ Build Uvision project """
         # > UV4 -r -j0 -o [log_name] [project_name].uvprojx
@@ -257,13 +267,7 @@ class Uvision(Exporter):
         # Cleanup the exported and built files
         if cleanup:
             os.remove(log_name)
-            os.remove(project_name+".uvprojx")
-            os.remove(project_name+".uvoptx")
-            # legacy .build directory cleaned if exists
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            Uvision.clean(project_name)
 
         # Returns 0 upon success, 1 upon a warning, and neither upon an error
         if ret_code != 0 and ret_code != 1:

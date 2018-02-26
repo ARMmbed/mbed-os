@@ -14,7 +14,7 @@
 # limitations under the License.
 
 from os.path import join, exists, realpath, relpath, basename, isfile, splitext
-from os import makedirs, listdir
+from os import makedirs, listdir, remove, rmdir
 import json
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
@@ -83,6 +83,11 @@ class VSCode(Makefile):
         with open(join(self.export_dir, '.vscode', 'c_cpp_properties.json'), 'w') as outfile:
             json.dump(cpp_props, outfile, indent=4, separators=(',', ': '))
 
+    @staticmethod
+    def clean(_):
+        for f in ['launch', 'settings', 'tasts', 'c_cpp_properties']:
+            remove(".vscode/%s.json" % f)
+        rmdir(".vscode")
 
 class VSCodeGcc(VSCode, GccArm):
     LOAD_EXE = True
