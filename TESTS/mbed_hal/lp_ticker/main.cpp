@@ -86,6 +86,24 @@ void lp_ticker_deepsleep_test()
     TEST_ASSERT_EQUAL(1, intFlag);
 }
 
+/* Test that the ticker does not glitch backwards due to an incorrectly implemented ripple counter driver. */
+void lp_ticker_glitch_test()
+{
+    lp_ticker_init();
+
+    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+
+    uint32_t last = lp_ticker_read();
+    const uint32_t start = last;
+
+    /* Set test time to 2 sec. */
+    while (last < (start + p_ticker_info->frequency * 2)) {
+        const uint32_t cur = lp_ticker_read();
+        TEST_ASSERT(cur >= last);
+        last = cur;
+    }
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(20, "default_auto");
@@ -95,6 +113,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("lp ticker info test", lp_ticker_info_test),
     Case("lp ticker sleep test", lp_ticker_deepsleep_test),
+    Case("lp ticker glitch test", lp_ticker_glitch_test)
 };
 
 Specification specification(test_setup, cases);
