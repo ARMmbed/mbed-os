@@ -136,7 +136,9 @@ private:
 
     bool _is_connected;
     bool _is_initialized;
+#if MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
     bool _credentials_set;
+#endif // #if MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
     CellularConnectionUtil::CellularState _target_state;
 
     UARTSerial _cellularSerial;
