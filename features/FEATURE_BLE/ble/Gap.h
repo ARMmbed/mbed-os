@@ -2356,8 +2356,12 @@ public:
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
         const uint8_t *advertisingData,
-        BLEProtocol::AddressType_t addressType
+        BLEProtocol::AddressType_t addressType = BLEProtocol::RANDOM_STATIC
     ) {
+       // FIXME: remove default parameter for addressType when ST shield is merged; 
+       // this has been added to mitigate the lack of dependency management in 
+       // testing jobs ....
+       
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
         params.rssi = rssi;
