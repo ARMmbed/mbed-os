@@ -44,7 +44,13 @@ void lp_ticker_info_test(void);
  */
 void lp_ticker_deepsleep_test(void);
 
-
+/** Test that the ticker does not glitch backwards due to an incorrectly implemented ripple counter driver.
+ *
+ * Given ticker is available.
+ * When ticker is enabled and counts.
+ * Then ticker does not glitch backwards due to an incorrectly implemented ripple counter driver.
+ */
+void lp_ticker_glitch_test(void);
 /**@}*/
 
 #ifdef __cplusplus
