@@ -20,6 +20,13 @@
 #include "drivers/TableCRC.h"
 #include "platform/mbed_assert.h"
 
+/* This is invalid warning from the compiler for below section of code
+if ((width < 8) && (NULL == _crc_table)) {
+    p_crc = (uint32_t)(p_crc << (8 - width));
+}
+Compiler warns of the shift operation with width as it is width=(std::uint8_t),
+but we check for ( width < 8) before performing shift, so it should not be an issue.
+*/
 #if defined ( __CC_ARM )
 #pragma diag_suppress 62  // Shift count is negative
 #elif defined ( __GNUC__ )
@@ -57,7 +64,6 @@ typedef enum crc_polynomial {
  * @code
  *
  *  #include "mbed.h"
- *  #include "drivers/MbedCRC.h"
  *
  *  int main() {
  *      MbedCRC<POLY_32BIT_ANSI, 32> ct;
@@ -77,7 +83,6 @@ typedef enum crc_polynomial {
  * @code
  *
  *  #include "mbed.h"
- *  #include "drivers/MbedCRC.h"
  *  int main() {
  *      MbedCRC<POLY_32BIT_ANSI, 32> ct;
  *
@@ -263,7 +268,7 @@ private:
      */
     uint32_t get_crc_mask(void) const
     {
-        return (width < 8 ? ((1u << 8)-1) : (uint32_t)((uint64_t)(1ull << width) - 1));
+        return (width < 8 ? ((1u << 8) - 1) : (uint32_t)((uint64_t)(1ull << width) - 1));
     }
 
     /** Final value of CRC is reflected
