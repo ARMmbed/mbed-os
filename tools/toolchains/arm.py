@@ -309,7 +309,6 @@ class ARMC6(ARM_STD):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        build_dir = kwargs['build_dir']
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
 
@@ -349,6 +348,7 @@ class ARMC6(ARM_STD):
 
         # Create Secure library
         if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            build_dir = kwargs['build_dir']
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
