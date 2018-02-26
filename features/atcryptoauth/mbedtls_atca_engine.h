@@ -44,7 +44,8 @@ int mbedtls_atca_transparent_pk_setup( mbedtls_pk_context * ctx,
  *
  *  @param ecc_pk       ECC Public key input.
  *  @param asn_out      ASN.1 out buffer.
- *  @param asn_out_len  Out buffer length.
+ *  @param asn_len      ASN.1 out buffer length.
+ *  @param asn_out_len  ASN.1 out length.
  *  @return             0 on success, -1 on failure
  */
 int ecc_key_to_octet_string( uint8_t * ecc_pk, uint8_t * asn_out, size_t asn_len,
