@@ -278,7 +278,8 @@ private:
      *
      *  Byte address is required to be 4 byte aligned.
      *
-     *  @param address  Byte address in Data zone. Should be 4 byte aligned.
+     *  @param byte_address
+     *                  Byte address in Data zone. Should be 4 byte aligned.
      *  @param len      Output buffer length. Must be 4.
      *  @param obuf     Output buffer of len bytes.
      *  @return         Error code from enum ATCAError.
@@ -289,7 +290,8 @@ private:
      *  boundary is not allowed. Hence the length must be <= 4.
      *
      *
-     *  @param address  Byte address in data zone. May not be 4 byte aligned.
+     *  @param byte_address
+     *                  Byte address in data zone. May not be 4 byte aligned.
      *  @param len      Input buffer length. Must be <= 4.
      *  @param data     Input buffer of length bytes.
      *  @return         Error code from enum ATCAError.
@@ -301,7 +303,7 @@ private:
      *  Device specified polynomial 0x8005 is used.
      *
      *  @param data     Input buffer.
-     *  @param len      Input buffer length.
+     *  @param length   Input buffer length.
      *  @return         Error code from enum ATCAError.
      */
     uint16_t    GetCrc16(const uint8_t *data, uint8_t length);
