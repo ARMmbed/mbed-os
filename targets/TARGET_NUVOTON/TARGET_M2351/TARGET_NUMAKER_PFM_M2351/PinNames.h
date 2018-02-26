@@ -17,6 +17,7 @@
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
+#include "partition_M2351.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,9 +40,47 @@ extern "C" {
 #define NU_PINNAME_BIND(PINNAME, modname)           ((PinName) NU_PINNAME_BIND_(NU_PINPORT(PINNAME), NU_PININDEX(PINNAME), modname))
 #define NU_PINNAME_BIND_(PORT, PIN, modname)        ((((unsigned int)(PORT)) << NU_PINPORT_Pos) | (((unsigned int)(PIN)) << NU_PININDEX_Pos) | (NU_MODINDEX(modname) << NU_PIN_MODINDEX_Pos) | NU_PIN_BIND_Msk)
 
-#define NU_PORT_BASE(port)                          ((GPIO_T *)(((uint32_t) (GPIOA_BASE  + NS_OFFSET)) + 0x40 * port))  // Set All GPIO as non-secure
+/* Revise NU_PORT_BASE to be TrustZone-aware */
+__STATIC_INLINE GPIO_T *NU_PORT_BASE(uint32_t PORT)
+{
+    uint32_t port_base = ((uint32_t) GPIOA_BASE) + 0x40 * PORT;
+    
+#if defined(SCU_INIT_IONSSET_VAL)
+    if (SCU_INIT_IONSSET_VAL & (1 << (PORT + 0))) {
+        port_base += NS_OFFSET;
+    } 
+#endif
+
+    return ((GPIO_T *) port_base);
+}
+
 #define NU_MFP_POS(pin)                             ((pin % 8) * 4)
 #define NU_MFP_MSK(pin)                             (0xful << NU_MFP_POS(pin))
+
+/* TrustZone-aware version of GPIO_PIN_DATA to get GPIO pin data */
+__STATIC_INLINE uint32_t NU_GET_GPIO_PIN_DATA(uint32_t PORT, uint32_t PIN)
+{
+#if defined(SCU_INIT_IONSSET_VAL)
+    if (SCU_INIT_IONSSET_VAL & (1 << (PORT + 0))) {
+        return GPIO_PIN_DATA_NS(PORT, PIN);
+    } 
+#endif
+    
+    return GPIO_PIN_DATA(PORT, PIN);
+}
+
+/* TrustZone-aware version of GPIO_PIN_DATA to set GPIO pin data */
+__STATIC_INLINE void NU_SET_GPIO_PIN_DATA(uint32_t PORT, uint32_t PIN, uint32_t VALUE)
+{
+#if defined(SCU_INIT_IONSSET_VAL)
+    if (SCU_INIT_IONSSET_VAL & (1 << (PORT + 0))) {
+        GPIO_PIN_DATA_NS(PORT, PIN) = VALUE;
+        return;
+    }
+#endif
+    
+    GPIO_PIN_DATA(PORT, PIN) = VALUE;
+}
 
 // LEGACY
 #define NU_PINNAME_TO_PIN(PINNAME)                  NU_PININDEX(PINNAME)

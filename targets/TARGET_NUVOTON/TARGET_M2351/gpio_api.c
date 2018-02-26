@@ -62,8 +62,6 @@ void gpio_mode(gpio_t *obj, PinMode mode)
     pin_mode(obj->pin, mode);
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     if (obj->pin == (PinName) NC) {
@@ -91,4 +89,3 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);
 }
-#endif
