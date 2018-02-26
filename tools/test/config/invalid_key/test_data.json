@@ -1,5 +1,5 @@
 {
     "K64F": {
-        "exception_msg": "Additional properties are not allowed ('unknown_key' was unexpected)"
+        "exception_msg": "Additional properties are not allowed (u'unknown_key' was unexpected)"
     }
 }
