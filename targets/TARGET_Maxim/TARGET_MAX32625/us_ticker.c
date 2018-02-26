@@ -230,7 +230,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(US_TIMER_IRQn);
+    TMR32_SetCompare(US_TIMER, 1);
 }
 
 //******************************************************************************
