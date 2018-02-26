@@ -20,6 +20,9 @@
 #include "mbed.h"
 #include "ATCAPlatformInterface.h"
 
+#if !defined(DEVICE_I2C)
+typedef void I2C;
+#endif /* DEVICE_I2C */
 
 /** Mbed implementation of abstract Platform interface.
  */
