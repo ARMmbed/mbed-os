@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+#include <arm_cmse.h>
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "PortNames.h"
 #include "mbed_error.h"
+#include "partition_m2351.h"
 
 /**
  * Configure pin multi-function
@@ -30,21 +32,18 @@ void pin_function(PinName pin, int data)
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
+    
+    /* Guard access to secure GPIO from non-secure domain */
+    if (cmse_nonsecure_caller() && 
+        (! (SCU_INIT_IONSSET_VAL & (1 << (port_index + 0))))) {
+        error("Non-secure domain tries to control secure or undefined GPIO.");
+    }
+
     __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
-    //uint32_t MFP_Pos = NU_MFP_POS(pin_index);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
     
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
     *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
-    
-    // [TODO] Disconnect JTAG-DP + SW-DP signals.
-    // Warning: Need to reconnect under reset
-    //if ((pin == PA_13) || (pin == PA_14)) {
-    //
-    //}
-    //if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
-    //
-    //}
 }
 #endif
 
