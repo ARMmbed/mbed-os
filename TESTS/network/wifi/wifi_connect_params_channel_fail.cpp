@@ -34,7 +34,7 @@ void wifi_connect_params_channel_fail(void)
         return;
     }
 
-    nsapi_error_t error = wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security(), MBED_CONF_APP_WIFI_CH_SECURE);
+    nsapi_error_t error = wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security(), MBED_CONF_APP_WIFI_CH_UNSECURE);
     TEST_ASSERT(error==NSAPI_ERROR_CONNECTION_TIMEOUT || error==NSAPI_ERROR_NO_CONNECTION);
 }
 

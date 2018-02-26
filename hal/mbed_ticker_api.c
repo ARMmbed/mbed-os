@@ -235,6 +235,14 @@ static void schedule_interrupt(const ticker_data_t *const ticker)
         }
 
         timestamp_t match_tick = compute_tick(ticker, match_time);
+        // The time has been checked to be future, but it could still round
+        // to the last tick as a result of us to ticks conversion
+        if (match_tick == queue->tick_last_read) {
+            // Match time has already expired so fire immediately
+            ticker->interface->fire_interrupt();
+            return;
+        }
+
         ticker->interface->set_interrupt(match_tick);
         timestamp_t cur_tick = ticker->interface->read();
 

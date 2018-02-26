@@ -163,6 +163,46 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 }
 
+void test_single_mbr() {
+    int err = bd.init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    const bd_addr_t MBR_OFFSET = 0;
+    const bd_addr_t FAT1_OFFSET = 1;
+    const bd_addr_t FAT2_OFFSET = BLOCK_COUNT/2;
+
+    uint8_t *buffer = (uint8_t *)malloc(BLOCK_SIZE);
+    TEST_ASSERT(buffer);
+
+    // Check that all three header blocks have the 0x55aa signature
+    err = bd.read(buffer, MBR_OFFSET*BLOCK_SIZE, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+    TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE-2], "\x55\xaa", 2) == 0);
+
+    err = bd.read(buffer, FAT1_OFFSET*BLOCK_SIZE, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+    TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE-2], "\x55\xaa", 2) == 0);
+
+    err = bd.read(buffer, FAT2_OFFSET*BLOCK_SIZE, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+    TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE-2], "\x55\xaa", 2) == 0);
+
+    // Check that the headers for both filesystems contain a jump code
+    // indicating they are actual FAT superblocks and not an extra MBR
+    err = bd.read(buffer, FAT1_OFFSET*BLOCK_SIZE, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+    TEST_ASSERT(buffer[0] == 0xe9 || buffer[0] == 0xeb || buffer[0] == 0xe8);
+
+    err = bd.read(buffer, FAT2_OFFSET*BLOCK_SIZE, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+    TEST_ASSERT(buffer[0] == 0xe9 || buffer[0] == 0xeb || buffer[0] == 0xe8);
+
+    free(buffer);
+
+    bd.deinit();
+    TEST_ASSERT_EQUAL(0, err);
+}
+
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -174,6 +214,7 @@ Case cases[] = {
     Case("Testing formating", test_format),
     Case("Testing read write < block", test_read_write<BLOCK_SIZE/2>),
     Case("Testing read write > block", test_read_write<2*BLOCK_SIZE>),
+    Case("Testing for no extra MBRs", test_single_mbr),
 };
 
 Specification specification(test_setup, cases);

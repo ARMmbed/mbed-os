@@ -49,7 +49,7 @@ extern "C" {
 // Platform includes
 #if defined(EQUEUE_PLATFORM_POSIX)
 #include <pthread.h>
-#elif defined(EQUEUE_PLATFORM_MBED)
+#elif defined(EQUEUE_PLATFORM_MBED) && defined(MBED_CONF_RTOS_PRESENT)
 #include "cmsis_os2.h"
 #include "mbed_rtos_storage.h"
 #endif

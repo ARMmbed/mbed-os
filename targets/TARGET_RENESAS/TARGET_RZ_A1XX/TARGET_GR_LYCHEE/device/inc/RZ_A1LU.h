@@ -649,6 +649,7 @@ typedef enum IRQn
 #define __L2C_PRESENT        1U    /* L2C present                                   */
 
 #include "core_ca.h"
+#include "nvic_wrapper.h"
 #include <system_RZ_A1LU.h>
 #include "iodefine.h"
 

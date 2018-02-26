@@ -18,9 +18,10 @@
 namespace mbed {
 
 FilePath::FilePath(const char* file_path) : file_name(NULL), fb(NULL) {
-    if ((file_path[0] != '/') || (file_path[1] == 0)) return;
+    // skip slashes
+    file_path += strspn(file_path, "/");
 
-    const char* file_system = &file_path[1];
+    const char* file_system = file_path;
     file_name = file_system;
     int len = 0;
     while (true) {
@@ -36,6 +37,7 @@ FilePath::FilePath(const char* file_path) : file_name(NULL), fb(NULL) {
         file_name++;
     }
 
+    MBED_ASSERT(len != 0);
     fb = FileBase::lookup(file_system, len);
 }
 

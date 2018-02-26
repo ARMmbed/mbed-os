@@ -56,7 +56,12 @@ uint32_t FLASHIAP_ReadUid(uint32_t *addr)
 // called before main
 void mbed_sdk_init()
 {
-    BOARD_BootClockFROHF48M();
+    if (SYSCON->DEVICE_ID0 == 0xFFF54628) {
+        /* LPC54628 runs at a higher core speed */
+        BOARD_BootClockPLL220M();
+    } else {
+        BOARD_BootClockFROHF48M();
+    }
 }
 
 // Change the NMI pin to an input. This allows NMI pin to

@@ -1,8 +1,6 @@
-;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f439xx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.6.0
-;* Date               : 04-November-2016
 ;* Description        : STM32F439x devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP

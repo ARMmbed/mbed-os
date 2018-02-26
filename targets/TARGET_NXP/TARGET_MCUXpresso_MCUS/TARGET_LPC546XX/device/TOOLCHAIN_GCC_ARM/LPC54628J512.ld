@@ -1,9 +1,9 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54618J512
+**     Processors:          LPC54628J512
 **
 **     Compiler:            GNU C Compiler
-**     Reference manual:    LPC54618 Series Reference Manual, Rev. 0 , 06/2017
+**     Reference manual:    LPC54628 Series Reference Manual, Rev. 0 , 06/2017
 **     Version:             rev. 1.0, 2017-6-06
 **     Build:               b161214
 **

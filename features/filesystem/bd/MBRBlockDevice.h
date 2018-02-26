@@ -82,6 +82,11 @@ enum {
  *  // the FAT filesystem in partition 1
  *  FATFileSystem fat("fat", &part1);
  *  @endcode
+ *
+ *  @note
+ *  The MBR partition table is relatively limited:
+ *  - At most 4 partitions are supported
+ *  - Extended partitions are currently not supported and will error during init
  */
 class MBRBlockDevice : public BlockDevice
 {
