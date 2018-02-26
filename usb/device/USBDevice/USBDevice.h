@@ -1,20 +1,18 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-* and associated documentation files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all copies or
-* substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-* BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+/* mbed Microcontroller Library
+ * Copyright (c) 2018-2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef USBDEVICE_H
 #define USBDEVICE_H
@@ -23,8 +21,7 @@
 #include "USBDevice_Types.h"
 #include "USBHAL.h"
 
-class USBDevice: public USBHAL
-{
+class USBDevice: public USBHAL {
 public:
     USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
@@ -78,7 +75,7 @@ public:
     * @param maxSize the maximum length that can be read
     * @returns true if successful
     */
-    bool readEP(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize);
+    bool readEP(uint8_t endpoint, uint8_t *buffer, uint32_t *size, uint32_t maxSize);
 
     /*
     * Read a certain endpoint.
@@ -91,7 +88,7 @@ public:
     * @param maxSize the maximum length that can be read
     * @returns true if successful
     */
-    bool readEP_NB(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize);
+    bool readEP_NB(uint8_t endpoint, uint8_t *buffer, uint32_t *size, uint32_t maxSize);
 
     /*
     * Write a certain endpoint.
@@ -103,7 +100,7 @@ public:
     * @param size the number of bytes to write
     * @param maxSize the maximum length that can be written on this endpoint
     */
-    bool write(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize);
+    bool write(uint8_t endpoint, uint8_t *buffer, uint32_t size, uint32_t maxSize);
 
 
     /*
@@ -116,7 +113,7 @@ public:
     * @param size the number of bytes to write
     * @param maxSize the maximum length that can be written on this endpoint
     */
-    bool writeNB(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize);
+    bool writeNB(uint8_t endpoint, uint8_t *buffer, uint32_t size, uint32_t maxSize);
 
 
     /*
@@ -133,7 +130,10 @@ public:
     *
     * @returns true if class handles this request
     */
-    virtual bool USBCallback_request() { return false; };
+    virtual bool USBCallback_request()
+    {
+        return false;
+    };
 
     /*
     * Called by USBDevice on Endpoint0 request completion
@@ -145,7 +145,7 @@ public:
     * @param buf buffer received on endpoint 0
     * @param length length of this buffer
     */
-    virtual void USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {};
+    virtual void USBCallback_requestCompleted(uint8_t *buf, uint32_t length) {};
 
     /*
     * Called by USBDevice layer. Set configuration of the device.
@@ -153,7 +153,10 @@ public:
     *
     * @param configuration Number of the configuration
     */
-    virtual bool USBCallback_setConfiguration(uint8_t configuration) { return false; };
+    virtual bool USBCallback_setConfiguration(uint8_t configuration)
+    {
+        return false;
+    };
 
     /*
      * Called by USBDevice layer. Set interface/alternate of the device.
@@ -162,70 +165,79 @@ public:
      * @param alternate Number of the alternate to be configured
      * @returns true if class handles this request
      */
-    virtual bool USBCallback_setInterface(uint16_t interface, uint8_t alternate) { return false; };
+    virtual bool USBCallback_setInterface(uint16_t interface, uint8_t alternate)
+    {
+        return false;
+    };
 
     /*
     * Get device descriptor.
     *
     * @returns pointer to the device descriptor
     */
-    virtual const uint8_t * deviceDesc();
+    virtual const uint8_t *deviceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual const uint8_t * configurationDesc(){return NULL;};
+    virtual const uint8_t *configurationDesc()
+    {
+        return NULL;
+    };
 
     /*
     * Get string lang id descriptor
     *
     * @return pointer to the string lang id descriptor
     */
-    virtual const uint8_t * stringLangidDesc();
+    virtual const uint8_t *stringLangidDesc();
 
     /*
     * Get string manufacturer descriptor
     *
     * @returns pointer to the string manufacturer descriptor
     */
-    virtual const uint8_t * stringImanufacturerDesc();
+    virtual const uint8_t *stringImanufacturerDesc();
 
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
-    virtual const uint8_t * stringIproductDesc();
+    virtual const uint8_t *stringIproductDesc();
 
     /*
     * Get string serial descriptor
     *
     * @returns pointer to the string serial descriptor
     */
-    virtual const uint8_t * stringIserialDesc();
+    virtual const uint8_t *stringIserialDesc();
 
     /*
     * Get string configuration descriptor
     *
     * @returns pointer to the string configuration descriptor
     */
-    virtual const uint8_t * stringIConfigurationDesc();
+    virtual const uint8_t *stringIConfigurationDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual const uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t *stringIinterfaceDesc();
 
     /*
     * Get the length of the report descriptor
     *
     * @returns length of the report descriptor
     */
-    virtual uint16_t reportDescLength() { return 0; };
+    virtual uint16_t reportDescLength()
+    {
+        return 0;
+    };
 
 
 
@@ -236,8 +248,8 @@ protected:
     virtual void EP0in(void);
     virtual void connectStateChanged(unsigned int connected);
     virtual void suspendStateChanged(unsigned int suspended);
-    uint8_t * findDescriptor(uint8_t descriptorType);
-    CONTROL_TRANSFER * getTransferPtr(void);
+    uint8_t *findDescriptor(uint8_t descriptorType);
+    CONTROL_TRANSFER *getTransferPtr(void);
 
     uint16_t VENDOR_ID;
     uint16_t PRODUCT_ID;
