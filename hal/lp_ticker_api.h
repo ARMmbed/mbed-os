@@ -43,6 +43,9 @@ extern "C" {
  * * See the @ref hal_ticker_shared "ticker specification"
  * * Calling any function other than lp_ticker_init after calling lp_ticker_free
  *
+ * # Potential bugs
+ * * Glitches due to ripple counter - Verified by ::lp_ticker_glitch_test
+ *
  * @see hal_lp_ticker_tests
  *
  * @{
