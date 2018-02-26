@@ -38,16 +38,8 @@ static inline void gpio_write(gpio_t *obj, int value)
     MBED_ASSERT(obj->pin != (PinName)NC);    
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
-#if defined (NVIC_INIT_ITNS0_VAL)
-    if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-		{
-			GPIO_PIN_DATA_NS(port_index, pin_index) = value ? 1 : 0;
-		} else {
-			GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
-		}
-#else
-        GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
-#endif
+
+    NU_SET_GPIO_PIN_DATA(port_index, pin_index, value ? 1 : 0);
 }
 
 static inline int gpio_read(gpio_t *obj)
@@ -55,16 +47,8 @@ static inline int gpio_read(gpio_t *obj)
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
-#if defined (NVIC_INIT_ITNS0_VAL)
-    if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
-		{    
-			return (GPIO_PIN_DATA_NS(port_index, pin_index) ? 1 : 0);			
-		} else {	
-			return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
-		}	
-#else
-        return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
-#endif
+
+    return (NU_GET_GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
 }
 
 #ifdef __cplusplus
