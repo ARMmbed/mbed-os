@@ -144,28 +144,8 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-#if !MBED_CONF_TARGET_LSE_AVAILABLE
-    // Enable Power clock
-    __HAL_RCC_PWR_CLK_ENABLE();
-
-    // Enable access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
-
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
-#endif
-
-    // Disable LSI and LSE clocks
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
-    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
 }
 
 /*
