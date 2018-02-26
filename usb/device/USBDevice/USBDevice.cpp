@@ -1,20 +1,18 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-* and associated documentation files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all copies or
-* substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-* BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+/* mbed Microcontroller Library
+ * Copyright (c) 2018-2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "stdint.h"
 
@@ -46,38 +44,33 @@ bool USBDevice::requestGetDescriptor(void)
 #ifdef DEBUG
     printf("get descr: type: %d\r\n", DESCRIPTOR_TYPE(transfer.setup.wValue));
 #endif
-    switch (DESCRIPTOR_TYPE(transfer.setup.wValue))
-    {
+    switch (DESCRIPTOR_TYPE(transfer.setup.wValue)) {
         case DEVICE_DESCRIPTOR:
-            if (deviceDesc() != NULL)
-            {
+            if (deviceDesc() != NULL) {
                 if ((deviceDesc()[0] == DEVICE_DESCRIPTOR_LENGTH) \
-                    && (deviceDesc()[1] == DEVICE_DESCRIPTOR))
-                {
+                        && (deviceDesc()[1] == DEVICE_DESCRIPTOR)) {
 #ifdef DEBUG
                     printf("device descr\r\n");
 #endif
                     transfer.remaining = DEVICE_DESCRIPTOR_LENGTH;
-                    transfer.ptr = (uint8_t*)deviceDesc();
+                    transfer.ptr = (uint8_t *)deviceDesc();
                     transfer.direction = DEVICE_TO_HOST;
                     success = true;
                 }
             }
             break;
         case CONFIGURATION_DESCRIPTOR:
-            if (configurationDesc() != NULL)
-            {
+            if (configurationDesc() != NULL) {
                 if ((configurationDesc()[0] == CONFIGURATION_DESCRIPTOR_LENGTH) \
-                    && (configurationDesc()[1] == CONFIGURATION_DESCRIPTOR))
-                {
+                        && (configurationDesc()[1] == CONFIGURATION_DESCRIPTOR)) {
 #ifdef DEBUG
                     printf("conf descr request\r\n");
 #endif
                     /* Get wTotalLength */
                     transfer.remaining = configurationDesc()[2] \
-                        | (configurationDesc()[3] << 8);
+                                         | (configurationDesc()[3] << 8);
 
-                    transfer.ptr = (uint8_t*)configurationDesc();
+                    transfer.ptr = (uint8_t *)configurationDesc();
                     transfer.direction = DEVICE_TO_HOST;
                     success = true;
                 }
@@ -87,62 +80,61 @@ bool USBDevice::requestGetDescriptor(void)
 #ifdef DEBUG
             printf("str descriptor\r\n");
 #endif
-            switch (DESCRIPTOR_INDEX(transfer.setup.wValue))
-            {
-                            case STRING_OFFSET_LANGID:
+            switch (DESCRIPTOR_INDEX(transfer.setup.wValue)) {
+                case STRING_OFFSET_LANGID:
 #ifdef DEBUG
-                                printf("1\r\n");
+                    printf("1\r\n");
 #endif
-                                transfer.remaining = stringLangidDesc()[0];
-                                transfer.ptr = (uint8_t*)stringLangidDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
-                            case STRING_OFFSET_IMANUFACTURER:
+                    transfer.remaining = stringLangidDesc()[0];
+                    transfer.ptr = (uint8_t *)stringLangidDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
+                case STRING_OFFSET_IMANUFACTURER:
 #ifdef DEBUG
-                                printf("2\r\n");
+                    printf("2\r\n");
 #endif
-                                transfer.remaining =  stringImanufacturerDesc()[0];
-                                transfer.ptr = (uint8_t*)stringImanufacturerDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
-                            case STRING_OFFSET_IPRODUCT:
+                    transfer.remaining =  stringImanufacturerDesc()[0];
+                    transfer.ptr = (uint8_t *)stringImanufacturerDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
+                case STRING_OFFSET_IPRODUCT:
 #ifdef DEBUG
-                                printf("3\r\n");
+                    printf("3\r\n");
 #endif
-                                transfer.remaining = stringIproductDesc()[0];
-                                transfer.ptr = (uint8_t*)stringIproductDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
-                            case STRING_OFFSET_ISERIAL:
+                    transfer.remaining = stringIproductDesc()[0];
+                    transfer.ptr = (uint8_t *)stringIproductDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
+                case STRING_OFFSET_ISERIAL:
 #ifdef DEBUG
-                                printf("4\r\n");
+                    printf("4\r\n");
 #endif
-                                transfer.remaining = stringIserialDesc()[0];
-                                transfer.ptr = (uint8_t*)stringIserialDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
-                            case STRING_OFFSET_ICONFIGURATION:
+                    transfer.remaining = stringIserialDesc()[0];
+                    transfer.ptr = (uint8_t *)stringIserialDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
+                case STRING_OFFSET_ICONFIGURATION:
 #ifdef DEBUG
-                                printf("5\r\n");
+                    printf("5\r\n");
 #endif
-                                transfer.remaining = stringIConfigurationDesc()[0];
-                                transfer.ptr = (uint8_t*)stringIConfigurationDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
-                            case STRING_OFFSET_IINTERFACE:
+                    transfer.remaining = stringIConfigurationDesc()[0];
+                    transfer.ptr = (uint8_t *)stringIConfigurationDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
+                case STRING_OFFSET_IINTERFACE:
 #ifdef DEBUG
-                                printf("6\r\n");
+                    printf("6\r\n");
 #endif
-                                transfer.remaining = stringIinterfaceDesc()[0];
-                                transfer.ptr = (uint8_t*)stringIinterfaceDesc();
-                                transfer.direction = DEVICE_TO_HOST;
-                                success = true;
-                                break;
+                    transfer.remaining = stringIinterfaceDesc()[0];
+                    transfer.ptr = (uint8_t *)stringIinterfaceDesc();
+                    transfer.direction = DEVICE_TO_HOST;
+                    success = true;
+                    break;
             }
             break;
         case INTERFACE_DESCRIPTOR:
@@ -185,18 +177,16 @@ bool USBDevice::controlOut(void)
     uint32_t packetSize;
 
     /* Check we should be transferring data OUT */
-    if (transfer.direction != HOST_TO_DEVICE)
-    {
-         /* for other platforms, count on the HAL to handle this case */
-         return false;
+    if (transfer.direction != HOST_TO_DEVICE) {
+        /* for other platforms, count on the HAL to handle this case */
+        return false;
     }
 
     /* Read from endpoint */
     packetSize = EP0getReadResult(buffer);
 
     /* Check if transfer size is valid */
-    if (packetSize > transfer.remaining)
-    {
+    if (packetSize > transfer.remaining) {
         /* Too big */
         return false;
     }
@@ -206,20 +196,16 @@ bool USBDevice::controlOut(void)
     transfer.remaining -= packetSize;
 
     /* Check if transfer has completed */
-    if (transfer.remaining == 0)
-    {
+    if (transfer.remaining == 0) {
         /* Transfer completed */
-        if (transfer.notify)
-        {
+        if (transfer.notify) {
             /* Notify class layer. */
             USBCallback_requestCompleted(buffer, packetSize);
             transfer.notify = false;
         }
         /* Status stage */
         EP0write(NULL, 0);
-    }
-    else
-    {
+    } else {
         EP0read();
     }
 
@@ -233,18 +219,15 @@ bool USBDevice::controlIn(void)
 
     /* Check if transfer has completed (status stage transactions */
     /* also have transfer.remaining == 0) */
-    if (transfer.remaining == 0)
-    {
-        if (transfer.zlp)
-        {
+    if (transfer.remaining == 0) {
+        if (transfer.zlp) {
             /* Send zero length packet */
             EP0write(NULL, 0);
             transfer.zlp = false;
         }
 
         /* Transfer completed */
-        if (transfer.notify)
-        {
+        if (transfer.notify) {
             /* Notify class layer. */
             USBCallback_requestCompleted(NULL, 0);
             transfer.notify = false;
@@ -258,15 +241,13 @@ bool USBDevice::controlIn(void)
     }
 
     /* Check we should be transferring data IN */
-    if (transfer.direction != DEVICE_TO_HOST)
-    {
+    if (transfer.direction != DEVICE_TO_HOST) {
         return false;
     }
 
     packetSize = transfer.remaining;
 
-    if (packetSize > MAX_PACKET_SIZE_EP0)
-    {
+    if (packetSize > MAX_PACKET_SIZE_EP0) {
         packetSize = MAX_PACKET_SIZE_EP0;
     }
 
@@ -285,12 +266,9 @@ bool USBDevice::requestSetAddress(void)
     /* Set the device address */
     setAddress(transfer.setup.wValue);
 
-    if (transfer.setup.wValue == 0)
-    {
+    if (transfer.setup.wValue == 0) {
         device.state = DEFAULT;
-    }
-    else
-    {
+    } else {
         device.state = ADDRESS;
     }
 
@@ -302,22 +280,16 @@ bool USBDevice::requestSetConfiguration(void)
 
     device.configuration = transfer.setup.wValue;
     /* Set the device configuration */
-    if (device.configuration == 0)
-    {
+    if (device.configuration == 0) {
         /* Not configured */
         unconfigureDevice();
         device.state = ADDRESS;
-    }
-    else
-    {
-        if (USBCallback_setConfiguration(device.configuration))
-        {
+    } else {
+        if (USBCallback_setConfiguration(device.configuration)) {
             /* Valid configuration */
             configureDevice();
             device.state = CONFIGURED;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -338,8 +310,7 @@ bool USBDevice::requestGetInterface(void)
 {
     /* Return the selected alternate setting for an interface */
 
-    if (device.state != CONFIGURED)
-    {
+    if (device.state != CONFIGURED) {
         return false;
     }
 
@@ -354,8 +325,7 @@ bool USBDevice::requestGetInterface(void)
 bool USBDevice::requestSetInterface(void)
 {
     bool success = false;
-    if(USBCallback_setInterface(transfer.setup.wIndex, transfer.setup.wValue))
-    {
+    if (USBCallback_setInterface(transfer.setup.wIndex, transfer.setup.wValue)) {
         success = true;
         currentInterface = transfer.setup.wIndex;
         currentAlternate = transfer.setup.wValue;
@@ -367,23 +337,19 @@ bool USBDevice::requestSetFeature()
 {
     bool success = false;
 
-    if (device.state != CONFIGURED)
-    {
+    if (device.state != CONFIGURED) {
         /* Endpoint or interface must be zero */
-        if (transfer.setup.wIndex != 0)
-        {
+        if (transfer.setup.wIndex != 0) {
             return false;
         }
     }
 
-    switch (transfer.setup.bmRequestType.Recipient)
-    {
+    switch (transfer.setup.bmRequestType.Recipient) {
         case DEVICE_RECIPIENT:
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
-            if (transfer.setup.wValue == ENDPOINT_HALT)
-            {
+            if (transfer.setup.wValue == ENDPOINT_HALT) {
                 /* TODO: We should check that the endpoint number is valid */
                 stallEndpoint(
                     WINDEX_TO_PHYSICAL(transfer.setup.wIndex));
@@ -401,25 +367,21 @@ bool USBDevice::requestClearFeature()
 {
     bool success = false;
 
-    if (device.state != CONFIGURED)
-    {
+    if (device.state != CONFIGURED) {
         /* Endpoint or interface must be zero */
-        if (transfer.setup.wIndex != 0)
-        {
+        if (transfer.setup.wIndex != 0) {
             return false;
         }
     }
 
-    switch (transfer.setup.bmRequestType.Recipient)
-    {
+    switch (transfer.setup.bmRequestType.Recipient) {
         case DEVICE_RECIPIENT:
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
             /* TODO: We should check that the endpoint number is valid */
-            if (transfer.setup.wValue == ENDPOINT_HALT)
-            {
-                unstallEndpoint( WINDEX_TO_PHYSICAL(transfer.setup.wIndex));
+            if (transfer.setup.wValue == ENDPOINT_HALT) {
+                unstallEndpoint(WINDEX_TO_PHYSICAL(transfer.setup.wIndex));
                 success = true;
             }
             break;
@@ -435,17 +397,14 @@ bool USBDevice::requestGetStatus(void)
     static uint16_t status;
     bool success = false;
 
-    if (device.state != CONFIGURED)
-    {
+    if (device.state != CONFIGURED) {
         /* Endpoint or interface must be zero */
-        if (transfer.setup.wIndex != 0)
-        {
+        if (transfer.setup.wIndex != 0) {
             return false;
         }
     }
 
-    switch (transfer.setup.bmRequestType.Recipient)
-    {
+    switch (transfer.setup.bmRequestType.Recipient) {
         case DEVICE_RECIPIENT:
             /* TODO: Currently only supports self powered devices */
             status = DEVICE_STATUS_SELF_POWERED;
@@ -458,12 +417,9 @@ bool USBDevice::requestGetStatus(void)
         case ENDPOINT_RECIPIENT:
             /* TODO: We should check that the endpoint number is valid */
             if (getEndpointStallState(
-                WINDEX_TO_PHYSICAL(transfer.setup.wIndex)))
-            {
+                        WINDEX_TO_PHYSICAL(transfer.setup.wIndex))) {
                 status = ENDPOINT_STATUS_HALT;
-            }
-            else
-            {
+            } else {
                 status = 0;
             }
             success = true;
@@ -472,8 +428,7 @@ bool USBDevice::requestGetStatus(void)
             break;
     }
 
-    if (success)
-    {
+    if (success) {
         /* Send the status */
         transfer.ptr = (uint8_t *)&status; /* Assumes little endian */
         transfer.remaining = sizeof(status);
@@ -488,43 +443,41 @@ bool USBDevice::requestSetup(void)
     bool success = false;
 
     /* Process standard requests */
-    if ((transfer.setup.bmRequestType.Type == STANDARD_TYPE))
-    {
-        switch (transfer.setup.bRequest)
-        {
-             case GET_STATUS:
-                 success = requestGetStatus();
-                 break;
-             case CLEAR_FEATURE:
-                 success = requestClearFeature();
-                 break;
-             case SET_FEATURE:
-                 success = requestSetFeature();
-                 break;
-             case SET_ADDRESS:
+    if ((transfer.setup.bmRequestType.Type == STANDARD_TYPE)) {
+        switch (transfer.setup.bRequest) {
+            case GET_STATUS:
+                success = requestGetStatus();
+                break;
+            case CLEAR_FEATURE:
+                success = requestClearFeature();
+                break;
+            case SET_FEATURE:
+                success = requestSetFeature();
+                break;
+            case SET_ADDRESS:
                 success = requestSetAddress();
-                 break;
-             case GET_DESCRIPTOR:
-                 success = requestGetDescriptor();
-                 break;
-             case SET_DESCRIPTOR:
-                 /* TODO: Support is optional, not implemented here */
-                 success = false;
-                 break;
-             case GET_CONFIGURATION:
-                 success = requestGetConfiguration();
-                 break;
-             case SET_CONFIGURATION:
-                 success = requestSetConfiguration();
-                 break;
-             case GET_INTERFACE:
-                 success = requestGetInterface();
-                 break;
-             case SET_INTERFACE:
-                 success = requestSetInterface();
-                 break;
-             default:
-                 break;
+                break;
+            case GET_DESCRIPTOR:
+                success = requestGetDescriptor();
+                break;
+            case SET_DESCRIPTOR:
+                /* TODO: Support is optional, not implemented here */
+                success = false;
+                break;
+            case GET_CONFIGURATION:
+                success = requestGetConfiguration();
+                break;
+            case SET_CONFIGURATION:
+                success = requestSetConfiguration();
+                break;
+            case GET_INTERFACE:
+                success = requestGetInterface();
+                break;
+            case SET_INTERFACE:
+                success = requestSetInterface();
+                break;
+            default:
+                break;
         }
     }
 
@@ -549,23 +502,21 @@ bool USBDevice::controlSetup(void)
     transfer.notify = false;
 
 #ifdef DEBUG
-    printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n",transfer.setup.bmRequestType.dataTransferDirection,
-                                                                                                                                   transfer.setup.bmRequestType.Type,
-                                                                                                                                   transfer.setup.bmRequestType.Recipient,
-                                                                                                                                   transfer.setup.bRequest,
-                                                                                                                                   transfer.setup.wValue,
-                                                                                                                                   transfer.setup.wIndex,
-                                                                                                                                   transfer.setup.wLength);
+    printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", transfer.setup.bmRequestType.dataTransferDirection,
+           transfer.setup.bmRequestType.Type,
+           transfer.setup.bmRequestType.Recipient,
+           transfer.setup.bRequest,
+           transfer.setup.wValue,
+           transfer.setup.wIndex,
+           transfer.setup.wLength);
 #endif
 
     /* Class / vendor specific */
     success = USBCallback_request();
 
-    if (!success)
-    {
+    if (!success) {
         /* Standard requests */
-        if (!requestSetup())
-        {
+        if (!requestSetup()) {
 #ifdef DEBUG
             printf("fail!!!!\r\n");
 #endif
@@ -574,62 +525,47 @@ bool USBDevice::controlSetup(void)
     }
 
     /* Check transfer size and direction */
-    if (transfer.setup.wLength>0)
-    {
+    if (transfer.setup.wLength > 0) {
         if (transfer.setup.bmRequestType.dataTransferDirection \
-            == DEVICE_TO_HOST)
-        {
+                == DEVICE_TO_HOST) {
             /* IN data stage is required */
-            if (transfer.direction != DEVICE_TO_HOST)
-            {
+            if (transfer.direction != DEVICE_TO_HOST) {
                 return false;
             }
 
             /* Transfer must be less than or equal to the size */
             /* requested by the host */
-            if (transfer.remaining > transfer.setup.wLength)
-            {
+            if (transfer.remaining > transfer.setup.wLength) {
                 transfer.remaining = transfer.setup.wLength;
             }
-        }
-        else
-        {
+        } else {
 
             /* OUT data stage is required */
-            if (transfer.direction != HOST_TO_DEVICE)
-            {
+            if (transfer.direction != HOST_TO_DEVICE) {
                 return false;
             }
 
             /* Transfer must be equal to the size requested by the host */
-            if (transfer.remaining != transfer.setup.wLength)
-            {
+            if (transfer.remaining != transfer.setup.wLength) {
                 return false;
             }
         }
-    }
-    else
-    {
+    } else {
         /* No data stage; transfer size must be zero */
-        if (transfer.remaining != 0)
-        {
+        if (transfer.remaining != 0) {
             return false;
         }
     }
 
     /* Data or status stage if applicable */
-    if (transfer.setup.wLength>0)
-    {
+    if (transfer.setup.wLength > 0) {
         if (transfer.setup.bmRequestType.dataTransferDirection \
-            == DEVICE_TO_HOST)
-        {
+                == DEVICE_TO_HOST) {
             /* Check if we'll need to send a zero length packet at */
             /* the end of this transfer */
-            if (transfer.setup.wLength > transfer.remaining)
-            {
+            if (transfer.setup.wLength > transfer.remaining) {
                 /* Device wishes to transfer less than host requested */
-                if ((transfer.remaining % MAX_PACKET_SIZE_EP0) == 0)
-                {
+                if ((transfer.remaining % MAX_PACKET_SIZE_EP0) == 0) {
                     /* Transfer is a multiple of EP0 max packet size */
                     transfer.zlp = true;
                 }
@@ -637,15 +573,11 @@ bool USBDevice::controlSetup(void)
 
             /* IN stage */
             controlIn();
-        }
-        else
-        {
+        } else {
             /* OUT stage */
             EP0read();
         }
-    }
-    else
-    {
+    } else {
         /* Status stage */
         EP0write(NULL, 0);
     }
@@ -666,8 +598,7 @@ void USBDevice::busReset(void)
 void USBDevice::EP0setupCallback(void)
 {
     /* Endpoint 0 setup event */
-    if (!controlSetup())
-    {
+    if (!controlSetup()) {
         /* Protocol stall */
         EP0stall();
     }
@@ -678,8 +609,7 @@ void USBDevice::EP0setupCallback(void)
 void USBDevice::EP0out(void)
 {
     /* Endpoint 0 OUT data event */
-    if (!controlOut())
-    {
+    if (!controlOut()) {
         /* Protocol stall; this will stall both endpoints */
         EP0stall();
     }
@@ -691,8 +621,7 @@ void USBDevice::EP0in(void)
     printf("EP0IN\r\n");
 #endif
     /* Endpoint 0 IN data event */
-    if (!controlIn())
-    {
+    if (!controlIn()) {
         /* Protocol stall; this will stall both endpoints */
         EP0stall();
     }
@@ -719,14 +648,14 @@ void USBDevice::disconnect(void)
 {
     /* Disconnect device */
     USBHAL::disconnect();
-    
+
     /* Set initial device state */
     device.state = POWERED;
     device.configuration = 0;
     device.suspended = false;
 }
 
-CONTROL_TRANSFER * USBDevice::getTransferPtr(void)
+CONTROL_TRANSFER *USBDevice::getTransferPtr(void)
 {
     return &transfer;
 }
@@ -742,40 +671,37 @@ bool USBDevice::addRateFeedbackEndpoint(uint8_t endpoint, uint32_t maxPacket)
     return realiseEndpoint(endpoint, maxPacket, RATE_FEEDBACK_MODE);
 }
 
-uint8_t * USBDevice::findDescriptor(uint8_t descriptorType)
+uint8_t *USBDevice::findDescriptor(uint8_t descriptorType)
 {
     /* Find a descriptor within the list of descriptors */
     /* following a configuration descriptor. */
     uint16_t wTotalLength;
     uint8_t *ptr;
 
-    if (configurationDesc() == NULL)
-    {
+    if (configurationDesc() == NULL) {
         return NULL;
     }
 
     /* Check this is a configuration descriptor */
     if ((configurationDesc()[0] != CONFIGURATION_DESCRIPTOR_LENGTH) \
-            || (configurationDesc()[1] != CONFIGURATION_DESCRIPTOR))
-    {
+            || (configurationDesc()[1] != CONFIGURATION_DESCRIPTOR)) {
         return NULL;
     }
 
     wTotalLength = configurationDesc()[2] | (configurationDesc()[3] << 8);
 
     /* Check there are some more descriptors to follow */
-    if (wTotalLength <= (CONFIGURATION_DESCRIPTOR_LENGTH+2))
-    /* +2 is for bLength and bDescriptorType of next descriptor */
+    if (wTotalLength <= (CONFIGURATION_DESCRIPTOR_LENGTH + 2))
+        /* +2 is for bLength and bDescriptorType of next descriptor */
     {
         return NULL;
     }
 
     /* Start at first descriptor after the configuration descriptor */
-    ptr = &(((uint8_t*)configurationDesc())[CONFIGURATION_DESCRIPTOR_LENGTH]);
+    ptr = &(((uint8_t *)configurationDesc())[CONFIGURATION_DESCRIPTOR_LENGTH]);
 
     do {
-        if (ptr[1] /* bDescriptorType */ == descriptorType)
-        {
+        if (ptr[1] /* bDescriptorType */ == descriptorType) {
             /* Found */
             return ptr;
         }
@@ -798,7 +724,8 @@ void USBDevice::suspendStateChanged(unsigned int suspended)
 }
 
 
-USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release){
+USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+{
     VENDOR_ID = vendor_id;
     PRODUCT_ID = product_id;
     PRODUCT_RELEASE = product_release;
@@ -816,25 +743,23 @@ bool USBDevice::readStart(uint8_t endpoint, uint32_t maxSize)
 }
 
 
-bool USBDevice::write(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize)
+bool USBDevice::write(uint8_t endpoint, uint8_t *buffer, uint32_t size, uint32_t maxSize)
 {
     EP_STATUS result;
 
-    if (size > maxSize)
-    {
+    if (size > maxSize) {
         return false;
     }
 
 
-    if(!configured()) {
+    if (!configured()) {
         return false;
     }
 
     /* Send report */
     result = endpointWrite(endpoint, buffer, size);
 
-    if (result != EP_PENDING)
-    {
+    if (result != EP_PENDING) {
         return false;
     }
 
@@ -847,24 +772,22 @@ bool USBDevice::write(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_
 }
 
 
-bool USBDevice::writeNB(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint32_t maxSize)
+bool USBDevice::writeNB(uint8_t endpoint, uint8_t *buffer, uint32_t size, uint32_t maxSize)
 {
     EP_STATUS result;
 
-    if (size > maxSize)
-    {
+    if (size > maxSize) {
         return false;
     }
 
-    if(!configured()) {
+    if (!configured()) {
         return false;
     }
 
     /* Send report */
     result = endpointWrite(endpoint, buffer, size);
 
-    if (result != EP_PENDING)
-    {
+    if (result != EP_PENDING) {
         return false;
     }
 
@@ -875,11 +798,11 @@ bool USBDevice::writeNB(uint8_t endpoint, uint8_t * buffer, uint32_t size, uint3
 
 
 
-bool USBDevice::readEP(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize)
+bool USBDevice::readEP(uint8_t endpoint, uint8_t *buffer, uint32_t *size, uint32_t maxSize)
 {
     EP_STATUS result;
 
-    if(!configured()) {
+    if (!configured()) {
         return false;
     }
 
@@ -892,11 +815,11 @@ bool USBDevice::readEP(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint
 }
 
 
-bool USBDevice::readEP_NB(uint8_t endpoint, uint8_t * buffer, uint32_t * size, uint32_t maxSize)
+bool USBDevice::readEP_NB(uint8_t endpoint, uint8_t *buffer, uint32_t *size, uint32_t maxSize)
 {
     EP_STATUS result;
 
-    if(!configured()) {
+    if (!configured()) {
         return false;
     }
 
@@ -907,7 +830,8 @@ bool USBDevice::readEP_NB(uint8_t endpoint, uint8_t * buffer, uint32_t * size, u
 
 
 
-const uint8_t * USBDevice::deviceDesc() {
+const uint8_t *USBDevice::deviceDesc()
+{
     uint8_t deviceDescriptorTemp[] = {
         DEVICE_DESCRIPTOR_LENGTH,       /* bLength */
         DEVICE_DESCRIPTOR,              /* bDescriptorType */
@@ -933,56 +857,62 @@ const uint8_t * USBDevice::deviceDesc() {
     return deviceDescriptor;
 }
 
-const uint8_t * USBDevice::stringLangidDesc() {
+const uint8_t *USBDevice::stringLangidDesc()
+{
     static const uint8_t stringLangidDescriptor[] = {
         0x04,               /*bLength*/
         STRING_DESCRIPTOR,  /*bDescriptorType 0x03*/
-        0x09,0x04,          /*bString Lang ID - 0x0409 - English*/
+        0x09, 0x04,         /*bString Lang ID - 0x0409 - English*/
     };
     return (uint8_t *)stringLangidDescriptor;
 }
 
-const uint8_t * USBDevice::stringImanufacturerDesc() {
+const uint8_t *USBDevice::stringImanufacturerDesc()
+{
     static const uint8_t stringImanufacturerDescriptor[] = {
         0x12,                                            /*bLength*/
         STRING_DESCRIPTOR,                               /*bDescriptorType 0x03*/
-        'm',0,'b',0,'e',0,'d',0,'.',0,'o',0,'r',0,'g',0, /*bString iManufacturer - mbed.org*/
+        'm', 0, 'b', 0, 'e', 0, 'd', 0, '.', 0, 'o', 0, 'r', 0, 'g', 0, /*bString iManufacturer - mbed.org*/
     };
     return stringImanufacturerDescriptor;
 }
 
-const uint8_t * USBDevice::stringIserialDesc() {
+const uint8_t *USBDevice::stringIserialDesc()
+{
     static const uint8_t stringIserialDescriptor[] = {
         0x16,                                                           /*bLength*/
         STRING_DESCRIPTOR,                                              /*bDescriptorType 0x03*/
-        '0',0,'1',0,'2',0,'3',0,'4',0,'5',0,'6',0,'7',0,'8',0,'9',0,    /*bString iSerial - 0123456789*/
+        '0', 0, '1', 0, '2', 0, '3', 0, '4', 0, '5', 0, '6', 0, '7', 0, '8', 0, '9', 0, /*bString iSerial - 0123456789*/
     };
     return stringIserialDescriptor;
 }
 
-const uint8_t * USBDevice::stringIConfigurationDesc() {
+const uint8_t *USBDevice::stringIConfigurationDesc()
+{
     static const uint8_t stringIconfigurationDescriptor[] = {
         0x06,               /*bLength*/
         STRING_DESCRIPTOR,  /*bDescriptorType 0x03*/
-        '0',0,'1',0,        /*bString iConfiguration - 01*/
+        '0', 0, '1', 0,     /*bString iConfiguration - 01*/
     };
     return stringIconfigurationDescriptor;
 }
 
-const uint8_t * USBDevice::stringIinterfaceDesc() {
+const uint8_t *USBDevice::stringIinterfaceDesc()
+{
     static const uint8_t stringIinterfaceDescriptor[] = {
         0x08,               /*bLength*/
         STRING_DESCRIPTOR,  /*bDescriptorType 0x03*/
-        'U',0,'S',0,'B',0,  /*bString iInterface - USB*/
+        'U', 0, 'S', 0, 'B', 0, /*bString iInterface - USB*/
     };
     return stringIinterfaceDescriptor;
 }
 
-const uint8_t * USBDevice::stringIproductDesc() {
+const uint8_t *USBDevice::stringIproductDesc()
+{
     static const uint8_t stringIproductDescriptor[] = {
         0x16,                                                       /*bLength*/
         STRING_DESCRIPTOR,                                          /*bDescriptorType 0x03*/
-        'U',0,'S',0,'B',0,' ',0,'D',0,'E',0,'V',0,'I',0,'C',0,'E',0 /*bString iProduct - USB DEVICE*/
+        'U', 0, 'S', 0, 'B', 0, ' ', 0, 'D', 0, 'E', 0, 'V', 0, 'I', 0, 'C', 0, 'E', 0 /*bString iProduct - USB DEVICE*/
     };
     return stringIproductDescriptor;
 }
