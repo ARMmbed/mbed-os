@@ -35,8 +35,10 @@ ATCAError MbedPlatform::Init()
 
 void MbedPlatform::Deinit()
 {
+#if defined(DEVICE_I2C)
     if (i2c != NULL)
         delete i2c;
+#endif
     i2c = NULL;
 }
 
