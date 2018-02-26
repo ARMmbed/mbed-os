@@ -183,7 +183,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     req.deass = 1;
     req.callback = NULL;
 
-    __disable_irq();
+    core_util_critical_section_enter();
     if (tx_length == rx_length) {
         req.tx_data = (uint8_t *)tx_buffer;
         req.rx_data = (uint8_t *)rx_buffer;
@@ -214,7 +214,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
             SPIM_Trans(obj->spi, &req);
         }
     }
-    __enable_irq();
+    core_util_critical_section_exit();
 
     while (SPIM_Busy(obj->spi));
 
