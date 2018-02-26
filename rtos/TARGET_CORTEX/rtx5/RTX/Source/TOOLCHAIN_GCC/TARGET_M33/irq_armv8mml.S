@@ -27,7 +27,7 @@
         .file    "irq_armv8mml.S"
         .syntax  unified
 
-+#ifndef __DOMAIN_NS
+#ifndef __DOMAIN_NS
         .equ     __DOMAIN_NS, 0
 #endif
 
