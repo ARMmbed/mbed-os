@@ -34,7 +34,7 @@ static uint16_t deep_sleep_lock = 0U;
 // Number of drivers that can be stored in the structure
 #define STATISTIC_COUNT  10
 
-typedef struct __PACKED sleep_statistic {
+typedef struct sleep_statistic {
     char identifier[IDENTIFIER_WIDTH];
     uint8_t count;
 } sleep_statistic_t;
