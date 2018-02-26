@@ -39,7 +39,7 @@ public:
      *  an incomplete state object.
      *
      *  @param dev      Device driver reference.
-     *  @param keyId    Key Id/Slot number in device data zone.
+     *  @param keyId_in Key Id/Slot number in device data zone.
      *  @param pk       Public key input buffer with X & Y concatenated.
      */
     ATCAKey(CryptoEngineInterface & dev, ATCAKeyID keyId_in, uint8_t * pk);
