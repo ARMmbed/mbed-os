@@ -43,8 +43,10 @@ public:
     }
 
     virtual ~MbedPlatform() {
+#if defined(DEVICE_I2C)
         if (i2c != NULL)
             delete i2c;
+#endif
     }
 
     /** Initialize I2C.
