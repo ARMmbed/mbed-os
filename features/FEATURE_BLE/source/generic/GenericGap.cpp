@@ -44,6 +44,14 @@ static const uint16_t advertising_interval_max = 0x4000;
 static const uint16_t supervision_timeout_min = 0x000A;
 static const uint16_t supervision_timeout_max = 0x0C80;
 
+static const Gap::ConnectionParams_t default_connection_params = {
+    /* min conn interval */ 50,
+    /* max  conn interval */ 100,
+    /* slave latency */ 0,
+    /* supervision timeout */ 600
+};
+
+static const GapScanningParams default_scan_params;
 
 /*
  * Return true if value is included in the range [lower_bound : higher_bound]
@@ -491,6 +499,14 @@ ble_error_t GenericGap::connect(
     const ConnectionParams_t* connectionParams,
     const GapScanningParams* scanParams
 ) {
+    if (connectionParams == NULL) {
+        connectionParams = &default_connection_params;
+    }
+
+    if (scanParams == NULL) {
+        scanParams = &default_scan_params;
+    }
+
     if (is_scan_params_valid(scanParams) == false) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
@@ -500,6 +516,9 @@ ble_error_t GenericGap::connect(
     }
 
     // TODO fix upper layer API, address type factorization is incorrect.
+
+    // Force scan stop before initiating the scan used for connection
+    stopScan();
 
     return _pal_gap.create_connection(
         scanParams->getInterval(),
