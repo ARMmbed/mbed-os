@@ -65,6 +65,9 @@ static vector<uint8_t> make_char_value(uint16_t length) {
 	return characteristic_value;
 }
 
+/*
+ * Fixture used for GattClient::write tests.
+ */
 class TestGattClientWrite : public ::testing::Test {
 protected:
 	TestGattClientWrite() :
@@ -234,6 +237,14 @@ TEST_F(TestGattClientWrite, write_request_short_characteristics) {
 	}
 }
 
+/*
+ * Fixture used to test error handling during a characteristic write.
+ * Parameters are:
+ * [0] AttErrorResponse::AttributeErrorCode The attribute error code to push in
+ * the AttErrorresponse sent to the client.
+ * [1] ble_error_t The expected error status present in the parameters received
+ * by the callback handling GattClient::write.
+ */
 class TestGattClientWriteAttributeError :
 	public TestGattClientWrite,
 	public ::testing::WithParamInterface<tuple<AttErrorResponse::AttributeErrorCode, ble_error_t>> {
@@ -314,6 +325,7 @@ TEST_P(TestGattClientWriteAttributeError, write_request_short_characteristics) {
 	}
 }
 
+// Instantiate test cases using the TestGattClientWriteAttributeError fixture
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientWriteAttributeError_combination,
 	TestGattClientWriteAttributeError,
@@ -416,10 +428,14 @@ TEST_F(TestGattClientWrite, write_request_long_characteristics) {
 	}
 }
 
+/*
+ * Fixture used to test long write errors.
+ * Parameter are similar to the one used in TestGattClientWriteAttributeError
+ */
 class TestGattClientPrepareWriteAttributeError : public TestGattClientWriteAttributeError { };
 
 /**
- * TODO doc
+ * Test errors received by a client at the beginning of a long write procedure.
  */
 TEST_P(TestGattClientPrepareWriteAttributeError, prepare_write_error) {
 	auto value = make_char_value(10000);
@@ -482,6 +498,7 @@ TEST_P(TestGattClientPrepareWriteAttributeError, prepare_write_error) {
 	EXPECT_EQ(error, BLE_ERROR_NONE);
 }
 
+// Instantiate test cases relying on TestGattClientPrepareWriteAttributeError
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientPrepareWriteAttributeError_combination,
 	TestGattClientPrepareWriteAttributeError,
@@ -498,11 +515,15 @@ INSTANTIATE_TEST_CASE_P(
 );
 
 
-
+/*
+ * Fixture used to test errors in the middle of a long write transaction.
+ * Parameter are similar to the one used in TestGattClientWriteAttributeError
+ */
 class TestGattClientPrepareWriteAttributeErrorInTransaction : public TestGattClientWriteAttributeError { };
 
 /**
- * TODO doc
+ * Test that errors are correctly reported to the client if an error occur in the
+ * middle of a long write transaction.
  */
 TEST_P(TestGattClientPrepareWriteAttributeErrorInTransaction, prepare_write_error_in_transaction) {
 	auto value = make_char_value(10000);
@@ -591,6 +612,7 @@ TEST_P(TestGattClientPrepareWriteAttributeErrorInTransaction, prepare_write_erro
 	EXPECT_EQ(error, BLE_ERROR_NONE);
 }
 
+// Instantiate test cases relying on TestGattClientPrepareWriteAttributeErrorInTransaction
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientPrepareWriteAttributeErrorInTransaction_combination,
 	TestGattClientPrepareWriteAttributeErrorInTransaction,
@@ -600,10 +622,15 @@ INSTANTIATE_TEST_CASE_P(
 	)
 );
 
+/*
+ * Fixture used to test errors at the end of a long write transaction.
+ * Parameter are similar to the one used in TestGattClientWriteAttributeError
+ */
 class TestGattClientExecuteWriteRequestError : public TestGattClientWriteAttributeError { };
 
 /**
- * TODO doc
+ * Test that errors are correctly reported to the client if an error occurs when
+ * a write queue is executed.
  */
 TEST_P(TestGattClientExecuteWriteRequestError, prepare_write_error_in_transaction) {
 	auto value = make_char_value(10000);
@@ -675,6 +702,7 @@ TEST_P(TestGattClientExecuteWriteRequestError, prepare_write_error_in_transactio
 	EXPECT_EQ(error, BLE_ERROR_NONE);
 }
 
+// Instantiate test cases relying on TestGattClientExecuteWriteRequestError
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientExecuteWriteRequestError_combination,
 	TestGattClientExecuteWriteRequestError,

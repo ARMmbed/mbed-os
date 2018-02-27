@@ -38,9 +38,13 @@ using ble::pal::vendor::mock::MockPalGattClient;
 
 using ::testing::_;
 
-
-class LaunchDiscoveryNoCb :
-	public ::testing::TestWithParam<std::tuple<UUID, UUID>> {
+/*
+ * Parametric fixture used to test service discovery when no callback is registered.
+ * Parameters are:
+ * - [0]: service UUID filter
+ * - [1]: characteristic UUID filter
+ */
+class LaunchDiscoveryNoCb : public ::testing::TestWithParam<std::tuple<UUID, UUID>> {
 protected:
 	typedef std::tuple<UUID, UUID> parameters_t;
 
@@ -160,11 +164,15 @@ TEST_P(LaunchDiscoveryNoCb, shall_not_change_discovery_status) {
 	EXPECT_TRUE(_gatt_client.isServiceDiscoveryActive());
 }
 
+// Instantiate tests cases with the given parameters
 INSTANTIATE_TEST_CASE_P(
 	GattClient_launch_discovery_no_cb,
 	LaunchDiscoveryNoCb,
+	// Yield combination of each generator value
 	::testing::Combine(
+		// service UUID filter
 		::testing::Values(UUID(), UUID(0x1452), UUID("a3d1495f-dba7-4441-99f2-d0a20f663422")),
+		// characteristic UUID filter
 		::testing::Values(UUID(), UUID(0xBEEF), UUID("1f551ee3-aef4-4719-8c52-8b419fc4ac01"))
 	)
 );

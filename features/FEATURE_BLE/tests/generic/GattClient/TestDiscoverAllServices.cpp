@@ -56,6 +56,16 @@ using ::testing::AllOf;
 using ::testing::Property;
 using ::testing::InSequence;
 
+/*
+ * Parametric fixture used for service discovery.
+ *
+ * Parameters are modeled by a tuple where:
+ * - [0] std::tuple<bool, bool>: pair of boolean indicating the presence of the
+ * service callback and the characteristic callback.
+ * - [1] UUID: UUID used for service filtering.
+ * - [2] UUID: UUID used for characteristic filtering.
+ * - [3] server_description_t: Discovered service layout.
+ */
 class LaunchDiscoveryNoServiceFilter : public ::testing::TestWithParam<
 	std::tuple<std::tuple<bool, bool>, UUID, UUID, server_description_t>
 > {
@@ -74,6 +84,7 @@ protected:
 		server_stub() {
 	}
 
+	// setup the test environment
 	virtual void SetUp() {
 		gatt_client.onServiceDiscoveryTermination(
 			makeFunctionPointer(
@@ -93,6 +104,10 @@ protected:
 		std::tie(has_service_cb, has_characteristic_cb) = cb_combination;
 	}
 
+	/*
+	 * Return a closure that sends a read by group type response to a client.
+	 * @param[in] service_transactions The services to include in the response.
+	 */
 	auto reply_read_by_group_type(const std::vector<service_description_t>& service_transactions) {
 		return Invoke([service_transactions, this](connection_handle_t connection, attribute_handle_t handle) -> ble_error_t {
 			//Log::info() << "discover primary service (" << connection << "," << handle << ")" << std::endl;
@@ -123,6 +138,11 @@ protected:
 		});
 	}
 
+	/*
+	 * Return a closure that sends a find by type value response to the client.
+	 * @param[in] service_transactions Services to include in the response sent
+	 * to the client.
+	 */
 	auto reply_find_by_type_value(const std::vector<service_description_t>& service_transactions) {
 		return Invoke([service_transactions, this](connection_handle_t connection, attribute_handle_t handle, const UUID& uuid) -> ble_error_t {
 			//Log::info() << "discover primary service by uuid(" << connection << "," << handle << "," << uuid << ")" << std::endl;
@@ -146,6 +166,9 @@ protected:
 		});
 	}
 
+	/**
+	 * Convert a DiscoveredCharacteristic::Properties_t into an uint8_t
+	 */
 	uint8_t properties_to_byte(DiscoveredCharacteristic::Properties_t p) {
 		return (
 			p.broadcast() << 0 |
@@ -159,6 +182,11 @@ protected:
 		);
 	}
 
+	/**
+	 * Return a closure that sends a read by type to a client.
+	 * @param[in] transaction Characteristics to include in the response send to
+	 * the client.
+	 */
 	auto reply_read_by_type(const std::vector<characteristic_description_t>& transaction) {
 		return Invoke([transaction, this](connection_handle_t connection, attribute_handle_range_t range) -> ble_error_t {
 			//Log::info() << "discover characteristic(" << connection << "," << range.begin << "," << range.end << ")" << std::endl;
@@ -188,6 +216,11 @@ protected:
 		});
 	}
 
+	/*
+	 * Return a closure that send an error response to the client.
+	 * @param[in] opcode Opcode that caused the error.
+	 * @param[in] error_code Error code.
+	 */
 	auto reply_error(AttributeOpcode opcode, AttErrorResponse::AttributeErrorCode error_code) {
 		return InvokeWithoutArgs([this, opcode, error_code]() -> ble_error_t {
 			//Log::info() << "reply error: opcode = " << (uint8_t) opcode << ", error_code = " << error_code << std::endl;
@@ -199,8 +232,10 @@ protected:
 		});
 	}
 
-	// helper
-	// note sequence insured by caller
+	/*
+	 * Set service discovery expectation when the procedure discover all services
+	 * is used.
+	 */
 	void set_discover_all_services_expectations() {
 		auto services_transactions = get_services_transactions();
 
@@ -233,6 +268,9 @@ protected:
 		}
 	}
 
+	/*
+	 * Set client expectations when the discover services by UUID is used.
+	 */
 	void set_discover_services_by_uuid_expectations() {
 		std::vector<std::vector<uint8_t>> services_response;
 		auto services_transactions = get_services_transactions();
@@ -276,6 +314,10 @@ protected:
 		}
 	}
 
+	/*
+	 * Set an expectation regarding call of the service discovery callback with
+	 * the services @p services.
+	 */
 	void set_services_callback_expectations(const std::vector<service_description_t>& services) {
 		if (!has_service_cb) {
 			return;
@@ -286,6 +328,10 @@ protected:
 		}
 	}
 
+	/*
+	 * Set an expectation regarding call of the service discovery callback with
+	 * the service @p service.
+	 */
 	void set_service_callback_expectation(const service_description_t& service) {
 		if (!has_service_cb) {
 			return;
@@ -313,7 +359,9 @@ protected:
 		}));
 	}
 
-
+	/*
+	 * Set expectations for characteristic discovery.
+	 */
 	void set_discover_characteristics_expectations() {
 		auto services = get_services_discovered();
 
@@ -411,6 +459,9 @@ protected:
 		}));
 	}
 
+	/*
+	 * Compute the transactions involved during the service discovery process.
+	 */
 	std::vector<std::vector<service_description_t>> get_services_transactions() {
 		std::vector<service_description_t> working_set = get_services_discovered();
 
@@ -440,6 +491,9 @@ protected:
 		return result;
 	}
 
+	/*
+	 * Compute the list of services discovered during service discovery.
+	 */
 	std::vector<service_description_t> get_services_discovered() {
 		std::vector<service_description_t> working_set;
 
@@ -456,6 +510,9 @@ protected:
 		return working_set;
 	}
 
+	/*
+	 * Compute the transactions present during the characteristic discovery process.
+	 */
 	std::vector<std::vector<characteristic_description_t>> get_characteristics_transactions(const service_description_t& service) {
 		std::vector<std::vector<characteristic_description_t>> transactions;
 		for (const auto& characteristic : service.characteristics) {
@@ -495,7 +552,8 @@ protected:
 };
 
 TEST_P(LaunchDiscoveryNoServiceFilter, regular) {
-
+	/////////////////////////////
+	// Install default calls
 	ON_CALL(
 		mock_client, discover_primary_service(_, _)
 	).WillByDefault(Invoke([](connection_handle_t connection, attribute_handle_t handle) -> ble_error_t {
@@ -533,6 +591,8 @@ TEST_P(LaunchDiscoveryNoServiceFilter, regular) {
 		}));
 	}
 
+	/////////////////////////////
+	// Install expectations
 	{
 		InSequence seq;
 		if (service_filter == UUID()) {
@@ -548,6 +608,8 @@ TEST_P(LaunchDiscoveryNoServiceFilter, regular) {
 		EXPECT_CALL(termination_callback, call(connection_handle));
 	}
 
+	/////////////////////////////
+	// Launch the discovery process.
 	ble_error_t err = gatt_client.launchServiceDiscovery(
 		connection_handle,
 		has_service_cb ?
@@ -568,14 +630,19 @@ TEST_P(LaunchDiscoveryNoServiceFilter, regular) {
 INSTANTIATE_TEST_CASE_P(
 	GattClient_launch_discovery_no_service_filter,
 	LaunchDiscoveryNoServiceFilter,
+	// Yield all combination of each generator
 	::testing::Combine(
+		// service cb generator
 		::testing::Values(
 			std::tuple<bool, bool>(true, false),
 			std::tuple<bool, bool>(false, true),
 			std::tuple<bool, bool>(true, true)
 		),
+		// service UUID filter generator
 		::testing::Values(UUID(), UUID(0x1452), UUID("a3d1495f-dba7-4441-99f2-d0a20f663422")),
+		// characteristic UUID filter generator
 		::testing::Values(UUID(), UUID(0xBEEF), UUID("1f551ee3-aef4-4719-8c52-8b419fc4ac01")),
+		// server layout generator.
 		::testing::Values(
 			server_description_t { },
 			server_description_t {

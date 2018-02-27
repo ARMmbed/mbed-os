@@ -84,6 +84,9 @@ struct ConstructibleDiscoveredCharacteristic : public DiscoveredCharacteristic {
 	}
 };
 
+/**
+ * Test fixture used for client descriptor discovery testing.
+ */
 class TestGattClientDescriptorDiscovery : public ::testing::Test {
 protected:
 	TestGattClientDescriptorDiscovery() :
@@ -179,8 +182,18 @@ TEST_F(TestGattClientDescriptorDiscovery, descriptor_discovery_on_characteristic
 	EXPECT_EQ(err, BLE_ERROR_NONE);
 }
 
+/**
+ * Test parameter pass into tests using TestGattClientDescriptorDiscoveryP fixture.
+ * - first element: value handle of the characteristic.
+ * - second element: last handle of the characteristic
+ * - third element: expected transactions; each transaction can contain multiple
+ * pair containing the handle of the descriptor and its UUID.
+ */
 typedef tuple<uint16_t, uint16_t, vector<vector<pair<uint16_t, UUID>>>> test_param_t;
 
+/**
+ * Parametric fixture used for descriptor discovery testing.
+ */
 class TestGattClientDescriptorDiscoveryP :
 	public TestGattClientDescriptorDiscovery,
 	public ::testing::WithParamInterface<test_param_t> {
@@ -224,15 +237,19 @@ struct MockFindInformationResponse : public AttFindInformationResponse {
 	vector<pair<uint16_t, UUID>> _response;
 };
 
-
+/**
+ * Helper returning a DiscoveredCharacteristic from a DiscoveryCallbackParams_t*
+ */
 static const DiscoveredCharacteristic& get_characteristic(const CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t* p) {
 	return p->characteristic;
 }
 
+/**
+ * Helper returning a DiscoveredCharacteristicDescriptor from a DiscoveryCallbackParams_t*
+ */
 static const DiscoveredCharacteristicDescriptor& get_descriptor(const CharacteristicDescriptorDiscovery::DiscoveryCallbackParams_t* p) {
 	return p->descriptor;
 }
-
 
 /*
  * Given a discovered characteristic with the value handle not equal to the
@@ -333,6 +350,7 @@ TEST_P(TestGattClientDescriptorDiscoveryP, descriptor_discovery) {
 	EXPECT_EQ(err, BLE_ERROR_NONE);
 }
 
+// Instantiation of the tests cases relying on the parametric fixture
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientDescriptorDiscoveryP_combination,
 	TestGattClientDescriptorDiscoveryP,
@@ -648,37 +666,4 @@ INSTANTIATE_TEST_CASE_P(
 		}
 	)
 );
-
-// errors: Invalid handle if:
-// 		starting handle > ending handle
-//      stating handle == 00
-//      ending handle > last handle on the server
-
-// if no handle will be return => ATTRIBUTE NOT FOUND
-
-// Complete when ATTRIBUTE NOT FOUND is returned or an attribute handle
-// in the response is equal to the ending handle in the request.
-
-
-// Find information response:
-// format & [(handle, UUID)]
-// format == 1 => 16 bit UUID
-// format == 2 => 128 bit UUID
-
-
-/*
- * Given a discovered characteristic with the value handle not equal to the
- * last handle of the characteristic.
- * when the client launch the discovery of the descriptor of the characteristic.
- * Then:
- *   - the client invoke the pal function discover_characteristics_descriptors
- *   with an handle range starting at characteristic value handle + 1 and ending
- *   at the last characteristic handle.
- *   - The pal will reply with a FindInformationResponse containing the
- *   descriptors discovered.
- * When the client call terminateCharacteristicDescriptorDiscovery the termination
- * callback is called immediately.
- */
-
-
 

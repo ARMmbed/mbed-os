@@ -56,6 +56,9 @@ static vector<uint8_t> make_char_value(uint16_t length) {
 	return characteristic_value;
 }
 
+/*
+ * Fixture use to test server notification or indication.
+ */
 class TestGattServerEvent : public ::testing::Test {
 protected:
 	TestGattServerEvent() :
@@ -91,6 +94,10 @@ protected:
 	uint16_t _mtu_size;
 };
 
+/*
+ * Ensure the right callback is called with the correct parameters when an
+ * indication is received.
+ */
 TEST_F(TestGattServerEvent, event_callback_shall_be_called_on_indication) {
 	auto value = make_char_value(5000);
 
@@ -118,6 +125,10 @@ TEST_F(TestGattServerEvent, event_callback_shall_be_called_on_indication) {
 	}
 }
 
+/*
+ * Ensure the right callback is called with the correct parameters when a
+ * notification is received.
+ */
 TEST_F(TestGattServerEvent, event_callback_shall_be_called_on_notification) {
 	auto value = make_char_value(5000);
 

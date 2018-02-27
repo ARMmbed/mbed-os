@@ -63,6 +63,9 @@ static vector<uint8_t> make_char_value(uint16_t length) {
 	return characteristic_value;
 }
 
+/*
+ * fixture used to test GattClient::read.
+ */
 class TestGattClientRead : public ::testing::Test {
 protected:
 	TestGattClientRead() :
@@ -273,6 +276,12 @@ TEST_F(TestGattClientRead, read_with_out_of_range_offset_shall_fail) {
 	}
 }
 
+/*
+ * Parametric fixture used to test error generated during GattClient::read.
+ * Parameters are:
+ * - [0] The attribute error code
+ * - [1] Expected status returned in the read callback.
+ */
 class TestGattClientReadAttributeError :
 	public TestGattClientRead,
 	public ::testing::WithParamInterface<tuple<AttErrorResponse::AttributeErrorCode, ble_error_t>> {
@@ -384,6 +393,7 @@ TEST_P(TestGattClientReadAttributeError, read_with_offset) {
 	EXPECT_EQ(err, BLE_ERROR_NONE);
 }
 
+// Instantiate test cases using TestGattClientReadAttributeError
 INSTANTIATE_TEST_CASE_P(
 	TestGattClientReadAttributeError_combination,
 	TestGattClientReadAttributeError,
