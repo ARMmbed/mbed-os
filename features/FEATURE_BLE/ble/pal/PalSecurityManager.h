@@ -104,7 +104,18 @@ public:
     operator uint8_t() {
         return _value;
     }
-    uint8_t value() {
+
+    KeyDistribution operator&(const KeyDistribution& other) const {
+        KeyDistribution result(this->value() & other.value());
+        return result;
+    }
+
+    KeyDistribution& operator&=(const KeyDistribution& other) {
+        this->_value = this->_value & other.value();
+        return *this;
+    }
+
+    uint8_t value() const {
         return _value;
     }
 
@@ -182,7 +193,7 @@ public:
     operator uint8_t() {
         return _value;
     }
-    uint8_t value() {
+    uint8_t value() const {
         return _value;
     }
 

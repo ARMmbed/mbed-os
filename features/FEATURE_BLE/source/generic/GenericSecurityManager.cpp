@@ -121,16 +121,34 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     AuthenticationMask link_authentication(_default_authentication);
     link_authentication.set_mitm(cb->mitm_requested);
 
-    KeyDistribution link_key_distribution(_default_key_distribution);
-    link_key_distribution.set_signing(cb->signing_requested);
-    link_key_distribution.set_encryption(_master_sends_keys);
+    /* by default the initiator doesn't send any keys other then identity */
+    KeyDistribution initiator_distribution(
+        KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK
+    );
+
+    /* if requested the initiator may send all the default keys for later
+     * use when roles are changed */
+    if (_master_sends_keys) {
+        initiator_distribution = _default_key_distribution;
+    }
+
+    /* override default if requested */
+    initiator_distribution.set_signing(
+        cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+    );
+
+    KeyDistribution responder_distribution(_default_key_distribution);
+
+    if (cb->signing_override_default) {
+        responder_distribution.set_signing(cb->signing_requested);
+    }
 
     return _pal.send_pairing_request(
         connection,
         cb->oob_present,
         link_authentication,
-        link_key_distribution,
-        link_key_distribution
+        initiator_distribution,
+        responder_distribution
     );
 }
 
@@ -145,15 +163,36 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     AuthenticationMask link_authentication(_default_authentication);
     link_authentication.set_mitm(cb->mitm_requested);
 
-    KeyDistribution link_key_distribution(_default_key_distribution);
-    link_key_distribution.set_signing(cb->signing_requested);
+    KeyDistribution initiator_dist = cb->get_initiator_key_distribution();
+
+    if (_master_sends_keys) {
+        initiator_dist &= _default_key_distribution;
+    } else {
+        initiator_dist &= KeyDistribution(KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK);
+    }
+
+    /* signing has to be offered and enabled on the link */
+    initiator_dist.set_signing(
+        initiator_dist.get_signing()
+        && (
+        cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing())
+    );
+
+    KeyDistribution responder_dist = cb->get_responder_key_distribution();
+
+    responder_dist &= _default_key_distribution;
+    /* signing has to be requested and enabled on the link */
+    responder_dist.set_signing(
+        responder_dist.get_signing()
+        && (cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing())
+    );
 
     return _pal.send_pairing_response(
         connection,
         cb->oob_present,
         link_authentication,
-        link_key_distribution,
-        link_key_distribution
+        responder_dist,
+        responder_dist
     );
 }
 
@@ -257,6 +296,7 @@ ble_error_t GenericSecurityManager::enableSigning(
     }
 
     cb->signing_requested = enabled;
+    cb->signing_override_default = false;
 
     if (cb->encrypted) {
         return BLE_ERROR_INVALID_STATE;
@@ -799,6 +839,14 @@ void GenericSecurityManager::on_pairing_request(
         cancelPairingRequest(connection);
     }
 
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    cb->set_initiator_key_distribution(initiator_dist);
+    cb->set_responder_key_distribution(responder_dist);
+
     set_mitm_performed(connection, false);
 
     if (_pairing_authorisation_required) {
@@ -1157,6 +1205,7 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     encryption_failed(false),
     encrypted(false),
     signing_requested(false),
+    signing_override_default(false),
     mitm_requested(false),
     mitm_performed(false),
     attempt_oob(false),

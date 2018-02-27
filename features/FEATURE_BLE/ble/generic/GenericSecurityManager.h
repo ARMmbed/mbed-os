@@ -432,11 +432,28 @@ private:
     struct ControlBlock_t : public pal::SecurityDistributionFlags_t {
         ControlBlock_t();
 
+        KeyDistribution get_initiator_key_distribution() {
+            return KeyDistribution(initiator_key_distribution);
+        };
+        KeyDistribution get_responder_key_distribution() {
+            return KeyDistribution(responder_key_distribution);
+        };
+        void set_initiator_key_distribution(KeyDistribution mask) {
+            initiator_key_distribution = mask.value();
+        };
+        void set_responder_key_distribution(KeyDistribution mask) {
+            responder_key_distribution = mask.value();
+        };
+
         connection_handle_t connection;
         pal::SecurityDb::entry_handle_t db_entry;
 
         address_t local_address; /**< address used for connection, possibly different from identity */
 
+    private:
+        uint8_t initiator_key_distribution:4;
+        uint8_t responder_key_distribution:4;
+    public:
         uint8_t connected:1;
         uint8_t authenticated:1; /**< have we turned encryption on during this connection */
         uint8_t is_master:1;
@@ -445,6 +462,7 @@ private:
         uint8_t encryption_failed:1;
         uint8_t encrypted:1;
         uint8_t signing_requested:1;
+        uint8_t signing_override_default:1;
 
         uint8_t mitm_requested:1;
         uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
