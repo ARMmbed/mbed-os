@@ -23,7 +23,8 @@ using namespace mbed;
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
 AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
-    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _multiplexer(0), _information(0), _queue(queue), _default_timeout(DEFAULT_AT_TIMEOUT)
+    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _multiplexer(0), _information(0), _queue(queue),
+    _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
 }
 
@@ -62,6 +63,9 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 
     atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r");
     if (atHandler) {
+        if (_modem_debug_on) {
+            atHandler->enable_debug(_modem_debug_on);
+        }
         atHandler->_nextATHandler = _atHandlers;
         _atHandlers = atHandler;
     }
@@ -83,8 +87,7 @@ void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
             if (atHandler == at_handler) {
                 if (prev == NULL) {
                     _atHandlers = _atHandlers->_nextATHandler;
-                }
-                else {
+                } else {
                     prev->_nextATHandler = atHandler->_nextATHandler;
                 }
                 delete atHandler;
@@ -243,6 +246,17 @@ void AT_CellularDevice::set_timeout(int timeout)
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
         atHandler->set_at_timeout(_default_timeout, true); // set as default timeout
+        atHandler = atHandler->_nextATHandler;
+    }
+}
+
+void AT_CellularDevice::modem_debug_on(bool on)
+{
+    _modem_debug_on = on;
+
+    ATHandler *atHandler = _atHandlers;
+    while (atHandler) {
+        atHandler->enable_debug(_modem_debug_on);
         atHandler = atHandler->_nextATHandler;
     }
 }

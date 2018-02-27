@@ -23,13 +23,15 @@
 
 #include "netsocket/CellularBase.h"
 
-namespace mbed {
+namespace mbed
+{
 
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
  */
-class EasyCellularConnection: public CellularBase {
+class EasyCellularConnection: public CellularBase
+{
 
 public:
     EasyCellularConnection();
@@ -116,6 +118,12 @@ public:
      *  @param status_cb The callback for status changes
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Turn modem debug traces on
+     *
+     *  @param on         set true to enable debug traces
+     */
+    void modem_debug_on(bool on);
 
 protected:
 

@@ -29,7 +29,8 @@
 
 #include "ATHandler.h"
 
-namespace mbed {
+namespace mbed
+{
 
 /**
  *  Class AT_CellularDevice
@@ -81,6 +82,8 @@ public: // CellularDevice
 
     virtual void set_timeout(int timeout);
 
+    virtual void modem_debug_on(bool on);
+
     virtual NetworkStack *get_stack();
 
 protected:
@@ -94,6 +97,7 @@ protected:
 protected:
     events::EventQueue &_queue;
     int _default_timeout;
+    bool _modem_debug_on;
 };
 
 } // namespace mbed

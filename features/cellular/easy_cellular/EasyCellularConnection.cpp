@@ -32,7 +32,8 @@
 #include "APN_db.h"
 #endif //MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
 
-namespace mbed {
+namespace mbed
+{
 
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
@@ -45,17 +46,16 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
         }
         MBED_ASSERT(_cellularSemaphore.release() == osOK);
         return false;
-    }
-    else {
+    } else {
         _is_connected = false;
     }
     return true;
 }
 
 EasyCellularConnection::EasyCellularConnection() :  _is_connected(false), _is_initialized(false),
-        _target_state(CellularConnectionUtil::STATE_POWER_ON),
-        _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE),
-        _cellularSemaphore(0), _cellularConnectionUtil(), _credentials_err(NSAPI_ERROR_OK)
+    _target_state(CellularConnectionUtil::STATE_POWER_ON),
+    _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE),
+    _cellularSemaphore(0), _cellularConnectionUtil(), _credentials_err(NSAPI_ERROR_OK)
 {
 #if MBED_CONF_APP_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
     _credentials_set = false;
@@ -78,7 +78,7 @@ nsapi_error_t EasyCellularConnection::init()
         _cellularConnectionUtil.set_serial(&_cellularSerial);
         _cellularConnectionUtil.set_callback(callback(this, &EasyCellularConnection::cellular_status));
 
-       err = _cellularConnectionUtil.init();
+        err = _cellularConnectionUtil.init();
 
         if (err == NSAPI_ERROR_OK) {
             err = _cellularConnectionUtil.start_dispatch();
@@ -256,6 +256,14 @@ void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)
     CellularNetwork *network = _cellularConnectionUtil.get_network();
     if (network) {
         network->attach(status_cb);
+    }
+}
+
+void EasyCellularConnection::modem_debug_on(bool on)
+{
+    CellularDevice *dev =_cellularConnectionUtil.get_device();
+    if (dev) {
+        dev->modem_debug_on(on);
     }
 }
 

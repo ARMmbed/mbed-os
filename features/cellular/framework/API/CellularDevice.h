@@ -28,7 +28,8 @@
 #include "CellularInformation.h"
 #include "NetworkStack.h"
 
-namespace mbed {
+namespace mbed
+{
 
 /**
  *  Class CellularDevice
@@ -115,7 +116,13 @@ public:
      *  @param timeout    milliseconds to wait response from modem
      */
     virtual void set_timeout(int timeout) = 0;
-    
+
+    /** Turn modem debug traces on
+     *
+     *  @param on         set true to enable debug traces
+     */
+    virtual void modem_debug_on(bool on) = 0;
+
     /** Get network stack.
      *
      *  @return network stack
