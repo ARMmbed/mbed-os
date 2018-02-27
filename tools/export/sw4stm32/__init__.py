@@ -16,6 +16,7 @@ limitations under the License.
 """
 
 from os.path import splitext, basename, join
+import shutil
 from tools.utils import mkdir
 from tools.export.gnuarmeclipse import GNUARMEclipse
 from tools.export.gnuarmeclipse import UID
@@ -557,3 +558,7 @@ class Sw4STM32(GNUARMEclipse):
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('sw4stm32/launch.tmpl', ctx, self.project_name +
                       ' ' + options['debug']['name'] + '.launch')
+
+    @staticmethod
+    def clean(_):
+        shutil.rmtree(".settings")

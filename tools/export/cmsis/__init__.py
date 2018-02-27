@@ -153,3 +153,8 @@ class CMSIS(Exporter):
             'date': ''
         }
         self.gen_file('cmsis/cpdsc.tmpl', ctx, 'project.cpdsc')
+
+
+    @staticmethod
+    def clean(_):
+        os.remove('project.cpdsc')

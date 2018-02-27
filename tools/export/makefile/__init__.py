@@ -149,6 +149,15 @@ class Makefile(Exporter):
         return flags
 
     @staticmethod
+    def clean(_):
+        remove("Makefile")
+        # legacy .build directory cleaned if exists
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
+
+    @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build Make project """
         # > Make -j
@@ -178,13 +187,8 @@ class Makefile(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            remove("Makefile")
             remove(log_name)
-            # legacy .build directory cleaned if exists
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            Makefile.clean(project_name)
 
         if ret_code != 0:
             # Seems like something went wrong.

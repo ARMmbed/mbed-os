@@ -2112,6 +2112,10 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
+    "UBLOX_C030_R410M": {
+        "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
     "NZ32_SC151": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
@@ -2642,7 +2646,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "macros": ["CMSDK_CM3DS"],
-        "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
+        "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC", "LOWPOWERTIMER"],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt"
@@ -3433,7 +3437,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
-        "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM"],
+        "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM", "TRNG"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5", "SDK11", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,

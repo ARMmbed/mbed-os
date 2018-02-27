@@ -408,6 +408,12 @@ class CCES(Exporter):
 
         print("CCES files generated.")
 
+
+    @staticmethod
+    def clean(_):
+        os.remove('cces.json')
+        os.remove('README.md')
+
     @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
         """
@@ -436,6 +442,7 @@ class CCES(Exporter):
         # cleanup workspace
         if os.path.exists(workspace):
             shutil.rmtree(workspace, True)
+            CCES.clean(project_name)
 
         # check return code for failure
         if ret_code != 0:

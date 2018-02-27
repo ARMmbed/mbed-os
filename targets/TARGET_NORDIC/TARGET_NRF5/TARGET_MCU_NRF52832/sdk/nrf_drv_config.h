@@ -171,7 +171,7 @@
 #define NRF_MAXIMUM_LATENCY_US 2000
 
 /* RNG */
-#define RNG_ENABLED 0
+#define RNG_ENABLED 1
 
 #if (RNG_ENABLED == 1)
 #define RNG_CONFIG_ERROR_CORRECTION true
