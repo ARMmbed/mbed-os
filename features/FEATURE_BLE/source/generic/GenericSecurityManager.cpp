@@ -864,7 +864,7 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 //
 
 void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
-    eventHandler->validMicTimeout(connection);
+    (void)connection;
 }
 
 void GenericSecurityManager::on_slave_security_request(
