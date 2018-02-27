@@ -147,16 +147,6 @@ public:
         //
 
         /**
-         * Indicate to the application that the set timeout time has elapsed without
-         * receiving a packet with a valid MIC.
-         *
-         * @param[in] connectionHandle connection connectionHandle
-         */
-        virtual void validMicTimeout(connection_handle_t connectionHandle) {
-            (void)connectionHandle;
-        }
-
-        /**
          * Deliver the requested whitelist to the application.
          *
          * @param[in] whitelist whitelist created based on the bonding table,
@@ -507,32 +497,6 @@ public:
      */
     virtual ble_error_t setDisplayPasskey(const Passkey_t passkey) {
         (void) passkey;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
-     * Set the time after which an event will be generated unless we received a packet with
-     * a valid MIC.
-     * @param[in] connection connection handle
-     * @param[in] timeout_in_10ms time measured in units of 10 milliseconds
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t connectionHandle, uint32_t timeout_in_ms) {
-        (void) connectionHandle;
-        (void) timeout_in_ms;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
-     * Get the time after which an event will be generated unless we received a packet with
-     * a valid MIC.
-     * @param[in] connection connection handle
-     * @param[out] timeout_in_10ms time measured in units of 10 milliseconds
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t connectionHandle, uint32_t *timeout_in_ms) {
-        (void) connectionHandle;
-        (void) timeout_in_ms;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
