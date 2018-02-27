@@ -59,7 +59,7 @@ public:
 
     MOCK_METHOD2(legacyPairingOobGenerated, void(const address_t *, const oob_tk_t *));
 
-    MOCK_METHOD3(oobGenerated, void(const address_t *, const oob_rand_t *, const oob_confirm_t *));
+    MOCK_METHOD3(oobGenerated, void(const address_t *, const oob_lesc_value_t *, const oob_confirm_t *));
 
     MOCK_METHOD3(signingKey, void(connection_handle_t, const csrk_t *, bool));
 };
