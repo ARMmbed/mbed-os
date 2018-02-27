@@ -2286,7 +2286,7 @@ public:
      * @param[in] ownAddr Address this device uses for this connection.
      * @param[in] connectionParams Parameters of the connection.
      */
-    virtual void processConnectionEvent(
+    void processConnectionEvent(
         Handle_t handle,
         Role_t role,
         BLEProtocol::AddressType_t peerAddrType,
