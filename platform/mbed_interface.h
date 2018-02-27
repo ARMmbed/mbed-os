@@ -135,7 +135,7 @@ void mbed_die(void);
  * @endcode
  *
  */
-void mbed_error_printf(const char* format, ...);
+void mbed_error_printf(const char *format, ...);
 
 /** Print out an error message.  Similar to mbed_error_printf
  * but uses a va_list.
@@ -146,7 +146,7 @@ void mbed_error_printf(const char* format, ...);
  * @param arg       Variable arguments list
  *
  */
-void mbed_error_vfprintf(const char * format, va_list arg);
+void mbed_error_vfprintf(const char *format, va_list arg);
 /** @}*/
 
 #ifdef __cplusplus

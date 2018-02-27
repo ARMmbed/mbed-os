@@ -33,19 +33,23 @@ typedef rtos::Mutex PlatformMutex;
 */
 class PlatformMutex : private mbed::NonCopyable<PlatformMutex> {
 public:
-    PlatformMutex() {
+    PlatformMutex()
+    {
         // Stub
 
     }
-    ~PlatformMutex() {
+    ~PlatformMutex()
+    {
         // Stub
     }
 
-    void lock() {
+    void lock()
+    {
         // Do nothing
     }
 
-    void unlock() {
+    void unlock()
+    {
         // Do nothing
     }
 };

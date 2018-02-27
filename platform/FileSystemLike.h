@@ -59,7 +59,7 @@ public:
      *  @deprecated Replaced by `int open(FileHandle **, ...)` for propagating error codes
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5",
-        "Replaced by `int open(FileHandle **, ...)` for propagating error codes")
+                          "Replaced by `int open(FileHandle **, ...)` for propagating error codes")
     FileHandle *open(const char *path, int flags)
     {
         FileHandle *file;
@@ -74,7 +74,7 @@ public:
      *  @deprecated Replaced by `int open(DirHandle **, ...)` for propagating error codes
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5",
-        "Replaced by `int open(DirHandle **, ...)` for propagating error codes")
+                          "Replaced by `int open(DirHandle **, ...)` for propagating error codes")
     DirHandle *opendir(const char *path)
     {
         DirHandle *dir;

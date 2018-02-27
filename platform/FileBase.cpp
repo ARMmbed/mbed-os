@@ -23,8 +23,9 @@ FileBase *FileBase::_head = NULL;
 SingletonPtr<PlatformMutex> FileBase::_mutex;
 
 FileBase::FileBase(const char *name, PathType t) : _next(NULL),
-                                                   _name(name),
-                                                   _path_type(t) {
+    _name(name),
+    _path_type(t)
+{
     _mutex->lock();
     if (name != NULL) {
         // put this object at head of the list
@@ -36,7 +37,8 @@ FileBase::FileBase(const char *name, PathType t) : _next(NULL),
     _mutex->unlock();
 }
 
-FileBase::~FileBase() {
+FileBase::~FileBase()
+{
     _mutex->lock();
     if (_name != NULL) {
         // remove this object from the list
@@ -53,12 +55,13 @@ FileBase::~FileBase() {
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
-        extern void remove_filehandle(FileHandle *file);
-        remove_filehandle(static_cast<FileHandle*>(static_cast<FileLike*>(this)));
+        extern void remove_filehandle(FileHandle * file);
+        remove_filehandle(static_cast<FileHandle *>(static_cast<FileLike *>(this)));
     }
 }
 
-FileBase *FileBase::lookup(const char *name, unsigned int len) {
+FileBase *FileBase::lookup(const char *name, unsigned int len)
+{
     _mutex->lock();
     FileBase *p = _head;
     while (p != NULL) {
@@ -73,7 +76,8 @@ FileBase *FileBase::lookup(const char *name, unsigned int len) {
     return NULL;
 }
 
-FileBase *FileBase::get(int n) {
+FileBase *FileBase::get(int n)
+{
     _mutex->lock();
     FileBase *p = _head;
     int m = 0;
@@ -90,12 +94,14 @@ FileBase *FileBase::get(int n) {
     return NULL;
 }
 
-const char* FileBase::getName(void) {
+const char *FileBase::getName(void)
+{
     // Constant read so no lock needed
     return _name;
 }
 
-PathType FileBase::getPathType(void) {
+PathType FileBase::getPathType(void)
+{
     // Constant read so no lock needed
     return _path_type;
 }

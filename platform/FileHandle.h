@@ -69,7 +69,7 @@ public:
      * * if some data can be written, and non-blocking set, write partial
      *
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
+     *  @param size     The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t write(const void *buffer, size_t size) = 0;

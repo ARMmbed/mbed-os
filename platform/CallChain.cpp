@@ -13,26 +13,31 @@ namespace mbed {
 
 class CallChainLink {
 public:
-    CallChainLink(): cb(), next(NULL) {
+    CallChainLink(): cb(), next(NULL)
+    {
         // No work to do
     }
 
-    CallChainLink(Callback<void()> &callback): cb(callback), next(NULL) {
+    CallChainLink(Callback<void()> &callback): cb(callback), next(NULL)
+    {
         // No work to do
     }
     Callback<void()> cb;
-    CallChainLink * next;
+    CallChainLink *next;
 };
 
-CallChain::CallChain(int size) : _chain(NULL) {
+CallChain::CallChain(int size) : _chain(NULL)
+{
     // No work to do
 }
 
-CallChain::~CallChain() {
+CallChain::~CallChain()
+{
     clear();
 }
 
-pFunctionPointer_t CallChain::add(Callback<void()> func) {
+pFunctionPointer_t CallChain::add(Callback<void()> func)
+{
     CallChainLink *new_link = new CallChainLink(func);
     if (NULL == _chain) {
         _chain = new_link;
@@ -49,14 +54,16 @@ pFunctionPointer_t CallChain::add(Callback<void()> func) {
     }
 }
 
-pFunctionPointer_t CallChain::add_front(Callback<void()> func) {
+pFunctionPointer_t CallChain::add_front(Callback<void()> func)
+{
     CallChainLink *link = new CallChainLink(func);
     link->next = _chain;
     _chain = link;
     return &link->cb;
 }
 
-int CallChain::size() const {
+int CallChain::size() const
+{
     CallChainLink *link = _chain;
     int elements = 0;
     while (link != NULL) {
@@ -66,7 +73,8 @@ int CallChain::size() const {
     return elements;
 }
 
-pFunctionPointer_t CallChain::get(int idx) const {
+pFunctionPointer_t CallChain::get(int idx) const
+{
     CallChainLink *link = _chain;
     for (int i = 0; i < idx; i++) {
         if (NULL == link) {
@@ -77,7 +85,8 @@ pFunctionPointer_t CallChain::get(int idx) const {
     return &link->cb;
 }
 
-int CallChain::find(pFunctionPointer_t f) const {
+int CallChain::find(pFunctionPointer_t f) const
+{
     CallChainLink *link = _chain;
     int i = 0;
     while (link != NULL) {
@@ -90,7 +99,8 @@ int CallChain::find(pFunctionPointer_t f) const {
     return -1;
 }
 
-void CallChain::clear() {
+void CallChain::clear()
+{
     CallChainLink *link = _chain;
     _chain = NULL;
     while (link != NULL) {
@@ -100,7 +110,8 @@ void CallChain::clear() {
     }
 }
 
-bool CallChain::remove(pFunctionPointer_t f) {
+bool CallChain::remove(pFunctionPointer_t f)
+{
     CallChainLink *link = _chain;
     while (link != NULL) {
         if (f == &link->cb) {
@@ -112,7 +123,8 @@ bool CallChain::remove(pFunctionPointer_t f) {
     return false;
 }
 
-void CallChain::call() {
+void CallChain::call()
+{
     CallChainLink *link = _chain;
     while (link != NULL) {
         link->cb.call();

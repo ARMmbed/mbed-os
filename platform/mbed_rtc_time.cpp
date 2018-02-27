@@ -50,8 +50,8 @@ time_t time(time_t *timer)
             set_time(0);
         }
     }
-    
-    time_t t = (time_t)-1;
+
+    time_t t = (time_t) -1;
     if (_rtc_read != NULL) {
         t = _rtc_read();
     }
@@ -63,7 +63,8 @@ time_t time(time_t *timer)
     return t;
 }
 
-void set_time(time_t t) {
+void set_time(time_t t)
+{
     _mutex->lock();
     if (_rtc_init != NULL) {
         _rtc_init();
@@ -74,7 +75,8 @@ void set_time(time_t t) {
     _mutex->unlock();
 }
 
-void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void)) {
+void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void))
+{
     _mutex->lock();
     _rtc_read = read_rtc;
     _rtc_write = write_rtc;
