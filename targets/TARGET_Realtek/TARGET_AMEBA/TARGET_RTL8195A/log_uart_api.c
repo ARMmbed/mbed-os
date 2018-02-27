@@ -17,6 +17,10 @@
 #include "objects.h"
 #include "log_uart_api.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #include <string.h>
 
 const u32 log_uart_support_rate[] = {
