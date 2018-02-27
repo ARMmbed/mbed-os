@@ -32,10 +32,19 @@ void ns_hal_init(void *heap, size_t h_size, void (*passed_fptr)(heap_fail_t), me
     ns_dyn_mem_init(heap, h_size, passed_fptr, info_ptr);
     platform_timer_enable();
     eventOS_scheduler_init();
+
     // We do not initialise randlib, as it should be done after
     // RF driver has started, to get MAC address and RF noise as seed.
     // We do not initialise trace - left to application.
+
+    // Prepare the event loop lock which is used even if the loop
+    // is not ran in a separate thread.
+    ns_event_loop_init();
+
+#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
     ns_event_loop_thread_create();
     ns_event_loop_thread_start();
+#endif
+
     initted = true;
 }

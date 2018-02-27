@@ -230,6 +230,17 @@ class MCUXpresso(GNUARMEclipse):
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
 
+    @staticmethod
+    def clean(_):
+        remove('.project')
+        remove('.cproject')
+        if exists('Debug'):
+            shutil.rmtree('Debug')
+        if exists('Release'):
+            shutil.rmtree('Release')
+        if exists('makefile.targets'):
+            remove('makefile.targets')
+
     # override
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -299,14 +310,7 @@ class MCUXpresso(GNUARMEclipse):
         if cleanup:
             if exists(log_name):
                 remove(log_name)
-            remove('.project')
-            remove('.cproject')
-            if exists('Debug'):
-                shutil.rmtree('Debug')
-            if exists('Release'):
-                shutil.rmtree('Release')
-            if exists('makefile.targets'):
-                remove('makefile.targets')
+            MCUXpresso.clean(project_name)
 
         # Always remove the temporary folder.
         if exists(tmp_folder):

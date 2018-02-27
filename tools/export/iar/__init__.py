@@ -139,6 +139,17 @@ class IAR(Exporter):
         self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
 
     @staticmethod
+    def clean(project_name):
+        os.remove(project_name + ".ewp")
+        os.remove(project_name + ".ewd")
+        os.remove(project_name + ".eww")
+        # legacy output file location
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
+
+    @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
@@ -179,14 +190,7 @@ class IAR(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(project_name + ".ewp")
-            os.remove(project_name + ".ewd")
-            os.remove(project_name + ".eww")
-            # legacy output file location
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            IAR.clean(project_name)
 
         if ret_code !=0:
             # Seems like something went wrong.

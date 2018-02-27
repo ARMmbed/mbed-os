@@ -299,6 +299,17 @@ class GNUARMEclipse(Exporter):
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
 
+    @staticmethod
+    def clean(_):
+        os.remove('.project')
+        os.remove('.cproject')
+        if exists('Debug'):
+            shutil.rmtree('Debug')
+        if exists('Release'):
+            shutil.rmtree('Release')
+        if exists('makefile.targets'):
+            os.remove('makefile.targets')
+
     # override
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -366,14 +377,6 @@ class GNUARMEclipse(Exporter):
         if cleanup:
             if exists(log_name):
                 os.remove(log_name)
-            os.remove('.project')
-            os.remove('.cproject')
-            if exists('Debug'):
-                shutil.rmtree('Debug')
-            if exists('Release'):
-                shutil.rmtree('Release')
-            if exists('makefile.targets'):
-                os.remove('makefile.targets')
 
         # Always remove the temporary folder.
         if exists(tmp_folder):
