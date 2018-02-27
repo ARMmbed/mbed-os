@@ -110,7 +110,7 @@ public:
     );
 
 	MOCK_METHOD4(
-        slave_security_request,
+        enable_encryption,
         ble_error_t(
             connection_handle_t,
             const ltk_t &,

@@ -37,21 +37,21 @@ public:
 
 	MOCK_METHOD1(pairingRequest, void(connection_handle_t));
 
-    MOCK_METHOD2(pairingResult, void(connection_handle_t, SecurityManager::SecurityCompletionStatus_t));
+    MOCK_METHOD2(pairingResult, void(connection_handle_t, ::SecurityManager::SecurityCompletionStatus_t));
 
     MOCK_METHOD1(validMicTimeout, void(connection_handle_t));
 
-    MOCK_METHOD1(whitelistFromBondTable, void(Gap::Whitelist_t*));
+    MOCK_METHOD1(whitelistFromBondTable, void(::Gap::Whitelist_t*));
 
     MOCK_METHOD2(whitelistFromBondTable, void(connection_handle_t, link_encryption_t));
 
-    MOCK_METHOD2(passkeyDisplay, void(connection_handle_t, const SecurityManager::Passkey_t));
+    MOCK_METHOD2(passkeyDisplay, void(connection_handle_t, const ::SecurityManager::Passkey_t));
 
     MOCK_METHOD1(confirmationRequest, void(connection_handle_t));
 
     MOCK_METHOD1(passkeyRequest, void(connection_handle_t));
 
-    MOCK_METHOD2(keypressNotification, void(connection_handle_t, SecurityManager::Keypress_t));
+    MOCK_METHOD2(keypressNotification, void(connection_handle_t, ::SecurityManager::Keypress_t));
 
     MOCK_METHOD1(legacyPairingOobRequest, void(connection_handle_t));
 
