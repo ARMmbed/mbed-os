@@ -890,7 +890,7 @@ public:
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t get_random_data(
-        random_data_t &random_data
+        octet_type_t<8> &random_data
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -982,8 +982,8 @@ public:
      */
     virtual ble_error_t oob_data_verified(
         connection_handle_t connection,
-        const oob_rand_t &local_random,
-        const oob_rand_t &peer_random
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */

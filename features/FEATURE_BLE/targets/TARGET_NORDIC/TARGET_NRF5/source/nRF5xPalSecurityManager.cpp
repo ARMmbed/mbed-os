@@ -374,7 +374,7 @@ ble_error_t nRF5xSecurityManager::request_authentication(connection_handle_t con
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::get_random_data(random_data_t &random_data)
+ble_error_t nRF5xSecurityManager::get_random_data(octet_type_t<8> &random_data)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
@@ -433,8 +433,8 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
 
 ble_error_t nRF5xSecurityManager::oob_data_verified(
     connection_handle_t connection,
-    const oob_rand_t &local_random,
-    const oob_rand_t &peer_random
+    const oob_lesc_value_t &local_random,
+    const oob_lesc_value_t &peer_random
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

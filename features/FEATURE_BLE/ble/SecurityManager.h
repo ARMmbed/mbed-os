@@ -31,7 +31,7 @@ using ble::pairing_failure_t;
 using ble::link_encryption_t;
 using ble::csrk_t;
 using ble::oob_tk_t;
-using ble::oob_rand_t;
+using ble::oob_lesc_value_t;
 using ble::oob_confirm_t;
 using ble::address_t;
 
@@ -269,7 +269,7 @@ public:
          *                    in secure connections pairing
          */
         virtual void oobGenerated(const address_t *address,
-                                  const oob_rand_t *random,
+                                  const oob_lesc_value_t *random,
                                   const oob_confirm_t *confirm) {
             (void)address;
             (void)random;
@@ -769,7 +769,7 @@ public:
      *                    in secure connections pairing
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t oobReceived(const address_t *address, const oob_rand_t *random, const oob_confirm_t *confirm) {
+    virtual ble_error_t oobReceived(const address_t *address, const oob_lesc_value_t *random, const oob_confirm_t *confirm) {
         (void) address;
         (void) random;
         (void) confirm;

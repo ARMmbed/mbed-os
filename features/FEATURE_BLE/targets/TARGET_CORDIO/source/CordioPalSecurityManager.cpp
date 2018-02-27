@@ -341,7 +341,7 @@ ble_error_t CordioSecurityManager::request_authentication(connection_handle_t co
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::get_random_data(random_data_t &random_data)
+ble_error_t CordioSecurityManager::get_random_data(octet_type_t<8> &random_data)
 {
     SecRand(random_data.buffer(), random_data.size());
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -390,8 +390,8 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
 
 ble_error_t CordioSecurityManager::oob_data_verified(
     connection_handle_t connection,
-    const oob_rand_t &local_random,
-    const oob_rand_t &peer_random
+    const oob_lesc_value_t &local_random,
+    const oob_lesc_value_t &peer_random
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

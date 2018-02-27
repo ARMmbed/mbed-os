@@ -514,7 +514,7 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
 
 ble_error_t GenericSecurityManager::oobReceived(
     const address_t *address,
-    const oob_rand_t *random,
+    const oob_lesc_value_t *random,
     const oob_confirm_t *confirm
 ) {
     if (address && random && confirm) {
@@ -548,7 +548,7 @@ ble_error_t GenericSecurityManager::init_signing() {
 }
 
 ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
-    random_data_t random_data;
+    octet_type_t<8> random_data;
 
     while (size) {
         /* fill out the buffer by reading the random data in chunks
@@ -647,7 +647,7 @@ void GenericSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
      oob_confirm_t confirm;
-     oob_rand_t random;
+     oob_lesc_value_t random;
 
      ControlBlock_t *cb = get_control_block(connection);
      if (!cb) {
@@ -701,7 +701,7 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
 bool GenericSecurityManager::crypto_toolbox_f4(
     const public_key_t& U,
     const public_key_t& V,
-    const oob_rand_t& X,
+    const oob_lesc_value_t& X,
     oob_confirm_t& confirm
 ) {
 

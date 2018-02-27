@@ -275,7 +275,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::get_random_data
      */
-    virtual ble_error_t get_random_data(random_data_t &random_data);
+    virtual ble_error_t get_random_data(octet_type_t<8> &random_data);
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -316,8 +316,8 @@ public:
      */
     virtual ble_error_t oob_data_verified(
         connection_handle_t connection,
-        const oob_rand_t &local_random,
-        const oob_rand_t &peer_random
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random
     );
 
     // singleton of the ARM Cordio Security Manager
