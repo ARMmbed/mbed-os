@@ -26,15 +26,6 @@
 class SecurityManagerEventHandler;
 class LegacySecurityManagerEventHandler;
 
-using ble::connection_handle_t;
-using ble::pairing_failure_t;
-using ble::link_encryption_t;
-using ble::csrk_t;
-using ble::oob_tk_t;
-using ble::oob_lesc_value_t;
-using ble::oob_confirm_t;
-using ble::address_t;
-
 class SecurityManager {
 public:
     enum Keypress_t {
@@ -103,11 +94,11 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const SecurityManager *> SecurityManagerShutdownCallbackChain_t;
 
     /* legacy callbacks, please use SecurityManagerEventHandler instead */
-    typedef void (*HandleSpecificEvent_t)(connection_handle_t connectionHandle);
-    typedef void (*SecuritySetupInitiatedCallback_t)(connection_handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
-    typedef void (*SecuritySetupCompletedCallback_t)(connection_handle_t, SecurityCompletionStatus_t status);
-    typedef void (*LinkSecuredCallback_t)(connection_handle_t connectionHandle, SecurityMode_t securityMode);
-    typedef void (*PasskeyDisplayCallback_t)(connection_handle_t connectionHandle, const Passkey_t passkey);
+    typedef void (*HandleSpecificEvent_t)(ble::connection_handle_t connectionHandle);
+    typedef void (*SecuritySetupInitiatedCallback_t)(ble::connection_handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
+    typedef void (*SecuritySetupCompletedCallback_t)(ble::connection_handle_t, SecurityCompletionStatus_t status);
+    typedef void (*LinkSecuredCallback_t)(ble::connection_handle_t connectionHandle, SecurityMode_t securityMode);
+    typedef void (*PasskeyDisplayCallback_t)(ble::connection_handle_t connectionHandle, const Passkey_t passkey);
 
     /** The stack will use these functions to signal events to the application,
      *  subclass to override handlers. Use SecurityManager::setSecurityManagerEventHandler
@@ -127,7 +118,7 @@ public:
          *
          * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void pairingRequest(connection_handle_t connectionHandle) {
+        virtual void pairingRequest(ble::connection_handle_t connectionHandle) {
             (void)connectionHandle;
         }
 
@@ -137,7 +128,7 @@ public:
          * @param[in] connectionHandle connection connectionHandle
          * @param[in] result result of the pairing indicating success or reason for failure
          */
-        virtual void pairingResult(connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
+        virtual void pairingResult(ble::connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
             (void)connectionHandle;
             (void)result;
         }
@@ -168,7 +159,7 @@ public:
          * @param[in] connectionHandle connection connectionHandle
          * @param[in] result encryption state of the link
          */
-        virtual void linkEncryptionResult(connection_handle_t connectionHandle, link_encryption_t result) {
+        virtual void linkEncryptionResult(ble::connection_handle_t connectionHandle, ble::link_encryption_t result) {
             (void)connectionHandle;
             (void)result;
         }
@@ -183,7 +174,7 @@ public:
          * @param[in] connectionHandle connection connectionHandle
          * @param[in] passkey 6 digit passkey to be displayed
          */
-        virtual void passkeyDisplay(connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
+        virtual void passkeyDisplay(ble::connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
             (void)connectionHandle;
             (void)passkey;
         }
@@ -194,7 +185,7 @@ public:
          *
          * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void confirmationRequest(connection_handle_t connectionHandle) {
+        virtual void confirmationRequest(ble::connection_handle_t connectionHandle) {
             (void)connectionHandle;
         }
 
@@ -204,7 +195,7 @@ public:
          *
          * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void passkeyRequest(connection_handle_t connectionHandle) {
+        virtual void passkeyRequest(ble::connection_handle_t connectionHandle) {
             (void)connectionHandle;
         }
 
@@ -214,7 +205,7 @@ public:
          * @param[in] connectionHandle connection connectionHandle
          * @param[in] keypress type of keypress event
          */
-        virtual void keypressNotification(connection_handle_t connectionHandle, SecurityManager::Keypress_t keypress) {
+        virtual void keypressNotification(ble::connection_handle_t connectionHandle, SecurityManager::Keypress_t keypress) {
             (void)connectionHandle;
             (void)keypress;
         }
@@ -224,7 +215,7 @@ public:
          *
          * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void legacyPairingOobRequest(connection_handle_t connectionHandle) {
+        virtual void legacyPairingOobRequest(ble::connection_handle_t connectionHandle) {
             (void)connectionHandle;
         }
 
@@ -233,7 +224,7 @@ public:
          *
          * @param[in] connectionHandle connection connectionHandle
          */
-        virtual void oobRequest(connection_handle_t connectionHandle) {
+        virtual void oobRequest(ble::connection_handle_t connectionHandle) {
             (void)connectionHandle;
         }
 
@@ -243,8 +234,8 @@ public:
          * @param[in] address address that will be used in the pairing
          * @param[in] temporaryKey temporary key to be used in legacy pairing
          */
-        virtual void legacyPairingOobGenerated(const address_t *address,
-                                               const oob_tk_t *temporaryKey) {
+        virtual void legacyPairingOobGenerated(const ble::address_t *address,
+                                               const ble::oob_tk_t *temporaryKey) {
             (void)address;
             (void)temporaryKey;
         }
@@ -258,9 +249,9 @@ public:
          * @param[in] confirm confirmation value to be use for authentication
          *                    in secure connections pairing
          */
-        virtual void oobGenerated(const address_t *address,
-                                  const oob_lesc_value_t *random,
-                                  const oob_confirm_t *confirm) {
+        virtual void oobGenerated(const ble::address_t *address,
+                                  const ble::oob_lesc_value_t *random,
+                                  const ble::oob_confirm_t *confirm) {
             (void)address;
             (void)random;
             (void)confirm;
@@ -277,7 +268,7 @@ public:
          * @param[in] csrk signing key, pointer only valid during call
          * @param[in] authenticated indicates if the signing key is authenticated
          */
-        virtual void signingKey(connection_handle_t connectionHandle, const csrk_t *csrk, bool authenticated) {
+        virtual void signingKey(ble::connection_handle_t connectionHandle, const ble::csrk_t *csrk, bool authenticated) {
             (void)connectionHandle;
             (void)csrk;
             (void)authenticated;
@@ -401,7 +392,7 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t requestPairing(connection_handle_t connectionHandle) {
+    virtual ble_error_t requestPairing(ble::connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -413,7 +404,7 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t acceptPairingRequest(connection_handle_t connectionHandle) {
+    virtual ble_error_t acceptPairingRequest(ble::connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -425,7 +416,7 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t cancelPairingRequest(connection_handle_t connectionHandle) {
+    virtual ble_error_t cancelPairingRequest(ble::connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -509,7 +500,7 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t setLinkSecurity(connection_handle_t connectionHandle, SecurityMode_t securityMode) {
+    virtual ble_error_t setLinkSecurity(ble::connection_handle_t connectionHandle, SecurityMode_t securityMode) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)securityMode;
@@ -541,7 +532,7 @@ public:
      *                             during subsequent pairing.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t enableSigning(connection_handle_t connectionHandle, bool enabled = true) {
+    virtual ble_error_t enableSigning(ble::connection_handle_t connectionHandle, bool enabled = true) {
         (void) enabled;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -569,7 +560,7 @@ public:
      * @param[out] encryption
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getLinkEncryption(connection_handle_t connectionHandle, link_encryption_t *encryption) {
+    virtual ble_error_t getLinkEncryption(ble::connection_handle_t connectionHandle, ble::link_encryption_t *encryption) {
         (void)connectionHandle;
         (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -583,7 +574,7 @@ public:
      * @param[in] encryption
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t setLinkEncryption(connection_handle_t connectionHandle, link_encryption_t encryption) {
+    virtual ble_error_t setLinkEncryption(ble::connection_handle_t connectionHandle, ble::link_encryption_t encryption) {
         (void)connectionHandle;
         (void)encryption;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -596,7 +587,7 @@ public:
      * @param[out] size Size of the encryption key in bytes
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getEncryptionKeySize(connection_handle_t connectionHandle, uint8_t *byteSize) {
+    virtual ble_error_t getEncryptionKeySize(ble::connection_handle_t connectionHandle, uint8_t *byteSize) {
         (void) connectionHandle;
         (void) byteSize;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -642,7 +633,7 @@ public:
      * @param[in] connectionHandle Handle to identify the connection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t requestAuthentication(connection_handle_t connectionHandle) {
+    virtual ble_error_t requestAuthentication(ble::connection_handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -661,7 +652,7 @@ public:
      *                            of exchange used by the OOB data itself provides MITM protection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t setOOBDataUsage(connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
+    virtual ble_error_t setOOBDataUsage(ble::connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
         /* Avoid compiler warnings about unused variables */
         (void) connectionHandle;
         (void) useOOB;
@@ -676,7 +667,7 @@ public:
      * @param[in] confirmation True value indicates the passkey displayed matches.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t confirmationEntered(connection_handle_t connectionHandle, bool confirmation) {
+    virtual ble_error_t confirmationEntered(ble::connection_handle_t connectionHandle, bool confirmation) {
         (void) connectionHandle;
         (void) confirmation;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -689,7 +680,7 @@ public:
      * @param[in] passkey ASCII string of digits entered by the user.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t passkeyEntered(connection_handle_t connectionHandle, Passkey_t passkey) {
+    virtual ble_error_t passkeyEntered(ble::connection_handle_t connectionHandle, Passkey_t passkey) {
         (void) connectionHandle;
         (void) passkey;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -703,7 +694,7 @@ public:
      * @param[in] keypress Type of keypress event.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t sendKeypressNotification(connection_handle_t connectionHandle, Keypress_t keypress) {
+    virtual ble_error_t sendKeypressNotification(ble::connection_handle_t connectionHandle, Keypress_t keypress) {
         (void) connectionHandle;
         (void) keypress;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -717,7 +708,7 @@ public:
      * @param[in] tk pointer to out of band data received containing the temporary key.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t legacyPairingOobReceived(const address_t *address, const oob_tk_t *tk) {
+    virtual ble_error_t legacyPairingOobReceived(const ble::address_t *address, const ble::oob_tk_t *tk) {
         (void) address;
         (void) tk;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -733,7 +724,7 @@ public:
      *                    in secure connections pairing
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t oobReceived(const address_t *address, const oob_lesc_value_t *random, const oob_confirm_t *confirm) {
+    virtual ble_error_t oobReceived(const ble::address_t *address, const ble::oob_lesc_value_t *random, const ble::oob_confirm_t *confirm) {
         (void) address;
         (void) random;
         (void) confirm;
@@ -755,7 +746,7 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    virtual ble_error_t getSigningKey(connection_handle_t connectionHandle, bool authenticated) {
+    virtual ble_error_t getSigningKey(ble::connection_handle_t connectionHandle, bool authenticated) {
         (void)connectionHandle;
         (void)authenticated;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -849,11 +840,11 @@ public:
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-     ble_error_t getLinkSecurity(connection_handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
-        link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
+     ble_error_t getLinkSecurity(ble::connection_handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
+        ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
         ble_error_t status = getLinkEncryption(connectionHandle, &encryption);
         /* legacy support limits the return values */
-        if (encryption.value() == link_encryption_t::ENCRYPTED_WITH_MITM) {
+        if (encryption.value() == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
             *securityStatus = ENCRYPTED;
         } else {
             *securityStatus = (LinkSecurityStatus_t)encryption.value();
@@ -912,31 +903,31 @@ public:
     /* Entry points for the underlying stack to report events back to the user. */
 public:
     /** @deprecated */
-    void processSecuritySetupInitiatedEvent(connection_handle_t connectionHandle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
+    void processSecuritySetupInitiatedEvent(ble::connection_handle_t connectionHandle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
         if (defaultEventHandler.securitySetupInitiatedCallback) {
             defaultEventHandler.securitySetupInitiatedCallback(connectionHandle, allowBonding, requireMITM, iocaps);
         }
     }
     /** @deprecated */
-    void processSecuritySetupCompletedEvent(connection_handle_t connectionHandle, SecurityCompletionStatus_t status) {
+    void processSecuritySetupCompletedEvent(ble::connection_handle_t connectionHandle, SecurityCompletionStatus_t status) {
         eventHandler->pairingResult(connectionHandle, status);
     }
     /** @deprecated */
-    void processLinkSecuredEvent(connection_handle_t connectionHandle, SecurityMode_t securityMode) {
+    void processLinkSecuredEvent(ble::connection_handle_t connectionHandle, SecurityMode_t securityMode) {
         if (securityMode == SECURITY_MODE_ENCRYPTION_NO_MITM) {
-            eventHandler->linkEncryptionResult(connectionHandle, link_encryption_t::ENCRYPTED);
+            eventHandler->linkEncryptionResult(connectionHandle, ble::link_encryption_t::ENCRYPTED);
         } else {
-            eventHandler->linkEncryptionResult(connectionHandle, link_encryption_t::NOT_ENCRYPTED);
+            eventHandler->linkEncryptionResult(connectionHandle, ble::link_encryption_t::NOT_ENCRYPTED);
         }
     }
     /** @deprecated */
-    void processSecurityContextStoredEvent(connection_handle_t connectionHandle) {
+    void processSecurityContextStoredEvent(ble::connection_handle_t connectionHandle) {
         if (defaultEventHandler.securityContextStoredCallback) {
             defaultEventHandler.securityContextStoredCallback(connectionHandle);
         }
     }
     /** @deprecated */
-    void processPasskeyDisplayEvent(connection_handle_t connectionHandle, const Passkey_t passkey) {
+    void processPasskeyDisplayEvent(ble::connection_handle_t connectionHandle, const Passkey_t passkey) {
         eventHandler->passkeyDisplay(connectionHandle, passkey);
     }
 
@@ -952,18 +943,18 @@ private:
             securityContextStoredCallback(),
             passkeyDisplayCallback() { };
 
-        virtual void pairingResult(connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
+        virtual void pairingResult(ble::connection_handle_t connectionHandle, SecurityCompletionStatus_t result) {
             if (securitySetupCompletedCallback) {
                 securitySetupCompletedCallback(connectionHandle, result);
             }
         }
 
-        virtual void linkEncryptionResult(connection_handle_t connectionHandle, link_encryption_t result) {
+        virtual void linkEncryptionResult(ble::connection_handle_t connectionHandle, ble::link_encryption_t result) {
             if (linkSecuredCallback) {
                 SecurityManager::SecurityMode_t securityMode;
-                if (result == link_encryption_t::ENCRYPTED) {
+                if (result == ble::link_encryption_t::ENCRYPTED) {
                     securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
-                } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+                } else if (result == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
                     securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
                 } else {
                     securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
@@ -972,7 +963,7 @@ private:
             }
         };
 
-        virtual void passkeyDisplay(connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
+        virtual void passkeyDisplay(ble::connection_handle_t connectionHandle, const SecurityManager::Passkey_t passkey) {
             if (passkeyDisplayCallback) {
                 passkeyDisplayCallback(connectionHandle, passkey);
             }
