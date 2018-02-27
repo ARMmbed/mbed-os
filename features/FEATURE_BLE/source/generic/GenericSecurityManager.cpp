@@ -699,8 +699,8 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
 
 #if defined(MBEDTLS_CMAC_C)
 bool GenericSecurityManager::crypto_toolbox_f4(
-    const public_key_t& U,
-    const public_key_t& V,
+    const public_key_coord_t& U,
+    const public_key_coord_t& V,
     const oob_lesc_value_t& X,
     oob_confirm_t& confirm
 ) {
@@ -975,8 +975,8 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
 
 void GenericSecurityManager::on_oob_data_verification_request(
     connection_handle_t connection,
-    const public_key_t &peer_public_key_x,
-    const public_key_t &peer_public_key_y
+    const public_key_coord_t &peer_public_key_x,
+    const public_key_coord_t &peer_public_key_y
 ) {
 #if defined(MBEDTLS_CMAC_C)
     ControlBlock_t *cb = get_control_block(connection);
@@ -1004,8 +1004,8 @@ void GenericSecurityManager::on_oob_data_verification_request(
 //
 
 void GenericSecurityManager::on_public_key_generated(
-    const public_key_t &public_key_x,
-    const public_key_t &public_key_y
+    const public_key_coord_t &public_key_x,
+    const public_key_coord_t &public_key_y
 ) {
     _db.set_public_key(public_key_x, public_key_y);
     _public_keys_generated = true;

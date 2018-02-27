@@ -370,8 +370,8 @@ public:
      */
     virtual void on_oob_data_verification_request(
         connection_handle_t connection,
-        const public_key_t &peer_public_key_x,
-        const public_key_t &peer_public_key_y
+        const public_key_coord_t &peer_public_key_x,
+        const public_key_coord_t &peer_public_key_y
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -385,8 +385,8 @@ public:
      * @param[in] public_key_y newly generated public key (y coordinate)
      */
     virtual void on_public_key_generated(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
+        const public_key_coord_t &public_key_x,
+        const public_key_coord_t &public_key_y
     ) = 0;
 
     /**

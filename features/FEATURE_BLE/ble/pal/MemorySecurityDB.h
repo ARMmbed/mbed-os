@@ -243,17 +243,17 @@ public:
 
     /* public key */
 
-    virtual const public_key_t& get_public_key_x() {
+    virtual const public_key_coord_t& get_public_key_x() {
         return _public_key_x;
     }
 
-    virtual const public_key_t& get_public_key_y() {
+    virtual const public_key_coord_t& get_public_key_y() {
         return _public_key_y;
     }
 
     virtual void set_public_key(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
+        const public_key_coord_t &public_key_x,
+        const public_key_coord_t &public_key_y
     ) {
         _public_key_x = public_key_x;
         _public_key_y = public_key_y;
@@ -363,8 +363,8 @@ private:
     entry_t _entries[MAX_ENTRIES];
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
-    public_key_t _public_key_x;
-    public_key_t _public_key_y;
+    public_key_coord_t _public_key_x;
+    public_key_coord_t _public_key_y;
 };
 
 } /* namespace pal */
