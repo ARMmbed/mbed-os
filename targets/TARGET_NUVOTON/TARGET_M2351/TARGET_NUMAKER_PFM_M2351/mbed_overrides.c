@@ -73,5 +73,7 @@ void mbed_sdk_init(void)
 
     /* Lock protected registers */
     SYS_LockReg();
+#else
+    SystemCoreClockUpdate();
 #endif		
 }
