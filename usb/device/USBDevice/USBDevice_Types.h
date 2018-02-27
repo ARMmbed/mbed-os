@@ -49,33 +49,4 @@
 #define DESCRIPTOR_TYPE(wValue)  (wValue >> 8)
 #define DESCRIPTOR_INDEX(wValue) (wValue & 0xff)
 
-typedef struct {
-    struct {
-        uint8_t dataTransferDirection;
-        uint8_t Type;
-        uint8_t Recipient;
-    } bmRequestType;
-    uint8_t  bRequest;
-    uint16_t wValue;
-    uint16_t wIndex;
-    uint16_t wLength;
-} SETUP_PACKET;
-
-typedef struct {
-    SETUP_PACKET setup;
-    uint8_t *ptr;
-    uint32_t remaining;
-    uint8_t direction;
-    bool zlp;
-    bool notify;
-} CONTROL_TRANSFER;
-
-typedef enum {ATTACHED, POWERED, DEFAULT, ADDRESS, CONFIGURED} DEVICE_STATE;
-
-typedef struct {
-    volatile DEVICE_STATE state;
-    uint8_t configuration;
-    bool suspended;
-} USB_DEVICE;
-
 #endif
