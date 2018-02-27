@@ -53,7 +53,6 @@
 #endif //MBED_CONF_PPP_CELL_IFACE_AT_PARSER_TIMEOUT
 
 static bool initialized;
-static bool set_credentials_api_used;
 static bool set_sim_pin_check_request;
 static bool change_pin;
 static device_info dev_info;
@@ -257,7 +256,7 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _new_pin = NULL;
     _pin = NULL;
     _at = NULL;
-    _apn = "internet";
+    _apn = NULL;
     _uname = NULL;
     _pwd = NULL;
     _fh = fh;
@@ -500,15 +499,12 @@ retry_without_dual_stack:
 }
 
 void  PPPCellularInterface::set_credentials(const char *apn, const char *uname,
-                                                               const char *pwd)
+                                            const char *pwd)
 {
     _apn = apn;
     _uname = uname;
     _pwd = pwd;
-    set_credentials_api_used = true;
 }
-
-
 
 void PPPCellularInterface::setup_at_parser()
 {
@@ -542,19 +538,14 @@ nsapi_error_t PPPCellularInterface::connect(const char *sim_pin, const char *apn
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (apn) {
-        _apn = apn;
-    }
-
-    if (uname && pwd) {
-        _uname = uname;
-        _pwd = pwd;
-    } else {
-        _uname = NULL;
-        _pwd = NULL;
-    }
-
     _pin = sim_pin;
+
+    if (apn) {
+        if (pwd && !uname) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+        set_credentials(apn, uname, pwd);
+    }
 
     return connect();
 }
@@ -565,7 +556,21 @@ nsapi_error_t PPPCellularInterface::connect()
     bool success;
     bool did_init = false;
     const char *apn_config = NULL;
+    bool user_specified_apn = false;
 
+    /* If the user has specified the APN then use that or,
+     * if we are not using the APN database, set _apn to
+     * "internet" as a best guess
+     */
+    if (_apn) {
+        user_specified_apn = true;
+    } else {
+#ifndef MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+        _apn = "internet";
+        user_specified_apn = true;
+#endif
+    }
+    
     if (is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
@@ -580,7 +585,6 @@ nsapi_error_t PPPCellularInterface::connect()
     do {
         retry_init:
 
-        
         retcode = NSAPI_ERROR_OK;
 
         /* setup AT parser */
@@ -643,7 +647,7 @@ nsapi_error_t PPPCellularInterface::connect()
             }
 
 #if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-            if (apn_config) {
+            if (!user_specified_apn && apn_config) {
                 _apn = _APN_GET(apn_config);
                 _uname = _APN_GET(apn_config);
                 _pwd = _APN_GET(apn_config);
@@ -672,6 +676,8 @@ nsapi_error_t PPPCellularInterface::connect()
             success = _at->send("AT") && _at->recv("OK");
         }
 
+        tr_info("The APN being used is %s.\n", _apn);
+        
         /* Attempt to enter data mode */
         success = set_atd(_at); //enter into Data mode with the modem
         if (!success) {
