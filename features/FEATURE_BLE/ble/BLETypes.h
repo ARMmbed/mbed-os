@@ -334,7 +334,6 @@ protected:
 };
 
 /** 128 bit keys used by paired devices */
-typedef octet_type_t<16> key_t;
 typedef octet_type_t<16> irk_t;
 typedef octet_type_t<16> csrk_t;
 typedef octet_type_t<16> ltk_t;
