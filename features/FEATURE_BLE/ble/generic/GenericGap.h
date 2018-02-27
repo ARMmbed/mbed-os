@@ -254,7 +254,7 @@ public:
     /**
      * @copydoc ::Gap::processConnectionEvent
      */
-    virtual void processConnectionEvent(
+    void processConnectionEvent(
         Handle_t handle,
         Role_t role,
         BLEProtocol::AddressType_t peerAddrType,
@@ -267,17 +267,17 @@ public:
     /**
      * @copydoc ::Gap::processDisconnectionEvent
      */
-    virtual void processDisconnectionEvent(
+    void processDisconnectionEvent(
         Handle_t handle,
         DisconnectionReason_t reason
     );
 
+private:
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
     void set_connection_event_handler(pal::ConnectionEventHandler *_connection_event_handler);
 
-private:
     void on_scan_timeout();
 
     void process_scan_timeout();

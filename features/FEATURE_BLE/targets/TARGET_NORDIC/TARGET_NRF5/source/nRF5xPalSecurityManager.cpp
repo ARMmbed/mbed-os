@@ -374,7 +374,7 @@ ble_error_t nRF5xSecurityManager::request_authentication(connection_handle_t con
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::get_random_data(octet_type_t<8> &random_data)
+ble_error_t nRF5xSecurityManager::get_random_data(byte_array_t<8> &random_data)
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }

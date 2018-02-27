@@ -2322,7 +2322,7 @@ public:
      * @param[in] handle Handle of the terminated connection.
      * @param[in] reason Reason of the disconnection.
      */
-    virtual void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
+    void processDisconnectionEvent(Handle_t handle, DisconnectionReason_t reason)
     {
         /* Update Gap state */
         --connectionCount;
@@ -2348,6 +2348,7 @@ public:
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
+     * @param[in] addressType address type of the peer
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,

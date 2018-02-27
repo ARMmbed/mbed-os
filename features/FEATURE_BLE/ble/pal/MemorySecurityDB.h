@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef PAL_MEMORY_SECURITY_MANAGER_entries_H__
-#define PAL_MEMORY_SECURITY_MANAGER_entries_H__
+#ifndef _PAL_MEMORY_SECURITY_DB_H_
+#define _PAL_MEMORY_SECURITY_DB_H_
 
 #include "SecurityDB.h"
 
 namespace ble {
 namespace pal {
 
-/* naive memory implementation for verification
- * TODO: make thread safe */
+/** Naive memory implementation for verification. */
 class MemorySecurityDb : public SecurityDb {
 private:
     enum state_t {
@@ -370,4 +369,4 @@ private:
 } /* namespace pal */
 } /* namespace ble */
 
-#endif /*PAL_MEMORY_SECURITY_MANAGER_entries_H__*/
+#endif /*_PAL_MEMORY_SECURITY_DB_H_*/

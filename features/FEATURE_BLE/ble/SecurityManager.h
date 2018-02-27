@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __SECURITY_MANAGER_H__
-#define __SECURITY_MANAGER_H__
+#ifndef _SECURITY_MANAGER_H_
+#define _SECURITY_MANAGER_H_
 
 #include <stdint.h>
 
@@ -23,11 +23,9 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "ble/BLETypes.h"
 
-class SecurityManagerEventHandler;
-class LegacySecurityManagerEventHandler;
-
 class SecurityManager {
 public:
+    /** events sent and received when passkey is being entered */
     enum Keypress_t {
         KEYPRESS_STARTED,   /**< Passkey entry started */
         KEYPRESS_ENTERED,   /**< Passkey digit entered */
@@ -36,6 +34,7 @@ public:
         KEYPRESS_COMPLETED, /**< Passkey entry completed */
     };
 
+    /** level of security required from the link by the application */
     enum SecurityMode_t {
         SECURITY_MODE_NO_ACCESS,
         SECURITY_MODE_ENCRYPTION_OPEN_LINK, /**< Require no protection, open link. */
@@ -56,6 +55,7 @@ public:
         ENCRYPTED               /**< The link is secure.*/
     };
 
+    /** Input/output capability of the device and application */
     enum SecurityIOCapabilities_t {
         IO_CAPS_DISPLAY_ONLY = 0x00,     /**< Display only. */
         IO_CAPS_DISPLAY_YESNO = 0x01,    /**< Display and yes/no entry. */
@@ -64,6 +64,7 @@ public:
         IO_CAPS_KEYBOARD_DISPLAY = 0x04, /**< Keyboard and display. */
     };
 
+    /** Result of security requests */
     enum SecurityCompletionStatus_t {
         SEC_STATUS_SUCCESS              = 0x00,  /**< Procedure completed with success. */
         SEC_STATUS_TIMEOUT              = 0x01,  /**< Procedure timed out. */
@@ -103,10 +104,10 @@ public:
     /** The stack will use these functions to signal events to the application,
      *  subclass to override handlers. Use SecurityManager::setSecurityManagerEventHandler
      *  to set the interface implementation to be used. */
-    class SecurityManagerEventHandler {
+    class EventHandler {
     public:
-        SecurityManagerEventHandler() {};
-        virtual ~SecurityManagerEventHandler() {};
+        EventHandler() {};
+        virtual ~EventHandler() {};
 
         ////////////////////////////////////////////////////////////////////////////
         // Pairing
@@ -243,7 +244,6 @@ public:
         /**
          * Indicate that the application needs to send OOB data to the peer.
          *
-         * @param[in] connectionHandle connection connectionHandle
          * @param[in] address address that will be used in the pairing
          * @param[in] random random number used to generate the confirmation
          * @param[in] confirm confirmation value to be use for authentication
@@ -703,7 +703,6 @@ public:
     /**
      * Supply the stack with the OOB data for legacy connections.
      *
-     * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] address address of the peer device this data comes from
      * @param[in] tk pointer to out of band data received containing the temporary key.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
@@ -717,7 +716,6 @@ public:
     /**
      * Supply the stack with the OOB data for secure connections.
      *
-     * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] address address of the peer device this data comes from
      * @param[in] random random number used to generate the confirmation
      * @param[in] confirm confirmation value to be use for authentication
@@ -793,7 +791,7 @@ public:
      *
      * @param[in] handler Event Handler interface implementation.
      */
-    virtual void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
+    virtual void setSecurityManagerEventHandler(EventHandler* handler) {
         if (handler) {
             eventHandler = handler;
         } else {
@@ -934,9 +932,9 @@ public:
 private:
     /* Legacy compatibility with old callbacks (from both sides so any
      * combination of new and old works) */
-    class LegacySecurityManagerEventHandler : public SecurityManagerEventHandler {
+    class LegacyEventHandler : public EventHandler {
     public:
-        LegacySecurityManagerEventHandler() :
+        LegacyEventHandler() :
             securitySetupInitiatedCallback(),
             securitySetupCompletedCallback(),
             linkSecuredCallback(),
@@ -980,8 +978,8 @@ private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 
 protected:
-    SecurityManagerEventHandler*      eventHandler;
-    LegacySecurityManagerEventHandler defaultEventHandler;
+    EventHandler*      eventHandler;
+    LegacyEventHandler defaultEventHandler;
 };
 
-#endif /*__SECURITY_MANAGER_H__*/
+#endif /*_SECURITY_MANAGER_H_*/

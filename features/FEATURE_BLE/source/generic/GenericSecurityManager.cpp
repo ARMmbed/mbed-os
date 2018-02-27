@@ -94,7 +94,7 @@ ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
 ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
     if (eventHandler) {
         _db.generate_whitelist_from_bond_table(
-            mbed::callback(eventHandler, &::SecurityManager::SecurityManagerEventHandler::whitelistFromBondTable),
+            mbed::callback(eventHandler, &::SecurityManager::EventHandler::whitelistFromBondTable),
             whitelist
         );
     }
@@ -112,7 +112,7 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     }
 
     if (!_legacy_pairing_allowed && !_default_authentication.get_secure_connections()) {
-        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        return BLE_ERROR_INVALID_STATE;
     }
 
     set_mitm_performed(connection, false);
@@ -548,7 +548,7 @@ ble_error_t GenericSecurityManager::init_signing() {
 }
 
 ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
-    octet_type_t<8> random_data;
+    byte_array_t<8> random_data;
 
     while (size) {
         /* fill out the buffer by reading the random data in chunks

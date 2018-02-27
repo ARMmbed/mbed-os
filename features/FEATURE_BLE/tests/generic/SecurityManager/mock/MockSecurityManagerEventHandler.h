@@ -29,7 +29,7 @@ namespace mock {
  * Mock of ble::pal::SecurityManager
  */
 class MockSecurityManagerEventHandler :
-    public ::SecurityManager::SecurityManagerEventHandler {
+    public ::SecurityManager::EventHandler {
 public:
 	MockSecurityManagerEventHandler();
 

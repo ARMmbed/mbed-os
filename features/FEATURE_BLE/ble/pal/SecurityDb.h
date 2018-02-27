@@ -43,27 +43,43 @@ struct SecurityDistributionFlags_t {
         secure_connections_paired(false) {
     }
 
+    /** peer address */
     address_t peer_address;
 
+    /** encryption key size */
     uint8_t encryption_key_size;
+    /** true if peer address is public, false if it's static random */
     uint8_t peer_address_is_public:1;
+    /** true if local address is public, false if it's static random */
     uint8_t local_address_is_public:1;
 
+    /** CSRK (Connection Signature Resolving Key) has been distributed and stored */
     uint8_t csrk_stored:1;
+    /** CSRK that is stored has MITM protection */
     uint8_t csrk_mitm_protected:1;
+    /** LTK (Long Term Key) has been distributed and stored */
     uint8_t ltk_stored:1;
+    /** LTK that is stored has MITM protection */
     uint8_t ltk_mitm_protected:1;
+    /** the current pairing was done using Secure Connections */
     uint8_t secure_connections_paired:1;
 };
 
+/** Long Term Key and data used to identify it */
 struct SecurityEntryKeys_t {
+    /** Long Term Key */
     ltk_t ltk;
+    /** EDIV (Encryption diversifier) used to identify LTK during legacy pairing */
     ediv_t ediv;
+    /** Rand (random number) used to identify LTK during legacy pairing */
     rand_t rand;
 };
 
+/** Data for resolving random resolvable addresses */
 struct SecurityEntryIdentity_t {
+    /** identity address */
     address_t identity_address;
+    /** Identity Resolving Key */
     irk_t irk;
 };
 

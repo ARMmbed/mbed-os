@@ -168,7 +168,7 @@ public:
      * @see ::ble::pal::SecurityManager::encrypt_data
      */
     virtual ble_error_t encrypt_data(
-        const key_t &key,
+        const byte_array_t<16> &key,
         encryption_block_t &data
     );
 
@@ -275,7 +275,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::get_random_data
      */
-    virtual ble_error_t get_random_data(octet_type_t<8> &random_data);
+    virtual ble_error_t get_random_data(byte_array_t<8> &random_data);
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM

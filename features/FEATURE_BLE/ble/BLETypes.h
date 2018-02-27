@@ -120,9 +120,10 @@ static inline attribute_handle_range_t attribute_handle_range(
 }
 
 /**
- * Type that describes link's encryption state..
+ * Type that describes link's encryption state.
  */
 struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
     enum type {
         NOT_ENCRYPTED,          /**< The link is not secured. */
         ENCRYPTION_IN_PROGRESS, /**< Link security is being established. */
@@ -140,6 +141,7 @@ struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
  * Type that describe a pairing failure.
  */
 struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
     enum type {
         PASSKEY_ENTRY_FAILED = 0x01,
         OOB_NOT_AVAILABLE = 0x02,
@@ -259,12 +261,12 @@ private:
     uint8_t ascii[PASSKEY_LEN];
 };
 
-template <size_t octet_size>
-struct octet_type_t {
+template <size_t array_size>
+struct byte_array_t {
     /**
      * Default to all zeroes
      */
-    octet_type_t() {
+    byte_array_t() {
         memset(_value, 0x00, sizeof(_value));
     }
 
@@ -273,7 +275,7 @@ struct octet_type_t {
      *
      * @param input_value value of the data.
      */
-    octet_type_t(const uint8_t *input_value) {
+    byte_array_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));
     }
 
@@ -283,21 +285,21 @@ struct octet_type_t {
      * @param input_value pointer to buffer.
      * @param size buffer size
      */
-    octet_type_t(const uint8_t* input_value, size_t size) {
+    byte_array_t(const uint8_t* input_value, size_t size) {
         memcpy(_value, input_value, size);
     }
 
     /**
      * Equal operator between two octet types.
      */
-    friend bool operator==(const octet_type_t& lhs, const octet_type_t& rhs) {
+    friend bool operator==(const byte_array_t& lhs, const byte_array_t& rhs) {
         return memcmp(lhs._value, rhs._value, sizeof(lhs._value)) == 0;
     }
 
     /**
      * Non equal operator between two octet types.
      */
-    friend bool operator!=(const octet_type_t& lhs, const octet_type_t& rhs) {
+    friend bool operator!=(const byte_array_t& lhs, const byte_array_t& rhs) {
         return !(lhs == rhs);
     }
 
@@ -326,36 +328,40 @@ struct octet_type_t {
      * Size in byte of a data.
      */
     static size_t size() {
-        return octet_size;
+        return array_size;
     }
 
 protected:
-    uint8_t _value[octet_size];
+    uint8_t _value[array_size];
 };
 
 /** 128 bit keys used by paired devices */
-typedef octet_type_t<16> irk_t;
-typedef octet_type_t<16> csrk_t;
-typedef octet_type_t<16> ltk_t;
+typedef byte_array_t<16> irk_t;
+typedef byte_array_t<16> csrk_t;
+typedef byte_array_t<16> ltk_t;
 
 /** Used to identify LTK for legacy pairing connections */
-typedef octet_type_t<2> ediv_t;
-typedef octet_type_t<8> rand_t;
+typedef byte_array_t<2> ediv_t;
+typedef byte_array_t<8> rand_t;
 
 /** Out of band data exchanged during pairing */
-typedef octet_type_t<16> oob_tk_t; /**< legacy pairing TK */
-typedef octet_type_t<16> oob_lesc_value_t; /**< secure connections oob random 128 value */
-typedef octet_type_t<16> oob_confirm_t; /**< secure connections oob confirmation value */
+typedef byte_array_t<16> oob_tk_t; /**< legacy pairing TK */
+typedef byte_array_t<16> oob_lesc_value_t; /**< secure connections oob random 128 value */
+typedef byte_array_t<16> oob_confirm_t; /**< secure connections oob confirmation value */
 
 /** data to be encrypted */
-typedef octet_type_t<16> encryption_block_t;
-typedef octet_type_t<32> public_key_coord_t;
-typedef octet_type_t<32> dhkey_t;
+typedef byte_array_t<16> encryption_block_t;
+
+/** public key coordinate, two of which define the public key */
+typedef byte_array_t<32> public_key_coord_t;
+
+/** Diffie-Hellman key */
+typedef byte_array_t<32> dhkey_t;
 
 /**
  * MAC address data type.
  */
-struct address_t : public octet_type_t<6> {
+struct address_t : public byte_array_t<6> {
     /**
      * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
      */

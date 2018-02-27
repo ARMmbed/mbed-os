@@ -185,7 +185,7 @@ ble_error_t CordioSecurityManager::get_encryption_key_size(
 }
 
 ble_error_t CordioSecurityManager::encrypt_data(
-    const key_t &key,
+    const byte_array_t<16> &key,
     encryption_block_t &data
 ) {
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -341,7 +341,7 @@ ble_error_t CordioSecurityManager::request_authentication(connection_handle_t co
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t CordioSecurityManager::get_random_data(octet_type_t<8> &random_data)
+ble_error_t CordioSecurityManager::get_random_data(byte_array_t<8> &random_data)
 {
     SecRand(random_data.buffer(), random_data.size());
     return BLE_ERROR_NOT_IMPLEMENTED;
@@ -403,7 +403,7 @@ CordioSecurityManager& CordioSecurityManager::get_security_manager()
 }
 
 bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
-    SecurityManagerEventHandler* handler =
+    SecurityManager::EventHandler* handler =
         get_security_manager().get_event_handler();
 
     if ((msg == NULL) || (handler == NULL)) {
