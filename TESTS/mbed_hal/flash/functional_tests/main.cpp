@@ -27,8 +27,8 @@
 
 using namespace utest::v1;
 
-#define TEST_CYCLES         1000000
-#define ALLOWED_DRIFT_PPM   5000         //0.5%
+#define TEST_CYCLES         10000000
+#define ALLOWED_DRIFT_PPM   (1000000/5000)    //0.5%
 
 /*
     return values to be checked are documented at:
@@ -269,7 +269,7 @@ void flash_buffer_alignment_test()
 void flash_clock_and_cache_test()
 {
     const int timer_diff_end = time_cpu_cycles(TEST_CYCLES);
-    const int acceptable_range = timer_diff_start / (1000000 / ALLOWED_DRIFT_PPM);
+    const int acceptable_range = timer_diff_start / (ALLOWED_DRIFT_PPM);
     TEST_ASSERT_UINT32_WITHIN(acceptable_range, timer_diff_start, timer_diff_end);
 }
 
