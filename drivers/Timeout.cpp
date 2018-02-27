@@ -17,7 +17,8 @@
 
 namespace mbed {
 
-void Timeout::handler() {
+void Timeout::handler()
+{
     _function.call();
 }
 
