@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017-2018 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,48 @@
  * limitations under the License.
  */
 
-/**
- * Elapsed time measure and interval timer in micro-secundum,
- * servicing \ref us_ticker_api.h, using CMSDK Timer0 \ref CMSDK_TIMER0_DEV.
- */
+ /**
+  * Low-power elapsed time measure and interval timer in micro-secundum,
+  * servicing \ref lp_ticker_api.h, using CMSDK Timer1 \ref CMSDK_TIMER1_DEV.
+  */
+
+#include <limits.h>
 
 #include "cmsdk_ticker.h"
-#include "us_ticker_api.h"
+#include "lp_ticker_api.h"
 #include "platform_devices.h"
 
 /**
- * \brief Convert clocks to us
+ * \brief Calculate clocks to us
  *
- * \param[in] tick Number of clocks
+ * \param[in] tick Number of clock ticks
  *
  * \return Number of usec, relative to the timer frequency,
  *         that a given ammount of ticks equates to.
  */
-static uint32_t convert_tick_to_us(uint32_t tick)
-{
-    return (tick / (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
-}
+ static uint32_t convert_tick_to_us(uint32_t tick)
+ {
+     return (tick / (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
+ }
 
 /**
- * \brief Convert us to clock ticks
+ * \brief Calculate us to clock ticks
  *
  * \param[in] us Time to convert to clock ticks
  *
  * \return Number of clock ticks relative to the timer frequency,
  *         that a given period of usec equates to.
  */
-static uint32_t convert_us_to_tick(uint32_t us)
-{
-    return (us * (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
-}
+ static uint32_t convert_us_to_tick(uint32_t us)
+ {
+     return (us * (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
+ }
 
 static const struct tick_cfg_t cfg =
 {
-    .timer_driver = &CMSDK_TIMER0_DEV,
-    .irq_n = TIMER0_IRQn,
-    .interval_callback = &us_ticker_irq_handler,
+    .timer_driver = &CMSDK_TIMER1_DEV,
+    .irq_n = TIMER1_IRQn,
+    .interval_callback = &lp_ticker_irq_handler,
     .convert_tick_to_time = &convert_tick_to_us,
     .convert_time_to_tick = &convert_us_to_tick
 };
@@ -75,37 +77,37 @@ static struct tick_drv_data_t timer_data =
     .data = &data
 };
 
-void us_ticker_init(void)
+void lp_ticker_init(void)
 {
     cmsdk_ticker_init(&timer_data);
 }
 
-uint32_t us_ticker_read()
+uint32_t lp_ticker_read()
 {
     return cmsdk_ticker_read(&timer_data);
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp)
+void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     cmsdk_ticker_set_interrupt(&timer_data, timestamp);
 }
 
-void us_ticker_disable_interrupt(void)
+void lp_ticker_disable_interrupt(void)
 {
     cmsdk_ticker_disable_interrupt(&timer_data);
 }
 
-void us_ticker_clear_interrupt(void)
+void lp_ticker_clear_interrupt(void)
 {
     cmsdk_ticker_clear_interrupt(&timer_data);
 }
 
-void us_ticker_fire_interrupt(void)
+void lp_ticker_fire_interrupt(void)
 {
     cmsdk_ticker_fire_interrupt(&timer_data);
 }
 
-void TIMER0_IRQHandler(void)
+void TIMER1_IRQHandler(void)
 {
     cmsdk_ticker_irq_handler(&timer_data);
 }
