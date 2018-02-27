@@ -39,7 +39,13 @@ ble_error_t GenericSecurityManager::init(
 ) {
     _db.restore();
     _pal.set_io_capability((io_capability_t::type) iocaps);
-    _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
+
+    if (passkey) {
+        _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
+    } else {
+        _pal.set_display_passkey(0);
+    }
+
     _legacy_pairing_allowed = true;
 
     bool secure_connections;
