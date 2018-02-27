@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -57,6 +61,12 @@
 /*! @brief Construct the version number for drivers. */
 #define MAKE_VERSION(major, minor, bugfix) (((major) << 16) | ((minor) << 8) | (bugfix))
 
+/*! @name Driver version */
+/*@{*/
+/*! @brief common driver version 2.0.0. */
+#define FSL_COMMON_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*@}*/
+
 /* Debug console type definition. */
 #define DEBUG_CONSOLE_DEVICE_TYPE_NONE 0U     /*!< No debug console.             */
 #define DEBUG_CONSOLE_DEVICE_TYPE_UART 1U     /*!< Debug console base on UART.   */
@@ -65,6 +75,7 @@
 #define DEBUG_CONSOLE_DEVICE_TYPE_USBCDC 4U   /*!< Debug console base on USBCDC. */
 #define DEBUG_CONSOLE_DEVICE_TYPE_FLEXCOMM 5U /*!< Debug console base on USBCDC. */
 #define DEBUG_CONSOLE_DEVICE_TYPE_IUART 6U    /*!< Debug console base on i.MX UART. */
+#define DEBUG_CONSOLE_DEVICE_TYPE_VUSART 7U   /*!< Debug console base on LPC_USART. */
 
 /*! @brief Status group numbers. */
 enum _status_groups
@@ -96,6 +107,8 @@ enum _status_groups
     kStatusGroup_FLEXCOMM_I2C = 26,           /*!< Group number for FLEXCOMM I2C status codes */
     kStatusGroup_I2S = 27,                    /*!< Group number for I2S status codes */
     kStatusGroup_IUART = 28,                  /*!< Group number for IUART status codes */
+    kStatusGroup_CSI = 29,                    /*!< Group number for CSI status codes */
+    kStatusGroup_MIPI_DSI = 30,               /*!< Group number for MIPI DSI status codes */
     kStatusGroup_SDRAMC = 35,                 /*!< Group number for SDRAMC status codes. */
     kStatusGroup_POWER = 39,                  /*!< Group number for POWER status codes. */
     kStatusGroup_ENET = 40,                   /*!< Group number for ENET status codes. */
@@ -120,11 +133,20 @@ enum _status_groups
     kStatusGroup_CAAM = 63,                   /*!< Group number for CAAM status codes. */
     kStatusGroup_ECSPI = 64,                  /*!< Group number for ECSPI status codes. */
     kStatusGroup_USDHC = 65,                  /*!< Group number for USDHC status codes.*/
+    kStatusGroup_LPC_I2C = 66,                /*!< Group number for LPC_I2C status codes.*/
+    kStatusGroup_DCP = 67,                    /*!< Group number for DCP status codes.*/
+    kStatusGroup_MSCAN = 68,                  /*!< Group number for MSCAN status codes.*/
     kStatusGroup_ESAI = 69,                   /*!< Group number for ESAI status codes. */
     kStatusGroup_FLEXSPI = 70,                /*!< Group number for FLEXSPI status codes. */
+    kStatusGroup_MMDC = 71,                   /*!< Group number for MMDC status codes. */
+    kStatusGroup_MICFIL = 72,                 /*!< Group number for MIC status codes. */
+    kStatusGroup_SDMA = 73,                   /*!< Group number for SDMA status codes. */
+    kStatusGroup_ICS = 74,                    /*!< Group number for ICS status codes. */
+    kStatusGroup_SPDIF = 75,                  /*!< Group number for SPDIF status codes. */
     kStatusGroup_NOTIFIER = 98,               /*!< Group number for NOTIFIER status codes. */
     kStatusGroup_DebugConsole = 99,           /*!< Group number for debug console status codes. */
-    kStatusGroup_ApplicationRangeStart = 100, /*!< Starting number for application groups. */
+    kStatusGroup_SEMC = 100,                   /*!< Group number for SEMC status codes. */    
+    kStatusGroup_ApplicationRangeStart = 101, /*!< Starting number for application groups. */
 };
 
 /*! @brief Generic status return codes. */
@@ -168,7 +190,9 @@ typedef int32_t status_t;
 /* @} */
 
 /*! @brief Computes the number of elements in an array. */
+#if !defined(ARRAY_SIZE)
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
 
 /*! @name UINT16_MAX/UINT32_MAX value */
 /* @{ */
@@ -316,77 +340,102 @@ _Pragma("diag_suppress=Pm120")
  ******************************************************************************/
 
 #if defined(__cplusplus)
-extern "C" {
-#endif
-
-/*!
- * @brief Enable specific interrupt.
- *
- * Enable the interrupt not routed from intmux.
- *
- * @param interrupt The IRQ number.
- */
-static inline void EnableIRQ(IRQn_Type interrupt)
+        extern "C"
 {
-    if (NotAvail_IRQn == interrupt)
-    {
-        return;
-    }
-
-#if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && (FSL_FEATURE_SOC_INTMUX_COUNT > 0)
-    if (interrupt < FSL_FEATURE_INTMUX_IRQ_START_INDEX)
 #endif
+
+    /*!
+     * @brief Enable specific interrupt.
+     *
+     * Enable LEVEL1 interrupt. For some devices, there might be multiple interrupt
+     * levels. For example, there are NVIC and intmux. Here the interrupts connected
+     * to NVIC are the LEVEL1 interrupts, because they are routed to the core directly.
+     * The interrupts connected to intmux are the LEVEL2 interrupts, they are routed
+     * to NVIC first then routed to core.
+     *
+     * This function only enables the LEVEL1 interrupts. The number of LEVEL1 interrupts
+     * is indicated by the feature macro FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS.
+     *
+     * @param interrupt The IRQ number.
+     * @retval kStatus_Success Interrupt enabled successfully
+     * @retval kStatus_Fail Failed to enable the interrupt
+     */
+    static inline status_t EnableIRQ(IRQn_Type interrupt)
     {
+        if (NotAvail_IRQn == interrupt)
+        {
+            return kStatus_Fail;
+        }
+
+#if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
+        if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        {
+            return kStatus_Fail;
+        }
+#endif
+
 #if defined(__GIC_PRIO_BITS)
         GIC_EnableIRQ(interrupt);
 #else
         NVIC_EnableIRQ(interrupt);
 #endif
+        return kStatus_Success;
     }
-}
 
-/*!
- * @brief Disable specific interrupt.
- *
- * Disable the interrupt not routed from intmux.
- *
- * @param interrupt The IRQ number.
- */
-static inline void DisableIRQ(IRQn_Type interrupt)
-{
-    if (NotAvail_IRQn == interrupt)
+    /*!
+     * @brief Disable specific interrupt.
+     *
+     * Disable LEVEL1 interrupt. For some devices, there might be multiple interrupt
+     * levels. For example, there are NVIC and intmux. Here the interrupts connected
+     * to NVIC are the LEVEL1 interrupts, because they are routed to the core directly.
+     * The interrupts connected to intmux are the LEVEL2 interrupts, they are routed
+     * to NVIC first then routed to core.
+     *
+     * This function only disables the LEVEL1 interrupts. The number of LEVEL1 interrupts
+     * is indicated by the feature macro FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS.
+     *
+     * @param interrupt The IRQ number.
+     * @retval kStatus_Success Interrupt disabled successfully
+     * @retval kStatus_Fail Failed to disable the interrupt
+     */
+    static inline status_t DisableIRQ(IRQn_Type interrupt)
     {
-        return;
-    }
+        if (NotAvail_IRQn == interrupt)
+        {
+            return kStatus_Fail;
+        }
 
-#if defined(FSL_FEATURE_SOC_INTMUX_COUNT) && (FSL_FEATURE_SOC_INTMUX_COUNT > 0)
-    if (interrupt < FSL_FEATURE_INTMUX_IRQ_START_INDEX)
+#if defined(FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS) && (FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS > 0)
+        if (interrupt >= FSL_FEATURE_NUMBER_OF_LEVEL1_INT_VECTORS)
+        {
+            return kStatus_Fail;
+        }
 #endif
-    {
+
 #if defined(__GIC_PRIO_BITS)
         GIC_DisableIRQ(interrupt);
 #else
-        NVIC_DisableIRQ(interrupt);
+    NVIC_DisableIRQ(interrupt);
 #endif
+        return kStatus_Success;
     }
-}
 
-/*!
- * @brief Disable the global IRQ
- *
- * Disable the global interrupt and return the current primask register. User is required to provided the primask
- * register for the EnableGlobalIRQ().
- *
- * @return Current primask value.
- */
-static inline uint32_t DisableGlobalIRQ(void)
-{
+    /*!
+     * @brief Disable the global IRQ
+     *
+     * Disable the global interrupt and return the current primask register. User is required to provided the primask
+     * register for the EnableGlobalIRQ().
+     *
+     * @return Current primask value.
+     */
+    static inline uint32_t DisableGlobalIRQ(void)
+    {
 #if defined(CPSR_I_Msk)
-    uint32_t cpsr = __get_CPSR() & CPSR_I_Msk;
+        uint32_t cpsr = __get_CPSR() & CPSR_I_Msk;
 
-    __disable_irq();
+        __disable_irq();
 
-    return cpsr;
+        return cpsr;
 #else
     uint32_t regPrimask = __get_PRIMASK();
 
@@ -394,66 +443,68 @@ static inline uint32_t DisableGlobalIRQ(void)
 
     return regPrimask;
 #endif
-}
+    }
 
-/*!
- * @brief Enaable the global IRQ
- *
- * Set the primask register with the provided primask value but not just enable the primask. The idea is for the
- * convinience of integration of RTOS. some RTOS get its own management mechanism of primask. User is required to
- * use the EnableGlobalIRQ() and DisableGlobalIRQ() in pair.
- *
- * @param primask value of primask register to be restored. The primask value is supposed to be provided by the
- * DisableGlobalIRQ().
- */
-static inline void EnableGlobalIRQ(uint32_t primask)
-{
+    /*!
+     * @brief Enaable the global IRQ
+     *
+     * Set the primask register with the provided primask value but not just enable the primask. The idea is for the
+     * convinience of integration of RTOS. some RTOS get its own management mechanism of primask. User is required to
+     * use the EnableGlobalIRQ() and DisableGlobalIRQ() in pair.
+     *
+     * @param primask value of primask register to be restored. The primask value is supposed to be provided by the
+     * DisableGlobalIRQ().
+     */
+    static inline void EnableGlobalIRQ(uint32_t primask)
+    {
 #if defined(CPSR_I_Msk)
-    __set_CPSR((__get_CPSR() & ~CPSR_I_Msk) | primask);
+        __set_CPSR((__get_CPSR() & ~CPSR_I_Msk) | primask);
 #else
     __set_PRIMASK(primask);
 #endif
-}
+    }
 
-/*!
- * @brief install IRQ handler
- *
- * @param irq IRQ number
- * @param irqHandler IRQ handler address
- * @return The old IRQ handler address
- */
-uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
+#if defined(ENABLE_RAM_VECTOR_TABLE)
+    /*!
+     * @brief install IRQ handler
+     *
+     * @param irq IRQ number
+     * @param irqHandler IRQ handler address
+     * @return The old IRQ handler address
+     */
+    uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
+#endif /* ENABLE_RAM_VECTOR_TABLE. */
 
 #if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
-/*!
- * @brief Enable specific interrupt for wake-up from deep-sleep mode.
- *
- * Enable the interrupt for wake-up from deep sleep mode.
- * Some interrupts are typically used in sleep mode only and will not occur during
- * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
- * those clocks (significantly increasing power consumption in the reduced power mode),
- * making these wake-ups possible.
- *
- * @note This function also enables the interrupt in the NVIC (EnableIRQ() is called internally).
- *
- * @param interrupt The IRQ number.
- */
-void EnableDeepSleepIRQ(IRQn_Type interrupt);
+    /*!
+     * @brief Enable specific interrupt for wake-up from deep-sleep mode.
+     *
+     * Enable the interrupt for wake-up from deep sleep mode.
+     * Some interrupts are typically used in sleep mode only and will not occur during
+     * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
+     * those clocks (significantly increasing power consumption in the reduced power mode),
+     * making these wake-ups possible.
+     *
+     * @note This function also enables the interrupt in the NVIC (EnableIRQ() is called internally).
+     *
+     * @param interrupt The IRQ number.
+     */
+    void EnableDeepSleepIRQ(IRQn_Type interrupt);
 
-/*!
- * @brief Disable specific interrupt for wake-up from deep-sleep mode.
- *
- * Disable the interrupt for wake-up from deep sleep mode.
- * Some interrupts are typically used in sleep mode only and will not occur during
- * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
- * those clocks (significantly increasing power consumption in the reduced power mode),
- * making these wake-ups possible.
- *
- * @note This function also disables the interrupt in the NVIC (DisableIRQ() is called internally).
- *
- * @param interrupt The IRQ number.
- */
-void DisableDeepSleepIRQ(IRQn_Type interrupt);
+    /*!
+     * @brief Disable specific interrupt for wake-up from deep-sleep mode.
+     *
+     * Disable the interrupt for wake-up from deep sleep mode.
+     * Some interrupts are typically used in sleep mode only and will not occur during
+     * deep-sleep mode because relevant clocks are stopped. However, it is possible to enable
+     * those clocks (significantly increasing power consumption in the reduced power mode),
+     * making these wake-ups possible.
+     *
+     * @note This function also disables the interrupt in the NVIC (DisableIRQ() is called internally).
+     *
+     * @param interrupt The IRQ number.
+     */
+    void DisableDeepSleepIRQ(IRQn_Type interrupt);
 #endif /* FSL_FEATURE_SOC_SYSCON_COUNT */
 
 #if defined(__cplusplus)
