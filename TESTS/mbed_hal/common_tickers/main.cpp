@@ -46,12 +46,14 @@ volatile int intFlag = 0;
 const ticker_interface_t* intf;
 unsigned int ticker_overflow_delta;
 
-
 /* Auxiliary function to count ticker ticks elapsed during execution of N cycles of empty while loop.
  * Parameter <step> is used to disable compiler optimisation. */
 uint32_t count_ticks(uint32_t cycles, uint32_t step)
 {
     register uint32_t reg_cycles = cycles;
+
+    const ticker_info_t* p_ticker_info = intf->get_info();
+    const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
 
     core_util_critical_section_enter();
 
@@ -65,7 +67,10 @@ uint32_t count_ticks(uint32_t cycles, uint32_t step)
 
     core_util_critical_section_exit();
 
-    return (stop - start);
+    /* Handle overflow - overflow protection may not work in this case. */
+    uint32_t diff = (start <= stop) ? (stop - start) : (uint32_t)(max_count - start + stop);
+
+    return (diff);
 }
 
 void ticker_event_handler_stub(const ticker_data_t * const ticker)
@@ -302,9 +307,23 @@ void ticker_increment_test(void)
         uint32_t next_tick_count = base_tick_count;
         uint32_t inc_val = 0;
 
-        while (next_tick_count == base_tick_count) {
+        while (inc_val < 100) {
             next_tick_count = count_ticks(NUM_OF_CYCLES + inc_val, 1);
-            inc_val++;
+
+            if (next_tick_count == base_tick_count) {
+                /* Same tick count, so increase num of cycles. */
+                inc_val++;
+            } else {
+                /* It is possible that the difference between base and next
+                 * tick count on some platforms is greater that 1, in this case we need
+                 * to repeat counting with the same number of cycles.
+                 * In cases if difference is exactly 1 we can exit the loop.
+                 */
+                if (next_tick_count - base_tick_count == 1 ||
+                    base_tick_count - next_tick_count == 1) {
+                    break;
+                }
+            }
         }
 
         /* Since we are here we know that next_tick_count != base_tick_count.
