@@ -227,7 +227,7 @@ public:
 
     virtual ble_error_t oobReceived(
         const address_t *address,
-        const oob_rand_t *random,
+        const oob_lesc_value_t *random,
         const oob_confirm_t *confirm
     );
 
@@ -363,7 +363,7 @@ private:
     static bool crypto_toolbox_f4(
         const public_key_t &U,
         const public_key_t &V,
-        const oob_rand_t &X,
+        const oob_lesc_value_t &X,
         oob_confirm_t &confirm
     );
 #endif
@@ -470,9 +470,9 @@ private:
 
     /** There is always only one OOB data set stored at a time */
     address_t _peer_sc_oob_address;
-    oob_rand_t _peer_sc_oob_random;
+    oob_lesc_value_t _peer_sc_oob_random;
     oob_confirm_t _peer_sc_oob_confirm;
-    oob_rand_t _local_sc_oob_random;
+    oob_lesc_value_t _local_sc_oob_random;
 
     static const size_t MAX_CONTROL_BLOCKS = 5;
     ControlBlock_t _control_blocks[MAX_CONTROL_BLOCKS];

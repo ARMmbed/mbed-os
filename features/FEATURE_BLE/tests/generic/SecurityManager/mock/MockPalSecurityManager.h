@@ -170,7 +170,7 @@ public:
 
     MOCK_METHOD3(
         oob_data_verified,
-        ble_error_t(connection_handle_t, const oob_rand_t &, const oob_rand_t &)
+        ble_error_t(connection_handle_t, const oob_lesc_value_t &, const oob_lesc_value_t &)
     );
 
     // get the event handler present in the mock object.
