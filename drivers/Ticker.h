@@ -20,7 +20,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "hal/lp_ticker_api.h"
 #include "platform/mbed_critical.h"
 

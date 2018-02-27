@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include "mbed.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"

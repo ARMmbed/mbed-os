@@ -21,7 +21,7 @@
  */
 
 #include "rtos/rtos_idle.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "TimerEvent.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"

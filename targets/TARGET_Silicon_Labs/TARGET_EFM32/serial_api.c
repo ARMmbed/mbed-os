@@ -26,7 +26,7 @@
 #if DEVICE_SERIAL
 
 #include "mbed_assert.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "serial_api.h"
 #include "serial_api_HAL.h"
 #include <string.h>
