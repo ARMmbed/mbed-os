@@ -2455,13 +2455,6 @@ protected:
      */
     DisconnectionEventCallbackChain_t disconnectionCallChain;
 
-    /**
-     * Register a callback handling connection events to be used internally and serviced first.
-     *
-     * @param[in] callback Event handler being registered.
-     */
-    virtual void onConnectionPrivate(ConnectionEventCallback_t callback) { }
-
 private:
     /**
      * Callchain containing all registered callback handlers for shutdown
