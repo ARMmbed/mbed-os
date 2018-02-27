@@ -906,13 +906,13 @@ public:
      * with a valid passkey alter this behaviour and the SecurityManager shall
      * pass the passkey set into SecurityManagerEvent::on_passkey_display .
      *
-     * A call to this function with a null pointer will reset the behaviour and
+     * A call to this function with a zero value will reset the behaviour and
      * indicates to the security manager that passkeys passed to
      * SecurityManagerEvent::on_passkey_display shall be randomly generated.
      *
      * @param[in] passkey Set the passkey that shall be used by the security
      * manager when SecurityManagerEvent::on_passkey_display is called. If
-     * passkey is a null pointer then the security manager generates a random
+     * passkey is set to 0 then the security manager generates a random
      * passkey every time it calls SecurityManagerEvent::on_passkey_display.
      *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
