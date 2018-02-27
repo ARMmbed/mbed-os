@@ -24,6 +24,7 @@
 #include "mbed_critical.h"
 #include "mbed_assert.h"
 #include "Thread.h"
+#include "mbed_wait_api.h"
 #include <algorithm>
 #include <string.h>
 #include <stdio.h>
@@ -182,7 +183,7 @@ int NVStore::flash_write_area(uint8_t area, uint32_t offset, uint32_t size, cons
         if (!ret) {
             return ret;
         }
-        rtos::Thread::wait(1);
+        wait_ms(1);
     }
     return ret;
 }
@@ -197,7 +198,7 @@ int NVStore::flash_erase_area(uint8_t area)
         if (!ret) {
             return ret;
         }
-            rtos::Thread::wait(1);
+        wait_ms(1);
     }
     return ret;
 }
@@ -723,8 +724,9 @@ int NVStore::init()
     // wait until init is finished.
     init_attempts_val = core_util_atomic_incr_u32(&_init_attempts, 1);
     if (init_attempts_val != 1) {
-        while (!_init_done)
-            rtos::Thread::wait(1);
+        while (!_init_done) {
+            wait_ms(1);
+        }
         return NVSTORE_SUCCESS;
     }
 

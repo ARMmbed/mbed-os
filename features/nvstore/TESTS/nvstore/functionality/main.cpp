@@ -18,6 +18,7 @@
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "Thread.h"
 #endif
+#include "mbed_wait_api.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
 #include "utest/utest.h"
@@ -391,7 +392,7 @@ static void thread_test_worker()
             thread_test_check_key(key);
         }
 
-        rtos::Thread::wait(1);
+        wait_ms(1);
     }
 }
 #endif
@@ -431,7 +432,7 @@ static void nvstore_multi_thread_test()
         threads[i]->start(callback(thread_test_worker));
     }
 
-    rtos::Thread::wait(thr_test_num_secs * 1000);
+    wait_ms(thr_test_num_secs * 1000);
 
     for (i = 0; i < num_threads; i++) {
         threads[i]->terminate();
@@ -440,7 +441,7 @@ static void nvstore_multi_thread_test()
 
     delete[] threads;
 
-    rtos::Thread::wait(1000);
+    wait_ms(1000);
 
     nvstore.deinit();
 
