@@ -125,7 +125,6 @@ void sleep_tracker_unlock(const char* const filename, int line)
 
     printf("UNLOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
     sleep_tracker_print_stats();
-    printf("\r\n");
 }
 
 #endif // MBED_SLEEP_STATS_ENABLED
