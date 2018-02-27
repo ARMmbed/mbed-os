@@ -986,13 +986,13 @@ void GenericSecurityManager::on_oob_data_verification_request(
     crypto_toolbox_f4(
         peer_public_key_x,
         peer_public_key_y,
-        _peer_oob_random,
+        _peer_sc_oob_random,
         confirm_verify
     );
 
-    if (cb && (cb->peer_address == _peer_oob_address)
-        && (confirm_verify == _peer_oob_confirm)) {
-        _pal.oob_data_verified(connection, _local_oob_random, _peer_oob_random);
+    if (cb && (cb->peer_address == _peer_sc_oob_address)
+        && (confirm_verify == _peer_sc_oob_confirm)) {
+        _pal.oob_data_verified(connection, _local_sc_oob_random, _peer_sc_oob_random);
     } else {
         _pal.cancel_pairing(connection, pairing_failure_t::CONFIRM_VALUE_FAILED);
     }
