@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __GENERIC_SECURITY_MANAGER_H__
-#define __GENERIC_SECURITY_MANAGER_H__
+#ifndef _GENERIC_SECURITY_MANAGER_H_
+#define _GENERIC_SECURITY_MANAGER_H_
 
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
@@ -692,4 +692,4 @@ public:
 } /* namespace ble */
 
 
-#endif /*__GENERIC_SECURITY_MANAGER_H__*/
+#endif /*_GENERIC_SECURITY_MANAGER_H_*/
