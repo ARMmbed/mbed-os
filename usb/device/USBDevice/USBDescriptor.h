@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef USBDESCRIPTOR_H
+#define USBDESCRIPTOR_H
+
 /* Standard descriptor types */
 #define DEVICE_DESCRIPTOR        (1)
 #define CONFIGURATION_DESCRIPTOR (2)
@@ -44,9 +47,6 @@
 #define LSB(n)  ((n)&0xff)
 #define MSB(n)  (((n)&0xff00)>>8)
 
-/* Convert physical endpoint number to descriptor endpoint number */
-#define PHY_TO_DESC(endpoint) (((endpoint)>>1) | (((endpoint) & 1) ? 0x80:0))
-
 /* bmAttributes in configuration descriptor */
 /* C_RESERVED must always be set */
 #define C_RESERVED      (1U<<7)
@@ -70,3 +70,5 @@
 #define E_DATA                  (0x00)
 #define E_FEEDBACK              (0x10)
 #define E_IMPLICIT_FEEDBACK     (0x20)
+
+#endif
