@@ -227,7 +227,7 @@ public:
 
     virtual ble_error_t oobReceived(
         const address_t *address,
-        const oob_rand_t *random,
+        const oob_lesc_value_t *random,
         const oob_confirm_t *confirm
     );
 
@@ -361,9 +361,9 @@ private:
      * @return true if cryptography functioned worked
      */
     static bool crypto_toolbox_f4(
-        const public_key_t &U,
-        const public_key_t &V,
-        const oob_rand_t &X,
+        const public_key_coord_t &U,
+        const public_key_coord_t &V,
+        const oob_lesc_value_t &X,
         oob_confirm_t &confirm
     );
 #endif
@@ -470,9 +470,9 @@ private:
 
     /** There is always only one OOB data set stored at a time */
     address_t _peer_sc_oob_address;
-    oob_rand_t _peer_sc_oob_random;
+    oob_lesc_value_t _peer_sc_oob_random;
     oob_confirm_t _peer_sc_oob_confirm;
-    oob_rand_t _local_sc_oob_random;
+    oob_lesc_value_t _local_sc_oob_random;
 
     static const size_t MAX_CONTROL_BLOCKS = 5;
     ControlBlock_t _control_blocks[MAX_CONTROL_BLOCKS];
@@ -586,8 +586,8 @@ public:
      */
     virtual void on_oob_data_verification_request(
         connection_handle_t connection,
-        const public_key_t &peer_public_key_x,
-        const public_key_t &peer_public_key_y
+        const public_key_coord_t &peer_public_key_x,
+        const public_key_coord_t &peer_public_key_y
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -597,8 +597,8 @@ public:
     /** @copydoc SecurityManagerEventHandler::on_public_key_generated
      */
     virtual void on_public_key_generated(
-        const public_key_t &public_key_x,
-        const public_key_t &public_key_y
+        const public_key_coord_t &public_key_x,
+        const public_key_coord_t &public_key_y
     );
 
     /** @copydoc SecurityManagerEventHandler::on_secure_connections_ltk_generated
