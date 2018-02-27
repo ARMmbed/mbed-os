@@ -5,7 +5,7 @@
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *   1. Redistributions o must retain the above copyright notice, this list 
  *      of conditions and the following disclaimer.
  *
  *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
@@ -348,6 +348,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     error("No available I2C peripheral\r\n");
 }
 
+void i2c_reset_twi(NRF_TWI_Type *twi, twi_info_t *twi_info)
+{
+  nrf_twi_disable(twi);
+  nrf_twi_pins_set(twi, twi_info->pselscl, twi_info->pselsda);
+  nrf_twi_frequency_set(twi, twi_info->frequency);
+  nrf_twi_enable(twi);
+}
+
 void i2c_reset(i2c_t *obj)
 {
     twi_info_t *twi_info = TWI_INFO(obj);
@@ -389,6 +397,8 @@ int i2c_stop(i2c_t *obj)
             return 0;
         }
     } while (((uint32_t)ticker_read(get_us_ticker_data()) - t0) < I2C_TIMEOUT_VALUE_US);
+
+    i2c_reset(obj);
 
     return 1;
 }
@@ -469,7 +479,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     return result;
 }
 
-static uint8_t twi_byte_write(NRF_TWI_Type *twi, uint8_t data)
+static uint8_t twi_byte_write(NRF_TWI_Type *twi, uint8_t data, twi_info_t *twi_info)
 {
     uint32_t t0;
 
@@ -490,6 +500,8 @@ static uint8_t twi_byte_write(NRF_TWI_Type *twi, uint8_t data)
             return 0; // some error occurred
         }
     } while (((uint32_t)ticker_read(get_us_ticker_data()) - t0) < I2C_TIMEOUT_VALUE_US);
+
+    i2c_reset_twi(twi, twi_info);
 
     return 2; // timeout;
 }
@@ -555,12 +567,17 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             return I2C_ERROR_NO_SLAVE;
         }
 
+	if(timeout)
+	  {
+	    i2c_reset(obj);
+	  }
+	
         return (timeout ? I2C_ERROR_BUS_BUSY : 0);
     }
 
     int result = length;
     do {
-        uint8_t byte_write_result = twi_byte_write(twi, (uint8_t)*data++);
+      uint8_t byte_write_result = twi_byte_write(twi, (uint8_t)*data++, twi_info);
         if (byte_write_result != 1) {
             if (byte_write_result == 0) {
                 // Check what kind of error has been signaled by TWI.
@@ -612,6 +629,8 @@ int i2c_byte_read(i2c_t *obj, int last)
         }
     } while (((uint32_t)ticker_read(get_us_ticker_data()) - t0) < I2C_TIMEOUT_VALUE_US);
 
+    i2c_reset(obj);
+    
     return I2C_ERROR_BUS_BUSY;
 }
 
@@ -633,7 +652,7 @@ int i2c_byte_write(i2c_t *obj, int data)
         // 0 - TWI signaled error (NAK is the only possibility here)
         // 1 - ACK received
         // 2 - timeout (clock stretched for too long?)
-        return twi_byte_write(twi, (uint8_t)data);
+        return twi_byte_write(twi, (uint8_t)data, twi_info);
     }
 }
 

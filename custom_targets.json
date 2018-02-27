@@ -10,7 +10,7 @@
 	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
 	"features": ["ALS", "BATTERY_FUEL_GAUGE", "STC3115", "TLC59711", "FLASH_AT25SF321", "BLE","COMPARATOR"],
 	"macros_remove": ["BOARD_PCA10040"],
-	"macros_add": ["ENABLE_SWO"],
+	"macros_add": ["ENABLE_SWO", "I2C_TIMEOUT_VALUE_US=1000"],
 	"MERGE_SOFT_DEVICE": false,
 	"bootloader_supported": true,
 	"overrides": {
