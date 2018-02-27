@@ -396,19 +396,20 @@ void ticker_speed_test(void)
 }
 
 /* Since according to the ticker requirements min acceptable counter size is
- * 12 bits (low power timer)  for which max count is
- * 4095, then all test cases must be executed in this time window.
- * HAL ticker layer handles overflow and it is not handled in the target
- * ticker drivers.
+ * - 12 bits for low power timer - max count = 4095,
+ * - 16 bits for high frequency timer - max count = 65535
+ * then all test cases must be executed in this time windows.
+ * HAL ticker layer handles counter overflow and it is not handled in the target
+ * ticker drivers. Ensure we have enough time to execute test case without overflow.
  */
-void overflow_protect()
+void overflow_protect(uint32_t time_window)
 {
     const uint32_t ticks_now = intf->read();
     const ticker_info_t* p_ticker_info = intf->get_info();
 
-    const uint32_t max_count = (1 << p_ticker_info->bits - 1);
+    const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
 
-    if ((max_count - ticks_now) > 4000) {
+    if ((max_count - ticks_now) > time_window) {
         return;
     }
 
@@ -425,7 +426,7 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 
     ticker_overflow_delta = US_TICKER_OVERFLOW_DELTA;
 
-    overflow_protect();
+    overflow_protect(20000);
 
     return greentea_case_setup_handler(source, index_of_case);
 }
@@ -441,7 +442,7 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
 
     ticker_overflow_delta = LP_TICKER_OVERFLOW_DELTA;
 
-    overflow_protect();
+    overflow_protect(4000);
 
     return greentea_case_setup_handler(source, index_of_case);
 }
