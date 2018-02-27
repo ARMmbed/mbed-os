@@ -34,7 +34,7 @@ typedef struct {
     void (*priv_pendsv)(void);
     void (*priv_systick)(void);
     int32_t (*priv_os_suspend)(void);
-    int (*priv_uvisor_semaphore_post)(UvisorSemaphore * semaphore);
+    int (*priv_uvisor_semaphore_post)(UvisorSemaphore *semaphore);
 } UvisorPrivSystemHooks;
 
 /* Use this macro to register privileged system IRQ hooks. If you don't want to

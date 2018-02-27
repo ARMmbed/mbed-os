@@ -35,7 +35,7 @@
    so using printf in malloc may lead to recursive calls! */
 #define DPRINTF(...) {};
 
-extern RtxBoxIndex * const __uvisor_ps;
+extern RtxBoxIndex *const __uvisor_ps;
 
 /** @retval 0 The kernel is not initialized.
  *  @retval 1 The kernel is initialized.. */
@@ -97,8 +97,8 @@ static int init_allocator()
             }
             /* Initialize the process heap. */
             SecureAllocator allocator = secure_allocator_create_with_pool(
-                (void *) __uvisor_ps->index.bss.address_of.heap,
-                __uvisor_ps->index.box_heap_size);
+                                            (void *) __uvisor_ps->index.bss.address_of.heap,
+                                            __uvisor_ps->index.box_heap_size);
             /* Set the allocator. */
             ret = allocator ? 0 : -1;
             __uvisor_ps->index.active_heap = allocator;
@@ -106,8 +106,7 @@ static int init_allocator()
             if (kernel_initialized) {
                 osMutexRelease(__uvisor_ps->mutex_id);
             }
-        }
-        else {
+        } else {
             DPRINTF("uvisor_allocator: No process heap available!\n");
             ret = -1;
         }
@@ -124,17 +123,17 @@ typedef enum {
 } MemoryOperation;
 
 
-static void * memory(MemoryOperation operation, uint32_t * args)
+static void *memory(MemoryOperation operation, uint32_t *args)
 {
     /* Buffer the return value. */
-    void * ret = NULL;
+    void *ret = NULL;
     /* Initialize allocator. */
     if (init_allocator()) {
         return NULL;
     }
     /* Check if we need to aquire the mutex. */
     int mutexed = is_kernel_initialized();
-    void * allocator = __uvisor_ps->index.active_heap;
+    void *allocator = __uvisor_ps->index.active_heap;
 
     /* Aquire the mutex if required.
      * TODO: Mutex use is very coarse here. It may be sufficient to guard
@@ -144,8 +143,7 @@ static void * memory(MemoryOperation operation, uint32_t * args)
         osMutexAcquire(__uvisor_ps->mutex_id, osWaitForever);
     }
     /* Perform the required operation. */
-    switch(operation)
-    {
+    switch (operation) {
         case MEMOP_MALLOC:
             ret = secure_malloc(allocator, (size_t) args[0]);
             break;
@@ -174,26 +172,31 @@ static void * memory(MemoryOperation operation, uint32_t * args)
 /* Wrapped memory management functions. */
 #if defined (__GNUC__)
 
-void * __wrap__malloc_r(struct _reent * r, size_t size) {
+void *__wrap__malloc_r(struct _reent *r, size_t size)
+{
     (void) r;
     return memory(MEMOP_MALLOC, (uint32_t *) &size);
 }
-void * __wrap__memalign_r(struct _reent * r, size_t alignment, size_t bytes) {
+void *__wrap__memalign_r(struct _reent *r, size_t alignment, size_t bytes)
+{
     (void) r;
     uint32_t args[2] = {(uint32_t) alignment, (uint32_t) bytes};
     return memory(MEMOP_MEMALIGN, args);
 }
-void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size) {
+void *__wrap__calloc_r(struct _reent *r, size_t nmemb, size_t size)
+{
     (void) r;
     uint32_t args[2] = {(uint32_t) nmemb, (uint32_t) size};
     return memory(MEMOP_CALLOC, args);
 }
-void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+void *__wrap__realloc_r(struct _reent *r, void *ptr, size_t size)
+{
     (void) r;
     uint32_t args[2] = {(uint32_t) ptr, (uint32_t) size};
     return memory(MEMOP_REALLOC, args);
 }
-void __wrap__free_r(struct _reent * r, void * ptr) {
+void __wrap__free_r(struct _reent *r, void *ptr)
+{
     (void) r;
     memory(MEMOP_FREE, (uint32_t *) &ptr);
 }

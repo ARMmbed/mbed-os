@@ -37,8 +37,8 @@
 #define page_allocator_reset_faults(...) {}
 
 /* Forward declaration of the page allocator API. */
-int page_allocator_malloc(UvisorPageTable * const table);
-int page_allocator_free(const UvisorPageTable * const table);
+int page_allocator_malloc(UvisorPageTable *const table);
+int page_allocator_free(const UvisorPageTable *const table);
 
 int uvisor_page_malloc(UvisorPageTable *const table)
 {
@@ -54,10 +54,10 @@ int uvisor_page_free(const UvisorPageTable *const table)
 static osMutexId_t g_page_allocator_mutex_id = NULL;
 static osRtxMutex_t g_page_allocator_mutex_data;
 static osMutexDef_t g_page_allocator_mutex_attr = {
-  .name = "uvisor_malloc_mutex",
-  .attr_bits = 0, /* Non-recursive */
-  .cb_mem = &g_page_allocator_mutex_data,
-  .cb_size = sizeof(g_page_allocator_mutex_data)
+    .name = "uvisor_malloc_mutex",
+    .attr_bits = 0, /* Non-recursive */
+    .cb_mem = &g_page_allocator_mutex_data,
+    .cb_size = sizeof(g_page_allocator_mutex_data)
 };
 
 static void page_allocator_mutex_aquire()

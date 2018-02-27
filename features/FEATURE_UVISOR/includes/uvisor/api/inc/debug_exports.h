@@ -31,7 +31,7 @@
 typedef struct TUvisorDebugDriver {
     const uint32_t magic;
     const uint32_t version;
-    const UvisorBoxConfig * const box_cfg_ptr;
+    const UvisorBoxConfig *const box_cfg_ptr;
     void (*halt_error)(THaltError, const THaltInfo *);
 } TUvisorDebugDriver;
 

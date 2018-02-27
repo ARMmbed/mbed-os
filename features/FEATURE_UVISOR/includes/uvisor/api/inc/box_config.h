@@ -26,7 +26,7 @@
 #include <sys/reent.h>
 
 UVISOR_EXTERN const uint32_t __uvisor_mode;
-UVISOR_EXTERN void const * const public_box_cfg_ptr;
+UVISOR_EXTERN void const *const public_box_cfg_ptr;
 
 /* All pointers in the box index need to be 4-byte aligned.
  * We therefore also need to round up all sizes to 4-byte multiples to

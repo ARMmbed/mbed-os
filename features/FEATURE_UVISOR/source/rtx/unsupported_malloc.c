@@ -21,7 +21,7 @@
 #include <string.h> /* for memset */
 
 /* Forward declaration of the page allocator API. */
-extern void page_allocator_init(void * const heap_start, void * const heap_end, const uint32_t * const page_size);
+extern void page_allocator_init(void *const heap_start, void *const heap_end, const uint32_t *const page_size);
 
 extern uint32_t __end__[];      /* __heap_start */
 extern uint32_t __HeapLimit[];  /* __heap_end   */
@@ -29,7 +29,7 @@ extern uint32_t __HeapLimit[];  /* __heap_end   */
 extern uint32_t __StackLimit[];   /* bottom of stack */
 
 /* There is only one box index for box 0. */
-RtxBoxIndex * __uvisor_ps UVISOR_ALIGN(4);
+RtxBoxIndex *__uvisor_ps UVISOR_ALIGN(4);
 
 static void box_index_init(void *box_bss, uint32_t heap_size)
 {

@@ -77,8 +77,8 @@ typedef struct uvisor_ipc_desc {
 
 /* IPC IO Request Structure */
 typedef struct uvisor_ipc_io {
-    uvisor_ipc_desc_t * desc;
-    void * msg;
+    uvisor_ipc_desc_t *desc;
+    void *msg;
     uvisor_ipc_io_state_t state;
 } uvisor_ipc_io_t;
 
@@ -109,7 +109,7 @@ typedef struct uvisor_ipc {
     uint32_t completed_tokens; /* uVisor and endpoints read and write. */
 } uvisor_ipc_t;
 
-static inline uvisor_ipc_t * uvisor_ipc(UvisorBoxIndex * const index)
+static inline uvisor_ipc_t *uvisor_ipc(UvisorBoxIndex *const index)
 {
     return (uvisor_ipc_t *) index->bss.address_of.ipc;
 }

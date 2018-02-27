@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 /** Contains the allocator data and backing page table. */
-typedef void * SecureAllocator;
+typedef void *SecureAllocator;
 
 /** Create an allocator in-place in an existing pool without using pages.
  * Use this to turn statically allocated memory into a heap.
@@ -36,7 +36,7 @@ typedef void * SecureAllocator;
  * @returns the allocator or `NULL` on failure
  */
 SecureAllocator secure_allocator_create_with_pool(
-    void * mem,
+    void *mem,
     size_t bytes);
 
 /** Create an allocator using pages from the page heap.
@@ -66,32 +66,32 @@ int secure_allocator_destroy(
     SecureAllocator allocator);
 
 /** Drop-in for `malloc`. */
-void * secure_malloc(
+void *secure_malloc(
     SecureAllocator allocator,
     size_t size);
 
 /** Drop-in for `aligned_alloc`. */
-void * secure_aligned_alloc(
+void *secure_aligned_alloc(
     SecureAllocator allocator,
     size_t alignment,
     size_t size);
 
 /** Drop-in for `calloc`. */
-void * secure_calloc(
+void *secure_calloc(
     SecureAllocator allocator,
     size_t nmemb,
     size_t size);
 
 /** Drop-in for `realloc`. */
-void * secure_realloc(
+void *secure_realloc(
     SecureAllocator allocator,
-    void * ptr,
+    void *ptr,
     size_t size);
 
 /** Drop-in for `free`. */
 void secure_free(
     SecureAllocator allocator,
-    void * ptr);
+    void *ptr);
 
 #ifdef __cplusplus
 }   /* extern "C" */

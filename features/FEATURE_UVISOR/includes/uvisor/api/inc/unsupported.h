@@ -97,8 +97,7 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
 
 static UVISOR_FORCEINLINE uint32_t uvisor_read(uint32_t addr, uint32_t op, uint32_t mask)
 {
-    switch(op)
-    {
+    switch (op) {
         case UVISOR_OP_READ(UVISOR_OP_NOP):
             return *((uint32_t *) addr);
         case UVISOR_OP_READ(UVISOR_OP_AND):
@@ -117,8 +116,7 @@ static UVISOR_FORCEINLINE uint32_t uvisor_read(uint32_t addr, uint32_t op, uint3
 
 static UVISOR_FORCEINLINE void uvisor_write(uint32_t addr, uint32_t val, uint32_t op, uint32_t mask)
 {
-    switch(op)
-    {
+    switch (op) {
         case UVISOR_OP_WRITE(UVISOR_OP_NOP):
             *((uint32_t *) addr) = val;
         case UVISOR_OP_WRITE(UVISOR_OP_AND):
@@ -179,7 +177,7 @@ static UVISOR_FORCEINLINE uint8_t uvisor_read8(uint8_t volatile *addr)
  * the sizeof_type. */
 static UVISOR_FORCEINLINE void __address_write(size_t sizeof_type, volatile uint32_t *addr, uint32_t val)
 {
-    switch(sizeof_type) {
+    switch (sizeof_type) {
         case 4:
             uvisor_write32((volatile uint32_t *) addr, (uint32_t) val);
             break;

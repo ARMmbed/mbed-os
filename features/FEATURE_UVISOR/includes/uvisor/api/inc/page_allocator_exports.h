@@ -37,7 +37,7 @@ UVISOR_EXTERN const uint32_t __uvisor_page_size;
 typedef struct {
     uint32_t page_size;     /* The page size in bytes. Must be multiple of `UVISOR_PAGE_SIZE`! */
     uint32_t page_count;    /* The number of pages in the page table. */
-    void * page_origins[1]; /* Table of pointers to the origin of each page. */
+    void *page_origins[1];  /* Table of pointers to the origin of each page. */
 } UvisorPageTable;
 
 #endif /* __UVISOR_API_PAGE_ALLOCATOR_EXPORTS_H__ */

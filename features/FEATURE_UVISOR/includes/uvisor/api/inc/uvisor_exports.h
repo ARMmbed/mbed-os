@@ -79,7 +79,7 @@
  * This macro works from both inside and outside function scope.
  * The implementations differ due to compilation differences, C++ static_assert
  * is known from C++11 (__cplusplus > 199711L) while mbed-os compiles with c++98,
- * and C _Static_assert is known from GCC version 4.6.0. */ 
+ * and C _Static_assert is known from GCC version 4.6.0. */
 #define GCC_VERSION (__GNUC__ * 10000 \
                      + __GNUC_MINOR__ * 100 \
                      + __GNUC_PATCHLEVEL__)
@@ -136,7 +136,7 @@
 UVISOR_FORCEINLINE void uvisor_noreturn(void)
 {
     volatile int var = 1;
-    while(var);
+    while (var);
 }
 
 /* declare callee-saved input/output operands for gcc-style inline asm */
