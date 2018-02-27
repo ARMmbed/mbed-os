@@ -43,12 +43,14 @@ volatile uint32_t callback_trigger_count = 0;
 static const int test_timeout = 240;
 Timeout timeout;
 
-void set_incremeant_count() {
+void set_incremeant_count()
+{
     timeout.attach_us(set_incremeant_count, PERIOD_US);
     ++callback_trigger_count;
 }
 
-void test_case_timeout() {
+void test_case_timeout()
+{
 
     char _key[11] = { };
     char _value[128] = { };
@@ -73,19 +75,21 @@ void test_case_timeout() {
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 }
 
 // Test casess
 Case cases[] = { Case("Timers: toggle on/off", test_case_timeout), };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(test_timeout, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

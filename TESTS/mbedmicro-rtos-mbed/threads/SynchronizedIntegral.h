@@ -31,37 +31,43 @@ public:
     SynchronizedIntegral(T value) : _mutex(), _value(value) { }
 
     // preincrement operator
-    T operator++() {
+    T operator++()
+    {
         LockGuard lock(_mutex);
         return ++_value;
     }
 
     // predecrement operator
-    T operator--() {
+    T operator--()
+    {
         LockGuard lock(_mutex);
         return --_value;
     }
 
     // post increment operator
-    T operator++(int) {
+    T operator++(int)
+    {
         LockGuard lock(_mutex);
         return _value++;
     }
 
     // post decrement operator
-    T operator--(int) {
+    T operator--(int)
+    {
         LockGuard lock(_mutex);
         return _value--;
     }
 
     // conversion operator, used also for <,>,<=,>=,== and !=
-    operator T()  const {
+    operator T()  const
+    {
         LockGuard lock(_mutex);
         return _value;
     }
 
     // access to the internal mutex
-    rtos::Mutex& internal_mutex() {
+    rtos::Mutex &internal_mutex()
+    {
         return _mutex;
     }
 

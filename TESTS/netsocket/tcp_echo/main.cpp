@@ -32,8 +32,7 @@ using namespace utest::v1;
 #define MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE 256
 #endif
 
-namespace
-{
+namespace {
 char tx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
 char rx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
 }
@@ -48,7 +47,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size)
 void test_tcp_echo()
 {
     int n = 0;
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
 
     if (err) {

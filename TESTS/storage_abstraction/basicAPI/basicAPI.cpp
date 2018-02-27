@@ -16,7 +16,7 @@
  */
 
 #if !DEVICE_STORAGE
-    #error [NOT_SUPPORTED] Storage not supported for this target
+#error [NOT_SUPPORTED] Storage not supported for this target
 #endif
 
 #ifndef AVOID_GREENTEA
@@ -93,7 +93,7 @@ void test_getVersion()
     ARM_DRIVER_VERSION version = drv->GetVersion();
 
     TEST_ASSERT_EQUAL(version.api, ARM_STORAGE_API_VERSION);
-    TEST_ASSERT_EQUAL(version.drv, ARM_DRIVER_VERSION_MAJOR_MINOR(1,00));
+    TEST_ASSERT_EQUAL(version.drv, ARM_DRIVER_VERSION_MAJOR_MINOR(1, 00));
 }
 
 void test_getCapabilities()
@@ -214,7 +214,7 @@ control_t test_powerControl(const size_t call_count)
     int32_t rc = drv->PowerControl(ARM_POWER_FULL);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT(rc == 1);
         return (call_count < REPEAT_INSTANCES) ? CaseRepeatAll : CaseNext;
@@ -270,7 +270,7 @@ control_t test_readData(const size_t call_count)
     rc = drv->ReadData(addr, buffer, sizeofData);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT(rc > 0);
         return (call_count < REPEAT_INSTANCES) ? CaseRepeatAll : CaseNext;
@@ -371,7 +371,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
@@ -389,7 +389,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
         rc = drv->ProgramData((uint32_t)addr, buffer, sizeofData);
         if (rc == ARM_DRIVER_OK) {
             TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-            return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+            return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
         } else {
             TEST_ASSERT(rc > 0);
 
@@ -493,7 +493,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(firstBlock.attributes.erase_unit, rc);
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, info.erased_value ? (uint8_t)0xFF : (uint8_t)0);
@@ -508,7 +508,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
         rc = drv->ProgramData((uint32_t)addr, buffer, sizeofData);
         if (rc == ARM_DRIVER_OK) {
             TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-            return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+            return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
         } else {
             TEST_ASSERT_EQUAL(sizeofData, rc);
 
@@ -627,7 +627,7 @@ control_t test_erase(const size_t call_count)
     int32_t rc = drv->Erase(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT_EQUAL(ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, rc);
 
@@ -707,7 +707,7 @@ control_t test_eraseAll(const size_t call_count)
     int32_t rc = drv->EraseAll();
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
-        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll: CaseTimeout(200);
+        return (call_count < REPEAT_INSTANCES) ? CaseTimeout(200) + CaseRepeatAll : CaseTimeout(200);
     } else {
         TEST_ASSERT(rc == 1);
 
@@ -811,9 +811,9 @@ void programDataWithMultipleProgramUnitsCallback(int32_t status, ARM_STORAGE_OPE
                 ((uint32_t *)buffer)[index] = BYTE_PATTERN;
             }
         } else {
-           for (size_t index = 0; index < ((N_UNITS * info.program_unit)); index++) {
-               buffer[index] = ((const uint8_t *)&BYTE_PATTERN)[0];
-           }
+            for (size_t index = 0; index < ((N_UNITS * info.program_unit)); index++) {
+                buffer[index] = ((const uint8_t *)&BYTE_PATTERN)[0];
+            }
         }
 
 #ifndef __CC_ARM
@@ -901,9 +901,9 @@ control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
                     ((uint32_t *)buffer)[index] = BYTE_PATTERN;
                 }
             } else {
-               for (size_t index = 0; index < ((N_UNITS * info.program_unit)); index++) {
-                   buffer[index] = ((const uint8_t *)&BYTE_PATTERN)[0];
-               }
+                for (size_t index = 0; index < ((N_UNITS * info.program_unit)); index++) {
+                    buffer[index] = ((const uint8_t *)&BYTE_PATTERN)[0];
+                }
             }
 
             printf("programming %lu bytes at address %lu with pattern 0x%lx\n", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
@@ -986,7 +986,7 @@ Specification specification(greentea_setup, cases);
 Specification specification(default_setup, cases);
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // Run the test specification
     Harness::run(specification);

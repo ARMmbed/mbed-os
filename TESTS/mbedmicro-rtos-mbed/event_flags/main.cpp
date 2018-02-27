@@ -23,7 +23,7 @@
 using utest::v1::Case;
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define THREAD_STACK_SIZE   320 /* 512B stack on GCC_ARM compiler cause out of memory on some 16kB RAM boards e.g. NUCLEO_F070RB */
@@ -48,7 +48,8 @@ Semaphore sync_sem(0, 1);
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...) {
+void error(const char *format, ...)
+{
     (void) format;
 }
 #endif
@@ -264,7 +265,7 @@ void test_multi_thread_any_timeout(void)
     EventFlags ef;
     uint32_t ret;
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
-    thread.start(callback(send_thread_sync<FLAG01 | FLAG02 | FLAG03, 1>, &ef));
+    thread.start(callback(send_thread_sync < FLAG01 | FLAG02 | FLAG03, 1 >, &ef));
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;

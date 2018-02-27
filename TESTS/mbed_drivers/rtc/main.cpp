@@ -56,9 +56,9 @@ static time_t read_rtc_stub(void)
 /* Stub of RTC write function. */
 static void write_rtc_stub(time_t t)
 {
-   rtc_write_called = true;
+    rtc_write_called = true;
 
-   rtc_time_val = t;
+    rtc_time_val = t;
 }
 
 /* Stub of RTC init function. */
@@ -294,7 +294,7 @@ void test_time_read_RTC_func_undefined()
     seconds = time(NULL);
 
     /* Check if expected value has been returned. */
-    TEST_ASSERT_EQUAL((time_t)-1, seconds);
+    TEST_ASSERT_EQUAL((time_t) -1, seconds);
 }
 
 /* This test verifies if time() function stores
@@ -490,6 +490,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

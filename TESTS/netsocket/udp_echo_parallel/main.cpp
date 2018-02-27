@@ -50,7 +50,7 @@ using namespace utest::v1;
 
 
 const int ECHO_LOOPS = 16;
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress udp_addr;
 Mutex iomutex;
 char uuid[48] = {0};
@@ -75,8 +75,7 @@ void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size)
 
 
 // Each echo class is in charge of one parallel transaction
-class Echo
-{
+class Echo {
 private:
     char tx_buffer[MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE];
     char rx_buffer[MBED_CONF_APP_UDP_CLIENT_ECHO_BUFFER_SIZE];

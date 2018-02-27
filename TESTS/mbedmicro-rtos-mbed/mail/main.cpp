@@ -20,7 +20,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -66,7 +66,7 @@ void receive_thread(Mail<mail_t, queue_size> *m)
     for (uint32_t i = 0; i < queue_size; i++) {
         osEvent evt = m->get();
         if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t*)evt.value.p;
+            mail_t *mail = (mail_t *)evt.value.p;
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -104,7 +104,7 @@ void test_single_thread_order(void)
         // mail receive (main thread)
         osEvent evt = mail_box.get();
         if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t*)evt.value.p;
+            mail_t *mail = (mail_t *)evt.value.p;
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -146,7 +146,7 @@ void test_multi_thread_order(void)
         // mail receive (main thread)
         osEvent evt = mail_box.get();
         if (evt.status == osEventMail) {
-            mail_t *mail = (mail_t*)evt.value.p;
+            mail_t *mail = (mail_t *)evt.value.p;
             const uint8_t id = mail->thread_id;
 
             // verify thread id
@@ -343,13 +343,13 @@ void test_order(void)
     evt = mail_box.get();
     TEST_ASSERT_EQUAL(evt.status, osEventMail);
 
-    mail1 = (int32_t*)evt.value.p;
+    mail1 = (int32_t *)evt.value.p;
     TEST_ASSERT_EQUAL(TEST_VAL1, *mail1);
 
     evt = mail_box.get();
     TEST_ASSERT_EQUAL(evt.status, osEventMail);
 
-    mail2 = (int32_t*)evt.value.p;
+    mail2 = (int32_t *)evt.value.p;
     TEST_ASSERT_EQUAL(TEST_VAL2, *mail2);
 
 
@@ -431,7 +431,7 @@ void test_data_type(void)
     osEvent evt = mail_box.get();
     TEST_ASSERT_EQUAL(evt.status, osEventMail);
 
-    mail = (T*)evt.value.p;
+    mail = (T *)evt.value.p;
     TEST_ASSERT_EQUAL(TEST_VAL, *mail);
 
 

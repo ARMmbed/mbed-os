@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_LOWPOWERTIMER
-    #error [NOT_SUPPORTED] Low power timer not supported for this target
+#error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
 #include "utest/utest.h"
@@ -38,7 +38,8 @@ static LowPowerTimer lp_timer;
 #define LONG_TIMEOUT (100000)
 #define SHORT_TIMEOUT (600)
 
-void cb_done(uint32_t id) {
+void cb_done(uint32_t id)
+{
     if ((uint32_t)&delay_event == id) {
         complete_time = timer.read_us();
         complete = true;
@@ -48,7 +49,8 @@ void cb_done(uint32_t id) {
     }
 }
 
-void cb_done_deepsleep(uint32_t id) {
+void cb_done_deepsleep(uint32_t id)
+{
     if ((uint32_t)&delay_event == id) {
         complete_time = lp_timer.read_us();
         complete = true;
@@ -160,7 +162,8 @@ void lp_ticker_5s(void)
     lp_ticker_delay_us(5000000, LONG_TIMEOUT);
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -176,7 +179,8 @@ Case cases[] = {
 #endif /* DEVICE_SLEEP */
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     lp_ticker_data->interface->init();
     return greentea_test_setup_handler(number_of_cases);
@@ -184,6 +188,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

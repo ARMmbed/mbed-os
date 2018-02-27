@@ -58,8 +58,7 @@ using namespace utest::v1;
 
 
 // Simple xorshift pseudorandom number generator
-class RandSeq
-{
+class RandSeq {
 private:
     uint32_t x;
     uint32_t y;
@@ -144,7 +143,7 @@ void test_udp_packet_pressure()
                     MBED_CONF_APP_UDP_CLIENT_PACKET_PRESSURE_MAX);
     printf("MBED: Generated buffer %d\r\n", buffer_size);
 
-    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    NetworkInterface *net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
     int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 

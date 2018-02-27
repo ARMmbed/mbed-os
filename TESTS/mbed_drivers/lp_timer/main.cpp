@@ -61,13 +61,13 @@ extern uint32_t SystemCoreClock;
 #define US_FACTOR        1000000.0f
 #define CLOCK_MAX        130000000
 
-static const int delta_sys_clk_us = (SystemCoreClock < CLOCK_MAX? ((int) (TOLERANCE_FACTOR / (float) SystemCoreClock * US_FACTOR)):((int) (TOLERANCE_FACTOR / (float) CLOCK_MAX * US_FACTOR)));
+static const int delta_sys_clk_us = (SystemCoreClock < CLOCK_MAX ? ((int)(TOLERANCE_FACTOR / (float) SystemCoreClock *US_FACTOR)) : ((int)(TOLERANCE_FACTOR / (float) CLOCK_MAX *US_FACTOR)));
 
 /* When test performs time measurement using Timer in sequence, then measurement error accumulates
  * in the successive attempts. */
- #define DELTA_US(i) (delta_sys_clk_us * i)
- #define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
- #define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
+#define DELTA_US(i) (delta_sys_clk_us * i)
+#define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
+#define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
 
 /* This test verifies if low power timer is stopped after
  * creation.
@@ -294,7 +294,7 @@ void test_lptimer_float_operator()
     lp_timer.stop();
 
     /* Check result - 10 ms elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.010f, (float )(lp_timer));
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.010f, (float)(lp_timer));
 }
 
 /* This test verifies if time counted by the low power timer is
@@ -320,7 +320,7 @@ void test_lptimer_time_measurement()
     lp_timer.stop();
 
     /* Check results - wait_val_us us have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), (float )wait_val_us / 1000000, lp_timer.read());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), (float)wait_val_us / 1000000, lp_timer.read());
     TEST_ASSERT_INT32_WITHIN(DELTA_MS(1), wait_val_us / 1000, lp_timer.read_ms());
     TEST_ASSERT_INT32_WITHIN(DELTA_US(1), wait_val_us, lp_timer.read_us());
     TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), wait_val_us, lp_timer.read_high_resolution_us());

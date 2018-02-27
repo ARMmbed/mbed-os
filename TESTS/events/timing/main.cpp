@@ -39,16 +39,18 @@ using namespace utest::v1;
 #endif
 
 // Random number generation to skew timing values
-float gauss(float mu, float sigma) {
-    float x = (float)rand() / ((float)RAND_MAX+1);
-    float y = (float)rand() / ((float)RAND_MAX+1);
-    float x2pi = x*2.0*M_PI;
-    float g2rad = sqrt(-2.0 * log(1.0-y));
+float gauss(float mu, float sigma)
+{
+    float x = (float)rand() / ((float)RAND_MAX + 1);
+    float y = (float)rand() / ((float)RAND_MAX + 1);
+    float x2pi = x * 2.0 * M_PI;
+    float g2rad = sqrt(-2.0 * log(1.0 - y));
     float z = cos(x2pi) * g2rad;
-    return mu + z*sigma;
+    return mu + z * sigma;
 }
 
-float chisq(float sigma) {
+float chisq(float sigma)
+{
     return pow(gauss(0, sqrt(sigma)), 2);
 }
 
@@ -59,16 +61,17 @@ DigitalOut led(LED1);
 equeue_sema_t sema;
 
 // Timer timing test
-void timer_timing_test() {
+void timer_timing_test()
+{
     timer.reset();
     timer.start();
     int prev = timer.read_us();
 
-    while (prev < TEST_EVENTS_TIMING_TIME*1000) {
+    while (prev < TEST_EVENTS_TIMING_TIME * 1000) {
         int next = timer.read_us();
         if (next < prev) {
             printf("backwards drift %d -> %d (%08x -> %08x)\r\n",
-                prev, next, prev, next);
+                   prev, next, prev, next);
         }
         TEST_ASSERT(next >= prev);
         prev = next;
@@ -76,7 +79,8 @@ void timer_timing_test() {
 }
 
 // equeue tick timing test
-void tick_timing_test() {
+void tick_timing_test()
+{
     unsigned start = equeue_tick();
     int prev = 0;
 
@@ -84,7 +88,7 @@ void tick_timing_test() {
         int next = equeue_tick() - start;
         if (next < prev) {
             printf("backwards drift %d -> %d (%08x -> %08x)\r\n",
-                prev, next, prev, next);
+                   prev, next, prev, next);
         }
         TEST_ASSERT(next >= prev);
         prev = next;
@@ -92,7 +96,8 @@ void tick_timing_test() {
 }
 
 // equeue semaphore timing test
-void semaphore_timing_test() {
+void semaphore_timing_test()
+{
     srand(0);
     timer.reset();
     timer.start();
@@ -121,8 +126,9 @@ void semaphore_timing_test() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP((number_of_cases+1)*TEST_EVENTS_TIMING_TIME/1000, "default_auto");
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP((number_of_cases + 1)*TEST_EVENTS_TIMING_TIME / 1000, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
@@ -134,7 +140,8 @@ const Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

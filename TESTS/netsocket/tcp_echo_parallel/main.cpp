@@ -45,7 +45,7 @@ using namespace utest::v1;
 #define STRINGIZE2(x) #x
 
 
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress tcp_addr;
 Mutex iomutex;
 
@@ -58,8 +58,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size)
 
 
 // Each echo class is in charge of one parallel transaction
-class Echo
-{
+class Echo {
 private:
     char tx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE];
     char rx_buffer[MBED_CONF_APP_TCP_CLIENT_ECHO_BUFFER_SIZE];
