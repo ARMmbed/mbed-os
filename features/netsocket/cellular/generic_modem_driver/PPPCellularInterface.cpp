@@ -14,6 +14,10 @@
  */
 #include "PPPCellularInterface.h"
 
+/**
+ * @attention This API will be deprecated, use mbed-os/features/cellular/framework/API instead.
+ */
+
 #if NSAPI_PPP_AVAILABLE
 
 #include <string.h>

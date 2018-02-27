@@ -24,6 +24,8 @@
  *
  *  Common interface that is shared between ethernet hardware
  *  @addtogroup netsocket
+ *
+ *  @attention CellularInterface API will be deprecated, use mbed-os/features/cellular/framework/API instead.
  */
 class CellularInterface : public NetworkInterface
 {

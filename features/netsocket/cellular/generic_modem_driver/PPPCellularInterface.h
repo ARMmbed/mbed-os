@@ -98,6 +98,8 @@ typedef struct {
  *  The driver will work with any generic FileHandle, and can be
  *  derived from in order to provide forms for specific interfaces, as well as
  *  adding extra power and reset controls alongside the FileHandle.
+ *
+ *  @attention This API will be deprecated, use mbed-os/features/cellular/framework/API instead.
  */
 class PPPCellularInterface : public CellularBase {
 

@@ -31,6 +31,8 @@ typedef mbed::EasyCellularConnection OnboardCellularInterface;
  *  Depending on the type of on-board modem, OnboardCellularInterface
  *  could be derived from different implementation classes.
  *  Portable applications should only rely on it being a CellularBase.
+ *
+ *  @attention This API will be deprecated, use mbed-os/features/cellular/framework/API instead.
  */
 class OnboardCellularInterface : public UARTCellularInterface {
 

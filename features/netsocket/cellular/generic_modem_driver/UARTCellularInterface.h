@@ -28,6 +28,8 @@
  *
  *  It constructs a FileHandle and passes it back to its base class as well as overrides
  *  enable_hup() in the base class.
+ *
+ *  @attention UARTCellularInterface API will be deprecated, use mbed-os/features/cellular/framework/API instead.
  */
 class UARTCellularInterface : public PPPCellularInterface {
 
