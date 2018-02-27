@@ -17,6 +17,11 @@
 #include "rtl8195a.h"
 #include "objects.h"
 #include "serial_api.h"
+
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #if CONFIG_UART_EN
 
 #include "pinmap.h"
