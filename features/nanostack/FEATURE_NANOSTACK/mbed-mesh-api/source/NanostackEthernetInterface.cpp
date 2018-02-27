@@ -21,8 +21,9 @@
 nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
 {
     nsapi_error_t err = MeshInterfaceNanostack::initialize(phy);
-    if (err != NSAPI_ERROR_OK)
+    if (err != NSAPI_ERROR_OK) {
         return err;
+    }
 
     nanostack_lock();
 
@@ -37,10 +38,11 @@ nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
 
     nanostack_unlock();
 
-    if (_network_interface_id < 0)
+    if (_network_interface_id < 0) {
         return MESH_ERROR_UNKNOWN;
-    else
+    } else {
         return MESH_ERROR_NONE;
+    }
 }
 
 int NanostackEthernetInterface::connect()
@@ -75,7 +77,7 @@ int NanostackEthernetInterface::disconnect()
 
 bool NanostackEthernetInterface::getOwnIpAddress(char *address, int8_t len)
 {
-    return enet_tasklet_get_ip_address(address, len)?false:true;
+    return enet_tasklet_get_ip_address(address, len) ? false : true;
 }
 
 bool NanostackEthernetInterface::getRouterIpAddress(char *address, int8_t len)

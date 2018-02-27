@@ -23,7 +23,7 @@
 
 MeshInterfaceNanostack::MeshInterfaceNanostack()
     : phy(NULL), _network_interface_id(-1), _device_id(-1), _eui64(),
-      ip_addr_str(), mac_addr_str(), connect_semaphore(0), 
+      ip_addr_str(), mac_addr_str(), connect_semaphore(0),
       _connection_status_cb(NULL), _connect_status(NSAPI_STATUS_DISCONNECTED),
       _blocking(true)
 {
@@ -51,7 +51,7 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
     nanostack_lock();
 
     if ((status == MESH_CONNECTED || status == MESH_CONNECTED_LOCAL ||
-         status == MESH_CONNECTED_GLOBAL) && _blocking) {
+            status == MESH_CONNECTED_GLOBAL) && _blocking) {
         connect_semaphore.release();
     }
 
@@ -65,10 +65,10 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
             _connect_status = NSAPI_STATUS_LOCAL_UP;
         }
         if (arm_net_address_get(_network_interface_id, ADDR_IPV6_GP, temp_ipv6_global) == 0
-            && (memcmp(temp_ipv6_global, temp_ipv6_local, 16) != 0)) {
+                && (memcmp(temp_ipv6_global, temp_ipv6_local, 16) != 0)) {
             _connect_status = NSAPI_STATUS_GLOBAL_UP;
         }
-    } else if (status == MESH_CONNECTED_LOCAL ) {
+    } else if (status == MESH_CONNECTED_LOCAL) {
         _connect_status = NSAPI_STATUS_LOCAL_UP;
     } else if (status == MESH_CONNECTED_GLOBAL) {
         _connect_status = NSAPI_STATUS_GLOBAL_UP;
@@ -93,9 +93,9 @@ nsapi_error_t MeshInterfaceNanostack::register_phy()
         return -1;
     }
     // Read mac address after registering the device.
-    const uint8_t empty_eui64[8] = {0,0,0,0,0,0,0,0};
+    const uint8_t empty_eui64[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     // if not set by application then read from rf driver
-    if(!memcmp(_eui64, empty_eui64,8)) {
+    if (!memcmp(_eui64, empty_eui64, 8)) {
         phy->get_mac_address(_eui64);
     }
 
@@ -106,7 +106,7 @@ nsapi_error_t MeshInterfaceNanostack::register_phy()
     return 0;
 }
 
-NetworkStack * MeshInterfaceNanostack::get_stack()
+NetworkStack *MeshInterfaceNanostack::get_stack()
 {
     return NanostackInterface::get_stack();
 }
