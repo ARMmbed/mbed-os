@@ -349,9 +349,7 @@ typedef octet_type_t<16> oob_confirm_t; /**< secure connections oob confirmation
 
 /** data to be encrypted */
 typedef octet_type_t<16> encryption_block_t;
-
 typedef octet_type_t<32> public_key_t;
-typedef octet_type_t<32> private_key_t;
 typedef octet_type_t<32> dhkey_t;
 
 /**
