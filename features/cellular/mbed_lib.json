@@ -1,0 +1,9 @@
+{
+    "name": "cellular",
+    "config": {
+        "use_apn_lookup": {
+            "help": "Use APN database lookup",
+            "value": true
+        }
+    }
+}
