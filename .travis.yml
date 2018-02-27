@@ -10,7 +10,7 @@ env:
       --data @- << DATA\n{
       "state": "$0",
       "description": "$1",
-      "context": "travis-ci/$NAME/$(python --version)",
+      "context": "travis-ci/$NAME",
       "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
       }\nDATA'
 
@@ -74,10 +74,6 @@ matrix:
 
     - env:
         - NAME=tools
-      python:
-        - '2.7'
-        - '3.5'
-        - '3.6'
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
@@ -89,7 +85,7 @@ matrix:
       script:
         # Run local testing on tools
         - PYTHONPATH=. coverage run -a -m pytest tools/test
-        - python2 tools/test/pylint.py
+        - python tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
         - coverage html
       after_success:
@@ -199,8 +195,3 @@ matrix:
       env: NAME=mbed2-NUVOTON
     - <<: *mbed-2
       env: NAME=mbed2-RENESAS
-      # Change python version here only because 3x the other jobs does not add any more coverage
-      python:
-        - '2.7'
-        - '3.5'
-        - '3.6'
