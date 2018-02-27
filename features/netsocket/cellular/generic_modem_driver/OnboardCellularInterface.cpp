@@ -23,6 +23,8 @@
 
 /**
  * OnboardCellularInterface is an on-board specific implementation.
+ *
+ * @attention This API will be deprecated, use mbed-os/features/cellular/framework/API instead.
  */
 OnboardCellularInterface::OnboardCellularInterface(bool debug) :
                                                       UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
