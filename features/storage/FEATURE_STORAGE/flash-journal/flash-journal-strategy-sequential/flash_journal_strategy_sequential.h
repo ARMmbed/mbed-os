@@ -126,13 +126,13 @@ extern "C" {
  *     +-------------------------------+    v
  */
 int32_t               flashJournalStrategySequential_format(ARM_DRIVER_STORAGE      *mtd,
-                                                            uint32_t                 numSlots,
-                                                            FlashJournal_Callback_t  callback);
+        uint32_t                 numSlots,
+        FlashJournal_Callback_t  callback);
 
 int32_t               flashJournalStrategySequential_initialize(FlashJournal_t           *journal,
-                                                                ARM_DRIVER_STORAGE       *mtd,
-                                                                const FlashJournal_Ops_t *ops,
-                                                                FlashJournal_Callback_t   callback);
+        ARM_DRIVER_STORAGE       *mtd,
+        const FlashJournal_Ops_t *ops,
+        FlashJournal_Callback_t   callback);
 FlashJournal_Status_t flashJournalStrategySequential_getInfo(FlashJournal_t *journal, FlashJournal_Info_t *info);
 int32_t               flashJournalStrategySequential_read(FlashJournal_t *journal, void *blob, size_t n);
 int32_t               flashJournalStrategySequential_readFrom(FlashJournal_t *journal, size_t offset, void *blob, size_t n);

@@ -76,7 +76,7 @@ static control_t cfstore_misc_test_00(const size_t call_count)
 control_t cfstore_misc_test_00_start(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_POWER_STATE state = ARM_POWER_OFF;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
@@ -96,21 +96,20 @@ control_t cfstore_misc_test_00_start(const size_t call_count)
 static control_t cfstore_misc_test_00_end(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_POWER_STATE state = ARM_POWER_OFF;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    while(state <= ARM_POWER_FULL)
-    {
+    while (state <= ARM_POWER_FULL) {
         ret = drv->PowerControl(state);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: PowerControl() call failed\r\n", __func__);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
         state = (ARM_POWER_STATE)((uint32_t) state + 1);
     }
     /*try invalid value which should fail*/
-    ret = drv->PowerControl((ARM_POWER_STATE ) 0xffffffff);
+    ret = drv->PowerControl((ARM_POWER_STATE) 0xffffffff);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:ERror: PowerControl() did not fail with bad value 0xffffffff (not as expected)\r\n", __func__);
     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
@@ -126,7 +125,7 @@ static control_t cfstore_misc_test_00_end(const size_t call_count)
  */
 control_t cfstore_misc_test_01(const size_t call_count)
 {
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_DRIVER_VERSION version;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
@@ -145,12 +144,12 @@ control_t cfstore_misc_test_01(const size_t call_count)
 
 /* KV data for test_03 */
 static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
-        /*          1         2         3         4         5         6        7  */
-        /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        { "The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
-        { "Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
-        { "An.Operator.Calculus.Having.Applications.in.Quantum.Electrodynamics", "PhysicalReview84)"},
-        { NULL, NULL},
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    { "The.principles.of.least.action.in.quantum.mechanics", "DoctoralThesis"},
+    { "Space.Time.Approach.to.Quantum.Electrodynamic", " PhysicalReview766)"},
+    { "An.Operator.Calculus.Having.Applications.in.Quantum.Electrodynamics", "PhysicalReview84)"},
+    { NULL, NULL},
 };
 
 
@@ -161,16 +160,16 @@ static cfstore_kv_data_t cfstore_misc_test_03_kv_data[] = {
 control_t cfstore_misc_test_02_end(const size_t call_count)
 {
     uint8_t key_name_len = 0;
-    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
-    cfstore_kv_data_t* node = NULL;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
+    cfstore_kv_data_t *node = NULL;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
     CFSTORE_FENTRYLOG("%s:entered\r\n", __func__);
     (void) call_count;
-    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
     /* dont set any flags to get default settings */
     memset(&flags, 0, sizeof(flags));
 
@@ -179,18 +178,17 @@ control_t cfstore_misc_test_02_end(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     node = cfstore_misc_test_03_kv_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         ret = drv->Open(node->key_name, flags, hkey);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
-        key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+        key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         memset(key_name_buf, 0, key_name_len);
         drv->GetKeyName(hkey, key_name_buf, &key_name_len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to GetKeyName() (key_name (expected)=\"%s\", key_name (returned)=\"%s\", value=\"%s\"), len return=%d, len expected=%d\r\n", __func__, node->key_name, key_name_buf, node->value, (int) key_name_len, (int) strlen(node->key_name));
-        TEST_ASSERT_MESSAGE(key_name_len == strlen(node->key_name)+1, cfstore_misc_utest_msg_g);
+        TEST_ASSERT_MESSAGE(key_name_len == strlen(node->key_name) + 1, cfstore_misc_utest_msg_g);
 
         /* revert to CFSTORE_LOG if more trace required */
         CFSTORE_DBGLOG("GetKeyName() successfully reported key_name (key_name=\"%s\")\r\n", key_name_buf);
@@ -216,8 +214,8 @@ control_t cfstore_misc_test_03_end(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
-    cfstore_kv_data_t* node = NULL;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
+    cfstore_kv_data_t *node = NULL;
     ARM_CFSTORE_HANDLE_INIT(hkey);
     ARM_CFSTORE_FMODE flags;
 
@@ -231,8 +229,7 @@ control_t cfstore_misc_test_03_end(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
 
     node = cfstore_misc_test_03_kv_data;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         CFSTORE_DBGLOG("%s:About to open KV (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         ret = drv->Open(node->key_name, flags, hkey);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to open node (key_name=\"%s\", value=\"%s\")(ret=%d)\r\n", __func__, node->key_name, node->value, (int) ret);
@@ -265,7 +262,7 @@ control_t cfstore_misc_test_04_start(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_STATUS status;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
@@ -287,7 +284,7 @@ control_t cfstore_misc_test_04_start(const size_t call_count)
 control_t cfstore_misc_test_04_end(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_STATUS status;
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
@@ -315,18 +312,18 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("MISC_test_00", cfstore_misc_test_00),
-        Case("MISC_test_00_start", cfstore_misc_test_00_start),
-        Case("MISC_test_00_end", cfstore_misc_test_00_end),
-        Case("MISC_test_01", cfstore_misc_test_01),
-        Case("MISC_test_02_start", cfstore_utest_default_start),
-        Case("MISC_test_02_end", cfstore_misc_test_02_end),
-        Case("MISC_test_03_start", cfstore_utest_default_start),
-        Case("MISC_test_03_end", cfstore_misc_test_03_end),
-        Case("MISC_test_04_start", cfstore_misc_test_04_start),
-        Case("MISC_test_05_end", cfstore_misc_test_04_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("MISC_test_00", cfstore_misc_test_00),
+    Case("MISC_test_00_start", cfstore_misc_test_00_start),
+    Case("MISC_test_00_end", cfstore_misc_test_00_end),
+    Case("MISC_test_01", cfstore_misc_test_01),
+    Case("MISC_test_02_start", cfstore_utest_default_start),
+    Case("MISC_test_02_end", cfstore_misc_test_02_end),
+    Case("MISC_test_03_start", cfstore_utest_default_start),
+    Case("MISC_test_03_end", cfstore_misc_test_03_end),
+    Case("MISC_test_04_start", cfstore_misc_test_04_start),
+    Case("MISC_test_05_end", cfstore_misc_test_04_end),
 };
 
 

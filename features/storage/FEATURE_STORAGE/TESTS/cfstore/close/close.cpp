@@ -52,9 +52,9 @@ UVISOR_BOX_CONFIG(cfstore_close_box1, UVISOR_BOX_STACK_SIZE);
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_close_test_01_kv_data[] = {
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
-        { NULL, NULL},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "first_data_"},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}frontLeft", "second_data"},
+    { NULL, NULL},
 };
 
 
@@ -95,7 +95,7 @@ control_t cfstore_close_test_01_end(const size_t call_count)
     char read_buf[CFSTORE_KEY_NAME_MAX_LENGTH];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_HANDLE_INIT(hkey1);
     ARM_CFSTORE_HANDLE_INIT(hkey2);
@@ -119,7 +119,7 @@ control_t cfstore_close_test_01_end(const size_t call_count)
 
     /* step 02 */
     len = strlen(node->value);
-    ret = drv->Write(hkey1, (char*) node->value, &len);
+    ret = drv->Write(hkey1, (char *) node->value, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_close_utest_msg_g);
 
@@ -150,7 +150,7 @@ control_t cfstore_close_test_01_end(const size_t call_count)
     /* step 05 write new data using hkey2 */
     node = &cfstore_close_test_01_kv_data[1];
     len = strlen(node->value);
-    ret = drv->Write(hkey2, (char*) node->value, &len);
+    ret = drv->Write(hkey2, (char *) node->value, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key with 2nd handle (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_close_utest_msg_g);
 
@@ -206,7 +206,7 @@ control_t cfstore_close_test_01_end(const size_t call_count)
     CFSTORE_DBGLOG("%s:length of KV=%d (key_name=\"%s\", value=\"%s\")\n", __func__, (int) len, node->key_name, node->value);
 
     len = strlen(node->value);
-    ret = drv->Write(hkey1, (char*) node->value, &len);
+    ret = drv->Write(hkey1, (char *) node->value, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")(ret=%d)\n", __func__, node->key_name, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_close_utest_msg_g);
 
@@ -231,11 +231,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("CLOSE_test_00", cfstore_close_test_00),
-        Case("CLOSE_test_01_start", cfstore_utest_default_start),
-        Case("CLOSE_test_01_end", cfstore_close_test_01_end)
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("CLOSE_test_00", cfstore_close_test_00),
+    Case("CLOSE_test_01_start", cfstore_utest_default_start),
+    Case("CLOSE_test_01_end", cfstore_close_test_01_end)
 };
 
 

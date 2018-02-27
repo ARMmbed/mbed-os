@@ -66,16 +66,15 @@ static char cfstore_flush_utest_msg_g[CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE];
 
 /* KV data for test_03 */
 static cfstore_kv_data_t cfstore_flush_test_02_kv_data[] = {
-        { "com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
-        /*          1         2         3         4         5         6        7  */
-        /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        { NULL, NULL},
+    { "com.arm.mbed.configurationstore.test.flush.cfstoreflushtest02", "1"},
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    { NULL, NULL},
 };
 
 /* async test version */
 
-typedef struct cfstore_flush_ctx_t
-{
+typedef struct cfstore_flush_ctx_t {
     int32_t status;
     ARM_CFSTORE_OPCODE cmd_code;
 } cfstore_flush_ctx_t;
@@ -91,13 +90,13 @@ static cfstore_flush_ctx_t cfstore_flush_ctx_g;
  */
 
 /* @brief   get a pointer to the global context data structure */
-static cfstore_flush_ctx_t* cfstore_flush_ctx_get(void)
+static cfstore_flush_ctx_t *cfstore_flush_ctx_get(void)
 {
     return &cfstore_flush_ctx_g;
 }
 
 /* @brief   initialize global context data structure */
-static void cfstore_flush_ctx_init(cfstore_flush_ctx_t* ctx)
+static void cfstore_flush_ctx_init(cfstore_flush_ctx_t *ctx)
 {
     TEST_ASSERT_MESSAGE(ctx != NULL, "ctx is NULL");
 
@@ -127,8 +126,8 @@ static control_t cfstore_flush2_test_00(const size_t call_count)
 control_t  cfstore_flush2_test_01_start(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
-    cfstore_flush_ctx_t* ctx = cfstore_flush_ctx_get();
-    const ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    cfstore_flush_ctx_t *ctx = cfstore_flush_ctx_get();
+    const ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     /* check that the mtd is in synchronous mode */
     CFSTORE_FENTRYLOG("%s:entered:\r\n", __func__);
@@ -153,10 +152,10 @@ control_t cfstore_flush2_test_01_mid(const size_t call_count)
     bool bfound = false;
     int32_t ivalue = 0;
     int32_t ret = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
-    const char* key_name_query = "*";
-    char value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    ARM_CFSTORE_SIZE len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
+    const char *key_name_query = "*";
+    char value[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    ARM_CFSTORE_SIZE len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     ARM_CFSTORE_HANDLE_INIT(next);
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_KEYDESC kdesc;
@@ -168,16 +167,14 @@ control_t cfstore_flush2_test_01_mid(const size_t call_count)
 
     /* try to read key; should not be found */
     ret = cfstore_test_kv_is_found(cfstore_flush_test_02_kv_data->key_name, &bfound);
-    if(ret != ARM_DRIVER_OK && ret != ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND){
+    if (ret != ARM_DRIVER_OK && ret != ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: cfstore_test_kv_is_found() call failed (ret=%d).\r\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(false, cfstore_flush_utest_msg_g);
     }
 
-    if(!bfound)
-    {
+    if (!bfound) {
         /* first time start up. nothing is stored in cfstore flash. check this is the case */
-        while(drv->Find(key_name_query, prev, next) == ARM_DRIVER_OK)
-        {
+        while (drv->Find(key_name_query, prev, next) == ARM_DRIVER_OK) {
             CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: have found an entry in cfstore when none should be present", __func__);
             TEST_ASSERT_MESSAGE(false, cfstore_flush_utest_msg_g);
         }
@@ -194,7 +191,7 @@ control_t cfstore_flush2_test_01_mid(const size_t call_count)
 
     } else {
         /*read the value, increment by 1 and write value back */
-        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+        len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         ret = cfstore_test_read(cfstore_flush_test_02_kv_data->key_name, value, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read kv data (ret=%d).\r\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
@@ -202,7 +199,7 @@ control_t cfstore_flush2_test_01_mid(const size_t call_count)
         /* increment value */
         ivalue = atoi(value);
         ++ivalue;
-        snprintf(value, CFSTORE_KEY_NAME_MAX_LENGTH+1, "%d", (int) ivalue);
+        snprintf(value, CFSTORE_KEY_NAME_MAX_LENGTH + 1, "%d", (int) ivalue);
         len = strlen(value);
         ret = cfstore_test_write(cfstore_flush_test_02_kv_data->key_name, value, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write kv data (ret=%d).\r\n", __func__, (int) ret);
@@ -224,7 +221,7 @@ control_t cfstore_flush2_test_01_mid(const size_t call_count)
  */
 control_t  cfstore_flush2_test_01_end(const size_t call_count)
 {
-    const ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    const ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     CFSTORE_FENTRYLOG("%s:entered:\r\n", __func__);
     (void) call_count;
@@ -260,12 +257,12 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-        Case("CFSTORE_FLUSH2_test_00", cfstore_flush2_test_00),
-        Case("CFSTORE_FLUSH2_test_01_start", cfstore_flush2_test_01_start),
-        Case("CFSTORE_FLUSH2_test_01_mid", cfstore_flush2_test_01_mid),
-        Case("CFSTORE_FLUSH2_test_01_end", cfstore_flush2_test_01_end),
-        Case("CFSTORE_FLUSH2_test_02_start", cfstore_utest_default_start),
-        Case("CFSTORE_FLUSH2_test_02_end", cfstore_flush2_test_02),
+    Case("CFSTORE_FLUSH2_test_00", cfstore_flush2_test_00),
+    Case("CFSTORE_FLUSH2_test_01_start", cfstore_flush2_test_01_start),
+    Case("CFSTORE_FLUSH2_test_01_mid", cfstore_flush2_test_01_mid),
+    Case("CFSTORE_FLUSH2_test_01_end", cfstore_flush2_test_01_end),
+    Case("CFSTORE_FLUSH2_test_02_start", cfstore_utest_default_start),
+    Case("CFSTORE_FLUSH2_test_02_end", cfstore_flush2_test_02),
 };
 
 

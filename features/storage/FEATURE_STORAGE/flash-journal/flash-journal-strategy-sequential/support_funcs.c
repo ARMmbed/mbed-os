@@ -58,7 +58,7 @@ int32_t slotIsSane(SequentialFlashJournal_t        *journal,
     SequentialFlashJournalLogHead_t head;
     /* TODO: add support for asynchronous read */
     if (((rc = mtd->ReadData(slotOffset, &head, sizeof(SequentialFlashJournalLogHead_t))) < ARM_DRIVER_OK) ||
-        (rc != sizeof(SequentialFlashJournalLogHead_t))) {
+            (rc != sizeof(SequentialFlashJournalLogHead_t))) {
         if ((rc == ARM_DRIVER_OK) && (journal->mtdCapabilities.asynchronous_ops)) {
             return JOURNAL_STATUS_UNSUPPORTED;
         }
@@ -87,7 +87,7 @@ int32_t slotIsSane(SequentialFlashJournal_t        *journal,
 
         /* TODO: add support for asynchronous read */
         if (((rc = mtd->ReadData(tailoffset, tailP, sizeof(SequentialFlashJournalLogTail_t))) < ARM_DRIVER_OK) ||
-            (rc != sizeof(SequentialFlashJournalLogTail_t))) {
+                (rc != sizeof(SequentialFlashJournalLogTail_t))) {
             return JOURNAL_STATUS_STORAGE_IO_ERROR;
         }
 
@@ -95,7 +95,7 @@ int32_t slotIsSane(SequentialFlashJournal_t        *journal,
             // printf("found valid tail\n");
 
             /* iterate over the body of the slot computing CRC */
-            #define CRC_CHUNK_SIZE 64
+#define CRC_CHUNK_SIZE 64
             uint8_t crcBuffer[CRC_CHUNK_SIZE];
             uint64_t bodyIndex = 0;
             uint64_t bodyOffset = slotOffset + sizeof(SequentialFlashJournalLogHead_t);
@@ -193,8 +193,8 @@ int32_t discoverLatestLoggedBlob(SequentialFlashJournal_t *journal)
 
     // printf("discoverLatestLoggedBlob: start of init scan\n");
     for (unsigned blobIndex = 0;
-         blobIndex < journal->numSlots;
-         blobIndex++, journal->initScan.currentOffset += journal->sizeofSlot) {
+            blobIndex < journal->numSlots;
+            blobIndex++, journal->initScan.currentOffset += journal->sizeofSlot) {
         // printf("discoverLatestLoggedBlob: blob index %u\n", blobIndex);
         /* TODO: it is possible that the header structure spans multiple blocks, needing multiple reads. */
 
@@ -210,14 +210,14 @@ int32_t discoverLatestLoggedBlob(SequentialFlashJournal_t *journal)
 
             /* Have we found the best of the slots seen so far? */
             if ((journal->nextSequenceNumber == SEQUENTIAL_FLASH_JOURNAL_INVALD_NEXT_SEQUENCE_NUMBER) ||
-                /* We take advantage of properties of unsigned arithmetic in the following
-                 * expression.
-                 *
-                 * We want to calculate if (nextSequenceNumber > journal->nextSequenceNumber),
-                 * instead we use the expression ((nextSequenceNumber - journal->nextSequenceNumber) > 0)
-                 * to take wraparounds into account.
-                 */
-                ((int32_t)(nextSequenceNumber - journal->nextSequenceNumber) > 0)) {
+                    /* We take advantage of properties of unsigned arithmetic in the following
+                     * expression.
+                     *
+                     * We want to calculate if (nextSequenceNumber > journal->nextSequenceNumber),
+                     * instead we use the expression ((nextSequenceNumber - journal->nextSequenceNumber) > 0)
+                     * to take wraparounds into account.
+                     */
+                    ((int32_t)(nextSequenceNumber - journal->nextSequenceNumber) > 0)) {
                 journal->currentBlobIndex         = blobIndex;
                 journal->nextSequenceNumber       = nextSequenceNumber;
                 journal->info.sizeofJournaledBlob = journal->initScan.tail.sizeofBlob;
@@ -231,7 +231,7 @@ int32_t discoverLatestLoggedBlob(SequentialFlashJournal_t *journal)
     /* Handle the case where our scan hasn't yielded any results. */
     if (journal->nextSequenceNumber == SEQUENTIAL_FLASH_JOURNAL_INVALD_NEXT_SEQUENCE_NUMBER) {
         // printf("discoverLatestLoggedBlob: initializing to defaults\n");
-        journal->currentBlobIndex   = (uint32_t)-1; /* to be incremented to 0 during the first attempt to log(). */
+        journal->currentBlobIndex   = (uint32_t) -1; /* to be incremented to 0 during the first attempt to log(). */
         journal->nextSequenceNumber = 0;
     }
 
@@ -271,7 +271,7 @@ int32_t flashJournalStrategySequential_format_progress(int32_t status, ARM_STORA
             /* handle synchronous completion of programData */
             status = rc;
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ARM_STORAGE_OPERATION_ERASE:
             if (status != (int32_t)sizeofErase) {
@@ -294,7 +294,7 @@ int32_t flashJournalStrategySequential_format_progress(int32_t status, ARM_STORA
             /* handle synchronous completion of programData */
             status = rc;
 
-            /* intentional fall-through */
+        /* intentional fall-through */
 
         case ARM_STORAGE_OPERATION_PROGRAM_DATA:
             if (status != (int32_t)sizeofWrite) {
@@ -328,7 +328,7 @@ int32_t flashJournalStrategySequential_reset_progress(void)
     /* else we fall through to handle synchronous completion */
 
     journal->nextSequenceNumber       = 0;
-    journal->currentBlobIndex         = (uint32_t)-1;
+    journal->currentBlobIndex         = (uint32_t) -1;
     journal->info.sizeofJournaledBlob = 0;
     journal->state                    = SEQUENTIAL_JOURNAL_STATE_INITIALIZED;
     return 1;
@@ -347,7 +347,7 @@ int32_t flashJournalStrategySequential_read_progress(void)
     ARM_STORAGE_BLOCK storageBlock;
 
     if ((journal->read.amountLeftToRead) &&
-        ((rc = journal->mtd->GetBlock(journal->read.mtdOffset, &storageBlock)) != ARM_DRIVER_OK)) {
+            ((rc = journal->mtd->GetBlock(journal->read.mtdOffset, &storageBlock)) != ARM_DRIVER_OK)) {
         journal->state = SEQUENTIAL_JOURNAL_STATE_INITIALIZED; /* reset state */
         return JOURNAL_STATUS_STORAGE_API_ERROR;
     }
@@ -366,7 +366,7 @@ int32_t flashJournalStrategySequential_read_progress(void)
 
         /* compute the transfer size for this iteration. */
         uint32_t xfer = (journal->read.amountLeftToRead < storageBlockAvailableCapacity) ?
-                            journal->read.amountLeftToRead : storageBlockAvailableCapacity;
+                        journal->read.amountLeftToRead : storageBlockAvailableCapacity;
 
         /* perform the IO */
         //printf("reading %lu bytes at offset %lu\n", xfer, (uint32_t)journal->read.mtdOffset);
@@ -401,9 +401,9 @@ int32_t flashJournalStrategySequential_log_progress(void)
     SequentialFlashJournal_t *journal = activeJournal;
 
     if ((journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_ERASE) &&
-        (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_HEAD)  &&
-        (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_BODY)  &&
-        (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_TAIL)) {
+            (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_HEAD)  &&
+            (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_BODY)  &&
+            (journal->state != SEQUENTIAL_JOURNAL_STATE_LOGGING_TAIL)) {
         return JOURNAL_STATUS_ERROR; /* journal is in an un-expected state. */
     }
 
@@ -654,7 +654,7 @@ void mtdHandler(int32_t status, ARM_STORAGE_OPERATION operation)
         case ARM_STORAGE_OPERATION_ERASE_ALL:
             if (activeJournal->state == SEQUENTIAL_JOURNAL_STATE_RESETING) {
                 activeJournal->nextSequenceNumber       = 0;
-                activeJournal->currentBlobIndex         = (uint32_t)-1;
+                activeJournal->currentBlobIndex         = (uint32_t) -1;
                 activeJournal->info.sizeofJournaledBlob = 0;
                 activeJournal->state                    = SEQUENTIAL_JOURNAL_STATE_INITIALIZED;
                 if (activeJournal->callback) {
@@ -683,7 +683,7 @@ void mtdHandler(int32_t status, ARM_STORAGE_OPERATION operation)
                 }
             } else if (activeJournal->state == SEQUENTIAL_JOURNAL_STATE_RESETING) {
                 activeJournal->nextSequenceNumber       = 0;
-                activeJournal->currentBlobIndex         = (uint32_t)-1;
+                activeJournal->currentBlobIndex         = (uint32_t) -1;
                 activeJournal->info.sizeofJournaledBlob = 0;
                 activeJournal->state                    = SEQUENTIAL_JOURNAL_STATE_INITIALIZED;
                 if (activeJournal->callback) {
@@ -707,7 +707,7 @@ void mtdHandler(int32_t status, ARM_STORAGE_OPERATION operation)
                 if (activeJournal->callback) {
                     activeJournal->callback(rc,
                                             (activeJournal->state == SEQUENTIAL_JOURNAL_STATE_LOGGING_TAIL) ?
-                                                FLASH_JOURNAL_OPCODE_COMMIT : FLASH_JOURNAL_OPCODE_LOG_BLOB);
+                                            FLASH_JOURNAL_OPCODE_COMMIT : FLASH_JOURNAL_OPCODE_LOG_BLOB);
                 }
                 return;
             }
@@ -716,7 +716,7 @@ void mtdHandler(int32_t status, ARM_STORAGE_OPERATION operation)
             }
             if (activeJournal->callback) {
                 activeJournal->callback(rc, (activeJournal->state == SEQUENTIAL_JOURNAL_STATE_INITIALIZED) ?
-                                                FLASH_JOURNAL_OPCODE_COMMIT : FLASH_JOURNAL_OPCODE_LOG_BLOB);
+                                        FLASH_JOURNAL_OPCODE_COMMIT : FLASH_JOURNAL_OPCODE_LOG_BLOB);
             }
             break;
 

@@ -83,7 +83,7 @@ int32_t cfstore_flush3_end(void)
 
     CFSTORE_DBGLOG("%s:IN\n", __func__);
     cfsStatus = cfstoreDriver->Uninitialize();
-    if(cfsStatus < ARM_DRIVER_OK){
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("CFStore Finalization failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
@@ -120,26 +120,26 @@ int32_t cfstore_flush3_delete_file(const char *fileDir, size_t maxFilePathSize, 
         CFSTORE_DBGLOG("%s: cfsStatus == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND. returning success\n", __func__);
         return ARM_DRIVER_OK;
     }
-    if(cfsStatus < ARM_DRIVER_OK){
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Open failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
     cfsStatus = cfstoreDriver->Delete(hkey);
-    if(cfsStatus < ARM_DRIVER_OK){
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Failed deleting (%s) failed (err %ld)\n", fileName, cfsStatus);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
 out:
     cfsStatus = cfstoreDriver->Close(hkey);
-    if(cfsStatus < ARM_DRIVER_OK){
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Close failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
     /* Flash-to-flash only on success */
     if (status == ARM_DRIVER_OK) {
         cfsStatus = cfstoreDriver->Flush();
-        if(cfsStatus < ARM_DRIVER_OK){
+        if (cfsStatus < ARM_DRIVER_OK) {
             CFSTORE_DBGLOG("Flush to flash failed (err %ld)\n", cfsStatus);
             return ARM_DRIVER_ERROR;
         }
@@ -151,18 +151,18 @@ out:
 
 int32_t cfstore_flush3_read_file(const char *fileDir, size_t maxFilePathSize, const char *fileName, uint8_t *buff, size_t buffSize)
 {
-	int32_t cfsStatus;
-	int32_t status = ARM_DRIVER_OK;
+    int32_t cfsStatus;
+    int32_t status = ARM_DRIVER_OK;
 
-	ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
-	ARM_CFSTORE_FMODE flags;
-	ARM_CFSTORE_SIZE readCount = buffSize;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
+    ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
+    ARM_CFSTORE_FMODE flags;
+    ARM_CFSTORE_SIZE readCount = buffSize;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
 
-	CFSTORE_DBGLOG("%s:IN. File name %s, buffer %p, buffsize %d\n", __func__, fileName, buff, buffSize);
+    CFSTORE_DBGLOG("%s:IN. File name %s, buffer %p, buffsize %d\n", __func__, fileName, buff, buffSize);
 
-	CFSTORE_UNUSED_PARAM(fileDir);
-	CFSTORE_UNUSED_PARAM(maxFilePathSize);
+    CFSTORE_UNUSED_PARAM(fileDir);
+    CFSTORE_UNUSED_PARAM(maxFilePathSize);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Uninitialize Cfstore\n", __func__);
     TEST_ASSERT_MESSAGE(cfstoreDriver != NULL, cfstore_flush3_utest_msg_g);
@@ -173,51 +173,51 @@ int32_t cfstore_flush3_read_file(const char *fileDir, size_t maxFilePathSize, co
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Invalid buff\n", __func__);
     TEST_ASSERT_MESSAGE(buff != NULL, cfstore_flush3_utest_msg_g);
 
-	memset(&flags, 0, sizeof(flags));
-	flags.read = true;
+    memset(&flags, 0, sizeof(flags));
+    flags.read = true;
 
-	cfsStatus = cfstoreDriver->Open(fileName, flags, hkey);
-	if(cfsStatus == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND){
-	    CFSTORE_DBGLOG("File (%s) not found (err %ld)\n", fileName, cfsStatus);
-	    return ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND;
+    cfsStatus = cfstoreDriver->Open(fileName, flags, hkey);
+    if (cfsStatus == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+        CFSTORE_DBGLOG("File (%s) not found (err %ld)\n", fileName, cfsStatus);
+        return ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND;
 
-	}
-    if(cfsStatus < ARM_DRIVER_OK){
+    }
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Open failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
-	cfsStatus = cfstoreDriver->Read(hkey, buff, &readCount);
-    if(cfsStatus < ARM_DRIVER_OK){
+    cfsStatus = cfstoreDriver->Read(hkey, buff, &readCount);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Read failed (err %ld)\n", cfsStatus);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
-    if(readCount < buffSize){
+    if (readCount < buffSize) {
         CFSTORE_DBGLOG("Read failed, amount is %zu while requested %zu\n", readCount, buffSize);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
 out:
-	cfsStatus = cfstoreDriver->Close(hkey);
-    if(cfsStatus < ARM_DRIVER_OK){
+    cfsStatus = cfstoreDriver->Close(hkey);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Close failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
     CFSTORE_DBGLOG("%s:OUT: status=%d\n", __func__, (int) status);
-	return status;
+    return status;
 }
 
 int32_t cfstore_flush3_write_file(const char *fileDir, size_t maxFilePathSize, const char *fileName, const uint8_t *buff, size_t buffSize)
 {
-	int32_t cfsStatus;
-	int32_t status = ARM_DRIVER_ERROR;
+    int32_t cfsStatus;
+    int32_t status = ARM_DRIVER_ERROR;
 
-	ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
-	ARM_CFSTORE_SIZE writeCount = buffSize;
-	ARM_CFSTORE_KEYDESC keyDesc;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
+    ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
+    ARM_CFSTORE_SIZE writeCount = buffSize;
+    ARM_CFSTORE_KEYDESC keyDesc;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
 
-	CFSTORE_DBGLOG("%s:IN. File name %s, buffer %p, buffsize %d\n", __func__, fileName, buff, buffSize);
+    CFSTORE_DBGLOG("%s:IN. File name %s, buffer %p, buffsize %d\n", __func__, fileName, buff, buffSize);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Uninitialize Cfstore\n", __func__);
     TEST_ASSERT_MESSAGE(cfstoreDriver != NULL, cfstore_flush3_utest_msg_g);
@@ -228,104 +228,104 @@ int32_t cfstore_flush3_write_file(const char *fileDir, size_t maxFilePathSize, c
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Invalid buff\n", __func__);
     TEST_ASSERT_MESSAGE(buff != NULL, cfstore_flush3_utest_msg_g);
 
-	/* We always deleting the old file and recreating a new one to preserve simplicity */
-	CFSTORE_DBGLOG("Before delete%s", "\n");
+    /* We always deleting the old file and recreating a new one to preserve simplicity */
+    CFSTORE_DBGLOG("Before delete%s", "\n");
 
-	/* Delete the old file */
-	status = cfstore_flush3_delete_file(fileDir, maxFilePathSize, fileName);
-    if(status != ARM_DRIVER_OK){
+    /* Delete the old file */
+    status = cfstore_flush3_delete_file(fileDir, maxFilePathSize, fileName);
+    if (status != ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Failed deleting (%s)\n", fileName);
         return status;
     }
 
-	CFSTORE_DBGLOG("After delete%s", "\n");
-	/* Create a new file */
-	memset(&keyDesc, 0, sizeof(keyDesc));
-	keyDesc.drl = ARM_RETENTION_NVM;
-	keyDesc.flags.read = true;
-	keyDesc.flags.write = true;
-	cfsStatus = cfstoreDriver->Create(fileName, buffSize, &keyDesc, hkey);
-    if(cfsStatus < ARM_DRIVER_OK){
+    CFSTORE_DBGLOG("After delete%s", "\n");
+    /* Create a new file */
+    memset(&keyDesc, 0, sizeof(keyDesc));
+    keyDesc.drl = ARM_RETENTION_NVM;
+    keyDesc.flags.read = true;
+    keyDesc.flags.write = true;
+    cfsStatus = cfstoreDriver->Create(fileName, buffSize, &keyDesc, hkey);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Fail creating (%s) key-store (%ld)\n", fileName, cfsStatus);
         return ARM_DRIVER_ERROR;
     }
-	CFSTORE_DBGLOG("After create%s", "\n");
-	cfsStatus = cfstoreDriver->Write(hkey, (const char *)buff, &writeCount);
-    if(cfsStatus < ARM_DRIVER_OK){
+    CFSTORE_DBGLOG("After create%s", "\n");
+    cfsStatus = cfstoreDriver->Write(hkey, (const char *)buff, &writeCount);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Write failed (err %ld)\n", cfsStatus);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
-    if(writeCount != buffSize){
+    if (writeCount != buffSize) {
         CFSTORE_DBGLOG("Write failed, amount is %d while requested is %d\n", (int)writeCount, (int)buffSize);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
-	CFSTORE_DBGLOG("After write%s", "\n");
+    CFSTORE_DBGLOG("After write%s", "\n");
 out:
-	cfsStatus = cfstoreDriver->Close(hkey);
-    if(cfsStatus < ARM_DRIVER_OK){
+    cfsStatus = cfstoreDriver->Close(hkey);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("Close failed (err %ld)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
-	CFSTORE_DBGLOG("After close%s", "\n");
-	/* Flash-to-flash only on success */
-	if (status == ARM_DRIVER_OK) {
-		cfsStatus = cfstoreDriver->Flush();
-	    if(cfsStatus < ARM_DRIVER_OK){
-	        CFSTORE_DBGLOG("Flush to flash failed(err %ld)\n", cfsStatus);
-	        return ARM_DRIVER_ERROR;
-	    }
-		CFSTORE_DBGLOG("After flush%s", "\n");
-	}		
+    CFSTORE_DBGLOG("After close%s", "\n");
+    /* Flash-to-flash only on success */
+    if (status == ARM_DRIVER_OK) {
+        cfsStatus = cfstoreDriver->Flush();
+        if (cfsStatus < ARM_DRIVER_OK) {
+            CFSTORE_DBGLOG("Flush to flash failed(err %ld)\n", cfsStatus);
+            return ARM_DRIVER_ERROR;
+        }
+        CFSTORE_DBGLOG("After flush%s", "\n");
+    }
     CFSTORE_DBGLOG("%s:OUT: status=%d\n", __func__, (int) status);
-	return status;
+    return status;
 }
 
 
 int32_t cfstore_flush3_start(void)
 {
-	int32_t status = ARM_DRIVER_OK;
-	int32_t cfsStatus;
-	ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
-	ARM_CFSTORE_CAPABILITIES caps;
+    int32_t status = ARM_DRIVER_OK;
+    int32_t cfsStatus;
+    ARM_CFSTORE_DRIVER *cfstoreDriver = &cfstore_driver;
+    ARM_CFSTORE_CAPABILITIES caps;
 
-	CFSTORE_DBGLOG("%s:IN\n", __func__);
+    CFSTORE_DBGLOG("%s:IN\n", __func__);
 
-	/* Initialize configuration store */
-	cfsStatus = cfstoreDriver->Initialize(NULL, NULL);
-    if(cfsStatus < ARM_DRIVER_OK){
+    /* Initialize configuration store */
+    cfsStatus = cfstoreDriver->Initialize(NULL, NULL);
+    if (cfsStatus < ARM_DRIVER_OK) {
         CFSTORE_DBGLOG("CFStore Initialization failed (err %lu)\n", cfsStatus);
         return ARM_DRIVER_ERROR;
     }
-	/* Get capabilities */
-	memset(&caps, 0, sizeof(caps));
-	caps = cfstoreDriver->GetCapabilities();
-    if(caps.asynchronous_ops == true){
+    /* Get capabilities */
+    memset(&caps, 0, sizeof(caps));
+    caps = cfstoreDriver->GetCapabilities();
+    if (caps.asynchronous_ops == true) {
         CFSTORE_DBGLOG("%s:Please configure CFstore to work in synchronous mode. This can be change in config.json file.\n", __func__);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
-    if(caps.uvisor_support_enabled == true){
+    if (caps.uvisor_support_enabled == true) {
         CFSTORE_DBGLOG("%s:Please enable uvisor spv box.\n", __func__);
         status = ARM_DRIVER_ERROR;
         goto out;
     }
-	CFSTORE_DBGLOG("%s:OUT: returning ARM_DRIVER_OK\n", __func__);
-	return ARM_DRIVER_OK; /* init succeeded */
+    CFSTORE_DBGLOG("%s:OUT: returning ARM_DRIVER_OK\n", __func__);
+    return ARM_DRIVER_OK; /* init succeeded */
 
 out:
-	/* init failed */
-	(void) cfstore_flush3_end();
+    /* init failed */
+    (void) cfstore_flush3_end();
     CFSTORE_DBGLOG("%s:OUT: status=%d\n", __func__, (int) status);
-	return status;
+    return status;
 }
 
-int32_t cfstore_flush3_check_data(uint8_t* data, int32_t len, uint8_t val)
+int32_t cfstore_flush3_check_data(uint8_t *data, int32_t len, uint8_t val)
 {
     int i;
-    for(i = 0; i < len; i++) {
-        if(data[i] != val){
+    for (i = 0; i < len; i++) {
+        if (data[i] != val) {
             /* found byte which doesnt have the expected data value */
             return ARM_DRIVER_ERROR;
         }
@@ -411,12 +411,12 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 {
     int32_t i;
     int32_t ret = ARM_DRIVER_ERROR;
-    const char* kv_name_root = "com.arm.mbed.spv.sst";
-    const char* kv_name_node= "node";
-    const char* kv_name_meta= "meta";
-    char kv_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    const char *kv_name_root = "com.arm.mbed.spv.sst";
+    const char *kv_name_node = "node";
+    const char *kv_name_meta = "meta";
+    char kv_name[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
     uint8_t data[CFSTORE_FLUSH3_TEST_DATA_BUF_LEN];
-    void* heap_buf = NULL;
+    void *heap_buf = NULL;
 
     (void) call_count;
     heap_buf = malloc(CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN);
@@ -432,14 +432,14 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV\n", __func__);
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  A.2 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.0, len: 220) to create KV\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 220);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 220);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  A.3 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -449,7 +449,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  A.5 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -461,8 +461,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.meta). read 2280\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  B.2 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -472,8 +472,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.node.0). read 220\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 220);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 220);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  B.4 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -487,7 +487,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  B.7 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -498,16 +498,16 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.0). this will work as the KV is present\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.2 cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.x) where x = {1..29}, each of which should fail\n", __func__);
-    for(i = 1; i <= 29; i++){
-        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char*) kv_name_root, (char*) kv_name_node, (int) i);
-        ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+2, (int) ret, kv_name);
+    for (i = 1; i <= 29; i++) {
+        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char *) kv_name_root, (char *) kv_name_node, (int) i);
+        ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i + 2, (int) ret, kv_name);
         /* The delete operations are expected to fail as the keys dont exist
          * but cfstore_flush3_delete_file() returns ARM_DRIVER_OK when key isnt found, so cant test the return code.
          */
@@ -515,8 +515,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     }
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(name com.arm.mbed.spv.sst.meta). this is expected to succeed as the KV is present\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.32 cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -533,7 +533,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  C.34 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -552,22 +552,22 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.meta). this should fail as the kv has been deleted.\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  D.2 cfstore_flush3_read_file() succeeded when expected to fail (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.0, len: 220) to create KV.\n", __func__);
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 220);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 220);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  D.3 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  D.4 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -577,7 +577,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  D.6 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -588,16 +588,16 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.0). this will work as the KV is present.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.2 cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(com.arm.mbed.spv.sst.node.x) where x = {1..29}, each of which should fail.\n", __func__);
-    for(i = 1; i <= 29; i++){
-        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char*) kv_name_root, (char*) kv_name_node, (int) i);
-        ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+2, (int) ret, kv_name);
+    for (i = 1; i <= 29; i++) {
+        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.%d", (char *) kv_name_root, (char *) kv_name_node, (int) i);
+        ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.%d cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i + 2, (int) ret, kv_name);
         /* The delete operations are expected to fail as the keys dont exist
          * but cfstore_flush3_delete_file() returns ARM_DRIVER_OK when key isnt found, so cant test the return code.
          */
@@ -605,8 +605,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     }
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_delete_file(name com.arm.mbed.spv.sst.meta). this is expected to succeed as the KV is present.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_delete_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.32 cfstore_flush3_delete_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -616,7 +616,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  E.34 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -628,57 +628,57 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.meta). this should fail as the kv has been deleted.\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.2 cfstore_flush3_read_file() succeeded when expected to fail (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
     /* cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.0, len: 220) to create KV */
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 220);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 220);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.3 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.4 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.0, len: 816) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 816);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 816);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.5 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.6 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.1, len: 217) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.1", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 217);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.1", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 217);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.7 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.8 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.0, len: 818) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 818);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 818);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.9 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.10 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -688,7 +688,7 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.12 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -700,8 +700,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.meta) 2280 bytes should be read.\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.2 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -711,8 +711,8 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.node.0) 818 bytes should be read.\n", __func__);
     memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 818);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 818);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.4 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -721,29 +721,29 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_read_file(com.arm.mbed.spv.sst.node.1) 217 bytes should be read. repeat 4 times.\n", __func__);
-    for(i = 0; i < 4; i++){
+    for (i = 0; i < 4; i++) {
         memset(data, 0, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.1", (char*) kv_name_root, (char*) kv_name_node);
-        ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, data, 217);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.%d.1 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+6, (int) ret, kv_name);
+        snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.1", (char *) kv_name_root, (char *) kv_name_node);
+        ret = cfstore_flush3_read_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, data, 217);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.%d.1 cfstore_flush3_read_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) i + 6, (int) ret, kv_name);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
         ret = cfstore_flush3_check_data(data, 217, CFSTORE_FLUSH3_TEST_DATA_CHAR);
-        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.%d.2 cfstore_flush3_check_data() failed (ret=%d, kv_name=%s).\n", __func__, (int) i+6, (int) ret, kv_name);
+        CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  G.%d.2 cfstore_flush3_check_data() failed (ret=%d, kv_name=%s).\n", __func__, (int) i + 6, (int) ret, kv_name);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
     }
 
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.node.2, len: 235) to create KV.\n", __func__);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char*) kv_name_root, (char*) kv_name_node);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 235);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s.0", (char *) kv_name_root, (char *) kv_name_node);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 235);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  F.3 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: cfstore_flush3_write_file(com.arm.mbed.spv.sst.meta, len: 2280) to create KV.\n", __func__);
     memset(data, CFSTORE_FLUSH3_TEST_DATA_CHAR, CFSTORE_FLUSH3_TEST_DATA_BUF_LEN);
-    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char*) kv_name_root, (char*) kv_name_meta);
-    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char*) kv_name, (const uint8_t*) data, 2280);
+    snprintf(kv_name, CFSTORE_KEY_NAME_MAX_LENGTH, "%s.%s", (char *) kv_name_root, (char *) kv_name_meta);
+    ret = cfstore_flush3_write_file(NULL, CFSTORE_KEY_NAME_MAX_LENGTH, (const char *) kv_name, (const uint8_t *) data, 2280);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  A.2 cfstore_flush3_write_file() failed (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
@@ -753,11 +753,11 @@ static control_t cfstore_flush3_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
     CFSTORE_DBGLOG("%s: check for heap corruption\n", __func__);
-    ret = cfstore_flush3_check_data((uint8_t*) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
+    ret = cfstore_flush3_check_data((uint8_t *) heap_buf, CFSTORE_FLUSH3_TEST_HEAP_BUF_LEN, CFSTORE_FLUSH3_HEAP_DATA_CHAR);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush3_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error:  A.5 cfstore_flush3_check_data() failed for heap (ret=%d, kv_name=%s).\n", __func__, (int) ret, kv_name);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush3_utest_msg_g);
 
-    if(heap_buf){
+    if (heap_buf) {
         free(heap_buf);
     }
 
@@ -773,7 +773,7 @@ static control_t cfstore_flush3_test_02(const size_t call_count)
     ARM_CFSTORE_FMODE flags;
     ARM_CFSTORE_SIZE len = strlen("key0");
     ARM_CFSTORE_HANDLE_INIT(hkey);
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     (void) call_count;
     memset(&kdesc, 0, sizeof(kdesc));
@@ -837,14 +837,14 @@ static control_t cfstore_flush3_test_00(const size_t call_count)
 {
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_CAPABILITIES caps;;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
     (void) call_count;
 
     /* initialise the context */
     caps = drv->GetCapabilities();
     CFSTORE_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, caps.asynchronous_ops);
-    if(caps.asynchronous_ops == 1){
+    if (caps.asynchronous_ops == 1) {
         /* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
          * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
@@ -864,12 +864,12 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FLUSH3_test_00", cfstore_flush3_test_00),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FLUSH3_test_00", cfstore_flush3_test_00),
 #if defined STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS && STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==0
-        Case("FLUSH3_test_01", cfstore_flush3_test_01),
-        Case("FLUSH3_test_02", cfstore_flush3_test_02),
+    Case("FLUSH3_test_01", cfstore_flush3_test_01),
+    Case("FLUSH3_test_02", cfstore_flush3_test_02),
 #endif // STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 };
 

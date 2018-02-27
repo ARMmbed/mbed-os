@@ -95,9 +95,9 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("EXAMPLE1_test_00", cfstore_example1_test_00),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("EXAMPLE1_test_00", cfstore_example1_test_00),
 };
 
 
@@ -171,8 +171,7 @@ using namespace utest::v1;
   }while(0);
 
 
-const char* cfstore_ex_opcode_str[] =
-{
+const char *cfstore_ex_opcode_str[] = {
     "UNDEFINED",
     "CFSTORE_OPCODE_CLOSE",
     "CFSTORE_OPCODE_CREATE",
@@ -193,8 +192,8 @@ const char* cfstore_ex_opcode_str[] =
 };
 
 bool cfstore_example1_done = false;
-const char* cfstore_ex_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
-const char* cfstore_ex_kv_value = "TheRollingStone";
+const char *cfstore_ex_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
+const char *cfstore_ex_kv_value = "TheRollingStone";
 #define CFSTORE_EX1_RSEEK_OFFSET    10   /* offset to S of Stone */
 
 typedef enum cfstore_ex_state_t {
@@ -234,8 +233,7 @@ typedef enum cfstore_ex_state_t {
     CFSTORE_EX_STATE_UNINIT_DONE
 } cfstore_ex_state_t;
 
-typedef struct cfstore_example1_ctx_t
-{
+typedef struct cfstore_example1_ctx_t {
     ARM_CFSTORE_CAPABILITIES caps;
     uint8_t hkey[CFSTORE_HANDLE_BUFSIZE];
     uint8_t hkey_next_buf[CFSTORE_HANDLE_BUFSIZE];
@@ -246,7 +244,7 @@ typedef struct cfstore_example1_ctx_t
     ARM_CFSTORE_SIZE len;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_FMODE flags;
-    char value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    char value[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
     /* callback attributes*/
     int32_t callback_status;
     ARM_CFSTORE_HANDLE callback_handle;
@@ -258,7 +256,7 @@ extern ARM_CFSTORE_DRIVER cfstore_driver;
 ARM_CFSTORE_DRIVER *cfstore_drv = &cfstore_driver;
 
 /* forward declarations */
-static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx);
+static void cfstore_ex_fms_update(cfstore_example1_ctx_t *ctx);
 /// @endcond
 
 
@@ -274,8 +272,7 @@ typedef enum cfstore_ex_flash_state_t {
     CFSTORE_EX_FLASH_STATE_READY,
 } cfstore_ex_flash_state_t;
 
-typedef struct cfstore_example1_flash_ctx_t
-{
+typedef struct cfstore_example1_flash_ctx_t {
     volatile cfstore_ex_flash_state_t state;
 } cfstore_example1_flash_ctx_t;
 
@@ -289,11 +286,11 @@ static void cfstore_ex_flash_journal_callback(int32_t status, FlashJournal_OpCod
     const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_MTD_K64F;
 
 
-    if(cmd_code == (FlashJournal_OpCode_t) CFSTORE_FLASH_START_FORMAT) {
+    if (cmd_code == (FlashJournal_OpCode_t) CFSTORE_FLASH_START_FORMAT) {
         CFSTORE_EX1_LOG("FORMATTING%s", "\n");
         status = flashJournalStrategySequential_format(drv, 4, cfstore_ex_flash_journal_callback);
         CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
-        if(status == 0) {
+        if (status == 0) {
             /* async completion pending */
             return;
         }
@@ -301,40 +298,39 @@ static void cfstore_ex_flash_journal_callback(int32_t status, FlashJournal_OpCod
          * intentional fall through */
     }
 
-    switch(cmd_code)
-    {
-    case FLASH_JOURNAL_OPCODE_FORMAT:
-        /* format done */
-        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_INITIALIZING;
+    switch (cmd_code) {
+        case FLASH_JOURNAL_OPCODE_FORMAT:
+            /* format done */
+            CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_format() failed (status=%d)\r\n", __func__, (int) status);
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_INITIALIZING;
 
-        CFSTORE_EX1_LOG("FLASH INITIALIZING%s", "\n");
-        status = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
-        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
-        if(status == 0) {
-            /* async completion pending */
-            break;
-        }
+            CFSTORE_EX1_LOG("FLASH INITIALIZING%s", "\n");
+            status = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
+            CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+            if (status == 0) {
+                /* async completion pending */
+                break;
+            }
         /* status > 0 implies  operation completed synchronously
          * intentional fall through */
-    case FLASH_JOURNAL_OPCODE_INITIALIZE:
-        /* initialize done */
-        CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_RESETTING;
+        case FLASH_JOURNAL_OPCODE_INITIALIZE:
+            /* initialize done */
+            CFSTORE_EX1_TEST_ASSERT_MSG(status > JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (status=%d)\r\n", __func__, (int) status);
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_RESETTING;
 
-        CFSTORE_EX1_LOG("FLASH RESETTING%s", "\n");
-        status = FlashJournal_reset(&jrnl);
-        CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (status=%d)\r\n", __func__, (int) status);
+            CFSTORE_EX1_LOG("FLASH RESETTING%s", "\n");
+            status = FlashJournal_reset(&jrnl);
+            CFSTORE_EX1_TEST_ASSERT_MSG(status >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (status=%d)\r\n", __func__, (int) status);
         /* intentional fall through */
-    case FLASH_JOURNAL_OPCODE_RESET:
-        /* reset done */
-        CFSTORE_EX1_LOG("FLASH RESET DONE%s", "\n");
-        cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_READY;
-        break;
+        case FLASH_JOURNAL_OPCODE_RESET:
+            /* reset done */
+            CFSTORE_EX1_LOG("FLASH RESET DONE%s", "\n");
+            cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_READY;
+            break;
 
-    default:
-        CFSTORE_EX1_LOG("%s:Error: notification of unsupported cmd_code event (status=%d, cmd_code=%d)\n", __func__, (int) status, (int) cmd_code);
-        return;
+        default:
+            CFSTORE_EX1_LOG("%s:Error: notification of unsupported cmd_code event (status=%d, cmd_code=%d)\n", __func__, (int) status, (int) cmd_code);
+            return;
     }
     return;
 }
@@ -354,7 +350,7 @@ static int32_t cfstore_test_startup(void)
     memset(&cfstore_example1_flash_ctx_g, 0, sizeof(cfstore_example1_flash_ctx_g));
     cfstore_example1_flash_ctx_g.state = CFSTORE_EX_FLASH_STATE_STARTING;
     cfstore_ex_flash_journal_callback(JOURNAL_STATUS_OK, (FlashJournal_OpCode_t) CFSTORE_FLASH_START_FORMAT);
-    while(cfstore_example1_flash_ctx_g.state != CFSTORE_EX_FLASH_STATE_READY) {
+    while (cfstore_example1_flash_ctx_g.state != CFSTORE_EX_FLASH_STATE_READY) {
         /* spin */
     }
 
@@ -368,109 +364,104 @@ static void cfstore_ex_callback(int32_t status, ARM_CFSTORE_OPCODE cmd_code, voi
 {
     (void) handle;
 
-    cfstore_example1_ctx_t* ctx = (cfstore_example1_ctx_t*) client_context;
+    cfstore_example1_ctx_t *ctx = (cfstore_example1_ctx_t *) client_context;
 
     /* CFSTORE_EX1_LOG("%s:entered: status=%d, cmd_code=%d (%s) handle=%p\r\n", __func__, (int) status, (int) cmd_code, cfstore_ex_opcode_str[cmd_code], handle); */
-    switch(cmd_code)
-    {
-    case CFSTORE_OPCODE_INITIALIZE:
-        ctx->state = CFSTORE_EX_STATE_INIT_DONE;
-        break;
-    case CFSTORE_OPCODE_CREATE:
-        ctx->state = CFSTORE_EX_STATE_CREATE_DONE;
-        break;
-    case CFSTORE_OPCODE_WRITE:
-        ctx->state = CFSTORE_EX_STATE_WRITE_DONE;
-        break;
-    case CFSTORE_OPCODE_CLOSE:
-        switch(ctx->state)
-        {
-        case(CFSTORE_EX_STATE_CLOSING1):
-            ctx->state = CFSTORE_EX_STATE_CLOSE_DONE1;
+    switch (cmd_code) {
+        case CFSTORE_OPCODE_INITIALIZE:
+            ctx->state = CFSTORE_EX_STATE_INIT_DONE;
             break;
-        case(CFSTORE_EX_STATE_CLOSING2):
-            ctx->state = CFSTORE_EX_STATE_CLOSE_DONE2;
+        case CFSTORE_OPCODE_CREATE:
+            ctx->state = CFSTORE_EX_STATE_CREATE_DONE;
             break;
+        case CFSTORE_OPCODE_WRITE:
+            ctx->state = CFSTORE_EX_STATE_WRITE_DONE;
+            break;
+        case CFSTORE_OPCODE_CLOSE:
+            switch (ctx->state) {
+                case (CFSTORE_EX_STATE_CLOSING1):
+                    ctx->state = CFSTORE_EX_STATE_CLOSE_DONE1;
+                    break;
+                case (CFSTORE_EX_STATE_CLOSING2):
+                    ctx->state = CFSTORE_EX_STATE_CLOSE_DONE2;
+                    break;
+                default:
+                    CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Close() error (line=%u)\r\n", __func__, __LINE__);
+                    /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+                     * and hence is commented out. Re-instate if previous assert is removed.
+                     * break; */
+            }
+            break;
+        case CFSTORE_OPCODE_FLUSH:
+            switch (ctx->state) {
+                case (CFSTORE_EX_STATE_FLUSHING1):
+                    ctx->state = CFSTORE_EX_STATE_FLUSH_DONE1;
+                    break;
+                case (CFSTORE_EX_STATE_FLUSHING2):
+                    ctx->state = CFSTORE_EX_STATE_FLUSH_DONE2;
+                    break;
+                default:
+                    CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Find() error (line=%u)\r\n", __func__, __LINE__);
+                    /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+                     * and hence is commented out. Re-instate if previous assert is removed.
+                     * break; */
+            }
+            break;
+        case CFSTORE_OPCODE_OPEN:
+            ctx->state = CFSTORE_EX_STATE_OPEN_DONE;
+            break;
+        case CFSTORE_OPCODE_FIND:
+            switch (ctx->state) {
+                case (CFSTORE_EX_STATE_FINDING1):
+                    ctx->state = CFSTORE_EX_STATE_FIND_DONE1;
+                    break;
+                case (CFSTORE_EX_STATE_FINDING2):
+                    ctx->state = CFSTORE_EX_STATE_FIND_DONE2;
+                    break;
+                default:
+                    CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Find() error (line=%u)\r\n", __func__, __LINE__);
+                    /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+                     * and hence is commented out. Re-instate if previous assert is removed.
+                     * break; */
+            }
+            break;
+        case CFSTORE_OPCODE_GET_KEY_NAME:
+            ctx->state = CFSTORE_EX_STATE_GET_KEY_NAME_DONE;
+            break;
+        case CFSTORE_OPCODE_GET_VALUE_LEN:
+            ctx->state = CFSTORE_EX_STATE_GET_VALUE_LEN_DONE;
+            break;
+        case CFSTORE_OPCODE_READ:
+            switch (ctx->state) {
+                case (CFSTORE_EX_STATE_READING1):
+                    ctx->state = CFSTORE_EX_STATE_READ_DONE1;
+                    break;
+                case (CFSTORE_EX_STATE_READING2):
+                    ctx->state = CFSTORE_EX_STATE_READ_DONE2;
+                    break;
+                default:
+                    CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Read() error (line=%u)\r\n", __func__, __LINE__);
+                    /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+                     * and hence is commented out. Re-instate if previous assert is removed.
+                     * break; */
+            }
+            break;
+        case CFSTORE_OPCODE_RSEEK:
+            ctx->state = CFSTORE_EX_STATE_RSEEK_DONE;
+            break;
+        case CFSTORE_OPCODE_DELETE:
+            ctx->state = CFSTORE_EX_STATE_DELETE_DONE;
+            break;
+        case CFSTORE_OPCODE_UNINITIALIZE:
+            ctx->state = CFSTORE_EX_STATE_UNINIT_DONE;
+            break;
+        case CFSTORE_OPCODE_GET_STATUS:
+        case CFSTORE_OPCODE_POWER_CONTROL:
         default:
-            CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Close() error (line=%u)\r\n", __func__, __LINE__);
+            CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: received asynchronous notification for opcode=%d (%s)\r\b", __func__, cmd_code, cmd_code < CFSTORE_OPCODE_MAX ? cfstore_ex_opcode_str[cmd_code] : "unknown");
             /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
              * and hence is commented out. Re-instate if previous assert is removed.
              * break; */
-        }
-        break;
-    case CFSTORE_OPCODE_FLUSH:
-        switch(ctx->state)
-        {
-            case(CFSTORE_EX_STATE_FLUSHING1):
-                ctx->state = CFSTORE_EX_STATE_FLUSH_DONE1;
-                break;
-            case(CFSTORE_EX_STATE_FLUSHING2):
-                ctx->state = CFSTORE_EX_STATE_FLUSH_DONE2;
-                break;
-            default:
-                CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Find() error (line=%u)\r\n", __func__, __LINE__);
-                /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-                 * and hence is commented out. Re-instate if previous assert is removed.
-                 * break; */
-        }
-        break;
-    case CFSTORE_OPCODE_OPEN:
-        ctx->state = CFSTORE_EX_STATE_OPEN_DONE;
-        break;
-    case CFSTORE_OPCODE_FIND:
-        switch(ctx->state)
-        {
-        case(CFSTORE_EX_STATE_FINDING1):
-            ctx->state = CFSTORE_EX_STATE_FIND_DONE1;
-            break;
-        case(CFSTORE_EX_STATE_FINDING2):
-            ctx->state = CFSTORE_EX_STATE_FIND_DONE2;
-            break;
-        default:
-            CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Find() error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
-        }
-        break;
-    case CFSTORE_OPCODE_GET_KEY_NAME:
-        ctx->state = CFSTORE_EX_STATE_GET_KEY_NAME_DONE;
-        break;
-    case CFSTORE_OPCODE_GET_VALUE_LEN:
-        ctx->state = CFSTORE_EX_STATE_GET_VALUE_LEN_DONE;
-        break;
-    case CFSTORE_OPCODE_READ:
-        switch(ctx->state)
-        {
-        case(CFSTORE_EX_STATE_READING1):
-            ctx->state = CFSTORE_EX_STATE_READ_DONE1;
-            break;
-        case(CFSTORE_EX_STATE_READING2):
-            ctx->state = CFSTORE_EX_STATE_READ_DONE2;
-            break;
-        default:
-            CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown Read() error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
-        }
-        break;
-    case CFSTORE_OPCODE_RSEEK:
-        ctx->state = CFSTORE_EX_STATE_RSEEK_DONE;
-        break;
-    case CFSTORE_OPCODE_DELETE:
-        ctx->state = CFSTORE_EX_STATE_DELETE_DONE;
-        break;
-    case CFSTORE_OPCODE_UNINITIALIZE:
-        ctx->state = CFSTORE_EX_STATE_UNINIT_DONE;
-        break;
-    case CFSTORE_OPCODE_GET_STATUS:
-    case CFSTORE_OPCODE_POWER_CONTROL:
-    default:
-        CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: received asynchronous notification for opcode=%d (%s)\r\b", __func__, cmd_code, cmd_code < CFSTORE_OPCODE_MAX ? cfstore_ex_opcode_str[cmd_code] : "unknown");
-        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-         * and hence is commented out. Re-instate if previous assert is removed.
-         * break; */
     }
     ctx->callback_status = status;
     ctx->callback_handle = handle;
@@ -478,35 +469,34 @@ static void cfstore_ex_callback(int32_t status, ARM_CFSTORE_OPCODE cmd_code, voi
     return;
 }
 
-static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
+static void cfstore_ex_fms_update(cfstore_example1_ctx_t *ctx)
 {
     int32_t ret;
 
-    switch (ctx->state)
-    {
+    switch (ctx->state) {
         case CFSTORE_EX_STATE_INITIALIZING:
             CFSTORE_EX1_LOG("INITIALIZING%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_INITIALIZE can be invoked before Initialize() has returned
             ret = cfstore_drv->Initialize(cfstore_ex_callback, ctx);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_INIT_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_INIT_DONE:
             CFSTORE_EX1_LOG("INIT_DONE%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Initialize() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_INITIALIZE) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_CREATING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_CREATING:
             CFSTORE_EX1_LOG("CREATING%s", "\r\n");
@@ -516,24 +506,24 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_CREATE can be invoked before Create() has returned
             ret = cfstore_drv->Create(cfstore_ex_kv_name, ctx->len, &ctx->kdesc, ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Create() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_CREATE_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_CREATE_DONE:
             CFSTORE_EX1_LOG("CREATE_DONE%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Create() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_CREATE) received handle (%p) is not the hkey supplied to Create()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             ctx->state = CFSTORE_EX_STATE_WRITING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_WRITING:
             CFSTORE_EX1_LOG("WRITING%s", "\r\n");
@@ -541,17 +531,17 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_WRITE can be invoked before Write() has returned
             ret = cfstore_drv->Write(ctx->hkey, cfstore_ex_kv_value, &ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Write() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_WRITE_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_WRITE_DONE:
             CFSTORE_EX1_LOG("WRITE_DONE%s", "\r\n");
@@ -560,55 +550,55 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status == (int32_t) ctx->len, "%s:Error: Write() number of octets written (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ctx->callback_status, (int32_t) ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_WRITE) received handle (%p) is not the hkey supplied to Write()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             ctx->state = CFSTORE_EX_STATE_CLOSING1;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_CLOSING1:
             CFSTORE_EX1_LOG("CLOSING1%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_CLOSE can be invoked before Close() has returned
             ret = cfstore_drv->Close(ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_CLOSE_DONE1;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_CLOSE_DONE1:
             CFSTORE_EX1_LOG("CLOSE_DONE1%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Close() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_CLOSE) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_FLUSHING1;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_FLUSHING1:
             CFSTORE_EX1_LOG("FLUSHING1%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_FLUSH can be invoked before Flush() has returned
             ret = cfstore_drv->Flush();
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_FLUSH_DONE1;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_FLUSH_DONE1:
             CFSTORE_EX1_LOG("FLUSH_DONE1%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Flush() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_FLUSH) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_OPENING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_OPENING:
             CFSTORE_EX1_LOG("OPENING%s", "\r\n");
@@ -617,43 +607,43 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_OPEN can be invoked before Open() has returned
             ret = cfstore_drv->Open(cfstore_ex_kv_name, ctx->flags, ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Open() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_OPEN_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_OPEN_DONE:
             CFSTORE_EX1_LOG("OPEN_DONE%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Open() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_OPEN) received handle (%p) is not the hkey supplied to Open()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             ctx->state = CFSTORE_EX_STATE_READING1;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_READING1:
             CFSTORE_EX1_LOG("READING1%s", "\r\n");
             ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_READ can be invoked before Read() has returned
             ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_READ_DONE1;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_READ_DONE1:
             CFSTORE_EX1_LOG("READ_DONE1%s", "\r\n");
@@ -663,50 +653,50 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_READ) received handle (%p) is not the hkey supplied to Read()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex_kv_value, strlen(cfstore_ex_kv_value)) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex_kv_value);
             ctx->state = CFSTORE_EX_STATE_RSEEKING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_RSEEKING:
             CFSTORE_EX1_LOG("RSEEKING%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_READ can be invoked before Read() has returned
             ret = cfstore_drv->Rseek(ctx->hkey, CFSTORE_EX1_RSEEK_OFFSET);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Rseek() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_RSEEK_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_RSEEK_DONE:
             CFSTORE_EX1_LOG("RSEEK_DONE%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Read() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_RSEEK) received handle (%p) is not the hkey supplied to Read()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             ctx->state = CFSTORE_EX_STATE_READING2;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_READING2:
             CFSTORE_EX1_LOG("READING2%s", "\r\n");
             ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_READ can be invoked before Read() has returned
             ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_READ_DONE2;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_READ_DONE2:
             CFSTORE_EX1_LOG("READ_DONE2%s", "\r\n");
@@ -717,83 +707,83 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_READ) received handle (%p) is not the hkey supplied to Read()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, &cfstore_ex_kv_value[CFSTORE_EX1_RSEEK_OFFSET], strlen(&cfstore_ex_kv_value[CFSTORE_EX1_RSEEK_OFFSET])) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, &cfstore_ex_kv_value[CFSTORE_EX1_RSEEK_OFFSET]);
             ctx->state = CFSTORE_EX_STATE_CLOSING2;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_CLOSING2:
             CFSTORE_EX1_LOG("CLOSING2%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_CLOSE can be invoked before Close() has returned
             ret = cfstore_drv->Close(ctx->hkey);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_CLOSE_DONE2;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_CLOSE_DONE2:
             CFSTORE_EX1_LOG("CLOSE_DONE2%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Close() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_CLOSE) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_FINDING1;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_FINDING1:
             CFSTORE_EX1_LOG("FINDING1%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_FIND can be invoked before Find() has returned
             ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Find() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_FIND_DONE1;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_FIND_DONE1:
             CFSTORE_EX1_LOG("FIND_DONE1%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status == ARM_DRIVER_OK, "%s:Error: Find() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey_prev, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_FIND) received handle (%p) is not the hkey supplied to Find()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey_prev);
             ctx->state = CFSTORE_EX_STATE_GETTING_KEY_NAME;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_GETTING_KEY_NAME:
             CFSTORE_EX1_LOG("GETTING_KEY_NAME%s", "\r\n");
             ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+            memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_GET_KEY_NAME can be invoked before GetKeyName() has returned
-            ret = cfstore_drv->GetKeyName(ctx->hkey_prev, ctx->value, (uint8_t*) &ctx->len);
+            ret = cfstore_drv->GetKeyName(ctx->hkey_prev, ctx->value, (uint8_t *) &ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetKeyName() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_GET_KEY_NAME_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_GET_KEY_NAME_DONE:
             CFSTORE_EX1_LOG("GET_KEY_NAME_DONE%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: GetKeyName() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
-            CFSTORE_EX1_TEST_ASSERT_MSG( ((int32_t) ctx->len == ((int32_t) strlen(cfstore_ex_kv_name)+1)), "%s:Error: GetKeyName() updated value of len parameter (%ld) != strlen(cfstore_ex_kv_name) (%ld) (\r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex_kv_name));
+            CFSTORE_EX1_TEST_ASSERT_MSG(((int32_t) ctx->len == ((int32_t) strlen(cfstore_ex_kv_name) + 1)), "%s:Error: GetKeyName() updated value of len parameter (%ld) != strlen(cfstore_ex_kv_name) (%ld) (\r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex_kv_name));
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey_prev, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_GET_KEY_NAME) received handle (%p) is not the hkey supplied to GetKeyName()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey_prev);
             CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex_kv_name, strlen(cfstore_ex_kv_name)) == 0, "%s:Error: the key name (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex_kv_name);
             ctx->state = CFSTORE_EX_STATE_GETTING_VALUE_LEN;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_GETTING_VALUE_LEN:
             CFSTORE_EX1_LOG("GETTING_VALUE_LEN%s", "\r\n");
@@ -801,17 +791,17 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_GET_VALUE_LEN can be invoked before GetValueLen() has returned
             ret = cfstore_drv->GetValueLen(ctx->hkey_prev, &ctx->len);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetValueLen() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_GET_VALUE_LEN_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_GET_VALUE_LEN_DONE:
             CFSTORE_EX1_LOG("GET_VALUE_LEN_DONE%s", "\r\n");
@@ -819,24 +809,24 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG((int32_t) ctx->len == (int32_t) strlen(cfstore_ex_kv_value), "%s:Error: GetValueLen() updated value of len parameter (%ld) != strlen(cfstore_ex_kv_value)(%ld) \r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex_kv_value));
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == ctx->hkey_prev, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_GET_VALUE_LEN) received handle (%p) is not the hkey supplied to GetValueLen()(%p)\r\n", __func__, ctx->callback_handle, ctx->hkey_prev);
             ctx->state = CFSTORE_EX_STATE_DELETING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_DELETING:
             CFSTORE_EX1_LOG("DELETING%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_DELETE can be invoked before Delete() has returned
             ret = cfstore_drv->Delete(ctx->callback_handle);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_DELETE_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_DELETE_DONE:
             CFSTORE_EX1_LOG("DELETE_DONE%s", "\r\n");
@@ -844,70 +834,70 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_DELETE) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             CFSTORE_HANDLE_SWAP(ctx->hkey_prev, ctx->hkey_next);
             ctx->state = CFSTORE_EX_STATE_FINDING2;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_FINDING2:
             CFSTORE_EX1_LOG("FINDING2%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_FIND can be invoked before Find() has returned
             ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
             CFSTORE_EX1_TEST_ASSERT_MSG(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, "%s:Error: Find() failed to return expected value of ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND (ret=%ld)\r\n", __func__, ret);
-            if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && ctx->caps.asynchronous_ops == false) {
+            if (ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_FIND_DONE2;
                 break;
-            } else if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && ctx->caps.asynchronous_ops == true) {
+            } else if (ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_FIND_DONE2:
             CFSTORE_EX1_LOG("FIND_DONE2%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, "%s:Error: Find() completion should have been ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND (status=%ld)\r\n", __func__, ctx->callback_status);
             ctx->state = CFSTORE_EX_STATE_FLUSHING2;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_FLUSHING2:
             CFSTORE_EX1_LOG("FLUSHING2%s", "\r\n");
             // note that cfstore_ex_callback() for cmd_code==CFSTORE_OPCODE_FLUSH can be invoked before Flush() has returned
             ret = cfstore_drv->Flush();
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error:2: Flush() failed (ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_FLUSH_DONE2;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_FLUSH_DONE2:
             CFSTORE_EX1_LOG("FLUSH_DONE2%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status >= ARM_DRIVER_OK, "%s:Error: Flush() completion failed (status=%ld)\r\n", __func__, ctx->callback_status);
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_FLUSH) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_UNINITIALIZING;
-            // intentional fall-through
+        // intentional fall-through
 
         case CFSTORE_EX_STATE_UNINITIALIZING:
             CFSTORE_EX1_LOG("UNINITIALIZING%s", "\r\n");
             ret = cfstore_drv->Uninitialize();
             CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Uninitialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
-            if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
+            if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == false) {
                 ctx->state = CFSTORE_EX_STATE_UNINIT_DONE;
                 break;
-            } else if(ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
+            } else if (ret >= ARM_DRIVER_OK && ctx->caps.asynchronous_ops == true) {
                 // await pending notification of completion.
                 break;
             }
             CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
-             * and hence is commented out. Re-instate if previous assert is removed.
-             * break; */
+        /* The following 'break' statement generates ARMCC #111-D: statement is unreachable warning
+         * and hence is commented out. Re-instate if previous assert is removed.
+         * break; */
 
         case CFSTORE_EX_STATE_UNINIT_DONE:
             CFSTORE_EX1_LOG("UNINIT_DONE%s", "\r\n");
@@ -922,7 +912,7 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
 
 static control_t cfstore_example1_app_start(const size_t call_count)
 {
-    cfstore_example1_ctx_t* ctx = &cfstore_example1_ctx_g;
+    cfstore_example1_ctx_t *ctx = &cfstore_example1_ctx_g;
 
     (void) call_count;
 
@@ -937,8 +927,7 @@ static control_t cfstore_example1_app_start(const size_t call_count)
     cfstore_ex_fms_update(ctx);
 
     /* main application worker loop */
-    while (!cfstore_example1_done)
-    {
+    while (!cfstore_example1_done) {
         // do some work
         CFSTORE_EX1_LOG("%s: going to sleep!\r\n", __func__);
 
@@ -978,10 +967,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("EXAMPLE1_test_00", cfstore_example1_test_00),
-        Case("EXAMPLE1_test_01_start", cfstore_example1_app_start),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("EXAMPLE1_test_00", cfstore_example1_test_00),
+    Case("EXAMPLE1_test_01_start", cfstore_example1_app_start),
 };
 
 
@@ -998,7 +987,7 @@ int main()
 #else   // CFSTORE_EXAMPLE1_APP
 
 // stand alone Configuration-Store-Example
-void app_start(int argc __unused, char** argv __unused)
+void app_start(int argc __unused, char **argv __unused)
 {
     cfstore_example1_app_start(0);
 }

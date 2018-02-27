@@ -106,8 +106,7 @@ using namespace utest::v1;
   }while(0);
 
 
-const char* cfstore_ex3_opcode_str[] =
-{
+const char *cfstore_ex3_opcode_str[] = {
     "UNDEFINED",
     "CFSTORE_OPCODE_CLOSE",
     "CFSTORE_OPCODE_CREATE",
@@ -127,12 +126,11 @@ const char* cfstore_ex3_opcode_str[] =
     "CFSTORE_OPCODE_MAX"
 };
 
-const char* cfstore_ex3_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
-const char* cfstore_ex3_kv_value = "TheRollingStone";
+const char *cfstore_ex3_kv_name = "basement.medicine.pavement.government.trenchcoat.off.cough.off.kid.did.when.again.alleyway.friend.cap.pen.dollarbills.ten.foot.soot.put.but.anyway.say.May.DA.kid.did.toes.bows.those.hose.nose.clothes.man.blows.well.well";
+const char *cfstore_ex3_kv_value = "TheRollingStone";
 #define CFSTORE_EX1_RSEEK_OFFSET    10   /* offset to S of Stone */
 
-typedef struct cfstore_example3_ctx_t
-{
+typedef struct cfstore_example3_ctx_t {
     ARM_CFSTORE_CAPABILITIES caps;
     uint8_t hkey[CFSTORE_HANDLE_BUFSIZE];
     uint8_t hkey_next_buf[CFSTORE_HANDLE_BUFSIZE];
@@ -142,7 +140,7 @@ typedef struct cfstore_example3_ctx_t
     ARM_CFSTORE_SIZE len;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_FMODE flags;
-    char value[CFSTORE_KEY_NAME_MAX_LENGTH+1];
+    char value[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
 } cfstore_example3_ctx_t;
 
 static cfstore_example3_ctx_t cfstore_example3_ctx_g;
@@ -152,113 +150,113 @@ ARM_CFSTORE_DRIVER *cfstore_drv = &cfstore_driver;
 /// @endcond
 
 
-static void cfstore_ex3_test_01(cfstore_example3_ctx_t* ctx)
+static void cfstore_ex3_test_01(cfstore_example3_ctx_t *ctx)
 {
     int32_t ret;
 
-	CFSTORE_EX1_LOG("INITIALIZING%s", "\r\n");
-	ret = cfstore_drv->Initialize(NULL, NULL);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("INITIALIZING%s", "\r\n");
+    ret = cfstore_drv->Initialize(NULL, NULL);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("CREATING%s", "\r\n");
-	memset(&ctx->kdesc, 0, sizeof(ARM_CFSTORE_KEYDESC));
-	ctx->kdesc.drl = ARM_RETENTION_NVM;
-	ctx->len = strlen(cfstore_ex3_kv_value);
-	ret = cfstore_drv->Create(cfstore_ex3_kv_name, ctx->len, &ctx->kdesc, ctx->hkey);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Create() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("CREATING%s", "\r\n");
+    memset(&ctx->kdesc, 0, sizeof(ARM_CFSTORE_KEYDESC));
+    ctx->kdesc.drl = ARM_RETENTION_NVM;
+    ctx->len = strlen(cfstore_ex3_kv_value);
+    ret = cfstore_drv->Create(cfstore_ex3_kv_name, ctx->len, &ctx->kdesc, ctx->hkey);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Create() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("WRITING%s", "\r\n");
-	ctx->len = strlen(cfstore_ex3_kv_value);
-	ret = cfstore_drv->Write(ctx->hkey, cfstore_ex3_kv_value, &ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Write() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("WRITING%s", "\r\n");
+    ctx->len = strlen(cfstore_ex3_kv_value);
+    ret = cfstore_drv->Write(ctx->hkey, cfstore_ex3_kv_value, &ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Write() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: Write() number of octets written (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(cfstore_ex3_kv_value));
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Write() number of octets written (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: Write() number of octets written (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(cfstore_ex3_kv_value));
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Write() number of octets written (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
 
-	CFSTORE_EX1_LOG("CLOSING1%s", "\r\n");
-	ret = cfstore_drv->Close(ctx->hkey);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("CLOSING1%s", "\r\n");
+    ret = cfstore_drv->Close(ctx->hkey);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("FLUSHING1%s", "\r\n");
-	ret = cfstore_drv->Flush();
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("FLUSHING1%s", "\r\n");
+    ret = cfstore_drv->Flush();
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("OPENING%s", "\r\n");
-	memset(&ctx->flags, 0, sizeof(ctx->flags));
-	memset(&ctx->hkey, 0, CFSTORE_HANDLE_BUFSIZE);
-	ret = cfstore_drv->Open(cfstore_ex3_kv_name, ctx->flags, ctx->hkey);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Open() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("OPENING%s", "\r\n");
+    memset(&ctx->flags, 0, sizeof(ctx->flags));
+    memset(&ctx->hkey, 0, CFSTORE_HANDLE_BUFSIZE);
+    ret = cfstore_drv->Open(cfstore_ex3_kv_name, ctx->flags, ctx->hkey);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Open() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("READING1%s", "\r\n");
-	ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-	memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
-	ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("READING1%s", "\r\n");
+    ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
+    memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
+    ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(cfstore_ex3_kv_value));
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex3_kv_value, strlen(cfstore_ex3_kv_value)) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex3_kv_value);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(cfstore_ex3_kv_value));
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex3_kv_value, strlen(cfstore_ex3_kv_value)) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex3_kv_value);
 
-	CFSTORE_EX1_LOG("RSEEKING%s", "\r\n");
-	ret = cfstore_drv->Rseek(ctx->hkey, CFSTORE_EX1_RSEEK_OFFSET);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Rseek() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("RSEEKING%s", "\r\n");
+    ret = cfstore_drv->Rseek(ctx->hkey, CFSTORE_EX1_RSEEK_OFFSET);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Rseek() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("READING2%s", "\r\n");
-	ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-	memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
-	ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]), "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]));
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, &cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET], strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET])) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, &cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]);
+    CFSTORE_EX1_LOG("READING2%s", "\r\n");
+    ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
+    memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
+    ret = cfstore_drv->Read(ctx->hkey, ctx->value, &ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Read() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]), "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != strlen(ctx->value)(%ld)\r\n", __func__, ret, (int32_t) strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]));
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == (int32_t) ctx->len, "%s:Error: Read() number of octets read (i.e. completion status (%ld)) != updated value of len parameter (%ld)\r\n", __func__, ret, (int32_t) ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, &cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET], strlen(&cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET])) == 0, "%s:Error: the read value (%s) is not as expected (%s)\r\n", __func__, ctx->value, &cfstore_ex3_kv_value[CFSTORE_EX1_RSEEK_OFFSET]);
 
-	CFSTORE_EX1_LOG("CLOSING2%s", "\r\n");
-	ret = cfstore_drv->Close(ctx->hkey);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("CLOSING2%s", "\r\n");
+    ret = cfstore_drv->Close(ctx->hkey);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("FINDING1%s", "\r\n");
-	ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Find() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("FINDING1%s", "\r\n");
+    ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Find() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("GETTING_KEY_NAME%s", "\r\n");
-	ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-	memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
-	ret = cfstore_drv->GetKeyName(ctx->hkey_prev, ctx->value, (uint8_t*) &ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetKeyName() failed (ret=%ld)\r\n", __func__, ret);
-	CFSTORE_EX1_TEST_ASSERT_MSG( ((int32_t) ctx->len == ((int32_t) strlen(cfstore_ex3_kv_name)+1)), "%s:Error: GetKeyName() updated value of len parameter (%ld) != strlen(cfstore_ex3_kv_name) (%ld) (\r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex3_kv_name));
-	CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex3_kv_name, strlen(cfstore_ex3_kv_name)) == 0, "%s:Error: the key name (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex3_kv_name);
+    CFSTORE_EX1_LOG("GETTING_KEY_NAME%s", "\r\n");
+    ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
+    memset(ctx->value, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
+    ret = cfstore_drv->GetKeyName(ctx->hkey_prev, ctx->value, (uint8_t *) &ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetKeyName() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_TEST_ASSERT_MSG(((int32_t) ctx->len == ((int32_t) strlen(cfstore_ex3_kv_name) + 1)), "%s:Error: GetKeyName() updated value of len parameter (%ld) != strlen(cfstore_ex3_kv_name) (%ld) (\r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex3_kv_name));
+    CFSTORE_EX1_TEST_ASSERT_MSG(strncmp(ctx->value, cfstore_ex3_kv_name, strlen(cfstore_ex3_kv_name)) == 0, "%s:Error: the key name (%s) is not as expected (%s)\r\n", __func__, ctx->value, cfstore_ex3_kv_name);
 
-	CFSTORE_EX1_LOG("GETTING_VALUE_LEN%s", "\r\n");
-	ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
-	ret = cfstore_drv->GetValueLen(ctx->hkey_prev, &ctx->len);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetValueLen() failed (ret=%ld)\r\n", __func__, ret);
-	CFSTORE_EX1_TEST_ASSERT_MSG((int32_t) ctx->len == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: GetValueLen() updated value of len parameter (%ld) != strlen(cfstore_ex3_kv_value)(%ld) \r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex3_kv_value));
+    CFSTORE_EX1_LOG("GETTING_VALUE_LEN%s", "\r\n");
+    ctx->len = CFSTORE_KEY_NAME_MAX_LENGTH;
+    ret = cfstore_drv->GetValueLen(ctx->hkey_prev, &ctx->len);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: GetValueLen() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_TEST_ASSERT_MSG((int32_t) ctx->len == (int32_t) strlen(cfstore_ex3_kv_value), "%s:Error: GetValueLen() updated value of len parameter (%ld) != strlen(cfstore_ex3_kv_value)(%ld) \r\n", __func__, (int32_t) ctx->len, (int32_t) strlen(cfstore_ex3_kv_value));
 
-	CFSTORE_EX1_LOG("DELETING%s", "\r\n");
-	ret = cfstore_drv->Delete(ctx->hkey_prev);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
-	CFSTORE_HANDLE_SWAP(ctx->hkey_prev, ctx->hkey_next);
+    CFSTORE_EX1_LOG("DELETING%s", "\r\n");
+    ret = cfstore_drv->Delete(ctx->hkey_prev);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Close() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_HANDLE_SWAP(ctx->hkey_prev, ctx->hkey_next);
 
-	CFSTORE_EX1_LOG("FINDING2%s", "\r\n");
-	ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, "%s:Error: Find() failed to return expected value of ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("FINDING2%s", "\r\n");
+    ret = cfstore_drv->Find("*", ctx->hkey_next, ctx->hkey_prev);
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, "%s:Error: Find() failed to return expected value of ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("FLUSHING2%s", "\r\n");
-	ret = cfstore_drv->Flush();
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error:2: Flush() failed (ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("FLUSHING2%s", "\r\n");
+    ret = cfstore_drv->Flush();
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error:2: Flush() failed (ret=%ld)\r\n", __func__, ret);
 
-	CFSTORE_EX1_LOG("UNINITIALIZING%s", "\r\n");
-	ret = cfstore_drv->Uninitialize();
-	CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Uninitialize() should return ret >= 0 for synch mode(ret=%ld)\r\n", __func__, ret);
-	CFSTORE_EX1_LOG("***************%s", "\r\n");
-	CFSTORE_EX1_LOG("*** SUCCESS ***%s", "\r\n");
-	CFSTORE_EX1_LOG("***************%s", "\r\n");
-	return;
+    CFSTORE_EX1_LOG("UNINITIALIZING%s", "\r\n");
+    ret = cfstore_drv->Uninitialize();
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Uninitialize() should return ret >= 0 for synch mode(ret=%ld)\r\n", __func__, ret);
+    CFSTORE_EX1_LOG("***************%s", "\r\n");
+    CFSTORE_EX1_LOG("*** SUCCESS ***%s", "\r\n");
+    CFSTORE_EX1_LOG("***************%s", "\r\n");
+    return;
 }
 
 static control_t cfstore_example3_app_start(const size_t call_count)
 {
-    cfstore_example3_ctx_t* ctx = &cfstore_example3_ctx_g;
+    cfstore_example3_ctx_t *ctx = &cfstore_example3_ctx_g;
 
     (void) call_count;
 
@@ -268,9 +266,9 @@ static control_t cfstore_example3_app_start(const size_t call_count)
     ctx->hkey_prev = ctx->hkey_prev_buf;
     ctx->caps = cfstore_drv->GetCapabilities();
     CFSTORE_EX1_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, ctx->caps.asynchronous_ops);
-    if(ctx->caps.asynchronous_ops == 1){
-    	/* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
-    	 * This means the test will conveniently pass when run in CI as part of async mode testing */
+    if (ctx->caps.asynchronous_ops == 1) {
+        /* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
+         * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_EX1_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
         return CaseNext;
     }
@@ -300,10 +298,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("EXAMPLE3_test_00", cfstore_example3_test_00),
-        Case("EXAMPLE3_test_01_start", cfstore_example3_app_start),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("EXAMPLE3_test_00", cfstore_example3_test_00),
+    Case("EXAMPLE3_test_01_start", cfstore_example3_app_start),
 };
 
 
@@ -320,7 +318,7 @@ int main()
 #else   // CFSTORE_EXAMPLE3_APP
 
 // stand alone Configuration-Store-Example
-void app_start(int argc __unused, char** argv __unused)
+void app_start(int argc __unused, char **argv __unused)
 {
     cfstore_example3_app_start(0);
 }
