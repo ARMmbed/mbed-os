@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+<<<<<<< HEAD
 #include "mbed_assert.h"
 #include "mbed_power_mgmt.h"
+=======
+#include "mbed_sleep.h"
+>>>>>>> Rename SLEEP_STATS_ENABLED to SLEEP_TRACING_ENABLED
 #include "mbed_critical.h"
 #include "sleep_api.h"
 #include "mbed_error.h"
@@ -27,7 +31,7 @@
 // deep sleep locking counter. A target is allowed to deep sleep if counter == 0
 static uint16_t deep_sleep_lock = 0U;
 
-#ifdef MBED_SLEEP_STATS_ENABLED
+#ifdef MBED_SLEEP_TRACING_ENABLED
 
 // Length of the identifier extracted from the driver name to store for logging.
 #define IDENTIFIER_WIDTH 7
@@ -85,7 +89,7 @@ static size_t sleep_tracker_find_index(const char *const filename)
     }
 
     // Panic if there are no free indexes left to track with
-    MBED_ASSERT(true);
+    error("No free indexes left to use in mbed stats tracker");
 
     return -1;
 }
@@ -127,7 +131,7 @@ void sleep_tracker_unlock(const char* const filename, int line)
     sleep_tracker_print_stats();
 }
 
-#endif // MBED_SLEEP_STATS_ENABLED
+#endif // MBED_SLEEP_TRACING_ENABLED
 
 void sleep_manager_lock_deep_sleep_internal(void)
 {
