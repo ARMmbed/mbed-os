@@ -205,16 +205,15 @@ static const uint8_t max_payloads_with_repeater_CN470[] = {51, 51, 51, 115, 222,
 
 
 LoRaPHYCN470::LoRaPHYCN470(LoRaWANTimeHandler &lora_time)
-        : LoRaPHY(lora_time)
+    : LoRaPHY(lora_time)
 {
     bands[0] = CN470_BAND0;
 
     // Channels
     // 125 kHz channels
-    for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )
-    {
+    for (uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++) {
         channels[i].frequency = 470300000 + i * 200000;
-        channels[i].dr_range.value = ( DR_5 << 4 ) | DR_0;
+        channels[i].dr_range.value = (DR_5 << 4) | DR_0;
         channels[i].band = 0;
     }
 
@@ -303,7 +302,7 @@ LoRaPHYCN470::~LoRaPHYCN470()
 {
 }
 
-bool LoRaPHYCN470::rx_config(rx_config_params_t* config, int8_t* datarate)
+bool LoRaPHYCN470::rx_config(rx_config_params_t *config, int8_t *datarate)
 {
     int8_t dr = config->datarate;
     uint8_t max_payload = 0;
@@ -319,8 +318,7 @@ bool LoRaPHYCN470::rx_config(rx_config_params_t* config, int8_t* datarate)
 
     _radio->unlock();
 
-    if( config->rx_slot == RX_SLOT_WIN_1 )
-    {
+    if (config->rx_slot == RX_SLOT_WIN_1) {
         // Apply window 1 frequency
         frequency = CN470_FIRST_RX1_CHANNEL + (config->channel % 48) * CN470_STEPWIDTH_RX1_CHANNEL;
     }
@@ -353,8 +351,8 @@ bool LoRaPHYCN470::rx_config(rx_config_params_t* config, int8_t* datarate)
     return true;
 }
 
-bool LoRaPHYCN470::tx_config(tx_config_params_t* config, int8_t* tx_power,
-                             lorawan_time_t* tx_toa)
+bool LoRaPHYCN470::tx_config(tx_config_params_t *config, int8_t *tx_power,
+                             lorawan_time_t *tx_toa)
 {
     int8_t phy_dr = datarates_CN470[config->datarate];
 
@@ -373,8 +371,8 @@ bool LoRaPHYCN470::tx_config(tx_config_params_t* config, int8_t* tx_power,
 
     _radio->set_channel(channels[config->channel].frequency);
 
-   _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, 0, phy_dr, 1, 8, false, true,
-                         0, 0, false, 3000);
+    _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, 0, phy_dr, 1, 8, false, true,
+                          0, 0, false, 3000);
     // Setup maximum payload lenght of the radio driver
     _radio->set_max_payload_length(MODEM_LORA, config->pkt_len);
 
@@ -389,10 +387,10 @@ bool LoRaPHYCN470::tx_config(tx_config_params_t* config, int8_t* tx_power,
     return true;
 }
 
-uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
-                                       int8_t* dr_out, int8_t* tx_power_out,
-                                       uint8_t* nb_rep_out,
-                                       uint8_t* nb_bytes_parsed)
+uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t *params,
+                                       int8_t *dr_out, int8_t *tx_power_out,
+                                       uint8_t *nb_rep_out,
+                                       uint8_t *nb_bytes_parsed)
 {
     uint8_t status = 0x07;
     link_adr_params_t adr_settings;
@@ -405,7 +403,7 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
     // Initialize local copy of channels mask
     copy_channel_mask(temp_channel_masks, channel_mask, CN470_CHANNEL_MASK_SIZE);
 
-    while(bytes_processed < params->payload_size) {
+    while (bytes_processed < params->payload_size) {
 
         // Get ADR request parameters
         next_index = parse_link_ADR_req(&(params->payload[bytes_processed]), &adr_settings);
@@ -430,7 +428,7 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
             temp_channel_masks[4] = 0xFFFF;
             temp_channel_masks[5] = 0xFFFF;
 
-        } else if( adr_settings.ch_mask_ctrl == 7 ) {
+        } else if (adr_settings.ch_mask_ctrl == 7) {
 
             status &= 0xFE; // Channel mask KO
 
@@ -438,8 +436,8 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
 
             for (uint8_t i = 0; i < 16; i++) {
 
-                if (((adr_settings.channel_mask & (1 << i)) != 0 ) &&
-                    (channels[adr_settings.ch_mask_ctrl * 16 + i].frequency == 0)) {
+                if (((adr_settings.channel_mask & (1 << i)) != 0) &&
+                        (channels[adr_settings.ch_mask_ctrl * 16 + i].frequency == 0)) {
                     // Trying to enable an undefined channel
                     status &= 0xFE; // Channel mask KO
                 }
@@ -479,7 +477,7 @@ uint8_t LoRaPHYCN470::link_ADR_request(adr_req_params_t* params,
     return status;
 }
 
-uint8_t LoRaPHYCN470::accept_rx_param_setup_req(rx_param_setup_req_t* params)
+uint8_t LoRaPHYCN470::accept_rx_param_setup_req(rx_param_setup_req_t *params)
 {
     uint8_t status = 0x07;
     uint32_t freq = params->frequency;

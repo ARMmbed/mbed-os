@@ -46,18 +46,20 @@ LoRaPHY::~LoRaPHY()
     _radio = NULL;
 }
 
-void LoRaPHY::set_radio_instance(LoRaRadio& radio)
+void LoRaPHY::set_radio_instance(LoRaRadio &radio)
 {
     _radio = &radio;
 }
 
-void LoRaPHY::put_radio_to_sleep() {
+void LoRaPHY::put_radio_to_sleep()
+{
     _radio->lock();
     _radio->sleep();
     _radio->unlock();
 }
 
-void LoRaPHY::put_radio_to_standby() {
+void LoRaPHY::put_radio_to_standby()
+{
     _radio->lock();
     _radio->standby();
     _radio->unlock();
@@ -87,7 +89,7 @@ uint32_t LoRaPHY::get_radio_rng()
     uint32_t rand;
 
     _radio->lock();
-    rand =_radio->random();
+    rand = _radio->random();
     _radio->unlock();
 
     return rand;
@@ -100,7 +102,7 @@ void LoRaPHY::handle_send(uint8_t *buf, uint8_t size)
     _radio->unlock();
 }
 
-uint8_t LoRaPHY::request_new_channel(new_channel_req_params_t* params)
+uint8_t LoRaPHY::request_new_channel(new_channel_req_params_t *params)
 {
     if (!phy_params.custom_channelplans_supported) {
         return 0;
@@ -116,30 +118,25 @@ uint8_t LoRaPHY::request_new_channel(new_channel_req_params_t* params)
     } else {
 
         switch (add_channel(params->new_channel, params->channel_id)) {
-            case LORAWAN_STATUS_OK:
-            {
-                break;
-            }
-            case LORAWAN_STATUS_FREQUENCY_INVALID:
-            {
-                status &= 0xFE;
-                break;
-            }
-            case LORAWAN_STATUS_DATARATE_INVALID:
-            {
-                status &= 0xFD;
-                break;
-            }
-            case LORAWAN_STATUS_FREQ_AND_DR_INVALID:
-            {
-                status &= 0xFC;
-                break;
-            }
-            default:
-            {
-                status &= 0xFC;
-                break;
-            }
+            case LORAWAN_STATUS_OK: {
+                    break;
+                }
+            case LORAWAN_STATUS_FREQUENCY_INVALID: {
+                    status &= 0xFE;
+                    break;
+                }
+            case LORAWAN_STATUS_DATARATE_INVALID: {
+                    status &= 0xFD;
+                    break;
+                }
+            case LORAWAN_STATUS_FREQ_AND_DR_INVALID: {
+                    status &= 0xFC;
+                    break;
+                }
+            default: {
+                    status &= 0xFC;
+                    break;
+                }
         }
     }
 
@@ -151,9 +148,9 @@ int32_t LoRaPHY::get_random(int32_t min, int32_t max)
     return (int32_t) rand() % (max - min + 1) + min;
 }
 
-bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
+bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t *channel_mask,
                                 int8_t dr, int8_t min_dr, int8_t max_dr,
-                                channel_params_t* channels)
+                                channel_params_t *channels)
 {
     if (val_in_range(dr, min_dr, max_dr) == 0) {
         return false;
@@ -163,7 +160,7 @@ bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
         if (mask_bit_test(channel_mask, i)) {
             // Check datarate validity for enabled channels
             if (val_in_range(dr, (channels[i].dr_range.fields.min & 0x0F),
-                                 (channels[i].dr_range.fields.max & 0x0F))) {
+                             (channels[i].dr_range.fields.max & 0x0F))) {
                 // At least 1 channel has been found we can return OK.
                 return true;
             }
@@ -173,7 +170,7 @@ bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
     return false;
 }
 
-uint8_t LoRaPHY::val_in_range( int8_t value, int8_t min, int8_t max )
+uint8_t LoRaPHY::val_in_range(int8_t value, int8_t min, int8_t max)
 {
     if ((value >= min) && (value <= max)) {
         return 1;
@@ -182,7 +179,7 @@ uint8_t LoRaPHY::val_in_range( int8_t value, int8_t min, int8_t max )
     return 0;
 }
 
-bool LoRaPHY::disable_channel(uint16_t* channel_mask, uint8_t id,
+bool LoRaPHY::disable_channel(uint16_t *channel_mask, uint8_t id,
                               uint8_t max_channels_num)
 {
     uint8_t index = id / 16;
@@ -201,7 +198,7 @@ uint8_t LoRaPHY::count_bits(uint16_t mask, uint8_t nbBits)
 {
     uint8_t nbActiveBits = 0;
 
-    for(uint8_t j = 0; j < nbBits; j++) {
+    for (uint8_t j = 0; j < nbBits; j++) {
         if (mask_bit_test(&mask, j)) {
             nbActiveBits++;
         }
@@ -210,7 +207,7 @@ uint8_t LoRaPHY::count_bits(uint16_t mask, uint8_t nbBits)
     return nbActiveBits;
 }
 
-uint8_t LoRaPHY::num_active_channels(uint16_t* channel_mask, uint8_t start_idx,
+uint8_t LoRaPHY::num_active_channels(uint16_t *channel_mask, uint8_t start_idx,
                                      uint8_t stop_idx)
 {
     uint8_t nb_channels = 0;
@@ -226,16 +223,16 @@ uint8_t LoRaPHY::num_active_channels(uint16_t* channel_mask, uint8_t start_idx,
     return nb_channels;
 }
 
-void LoRaPHY::copy_channel_mask(uint16_t* dest_mask, uint16_t* src_mask, uint8_t len)
+void LoRaPHY::copy_channel_mask(uint16_t *dest_mask, uint16_t *src_mask, uint8_t len)
 {
     if ((dest_mask != NULL) && (src_mask != NULL)) {
-        for( uint8_t i = 0; i < len; i++ ) {
+        for (uint8_t i = 0; i < len; i++) {
             dest_mask[i] = src_mask[i];
         }
     }
 }
 
-void LoRaPHY::set_last_tx_done(set_band_txdone_params_t* last_tx_params)
+void LoRaPHY::set_last_tx_done(set_band_txdone_params_t *last_tx_params)
 {
     if (!last_tx_params) {
         return;
@@ -255,37 +252,37 @@ void LoRaPHY::set_last_tx_done(set_band_txdone_params_t* last_tx_params)
 }
 
 lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
-                                            band_t* bands, uint8_t nb_bands)
+        band_t *bands, uint8_t nb_bands)
 {
-    lorawan_time_t next_tx_delay = (lorawan_time_t) (-1);
+    lorawan_time_t next_tx_delay = (lorawan_time_t)(-1);
 
     // Update bands Time OFF
     for (uint8_t i = 0; i < nb_bands; i++) {
 
         if (joined == false) {
             uint32_t txDoneTime =  MAX(_lora_time.get_elapsed_time(bands[i].last_join_tx_time),
-                                        (duty_cycle == true) ?
-                                        _lora_time.get_elapsed_time(bands[i].last_tx_time) : 0);
+                                       (duty_cycle == true) ?
+                                       _lora_time.get_elapsed_time(bands[i].last_tx_time) : 0);
 
             if (bands[i].off_time <= txDoneTime) {
                 bands[i].off_time = 0;
             }
 
             if (bands[i].off_time != 0) {
-                next_tx_delay = MIN( bands[i].off_time - txDoneTime, next_tx_delay );
+                next_tx_delay = MIN(bands[i].off_time - txDoneTime, next_tx_delay);
             }
 
         } else {
             // if network has been joined
             if (duty_cycle == true) {
 
-                if( bands[i].off_time <= _lora_time.get_elapsed_time(bands[i].last_tx_time)) {
+                if (bands[i].off_time <= _lora_time.get_elapsed_time(bands[i].last_tx_time)) {
                     bands[i].off_time = 0;
                 }
 
-                if(bands[i].off_time != 0 ) {
+                if (bands[i].off_time != 0) {
                     next_tx_delay = MIN(bands[i].off_time - _lora_time.get_elapsed_time(bands[i].last_tx_time),
-                                       next_tx_delay);
+                                        next_tx_delay);
                 }
             } else {
                 // if duty cycle is not on
@@ -298,7 +295,7 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
     return next_tx_delay;
 }
 
-uint8_t LoRaPHY::parse_link_ADR_req(uint8_t* payload, link_adr_params_t* params)
+uint8_t LoRaPHY::parse_link_ADR_req(uint8_t *payload, link_adr_params_t *params)
 {
     uint8_t ret_index = 0;
 
@@ -315,7 +312,7 @@ uint8_t LoRaPHY::parse_link_ADR_req(uint8_t* payload, link_adr_params_t* params)
 
         // Parse ChMaskCtrl and nbRep
         params->nb_rep = payload[4];
-        params->ch_mask_ctrl = ( params->nb_rep >> 4 ) & 0x07;
+        params->ch_mask_ctrl = (params->nb_rep >> 4) & 0x07;
         params->nb_rep &= 0x0F;
 
         // LinkAdrReq has 4 bytes length + 1 byte CMD
@@ -325,8 +322,8 @@ uint8_t LoRaPHY::parse_link_ADR_req(uint8_t* payload, link_adr_params_t* params)
     return ret_index;
 }
 
-uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t* verify_params,
-                                     int8_t* dr, int8_t* tx_pow, uint8_t* nb_rep)
+uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
+                                     int8_t *dr, int8_t *tx_pow, uint8_t *nb_rep)
 {
     uint8_t status = verify_params->status;
     int8_t datarate = verify_params->datarate;
@@ -395,11 +392,11 @@ double LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 
 void LoRaPHY::get_rx_window_params(double t_symb, uint8_t min_rx_symb,
                                    uint32_t rx_error, uint32_t wakeup_time,
-                                   uint32_t* window_timeout, int32_t* window_offset)
+                                   uint32_t *window_timeout, int32_t *window_offset)
 {
     // Computed number of symbols
-    *window_timeout = MAX ((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb );
-    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0 ) - wakeup_time);
+    *window_timeout = MAX((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb);
+    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0) - wakeup_time);
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -430,7 +427,7 @@ uint8_t LoRaPHY::get_bandwidth(uint8_t dr)
 {
     uint32_t *bandwidths = (uint32_t *) phy_params.bandwidths.table;
 
-    switch(bandwidths[dr]) {
+    switch (bandwidths[dr]) {
         default:
         case 125000:
             return 0;
@@ -453,7 +450,7 @@ uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
         if (mask_bit_test(channel_mask, i)) {
 
             if (val_in_range(datarate, phy_params.channels.channel_list[i].dr_range.fields.min,
-                             phy_params.channels.channel_list[i].dr_range.fields.max ) == 0) {
+                             phy_params.channels.channel_list[i].dr_range.fields.max) == 0) {
                 // data rate range invalid for this channel
                 continue;
             }
@@ -475,118 +472,118 @@ uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
     return count;
 }
 
-phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
+phy_param_t LoRaPHY::get_phy_params(get_phy_params_t *getPhy)
 {
     phy_param_t phyParam = { 0 };
 
     switch (getPhy->attribute) {
         case PHY_MIN_RX_DR: {
-            if (phy_params.dl_dwell_time_setting == 0) {
-                phyParam.value = phy_params.min_rx_datarate;
-            } else {
-                phyParam.value = phy_params.dwell_limit_datarate;
+                if (phy_params.dl_dwell_time_setting == 0) {
+                    phyParam.value = phy_params.min_rx_datarate;
+                } else {
+                    phyParam.value = phy_params.dwell_limit_datarate;
+                }
+                break;
             }
-            break;
-        }
         case PHY_MIN_TX_DR: {
-            if (phy_params.ul_dwell_time_setting == 0) {
-                phyParam.value = phy_params.min_tx_datarate;
-            } else {
-                phyParam.value = phy_params.dwell_limit_datarate;
+                if (phy_params.ul_dwell_time_setting == 0) {
+                    phyParam.value = phy_params.min_tx_datarate;
+                } else {
+                    phyParam.value = phy_params.dwell_limit_datarate;
+                }
+                break;
             }
-            break;
-        }
         case PHY_DEF_TX_DR: {
-            phyParam.value = phy_params.default_datarate;
-            break;
-        }
-        case PHY_NEXT_LOWER_TX_DR: {
-            if (phy_params.ul_dwell_time_setting == 0) {
-                phyParam.value = get_next_lower_dr(getPhy->datarate,
-                                                   phy_params.min_tx_datarate);
-            } else {
-                phyParam.value = get_next_lower_dr(
-                        getPhy->datarate, phy_params.dwell_limit_datarate);
+                phyParam.value = phy_params.default_datarate;
+                break;
             }
-            break;
-        }
+        case PHY_NEXT_LOWER_TX_DR: {
+                if (phy_params.ul_dwell_time_setting == 0) {
+                    phyParam.value = get_next_lower_dr(getPhy->datarate,
+                                                       phy_params.min_tx_datarate);
+                } else {
+                    phyParam.value = get_next_lower_dr(
+                                         getPhy->datarate, phy_params.dwell_limit_datarate);
+                }
+                break;
+            }
         case PHY_DEF_TX_POWER: {
-            phyParam.value = phy_params.default_tx_power;
-            break;
-        }
+                phyParam.value = phy_params.default_tx_power;
+                break;
+            }
         case PHY_MAX_PAYLOAD: {
-            uint8_t *payload_table = (uint8_t *) phy_params.payloads.table;
-            phyParam.value = payload_table[getPhy->datarate];
-            break;
-        }
+                uint8_t *payload_table = (uint8_t *) phy_params.payloads.table;
+                phyParam.value = payload_table[getPhy->datarate];
+                break;
+            }
         case PHY_MAX_PAYLOAD_REPEATER: {
-            uint8_t *payload_table = (uint8_t *) phy_params.payloads_with_repeater.table;
-            phyParam.value = payload_table[getPhy->datarate];
-            break;
-        }
+                uint8_t *payload_table = (uint8_t *) phy_params.payloads_with_repeater.table;
+                phyParam.value = payload_table[getPhy->datarate];
+                break;
+            }
         case PHY_DUTY_CYCLE: {
-            phyParam.value = phy_params.duty_cycle_enabled;
-            break;
-        }
+                phyParam.value = phy_params.duty_cycle_enabled;
+                break;
+            }
         case PHY_MAX_RX_WINDOW: {
-            phyParam.value = phy_params.max_rx_window;
-            break;
-        }
+                phyParam.value = phy_params.max_rx_window;
+                break;
+            }
         case PHY_RECEIVE_DELAY1: {
-            phyParam.value = phy_params.recv_delay1;
-            break;
-        }
+                phyParam.value = phy_params.recv_delay1;
+                break;
+            }
         case PHY_RECEIVE_DELAY2: {
-            phyParam.value = phy_params.recv_delay2;
-            break;
-        }
+                phyParam.value = phy_params.recv_delay2;
+                break;
+            }
         case PHY_JOIN_ACCEPT_DELAY1: {
-            phyParam.value = phy_params.join_accept_delay1;
-            break;
-        }
+                phyParam.value = phy_params.join_accept_delay1;
+                break;
+            }
         case PHY_JOIN_ACCEPT_DELAY2: {
-            phyParam.value = phy_params.join_accept_delay2;
-            break;
-        }
+                phyParam.value = phy_params.join_accept_delay2;
+                break;
+            }
         case PHY_MAX_FCNT_GAP: {
-            phyParam.value = phy_params.max_fcnt_gap;
-            break;
-        }
+                phyParam.value = phy_params.max_fcnt_gap;
+                break;
+            }
         case PHY_ACK_TIMEOUT: {
-            uint16_t ack_timeout = phy_params.ack_timeout;
-            uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
-            phyParam.value = (ack_timeout
-                    + get_random(-ack_timeout_rnd, ack_timeout_rnd));
-            break;
-        }
+                uint16_t ack_timeout = phy_params.ack_timeout;
+                uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
+                phyParam.value = (ack_timeout
+                                  + get_random(-ack_timeout_rnd, ack_timeout_rnd));
+                break;
+            }
         case PHY_DEF_DR1_OFFSET: {
-            phyParam.value = phy_params.default_rx1_dr_offset;
-            break;
-        }
+                phyParam.value = phy_params.default_rx1_dr_offset;
+                break;
+            }
         case PHY_DEF_RX2_FREQUENCY: {
-            phyParam.value = phy_params.rx_window2_frequency;
-            break;
-        }
+                phyParam.value = phy_params.rx_window2_frequency;
+                break;
+            }
         case PHY_DEF_RX2_DR: {
-            phyParam.value = phy_params.rx_window2_datarate;
-            break;
-        }
+                phyParam.value = phy_params.rx_window2_datarate;
+                break;
+            }
         case PHY_CHANNEL_MASK: {
-            phyParam.channel_mask = phy_params.channels.mask;
-            break;
-        }
+                phyParam.channel_mask = phy_params.channels.mask;
+                break;
+            }
         case PHY_DEFAULT_CHANNEL_MASK: {
-            phyParam.channel_mask = phy_params.channels.default_mask;
-            break;
-        }
+                phyParam.channel_mask = phy_params.channels.default_mask;
+                break;
+            }
         case PHY_MAX_NB_CHANNELS: {
-            phyParam.value = phy_params.max_channel_cnt;
-            break;
-        }
+                phyParam.value = phy_params.max_channel_cnt;
+                break;
+            }
         case PHY_CHANNELS: {
-            phyParam.channel_params = phy_params.channels.channel_list;
-            break;
-        }
+                phyParam.channel_params = phy_params.channels.channel_list;
+                break;
+            }
         case PHY_CUSTOM_CHANNEL_PLAN_SUPPORT:
             // 0 if custom channel plans are not supported (in LoRaWAN terms
             // the regions who do not support custom channels are called as
@@ -594,29 +591,29 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
             phyParam.value = (uint32_t) phy_params.custom_channelplans_supported;
             break;
         case PHY_DEF_UPLINK_DWELL_TIME: {
-            phyParam.value = phy_params.ul_dwell_time_setting;
-            break;
-        }
+                phyParam.value = phy_params.ul_dwell_time_setting;
+                break;
+            }
         case PHY_DEF_DOWNLINK_DWELL_TIME: {
-            phyParam.value = phy_params.dl_dwell_time_setting;
-            break;
-        }
+                phyParam.value = phy_params.dl_dwell_time_setting;
+                break;
+            }
         case PHY_DEF_MAX_EIRP: {
-            phyParam.f_value = phy_params.default_max_eirp;
-            break;
-        }
+                phyParam.f_value = phy_params.default_max_eirp;
+                break;
+            }
         case PHY_DEF_ANTENNA_GAIN: {
-            phyParam.f_value = phy_params.default_antenna_gain;
-            break;
-        }
+                phyParam.f_value = phy_params.default_antenna_gain;
+                break;
+            }
         case PHY_NB_JOIN_TRIALS:
         case PHY_DEF_NB_JOIN_TRIALS: {
-            phyParam.value = MBED_CONF_LORA_NB_TRIALS;
-            break;
-        }
+                phyParam.value = MBED_CONF_LORA_NB_TRIALS;
+                break;
+            }
         default: {
-            break;
-        }
+                break;
+            }
     }
 
     return phyParam;
@@ -625,67 +622,61 @@ phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
 void LoRaPHY::restore_default_channels()
 {
     // Restore channels default mask
-    for (uint8_t i=0; i < phy_params.channels.mask_size; i++) {
+    for (uint8_t i = 0; i < phy_params.channels.mask_size; i++) {
         phy_params.channels.mask[i] |= phy_params.channels.default_mask[i];
     }
 }
 
-bool LoRaPHY::verify(verification_params_t* verify, phy_attributes_t phy_attribute)
+bool LoRaPHY::verify(verification_params_t *verify, phy_attributes_t phy_attribute)
 {
-    switch(phy_attribute) {
-        case PHY_TX_DR:
-        {
-            if (phy_params.ul_dwell_time_setting == 0) {
-                return val_in_range(verify->datarate,
-                                    phy_params.min_tx_datarate,
-                                    phy_params.max_tx_datarate);
-            } else {
-                return val_in_range(verify->datarate,
-                                    phy_params.dwell_limit_datarate,
-                                    phy_params.max_tx_datarate);
-            }
+    switch (phy_attribute) {
+        case PHY_TX_DR: {
+                if (phy_params.ul_dwell_time_setting == 0) {
+                    return val_in_range(verify->datarate,
+                                        phy_params.min_tx_datarate,
+                                        phy_params.max_tx_datarate);
+                } else {
+                    return val_in_range(verify->datarate,
+                                        phy_params.dwell_limit_datarate,
+                                        phy_params.max_tx_datarate);
+                }
 
-        }
-        case PHY_DEF_TX_DR:
-        {
-            return val_in_range(verify->datarate,
-                                phy_params.default_datarate,
-                                phy_params.default_max_datarate);
-        }
-        case PHY_RX_DR:
-        {
-            if (phy_params.dl_dwell_time_setting == 0) {
-                return val_in_range(verify->datarate,
-                                    phy_params.min_rx_datarate,
-                                    phy_params.min_rx_datarate);
-            } else {
-                return val_in_range(verify->datarate,
-                                    phy_params.dwell_limit_datarate,
-                                    phy_params.min_rx_datarate );
             }
-        }
+        case PHY_DEF_TX_DR: {
+                return val_in_range(verify->datarate,
+                                    phy_params.default_datarate,
+                                    phy_params.default_max_datarate);
+            }
+        case PHY_RX_DR: {
+                if (phy_params.dl_dwell_time_setting == 0) {
+                    return val_in_range(verify->datarate,
+                                        phy_params.min_rx_datarate,
+                                        phy_params.min_rx_datarate);
+                } else {
+                    return val_in_range(verify->datarate,
+                                        phy_params.dwell_limit_datarate,
+                                        phy_params.min_rx_datarate);
+                }
+            }
         case PHY_DEF_TX_POWER:
-        case PHY_TX_POWER:
-        {
-            // Remark: switched min and max!
-            return val_in_range(verify->tx_power, phy_params.max_tx_power,
-                                phy_params.min_tx_power);
-        }
-        case PHY_DUTY_CYCLE:
-        {
-            if (verify->duty_cycle == phy_params.duty_cycle_enabled) {
-                return true;
+        case PHY_TX_POWER: {
+                // Remark: switched min and max!
+                return val_in_range(verify->tx_power, phy_params.max_tx_power,
+                                    phy_params.min_tx_power);
             }
+        case PHY_DUTY_CYCLE: {
+                if (verify->duty_cycle == phy_params.duty_cycle_enabled) {
+                    return true;
+                }
 
-            return false;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if (verify->nb_join_trials < MBED_CONF_LORA_NB_TRIALS) {
                 return false;
             }
-            break;
-        }
+        case PHY_NB_JOIN_TRIALS: {
+                if (verify->nb_join_trials < MBED_CONF_LORA_NB_TRIALS) {
+                    return false;
+                }
+                break;
+            }
         default:
             return false;
     }
@@ -693,7 +684,7 @@ bool LoRaPHY::verify(verification_params_t* verify, phy_attributes_t phy_attribu
     return true;
 }
 
-void LoRaPHY::apply_cf_list(cflist_params_t* cf_list)
+void LoRaPHY::apply_cf_list(cflist_params_t *cf_list)
 {
     // if the underlying PHY doesn't support CF-List, ignore the request
     if (!phy_params.cflist_supported) {
@@ -704,7 +695,7 @@ void LoRaPHY::apply_cf_list(cflist_params_t* cf_list)
 
     // Setup default datarate range
     new_channel.dr_range.value = (phy_params.default_max_datarate << 4)
-                                  | phy_params.default_datarate;
+                                 | phy_params.default_datarate;
 
     // Size of the optional CF list
     if (cf_list->size != 16) {
@@ -719,7 +710,7 @@ void LoRaPHY::apply_cf_list(cflist_params_t* cf_list)
     // should override this function in the implementation of that particular
     // PHY.
     for (uint8_t i = 0, channel_id = phy_params.default_channel_cnt;
-         channel_id < phy_params.max_channel_cnt; i+=phy_params.default_channel_cnt, channel_id++) {
+            channel_id < phy_params.max_channel_cnt; i += phy_params.default_channel_cnt, channel_id++) {
         if (channel_id < (phy_params.cflist_channel_cnt + phy_params.default_channel_cnt)) {
             // Channel frequency
             new_channel.frequency = (uint32_t) cf_list->payload[i];
@@ -745,8 +736,8 @@ void LoRaPHY::apply_cf_list(cflist_params_t* cf_list)
 }
 
 
-bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
-                           int8_t& tx_power_out, uint32_t& adr_ack_cnt)
+bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t &dr_out,
+                           int8_t &tx_power_out, uint32_t &adr_ack_cnt)
 {
     bool set_adr_ack_bit = false;
 
@@ -796,7 +787,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
     double t_symbol = 0.0;
 
     // Get the datarate, perform a boundary check
-    rx_conf_params->datarate = MIN( datarate, phy_params.max_rx_datarate);
+    rx_conf_params->datarate = MIN(datarate, phy_params.max_rx_datarate);
 
     rx_conf_params->bandwidth = get_bandwidth(rx_conf_params->datarate);
 
@@ -806,14 +797,14 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
     } else {
         // LoRa
         t_symbol = compute_symb_timeout_lora(((uint8_t *)phy_params.datarates.table)[rx_conf_params->datarate],
-                                            ((uint32_t *)phy_params.bandwidths.table)[rx_conf_params->datarate]);
+                                             ((uint32_t *)phy_params.bandwidths.table)[rx_conf_params->datarate]);
     }
 
     get_rx_window_params(t_symbol, min_rx_symbols, rx_error, RADIO_WAKEUP_TIME,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset);
 }
 
-bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
+bool LoRaPHY::rx_config(rx_config_params_t *rx_conf, int8_t *datarate)
 {
     radio_modems_t modem;
     uint8_t dr = rx_conf->datarate;
@@ -878,8 +869,8 @@ bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
     return true;
 }
 
-bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
-                        lorawan_time_t* tx_toa)
+bool LoRaPHY::tx_config(tx_config_params_t *tx_conf, int8_t *tx_power,
+                        lorawan_time_t *tx_toa)
 {
     radio_modems_t modem;
     int8_t phy_dr = ((uint8_t *)phy_params.datarates.table)[tx_conf->datarate];
@@ -904,7 +895,7 @@ bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
     // Setup the radio frequency
     _radio->set_channel(list[tx_conf->channel].frequency);
 
-    if( tx_conf->datarate == phy_params.max_tx_datarate ) {
+    if (tx_conf->datarate == phy_params.max_tx_datarate) {
         // High Speed FSK channel
         modem = MODEM_FSK;
         _radio->set_tx_config(modem, phy_tx_power, 25000, bandwidth,
@@ -913,11 +904,11 @@ bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
     } else {
         modem = MODEM_LORA;
         _radio->set_tx_config(modem, phy_tx_power, 0, bandwidth, phy_dr, 1, 8,
-                              false, true, 0, 0, false, 3000 );
+                              false, true, 0, 0, false, 3000);
     }
 
     // Setup maximum payload lenght of the radio driver
-    _radio->set_max_payload_length( modem, tx_conf->pkt_len);
+    _radio->set_max_payload_length(modem, tx_conf->pkt_len);
     // Get the time-on-air of the next tx frame
     *tx_toa = _radio->time_on_air(modem, tx_conf->pkt_len);
 
@@ -928,9 +919,9 @@ bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
     return true;
 }
 
-uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
-                                  int8_t* dr_out, int8_t* tx_power_out,
-                                  uint8_t* nb_rep_out, uint8_t* nb_bytes_processed)
+uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
+                                  int8_t *dr_out, int8_t *tx_power_out,
+                                  uint8_t *nb_rep_out, uint8_t *nb_bytes_processed)
 {
     uint8_t status = 0x07;
     link_adr_params_t adr_settings;
@@ -948,7 +939,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
     while (bytes_processed < link_adr_req->payload_size) {
         // Get ADR request parameters
         next_index = parse_link_ADR_req(&(link_adr_req->payload[bytes_processed]),
-                                       &adr_settings);
+                                        &adr_settings);
 
         if (next_index == 0) {
             break; // break loop, since no more request has been found
@@ -970,7 +961,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
 
         // channel mask applies to first 16 channels
         if (adr_settings.ch_mask_ctrl == 0 ||
-            adr_settings.ch_mask_ctrl == 6) {
+                adr_settings.ch_mask_ctrl == 6) {
 
             for (uint8_t i = 0; i < phy_params.max_channel_cnt; i++) {
 
@@ -986,7 +977,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
                 // if channel mask control is 0, we test the bits and
                 // frequencies and change the status if we find a discrepancy
                 if ((mask_bit_test(temp_channel_mask, i)) &&
-                    (phy_params.channels.channel_list[i].frequency == 0)) {
+                        (phy_params.channels.channel_list[i].frequency == 0)) {
                     // Trying to enable an undefined channel
                     status &= 0xFE; // Channel mask KO
                 }
@@ -1035,7 +1026,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
     return status;
 }
 
-uint8_t LoRaPHY::accept_rx_param_setup_req(rx_param_setup_req_t* params)
+uint8_t LoRaPHY::accept_rx_param_setup_req(rx_param_setup_req_t *params)
 {
     uint8_t status = 0x07;
 
@@ -1076,9 +1067,9 @@ bool LoRaPHY::verify_frequency(uint32_t freq)
     // check all sub bands (if there are sub-bands) to check if the given
     // frequency falls into any of the frequency ranges
 
-    for (uint8_t i=0; i<phy_params.bands.size; i++) {
+    for (uint8_t i = 0; i < phy_params.bands.size; i++) {
         if (freq <= bands_table[i].higher_band_freq
-                 && freq >= bands_table[i].lower_band_freq) {
+                && freq >= bands_table[i].lower_band_freq) {
             return true;
         }
     }
@@ -1086,7 +1077,7 @@ bool LoRaPHY::verify_frequency(uint32_t freq)
     return false;
 }
 
-uint8_t LoRaPHY::dl_channel_request(dl_channel_req_params_t* params)
+uint8_t LoRaPHY::dl_channel_request(dl_channel_req_params_t *params)
 {
     if (!phy_params.dl_channel_req_supported) {
         return 0;
@@ -1160,7 +1151,7 @@ int8_t LoRaPHY::get_alternate_DR(uint8_t nb_trials)
     return datarate;
 }
 
-void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
+void LoRaPHY::calculate_backoff(backoff_params_t *calc_backoff)
 {
     band_t *band_table = (band_t *) phy_params.bands.table;
     channel_params_t *channel_list = phy_params.channels.channel_list;
@@ -1189,7 +1180,7 @@ void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
     // No back-off if the last frame was not a join request and when the
     // duty cycle is not enabled
     if (calc_backoff->dc_enabled == false &&
-        calc_backoff->last_tx_was_join_req == false) {
+            calc_backoff->last_tx_was_join_req == false) {
         band_table[band_idx].off_time = 0;
     } else {
         // Apply band time-off.
@@ -1197,9 +1188,9 @@ void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
     }
 }
 
-bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
-                               uint8_t* channel, lorawan_time_t* time,
-                               lorawan_time_t* aggregate_timeoff)
+bool LoRaPHY::set_next_channel(channel_selection_params_t *params,
+                               uint8_t *channel, lorawan_time_t *time,
+                               lorawan_time_t *aggregate_timeoff)
 {
     uint8_t channel_count = 0;
     uint8_t delay_tx = 0;
@@ -1211,7 +1202,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     // memory we chose to use a magic number of 16
     uint8_t enabled_channels[16];
 
-    memset(enabled_channels, 0xFF, sizeof(uint8_t)*16);
+    memset(enabled_channels, 0xFF, sizeof(uint8_t) * 16);
 
     lorawan_time_t next_tx_delay = 0;
     band_t *band_table = (band_t *) phy_params.bands.table;
@@ -1232,17 +1223,17 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
 
         // Update bands Time OFF
         next_tx_delay = update_band_timeoff(params->joined,
-                                          params->dc_enabled,
-                                          band_table, phy_params.bands.size);
+                                            params->dc_enabled,
+                                            band_table, phy_params.bands.size);
 
         // Search how many channels are enabled
         channel_count = enabled_channel_count(params->joined, params->current_datarate,
-                                                  phy_params.channels.mask,
-                                                  enabled_channels, &delay_tx);
+                                              phy_params.channels.mask,
+                                              enabled_channels, &delay_tx);
     } else {
         delay_tx++;
         next_tx_delay = params->aggregate_timeoff
-                - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
+                        - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (channel_count > 0) {
@@ -1266,7 +1257,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
     return false;
 }
 
-lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)
+lorawan_status_t LoRaPHY::add_channel(channel_params_t *new_channel, uint8_t id)
 {
     bool dr_invalid = false;
     bool freq_invalid = false;
@@ -1359,7 +1350,7 @@ bool LoRaPHY::remove_channel(uint8_t channel_id)
                            phy_params.max_channel_cnt);
 }
 
-void LoRaPHY::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequency)
+void LoRaPHY::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
 {
     band_t *bands_table = (band_t *) phy_params.bands.table;
     channel_params_t *channels = phy_params.channels.channel_list;
@@ -1372,7 +1363,7 @@ void LoRaPHY::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequenc
     uint32_t frequency  = 0;
 
     if (given_frequency == 0) {
-       frequency = channels[params->channel].frequency;
+        frequency = channels[params->channel].frequency;
     } else {
         frequency = given_frequency;
     }
@@ -1380,7 +1371,7 @@ void LoRaPHY::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequenc
     // Calculate physical TX power
     if (params->max_eirp > 0 && params->antenna_gain > 0) {
         phy_tx_power = compute_tx_power(params->tx_power, params->max_eirp,
-                                    params->antenna_gain );
+                                        params->antenna_gain);
     } else {
         phy_tx_power = params->tx_power;
     }

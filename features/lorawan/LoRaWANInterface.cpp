@@ -23,12 +23,12 @@
 
 using namespace events;
 
-inline LoRaWANStack& stk_obj()
+inline LoRaWANStack &stk_obj()
 {
     return LoRaWANStack::get_lorawan_stack();
 }
 
-LoRaWANInterface::LoRaWANInterface(LoRaRadio& radio) : _link_check_requested(false)
+LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio) : _link_check_requested(false)
 {
     // Pass mac_handlers to radio to the radio driver after
     // binding radio driver to PHY layer
@@ -44,7 +44,7 @@ LoRaWANInterface::~LoRaWANInterface()
 
 lorawan_status_t LoRaWANInterface::initialize(EventQueue *queue)
 {
-    if(!queue) {
+    if (!queue) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
@@ -167,7 +167,7 @@ lorawan_status_t LoRaWANInterface::remove_channel_plan()
     return stk_obj().drop_channel_list();
 }
 
-int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
+int16_t LoRaWANInterface::send(uint8_t port, const uint8_t *data,
                                uint16_t length, int flags)
 {
     if (_link_check_requested) {
@@ -183,7 +183,7 @@ int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
     }
 }
 
-int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
+int16_t LoRaWANInterface::receive(uint8_t port, uint8_t *data, uint16_t length,
                                   int flags)
 {
     if (data && length > 0) {
@@ -194,13 +194,13 @@ int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
 }
 
 lorawan_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
-  {
+{
 
-     if (!callbacks || !callbacks->events) {
-         // Event Callback is mandatory
-         return LORAWAN_STATUS_PARAMETER_INVALID;
-     }
+    if (!callbacks || !callbacks->events) {
+        // Event Callback is mandatory
+        return LORAWAN_STATUS_PARAMETER_INVALID;
+    }
 
-     stk_obj().set_lora_callbacks(callbacks);
-     return LORAWAN_STATUS_OK;
-  }
+    stk_obj().set_lora_callbacks(callbacks);
+    return LORAWAN_STATUS_OK;
+}

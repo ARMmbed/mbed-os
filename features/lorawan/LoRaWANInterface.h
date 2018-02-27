@@ -33,7 +33,7 @@ public:
      * construct a single instance of LoRaWANInterface.
      *
      */
-    LoRaWANInterface(LoRaRadio& radio);
+    LoRaWANInterface(LoRaRadio &radio);
     virtual ~LoRaWANInterface();
 
     /** Initialize the LoRa stack.
@@ -313,7 +313,7 @@ public:
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
-    virtual int16_t send(uint8_t port, const uint8_t* data, uint16_t length,
+    virtual int16_t send(uint8_t port, const uint8_t *data, uint16_t length,
                          int flags);
 
     /** Receives a message from the Network Server.
@@ -355,7 +355,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length,
+    virtual int16_t receive(uint8_t port, uint8_t *data, uint16_t length,
                             int flags);
 
     /** Add application callbacks to the stack.

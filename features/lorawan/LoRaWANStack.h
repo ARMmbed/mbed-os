@@ -36,39 +36,39 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "LoRaRadio.h"
 
 #ifdef MBED_CONF_LORA_PHY
- #if MBED_CONF_LORA_PHY      == 0
-  #include "lorawan/lorastack/phy/LoRaPHYEU868.h"
-  #define LoRaPHY_region LoRaPHYEU868
- #elif MBED_CONF_LORA_PHY    == 1
-  #include "lorawan/lorastack/phy/LoRaPHYAS923.h"
-  #define LoRaPHY_region LoRaPHYAS923
- #elif MBED_CONF_LORA_PHY    == 2
-  #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
- #define LoRaPHY_region LoRaPHYAU915;
- #elif MBED_CONF_LORA_PHY    == 3
-  #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
-  #define LoRaPHY_region LoRaPHYCN470
- #elif MBED_CONF_LORA_PHY    == 4
-  #include "lorawan/lorastack/phy/LoRaPHYCN779.h"
-  #define LoRaPHY_region LoRaPHYCN779
- #elif MBED_CONF_LORA_PHY    == 5
-  #include "lorawan/lorastack/phy/LoRaPHYEU433.h"
-  #define LoRaPHY_region LoRaPHYEU433
- #elif MBED_CONF_LORA_PHY    == 6
-  #include "lorawan/lorastack/phy/LoRaPHYIN865.h"
-  #define LoRaPHY_region LoRaPHYIN865
- #elif MBED_CONF_LORA_PHY    == 7
-  #include "lorawan/lorastack/phy/LoRaPHYKR920.h"
-  #define LoRaPHY_region LoRaPHYKR920
- #elif MBED_CONF_LORA_PHY    == 8
-  #include "lorawan/lorastack/phy/LoRaPHYUS915.h"
-  #define LoRaPHY_region LoRaPHYUS915
- #elif MBED_CONF_LORA_PHY    == 9
-  #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
-  #define LoRaPHY_region LoRaPHYUS915Hybrid
- #endif //MBED_CONF_LORA_PHY == VALUE
+#if MBED_CONF_LORA_PHY      == 0
+#include "lorawan/lorastack/phy/LoRaPHYEU868.h"
+#define LoRaPHY_region LoRaPHYEU868
+#elif MBED_CONF_LORA_PHY    == 1
+#include "lorawan/lorastack/phy/LoRaPHYAS923.h"
+#define LoRaPHY_region LoRaPHYAS923
+#elif MBED_CONF_LORA_PHY    == 2
+#include "lorawan/lorastack/phy/LoRaPHYAU915.h"
+#define LoRaPHY_region LoRaPHYAU915;
+#elif MBED_CONF_LORA_PHY    == 3
+#include "lorawan/lorastack/phy/LoRaPHYCN470.h"
+#define LoRaPHY_region LoRaPHYCN470
+#elif MBED_CONF_LORA_PHY    == 4
+#include "lorawan/lorastack/phy/LoRaPHYCN779.h"
+#define LoRaPHY_region LoRaPHYCN779
+#elif MBED_CONF_LORA_PHY    == 5
+#include "lorawan/lorastack/phy/LoRaPHYEU433.h"
+#define LoRaPHY_region LoRaPHYEU433
+#elif MBED_CONF_LORA_PHY    == 6
+#include "lorawan/lorastack/phy/LoRaPHYIN865.h"
+#define LoRaPHY_region LoRaPHYIN865
+#elif MBED_CONF_LORA_PHY    == 7
+#include "lorawan/lorastack/phy/LoRaPHYKR920.h"
+#define LoRaPHY_region LoRaPHYKR920
+#elif MBED_CONF_LORA_PHY    == 8
+#include "lorawan/lorastack/phy/LoRaPHYUS915.h"
+#define LoRaPHY_region LoRaPHYUS915
+#elif MBED_CONF_LORA_PHY    == 9
+#include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
+#define LoRaPHY_region LoRaPHYUS915Hybrid
+#endif //MBED_CONF_LORA_PHY == VALUE
 #else
- #error "Must set LoRa PHY layer parameters."
+#error "Must set LoRa PHY layer parameters."
 #endif //MBED_CONF_LORA_PHY
 
 /**
@@ -78,7 +78,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
 public:
-    static LoRaWANStack& get_lorawan_stack();
+    static LoRaWANStack &get_lorawan_stack();
 
     /** Binds radio driver to PHY layer.
      *
@@ -93,7 +93,7 @@ public:
      * @return                 A list of callbacks from MAC layer that needs to
      *                         be passed to radio driver
      */
-    radio_events_t *bind_radio_driver(LoRaRadio& radio);
+    radio_events_t *bind_radio_driver(LoRaRadio &radio);
 
     /** End device initialization.
      * @param queue            A pointer to an EventQueue passed from the application.
@@ -258,7 +258,7 @@ public:
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
-    int16_t handle_tx(uint8_t port, const uint8_t* data,
+    int16_t handle_tx(uint8_t port, const uint8_t *data,
                       uint16_t length, uint8_t flags);
 
     /** Receives a message from the Network Server.
@@ -300,7 +300,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    int16_t handle_rx(const uint8_t port, uint8_t* data,
+    int16_t handle_rx(const uint8_t port, uint8_t *data,
                       uint16_t length, uint8_t flags);
 
     /** Send Link Check Request MAC command.

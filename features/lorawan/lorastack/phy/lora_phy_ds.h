@@ -527,8 +527,7 @@
 /*!
  * Enumeration of PHY attributes.
  */
-typedef enum phy_attributes__e
-{
+typedef enum phy_attributes__e {
     /*!
      * The minimum RX datarate.
      */
@@ -674,8 +673,7 @@ typedef enum phy_attributes__e
  * Keeps value in response to a call to
  * get_phy_params() API.
  */
-typedef union phy_param_u
-{
+typedef union phy_param_u {
     /*!
      * A parameter value.
      */
@@ -687,18 +685,17 @@ typedef union phy_param_u
     /*!
      * A pointer to the channels mask.
      */
-    uint16_t* channel_mask;
+    uint16_t *channel_mask;
     /*!
      * A pointer to the channels.
      */
-    channel_params_t* channel_params;
+    channel_params_t *channel_params;
 } phy_param_t;
 
 /**
  * The parameter structure for the function RegionGetPhyParam.
  */
-typedef struct
-{
+typedef struct {
     /**
      * Set up the parameter to get.
      */
@@ -715,8 +712,7 @@ typedef struct
 /**
  * The parameter structure for the function RegionSetBandTxDone.
  */
-typedef struct
-{
+typedef struct {
     /**
      * The channel to update.
      */
@@ -734,8 +730,7 @@ typedef struct
 /**
  * The parameter verification structure.
  */
-typedef union
-{
+typedef union {
     /**
      * The TX power to verify.
      */
@@ -758,12 +753,11 @@ typedef union
 /**
  * The parameter structure for the function RegionApplyCFList.
  */
-typedef struct
-{
+typedef struct {
     /**
      * The payload containing the CF list.
      */
-    uint8_t* payload;
+    uint8_t *payload;
     /**
      * The size of the payload.
      */
@@ -773,8 +767,7 @@ typedef struct
 /**
  * TX configuration parameters.
  */
-typedef struct
-{
+typedef struct {
     /**
      * The TX channel.
      */
@@ -805,12 +798,11 @@ typedef struct
  * This structure contains parameters for ADR request coming from
  * network server.
  */
-typedef struct
-{
+typedef struct {
     /*!
      * A pointer to the payload containing the MAC commands.
      */
-    uint8_t* payload;
+    uint8_t *payload;
     /*!
      * The size of the payload.
      */
@@ -840,8 +832,7 @@ typedef struct
 /**
  * Structure containing data for local ADR settings
  */
-typedef struct link_adr_params_s
-{
+typedef struct link_adr_params_s {
     /**
      * The number of repetitions.
      */
@@ -868,8 +859,7 @@ typedef struct link_adr_params_s
  * Structure used to store ADR values received from network
  * for verification (legality) purposes.
  */
-typedef struct verify_adr_params_s
-{
+typedef struct verify_adr_params_s {
     /*!
      * The current status of the AdrLinkRequest.
      */
@@ -906,15 +896,14 @@ typedef struct verify_adr_params_s
     /*!
      * A pointer to the first element of the channels mask.
      */
-    uint16_t* channel_mask;
+    uint16_t *channel_mask;
 } verify_adr_params_t;
 
 /**
  * Contains rx parameter setup request coming from
  * network server.
  */
-typedef struct rx_param_setup_req_s
-{
+typedef struct rx_param_setup_req_s {
     /**
      * The datarate to set up.
      */
@@ -933,8 +922,7 @@ typedef struct rx_param_setup_req_s
  * Contains tx parameter setup request coming from
  * network server.
  */
-typedef struct tx_param_setup_req_s
-{
+typedef struct tx_param_setup_req_s {
     /**
      * The uplink dwell time.
      */
@@ -953,12 +941,11 @@ typedef struct tx_param_setup_req_s
  * A structure that holds new channel parameters coming
  * from the network server.
  */
-typedef struct new_channel_req_params_s
-{
+typedef struct new_channel_req_params_s {
     /**
      * A pointer to the new channel's parameters.
      */
-    channel_params_t* new_channel;
+    channel_params_t *new_channel;
     /**
      * The channel ID.
      */
@@ -969,8 +956,7 @@ typedef struct new_channel_req_params_s
 /**
  * The parameter structure for the function RegionDlChannelReq.
  */
-typedef struct dl_channel_req_params_s
-{
+typedef struct dl_channel_req_params_s {
     /**
      * The channel ID to add the frequency.
      */
@@ -984,8 +970,7 @@ typedef struct dl_channel_req_params_s
 /*!
  * The parameter structure for the function RegionCalcBackOff.
  */
-typedef struct backoff_params_s
-{
+typedef struct backoff_params_s {
     /**
      * Set to true, if the node has already joined a network, otherwise false.
      */
@@ -1016,8 +1001,7 @@ typedef struct backoff_params_s
 /**
  * The parameter structure for the function RegionNextChannel.
  */
-typedef struct channel_selection_params_s
-{
+typedef struct channel_selection_params_s {
     /**
      * The aggregated time-off time.
      */
@@ -1043,8 +1027,7 @@ typedef struct channel_selection_params_s
 /*!
  * The parameter structure for the function RegionContinuousWave.
  */
-typedef struct continuous_wave_mode_params_s
-{
+typedef struct continuous_wave_mode_params_s {
     /*!
      * The current channel index.
      */

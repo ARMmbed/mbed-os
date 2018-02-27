@@ -76,7 +76,7 @@ public:
      *
      * @return               a reference to MCPS confirm data structure
      */
-    inline loramac_mcps_confirm_t& get_confirmation()
+    inline loramac_mcps_confirm_t &get_confirmation()
     {
         return confirmation;
     }
@@ -85,7 +85,7 @@ public:
      *
      * @return               a reference to MCPS indication data structure
      */
-    inline loramac_mcps_indication_t& get_indication()
+    inline loramac_mcps_indication_t &get_indication()
     {
         return indication;
     }
