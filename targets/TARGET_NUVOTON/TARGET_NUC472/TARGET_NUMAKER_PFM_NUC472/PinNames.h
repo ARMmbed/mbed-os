@@ -107,13 +107,18 @@ typedef enum {
     D13 = PD_0,
     D14 = PD_12,
     D15 = PD_10,
-    
-    // FIXME: other board-specific naming
+
+    I2C_SCL = D15,
+    I2C_SDA = D14,
+     
+    // NOTE: other board-specific naming
     // UART naming
     USBTX = PD_5,
     USBRX = PD_4,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
+    SERIAL_TX = USBTX,
+    SERIAL_RX = USBRX,    
     // LED naming
     LED1 = PD_9,
     LED2 = PA_4,
