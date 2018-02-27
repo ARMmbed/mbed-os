@@ -19,6 +19,7 @@ import re
 import tempfile
 import datetime
 import uuid
+import itertools
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
@@ -41,6 +42,7 @@ from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from tools.config import Config
+from tools.spm import process_manifest_files
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -526,6 +528,13 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
+        # Skip SPM sources for Mbed OS 2 builds
+        # Directories scanned would not include the root of Mbed OS for legacy builds
+        if 'rtos' in toolchain.config.lib_config_data:
+            # Generate SPM additional code from manifests
+            psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
+            resources.add(toolchain.scan_resources(psa_files_dir))
+
         # Change linker script if specified
         if linker_script is not None:
             resources.linker_script = linker_script
@@ -700,9 +709,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
                                    dependencies_paths=dependencies_paths,
                                    inc_dirs=inc_dirs)
 
-
         # Copy headers, objects and static libraries - all files needed for
-        # static lib
+        # static lib, PSA manifests
         toolchain.copy_files(resources.headers, build_path, resources=resources)
         toolchain.copy_files(resources.objects, build_path, resources=resources)
         toolchain.copy_files(resources.libraries, build_path,
@@ -715,6 +723,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         if resources.hex_files:
             toolchain.copy_files(resources.hex_files, build_path,
+                                 resources=resources)
+
+        if resources.psa_manifests:
+            toolchain.copy_files(resources.psa_manifests, build_path,
                                  resources=resources)
 
         # Compile Sources

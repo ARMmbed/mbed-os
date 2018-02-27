@@ -127,6 +127,7 @@ class Resources:
         self.s_sources = []
         self.c_sources = []
         self.cpp_sources = []
+        self.psa_manifests = []
 
         self.lib_dirs = set([])
         self.objects = []
@@ -176,6 +177,7 @@ class Resources:
         self.s_sources += resources.s_sources
         self.c_sources += resources.c_sources
         self.cpp_sources += resources.cpp_sources
+        self.psa_manifests += resources.psa_manifests
 
         self.lib_dirs |= resources.lib_dirs
         self.objects += resources.objects
@@ -727,8 +729,9 @@ class mbedToolchain:
         if self.is_ignored(relpath(file_path, base_path)):
             return
 
-        _, ext = splitext(file_path)
+        fname, ext = splitext(file_path)
         ext = ext.lower()
+        fname = fname.lower()
 
         if   ext == '.s':
             resources.s_sources.append(file_path)
@@ -773,7 +776,10 @@ class mbedToolchain:
             resources.bin_files.append(file_path)
 
         elif ext == '.json':
-            resources.json_files.append(file_path)
+            if fname.endswith('_psa'):
+                resources.psa_manifests.append(file_path)
+            else:
+                resources.json_files.append(file_path)
 
 
     def scan_repository(self, path):

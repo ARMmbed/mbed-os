@@ -1,0 +1,20 @@
+{
+  "name": "PART1",
+  "type": "SECURE",
+  "priority": "NORMAL",
+  "id": "0x00000001",
+  "entry_point": "part1_main",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "secure_functions": [{
+      "sfid": "SF1",
+      "signal": "SF1_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    }
+  ],
+  "source_files": [
+    "partition1.c"
+  ]
+}

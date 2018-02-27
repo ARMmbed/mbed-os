@@ -1,0 +1,27 @@
+{
+  "name": "PART1",
+  "type": "SECURE",
+  "priority": "NORMAL",
+  "id": "0x00000001",
+  "entry_point": "server_main1",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "secure_functions": [{
+      "sfid": "PART1_SF1",
+      "signal": "PART1_SF1_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART1_SF2",
+      "signal": "PART1_SF2_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "strict"
+    }
+  ],
+  "source_files": [
+    "server1.c"
+  ]
+}
