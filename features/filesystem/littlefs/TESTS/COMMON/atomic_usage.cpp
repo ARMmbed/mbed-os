@@ -157,9 +157,9 @@ static int file_scanf(File *file, const char *format, ...)
     int res = file->read(buf, sizeof(buf) - 1);
     TEST_ASSERT_OR_EXIT(res >= 0);
 
-    va_start (args, format);
-    int count = vsscanf((char*)buf, format, args);
-    va_end (args);
+    va_start(args, format);
+    int count = vsscanf((char *)buf, format, args);
+    va_end(args);
     TEST_ASSERT_OR_EXIT(count >= 0);
 
     return count;
@@ -176,9 +176,9 @@ static int file_printf(File *file, const char *format, ...)
 {
     uint8_t buf[BUFFER_SIZE];
     va_list args;
-    va_start (args, format);
-    int size = vsprintf((char*)buf, format, args);
-    va_end (args);
+    va_start(args, format);
+    int size = vsprintf((char *)buf, format, args);
+    va_end(args);
     TEST_ASSERT_OR_EXIT((size >= 0) && (size <= (int)sizeof(buf)));
 
     if (file_write(file, buf, size)) {
@@ -254,7 +254,7 @@ static void check_file_rename(FileSystem *fs)
 
     int files = 0;
     int valids = 0;
-    const char * const filenames[] = {FILE_RENAME_A, FILE_RENAME_B};
+    const char *const filenames[] = {FILE_RENAME_A, FILE_RENAME_B};
 
     for (int i = 0; i < 2; i++) {
         File file;
@@ -300,7 +300,7 @@ static void setup_file_rename_replace(FileSystem *fs)
     uint32_t count = 0;
     uint8_t buf[BUFFER_SIZE];
     memset(buf, 0, sizeof(buf));
-    const int length = sprintf((char*)buf, FILE_RENAME_REPLACE_FMT, count);
+    const int length = sprintf((char *)buf, FILE_RENAME_REPLACE_FMT, count);
     TEST_ASSERT_OR_EXIT(length > 0);
 
     res = file.write(buf, length);
@@ -602,7 +602,7 @@ static bool format_required(BlockDevice *bd)
 
     // Get the test version
     uint32_t version = 0;
-    res = sscanf((char*)buf, FILE_SETUP_COMPLETE_FMT, &version);
+    res = sscanf((char *)buf, FILE_SETUP_COMPLETE_FMT, &version);
     if (res != 1) {
         return true;
     }

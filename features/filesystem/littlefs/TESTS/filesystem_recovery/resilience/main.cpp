@@ -68,7 +68,7 @@ void test_resilience()
     bd_size_t block_size = bd.get_erase_size();
     bd.deinit();
 
-    SlicingBlockDevice slice(&bd, 0, MBED_TEST_BLOCK_COUNT*block_size);
+    SlicingBlockDevice slice(&bd, 0, MBED_TEST_BLOCK_COUNT * block_size);
 
     // Setup the test
     setup_atomic_operations(&slice, true);

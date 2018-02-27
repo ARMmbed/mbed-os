@@ -111,18 +111,18 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[3] = fopen("/fs/" "d", "wb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
-            res = fwrite((const void*)"a", 1, 1, fd[0]);
+            res = fwrite((const void *)"a", 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"b", 1, 1, fd[1]);
+            res = fwrite((const void *)"b", 1, 1, fd[1]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"c", 1, 1, fd[2]);
+            res = fwrite((const void *)"c", 1, 1, fd[2]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"d", 1, 1, fd[3]);
+            res = fwrite((const void *)"d", 1, 1, fd[3]);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         fclose(fd[0]);
         fclose(fd[1]);
         fclose(fd[2]);
@@ -147,28 +147,28 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ed->d_name, "b");
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ed->d_name, "c");
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ed->d_name, "d");
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(0, res);
         res = closedir(dd[0]);
@@ -181,7 +181,7 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[3] = fopen("/fs/" "d", "rb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = fread(buffer, 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
@@ -200,7 +200,7 @@ void test_parallel_file_test()
             res = buffer[0];
             TEST_ASSERT_EQUAL('d', res);
         }
-    
+
         fclose(fd[0]);
         fclose(fd[1]);
         fclose(fd[2]);
@@ -223,9 +223,9 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[0] = fopen("/fs/" "e", "wb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = fwrite((const void*)"e", 1, 1, fd[0]);
+            res = fwrite((const void *)"e", 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
         }
         res = remove("/fs/" "a");
@@ -236,12 +236,12 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = remove("/fs/" "d");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = fwrite((const void*)"e", 1, 1, fd[0]);
+            res = fwrite((const void *)"e", 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         fclose(fd[0]);
         res = !((dd[0] = opendir("/fs/" "/")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
@@ -263,21 +263,21 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(0, res);
         res = closedir(dd[0]);
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[0] = fopen("/fs/" "e", "rb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = fread(buffer, 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
             res = buffer[0];
             TEST_ASSERT_EQUAL('e', res);
         }
-    
+
         fclose(fd[0]);
         res = fs.unmount();
         TEST_ASSERT_EQUAL(0, res);
@@ -301,27 +301,27 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[2] = fopen("/fs/" "g", "wb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = fwrite((const void*)"e", 1, 1, fd[0]);
+            res = fwrite((const void *)"e", 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"f", 1, 1, fd[1]);
+            res = fwrite((const void *)"f", 1, 1, fd[1]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"g", 1, 1, fd[2]);
+            res = fwrite((const void *)"g", 1, 1, fd[2]);
             TEST_ASSERT_EQUAL(1, res);
         }
         res = remove("/fs/" "f");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = fwrite((const void*)"e", 1, 1, fd[0]);
+            res = fwrite((const void *)"e", 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"f", 1, 1, fd[1]);
+            res = fwrite((const void *)"f", 1, 1, fd[1]);
             TEST_ASSERT_EQUAL(1, res);
-            res = fwrite((const void*)"g", 1, 1, fd[2]);
+            res = fwrite((const void *)"g", 1, 1, fd[2]);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         fclose(fd[0]);
         fclose(fd[1]);
         fclose(fd[2]);
@@ -345,14 +345,14 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ed->d_name, "g");
         TEST_ASSERT_EQUAL(0, res);
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = ((ed = readdir(dd[0])) != NULL);
         TEST_ASSERT_EQUAL(0, res);
         res = closedir(dd[0]);
@@ -361,7 +361,7 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = !((fd[1] = fopen("/fs/" "g", "rb")) != NULL);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = fread(buffer, 1, 1, fd[0]);
             TEST_ASSERT_EQUAL(1, res);
@@ -372,7 +372,7 @@ void test_remove_inconveniently_test()
             res = buffer[0];
             TEST_ASSERT_EQUAL('g', res);
         }
-    
+
         fclose(fd[0]);
         fclose(fd[1]);
         res = fs.unmount();

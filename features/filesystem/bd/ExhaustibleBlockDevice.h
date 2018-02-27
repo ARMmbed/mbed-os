@@ -31,8 +31,7 @@
  * after a configurable number of cycles.
  *
  */
-class ExhaustibleBlockDevice : public BlockDevice
-{
+class ExhaustibleBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the block device
      *

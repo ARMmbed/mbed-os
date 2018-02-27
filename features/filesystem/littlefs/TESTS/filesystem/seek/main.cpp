@@ -94,11 +94,11 @@ void test_seek_tests()
         res = fs.mkdir("hello", 0777);
         TEST_ASSERT_EQUAL(0, res);
         for (int i = 0; i < 132; i++) {
-            sprintf((char*)buffer, "hello/kitty%d", i);
-            res = file[0].open(&fs, (char*)buffer,
-                    O_WRONLY | O_CREAT | O_APPEND);
+            sprintf((char *)buffer, "hello/kitty%d", i);
+            res = file[0].open(&fs, (char *)buffer,
+                               O_WRONLY | O_CREAT | O_APPEND);
             TEST_ASSERT_EQUAL(0, res);
-    
+
             size = strlen("kittycatcat");
             memcpy(buffer, "kittycatcat", size);
             for (int j = 0; j < 132; j++) {
@@ -133,29 +133,29 @@ void test_simple_dir_seek()
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "..");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         int i;
         for (i = 0; i < 4; i++) {
-            sprintf((char*)buffer, "kitty%d", i);
+            sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
-            res = strcmp(ent.d_name, (char*)buffer);
+            res = strcmp(ent.d_name, (char *)buffer);
             TEST_ASSERT_EQUAL(0, res);
             pos = dir[0].tell();
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].rewind();
-        sprintf((char*)buffer, "kitty%d", 0);
+        sprintf((char *)buffer, "kitty%d", 0);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, ".");
@@ -166,14 +166,14 @@ void test_simple_dir_seek()
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
         TEST_ASSERT_EQUAL(0, res);
@@ -203,29 +203,29 @@ void test_large_dir_seek()
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "..");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         int i;
         for (i = 0; i < 128; i++) {
-            sprintf((char*)buffer, "kitty%d", i);
+            sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
-            res = strcmp(ent.d_name, (char*)buffer);
+            res = strcmp(ent.d_name, (char *)buffer);
             TEST_ASSERT_EQUAL(0, res);
             pos = dir[0].tell();
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].rewind();
-        sprintf((char*)buffer, "kitty%d", 0);
+        sprintf((char *)buffer, "kitty%d", 0);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, ".");
@@ -236,14 +236,14 @@ void test_large_dir_seek()
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
         TEST_ASSERT_EQUAL(0, res);
@@ -265,7 +265,7 @@ void test_simple_file_seek()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 4; i++) {
@@ -283,7 +283,7 @@ void test_simple_file_seek()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -307,7 +307,7 @@ void test_simple_file_seek()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -331,7 +331,7 @@ void test_large_file_seek()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 128; i++) {
@@ -349,7 +349,7 @@ void test_large_file_seek()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -373,7 +373,7 @@ void test_large_file_seek()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -397,7 +397,7 @@ void test_simple_file_seek_and_write()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 4; i++) {
@@ -409,7 +409,7 @@ void test_simple_file_seek_and_write()
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         memcpy(buffer, "doggodogdog", size);
         res = file[0].seek(pos, SEEK_SET);
         TEST_ASSERT_EQUAL(pos, res);
@@ -421,7 +421,7 @@ void test_simple_file_seek_and_write()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "doggodogdog", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -439,7 +439,7 @@ void test_simple_file_seek_and_write()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -463,7 +463,7 @@ void test_large_file_seek_and_write()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 128; i++) {
@@ -477,7 +477,7 @@ void test_large_file_seek_and_write()
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         memcpy(buffer, "doggodogdog", size);
         res = file[0].seek(pos, SEEK_SET);
         TEST_ASSERT_EQUAL(pos, res);
@@ -489,7 +489,7 @@ void test_large_file_seek_and_write()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "doggodogdog", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -507,7 +507,7 @@ void test_large_file_seek_and_write()
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -531,10 +531,10 @@ void test_boundary_seek_and_write()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size = strlen("hedgehoghog");
         const off_t offsets[] = {512, 1020, 513, 1021, 511, 1019};
-    
+
         for (int i = 0; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
             off_t off = offsets[i];
             memcpy(buffer, "hedgehoghog", size);
@@ -577,29 +577,29 @@ void test_out_of_bounds_seek()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size = strlen("kittycatcat");
         res = file[0].size();
-        TEST_ASSERT_EQUAL(132*size, res);
-        res = file[0].seek((132+4)*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL((132+4)*size, res);
+        TEST_ASSERT_EQUAL(132 * size, res);
+        res = file[0].seek((132 + 4) * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL((132 + 4)*size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         memcpy(buffer, "porcupineee", size);
         res = file[0].write(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
-        res = file[0].seek((132+4)*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL((132+4)*size, res);
+        res = file[0].seek((132 + 4) * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL((132 + 4)*size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "porcupineee", size);
         TEST_ASSERT_EQUAL(0, res);
-        res = file[0].seek(132*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL(132*size, res);
+        res = file[0].seek(132 * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL(132 * size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "\0\0\0\0\0\0\0\0\0\0\0", size);

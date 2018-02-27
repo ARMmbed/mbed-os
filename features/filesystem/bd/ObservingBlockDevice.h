@@ -27,8 +27,7 @@
 #include "Callback.h"
 
 
-class ObservingBlockDevice : public BlockDevice
-{
+class ObservingBlockDevice : public BlockDevice {
 public:
 
     /** Lifetime of the block device
