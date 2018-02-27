@@ -29,9 +29,6 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
     *libc.a (+RW)
     *(.sdram.data*)
     *lib_peripheral_mbed_arm.ar (+RW)
-  }
-
-  RW_IRAM2 +0 UNINIT FIXED {
     *rtl8195a_crypto*.o(+ZI, COMMON)
     *libc.a (+ZI, COMMON)
     *(.bss.thread_stack_main)
