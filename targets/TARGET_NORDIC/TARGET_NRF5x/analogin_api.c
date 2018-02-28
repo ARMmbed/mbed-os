@@ -13,123 +13,136 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#warning arm porting pending
-
-#ifndef TARGET_MCU_NRF51822
  
-#include "mbed_assert.h"
-#include "analogin_api.h"
-#include "cmsis.h"
+#ifdef DEVICE_ANALOGIN
+#include "hal/analogin_api.h"
+
 #include "pinmap.h"
-#include "app_util_platform.h"
+#include "PeripheralPins.h"
+
 #include "nrf_drv_saadc.h"
 
-#ifdef DEVICE_ANALOGIN
+#define ADC_12BIT_RANGE 0x0FFF
+#define ADC_16BIT_RANGE 0xFFFF
 
-#define ADC_12BIT_RANGE 0xFFF
-#define ADC_RANGE       ADC_12BIT_RANGE
-
-#ifdef TARGET_SDK13
-__STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin);
-#endif
-
-
-static void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)// type of nrf_drv_saadc_event_handler_t 
+/* Unused event handler but driver requires one. */
+static void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)
 {
     (void) p_event;
 }
 
-static const nrf_drv_saadc_config_t saadc_config = 
-{
-    .resolution         = NRF_SAADC_RESOLUTION_12BIT,
-    .oversample         = NRF_SAADC_OVERSAMPLE_DISABLED,
-    .interrupt_priority = SAADC_CONFIG_IRQ_PRIORITY
-};
-
+/* Interrupt handler implemented in nrf_drv_saadc.c. */
 void SAADC_IRQHandler(void);
 
+/** Initialize the analogin peripheral
+ *
+ * Configures the pin used by analogin.
+ * @param obj The analogin object to initialize
+ * @param pin The analogin pin name
+ */
 void analogin_init(analogin_t *obj, PinName pin)
-{
-#warning
-#if 0    
-    ret_code_t ret_code;
-    
-    NVIC_SetVector(SAADC_IRQn, (uint32_t)SAADC_IRQHandler);
-    
-    ret_code = nrf_drv_saadc_init(&saadc_config, analog_in_event_handler);
-    MBED_ASSERT(((ret_code == NRF_SUCCESS) || (ret_code == NRF_ERROR_INVALID_STATE))); //NRF_ERROR_INVALID_STATE expected for multiple channels used.
-    
-    uint8_t saadcIn = nrf_drv_saadc_gpio_to_ain(pin);
-    MBED_ASSERT(saadcIn != NRF_SAADC_INPUT_DISABLED);
-    
-    obj->adc     = ADC0_0; // only one instance of ADC in nRF52 SoC
-    obj->adc_pin = saadcIn  - 1;
-    
-    nrf_saadc_channel_config_t channel_config =
-            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(saadcIn); //Single ended, negative input to ADC shorted to GND.
-    
-    ret_code = nrf_drv_saadc_channel_init(obj->adc_pin, &channel_config);
-    MBED_ASSERT(ret_code == NRF_SUCCESS);
-#endif
+{    
+    MBED_ASSERT(obj);
+
+    /* Only initialize SAADC on first pin. */
+    static bool first_init = true;
+
+    if (first_init) {
+
+        first_init = false;
+
+        /* Use configuration from sdk_config.h.
+         * Default is: 
+         *  - 12 bit.
+         *  - No oversampling.
+         *  - Priority 7 (lowest).
+         *  - No low power mode.
+         */
+        nrf_drv_saadc_config_t adc_config = {
+            .resolution         = (nrf_saadc_resolution_t)SAADC_CONFIG_RESOLUTION,
+            .oversample         = (nrf_saadc_oversample_t)SAADC_CONFIG_OVERSAMPLE,
+            .interrupt_priority = SAADC_CONFIG_IRQ_PRIORITY,
+            .low_power_mode     = SAADC_CONFIG_LP_MODE
+        };
+
+        ret_code_t result = nrf_drv_saadc_init(&adc_config, analog_in_event_handler);
+        MBED_ASSERT(result == NRF_SUCCESS);
+
+        /* Register interrupt handler in vector table. */
+        NVIC_SetVector(SAADC_IRQn, (uint32_t)SAADC_IRQHandler);
+    }
+
+    /* Use pinmap function to get associated channel. */
+    uint32_t channel = pinmap_function(pin, PinMap_ADC);
+    MBED_ASSERT(channel != (uint32_t) NC);
+
+    /* Account for an off-by-one in Channel definition and Input definition. */
+    nrf_saadc_input_t input = channel + 1;
+
+    /* Configure channel and pin:
+     *  - the 1/4 gain and VDD/4 makes the reference voltage VDD.
+     */
+    nrf_saadc_channel_config_t channel_config = {
+        .resistor_p = NRF_SAADC_RESISTOR_DISABLED,
+        .resistor_n = NRF_SAADC_RESISTOR_DISABLED,
+        .gain       = NRF_SAADC_GAIN1_4,
+        .reference  = NRF_SAADC_REFERENCE_VDD4,
+        .acq_time   = NRF_SAADC_ACQTIME_10US,
+        .mode       = NRF_SAADC_MODE_SINGLE_ENDED,
+        .burst      = NRF_SAADC_BURST_DISABLED,
+        .pin_p      = input,
+        .pin_n      = NRF_SAADC_INPUT_DISABLED
+    };
+
+    ret_code_t result = nrf_drv_saadc_channel_init(channel, &channel_config);
+    MBED_ASSERT(result == NRF_SUCCESS);
+
+    /* Store channel in ADC object. */
+    obj->channel = channel;
 }
 
 
+/** Read the input voltage, represented as a float in the range [0.0, 1.0]
+ *
+ * @param obj The analogin object
+ * @return A floating value representing the current input voltage
+ */
 uint16_t analogin_read_u16(analogin_t *obj)
-{
-    int16_t    adc_value;
-    ret_code_t ret_code;
+{    
+    MBED_ASSERT(obj);
+
+    /* Default return value is 0. */
+    uint16_t retval = 0;
     
-    ret_code = nrf_drv_saadc_sample_convert(obj->adc_pin, &adc_value);
-    MBED_ASSERT(ret_code == NRF_SUCCESS);
-    
-    if (adc_value < 0)
-    {
-        // Even in the single ended mode measured value can be {-0}. Saturation for avoid casting to a big integer.
-        return 0;
+    /* Read single channel, blocking. */
+    nrf_saadc_value_t value = { 0 };
+    ret_code_t result = nrf_drv_saadc_sample_convert(obj->channel, &value);
+
+    /* nrf_saadc_value_t is a signed integer. Only take the absolute value. */
+    if ((result == NRF_SUCCESS) && (value > 0)) {
+
+        /* Normalize 12 bit ADC value to 16 bit Mbed ADC range. */
+        uint32_t normalized = value;
+        retval = (normalized * ADC_16BIT_RANGE) / ADC_12BIT_RANGE;
     }
-    else
-    {
-        return (uint16_t) adc_value;
-    }
+
+    return retval;
 }
 
+/** Read the value from analogin pin, represented as an unsigned 16bit value
+ *
+ * @param obj The analogin object
+ * @return An unsigned 16bit value representing the current input voltage
+ */
 float analogin_read(analogin_t *obj)
 {
-    uint16_t value = analogin_read_u16(obj);
-    return (float)value * (1.0f / (float)ADC_RANGE);
-}
+    MBED_ASSERT(obj);
 
-#ifdef TARGET_SDK13
-/**
- * @brief Function for converting a GPIO pin number to an analog input pin number used in the channel
- *        configuration.
- *
- * @param[in]  pin GPIO pin.
- *
- * @return     Value representing an analog input pin. The function returns @ref NRF_SAADC_INPUT_DISABLED
- *             if the specified pin is not an analog input.
- */
-__STATIC_INLINE nrf_saadc_input_t nrf_drv_saadc_gpio_to_ain(uint32_t pin)
-{
-    // AIN0 - AIN3
-    if (pin >= 2 && pin <= 5)
-    {
-        //0 means "not connected", hence this "+ 1"
-        return (nrf_saadc_input_t)(pin - 2 + 1);
-    }
-    // AIN4 - AIN7
-    else if (pin >= 28 && pin <= 31)
-    {
-        return (nrf_saadc_input_t)(pin - 24 + 1);
-    }
-    else
-    {
-        return NRF_SAADC_INPUT_DISABLED;
-    }
+    /* Read 16 bit ADC value (using Mbed API) and convert to [0;1] range float. */
+    uint16_t value = analogin_read_u16(obj);
+    float result = ((float) value / (float) ADC_16BIT_RANGE);
+
+    return result;
 }
-#endif // TARGET_SDK13
 
 #endif // DEVICE_ANALOGIN
-
-#endif // !TARGET_MCU_NRF51822
