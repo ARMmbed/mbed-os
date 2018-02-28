@@ -1,9 +1,13 @@
 {
     "name": "cellular",
     "config": {
-        "use_apn_lookup": {
+        "use-apn-lookup": {
             "help": "Use APN database lookup",
             "value": true
+        },
+        "mux-enabled": {
+            "help": "Use cellular modem over MUX",
+            "value": false
         }
     }
 }
