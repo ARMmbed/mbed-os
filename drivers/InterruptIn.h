@@ -66,6 +66,12 @@ public:
      *  @param pin InterruptIn pin to connect to
      */
     InterruptIn(PinName pin);
+    /** Create an InterruptIn connected to the specified pin,
+     *  and the pin configured to the specified mode.
+     *
+     *  @param pin InterruptIn pin to connect to
+     */
+    InterruptIn(PinName pin, PinMode mode);
     virtual ~InterruptIn();
 
     /** Read the input, represented as 0 or 1 (int)

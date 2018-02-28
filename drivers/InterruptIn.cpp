@@ -24,9 +24,18 @@ InterruptIn::InterruptIn(PinName pin) : gpio(),
                                         _rise(NULL),
                                         _fall(NULL) {
     // No lock needed in the constructor
-
     gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
     gpio_init_in(&gpio, pin);
+}
+
+InterruptIn::InterruptIn(PinName pin, PinMode mode) :
+                                        gpio(),
+                                        gpio_irq(),
+                                        _rise(NULL),
+                                        _fall(NULL) {
+    // No lock needed in the constructor
+    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    gpio_init_in_ex(&gpio, pin, mode);
 }
 
 InterruptIn::~InterruptIn() {
