@@ -165,7 +165,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_rate_control()
     CHECK(NSAPI_ERROR_OK == cn.get_rate_control(reports, timeUnit, ur));
 }
 
-void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_backoff_time()
+void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_apn_backoff_timer()
 {
     EventQueue que;
     FileHandle_stub fh1;
@@ -174,7 +174,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_backoff_time()
     AT_CellularNetwork cn(at);
     int time;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
-    CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_backoff_time(time));
+    CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_apn_backoff_timer(time));
 }
 
 

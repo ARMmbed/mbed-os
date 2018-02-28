@@ -264,10 +264,10 @@ public:
 
     /** Get backoff timer value
      *
-     *  @param backoff_time Backoff timer value associated with PDP APN in seconds
-     *  @return             zero on success
+     *  @param backoff_timer Backoff timer value associated with PDP APN in seconds
+     *  @return              zero on success
      */
-    virtual nsapi_error_t get_backoff_time(int &backoff_time) = 0;
+    virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
     /** Sets radio access technology.
      *
@@ -381,7 +381,6 @@ public:
      *  @return NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params) = 0;
-
 };
 
 } // namespace mbed

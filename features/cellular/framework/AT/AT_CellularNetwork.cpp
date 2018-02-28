@@ -685,7 +685,7 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
 }
 
 
-nsapi_error_t AT_CellularNetwork::get_backoff_time(int &backoffTime)
+nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
 {
     _at.lock();
 
@@ -697,7 +697,7 @@ nsapi_error_t AT_CellularNetwork::get_backoff_time(int &backoffTime)
         _at.resp_start("+CABTRDP:");
         if (_at.info_resp()) {
             _at.skip_param();
-            backoffTime = _at.read_int();
+            backoff_timer = _at.read_int();
         }
         _at.resp_stop();
     }

@@ -38,31 +38,32 @@
 namespace mbed {
 
 const int PIN_SIZE = 8;
+const int MAX_RETRY_ARRAY_SIZE = 10;
 
-/** CellularConnectionUtil class
+/** CellularConnectionFSM class
  *
- *  Utility class for cellular connection
+ *  Finite State Machine for connecting to cellular network
  */
-class CellularConnectionUtil
+class CellularConnectionFSM
 {
 public:
-    CellularConnectionUtil();
-    virtual ~CellularConnectionUtil();
+    CellularConnectionFSM();
+    virtual ~CellularConnectionFSM();
 
 public:
     /** Cellular connection states
      */
     enum CellularState {
-        STATE_POWER_ON = 0,
-        STATE_DEVICE_READY = 1,
-        STATE_START_CELLULAR = 2,
-        STATE_SIM_PIN = 3,
-        STATE_REGISTER_NETWORK = 4,
-        STATE_REGISTERING_NETWORK = 5,
-        STATE_ATTACH_NETWORK = 7,
-        STATE_ATTACHING_NETWORK = 8,
-        STATE_CONNECT_NETWORK = 9,
-        STATE_CONNECTED = 10,
+        STATE_INIT = 0,
+        STATE_POWER_ON,
+        STATE_DEVICE_READY,
+        STATE_SIM_PIN,
+        STATE_REGISTER_NETWORK,
+        STATE_REGISTERING_NETWORK,
+        STATE_ATTACH_NETWORK,
+        STATE_ATTACHING_NETWORK,
+        STATE_CONNECT_NETWORK,
+        STATE_CONNECTED,
     };
 
 public:
@@ -122,10 +123,17 @@ public:
      */
     void set_sim_pin(const char *sim_pin);
 
+    /** Sets the timeout array for network rejects. After reject next item is tried and after all items are waited and
+     *  still fails then current network event will fail.
+     *
+     *  @param timeout      timeout array using seconds
+     *  @param array_len    length of the array
+     */
+    void set_retry_timeout_array(uint16_t timeout[], int array_len);
+
 private:
     bool open_power(FileHandle *fh);
     bool open_sim();
-    bool open_network();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
     bool set_network_registration(char *plmn = 0);
     bool get_attach_network(CellularNetwork::AttachStatus &status);
@@ -153,6 +161,11 @@ private:
     rtos::Thread *_queue_thread;
     CellularDevice *_cellularDevice;
     char _sim_pin[PIN_SIZE+1];
+    int _retry_count;
+    int _state_retry_count;
+    int _start_time;
+    uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
+    int _retry_array_length;
 };
 
 } // namespace

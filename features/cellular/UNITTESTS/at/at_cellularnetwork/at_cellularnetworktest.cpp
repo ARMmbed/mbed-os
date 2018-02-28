@@ -87,9 +87,9 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_rate_control)
     unit->test_AT_CellularNetwork_get_rate_control();
 }
 
-TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_backoff_time)
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_apn_backoff_timer)
 {
-    unit->test_AT_CellularNetwork_get_backoff_time();
+    unit->test_AT_CellularNetwork_get_apn_backoff_timer();
 }
 
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_ip_address)

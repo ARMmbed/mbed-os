@@ -16,9 +16,10 @@
  */
 
 #ifndef EASY_CELLULAR_CONNECTION_H
+
 #define EASY_CELLULAR_CONNECTION_H
 
-#include "CellularConnectionUtil.h"
+#include "CellularConnectionFSM.h"
 #ifdef CELLULAR_DEVICE
 
 #include "netsocket/CellularBase.h"
@@ -147,12 +148,11 @@ private:
 #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
     bool _credentials_set;
 #endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-    CellularConnectionUtil::CellularState _target_state;
+    CellularConnectionFSM::CellularState _target_state;
 
     UARTSerial _cellularSerial;
     rtos::Semaphore _cellularSemaphore;
-    CellularConnectionUtil _cellularConnectionUtil;
-
+    CellularConnectionFSM _cellularConnectionFSM;
     nsapi_error_t _credentials_err;
 };
 

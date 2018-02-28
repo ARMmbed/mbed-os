@@ -136,7 +136,7 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
 }
 
 
-nsapi_error_t AT_CellularNetwork::get_backoff_time(int &backoffTime)
+nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoffTime)
 {
     return NSAPI_ERROR_OK;
 }

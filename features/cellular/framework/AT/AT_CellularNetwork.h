@@ -71,7 +71,7 @@ public: // CellularNetwork
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
         CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
 
-    virtual nsapi_error_t get_backoff_time(int &backoff_time);
+    virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer);
 
     virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
