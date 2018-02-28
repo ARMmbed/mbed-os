@@ -68,7 +68,7 @@
  * may be called as a result of the application requiring encryption or encryption through
  * requestAuthentication() or setLinkEncryption().
  *
- * All these can be implicitly called by useing setLinkSecurity() to conveniently set the required
+ * All these can be implicitly called by using setLinkSecurity() to conveniently set the required
  * security for the link. The SecurityManager will trigger all the process required to achieve the set
  * security level.
  *

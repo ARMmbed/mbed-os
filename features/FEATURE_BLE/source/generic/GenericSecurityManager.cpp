@@ -56,6 +56,8 @@ ble_error_t GenericSecurityManager::init(
     _default_authentication.set_secure_connections(secure_connections);
     _default_authentication.set_keypress_notification(true);
 
+    _default_key_distribution.set_link(secure_connections);
+
     _default_key_distribution.set_signing(signing);
     if (signing) {
         init_signing();
@@ -126,7 +128,7 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
 
     /* by default the initiator doesn't send any keys other then identity */
     KeyDistribution initiator_distribution(
-        KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK
+        KeyDistribution::KEY_DISTRIBUTION_IDENTITY | _default_key_distribution.get_link()
     );
 
     /* if requested the initiator may send all the default keys for later
@@ -171,28 +173,28 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
         link_authentication.set_mitm(true);
     }
 
-    KeyDistribution initiator_dist = cb->get_initiator_key_distribution();
+    KeyDistribution initiator_distribution = cb->get_initiator_key_distribution();
 
     if (_master_sends_keys) {
-        initiator_dist &= _default_key_distribution;
+        initiator_distribution &= _default_key_distribution;
     } else {
-        initiator_dist &= KeyDistribution(KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK);
+        initiator_distribution &= KeyDistribution(KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK);
     }
 
     /* signing has to be offered and enabled on the link */
-    if (initiator_dist.get_signing()) {
-        initiator_dist.set_signing(
+    if (initiator_distribution.get_signing()) {
+        initiator_distribution.set_signing(
             cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
         );
     }
 
-    KeyDistribution responder_dist(cb->get_responder_key_distribution());
+    KeyDistribution responder_distribution(cb->get_responder_key_distribution());
 
-    responder_dist &= _default_key_distribution;
+    responder_distribution &= _default_key_distribution;
 
     /* signing has to be requested and enabled on the link */
-    if (responder_dist.get_signing()) {
-        responder_dist.set_signing(
+    if (responder_distribution.get_signing()) {
+        responder_distribution.set_signing(
             cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
         );
     }
@@ -201,8 +203,8 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
         connection,
         cb->oob_present,
         link_authentication,
-        responder_dist,
-        responder_dist
+        initiator_distribution,
+        responder_distribution
     );
 }
 
