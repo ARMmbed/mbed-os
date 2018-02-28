@@ -902,16 +902,14 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
 
                 loramac_mib_req_confirm_t mib_req;
                 mib_req.type = MIB_DEVICE_CLASS;
-                lorawan_status_t status = mib_get_request(&mib_req);
+                mib_get_request(&mib_req);
 
                 // If fPending bit is set we try to generate an empty packet
                 // with CONFIRMED flag set. We always set a CONFIRMED flag so
                 // that we could retry a certain number of times if the uplink
                 // failed for some reason
-                if (mcps_indication->fpending_status) {
-                    if (status != LORAWAN_STATUS_OK || mib_req.param.dev_class != CLASS_C) {
-                        handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
-                    }
+                if (mcps_indication->fpending_status && mib_req.param.dev_class != CLASS_C) {
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
                 }
 
                 // Class C and node received a confirmed message so we need to
