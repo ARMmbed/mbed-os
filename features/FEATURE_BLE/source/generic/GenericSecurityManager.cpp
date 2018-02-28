@@ -119,7 +119,10 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     update_oob_presence(connection);
 
     AuthenticationMask link_authentication(_default_authentication);
-    link_authentication.set_mitm(cb->mitm_requested);
+
+    if (cb->mitm_requested) {
+        link_authentication.set_mitm(true);
+    }
 
     /* by default the initiator doesn't send any keys other then identity */
     KeyDistribution initiator_distribution(
@@ -133,9 +136,12 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
     }
 
     /* override default if requested */
-    initiator_distribution.set_signing(
-        cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
-    );
+    if (cb->signing_override_default) {
+        initiator_distribution.set_signing(cb->signing_requested);
+    } else {
+        /* because _master_sends_keys might be false so we need to set this */
+        initiator_distribution.set_signing(_default_key_distribution.get_signing());
+    }
 
     KeyDistribution responder_distribution(_default_key_distribution);
 
@@ -161,7 +167,9 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     update_oob_presence(connection);
 
     AuthenticationMask link_authentication(_default_authentication);
-    link_authentication.set_mitm(cb->mitm_requested);
+    if (cb->mitm_requested) {
+        link_authentication.set_mitm(true);
+    }
 
     KeyDistribution initiator_dist = cb->get_initiator_key_distribution();
 
@@ -172,20 +180,22 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     }
 
     /* signing has to be offered and enabled on the link */
-    initiator_dist.set_signing(
-        initiator_dist.get_signing()
-        && (
-        cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing())
-    );
+    if (initiator_dist.get_signing()) {
+        initiator_dist.set_signing(
+            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+        );
+    }
 
-    KeyDistribution responder_dist = cb->get_responder_key_distribution();
+    KeyDistribution responder_dist(cb->get_responder_key_distribution());
 
     responder_dist &= _default_key_distribution;
+
     /* signing has to be requested and enabled on the link */
-    responder_dist.set_signing(
-        responder_dist.get_signing()
-        && (cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing())
-    );
+    if (responder_dist.get_signing()) {
+        responder_dist.set_signing(
+            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+        );
+    }
 
     return _pal.send_pairing_response(
         connection,
