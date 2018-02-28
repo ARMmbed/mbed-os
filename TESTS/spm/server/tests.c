@@ -128,7 +128,7 @@ PSA_TEST_SERVER(identity_during_call)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -161,7 +161,7 @@ PSA_TEST_SERVER(identity_during_close)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -204,7 +204,7 @@ PSA_TEST_SERVER(get_msg_twice)  //NO OUTPUT
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg1);
@@ -243,7 +243,7 @@ PSA_TEST_SERVER(msg_size_assertion)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -301,7 +301,7 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -341,7 +341,7 @@ PSA_TEST_SERVER(msg_read_truncation)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -423,7 +423,7 @@ PSA_TEST_SERVER(rhandle_factorial)
             }
 
             if (asserted_ptr != msg.rhandle){
-                SPM_PANIC("rhandle value chnaged between calls\n");
+                SPM_PANIC("rhandle value changed between calls\n");
             }
 
             free(msg.rhandle);
@@ -471,7 +471,7 @@ PSA_TEST_SERVER(cross_partition_call)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -536,7 +536,7 @@ PSA_TEST_SERVER(doorbell_test)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);

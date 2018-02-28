@@ -25,7 +25,6 @@ void server_main1(void *ptr)
     uint32_t signals = 0;
     char msg_buf[MSG_BUF_SIZE] = {0};
 
-    /* coverity[INFINITE_LOOP] */
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART1_SF1_MSK) {
