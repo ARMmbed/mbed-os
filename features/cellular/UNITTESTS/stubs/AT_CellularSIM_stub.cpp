@@ -48,3 +48,7 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t AT_CellularSIM::get_imsi(char* imsi)
+{
+    return NSAPI_ERROR_OK;
+}

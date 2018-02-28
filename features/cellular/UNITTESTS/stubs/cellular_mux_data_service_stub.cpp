@@ -30,6 +30,10 @@ ssize_t MuxDataService::read(void *buffer, size_t size)
     return 0;
 }
 
+short MuxDataService::poll(short events) const
+{
+    return 0;
+}
 
 off_t MuxDataService::seek(off_t offset, int whence)
 {

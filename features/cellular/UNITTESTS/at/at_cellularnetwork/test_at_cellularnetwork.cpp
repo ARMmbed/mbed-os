@@ -28,6 +28,13 @@
 using namespace mbed;
 using namespace events;
 
+class my_AT_CN : public AT_CellularNetwork {
+public:
+    my_AT_CN(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
+    virtual ~my_AT_CN() {}
+    NetworkStack *get_stack() {return AT_CellularNetwork::get_stack();}
+};
+
 void conn_stat_cb(nsapi_error_t error)
 {
 
@@ -47,7 +54,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork *cn = new AT_CellularNetwork(at);
 
@@ -58,7 +65,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_credentials()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP));
@@ -70,7 +77,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_connect()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     cn.set_stack_type(IPV4V6_STACK);
@@ -84,7 +91,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_disconnect()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(NSAPI_ERROR_OK == cn.disconnect());
@@ -94,9 +101,9 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_stack()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
-    AT_CellularNetwork cn(at);
+    my_AT_CN cn(at);
     CHECK(!cn.get_stack());
 }
 
@@ -104,7 +111,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_registration()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
@@ -115,7 +122,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_registration_status()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CellularNetwork::RegistrationStatus stat;
@@ -126,7 +133,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_attach()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
@@ -137,7 +144,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_attach()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CellularNetwork::AttachStatus stat;
@@ -149,7 +156,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_rate_control()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int ur;
@@ -162,7 +169,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_backoff_time()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int time;
@@ -170,25 +177,12 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_backoff_time()
     CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_backoff_time(time));
 }
 
-void Test_AT_CellularNetwork::test_AT_CellularNetwork_connection_status_cb()
-{
-    EventQueue que;
-    FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
-
-    AT_CellularNetwork cn(at);
-    cn.connection_status_cb(conn_stat_cb);
-
-    if(ATHandler_stub::callback){
-        ATHandler_stub::callback();
-    }
-}
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_ip_address()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(!cn.get_ip_address());
@@ -198,7 +192,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_access_technology()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::operator_t::RAT_UNKNOWN));
@@ -209,7 +203,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_scan_plmn()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int c;
@@ -222,7 +216,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_ciot_optimization_conf
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
@@ -233,7 +227,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_ciot_optimization_conf
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CellularNetwork::Supported_UE_Opt sup;
@@ -246,7 +240,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_stack_type()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(NSAPI_ERROR_PARAMETER == cn.set_stack_type(IPV4_STACK));
@@ -258,7 +252,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_stack_type()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CHECK(DEFAULT_STACK == cn.get_stack_type());
@@ -268,7 +262,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_pdpcontext_params()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     CellularNetwork::pdpContextList_t list;
@@ -280,7 +274,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_extended_signal_qualit
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int rx,be,rs,ec,rsrq,rsrp;
@@ -294,7 +288,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_signal_quality()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int rs,ber;
@@ -308,7 +302,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_cell_id()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int id;
@@ -320,10 +314,10 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_3gpp_error()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    ATHandler_stub::uint8_value = 8;
+    ATHandler_stub::int_value = 8;
     CHECK(8 == cn.get_3gpp_error());
 }
 
@@ -331,7 +325,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_operator_params()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
     int format;

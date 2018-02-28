@@ -159,7 +159,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
     dev.close_information();
 
     ATHandler_stub::fh_value = &fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     AT_CellularBase_stub::handler_value = &at;
 
     CHECK(dev.open_information(&fh1));

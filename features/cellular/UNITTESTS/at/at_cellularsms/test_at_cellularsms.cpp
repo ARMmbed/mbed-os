@@ -42,7 +42,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS *sms = new AT_CellularSMS(at);
 
@@ -53,7 +53,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_initialize()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -65,7 +65,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_send_sms()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     CHECK(NSAPI_ERROR_PARAMETER == sms.send_sms(NULL, "2", 1));
@@ -107,7 +107,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_get_sms()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     char buf[16];
@@ -139,7 +139,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_set_sms_callback()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     sms.set_sms_callback(NULL);
@@ -150,7 +150,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_set_cpms()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -162,7 +162,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_set_csca()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -174,7 +174,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_set_cscs()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -186,7 +186,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_delete_all_messages()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -198,7 +198,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_set_extra_sim_wait_time()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
     sms.set_extra_sim_wait_time(56);

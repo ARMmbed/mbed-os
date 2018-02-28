@@ -59,6 +59,33 @@ public:
 
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
             void *buffer, nsapi_size_t size) {return NSAPI_ERROR_OK;}
+
+    virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto) {return AT_CellularStack::socket_open(handle, proto);}
+
+    virtual nsapi_error_t socket_close(nsapi_socket_t handle) {return AT_CellularStack::socket_close(handle);}
+
+    virtual nsapi_error_t socket_bind(nsapi_socket_t handle, const SocketAddress &address) {return AT_CellularStack::socket_bind(handle, address);}
+
+    virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog) {return AT_CellularStack::socket_listen(handle, backlog);}
+
+    virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address) {return AT_CellularStack::socket_connect(handle, address);}
+
+    virtual nsapi_error_t socket_accept(nsapi_socket_t server,
+                                        nsapi_socket_t *handle, SocketAddress *address=0) {return AT_CellularStack::socket_accept(server, handle, address);}
+
+    virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
+            const void *data, nsapi_size_t size) {return AT_CellularStack::socket_send(handle, data, size);}
+
+    virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
+            void *data, nsapi_size_t size) {return AT_CellularStack::socket_recv(handle, data, size);}
+
+    virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
+            const void *data, nsapi_size_t size) {return AT_CellularStack::socket_sendto(handle, address, data, size);}
+
+    virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
+            void *buffer, nsapi_size_t size) {return AT_CellularStack::socket_recvfrom(handle, address, buffer, size);}
+
+    virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) {return AT_CellularStack::socket_attach(handle, callback, data);}
 };
 
 Test_AT_CellularStack::Test_AT_CellularStack()
@@ -76,7 +103,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack *st = new MyStack(at, 0, IPV4_STACK);
 
@@ -87,7 +114,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_get_ip_address()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     CHECK(0 == strlen(st.get_ip_address()));
@@ -108,7 +135,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_open()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     st.bool_value = false;
@@ -130,7 +157,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_close()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     nsapi_socket_t soc = NULL;
@@ -155,7 +182,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_bind()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     nsapi_socket_t sock;
@@ -170,7 +197,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_listen()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     nsapi_socket_t sock;
@@ -181,7 +208,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_connect()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     SocketAddress addr;
@@ -195,7 +222,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_accept()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     nsapi_socket_t sock;
@@ -206,7 +233,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_send()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(NULL, "addr", 4));
@@ -226,7 +253,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_sendto()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
 
@@ -250,7 +277,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_recv()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     char table[4];
@@ -261,7 +288,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_recvfrom()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
     char table[4];
@@ -285,7 +312,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_attach()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
 

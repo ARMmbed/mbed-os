@@ -80,7 +80,8 @@ void AT_CellularSMS::set_extra_sim_wait_time(int sim_wait_time)
 {
 }
 
-char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts, uint8_t msg_part_number)
+char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
+                                 uint8_t msg_part_number, uint8_t& header_size)
 {
     return NULL;
 }
@@ -147,12 +148,12 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char* pdu, sms_inf
 }
 
  // read params from User DEfined Header
-int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &parts, int &padding_bits)
+int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &padding_bits)
 {
     return 0;
 }
 
-nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int scheme, char *msg, int padding_bits, bool last_part)
+nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int msg_len, int scheme, char *msg, int padding_bits)
 {
     return NSAPI_ERROR_OK;
 }

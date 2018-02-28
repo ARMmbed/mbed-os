@@ -40,7 +40,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower *pow = new AT_CellularPower(at);
 
@@ -51,7 +51,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_on()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     CHECK(NSAPI_ERROR_UNSUPPORTED == pow.on())
@@ -61,7 +61,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_off()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     CHECK(NSAPI_ERROR_UNSUPPORTED == pow.off())
@@ -71,7 +71,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_at_mode()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -82,7 +82,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -93,7 +93,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_reset()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -104,7 +104,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_power_save_mode()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -130,7 +130,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_receive_period()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;

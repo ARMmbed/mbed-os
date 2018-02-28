@@ -62,3 +62,15 @@ Debug tracing level can be defined in mbed_app.json configuration file:
             "value": "TRACE_LEVEL_INFO"
         }
     }
+
+## Unit tests
+
+UNITTESTS folder contains unittests for Cellular specific classes. Unittests are based on stubbing method and some of the platform headers has been hacked under target_h/ folder to get things working.
+
+You can run those tests locally by running ./run_tests script under UNITTESTS/ folder.
+
+you will need at least following applications: cpputest, gcov and lcov (genhtml) for running the tests.
+After run_tests script has been run you can find test results under UNITTESTS/results folder and line & function coverages under UNITTESTS/coverages folder
+
+
+

@@ -38,7 +38,7 @@ void Test_AT_CellularBase::test_AT_CellularBase_get_at_handler()
 {
     EventQueue eq;
     FileHandle_stub fh;
-    ATHandler ah(&fh, eq, 100);
+    ATHandler ah(&fh, eq, 100, ",");
     AT_CellularBase at(ah);
 
     CHECK(&ah == &at.get_at_handler());
@@ -48,7 +48,7 @@ void Test_AT_CellularBase::test_AT_CellularBase_get_device_error()
 {
     EventQueue eq;
     FileHandle_stub fh;
-    ATHandler ah(&fh, eq, 0);
+    ATHandler ah(&fh, eq, 0, ",");
     AT_CellularBase at(ah);
 
     ATHandler_stub::device_err_value.errCode = 8;

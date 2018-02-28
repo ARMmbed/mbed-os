@@ -92,11 +92,6 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_backoff_time)
     unit->test_AT_CellularNetwork_get_backoff_time();
 }
 
-TEST(AT_CellularNetwork, test_AT_CellularNetwork_connection_status_cb)
-{
-    unit->test_AT_CellularNetwork_connection_status_cb();
-}
-
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_ip_address)
 {
     unit->test_AT_CellularNetwork_get_ip_address();

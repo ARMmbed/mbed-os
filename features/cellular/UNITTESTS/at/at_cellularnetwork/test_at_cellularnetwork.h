@@ -46,8 +46,6 @@ public:
 
     void test_AT_CellularNetwork_get_backoff_time();
 
-    void test_AT_CellularNetwork_connection_status_cb();
-
     void test_AT_CellularNetwork_get_ip_address();
 
     void test_AT_CellularNetwork_set_access_technology();

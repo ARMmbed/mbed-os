@@ -43,7 +43,7 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM *sim = new AT_CellularSIM(at);
 
@@ -54,7 +54,7 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_set_pin()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -71,7 +71,7 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_change_pin()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -82,7 +82,7 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_set_pin_query()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
@@ -96,7 +96,7 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_get_sim_state()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
     CellularSIM::SimState state;

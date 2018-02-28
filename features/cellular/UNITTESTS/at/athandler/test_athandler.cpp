@@ -48,7 +48,7 @@ void Test_ATHandler::test_ATHandler_constructor()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler *at = new ATHandler(&fh1, que, 0);
+    ATHandler *at = new ATHandler(&fh1, que, 0, ",");
 
     delete at;
 
@@ -62,7 +62,7 @@ void Test_ATHandler::test_ATHandler_get_file_handle()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK_EQUAL(&fh1, at.get_file_handle());
 }
 
@@ -71,7 +71,7 @@ void Test_ATHandler::test_ATHandler_set_file_handle()
     EventQueue que;
     FileHandle_stub fh1, fh2;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     at.set_file_handle(&fh2);
 }
@@ -81,7 +81,7 @@ void Test_ATHandler::test_ATHandler_lock()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     at.lock();
 }
@@ -91,7 +91,7 @@ void Test_ATHandler::test_ATHandler_unlock()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     filehandle_stub_short_value_counter = 1;
     fh1.short_value = POLLIN;
     at.unlock();
@@ -102,7 +102,7 @@ void Test_ATHandler::test_ATHandler_unlock_return_error()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(NSAPI_ERROR_OK == at.unlock_return_error());
 }
 
@@ -111,7 +111,7 @@ void Test_ATHandler::test_ATHandler_set_urc_handler()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     const char ch[] = "testtesttesttest";
     at.set_urc_handler(ch, &urc_callback);
 }
@@ -121,7 +121,7 @@ void Test_ATHandler::test_ATHandler_get_last_error()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(NSAPI_ERROR_OK == at.get_last_error());
 }
 
@@ -130,7 +130,7 @@ void Test_ATHandler::test_ATHandler_get_last_device_error()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(0 == at.get_last_device_error().errCode);
 }
 
@@ -139,7 +139,7 @@ void Test_ATHandler::test_ATHandler_inc_ref_count()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.inc_ref_count();
 }
 
@@ -148,7 +148,7 @@ void Test_ATHandler::test_ATHandler_dec_ref_count()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.dec_ref_count();
 }
 
@@ -157,7 +157,7 @@ void Test_ATHandler::test_ATHandler_get_ref_count()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(1 == at.get_ref_count());
 
     at.inc_ref_count();
@@ -176,7 +176,7 @@ void Test_ATHandler::test_ATHandler_set_at_timeout()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.set_at_timeout(8);
 
     at.set_at_timeout(80, true);
@@ -187,7 +187,7 @@ void Test_ATHandler::test_ATHandler_restore_at_timeout()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.set_at_timeout(80, true);
     at.set_at_timeout(800);
     at.restore_at_timeout();
@@ -198,7 +198,7 @@ void Test_ATHandler::test_ATHandler_clear_error()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.clear_error();
 }
 
@@ -207,7 +207,7 @@ void Test_ATHandler::test_ATHandler_process_oob()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     filehandle_stub_short_value_counter = 1;
     fh1.short_value = POLLIN;
     at.set_urc_handler("s", &urc_callback);
@@ -264,7 +264,7 @@ void Test_ATHandler::test_ATHandler_set_filehandle_sigio()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.set_filehandle_sigio();
 }
 
@@ -273,7 +273,7 @@ void Test_ATHandler::test_ATHandler_flush()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     filehandle_stub_short_value_counter = 1;
     fh1.short_value = POLLIN;
     at.flush();
@@ -284,7 +284,7 @@ void Test_ATHandler::test_ATHandler_cmd_start()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     mbed_poll_stub::revents_value = POLLOUT;
     mbed_poll_stub::int_value = 1;
     fh1.size_value = 1;
@@ -302,7 +302,7 @@ void Test_ATHandler::test_ATHandler_write_int()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.write_int(4);
 
     at.clear_error();
@@ -324,7 +324,7 @@ void Test_ATHandler::test_ATHandler_write_string()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.write_string("help");
     CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 
@@ -356,7 +356,7 @@ void Test_ATHandler::test_ATHandler_cmd_stop()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.cmd_stop();
 
     at.write_string("help", true);
@@ -370,7 +370,7 @@ void Test_ATHandler::test_ATHandler_write_bytes()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     uint8_t data[] = "data";
     at.write_bytes(data, 4);
 
@@ -383,7 +383,7 @@ void Test_ATHandler::test_ATHandler_set_stop_tag()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.set_stop_tag("s");
 }
 
@@ -392,7 +392,7 @@ void Test_ATHandler::test_ATHandler_set_delimiter()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.set_delimiter('+');
 }
 
@@ -401,7 +401,7 @@ void Test_ATHandler::test_ATHandler_skip_param()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.skip_param();
 
     char table[] = "ssssssssssssssssssssssssssssOK\r\n\0";
@@ -437,7 +437,7 @@ void Test_ATHandler::test_ATHandler_skip_param()
     filehandle_stub_table_pos = 0;
 
     //Need to create a new instance because stop tag already found
-    ATHandler at2(&fh1, que, 0);
+    ATHandler at2(&fh1, que, 0, ",");
     at2.flush();
     at2.clear_error();
     at2.resp_start();
@@ -467,7 +467,7 @@ void Test_ATHandler::test_ATHandler_read_bytes()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     uint8_t buf[5];
     CHECK(-1 == at.read_bytes(buf, 25));
 
@@ -486,7 +486,7 @@ void Test_ATHandler::test_ATHandler_read_string()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     char table[] = "\"s,\"OK\r\n\0";
     filehandle_stub_table = table;
@@ -546,7 +546,7 @@ void Test_ATHandler::test_ATHandler_read_int()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     int32_t ret= at.read_int();
     CHECK(-1 == ret);
@@ -583,7 +583,7 @@ void Test_ATHandler::test_ATHandler_resp_start()
     filehandle_stub_table = NULL;
     filehandle_stub_table_pos = 0;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.resp_start();
     at.resp_start();
 
@@ -648,7 +648,7 @@ void Test_ATHandler::test_ATHandler_resp_stop()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     char table[] = "21 OK\r\n\0";
     filehandle_stub_table = table;
@@ -685,7 +685,7 @@ void Test_ATHandler::test_ATHandler_info_resp()
 
     filehandle_stub_table = NULL;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(at.info_resp());
 
     at.resp_start();
@@ -720,7 +720,7 @@ void Test_ATHandler::test_ATHandler_info_elem()
     filehandle_stub_table = table;
     filehandle_stub_table_pos = 0;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(!at.info_elem(char(79)));
 
     char table2[] = "21 OK\r\n\0";
@@ -748,7 +748,7 @@ void Test_ATHandler::test_ATHandler_consume_to_stop_tag()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     CHECK(at.consume_to_stop_tag());
 }
 
@@ -757,7 +757,7 @@ void Test_ATHandler::test_ATHandler_enable_debug()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
     at.enable_debug(true);
 
     at.enable_debug(false);
@@ -768,6 +768,6 @@ void Test_ATHandler::test_ATHandler_get_3gpp_error()
     EventQueue que;
     FileHandle_stub fh1;
 
-    ATHandler at(&fh1, que, 0);
-    uint8_t ret = at.get_3gpp_error();
+    ATHandler at(&fh1, que, 0, ",");
+    int ret = at.get_3gpp_error();
 }

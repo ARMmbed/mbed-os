@@ -152,13 +152,17 @@ void ATHandler::set_delimiter(char delimiter)
 {
 }
 
+void ATHandler::set_default_delimiter()
+{
+}
+
 void ATHandler::set_stop_tag(const char *stop_tag_seq)
 {
 }
 
-uint8_t ATHandler::get_3gpp_error()
+int ATHandler::get_3gpp_error()
 {
-    return ATHandler_stub::uint8_value;
+    return ATHandler_stub::int_value;
 }
 
 void ATHandler::resp_start(const char *prefix, bool stop)
@@ -200,7 +204,7 @@ void ATHandler::write_string(const char* param, bool useQuotations)
 {
 }
 
-size_t ATHandler::write_bytes(uint8_t* param, size_t len)
+size_t ATHandler::write_bytes(const uint8_t* param, size_t len)
 {
     if (ATHandler_stub::return_given_size) {
         return len;

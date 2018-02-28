@@ -66,8 +66,18 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     return NSAPI_ERROR_OK;
 }
 
-void AT_CellularNetwork::connection_status_cb(Callback<void(nsapi_error_t)> cb)
+void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
+}
+
+nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
+{
+    return NSAPI_STATUS_LOCAL_UP;
+}
+
+nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
+{
+    return NSAPI_ERROR_OK;;
 }
 
 nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
@@ -75,15 +85,15 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
     return NSAPI_ERROR_OK;
 }
 
-bool AT_CellularNetwork::set_new_context(nsapi_ip_stack_t stack, int cid)
-{
-  return false;
-}
+//bool AT_CellularNetwork::set_new_context(nsapi_ip_stack_t stack, int cid)
+//{
+//  return false;
+//}
 
-bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
-{
-    return false;
-}
+//bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
+//{
+//    return false;
+//}
 
 nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 {
@@ -216,7 +226,7 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
     return NSAPI_ERROR_OK;
 }
 
-uint8_t AT_CellularNetwork::get_3gpp_error()
+int AT_CellularNetwork::get_3gpp_error()
 {
     return 0;
 }

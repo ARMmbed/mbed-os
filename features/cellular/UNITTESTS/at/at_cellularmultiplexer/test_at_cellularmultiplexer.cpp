@@ -39,7 +39,7 @@ void Test_AT_CellularMultiplexer::test_AT_CellularMultiplexer_constructor()
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularMultiplexer *cm = new AT_CellularMultiplexer(at);
     delete cm;
@@ -49,7 +49,7 @@ void Test_AT_CellularMultiplexer::test_AT_CellularMultiplexer_multiplexer_mode_s
 {
     EventQueue que;
     FileHandle_stub fh1;
-    ATHandler at(&fh1, que, 0);
+    ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularMultiplexer cm(at);
     CHECK(!cm.multiplexer_mode_start());

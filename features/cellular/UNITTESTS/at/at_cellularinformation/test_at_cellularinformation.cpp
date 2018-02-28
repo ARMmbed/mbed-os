@@ -40,7 +40,7 @@ void Test_AT_CellularInformation::test_AT_CellularInformation_get_manufacturer()
 {
     EventQueue eq;
     FileHandle_stub fh;
-    ATHandler ah(&fh, eq, 0);
+    ATHandler ah(&fh, eq, 0, ",");
     AT_CellularInformation aci(ah);
 
     ATHandler_stub::nsapi_error_value = 8;
@@ -53,7 +53,7 @@ void Test_AT_CellularInformation::test_AT_CellularInformation_get_model()
 {
     EventQueue eq;
     FileHandle_stub fh;
-    ATHandler ah(&fh, eq, 0);
+    ATHandler ah(&fh, eq, 0, ",");
     AT_CellularInformation aci(ah);
 
     ATHandler_stub::nsapi_error_value = 7;
@@ -66,7 +66,7 @@ void Test_AT_CellularInformation::test_AT_CellularInformation_get_revision()
 {
     EventQueue eq;
     FileHandle_stub fh;
-    ATHandler ah(&fh, eq, 0);
+    ATHandler ah(&fh, eq, 0, ",");
 
     //Used heap var here to visit heap constructor
     AT_CellularInformation *aci = new AT_CellularInformation(ah);
