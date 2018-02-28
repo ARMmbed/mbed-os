@@ -114,7 +114,7 @@ int mbedtls_sha256_starts_ret( mbedtls_sha256_context *ctx, int is224 )
 int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE] )
 {
     if (st_sha256_restore_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
     if (ctx->is224 == 0) {
@@ -128,7 +128,7 @@ int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx, const unsigned
     }
 
     if (st_sha256_save_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
     return 0;
@@ -139,7 +139,7 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char 
     int err;
     size_t currentlen = ilen;
     if (st_sha256_restore_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
 
@@ -187,7 +187,7 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char 
         }
     }
     if (st_sha256_save_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
     return 0;
@@ -196,7 +196,7 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx, const unsigned char 
 int mbedtls_sha256_finish_ret( mbedtls_sha256_context *ctx, unsigned char output[32] )
 {
     if (st_sha256_restore_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
     /* Last accumulation for extra bytes in sbuf_len */
@@ -225,7 +225,7 @@ int mbedtls_sha256_finish_ret( mbedtls_sha256_context *ctx, unsigned char output
         }
     }
     if (st_sha256_save_hw_context(ctx) != 1) {
-        // Return HASH_BUSY timout error here
+        // Return HASH_BUSY timeout error here
         return MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED;
     }
     return 0;

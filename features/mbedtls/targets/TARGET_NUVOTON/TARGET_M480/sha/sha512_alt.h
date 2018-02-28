@@ -153,9 +153,8 @@ MBEDTLS_DEPRECATED void mbedtls_sha512_finish( mbedtls_sha512_context *ctx,
  * \param ctx      The SHA-512 context.
  * \param data     The buffer holding one block of data.
  */
-MBEDTLS_DEPRECATED void mbedtls_sha512_process(
-                                            mbedtls_sha512_context *ctx,
-                                            const unsigned char data[128] );
+MBEDTLS_DEPRECATED void mbedtls_sha512_process( mbedtls_sha512_context *ctx,
+                                                const unsigned char data[128] );
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */
