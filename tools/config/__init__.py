@@ -384,6 +384,13 @@ class Config(object):
                     app_config_location = full_path
         return app_config_location
 
+    def format_validation_error(self, error, path):
+        if error.context:
+            return self.format_validation_error(error.context[0], path)
+        else:
+            return "in {} element {}: {}".format(
+                path, str(".".join(error.absolute_path)), error.message)
+
     def __init__(self, tgt, top_level_dirs=None, app_config=None):
         """Construct a mbed configuration
 
@@ -430,7 +437,9 @@ class Config(object):
             errors = sorted(validator.iter_errors(self.app_config_data))
 
             if errors:
-                raise ConfigException(",".join(x.message for x in errors))
+                raise ConfigException("; ".join(
+                    self.format_validation_error(x, self.app_config_location)
+                    for x in errors))
 
         # Update the list of targets with the ones defined in the application
         # config, if applicable
@@ -494,7 +503,9 @@ class Config(object):
             errors = sorted(validator.iter_errors(cfg))
 
             if errors:
-                raise ConfigException(",".join(x.message for x in errors))
+                raise ConfigException("; ".join(
+                    self.format_validation_error(x, config_file)
+                    for x in errors))
 
             cfg["__config_path"] = full_path
 
