@@ -31,8 +31,7 @@ using namespace events;
 //#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
 #include "CellularLog.h"
 
-// this is intentionally TRACE_LEVEL_INFO
-#if MBED_TRACE_MAX_LEVEL >= TRACE_LEVEL_INFO
+#if MBED_CONF_MBED_TRACE_ENABLE
 #define at_debug(format, ...) do { if (_debug_on) debug(format, ## __VA_ARGS__); } while (0)
 #else
 #define at_debug(...)
@@ -78,11 +77,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _urc_matched(false),
     _error_found(false),
     _max_resp_length(MAX_RESP_LENGTH),
-#if MBED_TRACE_MAX_LEVEL == TRACE_LEVEL_DEBUG
-    _debug_on(true),
-#else
     _debug_on(false),
-#endif
     _cmd_start(false)
 {
     //enable_debug(true);

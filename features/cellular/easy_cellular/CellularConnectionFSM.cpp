@@ -38,7 +38,6 @@ namespace mbed {
 
 static events::EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
 static CELLULAR_DEVICE cellularDevice(at_queue);
-static char device_info_buf[2048];
 
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0), _queue(
@@ -160,6 +159,7 @@ bool CellularConnectionFSM::open_sim()
 void CellularConnectionFSM::device_ready()
 {
     CellularInformation *info = _cellularDevice->open_information(_serial);
+    char device_info_buf[2048]; // may be up to 2048 according to 3GPP
 
     if (info->get_manufacturer(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
         tr_info("Cellular device manufacturer: %s", device_info_buf);
