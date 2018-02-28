@@ -159,6 +159,8 @@ protected:
 
     Callback<void()> _rise;
     Callback<void()> _fall;
+
+    void irq_init(PinName pin);
 };
 
 } // namespace mbed
