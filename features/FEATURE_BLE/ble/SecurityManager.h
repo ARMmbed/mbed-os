@@ -23,6 +23,100 @@
 #include "CallChainOfFunctionPointersWithContext.h"
 #include "ble/BLETypes.h"
 
+/**
+ * Overview
+ *
+ * Security Manager is used to provide link security through encryption, signing, and authentication
+ * which are made possible by pairing and optionally bonding. Pairing is the process of establishing
+ * and/or exchanging keys used for the current connection. Bonding means saving this information so that
+ * it can later be used after reconnecting without having to pair again. This saves time and power.
+ *
+ * There are many ways to provide these at different levels of security depending on your requirements
+ * and the facilities provided by the application. The process starts with initialising the SecurityManager
+ * with default options for new connections. Some settings can later be changed per link or globally.
+ *
+ * The important settings in the init() function are the MITM requirement and IO capabilities. Man in the
+ * Middle (MITM) protection prevents an attack where one device can impersonate another device by
+ * pairing with both devices at the same time. This protection is achieved sharing some information
+ * between the devices through some independent channel. The IO capabilities of both devices dictate
+ * what algorithm is used. For details @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.3.5.1.
+ * You can change the IO capabilities after initialisation with setIoCapability(). This will take effect
+ * for all subsequent pairings.
+ *
+ * Sharing this information through IO capabilities means user interaction which limits the degree of
+ * protection due to the limit of the amount of data that we can expect the user to transfer. Another
+ * solution is using OOB (out of band) communication to transfer this data instead which can send much
+ * more data making MITM attack even less likely to succeed. OOB data has to be exchanged by the application
+ * and provided to the Security Manager. Use setOOBDataUsage() to indicate you want to use it. The same call also
+ * allows you to set whether or not the communication channel you are using to transmit the OOB data is
+ * itself secure against MITM protection - this will set the level of the link security achieved using pairing
+ * using this data.
+ *
+ * The most secure pairing is provided by Secure Connections which relies on public key cryptography.
+ * Support for Secure Connections is dependent on both the stack and controller on both sides supporting
+ * it. If either side doesn't support it Legacy Pairing will be used. This is an older standard of pairing.
+ * If higher security is required legacy pairing can be disabled by calling allowLegacyPairing(false);
+ *
+ * How to use
+ *
+ * First thing you need to do is to initialise the manager by calling init() with your chosen settings.
+ *
+ * The SecurityManager communicates with your application through events. These will trigger calls in
+ * the EventHandler you must provide by calling the setSecurityManagerEventHandler() function.
+ *
+ * The most important process is pairing. This may be triggered manually by calling requestPairing() or
+ * may be called as a result of the application requiring encryption or encryption through
+ * requestAuthentication() or setLinkEncryption().
+ *
+ * All these can be implicitly called by useing setLinkSecurity() to conveniently set the required
+ * security for the link. The SecurityManager will trigger all the process required to achieve the set
+ * security level.
+ *
+ * Depending on the IO capabilities and OOB usage settings different pairing algorithms will be chosen.
+ * They will produce appropriate events which must be handled by your EventHandler.
+ *
+ * The simplest example would be a pairing of a device with no IO capabilities and no OOB data available.
+ * With such limited pairing capabilities the "just works" method will be employed. This does not provide
+ * any MITM protection. The pairing (triggered implicitly or called explicitly) will result in an event
+ * being generated on the peer calling pairingRequest(). The event handler must make a decision (either in
+ * the application itself or based on user interaction) whether to accept the pairing and call
+ * accetPairing() or cancelPairing(). The result will be communicated on both peers through an event calling
+ * pairingResult() in the EventHandler.
+ *
+ *
+ * Sequence diagram "Just Works" pairing
+ *
+ *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
+ *
+ * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
+ *  |       |                           |                            |                        |            |
+ *  |---------------------------> requestPairing()                   |                        |            |
+ *  |       |                           |------[pairing start]------>|                        |            |
+ *  |       |                           |                            |----------------> pairingRequest() ->|
+ *  |       |                           |                        acceptPairing() <------------------------- |
+ *  |       |                           |<---[pairing complete]----->|                        |            |
+ *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
+ *  |       |                           |                            |                        |            |
+ *
+ *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
+ *  if you request encryption and authentication and no bonding information is available. The sequence will
+ *  be the same save for the lack of explicit requestPairing() call.
+ *
+ *
+ *  Sequence diagram Encryption request when bonding information is available
+ *
+ *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
+ *
+ * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
+ *  |       |                           |                            |                        |            |
+ *  |---------------------------> setLinkEncryption()                |                        |            |
+ *  |       |                           |<-[encryption established]->|                        |            |
+ *  |<- linkEncryptionResult() <--------|                            |---------> linkEncryptionResult() -->|
+ *  |       |                           |                            |                        |            |
+ *
+ * @note if bonding information is not available, pairing will be triggered
+ */
+
 class SecurityManager {
 public:
     /** events sent and received when passkey is being entered */
