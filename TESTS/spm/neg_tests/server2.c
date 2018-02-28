@@ -35,7 +35,6 @@ void server_main2(void *ptr)
     char msg_buf[MSG_BUF_SIZE] =  {0};
     char res_buff[MSG_BUF_SIZE] = {0};
 
-    /* coverity[INFINITE_LOOP] */
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART2_INT_MASK_MSK) {
@@ -286,9 +285,10 @@ void server_main2(void *ptr)
             psa_get(PART2_IDENTITY_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
+                    int32_t ret = 0;
                     psa_handle_t invalid_handle = msg.handle  + 10;
-                    /* coverity[CHECKED_RETURN] */
-                    psa_identity(invalid_handle);
+                    ret = psa_identity(invalid_handle);
+                    PSA_UNUSED(ret);
                     TEST_FAIL_MESSAGE("server_psa_identity_invalid_handle negative test failed");
                     break;
                 }
@@ -302,8 +302,9 @@ void server_main2(void *ptr)
             psa_get(PART2_IDENTITY_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
-                    /* coverity[CHECKED_RETURN] */
-                    psa_identity(PSA_NULL_HANDLE);
+                    int32_t ret = 0;
+                    ret = psa_identity(PSA_NULL_HANDLE);
+                    PSA_UNUSED(ret);
                     TEST_FAIL_MESSAGE("server_psa_identity_null_handle negative test failed");
                     break;
                 }
