@@ -766,13 +766,15 @@ public:
      * @param[in] ltk long term key from the peer
      * @param[in] ediv encryption diversifier from the peer
      * @param[in] rand random value from the peer
+     * @param[in] mitm does the LTK have man in the middle protection
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
         const ltk_t &ltk,
         const rand_t &rand,
-        const ediv_t &ediv
+        const ediv_t &ediv,
+        bool mitm
     ) = 0;
 
     /**
@@ -781,11 +783,13 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] ltk long term key from the peer
+     * @param[in] mitm does the LTK have man in the middle protection
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
-        const ltk_t &ltk
+        const ltk_t &ltk,
+        bool mitm
     ) = 0;
 
     virtual ble_error_t disable_encryption(
@@ -834,11 +838,15 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] ltk long term key
+     * @param[in] mitm does the LTK have man in the middle protection
+     * @param[in] secure_connections is this a secure_connections pairing
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_ltk(
         connection_handle_t connection,
-        const ltk_t &ltk
+        const ltk_t &ltk,
+        bool mitm,
+        bool secure_connections
     ) = 0;
 
     /**

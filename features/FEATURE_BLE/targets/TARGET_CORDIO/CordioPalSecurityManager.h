@@ -134,7 +134,8 @@ public:
         connection_handle_t connection,
         const ltk_t &ltk,
         const rand_t &rand,
-        const ediv_t &ediv
+        const ediv_t &ediv,
+        bool mitm
     );
 
     /**
@@ -142,7 +143,8 @@ public:
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
-        const ltk_t &ltk
+        const ltk_t &ltk,
+        bool mitm
     );
 
     /**
@@ -188,7 +190,12 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_ltk
      */
-    virtual ble_error_t set_ltk(connection_handle_t connection, const ltk_t &ltk);
+    virtual ble_error_t set_ltk(
+        connection_handle_t connection,
+        const ltk_t &ltk,
+        bool mitm,
+        bool secure_connections
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::set_ltk_not_found

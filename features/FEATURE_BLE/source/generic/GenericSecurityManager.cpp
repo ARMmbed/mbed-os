@@ -654,9 +654,9 @@ void GenericSecurityManager::enable_encryption_cb(
 
     if (cb && entryKeys) {
         if (cb->secure_connections_paired) {
-            _pal.enable_encryption(cb->connection, entryKeys->ltk);
+            _pal.enable_encryption(cb->connection, entryKeys->ltk, cb->ltk_mitm_protected);
         } else {
-            _pal.enable_encryption(cb->connection, entryKeys->ltk, entryKeys->rand, entryKeys->ediv);
+            _pal.enable_encryption(cb->connection, entryKeys->ltk, entryKeys->rand, entryKeys->ediv, cb->ltk_mitm_protected);
         }
     }
 }
@@ -669,7 +669,7 @@ void GenericSecurityManager::set_ltk_cb(
 
     if (cb) {
         if (entryKeys) {
-            _pal.set_ltk(cb->connection, entryKeys->ltk);
+            _pal.set_ltk(cb->connection, entryKeys->ltk, cb->ltk_mitm_protected, cb->secure_connections_paired);
         } else {
             _pal.set_ltk_not_found(cb->connection);
         }
@@ -1206,8 +1206,8 @@ void GenericSecurityManager::on_ltk_request(
 GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     pal::SecurityDistributionFlags_t(),
     connection(0),
-    local_address(),
     db_entry(0),
+    local_address(),
     connected(false),
     authenticated(false),
     is_master(false),

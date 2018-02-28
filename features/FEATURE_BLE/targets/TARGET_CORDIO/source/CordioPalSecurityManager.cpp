@@ -134,7 +134,8 @@ ble_error_t CordioSecurityManager::enable_encryption(
     connection_handle_t connection,
     const ltk_t &ltk,
     const rand_t &rand,
-    const ediv_t &ediv
+    const ediv_t &ediv,
+    bool mitm
 ) {
     dmSecLtk_t sec_ltk;
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
@@ -152,7 +153,8 @@ ble_error_t CordioSecurityManager::enable_encryption(
 
 ble_error_t CordioSecurityManager::enable_encryption(
     connection_handle_t connection,
-    const ltk_t &ltk
+    const ltk_t &ltk,
+    bool mitm
 ) {
     dmSecLtk_t sec_ltk = { 0 };
     memcpy(sec_ltk.key, ltk.data(), ltk.size());
@@ -207,7 +209,10 @@ ble_error_t CordioSecurityManager::set_private_address_timeout(
 //
 
 ble_error_t CordioSecurityManager::set_ltk(
-    connection_handle_t connection, const ltk_t& ltk
+    connection_handle_t connection,
+    const ltk_t& ltk,
+    bool mitm,
+    bool secure_connections
 ) {
     // FIXME: get access to the security level of a key
     DmSecLtkRsp(
