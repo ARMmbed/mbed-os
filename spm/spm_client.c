@@ -112,8 +112,8 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
 
     if (((dst_sec_func->min_version_policy == PSA_MINOR_VERSION_POLICY_RELAXED) && (minor_version > dst_sec_func->min_version)) ||
         ((dst_sec_func->min_version_policy == PSA_MINOR_VERSION_POLICY_STRICT) && (minor_version != dst_sec_func->min_version))) {
-            SPM_PANIC("minor version %d does not comply with sfid %d minor policy %d",
-                    minor_version, dst_sec_func->sfid, dst_sec_func->min_version_policy);
+            SPM_PANIC("minor version %d does not comply with sfid %d minor version %d and minor policy %d",
+                    minor_version, dst_sec_func->sfid, dst_sec_func->min_version, dst_sec_func->min_version_policy);
     }
 
     partition_t *current_part = active_partition_get();
