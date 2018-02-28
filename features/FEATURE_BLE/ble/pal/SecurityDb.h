@@ -367,8 +367,7 @@ public:
 
     /**
      * Asynchronously return a whitelist through a callback, generated from the
-     * bond table. Function takes ownership of the memory. The whitelist and the
-     * ownership will be returned in the callback.
+     * bond table.
      *
      * @param[in] cb callback that will receive the whitelist
      * @param[in] whitelist preallocated whitelist that will be filled in

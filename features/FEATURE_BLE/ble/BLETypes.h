@@ -98,8 +98,8 @@ struct attribute_handle_range_t {
 /**
  * Construct an attribute_handle_range_t from its first and last attribute handle.
  *
- * @param begin Handle at the beginning of the range.
- * @param end Handle at the end of the range.
+ * @param[in] begin Handle at the beginning of the range.
+ * @param[in] end Handle at the end of the range.
  *
  * @return An instance of attribute_handle_range_t where
  * attribute_handle_range_t::begin is equal to begin and
@@ -208,7 +208,7 @@ public:
     /**
      * Initialize a data from a string.
      *
-     * @param input_value value of the data.
+     * @param[in] passkey value of the data.
      */
     PasskeyAscii(const uint8_t* passkey) {
         if (passkey) {
@@ -221,7 +221,7 @@ public:
     /**
      * Initialize a data from a number.
      *
-     * @param input_value value of the data.
+     * @param[in] passkey value of the data.
      */
     PasskeyAscii(passkey_num_t passkey) {
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
@@ -240,7 +240,7 @@ public:
 
     /**
      * Convert ASCII string of digits into a number.
-     * @param ASCII string of 6 digits stored as ASCII characters
+     * @param[in] ascii ASCII string of 6 digits stored as ASCII characters
      * @return Passkey as a number.
      */
     static uint32_t to_num(const uint8_t *ascii) {
@@ -273,7 +273,7 @@ struct byte_array_t {
     /**
      * Initialize a data from an array of bytes.
      *
-     * @param input_value value of the data.
+     * @param[in] input_value value of the data.
      */
     byte_array_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));
@@ -282,8 +282,8 @@ struct byte_array_t {
     /**
      * Initialize a data from an buffer of bytes.
      *
-     * @param input_value pointer to buffer.
-     * @param size buffer size
+     * @param[in] input_value pointer to buffer.
+     * @param[in] size buffer size
      */
     byte_array_t(const uint8_t* input_value, size_t size) {
         memcpy(_value, input_value, size);
@@ -372,7 +372,7 @@ struct address_t : public byte_array_t<6> {
     /**
      * Initialize a data from an array of bytes.
      *
-     * @param input_value value of the data.
+     * @param[in] input_value value of the data.
      */
     address_t(const uint8_t *input_value) {
         memcpy(_value, input_value, sizeof(_value));

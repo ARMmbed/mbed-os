@@ -141,8 +141,7 @@ public:
         /**
          * Deliver the requested whitelist to the application.
          *
-         * @param[in] whitelist whitelist created based on the bonding table,
-         *                      caller transfers the memory ownership
+         * @param[in] whitelist pointer to the whitelist filled with entries based on bonding information
          */
         virtual void whitelistFromBondTable(Gap::Whitelist_t* whitelist) {
             if (whitelist) {
@@ -372,8 +371,8 @@ public:
      *
      * @param[in] whitelist Preallocated whitelist which will be filled up to its capacity.
      *                      If whitelist already contains entries this will be appended to.
-     *                      Ownership of memory is trasnferred from the caller. It will be
-     *                      returned in the generated event.
+     *                      Do not access the whitelist until callback has been called,
+     *                      returning the filled whitelist.
      *
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
@@ -571,7 +570,7 @@ public:
      * by a call to linkEncryptionResult in the event handler when the action is completed.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] encryption
+     * @param[in] encryption encryption state requested
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setLinkEncryption(ble::connection_handle_t connectionHandle, ble::link_encryption_t encryption) {
@@ -584,7 +583,7 @@ public:
      * Return the size of the encryption key used on this link.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[out] size Size of the encryption key in bytes
+     * @param[out] byteSize Size of the encryption key in bytes.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t getEncryptionKeySize(ble::connection_handle_t connectionHandle, uint8_t *byteSize) {
@@ -604,21 +603,6 @@ public:
     virtual ble_error_t setEncryptionKeyRequirements(uint8_t minimumByteSize, uint8_t maximumByteSize) {
         (void) minimumByteSize;
         (void) maximumByteSize;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Privacy
-    //
-
-    /**
-     * Set the time after which the private adress will be regenerated.
-     *
-     * @param[in] timeout_in_seconds How often (in seconds) the private address should be regenerated.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
-        (void) timeout_in_seconds;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -833,8 +817,8 @@ public:
      *
      * Get the security status of a connection.
      *
-     * @param[in]  connectionHandle   Handle to identify the connection.
-     * @param[out] securityStatusP    Security status.
+     * @param[in]  connectionHandle Handle to identify the connection.
+     * @param[out] securityStatus   Security status.
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
