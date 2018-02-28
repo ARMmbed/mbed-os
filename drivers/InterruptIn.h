@@ -61,17 +61,12 @@ class InterruptIn : private NonCopyable<InterruptIn> {
 
 public:
 
-    /** Create an InterruptIn connected to the specified pin
-     *
-     *  @param pin InterruptIn pin to connect to
-     */
-    InterruptIn(PinName pin);
     /** Create an InterruptIn connected to the specified pin,
-     *  and the pin configured to the specified mode.
+     *  with the pin configured to the specified mode.
      *
      *  @param pin InterruptIn pin to connect to
      */
-    InterruptIn(PinName pin, PinMode mode);
+    InterruptIn(PinName pin, PinMode mode = PullDefault);
     virtual ~InterruptIn();
 
     /** Read the input, represented as 0 or 1 (int)
@@ -159,8 +154,6 @@ protected:
 
     Callback<void()> _rise;
     Callback<void()> _fall;
-
-    void irq_init(PinName pin);
 };
 
 } // namespace mbed
