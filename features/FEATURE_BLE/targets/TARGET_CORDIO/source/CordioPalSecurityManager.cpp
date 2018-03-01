@@ -62,7 +62,7 @@ ble_error_t CordioSecurityManager::reset()
 
 uint8_t CordioSecurityManager::read_resolving_list_capacity()
 {
-    // FIXME: implement
+    // FIXME: Implement with privacy support.
     return 0;
 }
 
@@ -71,6 +71,7 @@ ble_error_t CordioSecurityManager::add_device_to_resolving_list(
     const address_t &peer_identity_address,
     const irk_t &peer_irk
 ) {
+    // FIXME: Implement with privacy support.
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -78,11 +79,13 @@ ble_error_t CordioSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t& peer_identity_address
 ) {
+    // FIXME: Implement with privacy support.
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t CordioSecurityManager::clear_resolving_list()
 {
+    // FIXME: Implement with privacy support.
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
