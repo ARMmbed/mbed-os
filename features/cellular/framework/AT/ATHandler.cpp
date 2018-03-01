@@ -964,7 +964,7 @@ void ATHandler::write_int(int32_t param)
     // write the integer subparameter
     const int32_t str_len = 12;
     char number_string[str_len];
-    int32_t result = std::snprintf(number_string, str_len, "%ld", param);
+    int32_t result = sprintf(number_string, "%ld", param);
     if (result > 0 && result < str_len) {
         for (size_t i = 0; number_string[i]; i++) {
             if (write_char(number_string[i]) == false) {
