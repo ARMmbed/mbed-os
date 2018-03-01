@@ -600,8 +600,15 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         case DM_SEC_COMPARE_IND:
             return true;
 
-        case DM_SEC_KEYPRESS_IND:
+        case DM_SEC_KEYPRESS_IND: {
+            dmSecKeypressIndEvt_t* evt = (dmSecKeypressIndEvt_t*) msg;
+
+            handler->on_keypress_notification(
+                /* connection */ evt->hdr.param,
+                (Keypress_t) evt->notificationType
+            );
             return true;
+        }
 
         default:
             return false;
