@@ -305,7 +305,7 @@ public:
         }
 
         /**
-         * Indicate to the application it needs to return out of band data to the stack.
+         * Indicate to the application it needs to return legacy pairing OOB to the stack.
          *
          * @param[in] connectionHandle connection connectionHandle
          */
@@ -314,16 +314,7 @@ public:
         }
 
         /**
-         * Indicate to the application it needs to return out of band data to the stack.
-         *
-         * @param[in] connectionHandle connection connectionHandle
-         */
-        virtual void oobRequest(ble::connection_handle_t connectionHandle) {
-            (void)connectionHandle;
-        }
-
-        /**
-         * Indicate that the application needs to send OOB data to the peer.
+         * Indicate that the application needs to send legacy pairing OOB data to the peer.
          *
          * @param[in] address address that will be used in the pairing
          * @param[in] temporaryKey temporary key to be used in legacy pairing
@@ -335,7 +326,7 @@ public:
         }
 
         /**
-         * Indicate that the application needs to send OOB data to the peer.
+         * Indicate that the application needs to send secure connections OOB data to the peer.
          *
          * @param[in] address address that will be used in the pairing
          * @param[in] random random number used to generate the confirmation
