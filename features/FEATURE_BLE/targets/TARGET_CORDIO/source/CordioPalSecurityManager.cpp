@@ -552,12 +552,21 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         }
 
         case DM_SEC_LTK_REQ_IND: {
+            uint8_t null_rand[HCI_RAND_LEN] = { 0 };
             hciLeLtkReqEvt_t* evt = (hciLeLtkReqEvt_t*) msg;
-            handler->on_ltk_request(
-                evt->hdr.param,
-                reinterpret_cast<uint8_t*>(&evt->encDiversifier),
-                evt->randNum
-            );
+
+            if (evt->encDiversifier == 0 &&
+                memcmp(evt->randNum, null_rand, sizeof(null_rand))) {
+                handler->on_ltk_request(
+                    evt->hdr.param
+                );
+            } else {
+                handler->on_ltk_request(
+                    evt->hdr.param,
+                    reinterpret_cast<uint8_t*>(&evt->encDiversifier),
+                    evt->randNum
+                );
+            }
             return true;
         }
 
