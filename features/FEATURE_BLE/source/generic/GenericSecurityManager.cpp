@@ -377,6 +377,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
 
     /* ignore if the link is already at required state*/
     if (current_encryption == encryption) {
+        eventHandler->linkEncryptionResult(connection, current_encryption);
         return BLE_ERROR_NONE;
     }
 
@@ -390,6 +391,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
 
         /* if already better than encrypted don't bother */
         if (current_encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
+            eventHandler->linkEncryptionResult(connection, current_encryption);
             return BLE_ERROR_NONE;
         }
         cb->encryption_requested = true;
