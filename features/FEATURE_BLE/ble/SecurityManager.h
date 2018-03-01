@@ -274,8 +274,11 @@ public:
         }
 
         /**
-         * Indicate to the application that a confirmation is required. The application should
-         * proceed by supplying the confirmation confirmationEntered function.
+         * Indicate to the application that a confirmation is required. This is used
+         * when the device does not have a keyboard but has a yes/no button. The device
+         * displays numbers on its display in response to passkeyDisplay and the user
+         * checks if they are the same on both devices. The application should proceed
+         * by supplying the confirmation using the confirmationEntered function.
          *
          * @param[in] connectionHandle connection connectionHandle
          */
