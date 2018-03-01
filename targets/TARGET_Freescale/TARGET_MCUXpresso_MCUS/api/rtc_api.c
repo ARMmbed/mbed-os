@@ -23,6 +23,8 @@
 
 extern void rtc_setup_oscillator(RTC_Type *base);
 
+static bool rtc_time_set = false;
+
 void rtc_init(void)
 {
     rtc_config_t rtcConfig;
@@ -44,13 +46,23 @@ void rtc_free(void)
 }
 
 /*
- * Little check routine to see if the RTC has been enabled
+ * Little check routine to see if the RTC has been initialized and time has been set
  * 0 = Disabled, 1 = Enabled
  */
 int rtc_isenabled(void)
 {
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     CLOCK_EnableClock(kCLOCK_Rtc0);
-    return (int)((RTC->SR & RTC_SR_TCE_MASK) >> RTC_SR_TCE_SHIFT);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+    const bool rtc_init_done = ((RTC->SR & RTC_SR_TCE_MASK) >> RTC_SR_TCE_SHIFT);
+
+    /* If RTC is not initialized, then disable the clock gate on exit. */
+    if(!rtc_init_done) {
+        rtc_free();
+    }
+
+    return (rtc_init_done & rtc_time_set);
 }
 
 time_t rtc_read(void)
@@ -63,6 +75,8 @@ void rtc_write(time_t t)
     RTC_StopTimer(RTC);
     RTC->TSR = t;
     RTC_StartTimer(RTC);
+
+    rtc_time_set = true;
 }
 
 #endif
