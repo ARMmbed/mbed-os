@@ -83,7 +83,7 @@
 #include "drivers/InterruptIn.h"
 #include "platform/mbed_wait_api.h"
 #include "hal/sleep_api.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_rtc_time.h"
 #include "platform/mbed_poll.h"
 #include "platform/ATCmdParser.h"

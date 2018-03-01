@@ -17,7 +17,7 @@
 #include "platform/mbed_critical.h"
 
 #if DEVICE_SPI_ASYNCH
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #endif
 
 #if DEVICE_SPI

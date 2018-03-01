@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "mbed_critical.h"
 #include "sleep_api.h"
 #include "mbed_error.h"
