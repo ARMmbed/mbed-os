@@ -37,6 +37,15 @@ void radioNotificationStaticCallback(bool param) {
     gap.processRadioNotificationEvent(param);
 }
 
+nRF5xGap::nRF5xGap() : Gap(),
+    advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
+    scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
+    whitelistAddressesSize(0),
+    _connection_event_handler(NULL)
+{
+        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+}
+
 /**************************************************************************/
 /*!
     @brief  Sets the advertising parameters and payload for the device
@@ -936,26 +945,18 @@ Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
 /*!
     @brief  Helper function used to populate the ble_gap_whitelist_t that
             will be used by the SoftDevice for filtering requests.
-
     @returns    \ref ble_error_t
-
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-
     @retval     BLE_ERROR_INVALID_STATE
                 The internal stack was not initialized correctly.
-
     @note  Both the SecurityManager and Gap must initialize correctly for
            this function to succeed.
-
     @note  This function is needed because for the BLE API the whitelist
            is just a collection of keys, but for the stack it also includes
            the IRK table.
-
     @section EXAMPLE
-
     @code
-
     @endcode
 */
 /**************************************************************************/
@@ -1048,6 +1049,8 @@ ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
 
 ble_error_t nRF5xGap::getStackWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHelper)
 {   
+        using ble::pal::vendor::nordic::nRF5xSecurityManager;
+
     pm_peer_id_t peer_id;
     
     ret_code_t ret;
@@ -1095,7 +1098,7 @@ ble_error_t nRF5xGap::getStackWhiteIdentityList(GapWhiteAndIdentityList_t &gapAd
                     {
                         
                         //ble_gap_irk_t *p_dfg = &bond_data.peer_ble_id.id_info;
-                        if (securityManager.matchAddressAndIrk(&whitelistAddresses[i], &bond_data.peer_ble_id.id_info))
+                        if (btle_matchAddressAndIrk(address, irk))
                         {                        
                             // Copy data to the buffer.
                             memcpy(&gapAdrHelper.identities[i], &bond_data.peer_ble_id, sizeof(ble_gap_id_key_t));
@@ -1195,3 +1198,57 @@ ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack()
     return applyWhiteIdentityList(whiteAndIdentityList);
 }
 #endif
+
+void nRF5xGap::set_connection_event_handler(ble::pal::ConnectionEventHandler *connection_event_handler)
+{
+    _connection_event_handler = connection_event_handler;
+}
+
+void nRF5xGap::processConnectionEvent(
+    Handle_t handle,
+    Role_t role,
+    BLEProtocol::AddressType_t peerAddrType,
+    const BLEProtocol::AddressBytes_t peerAddr,
+    BLEProtocol::AddressType_t ownAddrType,
+    const BLEProtocol::AddressBytes_t ownAddr,
+    const ConnectionParams_t *connectionParams
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_connected(
+            handle,
+            role,
+            peerAddrType,
+            peerAddr,
+            ownAddrType,
+            ownAddr,
+            connectionParams
+        );
+    }
+
+    ::Gap::processConnectionEvent(
+        handle,
+        role,
+        peerAddrType,
+        peerAddr,
+        ownAddrType,
+        ownAddr,
+        connectionParams
+   );
+}
+
+void nRF5xGap::processDisconnectionEvent(
+    Handle_t handle,
+    DisconnectionReason_t reason
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_disconnected(
+            handle,
+            reason
+        );
+    }
+
+    ::Gap::processDisconnectionEvent(
+        handle,
+        reason
+    );
+}

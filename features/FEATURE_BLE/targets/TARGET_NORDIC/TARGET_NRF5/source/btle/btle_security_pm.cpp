@@ -26,6 +26,7 @@ extern "C" {
 }
 
 #include "btle_security.h"
+#if 0
 
 static bool                      initialized = false;
 
@@ -389,6 +390,7 @@ void pm_handler(pm_evt_t const *p_event)
     }
 }
 
+#endif
 #if  (NRF_SD_BLE_API_VERSION <= 2)
 ble_error_t
 btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
@@ -406,7 +408,6 @@ btle_createWhitelistFromBondTable(ble_gap_whitelist_t *p_whitelist)
     }
 }
 #endif
-
 bool
 btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_irk)
 {
@@ -416,7 +417,7 @@ btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const * p_i
      */
     return im_address_resolve(p_addr, p_irk);
 }
-
+#if 0
 void
 btle_generateResolvableAddress(const ble_gap_irk_t &irk, ble_gap_addr_t &address)
 {
@@ -484,3 +485,4 @@ ble_error_t btle_getAddressesFromBondTable(Gap::Whitelist_t &addrList)
 #endif
 
 #endif // defined(S130) || defined(S132) || defined(S140)
+#endif

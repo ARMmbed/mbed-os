@@ -44,6 +44,7 @@
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
 #include "ble/GapScanningParams.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 
 #include "nrf_soc.h"
 
@@ -52,9 +53,9 @@ extern "C" {
 #include "app_util_platform.h"
 }
 
-#include "btle_security.h"
-
 void radioNotificationStaticCallback(bool param);
+
+namespace ble { namespace pal { class ConnectionEventHandler; }}
 
 /**************************************************************************/
 /*!
@@ -62,9 +63,10 @@ void radioNotificationStaticCallback(bool param);
 
 */
 /**************************************************************************/
-class nRF5xGap : public Gap
-{
+class nRF5xGap : public ::Gap, public ble::pal::ConnectionEventMonitor {
 public:
+    nRF5xGap();
+
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
@@ -254,20 +256,41 @@ private:
     }
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 
-private:
+public:
+    /** @note Implements ConnectionEventMonitor.
+     *  @copydoc ConnectionEventMonitor::set_connection_event_handler
+     */
+    void set_connection_event_handler(ble::pal::ConnectionEventHandler *_connection_event_handler);
+
+    /**
+     * @copydoc ::Gap::processConnectionEvent
+     */
+    void processConnectionEvent(
+        Handle_t handle,
+        Role_t role,
+        BLEProtocol::AddressType_t peerAddrType,
+        const BLEProtocol::AddressBytes_t peerAddr,
+        BLEProtocol::AddressType_t ownAddrType,
+        const BLEProtocol::AddressBytes_t ownAddr,
+        const ConnectionParams_t *connectionParams
+    );
+
+    /**
+     * @copydoc ::Gap::processDisconnectionEvent
+     */
+    void processDisconnectionEvent(
+        Handle_t handle,
+        DisconnectionReason_t reason
+    );
+
     uint16_t m_connectionHandle;
+
+    ble::pal::ConnectionEventHandler* _connection_event_handler;
 
     /*
      * Allow instantiation from nRF5xn when required.
      */
     friend class nRF5xn;
-
-    nRF5xGap() :
-        advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
-        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
-        whitelistAddressesSize(0) {
-        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
-    }
 
     nRF5xGap(nRF5xGap const &);
     void operator=(nRF5xGap const &);

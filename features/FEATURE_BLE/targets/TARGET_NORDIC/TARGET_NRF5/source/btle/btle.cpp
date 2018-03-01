@@ -53,7 +53,7 @@ extern "C" {
 #include "nrf_ble_hci.h"
 
 #include "nRF5XPalGattClient.h"
-
+#include "nRF5XPalSecurityManager.h"
 
 
 bool isEventsSignaled = false;
@@ -171,6 +171,7 @@ error_t btle_init(void)
 static void btle_handler(ble_evt_t *p_ble_evt)
 {
     using ble::pal::vendor::nordic::nRF5XGattClient;
+    using ble::pal::vendor::nordic::nRF5xSecurityManager;
 
     /* Library service handlers */
 #if SDK_CONN_PARAMS_MODULE_ENABLE
@@ -265,10 +266,6 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
         }
 
-        case BLE_GAP_EVT_PASSKEY_DISPLAY:
-            securityManager.processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
-            break;
-
         case BLE_GAP_EVT_TIMEOUT:
             gap.processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;
@@ -295,6 +292,9 @@ static void btle_handler(ble_evt_t *p_ble_evt)
         default:
             break;
     }
+
+    // Process security manager events
+    securityManager.sm_handler(p_ble_evt);
 
     gattServer.hwCallback(p_ble_evt);
 }
