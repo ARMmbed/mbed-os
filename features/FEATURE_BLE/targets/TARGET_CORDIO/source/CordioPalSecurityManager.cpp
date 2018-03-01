@@ -171,23 +171,6 @@ ble_error_t CordioSecurityManager::enable_encryption(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::disable_encryption(connection_handle_t connection)
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-ble_error_t CordioSecurityManager::get_encryption_status(
-    connection_handle_t connection, LinkSecurityStatus_t &status
-) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
-ble_error_t CordioSecurityManager::get_encryption_key_size(
-    connection_handle_t, uint8_t &bitsize
-) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
 ble_error_t CordioSecurityManager::encrypt_data(
     const byte_array_t<16> &key,
     encryption_block_t &data
@@ -340,11 +323,6 @@ ble_error_t CordioSecurityManager::cancel_pairing(
 ) {
     DmSecCancelReq(connection, reason.value());
     return BLE_ERROR_NONE;
-}
-
-ble_error_t CordioSecurityManager::request_authentication(connection_handle_t connection)
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t CordioSecurityManager::get_random_data(byte_array_t<8> &random_data)

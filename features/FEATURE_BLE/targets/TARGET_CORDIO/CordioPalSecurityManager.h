@@ -148,25 +148,6 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::disable_encryption
-     */
-    virtual ble_error_t disable_encryption(connection_handle_t connection);
-
-    /**
-     * @see ::ble::pal::SecurityManager::get_encryption_status
-     */
-    virtual ble_error_t get_encryption_status(
-        connection_handle_t connection, LinkSecurityStatus_t &status
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::get_encryption_key_size
-     */
-    virtual ble_error_t get_encryption_key_size(
-        connection_handle_t, uint8_t &bitsize
-    );
-
-    /**
      * @see ::ble::pal::SecurityManager::encrypt_data
      */
     virtual ble_error_t encrypt_data(
@@ -273,11 +254,6 @@ public:
     virtual ble_error_t cancel_pairing(
         connection_handle_t connection, pairing_failure_t reason
     );
-
-    /**
-     * @see ::ble::pal::SecurityManager::request_authentication
-     */
-    virtual ble_error_t request_authentication(connection_handle_t connection);
 
     /**
      * @see ::ble::pal::SecurityManager::get_random_data

@@ -792,22 +792,6 @@ public:
         bool mitm
     ) = 0;
 
-    virtual ble_error_t disable_encryption(
-        connection_handle_t connection
-    ) = 0;
-
-    /**
-     * Get the link's key size.
-     *
-     * @param[in] connection connection handle
-     * @param[out] bytesize size of the encryption key in bytes
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t get_encryption_key_size(
-        connection_handle_t connection,
-        uint8_t &bytesize
-    ) = 0;
-
     /**
      * Encrypt data with a given key. This uses the facility on the controller to
      * perform the encryption.
@@ -890,17 +874,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
-
-    /**
-     * Request authentication of the connection. This will trigger an appropriate reaction,
-     * which might include encryption or pairing/re-pairing.
-     *
-     * @param[in] connection connection handle
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t request_authentication(
-        connection_handle_t connection
-    ) = 0;
 
     /**
      * Generate and return 8 octets of random data compliant with [FIPS PUB 140-2]
