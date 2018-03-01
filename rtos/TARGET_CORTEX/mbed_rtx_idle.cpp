@@ -42,7 +42,7 @@ static rtos::internal::SysTimer *os_timer;
 static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
 
 /// Enable System Timer.
-int32_t OS_Tick_Enable (void)
+void OS_Tick_Enable (void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
@@ -52,24 +52,18 @@ int32_t OS_Tick_Enable (void)
 
     // set to fire interrupt on next tick
     os_timer->schedule_tick();
-
-    return 0;
 }
 
 /// Disable System Timer.
-int32_t OS_Tick_Disable (void)
+void OS_Tick_Disable (void)
 {
     os_timer->cancel_tick();
-
-    return 0;
 }
 
 /// Acknowledge System Timer IRQ.
-int32_t OS_Tick_AcknowledgeIRQ (void)
+void OS_Tick_AcknowledgeIRQ (void)
 {
     os_timer->schedule_tick();
-
-    return 0;
 }
 
 /// Get System Timer count.
