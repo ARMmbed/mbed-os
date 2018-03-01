@@ -1,14 +1,14 @@
 # NVStore
 
-A lightweight module providing the functionality of storing data by keys in the internal flash, for security purpose.
+NVStore is a lightweight module that stores data by keys in the internal flash for security purposes. 
 
 ## Description
 
 NVStore provides the ability to store a minimal set of system critical items in the internal flash.
-For each item key, NVStore module provides the ability to set the item data or get it.
-Newly set values are added to the flash (as in journal), with the effect of overriding the previous value for this key.
+For each item key, the NVStore module provides the ability to set the item data or get it.
+Newly added values are added to the end of the existing data, superseding the previous value that was there for the same key. 
 The NVStore module ensures that power failures don't harm existing data during any operation.
-The full interface can be found under nvstore.h.
+The full interface can be found under `nvstore.h`.
 
 ### Flash structure
 NVStore uses two Flash areas, active and nonactive. Each area must consist of at least one erasable unit (sector).
@@ -31,28 +31,28 @@ Each item is kept in an entry containing a header and data, where the header hol
 ## Usage
 
 ### Enabling NVStore and configuring it for your board
-NVStore is enabled by default for all devices having the internal flash driver (have "FLASH" in the device_has attribute).
+NVStore is enabled by default for all devices with the internal flash driver (have "FLASH" in the device_has attribute).
 One can disable it by setting its "enabled" attribute to false.
 Unless specifically configured by the user, NVStore selects the last two flash sectors as its areas, with the mininum size of 4KBs,
 meaning that if the sectors are smaller, few continuous ones will be used for each area.
-The user can override this by setting the addresses and sizes of both areas in mbed_lib.json on a per board basis.
+The user can override this by setting the addresses and sizes of both areas in` mbed_lib.json` on a per board basis.
 In this case, all following four attributes need to be set:
 - area_1_address
 - area_1_size
 - area_2_address
 - area_2_size
 
-In addition, the num_keys value should be modified, in order to change the default number of different keys.
+In addition, the `num_keys` value should be modified to change the default number of different keys.
 
 ### Using NVStore
 NVStore is a singleton class, meaning that the system can have only a single instance of it.
-To instanciate NVStore, one needs to call its get_instance member function as following:
+To instantiate NVStore, one needs to call its get_instance member function as following:
 ``` c++
     NVStore &nvstore = NVStore::get_instance();
 ```
-After the NVStore instantiation, one can call the init API, but it is not necessary, as all
-NVStore APIs (get, set et al.) perform a "lazy initialization".
+After the NVStore instantiation, one can call the init API, but it is not necessary because all
+NVStore APIs (get, set and so on) perform a "lazy initialization".
 
 ### Testing NVStore
-Run the NVStore functionality test with the mbed command as following:
-mbed test -n features-nvstore-tests-nvstore-functionality
+Run the NVStore functionality test with the `mbed` command as following:
+```mbed test -n features-nvstore-tests-nvstore-functionality```
