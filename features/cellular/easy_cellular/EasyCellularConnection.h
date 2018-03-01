@@ -35,7 +35,7 @@ class EasyCellularConnection: public CellularBase
 {
 
 public:
-    EasyCellularConnection();
+    EasyCellularConnection(bool debug = false);
     virtual ~EasyCellularConnection();
 
 public:

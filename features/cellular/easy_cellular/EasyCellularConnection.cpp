@@ -53,15 +53,16 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
     return true;
 }
 
-EasyCellularConnection::EasyCellularConnection() :
+EasyCellularConnection::EasyCellularConnection(bool debug) :
         _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
                 MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(), _credentials_err(
                 NSAPI_ERROR_OK)
 {
+    tr_info("EasyCellularConnection()");
 #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
     _credentials_set = false;
 #endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-    tr_info("EasyCellularConnection()");
+    modem_debug_on(debug);
 }
 
 EasyCellularConnection::~EasyCellularConnection()

@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-#include <CellularConnectionFSM.h>
+#include "CellularConnectionFSM.h"
+
 #ifdef CELLULAR_DEVICE
 
 #ifndef MBED_TRACE_MAX_LEVEL
