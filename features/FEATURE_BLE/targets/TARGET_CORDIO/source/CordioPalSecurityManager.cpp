@@ -125,8 +125,9 @@ ble_error_t CordioSecurityManager::set_authentication_timeout(
 }
 
 ble_error_t CordioSecurityManager::get_authentication_timeout(
-    connection_handle_t, uint16_t &timeout_in_10ms
+    connection_handle_t connection, uint16_t &timeout_in_10ms
 ) {
+    // FIXME: Is it usefull to add dynamic timeout management for all connections ?
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
