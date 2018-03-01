@@ -88,7 +88,7 @@ protected:
         void (*_cb)(void *);
         void *_data;
         bool created;
-        bool rx_avail; // used to synchronise reading from modem
+        bool rx_avail; // used to synchronize reading from modem
     };
 
     /**
