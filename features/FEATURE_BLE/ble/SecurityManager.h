@@ -89,14 +89,14 @@
  *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
  *
  * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
- *  |       |                           |                            |                        |            |
+ *  |        |                          |                            |                        |            |
  *  |---------------------------> requestPairing()                   |                        |            |
- *  |       |                           |------[pairing start]------>|                        |            |
- *  |       |                           |                            |----------------> pairingRequest() ->|
- *  |       |                           |                        acceptPairing() <------------------------- |
- *  |       |                           |<---[pairing complete]----->|                        |            |
+ *  |        |                          |------[pairing start]------>|                        |            |
+ *  |        |                          |                            |----------------> pairingRequest() ->|
+ *  |        |                          |                        acceptPairing() <------------------------ |
+ *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
- *  |       |                           |                            |                        |            |
+ *  |        |                          |                            |                        |            |
  *
  *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
  *  if you request encryption and authentication and no bonding information is available. The sequence will
@@ -115,6 +115,31 @@
  *  |       |                           |                            |                        |            |
  *
  * @note if bonding information is not available, pairing will be triggered
+ *
+ *
+ * Sequence diagram for Secure Connections passkey entry pairing with one device having a display only
+ * and other a keyboard
+ *
+ *  /----------- Device 1 (keyboard) ---\  *------ BLE link ------*  /-------------- Device 2 (display) ---\
+ *
+ * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
+ *  |        |                          |                            |                        |            |
+ *  |---------------------------> requestPairing()                   |                        |            |
+ *  |        |                          |------[pairing start]------>|                        |            |
+ *  |        |                          |                            |----------------> pairingRequest() ->|
+ *  |        |                          |                        acceptPairing() <------------------------ |
+ *  |        |                          |<---[secure con. pairing]-->|                        |            |
+ *  |<- passkeyRequest() <--------------|                            |----------------> passkeyDisplay() ->|
+ *  |        |                          |                            |                        |            |
+ *
+ *                       user reads the passkey on Device 2 and inputs it in Device 1
+ *
+ *  |        |                          |                            |                        |            |
+ *  |-------------------------->passkeyEntered()                     |                        |            |
+ *  |        |                          |<---[pairing complete]----->|                        |            |
+ *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
+ *  |        |                          |                            |                        |            |
+ *
  */
 
 class SecurityManager {
