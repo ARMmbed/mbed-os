@@ -255,6 +255,7 @@ ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
 
 ble_error_t CordioSecurityManager::generate_public_key()
 {
+    // FIXME
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -356,7 +357,7 @@ ble_error_t CordioSecurityManager::passkey_request_reply(
 ) {
     DmSecAuthRsp(
         connection,
-        3,
+        /* datalength */ 3,
         reinterpret_cast<uint8_t*>(&passkey)
     );
 
@@ -369,7 +370,7 @@ ble_error_t CordioSecurityManager::legacy_pairing_oob_data_request_reply(
 ) {
     DmSecAuthRsp(
         connection,
-        16,
+        /* data length */16,
         const_cast<uint8_t*>(oob_data.data())
     );
 
@@ -379,6 +380,7 @@ ble_error_t CordioSecurityManager::legacy_pairing_oob_data_request_reply(
 ble_error_t CordioSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
 ) {
+    // FIXME:
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -397,6 +399,7 @@ ble_error_t CordioSecurityManager::oob_data_verified(
     const oob_lesc_value_t &local_random,
     const oob_lesc_value_t &peer_random
 ) {
+    // FIXME:
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -454,6 +457,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             dmSecEncryptIndEvt_t* evt = (dmSecEncryptIndEvt_t*) msg;
             // note: the field usingLtk of the message indicates if an LTK was
             // used to encrypt the link
+            // FIXME: How to indicate the level of encryption ?
             handler->on_link_encryption_result(evt->hdr.param, link_encryption_t::ENCRYPTED);
             return true;
         }
@@ -498,6 +502,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         }
 
         case DM_SEC_KEY_IND: {
+            // NOTE: also report security level and encryption key len
             dmSecKeyIndEvt_t* evt = (dmSecKeyIndEvt_t*) msg;
             connection_handle_t connection = evt->hdr.param;
 
@@ -520,6 +525,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                         connection,
                         ltk_t(reinterpret_cast<uint8_t*>(evt->keyData.ltk.key))
                     );
+
                     handler->on_keys_distributed_ediv_rand(
                         connection,
                         ediv_t(reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv))),
@@ -533,6 +539,7 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                         (advertising_peer_address_type_t::type) evt->keyData.irk.addrType,
                         evt->keyData.irk.bdAddr
                     );
+
                     handler->on_keys_distributed_irk(
                         connection,
                         irk_t(reinterpret_cast<uint8_t*>(evt->keyData.irk.key))
@@ -545,8 +552,6 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                     );
                     break;
             }
-
-            // TODO: what to do with the security level and encryption key len ???
 
             return true;
         }
