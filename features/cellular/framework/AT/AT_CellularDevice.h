@@ -36,7 +36,7 @@ namespace mbed
  *  Class AT_CellularDevice
  *
  *  A class defines opening and closing of cellular interfaces.
- *  Deleting/Closing of opened interfaces can be done only via this class.
+ *  Deleting/Closing of opened interfaces can be done only through this class.
  */
 class AT_CellularDevice : public CellularDevice
 {
