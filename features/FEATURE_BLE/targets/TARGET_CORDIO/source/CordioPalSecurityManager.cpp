@@ -96,7 +96,13 @@ ble_error_t CordioSecurityManager::clear_resolving_list()
 ble_error_t CordioSecurityManager::set_secure_connections_support(
     bool enabled, bool secure_connections_only
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    // secure connection support is enabled automatically at the stack level.
+    if (secure_connections_only) {
+        pSmpCfg->auth |= SMP_AUTH_SC_FLAG;
+    } else {
+        pSmpCfg->auth &= ~SMP_AUTH_SC_FLAG;
+    }
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::get_secure_connections_support(
@@ -289,9 +295,6 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 ) {
-    //FIXME: understand if this is required
-    pSmpCfg->auth = authentication_requirements.value();
-
     DmSecPairReq(
         connection,
         oob_data_flag,
