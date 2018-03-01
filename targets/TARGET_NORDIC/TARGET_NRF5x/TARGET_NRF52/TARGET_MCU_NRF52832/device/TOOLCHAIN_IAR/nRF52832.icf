@@ -40,8 +40,8 @@ export symbol __ICFEDIT_region_RAM_end__;
 
 /*-Sizes-*/
 /*Heap 1/4 of ram and stack 1/8*/
-define symbol __ICFEDIT_size_cstack__   = 0x2000;
-define symbol __ICFEDIT_size_heap__     = 0x4000;
+define symbol __ICFEDIT_size_cstack__   = 0x800;
+define symbol __ICFEDIT_size_heap__     = 0x5800;
 /**** End of ICF editor section. ###ICF###*/
 
 define symbol __code_start_soft_device__ = 0x0;

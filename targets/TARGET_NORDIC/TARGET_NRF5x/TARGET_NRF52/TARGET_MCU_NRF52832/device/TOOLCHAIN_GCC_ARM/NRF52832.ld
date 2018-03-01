@@ -223,8 +223,8 @@ SECTIONS
         *(.heap*);
 
         /* Expand the heap to reach the stack boundary. */
-        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - 0x8000), "heap region overflowed into stack");
-        . += (ORIGIN(RAM) + LENGTH(RAM) - 0x8000) - .;
+        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - 0x800), "heap region overflowed into stack");
+        . += (ORIGIN(RAM) + LENGTH(RAM) - 0x800) - .;
     } > RAM
     PROVIDE(__heap_start = ADDR(.heap));
     PROVIDE(__heap_size = SIZEOF(.heap));
