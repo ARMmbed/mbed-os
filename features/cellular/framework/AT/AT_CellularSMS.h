@@ -143,9 +143,9 @@ private:
 
     /** Packs the given str from ascii to 7bit gsm format and converts it to hex to the given buf.
      *
-     *  @param str                   string which is to be converted
+     *  @param str                   string that is to be converted
      *  @param len                   length of the str buffer
-     *  @param buf                   preallocated buffer which holds the converted string in hex format after successful call
+     *  @param buf                   preallocated buffer that holds the converted string in hex format after successful call
      *  @param number_of_padding_bit padding bits needed to keep the octet boundary
      *  @return                      length of buffer buf or zero on failure
      */
@@ -153,11 +153,11 @@ private:
 
     /** Unpacks the given hex- and 7-bit gsm encoded str to ascii string
      *
-     *  @param str          string which converted to ascii string to buf
+     *  @param str          string to convert to ascii string and write to buf
      *  @param len          length of the str divided by two as str is hexencoded
      *  @param buf          preallocated destination buffer
-     *  @param padding_bits number of padding bits which were needed to hold the octet boundary
-     *  @param msg_len      Length of the received message which is coded in str
+     *  @param padding_bits number of padding bits needed to hold the octet boundary
+     *  @param msg_len      Length of the received message, which is coded in str
      *  @return             length of the destination buffer buf
      *
      */
