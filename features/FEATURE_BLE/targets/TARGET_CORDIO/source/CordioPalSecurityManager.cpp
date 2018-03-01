@@ -382,10 +382,14 @@ ble_error_t CordioSecurityManager::confirmation_entered(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+// FIXME: remove when declaration from the stack is available
+extern "C" void DmSecKeypressReq(dmConnId_t connId, uint8_t keypressType);
+
 ble_error_t CordioSecurityManager::send_keypress_notification(
     connection_handle_t connection, Keypress_t keypress
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecKeypressReq(connection, keypress);
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::oob_data_verified(
