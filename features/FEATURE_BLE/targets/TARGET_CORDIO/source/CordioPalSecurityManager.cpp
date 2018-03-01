@@ -478,15 +478,17 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
                     );
                     DmSecAuthRsp(
                         connection,
-                        3,
+                        /* data length */ SMP_PIN_LEN,
                         reinterpret_cast<uint8_t*>(&(get_security_manager()._default_passkey))
                     );
                 } else {
-                    // FIXME: generate a random passkey
-                    passkey_num_t passkey = 0x00654321;
+                    /* generate random passkey, limit to 6 digit max */
+                    passkey_num_t passkey;
+                    SecRand((uint8_t *) &passkey, sizeof(passkey));
+                    passkey %= 1000000;
                     handler->on_passkey_display(connection, passkey);
                     DmSecAuthRsp(
-                        connection, 3, reinterpret_cast<uint8_t*>(&passkey)
+                        connection, SMP_PIN_LEN, reinterpret_cast<uint8_t*>(&passkey)
                     );
                 }
             } else {
