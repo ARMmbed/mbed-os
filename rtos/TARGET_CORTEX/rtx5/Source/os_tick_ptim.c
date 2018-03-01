@@ -22,13 +22,13 @@
  * limitations under the License.
  */
 
-#include "os_tick.h"
-#include "irq_ctrl.h"
-
 #include "RTE_Components.h"
 #include CMSIS_device_header
 
 #if defined(PTIM)
+
+#include "os_tick.h"
+#include "irq_ctrl.h"
 
 #ifndef PTIM_IRQ_PRIORITY
 #define PTIM_IRQ_PRIORITY           0xFFU
@@ -75,7 +75,7 @@ int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
     }
     prio >>= 1;
   }
-  
+
   // Adjust configured priority to the number of implemented priority bits
   prio = (PTIM_IRQ_PRIORITY << bits) & 0xFFUL;
 
