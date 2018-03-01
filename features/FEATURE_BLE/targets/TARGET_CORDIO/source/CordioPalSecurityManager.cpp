@@ -210,11 +210,19 @@ ble_error_t CordioSecurityManager::set_ltk(
     bool mitm,
     bool secure_connections
 ) {
-    // FIXME: get access to the security level of a key
+    uint8_t security_level = DM_SEC_LEVEL_NONE;
+    if (secure_connections) {
+        security_level = DM_SEC_LEVEL_ENC_LESC;
+    } else if(mitm) {
+        security_level = DM_SEC_LEVEL_ENC_AUTH;
+    } else {
+        security_level = DM_SEC_LEVEL_ENC;
+    }
+
     DmSecLtkRsp(
         connection,
         /* key found */ true,
-        /* sec level ??? */ DM_SEC_LEVEL_ENC_AUTH,
+        /* sec level */ security_level,
         const_cast<uint8_t*>(ltk.data())
     );
     return BLE_ERROR_NONE;
@@ -226,7 +234,7 @@ ble_error_t CordioSecurityManager::set_ltk_not_found(
     DmSecLtkRsp(
         connection,
         /* key found */ false,
-        /* sec level ??? */ DM_SEC_LEVEL_NONE,
+        /* sec level */ DM_SEC_LEVEL_NONE,
         NULL
     );
 
