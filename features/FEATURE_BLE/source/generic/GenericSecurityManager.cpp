@@ -782,7 +782,7 @@ bool GenericSecurityManager::crypto_toolbox_f4(
 void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, bool enable) {
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
-        cb->mitm_performed = true;
+        cb->mitm_performed = enable;
     }
 }
 
@@ -859,7 +859,7 @@ void GenericSecurityManager::on_pairing_request(
     cb->set_initiator_key_distribution(initiator_dist);
     cb->set_responder_key_distribution(responder_dist);
 
-    set_mitm_performed(connection, false);
+    cb->mitm_performed = false;
 
     if (_pairing_authorisation_required) {
         eventHandler->pairingRequest(connection);
@@ -904,11 +904,6 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
     if (cb) {
         if (cb->encryption_requested) {
             enable_encryption(connection);
-        }
-
-        /* sc doesn't need to exchange ltk */
-        if (cb->secure_connections_paired) {
-            cb->ltk_mitm_protected = cb->mitm_performed;
         }
     }
 
