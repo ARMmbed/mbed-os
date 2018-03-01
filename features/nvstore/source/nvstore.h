@@ -47,7 +47,7 @@ typedef enum {
 #define NVSTORE_MAX_KEYS 16
 #endif
 
-// defines 2 areas - active and non-active, not configurable
+// defines 2 areas - active and nonactive, not configurable
 #define NVSTORE_NUM_AREAS        2
 
 class NVStore : private mbed::NonCopyable<NVStore> {
@@ -64,7 +64,7 @@ public:
     static NVStore& get_instance()
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
-        // the instance on the heap, as it ensures destruction at program end (preventing warnings
+        // the instance on the heap because it ensures destruction at program end (preventing warnings
         // from memory checking tools).
         static NVStore instance;
         return instance;
@@ -258,7 +258,7 @@ private:
      * @param[in]  size                   Number of bytes to read.
      * @param[in]  buf                    Output buffer.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int flash_read_area(uint8_t area, uint32_t offset, uint32_t size, void *buf);
 
@@ -279,7 +279,7 @@ private:
      *
      * @param[in]  area                   Area.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int flash_erase_area(uint8_t area);
 
@@ -297,7 +297,7 @@ private:
      * @param[in]  area                   Area.
      * @param[out] offset                 Offset of empty space.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int calc_empty_space(uint8_t area, uint32_t &offset);
 
@@ -315,7 +315,7 @@ private:
      * @param[out] flags                  Record flags.
      * @param[out] next_offset            Offset of next record.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void *buf,
                     uint16_t &actual_size, int validate_only, int &valid,
@@ -332,7 +332,7 @@ private:
      * @param[in]  data_buf               Data buffer.
      * @param[out] next_offset            Offset of next record.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t flags,
                      uint32_t data_size, const void *data_buf, uint32_t &next_offset);
@@ -344,7 +344,7 @@ private:
      * @param[in]  version                Area version.
      * @param[out] next_offset            Offset of next record.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int write_master_record(uint8_t area, uint16_t version, uint32_t &next_offset);
 
@@ -356,13 +356,13 @@ private:
      * @param[in]  to_offset              Offset in destination area.
      * @param[out] next_offset            Offset of next record.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_offset,
                     uint32_t &next_offset);
 
     /**
-     * @brief Garbage collection (compact all records frm active area to non active ones).
+     * @brief Garbage collection (compact all records from active area to nonactive ones).
      *        All parameters belong to a record that needs to be written before the process.
      *
      * @param[in]  key                    Record key.
@@ -370,7 +370,7 @@ private:
      * @param[in]  buf_size               Data size (bytes).
      * @param[in]  buf                    Data buffer.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int garbage_collection(uint16_t key, uint16_t flags, uint16_t buf_size, const void *buf);
 
@@ -383,7 +383,7 @@ private:
      * @param[out] actual_size            Actual data size (bytes).
      * @param[in]  validate_only          Just validate (without reading to buffer).
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int do_get(uint16_t key, uint16_t buf_size, void *buf, uint16_t &actual_size,
                int validate_only);
@@ -396,7 +396,7 @@ private:
      * @param[in]  buf                    Input Buffer.
      * @param[in]  flags                  Record flags.
      *
-     * @returns 0 for success, non-zero for failure.
+     * @returns 0 for success, nonzero for failure.
      */
     int do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags);
 
