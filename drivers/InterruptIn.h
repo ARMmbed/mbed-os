@@ -68,6 +68,7 @@ public:
      *  @param mode The mode to set the pin to (PullUp/PullDown/etc.)
      */
     InterruptIn(PinName pin, PinMode mode = PullDefault);
+
     virtual ~InterruptIn();
 
     /** Read the input, represented as 0 or 1 (int)
