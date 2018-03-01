@@ -520,3 +520,11 @@ def intelhex_offset(filename, offset):
         raise ToolException("File %s does not have a known binary file type"
                             % filename)
     return ih
+
+
+def integer(maybe_string, base):
+    """Make an integer of a number or a string"""
+    if isinstance(maybe_string, int):
+        return maybe_string
+    else:
+        return int(maybe_string, base)

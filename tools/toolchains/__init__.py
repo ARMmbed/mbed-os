@@ -1130,8 +1130,10 @@ class mbedToolchain:
         mkdir(new_path)
 
         filename = name+'.'+ext
+        # Absolute path of the final linked file
+        full_path = join(tmp_path, filename)
         elf = join(tmp_path, name + '.elf')
-        bin = None if ext is 'elf' else join(tmp_path, filename)
+        bin = None if ext == 'elf' else full_path
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
@@ -1155,7 +1157,7 @@ class mbedToolchain:
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
-        return bin, needed_update
+        return full_path, needed_update
 
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY

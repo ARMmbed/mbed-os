@@ -144,28 +144,8 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-#if !MBED_CONF_TARGET_LSE_AVAILABLE
-    // Enable Power clock
-    __HAL_RCC_PWR_CLK_ENABLE();
-
-    // Enable access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
-
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
-#endif
-
-    // Disable LSI and LSE clocks
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
-    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-    HAL_RCC_OscConfig(&RCC_OscInitStruct);
 }
 
 /*
@@ -209,7 +189,8 @@ So by moving it 68 years forward from 1970, it become 1969-2067 which include 19
 68 is also a multiple of 4 so it let the leap year synchronized.
 
 Information about STM32F1:
-32bit register is used (no BCD format) for the seconds and a software structure to store dates.
+32bit register is used (no BCD format) for the seconds.
+For date, there is no specific register, only a software structure.
 It is then not a problem to not use shifts.
 */
 
@@ -226,16 +207,25 @@ time_t rtc_read(void)
     HAL_RTC_GetTime(&RtcHandle, &timeStruct, RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&RtcHandle, &dateStruct, RTC_FORMAT_BIN);
 
+#if TARGET_STM32F1
+    /* date information is null before first write procedure */
+    /* set 01/01/1970 as default values */
+    if (dateStruct.Year == 0) {
+        dateStruct.Year = 2 ;
+        dateStruct.Month = 1 ;
+        dateStruct.Date = 1 ;
+    }
+#endif
+
     // Setup a tm structure based on the RTC
-    /* tm_wday information is ignored by mktime */
+    /* tm_wday information is ignored by _rtc_maketime */
+    /* tm_isdst information is ignored by _rtc_maketime */
     timeinfo.tm_mon  = dateStruct.Month - 1;
     timeinfo.tm_mday = dateStruct.Date;
     timeinfo.tm_year = dateStruct.Year + 68;
     timeinfo.tm_hour = timeStruct.Hours;
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
-    // Daylight Saving Time information is not available
-    timeinfo.tm_isdst  = -1;
 
     // Convert to timestamp
     time_t t;

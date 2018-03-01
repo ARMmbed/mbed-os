@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -426,6 +426,53 @@ static int smsc9220_check_id(void)
     return 0;
 }
 
+/**
+ * \brief Fill the SMSC9220 TX FIFO with a number of words at an aligned
+ *        address.
+ *
+ * \param[in] data Pointer to the aligned data that should be sent.
+ * \param[in] dwords_to_write Number of data words to write.
+ */
+static void fill_tx_fifo_aligned(unsigned int *data,
+                                 unsigned int dwords_to_write)
+{
+    while (dwords_to_write > 0) {
+        SMSC9220->TX_DATA_PORT = *data;
+        data++;
+        dwords_to_write--;
+    }
+}
+
+/**
+ * \brief Fill the SMSC9220 TX FIFO with a number of words at an unaligned
+ *        address. This function ensures that loading words at that address will
+ *        not generate unaligned access which can trigger an exception to the
+ *        processor.
+ *
+ * \param[in] data Pointer to the unaligned data that should be sent.
+ * \param[in] dwords_to_write Number of data words to write.
+ */
+static void fill_tx_fifo_unaligned(uint8_t *data, unsigned int dwords_to_write)
+{
+    /*
+     * Prevent unaligned word access from data pointer, 4 bytes are copied to
+     * this variable for each word that need to be sent.
+     */
+    unsigned int tx_data_port_tmp = 0;
+    uint8_t *tx_data_port_tmp_ptr = (uint8_t *)&tx_data_port_tmp;
+
+    while (dwords_to_write > 0) {
+        /* Keep the same endianness in data than in the temp variable */
+        tx_data_port_tmp_ptr[0] = data[0];
+        tx_data_port_tmp_ptr[1] = data[1];
+        tx_data_port_tmp_ptr[2] = data[2];
+        tx_data_port_tmp_ptr[3] = data[3];
+        SMSC9220->TX_DATA_PORT = tx_data_port_tmp;
+        data += 4;
+        dwords_to_write--;
+    }
+}
+
 /*----------------------------------------------------------------------------
   Public API
  *----------------------------------------------------------------------------*/
@@ -574,7 +621,6 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
     int is_last_segment = 0; /* signing this is the last segment of the packet to be sent */
     unsigned int txcmd_a, txcmd_b = 0;
     unsigned int dwords_to_write = 0;
-    unsigned int *pktptr = 0;
     unsigned int xmit_inf = 0;
     unsigned int tx_buffer_free_space = 0;
     volatile unsigned int xmit_stat = 0;
@@ -602,7 +648,6 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
         is_last_segment = 1;
     }
 
-    pktptr = (unsigned int *) data;
     txcmd_a = 0;
     txcmd_b = 0;
 
@@ -616,11 +661,16 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
     SMSC9220->TX_DATA_PORT = txcmd_b;
     dwords_to_write = (current_size + 3) >> 2;
 
-    /* PIO Copy to FIFO. Could replace this with DMA. */
-    while(dwords_to_write > 0) {
-        SMSC9220->TX_DATA_PORT = *pktptr;
-        pktptr++;
-        dwords_to_write--;
+    /*
+     * Copy to TX FIFO
+     * The function to use depends on the alignment of the data pointer on a 32
+     * bits boundary.
+     */
+    if (((unsigned int)data % sizeof(uint32_t)) == 0) {
+        /* Cast is safe because we know data is aligned */
+        fill_tx_fifo_aligned((unsigned int *)data, dwords_to_write);
+    } else {
+        fill_tx_fifo_unaligned((uint8_t *)data, dwords_to_write);
     }
 
     if (is_last_segment) {
