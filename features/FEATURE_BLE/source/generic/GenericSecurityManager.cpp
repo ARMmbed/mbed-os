@@ -969,12 +969,14 @@ void GenericSecurityManager::on_link_encryption_result(
 
         cb->encryption_requested = false;
         cb->encryption_failed = false;
+        cb->encrypted = true;
 
     } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
         cb->encryption_requested = false;
         cb->encryption_failed = false;
         cb->authenticated = true;
+        cb->encrypted = true;
 
     } else if (result == link_encryption_t::NOT_ENCRYPTED
                && cb->encryption_requested
