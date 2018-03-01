@@ -30,7 +30,7 @@ from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
 
-from ..utils import json_file_to_dict, intelhex_offset
+from ..utils import json_file_to_dict, intelhex_offset, integer
 from ..arm_pack_manager import Cache
 from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
                        get_resolution_order, Target)
@@ -41,7 +41,10 @@ except NameError:
     unicode = str
 PATH_OVERRIDES = set(["target.bootloader_img"])
 BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
+                            "target.header_format", "target.header_offset",
+                            "target.app_offset",
                             "target.mbed_app_start", "target.mbed_app_size"])
+
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -579,6 +582,41 @@ class Config(object):
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
+    @staticmethod
+    def header_member_size(member):
+        _, _, subtype, _ = member
+        try:
+            return int(subtype[:-2]) // 8
+        except:
+            if subtype.startswith("CRCITT32"):
+                return 32 // 8
+            elif subtype == "SHA256":
+                return 256 // 8
+            elif subtype == "SHA512":
+                return 512 // 8
+            else:
+                raise ValueError("target.header_format: subtype %s is not "
+                                 "understood" % subtype)
+
+    @staticmethod
+    def _header_size(format):
+        return sum(Config.header_member_size(m) for m in format)
+
+    def _make_header_region(self, start, header_format, offset=None):
+        size = self._header_size(header_format)
+        region = Region("header", start, size, False, None)
+        start += size
+        start = ((start + 7) // 8) * 8
+        return (start, region)
+
+    @staticmethod
+    def _assign_new_offset(rom_start, start, new_offset, region_name):
+        newstart = rom_start + integer(new_offset, 0)
+        if newstart < start:
+            raise ConfigException(
+                "Can not place % region inside previous region" % region_name)
+        return newstart
+
     def _generate_bootloader_build(self, rom_start, rom_size):
         start = rom_start
         rom_end = rom_start + rom_size
@@ -599,14 +637,34 @@ class Config(object):
             yield Region("bootloader", rom_start, part_size, False,
                          filename)
             start = rom_start + part_size
+            if self.target.header_format:
+                if self.target.header_offset:
+                    start = self._assign_new_offset(
+                        rom_start, start, self.target.header_offset, "header")
+                start, region = self._make_header_region(
+                    start, self.target.header_format)
+                yield region._replace(filename=self.target.header_format)
         if self.target.restrict_size is not None:
             new_size = int(self.target.restrict_size, 0)
             new_size = Config._align_floor(start + new_size, self.sectors) - start
             yield Region("application", start, new_size, True, None)
             start += new_size
+            if self.target.header_format:
+                if self.target.header_offset:
+                    start = self._assign_new_offset(
+                        rom_start, start, self.target.header_offset, "header")
+                start, region = self._make_header_region(
+                    start, self.target.header_format)
+                yield region
+            if self.target.app_offset:
+                start = self._assign_new_offset(
+                    rom_start, start, self.target.app_offset, "application")
             yield Region("post_application", start, rom_end - start,
                          False, None)
         else:
+            if self.target.app_offset:
+                start = self._assign_new_offset(
+                    rom_start, start, self.target.app_offset, "application")
             yield Region("application", start, rom_end - start,
                          True, None)
         if start > rom_start + rom_size:
