@@ -37,10 +37,10 @@ public:
      */
     ATHandler& get_at_handler();
 
-    /** Gets the device error which happened when using AT commands/responses. This is at error
+    /** Gets the device error that happened when using AT commands/responses. This is at error
      *  returned by the device. Returned CME/CMS errors can be found from 3gpp documents 27007 and 27005.
      *
-     *  @return at error (CME/CMS) while communication with the device
+     *  @return at error (CME/CMS) while communicating with the device
      */
     device_err_t get_device_error() const;
 
