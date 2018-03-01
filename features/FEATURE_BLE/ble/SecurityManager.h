@@ -26,7 +26,7 @@
 /**
  * Overview
  *
- * Security Manager is used to provide link security through encryption, signing, and authentication
+ * Security Manager is used to provide link security through encryption, signing and authentication
  * which are made possible by pairing and optionally bonding. Pairing is the process of establishing
  * and/or exchanging keys used for the current connection. Bonding means saving this information so that
  * it can later be used after reconnecting without having to pair again. This saves time and power.
@@ -37,7 +37,7 @@
  *
  * The important settings in the init() function are the MITM requirement and IO capabilities. Man in the
  * Middle (MITM) protection prevents an attack where one device can impersonate another device by
- * pairing with both devices at the same time. This protection is achieved sharing some information
+ * pairing with both devices at the same time. This protection is achieved by sharing some information
  * between the devices through some independent channel. The IO capabilities of both devices dictate
  * what algorithm is used. For details @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.3.5.1.
  * You can change the IO capabilities after initialisation with setIoCapability(). This will take effect
@@ -50,9 +50,9 @@
  * and provided to the Security Manager. Use setOOBDataUsage() to indicate you want to use it. The same call also
  * allows you to set whether or not the communication channel you are using to transmit the OOB data is
  * itself secure against MITM protection - this will set the level of the link security achieved using pairing
- * using this data.
+ * that uses this data.
  *
- * The most secure pairing is provided by Secure Connections which relies on public key cryptography.
+ * The most secure pairing is provided by Secure Connections which relies on Elliptical Curve Cryptography.
  * Support for Secure Connections is dependent on both the stack and controller on both sides supporting
  * it. If either side doesn't support it Legacy Pairing will be used. This is an older standard of pairing.
  * If higher security is required legacy pairing can be disabled by calling allowLegacyPairing(false);
@@ -62,20 +62,24 @@
  * First thing you need to do is to initialise the manager by calling init() with your chosen settings.
  *
  * The SecurityManager communicates with your application through events. These will trigger calls in
- * the EventHandler you must provide by calling the setSecurityManagerEventHandler() function.
+ * the EventHandler which you must provide by calling the setSecurityManagerEventHandler() function.
  *
  * The most important process is pairing. This may be triggered manually by calling requestPairing() or
- * may be called as a result of the application requiring encryption or encryption through
- * requestAuthentication() or setLinkEncryption().
+ * may be called as a result of the application requiring encryption by calling setLinkEncryption() or
+ * as a result of the application requiring MITM protection through requestAuthentication().
  *
  * All these can be implicitly called by using setLinkSecurity() to conveniently set the required
  * security for the link. The SecurityManager will trigger all the process required to achieve the set
- * security level.
+ * security level. Security level can only be escalated. Asking the Security Manager for a lower
+ * security level than the existing one will not fail but will result in a event informing the
+ * application through linkEncryptionResult() of the current level (which remains unchanged).
  *
  * Depending on the IO capabilities and OOB usage settings different pairing algorithms will be chosen.
- * They will produce appropriate events which must be handled by your EventHandler.
+ * They will produce appropriate events which must be handled by your EventHandler. If your event handler
+ * doesn't support all the calls you must not set IO capabilities or set OOB usage in such a way that would
+ * trigger them or else the pairing will fail (usually by timing out).
  *
- * The simplest example would be a pairing of a device with no IO capabilities and no OOB data available.
+ * The simplest example is a pairing of a device with no IO capabilities and no OOB data available.
  * With such limited pairing capabilities the "just works" method will be employed. This does not provide
  * any MITM protection. The pairing (triggered implicitly or called explicitly) will result in an event
  * being generated on the peer calling pairingRequest(). The event handler must make a decision (either in
@@ -132,7 +136,7 @@
  *  |<- passkeyRequest() <--------------|                            |----------------> passkeyDisplay() ->|
  *  |        |                          |                            |                        |            |
  *
- *                       user reads the passkey on Device 2 and inputs it in Device 1
+ *                       user reads the passkey on Device 2 and inputs it on Device 1
  *
  *  |        |                          |                            |                        |            |
  *  |-------------------------->passkeyEntered()                     |                        |            |
