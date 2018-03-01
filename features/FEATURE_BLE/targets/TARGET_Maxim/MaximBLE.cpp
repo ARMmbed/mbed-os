@@ -169,7 +169,7 @@ static void maximHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
                                                                         (GapAdvertisingParams::AdvertisingType_t)scanReport->eventType,
                                                                         scanReport->len,
                                                                         scanReport->pData,
-                                                                        (BLEProtocol::AddressType_t) scan->scanReport.addrType);
+                                                                        (BLEProtocol::AddressType_t) scanReport->addrType);
                 }
                 break;
             case DM_CONN_OPEN_IND:

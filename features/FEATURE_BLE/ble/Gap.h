@@ -2348,7 +2348,7 @@ public:
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
-     * @param[in] addressType address type of the peer.
+     * @param[in] addressType Type of the address of the peer that has emitted the packet.
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
@@ -2357,8 +2357,12 @@ public:
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
         const uint8_t *advertisingData,
-        BLEProtocol::AddressType_t addressType
+        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
     ) {
+       // FIXME: remove default parameter for addressType when ST shield is merged;
+       // this has been added to mitigate the lack of dependency management in
+       // testing jobs ....
+
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
         params.rssi = rssi;
