@@ -63,7 +63,10 @@ extern "C" {
  * }
  * @endcode
  */
-#ifdef SLEEP_PROFILING_ENABLED
+#ifdef MBED_SLEEP_TRACING_ENABLED
+
+void sleep_tracker_lock(const char *const filename, int line);
+void sleep_tracker_unlock(const char *const filename, int line);
 
 #define sleep_manager_lock_deep_sleep()           \
     do                                            \
@@ -79,18 +82,15 @@ extern "C" {
         sleep_tracker_unlock(__FILE__, __LINE__);   \
     } while (0);
 
-void sleep_tracker_lock(const char *const filename, int line);
-void sleep_tracker_unlock(const char *const filename, int line);
-
 #else
 
 #define sleep_manager_lock_deep_sleep() \
     sleep_manager_lock_deep_sleep_internal()
 
 #define sleep_manager_unlock_deep_sleep() \
-    sleep_manager_lock_deep_sleep_internal()
+    sleep_manager_unlock_deep_sleep_internal()
 
-#endif // SLEEP_PROFILING_ENABLED
+#endif // MBED_SLEEP_TRACING_ENABLED
 
 /** Lock the deep sleep mode
  *

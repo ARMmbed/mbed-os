@@ -19,6 +19,7 @@
 #include "mbed_critical.h"
 #include "sleep_api.h"
 #include "mbed_error.h"
+#include "mbed_debug.h"
 #include <limits.h>
 #include <stdio.h>
 
@@ -30,7 +31,7 @@ static uint16_t deep_sleep_lock = 0U;
 #ifdef MBED_SLEEP_TRACING_ENABLED
 
 // Length of the identifier extracted from the driver name to store for logging.
-#define IDENTIFIER_WIDTH 7
+#define IDENTIFIER_WIDTH 15
 // Number of drivers that can be stored in the structure
 #define STATISTIC_COUNT  10
 
@@ -90,14 +91,14 @@ static sleep_statistic_t* sleep_tracker_add(const char* const filename)
         }
     }
 
-    // Panic if there are no free indexes left to track with
-    error("No free indexes left to use in mbed stats tracker");
+    debug("No free indexes left to use in mbed sleep tracker.\r\n");
 
     return NULL;
 }
 
 static void sleep_tracker_print_stats(void)
 {
+    debug("Sleep locks held:\r\n");
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].count == 0) {
             continue;
@@ -107,7 +108,7 @@ static void sleep_tracker_print_stats(void)
             return;
         }
 
-        printf("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
+        debug("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
                                           sleep_stats[i].count);
     }
 }
@@ -120,12 +121,12 @@ void sleep_tracker_lock(const char* const filename, int line)
 
     // Entry for this driver does not exist, create one.
     if (stat == NULL) {
-        stat = sleep_tracker_add(filename);
+        stat = sleep_tracker_add(stripped_path);
     }
 
     core_util_atomic_incr_u8(&stat->count, 1);
 
-    printf("LOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
+    debug("LOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
 }
 
 void sleep_tracker_unlock(const char* const filename, int line)
@@ -135,13 +136,13 @@ void sleep_tracker_unlock(const char* const filename, int line)
 
     // Entry for this driver does not exist, something went wrong.
     if (stat == NULL) {
-        error("Unlocking sleep for driver that was not previously locked.");
+        debug("Unlocking sleep for driver that was not previously locked: %s, ln: %i\r\n", stripped_path, line);
+        return;
     }
 
     core_util_atomic_decr_u8(&stat->count, 1);
 
-    printf("UNLOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
-    sleep_tracker_print_stats();
+    debug("UNLOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
 }
 
 #endif // MBED_SLEEP_TRACING_ENABLED
@@ -175,6 +176,9 @@ bool sleep_manager_can_deep_sleep(void)
 
 void sleep_manager_sleep_auto(void)
 {
+#ifdef MBED_SLEEP_TRACING_ENABLED
+    sleep_tracker_print_stats();
+#endif
     core_util_critical_section_enter();
 // debug profile should keep debuggers attached, no deep sleep allowed
 #ifdef MBED_DEBUG
