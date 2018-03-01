@@ -166,6 +166,7 @@ private:
     int _start_time;
     uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
     int _retry_array_length;
+    events::EventQueue _at_queue;
 };
 
 } // namespace

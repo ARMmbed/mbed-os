@@ -37,13 +37,9 @@
 
 namespace mbed {
 
-static events::EventQueue at_queue(8 * EVENTS_EVENT_SIZE);
-static CELLULAR_DEVICE cellularDevice(at_queue);
-
 CellularConnectionFSM::CellularConnectionFSM() :
-        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0), _queue(
-                8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(&cellularDevice), _retry_count(0), _state_retry_count(
-                0)
+        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0),
+        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _at_queue(8 * EVENTS_EVENT_SIZE)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -64,6 +60,8 @@ CellularConnectionFSM::CellularConnectionFSM() :
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
+    
+    _cellularDevice = new CELLULAR_DEVICE(_at_queue);
 }
 
 CellularConnectionFSM::~CellularConnectionFSM()
@@ -90,7 +88,7 @@ nsapi_error_t CellularConnectionFSM::init()
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    at_queue.chain(&_queue);
+    _at_queue.chain(&_queue);
 
     tr_info("init done...");
     return NSAPI_ERROR_OK;
@@ -282,7 +280,7 @@ void CellularConnectionFSM::event()
             _next_state = STATE_POWER_ON;
             break;
         case STATE_POWER_ON:
-            cellularDevice.set_timeout(TIMEOUT_POWER_ON);
+            _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
             tr_info("Cellular power ON (timeout %d ms)", TIMEOUT_POWER_ON);
             if (open_power(_serial)) {
                 _next_state = STATE_DEVICE_READY;
@@ -298,7 +296,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_DEVICE_READY:
-            cellularDevice.set_timeout(TIMEOUT_POWER_ON);
+            _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
             if (_power->set_at_mode() == NSAPI_ERROR_OK) {
                 tr_info("Cellular device ready");
                 _next_state = STATE_SIM_PIN;
@@ -316,7 +314,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_SIM_PIN:
-            cellularDevice.set_timeout(TIMEOUT_SIM_PIN);
+            _cellularDevice->set_timeout(TIMEOUT_SIM_PIN);
             tr_info("Start cellular (timeout %d ms)", TIMEOUT_SIM_PIN);
             if (open_sim()) {
                 _next_state = STATE_REGISTERING_NETWORK;
@@ -334,7 +332,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_REGISTERING_NETWORK:
-            cellularDevice.set_timeout(TIMEOUT_NETWORK);
+            _cellularDevice->set_timeout(TIMEOUT_NETWORK);
             CellularNetwork::RegistrationStatus status;
             bool is_registered;
             _next_state = STATE_REGISTER_NETWORK;
@@ -369,7 +367,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_REGISTER_NETWORK:
-            cellularDevice.set_timeout(TIMEOUT_REGISTRATION);
+            _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
             tr_info("Register to cellular network (timeout %d ms)", TIMEOUT_REGISTRATION);
             if (set_network_registration()) {
                 _next_state = STATE_REGISTERING_NETWORK;
@@ -390,7 +388,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_ATTACHING_NETWORK:
-            cellularDevice.set_timeout(TIMEOUT_NETWORK);
+            _cellularDevice->set_timeout(TIMEOUT_NETWORK);
             CellularNetwork::AttachStatus attach_status;
             if (get_attach_network(attach_status)) {
                 if (attach_status == CellularNetwork::Attached) {
@@ -410,7 +408,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_ATTACH_NETWORK:
-            cellularDevice.set_timeout(TIMEOUT_NETWORK);
+            _cellularDevice->set_timeout(TIMEOUT_NETWORK);
             tr_info("Attach to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
             if (set_attach_network()) {
                 _next_state = STATE_ATTACHING_NETWORK;
@@ -432,7 +430,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_CONNECT_NETWORK:
-            cellularDevice.set_timeout(TIMEOUT_NETWORK);
+            _cellularDevice->set_timeout(TIMEOUT_NETWORK);
             tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
             err = _network->connect();
             if (!err) {
@@ -448,7 +446,7 @@ void CellularConnectionFSM::event()
             }
             break;
         case STATE_CONNECTED:
-            cellularDevice.set_timeout(TIMEOUT_NETWORK);
+            _cellularDevice->set_timeout(TIMEOUT_NETWORK);
             tr_debug("Cellular ready! (timeout %d ms)", TIMEOUT_NETWORK);
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
