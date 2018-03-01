@@ -674,19 +674,6 @@ public:
     }
 
     /**
-     * Return the size of the encryption key used on this link.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[out] byteSize Size of the encryption key in bytes.
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t getEncryptionKeySize(ble::connection_handle_t connectionHandle, uint8_t *byteSize) {
-        (void) connectionHandle;
-        (void) byteSize;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
      * Set the requirements for encryption key size. If the peer cannot comply with the requirements
      * paring will fail.
      *
