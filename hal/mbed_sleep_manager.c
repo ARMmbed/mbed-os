@@ -62,7 +62,7 @@ static const char* strip_path(const char* const filename)
     return filename;
 }
 
-static size_t sleep_tracker_find_index(const char *const filename)
+static sleep_statistic_t* sleep_tracker_find(const char *const filename)
 {
     char temp[IDENTIFIER_WIDTH];
     strncpy(temp, filename, IDENTIFIER_WIDTH);
@@ -71,14 +71,14 @@ static size_t sleep_tracker_find_index(const char *const filename)
     // Search for the a driver matching the current name and return it's index
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (strcmp(sleep_stats[i].identifier, temp) == 0) {
-            return i;
+            return &sleep_stats[i];
         }
     }
 
-    return -1;
+    return NULL;
 }
 
-static size_t sleep_tracker_add(const char* const filename)
+static sleep_statistic_t* sleep_tracker_add(const char* const filename)
 {
     char temp[IDENTIFIER_WIDTH];
     strncpy(temp, filename, IDENTIFIER_WIDTH);
@@ -90,14 +90,14 @@ static size_t sleep_tracker_add(const char* const filename)
             strncpy(sleep_stats[i].identifier, temp, sizeof(temp));
             core_util_critical_section_exit();
 
-            return i;
+            return &sleep_stats[i];
         }
     }
 
     // Panic if there are no free indexes left to track with
     error("No free indexes left to use in mbed stats tracker");
 
-    return -1;
+    return NULL;
 }
 
 static void sleep_tracker_print_stats(void)
@@ -120,14 +120,14 @@ void sleep_tracker_lock(const char* const filename, int line)
 {
     const char* const stripped_path = strip_path(filename);
 
-    size_t index = sleep_tracker_find_index(stripped_path);
+    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
 
     // Entry for this driver does not exist, create one.
-    if (index == -1) {
-        index = sleep_tracker_add(filename);
+    if (stat == NULL) {
+        stat = sleep_tracker_add(filename);
     }
 
-    core_util_atomic_incr_u8(&sleep_stats[index].count, 1);
+    core_util_atomic_incr_u8(&stat->count, 1);
 
     printf("LOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
 }
@@ -135,14 +135,14 @@ void sleep_tracker_lock(const char* const filename, int line)
 void sleep_tracker_unlock(const char* const filename, int line)
 {
     const char* const stripped_path = strip_path(filename);
-    size_t index = sleep_tracker_find_index(stripped_path);
+    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
 
     // Entry for this driver does not exist, something went wrong.
-    if (index == -1) {
+    if (stat == NULL) {
         error("Unlocking sleep for driver that was not previously locked.");
     }
 
-    core_util_atomic_decr_u8(&sleep_stats[index].count, 1);
+    core_util_atomic_decr_u8(&stat->count, 1);
 
     printf("UNLOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
     sleep_tracker_print_stats();
