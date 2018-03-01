@@ -1,10 +1,10 @@
-# Mbed Cellular Connectivity
+# Mbed cellular connectivity
 
 This is the Github repo for Mbed cellular connectivity:
 
     easy_cellular/
-        EasyCellularConnection  Simplified cellular usage based on CellularBase.h
-        CellularConnectionUtil  An utility class for cellular connection
+        EasyCellularConnection  Simplified cellular usage based on `CellularBase.h`
+        CellularConnectionUtil  A utility class for cellular connection
 
     framework/
         API         Application Programming Interface for cellular connectivity
@@ -13,19 +13,19 @@ This is the Github repo for Mbed cellular connectivity:
         mux         MUX implementation based on 3GPP TS 27.010 specification
         targets     Vendor specific cellular module adaptations
 
-## Known Limitations
+## Known limitations
 
-**Please note that as a first release framework is subject to change and may break code that uses it.**
+**Please note that as a first release framework, this content is subject to change and may break code that uses it.**
 
-Only UDP is supported when using AT commands to control sockets in an IP stack built into the cellular modem. If TCP is required use PPP/LWIP stack.
+Only UDP is supported when using AT commands to control sockets in an IP stack built into the cellular modem. If TCP is required, use the PPP/LWIP stack.
 
-## Supported Modules
+## Supported modules
 
-Currently supported cellular modules can be found in the framework/targets/ folder, where also support for new cellular modules are added.
+You can find currently supported cellular modules in the `framework/targets/` folder, where we also add support for new cellular modules.
 
-## Cellular Configuration
+## Cellular configuration
 
-Cellular defaults can be changed in mbed_app.json configuration file:
+You can change cellular defaults in the `mbed_app.json` configuration file:
 
     "config": {
         "cellular_plmn": {
@@ -42,9 +42,9 @@ Cellular defaults can be changed in mbed_app.json configuration file:
         }
     }
 
-## Debug Traces
+## Debug traces
 
-Debug tracing level can be defined in mbed_app.json configuration file:
+You can define the debug tracing level in the `mbed_app.json` configuration file:
 
     "target_overrides": {
         "*": {
@@ -65,12 +65,10 @@ Debug tracing level can be defined in mbed_app.json configuration file:
 
 ## Unit tests
 
-UNITTESTS folder contains unittests for Cellular specific classes. Unittests are based on stubbing method and some of the platform headers has been hacked under target_h/ folder to get things working.
+The `UNITTESTS` folder contains unit tests for cellular specific classes. Unit tests are based on the stubbing method.
 
-You can run those tests locally by running ./run_tests script under UNITTESTS/ folder.
+You can run those tests locally by running `./run_tests` script under the `UNITTESTS/` folder.
 
-you will need at least following applications: cpputest, gcov and lcov (genhtml) for running the tests.
-After run_tests script has been run you can find test results under UNITTESTS/results folder and line & function coverages under UNITTESTS/coverages folder
+You need the following applications: `cpputest`, `gcov` and `lcov` (genhtml) for running the tests.
 
-
-
+After you have run the `run_tests` script, you can find test results under `UNITTESTS/results` folder and line and function coverages under the `UNITTESTS/coverages` folder.
