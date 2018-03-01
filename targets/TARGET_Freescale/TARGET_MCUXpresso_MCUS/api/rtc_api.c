@@ -37,7 +37,10 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-    RTC_Deinit(RTC);
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    /* Gate the module clock */
+    CLOCK_DisableClock(kCLOCK_Rtc0);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 /*
