@@ -21,6 +21,11 @@
 #include "mbedtls/cmac.h"
 #endif
 
+using ble::pal::advertising_peer_address_type_t;
+using ble::pal::AuthenticationMask;
+using ble::pal::KeyDistribution;
+using ble::pal::connection_peer_address_type_t;
+
 namespace ble {
 namespace generic {
 

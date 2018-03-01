@@ -276,7 +276,7 @@ private:
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
-    void set_connection_event_handler(pal::ConnectionEventHandler *_connection_event_handler);
+    void set_connection_event_handler(pal::ConnectionEventMonitor::EventHandler *_connection_event_handler);
 
     void on_scan_timeout();
 
@@ -317,7 +317,7 @@ private:
     mutable Whitelist_t _whitelist;
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
-    pal::ConnectionEventHandler *_connection_event_handler;
+    pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
 };
 
 }

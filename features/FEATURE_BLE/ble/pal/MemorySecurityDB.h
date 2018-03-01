@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _PAL_MEMORY_SECURITY_DB_H_
-#define _PAL_MEMORY_SECURITY_DB_H_
+#ifndef PAL_MEMORY_SECURITY_DB_H_
+#define PAL_MEMORY_SECURITY_DB_H_
 
 #include "SecurityDB.h"
 
@@ -369,4 +369,4 @@ private:
 } /* namespace pal */
 } /* namespace ble */
 
-#endif /*_PAL_MEMORY_SECURITY_DB_H_*/
+#endif /*PAL_MEMORY_SECURITY_DB_H_*/

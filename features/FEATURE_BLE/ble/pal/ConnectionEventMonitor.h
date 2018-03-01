@@ -25,58 +25,58 @@ namespace ble {
 namespace pal {
 
 /**
- * Implemented by classes that are reacting to connection changes.
- * @see ConnectionEventMonitor
- */
-class ConnectionEventHandler {
-public:
-    /**
-     * Inform the Security manager of a new connection. This will create
-     * or retrieve an existing security manager entry for the connected device.
-     * Called by GAP.
-     *
-     * @param[in] connection Handle to identify the connection.
-     * @param[in] role indicate if the device is central or peripheral.
-     * @param[in] peer_address_type type of address.
-     * @param[in] peer_address Address of the connected device.
-     * @param[in] local_address_type type of address of the local device.
-     * @param[in] local_address Address of the local device that was used during connection.
-     * @param[in] connection_params connection parameters like interval, latency and timeout.
-     */
-    virtual void on_connected(
-        connection_handle_t connection,
-        ::Gap::Role_t role,
-        BLEProtocol::AddressType_t peer_address_type,
-        const BLEProtocol::AddressBytes_t peer_address,
-        BLEProtocol::AddressType_t local_address_type,
-        const BLEProtocol::AddressBytes_t local_address,
-        const ::Gap::ConnectionParams_t *connection_params
-    ) = 0;
-
-    /**
-     * Inform the monitor about a disconnection.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] reason Reason for the disconnection.
-     */
-    virtual void on_disconnected(
-        connection_handle_t connection,
-        ::Gap::DisconnectionReason_t reason
-    ) = 0;
-};
-
-/**
  * Implemented by classes that need to be notified of connection changes.
  * Notification is done by calling functions in the passed in event handler
  */
 class ConnectionEventMonitor {
 public:
     /**
+     * Implemented by classes that are reacting to connection changes.
+     * @see ConnectionEventMonitor
+     */
+    class EventHandler {
+    public:
+        /**
+         * Inform the Security manager of a new connection. This will create
+         * or retrieve an existing security manager entry for the connected device.
+         * Called by GAP.
+         *
+         * @param[in] connection Handle to identify the connection.
+         * @param[in] role indicate if the device is central or peripheral.
+         * @param[in] peer_address_type type of address.
+         * @param[in] peer_address Address of the connected device.
+         * @param[in] local_address_type type of address of the local device.
+         * @param[in] local_address Address of the local device that was used during connection.
+         * @param[in] connection_params connection parameters like interval, latency and timeout.
+         */
+        virtual void on_connected(
+            connection_handle_t connection,
+            ::Gap::Role_t role,
+            BLEProtocol::AddressType_t peer_address_type,
+            const BLEProtocol::AddressBytes_t peer_address,
+            BLEProtocol::AddressType_t local_address_type,
+            const BLEProtocol::AddressBytes_t local_address,
+            const ::Gap::ConnectionParams_t *connection_params
+        ) = 0;
+
+        /**
+         * Inform the monitor about a disconnection.
+         *
+         * @param[in] connectionHandle Handle to identify the connection.
+         * @param[in] reason Reason for the disconnection.
+         */
+        virtual void on_disconnected(
+            connection_handle_t connection,
+            ::Gap::DisconnectionReason_t reason
+        ) = 0;
+    };
+
+    /**
      * Register a handler for connection events to be used internally and serviced first.
      *
      * @param[in] connection_event_handler Event handler being registered.
      */
-    virtual void set_connection_event_handler(ConnectionEventHandler *connection_event_handler) = 0;
+    virtual void set_connection_event_handler(EventHandler *connection_event_handler) = 0;
 };
 
 } // namespace pal

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _SECURITY_MANAGER_H_
-#define _SECURITY_MANAGER_H_
+#ifndef SECURITY_MANAGER_H_
+#define SECURITY_MANAGER_H_
 
 #include <stdint.h>
 
@@ -57,7 +57,7 @@
  * it. If either side doesn't support it Legacy Pairing will be used. This is an older standard of pairing.
  * If higher security is required legacy pairing can be disabled by calling allowLegacyPairing(false);
  *
- * How to use
+ * \par How to use
  *
  * First thing you need to do is to initialise the manager by calling init() with your chosen settings.
  *
@@ -87,9 +87,11 @@
  * accetPairing() or cancelPairing(). The result will be communicated on both peers through an event calling
  * pairingResult() in the EventHandler.
  *
+ * \par Sequence diagrams
  *
  * Sequence diagram "Just Works" pairing
  *
+ * \verbatim
  *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
  *
  * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
@@ -101,7 +103,8 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- *
+ * \endverbatim
+ * 
  *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
  *  if you request encryption and authentication and no bonding information is available. The sequence will
  *  be the same save for the lack of explicit requestPairing() call.
@@ -109,6 +112,7 @@
  *
  *  Sequence diagram Encryption request when bonding information is available
  *
+ * \verbatim
  *  /----------- Device 1 --------------\  *------ BLE link ------*  /-------------- Device 2 -------------\
  *
  * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
@@ -117,13 +121,15 @@
  *  |       |                           |<-[encryption established]->|                        |            |
  *  |<- linkEncryptionResult() <--------|                            |---------> linkEncryptionResult() -->|
  *  |       |                           |                            |                        |            |
- *
+ * \endverbatim
+ * 
  * @note if bonding information is not available, pairing will be triggered
  *
  *
  * Sequence diagram for Secure Connections passkey entry pairing with one device having a display only
  * and other a keyboard
  *
+ * \verbatim
  *  /----------- Device 1 (keyboard) ---\  *------ BLE link ------*  /-------------- Device 2 (display) ---\
  *
  * App  EventHandler              SecurityManager              SecurityManager           EventHandler     App
@@ -143,7 +149,8 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- *
+ * \endverbatim
+ * 
  */
 
 class SecurityManager {
@@ -267,9 +274,7 @@ public:
          * @param[in] whitelist pointer to the whitelist filled with entries based on bonding information
          */
         virtual void whitelistFromBondTable(Gap::Whitelist_t* whitelist) {
-            if (whitelist) {
-                delete whitelist;
-            }
+            (void)whitelist;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1070,4 +1075,4 @@ protected:
     LegacyEventHandler defaultEventHandler;
 };
 
-#endif /*_SECURITY_MANAGER_H_*/
+#endif /*SECURITY_MANAGER_H_*/

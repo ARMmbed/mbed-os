@@ -28,16 +28,11 @@
 namespace ble {
 namespace generic {
 
-using pal::advertising_peer_address_type_t;
-using pal::AuthenticationMask;
-using pal::KeyDistribution;
-using pal::connection_peer_address_type_t;
-
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class GenericSecurityManager : public SecurityManager,
                                public pal::SecurityManager::EventHandler,
-                               public pal::ConnectionEventHandler {
+                               public pal::ConnectionEventMonitor::EventHandler {
 public:
     typedef ble::pal::SecurityDistributionFlags_t SecurityDistributionFlags_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
@@ -240,7 +235,7 @@ public:
         _db(dbImpl),
         _connection_monitor(connMonitorImpl),
         _default_authentication(0),
-        _default_key_distribution(KeyDistribution::KEY_DISTRIBUTION_ALL),
+        _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
         _legacy_pairing_allowed(true),
         _master_sends_keys(false),
@@ -432,16 +427,16 @@ private:
     struct ControlBlock_t : public pal::SecurityDistributionFlags_t {
         ControlBlock_t();
 
-        KeyDistribution get_initiator_key_distribution() {
-            return KeyDistribution(initiator_key_distribution);
+        pal::KeyDistribution get_initiator_key_distribution() {
+            return pal::KeyDistribution(initiator_key_distribution);
         };
-        KeyDistribution get_responder_key_distribution() {
-            return KeyDistribution(responder_key_distribution);
+        pal::KeyDistribution get_responder_key_distribution() {
+            return pal::KeyDistribution(responder_key_distribution);
         };
-        void set_initiator_key_distribution(KeyDistribution mask) {
+        void set_initiator_key_distribution(pal::KeyDistribution mask) {
             initiator_key_distribution = mask.value();
         };
-        void set_responder_key_distribution(KeyDistribution mask) {
+        void set_responder_key_distribution(pal::KeyDistribution mask) {
             responder_key_distribution = mask.value();
         };
 
@@ -476,8 +471,8 @@ private:
     pal::SecurityDb &_db;
     pal::ConnectionEventMonitor &_connection_monitor;
 
-    AuthenticationMask _default_authentication;
-    KeyDistribution _default_key_distribution;
+    pal::AuthenticationMask _default_authentication;
+    pal::KeyDistribution _default_key_distribution;
 
     bool _pairing_authorisation_required;
     bool _legacy_pairing_allowed;
@@ -504,9 +499,9 @@ public:
     virtual void on_pairing_request(
         connection_handle_t connection,
         bool use_oob,
-        AuthenticationMask authentication,
-        KeyDistribution initiator_dist,
-        KeyDistribution responder_dist
+        pal::AuthenticationMask authentication,
+        pal::KeyDistribution initiator_dist,
+        pal::KeyDistribution responder_dist
     );
 
     /** @copydoc ble::pal::SecurityManager::on_pairing_error
@@ -542,7 +537,7 @@ public:
      */
     virtual void on_slave_security_request(
         connection_handle_t connection,
-        AuthenticationMask authentication
+        pal::AuthenticationMask authentication
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -665,7 +660,7 @@ public:
      */
     virtual void on_keys_distributed_bdaddr(
         connection_handle_t connection,
-        advertising_peer_address_type_t peer_address_type,
+        pal::advertising_peer_address_type_t peer_address_type,
         const address_t &peer_identity_address
     );
 
