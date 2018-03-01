@@ -33,7 +33,6 @@ Includes   <System Includes> , "Project Includes"
 #include "VKRZA1H.h"
 #include "wdt_iodefine.h"
 #include "nvic_wrapper.h"
-#include "gic.h"
 
 /******************************************************************************
 Typedef definitions
@@ -71,7 +70,7 @@ void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
 
 uint32_t NVIC_GetPriorityGrouping(void)
 {
-    return GIC_GetBinaryPoint(0);
+    return GIC_GetBinaryPoint();
 }
 
 
@@ -214,14 +213,16 @@ uint32_t ITM_SendChar (uint32_t ch)
 }
 
 
-int32_t ITM_ReceiveChar (void) {
+int32_t ITM_ReceiveChar (void)
+{
     /* Not support this function */
     /* Use mbed Serial */
     return (-1);    /* no character available */
 }
 
 
-int32_t ITM_CheckChar (void) {
+int32_t ITM_CheckChar (void)
+{
     /* Not support this function */
     /* Use mbed Serial */
     return (0);                                 /* no character available */

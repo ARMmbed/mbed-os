@@ -18,27 +18,20 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : sdg_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef SDG_IODEFINE_H
 #define SDG_IODEFINE_H
-
-struct st_sdg
-{                                                          /* SDG              */
-    volatile uint8_t   SGCR1;                                  /*  SGCR1           */
-    volatile uint8_t   SGCSR;                                  /*  SGCSR           */
-    volatile uint8_t   SGCR2;                                  /*  SGCR2           */
-    volatile uint8_t   SGLR;                                   /*  SGLR            */
-    volatile uint8_t   SGTFR;                                  /*  SGTFR           */
-    volatile uint8_t   SGSFR;                                  /*  SGSFR           */
-};
-
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
+/* ->SEC M1.10.1 : Not magic number */
 
 #define SDG0    (*(struct st_sdg     *)0xFCFF4800uL) /* SDG0 */
 #define SDG1    (*(struct st_sdg     *)0xFCFF4A00uL) /* SDG1 */
@@ -46,41 +39,69 @@ struct st_sdg
 #define SDG3    (*(struct st_sdg     *)0xFCFF4E00uL) /* SDG3 */
 
 
-/* Start of channnel array defines of SDG */
+/* Start of channel array defines of SDG */
 
-/* Channnel array defines of SDG */
+/* Channel array defines of SDG */
 /*(Sample) value = SDG[ channel ]->SGCR1; */
-#define SDG_COUNT  4
+#define SDG_COUNT  (4)
 #define SDG_ADDRESS_LIST \
 {   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
     &SDG0, &SDG1, &SDG2, &SDG3 \
 }   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
 
-/* End of channnel array defines of SDG */
+/* End of channel array defines of SDG */
 
 
-#define SGCR1_0 SDG0.SGCR1
-#define SGCSR_0 SDG0.SGCSR
-#define SGCR2_0 SDG0.SGCR2
-#define SGLR_0 SDG0.SGLR
-#define SGTFR_0 SDG0.SGTFR
-#define SGSFR_0 SDG0.SGSFR
-#define SGCR1_1 SDG1.SGCR1
-#define SGCSR_1 SDG1.SGCSR
-#define SGCR2_1 SDG1.SGCR2
-#define SGLR_1 SDG1.SGLR
-#define SGTFR_1 SDG1.SGTFR
-#define SGSFR_1 SDG1.SGSFR
-#define SGCR1_2 SDG2.SGCR1
-#define SGCSR_2 SDG2.SGCSR
-#define SGCR2_2 SDG2.SGCR2
-#define SGLR_2 SDG2.SGLR
-#define SGTFR_2 SDG2.SGTFR
-#define SGSFR_2 SDG2.SGSFR
-#define SGCR1_3 SDG3.SGCR1
-#define SGCSR_3 SDG3.SGCSR
-#define SGCR2_3 SDG3.SGCR2
-#define SGLR_3 SDG3.SGLR
-#define SGTFR_3 SDG3.SGTFR
-#define SGSFR_3 SDG3.SGSFR
+#define SGCR1_0 (SDG0.SGCR1)
+#define SGCSR_0 (SDG0.SGCSR)
+#define SGCR2_0 (SDG0.SGCR2)
+#define SGLR_0 (SDG0.SGLR)
+#define SGTFR_0 (SDG0.SGTFR)
+#define SGSFR_0 (SDG0.SGSFR)
+#define SGCR1_1 (SDG1.SGCR1)
+#define SGCSR_1 (SDG1.SGCSR)
+#define SGCR2_1 (SDG1.SGCR2)
+#define SGLR_1 (SDG1.SGLR)
+#define SGTFR_1 (SDG1.SGTFR)
+#define SGSFR_1 (SDG1.SGSFR)
+#define SGCR1_2 (SDG2.SGCR1)
+#define SGCSR_2 (SDG2.SGCSR)
+#define SGCR2_2 (SDG2.SGCR2)
+#define SGLR_2 (SDG2.SGLR)
+#define SGTFR_2 (SDG2.SGTFR)
+#define SGSFR_2 (SDG2.SGSFR)
+#define SGCR1_3 (SDG3.SGCR1)
+#define SGCSR_3 (SDG3.SGCSR)
+#define SGCR2_3 (SDG3.SGCR2)
+#define SGLR_3 (SDG3.SGLR)
+#define SGTFR_3 (SDG3.SGTFR)
+#define SGSFR_3 (SDG3.SGSFR)
+
+
+typedef struct st_sdg
+{
+                                                           /* SDG              */
+    volatile uint8_t   SGCR1;                                  /*  SGCR1           */
+    volatile uint8_t   SGCSR;                                  /*  SGCSR           */
+    volatile uint8_t   SGCR2;                                  /*  SGCR2           */
+    volatile uint8_t   SGLR;                                   /*  SGLR            */
+    volatile uint8_t   SGTFR;                                  /*  SGTFR           */
+    volatile uint8_t   SGSFR;                                  /*  SGSFR           */
+} r_io_sdg_t;
+
+
+/* Channel array defines of SDG (2)*/
+#ifdef  DECLARE_SDG_CHANNELS
+volatile struct st_sdg*  SDG[ SDG_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    SDG_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+#endif  /* DECLARE_SDG_CHANNELS */
+/* End of channel array defines of SDG (2)*/
+
+
+/* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif
