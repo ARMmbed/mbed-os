@@ -1,7 +1,8 @@
-/* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2017 ARM Limited.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,16 +29,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "VKRZA1H.h"
-#include "irq_ctrl.h"
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
-{
-    InterruptHandlerRegister(IRQn, (IRQHandler)vector);
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#include <arm_compat.h>
+#endif
+
+#include <rt_misc.h>
+#include <stdint.h>
+
+extern char Image$$ARM_LIB_HEAP$$Base[];
+extern char Image$$ARM_LIB_STACK$$Base[];
+
+extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$ARM_LIB_HEAP$$Base;
+    uint32_t sp_limit = (uint32_t)Image$$ARM_LIB_STACK$$Base;
+
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
+
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
 }
 
-uint32_t NVIC_GetVector(IRQn_Type IRQn)
-{
-    uint32_t vectors = (uint32_t)IRQ_GetHandler(IRQn);
-    return vectors;
+#ifdef __cplusplus
 }
+#endif 

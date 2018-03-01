@@ -26,23 +26,12 @@
 #endif
 /* <-Take measures about optimization problems of web compiler */
 
-
-
-
-
-
-
-
-
-
+#define TRANSACTION_QUEUE_SIZE_SPI 16
 
 #define DEVICE_ID_LENGTH       32
 #define DEVICE_MAC_OFFSET      20
 
-
-
-
-
 #include "objects.h"
+#include "dma_api.h"
 
 #endif

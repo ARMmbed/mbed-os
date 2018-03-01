@@ -2679,8 +2679,8 @@
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
-        "extra_labels": ["RZA1H", "VKRZA1H"],
-        "release_versions": []
+        "extra_labels_add": ["RZA1H", "VKRZA1H"],
+        "release_versions": ["2", "5"]
     },
     "GR_LYCHEE": {
         "inherits": ["RZ_A1XX"],
