@@ -141,17 +141,20 @@ matrix:
         - sudo chmod a+rw /dev/loop0
         - dd if=/dev/zero bs=512 count=2048 of=DISK
         - losetup /dev/loop0 DISK
+        - CFLAGS="-Werror -Wno-format"
       script:
         # Check that example compiles
+        - export CFLAGS="-Werror -Wno-format"
         - sed -n '/``` c++/,/```/{/```/d;p;}' $LITTLEFS/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
         # Run local littlefs tests
-        - CFLAGS="-Wno-format" make -C$LITTLEFS/littlefs test QUIET=1
+        - make -C$LITTLEFS/littlefs test QUIET=1
         # Run local littlefs tests with set of variations
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"      make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"       make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"     make -C$LITTLEFS/littlefs test QUIET=1
-        - CFLAGS="-Wno-format -DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048" make -C$LITTLEFS/littlefs test QUIET=1
+        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
+        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
+        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
+        - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_BLOCK_COUNT=1023 -DLFS_LOOKAHEAD=2048"
+        - make -C$LITTLEFS/littlefs clean test QUIET=1 CFLAGS+="-DLFS_NO_INTRINSICS"
         # Self-hosting littlefs fuzz test with littlefs-fuse
         - make -Clittlefs_fuse
         - littlefs_fuse/lfs --format /dev/loop0
@@ -160,7 +163,30 @@ matrix:
         - mkdir MOUNT/littlefs
         - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) MOUNT/littlefs
         - ls MOUNT/littlefs
-        - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs QUIET=1
+        - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs test_files QUIET=1
+        # Compile and find the code size with smallest configuration
+        - cd $TRAVIS_BUILD_DIR/$LITTLEFS/littlefs
+        - make clean size
+            CC='arm-none-eabi-gcc -mthumb'
+            OBJ="$(ls lfs*.o | tr '\n' ' ')"
+            CFLAGS+="-DLFS_NO{ASSERT,DEBUG,WARN,ERROR}"
+            | tee sizes
+      after_success:
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(tail -n1 sizes | awk '{print $1}')
+          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\"code size is (?<size>[0-9]+)\").size" \
+              || echo 0)
+
+          STATUSM="Passed, code size is ${CURR}B"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
 
     - &mbed-2
       env: NAME=mbed2-NXP
