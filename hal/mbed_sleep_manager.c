@@ -75,9 +75,15 @@ static size_t sleep_tracker_find_index(const char *const filename)
         }
     }
 
-    // If no driver was found currently in the structure, find the first array
-    // index that hasn't been used by a driver and fill it, then return the
-    // index.
+    return -1;
+}
+
+static size_t sleep_tracker_add(const char* const filename)
+{
+    char temp[IDENTIFIER_WIDTH];
+    strncpy(temp, filename, IDENTIFIER_WIDTH);
+    temp[IDENTIFIER_WIDTH - 1] = '\0';
+
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].identifier[0] == '\0') {
             core_util_critical_section_enter();
@@ -113,7 +119,13 @@ static void sleep_tracker_print_stats(void)
 void sleep_tracker_lock(const char* const filename, int line)
 {
     const char* const stripped_path = strip_path(filename);
+
     size_t index = sleep_tracker_find_index(stripped_path);
+
+    // Entry for this driver does not exist, create one.
+    if (index == -1) {
+        index = sleep_tracker_add(filename);
+    }
 
     core_util_atomic_incr_u8(&sleep_stats[index].count, 1);
 
@@ -124,6 +136,11 @@ void sleep_tracker_unlock(const char* const filename, int line)
 {
     const char* const stripped_path = strip_path(filename);
     size_t index = sleep_tracker_find_index(stripped_path);
+
+    // Entry for this driver does not exist, something went wrong.
+    if (index == -1) {
+        error("Unlocking sleep for driver that was not previously locked.");
+    }
 
     core_util_atomic_decr_u8(&sleep_stats[index].count, 1);
 
