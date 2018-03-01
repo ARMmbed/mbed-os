@@ -65,6 +65,7 @@ public:
      *  with the pin configured to the specified mode.
      *
      *  @param pin InterruptIn pin to connect to
+     *  @param mode The mode to set the pin to (PullUp/PullDown/etc.)
      */
     InterruptIn(PinName pin, PinMode mode = PullDefault);
     virtual ~InterruptIn();
