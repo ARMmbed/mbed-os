@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-<<<<<<< HEAD
 #include "mbed_assert.h"
 #include "mbed_power_mgmt.h"
-=======
-#include "mbed_sleep.h"
->>>>>>> Rename SLEEP_STATS_ENABLED to SLEEP_TRACING_ENABLED
 #include "mbed_critical.h"
 #include "sleep_api.h"
 #include "mbed_error.h"
