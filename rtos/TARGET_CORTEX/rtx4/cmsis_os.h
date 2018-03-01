@@ -17,8 +17,8 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        9. June 2017
- * $Revision:    V2.1.1
+ * $Date:        30. October 2017
+ * $Revision:    V2.1.2
  *
  * Project:      CMSIS-RTOS API
  * Title:        cmsis_os.h RTX header file
@@ -123,6 +123,9 @@
  *    - osKernelGetTickCount, osKernelGetTickFreq
  *    Changed Kernel Tick type to uint32_t:
  *    - updated: osKernelGetTickCount, osDelayUntil
+ * Version 2.1.2
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osKernelGetInfo, osKernelGetState
  *---------------------------------------------------------------------------*/
  
 #ifndef CMSIS_OS_H_
@@ -130,9 +133,9 @@
  
 #define osCMSIS             0x20001U    ///< API version (main[31:16].sub[15:0])
  
-#define osCMSIS_RTX         0x50001U    ///< RTOS identification and version (main[31:16].sub[15:0])
+#define osCMSIS_RTX         0x50003U    ///< RTOS identification and version (main[31:16].sub[15:0])
  
-#define osKernelSystemId   "RTX V5.1"   ///< RTOS identification string
+#define osKernelSystemId   "RTX V5.3"   ///< RTOS identification string
  
 #define osFeature_MainThread  0         ///< main thread      1=main can be thread, 0=not available
 #define osFeature_Signals     31U       ///< maximum number of Signal Flags available per thread
@@ -435,25 +438,26 @@ uint32_t osKernelSysTick (void);
 /// Create a Thread Definition with function, priority, and stack requirements.
 /// \param         name          name of the thread function.
 /// \param         priority      initial priority of the thread function.
+/// \param         instances     number of possible thread instances.
 /// \param         stacksz       stack size (in bytes) requirements for the thread function.
 #if defined (osObjectsExternal)  // object is external
-#define osThreadDef(name, priority, stacksz) \
+#define osThreadDef(name, priority, instances, stacksz) \
 extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
 #if (osCMSIS < 0x20000U)
-#define osThreadDef(name, priority, stacksz) \
+#define osThreadDef(name, priority, instances, stacksz) \
 const osThreadDef_t os_thread_def_##name = \
-{ (name), (priority), 1, (stacksz) }
+{ (name), (priority), (instances), (stacksz) }
 #else
-#define osThreadDef(name, priority, stacksz) \
-uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
+#define osThreadDef(name, priority, instances, stacksz) \
+static uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
 static osRtxThread_t os_thread_cb_##name __attribute__((section(".bss.os.thread.cb"))); \
 const osThreadDef_t os_thread_def_##name = \
 { (name), \
   { NULL, osThreadDetached, \
-    &os_thread_cb_##name,\
-    osRtxThreadCbSize, \
-    (stacksz) ? (&os_thread_stack##name) : NULL, \
+    (instances == 1) ? (&os_thread_cb_##name) : NULL,\
+    (instances == 1) ? osRtxThreadCbSize : 0U, \
+    ((stacksz) && (instances == 1)) ? (&os_thread_stack##name) : NULL, \
     8*((stacksz+7)/8), \
     (priority), 0U, 0U } }
 #endif

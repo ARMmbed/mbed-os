@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     os_tick_ptim.c
  * @brief    CMSIS OS Tick implementation for Private Timer
- * @version  V1.0.0
- * @date     29. June 2017
+ * @version  V1.0.1
+ * @date     24. November 2017
  ******************************************************************************/
 /*
  * Copyright (c) 2017 ARM Limited. All rights reserved.
@@ -22,12 +22,13 @@
  * limitations under the License.
  */
 
-#if defined(PTIM)
-
 #include "os_tick.h"
 #include "irq_ctrl.h"
 
-#include <cmsis.h>
+#include "RTE_Components.h"
+#include CMSIS_device_header
+
+#if defined(PTIM)
 
 #ifndef PTIM_IRQ_PRIORITY
 #define PTIM_IRQ_PRIORITY           0xFFU
@@ -36,7 +37,7 @@
 static uint8_t PTIM_PendIRQ;        // Timer interrupt pending flag
 
 // Setup OS Tick.
-int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
+int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
   uint32_t load;
   uint32_t prio;
   uint32_t bits;
@@ -97,7 +98,7 @@ int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler) {
 }
 
 /// Enable OS Tick.
-int32_t  OS_Tick_Enable (void) {
+void OS_Tick_Enable (void) {
   uint32_t ctrl;
 
   // Set pending interrupt if flag set
@@ -111,14 +112,12 @@ int32_t  OS_Tick_Enable (void) {
   // Set bit: Timer enable
   ctrl |= 1U;
   PTIM_SetControl (ctrl);
-
-  return (0);
 }
 
 /// Disable OS Tick.
-int32_t  OS_Tick_Disable (void) {
+void OS_Tick_Disable (void) {
   uint32_t ctrl;
-  
+
   // Stop the Private Timer
   ctrl  = PTIM_GetControl();
   // Clear bit: Timer enable
@@ -130,14 +129,11 @@ int32_t  OS_Tick_Disable (void) {
     IRQ_ClearPending (PrivTimer_IRQn);
     PTIM_PendIRQ = 1U;
   }
-
-  return (0);
 }
 
 // Acknowledge OS Tick IRQ.
-int32_t  OS_Tick_AcknowledgeIRQ (void) {
+void OS_Tick_AcknowledgeIRQ (void) {
   PTIM_ClearEventFlag();
-  return (0);
 }
 
 // Get OS Tick IRQ number.

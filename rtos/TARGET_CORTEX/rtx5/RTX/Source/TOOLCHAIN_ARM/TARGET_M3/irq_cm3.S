@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+; * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -44,22 +44,30 @@ SVC_Handler     PROC
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
+                IF       :DEF:MPU_LOAD
+                IMPORT   osRtxMpuLoad
+                ENDIF
 
-                MRS      R0,PSP                 ; Get PSP
+                TST      LR,#0x04               ; Determine return stack from EXC_RETURN bit 2
+                ITE      EQ
+                MRSEQ    R0,MSP                 ; Get MSP if return stack is MSP
+                MRSNE    R0,PSP                 ; Get PSP if return stack is PSP
+
                 LDR      R1,[R0,#24]            ; Load saved PC from stack
                 LDRB     R1,[R1,#-2]            ; Load SVC number
                 CBNZ     R1,SVC_User            ; Branch if not SVC 0
 
-                PUSH     {R0,LR}                ; Save PSP and EXC_RETURN
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LDM      R0,{R0-R3,R12}         ; Load function parameters and address from stack
                 BLX      R12                    ; Call service function
-                POP      {R12,LR}               ; Restore PSP and EXC_RETURN
+                POP      {R12,LR}               ; Restore SP and EXC_RETURN
                 STM      R12,{R0-R1}            ; Store function return values
 
 SVC_Context
                 LDR      R3,=osRtxInfo+I_T_RUN_OFS; Load address of osRtxInfo.run
                 LDM      R3,{R1,R2}             ; Load osRtxInfo.thread.run: curr & next
                 CMP      R1,R2                  ; Check if thread switch is required
+                IT       EQ
                 BXEQ     LR                     ; Exit when threads are the same
 
                 CBZ      R1,SVC_ContextSwitch   ; Branch if running thread is deleted
@@ -70,6 +78,13 @@ SVC_ContextSave
 
 SVC_ContextSwitch
                 STR      R2,[R3]                ; osRtxInfo.thread.run: curr = next
+
+                IF       :DEF:MPU_LOAD
+                PUSH     {R2,R3}                ; Save registers
+                MOV      R0,R2                  ; osRtxMpuLoad parameter
+                BL       osRtxMpuLoad           ; Load MPU for next thread
+                POP      {R2,R3}                ; Restore registers
+                ENDIF
 
 SVC_ContextRestore
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
@@ -82,21 +97,19 @@ SVC_Exit
                 BX       LR                     ; Exit from handler
 
 SVC_User
-                PUSH     {R4,LR}                ; Save registers
                 LDR      R2,=osRtxUserSVC       ; Load address of SVC table
                 LDR      R3,[R2]                ; Load SVC maximum number
                 CMP      R1,R3                  ; Check SVC number range
-                BHI      SVC_Done               ; Branch if out of range
+                BHI      SVC_Exit               ; Branch if out of range
 
-                LDR      R4,[R2,R1,LSL #2]      ; Load address of SVC function
-
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
+                LDR      R12,[R2,R1,LSL #2]     ; Load address of SVC function
                 LDM      R0,{R0-R3}             ; Load function parameters from stack
-                BLX      R4                     ; Call service function
-                MRS      R4,PSP                 ; Get PSP
-                STR      R0,[R4]                ; Store function return value
+                BLX      R12                    ; Call service function
+                POP      {R12,LR}               ; Restore SP and EXC_RETURN
+                STR      R0,[R12]               ; Store function return value
 
-SVC_Done
-                POP      {R4,PC}                ; Return from handler
+                BX       LR                     ; Return from handler
 
                 ALIGN
                 ENDP
@@ -106,9 +119,9 @@ PendSV_Handler  PROC
                 EXPORT   PendSV_Handler
                 IMPORT   osRtxPendSV_Handler
 
-                PUSH     {R4,LR}                ; Save EXC_RETURN
+                PUSH     {R0,LR}                ; Save EXC_RETURN
                 BL       osRtxPendSV_Handler    ; Call osRtxPendSV_Handler
-                POP      {R4,LR}                ; Restore EXC_RETURN
+                POP      {R0,LR}                ; Restore EXC_RETURN
                 MRS      R12,PSP
                 B        SVC_Context
 
@@ -120,9 +133,9 @@ SysTick_Handler PROC
                 EXPORT   SysTick_Handler
                 IMPORT   osRtxTick_Handler
 
-                PUSH     {R4,LR}                ; Save EXC_RETURN
+                PUSH     {R0,LR}                ; Save EXC_RETURN
                 BL       osRtxTick_Handler      ; Call osRtxTick_Handler
-                POP      {R4,LR}                ; Restore EXC_RETURN
+                POP      {R0,LR}                ; Restore EXC_RETURN
                 MRS      R12,PSP
                 B        SVC_Context
 

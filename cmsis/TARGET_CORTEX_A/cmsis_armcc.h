@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.1
- * @date     07. Sep 2017
+ * @version  V1.0.2
+ * @date     10. January 2018
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -26,7 +26,7 @@
 #define __CMSIS_ARMCC_H
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 400677)
-  #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
+  #error "Please use Arm Compiler Toolchain V4.0.677 or later!"
 #endif
 
 /* CMSIS compiler control architecture macros */

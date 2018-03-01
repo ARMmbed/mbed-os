@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
+; * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -24,9 +24,9 @@
 ; */
 
 
-#ifndef __DOMAIN_NS
-__DOMAIN_NS     EQU      0
-#endif
+                IF       :LNOT::DEF:DOMAIN_NS
+DOMAIN_NS       EQU      0
+                ENDIF
 
 I_T_RUN_OFS     EQU      20                     ; osRtxInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset
@@ -51,22 +51,30 @@ SVC_Handler     PROC
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
-                IF       __DOMAIN_NS = 1
+                IF       :DEF:MPU_LOAD
+                IMPORT   osRtxMpuLoad
+                ENDIF
+                IF       DOMAIN_NS = 1
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
                 ENDIF
 
+                MOV      R0,LR
+                LSRS     R0,R0,#3               ; Determine return stack from EXC_RETURN bit 2
+                BCC      SVC_MSP                ; Branch if return stack is MSP
                 MRS      R0,PSP                 ; Get PSP
+
+SVC_Number
                 LDR      R1,[R0,#24]            ; Load saved PC from stack
                 SUBS     R1,R1,#2               ; Point to SVC instruction
                 LDRB     R1,[R1]                ; Load SVC number
                 CMP      R1,#0
                 BNE      SVC_User               ; Branch if not SVC 0
 
-                PUSH     {R0,LR}                ; Save PSP and EXC_RETURN
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LDM      R0,{R0-R3}             ; Load function parameters from stack
                 BLX      R7                     ; Call service function
-                POP      {R2,R3}                ; Restore PSP and EXC_RETURN
+                POP      {R2,R3}                ; Restore SP and EXC_RETURN
                 STMIA    R2!,{R0-R1}            ; Store function return values
                 MOV      LR,R3                  ; Set EXC_RETURN
 
@@ -79,7 +87,7 @@ SVC_Context
                 CBZ      R1,SVC_ContextSwitch   ; Branch if running thread is deleted
 
 SVC_ContextSave
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LDR      R0,[R1,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,SVC_ContextSave1    ; Branch if there is no secure context
                 PUSH     {R1,R2,R3,R7}          ; Save registers
@@ -91,7 +99,7 @@ SVC_ContextSave
 
 SVC_ContextSave1
                 MRS      R0,PSP                 ; Get PSP
-                SUBS     R0,R0,#32              ; Adjust PSP
+                SUBS     R0,R0,#32              ; Calculate SP
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
                 STMIA    R0!,{R4-R7}            ; Save R4..R7
                 MOV      R4,R8
@@ -109,8 +117,15 @@ SVC_ContextSwitch
                 SUBS     R3,R3,#8               ; Adjust address
                 STR      R2,[R3]                ; osRtxInfo.thread.run: curr = next
 
+                IF       :DEF:MPU_LOAD
+                PUSH     {R2,R3}                ; Save registers
+                MOV      R0,R2                  ; osRtxMpuLoad parameter
+                BL       osRtxMpuLoad           ; Load MPU for next thread
+                POP      {R2,R3}                ; Restore registers
+                ENDIF
+
 SVC_ContextRestore
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LDR      R0,[R2,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,SVC_ContextRestore1 ; Branch if there is no secure context
                 PUSH     {R2,R3}                ; Save registers
@@ -127,7 +142,7 @@ SVC_ContextRestore1
                 ORRS     R0,R1
                 MOV      LR,R0                  ; Set EXC_RETURN
 
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LSLS     R0,R0,#25              ; Check domain of interrupted thread
                 BPL      SVC_ContextRestore2    ; Branch if non-secure
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
@@ -153,23 +168,27 @@ SVC_ContextRestore2
 SVC_Exit
                 BX       LR                     ; Exit from handler
 
+SVC_MSP
+                MRS      R0,MSP                 ; Get MSP
+                B        SVC_Number
+
 SVC_User
-                PUSH     {R4,LR}                ; Save registers
                 LDR      R2,=osRtxUserSVC       ; Load address of SVC table
                 LDR      R3,[R2]                ; Load SVC maximum number
                 CMP      R1,R3                  ; Check SVC number range
-                BHI      SVC_Done               ; Branch if out of range
+                BHI      SVC_Exit               ; Branch if out of range
 
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LSLS     R1,R1,#2
-                LDR      R4,[R2,R1]             ; Load address of SVC function
+                LDR      R3,[R2,R1]             ; Load address of SVC function
+                MOV      R12,R3
+                LDMIA    R0,{R0-R3}             ; Load function parameters from stack
+                BLX      R12                    ; Call service function
+                POP      {R2,R3}                ; Restore SP and EXC_RETURN
+                STR      R0,[R2]                ; Store function return value
+                MOV      LR,R3                  ; Set EXC_RETURN
 
-                LDM      R0,{R0-R3}             ; Load function parameters from stack
-                BLX      R4                     ; Call service function
-                MRS      R4,PSP                 ; Get PSP
-                STR      R0,[R4]                ; Store function return value
-
-SVC_Done
-                POP      {R4,PC}                ; Return from handler
+                BX       LR                     ; Return from handler
 
                 ALIGN
                 ENDP
@@ -206,7 +225,10 @@ SysTick_Handler PROC
 Sys_Context     PROC
                 EXPORT   Sys_Context
                 IMPORT   osRtxInfo
-                IF       __DOMAIN_NS = 1
+                IF       :DEF:MPU_LOAD
+                IMPORT   osRtxMpuLoad
+                ENDIF
+                IF       DOMAIN_NS = 1
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
                 ENDIF
@@ -217,7 +239,7 @@ Sys_Context     PROC
                 BEQ      Sys_ContextExit        ; Branch when threads are the same
 
 Sys_ContextSave
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LDR      R0,[R1,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,Sys_ContextSave1    ; Branch if there is no secure context
                 PUSH     {R1,R2,R3,R7}          ; Save registers
@@ -253,8 +275,15 @@ Sys_ContextSwitch
                 SUBS     R3,R3,#8               ; Adjust address
                 STR      R2,[R3]                ; osRtxInfo.run: curr = next
 
+                IF       :DEF:MPU_LOAD
+                PUSH     {R2,R3}                ; Save registers
+                MOV      R0,R2                  ; osRtxMpuLoad parameter
+                BL       osRtxMpuLoad           ; Load MPU for next thread
+                POP      {R2,R3}                ; Restore registers
+                ENDIF
+
 Sys_ContextRestore
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LDR      R0,[R2,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,Sys_ContextRestore1 ; Branch if there is no secure context
                 PUSH     {R2,R3}                ; Save registers
@@ -271,7 +300,7 @@ Sys_ContextRestore1
                 ORRS     R0,R1
                 MOV      LR,R0                  ; Set EXC_RETURN
 
-                IF       __DOMAIN_NS = 1
+                IF       DOMAIN_NS = 1
                 LSLS     R0,R0,#25              ; Check domain of interrupted thread
                 BPL      Sys_ContextRestore2    ; Branch if non-secure
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP

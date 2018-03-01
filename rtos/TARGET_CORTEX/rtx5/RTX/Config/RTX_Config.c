@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -41,7 +41,7 @@ __WEAK uint32_t osRtxErrorNotify (uint32_t code, void *object_id) {
 
   switch (code) {
     case osRtxErrorStackUnderflow:
-      // Stack underflow detected for thread (thread_id=object_id)
+      // Stack overflow detected for thread (thread_id=object_id)
       break;
     case osRtxErrorISRQueueOverflow:
       // ISR Queue overflow detected when inserting object (object_id)
@@ -56,6 +56,7 @@ __WEAK uint32_t osRtxErrorNotify (uint32_t code, void *object_id) {
       // Standard C/C++ library mutex initialization failed
       break;
     default:
+      // Reserved
       break;
   }
   for (;;) {}

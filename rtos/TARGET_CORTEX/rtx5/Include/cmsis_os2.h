@@ -17,12 +17,15 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        9. June 2017
- * $Revision:    V2.1.1
+ * $Date:        30. October 2017
+ * $Revision:    V2.1.2
  *
  * Project:      CMSIS-RTOS2 API
  * Title:        cmsis_os2.h header file
  *
+ * Version 2.1.2
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osKernelGetInfo, osKernelGetState
  * Version 2.1.1
  *    Additional functions allowed to be called from Interrupt Service Routines:
  *    - osKernelGetTickCount, osKernelGetTickFreq
@@ -45,9 +48,9 @@
 #if   defined(__CC_ARM)
 #define __NO_RETURN __declspec(noreturn)
 #elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-#define __NO_RETURN __attribute__((noreturn))
+#define __NO_RETURN __attribute__((__noreturn__))
 #elif defined(__GNUC__)
-#define __NO_RETURN __attribute__((noreturn))
+#define __NO_RETURN __attribute__((__noreturn__))
 #elif defined(__ICCARM__)
 #define __NO_RETURN __noreturn
 #else
@@ -363,7 +366,6 @@ uint32_t osKernelGetSysTimerFreq (void);
 /// \param[in]     attr          thread attributes; NULL: default values.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr);
-osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context);
  
 /// Get name of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.

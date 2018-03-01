@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_compiler.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.1
- * @date     01. December 2017
+ * @version  V1.0.2
+ * @date     10. January 2018
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,14 +28,14 @@
 #include <stdint.h>
 
 /*
- * ARM Compiler 4/5
+ * Arm Compiler 4/5
  */
 #if   defined ( __CC_ARM )
   #include "cmsis_armcc.h"
 
 
 /*
- * ARM Compiler 6 (armclang)
+ * Arm Compiler 6 (armclang)
  */
 #elif defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #include "cmsis_armclang.h"
@@ -56,7 +56,7 @@
 
 
 /*
- * TI ARM Compiler
+ * TI Arm Compiler
  */
 #elif defined ( __TI_ARM__ )
   #include <cmsis_ccs.h>

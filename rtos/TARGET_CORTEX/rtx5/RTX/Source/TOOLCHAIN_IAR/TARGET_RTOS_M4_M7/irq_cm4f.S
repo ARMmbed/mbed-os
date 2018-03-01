@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+; * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -43,20 +43,25 @@ irqRtxLib       DCB      0                      ; Non weak library reference
                 THUMB
                 SECTION .text:CODE:NOROOT(2)
 
+
 SVC_Handler
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
 
-                MRS      R0,PSP                 ; Get PSP
+                TST      LR,#0x04               ; Determine return stack from EXC_RETURN bit 2
+                ITE      EQ
+                MRSEQ    R0,MSP                 ; Get MSP if return stack is MSP
+                MRSNE    R0,PSP                 ; Get PSP if return stack is PSP
+
                 LDR      R1,[R0,#24]            ; Load saved PC from stack
                 LDRB     R1,[R1,#-2]            ; Load SVC number
                 CBNZ     R1,SVC_User            ; Branch if not SVC 0
 
-                PUSH     {R0,LR}                ; Save PSP and EXC_RETURN
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LDM      R0,{R0-R3,R12}         ; Load function parameters and address from stack
                 BLX      R12                    ; Call service function
-                POP      {R12,LR}               ; Restore PSP and EXC_RETURN
+                POP      {R12,LR}               ; Restore SP and EXC_RETURN
                 STM      R12,{R0-R1}            ; Store function return values
 
 SVC_Context
@@ -69,22 +74,17 @@ SVC_Context
                 CBNZ     R1,SVC_ContextSave     ; Branch if running thread is not deleted
                 TST      LR,#0x10               ; Check if extended stack frame
                 BNE      SVC_ContextSwitch
-#ifdef __FPU_PRESENT
                 LDR      R1,=0xE000EF34         ; FPCCR Address
                 LDR      R0,[R1]                ; Load FPCCR
                 BIC      R0,R0,#1               ; Clear LSPACT (Lazy state)
                 STR      R0,[R1]                ; Store FPCCR
                 B        SVC_ContextSwitch
-#endif
 
 SVC_ContextSave
                 STMDB    R12!,{R4-R11}          ; Save R4..R11
-#ifdef __FPU_PRESENT
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VSTMDBEQ R12!,{S16-S31}         ;  Save VFP S16.S31
-#endif
-
                 STR      R12,[R1,#TCB_SP_OFS]   ; Store SP
                 STRB     LR, [R1,#TCB_SF_OFS]   ; Store stack frame information
 
@@ -96,11 +96,9 @@ SVC_ContextRestore
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
                 ORR      LR,R1,#0xFFFFFF00      ; Set EXC_RETURN
 
-#ifdef __FPU_PRESENT
                 TST      LR,#0x10               ; Check if extended stack frame
                 IT       EQ
                 VLDMIAEQ R0!,{S16-S31}          ;  Restore VFP S16..S31
-#endif
                 LDMIA    R0!,{R4-R11}           ; Restore R4..R11
                 MSR      PSP,R0                 ; Set PSP
 
@@ -108,41 +106,39 @@ SVC_Exit
                 BX       LR                     ; Exit from handler
 
 SVC_User
-                PUSH     {R4,LR}                ; Save registers
                 LDR      R2,=osRtxUserSVC       ; Load address of SVC table
                 LDR      R3,[R2]                ; Load SVC maximum number
                 CMP      R1,R3                  ; Check SVC number range
-                BHI      SVC_Done               ; Branch if out of range
+                BHI      SVC_Exit               ; Branch if out of range
 
-                LDR      R4,[R2,R1,LSL #2]      ; Load address of SVC function
-
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
+                LDR      R12,[R2,R1,LSL #2]     ; Load address of SVC function
                 LDM      R0,{R0-R3}             ; Load function parameters from stack
-                BLX      R4                     ; Call service function
-                MRS      R4,PSP                 ; Get PSP
-                STR      R0,[R4]                ; Store function return value
+                BLX      R12                    ; Call service function
+                POP      {R12,LR}               ; Restore SP and EXC_RETURN
+                STR      R0,[R12]               ; Store function return value
 
-SVC_Done
-                POP      {R4,PC}                ; Return from handler
+                BX       LR                     ; Return from handler
 
 
-PendSV_Handler  
+PendSV_Handler
                 EXPORT   PendSV_Handler
                 IMPORT   osRtxPendSV_Handler
 
-                PUSH     {R4,LR}                ; Save EXC_RETURN
+                PUSH     {R0,LR}                ; Save EXC_RETURN
                 BL       osRtxPendSV_Handler    ; Call osRtxPendSV_Handler
-                POP      {R4,LR}                ; Restore EXC_RETURN
+                POP      {R0,LR}                ; Restore EXC_RETURN
                 MRS      R12,PSP
                 B        SVC_Context
 
 
-SysTick_Handler 
+SysTick_Handler
                 EXPORT   SysTick_Handler
                 IMPORT   osRtxTick_Handler
 
-                PUSH     {R4,LR}                ; Save EXC_RETURN
+                PUSH     {R0,LR}                ; Save EXC_RETURN
                 BL       osRtxTick_Handler      ; Call osRtxTick_Handler
-                POP      {R4,LR}                ; Restore EXC_RETURN
+                POP      {R0,LR}                ; Restore EXC_RETURN
                 MRS      R12,PSP
                 B        SVC_Context
 
