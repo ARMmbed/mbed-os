@@ -178,41 +178,6 @@ void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
     //(void)ret;
 }
 
-void LoRaMac::handle_mac_state_check_timer_event(void)
-{
-    const int ret = ev_queue->call(this, &LoRaMac::on_mac_state_check_timer_event);
-    MBED_ASSERT(ret != 0);
-    (void)ret;
-}
-
-void LoRaMac::handle_delayed_tx_timer_event(void)
-{
-    const int ret = ev_queue->call(this, &LoRaMac::on_tx_delayed_timer_event);
-    MBED_ASSERT(ret != 0);
-    (void)ret;
-}
-
-void LoRaMac::handle_ack_timeout()
-{
-    const int ret = ev_queue->call(this, &LoRaMac::on_ack_timeout_timer_event);
-    MBED_ASSERT(ret != 0);
-    (void)ret;
-}
-
-void LoRaMac::handle_rx1_timer_event(void)
-{
-    const int ret = ev_queue->call(this, &LoRaMac::on_rx_window1_timer_event);
-    MBED_ASSERT(ret != 0);
-    (void)ret;
-}
-
-void LoRaMac::handle_rx2_timer_event(void)
-{
-    const int ret = ev_queue->call(this, &LoRaMac::on_rx_window2_timer_event);
-    MBED_ASSERT(ret != 0);
-    (void)ret;
-}
-
 /***************************************************************************
  * Radio event callbacks - delegated to Radio driver                       *
  **************************************************************************/
@@ -283,7 +248,9 @@ void LoRaMac::prepare_rx_done_abort(void)
     _params.mac_state |= LORAMAC_RX_ABORT;
 
     if (_params.is_node_ack_requested) {
-        handle_ack_timeout();
+        const int ret = ev_queue->call(this, &LoRaMac::on_ack_timeout_timer_event);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
     }
 
     _params.flags.bits.mcps_ind = 1;
@@ -836,7 +803,10 @@ void LoRaMac::on_mac_state_check_timer_event(void)
                         } else {
                             _params.flags.bits.mac_done = 0;
                             // Sends the same frame again
-                            handle_delayed_tx_timer_event();
+                            const int ret = ev_queue->call(this, &LoRaMac::on_tx_delayed_timer_event);
+                            MBED_ASSERT(ret != 0);
+                            (void)ret;
+
                         }
                     }
                 } else {
@@ -860,7 +830,9 @@ void LoRaMac::on_mac_state_check_timer_event(void)
                     } else {
                         _params.flags.bits.mac_done = 0;
                         // Sends the same frame again
-                        handle_delayed_tx_timer_event();
+                        const int ret = ev_queue->call(this, &LoRaMac::on_tx_delayed_timer_event);
+                        MBED_ASSERT(ret != 0);
+                        (void)ret;
                     }
                 }
             }
@@ -1324,7 +1296,10 @@ void LoRaMac::reset_mac_parameters(void)
 
 void LoRaMac::open_continuous_rx2_window (void)
 {
-    handle_rx2_timer_event();
+    const int ret = ev_queue->call(this, &LoRaMac::on_rx_window2_timer_event);
+    MBED_ASSERT(ret != 0);
+    (void)ret;
+
     _params.rx_slot = RX_SLOT_WIN_CLASS_C;
 }
 
@@ -1662,15 +1637,15 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
 
     // Initialize timers
     _lora_time.init(_params.timers.mac_state_check_timer,
-                    mbed::callback(this, &LoRaMac::handle_mac_state_check_timer_event));
+                    mbed::callback(this, &LoRaMac::on_mac_state_check_timer_event));
     _lora_time.init(_params.timers.tx_delayed_timer,
-                    mbed::callback(this, &LoRaMac::handle_delayed_tx_timer_event));
+                    mbed::callback(this, &LoRaMac::on_tx_delayed_timer_event));
     _lora_time.init(_params.timers.rx_window1_timer,
-                    mbed::callback(this, &LoRaMac::handle_rx1_timer_event));
+                    mbed::callback(this, &LoRaMac::on_rx_window1_timer_event));
     _lora_time.init(_params.timers.rx_window2_timer,
-                    mbed::callback(this, &LoRaMac::handle_rx2_timer_event));
+                    mbed::callback(this, &LoRaMac::on_rx_window2_timer_event));
     _lora_time.init(_params.timers.ack_timeout_timer,
-                    mbed::callback(this, &LoRaMac::handle_ack_timeout));
+                    mbed::callback(this, &LoRaMac::on_ack_timeout_timer_event));
 
     // Store the current initialization time
     _params.timers.mac_init_time = _lora_time.get_current_time();
