@@ -44,7 +44,7 @@ public:
 
     void test_AT_CellularNetwork_get_rate_control();
 
-    void test_AT_CellularNetwork_get_backoff_time();
+    void test_AT_CellularNetwork_get_apn_backoff_timer();
 
     void test_AT_CellularNetwork_get_ip_address();
 

@@ -60,3 +60,7 @@ ssize_t Mux::user_data_rx(void* buffer, size_t size)
     return cellular_mux_stub::size_value;
 }
 
+short Mux::poll()
+{
+    return POLLIN | POLLOUT;
+}

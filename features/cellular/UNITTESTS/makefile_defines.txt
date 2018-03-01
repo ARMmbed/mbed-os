@@ -28,6 +28,6 @@ INCLUDE_DIRS =\
   /usr/include\
   $(CPPUTEST_HOME)/include\
 
-CPPUTESTFLAGS = -D__thumb2__ -w -D__INLINE=__inline
+CPPUTESTFLAGS = -D__thumb2__ -w -D__INLINE=__inline -DMBED_CONF_CELLULAR_MUX_ENABLED=1
 CPPUTEST_CFLAGS += -std=gnu99
 
