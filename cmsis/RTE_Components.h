@@ -18,16 +18,7 @@
 
 #define CMSIS_device_header <cmsis.h>
 
-#ifndef MBED_CONF_TZ_PROCESS_STACK_SIZE
-#define MBED_CONF_TZ_PROCESS_STACK_SIZE  512
-#endif
-#ifndef MBED_CONF_TZ_PROCESS_STACK_SLOTS
-#define MBED_CONF_TZ_PROCESS_STACK_SLOTS  8
-#endif
-
-#define TZ_PROCESS_STACK_SLOTS  MBED_CONF_TZ_PROCESS_STACK_SLOTS
-#define TZ_PROCESS_STACK_SIZE  MBED_CONF_TZ_PROCESS_STACK_SIZE
+#include "mbed_rtx_conf.h"
+#include "mbed_cmsis_conf.h"
 
 #endif
-
-
