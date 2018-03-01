@@ -503,22 +503,16 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
 
             switch(evt->type) {
                 case DM_KEY_LOCAL_LTK:
-                    // FIXME: forward local ltk
-#if 0
-                    printf("local ltk: ");
-                    for (size_t i = 0; i < sizeof(ltk_t); ++i) {
-                        printf("%02X ", evt->keyData.ltk.key[i]);
-                    }
-                    printf("\r\n");
+                    handler->on_keys_distributed_local_ltk(
+                        connection,
+                        ltk_t(reinterpret_cast<uint8_t*>(evt->keyData.ltk.key))
+                    );
 
-                    printf("local ediv: %04X\r\n", evt->keyData.ltk.ediv);
-                    printf("local rand: ");
-                    for (size_t i = 0; i < sizeof(rand_t); ++i) {
-                        printf("%02X ", evt->keyData.ltk.rand[i]);
-                    }
-                    printf("\r\n");
-                    memcpy(local_ltk, evt->keyData.ltk.key, sizeof(local_ltk));
-#endif
+                    handler->on_keys_distributed_local_ediv_rand(
+                        connection,
+                        ediv_t(reinterpret_cast<uint8_t*>(&(evt->keyData.ltk.ediv))),
+                        evt->keyData.ltk.rand
+                    );
                     break;
 
                 case DM_KEY_PEER_LTK:
