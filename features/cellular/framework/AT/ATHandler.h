@@ -36,8 +36,8 @@ class FileHandle;
 /**
  * If application calls associated FileHandle only from single thread context
   * then locking between AT command and response is not needed. However,
-  * note that many cellular functions are called indirectly e.g. via socket API.
-  * If you are unsure then AT_HANDLER_MUTEX must be defined.
+  * note that many cellular functions are called indirectly, for example with the socket API.
+  * If you are unsure, then AT_HANDLER_MUTEX must be defined.
   */
 #define AT_HANDLER_MUTEX
 
@@ -84,7 +84,7 @@ public:
      */
     FileHandle *get_file_handle();
 
-    /** Set file handle which is used for reading AT responses and writing AT commands
+    /** Set file handle, which is used for reading AT responses and writing AT commands
      *
      *  @param fh file handle used for reading AT responses and writing AT commands
      */
@@ -100,14 +100,14 @@ public:
 
     /** Locks the mutex for file handle if AT_HANDLER_MUTEX is defined and returns the last error.
      *
-     * @return last error which happened when parsing AT responses
+     * @return last error that happened when parsing AT responses
      */
     nsapi_error_t unlock_return_error();
 
-    /** Set the urc callback for urc. If urc is found when parsing AT responses then call if called.
+    /** Set the urc callback for urc. If urc is found when parsing AT responses, then call if called.
      *
      *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     *  @param callback Callback which is called if urc is found in AT response
+     *  @param callback Callback, which is called if urc is found in AT response
      */
     void set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 
@@ -150,7 +150,7 @@ public:
      */
     void restore_at_timeout();
 
-    /** Clear pending error flag. By default error is cleared only in lock().
+    /** Clear pending error flag. By default, error is cleared only in lock().
      */
     void clear_error();
 
@@ -205,14 +205,14 @@ private:
 public:
 
     /** Starts the command writing by clearing the last error and writing the given command.
-     *  In case of failure when writing the last error is set to NSAPI_ERROR_DEVICE_ERROR.
+     *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
      *  @param cmd  AT command to be written to modem
      */
     void cmd_start(const char* cmd);
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
-     *  In case of failure when writing the last error is set to NSAPI_ERROR_DEVICE_ERROR.
+     *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
      *   @param param int to be written to modem as AT command subparameter
      */
@@ -220,19 +220,19 @@ public:
 
     /** Writes string type AT command subparamater. Quotes are added to surround the given string.
      *  Starts with the delimiter if not the first param after cmd_start.
-     *  In case of failure when writing the last error is set to NSAPI_ERROR_DEVICE_ERROR.
+     *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
      *  @param param string to be written to modem as AT command subparameter
-     *  @param useQuotations flag indicating if the string should be or not included in quotation marks
+     *  @param useQuotations flag indicating whether the string should be included in quotation marks
      */
     void write_string(const char* param,  bool useQuotations = true);
 
-    /** Stops the AT command by writing command line terminator CR to mark command as finished.
+    /** Stops the AT command by writing command-line terminator CR to mark command as finished.
      */
     void cmd_stop();
 
     /** Write bytes without any subparameter delimiters, such as comma.
-     *  In case of failure when writing the last error is set to NSAPI_ERROR_DEVICE_ERROR.
+     *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
      *  @param data bytes to be written to modem
      *  @param len  length of data string
@@ -241,7 +241,7 @@ public:
      */
     size_t write_bytes(const uint8_t *data, size_t len);
 
-    /** Sets the stop tag for the current scope(response/information response/element)
+    /** Sets the stop tag for the current scope (response/information response/element)
      *  Parameter's reading routines will stop the reading when such tag is found and will set the found flag.
      *  Consume routines will read everything until such tag is found.
      *
@@ -286,7 +286,7 @@ public:
      *
      *  @param str output buffer for the read
      *  @param size maximum number of chars to output
-     *  @param read_even_stop_tag if true then try to read even the stop tag was found previously
+     *  @param read_even_stop_tag if true then try to read even if the stop tag was found previously
      *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
      */
     ssize_t read_string(char *str, size_t size, bool read_even_stop_tag = false);
@@ -309,14 +309,14 @@ public:
 
     /**  Ends all scopes starting from current scope.
      *   Consumes everything until the scope's stop tag is found, then
-     *   goes to next scope, until response scope is ending.
+     *   goes to next scope until response scope is ending.
      *   Possible sequence:
      *   element scope -> information response scope -> response scope
      */
     void resp_stop();
 
     /**  Looks for matching the prefix given to resp_start() call.
-     *   If needed it ends the scope of a previous information response.
+     *   If needed, it ends the scope of a previous information response.
      *   Sets the information response scope if new prefix is found and response scope if prefix is not found.
      *
      *  @return true if new information response is found, false otherwise
@@ -324,7 +324,7 @@ public:
     bool info_resp();
 
     /**  Looks for matching the start tag.
-     *   If needed it ends the scope of a previous element.
+     *   If needed, it ends the scope of a previous element.
      *   Sets the element scope if start tag is found and information response scope if start tag is not found.
      *
      *  @param start_tag tag to be matched to begin parsing an element of an information response
@@ -358,10 +358,10 @@ private:
     // reading length
     size_t _recv_pos;
 
-    // resp_type: the part of the response that doesn't include the information response(+CMD1,+CMD2..)
+    // resp_type: the part of the response that doesn't include the information response (+CMD1,+CMD2..)
     //            ends with OK or (CME)(CMS)ERROR
     // info_type: the information response part of the response: starts with +CMD1 and ends with CRLF
-    //            information response contains parameters or subsets of parameters(elements), both separated by comma
+    //            information response contains parameters or subsets of parameters (elements), both separated by comma
     // elem_type: subsets of parameters that are part of information response, its parameters are separated by comma
     enum ScopeType {RespType, InfoType, ElemType, NotSet};
     void set_scope(ScopeType scope_type);
@@ -379,7 +379,7 @@ private:
     tag_t _info_stop;
     // tag to stop element scope
     tag_t _elem_stop;
-    // reference to the stop tag of current scope(resp/info/elem)
+    // reference to the stop tag of current scope (resp/info/elem)
     tag_t *_stop_tag;
 
     // delimiter between parameters and also used for delimiting elements of information response
@@ -413,13 +413,13 @@ private:
 
     // Rewinds the receiving buffer and compares it against given str.
     bool match(const char* str, size_t size);
-    // Iterates URCs and check if they match the receiving buffer content.
+    // Iterates URCs and checks if they match the receiving buffer content.
     // If URC match sets the scope to information response and after urc's cb returns
     // finishes the information response scope(consumes to CRLF).
     bool match_urc();
     // Checks if any of the error strings are matching the receiving buffer content.
     bool match_error();
-    // Checks is current char in buffer matches ch and consumes it,
+    // Checks if current char in buffer matches ch and consumes it,
     // if no match lets the buffer unchanged.
     bool consume_char(char ch);
     // Consumes the received content until tag is found.
@@ -457,7 +457,7 @@ private:
      */
     void set_string(char *dest, const char *src, size_t src_len);
 
-    /** Finds occurence of one char buffer inside another char buffer.
+    /** Finds occurrence of one char buffer inside another char buffer.
      *
      * @param dest                  destination char buffer
      * @param dest_len              length of dest
