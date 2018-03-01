@@ -167,12 +167,13 @@ ble_error_t nRF5xSecurityManager::slave_security_request(
 //
 
 ble_error_t nRF5xSecurityManager::enable_encryption(
-    connection_handle_t connection,
-    const ltk_t &ltk,
-    const rand_t &rand,
-    const ediv_t &ediv,
-    bool mitm
-) {
+        connection_handle_t connection,
+        const ltk_t &ltk,
+        const rand_t &rand,
+        const ediv_t &ediv,
+        bool mitm
+    )
+{
     ble_gap_master_id_t master_id;
     ble_gap_enc_info_t enc_info;
 
@@ -180,7 +181,30 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     memcpy(&master_id.ediv, ediv.data(), ediv.size()); 
 
     memcpy(enc_info.ltk, ltk.data(), ltk.size());
-    enc_info.lesc = _use_secure_connections;
+    enc_info.lesc = false;
+    enc_info.auth = mitm;
+    enc_info.ltk_len = ltk.size();
+
+    uint32_t err = sd_ble_gap_encrypt(
+        connection,
+        &master_id,
+        &enc_info
+    );
+
+    return convert_sd_error(err);
+}
+
+ble_error_t nRF5xSecurityManager::enable_encryption(
+    connection_handle_t connection,
+    const ltk_t &ltk,
+    bool mitm
+) 
+{
+    ble_gap_master_id_t master_id = {0};
+    ble_gap_enc_info_t enc_info;
+
+    memcpy(enc_info.ltk, ltk.data(), ltk.size());
+    enc_info.lesc = true;
     enc_info.auth = mitm;
     enc_info.ltk_len = ltk.size();
 

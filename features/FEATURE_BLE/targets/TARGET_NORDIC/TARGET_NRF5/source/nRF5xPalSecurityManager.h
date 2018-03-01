@@ -145,7 +145,7 @@ public:
         connection_handle_t connection,
         const ltk_t &ltk,
         bool mitm
-    );
+    ) ;
 
     /**
      * @see ::ble::pal::SecurityManager::encrypt_data

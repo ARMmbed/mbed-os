@@ -38,11 +38,9 @@
 extern "C" {
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
     #include "pstorage.h"
-    #include "device_manager.h"
 #else
     #include "fstorage.h"
     #include "fds.h"
-    #include "peer_manager.h"
     #include "ble_conn_state.h"
 #endif
 
@@ -145,9 +143,6 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
-    pm_init();
-
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
@@ -157,9 +152,7 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 #else
-    ble_gap_privacy_params_t privacy_params = {0};
-    privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
-    pm_privacy_set(&privacy_params);
+
 #endif
 
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
@@ -179,14 +172,10 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #endif
 
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
-    dm_ble_evt_handler(p_ble_evt);
 #else
     // Forward BLE events to the Connection State module.
     // This must be called before any event handler that uses this module.
     ble_conn_state_on_ble_evt(p_ble_evt);
-
-    // Forward BLE events to the Peer Manager
-    pm_on_ble_evt(p_ble_evt);
 #endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
