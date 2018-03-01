@@ -157,7 +157,7 @@ ble_error_t CordioSecurityManager::enable_encryption(
 
     DmSecEncryptReq(
         connection,
-        /* FIXME: Security Level */ DM_SEC_LEVEL_ENC_AUTH,
+        mitm ? DM_SEC_LEVEL_ENC_AUTH : DM_SEC_LEVEL_ENC,
         &sec_ltk
     );
 
