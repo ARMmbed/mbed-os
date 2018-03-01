@@ -900,13 +900,9 @@ void GenericSecurityManager::on_pairing_timed_out(connection_handle_t connection
 void GenericSecurityManager::on_pairing_completed(connection_handle_t connection) {
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
-        if (cb->encryption_requested) {
-            enable_encryption(connection);
-        }
+        // set the distribution flags in the db
+        _db.set_distribution_flags(cb->db_entry, *cb);
     }
-
-    // set the distribution flags in the db
-    _db.set_distribution_flags(cb->db_entry, *cb);
 
     eventHandler->pairingResult(
         connection,
