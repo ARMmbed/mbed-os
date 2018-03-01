@@ -383,7 +383,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
 
     if (encryption == link_encryption_t::NOT_ENCRYPTED) {
 
-        return _pal.disable_encryption(connection);
+        return BLE_ERROR_INVALID_STATE;
 
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
