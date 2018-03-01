@@ -227,7 +227,7 @@ public:
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
             uint32_t result = passkey / m;
             ascii[i] = NUMBER_OFFSET + result;
-            passkey -= result;
+            passkey -= result * m;
         }
     }
 
