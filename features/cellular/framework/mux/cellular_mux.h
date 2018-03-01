@@ -55,7 +55,7 @@ public:
 
     /** Enqueue user data for transmission.
      *
-     *  @note: This is API is only meant to be used for the multiplexer (user) data service tx. Supplied buffer can be
+     *  @note: This API is only meant to be used for the multiplexer (user) data service tx. Supplied buffer can be
      *         reused/freed upon call return.
      *
      *  @param buffer Begin of the user data.
@@ -66,9 +66,9 @@ public:
 
     /** Read user data into a buffer.
      *
-     *  @note: This is API is only meant to be used for the multiplexer (user) data service rx.
+     *  @note: This API is only meant to be used for the multiplexer (user) data service rx.
      *
-     *  @param buffer The buffer to read in to.
+     *  @param buffer The buffer to read to.
      *  @param size   The number of bytes to read.
      *  @return       The number of bytes read, -EAGAIN if no data available for read.
      */
@@ -79,9 +79,9 @@ public:
      *  The input parameter can be used or ignored - could always return all events, or could check just the events
      *  listed in events.
      *
-     *  Call is non-blocking - returns instantaneous state of events.
+     *  Call is nonblocking - returns instantaneous state of events.
      *
-     * @param events Bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
+     * @param events Bitmask of poll events we're interested in - POLLIN/POLLOUT and so on.
      * @return       Bitmask of poll events that have occurred.
      */
     virtual short poll(short events) const;
@@ -166,11 +166,11 @@ public:
      *  @param status  Operation completion code.
      *  @param obj     Valid object upon status having MUX_ESTABLISH_SUCCESS, NULL upon failure.
      *
-     *  @return MUX_STATUS_SUCCESS       Operation completed, check  status for completion code.
+     *  @return MUX_STATUS_SUCCESS       Operation completed, check status for completion code.
      *  @return MUX_STATUS_INPROGRESS    Operation not started, DLCI establishment already in progress.
      *  @return MUX_STATUS_INVALID_RANGE Operation not started, DLCI ID not in valid range.
      *  @return MUX_STATUS_MUX_NOT_OPEN  Operation not started, no established multiplexer control channel exists.
-     *  @return MUX_STATUS_NO_RESOURCE   Operation not started, dlci_id, or all available DLCI ID resources,
+     *  @return MUX_STATUS_NO_RESOURCE   Operation not started, dlci_id or all available DLCI ID resources,
      *                                   already in use.
      */
     static MuxReturnStatus dlci_establish(uint8_t dlci_id, MuxEstablishStatus &status, FileHandle **obj);
@@ -402,7 +402,7 @@ private:
 
     /** Evaluate is DLCI ID in use.
      *
-     *  @param dlci_id ID of the DLCI yo evaluate
+     *  @param dlci_id ID of the DLCI to evaluate
      *
      *  @return True if in use, false otherwise.
      */
@@ -428,7 +428,7 @@ private:
 
     /** Enqueue user data for transmission.
      *
-     *  @note: This is API is only meant to be used for the multiplexer (user) data service tx. Supplied buffer can be
+     *  @note: This API is only meant to be used for the multiplexer (user) data service tx. Supplied buffer can be
      *         reused/freed upon call return.
      *
      *  @param dlci_id ID of the DLCI to use.
@@ -440,7 +440,7 @@ private:
 
     /** Read user data into a buffer.
      *
-     *  @note: This is API is only meant to be used for the multiplexer (user) data service rx.
+     *  @note: This API is only meant to be used for the multiplexer (user) data service rx.
      *
      *  @param buffer The buffer to read in to.
      *  @param size   The number of bytes to read.
@@ -480,25 +480,25 @@ private:
 
     /** Dispatch TX callback based on supplied bit.
      *
-     *  @param bit Bit indetifier of callback to dispatch.
+     *  @param bit Bit identifier of callback to dispatch.
      */
     static void tx_callback_dispatch(uint8_t bit);
 
-    /** Run main processing loop for resolving pending TX callbacks and dispatching them if they exists.
+    /** Run main processing loop for resolving pending TX callbacks and dispatching them if they exist.
      */
     static void tx_callbacks_run();
 
     /** Get data service object based on supplied bit id.
      *
-     *  @param bit Bit indetifier of data service object to get.
+     *  @param bit Bit identifier of data service object to get.
      *  @return    Data service object reference.
      */
     static MuxDataService& tx_callback_lookup(uint8_t bit);
 
     /** Get minimum of 2 supplied paramaters.
      *
-     *  @param size_1 1st param for comparisation.
-     *  @param size_2 2nd param for comparisation.
+     *  @param size_1 1st param for comparison.
+     *  @param size_2 2nd param for comparison.
      *  @return       Minimum of supplied paramaters.
      */
     static size_t min(uint8_t size_1, size_t size_2);
