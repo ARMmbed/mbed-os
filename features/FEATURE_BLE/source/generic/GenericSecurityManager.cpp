@@ -375,25 +375,21 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
         return BLE_ERROR_OPERATION_NOT_PERMITTED;
     }
 
-    /* ignore if the link is already at required state*/
     if (current_encryption == encryption) {
-        eventHandler->linkEncryptionResult(connection, current_encryption);
-        return BLE_ERROR_NONE;
-    }
 
-    if (encryption == link_encryption_t::NOT_ENCRYPTED) {
+        /* ignore if the link is already at required state*/
 
-        return BLE_ERROR_INVALID_STATE;
+    } else if (encryption == link_encryption_t::NOT_ENCRYPTED) {
+
+        /* ignore if we are requesting an open link on an already encrypted link */
 
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
-        /* if already better than encrypted don't bother */
-        if (current_encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
-            eventHandler->linkEncryptionResult(connection, current_encryption);
-            return BLE_ERROR_NONE;
+        /* only change if we're not already encrypted with mitm */
+        if (current_encryption != link_encryption_t::ENCRYPTED_WITH_MITM) {
+            cb->encryption_requested = true;
+            return enable_encryption(connection);
         }
-        cb->encryption_requested = true;
-        return enable_encryption(connection);
 
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
@@ -408,6 +404,8 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     } else {
         return BLE_ERROR_INVALID_PARAM;
     }
+
+    eventHandler->linkEncryptionResult(connection, current_encryption);
 
     return BLE_ERROR_NONE;
 }
