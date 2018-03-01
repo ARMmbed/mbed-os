@@ -582,8 +582,14 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
-        case DM_SEC_SLAVE_REQ_IND:
+        case DM_SEC_SLAVE_REQ_IND: {
+            dmSecPairIndEvt_t* evt = (dmSecPairIndEvt_t*) msg;
+            handler->on_slave_security_request(
+                /* connection */ evt->hdr.param,
+                evt->auth
+            );
             return true;
+        }
 
         case DM_SEC_CALC_OOB_IND:
             return true;
