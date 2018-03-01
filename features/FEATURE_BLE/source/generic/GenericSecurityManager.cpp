@@ -865,6 +865,8 @@ void GenericSecurityManager::on_pairing_request(
 
     if (_pairing_authorisation_required) {
         eventHandler->pairingRequest(connection);
+    } else {
+        acceptPairingRequest(connection);
     }
 }
 

@@ -99,7 +99,9 @@ ble_error_t CordioSecurityManager::set_secure_connections_support(
 ble_error_t CordioSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    // FIXME: should depend of the controller
+    enabled = false;
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -271,8 +273,7 @@ ble_error_t CordioSecurityManager::set_display_passkey(passkey_num_t passkey)
 
 ble_error_t CordioSecurityManager::set_io_capability(io_capability_t io_capability)
 {
-    pSmpCfg->auth = io_capability.value();
-
+    pSmpCfg->ioCap = io_capability.value();
     return BLE_ERROR_NONE;
 }
 
