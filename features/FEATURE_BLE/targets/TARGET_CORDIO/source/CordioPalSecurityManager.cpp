@@ -99,7 +99,9 @@ ble_error_t CordioSecurityManager::set_secure_connections_support(
 ble_error_t CordioSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    // FIXME: should depend of the controller
+    enabled = false;
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
