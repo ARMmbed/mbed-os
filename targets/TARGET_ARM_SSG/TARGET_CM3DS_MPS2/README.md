@@ -2,13 +2,13 @@
 
 This folder includes the port of mbed OS on the example system of the Cortex-M3
 Design Start Eval package. This example is implemented in FPGA on the MPS2+
-board. Please check the [mbed page](https://os.mbed.com/platforms/ARM-CM3DS/) of
+board. Please check the [Mbed page](https://os.mbed.com/platforms/ARM-CM3DS/) of
 this target for more information.
 For convenience, this target is called **CM3DS**.
 
-## Compiling :construction_worker:
+## Compiling
 
-The target name is `ARM_CM3DS_MPS2`, you should be able to compile mbed OS
+The target name is `ARM_CM3DS_MPS2`, you should be able to compile Mbed OS
 projects for CM3DS with:
 
 ```bash
@@ -17,28 +17,28 @@ mbed compile -t COMPILER -m ARM_CM3DS_MPS2
 
 The following compilers are supported (replace `COMPILER` with):
 
-* `ARM` for Arm Compiler version 5
-* `GCC_ARM` for GNU Compiler for Arm
-* `IAR` for IAR compiler
+* `ARM` for Arm Compiler version 5.
+* `GCC_ARM` for GNU Compiler for Arm.
+* `IAR` for IAR compiler.
 
-## Running :running:
+## Running
 
 Because of the new memory configuration introduced in commit `CM3DS: switch to
-larger memories for code and data` it
-has become more easy (and portable amoung all compilers) to use `.elf` files
+larger memories for code and data`, it
+has become easier (and portable amoung all compilers) to use `.elf` files
 instead of `.bin`. `.elf` files are now the default for CM3DS projects and only
-they will be generated out of the compilation.
-For `.elf` files to work, you will need **at least version 2.2.5** of the MPS2+
-firmware. You can find firmware version 2.2.6 and instructions on how to put it
-in the MPS2+ board [here](https://community.arm.com/processors/designstart/f/discussions/9727/mps2-firmware-for-mbed).
+they will be generated from the compilation.
+For `.elf` files to work, you need **at least version 2.2.5** of the MPS2+
+firmware. For more information, please see the [firmware version 2.2.6 and instructions on how to put it
+in the MPS2+ board](https://community.arm.com/processors/designstart/f/discussions/9727/mps2-firmware-for-mbed).
 
-## Testing :zap:
+## Testing
 
-If you want to execute the mbed OS greentea tests on CM3DS, you will need
+If you want to execute the Mbed OS greentea tests on CM3DS, you need
 **at least firmware version 2.2.6**.
 
 * `mbedls` does not automatically recognize which serial port is linked to the
-board. Check it manually and create a file named `mbedls.json` containing
+board. Check it manually, and create a file named `mbedls.json` containing
 (at the same level than where you execute all commands):
 ```bash
 {
@@ -50,12 +50,12 @@ board. Check it manually and create a file named `mbedls.json` containing
 Replace `/dev/ttyUSB0` with your correct serial port
 (something like `COM6` on Windows).
 
-* `mbedls` does not link CM3DS target ID with its name so execute the command:
+* `mbedls` does not link CM3DS target ID with its name, so execute the command:
 ```bash
 mbedls --mock 5004:ARM_CM3DS_MPS2
 ```
 
-* You can now compile and run the tests :+1: :
+* You can now compile and run the tests
 ```bash
 mbed test -m ARM_CM3DS_MPS2 -t COMPILER
 ```
