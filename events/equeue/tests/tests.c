@@ -707,17 +707,15 @@ void multithreaded_barrage_test(int N) {
     equeue_destroy(&q);
 }
 
-struct sCaQ
+struct count_and_queue
 {
     int p;
     equeue_t* q;
 };
 
-typedef struct sCaQ CountAndQueue;
-
 void simple_breaker(void *p) {
-	CountAndQueue* caq = (CountAndQueue*)p;
-	equeue_break(caq->q);
+    struct count_and_queue* caq = (struct count_and_queue*)p;
+    equeue_break(caq->q);
     usleep(10000);
     caq->p++;
 }
@@ -727,7 +725,7 @@ void break_request_cleared_on_timeout(void) {
     int err = equeue_create(&q, 2048);
     test_assert(!err);
 
-    CountAndQueue pq;
+    struct count_and_queue pq;
     pq.p = 0;
     pq.q = &q;
 
