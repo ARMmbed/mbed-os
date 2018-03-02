@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_EMAC
+#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
 
 #include "unity.h"
 
