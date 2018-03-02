@@ -73,7 +73,7 @@ int equeue_create_inplace(equeue_t *q, size_t size, void *buffer) {
     q->queue = 0;
     q->tick = equeue_tick();
     q->generation = 0;
-    q->breaks = 0;
+    q->break_requested = false;
 
     q->background.active = false;
     q->background.update = 0;
@@ -366,7 +366,7 @@ void equeue_cancel(equeue_t *q, int id) {
 
 void equeue_break(equeue_t *q) {
     equeue_mutex_lock(&q->queuelock);
-    q->breaks++;
+    q->break_requested = true;
     equeue_mutex_unlock(&q->queuelock);
     equeue_sema_signal(&q->eventsema);
 }
@@ -436,10 +436,10 @@ void equeue_dispatch(equeue_t *q, int ms) {
         equeue_sema_wait(&q->eventsema, deadline);
 
         // check if we were notified to break out of dispatch
-        if (q->breaks) {
+        if (q->break_requested) {
             equeue_mutex_lock(&q->queuelock);
-            if (q->breaks > 0) {
-                q->breaks--;
+            if (q->break_requested) {
+                q->break_requested = false;
                 equeue_mutex_unlock(&q->queuelock);
                 return;
             }
@@ -469,7 +469,7 @@ void equeue_event_dtor(void *p, void (*dtor)(void *)) {
 }
 
 
-// simple callbacks 
+// simple callbacks
 struct ecallback {
     void (*cb)(void*);
     void *data;
