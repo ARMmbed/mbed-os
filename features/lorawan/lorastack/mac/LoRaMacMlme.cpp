@@ -27,7 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMacMlme.h"
 
 LoRaMacMlme::LoRaMacMlme()
-: _lora_mac(NULL), _lora_phy(NULL), _mac_cmd(NULL)
+: _lora_mac(NULL), _lora_phy(NULL)
 {
 }
 
@@ -35,18 +35,16 @@ LoRaMacMlme::~LoRaMacMlme()
 {
 }
 
-void LoRaMacMlme::activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy,
-                                          LoRaMacCommand *cmd)
+void LoRaMacMlme::activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy)
 {
     _lora_mac = mac;
     _lora_phy = phy;
-    _mac_cmd = cmd;
 }
 
 lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *request,
                                           loramac_protocol_params *params)
 {
-    if (request && params && _lora_mac && _lora_phy && _mac_cmd) {
+    if (request && params && _lora_mac && _lora_phy) {
 
         lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
         loramac_mhdr_t machdr;
@@ -118,7 +116,7 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *request,
                 // LoRaMac will send this command piggy-backed
                 confirmation.req_type = request->type;
 
-                status = _mac_cmd->add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
+                status = LORAWAN_STATUS_OK;
                 break;
             }
             case MLME_TXCW: {

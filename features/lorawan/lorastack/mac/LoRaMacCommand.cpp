@@ -39,10 +39,10 @@ SPDX-License-Identifier: BSD-3-Clause
 static const uint8_t max_eirp_table[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
 
 
-LoRaMacCommand::LoRaMacCommand(LoRaMac& lora_mac)
-    : _lora_mac(lora_mac)
+LoRaMacCommand::LoRaMacCommand()
 {
     mac_cmd_in_next_tx = false;
+    sticky_mac_cmd = false;
     mac_cmd_buf_idx = 0;
     mac_cmd_buf_idx_to_repeat = 0;
 
@@ -91,7 +91,8 @@ lorawan_status_t LoRaMacCommand::add_mac_command(uint8_t cmd, uint8_t p1,
                 // Status: Datarate ACK, Channel ACK
                 mac_cmd_buffer[mac_cmd_buf_idx++] = p1;
                 // This is a sticky MAC command answer. Setup indication
-                _lora_mac.set_mlme_schedule_ul_indication();
+//                _lora_mac.set_mlme_schedule_ul_indication();
+                sticky_mac_cmd = true;
                 status = LORAWAN_STATUS_OK;
             }
             break;
@@ -118,7 +119,8 @@ lorawan_status_t LoRaMacCommand::add_mac_command(uint8_t cmd, uint8_t p1,
                 mac_cmd_buffer[mac_cmd_buf_idx++] = cmd;
                 // No payload for this answer
                 // This is a sticky MAC command answer. Setup indication
-                _lora_mac.set_mlme_schedule_ul_indication();
+//                _lora_mac.set_mlme_schedule_ul_indication();
+                sticky_mac_cmd = true;
                 status = LORAWAN_STATUS_OK;
             }
             break;
@@ -135,7 +137,8 @@ lorawan_status_t LoRaMacCommand::add_mac_command(uint8_t cmd, uint8_t p1,
                 // Status: Uplink frequency exists, Channel frequency OK
                 mac_cmd_buffer[mac_cmd_buf_idx++] = p1;
                 // This is a sticky MAC command answer. Setup indication
-                _lora_mac.set_mlme_schedule_ul_indication();
+//                _lora_mac.set_mlme_schedule_ul_indication();
+                sticky_mac_cmd = true;
                 status = LORAWAN_STATUS_OK;
             }
             break;
@@ -216,7 +219,6 @@ void LoRaMacCommand::clear_repeat_buffer()
 
 void LoRaMacCommand::copy_repeat_commands_to_buffer()
 {
-    // Copy the MAC commands which must be re-send into the MAC command buffer
     memcpy(&mac_cmd_buffer[mac_cmd_buf_idx], mac_cmd_buffer_to_repeat, mac_cmd_buf_idx_to_repeat);
     mac_cmd_buf_idx += mac_cmd_buf_idx_to_repeat;
 }
@@ -236,10 +238,18 @@ bool LoRaMacCommand::is_mac_command_in_next_tx() const
     return mac_cmd_in_next_tx;
 }
 
-lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload,
-                                                      uint8_t mac_index,
-                                                      uint8_t commands_size,
-                                                      uint8_t snr,
+void LoRaMacCommand::clear_sticky_mac_cmd()
+{
+    sticky_mac_cmd = false;
+}
+
+bool LoRaMacCommand::has_sticky_mac_cmd() const
+{
+    return sticky_mac_cmd;
+}
+
+lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t mac_index,
+                                                      uint8_t commands_size, uint8_t snr,
                                                       loramac_mlme_confirm_t& mlme_conf,
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy)
@@ -416,8 +426,8 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload,
 
 bool LoRaMacCommand::is_sticky_mac_command_pending()
 {
+    //DEAD CODE: mac_cmd_buf_idx_to_repeat is never set
     if (mac_cmd_buf_idx_to_repeat > 0) {
-        // Sticky MAC commands pending
         return true;
     }
     return false;
