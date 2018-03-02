@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+#include "platform/mbed_trace_internal.h"
+#else
 /**
  * \file mbed_trace.h
  * Trace interface for MbedOS applications.
@@ -435,3 +438,5 @@ char* mbed_trace_array(const uint8_t* buf, uint16_t len);
 #define mbed_trace_array(...)               dont_use_trace_helpers_outside_trace_calls
 
 #endif /* FEA_TRACE_SUPPORT */
+
+#endif /* MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED */

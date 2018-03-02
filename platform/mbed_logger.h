@@ -24,11 +24,12 @@
  *
  *  #include "mbed.h"
  *  int main() {
- *      MBED_CRIT("main", "This is critical error. Action Required: %s", "Restart");
- *      MBED_ERR("main", "Error performing XYZ operation, errno = %d", -10);
- *      MBED_WARN("main", "This is warning message");
+ *      MBED_CRIT("OS", "This is critical error. Action Required: %s", "Restart");
+ *      MBED_ERR("OS", "Error performing XYZ operation, errno = %d", -10);
+ *      MBED_WARN("Lib", "This is warning message");
  *      MBED_DBG_IF("main", 1, "%d %s ", 1, "hello");
  *      MBED_INFO("main", "%s %s 0x%lx", "world", "!", 2);
+ *      MBED_TRACE("lib", "Trace level of debugging for libraries");
  *  }
  *
  * @endcode
@@ -72,13 +73,13 @@ extern "C" {
 #endif
 
 #ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_WARN
+#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_DEBUG
 #endif
 
 /** Critical level log
  *
- *  Critical level of log is equivalent to ASSERTS and it will dump all previous prints
- *  before asserting.
+ *  Critical level of log is equivalent to ASSERTS and it will dump
+ *  all previous prints before asserting, use only when you want to assert.
  *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
@@ -86,10 +87,13 @@ extern "C" {
 #if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR_CRITICAL
 #define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ASSERT_1(mod, fmt, LOG_ERR_CRITICAL_, FILE_NAME_, __LINE__, ##__VA_ARGS__)
 #else
-#define MBED_CRIT(mod, ...)
+#define MBED_CRIT(mod, fmt, ...)
 #endif
 
 /** Error level log
+ *
+ *  Error level of log can be used by OS, library and application to
+ *  log all the errors.
  *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
@@ -101,10 +105,13 @@ extern "C" {
 #define MBED_ERR(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_ERR_, ##__VA_ARGS__)
 #endif
 #else
-#define MBED_ERR(mod, ...)
+#define MBED_ERR(mod, fmt, ...)
 #endif
 
 /** Warning level log
+ *
+ *  Warning level of log can be used by OS, library and application to
+ *  log all the warning messages.
  *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
@@ -116,10 +123,13 @@ extern "C" {
 #define MBED_WARN(mod, fmt, ...)    MBED_LOG_STR_1(mod, fmt, LOG_WARN_, ##__VA_ARGS__)
 #endif
 #else
-#define MBED_WARN(mod, ...)
+#define MBED_WARN(mod, fmt, ...)
 #endif
 
 /** Debug level log
+ *
+ *  Debugging level is mainly for application. Libraries and OS must
+ *  not use this for debug prints, use trace level instead.
  *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
@@ -131,10 +141,13 @@ extern "C" {
 #define MBED_DBG(mod, fmt, ...)     MBED_LOG_STR_1(mod, fmt, LOG_DEBUG_, ##__VA_ARGS__)
 #endif
 #else
-#define MBED_DBG(mod, ...)
+#define MBED_DBG(mod, fmt, ...)
 #endif
 
 /** Debug level log
+ *
+ *  Debugging level is mainly for application. Libraries and OS must
+ *  not use this for debug prints, use trace level instead.
  *
  * @param  mod  Module ID String
  * @param  condition output only if condition is true (!= 0)
@@ -155,10 +168,13 @@ extern "C" {
                                                } while(0);
 #endif
 #else
-#define MBED_DBG_IF(mod, condition, ...)
+#define MBED_DBG_IF(mod, condition, fmt, ...)
 #endif
 
 /** Information level log
+ *
+ *  Info level of log can be used by OS, library and application to
+ *  log any kind of information.
  *
  * @param  mod  Module ID String
  * @param  fmt  printf-style format string, followed by variables
@@ -170,10 +186,13 @@ extern "C" {
 #define MBED_INFO(mod, fmt, ...)   MBED_LOG_STR_1(mod, fmt, LOG_INFO_, ##__VA_ARGS__)
 #endif
 #else
-#define MBED_INFO(mod, ...)
+#define MBED_INFO(mod, fmt, ...)
 #endif
 
 /** Information level log
+ *
+ *  Info level of log can be used by OS, library and application to
+ *  log any kind of information.
  *
  * @param  mod  Module ID String
  * @param  condition output only if condition is true (!= 0)
@@ -195,11 +214,58 @@ extern "C" {
 
 #endif
 #else
-#define MBED_INFO_IF(mod, condition, ...)
+#define MBED_INFO_IF(mod, condition, fmt, ...)
+#endif
+
+/** Trace level log
+ *
+ *  Trace level of log can be used by OS, library to log internal information
+ *  used for tracing
+ *
+ * @param  mod  Module ID String
+ * @param  fmt  printf-style format string, followed by variables
+ **/
+#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_TRACE
+#if MBED_ID_BASED_TRACING
+#define MBED_TRACE(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_TRACE_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#else
+#define MBED_TRACE(mod, fmt, ...)   MBED_LOG_STR_1(mod, fmt, LOG_TRACE_, ##__VA_ARGS__)
+#endif
+#else
+#define MBED_TRACE(mod, fmt, ...)
+#endif
+
+/** Trace level log
+ *
+ *  Debugging level is mainly for application. Libraries and OS must
+ *  not use this for debug prints, use trace level instead.
+ *
+ * @param  mod  Module ID String
+ * @param  condition output only if condition is true (!= 0)
+ * @param  fmt  printf-style format string, followed by variables
+ **/
+#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_TRACE
+#if MBED_ID_BASED_TRACING
+#define MBED_TRACE_IF(mod, condition, fmt, ...)  do { if(condition) \
+                                                      { \
+                                                         MBED_LOG_ID_1(mod, fmt, LOG_TRACE_, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__); \
+                                                      } \
+                                               } while(0);
+#else
+#define MBED_TRACE_IF(mod, condition, fmt, ...)  do { if(condition) \
+                                                      { \
+                                                         MBED_LOG_STR_1(mod, fmt, LOG_TRACE_, ##__VA_ARGS__);\
+                                                      } \
+                                               } while(0);
+#endif
+#else
+#define MBED_TRACE_IF(mod, condition, fmt, ...)
 #endif
 
 /** General trace function
- * Generic fucntion to print user data
+ *
+ *  Generic function to print user data, this log level is always
+ *  enabled hence should be used to print important information
  *
  * @param ll   Log level
  * @param mod  Module name
@@ -207,9 +273,9 @@ extern "C" {
  * @param ...  variable arguments related to fmt
  */
 #if MBED_ID_BASED_TRACING
-#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_ID_1(mod, fmt, ll, FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_ID_1(mod, fmt, GET_LOG_STRING(ll), FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_STR_1(mod, fmt, ll, ##__VA_ARGS__)
+#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_STR_1(mod, fmt, GET_LOG_STRING(ll), ##__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus

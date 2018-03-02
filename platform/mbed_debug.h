@@ -40,7 +40,7 @@ extern "C" {
  * @param format printf-style format string, followed by variables
  */
 MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug API is deprecated. "
-                      "Use MBED_DBG instead.")
+                      "Use MBED_TRACE instead.")
 static inline void debug(const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
@@ -59,7 +59,7 @@ static inline void debug(const char *format, ...) {
  * @param format printf-style format string, followed by variables
  */
 MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug_if API is deprecated. "
-                      "Use MBED_DBG_IF instead.")
+                      "Use MBED_TRACE_IF instead.")
 static inline void debug_if(int condition, const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     if (condition) {

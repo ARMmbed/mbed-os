@@ -17,6 +17,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#ifdef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+
 #ifdef MBED_CONF_MBED_TRACE_ENABLE
 #undef MBED_CONF_MBED_TRACE_ENABLE
 #endif
@@ -593,3 +595,5 @@ char *mbed_trace_array(const uint8_t *buf, uint16_t len)
     m_trace.tmp_data_ptr = wptr;
     return str;
 }
+
+#endif

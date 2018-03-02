@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT)
+
+#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT) || defined(NDEBUG)
 
 #include "platform/mbed_logger.h"
 #include "platform/mbed_interface.h"
@@ -38,6 +39,9 @@ void log_buffer_string_vdata(const char *format, va_list args)
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     vfprintf(stderr, format, args);
     fputc('\n', stderr);
+    if (mbed_log_valid_helper_data()) {
+        mbed_log_helper_unlock();
+    }
 #endif
 }
 

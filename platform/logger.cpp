@@ -27,59 +27,88 @@
 using namespace mbed;
 
 #if defined (MBED_ID_BASED_TRACING)
-CircularBuffer <uint32_t, (MBED_CONF_LOG_MAX_BUFFER_SIZE/4)> log_buffer;
+#define LOG_DATA_TYPE   uint32_t
+CircularBuffer <LOG_DATA_TYPE, (MBED_CONF_LOG_MAX_BUFFER_SIZE/4)> log_buffer;
 #else
-CircularBuffer <char, MBED_CONF_LOG_MAX_BUFFER_SIZE> log_buffer;
+#define LOG_DATA_TYPE   char
+CircularBuffer <LOG_DATA_TYPE, MBED_CONF_LOG_MAX_BUFFER_SIZE> log_buffer;
 #endif
-const ticker_data_t *const log_ticker = get_us_ticker_data();
+static const ticker_data_t *const log_ticker = get_us_ticker_data();
+static uint32_t logger_bytes_lost = 0;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined (MBED_ID_BASED_TRACING)
+void log_reset(void)
+{
+    core_util_critical_section_enter();
+    log_buffer.reset();
+    logger_bytes_lost = 0;
+    core_util_critical_section_exit();
+}
+
+uint32_t log_bytes_lost(void)
+{
+    return logger_bytes_lost;
+}
+
+// Note: this call should be inside the critical section
+static inline void log_push_data(LOG_DATA_TYPE data)
+{
+    if (log_buffer.full()) {
+        logger_bytes_lost++;
+    }
+    log_buffer.push(data);
+}
+
 void log_thread(void)
 {
-    uint32_t data = 0;
+    LOG_DATA_TYPE data = 0;
     while (1) {
         while (!log_buffer.empty()) {
             log_buffer.pop(data);
 #if DEVICE_STDIO_MESSAGES
+#if defined (MBED_ID_BASED_TRACING)
             fprintf(stderr, "0x%x ", data);
+#else
+            fputc(data, stderr);
+#endif
 #endif
         }
         wait_ms(1);
     }
 }
 
+#if defined (MBED_ID_BASED_TRACING)
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
 void log_buffer_id_data(uint8_t argCount, ...)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
-    uint32_t data = 0;
-    uint32_t checksum = 0;
+    LOG_DATA_TYPE data = 0;
+    LOG_DATA_TYPE checksum = 0;
 
-    data = (uint32_t)(time/1000);
+    data = (LOG_DATA_TYPE)(time/1000);
 
     va_list args;
     va_start(args, argCount);
     core_util_critical_section_enter();
-    log_buffer.push(data);
+    log_push_data(data);
     checksum ^= data;
     for (uint8_t i = 0; i < argCount; i++) {
         data = va_arg(args, uint32_t);
-        log_buffer.push(data);
+        log_push_data(data);
         checksum ^= data;
     }
-    log_buffer.push(checksum);
-    log_buffer.push(0x0);
+    log_push_data(checksum);
+    log_push_data(0x0);
     core_util_critical_section_exit();
     va_end(args);
 }
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
     volatile uint64_t time = ticker_read_us(log_ticker);
     uint32_t data;
 
@@ -91,28 +120,14 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n %-8lld ", time);
+    mbed_error_printf("\n[%-8lld]", time);
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
 #endif
 }
 
-#else
-void log_thread(void)
-{
-    char data;
-    while (1) {
-        while (!log_buffer.empty()) {
-            log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES
-            fputc(data, stderr);
-#endif
-        }
-        wait_ms(1);
-    }
-}
-
+#else // String based implementation
 void log_buffer_string_data(const char *format, ...)
 {
     va_list args;
@@ -125,24 +140,32 @@ void log_buffer_string_vdata(const char *format, va_list args)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
     char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
-    uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "%-8lld ", time);
+    uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "[%-8lld]", time);
     uint8_t bytes_written = 0;
 
     vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
     count = strlen(one_line);
-    snprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), "\n");
-    count = strlen(one_line);
 
     core_util_critical_section_enter();
     while (count--) {
-        log_buffer.push(one_line[bytes_written++]);
+        log_push_data(one_line[bytes_written++]);
     }
+    if (mbed_log_valid_helper_data()) {
+        char *str = mbed_log_get_helper_data();
+        bytes_written = 0;
+        count = strlen(str);
+        while (count--) {
+            log_push_data(str[bytes_written++]);
+        }
+        mbed_log_helper_unlock();
+    }
+    log_push_data('\n');
     core_util_critical_section_exit();
 }
 
 void log_assert(const char *format, ...)
 {
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+#if DEVICE_STDIO_MESSAGES
     volatile uint64_t time = ticker_read_us(log_ticker);
 #define ASSERT_BUF_LENGTH   10
     char data[ASSERT_BUF_LENGTH];
@@ -166,7 +189,7 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n%-8lld ", time);
+    mbed_error_printf("\n[%-8lld]", time);
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
