@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_APP_TEST_EMAC)      || \
-    !defined(MBED_CONF_APP_TEST_WIFI)      || \
+#if !defined(MBED_CONF_APP_TEST_WIFI)      || \
     !defined(MBED_CONF_APP_TEST_ETHERNET)  || \
     !defined(MBED_CONF_APP_ECHO_SERVER)    || \
     !defined(MBED_CONF_APP_WIFI_SCAN)      || \

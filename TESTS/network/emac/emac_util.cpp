@@ -24,22 +24,9 @@
 
 #include "mbed.h"
 
-#if MBED_CONF_APP_TEST_EMAC
-
 #include "EMAC.h"
 #include "EMACMemoryManager.h"
 #include "emac_TestMemoryManager.h"
-
-#else
-
-extern "C" {   // netif input
-#include "tcpip.h"
-}
-
-#include "emac_api.h"
-#include "emac_stack_mem.h"
-
-#endif
 
 #include "emac_tests.h"
 #include "emac_initialize.h"
@@ -48,7 +35,6 @@ extern "C" {   // netif input
 #include "emac_ctp.h"
 
 using namespace utest::v1;
-
 
 typedef struct {
     int length;
@@ -368,16 +354,12 @@ void emac_if_trace_to_ascii_hex_dump(const char *prefix, int len, unsigned char 
 
 void emac_if_set_all_multicast(bool all)
 {
-#if MBED_CONF_APP_TEST_EMAC
     emac_if_get()->set_all_multicast(all);
-#endif
 }
 
 void emac_if_add_multicast_group(uint8_t *address)
 {
-#if MBED_CONF_APP_TEST_EMAC
     emac_if_get()->add_multicast_group(address);
-#endif
 }
 
 void emac_if_set_output_memory(bool memory)
@@ -403,21 +385,15 @@ void emac_if_check_memory(bool output)
 
 void emac_if_set_memory(bool memory)
 {
-#if MBED_CONF_APP_TEST_EMAC
     static bool memory_value = true;
     if (memory_value != memory ) {
         memory_value = memory;
         EmacTestMemoryManager *mem_mngr = emac_m_mngr_get();
         mem_mngr->set_memory_available(memory);
     }
-#endif
 }
 
-#if MBED_CONF_APP_TEST_EMAC
 void emac_if_link_state_change_cb(bool up)
-#else
-void emac_if_link_state_change_cb(void *data, bool up)
-#endif
 {
     if (up) {
         worker_loop_event.post(LINK_UP);
@@ -426,22 +402,14 @@ void emac_if_link_state_change_cb(void *data, bool up)
     }
 }
 
-#if MBED_CONF_APP_TEST_EMAC
 void emac_if_link_input_cb(void *buf)
-#else
-void emac_if_link_input_cb(void *data, void *buf)
-#endif
 {
     link_input_event.post(buf);
 }
 
 static void link_input_event_cb(void *buf)
 {
-#if MBED_CONF_APP_TEST_EMAC
     int length = emac_m_mngr_get()->get_total_len(buf);
-#else
-    int length = emac_stack_mem_len(0, buf);
-#endif
 
     if (length >= ETH_FRAME_HEADER_LEN) {
         // Ethernet input frame
@@ -472,53 +440,24 @@ static void link_input_event_cb(void *buf)
             // Echoes only if configured as echo server
             } else if (function == CTP_FORWARD) {
                 emac_if_memory_buffer_write(buf, eth_output_frame_data, false);
-#if MBED_CONF_APP_TEST_EMAC
                 emac_if_get()->link_out(buf);
                 buf = 0;
-#else
-                emac_if_get()->ops.link_out(emac_if_get(), buf);
-#endif
 #endif
             }
 
             emac_if_add_echo_server_addr(&eth_input_frame_data[6]);
-
-#if !MBED_CONF_APP_TEST_EMAC
-            emac_stack_mem_free(0, buf);
-#endif
 
             if (trace_level & TRACE_ETH_FRAMES) {
                  printf("INP> LEN %i\r\n\r\n", length);
                  const char trace_type[] = "INP>";
                  emac_if_trace_to_ascii_hex_dump(trace_type, ETH_FRAME_HEADER_LEN, eth_input_frame_data);
             }
-#if !MBED_CONF_APP_TEST_EMAC
-            return;
-#endif
         }
     }
 
-#if MBED_CONF_APP_TEST_EMAC
     if (buf) {
         emac_m_mngr_get()->free(buf);
     }
-#else
-    // Forward other than CTP frames to lwip
-    struct netif *netif;
-
-    /* loop through netif's */
-    netif = netif_list;
-    if (netif != NULL) {
-        struct pbuf *p = (struct pbuf *)buf;
-
-        /* pass all packets to ethernet_input, which decides what packets it supports */
-        if (netif->input(p, netif) != ERR_OK) {
-            emac_stack_mem_free(0, buf);
-        }
-    } else {
-        emac_stack_mem_free(0, buf);
-    }
-#endif
 }
 
 static unsigned char thread_stack[2048];

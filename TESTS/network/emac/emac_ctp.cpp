@@ -23,19 +23,9 @@
 
 #include "mbed.h"
 
-#if MBED_CONF_APP_TEST_EMAC
-
 #include "EMAC.h"
 #include "EMACMemoryManager.h"
 #include "emac_TestMemoryManager.h"
-
-#else
-
-#include "lwip/opt.h" /* ETH_PAD_SIZE */
-#include "emac_stack_mem.h"
-#include "emac_api.h"
-
-#endif
 
 #include "emac_tests.h"
 #include "emac_ctp.h"
@@ -126,7 +116,6 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
         return;
     }
 
-#if MBED_CONF_APP_TEST_EMAC
     int alloc_opt = 0;
     int align = 0;
     if (options & CTP_OPT_NON_ALIGNED) {
@@ -141,9 +130,6 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
         // Default allocation is from pool
         buf = emac_m_mngr_get()->alloc_pool(eth_frame_len, align, alloc_opt);
     }
-#else
-    emac_stack_mem_chain_t *buf = emac_stack_mem_alloc(0, eth_frame_len + ETH_PAD_SIZE, 0);
-#endif
 
     if (!buf) {
         SET_ERROR_FLAGS(NO_FREE_MEM_BUF);
@@ -161,14 +147,9 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
 
     emac_if_memory_buffer_write(buf, eth_output_frame_data, true);
 
-#if MBED_CONF_APP_TEST_EMAC
     emac_if_check_memory(true);
     emac_if_get()->link_out(buf);
     emac_if_check_memory(false);
-#else
-    emac_if_get()->ops.link_out(emac_if_get(), buf);
-    emac_stack_mem_free(0, buf);
-#endif
 }
 
 #endif

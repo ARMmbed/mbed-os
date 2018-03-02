@@ -1,9 +1,5 @@
 {
     "config": {
-        "test-emac": {
-            "help": "Test feature-emac version of the emac",
-            "value": 1
-        },
         "test-ethernet": {
             "help": "Enable ethernet testing",
             "value": 1
