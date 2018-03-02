@@ -14,8 +14,8 @@ from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
 
-from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
-                    argparse_uppercase_type)
+from utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                   argparse_uppercase_type)
 
 
 class _Parser(object):
