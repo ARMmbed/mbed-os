@@ -14,7 +14,7 @@ This is the Github repo for Mbed cellular connectivity:
 
 ## Known limitations
 
-**Please note that as a first release framework, this content is subject to change and may break code that uses it.**
+**Please note that this is a first release of Cellular framework and is subject to further development in future.**
 
 Only UDP is supported when using AT commands to control sockets in an IP stack built into the cellular modem. If TCP is required, use the PPP/LWIP stack.
 
