@@ -352,14 +352,14 @@ bool test_conn_handler_callbacks()
 
     if( thread_conn_handler_stub.receive_from_sock_cb ){
         coap_message_handler_stub.int16_value = 2;
-        if( -1 != thread_conn_handler_stub.receive_from_sock_cb(1, -1, buf, 12, NULL, NULL, 0))
+        if( -1 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, NULL, NULL, 0))
             return false;
 
         nsdynmemlib_stub.returnCounter = 1;
         uint8_t * ptr = ns_dyn_mem_alloc(5);
         memset(ptr, 3, 5);
         nsdynmemlib_stub.returnCounter = 1;
-        if( 2 != thread_conn_handler_stub.receive_from_sock_cb(1, -1, buf, 12, NULL, ptr, 5))
+        if( 2 != thread_conn_handler_stub.receive_from_sock_cb(1, buf, 12, NULL, ptr, 5))
             return false;
         ns_dyn_mem_free(ptr);
         coap_message_handler_stub.int16_value = 0;
@@ -367,7 +367,7 @@ bool test_conn_handler_callbacks()
         //This could be moved to own test function,
         //but thread_conn_handler_stub.receive_from_sock_cb must be called successfully
         if( coap_message_handler_stub.cb ){
-            if( -1 != coap_message_handler_stub.cb(1, -1, NULL, NULL) )
+            if( -1 != coap_message_handler_stub.cb(1, NULL, NULL) )
                 return false;
 
             sn_coap_hdr_s * coap = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -377,7 +377,7 @@ bool test_conn_handler_callbacks()
             coap->uri_path_ptr = &uri;
             coap->uri_path_len=2;
 
-            if( -1 != coap_message_handler_stub.cb(1, -1, coap, NULL) )
+            if( -1 != coap_message_handler_stub.cb(1, coap, NULL) )
                 return false;
 
             thread_conn_handler_stub.bool_value = true;
@@ -385,13 +385,13 @@ bool test_conn_handler_callbacks()
             if( 0 != coap_service_register_uri(1, "as", 1, &request_recv_cb) )
                 return false;
 
-            if( -1 != coap_message_handler_stub.cb(1, -1, coap, NULL) )
+            if( -1 != coap_message_handler_stub.cb(1, coap, NULL) )
                 return false;
 
             coap_transaction_t *tr = (coap_transaction_t *)malloc(sizeof(coap_transaction_t));
             memset(tr, 0, sizeof(coap_transaction_t));
 
-            if( 2 != coap_message_handler_stub.cb(1, -1, coap, tr) )
+            if( 2 != coap_message_handler_stub.cb(1, coap, tr) )
                 return false;
 
             free(tr);
@@ -588,25 +588,4 @@ bool test_coap_service_handshake_limit_set()
     }
 
     return true;
-}
-
-bool test_coap_service_secure_session_close()
-{
-    int service_id;
-    uint8_t addr_ptr[16] = {0};
-
-    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
-    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
-
-    nsdynmemlib_stub.returnCounter = 1;
-    service_id = coap_service_initialize(1, 2, 0, NULL, NULL );
-
-    coap_service_close_secure_connection(0, NULL, 0);
-
-    coap_service_close_secure_connection(service_id, NULL, 0);
-
-    coap_service_close_secure_connection(service_id, addr_ptr, 1234);
-
-    coap_service_delete(service_id);
-    free(thread_conn_handler_stub.handler_obj);
 }

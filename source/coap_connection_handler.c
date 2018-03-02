@@ -537,7 +537,7 @@ static int timer_status(int8_t timer_id)
     return TIMER_STATE_CANCELLED;
 }
 
-static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_address_t *src_address, uint8_t dst_address[static 16], int8_t *interface)
+static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_address_t *src_address, uint8_t dst_address[static 16])
 {
     sock->data_len = 0;
     if (sckt_data->event_type == SOCKET_DATA && sckt_data->d_len > 0) {
@@ -584,7 +584,6 @@ static int read_data(socket_callback_t *sckt_data, internal_socket_t *sock, ns_a
             }
             if (pkt) {
                 memcpy(dst_address, pkt->ipi6_addr, 16);
-                *interface = pkt->ipi6_ifindex;
             } else {
                 goto return_failure;
             }
@@ -614,9 +613,8 @@ static void secure_recv_sckt_msg(void *cb_res)
     ns_address_t src_address;
     uint8_t dst_address[16] = {0};
     memset(&src_address, 0, sizeof(ns_address_t));
-    int8_t interface_id = -1;
 
-    if (sock && read_data(sckt_data, sock, &src_address, dst_address, &interface_id) == 0) {
+    if (sock && read_data(sckt_data, sock, &src_address, dst_address) == 0) {
         /* If received from multicast address, reject */
         if (*(dst_address) == 0xFF) {
             return;
@@ -685,7 +683,7 @@ static void secure_recv_sckt_msg(void *cb_res)
                     ns_dyn_mem_free(data);
                 } else {
                     if (sock->parent->_recv_cb) {
-                        sock->parent->_recv_cb(sock->socket, interface_id, src_address.address, src_address.identifier, dst_address, data, len);
+                        sock->parent->_recv_cb(sock->socket, src_address.address, src_address.identifier, dst_address, data, len);
                     }
                     ns_dyn_mem_free(data);
                 }
@@ -701,11 +699,10 @@ static void recv_sckt_msg(void *cb_res)
     internal_socket_t *sock = int_socket_find_by_socket_id(sckt_data->socket_id);
     ns_address_t src_address;
     uint8_t dst_address[16];
-    int8_t interface_id = -1;
 
-    if (sock && read_data(sckt_data, sock, &src_address, dst_address, &interface_id) == 0) {
+    if (sock && read_data(sckt_data, sock, &src_address, dst_address) == 0) {
         if (sock->parent && sock->parent->_recv_cb) {
-            sock->parent->_recv_cb(sock->socket, interface_id, src_address.address, src_address.identifier, dst_address, sock->data, sock->data_len);
+            sock->parent->_recv_cb(sock->socket, src_address.address, src_address.identifier, dst_address, sock->data, sock->data_len);
         }
         ns_dyn_mem_free(sock->data);
         sock->data = NULL;
@@ -714,8 +711,6 @@ static void recv_sckt_msg(void *cb_res)
 
 int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t address[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len)
 {
-    int8_t interface_id = -1;
-
     if(!handler || !handler->socket) {
         return -1;
     }
@@ -792,7 +787,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                     return 0;
                 } else {
                     if (sock->parent->_recv_cb) {
-                        sock->parent->_recv_cb(sock->socket, interface_id, address, port, ns_in6addr_any, data, len);
+                        sock->parent->_recv_cb(sock->socket, address, port, ns_in6addr_any, data, len);
                     }
                     ns_dyn_mem_free(data);
                     data = NULL;
@@ -803,7 +798,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     } else {
         /* unsecure*/
         if (sock->parent->_recv_cb) {
-            sock->parent->_recv_cb(sock->socket, interface_id, address, port, ns_in6addr_any, sock->data, sock->data_len);
+            sock->parent->_recv_cb(sock->socket, address, port, ns_in6addr_any, sock->data, sock->data_len);
         }
         if (sock->data) {
             ns_dyn_mem_free(sock->data);
