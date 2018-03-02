@@ -257,8 +257,8 @@ coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, 
     return transaction_find_by_address( address_ptr, port );
 }
 
-int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, int8_t interface_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
-                                      uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, int8_t, sn_coap_hdr_s *, coap_transaction_t *))
+int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, const uint8_t source_addr_ptr[static 16], uint16_t port, const uint8_t dst_addr_ptr[static 16],
+                                      uint8_t *data_ptr, uint16_t data_len, int16_t (cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *))
 {
     sn_nsdl_addr_s src_addr;
     sn_coap_hdr_s *coap_message;
@@ -303,7 +303,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
                 transaction_ptr->token_len = coap_message->token_len;
             }
             transaction_ptr->remote_port = port;
-            if (cb(socket_id, interface_id, coap_message, transaction_ptr) < 0) {
+            if (cb(socket_id, coap_message, transaction_ptr) < 0) {
                 // negative return value = message ignored -> delete transaction
                 transaction_delete(transaction_ptr);
             }
@@ -389,7 +389,20 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
         transaction_delete(transaction_ptr);
         return 0;
     }
-    sn_coap_protocol_build(handle->coap, &dst_addr, data_ptr, &request, transaction_ptr);
+    int16_t sn_coap_ret = sn_coap_protocol_build(handle->coap, &dst_addr, data_ptr, &request, transaction_ptr);
+    if (sn_coap_ret == -4) {
+        /*
+         * Not able to add message to resend queue, adjust message lifetime to one resending
+         */
+        transaction_ptr->valid_until = coap_service_get_internal_timer_ticks() + COAP_RESENDING_INTERVAL;
+    } else if (sn_coap_ret < 0) {
+        /*
+         * Failed to build message, set transaction validity time to minimum to get this transaction cleared
+         * immediately and callback called.
+         */
+        transaction_ptr->valid_until = coap_service_get_internal_timer_ticks();
+    }
+
     transaction_ptr->msg_id = request.msg_id;
     handle->sn_coap_tx_callback(data_ptr, data_len, &dst_addr, transaction_ptr);
 

@@ -59,8 +59,6 @@ bool test_coap_service_if_find_by_socket();
 
 bool test_coap_service_handshake_limit_set();
 
-bool test_coap_service_secure_session_close();
-
 
 #ifdef __cplusplus
 }

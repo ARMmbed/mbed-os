@@ -31,7 +31,7 @@ typedef struct {
     uint16_t uint16_value;
     coap_msg_handler_t *coap_ptr;
     coap_transaction_t *coap_tx_ptr;
-    int16_t (*cb)(int8_t, int8_t, sn_coap_hdr_s *, coap_transaction_t *);
+    int16_t (*cb)(int8_t, sn_coap_hdr_s *, coap_transaction_t *);
 } coap_message_handler_stub_def;
 
 extern coap_message_handler_stub_def coap_message_handler_stub;

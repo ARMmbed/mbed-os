@@ -35,7 +35,7 @@
 struct internal_socket_s;
 
 typedef int send_to_socket_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *, int);
-typedef int receive_from_socket_cb(int8_t socket_id, int8_t interface_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int);
+typedef int receive_from_socket_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int);
 typedef int get_pw_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr);
 typedef void security_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40]);
 

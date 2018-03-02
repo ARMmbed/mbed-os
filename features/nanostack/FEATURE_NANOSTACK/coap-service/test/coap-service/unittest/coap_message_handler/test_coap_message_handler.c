@@ -141,7 +141,7 @@ bool test_coap_message_handler_coap_msg_process()
     uint8_t buf[16];
     memset(&buf, 1, 16);
     /*Handler is null*/
-    if( -1 != coap_message_handler_coap_msg_process(NULL, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, NULL))
+    if( -1 != coap_message_handler_coap_msg_process(NULL, 0, buf, 22, ns_in6addr_any, NULL, 0, NULL))
         return false;
 
     retCounter = 1;
@@ -151,14 +151,14 @@ bool test_coap_message_handler_coap_msg_process()
 
     sn_coap_protocol_stub.expectedHeader = NULL;
     /* Coap parse returns null */
-    if( -1 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = 66;
     /* Coap library responds */
-    if( -1 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -167,7 +167,7 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
     retValue = 0;
     /* request received */
-    if( 0 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -176,7 +176,7 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
     nsdynmemlib_stub.returnCounter = 1;
     retValue = -1;
-    if( 0 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -184,7 +184,7 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 333;
 
-    if( -1 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -205,7 +205,7 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->msg_id = 2;
 //    sn_coap_protocol_stub.expectedHeader->token_ptr = (uint8_t*)malloc(4);
 //    memset(sn_coap_protocol_stub.expectedHeader->token_ptr, 1, 4);
-    if( -1 != coap_message_handler_coap_msg_process(handle, 0, -1, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
 //    free(sn_coap_protocol_stub.expectedHeader->token_ptr);
@@ -251,6 +251,36 @@ bool test_coap_message_handler_request_send()
     nsdynmemlib_stub.returnCounter = 3;
     if( 2 != coap_message_handler_request_send(handle, 3, 0, buf, 24, 1, 2, &uri, 4, NULL, 0, &resp_recv))
         return false;
+
+    /* Clear all transactions */
+    if( 0 != coap_message_handler_exec(handle, 0xffffffff))
+        return false;
+
+    sn_coap_protocol_stub.expectedInt16 = -4;
+    nsdynmemlib_stub.returnCounter = 3;
+    if( 2 != coap_message_handler_request_send(handle, 3, 0, buf, 24, 1, 2, &uri, 4, NULL, 0, &transaction_recv_cb))
+        return false;
+
+    transaction_cb = 0;
+    sn_coap_protocol_stub.expectedInt8 = 0;
+    if( 0 != coap_message_handler_exec(handle, 12))
+        return false;
+
+    if (transaction_cb != 1)
+        return false;
+
+    sn_coap_protocol_stub.expectedInt16 = -2;
+    nsdynmemlib_stub.returnCounter = 3;
+    if( 2 != coap_message_handler_request_send(handle, 3, 0, buf, 24, 1, 2, &uri, 4, NULL, 0, &transaction_recv_cb))
+        return false;
+
+    transaction_cb = 0;
+    if( 0 != coap_message_handler_exec(handle, 2)) {
+        return false;
+    }
+    if (transaction_cb != 1)
+        return false;
+
 
     free(sn_coap_protocol_stub.expectedCoap);
     sn_coap_protocol_stub.expectedCoap = NULL;
