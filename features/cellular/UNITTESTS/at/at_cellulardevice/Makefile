@@ -16,7 +16,6 @@ TEST_SRC_FILES = \
         ../../stubs/AT_CellularSIM_stub.cpp \
         ../../stubs/AT_CellularPower_stub.cpp \
         ../../stubs/AT_CellularInformation_stub.cpp \
-        ../../stubs/AT_CellularMultiplexer_stub.cpp \
         ../../stubs/CellularUtil_stub.cpp \
         ../../stubs/AT_CellularBase_stub.cpp \
         ../../stubs/NetworkInterface_stub.cpp \

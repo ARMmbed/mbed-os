@@ -100,16 +100,6 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_open_sim()
     CHECK(dev.open_sim(&fh1));
 }
 
-void Test_AT_CellularDevice::test_AT_CellularDevice_open_multiplexer()
-{
-    EventQueue que;
-    AT_CellularDevice dev(que);
-    FileHandle_stub fh1;
-
-    CHECK(!dev.open_multiplexer(NULL));
-    CHECK(dev.open_multiplexer(&fh1));
-}
-
 void Test_AT_CellularDevice::test_AT_CellularDevice_open_information()
 {
     EventQueue que;
@@ -136,11 +126,6 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
-{
-
-}
-
-void Test_AT_CellularDevice::test_AT_CellularDevice_close_multiplexer()
 {
 
 }

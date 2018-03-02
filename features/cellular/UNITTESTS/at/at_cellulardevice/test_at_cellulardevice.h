@@ -36,8 +36,6 @@ public:
 
     void test_AT_CellularDevice_open_sim();
 
-    void test_AT_CellularDevice_open_multiplexer();
-
     void test_AT_CellularDevice_open_information();
 
     void test_AT_CellularDevice_close_network();
@@ -47,8 +45,6 @@ public:
     void test_AT_CellularDevice_close_power();
 
     void test_AT_CellularDevice_close_sim();
-
-    void test_AT_CellularDevice_close_multiplexer();
 
     void test_AT_CellularDevice_close_information();
 };

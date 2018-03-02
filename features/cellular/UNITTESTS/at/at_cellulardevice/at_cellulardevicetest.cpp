@@ -67,11 +67,6 @@ TEST(AT_CellularDevice, test_AT_CellularDevice_open_sim)
     unit->test_AT_CellularDevice_open_sim();
 }
 
-TEST(AT_CellularDevice, test_AT_CellularDevice_open_multiplexer)
-{
-    unit->test_AT_CellularDevice_open_multiplexer();
-}
-
 TEST(AT_CellularDevice, test_AT_CellularDevice_open_information)
 {
     unit->test_AT_CellularDevice_open_information();
@@ -95,11 +90,6 @@ TEST(AT_CellularDevice, test_AT_CellularDevice_close_power)
 TEST(AT_CellularDevice, test_AT_CellularDevice_close_sim)
 {
     unit->test_AT_CellularDevice_close_sim();
-}
-
-TEST(AT_CellularDevice, test_AT_CellularDevice_close_multiplexer)
-{
-    unit->test_AT_CellularDevice_close_multiplexer();
 }
 
 TEST(AT_CellularDevice, test_AT_CellularDevice_close_information)
