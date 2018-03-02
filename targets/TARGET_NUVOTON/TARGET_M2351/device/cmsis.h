@@ -18,6 +18,7 @@
 #define MBED_CMSIS_H
 
 #include "M2351.h"
+#include "m2351_stddriver_sup.h"
 #include "cmsis_nvic.h"
 
 // Support linker-generated symbol as start of relocated vector table.
