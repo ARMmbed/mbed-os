@@ -287,7 +287,8 @@ static void btle_handler(ble_evt_t *p_ble_evt)
                                            advReport->scan_rsp,
                                            static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
                                            advReport->dlen,
-                                           advReport->data);
+                                           advReport->data,
+                                           static_cast<BLEProtocol::AddressType_t>(advReport->peer_addr.addr_type));
             break;
         }
 

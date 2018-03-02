@@ -28,7 +28,7 @@
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed_error.h"
 #else
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 #endif
 
 #include "platform/mbed_toolchain.h"

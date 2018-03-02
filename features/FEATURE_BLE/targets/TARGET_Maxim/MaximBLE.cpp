@@ -168,7 +168,8 @@ static void maximHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
                                                                         (scanReport->eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
                                                                         (GapAdvertisingParams::AdvertisingType_t)scanReport->eventType,
                                                                         scanReport->len,
-                                                                        scanReport->pData);
+                                                                        scanReport->pData,
+                                                                        (BLEProtocol::AddressType_t) scanReport->addrType);
                 }
                 break;
             case DM_CONN_OPEN_IND:
@@ -281,7 +282,7 @@ ble_error_t MaximBLE::init(BLE::InstanceID_t instanceID, FunctionPointerWithCont
     DmRegister(DmCback);
     DmConnRegister(DM_CLIENT_ID_APP, DmCback);
     AttConnRegister(AppServerConnCback);
-    
+
     /* Reset the device */
     reset_complete = 0;
     DmDevReset();

@@ -389,7 +389,8 @@ GenericGap::GenericGap(
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
     _advertising_timeout(),
-    _scan_timeout()
+    _scan_timeout(),
+    _connection_event_handler(NULL)
 {
     _pal_gap.when_gap_event_received(
         mbed::callback(this, &GenericGap::on_gap_event_received)
@@ -416,13 +417,14 @@ ble_error_t GenericGap::setAddress(
             }
 
             ble_error_t err = _pal_gap.set_random_address(
-                pal::address_t(address, true)
+                ble::address_t(address)
             );
             if (err) {
                 return err;
             }
 
             _address_type = type;
+            _address = ble::address_t(address);
             return BLE_ERROR_NONE;
         }
 
@@ -445,7 +447,7 @@ ble_error_t GenericGap::getAddress(
     BLEProtocol::AddressBytes_t address
 ) {
     *type = _address_type;
-    pal::address_t address_value;
+    ble::address_t address_value;
     if (_address_type == BLEProtocol::AddressType::PUBLIC) {
         address_value = _pal_gap.get_device_address();
     } else {
@@ -525,7 +527,7 @@ ble_error_t GenericGap::connect(
         scanParams->getWindow(),
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
-        pal::address_t(peerAddr, true),
+        ble::address_t(peerAddr),
         (pal::own_address_type_t::type) _address_type,
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
@@ -883,7 +885,7 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         (pal::advertising_type_t::type) params.getAdvertisingType(),
         get_own_address_type(),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
-        pal::address_t(),
+        ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
         _advertising_filter_policy
     );
@@ -918,6 +920,55 @@ ble_error_t GenericGap::reset(void)
     _scan_timeout.detach();
 
     return BLE_ERROR_NONE;
+}
+
+void GenericGap::processConnectionEvent(
+    Handle_t handle,
+    Role_t role,
+    BLEProtocol::AddressType_t peerAddrType,
+    const BLEProtocol::AddressBytes_t peerAddr,
+    BLEProtocol::AddressType_t ownAddrType,
+    const BLEProtocol::AddressBytes_t ownAddr,
+    const ConnectionParams_t *connectionParams
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_connected(
+            handle,
+            role,
+            peerAddrType,
+            peerAddr,
+            ownAddrType,
+            ownAddr,
+            connectionParams
+        );
+    }
+
+    ::Gap::processConnectionEvent(
+        handle,
+        role,
+        peerAddrType,
+        peerAddr,
+        ownAddrType,
+        ownAddr,
+        connectionParams
+   );
+}
+
+void GenericGap::processDisconnectionEvent(
+    Handle_t handle,
+    DisconnectionReason_t reason
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_disconnected(
+            handle,
+            reason
+        );
+    }
+
+    ::Gap::processDisconnectionEvent(
+        handle,
+        reason
+    );
 }
 
 void GenericGap::on_scan_timeout()
@@ -991,7 +1042,8 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
             advertising.type == pal::received_advertising_type_t::SCAN_RESPONSE,
             (GapAdvertisingParams::AdvertisingType_t) advertising.type.value(),
             advertising.data.size(),
-            advertising.data.data()
+            advertising.data.data(),
+            (BLEProtocol::AddressType_t) advertising.address_type.value()
         );
     }
 }
@@ -1014,7 +1066,7 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
             e.connection_latency,
             e.supervision_timeout
         };
-        pal::address_t address;
+        ble::address_t address;
         if (_address_type == BLEProtocol::AddressType::PUBLIC) {
             address = _pal_gap.get_device_address();
         } else {
@@ -1115,6 +1167,11 @@ bool GenericGap::initialize_whitelist() const
     _whitelist.capacity = whitelist_capacity;
 
     return true;
+}
+
+void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::EventHandler *connection_event_handler)
+{
+    _connection_event_handler = connection_event_handler;
 }
 
 } // namespace generic

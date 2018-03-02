@@ -23,13 +23,14 @@
 
 #include "CordioHCIDriver.h"
 #include "CordioGattServer.h"
-#include "CordioSecurityManager.h"
 #include "CordioPalAttClient.h"
 #include "ble/pal/AttClientToGattClientAdapter.h"
 #include "ble/generic/GenericGattClient.h"
 #include "CordioPalGap.h"
 #include "CordioPalGenericAccessService.h"
 #include "ble/generic/GenericGap.h"
+#include "ble/generic/GenericSecurityManager.h"
+#include "ble/pal/MemorySecurityDB.h"
 #include "ble/pal/SimpleEventQueue.h"
 
 namespace ble {
@@ -127,6 +128,12 @@ public:
     virtual void processEvents();
 
 private:
+    /**
+     * Return singleton.
+     * @return GenericGap instance.
+     */
+    const generic::GenericGap& getGenericGap() const;
+
     static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg);
     static void device_manager_cb(dmEvt_t* dm_event);
     static void connection_handler(dmEvt_t* dm_event);
