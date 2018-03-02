@@ -418,6 +418,7 @@ void equeue_dispatch(equeue_t *q, int ms) {
                     q->background.active = true;
                     equeue_mutex_unlock(&q->queuelock);
                 }
+                q->break_requested = false;
                 return;
             }
         }

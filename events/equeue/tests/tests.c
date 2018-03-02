@@ -687,6 +687,45 @@ void multithreaded_barrage_test(int N) {
     equeue_destroy(&q);
 }
 
+struct sCaQ
+{
+    int p;
+    equeue_t* q;
+};
+
+typedef struct sCaQ CountAndQueue;
+
+void simple_breaker(void *p) {
+	CountAndQueue* caq = (CountAndQueue*)p;
+	equeue_break(caq->q);
+    usleep(10000);
+    caq->p++;
+}
+
+void break_request_cleared_on_timeout(void) {
+    equeue_t q;
+    int err = equeue_create(&q, 2048);
+    test_assert(!err);
+
+    CountAndQueue pq;
+    pq.p = 0;
+    pq.q = &q;
+
+    int id = equeue_call_every(&q, 10, simple_breaker, &pq);
+
+    equeue_dispatch(&q, 10);
+    test_assert(pq.p == 1);
+
+    equeue_cancel(&q, id);
+
+    int count = 0;
+    equeue_call_every(&q, 10, simple_func, &count);
+
+    equeue_dispatch(&q, 55);
+    test_assert(count > 1);
+
+    equeue_destroy(&q);
+}
 
 int main() {
     printf("beginning tests...\n");
@@ -712,6 +751,7 @@ int main() {
     test_run(simple_barrage_test, 20);
     test_run(fragmenting_barrage_test, 20);
     test_run(multithreaded_barrage_test, 20);
+    test_run(break_request_cleared_on_timeout);
 
     printf("done!\n");
     return test_failure;
