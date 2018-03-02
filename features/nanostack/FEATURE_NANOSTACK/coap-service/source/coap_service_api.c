@@ -36,7 +36,7 @@
 #include "coap_message_handler.h"
 #include "mbed-coap/sn_coap_protocol.h"
 
-static int16_t coap_msg_process_callback(int8_t socket_id, int8_t interface_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
+static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
 
 typedef struct uri_registration {
     char *uri_ptr;
@@ -210,7 +210,7 @@ static void service_event_handler(arm_event_s *event)
     eventOS_event_timer_request((uint8_t)COAP_TICK_TIMER, ARM_LIB_SYSTEM_TIMER_EVENT, tasklet_id, 1000);
 }
 
-static int16_t coap_msg_process_callback(int8_t socket_id, int8_t interface_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr)
+static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr)
 {
     coap_service_t *this;
     if (!coap_message || !transaction_ptr) {
@@ -229,11 +229,6 @@ static int16_t coap_msg_process_callback(int8_t socket_id, int8_t interface_id, 
         return -1;
     }
 
-    if ((interface_id != -1) && (this->interface_id != interface_id)) {
-        tr_debug("uri %.*s not registered to interface %d", coap_message->uri_path_len, coap_message->uri_path_ptr, interface_id);
-        return 0;
-    }
-
     uri_registration_t *uri_reg_ptr = uri_registration_find(this, coap_message->uri_path_ptr, coap_message->uri_path_len);
     if (uri_reg_ptr && uri_reg_ptr->request_recv_cb) {
         tr_debug("Service %d, call request recv cb uri %.*s", this->service_id, coap_message->uri_path_len, coap_message->uri_path_ptr);
@@ -249,7 +244,7 @@ static int16_t coap_msg_process_callback(int8_t socket_id, int8_t interface_id, 
     return -1;
 }
 
-static int recv_cb(int8_t socket_id, int8_t interface_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *data, int len)
+static int recv_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *data, int len)
 {
     uint8_t *data_ptr = NULL;
     uint16_t data_len = 0;
@@ -268,7 +263,7 @@ static int recv_cb(int8_t socket_id, int8_t interface_id, uint8_t src_address[st
     tr_debug("service recv socket data len %d ", data_len);
 
     //parse coap message what CoAP to use
-    int ret = coap_message_handler_coap_msg_process(coap_service_handle, socket_id, interface_id, src_address, port, dst_address, data_ptr, data_len, &coap_msg_process_callback);
+    int ret = coap_message_handler_coap_msg_process(coap_service_handle, socket_id, src_address, port, dst_address, data_ptr, data_len, &coap_msg_process_callback);
     own_free(data_ptr);
     return ret;
 }
