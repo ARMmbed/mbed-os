@@ -238,8 +238,7 @@ public:
         _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
         _legacy_pairing_allowed(true),
-        _master_sends_keys(false),
-        _public_keys_generated(false) {
+        _master_sends_keys(false) {
         _pal.set_event_handler(this);
     }
 
@@ -321,17 +320,6 @@ private:
         const csrk_t *csrk
     );
 
-#if defined(MBEDTLS_CMAC_C)
-    /**
-     * Generate local OOB data to be sent to the application which sends it to the peer.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
-     */
-    void generate_secure_connections_oob(
-        connection_handle_t connection
-    );
-#endif
-
     /**
      * Updates the entry for the connection with OOB data presence.
      *
@@ -340,26 +328,6 @@ private:
     void update_oob_presence(
         connection_handle_t connection
     );
-
-#if defined(MBEDTLS_CMAC_C)
-    /**
-     * Calculate the confirmation value for secure connections OOB data based
-     * on local public key and a random number.
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.2.6
-
-     * @param[in] U public key x component
-     * @param[in] V public key y component
-     * @param[in] X random number
-     * @param[out] confirm confirmation value
-     * @return true if cryptography functioned worked
-     */
-    static bool crypto_toolbox_f4(
-        const public_key_t &U,
-        const public_key_t &V,
-        const oob_lesc_value_t &X,
-        oob_confirm_t &confirm
-    );
-#endif
 
     /**
      * Set the MITM protection setting on the database entry
@@ -477,13 +445,6 @@ private:
     bool _pairing_authorisation_required;
     bool _legacy_pairing_allowed;
     bool _master_sends_keys;
-    bool _public_keys_generated;
-
-    /** There is always only one OOB data set stored at a time */
-    address_t _peer_sc_oob_address;
-    oob_lesc_value_t _peer_sc_oob_random;
-    oob_confirm_t _peer_sc_oob_confirm;
-    oob_lesc_value_t _local_sc_oob_random;
 
     static const size_t MAX_CONTROL_BLOCKS = 5;
     ControlBlock_t _control_blocks[MAX_CONTROL_BLOCKS];
@@ -593,24 +554,17 @@ public:
         connection_handle_t connection
     );
 
-    /** @copydoc ble::pal::SecurityManager::on_oob_data_verification_request
+    /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_generated
      */
-    virtual void on_oob_data_verification_request(
-        connection_handle_t connection,
-        const public_key_coord_t &peer_public_key_x,
-        const public_key_coord_t &peer_public_key_y
+    virtual void on_secure_connections_oob_generated(
+        const address_t &local_address,
+        const oob_lesc_value_t &random,
+        const oob_confirm_t &confirm
     );
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
     //
-
-    /** @copydoc ble::pal::SecurityManager::on_public_key_generated
-     */
-    virtual void on_public_key_generated(
-        const public_key_coord_t &public_key_x,
-        const public_key_coord_t &public_key_y
-    );
 
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_ltk_generated
      */
