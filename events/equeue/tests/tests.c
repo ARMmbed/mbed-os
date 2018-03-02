@@ -391,6 +391,26 @@ void break_test(void) {
     equeue_destroy(&q);
 }
 
+void break_no_windup_test(void) {
+    equeue_t q;
+    int err = equeue_create(&q, 2048);
+    test_assert(!err);
+
+    int count = 0;
+    equeue_call_every(&q, 0, simple_func, &count);
+
+    equeue_break(&q);
+    equeue_break(&q);
+    equeue_dispatch(&q, -1);
+    test_assert(count == 1);
+
+    count = 0;
+    equeue_dispatch(&q, 55);
+    test_assert(count > 1);
+
+    equeue_destroy(&q);
+}
+
 void period_test(void) {
     equeue_t q;
     int err = equeue_create(&q, 2048);
@@ -741,6 +761,7 @@ int main() {
     test_run(cancel_unnecessarily_test);
     test_run(loop_protect_test);
     test_run(break_test);
+    test_run(break_no_windup_test);
     test_run(period_test);
     test_run(nested_test);
     test_run(sloth_test);
