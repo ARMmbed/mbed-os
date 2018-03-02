@@ -23,7 +23,7 @@
 #ifndef MBED_POWER_MGMT_H
 #define MBED_POWER_MGMT_H
 
-#include "hal/sleep_api.h"
+#include "sleep_api.h"
 #include "mbed_toolchain.h"
 #include <stdbool.h>
 
@@ -63,6 +63,34 @@ extern "C" {
  * }
  * @endcode
  */
+#ifdef MBED_SLEEP_TRACING_ENABLED
+
+void sleep_tracker_lock(const char *const filename, int line);
+void sleep_tracker_unlock(const char *const filename, int line);
+
+#define sleep_manager_lock_deep_sleep()           \
+    do                                            \
+    {                                             \
+        sleep_manager_lock_deep_sleep_internal(); \
+        sleep_tracker_lock(__FILE__, __LINE__);   \
+    } while (0);
+
+#define sleep_manager_unlock_deep_sleep()           \
+    do                                              \
+    {                                               \
+        sleep_manager_unlock_deep_sleep_internal(); \
+        sleep_tracker_unlock(__FILE__, __LINE__);   \
+    } while (0);
+
+#else
+
+#define sleep_manager_lock_deep_sleep() \
+    sleep_manager_lock_deep_sleep_internal()
+
+#define sleep_manager_unlock_deep_sleep() \
+    sleep_manager_unlock_deep_sleep_internal()
+
+#endif // MBED_SLEEP_TRACING_ENABLED
 
 /** Lock the deep sleep mode
  *
@@ -76,7 +104,7 @@ extern "C" {
  * The lock is a counter, can be locked up to USHRT_MAX
  * This function is IRQ and thread safe
  */
-void sleep_manager_lock_deep_sleep(void);
+void sleep_manager_lock_deep_sleep_internal(void);
 
 /** Unlock the deep sleep mode
  *
@@ -85,13 +113,14 @@ void sleep_manager_lock_deep_sleep(void);
  * The lock is a counter, should be equally unlocked as locked
  * This function is IRQ and thread safe
  */
-void sleep_manager_unlock_deep_sleep(void);
+void sleep_manager_unlock_deep_sleep_internal(void);
 
 /** Get the status of deep sleep allowance for a target
  *
  * @return true if a target can go to deepsleep, false otherwise
  */
 bool sleep_manager_can_deep_sleep(void);
+
 
 /** Enter auto selected sleep mode. It chooses the sleep or deeepsleep modes based
  *  on the deepsleep locking counter
