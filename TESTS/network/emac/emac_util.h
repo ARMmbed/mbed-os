@@ -108,13 +108,8 @@ unsigned char *emac_if_get_own_addr(void);
 int emac_if_get_mtu_size();
 void emac_if_set_mtu_size(int mtu_size);
 
-#if MBED_CONF_APP_TEST_EMAC
 extern void emac_if_link_input_cb(void *buf);
 extern void emac_if_link_state_change_cb(bool up);
-#else
-extern void emac_if_link_input_cb(void *data, void *buf);
-extern void emac_if_link_state_change_cb(void *data, bool up);
-#endif
 
 void emac_if_set_all_multicast(bool all);
 void emac_if_add_multicast_group(uint8_t *address);
