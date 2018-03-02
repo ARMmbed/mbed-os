@@ -27,7 +27,7 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= mbedtls-2.6.0
+MBED_TLS_RELEASE ?= mbedtls-2.7.1
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
@@ -36,7 +36,7 @@ TARGET_INC:=$(TARGET_PREFIX)inc
 TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
-MBED_TLS_URL:=https://github.com/ARMmbed/mbedtls-restricted.git
+MBED_TLS_URL:=git@github.com:ARMmbed/mbedtls-restricted.git
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
