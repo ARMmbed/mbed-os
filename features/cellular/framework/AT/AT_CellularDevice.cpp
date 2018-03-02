@@ -23,7 +23,7 @@ using namespace mbed;
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
 AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
-    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _multiplexer(0), _information(0), _queue(queue),
+    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _queue(queue),
     _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
 }
@@ -34,7 +34,6 @@ AT_CellularDevice::~AT_CellularDevice()
     close_sms();
     close_power();
     close_sim();
-    close_multiplexer();
     close_information();
 
     ATHandler *atHandler = _atHandlers;
@@ -157,21 +156,6 @@ CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
     return _power;
 }
 
-CellularMultiplexer *AT_CellularDevice::open_multiplexer(FileHandle *fh)
-{
-    if (!_multiplexer) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _multiplexer = new AT_CellularMultiplexer(*atHandler);
-            if (!_multiplexer) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-
-    return _multiplexer;
-}
-
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
     if (!_information) {
@@ -218,15 +202,6 @@ void AT_CellularDevice::close_sim()
         release_at_handler(&_sim->get_at_handler());
         delete _sim;
         _sim = NULL;
-    }
-}
-
-void AT_CellularDevice::close_multiplexer()
-{
-    if (_multiplexer) {
-        release_at_handler(&_multiplexer->get_at_handler());
-        delete _multiplexer;
-        _multiplexer = NULL;
     }
 }
 

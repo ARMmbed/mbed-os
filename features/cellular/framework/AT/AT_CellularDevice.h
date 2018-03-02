@@ -24,7 +24,6 @@
 #include "AT_CellularSIM.h"
 #include "AT_CellularSMS.h"
 #include "AT_CellularPower.h"
-#include "AT_CellularMultiplexer.h"
 #include "AT_CellularInformation.h"
 
 #include "ATHandler.h"
@@ -64,8 +63,6 @@ public: // CellularDevice
 
     virtual CellularSIM *open_sim(FileHandle *fh);
 
-    virtual CellularMultiplexer *open_multiplexer(FileHandle *fh);
-
     virtual CellularInformation *open_information(FileHandle *fh);
 
     virtual void close_network();
@@ -75,8 +72,6 @@ public: // CellularDevice
     virtual void close_power();
 
     virtual void close_sim();
-
-    virtual void close_multiplexer();
 
     virtual void close_information();
 
@@ -91,7 +86,6 @@ protected:
     AT_CellularSMS *_sms;
     AT_CellularSIM *_sim;
     AT_CellularPower* _power;
-    AT_CellularMultiplexer* _multiplexer;
     AT_CellularInformation* _information;
 
 protected:

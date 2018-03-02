@@ -32,7 +32,6 @@ public:
 public: // from CellularDevice
     virtual CellularPower *open_power(FileHandle *fh);
     virtual CellularNetwork *open_network(FileHandle *fh);
-    virtual CellularMultiplexer *open_multiplexer(FileHandle *fh);
 };
 } // namespace mbed
 #endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */

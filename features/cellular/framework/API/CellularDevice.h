@@ -24,7 +24,6 @@
 #include "CellularNetwork.h"
 #include "CellularSMS.h"
 #include "CellularPower.h"
-#include "CellularMultiplexer.h"
 #include "CellularInformation.h"
 #include "NetworkStack.h"
 
@@ -73,13 +72,6 @@ public:
      */
     virtual CellularSIM *open_sim(FileHandle *fh) = 0;
 
-    /** Create new CellularMultiplexer interface.
-     *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
-     *  @return      New instance of interface CellularMultiplexer.
-     */
-    virtual CellularMultiplexer *open_multiplexer(FileHandle *fh) = 0;
-
     /** Create new CellularInformation interface.
      *
      *  @param fh    file handle used in communication to modem. Can be for example UART handle.
@@ -102,10 +94,6 @@ public:
     /** Closes the opened CellularNetwork by deleting the CellularSIM instance.
      */
     virtual void close_sim() = 0;
-
-    /** Closes the opened CellularNetwork by deleting the CellularMultiplexer instance.
-     */
-    virtual void close_multiplexer() = 0;
 
     /** Closes the opened CellularNetwork by deleting the CellularInformation instance.
      */

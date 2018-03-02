@@ -18,7 +18,6 @@
 #include "TELIT_HE910.h"
 #include "TELIT_HE910_CellularPower.h"
 #include "TELIT_HE910_CellularNetwork.h"
-#include "TELIT_HE910_CellularMultiplexer.h"
 
 using namespace mbed;
 using namespace events;
@@ -58,19 +57,4 @@ CellularNetwork *TELIT_HE910::open_network(FileHandle *fh)
         }
     }
     return _network;
-}
-
-CellularMultiplexer *TELIT_HE910::open_multiplexer(FileHandle *fh)
-{
-    if (!_multiplexer) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _multiplexer = new AT_CellularMultiplexer(*atHandler);
-            if (!_multiplexer) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-
-    return _multiplexer;
 }

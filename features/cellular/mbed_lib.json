@@ -5,10 +5,6 @@
             "help": "Use APN database lookup",
             "value": true
         },
-        "mux-enabled": {
-            "help": "Use cellular modem over MUX",
-            "value": false
-        },
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
             "value": 0

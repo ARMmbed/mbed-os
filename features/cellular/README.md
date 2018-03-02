@@ -10,7 +10,6 @@ This is the Github repo for Mbed cellular connectivity:
         API         Application Programming Interface for cellular connectivity
         AT          AT implementation based on 3GPP TS 27.007 specification
         common      Common and utility sources
-        mux         MUX implementation based on 3GPP TS 27.010 specification
         targets     Vendor specific cellular module adaptations
 
 ## Known limitations
