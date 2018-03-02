@@ -78,7 +78,7 @@ using namespace events;
 
 
 LoRaMac::LoRaMac(LoRaWANTimeHandler &lora_time)
-    : mac_commands(*this), _lora_time(lora_time)
+    : mac_commands(), _lora_time(lora_time)
 {
     lora_phy = NULL;
     //radio_events_t RadioEvents;
@@ -621,10 +621,13 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                 }
 
                                 // Decode frame payload MAC commands
-                                if (mac_commands.process_mac_commands(_params.payload, 0, frame_len, snr,
-                                                                    mlme.get_confirmation(),
-                                                                    _params.sys_params, *lora_phy) != LORAWAN_STATUS_OK) {
+                                if (LORAWAN_STATUS_OK != mac_commands.process_mac_commands(
+                                            _params.payload, 0, frame_len, snr,
+                                            mlme.get_confirmation(), _params.sys_params, *lora_phy)) {
                                     mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                                } else if (mac_commands.has_sticky_mac_cmd()) {
+                                    set_mlme_schedule_ul_indication();
+                                    mac_commands.clear_sticky_mac_cmd();
                                 }
                             } else {
                                 skip_indication = true;
@@ -632,10 +635,13 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                         } else {
                             if (fctrl.bits.fopts_len > 0) {
                                 // Decode Options field MAC commands. Omit the fPort.
-                                if (mac_commands.process_mac_commands(payload, 8, app_payload_start_index - 1, snr,
-                                                                    mlme.get_confirmation(),
-                                                                    _params.sys_params, *lora_phy ) != LORAWAN_STATUS_OK) {
+                                if (LORAWAN_STATUS_OK != mac_commands.process_mac_commands(
+                                            payload, 8, app_payload_start_index - 1, snr,
+                                            mlme.get_confirmation(), _params.sys_params, *lora_phy )) {
                                     mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                                } else if (mac_commands.has_sticky_mac_cmd()) {
+                                    set_mlme_schedule_ul_indication();
+                                    mac_commands.clear_sticky_mac_cmd();
                                 }
                             }
 
@@ -658,10 +664,14 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                     } else {
                         if (fctrl.bits.fopts_len > 0) {
                             // Decode Options field MAC commands
-                            if (mac_commands.process_mac_commands(payload, 8, app_payload_start_index, snr,
-                                                                mlme.get_confirmation(),
-                                                                _params.sys_params, *lora_phy) != LORAWAN_STATUS_OK) {
+                            if (LORAWAN_STATUS_OK != mac_commands.process_mac_commands(
+                                        payload, 8, app_payload_start_index, snr,
+                                        mlme.get_confirmation(),
+                                        _params.sys_params, *lora_phy)) {
                                 mcps.get_indication().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                            } else if (mac_commands.has_sticky_mac_cmd()) {
+                                set_mlme_schedule_ul_indication();
+                                mac_commands.clear_sticky_mac_cmd();
                             }
                         }
                     }
@@ -1657,7 +1667,7 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
     lora_phy = phy;
 
     // Activate MLME subsystem
-    mlme.activate_mlme_subsystem(this, lora_phy, &mac_commands);
+    mlme.activate_mlme_subsystem(this, lora_phy);
 
     // Activate MCPS subsystem
     mcps.activate_mcps_subsystem(this, lora_phy);
@@ -1961,7 +1971,11 @@ lorawan_status_t LoRaMac::multicast_channel_unlink(
 
 lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
 {
-    return mlme.set_request(mlmeRequest, &_params);
+    lorawan_status_t status = mlme.set_request(mlmeRequest, &_params);
+    if (MLME_LINK_CHECK == mlmeRequest->type) {
+        status = mac_commands.add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
+    }
+    return status;
 }
 
 lorawan_status_t LoRaMac::mcps_request( loramac_mcps_req_t *mcpsRequest )

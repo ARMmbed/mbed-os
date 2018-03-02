@@ -28,7 +28,6 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
-#include "lorastack/mac/LoRaMacCommand.h"
 
 // forward declaration
 class LoRaMac;
@@ -56,9 +55,8 @@ public:
      *
      * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
-     * @param cmd    pointer to MAC commands
      */
-    void activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy, LoRaMacCommand *cmd);
+    void activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy);
 
     /** Sets up an MLME Request
      *
@@ -99,7 +97,6 @@ private:
      */
     LoRaMac *_lora_mac;
     LoRaPHY *_lora_phy;
-    LoRaMacCommand *_mac_cmd;
 
     /**
      * Structure to hold MLME indication data.
