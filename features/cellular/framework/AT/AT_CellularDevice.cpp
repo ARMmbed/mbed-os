@@ -45,7 +45,7 @@ AT_CellularDevice::~AT_CellularDevice()
     }
 }
 
-// each parser is associated with one filehandle (that is UART or a MUX channel)
+// each parser is associated with one filehandle (that is UART)
 ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     if (!fileHandle) {

@@ -53,7 +53,6 @@ public:
      *
      *  @remark set_at_mode must be called to initialise modem
      *
-     *  @remark Should not be called if MUX is enabled and started. If called then start-up sequence must be done again.
      *  @return zero on success
      */
     virtual nsapi_error_t on() = 0;
@@ -62,7 +61,6 @@ public:
      *  Device power on/off is modem/board specific behavior and must be done on inherited class if needed.
      *  Power off is done by toggling power pin/button.
      *
-     *  @remark Should not be called if MUX is enabled and started. If called then start-up sequence must be done again.
      *
      *  @return zero on success
      */
@@ -88,15 +86,12 @@ public:
      *  4   disable (turn off) both MT transmit and receive RF circuits
      *
      *  @remark See 3GPP TS 27.007 CFUN for more details
-     *  @remark Should not be called if MUX is enabled and started. If called then start-up sequence must be done again.
      *
      *  @return zero on success
      */
     virtual nsapi_error_t set_power_level(int func_level) = 0;
 
     /** Reset and wake-up cellular device.
-     *
-     *  @remark Should not be called if MUX is enabled and started. If called then start-up sequence must be done again.
      *
      *  @return zero on success
      */
