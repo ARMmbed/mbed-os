@@ -37,7 +37,7 @@ static inline int equeue_clampdiff(unsigned a, unsigned b) {
 // Increment the unique id in an event, hiding the event from cancel
 static inline void equeue_incid(equeue_t *q, struct equeue_event *e) {
     e->id += 1;
-    if (!(e->id << q->npw2)) {
+    if (0 == (e->id << q->npw2)) {
         e->id = 1;
     }
 }
