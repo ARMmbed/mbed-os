@@ -56,7 +56,7 @@ public:
      * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
      */
-    void activate_mib_subsystem(LoRaMac *mac, LoRaPHY *phy);
+    void activate_mib_subsystem(LoRaPHY *phy);
 
     /** Sets up a MIB Request
      *
@@ -90,9 +90,8 @@ public:
 private:
 
     /**
-     * Pointers to MAC and PHY handles
+     * Pointer PHY handle
      */
-    LoRaMac *_lora_mac;
     LoRaPHY *_lora_phy;
 };
 

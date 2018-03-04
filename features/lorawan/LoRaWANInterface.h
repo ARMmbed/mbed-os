@@ -44,7 +44,7 @@ public:
      *
      * @return         0 on success, a negative error code on failure.
      */
-    virtual lorawan_status_t initialize(events::EventQueue *ev_queue) ;
+    virtual lorawan_status_t initialize(events::EventQueue *ev_queue);
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *

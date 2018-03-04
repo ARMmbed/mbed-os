@@ -1547,51 +1547,51 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t LoRaMac::set_tx_continuous_wave(uint16_t timeout)
-{
-    cw_mode_params_t continuous_wave;
+//lorawan_status_t LoRaMac::set_tx_continuous_wave(uint16_t timeout)
+//{
+//    cw_mode_params_t continuous_wave;
 
-    continuous_wave.channel = _params.channel;
-    continuous_wave.datarate = _params.sys_params.channel_data_rate;
-    continuous_wave.tx_power = _params.sys_params.channel_tx_power;
-    continuous_wave.max_eirp = _params.sys_params.max_eirp;
-    continuous_wave.antenna_gain = _params.sys_params.antenna_gain;
-    continuous_wave.timeout = timeout;
+//    continuous_wave.channel = _params.channel;
+//    continuous_wave.datarate = _params.sys_params.channel_data_rate;
+//    continuous_wave.tx_power = _params.sys_params.channel_tx_power;
+//    continuous_wave.max_eirp = _params.sys_params.max_eirp;
+//    continuous_wave.antenna_gain = _params.sys_params.antenna_gain;
+//    continuous_wave.timeout = timeout;
 
-    lora_phy->set_tx_cont_mode(&continuous_wave);
+//    lora_phy->set_tx_cont_mode(&continuous_wave);
 
-    // Starts the MAC layer status check timer
-    _lora_time.start(_params.timers.mac_state_check_timer,
-                     MAC_STATE_CHECK_TIMEOUT);
+//    // Starts the MAC layer status check timer
+//    _lora_time.start(_params.timers.mac_state_check_timer,
+//                     MAC_STATE_CHECK_TIMEOUT);
 
-    _params.mac_state |= LORAMAC_TX_RUNNING;
+//    _params.mac_state |= LORAMAC_TX_RUNNING;
 
-    return LORAWAN_STATUS_OK;
-}
+//    return LORAWAN_STATUS_OK;
+//}
 
-lorawan_status_t LoRaMac::set_tx_continuous_wave1(uint16_t timeout,
-                                                  uint32_t frequency,
-                                                  uint8_t power)
-{
-    cw_mode_params_t continuous_wave;
+//lorawan_status_t LoRaMac::set_tx_continuous_wave1(uint16_t timeout,
+//                                                  uint32_t frequency,
+//                                                  uint8_t power)
+//{
+//    cw_mode_params_t continuous_wave;
 
-    continuous_wave.channel = 0;
-    continuous_wave.datarate = 0;
-    continuous_wave.tx_power = power;
-    continuous_wave.max_eirp = 0;
-    continuous_wave.antenna_gain = 0;
-    continuous_wave.timeout = timeout;
+//    continuous_wave.channel = 0;
+//    continuous_wave.datarate = 0;
+//    continuous_wave.tx_power = power;
+//    continuous_wave.max_eirp = 0;
+//    continuous_wave.antenna_gain = 0;
+//    continuous_wave.timeout = timeout;
 
-    lora_phy->set_tx_cont_mode(&continuous_wave);
+//    lora_phy->set_tx_cont_mode(&continuous_wave);
 
-    // Starts the MAC layer status check timer
-    _lora_time.start(_params.timers.mac_state_check_timer,
-                     MAC_STATE_CHECK_TIMEOUT);
+//    // Starts the MAC layer status check timer
+//    _lora_time.start(_params.timers.mac_state_check_timer,
+//                     MAC_STATE_CHECK_TIMEOUT);
 
-    _params.mac_state |= LORAMAC_TX_RUNNING;
+//    _params.mac_state |= LORAMAC_TX_RUNNING;
 
-    return LORAWAN_STATUS_OK;
-}
+//    return LORAWAN_STATUS_OK;
+//}
 
 lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
                                      LoRaPHY *phy, EventQueue *queue)
@@ -1606,13 +1606,13 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
     lora_phy = phy;
 
     // Activate MLME subsystem
-    mlme.activate_mlme_subsystem(this, lora_phy);
+    mlme.activate_mlme_subsystem(lora_phy);
 
     // Activate MCPS subsystem
     mcps.activate_mcps_subsystem(this, lora_phy);
 
     // Activate MIB subsystem
-    mib.activate_mib_subsystem(this, lora_phy);
+    mib.activate_mib_subsystem(lora_phy);
 
     // Activate channel planning subsystem
     channel_plan.activate_channelplan_subsystem(lora_phy);
@@ -1878,10 +1878,74 @@ lorawan_status_t LoRaMac::multicast_channel_unlink(
 
 lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
 {
-    lorawan_status_t status = mlme.set_request(mlmeRequest, &_params);
+    if (LORAMAC_IDLE != _params.mac_state) {
+        return LORAWAN_STATUS_BUSY;
+    }
+    if (MLME_JOIN == mlmeRequest->type) {
+        reset_mac_parameters();
+    }
+
+    mlme.reset_confirmation();
+
+    mlme.get_confirmation().req_type = mlmeRequest->type;
+    _params.flags.bits.mlme_req = 1;
+
+    lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
+
     if (MLME_LINK_CHECK == mlmeRequest->type) {
         status = mac_commands.add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
+    } else if (MLME_JOIN == mlmeRequest->type) {
+        if ((_params.mac_state & LORAMAC_TX_DELAYED) == LORAMAC_TX_DELAYED) {
+            return LORAWAN_STATUS_BUSY;
+        }
+
+        if ((mlmeRequest->req.join.dev_eui == NULL)
+                || (mlmeRequest->req.join.app_eui == NULL)
+                || (mlmeRequest->req.join.app_key == NULL)
+                || (mlmeRequest->req.join.nb_trials == 0)) {
+            return LORAWAN_STATUS_PARAMETER_INVALID;
+        }
+        _params.keys.dev_eui = mlmeRequest->req.join.dev_eui;
+        _params.keys.app_eui = mlmeRequest->req.join.app_eui;
+        _params.keys.app_key = mlmeRequest->req.join.app_key;
+        _params.max_join_request_trials = mlmeRequest->req.join.nb_trials;
+
+        if (!lora_phy->verify_nb_join_trials(mlmeRequest->req.join.nb_trials)) {
+            // Value not supported, get default
+            _params.max_join_request_trials = lora_phy->get_nb_join_trials(true);
+        }
+        // Reset variable JoinRequestTrials
+        _params.join_request_trial_counter = 0;
+        _params.sys_params.channel_data_rate =
+                lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
+
+        loramac_mhdr_t machdr;
+        machdr.value = 0;
+        machdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
+        status = send(&machdr, 0, NULL, 0);
+    } else if (MLME_TXCW == mlmeRequest->type) {
+        mlme.set_tx_continuous_wave(_params.channel, _params.sys_params.channel_data_rate, _params.sys_params.channel_tx_power,
+                                    _params.sys_params.max_eirp, _params.sys_params.antenna_gain, mlmeRequest->req.cw_tx_mode.timeout);
+        _lora_time.start(_params.timers.mac_state_check_timer,
+                         MAC_STATE_CHECK_TIMEOUT);
+
+        _params.mac_state |= LORAMAC_TX_RUNNING;
+        status = LORAWAN_STATUS_OK;
+    } else if (MLME_TXCW_1 == mlmeRequest->type) {
+        mlme.set_tx_continuous_wave(0, 0, mlmeRequest->req.cw_tx_mode.power, 0, 0, mlmeRequest->req.cw_tx_mode.timeout);
+        _lora_time.start(_params.timers.mac_state_check_timer,
+                         MAC_STATE_CHECK_TIMEOUT);
+
+        _params.mac_state |= LORAMAC_TX_RUNNING;
+        status = LORAWAN_STATUS_OK;
     }
+
+    if (status != LORAWAN_STATUS_OK) {
+        _params.is_node_ack_requested = false;
+        _params.flags.bits.mlme_req = 0;
+    }
+
+
     return status;
 }
 
@@ -1903,7 +1967,12 @@ lorawan_status_t LoRaMac::mib_get_request_confirm( loramac_mib_req_confirm_t *mi
 
 lorawan_status_t LoRaMac::mib_set_request_confirm( loramac_mib_req_confirm_t *mibSet )
 {
-    return mib.set_request(mibSet, &_params);
+    lorawan_status_t status = mib.set_request(mibSet, &_params);
+    if (LORAWAN_STATUS_OK == status && CLASS_C == _params.dev_class && (MIB_DEVICE_CLASS == mibSet->type ||
+       (MIB_RX2_CHANNEL == mibSet->type && _params.is_nwk_joined))) {
+        open_continuous_rx2_window();
+    }
+    return status;
 }
 
 radio_events_t *LoRaMac::get_phy_event_handlers()
