@@ -76,20 +76,13 @@ public:
      *
      * @return               a reference to MCPS confirm data structure
      */
-    inline loramac_mcps_confirm_t& get_confirmation()
-    {
-        return confirmation;
-    }
+    loramac_mcps_confirm_t& get_confirmation();
 
     /** Grants access to MCPS indication data
      *
      * @return               a reference to MCPS indication data structure
      */
-    inline loramac_mcps_indication_t& get_indication()
-    {
-        return indication;
-    }
-
+    loramac_mcps_indication_t& get_indication();
 
 private:
 

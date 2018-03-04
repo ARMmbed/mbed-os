@@ -224,11 +224,6 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 {
     loramac_mcps_req_t mcps_req;
 
-    get_phy_params_t phy_params;
-    phy_param_t default_datarate;
-    phy_params.attribute = PHY_DEF_TX_DR;
-    default_datarate = _lora_phy.get_phy_params(&phy_params);
-
     prepare_special_tx_frame(_compliance_test.app_port);
 
     if (!_compliance_test.is_tx_confirmed) {
@@ -236,7 +231,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.req.unconfirmed.fport = _compliance_test.app_port;
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.unconfirmed.data_rate = default_datarate.value;
+        mcps_req.req.unconfirmed.data_rate = _lora_phy.get_default_tx_datarate();
 
         tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -249,7 +244,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.req.confirmed.nb_trials = _num_retry;
-        mcps_req.req.confirmed.data_rate = default_datarate.value;
+        mcps_req.req.confirmed.data_rate = _lora_phy.get_default_tx_datarate();
 
         tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -286,11 +281,6 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
     lorawan_status_t status;
     loramac_mib_req_confirm_t mib_get_params;
 
-    get_phy_params_t phy_params;
-    phy_param_t default_datarate;
-    phy_params.attribute = PHY_DEF_TX_DR;
-    default_datarate = _lora_phy.get_phy_params(&phy_params);
-
     mcps_req.type = _tx_msg.type;
 
     if (MCPS_UNCONFIRMED == mcps_req.type) {
@@ -302,7 +292,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.unconfirmed.data_rate = default_datarate.value;
+            mcps_req.req.unconfirmed.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
             mcps_req.req.unconfirmed.data_rate = mib_get_params.param.channel_data_rate;
         }
@@ -316,7 +306,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.confirmed.data_rate = default_datarate.value;
+            mcps_req.req.confirmed.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
             mcps_req.req.confirmed.data_rate = mib_get_params.param.channel_data_rate;
         }
@@ -328,7 +318,7 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.proprietary.data_rate = default_datarate.value;
+            mcps_req.req.proprietary.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
             mcps_req.req.proprietary.data_rate = mib_get_params.param.channel_data_rate;
         }

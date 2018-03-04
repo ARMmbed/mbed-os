@@ -35,6 +35,16 @@ LoRaMacMlme::~LoRaMacMlme()
 {
 }
 
+loramac_mlme_confirm_t& LoRaMacMlme::get_confirmation()
+{
+    return confirmation;
+}
+
+loramac_mlme_indication_t& LoRaMacMlme::get_indication()
+{
+    return indication;
+}
+
 void LoRaMacMlme::activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy)
 {
     _lora_mac = mac;
@@ -48,11 +58,6 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *request,
 
         lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
         loramac_mhdr_t machdr;
-
-        verification_params_t verify;
-        get_phy_params_t get_phy;
-        phy_param_t phy_param;
-
 
         if (params->mac_state != LORAMAC_IDLE) {
             return LORAWAN_STATUS_BUSY;
@@ -78,14 +83,9 @@ lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *request,
                     return LORAWAN_STATUS_PARAMETER_INVALID;
                 }
 
-                // Verify the parameter NbTrials for the join procedure
-                verify.nb_join_trials = request->req.join.nb_trials;
-
-                if (_lora_phy->verify(&verify, PHY_NB_JOIN_TRIALS) == false) {
+                if (false == _lora_phy->verify_nb_join_trials(request->req.join.nb_trials)) {
                     // Value not supported, get default
-                    get_phy.attribute = PHY_DEF_NB_JOIN_TRIALS;
-                    phy_param = _lora_phy->get_phy_params(&get_phy);
-                    request->req.join.nb_trials = (uint8_t) phy_param.value;
+                    request->req.join.nb_trials = _lora_phy->get_nb_join_trials(true);
                 }
 
                 params->flags.bits.mlme_req = 1;

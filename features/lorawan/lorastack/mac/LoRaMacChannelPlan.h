@@ -56,7 +56,7 @@ public:
      * @param phy    pointer to PHY layer
      * @param mib    pointer to MIB subsystem
      */
-    void activate_channelplan_subsystem(LoRaPHY *phy,LoRaMacMib *mib);
+    void activate_channelplan_subsystem(LoRaPHY *phy);
 
     /** Set a given channel plan
      *
@@ -83,7 +83,7 @@ public:
      * @return          LORAWAN_STATUS_OK if everything goes well otherwise
      *                  a negative error code is returned.
      */
-    lorawan_status_t get_plan(lorawan_channelplan_t& plan, loramac_protocol_params *params);
+    lorawan_status_t get_plan(lorawan_channelplan_t& plan, const loramac_mib_req_confirm_t *mib_confirm);
 
     /** Remove the active channel plan
      *
@@ -109,7 +109,6 @@ private:
      * Local handles
      */
     LoRaPHY *_lora_phy;
-    LoRaMacMib * _mib;
 };
 
 

@@ -115,23 +115,17 @@ public:
      /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline bool mask_bit_test(const uint16_t *mask, unsigned bit) {
-         return mask[bit/16] & (1U << (bit % 16));
-     }
+     bool mask_bit_test(const uint16_t *mask, unsigned bit);
 
      /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline void mask_bit_set(uint16_t *mask, unsigned bit) {
-          mask[bit/16] |= (1U << (bit % 16));
-     }
+     void mask_bit_set(uint16_t *mask, unsigned bit);
 
      /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline void mask_bit_clear(uint16_t *mask, unsigned bit) {
-          mask[bit/16] &= ~(1U << (bit % 16));
-     }
+     void mask_bit_clear(uint16_t *mask, unsigned bit);
 
     /** Entertain a new channel request MAC command.
      *
@@ -144,18 +138,6 @@ public:
      * @return bit mask, according to the LoRaWAN spec 1.0.2.
      */
     virtual uint8_t request_new_channel(new_channel_req_params_t* new_channel_req);
-
-    /** Grants access to PHY layer parameters.
-     *
-     * This is essentially a PHY layer parameter retrieval system.
-     * A request is made for a certain parameter by setting an appropriate
-     * attribute.
-     *
-     * @param [in] get_phy A pointer to get_phy_params_t
-     *
-     * @return A structure containing the requested PHY parameter value.
-     */
-    virtual phy_param_t get_phy_params(get_phy_params_t* get_phy);
 
     /** Process PHY layer state after a successful transmission.
      *
@@ -172,17 +154,6 @@ public:
      * other channels are disabled.
      */
     virtual void restore_default_channels();
-
-    /** Verify if a parameter is eligible.
-     *
-     * @param verify    A pointer to the verification_params_t that contains
-     *                  parameters which we need to check for validity.
-     *
-     * @param phy_attr  The attribute for which the verification is needed.
-     *
-     * @return          True, if the parameter is valid.
-     */
-    virtual bool verify(verification_params_t* verify, phy_attributes_t phy_attr);
 
     /** Processes the incoming CF-list.
      *
@@ -405,6 +376,71 @@ public:
      * @return     The computed datarate.
      */
     virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
+
+public: //Getters
+    uint32_t get_next_lower_tx_datarate(int8_t datarate);
+
+    uint8_t get_minimum_rx_datarate();
+
+    uint8_t get_minimum_tx_datarate();
+
+    uint8_t get_default_tx_datarate();
+
+    uint8_t get_default_tx_power();
+
+    uint8_t get_max_payload(uint8_t datarate, bool use_repeater = false);
+
+    bool duty_cycle_enabled();
+
+    uint16_t get_maximum_receive_window_duration();
+
+    uint16_t get_window1_receive_delay();
+
+    uint16_t get_window2_receive_delay();
+
+    uint16_t get_window1_join_accept_delay();
+
+    uint16_t get_window2_join_accept_delay();
+
+    uint16_t get_maximum_frame_counter_gap();
+
+    uint32_t get_ack_timeout();
+
+    uint8_t get_default_datarate1_offset();
+
+    uint32_t get_default_rx2_frequency();
+
+    uint8_t get_default_rx2_datarate();
+
+    uint16_t* get_channel_mask(bool get_default = false);
+
+    uint8_t get_max_nb_channels();
+
+    channel_params_t* get_phy_channels();
+
+    bool is_custom_channel_plan_supported();
+
+    uint8_t get_default_uplink_dwell_time();
+
+    uint8_t get_default_downlink_dwell_time();
+
+    float get_default_max_eirp();
+
+    float get_default_antenna_gain();
+
+    uint8_t get_nb_join_trials(bool get_default = false);
+
+public: //Verifiers
+
+    bool verify_rx_datarate(uint8_t datarate);
+
+    bool verify_tx_datarate(uint8_t datarate, bool use_default = false);
+
+    bool verify_tx_power(uint8_t tx_power);
+
+    bool verify_duty_cycle(bool cycle);
+
+    bool verify_nb_join_trials(uint8_t nb_join_trials);
 
 protected:
     LoRaRadio *_radio;

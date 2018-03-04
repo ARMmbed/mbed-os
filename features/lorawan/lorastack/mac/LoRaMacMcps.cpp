@@ -35,6 +35,16 @@ LoRaMacMcps::~LoRaMacMcps()
 {
 }
 
+loramac_mcps_confirm_t& LoRaMacMcps::get_confirmation()
+{
+    return confirmation;
+}
+
+loramac_mcps_indication_t& LoRaMacMcps::get_indication()
+{
+    return indication;
+}
+
 void LoRaMacMcps::activate_mcps_subsystem(LoRaMac *mac, LoRaPHY *phy)
 {
     _lora_mac = mac;
@@ -49,11 +59,8 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    get_phy_params_t get_phy;
-    phy_param_t phyParam;
     lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
     loramac_mhdr_t machdr;
-    verification_params_t verify;
     uint8_t fport = 0;
     void *fbuffer;
     uint16_t fbuffer_size;
@@ -114,25 +121,20 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
     //        return LORAWAN_STATUS_PARAMETER_INVALID;
     //    }
 
-    // Get the minimum possible datarate
-    get_phy.attribute = PHY_MIN_TX_DR;
-    phyParam = _lora_phy->get_phy_params(&get_phy);
-
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX(datarate, (int8_t)phyParam.value);
+    datarate = MAX(datarate, (int8_t)_lora_phy->get_minimum_tx_datarate());
 
     if (ready_to_send == true) {
         if (params->sys_params.adr_on == false) {
-            verify.datarate = datarate;
-
-            if (_lora_phy->verify(&verify, PHY_TX_DR) == true) {
-                params->sys_params.channel_data_rate = verify.datarate;
+            if (_lora_phy->verify_tx_datarate(datarate, false) == true) {
+                params->sys_params.channel_data_rate = datarate;
             } else {
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }
         }
 
+        //nämä lora_maciin
         status = _lora_mac->send(&machdr, fport, fbuffer, fbuffer_size);
         if (status == LORAWAN_STATUS_OK) {
             confirmation.req_type = mcpsRequest->type;
