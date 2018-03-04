@@ -1881,9 +1881,6 @@ lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
     if (LORAMAC_IDLE != _params.mac_state) {
         return LORAWAN_STATUS_BUSY;
     }
-    if (MLME_JOIN == mlmeRequest->type) {
-        reset_mac_parameters();
-    }
 
     mlme.reset_confirmation();
 
@@ -1916,6 +1913,9 @@ lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
         }
         // Reset variable JoinRequestTrials
         _params.join_request_trial_counter = 0;
+
+        reset_mac_parameters();
+
         _params.sys_params.channel_data_rate =
                 lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
 
