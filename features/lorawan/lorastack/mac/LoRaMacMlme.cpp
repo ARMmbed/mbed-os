@@ -27,12 +27,19 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMacMlme.h"
 
 LoRaMacMlme::LoRaMacMlme()
-: _lora_mac(NULL), _lora_phy(NULL)
+: _lora_phy(NULL)
 {
 }
 
 LoRaMacMlme::~LoRaMacMlme()
 {
+}
+
+void LoRaMacMlme::reset_confirmation()
+{
+    memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
+
+    confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 }
 
 loramac_mlme_confirm_t& LoRaMacMlme::get_confirmation()
@@ -45,105 +52,22 @@ loramac_mlme_indication_t& LoRaMacMlme::get_indication()
     return indication;
 }
 
-void LoRaMacMlme::activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy)
+void LoRaMacMlme::activate_mlme_subsystem(LoRaPHY *phy)
 {
-    _lora_mac = mac;
     _lora_phy = phy;
 }
 
-lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *request,
-                                          loramac_protocol_params *params)
+void LoRaMacMlme::set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
+                                         float max_eirp, float antenna_gain, uint16_t timeout)
 {
-    if (request && params && _lora_mac && _lora_phy) {
+    cw_mode_params_t continuous_wave;
 
-        lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
-        loramac_mhdr_t machdr;
+    continuous_wave.channel = channel;
+    continuous_wave.datarate = datarate;
+    continuous_wave.tx_power = tx_power;
+    continuous_wave.max_eirp = max_eirp;
+    continuous_wave.antenna_gain = antenna_gain;
+    continuous_wave.timeout = timeout;
 
-        if (params->mac_state != LORAMAC_IDLE) {
-            return LORAWAN_STATUS_BUSY;
-        }
-
-        // Before setting a new MLME request, clear the MLME confirmation
-        // structure
-        memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
-
-        confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-
-        switch (request->type) {
-            case MLME_JOIN: {
-                if ((params->mac_state & LORAMAC_TX_DELAYED)
-                        == LORAMAC_TX_DELAYED) {
-                    return LORAWAN_STATUS_BUSY;
-                }
-
-                if ((request->req.join.dev_eui == NULL)
-                        || (request->req.join.app_eui == NULL)
-                        || (request->req.join.app_key == NULL)
-                        || (request->req.join.nb_trials == 0)) {
-                    return LORAWAN_STATUS_PARAMETER_INVALID;
-                }
-
-                if (false == _lora_phy->verify_nb_join_trials(request->req.join.nb_trials)) {
-                    // Value not supported, get default
-                    request->req.join.nb_trials = _lora_phy->get_nb_join_trials(true);
-                }
-
-                params->flags.bits.mlme_req = 1;
-                confirmation.req_type = request->type;
-
-                params->keys.dev_eui = request->req.join.dev_eui;
-                params->keys.app_eui = request->req.join.app_eui;
-                params->keys.app_key = request->req.join.app_key;
-                params->max_join_request_trials = request->req.join.nb_trials;
-
-                // Reset variable JoinRequestTrials
-                params->join_request_trial_counter = 0;
-
-                // Setup header information
-                machdr.value = 0;
-                machdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
-
-                _lora_mac->reset_mac_parameters();
-
-                params->sys_params.channel_data_rate =
-                        _lora_phy->get_alternate_DR(params->join_request_trial_counter + 1);
-
-                status = _lora_mac->send(&machdr, 0, NULL, 0);
-                break;
-            }
-            case MLME_LINK_CHECK: {
-                params->flags.bits.mlme_req = 1;
-                // LoRaMac will send this command piggy-backed
-                confirmation.req_type = request->type;
-
-                status = LORAWAN_STATUS_OK;
-                break;
-            }
-            case MLME_TXCW: {
-                confirmation.req_type = request->type;
-                params->flags.bits.mlme_req = 1;
-                status = _lora_mac->set_tx_continuous_wave(request->req.cw_tx_mode.timeout);
-                break;
-            }
-            case MLME_TXCW_1: {
-                confirmation.req_type = request->type;
-                params->flags.bits.mlme_req = 1;
-                status = _lora_mac->set_tx_continuous_wave1(request->req.cw_tx_mode.timeout,
-                                              request->req.cw_tx_mode.frequency,
-                                              request->req.cw_tx_mode.power);
-                break;
-            }
-            default:
-                break;
-        }
-
-        if (status != LORAWAN_STATUS_OK) {
-            params->is_node_ack_requested = false;
-            params->flags.bits.mlme_req = 0;
-        }
-
-        return status;
-    }
-
-    return LORAWAN_STATUS_PARAMETER_INVALID;
+    _lora_phy->set_tx_cont_mode(&continuous_wave);
 }

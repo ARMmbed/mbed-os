@@ -27,7 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMacMib.h"
 
 LoRaMacMib::LoRaMacMib()
-: _lora_mac(NULL), _lora_phy(NULL)
+: _lora_phy(NULL)
 {
 }
 
@@ -35,16 +35,15 @@ LoRaMacMib::~LoRaMacMib()
 {
 }
 
-void LoRaMacMib::activate_mib_subsystem(LoRaMac *mac, LoRaPHY *phy)
+void LoRaMacMib::activate_mib_subsystem(LoRaPHY *phy)
 {
-    _lora_mac = mac;
     _lora_phy = phy;
 }
 
 lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
                                         loramac_protocol_params *params)
 {
-    if (mibSet == NULL || _lora_phy == NULL || _lora_mac == NULL) {
+    if (mibSet == NULL || _lora_phy == NULL) {
          return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
@@ -73,7 +72,6 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
                             params->sys_params.min_rx_symb,
                             params->sys_params.max_sys_rx_error,
                             &params->rx_window2_config);
-                    _lora_mac->open_continuous_rx2_window();
                     break;
                 }
             }
@@ -139,8 +137,6 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
                             params->sys_params.min_rx_symb,
                             params->sys_params.max_sys_rx_error,
                             &params->rx_window2_config);
-
-                    _lora_mac->open_continuous_rx2_window();
                 }
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
