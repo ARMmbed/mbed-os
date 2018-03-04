@@ -49,8 +49,6 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
     }
 
     lorawan_status_t status = LORAWAN_STATUS_OK;
-    verification_params_t verify;
-
 
     switch (mibSet->type) {
         case MIB_DEVICE_CLASS: {
@@ -125,9 +123,7 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
             break;
         }
         case MIB_RX2_CHANNEL: {
-            verify.datarate = mibSet->param.rx2_channel.datarate;
-
-            if (_lora_phy->verify(&verify, PHY_RX_DR) == true) {
+            if (_lora_phy->verify_rx_datarate(mibSet->param.rx2_channel.datarate) == true) {
                 params->sys_params.rx2_channel = mibSet->param.rx2_channel;
 
                 if ((params->dev_class == CLASS_C)
@@ -152,9 +148,7 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
             break;
         }
         case MIB_RX2_DEFAULT_CHANNEL: {
-            verify.datarate = mibSet->param.rx2_channel.datarate;
-
-            if (_lora_phy->verify(&verify, PHY_RX_DR) == true) {
+            if (_lora_phy->verify_rx_datarate(mibSet->param.rx2_channel.datarate) == true) {
                 params->sys_params.rx2_channel = mibSet->param.default_rx2_channel;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
@@ -200,40 +194,32 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
             break;
         }
         case MIB_CHANNELS_DEFAULT_DATARATE: {
-            verify.datarate = mibSet->param.default_channel_data_rate;
-
-            if (_lora_phy->verify(&verify, PHY_DEF_TX_DR) == true) {
-                params->sys_params.channel_data_rate = verify.datarate;
+            if (_lora_phy->verify_tx_datarate(mibSet->param.default_channel_data_rate, true)) {
+                params->sys_params.channel_data_rate = mibSet->param.default_channel_data_rate;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_DATARATE: {
-            verify.datarate = mibSet->param.channel_data_rate;
-
-            if (_lora_phy->verify(&verify, PHY_TX_DR) == true) {
-                params->sys_params.channel_data_rate = verify.datarate;
+            if (_lora_phy->verify_tx_datarate(mibSet->param.channel_data_rate, false) == true) {
+                params->sys_params.channel_data_rate = mibSet->param.channel_data_rate;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_DEFAULT_TX_POWER: {
-            verify.tx_power = mibSet->param.default_channel_tx_pwr;
-
-            if (_lora_phy->verify(&verify, PHY_DEF_TX_POWER) == true) {
-                params->sys_params.channel_tx_power = verify.tx_power;
+            if (_lora_phy->verify_tx_power(mibSet->param.default_channel_tx_pwr)) {
+                params->sys_params.channel_tx_power = mibSet->param.default_channel_tx_pwr;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_TX_POWER: {
-            verify.tx_power = mibSet->param.channel_tx_pwr;
-
-            if (_lora_phy->verify(&verify, PHY_TX_POWER) == true) {
-                params->sys_params.channel_tx_power = verify.tx_power;
+            if (_lora_phy->verify_tx_power(mibSet->param.channel_tx_pwr)) {
+                params->sys_params.channel_tx_power = mibSet->param.channel_tx_pwr;
             } else {
                 status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
@@ -271,8 +257,6 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
                                         loramac_protocol_params *params)
 {
     lorawan_status_t status = LORAWAN_STATUS_OK;
-    get_phy_params_t get_phy;
-    phy_param_t phy_param;
     rx2_channel_params rx2_channel;
 
     if( mibGet == NULL )
@@ -329,10 +313,7 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_CHANNELS:
         {
-            get_phy.attribute = PHY_CHANNELS;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-
-            mibGet->param.channel_list = phy_param.channel_params;
+            mibGet->param.channel_list = _lora_phy->get_phy_channels();
             break;
         }
         case MIB_RX2_CHANNEL:
@@ -342,31 +323,19 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_RX2_DEFAULT_CHANNEL:
         {
-            get_phy.attribute = PHY_DEF_RX2_DR;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-            rx2_channel.datarate = phy_param.value;
-
-            get_phy.attribute = PHY_DEF_RX2_FREQUENCY;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-            rx2_channel.frequency = phy_param.value;
-
+            rx2_channel.datarate = _lora_phy->get_default_rx2_datarate();
+            rx2_channel.frequency = _lora_phy->get_default_rx2_frequency();
             mibGet->param.rx2_channel = rx2_channel;
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK:
         {
-            get_phy.attribute = PHY_DEFAULT_CHANNEL_MASK;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-
-            mibGet->param.default_channel_mask = phy_param.channel_mask;
+            mibGet->param.default_channel_mask = _lora_phy->get_channel_mask(true);
             break;
         }
         case MIB_CHANNELS_MASK:
         {
-            get_phy.attribute = PHY_CHANNEL_MASK;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-
-            mibGet->param.channel_mask = phy_param.channel_mask;
+            mibGet->param.channel_mask = _lora_phy->get_channel_mask(false);
             break;
         }
         case MIB_CHANNELS_NB_REP:
@@ -401,9 +370,7 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_CHANNELS_DEFAULT_DATARATE:
         {
-            get_phy.attribute = PHY_DEF_TX_DR;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-            mibGet->param.default_channel_data_rate = phy_param.value;
+            mibGet->param.default_channel_data_rate = _lora_phy->get_default_tx_datarate();
             break;
         }
         case MIB_CHANNELS_DATARATE:
@@ -413,9 +380,7 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         }
         case MIB_CHANNELS_DEFAULT_TX_POWER:
         {
-            get_phy.attribute = PHY_DEF_TX_POWER;
-            phy_param = _lora_phy->get_phy_params( &get_phy );
-            mibGet->param.default_channel_tx_pwr = phy_param.value;
+            mibGet->param.default_channel_tx_pwr = _lora_phy->get_default_tx_power();
             break;
         }
         case MIB_CHANNELS_TX_POWER:

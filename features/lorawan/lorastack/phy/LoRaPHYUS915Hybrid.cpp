@@ -334,9 +334,6 @@ bool LoRaPHYUS915Hybrid::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
 {
     bool adrAckReq = false;
 
-    get_phy_params_t get_phy;
-    phy_param_t phy_param;
-
     uint16_t ack_limit_plus_delay = phy_params.adr_ack_limit + phy_params.adr_ack_delay;
 
     if (dr_out == phy_params.min_tx_datarate) {
@@ -356,10 +353,7 @@ bool LoRaPHYUS915Hybrid::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
     if (adr_ack_cnt >= ack_limit_plus_delay) {
         if ((adr_ack_cnt % phy_params.adr_ack_delay) == 1) {
             // Decrease the datarate
-            get_phy.attribute = PHY_NEXT_LOWER_TX_DR;
-            get_phy.datarate = dr_out;
-            phy_param = get_phy_params(&get_phy);
-            dr_out = phy_param.value;
+            dr_out = get_next_lower_tx_datarate(dr_out);
 
             if (dr_out == phy_params.min_tx_datarate) {
                 // We must set adrAckReq to false as soon as we reach the lowest datarate
