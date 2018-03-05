@@ -129,12 +129,12 @@ public:
     /**
      * Callback called on start of frame
      *
-     * @param frameNumber The current frame number
+     * @param frame_number The current frame number
      * @note This callback is enabled/disabled by
      *  calling USBPhy::sof_enable / USBPhy::sof_disable
      * @note called in the contex of USBPhy::process
      */
-    virtual void sof(int frameNumber) = 0;
+    virtual void sof(int frame_number) = 0;
 
     /**
      * Callback called on the reception of an OUT packet
@@ -180,6 +180,16 @@ public:
      * Disable interrupts and stop sending events.
      */
     virtual void deinit() = 0;
+
+    /**
+     * Check if USB power is present
+     *
+     * Devices which don't support checking the USB power state
+     * must always return true.
+     *
+     * @return true if USB power is present, false otherwise
+     */
+    virtual bool powered() = 0;
 
     /**
      * Make the USB phy visible to the USB host
