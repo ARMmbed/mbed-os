@@ -87,21 +87,15 @@ lorawan_status_t LoRaWANStack::set_application_port(uint8_t port)
 LoRaWANStack::LoRaWANStack()
 : _loramac(_lora_time), _lora_phy(_lora_time),
   _device_current_state(DEVICE_STATE_NOT_INITIALIZED), _mac_handlers(NULL),
-  _num_retry(1), _queue(NULL), _duty_cycle_on(MBED_CONF_LORA_DUTY_CYCLE_ON)
+  _num_retry(1), _queue(NULL), _duty_cycle_on(MBED_CONF_LORA_DUTY_CYCLE_ON),
+  _app_port(INVALID_PORT)
 {
 #ifdef MBED_CONF_LORA_APP_PORT
-    // is_port_valid() is not virtual, so we can call it in constructor
     if (is_port_valid(MBED_CONF_LORA_APP_PORT)) {
         _app_port = MBED_CONF_LORA_APP_PORT;
     } else {
         tr_error("User defined port in .json is illegal.");
-        _app_port = INVALID_PORT;
     }
-
-#else
-    // initialize it to INVALID_PORT (255) an illegal port number.
-    // user should set the port
-     _app_port = INVALID_PORT;
 #endif
 
      memset(&_lw_session, 0, sizeof(_lw_session));

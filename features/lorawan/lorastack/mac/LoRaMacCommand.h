@@ -125,7 +125,7 @@ public:
     /**
      * @brief Check if MAC command buffer has commands to be sent in next TX
      *
-     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer]
+     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer
      */
     bool is_mac_command_in_next_tx() const;
 
@@ -137,7 +137,7 @@ public:
     /**
      * @brief Check if MAC command buffer contains sticky commands
      *
-     * @return status  True: buffer has sticky MAC commands in it, false: no sticky commands in buffer]
+     * @return status  True: buffer has sticky MAC commands in it, false: no sticky commands in buffer
      */
     bool has_sticky_mac_cmd() const;
 

@@ -487,14 +487,48 @@ uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
     return count;
 }
 
-uint32_t LoRaPHY::get_next_lower_tx_datarate(int8_t datarate)
+void LoRaPHY::reset_to_default_values(loramac_protocol_params *params, bool init)
+{
+    if (init) {
+        params->is_dutycycle_on = phy_params.duty_cycle_enabled;
+
+        params->sys_params.max_rx_win_time = phy_params.max_rx_window;
+
+        params->sys_params.recv_delay1 = phy_params.recv_delay1;
+
+        params->sys_params.recv_delay2 = phy_params.recv_delay2;
+
+        params->sys_params.join_accept_delay1 = phy_params.join_accept_delay1;
+
+        params->sys_params.join_accept_delay2 = phy_params.join_accept_delay2;
+
+        params->sys_params.downlink_dwell_time = phy_params.dl_dwell_time_setting;
+    }
+
+    params->sys_params.channel_tx_power = get_default_tx_power();
+
+    params->sys_params.channel_data_rate = get_default_tx_datarate();
+
+    params->sys_params.rx1_dr_offset = phy_params.default_rx1_dr_offset;
+
+    params->sys_params.rx2_channel.frequency = get_default_rx2_frequency();
+
+    params->sys_params.rx2_channel.datarate = get_default_rx2_datarate();
+
+    params->sys_params.uplink_dwell_time = phy_params.ul_dwell_time_setting;
+
+    params->sys_params.max_eirp = phy_params.default_max_eirp;
+
+    params->sys_params.antenna_gain = phy_params.default_antenna_gain;
+}
+
+int8_t LoRaPHY::get_next_lower_tx_datarate(int8_t datarate)
 {
     if (phy_params.ul_dwell_time_setting == 0) {
         return get_next_lower_dr(datarate, phy_params.min_tx_datarate);
     }
 
-    return get_next_lower_dr(
-                datarate, phy_params.dwell_limit_datarate);
+    return get_next_lower_dr(datarate, phy_params.dwell_limit_datarate);
 
 }
 
@@ -540,36 +574,6 @@ uint8_t LoRaPHY::get_max_payload(uint8_t datarate, bool use_repeater)
     return payload_table[datarate];
 }
 
-bool LoRaPHY::duty_cycle_enabled()
-{
-    return phy_params.duty_cycle_enabled;
-}
-
-uint16_t LoRaPHY::get_maximum_receive_window_duration()
-{
-    return phy_params.max_rx_window;
-}
-
-uint16_t LoRaPHY::get_window1_receive_delay()
-{
-    return phy_params.recv_delay1;
-}
-
-uint16_t LoRaPHY::get_window2_receive_delay()
-{
-    return phy_params.recv_delay2;
-}
-
-uint16_t LoRaPHY::get_window1_join_accept_delay()
-{
-    return phy_params.join_accept_delay1;
-}
-
-uint16_t LoRaPHY::get_window2_join_accept_delay()
-{
-    return phy_params.join_accept_delay2;
-}
-
 uint16_t LoRaPHY::get_maximum_frame_counter_gap()
 {
     return phy_params.max_fcnt_gap;
@@ -580,11 +584,6 @@ uint32_t LoRaPHY::get_ack_timeout()
     uint16_t ack_timeout_rnd = phy_params.ack_timeout_rnd;
     return (phy_params.ack_timeout
             + get_random(-ack_timeout_rnd, ack_timeout_rnd));
-}
-
-uint8_t LoRaPHY::get_default_datarate1_offset()
-{
-    return phy_params.default_rx1_dr_offset;
 }
 
 uint32_t LoRaPHY::get_default_rx2_frequency()
@@ -618,32 +617,6 @@ channel_params_t* LoRaPHY::get_phy_channels()
 bool LoRaPHY::is_custom_channel_plan_supported()
 {
     return phy_params.custom_channelplans_supported;
-}
-
-uint8_t LoRaPHY::get_default_uplink_dwell_time()
-{
-    return phy_params.ul_dwell_time_setting;
-}
-
-uint8_t LoRaPHY::get_default_downlink_dwell_time()
-{
-    return phy_params.dl_dwell_time_setting;
-}
-
-float LoRaPHY::get_default_max_eirp()
-{
-    return phy_params.default_max_eirp;
-}
-
-float LoRaPHY::get_default_antenna_gain()
-{
-    return phy_params.default_antenna_gain;
-}
-
-uint8_t LoRaPHY::get_nb_join_trials(bool get_default)
-{
-    (void)get_default;
-    return MBED_CONF_LORA_NB_TRIALS;
 }
 
 void LoRaPHY::restore_default_channels()

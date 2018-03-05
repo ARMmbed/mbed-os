@@ -377,69 +377,138 @@ public:
      */
     virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
 
-public: //Getters
-    uint32_t get_next_lower_tx_datarate(int8_t datarate);
+    /**
+     * @brief reset_to_default_values resets some parameters to default values
+     * @param params Pointer to MAC protocol parameters which will be reset
+     * @param init If true, most of the values will be modified
+     */
+    void reset_to_default_values(loramac_protocol_params *params, bool init = false);
 
+public:
+    /**
+     * @brief get_next_lower_tx_datarate Gets the next lower datarate
+     * @param datarate Current TX datarate
+     * @return Lower datarate than given one or minimum if lower cannot be found anymore
+     */
+    int8_t get_next_lower_tx_datarate(int8_t datarate);
+
+    /**
+     * @brief get_minimum_rx_datarate Gets the minimum RX datarate supported by a device
+     * @return Minimum RX datarate
+     */
     uint8_t get_minimum_rx_datarate();
 
+    /**
+     * @brief get_minimum_tx_datarate Gets the minimum TX datarate supported by a device
+     * @return Minimum TX datarate
+     */
     uint8_t get_minimum_tx_datarate();
 
+    /**
+     * @brief get_default_tx_datarate Gets the default TX datarate
+     * @return default TX datarate
+     */
     uint8_t get_default_tx_datarate();
 
+    /**
+     * @brief get_default_tx_power Gets the default TX power
+     * @return Default TX power
+     */
     uint8_t get_default_tx_power();
 
+    /**
+     * @brief get_max_payload Gets maximum amount in bytes which device can send
+     * @param datarate A datarate to use
+     * @param use_repeater If true repeater table is used, otherwise payloads table is used
+     * @return Maximum number of bytes for payload
+     */
     uint8_t get_max_payload(uint8_t datarate, bool use_repeater = false);
 
-    bool duty_cycle_enabled();
-
-    uint16_t get_maximum_receive_window_duration();
-
-    uint16_t get_window1_receive_delay();
-
-    uint16_t get_window2_receive_delay();
-
-    uint16_t get_window1_join_accept_delay();
-
-    uint16_t get_window2_join_accept_delay();
-
+    /**
+     * @brief get_maximum_frame_counter_gap Gets maximum frame counter gap
+     * @return Maximum frame counter gap
+     */
     uint16_t get_maximum_frame_counter_gap();
 
+    /**
+     * @brief get_ack_timeout Gets timeout value for ACK to be received
+     * @return ACK timeout
+     */
     uint32_t get_ack_timeout();
 
-    uint8_t get_default_datarate1_offset();
-
+    /**
+     * @brief get_default_rx2_frequency Gets default RX2 frequency
+     * @return RX2 frequency
+     */
     uint32_t get_default_rx2_frequency();
 
+    /**
+     * @brief get_default_rx2_datarate Gets default RX2 datarate
+     * @return RX2 datarate
+     */
     uint8_t get_default_rx2_datarate();
 
+    /**
+     * @brief get_channel_mask Gets the channel mask
+     * @param get_default If true the default mask is returned, otherwise the current mask is returned
+     * @return A channel mask
+     */
     uint16_t* get_channel_mask(bool get_default = false);
 
+    /**
+     * @brief get_max_nb_channels Gets maximum number of channels supported
+     * @return Number of channels
+     */
     uint8_t get_max_nb_channels();
 
+    /**
+     * @brief get_phy_channels Gets PHY channels
+     * @return PHY channels
+     */
     channel_params_t* get_phy_channels();
 
+    /**
+     * @brief is_custom_channel_plan_supported Checks if custom channel plan is supported
+     * @return True if custom channel plan is supported, false otherwise
+     */
     bool is_custom_channel_plan_supported();
-
-    uint8_t get_default_uplink_dwell_time();
-
-    uint8_t get_default_downlink_dwell_time();
-
-    float get_default_max_eirp();
-
-    float get_default_antenna_gain();
-
-    uint8_t get_nb_join_trials(bool get_default = false);
 
 public: //Verifiers
 
+    /**
+     * @brief verify_rx_datarate Verifies that given RX datarate is valid
+     * @param datarate Datarate to check
+     * @return true if given datarate is valid, false otherwise
+     */
     bool verify_rx_datarate(uint8_t datarate);
 
+    /**
+     * @brief verify_tx_datarate Verifies that given TX datarate is valid
+     * @param datarate Datarate to check
+     * @param use_default If true validation is done against default value
+     * @return true if given datarate is valid, false otherwise
+     */
     bool verify_tx_datarate(uint8_t datarate, bool use_default = false);
 
+    /**
+     * @brief verify_tx_power Verifies that given TX power is valid
+     * @param tx_power Power to check
+     * @return True if valid, false otherwise
+     */
     bool verify_tx_power(uint8_t tx_power);
 
+    /**
+     * @brief verify_duty_cycle Verifies that given cycle is valid
+     * @param cycle Cycle to check
+     * @return True if valid, false otherwise
+     */
     bool verify_duty_cycle(bool cycle);
 
+    /**
+     * @brief verify_nb_join_trials Verifies that given number of trials is valid
+     * @param nb_join_trials Number to check
+     * @return True if valid, false otherwise
+     */
     bool verify_nb_join_trials(uint8_t nb_join_trials);
 
 protected:

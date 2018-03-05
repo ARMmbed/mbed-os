@@ -1274,21 +1274,7 @@ void LoRaMac::reset_mac_parameters(void)
 
     _params.is_rx_window_enabled = true;
 
-    _params.sys_params.channel_tx_power = lora_phy->get_default_tx_power();
-
-    _params.sys_params.channel_data_rate = lora_phy->get_default_tx_datarate();
-
-    _params.sys_params.rx1_dr_offset = lora_phy->get_default_datarate1_offset();
-
-    _params.sys_params.rx2_channel.frequency = lora_phy->get_default_rx2_frequency();
-
-    _params.sys_params.rx2_channel.datarate = lora_phy->get_default_rx2_datarate();
-
-    _params.sys_params.uplink_dwell_time = lora_phy->get_default_uplink_dwell_time();
-
-    _params.sys_params.max_eirp = lora_phy->get_default_max_eirp();
-
-    _params.sys_params.antenna_gain = lora_phy->get_default_antenna_gain();
+    lora_phy->reset_to_default_values(&_params, false);
 
     _params.is_node_ack_requested = false;
     _params.is_srv_ack_requested = false;
@@ -1632,35 +1618,7 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
     _params.timers.aggregated_last_tx_time = 0;
     _params.timers.aggregated_timeoff = 0;
 
-    _params.is_dutycycle_on = lora_phy->duty_cycle_enabled();
-
-    _params.sys_params.channel_tx_power = lora_phy->get_default_tx_power();
-
-    _params.sys_params.channel_data_rate = lora_phy->get_default_tx_datarate();
-
-    _params.sys_params.max_rx_win_time = lora_phy->get_maximum_receive_window_duration();
-
-    _params.sys_params.recv_delay1 = lora_phy->get_window1_receive_delay();
-
-    _params.sys_params.recv_delay2 = lora_phy->get_window2_receive_delay();
-
-    _params.sys_params.join_accept_delay1 = lora_phy->get_window1_join_accept_delay();
-
-    _params.sys_params.join_accept_delay2 = lora_phy->get_window2_join_accept_delay();
-
-    _params.sys_params.rx1_dr_offset = lora_phy->get_default_datarate1_offset();
-
-    _params.sys_params.rx2_channel.frequency = lora_phy->get_default_rx2_frequency();
-
-    _params.sys_params.rx2_channel.datarate = lora_phy->get_default_rx2_datarate();
-
-    _params.sys_params.uplink_dwell_time = lora_phy->get_default_uplink_dwell_time();
-
-    _params.sys_params.downlink_dwell_time = lora_phy->get_default_downlink_dwell_time();
-
-    _params.sys_params.max_eirp = lora_phy->get_default_max_eirp();
-
-    _params.sys_params.antenna_gain = lora_phy->get_default_antenna_gain();
+    lora_phy->reset_to_default_values(&_params, true);
 
     // Init parameters which are not set in function ResetMacParameters
     _params.sys_params.max_sys_rx_error = 10;
@@ -1909,7 +1867,7 @@ lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
 
         if (!lora_phy->verify_nb_join_trials(mlmeRequest->req.join.nb_trials)) {
             // Value not supported, get default
-            _params.max_join_request_trials = lora_phy->get_nb_join_trials(true);
+            _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
         }
         // Reset variable JoinRequestTrials
         _params.join_request_trial_counter = 0;

@@ -53,7 +53,6 @@ public:
      *
      * Stores pointers to MAC and PHY layer handles
      *
-     * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
      */
     void activate_mib_subsystem(LoRaPHY *phy);

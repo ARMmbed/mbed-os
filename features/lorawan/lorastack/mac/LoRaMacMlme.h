@@ -58,7 +58,6 @@ public:
      *
      * Stores pointers to MAC and PHY layer handles
      *
-     * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
      */
     void activate_mlme_subsystem(LoRaPHY *phy);
@@ -75,6 +74,15 @@ public:
      */
     loramac_mlme_indication_t& get_indication();
 
+    /**
+     * @brief set_tx_continuous_wave Puts the system in continuous transmission mode
+     * @param [in] channel A Channel to use
+     * @param [in] datarate A datarate to use
+     * @param [in] tx_power A RF output power to use
+     * @param [in] max_eirp A maximum possible EIRP to use
+     * @param [in] antenna_gain Antenna gain to use
+     * @param [in] timeout Time in seconds while the radio is kept in continuous wave mode
+     */
     void set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
                                 float max_eirp, float antenna_gain, uint16_t timeout);
 
