@@ -194,17 +194,13 @@ void fault_print_str(char *fmtstr, uint32_t *values)
     char hex_str[9]={0};
         
     while(fmtstr[i] != '\0') {
-        if(fmtstr[i] == '\n' || fmtstr[i] == '\r') {
-            serial_putc(&stdio_uart, '\r');
-        } else {
-            if(fmtstr[i]=='%') {
-                hex_to_str(values[vidx++],hex_str);
-                for(idx=7; idx>=0; idx--) {
-                    serial_putc(&stdio_uart, hex_str[idx]);
-                }
-            } else {
-                serial_putc(&stdio_uart, fmtstr[i]);
+        if(fmtstr[i]=='%') {
+            hex_to_str(values[vidx++],hex_str);
+            for(idx=7; idx>=0; idx--) {
+                serial_putc(&stdio_uart, hex_str[idx]);
             }
+        } else {
+            serial_putc(&stdio_uart, fmtstr[i]);
         }
         i++;
     }
