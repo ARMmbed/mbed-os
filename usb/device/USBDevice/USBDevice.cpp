@@ -311,11 +311,11 @@ void USBDevice::complete_request_xfer_done(bool success)
     }
 
     /* Status stage */
-    if (transfer.stage == CTRL_STAGE_DATA_OUT) {
-        transfer.stage = CTRL_STAGE_STATUS;
+    if (transfer.stage == DataOut) {
+        transfer.stage = Status;
         phy->ep0_write(NULL, 0);
-    }  else if (transfer.stage == CTRL_STAGE_DATA_IN) {
-        transfer.stage = CTRL_STAGE_STATUS;
+    }  else if (transfer.stage == DataIn) {
+        transfer.stage = Status;
         phy->ep0_read();
     }
 
@@ -617,7 +617,7 @@ void USBDevice::control_setup()
     transfer.direction = 0;
     transfer.zlp = false;
     transfer.notify = false;
-    transfer.stage = CTRL_STAGE_SETUP;
+    transfer.stage = Setup;
 
 #ifdef DEBUG
     printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", transfer.setup.bmRequestType.dataTransferDirection,
@@ -735,16 +735,16 @@ void USBDevice::control_setup_continue()
             }
 
             /* IN stage */
-            transfer.stage = CTRL_STAGE_DATA_IN;
+            transfer.stage = DataIn;
             control_in();
         } else {
             /* OUT stage */
-            transfer.stage = CTRL_STAGE_DATA_OUT;
+            transfer.stage = DataOut;
             phy->ep0_read();
         }
     } else {
         /* Status stage */
-        transfer.stage = CTRL_STAGE_STATUS;
+        transfer.stage = Status;
         phy->ep0_write(NULL, 0);
     }
 }
@@ -754,7 +754,7 @@ void USBDevice::control_abort()
     assert_locked();
 
     abort_control = false;
-    transfer.stage = CTRL_STAGE_STATUS;
+    transfer.stage = Status;
 }
 
 void USBDevice::reset()
@@ -807,7 +807,7 @@ void USBDevice::ep0_out()
         return;
     }
 
-    if (transfer.stage == CTRL_STAGE_STATUS) {
+    if (transfer.stage == Status) {
         // No action needed on status stage
         return;
     }
@@ -831,7 +831,7 @@ void USBDevice::ep0_in()
 #ifdef DEBUG
     printf("ep0_in\r\n");
 #endif
-    if (transfer.stage == CTRL_STAGE_STATUS) {
+    if (transfer.stage == Status) {
         // No action needed on status stage
         return;
     }
@@ -878,6 +878,31 @@ void USBDevice::in(usb_ep_t endpoint)
     }
 }
 
+void USBDevice::init()
+{
+    lock();
+
+    if (!initialized) {
+        this->phy->init(this);
+        max_packet_size_ep0 = this->phy->ep0_set_max_packet(MAX_PACKET_SIZE_EP0);
+        initialized = true;
+    }
+
+    unlock();
+}
+
+void USBDevice::deinit()
+{
+    lock();
+
+    if (initialized) {
+        this->phy->deinit();
+        initialized = false;
+    }
+
+    unlock();
+}
+
 bool USBDevice::configured()
 {
     lock();
@@ -916,6 +941,24 @@ void USBDevice::disconnect()
     //TODO - remove these?
     device.configuration = 0;
     device.suspended = false;
+
+    unlock();
+}
+
+void USBDevice::sof_enable()
+{
+    lock();
+
+    phy->sof_enable();
+
+    unlock();
+}
+
+void USBDevice::sof_disable()
+{
+    lock();
+
+    phy->sof_disable();
 
     unlock();
 }
@@ -1069,6 +1112,11 @@ void USBDevice::suspend(bool suspended)
 {
 }
 
+void USBDevice::sof(int frame_number)
+{
+    callback_sof(frame_number);
+}
+
 
 USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
 {
@@ -1082,6 +1130,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     abort_control = false;
 
     this->phy = phy;
+    initialized = false;
     current_interface = 0;
     current_alternate = 0;
     locked = 0;
@@ -1090,9 +1139,6 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     device.state = Powered;
     device.configuration = 0;
     device.suspended = false;
-
-    this->phy->init(this);
-    max_packet_size_ep0 = this->phy->ep0_set_max_packet(MAX_PACKET_SIZE_EP0);
 };
 
 USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
@@ -1107,6 +1153,7 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     abort_control = false;
 
     this->phy = get_usb_phy();
+    initialized = false;
     current_interface = 0;
     current_alternate = 0;
     locked = 0;
@@ -1115,9 +1162,6 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     device.state = Powered;
     device.configuration = 0;
     device.suspended = false;
-
-    this->phy->init(this);
-    max_packet_size_ep0 = this->phy->ep0_set_max_packet(MAX_PACKET_SIZE_EP0);
 };
 
 uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)

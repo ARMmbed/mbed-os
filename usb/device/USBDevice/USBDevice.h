@@ -45,11 +45,17 @@ public:
         Configured
     };
 
-    typedef struct {
-        volatile DeviceState state;
-        uint8_t configuration;
-        bool suspended;
-    } usb_device_t;
+    struct setup_packet_t {
+        struct {
+            uint8_t dataTransferDirection;
+            uint8_t Type;
+            uint8_t Recipient;
+        } bmRequestType;
+        uint8_t  bRequest;
+        uint16_t wValue;
+        uint16_t wIndex;
+        uint16_t wLength;
+    };
 
     USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
     USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
@@ -84,6 +90,21 @@ public:
     }
 
     /**
+     * Initialize this instance
+     *
+     * This function must be called before calling
+     * any other functions of this class, unless specifically
+     */
+    void init();
+
+    /**
+     * Power down this instance
+     *
+     * Disable interrupts and stop sending events.
+     */
+    void deinit();
+
+    /**
     * Check if the device is configured
     *
     * @returns true if configured, false otherwise
@@ -101,6 +122,20 @@ public:
     * Disconnect a device
     */
     void disconnect();
+
+    /**
+     * Enable the start of frame interrupt
+     *
+     * Call USBDevice::callback_sof on every frame.
+     */
+    void sof_enable();
+
+    /**
+     * Disable the start of frame interrupt
+     *
+     * Stop calling USBDevice::callback_sof.
+     */
+    void sof_disable();
 
     /**
     * Add an endpoint
@@ -286,6 +321,21 @@ protected:
     }
 
     /**
+    * Called by USBDevice layer on each new USB frame.
+    *
+    * Callbacks are enabled and disabled by calling sof_enable
+    * and sof_disable.
+    *
+    * @param frame_number The current frame number
+    *
+    * Warning: Called in ISR context
+    */
+    virtual void callback_sof(int frame_number)
+    {
+
+    }
+
+    /**
     * Called by USBDevice layer on bus reset.
     *
     * complete_reset must be called after
@@ -371,7 +421,7 @@ private:
     // USBPhyEvents
     virtual void power(bool powered);
     virtual void suspend(bool suspended);
-    virtual void sof(int frameNumber) {};
+    virtual void sof(int frame_number);
     virtual void reset();
     virtual void ep0_setup();
     virtual void ep0_out();
@@ -407,9 +457,34 @@ private:
         uint8_t pending;
     };
 
+    struct usb_device_t {
+        volatile DeviceState state;
+        uint8_t configuration;
+        bool suspended;
+    };
+
+    enum ControlState {
+        Setup,
+        DataOut,
+        DataIn,
+        Status
+    };
+
+    struct control_transfer_t {
+        setup_packet_t setup;
+        uint8_t *ptr;
+        uint32_t remaining;
+        uint8_t direction;
+        bool zlp;
+        bool notify;
+        ControlState stage;
+        bool user_callback;
+    };
+
     endpoint_info_t endpoint_info[32 - 2];
 
     USBPhy *phy;
+    bool initialized;
     control_transfer_t transfer;
     usb_device_t device;
     uint32_t max_packet_size_ep0;

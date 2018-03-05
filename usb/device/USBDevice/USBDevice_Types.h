@@ -49,29 +49,4 @@
 #define DESCRIPTOR_TYPE(wValue)  (wValue >> 8)
 #define DESCRIPTOR_INDEX(wValue) (wValue & 0xff)
 
-typedef struct {
-    struct {
-        uint8_t dataTransferDirection;
-        uint8_t Type;
-        uint8_t Recipient;
-    } bmRequestType;
-    uint8_t  bRequest;
-    uint16_t wValue;
-    uint16_t wIndex;
-    uint16_t wLength;
-} setup_packet_t;
-
-typedef enum {CTRL_STAGE_SETUP, CTRL_STAGE_DATA_OUT, CTRL_STAGE_DATA_IN, CTRL_STAGE_STATUS} ctrl_state_t;
-
-typedef struct {
-    setup_packet_t setup;
-    uint8_t *ptr;
-    uint32_t remaining;
-    uint8_t direction;
-    bool zlp;
-    bool notify;
-    ctrl_state_t stage;
-    bool user_callback;
-} control_transfer_t;
-
 #endif
