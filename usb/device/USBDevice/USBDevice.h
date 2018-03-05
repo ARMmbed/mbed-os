@@ -61,35 +61,6 @@ public:
     USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     /**
-     * Acqurie exclusive access to this instance USBDevice
-     */
-    void lock()
-    {
-        core_util_critical_section_enter();
-        locked++;
-        MBED_ASSERT(locked > 0);
-    }
-
-    /**
-     * Release exclusive access to this instance USBDevice
-     */
-    void unlock()
-    {
-        MBED_ASSERT(locked > 0);
-        locked--;
-        core_util_critical_section_exit();
-    }
-
-    /**
-     * Assert that the current thread of execution holds the lock
-     *
-     */
-    void assert_locked()
-    {
-        MBED_ASSERT(locked > 0);
-    }
-
-    /**
      * Initialize this instance
      *
      * This function must be called before calling
@@ -412,6 +383,27 @@ protected:
 
     const usb_ep_table_t *endpoint_table();
 
+    /**
+     * Callback called to indicate the USB processing needs to be done
+     */
+    virtual void start_process();
+
+    /**
+     * Acquire exclusive access to this instance USBDevice
+     */
+    virtual void lock();
+
+    /**
+     * Release exclusive access to this instance USBDevice
+     */
+    virtual void unlock();
+
+    /**
+     * Assert that the current thread of execution holds the lock
+     *
+     */
+    virtual void assert_locked();
+
     uint16_t vendor_id;
     uint16_t product_id;
     uint16_t product_release;
@@ -446,8 +438,6 @@ private:
     bool request_get_configuration();
     bool request_get_interface();
     bool request_set_interface();
-    virtual void start_process();
-
     void change_state(DeviceState state);
 
     struct endpoint_info_t {

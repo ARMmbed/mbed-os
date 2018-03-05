@@ -1389,6 +1389,25 @@ void USBDevice::start_process()
     unlock();
 }
 
+void USBDevice::lock()
+{
+    core_util_critical_section_enter();
+    locked++;
+    MBED_ASSERT(locked > 0);
+}
+
+void USBDevice::unlock()
+{
+    MBED_ASSERT(locked > 0);
+    locked--;
+    core_util_critical_section_exit();
+}
+
+void USBDevice::assert_locked()
+{
+    MBED_ASSERT(locked > 0);
+}
+
 void USBDevice::change_state(DeviceState new_state) {
     assert_locked();
 
