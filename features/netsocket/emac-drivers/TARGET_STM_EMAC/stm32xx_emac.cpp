@@ -7,8 +7,6 @@
 #include "mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
 
-#ifdef ETH_BASE
-
 #include "stm32xx_emac_config.h"
 #include "stm32xx_emac.h"
 
@@ -569,5 +567,3 @@ STM32_EMAC &STM32_EMAC::get_instance() {
 MBED_WEAK EMAC &EMAC::get_default_instance() {
     return STM32_EMAC::get_instance();
 }
-
-#endif
