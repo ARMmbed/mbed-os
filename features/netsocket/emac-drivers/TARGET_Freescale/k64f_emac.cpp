@@ -42,7 +42,7 @@
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
 
-#if DEVICE_EMAC
+#ifdef ENET_BASE
 
 #include "fsl_phy.h"
 
@@ -614,7 +614,7 @@ MBED_WEAK EMAC &EMAC::get_default_instance() {
  * @}
  */
 
-#endif // DEVICE_EMAC
+#endif // ENET_BASE
 
 /* --------------------------------- End Of File ------------------------------ */
 

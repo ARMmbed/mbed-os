@@ -7,7 +7,7 @@
 #include "mbed_shared_queues.h"
 #include "netsocket/nsapi_types.h"
 
-#if DEVICE_EMAC
+#ifdef ETH_BASE
 
 #include "stm32xx_emac_config.h"
 #include "stm32xx_emac.h"
