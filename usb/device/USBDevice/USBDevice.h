@@ -22,9 +22,24 @@
 #include "USBPhy.h"
 #include "mbed_critical.h"
 
-class USBDevice;
+/**
+ * \defgroup usb_device USB Device
+ *
+ */
 
+/**
+ * \defgroup usb_device_core Core
+ *
+ * @ingroup usb_device
+ */
 
+/**
+ * Core USB Device driver
+ *
+ * USB driver which wraps and provides synchronization for a USBPhy object.
+ *
+ * @ingroup usb_device_core
+ */
 class USBDevice: public  USBPhyEvents {
 public:
     typedef void (USBDevice::*ep_cb_t)(usb_ep_t endpoint);
@@ -57,7 +72,25 @@ public:
         uint16_t wLength;
     };
 
+    /**
+     * Instantiate a new USBDevice with the given parameters
+     *
+     * This function uses a target's built in USBPhy.
+     *
+     * @param vendor_id The USB vendor ID
+     * @param product_id The USB product ID
+     * @param product_release The device release number
+     */
     USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
+
+    /**
+     * Instantiate a new USBDevice with the given parameters
+     *
+     * @param phy The USBPhy providing physical USB access
+     * @param vendor_id The USB vendor ID
+     * @param product_id The USB product ID
+     * @param product_release The device release number
+     */
     USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     /**
@@ -338,7 +371,22 @@ protected:
     * Warning: Called in ISR context
     */
     virtual void callback_request(const setup_packet_t *setup) = 0;
-    void complete_request(RequestResult direction, uint8_t *data=NULL, uint32_t size=0);
+
+    /**
+     * Called to complete the setup stage of a callback request
+     *
+     * Possible options that can be passed as a result are:
+     * - Receive - Start the data OUT phase of this control transfer
+     * - Send - Start the data IN phase of this control transfer
+     * - Success - Operation was a success so start the status phase
+     * - Failure - Operation failed or is unsupported so send a stall
+     * - PassThrough - Pass on the request for standard processing
+     *
+     * @param result The result of the setup phase.
+     * @param data Buffer to send or receive if the result is Send or Receive
+     * @param size Size to transfer if the result is Send or Receive
+     */
+    void complete_request(RequestResult result, uint8_t *data=NULL, uint32_t size=0);
 
     /**
     * Called by USBDevice on data stage completion
@@ -349,6 +397,12 @@ protected:
     * Warning: Called in ISR context
     */
     virtual void callback_request_xfer_done(const setup_packet_t *setup) = 0;
+
+    /**
+     * Called to complete the data stage of a callback request
+     *
+     * @param success true if the operation was successful, false otherwise
+     */
     void complete_request_xfer_done(bool success);
 
     /*
@@ -363,6 +417,12 @@ protected:
     * Warning: Called in ISR context
     */
     virtual void callback_set_configuration(uint8_t configuration) = 0;
+
+    /**
+     * Called to complete a set configuration command
+     *
+     * @param success true if the configuration was set, false otherwise
+     */
     void complete_set_configuration(bool success);
 
     /*
@@ -377,10 +437,27 @@ protected:
     * Warning: Called in ISR context
     */
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate) = 0;
+
+    /**
+     * Called to complete a set interface command
+     *
+     * @param success true if the interface was set, false otherwise
+     */
     void complete_set_interface(bool success);
 
-    uint8_t *find_descriptor(uint8_t descriptorType);
+    /**
+     * Find a descriptor type inside the configuration descriptor
+     *
+     * @param descriptor_type Type of descriptor to find
+     * @return A descriptor of the given type or NULL if none were found
+     */
+    uint8_t *find_descriptor(uint8_t descriptor_type);
 
+    /**
+     * Get the endpoint table of this device
+     *
+     * @return Endpoint table of the USBPhy attached to this USBDevice
+     */
     const usb_ep_table_t *endpoint_table();
 
     /**
@@ -486,6 +563,5 @@ private:
     uint8_t _current_alternate;
     uint32_t _locked;
 };
-
 
 #endif
