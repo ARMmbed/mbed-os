@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <memory>
+#include <new>
 
 #include "nRF5XPalGattClient.h"
 
