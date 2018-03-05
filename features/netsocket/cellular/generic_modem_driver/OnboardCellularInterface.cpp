@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "OnboardCellularInterface.h"
+
+#ifndef CELLULAR_DEVICE
 
 #if MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 
@@ -52,3 +55,5 @@ void OnboardCellularInterface::modem_power_down()
     ::onboard_modem_power_down();
 }
 #endif
+
+#endif // CELLULAR_DEVICE

@@ -211,7 +211,11 @@ int MBRBlockDevice::init()
     }
 
     // Check for valid entry
-    if (table->entries[_part-1].type == 0x00) {
+    // 0x00 = no entry
+    // 0x05, 0x0f = extended partitions, currently not supported
+    if ((table->entries[_part-1].type == 0x00 ||
+         table->entries[_part-1].type == 0x05 ||
+         table->entries[_part-1].type == 0x0f)) {
         delete[] buffer;
         return BD_ERROR_INVALID_PARTITION;
     }
@@ -232,6 +236,11 @@ int MBRBlockDevice::init()
 int MBRBlockDevice::deinit()
 {
     return _bd->deinit();
+}
+
+int MBRBlockDevice::sync()
+{
+    return _bd->sync();
 }
 
 int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
@@ -265,6 +274,11 @@ bd_size_t MBRBlockDevice::get_program_size() const
 bd_size_t MBRBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int MBRBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t MBRBlockDevice::size() const

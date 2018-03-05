@@ -203,6 +203,17 @@ extern void sn_coap_protocol_clear_retransmission_buffer(struct coap_s *handle);
 extern void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload);
 
 /**
+ * \fn sn_coap_protocol_remove_sent_blockwise_message
+ *
+ * \brief Remove sent blockwise message from the linked list.
+ *
+ * \param handle Pointer to CoAP library handle
+ * \param message_id Message id to be removed.
+ *
+ */
+extern void sn_coap_protocol_remove_sent_blockwise_message(struct coap_s *handle, uint16_t message_id);
+
+/**
  * \fn void sn_coap_protocol_delete_retransmission(struct coap_s *handle)
  *
  * \param *handle Pointer to CoAP library handle

@@ -16,10 +16,12 @@ limitations under the License.
 """
 
 from os.path import splitext, basename, join
+import shutil
 from tools.utils import mkdir
 from tools.export.gnuarmeclipse import GNUARMEclipse
 from tools.export.gnuarmeclipse import UID
 from tools.build_api import prepare_toolchain
+from tools.targets import TARGET_MAP
 from sys import flags, platform
 
 # Global random number generator instance.
@@ -98,6 +100,11 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'DISCO-L072CZ-LRWAN1',
             'mcuId': 'STM32L072CZTx'
+        },
+        'MTB_MURATA_ABZ':
+        {
+            'name': 'MTB-MURATA-ABZ',
+            'mcuId': 'STM32L0x2xZ'
         },
         'DISCO_L475VG_IOT01A':
         {
@@ -249,6 +256,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L432KC',
             'mcuId': 'STM32L432KCUx'
         },
+        'MTB_ADV_WISE_1510':
+        {
+            'name': 'MTB-ADV-WISE-1510',
+            'mcuId': 'STM32L443xC'
+        },
         'NUCLEO_L476RG':
         {
             'name': 'NUCLEO-L476RG',
@@ -263,7 +275,7 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-L496ZG',
             'mcuId': 'STM32L496ZGTx'
-        },        
+        },
         'NUCLEO_L496ZG_P':
         {
             'name': 'NUCLEO-L496ZG',
@@ -271,7 +283,14 @@ class Sw4STM32(GNUARMEclipse):
         },
     }
 
-    TARGETS = BOARDS.keys()
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        target_supported = bool(set(target.resolution_order_names)
+                                .intersection(set(cls.BOARDS.keys())))
+        toolchain_supported = cls.TOOLCHAIN in target.supported_toolchains
+        return target_supported and toolchain_supported
 
     def __gen_dir(self, dir_name):
         """
@@ -539,3 +558,7 @@ class Sw4STM32(GNUARMEclipse):
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('sw4stm32/launch.tmpl', ctx, self.project_name +
                       ' ' + options['debug']['name'] + '.launch')
+
+    @staticmethod
+    def clean(_):
+        shutil.rmtree(".settings")

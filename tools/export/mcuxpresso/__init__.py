@@ -224,10 +224,22 @@ class MCUXpresso(GNUARMEclipse):
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/makefile.targets.tmpl', jinja_ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('mcuxpresso/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('mcuxpresso/mbedignore.tmpl', jinja_ctx,
+                                   '.mbedignore')
 
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
+
+    @staticmethod
+    def clean(_):
+        remove('.project')
+        remove('.cproject')
+        if exists('Debug'):
+            shutil.rmtree('Debug')
+        if exists('Release'):
+            shutil.rmtree('Release')
+        if exists('makefile.targets'):
+            remove('makefile.targets')
 
     # override
     @staticmethod
@@ -298,14 +310,7 @@ class MCUXpresso(GNUARMEclipse):
         if cleanup:
             if exists(log_name):
                 remove(log_name)
-            remove('.project')
-            remove('.cproject')
-            if exists('Debug'):
-                shutil.rmtree('Debug')
-            if exists('Release'):
-                shutil.rmtree('Release')
-            if exists('makefile.targets'):
-                remove('makefile.targets')
+            MCUXpresso.clean(project_name)
 
         # Always remove the temporary folder.
         if exists(tmp_folder):

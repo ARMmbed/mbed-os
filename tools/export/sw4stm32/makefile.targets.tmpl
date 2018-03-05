@@ -3,11 +3,11 @@
 PREPROC_CMD ?= {{cpp_cmd}}
 
 ldclean:
-{% for config, opts in options.iteritems() %}
+{% for config, opts in options.items() %}
 	$(RM) {{opts['ld']['script']}}
 {% endfor %}
 
-{% for config, opts in options.iteritems() %}
+{% for config, opts in options.items() %}
 {{opts['ld']['script']}}: ../{{ld_script}}
 	$(PREPROC_CMD) {{opts.ld.other}} $< -o $@
 

@@ -33,9 +33,4 @@ off_t FileHandle::size()
     return size;
 }
 
-std::FILE *fdopen(FileHandle *fh, const char *mode)
-{
-    return mbed_fdopen(fh, mode);
-}
-
 } // namespace mbed

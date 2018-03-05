@@ -14,12 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 
 import re
 import tempfile
 import datetime
 import uuid
-from types import ListType
+import struct
+import zlib
+import hashlib
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
@@ -27,19 +30,22 @@ from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
 from json import load, dump
-
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
-    ToolException, InvalidReleaseTargetException, intelhex_offset
-from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
-    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
-    MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
-    BUILD_DIR
-from tools.targets import TARGET_NAMES, TARGET_MAP
-from tools.libraries import Library
-from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-from tools.config import Config
+
+from .arm_pack_manager import Cache
+from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
+                    ToolException, InvalidReleaseTargetException,
+                    intelhex_offset, integer)
+from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
+                    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
+                    MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
+                    MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
+                    BUILD_DIR)
+from .targets import TARGET_NAMES, TARGET_MAP
+from .libraries import Library
+from .toolchains import TOOLCHAIN_CLASSES
+from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -123,7 +129,7 @@ def get_config(src_paths, target, toolchain_name):
     toolchain_name - the string that identifies the build tools
     """
     # Convert src_paths to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # Pass all params to the unified prepare_resources()
@@ -283,31 +289,6 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
-def add_regions_to_profile(profile, config, toolchain_class):
-    """Add regions to the build profile, if there are any.
-
-    Positional Arguments:
-    profile - the profile to update
-    config - the configuration object that owns the region
-    toolchain_class - the class of the toolchain being used
-    """
-    if not profile:
-        return
-    regions = list(config.regions)
-    for region in regions:
-        for define in [(region.name.upper() + "_ADDR", region.start),
-                       (region.name.upper() + "_SIZE", region.size)]:
-            profile["common"].append("-D%s=0x%x" %  define)
-    active_region = [r for r in regions if r.active][0]
-    for define in [("MBED_APP_START", active_region.start),
-                   ("MBED_APP_SIZE", active_region.size)]:
-        profile["ld"].append(toolchain_class.make_ld_define(*define))
-
-    print("Using regions in this build:")
-    for region in regions:
-        print("  Region %s size 0x%x, offset 0x%x"
-              % (region.name, region.size, region.start))
-
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -351,9 +332,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         for key in profile:
             profile[key].extend(contents[toolchain_name][key])
 
-    if config.has_regions:
-        add_regions_to_profile(profile, config, cur_tc)
-
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=profile)
 
@@ -364,8 +342,68 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     return toolchain
 
+def _printihex(ihex):
+    import pprint
+    pprint.PrettyPrinter().pprint(ihex.todict())
+
+def _real_region_size(region):
+    try:
+        part = intelhex_offset(region.filename, offset=region.start)
+        return (part.maxaddr() - part.minaddr()) + 1
+    except AttributeError:
+        return region.size
+
+
+def _fill_header(region_list, current_region):
+    """Fill an application header region
+
+    This is done it three steps:
+     * Fill the whole region with zeros
+     * Fill const, timestamp and size entries with their data
+     * Fill the digests using this header as the header region
+    """
+    region_dict = {r.name: r for r in region_list}
+    header = IntelHex()
+    header.puts(current_region.start, b'\x00' * current_region.size)
+    start = current_region.start
+    for member in current_region.filename:
+        _, type, subtype, data = member
+        member_size = Config.header_member_size(member)
+        if type == "const":
+            fmt = {
+                "8le": ">B", "16le": "<H", "32le": "<L", "64le": "<Q",
+                "8be": "<B", "16be": ">H", "32be": ">L", "64be": ">Q"
+            }[subtype]
+            header.puts(start, struct.pack(fmt, integer(data, 0)))
+        elif type == "timestamp":
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
+            header.puts(start, struct.pack(fmt, time()))
+        elif type == "size":
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
+            size = sum(_real_region_size(region_dict[r]) for r in data)
+            header.puts(start, struct.pack(fmt, size))
+        elif type  == "digest":
+            if data == "header":
+                ih = header[:start]
+            else:
+                ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
+            if subtype.startswith("CRCITT32"):
+                fmt = {"CRCITT32be": ">l", "CRCITT32le": "<l"}[subtype]
+                header.puts(start, struct.pack(fmt, zlib.crc32(ih.tobinarray())))
+            elif subtype.startswith("SHA"):
+                if subtype == "SHA256":
+                    hash = hashlib.sha256()
+                elif subtype == "SHA512":
+                    hash = hashlib.sha512()
+                hash.update(ih.tobinarray())
+                header.puts(start, hash.digest())
+        start += Config.header_member_size(member)
+    return header
+
 def merge_region_list(region_list, destination, padding=b'\xFF'):
-    """Merege the region_list into a single image
+    """Merge the region_list into a single image
 
     Positional Arguments:
     region_list - list of regions, which should contain filenames
@@ -373,12 +411,18 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     padding - bytes to fill gapps with
     """
     merged = IntelHex()
+    _, format = splitext(destination)
 
     print("Merging Regions:")
 
     for region in region_list:
         if region.active and not region.filename:
             raise ToolException("Active region has no contents: No file found.")
+        if isinstance(region.filename, list):
+            header_basename, _ = splitext(destination)
+            header_filename = header_basename + "_header.hex"
+            _fill_header(region_list, region).tofile(header_filename, format='hex')
+            region = region._replace(filename=header_filename)
         if region.filename:
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
@@ -390,14 +434,18 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
             pad_size = region.size - part_size
             if pad_size > 0 and region != region_list[-1]:
                 print("  Padding region %s with 0x%x bytes" % (region.name, pad_size))
-                merged.puts(merged.maxaddr() + 1, padding * pad_size)
+                if format is ".hex":
+                    """The offset will be in the hex file generated when we're done,
+                    so we can skip padding here"""
+                else:
+                    merged.puts(merged.maxaddr() + 1, padding * pad_size)
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
     print("Space used after regions merged: 0x%x" %
           (merged.maxaddr() - merged.minaddr() + 1))
     with open(destination, "wb+") as output:
-        merged.tofile(output, format='bin')
+        merged.tofile(output, format=format.strip("."))
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
                    inc_dirs=None, base_path=None, collect_ignores=False):
@@ -426,7 +474,7 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Add additional include directories if passed
     if inc_dirs:
-        if type(inc_dirs) == ListType:
+        if isinstance(inc_dirs, list):
             resources.inc_dirs.extend(inc_dirs)
         else:
             resources.inc_dirs.append(inc_dirs)
@@ -484,7 +532,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     """
 
     # Convert src_path to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
     # Extend src_paths wiht libraries_paths
     if libraries_paths is not None:
@@ -539,7 +587,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
             region_list = list(toolchain.config.regions)
             region_list = [r._replace(filename=res) if r.active else r
                            for r in region_list]
-            res = join(build_path, name) + ".bin"
+            res = "%s.%s" % (join(build_path, name),
+                             getattr(toolchain.target, "OUTPUT_EXT", "bin"))
             merge_region_list(region_list, res)
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
@@ -551,7 +600,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             memap_table = memap_instance.generate_output('table', stats_depth)
 
             if not silent:
-                print memap_table
+                print(memap_table)
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
@@ -635,7 +684,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     """
 
     # Convert src_path to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # Build path
@@ -804,7 +853,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
     inc_dirs = lib.inc_dirs
     inc_dirs_ext = lib.inc_dirs_ext
 
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # The first path will give the name to the library

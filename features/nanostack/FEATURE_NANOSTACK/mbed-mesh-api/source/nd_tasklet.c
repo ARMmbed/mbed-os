@@ -187,23 +187,28 @@ void nd_tasklet_parse_network_event(arm_event_s *event)
             /* Link Layer Active Scan Fail, Stack is Already at Idle state */
             tr_debug("Link Layer Scan Fail: No Beacons");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            nd_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_IP_ADDRESS_ALLOCATION_FAIL:
             /* No ND Router at current Channel Stack is Already at Idle state */
             tr_debug("ND Scan/ GP REG fail");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            nd_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_NWK_CONNECTION_DOWN:
             /* Connection to Access point is lost wait for Scan Result */
             tr_debug("ND/RPL scan new network");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            nd_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_NWK_PARENT_POLL_FAIL:
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            nd_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         case ARM_NWK_AUHTENTICATION_FAIL:
             tr_debug("Network authentication fail");
             tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
+            nd_tasklet_network_state_changed(MESH_DISCONNECTED);
             break;
         default:
             tr_warn("Unknown event %d", status);
@@ -277,6 +282,7 @@ void nd_tasklet_configure_and_connect_to_network(void)
     if (status >= 0) {
         tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_STARTED;
         tr_info("Start 6LoWPAN ND Bootstrap");
+        nd_tasklet_network_state_changed(MESH_BOOTSTRAP_STARTED);
     } else {
         tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_FAILED;
         tr_err("Bootstrap start failed, %d", status);

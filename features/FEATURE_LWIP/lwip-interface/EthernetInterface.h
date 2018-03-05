@@ -100,6 +100,26 @@ public:
      */
     virtual const char *get_gateway();
 
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to nsapi_connection_status_t
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
+
+
 protected:
     /** Provide access to the underlying stack
      *
@@ -111,6 +131,11 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
+
+
+    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    nsapi_connection_status_t _connect_status;
+    static void netif_status_cb(void *, nsapi_event_t, intptr_t);
 };
 
 

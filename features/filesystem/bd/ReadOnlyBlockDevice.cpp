@@ -45,6 +45,11 @@ int ReadOnlyBlockDevice::deinit()
     return _bd->deinit();
 }
 
+int ReadOnlyBlockDevice::sync()
+{
+    return _bd->sync();
+}
+
 int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     return _bd->read(buffer, addr, size);
@@ -75,6 +80,11 @@ bd_size_t ReadOnlyBlockDevice::get_program_size() const
 bd_size_t ReadOnlyBlockDevice::get_erase_size() const
 {
     return _bd->get_erase_size();
+}
+
+int ReadOnlyBlockDevice::get_erase_value() const
+{
+    return _bd->get_erase_value();
 }
 
 bd_size_t ReadOnlyBlockDevice::size() const

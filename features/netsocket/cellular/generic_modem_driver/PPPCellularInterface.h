@@ -85,7 +85,6 @@ typedef struct {
     char imei[15+1];    //!< International Mobile Equipment Identity
     char meid[18+1];    //!< Mobile Equipment IDentifier
     int flags;
-    bool ppp_connection_up;
     radio_access_nwk_type rat;
     nwk_registration_status_csd reg_status_csd;
     nwk_registration_status_psd reg_status_psd;
@@ -166,7 +165,6 @@ public:
      *  the lookup table then the driver tries to resort to default APN settings.
      *
      *  Preferred method is to setup APN using 'set_credentials()' API.
-
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect();
@@ -231,17 +229,31 @@ public:
      */
     virtual const char *get_gateway();
 
-    /** Get notified if the connection gets lost
-     *
-     *  @param cb         user defined callback
-     */
-    void connection_status_cb(Callback<void(nsapi_error_t)> cb);
 
     /** Turn modem debug traces on
      *
      *  @param on         set true to enable debug traces
      */
     void modem_debug_on(bool on);
+
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to nsapi_connection_status_t
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
 
 private:
     FileHandle *_fh;
@@ -253,14 +265,17 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     nsapi_ip_stack_t _stack;
-    Callback<void(nsapi_error_t)> _connection_status_cb;
+    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    nsapi_connection_status_t _connect_status;
+    bool _connect_is_blocking;
     void base_initialization();
     void setup_at_parser();
     void shutdown_at_parser();
     nsapi_error_t initialize_sim_card();
     nsapi_error_t setup_context_and_credentials();
     bool power_up();
-    void power_down();
+    void power_down(); 
+    void ppp_status_cb(nsapi_event_t, intptr_t);
 
 protected:
     /** Enable or disable hang-up detection

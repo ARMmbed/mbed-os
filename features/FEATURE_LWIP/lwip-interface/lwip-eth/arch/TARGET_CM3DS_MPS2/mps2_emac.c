@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -316,15 +316,15 @@ err_t eth_arch_enetif_init(struct netif *netif)
     err_t error = ERR_OK;
     struct ethernetif *ethernetif;
 
-    ethernetif->is_enabled = 0;
-
     LWIP_ASSERT("netif != NULL", (netif != NULL));
-
     ethernetif = mem_malloc(sizeof(struct ethernetif));
+
     if (ethernetif == NULL) {
         LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_init: out of memory\n"));
         return ERR_MEM;
     }
+
+    ethernetif->is_enabled = 0;
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */

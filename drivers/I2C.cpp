@@ -18,7 +18,7 @@
 #if DEVICE_I2C
 
 #if DEVICE_I2C_ASYNCH
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #endif
 
 namespace mbed {

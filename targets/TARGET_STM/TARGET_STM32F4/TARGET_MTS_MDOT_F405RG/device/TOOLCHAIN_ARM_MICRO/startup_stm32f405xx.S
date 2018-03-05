@@ -1,8 +1,6 @@
-;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f405xx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.0
-;* Date               : 19-June-2014
 ;* Description        : STM32F405xx devices vector table for MDK-ARM_MICRO toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP

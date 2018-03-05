@@ -63,7 +63,6 @@
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
-#include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "thread_management_if.h"
 #include "Common_Protocols/ipv6.h"
 #include "MPL/mpl.h"
@@ -231,7 +230,9 @@ static int thread_parent_request_build(protocol_interface_info_entry_t *cur)
     }
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_REATTACH ||
-        cur->thread_info->thread_attached_state == THREAD_STATE_REATTACH_RETRY) {
+        cur->thread_info->thread_attached_state == THREAD_STATE_REATTACH_RETRY ||
+        cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED ||
+        cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
         // When doing re-attach End devices are immediately accepted as parents
         scanMask |= 0x40;
     }
@@ -408,9 +409,9 @@ static void thread_child_synch_receive_cb(int8_t interface_id, mle_message_t *ml
         tr_debug("End device synch Possible");
 
         cur->thread_info->thread_attached_state = THREAD_STATE_CONNECTED;
-
+        // read network data, and leader data check. Send data request sent if pending set is not in sync
         if (mle_tlv_read_tlv(MLE_TYPE_NETWORK_DATA, mle_msg->data_ptr, mle_msg->data_length, &networkDataTlv) &&
-            thread_leader_data_parse(mle_msg->data_ptr, mle_msg->data_length, &leaderData)) {
+            thread_leader_data_parse(mle_msg->data_ptr, mle_msg->data_length, &leaderData) && thread_joiner_application_pending_delay_timer_in_sync(cur->id)) {
             thread_bootstrap_network_data_save(cur, &leaderData, networkDataTlv.dataPtr, networkDataTlv.tlvLen);
         } else {
             thread_bootstrap_parent_network_data_request(cur, true);
@@ -533,7 +534,9 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
             if (thread_info(cur)->thread_attached_state == THREAD_STATE_REATTACH || thread_info(cur)->thread_attached_state == THREAD_STATE_REATTACH_RETRY) {
                 tr_debug("Reattach");
                 if (thread_info(cur)->thread_leader_data) {
-                    if (thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) { //accept only same ID at reattach phase
+                    if ((thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) ||
+                        (thread_info(cur)->thread_leader_data->weighting != leaderData.weighting)) {
+                        //accept only same ID at reattach phase
                         return;
                     }
                     //Compare ID - when downgrading, accept all
@@ -550,7 +553,9 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
                     thread_info(cur)->thread_attached_state == THREAD_STATE_CONNECTED ||
                     thread_info(cur)->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
                 if (thread_info(cur)->thread_leader_data) {
-                    if (thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId) { //accept only different ID at anyattach phase
+                    if ((thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId) &&
+                        (thread_info(cur)->thread_leader_data->weighting == leaderData.weighting)) {
+                        //accept only different ID at anyattach phase
                         tr_debug("Drop old partition");
                         return;
                     }
@@ -585,6 +590,13 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
                 }
             }
 
+            if (thread_extension_enabled(cur) &&
+                thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER &&
+                leaderData.weighting < thread_info(cur)->partition_weighting) {
+                // Only applies to extensions and only routers that can form new partitions can ignore lower weight
+                tr_debug("Drop parent due weighting %d<%d", leaderData.weighting, thread_info(cur)->partition_weighting);
+                return;
+            }
 
             if (accept_response) {
                 if (thread_info(cur)->thread_attach_scanned_parent == NULL) {
@@ -597,12 +609,17 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
                     tr_debug("Partition %"PRIu32, leaderData.partitionId);
                 } else {
                     uint32_t currentPartitionId = thread_info(cur)->thread_attach_scanned_parent->leader_data.partitionId;
-                    tr_debug("Current %"PRIu32" RX %"PRIu32, currentPartitionId, leaderData.partitionId);
+                    uint8_t currentWeighting = thread_info(cur)->thread_attach_scanned_parent->leader_data.weighting;
+                    tr_debug("Current partition %"PRIu32" old:%"PRIu32" weighting %"PRIu8" old:%"PRIu8,
+                        currentPartitionId, leaderData.partitionId, currentWeighting, leaderData.weighting);
 
-                    if (leaderData.partitionId != currentPartitionId) {
+                    if ((leaderData.partitionId != currentPartitionId) ||
+                        (leaderData.weighting != currentWeighting)) {
                         int retVal = thread_bootstrap_partition_process(cur, connectivityTlv.activeRouters, &leaderData,NULL);
-                        if (retVal > 0)
+                        if (retVal > 0) {
+                            // New partition is Higher
                             scan_result = thread_info(cur)->thread_attach_scanned_parent;
+                        }
                     }
                     else if (leaderData.partitionId == currentPartitionId) {
                         thread_link_quality_e currentLqi;
@@ -820,6 +837,9 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
             thread_info(cur)->thread_attached_state = THREAD_STATE_CONNECTED;
 
             thread_bootstrap_update_ml16_address(cur, childId);
+            if (!thread_is_router_addr(thread_info(cur)->routerShortAddress)) {
+                thread_info(cur)->routerShortAddress = 0xfffe;
+            }
 
             mle_service_msg_free(scan_result->child_id_request_id);
 

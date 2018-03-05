@@ -53,7 +53,7 @@ struct discovery_response_list;
 #define thread_extension_mcast_subscrition_change(interface, group, added)
 #define thread_extension_route_set(cur)
 #define thread_extension_activate(cur)
-#define thread_extension_security_policy_enabled(securityPolicy) (false)
+#define thread_extension_enabled(cur) (false)
 #define thread_extension_version_check(version) (false)
 #define thread_extension_discover_response_read(nwk_info, discover_response_tlv, data_ptr, data_len)
 #define thread_extension_discover_response_tlv_write(data, version, extension_bit) (data)

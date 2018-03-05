@@ -51,6 +51,7 @@
 
 #define RPL_DATA_SR_INIT_SIZE (16*4)
 
+#ifdef HAVE_RPL_ROOT
 typedef struct rpl_data_sr {
     rpl_dao_target_t *target;   /* Target - note may be a prefix */
     uint16_t iaddr_size;
@@ -60,6 +61,7 @@ typedef struct rpl_data_sr {
 } rpl_data_sr_t;
 
 static rpl_data_sr_t *rpl_data_sr;
+#endif
 
 static const uint8_t *rpl_data_get_dodagid(const buffer_t *buf);
 

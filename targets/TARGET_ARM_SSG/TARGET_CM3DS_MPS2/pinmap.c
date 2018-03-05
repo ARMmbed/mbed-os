@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,64 @@
 #include "mbed_assert.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-
-#define GET_GPIO_PIN_POS(pin)  (pin & 0x0F)  /* pin % 16 */
-#define GET_GPIO_MAP_NUM(pin)  (pin >> 4)    /* pin / 16 */
-#define GPIO_NUM               4
-
-static CMSDK_GPIO_TypeDef* GPIO_MAP[GPIO_NUM] = {
-    CMSDK_GPIO0,
-    CMSDK_GPIO1,
-    CMSDK_GPIO2,
-    CMSDK_GPIO3
-};
+#include "objects.h"
 
 void pin_function(PinName pin, int function)
 {
-    CMSDK_GPIO_TypeDef* p_gpio_map = 0;
+    struct arm_gpio_dev_t *gpio_dev;
+    uint32_t flags;
 
-    MBED_ASSERT(pin != (PinName)NC);
+    MBED_ASSERT(pin != NC);
 
+    /* The pin has to be a GPIO pin */
     if (pin >= EXP0 && pin <= EXP51) {
-        if (function == ALTERNATE_FUNC) {
-            p_gpio_map = GPIO_MAP[GET_GPIO_MAP_NUM(pin)];
-            p_gpio_map->ALTFUNCSET = (1 << GET_GPIO_PIN_POS(pin));
-        } else if(function == GPIO_FUNC) {
-            p_gpio_map = GPIO_MAP[GET_GPIO_MAP_NUM(pin)];
-            p_gpio_map->ALTFUNCCLR = (1 << GET_GPIO_PIN_POS(pin));
-        } else {
-            error("Invalid pin_function value %d", function);
+        switch (function) {
+            case ALTERNATE_FUNC:
+                flags = ARM_GPIO_PIN_DISABLE;
+                break;
+            case GPIO_FUNC:
+                flags = ARM_GPIO_PIN_ENABLE;
+                break;
+            default:
+                return;
         }
+
+        switch (GPIO_DEV_NUMBER(pin)) {
+#ifdef ARM_GPIO0
+        case GPIO0_NUMBER:
+            gpio_dev = &ARM_GPIO0_DEV;
+            break;
+#endif /* ARM_GPIO0 */
+#ifdef ARM_GPIO1
+        case GPIO1_NUMBER:
+            gpio_dev = &ARM_GPIO1_DEV;
+            break;
+#endif /* ARM_GPIO1 */
+#ifdef ARM_GPIO2
+        case GPIO2_NUMBER:
+            gpio_dev = &ARM_GPIO2_DEV;
+            break;
+#endif /* ARM_GPIO2 */
+#ifdef ARM_GPIO3
+        case GPIO3_NUMBER:
+            gpio_dev = &ARM_GPIO3_DEV;
+            break;
+#endif /* ARM_GPIO3 */
+        default:
+            error("GPIO %d, associated with expansion pin %d, is disabled",
+                  pin, GPIO_DEV_NUMBER(pin));
+            return;
+        }
+
+        arm_gpio_init(gpio_dev);
+        (void)arm_gpio_config(gpio_dev, ARM_GPIO_ACCESS_PIN,
+                              GPIO_PIN_NUMBER(pin), flags);
     }
 }
 
 void pin_mode(PinName pin, PinMode mode)
 {
-    MBED_ASSERT(pin != (PinName)NC);
+    MBED_ASSERT(pin != NC);
 
-    /* Pin modes configuration is not supported */
+    /* PinMode is not supported */
 }

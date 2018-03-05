@@ -237,7 +237,7 @@ class GapAdvertisingData;
  *    // Initiate the connection procedure
  *    gap.connect(
  *       packet->peerAddr,
- *       BLEProtocol::RANDOM_STATIC,
+ *       packet->addressType,
  *       &connection_parameters,
  *       &scanning_params
  *    );
@@ -608,6 +608,11 @@ public:
          * Pointer to the advertisement packet's data.
          */
         const uint8_t *advertisingData;
+
+        /**
+         * Type of the address received
+         */
+        AddressType_t addressType;
     };
 
     /**
@@ -2304,6 +2309,7 @@ public:
             ownAddr,
             connectionParams
         );
+
         connectionCallChain.call(&callbackParams);
     }
 
@@ -2342,6 +2348,7 @@ public:
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
+     * @param[in] addressType Type of the address of the peer that has emitted the packet.
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
@@ -2349,8 +2356,13 @@ public:
         bool isScanResponse,
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
-        const uint8_t *advertisingData
+        const uint8_t *advertisingData,
+        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
     ) {
+       // FIXME: remove default parameter for addressType when ST shield is merged;
+       // this has been added to mitigate the lack of dependency management in
+       // testing jobs ....
+
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
         params.rssi = rssi;
@@ -2358,6 +2370,7 @@ public:
         params.type = type;
         params.advertisingDataLen = advertisingDataLen;
         params.advertisingData = advertisingData;
+        params.addressType = addressType;
         onAdvertisementReport.call(&params);
     }
 

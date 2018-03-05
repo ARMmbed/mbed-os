@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import split,splitext, basename
+from os import remove
 
 from tools.export.exporters import Exporter, deprecated_exporter
 
@@ -194,3 +195,7 @@ class SimplicityV3(Exporter):
         '''
 
         self.gen_file('simplicity/slsproj.tmpl', ctx, '%s.slsproj' % self.project_name)
+
+    @staticmethod
+    def clean(project_name):
+        remove('%s.slsproj' % project_name)

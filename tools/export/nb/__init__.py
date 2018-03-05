@@ -1,5 +1,6 @@
 import os
 import copy
+import shutil
 
 from os.path import relpath, join, exists, dirname, basename
 from os import makedirs
@@ -268,11 +269,17 @@ class GNUARMNetbeans(Exporter):
 
         self.gen_file('nb/configurations.tmpl', jinja_ctx, 'nbproject/configurations.xml')
         self.gen_file('nb/project.tmpl', jinja_ctx, 'nbproject/project.xml')
-        self.gen_file('nb/mbedignore.tmpl', jinja_ctx, '.mbedignore')
+        self.gen_file_nonoverwrite('nb/mbedignore.tmpl', jinja_ctx,
+                                   '.mbedignore')
         self.gen_file('nb/Makefile.tmpl', jinja_ctx, 'Makefile')
 
         print
         print 'Done. Import the \'{0}\' project in Netbeans.'.format(self.project_name)
+
+    @staticmethod
+    def clean(_):
+        shutil.rmtree("nbproject")
+        remove("Makefile")
 
     # -------------------------------------------------------------------------
 
@@ -325,9 +332,11 @@ class GNUARMNetbeans(Exporter):
             if cur_dir and prev_dir != cur_dir:
                 # evaluate all matched items (from current and previous list)
                 matched = []
-                for element in dir_list:
-                    if element in prev_dir_list:
-                        matched.append(element)
+                # Compare the Element in Previous Dir with the Elements in Current Dir
+                # and add the equal Elements to the match-List
+                for elem_prev_dir, elem_cur_dir in zip(prev_dir_list, dir_list):
+                    if elem_prev_dir == elem_cur_dir:
+                        matched.append(elem_cur_dir)
 
                 # calculate difference between matched and length
                 diff = dir_depth - len(matched)

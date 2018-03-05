@@ -72,8 +72,8 @@ public:
      *  The sectors must have been erased prior to being programmed
      *
      *  @param buffer Buffer of data to be written
-     *  @param addr   Address of a page to begin writing to, must be a multiple of program and sector sizes
-     *  @param size   Size to write in bytes, must be a multiple of program and sector sizes
+     *  @param addr   Address of a page to begin writing to
+     *  @param size   Size to write in bytes, must be a multiple of program size
      *  @return       0 on success, negative error code on failure
      */
     int program(const void *buffer, uint32_t addr, uint32_t size);
@@ -128,6 +128,7 @@ private:
     bool is_aligned_to_sector(uint32_t addr, uint32_t size);
 
     flash_t _flash;
+    uint8_t *_page_buf;
     static SingletonPtr<PlatformMutex> _mutex;
 };
 

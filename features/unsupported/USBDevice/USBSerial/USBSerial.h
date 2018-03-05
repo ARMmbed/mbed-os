@@ -127,7 +127,7 @@ public:
     template<typename T>
     void attach(T* tptr, void (T::*mptr)(void)) {
         if((mptr != NULL) && (tptr != NULL)) {
-            rx.attach(tptr, mptr);
+            rx = Callback<void()>(mptr, tptr);
         }
     }
 
@@ -138,8 +138,17 @@ public:
      */
     void attach(void (*fptr)(void)) {
         if(fptr != NULL) {
-            rx.attach(fptr);
+            rx = Callback<void()>(fptr);
         }
+    }
+
+    /**
+     * Attach a Callback called when a packet is received
+     *
+     * @param cb Callback to attach
+     */
+    void attach(Callback<void()> &cb) {
+        rx = cb;
     }
 
     /**
