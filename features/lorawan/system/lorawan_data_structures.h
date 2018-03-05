@@ -763,27 +763,14 @@ typedef enum {
 } mcps_type_t;
 
 /*!
- * LoRaMAC MCPS-Request for an unconfirmed frame.
+ * LoRaMAC MCPS-Request structure.
  */
 typedef struct {
     /*!
-     * Frame port field. Must be set if the payload is not empty. Use the
-     * application-specific frame port values: [1...223].
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.2.
+     * MCPS-Request type.
      */
-    uint8_t fport;
+    mcps_type_t type;
 
-    /*!
-     * Uplink datarate, if ADR is off.
-     */
-    int8_t data_rate;
-} mcps_req_unconfirmed_t;
-
-/*!
- * LoRaMAC MCPS-Request for a confirmed frame.
- */
-typedef struct {
     /*!
      * Frame port field. Must be set if the payload is not empty. Use the
      * application-specific frame port values: [1...223].
@@ -817,45 +804,6 @@ typedef struct {
      * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
      */
     uint8_t nb_trials;
-} mcps_req_confirmed_t;
-
-/*!
- * LoRaMAC MCPS-Request for a proprietary frame.
- */
-typedef struct {
-    /*!
-     * Uplink datarate, if ADR is off.
-     */
-    int8_t data_rate;
-} mcps_req_proprietary_t;
-
-/*!
- * LoRaMAC MCPS-Request structure.
- */
-typedef struct {
-    /*!
-     * MCPS-Request type.
-     */
-    mcps_type_t type;
-
-    /*!
-     * MCPS-Request parameters.
-     */
-    union
-    {
-        /*!
-         * MCPS-Request parameters for an unconfirmed frame.
-         */
-        mcps_req_unconfirmed_t unconfirmed;
-        /*!
-         * MCPS-Request parameters for a confirmed frame.
-         */
-        mcps_req_confirmed_t confirmed;
-        /*!
-         * MCPS-Request parameters for a proprietary frame.
-         */
-        mcps_req_proprietary_t proprietary;
-    } req;
 
     /** Payload data
       *
@@ -1663,23 +1611,6 @@ typedef struct {
     mbed::Callback<void(loramac_mlme_indication_t*)> mlme_indication;
 }loramac_primitives_t;
 
-/** End-device states.
- *
- */
-typedef enum device_states {
-    DEVICE_STATE_NOT_INITIALIZED,
-    DEVICE_STATE_INIT,
-    DEVICE_STATE_JOINING,
-    DEVICE_STATE_ABP_CONNECTING,
-    DEVICE_STATE_JOINED,
-    DEVICE_STATE_SEND,
-    DEVICE_STATE_IDLE,
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    DEVICE_STATE_COMPLIANCE_TEST,
-#endif
-    DEVICE_STATE_SHUTDOWN
-} device_states_t;
-
 /** Enum of LoRaWAN connection type.
  *
  * The LoRaWAN connection type specifies how an end-device connects to the gateway.
@@ -1764,26 +1695,40 @@ typedef struct {
      * Message type
      */
     mcps_type_t type;
-    /** Message parameters.
+
+    /*!
+     * Frame port field. Must be set if the payload is not empty. Use the
+     * application-specific frame port values: [1...223].
      *
+     * LoRaWAN Specification V1.0.2, chapter 4.3.2.
      */
-    union message {
-        /** An unconfirmed frame.
-         *
-         * The message parameters for an unconfirmed frame.
-         */
-        mcps_req_unconfirmed_t unconfirmed;
-        /** A confirmed frame.
-         *
-         * The message parameters for a confirmed frame.
-         */
-        mcps_req_confirmed_t confirmed;
-        /** A proprietary frame.
-         *
-         * The message parameters for a proprietary frame.
-         */
-        mcps_req_proprietary_t proprietary;
-    } message_u;
+    uint8_t fport;
+
+    /*!
+     * Uplink datarate, if ADR is off.
+     */
+    int8_t data_rate;
+    /*!
+     * The number of trials to transmit the frame, if the LoRaMAC layer did not
+     * receive an acknowledgment. The MAC performs a datarate adaptation
+     * according to the LoRaWAN Specification V1.0.2, chapter 18.4, as in
+     * the following table:
+     *
+     * Transmission nb | Data Rate
+     * ----------------|-----------
+     * 1 (first)       | DR
+     * 2               | DR
+     * 3               | max(DR-1,0)
+     * 4               | max(DR-1,0)
+     * 5               | max(DR-2,0)
+     * 6               | max(DR-2,0)
+     * 7               | max(DR-3,0)
+     * 8               | max(DR-3,0)
+     *
+     * Note that if nb_trials is set to 1 or 2, the MAC will not decrease
+     * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
+     */
+    uint8_t nb_trials;
 
     /** Payload data
      *
@@ -1917,54 +1862,6 @@ typedef struct {
      */
     uint32_t downlink_counter;
 } lorawan_dev_commission_t;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-/**  LoRaWAN compliance tests support data
- *
- */
-typedef struct compliance_test {
-    /** Is test running
-     *
-     */
-    bool running;
-    /** State of test
-     *
-     */
-    uint8_t state;
-    /** Is TX confirmed
-     *
-     */
-    bool is_tx_confirmed;
-    /** Port used by the application
-     *
-     */
-    uint8_t app_port;
-    /** Maximum size of data used by application
-     *
-     */
-    uint8_t app_data_size;
-    /** Data provided by application
-     *
-     */
-    uint8_t *app_data_buffer;
-    /** Downlink counter
-     *
-     */
-    uint16_t downlink_counter;
-    /** Is link check required
-     *
-     */
-    bool link_check;
-    /** Demodulation margin
-     *
-     */
-    uint8_t demod_margin;
-    /** Number of gateways
-     *
-     */
-    uint8_t nb_gateways;
-} compliance_test_t;
-#endif
 
 /** Structure containing the uplink status
  *
@@ -2410,5 +2307,53 @@ typedef struct lora_channelplan {
     uint8_t nb_channels;    // number of channels
     loramac_channel_t *channels;
 } lorawan_channelplan_t;
+
+#if defined(LORAWAN_COMPLIANCE_TEST)
+/**  LoRaWAN compliance tests support data
+ *
+ */
+typedef struct compliance_test {
+    /** Is test running
+     *
+     */
+    bool running;
+    /** State of test
+     *
+     */
+    uint8_t state;
+    /** Is TX confirmed
+     *
+     */
+    bool is_tx_confirmed;
+    /** Port used by the application
+     *
+     */
+    uint8_t app_port;
+    /** Maximum size of data used by application
+     *
+     */
+    uint8_t app_data_size;
+    /** Data provided by application
+     *
+     */
+    uint8_t *app_data_buffer;
+    /** Downlink counter
+     *
+     */
+    uint16_t downlink_counter;
+    /** Is link check required
+     *
+     */
+    bool link_check;
+    /** Demodulation margin
+     *
+     */
+    uint8_t demod_margin;
+    /** Number of gateways
+     *
+     */
+    uint8_t nb_gateways;
+} compliance_test_t;
+#endif
 
 #endif /* LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_ */

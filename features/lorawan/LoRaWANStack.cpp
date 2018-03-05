@@ -175,90 +175,6 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     return lora_state_machine();
 }
 
-#if defined(LORAWAN_COMPLIANCE_TEST)
-/**
- *
- * Prepares the upload message to reserved ports
- *
- * \param port              Application port
- */
-void LoRaWANStack::prepare_special_tx_frame(uint8_t port)
-{
-    if (port == 224) {
-        // Clear any normal message stuff before compliance test.
-        memset(&_tx_msg, 0, sizeof(_tx_msg));
-
-        if (_compliance_test.link_check == true) {
-            _compliance_test.link_check = false;
-            _compliance_test.state = 1;
-            _tx_msg.f_buffer_size = 3;
-            _tx_msg.f_buffer[0] = 5;
-            _tx_msg.f_buffer[1] = _compliance_test.demod_margin;
-            _tx_msg.f_buffer[2] = _compliance_test.nb_gateways;
-        } else {
-            switch (_compliance_test.state) {
-            case 4:
-                _compliance_test.state = 1;
-                _tx_msg.f_buffer_size = _compliance_test.app_data_size;
-
-                _tx_msg.f_buffer[0] = _compliance_test.app_data_buffer[0];
-                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
-                    _tx_msg.f_buffer[i] = _compliance_test.app_data_buffer[i];
-                }
-                break;
-            case 1:
-                _tx_msg.f_buffer_size = 2;
-                _tx_msg.f_buffer[0] = _compliance_test.downlink_counter >> 8;
-                _tx_msg.f_buffer[1] = _compliance_test.downlink_counter;
-                break;
-            }
-        }
-    }
-}
-
-/** Hands over the compliance test frame to MAC layer
- *
- * \return          returns the state of the LoRa MAC
- */
-lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
-{
-    loramac_mcps_req_t mcps_req;
-
-    prepare_special_tx_frame(_compliance_test.app_port);
-
-    if (!_compliance_test.is_tx_confirmed) {
-        mcps_req.type = MCPS_UNCONFIRMED;
-        mcps_req.req.unconfirmed.fport = _compliance_test.app_port;
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.unconfirmed.data_rate = _lora_phy.get_default_tx_datarate();
-
-        tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
-
-        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
-            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
-        }
-    } else if (_compliance_test.is_tx_confirmed) {
-        mcps_req.type = MCPS_CONFIRMED;
-        mcps_req.req.confirmed.fport = _compliance_test.app_port;
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.confirmed.nb_trials = _num_retry;
-        mcps_req.req.confirmed.data_rate = _lora_phy.get_default_tx_datarate();
-
-        tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
-
-        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
-            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
-        }
-    } else {
-        return LORAWAN_STATUS_SERVICE_UNKNOWN;
-    }
-
-    return mcps_request_handler(&mcps_req);
-}
-#endif
-
 uint16_t LoRaWANStack::check_possible_tx_size(uint16_t size)
 {
     loramac_tx_info_t tx_info;
@@ -284,43 +200,45 @@ lorawan_status_t LoRaWANStack::send_frame_to_mac()
     mcps_req.type = _tx_msg.type;
 
     if (MCPS_UNCONFIRMED == mcps_req.type) {
-        mcps_req.req.unconfirmed.fport = _tx_msg.message_u.unconfirmed.fport;
         mcps_req.f_buffer = _tx_msg.f_buffer;
-
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
 
+        mcps_req.fport = _tx_msg.fport;
+        mcps_req.nb_trials = 1;
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.unconfirmed.data_rate = _lora_phy.get_default_tx_datarate();
+            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
-            mcps_req.req.unconfirmed.data_rate = mib_get_params.param.channel_data_rate;
+            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
         }
 
     } else if (mcps_req.type == MCPS_CONFIRMED) {
-        mcps_req.req.confirmed.fport = _tx_msg.message_u.confirmed.fport;
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.confirmed.nb_trials = _tx_msg.message_u.confirmed.nb_trials;
+        mcps_req.fport = _tx_msg.fport;
+        mcps_req.nb_trials = _tx_msg.nb_trials;
 
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.confirmed.data_rate = _lora_phy.get_default_tx_datarate();
+            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
-            mcps_req.req.confirmed.data_rate = mib_get_params.param.channel_data_rate;
+            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
         }
 
     } else if ( mcps_req.type == MCPS_PROPRIETARY) {
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
+        mcps_req.fport = 0;
+        mcps_req.nb_trials = 1;
 
         mib_get_params.type = MIB_CHANNELS_DATARATE;
         if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
             tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.req.proprietary.data_rate = _lora_phy.get_default_tx_datarate();
+            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
         } else {
-            mcps_req.req.proprietary.data_rate = mib_get_params.param.channel_data_rate;
+            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
         }
 
     } else {
@@ -651,7 +569,7 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
             || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_PROPRIETARY) {
 
          _tx_msg.type = MCPS_UNCONFIRMED;
-         _tx_msg.message_u.unconfirmed.fport = _app_port;
+         _tx_msg.fport = _app_port;
     }
 
     // Handles all confirmed messages, including proprietary and multicast
@@ -660,8 +578,8 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
             || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_PROPRIETARY) {
 
         _tx_msg.type = MCPS_CONFIRMED;
-        _tx_msg.message_u.confirmed.fport = _app_port;
-        _tx_msg.message_u.confirmed.nb_trials = _num_retry;
+        _tx_msg.fport = _app_port;
+        _tx_msg.nb_trials = _num_retry;
     }
 
     tr_info("RTS = %u bytes, PEND = %u", _tx_msg.f_buffer_size, _tx_msg.pending_size);
@@ -1357,3 +1275,89 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
 
     return status;
 }
+
+#if defined(LORAWAN_COMPLIANCE_TEST)
+/**
+ *
+ * Prepares the upload message to reserved ports
+ *
+ * \param port              Application port
+ */
+void LoRaWANStack::prepare_special_tx_frame(uint8_t port)
+{
+    if (port == 224) {
+        // Clear any normal message stuff before compliance test.
+        memset(&_tx_msg, 0, sizeof(_tx_msg));
+
+        if (_compliance_test.link_check == true) {
+            _compliance_test.link_check = false;
+            _compliance_test.state = 1;
+            _tx_msg.f_buffer_size = 3;
+            _tx_msg.f_buffer[0] = 5;
+            _tx_msg.f_buffer[1] = _compliance_test.demod_margin;
+            _tx_msg.f_buffer[2] = _compliance_test.nb_gateways;
+        } else {
+            switch (_compliance_test.state) {
+            case 4:
+                _compliance_test.state = 1;
+                _tx_msg.f_buffer_size = _compliance_test.app_data_size;
+
+                _tx_msg.f_buffer[0] = _compliance_test.app_data_buffer[0];
+                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
+                    _tx_msg.f_buffer[i] = _compliance_test.app_data_buffer[i];
+                }
+                break;
+            case 1:
+                _tx_msg.f_buffer_size = 2;
+                _tx_msg.f_buffer[0] = _compliance_test.downlink_counter >> 8;
+                _tx_msg.f_buffer[1] = _compliance_test.downlink_counter;
+                break;
+            }
+        }
+    }
+}
+
+/** Hands over the compliance test frame to MAC layer
+ *
+ * \return          returns the state of the LoRa MAC
+ */
+lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
+{
+    loramac_mcps_req_t mcps_req;
+
+    prepare_special_tx_frame(_compliance_test.app_port);
+
+    if (!_compliance_test.is_tx_confirmed) {
+        mcps_req.type = MCPS_UNCONFIRMED;
+        mcps_req.f_buffer = _tx_msg.f_buffer;
+        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
+        mcps_req.fport = _compliance_test.app_port;
+        mcps_req.nb_trials = 1;
+        mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
+
+        tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
+
+        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
+            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
+        }
+    } else if (_compliance_test.is_tx_confirmed) {
+        mcps_req.type = MCPS_CONFIRMED;
+        mcps_req.f_buffer = _tx_msg.f_buffer;
+        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
+        mcps_req.fport = _compliance_test.app_port;
+        mcps_req.nb_trials = _num_retry;
+        mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
+
+        tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
+
+        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
+            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
+        }
+    } else {
+        return LORAWAN_STATUS_SERVICE_UNKNOWN;
+    }
+
+    return mcps_request_handler(&mcps_req);
+}
+#endif
+
