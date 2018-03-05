@@ -421,24 +421,24 @@ private:
     virtual void out(usb_ep_t endpoint);
     virtual void in(usb_ep_t endpoint);
 
-    bool request_get_descriptor();
-    bool control_out();
-    bool control_in();
-    bool request_set_address();
-    bool request_set_configuration();
-    bool request_set_feature();
-    bool request_clear_feature();
-    bool request_get_status();
-    bool request_setup();
-    void control_setup();
-    void control_abort();
-    void control_abort_start();
-    void control_setup_continue();
-    void decode_setup_packet(uint8_t *data, setup_packet_t *packet);
-    bool request_get_configuration();
-    bool request_get_interface();
-    bool request_set_interface();
-    void change_state(DeviceState state);
+    bool _request_get_descriptor();
+    bool _control_out();
+    bool _control_in();
+    bool _request_set_address();
+    bool _request_set_configuration();
+    bool _request_set_feature();
+    bool _request_clear_feature();
+    bool _request_get_status();
+    bool _request_setup();
+    void _control_setup();
+    void _control_abort();
+    void _control_abort_start();
+    void _control_setup_continue();
+    void _decode_setup_packet(uint8_t *data, setup_packet_t *packet);
+    bool _request_get_configuration();
+    bool _request_get_interface();
+    bool _request_set_interface();
+    void _change_state(DeviceState state);
 
     struct endpoint_info_t {
         void (USBDevice::*callback)(usb_ep_t endpoint);
@@ -471,20 +471,20 @@ private:
         bool user_callback;
     };
 
-    endpoint_info_t endpoint_info[32 - 2];
+    endpoint_info_t _endpoint_info[32 - 2];
 
-    USBPhy *phy;
-    bool initialized;
-    control_transfer_t transfer;
-    usb_device_t device;
-    uint32_t max_packet_size_ep0;
+    USBPhy *_phy;
+    bool _initialized;
+    control_transfer_t _transfer;
+    usb_device_t _device;
+    uint32_t _max_packet_size_ep0;
 
-    bool setup_ready;
-    bool abort_control;
+    bool _setup_ready;
+    bool _abort_control;
 
-    uint16_t current_interface;
-    uint8_t current_alternate;
-    uint32_t locked;
+    uint16_t _current_interface;
+    uint8_t _current_alternate;
+    uint32_t _locked;
 };
 
 
