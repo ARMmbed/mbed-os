@@ -27,14 +27,15 @@ public:
     virtual ~USBPhyHw();
     virtual void init(USBPhyEvents *events);
     virtual void deinit();
-    virtual void connect(void);
-    virtual void disconnect(void);
-    virtual void configure(void);
-    virtual void unconfigure(void);
+    virtual bool powered();
+    virtual void connect();
+    virtual void disconnect();
+    virtual void configure();
+    virtual void unconfigure();
     virtual void sof_enable();
     virtual void sof_disable();
     virtual void set_address(uint8_t address);
-    virtual void remote_wakeup(void);
+    virtual void remote_wakeup();
     virtual const usb_ep_table_t *endpoint_table();
 
     virtual uint32_t ep0_set_max_packet(uint32_t max_packet);

@@ -358,10 +358,7 @@ USBPhyHw::USBPhyHw(void)
 
 USBPhyHw::~USBPhyHw(void)
 {
-    // Ensure device disconnected
-    SIEdisconnect();
-    // Disable USB interrupts
-    NVIC_DisableIRQ(USB_IRQn);
+
 }
 
 void USBPhyHw::init(USBPhyEvents *events)
@@ -408,9 +405,17 @@ void USBPhyHw::init(USBPhyEvents *events)
 
 void USBPhyHw::deinit()
 {
+    // Ensure device disconnected
+    SIEdisconnect();
+    // Disable USB interrupts
+    NVIC_DisableIRQ(USB_IRQn);
     events = NULL;
 }
 
+bool USBPhyHw::powered()
+{
+    return true;
+}
 
 void USBPhyHw::connect(void)
 {
