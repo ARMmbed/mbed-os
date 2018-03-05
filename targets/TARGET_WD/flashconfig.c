@@ -156,7 +156,7 @@ flashconfig_result flashconfig_set_value(const char * name, char * value)
 	size_t svalue = strlen(value) + 1;
 
 	if(!sname || sname >= FLASHCONFIG_NAME_MAX) return flashconfig_args_error;
-	if(!svalue|| sname >= FLASHCONFIG_VALUE_MAX) return flashconfig_args_error;
+	if(!svalue|| svalue >= FLASHCONFIG_VALUE_MAX) return flashconfig_args_error;
 
 	m_checkinit();
 	
