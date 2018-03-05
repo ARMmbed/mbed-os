@@ -11,7 +11,7 @@
 
 #include <time.h>
 
-#define BT_SLAVE_COLLECTION_MAX_ERROR_COUNT				5
+#define BT_SLAVE_COLLECTION_MAX_ERROR_COUNT				10
 
 class BTSlaveEntry
 {

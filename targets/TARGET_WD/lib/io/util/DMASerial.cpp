@@ -100,7 +100,7 @@ void DMASerial::_dma_rx_capture(int evt) {
 		uint16_t producer_pointer = huart->RxXferSize - __HAL_DMA_GET_COUNTER(hdma);
 	
 		dma_frame_meta_t * frame_meta = _dma_rx_frame_queue.alloc();
-//		wd_log_error("(%x) _dma_rx_frame_queue.alloc()", _dma_rx_frame_queue);
+		//wd_log_error("_dma_rx_frame_queue.alloc() %d", this->_serial.serial.index);
 		
 		size_t frame_size;
 		if (consumer_pointer < producer_pointer) {
@@ -121,6 +121,12 @@ void DMASerial::_dma_rx_capture(int evt) {
 			}
 		} else {
 			wd_log_error("DMASerial: Error allocating memory for frame queue!");
+
+			// TODO: 
+			// Inspect why the queue is full
+			// It should be processed by _rx_queue_process_loop
+			
+			mbed_die();
 		}
 	
 		consumer_pointer = (consumer_pointer + frame_size) % huart->RxXferSize;
@@ -157,7 +163,7 @@ void DMASerial::_rx_queue_process_loop(void) {
 				this->_rx_cb.call(frame_meta);
 			}
 			_dma_rx_frame_queue.free(frame_meta);
-//			wd_log_error("(%x) _dma_rx_frame_queue.free()", _dma_rx_frame_queue);
+			//wd_log_error("_dma_rx_frame_queue.free()");
 		}
 		
 	}
