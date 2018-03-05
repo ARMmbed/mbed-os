@@ -34,6 +34,7 @@ public:
      *
      */
     LoRaWANInterface(LoRaRadio& radio);
+
     virtual ~LoRaWANInterface();
 
     /** Initialize the LoRa stack.

@@ -334,9 +334,9 @@ public:
      *
      * loramac_mcps_req_t request;
      * request.type = MCPS_UNCONFIRMED;
-     * request.req.unconfirmed.fport = 1;
-     * request.req.unconfirmed.f_buffer = buffer;
-     * request.req.unconfirmed.f_buffer_size = sizeof(buffer);
+     * request.fport = 1;
+     * request.f_buffer = buffer;
+     * request.f_buffer_size = sizeof(buffer);
      *
      * if (mcps_request(&request) == LORAWAN_STATUS_OK) {
      *   // Service started successfully. Waiting for the MCPS-Confirm event
@@ -427,79 +427,7 @@ public:
      */
     void open_continuous_rx2_window(void);
 
-#if defined(LORAWAN_COMPLIANCE_TEST)
-public: // Test interface
 
-    /**
-     * \brief   LoRaMAC set tx timer.
-     *
-     * \details Sets up a timer for next transmission (application specific timers).
-     *
-     * \param   [in] NextTxTime - Periodic time for next uplink.
-
-     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     */
-    lorawan_status_t LoRaMacSetTxTimer( uint32_t NextTxTime );
-
-    /**
-     * \brief   LoRaMAC stop tx timer.
-     *
-     * \details Stops the next tx timer.
-     *
-     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     */
-    lorawan_status_t LoRaMacStopTxTimer( );
-
-    /**
-     * \brief   Enabled or disables the reception windows
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] enable - Enabled or disables the reception windows
-     */
-    void LoRaMacTestRxWindowsOn( bool enable );
-
-    /**
-     * \brief   Enables the MIC field test
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] txPacketCounter - Fixed Tx packet counter value
-     */
-    void LoRaMacTestSetMic( uint16_t txPacketCounter );
-
-    /**
-     * \brief   Enabled or disables the duty cycle
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] enable - Enabled or disables the duty cycle
-     */
-    void LoRaMacTestSetDutyCycleOn( bool enable );
-
-    /**
-     * \brief   Sets the channel index
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] channel - Channel index
-     */
-    void LoRaMacTestSetChannel( uint8_t channel );
-
-private:
-    /**
-     * Timer to handle the application data transmission duty cycle
-     */
-    timer_event_t tx_next_packet_timer;
-#endif
 
 private:
     /**
@@ -673,6 +601,80 @@ private:
      * EventQueue object storage
      */
     events::EventQueue *ev_queue;
+
+#if defined(LORAWAN_COMPLIANCE_TEST)
+public: // Test interface
+
+    /**
+     * \brief   LoRaMAC set tx timer.
+     *
+     * \details Sets up a timer for next transmission (application specific timers).
+     *
+     * \param   [in] NextTxTime - Periodic time for next uplink.
+
+     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     */
+    lorawan_status_t LoRaMacSetTxTimer( uint32_t NextTxTime );
+
+    /**
+     * \brief   LoRaMAC stop tx timer.
+     *
+     * \details Stops the next tx timer.
+     *
+     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     */
+    lorawan_status_t LoRaMacStopTxTimer( );
+
+    /**
+     * \brief   Enabled or disables the reception windows
+     *
+     * \details This is a test function. It shall be used for testing purposes only.
+     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+     *
+     * \param   [in] enable - Enabled or disables the reception windows
+     */
+    void LoRaMacTestRxWindowsOn( bool enable );
+
+    /**
+     * \brief   Enables the MIC field test
+     *
+     * \details This is a test function. It shall be used for testing purposes only.
+     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+     *
+     * \param   [in] txPacketCounter - Fixed Tx packet counter value
+     */
+    void LoRaMacTestSetMic( uint16_t txPacketCounter );
+
+    /**
+     * \brief   Enabled or disables the duty cycle
+     *
+     * \details This is a test function. It shall be used for testing purposes only.
+     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+     *
+     * \param   [in] enable - Enabled or disables the duty cycle
+     */
+    void LoRaMacTestSetDutyCycleOn( bool enable );
+
+    /**
+     * \brief   Sets the channel index
+     *
+     * \details This is a test function. It shall be used for testing purposes only.
+     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+     *
+     * \param   [in] channel - Channel index
+     */
+    void LoRaMacTestSetChannel( uint8_t channel );
+
+private:
+    /**
+     * Timer to handle the application data transmission duty cycle
+     */
+    timer_event_t tx_next_packet_timer;
+#endif
 };
 
 #endif // MBED_LORAWAN_MAC_H__

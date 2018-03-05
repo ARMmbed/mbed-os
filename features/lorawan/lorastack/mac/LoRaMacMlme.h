@@ -49,6 +49,9 @@ public:
      */
     ~LoRaMacMlme();
 
+    /**
+     * @brief reset_confirmation Resets the confirmation struct
+     */
     void reset_confirmation();
 
     /** Activating MLME subsystem

@@ -1609,7 +1609,7 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
     mlme.activate_mlme_subsystem(lora_phy);
 
     // Activate MCPS subsystem
-    mcps.activate_mcps_subsystem(this, lora_phy);
+    mcps.activate_mcps_subsystem();
 
     // Activate MIB subsystem
     mib.activate_mib_subsystem(lora_phy);
@@ -1955,7 +1955,60 @@ lorawan_status_t LoRaMac::mcps_request( loramac_mcps_req_t *mcpsRequest )
         return LORAWAN_STATUS_BUSY;
     }
 
-    lorawan_status_t status = mcps.set_request(mcpsRequest, &_params);
+    loramac_mhdr_t machdr;
+    int8_t datarate = mcpsRequest->data_rate;
+    // TODO: The comment is different than the code???
+    // Apply the minimum possible datarate.
+    // Some regions have limitations for the minimum datarate.
+    datarate = MAX(datarate, (int8_t)lora_phy->get_minimum_tx_datarate());
+
+    machdr.value = 0;
+
+    mcps.reset_confirmation();
+
+    _params.ack_timeout_retry_counter = 1;
+    _params.max_ack_timeout_retries = 1;
+
+    switch (mcpsRequest->type) {
+        case MCPS_UNCONFIRMED: {
+            machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
+            break;
+        }
+        case MCPS_CONFIRMED: {
+            machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
+            _params.max_ack_timeout_retries = mcpsRequest->nb_trials;
+            break;
+        }
+        case MCPS_PROPRIETARY: {
+            machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
+            break;
+        }
+        default:
+            return LORAWAN_STATUS_PARAMETER_INVALID;
+    }
+
+//    Filter fPorts
+//    TODO: Does not work with PROPRIETARY messages
+//    if( IsFPortAllowed( mcpsRequest->fport ) == false ) {
+//        return LORAWAN_STATUS_PARAMETER_INVALID;
+//    }
+
+    if (_params.sys_params.adr_on == false) {
+        if (lora_phy->verify_tx_datarate(datarate, false) == true) {
+            _params.sys_params.channel_data_rate = datarate;
+        } else {
+            return LORAWAN_STATUS_PARAMETER_INVALID;
+        }
+    }
+
+    lorawan_status_t status = send(&machdr, mcpsRequest->fport, mcpsRequest->f_buffer,
+                                   mcpsRequest->f_buffer_size);
+    if (status == LORAWAN_STATUS_OK) {
+        mcps.get_confirmation().req_type = mcpsRequest->type;
+        _params.flags.bits.mcps_req = 1;
+    } else {
+        _params.is_node_ack_requested = false;
+    }
 
     return status;
 }
