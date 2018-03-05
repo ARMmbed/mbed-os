@@ -57,9 +57,6 @@ public:
     /** Activating MCPS subsystem
      *
      * Stores pointers to MAC and PHY layer handles
-     *
-     * @param mac    pointer to MAC layer
-     * @param phy    pointer to PHY layer
      */
     void activate_mcps_subsystem();
 
