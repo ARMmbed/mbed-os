@@ -143,7 +143,27 @@ void print_context_info()
         fault_print_str("\nBFAR : %",(uint32_t *)&SCB->BFAR); 
     }
 #endif
-    
+    //Print Mode
+    if(mbed_fault_context.EXC_RETURN & 0x8) {
+        fault_print_str("\nMode : Thread", NULL);
+        //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
+        //Note that the CONTROL register captured still reflects the privilege status of the 
+        //thread mode eventhough we are in Handler mode by the time we capture it.
+        if(mbed_fault_context.CONTROL & 0x1) {
+            fault_print_str("\nPriv : User", NULL); 
+        } else {
+            fault_print_str("\nPriv : Privileged", NULL); 
+        }        
+    } else {
+        fault_print_str("\nMode : Handler", NULL); 
+        fault_print_str("\nPriv : Privileged", NULL); 
+    }
+    //Print Return Stack
+    if(mbed_fault_context.EXC_RETURN & 0x4) {
+        fault_print_str("\nStack: PSP", NULL); 
+    } else {
+        fault_print_str("\nStack: MSP", NULL); 
+    }
 }
 
 /* Prints thread info from a list */
