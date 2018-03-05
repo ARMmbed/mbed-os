@@ -38,6 +38,8 @@ public:
     */
     USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
 
+    ~USBTester();
+
 protected:
 
     /*

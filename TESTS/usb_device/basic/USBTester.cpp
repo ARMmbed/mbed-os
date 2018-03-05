@@ -50,8 +50,14 @@ USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
 
     configuration_desc();
 
+    init();
     USBDevice::connect(connect_blocking);
 
+}
+
+USBTester::~USBTester()
+{
+    deinit();
 }
 
 void USBTester::callback_state_change(DeviceState new_state)
