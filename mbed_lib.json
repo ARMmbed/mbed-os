@@ -24,6 +24,12 @@
             "SPI_MISO": "p21",
             "SPI_CLK":  "p19",
             "SPI_CS":   "p17"
+        },
+        "HEXIWEAR": {
+             "SPI_MOSI": "PTD6",
+             "SPI_MISO": "PTD7",
+             "SPI_CLK":  "PTD5",
+             "SPI_CS":   "PTD4"
         }
     }
 }
