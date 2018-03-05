@@ -33,7 +33,7 @@ void mbed_sdk_init(void)
     /* Unlock protected registers */
     SYS_UnlockReg();
 
-    /* Enable HIRC clock (Internal RC 22.1184MHz) */
+    /* Enable HIRC clock (Internal RC 12MHz) */
     CLK_EnableXtalRC(CLK_PWRCTL_HIRCEN_Msk);
     /* Enable HXT clock (external XTAL 12MHz) */
     CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
@@ -41,6 +41,8 @@ void mbed_sdk_init(void)
     CLK_EnableXtalRC(CLK_PWRCTL_LIRCEN_Msk);
     /* Enable LXT for RTC */
     CLK_EnableXtalRC(CLK_PWRCTL_LXTEN_Msk);
+    /* Enable HIRC48 clock (Internal RC 48MHz) */
+    CLK_EnableXtalRC(CLK_PWRCTL_HIRC48EN_Msk);
 
     /* Wait for HIRC clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRCSTB_Msk);
@@ -50,13 +52,20 @@ void mbed_sdk_init(void)
     CLK_WaitClockReady(CLK_STATUS_LIRCSTB_Msk);
     /* Wait for LXT clock ready */
     CLK_WaitClockReady(CLK_STATUS_LXTSTB_Msk);
+    /* Wait for HIRC48 clock ready */
+    CLK_WaitClockReady(CLK_STATUS_HIRC48STB_Msk);
 
+    /* NOTE: There is a reset halt issue with PLL in A version. Work around it
+     *       by using HIRC48 instead of PLL as HCLK clock source. */
+#if 0
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
     
     /* Set core clock as 48M from PLL */
     CLK_SetCoreClock(FREQ_48MHZ);
-
+#else
+    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC48, CLK_CLKDIV0_HCLK(1UL));
+#endif
     
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
