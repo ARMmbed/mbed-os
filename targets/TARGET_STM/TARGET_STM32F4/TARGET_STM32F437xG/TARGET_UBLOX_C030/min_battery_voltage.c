@@ -27,10 +27,10 @@ void HAL_MspInit(void)
 
 void set_minimum_battery_voltage()
 {
-    i2c_t i2c_obj;
+    i2c_t i2c_obj = {0};
     int data_read;
-    i2c_frequency(&i2c_obj, I2C_FREQUENCY);
     i2c_init(&i2c_obj, I2C_SDA_B, I2C_SCL_B);
+    i2c_frequency(&i2c_obj, I2C_FREQUENCY);
 
     if (read_from_i2c(BQ24295_I2C_ADDRESS, 0, &data_read, i2c_obj)) {
         data_read = data_read & MIN_BATTERY_VOLTAGE_MASK;
