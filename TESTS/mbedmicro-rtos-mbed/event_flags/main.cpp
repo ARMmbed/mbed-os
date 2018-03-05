@@ -30,7 +30,11 @@ using utest::v1::Case;
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
+#define THREAD_STACK_SIZE   512
+#else
 #define THREAD_STACK_SIZE   320 /* 512B stack on GCC_ARM compiler cause out of memory on some 16kB RAM boards e.g. NUCLEO_F070RB */
+#endif
 
 #define MAX_FLAG_POS 30
 #define PROHIBITED_FLAG_POS 31
