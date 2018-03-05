@@ -29,7 +29,11 @@
 
 using namespace utest::v1;
 
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
+#define TEST_STACK_SIZE 768
+#else
 #define TEST_STACK_SIZE 512
+#endif
 
 #define TEST_LONG_DELAY 20
 #define TEST_DELAY 10
