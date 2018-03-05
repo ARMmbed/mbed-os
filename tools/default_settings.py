@@ -43,3 +43,6 @@ from os.path import join, abspath, dirname
 
 # mbed.org username
 #MBED_ORG_USER = ""
+
+# Print compiler warnings and errors as link format
+#PRINT_COMPILER_OUTPUT_AS_LINK = False
