@@ -90,9 +90,13 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta = timestamp - us_ticker_read();
+    uint32_t now_us, delta_us;
+
+    now_us = us_ticker_read();
+    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+
     LPTMR_StopTimer(LPTMR0);
-    LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta);
+    LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta_us);
     LPTMR_EnableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
     LPTMR_StartTimer(LPTMR0);
 }
