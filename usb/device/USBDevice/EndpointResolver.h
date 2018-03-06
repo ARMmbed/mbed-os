@@ -21,6 +21,17 @@
 
 #include "USBPhy.h"
 
+/**
+ * Utility class for resolving endpoints
+ *
+ * This class is intended to make the process of
+ * selecting the correct endpoint from a device endpoint
+ * table easier. It also provides a verification function
+ * to check if the device has enough resources for the
+ * given configuration.
+ *
+ * @ingroup usb_device_core
+ */
 class EndpointResolver {
 public:
     EndpointResolver(const usb_ep_table_t *table);
