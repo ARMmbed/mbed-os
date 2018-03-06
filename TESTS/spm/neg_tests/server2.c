@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <stdbool.h>
 #include "unity.h"
 #include "spm_panic.h"
 #include "spm_server.h"
 #include "psa_part2_partition.h"
 
-#define MSG_BUF_SIZE            MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
-#define CLIENT_RSP_BUF_SIZE     MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
+#define MSG_BUF_SIZE            128
+#define CLIENT_RSP_BUF_SIZE     128
 #define INVALID_INT_MASK        0xFFFFFFFF
 #define MULTIPLE_SIGNUM         0x00000003
 #define NUM_OF_FLAGS            24
@@ -65,7 +65,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
                     psa_handle_t invalid_handle = msg.handle  + 10;
-                    psa_read(invalid_handle, 0, msg_buf, msg.size);
+                    psa_read(invalid_handle, 0, msg_buf, msg.size[0]);
                     TEST_FAIL_MESSAGE("server_read_invalid_handle negative test failed");
                     break;
                 }
@@ -82,29 +82,12 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(PSA_NULL_HANDLE, 0, msg_buf, msg.size);
+                    psa_read(PSA_NULL_HANDLE, 0, msg_buf, msg.size[0]);
                     TEST_FAIL_MESSAGE("server_read_null_handle negative test failed");
                     break;
                 }
                 default: {
                     TEST_FAIL_MESSAGE("server_read_null_handle msg type failure");
-                }
-            }
-            psa_end(msg.handle, PSA_SUCCESS);
-        }
-        else if (signals & PART2_READ_TX_SIZE_ZERO_MSK) {
-            psa_get(PART2_READ_TX_SIZE_ZERO_MSK, &msg);
-            switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
-                    break;
-                }
-                case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
-                    TEST_FAIL_MESSAGE("server_read_tx_size_zero negative test failed");
-                    break;
-                }
-                default: {
-                    TEST_FAIL_MESSAGE("server_read_tx_size_zero msg type failure");
                 }
             }
             psa_end(msg.handle, PSA_SUCCESS);
@@ -116,8 +99,12 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
-                    psa_write(msg.handle, 0, NULL, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
+                    psa_write(msg.handle, 0, NULL, read_bytes);
                     TEST_FAIL_MESSAGE("server_write_null_buffer negative test failed");
                     break;
                 }
@@ -134,8 +121,12 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
-                    psa_write(msg.handle, UINT32_MAX, res_buff, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
+                    psa_write(msg.handle, UINT32_MAX, res_buff, read_bytes);
                     TEST_FAIL_MESSAGE("server_write_offset_bigger_than_max_value negative test failed");
                     break;
                 }
@@ -152,7 +143,11 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
                     psa_write(msg.handle, CLIENT_RSP_BUF_SIZE, res_buff, 1);
                     TEST_FAIL_MESSAGE("server_write_offset_bigger_than_rx_size negative test failed");
                     break;
@@ -170,8 +165,12 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
-                    psa_write(msg.handle, 0, res_buff, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
+                    psa_write(msg.handle, 0, res_buff, read_bytes);
                     TEST_FAIL_MESSAGE("server_write_rx_buff_null negative test failed");
                     break;
                 }
@@ -188,9 +187,13 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
                     psa_handle_t invalid_handle = msg.handle  + 10;
-                    psa_write(invalid_handle, 0, res_buff, msg.size);
+                    psa_write(invalid_handle, 0, res_buff, read_bytes);
                     TEST_FAIL_MESSAGE("server_write_invalid_handle negative test failed");
                     break;
                 }
@@ -207,8 +210,12 @@ void server_main2(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    psa_read(msg.handle, 0, msg_buf, msg.size);
-                    psa_write(PSA_NULL_HANDLE, 0, res_buff, msg.size);
+                    size_t read_bytes = 0;
+                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                        read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.size[i]);
+                    }
+
+                    psa_write(PSA_NULL_HANDLE, 0, res_buff, read_bytes);
                     TEST_FAIL_MESSAGE("server_write_null_handle negative test failed");
                     break;
                 }
@@ -342,7 +349,7 @@ void server_main2(void *ptr)
                 }
             }
             psa_end(msg.handle, PSA_SUCCESS);
-        }        
+        }
         else {
             SPM_ASSERT(false);
         }

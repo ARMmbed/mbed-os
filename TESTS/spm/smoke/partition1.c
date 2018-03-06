@@ -49,34 +49,23 @@ void part1_main(void *ptr)
 
             case PSA_IPC_MSG_TYPE_CALL:
             {
-                MBED_ASSERT(msg.size == ACTUAL_MSG_SIZE);
-                MBED_ASSERT(msg.response_size == 20);
+                MBED_ASSERT((msg.size[0] + msg.size[1] + msg.size[2]) == ACTUAL_MSG_SIZE);
+                MBED_ASSERT(msg.response_size == SERVER_RSP_BUF_SIZE);
+                uint32_t bytes_read = 0;
+                char *read_ptr = read_msg_buf;
 
-                uint32_t offset = 0;
-                uint32_t bytes_to_read = msg.size - offset;
-                size_t bytes_read = psa_read(msg.handle, offset, read_msg_buf, bytes_to_read);
-                MBED_ASSERT(bytes_read == bytes_to_read);
+                for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
 
-                int cmp_res = strcmp(SERVER_EXPECTED_READ_MSG + offset, read_msg_buf);
-                if(cmp_res != 0) {
-                    error("psa_read() - Bad reading with offset %u!!", (unsigned int)offset);
+                    bytes_read += psa_read(msg.handle, i, read_ptr, msg.size[i]);
+                    read_ptr = read_msg_buf + bytes_read;
                 }
 
-                offset = 10;
-                bytes_to_read = SERVER_READ_MSG_BUF_SIZE;
-                bytes_read = psa_read(msg.handle, offset, read_msg_buf, bytes_to_read);
-                MBED_ASSERT(bytes_read == msg.size - offset);
+                MBED_ASSERT(bytes_read == (msg.size[0] + msg.size[1] + msg.size[2]));
 
-                cmp_res = strcmp(SERVER_EXPECTED_READ_MSG + offset, read_msg_buf);
+                int cmp_res = strcmp(SERVER_EXPECTED_READ_MSG, read_msg_buf);
                 if(cmp_res != 0) {
-                    error("psa_read() - Bad reading with offset %u!!", offset);
+                    error("psa_read() - Bad reading!!");
                 }
-
-                offset = ACTUAL_MSG_SIZE;
-                bytes_to_read = 5;
-                bytes_read = psa_read(msg.handle, offset, read_msg_buf, bytes_to_read);
-                MBED_ASSERT(bytes_read == 0);
-                PSA_UNUSED(bytes_read);
 
                 psa_write(msg.handle, WRITE_OFFSET, write_msg_buf, strlen(write_msg_buf) + 1);
 
@@ -86,7 +75,6 @@ void part1_main(void *ptr)
             case PSA_IPC_MSG_TYPE_CONNECT:
             case PSA_IPC_MSG_TYPE_DISCONNECT:
             {
-                MBED_ASSERT(msg.size == 0);
                 MBED_ASSERT(msg.response_size == 0);
                 break;
             }
