@@ -12,18 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <string.h>
 #include "spm_server.h"
 #include "spm_panic.h"
 #include "psa_part1_partition.h"
 
-#define MSG_BUF_SIZE MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
+#define MSG_BUF_SIZE 128
 
 void server_main(void *ptr)
 {
     uint32_t signals = 0;
-    char msg_buf[MSG_BUF_SIZE] = {0};
-
+    uint8_t data[MSG_BUF_SIZE] = {0};
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART1_SF1_MSK) {
@@ -34,16 +33,17 @@ void server_main(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    uint8_t expect = 0;
-                    uint8_t off = 0;
-                    SPM_ASSERT(msg.response_size >= expect);
-                    if (msg.size > 1) {
-                        psa_read(msg.handle, 0, &expect, 1);
-                        psa_read(msg.handle, 1, &off, 1);
-                        psa_read(msg.handle, off, msg_buf, msg.size - off);
+                    memset(data, 0, sizeof(data));
+                    if (msg.size[0] + msg.size[1] + msg.size[2] > 1) {
+                        size_t offset = 0;
+                        offset += psa_read(msg.handle, 0, (void*)data, msg.size[0]);
+                        offset += psa_read(msg.handle, 1, (void*)(data + offset), msg.size[1]);
+                        offset += psa_read(msg.handle, 2, (void*)(data + offset), msg.size[2]);
                     }
                     if (msg.response_size > 0) {
-                        psa_write(msg.handle, 0, msg_buf, expect);
+                        uint8_t resp_size = data[0];
+                        uint8_t resp_offset = data[1];
+                        psa_write(msg.handle, 0, (const void*)(data + resp_offset), resp_size);
                     }
                     break;
                 }

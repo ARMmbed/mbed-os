@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <stdbool.h>
+#include <string.h>
 #include "spm_server.h"
 #include "spm_panic.h"
 #include "psa_part1_partition.h"
 
-#define MSG_BUF_SIZE MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
+#define MSG_BUF_SIZE 128
 
 void server_main1(void *ptr)
 {
@@ -35,10 +36,12 @@ void server_main1(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
+                    memset(msg_buf, 0, MSG_BUF_SIZE);
                     uint32_t bytes_read = 0;
-                    if (msg.size > 0) {
-                        bytes_read = psa_read(msg.handle, 0, msg_buf, msg.size);
+                    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+                        bytes_read = psa_read(msg.handle, i, msg_buf + bytes_read, msg.size[i]);
                     }
+
                     if (msg.response_size > 0) {
                         psa_write(msg.handle, 0, msg_buf, bytes_read);
                     }
