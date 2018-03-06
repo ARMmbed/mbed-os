@@ -92,6 +92,14 @@
 #define DEFAULT_TRACE_CONFIG              TRACE_MODE_COLOR | TRACE_ACTIVE_LEVEL_ALL | TRACE_CARRIAGE_RETURN
 #endif
 
+/** static trace configuration **/
+#ifdef MBED_TRACE_STATIC
+static uint8_t trace_filters_exclude[DEFAULT_TRACE_FILTER_LENGTH];
+static uint8_t trace_filters_include[DEFAULT_TRACE_FILTER_LENGTH];
+static uint8_t trace_line[DEFAULT_TRACE_LINE_LENGTH];
+static uint8_t trace_tmp_data[DEFAULT_TRACE_TMP_LINE_LEN];
+#endif
+
 /** default print function, just redirect str to printf */
 static void mbed_trace_realloc( char **buffer, int *length_ptr, int new_length);
 static void mbed_trace_default_print(const char *str);
@@ -153,6 +161,7 @@ static trace_t m_trace = {
 
 int mbed_trace_init(void)
 {
+#ifndef MBED_TRACE_STATIC
     if (m_trace.line == NULL) {
         m_trace.line = MBED_TRACE_MEM_ALLOC(m_trace.line_length);
     }
@@ -168,15 +177,24 @@ int mbed_trace_init(void)
     if (m_trace.filters_include == NULL) {
         m_trace.filters_include = MBED_TRACE_MEM_ALLOC(m_trace.filters_length);
     }
-
+    
     if (m_trace.line == NULL ||
-            m_trace.tmp_data == NULL ||
-            m_trace.filters_exclude == NULL  ||
-            m_trace.filters_include == NULL) {
-        //memory allocation fail
-        mbed_trace_free();
-        return -1;
-    }
+        m_trace.tmp_data == NULL ||
+        m_trace.filters_exclude == NULL  ||
+        m_trace.filters_include == NULL) {
+    //memory allocation fail
+    mbed_trace_free();
+    return -1;
+}
+
+#else
+    m_trace.filters_exclude = trace_filters_exclude;
+    m_trace.filters_include = trace_filters_include;
+    m_trace.line = trace_line;
+    m_trace.tmp_data = trace_tmp_data;
+#endif
+
+
     memset(m_trace.tmp_data, 0, m_trace.tmp_data_length);
     memset(m_trace.filters_exclude, 0, m_trace.filters_length);
     memset(m_trace.filters_include, 0, m_trace.filters_length);
