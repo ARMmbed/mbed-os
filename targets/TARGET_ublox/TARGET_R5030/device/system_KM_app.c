@@ -50,11 +50,11 @@
 /* ToDo: add here your necessary defines for device initialization
          following is an example for different system frequencies             */
 /* TODO: Use the correct frequencies */
-#define __HSI             (300000000UL)
-#define __XTAL            (300000000UL)    /* Oscillator frequency             */
-#define __SYS_OSC_CLK     (    ___HSI)    /* Main oscillator frequency        */
+//#define __HSI             (300000000UL)
+//#define __XTAL            (300000000UL)    /* Oscillator frequency             */
+//#define __SYS_OSC_CLK     (    ___HSI)    /* Main oscillator frequency        */
 
-#define __SYSTEM_CLOCK    (10*__XTAL)
+#define __SYSTEM_CLOCK    (26000000UL)
 
 
 /*----------------------------------------------------------------------------
