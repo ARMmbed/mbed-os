@@ -392,7 +392,7 @@ class Config(object):
             return self.format_validation_error(error.context[0], path)
         else:
             return "in {} element {}: {}".format(
-                path, str(".".join(error.absolute_path)), error.message)
+                path, str(".".join(str(p) for p in error.absolute_path)), error.message)
 
     def __init__(self, tgt, top_level_dirs=None, app_config=None):
         """Construct a mbed configuration
