@@ -33,6 +33,10 @@ static inline bool is_buffer_accessible(const void *ptr, size_t size)
         return false;
     }
 
+    if (((uintptr_t)ptr + size) < ((uintptr_t)ptr)) {
+        return false;
+    }
+
     PSA_UNUSED(size);
     return true;
 }
@@ -81,7 +85,7 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
                 bitmask, curr_partition->flags_interrupts);
         }
     }
-    
+
     uint32_t asserted_signals = osThreadFlagsWait(
         bitmask,
         osFlagsWaitAny | osFlagsNoClear,
@@ -153,14 +157,21 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
     msg->type = active_msg->type;
     msg->handle = curr_partition->msg_handle;
     msg->rhandle = active_msg->channel->rhandle;
-    msg->size = active_msg->tx_size;
-    msg->response_size = active_msg->rx_size;
+    msg->response_size = active_msg->out_vec[0].iov_len;
+
+    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+        msg->size[i] = active_msg->in_vec[i].iov_len;
+    }
 }
 
-size_t psa_read(psa_handle_t msg_handle, size_t offset, void *buffer, size_t len)
+size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t num_bytes)
 {
-    if (!is_buffer_accessible(buffer, len)) {
+    if (!is_buffer_accessible(buf, num_bytes)) {
         SPM_PANIC("buffer is inaccessible\n");
+    }
+
+    if (iovec_idx >= PSA_MAX_INVEC_LEN) {
+        SPM_PANIC("Invalid iovec_idx\n");
     }
 
     active_msg_t *active_msg = NULL;
@@ -171,19 +182,19 @@ size_t psa_read(psa_handle_t msg_handle, size_t offset, void *buffer, size_t len
 
     PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
 
-    if (active_msg->tx_size == 0) {
-        SPM_PANIC("Message size to read from is zero!\n");
-    }
-    
-    if (offset >= active_msg->tx_size) {
-        return 0;
+    iovec_t *active_iovec = &active_msg->in_vec[iovec_idx];
+
+    if (num_bytes > active_iovec->iov_len) {
+        num_bytes = active_iovec->iov_len;
     }
 
-    uint32_t bytes_left = active_msg->tx_size - offset;
-    len = (len > bytes_left) ? bytes_left : len;
-    memcpy(buffer, active_msg->tx_buf + offset, len);
+    if (num_bytes > 0) {
+        memcpy(buf, active_iovec->iov_base, num_bytes);
+        active_iovec->iov_base = (void *)((uint8_t*)active_iovec->iov_base + num_bytes);
+        active_iovec->iov_len -= num_bytes;
+    }
 
-    return len;
+    return num_bytes;
 }
 
 void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_t bytes)
@@ -200,8 +211,10 @@ void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_
 
     PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
 
-    if (NULL == active_msg->rx_buf) {
-        SPM_PANIC("active_msg->rx_buf is NULL!\n");
+    iovec_t *active_iovec = &active_msg->out_vec[0];
+
+    if (NULL == active_iovec->iov_base) {
+        SPM_PANIC("active_msg->out_vec[0].iov_base is NULL!\n");
     }
     if (offset > UINT32_MAX - bytes) {
         SPM_PANIC(
@@ -210,17 +223,17 @@ void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_
             bytes
             );
     }
-    if (offset + bytes > active_msg->rx_size) {
+    if ((offset + bytes) > active_iovec->iov_len) {
         SPM_PANIC(
             "Buffer overflow of client's response buffer"
-            " (offset=%lu, bytes=%lu, active_msg->rx_size=%lu)!\n",
+            " (offset=%lu, bytes=%lu,  active_msg->out_vec[0].iov_len=%lu)!\n",
             offset,
             bytes,
-            active_msg->rx_size
+            active_iovec->iov_len
             );
     }
 
-    memcpy((uint8_t *)(active_msg->rx_buf) + offset, buffer, bytes);
+    memcpy((uint8_t *)(active_iovec->iov_base) + offset, buffer, bytes);
     return;
 }
 
@@ -249,7 +262,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     SPM_ASSERT(NULL != curr_partition);        // active thread in SPM must be in partition DB
     spm_msg_handle_destroy(curr_partition->msg_handle);
     curr_partition->msg_handle = PSA_NULL_HANDLE;
-        
+
     int32_t flags = (int32_t)osThreadFlagsClear(dst_sec_func->mask);
     SPM_ASSERT(flags >= 0);
     PSA_UNUSED(flags);

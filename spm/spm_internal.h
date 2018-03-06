@@ -63,10 +63,8 @@ typedef struct spm {
  */
 typedef struct active_msg {
     ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
-    uint8_t tx_buf[MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT]; /* combined iovecs of the message.*/
-    uint32_t tx_size; /* Size in bytes of the message payload.*/
-    void *rx_buf; /* Pointer to the client's response buffer.*/
-    size_t rx_size; /* Size in bytes of expected response data.*/
+    iovec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
+    iovec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
     psa_error_t rc; /* Return code to be filled by the Secure Function.*/
     SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } active_msg_t;
@@ -110,6 +108,7 @@ typedef struct ipc_channel {
     secure_func_t *dst_sec_func; /* Pointer to the connected Secure Function.*/
     void *rhandle; /* Reverse handle to be used for this channel.*/
 } ipc_channel_t;
+
 
 /**
  * Returns a pointer to the secure partition struct of the active thread, or NULL for NSPE threads
