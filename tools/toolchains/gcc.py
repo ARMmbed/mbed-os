@@ -48,21 +48,20 @@ class GCC(mbedToolchain):
             self.flags["ld"].append("--specs=nano.specs")
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0plus"
-        elif target.core == "Cortex-M4F":
-            cpu = "cortex-m4"
-        elif target.core == "Cortex-M7F":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M7FD":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M23-NS":
-            cpu = "cortex-m23"
-        elif target.core == "Cortex-M33-NS":
-            cpu = "cortex-m33"
+            self.cpu = ["-mcpu=cortex-m0plus"]
+        elif target.core.startswith("Cortex-M4"):
+            self.cpu = ["-mcpu=cortex-m4"]
+        elif target.core.startswith("Cortex-M7"):
+            self.cpu = ["-mcpu=cortex-m7"]
+        elif target.core.startswith("Cortex-M23"):
+            self.cpu = ["-mcpu=cortex-m23"]
+        elif target.core.startswith("Cortex-M33F"):
+            self.cpu = ["-mcpu=cortex-m33"]
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu = ["-march=armv8-m.main"]
         else:
-            cpu = target.core.lower()
+            self.cpu = ["-mcpu={}".format(target.core.lower())]
 
-        self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
@@ -85,7 +84,9 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+        if ((target.core.startswith("Cortex-M23") or
+             target.core.startswith("Cortex-M33")) and
+            not target.core.endswith("-NS")):
             self.cpu.append("-mcmse")
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
              self.flags["ld"].append("-D__DOMAIN_NS=1")
