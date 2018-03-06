@@ -46,7 +46,7 @@
             "value": "NET_6LOWPAN_ROUTER"
         },
         "thread-pskd": {
-            "help": "Human-scaled commissioning credentials (string 6-255 chars).",
+            "help": "Human-scaled commissioning credentials. Uppercase alphanumeric string (0-9, A-Y excluding I, O, Q and Z), 6-32 characters.",
             "value": "\"ABCDEFGH\""
         },
         "thread-use-static-link-config": {
@@ -70,7 +70,7 @@
             "value": "0x0700"
         },
         "thread-config-network-name": {
-            "help": "Network name",
+            "help": "Network name (max 16 characters)",
             "value": "\"Thread Network\""
         },
         "thread-config-commissioning-dataset-timestamp": {
