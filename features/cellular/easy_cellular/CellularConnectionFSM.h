@@ -83,6 +83,16 @@ public:
      */
     void set_callback(mbed::Callback<bool(int, int)> status_callback);
 
+    /** Register callback for status reporting
+     *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
@@ -131,20 +141,36 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
+    char* get_state_string(CellularState state);
 private:
-    bool open_power(FileHandle *fh);
+    bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
     bool set_network_registration(char *plmn = 0);
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
 
+    // state functions to keep state machine simple
+    void state_init();
+    void state_power_on();
+    void state_device_ready();
+    void state_sim_pin();
+    void state_register();
+    void state_registering();
+    void state_attach();
+    void state_attaching();
+    void state_connect_to_network();
+    void state_connected();
+    void enter_to_state(CellularState state);
+    void retry_state_or_fail();
+
+
 private:
     friend class EasyCellularConnection;
     NetworkStack *get_stack();
 
 private:
-    void device_ready();
+    void print_device_info();
     void report_failure(const char* msg);
     void event();
 
@@ -153,6 +179,7 @@ private:
     CellularState _next_state;
 
     Callback<bool(int, int)> _status_callback;
+    Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
     CellularNetwork *_network;
     CellularPower *_power;
@@ -164,9 +191,12 @@ private:
     int _retry_count;
     int _state_retry_count;
     int _start_time;
+    int _event_timeout;
+
     uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
     int _retry_array_length;
     events::EventQueue _at_queue;
+    char _st_string[20];
 };
 
 } // namespace

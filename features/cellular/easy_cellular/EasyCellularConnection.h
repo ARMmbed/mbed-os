@@ -118,6 +118,10 @@ public:
 
     /** Register callback for status reporting
      *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
      *  @param status_cb The callback for status changes
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);

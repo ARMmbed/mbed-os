@@ -37,14 +37,14 @@ namespace mbed {
 
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
-    tr_info("cellular_status %d=>%d", state, next_state);
+    tr_info("cellular_status %s => %s", _cellularConnectionFSM.get_state_string(state), _cellularConnectionFSM.get_state_string(next_state));
     if (_target_state == state) {
         if (state == CellularConnectionFSM::STATE_CONNECTED) {
             _is_connected = true;
         } else {
             _is_connected = false;
         }
-        tr_info("Target state reached: %d", _target_state);
+        tr_info("Target state reached: %s", _cellularConnectionFSM.get_state_string(_target_state));
         MBED_ASSERT(_cellularSemaphore.release() == osOK);
         return false;
     } else {
@@ -257,10 +257,7 @@ const char *EasyCellularConnection::get_gateway()
 
 void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
-    CellularNetwork *network = _cellularConnectionFSM.get_network();
-    if (network) {
-        network->attach(status_cb);
-    }
+    _cellularConnectionFSM.attach(status_cb);
 }
 
 void EasyCellularConnection::modem_debug_on(bool on)
