@@ -119,7 +119,7 @@ void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_
  * Complete handling of specific message and unblocks the client.
  *
  * A return code must be specified, which will be sent to the client.@n
- * Negative return code represent errors, Positive integers are application-specific.
+ * A negative return code represents an error; return codes with positive integers are application-specific errors.
  *
  * @param[in] msg_handle Handle for the client's message.
  * @param[in] retval Return code to the client.
