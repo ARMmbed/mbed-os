@@ -4,7 +4,7 @@ supported IDEs or project structures.
 from __future__ import absolute_import, print_function
 import sys
 from os.path import (join, abspath, dirname, exists, basename, normpath,
-                     realpath, basename)
+                     realpath, relpath, basename)
 from os import remove
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -48,7 +48,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
             project_name = TESTS[program]
         else:
             project_name = basename(normpath(realpath(source_dir[0])))
-        src_paths = source_dir
+        src_paths = {relpath(path, project_dir): [path] for path in source_dir}
         lib_paths = None
     else:
         test = Test(program)
@@ -163,6 +163,12 @@ def main():
                         default=False,
                         help="writes tools/export/README.md")
 
+    parser.add_argument("--build",
+                        type=argparse_filestring_type,
+                        dest="build_dir",
+                        default=None,
+                        help="Directory for the exported project files")
+
     parser.add_argument("--source",
                         action="append",
                         type=argparse_filestring_type,
@@ -254,12 +260,16 @@ def main():
             except (NotImplementedError, IOError, OSError):
                 pass
         for f in EXPORTERS.values()[0].CLEAN_FILES:
-            remove(f)
+            try:
+                remove(f)
+            except (IOError, OSError):
+                pass
     try:
         export(mcu, options.ide, build=options.build,
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
-               build_profile=profile, app_config=options.app_config)
+               build_profile=profile, app_config=options.app_config,
+               export_path=options.build_dir)
     except NotSupportedException as exc:
         print("[ERROR] %s" % str(exc))
 
