@@ -3460,7 +3460,7 @@
         },
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC",
-			"uart_hwfc": 0
+            "uart_hwfc": 0
         }
     },
     "DELTA_DFBM_NQ620": {
