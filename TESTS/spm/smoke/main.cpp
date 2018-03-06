@@ -40,8 +40,8 @@ void example_main(void)
     psa_handle_t conn_handle = psa_connect(SF1, CLIENT_MINOR_VERSION);
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
-    const char msg_buf[CLIENT_MSG_BUF_SIZE] = CLIENT_TX_MSG;
-    iovec iovec[PSA_MAX_IOVEC_LEN] = {
+    char msg_buf[CLIENT_MSG_BUF_SIZE] = CLIENT_TX_MSG;
+    iovec iovec[PSA_MAX_INVEC_LEN] = {
         { msg_buf, 6 },
         { msg_buf + 6, 12 },
         { msg_buf + 18, 4 }
