@@ -88,7 +88,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     now_us = us_ticker_read();
     delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
 
-    uint32_t delta = timestamp - us_ticker_read();
     PIT_StopTimer(PIT, kPIT_Chnl_3);
     PIT_StopTimer(PIT, kPIT_Chnl_2);
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, (uint32_t)delta_us);
