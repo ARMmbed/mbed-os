@@ -18,7 +18,7 @@
 #ifndef EMAC_MEMBUF_H
 #define EMAC_MEMBUF_H
 
-int emac_if_memory_buffer_read(emac_stack_mem_chain_t *mem_chain_p, unsigned char *eth_frame);
-void emac_if_memory_buffer_write(emac_stack_mem_chain_t *mem_chain_p, unsigned char *eth_frame, bool write_data);
+int emac_if_memory_buffer_read(void *buf, unsigned char *eth_frame);
+void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write_data);
 
 #endif /* EMAC_MEMBUF_H */
