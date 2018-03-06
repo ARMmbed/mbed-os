@@ -86,7 +86,7 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
  *                            (pointing to non-existent memory or lack of permission for this memory).
  *         @a PSA_MSG_PAYLOAD_TOO_LARGE/PSA_MSG_PAYLOAD_TOO_SMALL if there is an issue with the payload size.@n
  *         @a PSA_INVALID_HANDLE if the handle is not valid.@n
- *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Secure Function does not send response payloads.
+ *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Secure Function has not sent a response payload.
  */
 psa_error_t psa_call(
     psa_handle_t handle,
