@@ -27,6 +27,10 @@
 
 using namespace utest::v1;
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define TEST_DELAY_US 50000ULL
 
 class TestTimerEvent: public TimerEvent {
