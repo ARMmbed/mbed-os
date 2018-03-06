@@ -104,6 +104,26 @@ uint32_t EPWM_ConfigCaptureChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_
  */
 uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32DutyCycle)
 {
+    return EPWM_ConfigOutputChannel2(epwm, u32ChannelNum, u32Frequency, u32DutyCycle, 1);
+}
+
+/**
+ * @brief This function Configure EPWM generator and get the nearest frequency in edge aligned(up counter type) auto-reload mode
+ * @param[in] epwm The pointer of the specified EPWM module
+ *                - EPWM0 : EPWM Group 0
+ *                - EPWM1 : EPWM Group 1
+ * @param[in] u32ChannelNum EPWM channel number. Valid values are between 0~5
+ * @param[in] u32Frequency Target generator frequency
+ * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @param[in] u32Frequency2 Target generator frequency = u32Frequency / u32Frequency2
+ * @return Nearest frequency clock in nano second
+ * @note Since every two channels, (0 & 1), (2 & 3), shares a prescaler. Call this API to configure EPWM frequency may affect
+ *       existing frequency of other channel.
+ * @note This function is used for initial stage.
+ *       To change duty cycle later, it should get the configured period value and calculate the new comparator value.
+ */
+uint32_t EPWM_ConfigOutputChannel2(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Frequency, uint32_t u32DutyCycle, uint32_t u32Frequency2)
+{
     uint32_t u32PWMClockSrc;
     uint32_t i;
     uint16_t u16Prescale = 1U, u16CNR = 0xFFFFU;
@@ -120,7 +140,8 @@ uint32_t EPWM_ConfigOutputChannel(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t
 
     for(u16Prescale = 1U; u16Prescale < 0xFFFU; u16Prescale++)/* prescale could be 0~0xFFF */
     {
-        i = (u32PWMClockSrc / u32Frequency) / u16Prescale;
+        // Note: Support frequency < 1
+        i = (uint64_t) u32PWMClockSrc * u32Frequency2 / u32Frequency / u16Prescale;
         /* If target value is larger than CNR, need to use a larger prescaler */
         if(i <= (0x10000U))
         {
