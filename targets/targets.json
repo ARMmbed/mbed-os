@@ -4228,7 +4228,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "LOWPOWERTIMER", "RTC", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "LOWPOWERTIMER", "RTC", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH"],
         "detect_code": ["1305"],
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
