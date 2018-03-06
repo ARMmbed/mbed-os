@@ -43,6 +43,12 @@
 #endif
 
 #else
+
+#if defined(MBEDTLS_USER_CONFIG_FILE)
+#include MBEDTLS_USER_CONFIG_FILE
+#else
+
+
 #define MBEDTLS_CONFIG_H
 
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
@@ -3232,6 +3238,8 @@
     !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_ENTROPY_NV_SEED)
 #error "No entropy source was found at build time, so TLS " \
     "functionality is not available"
+#endif
+
 #endif
 
 #endif /* MBEDTLS_CONFIG_H */
