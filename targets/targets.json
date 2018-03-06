@@ -3841,7 +3841,7 @@
     },
     "DISCO_L496AG": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L496AG", "STM32L496xG"],
         "config": {
