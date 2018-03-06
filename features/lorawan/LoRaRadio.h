@@ -18,7 +18,7 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
-#include "platform/Callback.h"
+#include "Callback.h"
 #include "PinNames.h"
 
 /**
