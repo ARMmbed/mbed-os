@@ -31,11 +31,23 @@
  *      isochronous in each direction at the same time - at least 8 endpoints.
  * * Device supports all standard endpoint sizes (wMaxPacketSize)
  * * Device can handle an interrupt latency of at least 100ms if reset is not being performed and address is not being set
+ * * USBPhyEvents events are only sent when USBPhy is in the initialized state
+ * * When unpowered only the USBPhyEvents::power event can be sent
+ * * On USB reset all endpoints are removed except for endpoint 0
+ * * USBPhyEvents::out and USBPhyEvents::in events only occur for endpoints which have been added
+ * * A call to USBPhy::ep0_write results in USBPhyEvents::in getting called if not
+ *      interrupted by a power loss or reset
+ * * A call to endpoint_read followed by endpoint_read_result results in USBPhyEvents::out getting called if not
+ *      interrupted by a power loss or reset
+ * * Endpoint 0 naks all transactions aside from setup packets until one
+ *      of ep0_read, ep0_write or ep0_stall has been called
+ * * Endpoint 0 stall is automatically cleared on reception of a setup packet
  *
  * # Undefined behavior
  * * Calling USBPhy::endpoint_add or USBPhy::endpoint_remove outside of the control requests SetInterface or SetConfiguration
  * * Devices behavior is undefined if latency is greater than 2ms when address is being set - see USB spec 9.2.6.3
  * * Devices behavior is undefined if latency is greater than 10ms when a reset occurs - see USB spec 7.1.7.5
+ * * Calling any of the USBPhy::endpoint_* functions on endpoint 0
  *
  * # Potential bugs
  * * Processing control packets in the wrong order when multiple packets are present
