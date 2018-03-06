@@ -46,16 +46,6 @@ static inline secure_func_t *sec_func_get(uint32_t sfid)
     return NULL;
 }
 
-static inline void gather_iovecs(const iovec_t *src, uint32_t src_len, void *dst)
-{
-    uint32_t active_dst_offset = 0;
-
-    for (uint32_t i = 0; i < src_len; ++i) {
-        memcpy((uint8_t *)dst + active_dst_offset, (uint8_t *)src[i].iov_base, src[i].iov_len);
-        active_dst_offset += src[i].iov_len;
-    }
-}
-
 // This function should do proper validation
 static inline bool is_buffer_accessible(const void *ptr, size_t size)
 {
@@ -63,7 +53,10 @@ static inline bool is_buffer_accessible(const void *ptr, size_t size)
         return false;
     }
 
-    PSA_UNUSED(size);
+    if (((uintptr_t)ptr + size) < ((uintptr_t)ptr)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -183,18 +176,15 @@ psa_error_t psa_call(
     size_t rx_len
     )
 {
-
-    uint32_t total_iovec_size = 0;
-
     if (tx_len != 0) {
         if (!is_buffer_accessible(tx_iovec, tx_len * sizeof(iovec_t))) {
             SPM_PANIC("tx_iovec is inaccessible\n");
         }
 
-        if (tx_len > PSA_MAX_IOVEC_LEN) {
-            SPM_PANIC("tx_len (%d) is bigger than allowed (%d)\n", tx_len, PSA_MAX_IOVEC_LEN);
+        if (tx_len > PSA_MAX_INVEC_LEN) {
+            SPM_PANIC("tx_len (%d) is bigger than allowed (%d)\n", tx_len, PSA_MAX_INVEC_LEN);
         }
-	
+
         for (uint32_t i = 0; i < tx_len; ++i) {
             if (tx_iovec[i].iov_len == 0) {
                 continue;
@@ -203,13 +193,6 @@ psa_error_t psa_call(
             if (!is_buffer_accessible(tx_iovec[i].iov_base, tx_iovec[i].iov_len)) {
                 SPM_PANIC("tx_iovec[%d] is inaccessible\n", i);
             }
-
-            total_iovec_size += tx_iovec[i].iov_len;
-        }
-
-        if (total_iovec_size > MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT) {
-            SPM_PANIC("payload (%d) is larger than available memory(%d)\n",
-                    total_iovec_size, MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT);
         }
     }
 
@@ -234,10 +217,16 @@ psa_error_t psa_call(
     SPM_ASSERT(PSA_IPC_MSG_TYPE_INVALID == active_msg->type);
     memset(active_msg, 0, sizeof(active_msg_t));
     active_msg->channel = channel;
-    active_msg->rx_buf = ((rx_len != 0) ? rx_buf : NULL);
-    active_msg->rx_size = rx_len;
-    active_msg->tx_size = total_iovec_size;
-    gather_iovecs(tx_iovec, tx_len, active_msg->tx_buf);
+
+    if (rx_len != 0) {
+        active_msg->out_vec[0].iov_base = rx_buf;
+        active_msg->out_vec[0].iov_len = rx_len;
+    }
+
+    for (size_t i = 0; i < tx_len; i++) {
+        // Copy the entire struct.
+        active_msg->in_vec[i] = tx_iovec[i];
+    }
 
     active_msg->type = PSA_IPC_MSG_TYPE_CALL;
 
