@@ -29,7 +29,7 @@ using namespace utest::v1;
 
 void flashiap_init_test()
 {
-    FlashIAP flash_device;
+    FlashIAP &flash_device = FlashIAP::get_instance();
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
     ret = flash_device.deinit();
@@ -38,7 +38,7 @@ void flashiap_init_test()
 
 void flashiap_program_test()
 {
-    FlashIAP flash_device;
+    FlashIAP &flash_device = FlashIAP::get_instance();
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -83,7 +83,7 @@ void flashiap_program_test()
 
 void flashiap_cross_sector_program_test()
 {
-    FlashIAP flash_device;
+    FlashIAP &flash_device = FlashIAP::get_instance();
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -133,7 +133,7 @@ void flashiap_cross_sector_program_test()
 
 void flashiap_program_error_test()
 {
-    FlashIAP flash_device;
+    FlashIAP &flash_device = FlashIAP::get_instance();
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
 

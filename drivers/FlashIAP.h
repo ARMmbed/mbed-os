@@ -40,7 +40,17 @@ namespace mbed {
  */
 class FlashIAP : private NonCopyable<FlashIAP> {
 public:
-    FlashIAP();
+
+    /**
+    * @brief As a singleton, return the single instance of the class.
+    * @returns Singleton instance reference.
+    */
+    static FlashIAP& get_instance()
+    {
+        static FlashIAP instance;
+        return instance;
+    }
+
     ~FlashIAP();
 
     /** Initialize a flash IAP device
@@ -126,6 +136,9 @@ private:
      *  @return true if the block is sector aligned, false otherwise
      */
     bool is_aligned_to_sector(uint32_t addr, uint32_t size);
+
+    // As a singleton, allow no instantiation via constructor
+    FlashIAP();
 
     flash_t _flash;
     uint8_t *_page_buf;
