@@ -4,10 +4,6 @@
         "ipc_max_num_of_channels": {
             "help": "Maximum number of active channels",
             "value": 10
-        },
-        "client_data_tx_buf_size_limit": {
-            "help": "Size limit in bytes of the client's data passed in a single call",
-            "value": 128
         }
     }
 }

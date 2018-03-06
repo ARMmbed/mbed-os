@@ -31,49 +31,6 @@
 extern "C" {
 #endif
 
-/* -------------------------------------- Enums -------------------------------------- */
-
-/**
- * Enumeration for the available PSA IPC message types
- */
-typedef enum spm_msg_type {
-    PSA_IPC_MSG_TYPE_INVALID = 0,                       /**< Invalid message type */
-    PSA_IPC_MSG_TYPE_CONNECT = 1,                       /**< Sent by psa_connect() */
-    PSA_IPC_MSG_TYPE_CALL = 2,                          /**< Sent by psa_call() */
-    PSA_IPC_MSG_TYPE_DISCONNECT = 3,                    /**< Sent by psa_close() */
-    PSA_IPC_MSG_TYPE_MAX = PSA_IPC_MSG_TYPE_DISCONNECT
-} SpmMsgType;
-
-/* -------------------------------------- Typedefs ----------------------------------- */
-
-typedef uint32_t psa_signal_t;
-typedef int32_t psa_error_t;
-typedef int32_t psa_handle_t;
-
-typedef psa_error_t error_t;
-
-/* -------------------------------------- Structs ------------------------------------ */
-
-/**
- * Structure containing the PSA IPC message sent from a client partition to a secure function.
- */
-typedef struct psa_msg {
-    uint32_t type;          /**< The message type, one of ::spm_msg_type.*/
-    psa_handle_t handle;    /**< Handle for the internal message structure.*/
-    void *rhandle;          /**< Reverse handle.*/
-    size_t size;            /**< Size in bytes of the message payload.*/
-    size_t response_size;   /**< Size in bytes of expected response data.*/
-} psa_msg_t;
-
-/**
- * Structure which describes a scatter-gather IO buffer.
- */
-typedef struct iovec
-{
-    const void *iov_base;   /**< Starting address of the buffer.*/
-    size_t iov_len;         /**< Length in bytes of the buffer.*/
-} iovec_t;
-
 /* ------------------------------------ Definitions ---------------------------------- */
 
 #if !defined(UINT32_MAX)
@@ -84,7 +41,8 @@ typedef struct iovec
 
 #define PSA_NULL_HANDLE ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
 
-#define PSA_MAX_IOVEC_LEN (3UL) /**< Maximum number of iovec_t structures allowed for psa_call().*/
+#define PSA_MAX_INVEC_LEN (3UL) /**< Maximum number of iovec_t structures allowed for psa_call().*/
+#define PSA_MAX_OUTVEC_LEN (1UL) /**< Maximum number of iovec_t structures allowed for psa_write().*/
 
 #define PSA_WAIT_POLL (0UL) /**< Returns immediately even if none of the requested signals is asserted.*/
 #define PSA_WAIT_BLOCK UINT32_MAX /**< Block the caller until one of the requested signals is asserted.*/
@@ -111,6 +69,46 @@ typedef struct iovec
 
 #define PSA_UNUSED(var) ((void)(var))
 
+/* -------------------------------------- Enums -------------------------------------- */
+
+/**
+ * Enumeration for the available PSA IPC message types
+ */
+typedef enum spm_msg_type {
+    PSA_IPC_MSG_TYPE_INVALID = 0,                       /**< Invalid message type */
+    PSA_IPC_MSG_TYPE_CONNECT = 1,                       /**< Sent by psa_connect() */
+    PSA_IPC_MSG_TYPE_CALL = 2,                          /**< Sent by psa_call() */
+    PSA_IPC_MSG_TYPE_DISCONNECT = 3,                    /**< Sent by psa_close() */
+    PSA_IPC_MSG_TYPE_MAX = PSA_IPC_MSG_TYPE_DISCONNECT
+} SpmMsgType;
+
+/* -------------------------------------- Typedefs ----------------------------------- */
+
+typedef uint32_t psa_signal_t;
+typedef int32_t psa_error_t;
+typedef int32_t psa_handle_t;
+typedef psa_error_t error_t;
+
+/* -------------------------------------- Structs ------------------------------------ */
+
+/**
+ * Structure containing the PSA IPC message sent from a client partition to a secure function.
+ */
+typedef struct psa_msg {
+    uint32_t type;                    /**< The message type, one of ::spm_msg_type.*/
+    psa_handle_t handle;              /**< Handle for the internal message structure.*/
+    void *rhandle;                    /**< Reverse handle.*/
+    size_t size[PSA_MAX_INVEC_LEN];   /**< Size in bytes of the message payload.*/
+    size_t response_size;             /**< Size in bytes of expected response data.*/
+} psa_msg_t;
+
+/**
+ * Structure which describes a scatter-gather IO buffer.
+ */
+typedef struct iovec {
+    void *iov_base;   /**< Starting address of the buffer.*/
+    size_t iov_len;   /**< Length in bytes of the buffer.*/
+} iovec_t;
 
 #ifdef __cplusplus
 }
