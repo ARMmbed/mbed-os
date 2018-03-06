@@ -79,7 +79,7 @@ protected:
 
     virtual void callback_state_change(DeviceState new_state);
     virtual void callback_request(const setup_packet_t *setup);
-    virtual void callback_request_xfer_done(const setup_packet_t *setup);
+    virtual void callback_request_xfer_done(const setup_packet_t *setup, bool aborted);
     virtual void callback_set_configuration(uint8_t configuration);
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate);
     virtual void epbulk_out_callback(usb_ep_t endpoint);

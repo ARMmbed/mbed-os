@@ -218,7 +218,8 @@ bool USBDevice::_control_out()
         if (_transfer.notify) {
             /* Notify class layer. */
             _transfer.notify = false;
-            callback_request_xfer_done(&_transfer.setup);
+            _transfer.user_callback = true;
+            callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
         }
@@ -279,7 +280,7 @@ bool USBDevice::_control_in()
             /* Notify class layer. */
             _transfer.notify = false;
             _transfer.user_callback = true;
-            callback_request_xfer_done(&_transfer.setup);
+            callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
         }
@@ -639,7 +640,12 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
 
     _transfer.user_callback = false;
     if (_abort_control) {
-        _control_abort();
+        if ((direction == Receive) || (direction == Send)) {
+            _transfer.user_callback = true;
+            callback_request_xfer_done(&_transfer.setup, true);
+        } else {
+            _control_abort();
+        }
         unlock();
         return;
     }

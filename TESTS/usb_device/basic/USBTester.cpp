@@ -108,8 +108,13 @@ void USBTester::callback_request(const setup_packet_t *setup)
 
 }
 
-void USBTester::callback_request_xfer_done(const setup_packet_t *setup)
+void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool aborted)
 {
+    if (aborted) {
+        complete_request_xfer_done(false);
+        return;
+    }
+
     bool result = false;
     if (setup->bmRequestType.Type == VENDOR_TYPE) {
         switch (setup->bRequest) {

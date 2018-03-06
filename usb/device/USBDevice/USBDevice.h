@@ -394,9 +394,12 @@ protected:
     * The function complete_request_xfer_done must be always be called
     * in response to this callback.
     *
+    * @param setup Setup packet of the current request
+    * @param aborted false if the operation was aborted, true otherwise
+    *
     * Warning: Called in ISR context
     */
-    virtual void callback_request_xfer_done(const setup_packet_t *setup) = 0;
+    virtual void callback_request_xfer_done(const setup_packet_t *setup, bool aborted) = 0;
 
     /**
      * Called to complete the data stage of a callback request
