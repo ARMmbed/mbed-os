@@ -87,6 +87,7 @@ void lp_ticker_info_test()
     TEST_ASSERT(p_ticker_info->bits >= 12);
 }
 
+#if DEVICE_SLEEP
 /* Test that the ticker continues operating in deep sleep mode. */
 void lp_ticker_deepsleep_test()
 {
@@ -115,6 +116,7 @@ void lp_ticker_deepsleep_test()
 
     TEST_ASSERT_EQUAL(1, intFlag);
 }
+#endif
 
 /* Test that the ticker does not glitch backwards due to an incorrectly implemented ripple counter driver. */
 void lp_ticker_glitch_test()
@@ -141,7 +143,9 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("lp ticker info test", lp_ticker_info_test),
+#if DEVICE_SLEEP
     Case("lp ticker sleep test", lp_ticker_deepsleep_test),
+#endif
     Case("lp ticker glitch test", lp_ticker_glitch_test)
 };
 
