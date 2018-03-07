@@ -755,18 +755,19 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2", "5"],
         "device_name" : "LPC54628J512ET180"
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_LPC546XX"],
-        "detect_code": ["1056"]
+        "detect_code": ["1056"],
+        "release_versions": ["2", "5"]
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
-        "detect_code": ["8081"]
+        "detect_code": ["8081"],
+        "release_versions": ["2", "5"]
     },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
