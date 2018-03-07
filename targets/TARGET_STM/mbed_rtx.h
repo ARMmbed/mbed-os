@@ -82,7 +82,8 @@
 #elif defined(TARGET_STM32L152RE)
 #define INITIAL_SP              (0x20014000UL)
 
-#elif defined(TARGET_STM32F401RE)
+#elif (defined(TARGET_STM32F401RE) ||\
+       defined(TARGET_STM32F401VE))
 #define INITIAL_SP              (0x20018000UL)
 
 #elif (defined(TARGET_STM32F207ZG) ||\
