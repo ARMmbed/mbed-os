@@ -69,6 +69,18 @@ public:
     using FileHandle::readable;
     using FileHandle::writable;
 
+    /* Expose these methods
+     */
+    using SerialBase::attach;
+    using SerialBase::_irq_handler;
+
+    // Need this type for attach()
+    using SerialBase::IrqType;
+    // In C++11, we wouldn't need to also have using directives for each value
+    using SerialBase::RxIrq;
+    using SerialBase::TxIrq;
+    using SerialBase::IrqCnt;
+
     /** Write the contents of a buffer to a file
      *
      *  Follows POSIX semantics:
