@@ -31,6 +31,7 @@
 /* Define number of instances */
 #define NORDIC_TWI_COUNT TWI_COUNT
 #define NORDIC_SPI_COUNT SPI_COUNT
+#define NORDIC_PWM_COUNT PWM_COUNT
 
 /* Define which instance to return when there are no free instances left.
  * The Mbed HAL API doesn't provide a way for signaling initialization errors
@@ -38,7 +39,20 @@
  * by the driver implementation.
  */
 #define DEFAULT_I2C_INSTANCE 0 // SPI counts down, choose instance furthest away
-#define DEFAULT_SPI_INSTANCE (SPI_COUNT - 1) // I2C counts up, choose instance furthers away
+#define DEFAULT_SPI_INSTANCE (NORDIC_SPI_COUNT - 1) // I2C counts up, choose instance furthers away
+#define DEFAULT_PWM_INSTANCE (NORDIC_PWM_COUNT - 1)
+
+
+/***
+ *       _____ _____ _____ ___   _____
+ *      / ____|  __ \_   _|__ \ / ____|
+ *     | (___ | |__) || |    ) | |
+ *      \___ \|  ___/ | |   / /| |
+ *      ____) | |    _| |_ / /_| |____
+ *     |_____/|_|   |_____|____|\_____|
+ *
+ *
+ */
 
 /* Internal data structure shared between SPI and I2C to keep track of allocated
  * instances. The data structure is shared to reflect the hardware sharing.
@@ -243,6 +257,111 @@ int pin_instance_spi(PinName mosi, PinName miso, PinName clk)
 #endif
 
     DEBUG_PRINTF("SPI: %d %d %d %d\r\n", mosi, miso, clk, instance);
+
+    return instance;
+}
+
+
+/***
+ *      _______          ____  __
+ *     |  __ \ \        / /  \/  |
+ *     | |__) \ \  /\  / /| \  / |
+ *     |  ___/ \ \/  \/ / | |\/| |
+ *     | |      \  /\  /  | |  | |
+ *     |_|       \/  \/   |_|  |_|
+ *
+ *
+ */
+
+/* Internal data structure to keep track of allocated instances.
+ */
+static PinName nordic_internal_pwm[NORDIC_PWM_COUNT] = {
+    NC,
+    NC,
+    NC,
+#if (NORDIC_PWM_COUNT == 4)
+    NC,
+#endif
+};
+
+/**
+ * Brief       Find hardware instance for the provided PWM pin.
+ *
+ *             The function will search the PeripheralPin map for a pre-allocated
+ *             assignment. If none is found the allocation map will be searched
+ *             to see if the same pins have been assigned an instance before.
+ *
+ *             If no assignement is found and there is an empty slot left in the
+ *             map, the pins are stored in the map and the hardware instance is
+ *             returned.
+ *
+ *             If no free instances are available, the default instance is returned.
+ *
+ * Parameter   pwm   pwm pin.
+ *
+ * Return      Hardware instance associated with provided pins.
+ */
+int pin_instance_pwm(PinName pwm)
+{
+    int instance = NC;
+
+    /* Search pin map for pre-allocated instance */
+    for (size_t index = 0; (PinMap_PWM[index].pwm != NC); index++) {
+
+        /* Compare pins to entry. */
+        if (PinMap_PWM[index].pwm == pwm) {
+
+            DEBUG_PRINTF("found: %d %d\r\n", pwm, PinMap_PWM[index].instance);
+
+            /* Instance found, save result. */
+            instance = PinMap_PWM[index].instance;
+
+            /* Lock out entry in map. */
+            nordic_internal_pwm[instance] = pwm;
+            break;
+        }
+    }
+
+    /* No instance was found in static map. */
+    if (instance == NC) {
+
+        /* Search dynamic map for entry. */
+        for (size_t index = 0; index < NORDIC_PWM_COUNT; index++) {
+
+            /* Pins match previous dynamic allocation, return instance. */
+            if (nordic_internal_pwm[index] == pwm) {
+
+                instance = index;
+                break;
+            }
+        }
+    }
+
+    /* No instance was found in dynamic map. */
+    if (instance == NC) {
+
+        /* Search dynamic map for empty slot. */
+        for (size_t index = 0; index < NORDIC_PWM_COUNT; index++) {
+
+            /* Empty slot found, reserve slot by storing pins. */
+            if (nordic_internal_pwm[index] == NC) {
+
+                nordic_internal_pwm[index] = pwm;
+
+                instance = index;
+                break;
+            }
+        }
+    }
+
+#if defined(DEFAULT_PWM_INSTANCE)
+    /* Exhausted all options. Return default value. */
+    if (instance == NC) {
+        instance = DEFAULT_PWM_INSTANCE;
+    }
+#endif
+
+    DEBUG_PRINTF("PWM: %d %d\r\n", pwm, instance);
 
     return instance;
 }
