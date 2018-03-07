@@ -55,6 +55,7 @@
 //#define __SYS_OSC_CLK     (    ___HSI)    /* Main oscillator frequency        */
 
 #define __SYSTEM_CLOCK    (26000000UL)
+#define __EXTERNAL_CLOCK    (1000000UL)
 
 
 /*----------------------------------------------------------------------------
@@ -64,6 +65,7 @@
          achieved after system intitialization.
          This means system core clock frequency after call to SystemInit()    */
 uint32_t SystemCoreClock = __SYSTEM_CLOCK;  /*!< System Clock Frequency (Core Clock)*/
+uint32_t ExternalClock = __EXTERNAL_CLOCK;     /*!< (External Clock)  */
 
 
 /*----------------------------------------------------------------------------
@@ -76,6 +78,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
          This function can be used to retrieve the system core clock frequeny
          after user changed register sittings.                                */
   SystemCoreClock = __SYSTEM_CLOCK;
+  ExternalClock = __EXTERNAL_CLOCK;
 }
 
 /**
@@ -93,4 +96,38 @@ void SystemInit (void)
          do not use global variables because this function is called before
          reaching pre-main. RW section maybe overwritten afterwards.          */
   SystemCoreClock = __SYSTEM_CLOCK;
+  ExternalClock = __EXTERNAL_CLOCK;
 }
+
+//# if defined (__Vendor_SysTickConfig) && (__Vendor_SysTickConfig == 1U)
+/**
+  \brief   System Tick Configuration
+  \details Initializes the System Timer and its interrupt, and starts the System Tick Timer.
+           Counter is in free running mode to generate periodic interrupts.
+  \param [in]  ticks  Number of ticks between two interrupts.
+  \return          0  Function succeeded.
+  \return          1  Function failed.
+  \note    When the variable <b>__Vendor_SysTickConfig</b> is set to 1, then the
+           function <b>SysTick_Config</b> is not included. In this case, the file <b><i>device</i>.h</b>
+           must contain a vendor-specific implementation of this function.
+ */
+uint32_t SysTick_Config(uint32_t ticks)
+{
+  if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
+  {
+    return (1UL);                                                   /* Reload value impossible */
+  }
+
+  SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+  NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Interrupt */
+  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+  SysTick->CTRL  = (0UL << SysTick_CTRL_CLKSOURCE_Pos)  | /* use external source */
+                   SysTick_CTRL_TICKINT_Msk   |
+                   SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
+  return (0UL);                                                     /* Function successful */
+}
+
+
+
+
+//# endif

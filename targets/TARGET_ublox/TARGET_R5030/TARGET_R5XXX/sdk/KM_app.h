@@ -143,7 +143,7 @@ APP_CPU_NUM_IRQS = 46
 /* ToDo: set the defines according your Device                                                    */
 #define __CM7_REV                 0x0101    /*!< Core Revision r?p?                               */
 #define __NVIC_PRIO_BITS          2         /*!< Number of Bits used for Priority Levels          */
-#define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
+#define __Vendor_SysTickConfig    1         /*!< Set to 1 if different SysTick Config is used     */
 #define __MPU_PRESENT             1         /*!< MPU present or not                               */
 #define __FPU_PRESENT             0        /*!< FPU present or not                                */
 
