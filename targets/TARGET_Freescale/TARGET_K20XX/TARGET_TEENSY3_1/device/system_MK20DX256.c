@@ -8,8 +8,6 @@
 **     
 **
 **     Version:             rev. 1.0, 2011-12-15
-                            rev. 1.1, 2018-02-26 (Aidan Walton)
-                                    added 120Mhz support
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -59,7 +57,7 @@
          Core clock = 72MHz, BusClock = 36MHz
             Alternative standard 'slower' Teensy3.1 72Mhz set up    
    3 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
-         Reference clock source for MCG module isn an external crystal 16Mhz
+         Reference clock source for MCG module is an external crystal 16Mhz
          Core clock = 120Mhz, BusClock = 60Mhz, FlashClock = 30Mhz  
 */
  
@@ -231,7 +229,7 @@ void SystemInit (void) {
   /* MCG_C5: PLLCLKEN=0,PLLSTEN=0,PRDIV0=5 */
   MCG->C5 = MCG_C5_PRDIV0(3); // config PLL input for 16 MHz Crystal / 4 = 4 MHz
   /* MCG->C6: LOLIE=0,PLLS=1,CME=0,VDIV0=3 */
-  MCG->C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV0(6);// config PLL for 96 MHz output
+  MCG->C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV0(6);// config PLL for 120 MHz output
   while((MCG->S & MCG_S_PLLST_MASK) == 0u) { } /* Wait until the source of the PLLS clock has switched to the PLL */
   while((MCG->S & MCG_S_LOCK0_MASK) == 0u) { } /* Wait until locked */
   /* Switch to PEE Mode */
