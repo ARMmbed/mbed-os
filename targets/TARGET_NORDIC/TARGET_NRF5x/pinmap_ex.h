@@ -42,6 +42,14 @@ typedef struct {
 
 extern const PinMapSPI PinMap_SPI[];
 
+/* Data structure for pre-allocated PWM instances. */
+typedef struct {
+    PinName pwm;
+    int instance;
+} PinMapPWM;
+
+extern const PinMapPWM PinMap_PWM[];
+
 /**
  * @brief      Find hardware instance for the provided I2C pins.
  *
@@ -82,6 +90,25 @@ int pin_instance_i2c(PinName sda, PinName scl);
  * @return     Hardware instance associated with provided pins.
  */
 int pin_instance_spi(PinName mosi, PinName miso, PinName clk);
+
+/**
+ * @brief      Find hardware instance for the provided PWM pins.
+ *
+ *             The function will search the PeripheralPin map for a pre-allocated
+ *             assignment. If none is found the allocation map will be searched
+ *             to see if the same pins have been assigned an instance before.
+ *
+ *             If no assignement is found and there is an empty slot left in the
+ *             map, the pins are stored in the map and the hardware instance is
+ *             returned.
+ *
+ *             If no free instances are available, the default instance is returned.
+ *
+ * @param[in]  pwm    pwm pin.
+ *
+ * @return     Hardware instance associated with provided pins.
+ */
+int pin_instance_pwm(PinName pwm);
 
 #ifdef __cplusplus
 }
