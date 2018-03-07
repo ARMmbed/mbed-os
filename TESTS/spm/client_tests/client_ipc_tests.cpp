@@ -475,6 +475,17 @@ void exceed_num_of_max_channels()
     }
 }
 
+void psa_version_existing()
+{
+    uint32_t ver = psa_version(PART1_SF1);
+    TEST_ASSERT_EQUAL_UINT32(5, ver);
+}
+
+void psa_version_non_existing()
+{
+    uint32_t ver = psa_version(PART1_SF1 + 150);
+    TEST_ASSERT_EQUAL_UINT32(PSA_VERSION_NONE, ver);
+}
 
  // Test cases
 Case cases[] = {
@@ -490,6 +501,8 @@ Case cases[] = {
     Case("Testing client multiple calls on different channels to the same SFID", multi_thread_diff_handles),
     Case("Testing client multiple calls on the same channel to the same SFID", multi_thread_same_handle),
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
+    Case("Testing client psa_version() API on existing SFID", psa_version_existing),
+    Case("Testing client psa_version() API on non-existing SFID", psa_version_non_existing),
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
