@@ -58,7 +58,6 @@ The purpose of the library is to provide a light, simple and general tracing sol
 
 ### Enabling the tracing API in mbed OS 5
 
-* Add the feature COMMON_PAL into the build
 * Set `MBED_CONF_MBED_TRACE_ENABLE` to 1 or true
 
 To do so, add the following to your mbed_app.json:
@@ -67,7 +66,6 @@ To do so, add the following to your mbed_app.json:
 {
     "target_overrides": {
         "*": {
-            "target.features_add": ["COMMON_PAL"],
             "mbed-trace.enable": 1
         }
     }
