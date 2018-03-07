@@ -1,28 +1,28 @@
-/* 
- * Copyright (c) 2013 Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2018 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,39 +33,32 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
-
-#warning arm porting pending
- 
-#ifndef TARGET_MCU_NRF51822
- 
-#include "mbed_assert.h"
-#include "mbed_error.h"
-#include "cmsis.h"
-#include "pinmap.h"
-#include "sdk_config.h"
 
 #if DEVICE_PWMOUT
 
-#include "app_util_platform.h"
+#include "hal/pwmout_api.h"
+
+#include "pinmap_ex.h"
 #include "nrf_drv_pwm.h"
 
-#include "pwmout_api.h"
-#include "irq_handlers_hw.h"
+#if 0
+#define DEBUG_PRINTF(...) do { printf(__VA_ARGS__); } while(0)
+#else
+#define DEBUG_PRINTF(...) {}
+#endif
 
-#define MAX_PWM_COUNTERTOP  (0x7FFF)                 // 0x7FFF is the max of COUNTERTOP value for the PWM peripherial of the nRF52.
-#define MAX_PWM_PERIOD_US   (MAX_PWM_COUNTERTOP * 8) // PWM hw is driven by 16 MHz clock, hence the tick is 1_us/16,
-                                                     // and 128 is the max prescaler value.
-#define MAX_PWM_PERIOD_MS   ((MAX_PWM_PERIOD_US / 1000) + 1)    // approximations advance
-#define MAX_PWM_PERIOD_S    ((MAX_PWM_PERIOD_US / 1000000) + 1) // approximations advance
+/* 0x7FFF is the max of COUNTERTOP pulse for the PWM peripherial of the nRF52. */
+#define MAX_PWM_COUNTERTOP  (0x7FFF)
 
+/* The PWM is driven by a 1 MHz clock to fit the 1 us resolution expected by the API. */
+#define MAX_PWM_PERIOD_US   (MAX_PWM_COUNTERTOP)
+#define MAX_PWM_PERIOD_MS   (MAX_PWM_PERIOD_US / 1000)
+#define MAX_PWM_PERIOD_S    ((float) MAX_PWM_PERIOD_US / 1000000.0f)
 
-#define PWM_INSTANCE_COUNT  (PWM_COUNT) // import from the nrf_drv_config.h file
-
-///> instances of nRF52 PWM driver
-static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
-{
+/* Allocate PWM instances. */
+static nrf_drv_pwm_t nordic_nrf5_pwm_instance[] = {
 #if PWM0_ENABLED
     NRF_DRV_PWM_INSTANCE(0),
 #endif
@@ -73,339 +66,273 @@ static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
     NRF_DRV_PWM_INSTANCE(1),
 #endif
 #if PWM2_ENABLED
-    NRF_DRV_PWM_INSTANCE(2)
+    NRF_DRV_PWM_INSTANCE(2),
+#endif
+#if PWM3_ENABLED
+    NRF_DRV_PWM_INSTANCE(3),
 #endif
 };
 
-typedef struct
+/* Helper function for (re)initializing the PWM instance.
+ */
+static void nordic_pwm_init(pwmout_t *obj)
 {
-    uint32_t period_us;
-    uint32_t duty_us;
-    float    duty;
-} pwm_signal_t; /// PWM signal description type
+    MBED_ASSERT(obj);
 
-typedef struct
-{
-    nrf_drv_pwm_t * p_pwm_driver;
-    pwm_signal_t signal;
-    volatile nrf_pwm_values_common_t seq_values[1];
-} pwm_t; /// internal PWM instance support type
+    /* Default configuration:
+     * 1 pin per instance, otherwise they would share base count.
+     * 1 MHz clock source to match the 1 us resolution.
+     */
+    nrf_drv_pwm_config_t config = {
+        .output_pins  = {
+            obj->pin,
+            NRF_DRV_PWM_PIN_NOT_USED,
+            NRF_DRV_PWM_PIN_NOT_USED,
+            NRF_DRV_PWM_PIN_NOT_USED,
+        },
+        .irq_priority = PWM_DEFAULT_CONFIG_IRQ_PRIORITY,
+        .base_clock   = NRF_PWM_CLK_1MHz,
+        .count_mode   = NRF_PWM_MODE_UP,
+        .top_value    = obj->period,
+        .load_mode    = NRF_PWM_LOAD_COMMON,
+        .step_mode    = NRF_PWM_STEP_AUTO,
+    };
 
-static pwm_t m_pwm[PWM_INSTANCE_COUNT] =
-{
-#if PWM0_ENABLED
-    {.p_pwm_driver = NULL},
-#endif
-#if PWM1_ENABLED
-    {.p_pwm_driver = NULL},
-#endif
-#if PWM2_ENABLED
-    {.p_pwm_driver = NULL}
-#endif
-};  /// Array of internal PWM instances.
+    /* Make sure PWM instance is not running before making changes. */
+    nrf_drv_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
 
-typedef struct
-{
-    uint16_t       period_hwu; // unit related to pwm_clk
-    uint16_t       duty_hwu;   // unit related to pwm_clk
-    nrf_pwm_clk_t  pwm_clk;
-} pulsewidth_set_t; /// helper type for timing calculations
-    
-    
-static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initialization);
-    
-// extern PWM nIRQ handler implementations
-void PWM0_IRQHandler(void);
-void PWM1_IRQHandler(void);
-void PWM2_IRQHandler(void);
+    /* Initialize instance with new configuration. */
+    ret_code_t result = nrf_drv_pwm_init(&nordic_nrf5_pwm_instance[obj->instance],
+                                         &config,
+                                         NULL);
 
-static const peripheral_handler_desc_t pwm_handlers[PWM_INSTANCE_COUNT] =
+    MBED_ASSERT(result == NRF_SUCCESS);
+}
+
+/* Helper function for reinitializing the PWM instance and setting the duty-cycle. */
+static void nordic_pwm_restart(pwmout_t *obj)
 {
-    {
-        PWM0_IRQn,
-        (uint32_t)PWM0_IRQHandler
-    },
-#warning
-#if 0    
-    {
-        PWM1_IRQn,
-        (uint32_t)PWM1_IRQHandler
-    },
-    {
-        PWM2_IRQn,
-        (uint32_t)PWM2_IRQHandler
-    }
-#endif
-};
- 
+    MBED_ASSERT(obj);
+
+    /* (Re)initialize PWM instance. */
+    nordic_pwm_init(obj);
+
+    /* Set duty-cycle from object. */
+    ret_code_t result = nrf_drv_pwm_simple_playback(&nordic_nrf5_pwm_instance[obj->instance],
+                                                    &obj->sequence,
+                                                    1,
+                                                    NRF_DRV_PWM_FLAG_LOOP);
+
+    MBED_ASSERT(result == NRF_SUCCESS);
+}
+
+/** Initialize the pwm out peripheral and configure the pin
+ *
+ * Parameter obj The pwmout object to initialize
+ * Parameter pin The pwmout pin to initialize
+ */
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
-    uint32_t i;
-    
-    for (i = 0; PWM_INSTANCE_COUNT; i++)
-    {
-        if (m_pwm[i].p_pwm_driver == NULL) // a driver instance not assigned to the obj?
-        {
-            NVIC_SetVector(pwm_handlers[i].IRQn, pwm_handlers[i].vector);
-            
-            obj->pin         = pin;
-            
-            obj->pwm_channel = i;
-            
-            m_pwm[i].p_pwm_driver = (nrf_drv_pwm_t *) &m_pwm_driver[i];
-            m_pwm[i].signal.period_us = 200000; // 0.02 s
-            m_pwm[i].signal.duty_us   = 100000;
-            m_pwm[i].signal.duty      = 0.5f;
-            
-            obj->pwm_struct  = &m_pwm[i];
+    DEBUG_PRINTF("pwmout_init: %d\r\n", pin);
 
-            internal_pwmout_exe(obj, true, true);
+    MBED_ASSERT(obj);
 
-            break;
-        }
-    }
-    
-    MBED_ASSERT(i != PWM_INSTANCE_COUNT); // assert if free instance was not found.
+    /* Get hardware instance from pinmap. */
+    int instance = pin_instance_pwm(pin);
+
+    MBED_ASSERT(instance < (int)(sizeof(nordic_nrf5_pwm_instance) / sizeof(nrf_drv_pwm_t)));
+
+    /* Populate PWM object with default values. */
+    obj->instance = instance;
+    obj->pin = pin;
+    obj->pulse = 0;
+    obj->period = MAX_PWM_COUNTERTOP;
+    obj->percent = 0;
+    obj->sequence.values.p_common = &obj->pulse;
+    obj->sequence.length = NRF_PWM_VALUES_LENGTH(obj->pulse);
+    obj->sequence.repeats = 0;
+    obj->sequence.end_delay = 0;
+
+    /* Initialize PWM instance. */
+    nordic_pwm_init(obj);
 }
 
+/** Deinitialize the pwmout object
+ *
+ * Parameter obj The pwmout object
+ */
 void pwmout_free(pwmout_t *obj)
 {
-    nrf_drv_pwm_uninit( (nrf_drv_pwm_t*) obj->pwm_struct );
+    DEBUG_PRINTF("pwmout_free\r\n");
 
-    m_pwm[obj->pwm_channel].p_pwm_driver = NULL;
+    MBED_ASSERT(obj);
+
+    /* Uninitialize PWM instance. */
+    nrf_drv_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
 }
 
+/** Set the output duty-cycle in range <0.0f, 1.0f>
+ *
+ * pulse 0.0f represents 0 percentage, 1.0f represents 100 percent.
+ * Parameter obj     The pwmout object
+ * Parameter percent The floating-point percentage number
+ */
 void pwmout_write(pwmout_t *obj, float percent)
 {
-    
-    if (percent < 0)
-    {
-        percent = 0;
-    }
-    else if (percent > 1)
-    {
-        percent = 1;
-    }
-    
-    pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
-    
-    p_pwm_signal->duty = percent;
-    
-    int us  = (((int)p_pwm_signal->period_us) * percent);
-    
-    pwmout_pulsewidth_us(obj, us);
+    DEBUG_PRINTF("pwmout_write: %f\r\n", percent);
+
+    /* Find counts based on period. */
+    uint16_t pulse = obj->period * percent;
+
+    /* Ensure we don't overcount. */
+    obj->pulse = (pulse > MAX_PWM_COUNTERTOP) ? MAX_PWM_COUNTERTOP : pulse;
+
+    /* Store actual percentage passed as parameter to avoid floating point rounding errors. */
+    obj->percent = percent;
+
+    /* Set new duty-cycle. */
+    ret_code_t result = nrf_drv_pwm_simple_playback(&nordic_nrf5_pwm_instance[obj->instance],
+                                                    &obj->sequence,
+                                                    1,
+                                                    NRF_DRV_PWM_FLAG_LOOP);
+
+    MBED_ASSERT(result == NRF_SUCCESS);
 }
 
+/** Read the current float-point output duty-cycle
+ *
+ * Parameter obj The pwmout object
+ * Return A floating-point output duty-cycle
+ */
 float pwmout_read(pwmout_t *obj)
 {
-    pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
-    
-    return (float)p_pwm_signal->duty_us / (float)p_pwm_signal->period_us;
+    DEBUG_PRINTF("pwmout_read: %f\r\n", obj->percent);
+
+    /* Return percentage stored in object instead of calculating the value.
+     * This prevents floating point rounding errors.
+     */
+    return obj->percent;
 }
 
-void pwmout_period(pwmout_t *obj, float seconds)
+/** Set the PWM period specified in seconds, keeping the duty cycle the same
+ *
+ * Periods smaller than microseconds (the lowest resolution) are set to zero.
+ * Parameter obj     The pwmout object
+ * Parameter seconds The floating-point seconds period
+ */
+void pwmout_period(pwmout_t *obj, float period)
 {
-    // raught saturation < 0, quasi-max>
-    if (seconds > MAX_PWM_PERIOD_S)
-    {
-        seconds = MAX_PWM_PERIOD_S;
+    DEBUG_PRINTF("pwmout_period: %f\r\n", period);
+
+    /* Cap period if too large. */
+    if (period > MAX_PWM_PERIOD_S) {
+        period = MAX_PWM_PERIOD_S;
     }
-    else if (seconds < 0)
-    {
-        seconds = 0; // f. pwmout_period_us will set period to min. value
-    }
-    
-    int us = seconds * 1000000;
-    
-    pwmout_period_us(obj, us);
+
+    /* Set new period. */
+    pwmout_period_us(obj, period * 1000000);
 }
 
-void pwmout_period_ms(pwmout_t *obj, int ms)
+/** Set the PWM period specified in miliseconds, keeping the duty cycle the same
+ *
+ * Parameter obj The pwmout object
+ * Parameter ms  The milisecond period
+ */
+void pwmout_period_ms(pwmout_t *obj, int period)
 {
-    // reught saturation < 0, quasi-max>
-    if (ms > MAX_PWM_PERIOD_MS)
-    {
-        ms = MAX_PWM_PERIOD_MS;
+    DEBUG_PRINTF("pwmout_period_ms: %d\r\n", period);
+
+    /* Cap period if too large. */
+    if (period > MAX_PWM_PERIOD_MS) {
+        period = MAX_PWM_PERIOD_MS;
     }
-    else if (ms < 0)
-    {
-        ms = 0; // f. pwmout_period_us will set period to min. value
-    }
-    
-    int us = ms * 1000;
-    
-    pwmout_period_us(obj, us);
+
+    /* Set new period. */
+    pwmout_period_us(obj, period * 1000);
 }
 
-
-void pwmout_period_us(pwmout_t *obj, int us)
+/** Set the PWM period specified in microseconds, keeping the duty cycle the same
+ *
+ * Parameter obj The pwmout object
+ * Parameter us  The microsecond period
+ */
+void pwmout_period_us(pwmout_t *obj, int period)
 {
-    pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
-    
-    // saturation <1, real-max>
-    if (us > MAX_PWM_PERIOD_US)
-    {
-        us = MAX_PWM_PERIOD_US;
+    DEBUG_PRINTF("pwmout_period_us: %d\r\n", period);
+
+    /* Cap period if too large. */
+    if (period > MAX_PWM_PERIOD_US) {
+        period = MAX_PWM_PERIOD_US;
     }
-    else if (us < 1)
-    {
-        us = 1;
-    }
-    
-    p_pwm_signal->duty_us = (int)((float)us * p_pwm_signal->duty);
-    
-    p_pwm_signal->period_us  = us;
-    
-    internal_pwmout_exe(obj, true, false);
+
+    /* Scale new count based on stored duty-cycle and new period. */
+    uint32_t pulse = (period * obj->pulse) / obj->period;
+
+    /* Store new values in object. */
+    obj->pulse = pulse;
+    obj->period = period;
+    obj->percent = (float) pulse / (float) period;
+
+    /* Restart instance with new values. */
+    nordic_pwm_restart(obj);
 }
 
-void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+/** Set the PWM pulsewidth specified in seconds, keeping the period the same.
+ *
+ * Parameter obj     The pwmout object
+ * Parameter seconds The floating-point pulsewidth in seconds
+ */
+void pwmout_pulsewidth(pwmout_t *obj, float pulse)
 {
-    // raught saturation < 0, quasi-max>
-    if (seconds > MAX_PWM_PERIOD_S)
-    {
-        seconds = MAX_PWM_PERIOD_S;
+    DEBUG_PRINTF("pwmout_pulsewidt: %f\r\n", pulse);
+
+    /* Cap pulsewidth to period before setting it. */
+    if ((pulse * 1000000) > (float) obj->pulse) {
+        obj->pulse = obj->period;
+        pwmout_pulsewidth_us(obj, obj->pulse);
+    } else {
+        pwmout_pulsewidth_us(obj, pulse * 1000000);
     }
-    else if (seconds < 0)
-    {
-        seconds = 0;
-    }
-    
-    int us = seconds * 1000000;
-    
-    pwmout_pulsewidth_us(obj,us);
 }
 
-void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+/** Set the PWM pulsewidth specified in miliseconds, keeping the period the same.
+ *
+ * Parameter obj The pwmout object
+ * Parameter ms  The floating-point pulsewidth in miliseconds
+ */
+void pwmout_pulsewidth_ms(pwmout_t *obj, int pulse)
 {
-    // raught saturation < 0, quasi-max>
-    if (ms > MAX_PWM_PERIOD_MS)
-    {
-        ms = MAX_PWM_PERIOD_MS;
+    DEBUG_PRINTF("pwmout_pulsewidth_ms: %d\r\n", ms);
+
+    /* Cap pulsewidth to period before setting it. */
+    if ((pulse * 1000) > (int) obj->period) {
+        obj->pulse = obj->period;
+        pwmout_pulsewidth_us(obj, obj->pulse);
+    } else {
+        pwmout_pulsewidth_us(obj, pulse * 1000);
     }
-    else if (ms < 0)
-    {
-        ms = 0;
-    }
-    
-    int us = ms * 1000;
-    
-    pwmout_pulsewidth_us(obj, us);
 }
 
-void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+/** Set the PWM pulsewidth specified in microseconds, keeping the period the same.
+ *
+ * Parameter obj The pwmout object
+ * Parameter us  The floating-point pulsewidth in microseconds
+ */
+void pwmout_pulsewidth_us(pwmout_t *obj, int pulse)
 {
-    // saturation <0, real-max>
-    if (us > MAX_PWM_PERIOD_US)
-    {
-        us = MAX_PWM_PERIOD_US;
+    DEBUG_PRINTF("pwmout_pulsewidth_us: %d\r\n", pulse);
+
+    /* Cap pulsewidth to period. */
+    if (pulse > obj->period) {
+        pulse = obj->period;
     }
-    else if (us < 0)
-    {
-        us = 0;
-    }
-    
-    pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
-    
-    p_pwm_signal->duty_us  = us;
-    p_pwm_signal->duty     = us / p_pwm_signal->period_us;
-    
-    internal_pwmout_exe(obj, false, false);
-}
 
+    /* Store new values in object. */
+    obj->pulse = pulse;
+    obj->percent = (float) pulse / (float) obj->period;
 
-
-
-
-
-static ret_code_t pulsewidth_us_set_get(int period_hwu, int duty_hwu, pulsewidth_set_t * p_settings)
-{
-    uint16_t      div;
-    nrf_pwm_clk_t pwm_clk = NRF_PWM_CLK_16MHz;
-    
-    for(div = 1; div <= 128 ; div <<= 1) // 128 is the maximum of clock prescaler for PWM peripherial
-    {
-        if (MAX_PWM_COUNTERTOP >= period_hwu)
-        {
-            p_settings->period_hwu  = period_hwu; // unit [us/16 * div]
-            p_settings->duty_hwu = duty_hwu;       // unit [us/16 * div]
-            p_settings->pwm_clk   = pwm_clk;
-    
-            return NRF_SUCCESS;
-        }
-        
-        period_hwu >>= 1;
-        duty_hwu >>= 1;
-        pwm_clk++;
-    }
-    
-    return NRF_ERROR_INVALID_PARAM;
-}
-
-
-static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initialization)
-{
-    pulsewidth_set_t          pulsewidth_set;
-    pwm_signal_t            * p_pwm_signal;
-    nrf_drv_pwm_t           * p_pwm_driver;
-    ret_code_t                ret_code;
-    
-    p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
-    
-    if (NRF_SUCCESS == pulsewidth_us_set_get(p_pwm_signal->period_us * 16, // base clk for PWM is 16 MHz
-                                             p_pwm_signal->duty_us * 16,   // base clk for PWM is 16 MHz
-                                             &pulsewidth_set))
-    {
-        p_pwm_driver = (((pwm_t*)obj->pwm_struct)->p_pwm_driver);
-        
-        const nrf_pwm_sequence_t seq =
-        {
-            .values.p_common = (nrf_pwm_values_common_t*) (((pwm_t*)obj->pwm_struct)->seq_values),
-            .length          = 1,
-            .repeats         = 0,
-            .end_delay       = 0
-        };
-        
-        (((pwm_t*)obj->pwm_struct)->seq_values)[0] = pulsewidth_set.duty_hwu | 0x8000;
-        
-        if (new_period)
-        {
-            nrf_drv_pwm_config_t config0 =
-            {
-                .output_pins =
-                {
-                    obj->pin | NRF_DRV_PWM_PIN_INVERTED, // channel 0
-                    NRF_DRV_PWM_PIN_NOT_USED,            // channel 1
-                    NRF_DRV_PWM_PIN_NOT_USED,            // channel 2
-                    NRF_DRV_PWM_PIN_NOT_USED,            // channel 3
-                },
-                .irq_priority = PWM_DEFAULT_CONFIG_IRQ_PRIORITY,
-                .base_clock   = pulsewidth_set.pwm_clk,
-                .count_mode   = NRF_PWM_MODE_UP,
-                .top_value    = pulsewidth_set.period_hwu,
-                .load_mode    = NRF_PWM_LOAD_COMMON,
-                .step_mode    = NRF_PWM_STEP_AUTO
-            };
-            
-            if (!initialization)
-            {
-                nrf_drv_pwm_uninit(p_pwm_driver);
-            }
-        
-            ret_code = nrf_drv_pwm_init( p_pwm_driver, &config0, NULL);
-        
-            MBED_ASSERT(ret_code == NRF_SUCCESS); // assert if free instance was not found.
-        }
-
-        nrf_drv_pwm_simple_playback(p_pwm_driver, &seq, 0, NRF_DRV_PWM_FLAG_LOOP);
-    }
-    else
-    {
-        MBED_ASSERT(0); // force assertion
-    }
-    
+    /* Restart instance with new values. */
+    nordic_pwm_restart(obj);
 }
 
 #endif // DEVICE_PWMOUT
-
-#endif
