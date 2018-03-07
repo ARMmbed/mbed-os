@@ -32,7 +32,7 @@ class RtcResetTest(BaseHostTest):
     START_TIME = 50000
     START_TIME_TOLERANCE = 10
     """Time to delay after sending reset"""
-    DELAY_TIME = 4.0
+    DELAY_TIME = 5.0
     DELAY_TOLERANCE = 1.0
     VALUE_PLACEHOLDER = "0"
 
@@ -47,12 +47,11 @@ class RtcResetTest(BaseHostTest):
             if self._error:
                 return
             try:
-                print("Calling generator")
                 generator.send((key, value, time))
             except StopIteration:
                 self._error = True
 
-        for resp in ("start", "read"):
+        for resp in ("start", "read", "ack"):
             self.register_callback(resp, run_gen)
 
     def teardown(self):
@@ -75,7 +74,19 @@ class RtcResetTest(BaseHostTest):
 
         # Initialize, and set the time
         self.send_kv("init", self.VALUE_PLACEHOLDER)
+        
+        # Wait for ack from the device
+        key, value, time = yield
+        if key != "ack":
+            return
+        
         self.send_kv("write", str(self.START_TIME))
+        
+        # Wait for ack from the device
+        key, value, time = yield
+        if key != "ack":
+            return
+        
         self.send_kv("read", self.VALUE_PLACEHOLDER)
         key, value, time = yield
         if key != "read":
@@ -84,7 +95,15 @@ class RtcResetTest(BaseHostTest):
 
         # Unitialize, and reset
         self.send_kv("free", self.VALUE_PLACEHOLDER)
+        
+        # Wait for ack from the device
+        key, value, time = yield
+        if key != "ack":
+            return
+        
         self.send_kv("reset", self.VALUE_PLACEHOLDER)
+        
+        # No ack after reset
         sleep(self.DELAY_TIME)
 
         # Restart the test, and send the sync token
@@ -95,6 +114,12 @@ class RtcResetTest(BaseHostTest):
 
         # Initialize, and read the time
         self.send_kv("init", self.VALUE_PLACEHOLDER)
+        
+        # Wait for ack from the device
+        key, value, time = yield
+        if key != "ack":
+            return
+        
         self.send_kv("read", self.VALUE_PLACEHOLDER)
         key, value, time = yield
         if key != "read":
