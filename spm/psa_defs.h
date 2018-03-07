@@ -103,7 +103,6 @@ typedef struct iovec
 
 /* Error codes */
 #define PSA_INVALID_PARAMETERS        (-1L)
-#define PSA_INVALID_MEM               (-2L)
 #define PSA_CONNECTION_REFUSED_PERM   (-3L)
 #define PSA_CONNECTION_REFUSED_BUSY   (-4L)
 #define PSA_GENERIC_ERROR             (-5L)

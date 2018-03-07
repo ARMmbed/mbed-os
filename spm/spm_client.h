@@ -53,7 +53,7 @@ uint32_t psa_framework_version(void);
  * Retrieve the minor version of a Secure Function by its SFID.
  *
  * @param[in] sfid The Secure Function ID
- * @return Minor version of Secure Function or PSA_VERSION_NONE if Secure Function not present on the system.
+ * @return Minor version of Secure Function or ::PSA_VERSION_NONE if Secure Function not present on the system.
  */
 uint32_t psa_version(uint32_t sfid);
 
@@ -65,8 +65,8 @@ uint32_t psa_version(uint32_t sfid);
  * @param[in] sfid          The Secure Function ID.
  * @param[in] minor_version The minor version to be used for this connection.
  * @return A handle for the connection if greater than 0, else one of the following errors:@n
- *         @a PSA_CONNECTION_REFUSED_BUSY if the Secure Function cannot handle any more connections.@n
- *         @a PSA_CONNECTION_REFUSED_PERM if the Secure Function does not exist or access is denied.
+ *         @a ::PSA_CONNECTION_REFUSED_BUSY if the Secure Function cannot handle any more connections.@n
+ *         @a ::PSA_CONNECTION_REFUSED_PERM if the Secure Function does not exist or access is denied.
  */
 psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
 
@@ -74,19 +74,12 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
  * Call a connected Secure Function.@n
  * The caller must provide an array of ::iovec_t structures as the input payload.
  *
- * TODO: Need to align again when API definitions are updated in spec
- *
  * @param[in]  handle   Handle for the connection.
  * @param[in]  tx_iovec Array of ::iovec_t structures.
  * @param[in]  tx_len   Number of ::iovec_t structures in tx_iovec. (Must be greater than 0 and less than 4)
  * @param[out] rx_buf  Receive buffer for optional Secure function response.
  * @param[in]  rx_len  Length in bytes of rx_buf.
- * @return Positive numbers with an application-specific return code or negative numbers on error:@n
- *         @a PSA_INVALID_MEM if the specified buffers in tx_iovec or rx_buf contain an invalid memory address
- *                            (pointing to non-existent memory or lack of permission for this memory).
- *         @a PSA_MSG_PAYLOAD_TOO_LARGE/PSA_MSG_PAYLOAD_TOO_SMALL if there is an issue with the payload size.@n
- *         @a PSA_INVALID_HANDLE if the handle is not valid.@n
- *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Secure Function does not send response payloads.
+ * @return Positive numbers with an application-specific return code or negative numbers on error
  */
 psa_error_t psa_call(
     psa_handle_t handle,
@@ -101,7 +94,7 @@ psa_error_t psa_call(
  * Sends the ::PSA_IPC_MSG_TYPE_DISCONNECT message to the Secure Function so it can clean up resources.
  *
  * @param[in] handle Handle for the connection.
- * @return PSA_SUCCESS or negative error code if failed.
+ * @return ::PSA_SUCCESS or negative error code if failed.
  */
 psa_error_t psa_close(psa_handle_t handle);
 
