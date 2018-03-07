@@ -44,6 +44,8 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
+#include "nrf_pwm.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,10 +64,12 @@ struct port_s {
 };
 
 struct pwmout_s {
-    PWMName pwm_name;
+    int instance;
     PinName pin;
-    uint8_t pwm_channel;
-    void *  pwm_struct;
+    nrf_pwm_values_common_t pulse;
+    uint16_t period;
+    float percent;
+    nrf_pwm_sequence_t sequence;
 };
 
 struct i2c_s {
