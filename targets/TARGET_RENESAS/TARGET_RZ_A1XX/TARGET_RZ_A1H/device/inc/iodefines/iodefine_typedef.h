@@ -54,7 +54,9 @@
 typedef enum iodefine_byte_select_t
 {
     R_IO_L = 0, R_IO_H = 1,
-    R_IO_LL= 0, R_IO_LH = 1, R_IO_HL = 2, R_IO_HH = 3
+    R_IO_LL= 0, R_IO_LH = 1, R_IO_HL = 2, R_IO_HH = 3,
+    L = 0, H = 1,
+    LL= 0, LH = 1, HL = 2, HH = 3
 } iodefine_byte_select_t;
 
 
