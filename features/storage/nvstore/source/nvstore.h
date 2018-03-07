@@ -49,7 +49,10 @@ typedef enum {
 
     // All predefined keys used for internal features should be defined here
 
+	NVSTORE_STORED_TIME_KEY             = 2,
+	NVSTORE_STORED_BACK_TIME_KEY        = 3,
     NVSTORE_DEVICEKEY_KEY               = 4,
+	NVSTORE_CA_PUBKEY_KEY               = 9,
 
     NVSTORE_LAST_PREDEFINED_KEY         = 15,
     NVSTORE_NUM_PREDEFINED_KEYS
