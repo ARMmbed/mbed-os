@@ -38,10 +38,12 @@ static cmd_status_t handle_command(const char *key, const char *value)
 {
     if (strcmp(key, "init") == 0) {
         rtc_init();
+        greentea_send_kv("ack", 0);
         return CMD_STATUS_CONTINUE;
 
     } else if (strcmp(key, "free") == 0) {
         rtc_free();
+        greentea_send_kv("ack", 0);
         return CMD_STATUS_CONTINUE;
 
     } else if (strcmp(key, "read") == 0) {
@@ -55,6 +57,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
         uint32_t time;
         sscanf(value, "%lu", &time);
         rtc_write(time);
+        greentea_send_kv("ack", 0);
         return CMD_STATUS_CONTINUE;
 
     } else if (strcmp(key, "reset") == 0) {
@@ -74,7 +77,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 /* Test that software reset doesn't stop RTC from counting. */
 void rtc_reset_test()
 {
-    GREENTEA_SETUP(60, "rtc_reset");
+    GREENTEA_SETUP(100, "rtc_reset");
 
     static char _key[10 + 1] = {};
     static char _value[128 + 1] = {};
