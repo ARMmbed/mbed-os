@@ -913,8 +913,8 @@ void SX1272_LoRaRadio::receive(uint32_t timeout)
                               RF_RXCONFIG_AGCAUTO_ON |
                               RF_RXCONFIG_RXTRIGER_PREAMBLEDETECT);
 
-            _rf_settings.fsk_packet_handler.preamble_detected = false;
-            _rf_settings.fsk_packet_handler.sync_word_detected = false;
+            _rf_settings.fsk_packet_handler.preamble_detected = 0;
+            _rf_settings.fsk_packet_handler.sync_word_detected = 0;
             _rf_settings.fsk_packet_handler.nb_bytes = 0;
             _rf_settings.fsk_packet_handler.size = 0;
 
@@ -1754,8 +1754,8 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                                     && (_radio_events->rx_error)) {
                                 _radio_events->rx_error();
                             }
-                            _rf_settings.fsk_packet_handler.preamble_detected = false;
-                            _rf_settings.fsk_packet_handler.sync_word_detected = false;
+                            _rf_settings.fsk_packet_handler.preamble_detected = 0;
+                            _rf_settings.fsk_packet_handler.sync_word_detected = 0;
                             _rf_settings.fsk_packet_handler.nb_bytes = 0;
                             _rf_settings.fsk_packet_handler.size = 0;
                             // break from here, a CRC error happened, RX_ERROR
@@ -1800,8 +1800,8 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                                 _rf_settings.fsk_packet_handler.size,
                                 _rf_settings.fsk_packet_handler.rssi_value, 0);
                     }
-                    _rf_settings.fsk_packet_handler.preamble_detected = false;
-                    _rf_settings.fsk_packet_handler.sync_word_detected = false;
+                    _rf_settings.fsk_packet_handler.preamble_detected = 0;
+                    _rf_settings.fsk_packet_handler.sync_word_detected = 0;
                     _rf_settings.fsk_packet_handler.nb_bytes = 0;
                     _rf_settings.fsk_packet_handler.size = 0;
                     break;
@@ -1978,13 +1978,13 @@ void SX1272_LoRaRadio::handle_dio2_irq(void)
             case MODEM_FSK:
 
                 // DIO4 must have been asserted to set preamble_detected to true
-                if( ( _rf_settings.fsk_packet_handler.preamble_detected  == true ) && ( _rf_settings.fsk_packet_handler.sync_word_detected == false ) )
+                if( ( _rf_settings.fsk_packet_handler.preamble_detected == 1 ) && ( _rf_settings.fsk_packet_handler.sync_word_detected == 0 ) )
                 {
                     if (_rf_settings.fsk.rx_continuous == false) {
                         rx_timeout_sync_word.detach( );
                     }
 
-                    _rf_settings.fsk_packet_handler.sync_word_detected = true;
+                    _rf_settings.fsk_packet_handler.sync_word_detected = 1;
 
                     _rf_settings.fsk_packet_handler.rssi_value = -( read_register( REG_RSSIVALUE ) >> 1 );
 
@@ -2072,9 +2072,8 @@ void SX1272_LoRaRadio::handle_dio4_irq(void)
     // is asserted when a preamble is detected (FSK modem only)
     switch (_rf_settings.modem) {
         case MODEM_FSK: {
-            if (_rf_settings.fsk_packet_handler.preamble_detected
-                    == false) {
-                _rf_settings.fsk_packet_handler.preamble_detected = true;
+            if (_rf_settings.fsk_packet_handler.preamble_detected == 0) {
+                _rf_settings.fsk_packet_handler.preamble_detected = 1;
             }
         }
             break;
@@ -2105,8 +2104,8 @@ void SX1272_LoRaRadio::handle_timeout_irq()
      {
      case RF_RX_RUNNING:
          if( _rf_settings.modem == MODEM_FSK ) {
-             _rf_settings.fsk_packet_handler.preamble_detected = false;
-             _rf_settings.fsk_packet_handler.sync_word_detected = false;
+             _rf_settings.fsk_packet_handler.preamble_detected = 0;
+             _rf_settings.fsk_packet_handler.sync_word_detected = 0;
              _rf_settings.fsk_packet_handler.nb_bytes = 0;
              _rf_settings.fsk_packet_handler.size = 0;
 
