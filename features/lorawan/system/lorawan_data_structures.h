@@ -908,9 +908,9 @@ typedef struct {
      */
     uint32_t ul_frame_counter;
     /*!
-     * The uplink frequency related to the frame.
+     * The uplink channel related to the frame.
      */
-    uint32_t ul_frequency;
+    uint32_t channel;
 } loramac_mcps_confirm_t;
 
 /*!
@@ -1179,6 +1179,7 @@ typedef struct {
  * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
  * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
  * \ref MIB_ANTENNA_GAIN             | YES | YES
+ * \ref MIB_DEFAULT_ANTENNA_GAIN     | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1384,7 +1385,14 @@ typedef enum {
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
-    MIB_ANTENNA_GAIN
+    MIB_ANTENNA_GAIN,
+    /*!
+     * Default antenna gain of the node. Default value is region specific.
+     * The antenna gain is used to calculate the TX power of the node.
+     * The formula is:
+     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
+     */
+    MIB_DEFAULT_ANTENNA_GAIN
 } mib_type_t;
 
 /*!
@@ -1571,6 +1579,12 @@ typedef union {
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float antenna_gain;
+    /*!
+     * Default antenna gain
+     *
+     * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
+     */
+    float default_antenna_gain;
 } mib_params_t;
 
 /*!
@@ -1627,6 +1641,9 @@ typedef enum lorawan_status {
 #if defined(LORAWAN_COMPLIANCE_TEST)
     LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
 #endif
+    LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,
+    LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,
+    LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,
 } lorawan_status_t;
 
 /*!

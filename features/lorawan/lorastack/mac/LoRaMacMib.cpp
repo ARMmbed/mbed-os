@@ -62,6 +62,7 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
                     break;
                 }
                 case CLASS_B: {
+                    status = LORAWAN_STATUS_UNSUPPORTED;
                     break;
                 }
                 case CLASS_C: {
@@ -259,6 +260,11 @@ lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
             params->sys_params.antenna_gain = mibSet->param.antenna_gain;
             break;
         }
+        case MIB_DEFAULT_ANTENNA_GAIN:
+        {
+            params->sys_params.antenna_gain = mibSet->param.default_antenna_gain;
+            break;
+        }
         default:
             status = LORAWAN_STATUS_SERVICE_UNKNOWN;
             break;
@@ -451,6 +457,11 @@ lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
         case MIB_ANTENNA_GAIN:
         {
             mibGet->param.antenna_gain = params->sys_params.antenna_gain;
+            break;
+        }
+        case MIB_DEFAULT_ANTENNA_GAIN:
+        {
+            mibGet->param.default_antenna_gain = params->sys_params.antenna_gain;
             break;
         }
         default:

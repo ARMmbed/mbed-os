@@ -554,6 +554,23 @@ private:
      */
     void on_rx_window2_timer_event(void);
 
+
+    /*!
+     * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
+     *        function disables it.
+     *
+     * \param [in] node_ack_requested Set to true, if the node has requested an ACK
+     * \param [in] dev_class The device class
+     * \param [in] ack_received Set to true, if the node has received an ACK
+     * \param [in] ack_timeout_retries_counter Retries counter for confirmed uplinks
+     * \param [in] ack_timeout_retries Maximum retries for confirmed uplinks
+     */
+    void check_to_disable_ack_timeout(bool node_ack_requested,
+                                      device_class_t dev_class,
+                                      bool ack_received,
+                                      uint8_t ack_timeout_retries_counter,
+                                      uint8_t ack_timeout_retries);
+
     /**
      * Function executed on AckTimeout timer event
      */
@@ -596,27 +613,15 @@ private:
     lorawan_status_t send_frame_on_channel(uint8_t channel);
 
     /**
-     * Checks for Port validity.
-     */
-    bool is_fPort_allowed(uint8_t fPort);
-
-    /**
      * Prototypes for ISR handlers
      */
     void handle_cad_done(bool cad);
     void handle_tx_done(void);
-    void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
-                        int8_t snr);
+    void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
     void handle_rx_error(void);
     void handle_rx_timeout(void);
     void handle_tx_timeout(void);
     void handle_fhss_change_channel(uint8_t cur_channel);
-    void handle_rx1_timer_event(void);
-    void handle_rx2_timer_event(void);
-    void handle_ack_timeout(void);
-    void handle_delayed_tx_timer_event(void);
-    void handle_mac_state_check_timer_event(void);
-    void handle_next_tx_timer_event(void);
 
 private:
     /**

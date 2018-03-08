@@ -415,13 +415,13 @@ int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
 
 int8_t LoRaPHY::get_next_lower_dr(int8_t dr, int8_t min_dr)
 {
-    uint8_t next_lower_dr = 0;
+    uint8_t next_lower_dr = dr;
 
-    if (dr == min_dr) {
-        next_lower_dr = min_dr;
-    } else {
-        next_lower_dr = dr - 1;
-    }
+    do {
+        if (next_lower_dr != min_dr) {
+            next_lower_dr -= 1;
+        }
+    } while((next_lower_dr != min_dr) && !is_datarate_supported(next_lower_dr));
 
     return next_lower_dr;
 }
@@ -473,6 +473,15 @@ uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
     *delayTx = delay_transmission;
 
     return count;
+}
+
+bool LoRaPHY::is_datarate_supported(const int8_t datarate) const
+{
+    if (datarate < phy_params.datarates.size) {
+        return (((uint8_t *)phy_params.datarates.table)[datarate] != 0) ? true : false;
+    } else {
+        return false;
+    }
 }
 
 phy_param_t LoRaPHY::get_phy_params(get_phy_params_t* getPhy)
@@ -635,16 +644,19 @@ bool LoRaPHY::verify(verification_params_t* verify, phy_attributes_t phy_attribu
     switch(phy_attribute) {
         case PHY_TX_DR:
         {
-            if (phy_params.ul_dwell_time_setting == 0) {
-                return val_in_range(verify->datarate,
-                                    phy_params.min_tx_datarate,
-                                    phy_params.max_tx_datarate);
+            if (is_datarate_supported(verify->datarate)) {
+                if (phy_params.ul_dwell_time_setting == 0) {
+                    return val_in_range(verify->datarate,
+                                        phy_params.min_tx_datarate,
+                                        phy_params.max_tx_datarate);
+                } else {
+                    return val_in_range(verify->datarate,
+                                        phy_params.dwell_limit_datarate,
+                                        phy_params.max_tx_datarate);
+                }
             } else {
-                return val_in_range(verify->datarate,
-                                    phy_params.dwell_limit_datarate,
-                                    phy_params.max_tx_datarate);
+                return false;
             }
-
         }
         case PHY_DEF_TX_DR:
         {
@@ -654,14 +666,18 @@ bool LoRaPHY::verify(verification_params_t* verify, phy_attributes_t phy_attribu
         }
         case PHY_RX_DR:
         {
-            if (phy_params.dl_dwell_time_setting == 0) {
-                return val_in_range(verify->datarate,
-                                    phy_params.min_rx_datarate,
-                                    phy_params.min_rx_datarate);
+            if (is_datarate_supported(verify->datarate)) {
+                if (phy_params.dl_dwell_time_setting == 0) {
+                    return val_in_range(verify->datarate,
+                                        phy_params.min_rx_datarate,
+                                        phy_params.min_rx_datarate);
+                } else {
+                    return val_in_range(verify->datarate,
+                                        phy_params.dwell_limit_datarate,
+                                        phy_params.min_rx_datarate );
+                }
             } else {
-                return val_in_range(verify->datarate,
-                                    phy_params.dwell_limit_datarate,
-                                    phy_params.min_rx_datarate );
+                return false;
             }
         }
         case PHY_DEF_TX_POWER:
@@ -997,23 +1013,27 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t* link_adr_req,
         }
     }
 
-    verify_params.status = status;
+    if (is_datarate_supported(adr_settings.datarate)) {
+        verify_params.status = status;
 
-    verify_params.adr_enabled = link_adr_req->adr_enabled;
-    verify_params.current_datarate = link_adr_req->current_datarate;
-    verify_params.current_tx_power = link_adr_req->current_tx_power;
-    verify_params.current_nb_rep = link_adr_req->current_nb_rep;
+        verify_params.adr_enabled = link_adr_req->adr_enabled;
+        verify_params.current_datarate = link_adr_req->current_datarate;
+        verify_params.current_tx_power = link_adr_req->current_tx_power;
+        verify_params.current_nb_rep = link_adr_req->current_nb_rep;
 
-    verify_params.datarate = adr_settings.datarate;
-    verify_params.tx_power = adr_settings.tx_power;
-    verify_params.nb_rep = adr_settings.nb_rep;
+        verify_params.datarate = adr_settings.datarate;
+        verify_params.tx_power = adr_settings.tx_power;
+        verify_params.nb_rep = adr_settings.nb_rep;
 
 
-    verify_params.channel_mask = temp_channel_mask;
+        verify_params.channel_mask = temp_channel_mask;
 
-    // Verify the parameters and update, if necessary
-    status = verify_link_ADR_req(&verify_params, &adr_settings.datarate,
-                                 &adr_settings.tx_power, &adr_settings.nb_rep);
+        // Verify the parameters and update, if necessary
+        status = verify_link_ADR_req(&verify_params, &adr_settings.datarate,
+                                     &adr_settings.tx_power, &adr_settings.nb_rep);
+    } else {
+        status &= 0xFD; // Datarate KO
+    }
 
     // Update channelsMask if everything is correct
     if (status == 0x07) {
@@ -1197,9 +1217,9 @@ void LoRaPHY::calculate_backoff(backoff_params_t* calc_backoff)
     }
 }
 
-bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
-                               uint8_t* channel, lorawan_time_t* time,
-                               lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHY::set_next_channel(channel_selection_params_t* params,
+                                           uint8_t* channel, lorawan_time_t* time,
+                                           lorawan_time_t* aggregate_timeoff)
 {
     uint8_t channel_count = 0;
     uint8_t delay_tx = 0;
@@ -1249,13 +1269,13 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
         // We found a valid channel
         *channel = enabled_channels[get_random(0, channel_count - 1)];
         *time = 0;
-        return true;
+        return LORAWAN_STATUS_OK;
     }
 
     if (delay_tx > 0) {
         // Delay transmission due to AggregatedTimeOff or to a band time off
         *time = next_tx_delay;
-        return true;
+        return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
     }
 
     // Datarate not supported by any channel, restore defaults
@@ -1263,7 +1283,7 @@ bool LoRaPHY::set_next_channel(channel_selection_params_t* params,
                       phy_params.channels.default_mask,
                       phy_params.channels.mask_size);
     *time = 0;
-    return false;
+    return LORAWAN_STATUS_NO_CHANNEL_FOUND;
 }
 
 lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)
