@@ -23,7 +23,7 @@
 #define NVSTORE_ENABLED 0
 #endif
 
-#if NVSTORE_ENABLED
+#if (NVSTORE_ENABLED) || defined(DOXYGEN_ONLY)
 #include <stdint.h>
 #include <stdio.h>
 #include "platform/NonCopyable.h"
@@ -286,8 +286,6 @@ private:
     /**
      * @brief Calculate addresses and sizes of areas (in case no user configuration is given),
      *        or validate user configuration (if given).
-     *
-     * @param[in]  area                   Area.
      */
     void calc_validate_area_params();
 
@@ -310,7 +308,7 @@ private:
      * @param[in]  buf                    Output Buffer.
      * @param[out] actual_size            Actual data size (bytes).
      * @param[in]  validate_only          Just validate (without reading to buffer).
-     * @param[out] validate               Is the record valid.
+     * @param[out] valid                  Is the record valid.
      * @param[out] key                    Record key.
      * @param[out] flags                  Record flags.
      * @param[out] next_offset            Offset of next record.
