@@ -540,6 +540,14 @@ private:
         Status
     };
 
+    enum UserCallback {
+        None,
+        Request,
+        RequestXferDone,
+        SetConfiguration,
+        SetInterface
+    };
+
     struct control_transfer_t {
         setup_packet_t setup;
         uint8_t *ptr;
@@ -548,7 +556,7 @@ private:
         bool zlp;
         bool notify;
         ControlState stage;
-        bool user_callback;
+        UserCallback user_callback;
     };
 
     endpoint_info_t _endpoint_info[32 - 2];
