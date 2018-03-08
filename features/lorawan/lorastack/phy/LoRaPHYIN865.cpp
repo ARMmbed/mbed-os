@@ -270,7 +270,7 @@ LoRaPHYIN865::LoRaPHYIN865(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_IN865;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;
