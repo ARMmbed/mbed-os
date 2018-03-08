@@ -369,6 +369,53 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             break;
         }
 
+
+#if  (NRF_SD_BLE_API_VERSION >= 5)
+#ifndef S140
+        // Handle PHY upgrade request
+        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
+        {
+            ble_gap_phys_t const phys =
+            {
+                /* rx_phys */ BLE_GAP_PHY_AUTO,
+                /* tx_phys */ BLE_GAP_PHY_AUTO,
+            };
+            ASSERT_STATUS_RET_VOID( sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys) );
+            break;
+        }
+#endif
+
+        	// Handle Data length negotiation request
+        case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
+        {
+            ble_gap_evt_t       const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+            uint8_t const data_length_peer =
+                p_gap_evt->params.data_length_update_request.peer_params.max_tx_octets;
+
+            const uint8_t max_data_length = NRF_SDH_BLE_GATT_MAX_MTU_SIZE + 4 /* L2CAP header size */;
+
+            uint8_t const data_length = MIN(max_data_length, data_length_peer);
+
+            ble_gap_data_length_params_t const dlp =
+            {
+                /* max_rx_octets */ data_length,
+                /* max_tx_octets */ data_length
+            };
+
+            ASSERT_STATUS_RET_VOID(sd_ble_gap_data_length_update(p_gap_evt->conn_handle, &dlp, NULL));
+        		break;
+        }
+
+        	// Handle MTU exchange request
+        case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
+        {
+        		// Respond with the server MTU
+            uint16_t   conn_handle = p_ble_evt->evt.gatts_evt.conn_handle;
+            ASSERT_STATUS_RET_VOID(sd_ble_gatts_exchange_mtu_reply(conn_handle, NRF_SDH_BLE_GATT_MAX_MTU_SIZE));
+        		break;
+        }
+#endif
+
         case BLE_GAP_EVT_PASSKEY_DISPLAY:
             securityManager.processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
             break;
