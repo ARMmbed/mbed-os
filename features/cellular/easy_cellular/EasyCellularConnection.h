@@ -24,6 +24,8 @@
 
 #include "netsocket/CellularBase.h"
 
+#define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
+
 namespace mbed
 {
 
@@ -145,9 +147,9 @@ private:
 
     bool _is_connected;
     bool _is_initialized;
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
     bool _credentials_set;
-#endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif // #if USE_APN_LOOKUP
     CellularConnectionFSM::CellularState _target_state;
 
     UARTSerial _cellularSerial;
