@@ -222,8 +222,10 @@ nRF5xn::waitForEvent(void)
 }
 
 void nRF5xn::processEvents() {
-    if (isEventsSignaled) {
+    core_util_critical_section_enter();
+    while (isEventsSignaled) {
         isEventsSignaled = false;
+        core_util_critical_section_exit();
         #if NRF_SD_BLE_API_VERSION >= 5
         // We use the "polling" dispatch model
         // http://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v14.2.0/group__nrf__sdh.html?cp=4_0_0_6_11_60_20#gab4d7be69304d4f5feefd1d440cc3e6c7
@@ -232,5 +234,8 @@ void nRF5xn::processEvents() {
         #else
         intern_softdevice_events_execute();
         #endif
+
+        core_util_critical_section_enter();
     }
+    core_util_critical_section_exit();
 }
