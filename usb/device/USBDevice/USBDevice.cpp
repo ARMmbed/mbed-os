@@ -215,10 +215,10 @@ bool USBDevice::_control_out()
     /* Check if transfer has completed */
     if (_transfer.remaining == 0) {
         /* Transfer completed */
+        _transfer.user_callback = RequestXferDone;
         if (_transfer.notify) {
             /* Notify class layer. */
             _transfer.notify = false;
-            _transfer.user_callback = true;
             callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
@@ -276,10 +276,10 @@ bool USBDevice::_control_in()
      */
     if ((_transfer.remaining == 0) && !_transfer.zlp) {
         /* Transfer completed */
+        _transfer.user_callback = RequestXferDone;
         if (_transfer.notify) {
             /* Notify class layer. */
             _transfer.notify = false;
-            _transfer.user_callback = true;
             callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
@@ -298,7 +298,8 @@ void USBDevice::complete_request_xfer_done(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == RequestXferDone);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -350,7 +351,7 @@ bool USBDevice::_request_set_configuration()
         _phy->unconfigure();
         _change_state(Address);
     } else {
-        _transfer.user_callback = true;
+        _transfer.user_callback = SetConfiguration;
         callback_set_configuration(_device.configuration);
     }
 
@@ -361,7 +362,8 @@ void USBDevice::complete_set_configuration(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == SetConfiguration);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -413,7 +415,7 @@ bool USBDevice::_request_set_interface()
 {
     assert_locked();
 
-    _transfer.user_callback = true;
+    _transfer.user_callback = SetInterface;
     callback_set_interface(_transfer.setup.wIndex, _transfer.setup.wValue);
     return true;
 }
@@ -422,7 +424,8 @@ void USBDevice::complete_set_interface(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == SetInterface);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -619,6 +622,7 @@ void USBDevice::_control_setup()
     _transfer.zlp = false;
     _transfer.notify = false;
     _transfer.stage = Setup;
+    _transfer.user_callback = Request;
 
 #ifdef DEBUG
     printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", _transfer.setup.bmRequestType.dataTransferDirection,
@@ -638,10 +642,11 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == Request);
+    _transfer.user_callback = None;
     if (_abort_control) {
         if ((direction == Receive) || (direction == Send)) {
-            _transfer.user_callback = true;
+            _transfer.user_callback = RequestXferDone;
             callback_request_xfer_done(&_transfer.setup, true);
         } else {
             _control_abort();
@@ -657,7 +662,7 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
         }
 
         /* user_callback may be set by _request_setup() */
-        if (!_transfer.user_callback) {
+        if (_transfer.user_callback == None) {
             _control_setup_continue();
         }
     } else if (direction == Failure) {
@@ -678,10 +683,10 @@ void USBDevice::_control_abort_start()
     assert_locked();
 
     _setup_ready = false;
-    if (_transfer.user_callback) {
-        _abort_control = true;
-    } else {
+    if (_transfer.user_callback == None) {
         _control_abort();
+    } else {
+        _abort_control = true;
     }
 }
 
@@ -787,12 +792,12 @@ void USBDevice::ep0_setup()
     _setup_ready = true;
 
     /* Endpoint 0 setup event */
-    if (_transfer.user_callback) {
+    if (_transfer.user_callback == None) {
+        _control_setup();
+    } else {
         /* A new setup packet has arrived so abort the
         current control transfer */
         _abort_control = true;
-    } else {
-        _control_setup();
     }
 
 }
@@ -806,7 +811,7 @@ void USBDevice::ep0_out()
         return;
     }
 
-    if (_transfer.user_callback) {
+    if (_transfer.user_callback != None) {
         /* EP0 OUT should not receive data if the stack is waiting
            on a user callback for the buffer to fill or status */
         MBED_ASSERT(0);
