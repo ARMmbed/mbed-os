@@ -29,7 +29,7 @@ typedef enum {
     MESH_TYPE_THREAD
 } mesh_network_type_t;
 
-/*
+/**
  * Error status values returned by Mesh network API.
  */
 typedef enum {
@@ -40,7 +40,7 @@ typedef enum {
     MESH_ERROR_PARAM,       /*<! Illegal parameter */
 } mesh_error_t;
 
-/*
+/**
  * Mesh network connection status codes returned in callback.
  */
 typedef enum {
@@ -53,7 +53,7 @@ typedef enum {
     MESH_BOOTSTRAP_STARTED          /*<! bootstrap started */
 } mesh_connection_status_t;
 
-/*
+/**
  * Mesh device types
  */
 typedef enum {
