@@ -17,6 +17,7 @@
 
 #include "QUECTEL_BC95_CellularNetwork.h"
 #include "QUECTEL_BC95_CellularPower.h"
+#include "QUECTEL_BC95_CellularSIM.h"
 
 #include "QUECTEL_BC95.h"
 
@@ -41,7 +42,13 @@ QUECTEL_BC95::~QUECTEL_BC95()
 CellularNetwork *QUECTEL_BC95::open_network(FileHandle *fh)
 {
     if (!_network) {
-        _network = new QUECTEL_BC95_CellularNetwork(*get_at_handler(fh));
+        ATHandler *atHandler = get_at_handler(fh);
+        if (atHandler) {
+            _network = new QUECTEL_BC95_CellularNetwork(*atHandler);
+            if (!_network) {
+                release_at_handler(atHandler);
+            }
+        }
     }
     return _network;
 }
@@ -49,7 +56,27 @@ CellularNetwork *QUECTEL_BC95::open_network(FileHandle *fh)
 CellularPower *QUECTEL_BC95::open_power(FileHandle *fh)
 {
     if (!_power) {
-        _power = new QUECTEL_BC95_CellularPower(*get_at_handler(fh));
+        ATHandler *atHandler = get_at_handler(fh);
+        if (atHandler) {
+            _power = new QUECTEL_BC95_CellularPower(*atHandler);
+            if (!_power) {
+                release_at_handler(atHandler);
+            }
+        }
     }
     return _power;
+}
+
+CellularSIM *QUECTEL_BC95::open_sim(FileHandle *fh)
+{
+    if (!_sim) {
+        ATHandler *atHandler = get_at_handler(fh);
+        if (atHandler) {
+            _sim = new QUECTEL_BC95_CellularSIM(*atHandler);
+            if (!_sim) {
+                release_at_handler(atHandler);
+            }
+        }
+    }
+    return _sim;
 }
