@@ -196,6 +196,9 @@ void fault_print_str(char *fmtstr, uint32_t *values)
     while(fmtstr[i] != '\0') {
         if(fmtstr[i] == '\n' || fmtstr[i] == '\r') {
             serial_putc(&stdio_uart, '\r');
+            if (fmtstr[i] == '\n') {
+        	    serial_putc(&stdio_uart, '\n');
+            }
         } else {
             if(fmtstr[i]=='%') {
                 hex_to_str(values[vidx++],hex_str);
