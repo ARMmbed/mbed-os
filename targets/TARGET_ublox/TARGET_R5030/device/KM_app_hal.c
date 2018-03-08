@@ -45,7 +45,7 @@ void HAL_SysTick_Config(uint32_t ticks){
 	returnCode = SysTick_Config(ticks);
 
 	if (returnCode != 0)  {
-			// Error Handling
+		// TODO : Error Handling
 	}
 }
 
