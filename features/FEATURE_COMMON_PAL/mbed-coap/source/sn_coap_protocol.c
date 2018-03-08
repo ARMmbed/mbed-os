@@ -256,6 +256,27 @@ int8_t sn_coap_protocol_set_block_size(struct coap_s *handle, uint16_t block_siz
 
 }
 
+void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
+{
+    (void) handle;
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    if (handle == NULL) {
+        return;
+    }
+
+    /* Loop all stored Blockwise messages in Linked list */
+    ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
+        if (removed_blocwise_msg_ptr->coap_msg_ptr) {
+            handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
+            removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
+            sn_coap_parser_release_allocated_coap_msg_mem(handle, removed_blocwise_msg_ptr->coap_msg_ptr);
+            removed_blocwise_msg_ptr->coap_msg_ptr = 0;
+        }
+        sn_coap_protocol_linked_list_blockwise_msg_remove(handle, removed_blocwise_msg_ptr);
+    }
+#endif
+}
+
 int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t message_count)
 {
     (void) handle;
