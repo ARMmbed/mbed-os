@@ -146,6 +146,7 @@ private:
      *  @return true to continue state machine
      */
     bool cellular_status(int state, int next_state);
+    void network_callback(nsapi_event_t ev, intptr_t ptr);
     nsapi_error_t init();
     nsapi_error_t check_connect();
 

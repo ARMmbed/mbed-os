@@ -24,6 +24,7 @@
 #endif
 #include "CellularLog.h"
 #include "CellularCommon.h"
+#include "mbed_wait_api.h"
 // timeout to wait for AT responses
 #define TIMEOUT_POWER_ON     (1*1000)
 #define TIMEOUT_SIM_PIN      (1*1000)
@@ -39,7 +40,8 @@ namespace mbed {
 
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _event_timeout(-1), _at_queue(8 * EVENTS_EVENT_SIZE)
+        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _state_retry_count(0), _event_timeout(-1),
+        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -61,8 +63,6 @@ CellularConnectionFSM::CellularConnectionFSM() :
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
-
-    _cellularDevice = new CELLULAR_DEVICE(_at_queue);
 }
 
 CellularConnectionFSM::~CellularConnectionFSM()
@@ -72,6 +72,13 @@ CellularConnectionFSM::~CellularConnectionFSM()
 
 nsapi_error_t CellularConnectionFSM::init()
 {
+    tr_info("CELLULAR_DEVICE: %s", CELLULAR_STRINGIFY(CELLULAR_DEVICE));
+    _cellularDevice = new CELLULAR_DEVICE(_at_queue);
+    if (!_cellularDevice) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
     _power = _cellularDevice->open_power(_serial);
     if (!_power) {
         stop();
@@ -82,6 +89,8 @@ nsapi_error_t CellularConnectionFSM::init()
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
+    // use asynchronous mode
+    _network->set_blocking(false);
 
     _sim = _cellularDevice->open_sim(_serial);
     if (!_sim) {
@@ -91,7 +100,12 @@ nsapi_error_t CellularConnectionFSM::init()
 
     _at_queue.chain(&_queue);
 
+    _retry_count = 0;
+    _state_retry_count = 0;
+    _state = STATE_INIT;
+    _next_state = STATE_INIT;
     tr_info("init done...");
+
     return NSAPI_ERROR_OK;
 }
 
@@ -131,11 +145,10 @@ bool CellularConnectionFSM::open_sim()
     }
     tr_info("Initial SIM state: %d", state);
 
-    if (strlen(_sim_pin)) {
-        nsapi_error_t err;
-        if (state == CellularSIM::SimStatePinNeeded) {
+    if (state == CellularSIM::SimStatePinNeeded) {
+        if (strlen(_sim_pin)) {
             tr_info("SIM pin required, entering pin: %s", _sim_pin);
-            err = _sim->set_pin(_sim_pin);
+            nsapi_error_t err = _sim->set_pin(_sim_pin);
             if (err) {
                 if (_event_status_cb) {
                     _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularSIMStatusChanged);
@@ -152,9 +165,13 @@ bool CellularConnectionFSM::open_sim()
                     wait(1);
                 }
             }
+        } else {
+            tr_warn("PIN required but No SIM pin provided.");
         }
-    } else {
-        tr_info("No SIM pin provided.");
+    }
+
+    if (state == CellularSIM::SimStateReady) {
+        tr_info("SIM Ready");
     }
 
     if (_event_status_cb) {
@@ -186,6 +203,23 @@ bool CellularConnectionFSM::set_network_registration(char *plmn)
         return false;
     }
     return true;
+}
+
+bool CellularConnectionFSM::is_registered()
+{
+    CellularNetwork::RegistrationStatus status;
+    bool is_registered = false;
+
+    for (int type = 0; type < CellularNetwork::C_MAX; type++) {
+        if (get_network_registration((CellularNetwork::RegistrationType) type, status, is_registered)) {
+            tr_debug("get_network_registration: type=%d, status=%d", type, status);
+            if (is_registered) {
+                break;
+            }
+        }
+    }
+
+    return is_registered;
 }
 
 bool CellularConnectionFSM::get_network_registration(CellularNetwork::RegistrationType type,
@@ -300,12 +334,40 @@ char* CellularConnectionFSM::get_state_string(CellularState state)
             MBED_ASSERT(0);
             break;
     }
+
+    return _st_string;
+}
+
+bool CellularConnectionFSM::is_automatic_registering()
+{
+    CellularNetwork::NWRegisteringMode mode;
+    nsapi_error_t err = _network->get_network_registering_mode(mode);
+    tr_info("automatic registering err: %d, mode: %d", err, mode);
+    if (err == NSAPI_ERROR_OK && mode == CellularNetwork::NWModeAutomatic) {
+        return true;
+    }
+    return false;
+}
+
+
+nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
+{
+    _state = state;
+    if (!_queue.call_in(0, callback(this, &CellularConnectionFSM::event))) {
+        stop();
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t CellularConnectionFSM::continue_to_state(CellularState state)
 {
     if (state < _state) {
         _state = state;
+    } else {
+        // update next state so that we don't continue from previous state
+        _state = _next_state;
     }
     if (!_queue.call_in(0, callback(this, &CellularConnectionFSM::event))) {
         stop();
@@ -382,33 +444,18 @@ void CellularConnectionFSM::state_sim_pin()
 void CellularConnectionFSM::state_registering()
 {
     _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-    CellularNetwork::RegistrationStatus status;
-    bool is_registered;
     _next_state = STATE_REGISTER_NETWORK;
-    for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (get_network_registration((CellularNetwork::RegistrationType) type, status, is_registered)) {
-            tr_debug("get_network_registration: type=%d, status=%d", type, status);
-            if (is_registered) {
-                tr_info("Registered to cellular network (type %d, status %d)", type, status);
-                enter_to_state(STATE_ATTACHING_NETWORK);
-                _state_retry_count = 0;
-                _event_timeout = 0;
-                tr_info("Check cellular network attach state");
-                break;
-            } else {
-                if (_retry_count < 180) {
-                    _event_timeout = 1000;
-                    _next_state = STATE_REGISTERING_NETWORK;
-                    tr_info("Waiting for registration %d/180 (type %d, status %d)", _retry_count, type, status);
-                } else {
-                    tr_info("Start cellular registration");
-                    enter_to_state(STATE_REGISTER_NETWORK);
-                    break;
-                }
-            }
-        }
+    if (is_automatic_registering()) {
+        _network->set_registration_urc(true);
+        // Automatic registering is on, we now wait for async response with max time 180s
+        _next_state = STATE_REGISTERING_NETWORK;
+        _event_timeout = 180*1000;
+        tr_info("STATE_REGISTERING_NETWORK, event timeout 180s");
     }
 
+    if (_retry_count > 3) {
+        _event_timeout = -1;
+    }
     if (_next_state == STATE_REGISTERING_NETWORK) {
         _retry_count++;
     }
@@ -543,20 +590,21 @@ void CellularConnectionFSM::event()
 
     if (_next_state != _state || _event_timeout >= 0) {
         if (_next_state != _state) { // state exit condition
-            tr_info("Cellular state from %d to %d", _state, _next_state);
+            //tr_info("Cellular state from %d to %d", _state, _next_state);
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
                     return;
                 }
             }
         } else {
-            tr_info("Cellular event in %d milliseconds", event_timeout);
+            tr_info("Cellular event in %d milliseconds", _event_timeout);
         }
         _state = _next_state;
         if (_event_timeout == -1) {
             _event_timeout = 0;
         }
-        if (!_queue.call_in(_event_timeout, callback(this, &CellularConnectionFSM::event))) {
+        _eventID = _queue.call_in(_event_timeout, callback(this, &CellularConnectionFSM::event));
+        if (!_eventID) {
             report_failure("Cellular event failure!");
             return;
         }
@@ -608,7 +656,27 @@ void CellularConnectionFSM::set_callback(mbed::Callback<bool(int, int)> status_c
 void CellularConnectionFSM::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _event_status_cb = status_cb;
-    _network->attach(status_cb);
+    _network->attach(callback(this, &CellularConnectionFSM::network_callback));
+}
+
+void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
+{
+
+    tr_info("network_callback called with ev: %d, intptr: %d", ev, ptr);
+    if (ev == NSAPI_EVENT_CELLULAR_STATUS_CHANGE) {
+        if (ptr == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
+            // check for registration status
+            if (is_registered()) {
+                tr_info("Registered, cancel state and continue to attach...");
+                _queue.cancel(_eventID);
+                continue_from_state(STATE_ATTACH_NETWORK);
+            }
+        }
+    }
+
+    if (_event_status_cb) {
+        _event_status_cb(ev, ptr);
+    }
 }
 
 events::EventQueue *CellularConnectionFSM::get_queue()

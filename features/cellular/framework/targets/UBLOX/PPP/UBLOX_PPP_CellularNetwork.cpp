@@ -37,8 +37,8 @@ bool UBLOX_PPP_CellularNetwork::has_registration(RegistrationType reg_type)
     return (reg_type == C_REG || reg_type == C_GREG);
 }
 
-nsapi_error_t UBLOX_PPP_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opRat)
+nsapi_error_t UBLOX_LISA_U_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
 {
-    _op_act = operator_t::RAT_UNKNOWN;
+    _op_act = RAT_UNKNOWN;
     return NSAPI_ERROR_UNSUPPORTED;
 }

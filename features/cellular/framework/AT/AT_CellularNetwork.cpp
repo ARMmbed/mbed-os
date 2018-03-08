@@ -20,6 +20,7 @@
 #include "nsapi_ppp.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
+#include "CellularCommon.h"
 
 using namespace std;
 using namespace mbed_cellular_util;
@@ -31,18 +32,22 @@ struct at_reg_t {
 };
 
 static const at_reg_t at_reg[] = {
-    { CellularNetwork::C_EREG, "AT+CEREG" },
-    { CellularNetwork::C_GREG, "AT+CGREG" },
-    { CellularNetwork::C_REG,  "AT+CREG"  },
+    { CellularNetwork::C_EREG, "AT+CEREG"},
+    { CellularNetwork::C_GREG, "AT+CGREG"},
+    { CellularNetwork::C_REG,  "AT+CREG"}
 };
 
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
     _stack(NULL), _apn(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK), _ip_stack_type(DEFAULT_STACK), _cid(-1),
-    _connection_status_cb(NULL), _op_act(operator_t::RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG),
-    _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false)
+    _connection_status_cb(NULL), _op_act(RAT_UNKNOWN), _authentication_type(CHAP), _last_reg_type(C_REG),
+    _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false), _reg_status(NotRegistered), _async(false)
 {
 
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
+
+    _at.set_urc_handler("+CEREG:", callback(this, &AT_CellularNetwork::urc_cereg));
+    _at.set_urc_handler("+CGREG:", callback(this, &AT_CellularNetwork::urc_cgreg));
+    _at.set_urc_handler("+CREG:", callback(this, &AT_CellularNetwork::urc_creg));
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
@@ -71,6 +76,47 @@ void AT_CellularNetwork::urc_no_carrier()
     if (_connection_status_cb) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
     }
+}
+
+void AT_CellularNetwork::read_reg_params_and_compare(int index)
+{
+    RegistrationStatus reg_status = NotRegistered;
+    int lac = -1, cell_id = -1, act = -1;
+
+    read_reg_params(index, reg_status, lac, cell_id, act);
+
+    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        tr_info("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);
+        if (reg_status != _reg_status && _connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularRegistrationStatusChanged);
+        }
+
+        if (cell_id != -1 && cell_id != _cell_id && _connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularCellIDChanged);
+        }
+
+        if (act != -1 && (RadioAccessTechnology)act != _current_act && _connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularRadioAccessTechnologyChanged);
+        }
+    }
+}
+
+void AT_CellularNetwork::urc_creg()
+{
+    tr_info("urc_creg");
+    read_reg_params_and_compare(C_REG);
+}
+
+void AT_CellularNetwork::urc_cereg()
+{
+    tr_info("urc_cereg");
+    read_reg_params_and_compare(C_EREG);
+}
+
+void AT_CellularNetwork::urc_cgreg()
+{
+    tr_info("urc_cgreg");
+    read_reg_params_and_compare(C_GREG);
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
@@ -297,13 +343,13 @@ nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
 
 nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
 {
+    _async = blocking;
 #if NSAPI_PPP_AVAILABLE
     return nsapi_ppp_set_blocking(blocking);
 #else
-    return NSAPI_ERROR_UNSUPPORTED;
+    return NSAPI_ERROR_OK;
 #endif
 }
-
 
 #if NSAPI_PPP_AVAILABLE
 void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
@@ -315,8 +361,6 @@ void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
     }
 }
 #endif
-
-
 
 nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
 {
@@ -528,6 +572,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
         if (has_registration(at_reg[i].type)) {
             _last_reg_type = at_reg[i].type;
             if (urc_on) {
+                tr_info("setting reg urc for i: %d", i);
                 _at.cmd_start(at_reg[i].cmd);
                 _at.write_string("=2", false);
                 _at.cmd_stop();
@@ -544,13 +589,26 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
     return _at.get_last_error();
 }
 
+nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode& mode)
+{
+    _at.lock();
+    _at.cmd_start("AT+COPS?");
+    _at.cmd_stop();
+    _at.resp_start("+COPS:");
+    int tmpmode = (NWRegisteringMode)_at.read_int();
+    tr_info("get_network_registering_mode, tmpmode: %d", tmpmode);
+    _at.resp_stop();
+
+    mode = (NWRegisteringMode)tmpmode;
+    return _at.unlock_return_error();
+}
+
 nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 {
     _at.lock();
 
-    nsapi_error_t ret = set_registration_urc(false);
+    nsapi_error_t ret = set_registration_urc(_async);
     if (ret) {
-        tr_error("Setting registration URC failed!");
         _at.clear_error(); // allow temporary failures here
     }
 
@@ -580,40 +638,13 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type, RegistrationStatus &status)
+void AT_CellularNetwork::read_reg_params(int type_index, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act)
 {
-    int i = (int)type;
-    MBED_ASSERT(i >= 0 && i < C_MAX);
-
-    const char *rsp[] =            { "+CEREG:",    "+CGREG:",     "+CREG:"};
-
     const int LAC_LENGTH = 5, CELL_ID_LENGTH = 9;
     char lac_string[LAC_LENGTH] = {0}, cell_id_string[CELL_ID_LENGTH] = {0};
     bool lac_read = false, cell_id_read = false;
 
-    _cell_id = -1;
-    _lac = -1;
-
-    _at.lock();
-
-    if (!has_registration(at_reg[i].type)) {
-        _at.unlock();
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    _at.cmd_start(at_reg[i].cmd);
-    _at.write_string("=2", false);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-
-    _at.cmd_start(at_reg[i].cmd);
-    _at.write_string("?", false);
-    _at.cmd_stop();
-
-    _at.resp_start(rsp[i]);
-    _at.read_int(); // ignore urc mode subparam
-    status = (RegistrationStatus)_at.read_int();
+    reg_status = (RegistrationStatus)_at.read_int();
 
     int len = _at.read_string(lac_string, LAC_LENGTH);
     if (memcmp(lac_string, "ffff", LAC_LENGTH-1) && len >= 0) {
@@ -625,35 +656,75 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
         cell_id_read = true;
     }
 
-    _at.resp_stop();
-
-    _at.cmd_start(at_reg[i].cmd);
-    _at.write_string("=0", false);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    nsapi_error_t ret = _at.get_last_error();
-    _at.unlock();
+    act = _at.read_int();
 
     if (lac_read) {
-        _lac = hex_str_to_int(lac_string, LAC_LENGTH);
-        tr_debug("lac %s %d", lac_string, _lac );
+        lac = hex_str_to_int(lac_string, LAC_LENGTH);
+        tr_debug("lac %s %d", lac_string, lac );
     }
 
     if (cell_id_read) {
-        _cell_id = hex_str_to_int(cell_id_string, CELL_ID_LENGTH);
-        tr_debug("cell_id %s %d", cell_id_string, _cell_id );
+        cell_id = hex_str_to_int(cell_id_string, CELL_ID_LENGTH);
+        tr_debug("cell_id %s %d", cell_id_string, cell_id );
+    }
+}
+
+nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type, RegistrationStatus &status)
+{
+    int i = (int)type;
+    MBED_ASSERT(i >= 0 && i < C_MAX);
+
+    if (!has_registration(at_reg[i].type)) {
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
-    return ret;
+    _at.lock();
+    if (!_async) {
+        _at.cmd_start(at_reg[i].cmd);
+        _at.write_string("=2", false);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
+
+    const char *rsp[] = { "+CEREG:", "+CGREG:", "+CREG:"};
+    _at.cmd_start(at_reg[i].cmd);
+    _at.write_string("?", false);
+    _at.cmd_stop();
+    _at.resp_start(rsp[i]);
+
+
+    _at.read_int(); // ignore urc mode subparam
+    int lac = -1, cell_id = -1, act = -1;
+    read_reg_params(i, status, lac, cell_id, act);
+    _at.resp_stop();
+
+    if (cell_id != -1) {
+        _cell_id = cell_id;
+    }
+    if (act != -1) {
+        _current_act = (RadioAccessTechnology)act;
+    }
+
+    if (!_async) {
+        _at.cmd_start(at_reg[i].cmd);
+        _at.write_string("=0", false);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
+
+    return _at.unlock_return_error();
 }
 
 nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
 {
+    if (_async) {
+        return _cell_id;
+    }
+
     RegistrationStatus tmp;
-
     nsapi_error_t error = get_registration_status(_last_reg_type, tmp);
-
     cell_id = _cell_id;
 
     return error;
@@ -705,10 +776,9 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
 
 nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
 {
-    _at.lock();
-
     // If apn is set
     if (_apn) {
+        _at.lock();
         _at.cmd_start("AT+CABTRDP=");
         _at.write_string(_apn);
         _at.cmd_stop();
@@ -718,9 +788,10 @@ nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
             backoff_timer = _at.read_int();
         }
         _at.resp_stop();
+        return _at.unlock_return_error();
     }
 
-    return _at.unlock_return_error();
+    return NSAPI_ERROR_PARAMETER;
 }
 
 NetworkStack *AT_CellularNetwork::get_stack()
@@ -751,14 +822,12 @@ const char *AT_CellularNetwork::get_ip_address()
 
 nsapi_error_t AT_CellularNetwork::set_stack_type(nsapi_ip_stack_t stack_type)
 {
-
     if (get_modem_stack_type(stack_type)) {
         _ip_stack_type_requested = stack_type;
         return NSAPI_ERROR_OK;
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
-
 }
 
 nsapi_ip_stack_t AT_CellularNetwork::get_stack_type()
@@ -775,14 +844,14 @@ bool AT_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
     }
 }
 
-nsapi_error_t AT_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opsAct)
+nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-nsapi_error_t AT_CellularNetwork::set_access_technology(operator_t::RadioAccessTechnology opAct)
+nsapi_error_t AT_CellularNetwork::set_access_technology(RadioAccessTechnology opAct)
 {
-    if (opAct == operator_t::RAT_UNKNOWN) {
+    if (opAct == RAT_UNKNOWN) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
@@ -816,10 +885,10 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 
         // Optional - try read an int
         ret = _at.read_int();
-        op->op_rat = (ret == error_code) ? operator_t::RAT_UNKNOWN:(operator_t::RadioAccessTechnology)ret;
+        op->op_rat = (ret == error_code) ? RAT_UNKNOWN:(RadioAccessTechnology)ret;
 
-        if ((_op_act == operator_t::RAT_UNKNOWN) ||
-                ((op->op_rat != operator_t::RAT_UNKNOWN) && (op->op_rat == _op_act))) {
+        if ((_op_act == RAT_UNKNOWN) ||
+                ((op->op_rat != RAT_UNKNOWN) && (op->op_rat == _op_act))) {
             idx++;
         } else {
             operators.delete_last();
@@ -1053,7 +1122,6 @@ int AT_CellularNetwork::get_3gpp_error()
     return _at.get_3gpp_error();
 }
 
-
 nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &operator_params)
 {
     _at.lock();
@@ -1081,7 +1149,7 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
                 break;
         }
 
-        operator_params.op_rat = (operator_t::RadioAccessTechnology)_at.read_int();
+        operator_params.op_rat = (RadioAccessTechnology)_at.read_int();
     }
 
     _at.resp_stop();

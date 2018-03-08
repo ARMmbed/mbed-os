@@ -80,7 +80,7 @@ enum nsapi_error {
  */
  typedef enum nsapi_event {
     NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
-    NSAPI_EVENT_CELLULAR_STATUS_CHANGE    = 1
+    NSAPI_EVENT_CELLULAR_STATUS_CHANGE   = 1  /*!< cellular modem status has changed, the parameter = new status (cellular_connection_status_t) */
 } nsapi_event_t;
 
 

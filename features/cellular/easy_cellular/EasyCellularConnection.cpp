@@ -37,7 +37,9 @@ namespace mbed {
 
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
-    tr_info("cellular_status %s => %s", _cellularConnectionFSM.get_state_string(state), _cellularConnectionFSM.get_state_string(next_state));
+    tr_info("cellular_status state: %s", _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)state));
+    tr_info("cellular_status next_state: %s", _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)next_state));
+
     if (_target_state == state) {
         if (state == CellularConnectionFSM::STATE_CONNECTED) {
             _is_connected = true;
@@ -51,6 +53,11 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
         _is_connected = false;
     }
     return true;
+}
+
+void EasyCellularConnection::network_callback(nsapi_event_t ev, intptr_t ptr)
+{
+
 }
 
 EasyCellularConnection::EasyCellularConnection(bool debug) :
@@ -84,6 +91,7 @@ nsapi_error_t EasyCellularConnection::init()
 
         if (err == NSAPI_ERROR_OK) {
             err = _cellularConnectionFSM.start_dispatch();
+            _cellularConnectionFSM.attach(callback(this, &EasyCellularConnection::network_callback));
         }
         _is_initialized = true;
     }

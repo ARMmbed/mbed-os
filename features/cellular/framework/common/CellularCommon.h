@@ -20,12 +20,6 @@
 
 #include <stdint.h>
 
-typedef enum nsapi_event {
-    NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
-    NSAPI_CELLULAR_EVENT_STATUS_CHANGE   = 1  /*!< cellular modem status has changed, the parameter = new status (cellular_connection_status_t) */
-} nsapi_event_t;
-
-
 /**
  * Cellular specific event changes.
  * Connect and disconnect are handled via NSAPI_EVENT_CONNECTION_STATUS_CHANGE
@@ -34,9 +28,9 @@ typedef enum cellular_event_status {
     CellularDeviceReady                     = 1,    /*!< Modem is powered and ready to receive commands */
     CellularSIMStatusChanged                = 2,    /*!< SIM state changed, call SIM state  */
     CellularRegistrationStatusChanged       = 3,    /*!< Registering status changed, e.g. roaming, registered, smsonly...  */
-    CellularRegistrationTypeChanged         = 6,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
-    CellularCellIDChanged                   = 8,    /*!< Network Cell ID have changed  */
-    CellularRadioAccessTechnologyChanged    = 9,    /*!< Network roaming status have changed  */
+    CellularRegistrationTypeChanged         = 4,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
+    CellularCellIDChanged                   = 5,    /*!< Network Cell ID have changed  */
+    CellularRadioAccessTechnologyChanged    = 6,    /*!< Network roaming status have changed  */
 
 
 } cellular_connection_status_t;

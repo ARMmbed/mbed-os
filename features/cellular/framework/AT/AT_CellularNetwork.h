@@ -62,6 +62,8 @@ protected:
 public: // CellularNetwork
     virtual nsapi_error_t set_registration(const char *plmn = 0);
 
+    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode);
+
     virtual nsapi_error_t get_registration_status(RegistrationType type, RegistrationStatus &status);
 
     virtual nsapi_error_t set_attach(int timeout = 10*1000);
@@ -81,7 +83,7 @@ public: // CellularNetwork
 
     virtual const char *get_ip_address();
 
-    virtual nsapi_error_t set_access_technology(operator_t::RadioAccessTechnology op_rat);
+    virtual nsapi_error_t set_access_technology(RadioAccessTechnology op_rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
@@ -107,6 +109,8 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params);
 
+    virtual nsapi_error_t set_registration_urc(bool on);
+
 protected:
 
     /** Check if modem supports the given stack type.
@@ -128,11 +132,16 @@ protected:
      *
      *  @return       zero on success
      */
-    virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology op_rat);
+    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat);
+
 
 private:
     //  "NO CARRIER" urc
     void urc_no_carrier();
+    void urc_creg();
+    void urc_cereg();
+    void urc_cgreg();
+
     nsapi_error_t set_context_to_be_activated();
     nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
 
@@ -141,8 +150,11 @@ private:
     nsapi_error_t open_data_channel();
     bool get_context();
     bool set_new_context(int cid);
-    nsapi_error_t set_registration_urc(bool on);
+
     nsapi_error_t delete_current_context();
+
+    void read_reg_params_and_compare(int index);
+    void read_reg_params(int type_index, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
 
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
@@ -157,13 +169,16 @@ protected:
     nsapi_ip_stack_t _ip_stack_type;
     int _cid;
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
-    operator_t::RadioAccessTechnology _op_act;
+    RadioAccessTechnology _op_act;
     AuthenticationType _authentication_type;
-    int _lac;
     int _cell_id;
     RegistrationType _last_reg_type;
     nsapi_connection_status_t _connect_status;
     bool _new_context_set;
+    RegistrationStatus _reg_status;
+    RadioAccessTechnology _current_act;
+    bool _async;
+
 };
 
 } // namespace mbed

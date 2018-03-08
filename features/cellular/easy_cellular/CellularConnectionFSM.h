@@ -141,6 +141,7 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
+    bool is_automatic_registering();
     char* get_state_string(CellularState state);
 private:
     bool power_on();
@@ -149,6 +150,7 @@ private:
     bool set_network_registration(char *plmn = 0);
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
+    bool is_registered();
 
     // state functions to keep state machine simple
     void state_init();
@@ -163,7 +165,8 @@ private:
     void state_connected();
     void enter_to_state(CellularState state);
     void retry_state_or_fail();
-
+    void network_callback(nsapi_event_t ev, intptr_t ptr);
+    nsapi_error_t continue_from_state(CellularState state);
 
 private:
     friend class EasyCellularConnection;
@@ -197,6 +200,7 @@ private:
     int _retry_array_length;
     events::EventQueue _at_queue;
     char _st_string[20];
+    int _eventID;
 };
 
 } // namespace
