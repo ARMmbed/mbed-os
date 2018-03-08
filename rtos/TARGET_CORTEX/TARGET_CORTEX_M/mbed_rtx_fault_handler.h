@@ -37,6 +37,8 @@ typedef struct {
   uint32_t xPSR;
   uint32_t PSP;
   uint32_t MSP;
+  uint32_t EXC_RETURN;
+  uint32_t CONTROL;    
 } mbed_fault_context_t;
 
 //Fault type definitions
