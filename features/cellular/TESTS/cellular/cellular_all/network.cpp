@@ -71,6 +71,7 @@ static bool wait_register()
 
 void test_attach()
 {
+    cellularDevice.set_timeout(120*1000); // 120 second timeout for at commands after power is up. It might take time to register, attach and connect
     tr_info("Register to network.");
     TEST_ASSERT(wait_register());
     tr_info("Attach to network.");
