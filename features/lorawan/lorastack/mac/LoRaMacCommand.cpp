@@ -209,6 +209,7 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
     } else {
         mac_cmd_in_next_tx = false;
     }
+    mac_cmd_buf_idx_to_repeat = cmd_cnt;
 }
 
 
@@ -426,7 +427,6 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t 
 
 bool LoRaMacCommand::is_sticky_mac_command_pending()
 {
-    //DEAD CODE: mac_cmd_buf_idx_to_repeat is never set
     if (mac_cmd_buf_idx_to_repeat > 0) {
         return true;
     }
