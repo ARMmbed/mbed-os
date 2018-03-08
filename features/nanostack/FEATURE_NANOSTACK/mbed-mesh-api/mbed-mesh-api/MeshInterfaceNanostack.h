@@ -22,6 +22,10 @@
 #include "NanostackRfPhy.h"
 #include "mesh_interface_types.h"
 
+/** Nanostack's network interface class.
+ *
+ * Common class that is shared between mesh interface classes
+ */
 class MeshInterfaceNanostack : public MeshInterface {
 public:
 
@@ -63,7 +67,7 @@ public:
 
     /**
      * \brief Callback from C-layer
-     * \param state state of the network
+     * \param status state of the network
      * */
     void mesh_network_handler(mesh_connection_status_t status);
 

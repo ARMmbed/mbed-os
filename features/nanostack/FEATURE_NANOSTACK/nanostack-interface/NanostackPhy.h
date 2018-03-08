@@ -18,6 +18,7 @@
 #ifndef NANOSTACK_PHY_H_
 #define NANOSTACK_PHY_H_
 
+/** PHY driver class for Nanostack */
 class NanostackPhy {
 public:
 

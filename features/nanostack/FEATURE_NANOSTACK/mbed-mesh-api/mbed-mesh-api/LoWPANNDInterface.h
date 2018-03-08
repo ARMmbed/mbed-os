@@ -19,6 +19,10 @@
 
 #include "MeshInterfaceNanostack.h"
 
+/** 6LoWPAN-ND mesh network interface class
+ *
+ * Configure Nanostack to use 6LoWPAN-ND protocol.
+ */
 class LoWPANNDInterface : public MeshInterfaceNanostack {
 public:
 
