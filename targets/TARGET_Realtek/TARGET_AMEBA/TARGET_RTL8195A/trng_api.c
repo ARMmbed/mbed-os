@@ -17,6 +17,10 @@
 #include "analogin_api.h"
 #include "analogin_ext.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #ifdef DEVICE_TRNG
 
 
