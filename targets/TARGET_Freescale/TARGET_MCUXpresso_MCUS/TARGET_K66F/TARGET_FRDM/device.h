@@ -26,7 +26,7 @@
 
 
 
-
+#define SAI_DEFAULT_SAMPLE_RATE (16000)
 
 #define DEVICE_ID_LENGTH       24
 
