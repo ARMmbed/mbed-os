@@ -696,7 +696,7 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
     cb->oob_present = cb->attempt_oob;
 
     if (_default_authentication.get_secure_connections()) {
-        cb->oob_present = _pal.is_secure_connectinos_oob_present(cb->peer_address);
+        cb->oob_present = _pal.is_secure_connections_oob_present(cb->peer_address);
     }
 }
 
