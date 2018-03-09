@@ -36,6 +36,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
+    PORT_Type *port_addrs[] = PORT_BASE_PTRS;
+    PORT_Type *base = port_addrs[sda >> GPIO_PORT_SHIFT];
+
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
     obj->next_repeated_start = 0;
     MBED_ASSERT((int)obj->instance != NC);
@@ -49,10 +52,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
 
-#if defined(FSL_FEATURE_PORT_HAS_OPEN_DRAIN) && FSL_FEATURE_PORT_HAS_OPEN_DRAIN
-    PORT_Type *port_addrs[] = PORT_BASE_PTRS;
-    PORT_Type *base = port_addrs[sda >> GPIO_PORT_SHIFT];
+    /* Enable internal pullup resistor */
+    base->PCR[sda & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
+    base->PCR[scl & 0xFF] |= (PORT_PCR_PE_MASK | PORT_PCR_PS_MASK);
 
+#if defined(FSL_FEATURE_PORT_HAS_OPEN_DRAIN) && FSL_FEATURE_PORT_HAS_OPEN_DRAIN
     base->PCR[sda & 0xFF] |= PORT_PCR_ODE_MASK;
     base->PCR[scl & 0xFF] |= PORT_PCR_ODE_MASK;
 #endif
