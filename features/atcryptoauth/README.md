@@ -1,4 +1,16 @@
 # Atmel Crypto Auth (ATCAECC508A) driver
+### Table of Contents
+* [Introduction](#introduction)
+* [About ATCAECC508A](#about-atcaecc508a)
+* [Design considerations](#design-considerations)
+* [ATCAECC508A configuration](#atcaecc508a-configuration)
+* [Commissioning Application](#commissioning-application)
+* [Testing](#testing)
+    * [Generating certificates](#generating-certificates)
+    * [SSL Client sample](#ssl-client-sample)
+* [Hardware interface](#hardware-interface)
+
+## Introduction
 This is the device driver for Atmel Crypto Auth device ATCAECC508A. It provides:
 - Driver for using ATCAECC508A device
 - Mbed TLS Opaque keys setup API
@@ -20,7 +32,7 @@ ATCAECC508A has following features relevant for sample development. There are mo
 -- 1 MHz Standard I2C Interface
 
 
-## Design considerations 
+## Design considerations
 This is the first draft of the driver. It is developed for demonstrating ECDSA operations using Opaque keys feature. Following considerations are taken in this first draft:
 - Only ECDSA sign and verify operations are implemented.
 - The device is commissioned with a minimalistic configuration to allow ECDSA operations.
@@ -35,7 +47,7 @@ The device configuration must be **locked** before use. Locking means that the c
 - Slot 8 is configured to store a x509 certificate.
 - Slot 9-14 are configured to store ECC Public keys.
 
-## Commissioning Application.
+## Commissioning Application
 Commissioning app is part of the driver source, but is disabled by default. To enable it, please enable flag ```MBED_CONF_ATCAECC_APP_ENABLE``` in ```mbed_lib.json```. In order to do commissioning mbed-os should be built with this flag enabled.
 
 On start it prints following options:
@@ -55,6 +67,8 @@ Commissioning is done in two steps:
 ***The demo config is done!***
 
 Note: The device allows re-generating Private keys. Any Public key or Certificates generated using same Key Id will be invalidated on re-generating the Private key.
+
+# Testing
 
 ## Generating certificates
 A self signed certificate can be generated using [modified](https://github.com/ARMmbed/mbedtls/pull/1360) ```cert_write.exe``` application. Steps are as follows:
@@ -173,3 +187,14 @@ Content-Type: text/html
 <h2>mbed TLS Test Server</h2>
 <p>Successful connection using: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256</p>
 ```
+
+# Hardware interface
+There are a couple of evaluation and development kits available for ATECC508A. For interfacing with an Mbed platform I2C and power supply connections have to be made. Note that ATECC508A requires a 5V supply. Below is an example of connecting an [ATCRYPTOAUTH-XPRO-B](http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=ATCRYPTOAUTH-XPRO-B) ([header](http://ww1.microchip.com/downloads/en/DeviceDoc/CryptoAuth-XPRO-B_design_documentation.pdf)) and a K64F:
+
+![ATCRYPTOAUTH-XPRO-B-K64F](ATCRYPTOAUTH-XPRO-B-K64F2.jpg)
+
+For secure connections a shield can be prepared with ATCRYPTOAUTH-XPRO-B. Most Mbed platforms support Arduino headers and an [Arduino shield](https://store.arduino.cc/usa/arduino-mega-proto-shield-rev3-pcb) can be used to prepare a shield for connecting ATCRYPTOAUTH-XPRO-B to an Mbed platform. See below image showing ATCRYPTOAUTH-XPRO-B on an Arduino shield:
+
+![ATCRYPTOAUTH-XPRO-B-Shield](ATCRYPTOAUTH-XPRO-B-Shield.jpg)
+
+Note: ATCRYPTOAUTH-XPRO-B comes with ATECC508A and ATECC608A ICs. Jumper J5 should be used to enable ATECC508A.
