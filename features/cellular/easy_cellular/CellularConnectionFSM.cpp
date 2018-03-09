@@ -297,52 +297,17 @@ void CellularConnectionFSM::report_failure(const char* msg)
     }
 }
 
-char* CellularConnectionFSM::get_state_string(CellularState state)
+const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    switch (state) {
-        case STATE_INIT:
-            strcpy(_st_string, "Init");
-            break;
-        case STATE_POWER_ON:
-            strcpy(_st_string, "Power");
-            break;
-        case STATE_DEVICE_READY:
-            strcpy(_st_string, "Device Ready");
-            break;
-        case STATE_SIM_PIN:
-            strcpy(_st_string, "SIM Pin");
-            break;
-        case STATE_REGISTER_NETWORK:
-            strcpy(_st_string, "Register network");
-            break;
-        case STATE_REGISTERING_NETWORK:
-            strcpy(_st_string, "Registering network");
-            break;
-        case STATE_ATTACH_NETWORK:
-            strcpy(_st_string, "Attach network");
-            break;
-        case STATE_ATTACHING_NETWORK:
-            strcpy(_st_string, "Attaching network");
-            break;
-        case STATE_CONNECT_NETWORK:
-            strcpy(_st_string, "Connect network");
-            break;
-        case STATE_CONNECTED:
-            strcpy(_st_string, "Connected");
-            break;
-        default:
-            MBED_ASSERT(0);
-            break;
-    }
-
-    return _st_string;
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Register network", "Registering network", "Attach network", "Attaching network", "Connect network", "Connected"};
+    return strings[state];
 }
 
 bool CellularConnectionFSM::is_automatic_registering()
 {
     CellularNetwork::NWRegisteringMode mode;
     nsapi_error_t err = _network->get_network_registering_mode(mode);
-    tr_info("automatic registering err: %d, mode: %d", err, mode);
+    tr_debug("automatic registering mode: %d", mode);
     if (err == NSAPI_ERROR_OK && mode == CellularNetwork::NWModeAutomatic) {
         return true;
     }
@@ -397,7 +362,7 @@ void CellularConnectionFSM::retry_state_or_fail()
 void CellularConnectionFSM::state_init()
 {
     _event_timeout = _start_time;
-    tr_info("INIT state, waiting %d ms before POWER state)", _start_time);
+    tr_info("Init state, waiting %d ms before POWER state)", _start_time);
     enter_to_state(STATE_POWER_ON);
 }
 
@@ -435,7 +400,6 @@ void CellularConnectionFSM::state_sim_pin()
     if (open_sim()) {
         enter_to_state(STATE_REGISTERING_NETWORK);
         _state_retry_count = 0;
-        tr_info("Check for network registration");
     } else {
         retry_state_or_fail();
     }
@@ -443,21 +407,27 @@ void CellularConnectionFSM::state_sim_pin()
 
 void CellularConnectionFSM::state_registering()
 {
-    _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-    _next_state = STATE_REGISTER_NETWORK;
-    if (is_automatic_registering()) {
-        _network->set_registration_urc(true);
-        // Automatic registering is on, we now wait for async response with max time 180s
-        _next_state = STATE_REGISTERING_NETWORK;
-        _event_timeout = 180*1000;
-        tr_info("STATE_REGISTERING_NETWORK, event timeout 180s");
-    }
+    if (is_registered()) {
+        // we are already registered, go to attach
+        _next_state = STATE_ATTACHING_NETWORK;
+    } else {
+        // by default we and start the registering but if automatic mode is on then we start waiting for async response
+        _cellularDevice->set_timeout(TIMEOUT_NETWORK);
+        _next_state = STATE_REGISTER_NETWORK;
+        if (is_automatic_registering()) {
+            _network->set_registration_urc(true);
+            // Automatic registering is on, we now wait for async response with max time 180s
+            _next_state = STATE_REGISTERING_NETWORK;
+            _event_timeout = 180*1000;
+            tr_info("Automatic register was already on. Start waiting urc's: event timeout %ds", _event_timeout/1000);
+        }
 
-    if (_retry_count > 3) {
-        _event_timeout = -1;
-    }
-    if (_next_state == STATE_REGISTERING_NETWORK) {
-        _retry_count++;
+        if (_retry_count > 3) {
+            _event_timeout = -1;
+        }
+        if (_next_state == STATE_REGISTERING_NETWORK) {
+            _retry_count++;
+        }
     }
 }
 
@@ -528,7 +498,14 @@ void CellularConnectionFSM::state_connect_to_network()
     tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
     nsapi_error_t err = _network->connect();
     if (!err) {
+#if NSAPI_PPP_AVAILABLE
+        // In ppp mode connect is almost synchronous
+        _event_timeout = 180*1000;//_retry_timeout_array[_retry_count] * 1000;
+        tr_info("Waiting for connect...");
+#else
+        // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTED;
+#endif // NSAPI_PPP_AVAILABLE
     } else {
         if (_retry_count < _retry_array_length) {
             _event_timeout = _retry_timeout_array[_retry_count] * 1000;
@@ -613,9 +590,6 @@ void CellularConnectionFSM::event()
 
 nsapi_error_t CellularConnectionFSM::start_dispatch()
 {
-    tr_info("CellularConnectionUtil::start");
-    tr_info("Create cellular thread");
-
     MBED_ASSERT(!_queue_thread);
 
     _queue_thread = new rtos::Thread;
@@ -628,7 +602,6 @@ nsapi_error_t CellularConnectionFSM::start_dispatch()
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    tr_info("CellularConnectionUtil::started");
     return NSAPI_ERROR_OK;
 }
 
@@ -662,14 +635,21 @@ void CellularConnectionFSM::attach(mbed::Callback<void(nsapi_event_t, intptr_t)>
 void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
 
-    tr_info("network_callback called with ev: %d, intptr: %d", ev, ptr);
+    tr_debug("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
     if (ev == NSAPI_EVENT_CELLULAR_STATUS_CHANGE) {
         if (ptr == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
             // check for registration status
             if (is_registered()) {
-                tr_info("Registered, cancel state and continue to attach...");
                 _queue.cancel(_eventID);
-                continue_from_state(STATE_ATTACH_NETWORK);
+                continue_from_state(STATE_ATTACHING_NETWORK);
+            }
+        }
+    } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        if (ptr == NSAPI_STATUS_GLOBAL_UP) {
+            // we are connected
+            if (_state == STATE_CONNECT_NETWORK) {
+                _queue.cancel(_eventID);
+                continue_from_state(STATE_CONNECTED);
             }
         }
     }

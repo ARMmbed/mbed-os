@@ -343,7 +343,7 @@ nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
 
 nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
 {
-    _async = blocking;
+    _async = !blocking;
 #if NSAPI_PPP_AVAILABLE
     return nsapi_ppp_set_blocking(blocking);
 #else
@@ -572,7 +572,6 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
         if (has_registration(at_reg[i].type)) {
             _last_reg_type = at_reg[i].type;
             if (urc_on) {
-                tr_info("setting reg urc for i: %d", i);
                 _at.cmd_start(at_reg[i].cmd);
                 _at.write_string("=2", false);
                 _at.cmd_stop();
@@ -596,7 +595,6 @@ nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode
     _at.cmd_stop();
     _at.resp_start("+COPS:");
     int tmpmode = (NWRegisteringMode)_at.read_int();
-    tr_info("get_network_registering_mode, tmpmode: %d", tmpmode);
     _at.resp_stop();
 
     mode = (NWRegisteringMode)tmpmode;
@@ -712,6 +710,10 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
+    }
+
+    if (_at.get_last_error() == NSAPI_ERROR_OK) {
+        _last_reg_type = type;
     }
 
     return _at.unlock_return_error();

@@ -37,33 +37,35 @@ namespace mbed {
 
 bool EasyCellularConnection::cellular_status(int state, int next_state)
 {
-    tr_info("cellular_status state: %s", _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)state));
-    tr_info("cellular_status next_state: %s", _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)next_state));
+    tr_info("cellular_status: %s ==> %s", _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)state),
+            _cellularConnectionFSM.get_state_string((CellularConnectionFSM::CellularState)next_state));
 
     if (_target_state == state) {
-        if (state == CellularConnectionFSM::STATE_CONNECTED) {
-            _is_connected = true;
-        } else {
-            _is_connected = false;
-        }
         tr_info("Target state reached: %s", _cellularConnectionFSM.get_state_string(_target_state));
         MBED_ASSERT(_cellularSemaphore.release() == osOK);
-        return false;
-    } else {
-        _is_connected = false;
+        return false; // return false -> state machine is halted
     }
     return true;
 }
 
 void EasyCellularConnection::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
-
+    if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+        if (ptr == NSAPI_STATUS_GLOBAL_UP) {
+            _is_connected = true;
+        } else {
+            _is_connected = false;
+        }
+    }
+    if (_status_cb) {
+        _status_cb(ev, ptr);
+    }
 }
 
 EasyCellularConnection::EasyCellularConnection(bool debug) :
         _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
                 MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(), _credentials_err(
-                NSAPI_ERROR_OK)
+                NSAPI_ERROR_OK), _status_cb(0)
 {
     tr_info("EasyCellularConnection()");
 #if USE_APN_LOOKUP
@@ -126,6 +128,11 @@ void EasyCellularConnection::set_sim_pin(const char *sim_pin)
     if (sim_pin) {
         _cellularConnectionFSM.set_sim_pin(sim_pin);
     }
+}
+
+void EasyCellularConnection::set_is_blocking(bool blocking)
+{
+
 }
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
@@ -265,6 +272,7 @@ const char *EasyCellularConnection::get_gateway()
 
 void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
+    _status_cb = status_cb;
     _cellularConnectionFSM.attach(status_cb);
 }
 

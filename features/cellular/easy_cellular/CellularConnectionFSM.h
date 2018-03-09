@@ -142,7 +142,7 @@ public:
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
     bool is_automatic_registering();
-    char* get_state_string(CellularState state);
+    const char* get_state_string(CellularState state);
 private:
     bool power_on();
     bool open_sim();
