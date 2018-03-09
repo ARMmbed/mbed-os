@@ -195,11 +195,6 @@ public:
      */
     virtual ble_error_t set_csrk(const csrk_t &csrk);
 
-    /**
-     * @see ::ble::pal::SecurityManager::generate_public_key
-     */
-    virtual ble_error_t generate_public_key();
-
     ////////////////////////////////////////////////////////////////////////////
     // Global parameters
     //
