@@ -8,6 +8,7 @@
 * [Testing](#testing)
     * [Generating certificates](#generating-certificates)
     * [SSL Client sample](#ssl-client-sample)
+* [Hardware interface](#hardware-interface)
 
 ## Introduction
 This is the device driver for Atmel Crypto Auth device ATCAECC508A. It provides:
@@ -186,3 +187,14 @@ Content-Type: text/html
 <h2>mbed TLS Test Server</h2>
 <p>Successful connection using: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256</p>
 ```
+
+# Hardware interface
+There are a couple of evaluation and development kits available for ATECC508A. For interfacing with an Mbed platform I2C and power supply connections have to be made. Note that ATECC508A requires a 5V supply. Below is an example of connecting an [ATCRYPTOAUTH-XPRO-B](http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=ATCRYPTOAUTH-XPRO-B) ([header](http://ww1.microchip.com/downloads/en/DeviceDoc/CryptoAuth-XPRO-B_design_documentation.pdf)) and a K64F:
+
+![ATCRYPTOAUTH-XPRO-B-K64F](ATCRYPTOAUTH-XPRO-B-K64F.jpg)
+
+For secure connections a shield can be prepared with ATCRYPTOAUTH-XPRO-B. Most Mbed platforms support Arduino headers and an [Arduino shield](https://store.arduino.cc/usa/arduino-mega-proto-shield-rev3-pcb) can be used to prepare a shield for connecting ATCRYPTOAUTH-XPRO-B to an Mbed platform. See below image showing ATCRYPTOAUTH-XPRO-B on an Arduino shield:
+
+![ATCRYPTOAUTH-XPRO-B-Shield](ATCRYPTOAUTH-XPRO-B-Shield.jpg)
+
+Note: ATCRYPTOAUTH-XPRO-B comes with ATECC508A and ATECC608A ICs. Jumper J5 should be used to enable ATECC508A.
