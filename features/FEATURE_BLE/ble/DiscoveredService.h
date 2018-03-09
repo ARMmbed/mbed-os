@@ -65,7 +65,7 @@ public:
      *
      * @return A reference to the start handle.
      */
-    const GattAttribute::Handle_t& getStartHandle(void) const
+    const GattAttribute::Handle_t &getStartHandle(void) const
     {
         return startHandle;
     }
@@ -75,7 +75,7 @@ public:
      *
      * @return A reference to the end handle.
      */
-    const GattAttribute::Handle_t& getEndHandle(void) const
+    const GattAttribute::Handle_t &getEndHandle(void) const
     {
         return endHandle;
     }
@@ -90,7 +90,8 @@ public:
     DiscoveredService() :
         uuid(UUID::ShortUUIDBytes_t(0)),
         startHandle(GattAttribute::INVALID_HANDLE),
-        endHandle(GattAttribute::INVALID_HANDLE) {
+        endHandle(GattAttribute::INVALID_HANDLE)
+    {
     }
 
     /**
@@ -109,7 +110,8 @@ public:
         UUID uuidIn,
         GattAttribute::Handle_t startHandleIn,
         GattAttribute::Handle_t endHandleIn
-    ) {
+    )
+    {
         uuid = uuidIn;
         startHandle = startHandleIn;
         endHandle = endHandleIn;
@@ -129,7 +131,8 @@ public:
     void setup(
         GattAttribute::Handle_t startHandleIn,
         GattAttribute::Handle_t endHandleIn
-    ) {
+    )
+    {
         startHandle = startHandleIn;
         endHandle = endHandleIn;
     }
@@ -147,8 +150,9 @@ public:
     void setupLongUUID(
         UUID::LongUUIDBytes_t longUUID,
         UUID::ByteOrder_t order = UUID::MSB
-    ) {
-         uuid.setupLong(longUUID, order);
+    )
+    {
+        uuid.setupLong(longUUID, order);
     }
 
 

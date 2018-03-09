@@ -18,12 +18,12 @@
 #define MBED_BLE_DEPRECATE_H__
 
 #ifdef YOTTA_CFG_MBED_OS
-	#include "compiler-polyfill/attributes.h"
+#include "compiler-polyfill/attributes.h"
 #else
-	/**
-	 * Deprecated, use MBED_DEPRECATED instead.
-	 */
-	#define __deprecated_message(msg)
+/**
+ * Deprecated, use MBED_DEPRECATED instead.
+ */
+#define __deprecated_message(msg)
 #endif
 
 #endif

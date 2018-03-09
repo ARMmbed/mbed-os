@@ -42,19 +42,20 @@ private:
     };
     static const size_t MAX_ENTRIES = 5;
 
-    static entry_t* as_entry(entry_handle_t entry_handle)
+    static entry_t *as_entry(entry_handle_t entry_handle)
     {
-        return reinterpret_cast<entry_t*>(entry_handle);
+        return reinterpret_cast<entry_t *>(entry_handle);
     }
 
 public:
     MemorySecurityDb() { };
     virtual ~MemorySecurityDb() { };
 
-    virtual const SecurityDistributionFlags_t* get_distribution_flags(
+    virtual const SecurityDistributionFlags_t *get_distribution_flags(
         entry_handle_t entry_handle
-    ) {
-        entry_t* entry = as_entry(entry_handle);
+    )
+    {
+        entry_t *entry = as_entry(entry_handle);
         if (!entry) {
             return NULL;
         }
@@ -67,9 +68,10 @@ public:
      */
     virtual void set_distribution_flags(
         entry_handle_t entry_handle,
-        const SecurityDistributionFlags_t& flags
-    ) {
-        entry_t* entry = as_entry(entry_handle);
+        const SecurityDistributionFlags_t &flags
+    )
+    {
+        entry_t *entry = as_entry(entry_handle);
         if (!entry) {
             return;
         }
@@ -86,8 +88,9 @@ public:
         entry_handle_t entry_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
-        entry_t* entry = as_entry(entry_handle);
+    )
+    {
+        entry_t *entry = as_entry(entry_handle);
         if (!entry) {
             return;
         }
@@ -103,8 +106,9 @@ public:
     virtual void get_entry_local_keys(
         SecurityEntryKeysDbCb_t cb,
         entry_handle_t entry_handle
-    ) {
-        entry_t* entry = as_entry(entry_handle);
+    )
+    {
+        entry_t *entry = as_entry(entry_handle);
         if (!entry) {
             return;
         }
@@ -122,7 +126,8 @@ public:
     virtual void set_entry_local_ltk(
         entry_handle_t entry_handle,
         const ltk_t &ltk
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -134,7 +139,8 @@ public:
         entry_handle_t entry_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -149,7 +155,8 @@ public:
     virtual void get_entry_peer_csrk(
         SecurityEntryCsrkDbCb_t cb,
         entry_handle_t entry_handle
-    ) {
+    )
+    {
         csrk_t csrk;
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
@@ -161,7 +168,8 @@ public:
     virtual void get_entry_peer_keys(
         SecurityEntryKeysDbCb_t cb,
         entry_handle_t entry_handle
-    ) {
+    )
+    {
         SecurityEntryKeys_t *key = NULL;
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
@@ -175,7 +183,8 @@ public:
     virtual void set_entry_peer_ltk(
         entry_handle_t entry_handle,
         const ltk_t &ltk
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -187,7 +196,8 @@ public:
         entry_handle_t entry_handle,
         const ediv_t &ediv,
         const rand_t &rand
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -199,7 +209,8 @@ public:
     virtual void set_entry_peer_irk(
         entry_handle_t entry_handle,
         const irk_t &irk
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -211,7 +222,8 @@ public:
         entry_handle_t entry_handle,
         bool address_is_public,
         const address_t &peer_address
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -222,7 +234,8 @@ public:
     virtual void set_entry_peer_csrk(
         entry_handle_t entry_handle,
         const csrk_t &csrk
-    ) {
+    )
+    {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             entry->state = ENTRY_WRITTEN;
@@ -232,28 +245,33 @@ public:
 
     /* local csrk */
 
-    virtual const csrk_t* get_local_csrk() {
+    virtual const csrk_t *get_local_csrk()
+    {
         return &_local_csrk;
     }
 
-    virtual void set_local_csrk(const csrk_t &csrk) {
+    virtual void set_local_csrk(const csrk_t &csrk)
+    {
         _local_csrk = csrk;
     }
 
     /* public key */
 
-    virtual const public_key_coord_t& get_public_key_x() {
+    virtual const public_key_coord_t &get_public_key_x()
+    {
         return _public_key_x;
     }
 
-    virtual const public_key_coord_t& get_public_key_y() {
+    virtual const public_key_coord_t &get_public_key_y()
+    {
         return _public_key_y;
     }
 
     virtual void set_public_key(
         const public_key_coord_t &public_key_x,
         const public_key_coord_t &public_key_y
-    ) {
+    )
+    {
         _public_key_x = public_key_x;
         _public_key_y = public_key_y;
     }
@@ -263,7 +281,8 @@ public:
     virtual entry_handle_t open_entry(
         BLEProtocol::AddressType_t peer_address_type,
         const address_t &peer_address
-    ) {
+    )
+    {
         const bool peer_address_public =
             (peer_address_type == BLEProtocol::AddressType::PUBLIC);
 
@@ -271,7 +290,7 @@ public:
             if (_entries[i].state == ENTRY_FREE) {
                 continue;
             } else if (peer_address == _entries[i].peer_identity.identity_address
-                && _entries[i].flags.peer_address_is_public == peer_address_public) {
+                       && _entries[i].flags.peer_address_is_public == peer_address_public) {
                 return &_entries[i];
             }
         }
@@ -311,7 +330,8 @@ public:
         }
     }
 
-    virtual void clear_entries() {
+    virtual void clear_entries()
+    {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             _entries[i] = entry_t();
         }
@@ -319,12 +339,14 @@ public:
         _local_csrk = csrk_t();
     }
 
-    virtual void get_whitelist(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
+    virtual void get_whitelist(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist)
+    {
         /*TODO: fill whitelist*/
         cb(whitelist);
     }
 
-    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
+    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist)
+    {
         for (size_t i = 0; i < MAX_ENTRIES && i < whitelist->capacity; i++) {
             if (_entries[i].flags.peer_address_is_public) {
                 whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;

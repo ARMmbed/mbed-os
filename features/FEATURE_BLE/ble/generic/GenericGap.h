@@ -42,7 +42,7 @@ namespace generic {
  * @attention: Not part of the public interface of BLE API.
  */
 class GenericGap : public ::Gap,
-                   public pal::ConnectionEventMonitor {
+    public pal::ConnectionEventMonitor {
 
 public:
     /**
@@ -306,7 +306,7 @@ private:
 
     bool initialize_whitelist() const;
 
-    pal::EventQueue& _event_queue;
+    pal::EventQueue &_event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     BLEProtocol::AddressType_t _address_type;

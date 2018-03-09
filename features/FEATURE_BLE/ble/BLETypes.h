@@ -48,12 +48,12 @@ typedef uintptr_t connection_handle_t;
 typedef uint16_t attribute_handle_t;
 
 
- /**
-  * Inclusive range of GATT attributes handles.
-  *
-  * @note Instances can be constructed with the help of the factory function
-  * attribute_handle_range().
-  */
+/**
+ * Inclusive range of GATT attributes handles.
+ *
+ * @note Instances can be constructed with the help of the factory function
+ * attribute_handle_range().
+ */
 struct attribute_handle_range_t {
     /**
      * Beginning of the range.
@@ -75,7 +75,8 @@ struct attribute_handle_range_t {
      */
     friend bool operator==(
         const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
-    ) {
+    )
+    {
         return (lhs.begin == rhs.begin) && (lhs.end == rhs.end);
     }
 
@@ -89,7 +90,8 @@ struct attribute_handle_range_t {
      */
     friend bool operator!=(
         const attribute_handle_range_t &lhs, const attribute_handle_range_t &rhs
-    ) {
+    )
+    {
         return !(lhs == rhs);
     }
 };
@@ -111,7 +113,8 @@ struct attribute_handle_range_t {
 static inline attribute_handle_range_t attribute_handle_range(
     attribute_handle_t begin,
     attribute_handle_t end
-) {
+)
+{
     attribute_handle_range_t result = {
         begin,
         end
@@ -201,7 +204,8 @@ public:
     /**
      * Default to all zeroes
      */
-    PasskeyAscii() {
+    PasskeyAscii()
+    {
         memset(ascii, NUMBER_OFFSET, PASSKEY_LEN);
     }
 
@@ -210,7 +214,8 @@ public:
      *
      * @param[in] passkey value of the data.
      */
-    PasskeyAscii(const uint8_t* passkey) {
+    PasskeyAscii(const uint8_t *passkey)
+    {
         if (passkey) {
             memcpy(ascii, passkey, PASSKEY_LEN);
         } else {
@@ -223,7 +228,8 @@ public:
      *
      * @param[in] passkey value of the data.
      */
-    PasskeyAscii(passkey_num_t passkey) {
+    PasskeyAscii(passkey_num_t passkey)
+    {
         for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
             uint32_t result = passkey / m;
             ascii[i] = NUMBER_OFFSET + result;
@@ -234,7 +240,8 @@ public:
     /**
      * Cast to number.
      */
-    operator passkey_num_t() {
+    operator passkey_num_t()
+    {
         return to_num(ascii);
     }
 
@@ -243,7 +250,8 @@ public:
      * @param[in] ascii ASCII string of 6 digits stored as ASCII characters
      * @return Passkey as a number.
      */
-    static uint32_t to_num(const uint8_t *ascii) {
+    static uint32_t to_num(const uint8_t *ascii)
+    {
         uint32_t passkey = 0;
         for (size_t i = 0, m = 1; i < PASSKEY_LEN; ++i, m *= 10) {
             passkey += (ascii[i] - NUMBER_OFFSET) * m;
@@ -254,7 +262,8 @@ public:
     /**
      * Return the pointer to the buffer holding the string.
      */
-    uint8_t* value() {
+    uint8_t *value()
+    {
         return ascii;
     }
 private:
@@ -266,7 +275,8 @@ struct byte_array_t {
     /**
      * Default to all zeroes
      */
-    byte_array_t() {
+    byte_array_t()
+    {
         memset(_value, 0x00, sizeof(_value));
     }
 
@@ -275,7 +285,8 @@ struct byte_array_t {
      *
      * @param[in] input_value value of the data.
      */
-    byte_array_t(const uint8_t *input_value) {
+    byte_array_t(const uint8_t *input_value)
+    {
         memcpy(_value, input_value, sizeof(_value));
     }
 
@@ -285,49 +296,56 @@ struct byte_array_t {
      * @param[in] input_value pointer to buffer.
      * @param[in] size buffer size
      */
-    byte_array_t(const uint8_t* input_value, size_t size) {
+    byte_array_t(const uint8_t *input_value, size_t size)
+    {
         memcpy(_value, input_value, size);
     }
 
     /**
      * Equal operator between two octet types.
      */
-    friend bool operator==(const byte_array_t& lhs, const byte_array_t& rhs) {
+    friend bool operator==(const byte_array_t &lhs, const byte_array_t &rhs)
+    {
         return memcmp(lhs._value, rhs._value, sizeof(lhs._value)) == 0;
     }
 
     /**
      * Non equal operator between two octet types.
      */
-    friend bool operator!=(const byte_array_t& lhs, const byte_array_t& rhs) {
+    friend bool operator!=(const byte_array_t &lhs, const byte_array_t &rhs)
+    {
         return !(lhs == rhs);
     }
 
     /**
      * Subscript operator to access data content
      */
-    uint8_t& operator[](uint8_t i) {
+    uint8_t &operator[](uint8_t i)
+    {
         return _value[i];
     }
 
     /**
      * Return the pointer to the buffer holding data.
      */
-    const uint8_t* data() const {
+    const uint8_t *data() const
+    {
         return _value;
     }
 
     /**
      * Return the pointer to the buffer holding data.
      */
-    uint8_t* buffer() {
+    uint8_t *buffer()
+    {
         return _value;
     }
 
     /**
      * Size in byte of a data.
      */
-    static size_t size() {
+    static size_t size()
+    {
         return array_size;
     }
 
@@ -365,7 +383,8 @@ struct address_t : public byte_array_t<6> {
     /**
      * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
      */
-    address_t() {
+    address_t()
+    {
         memset(_value, 0xFF, sizeof(_value));
     }
 
@@ -374,7 +393,8 @@ struct address_t : public byte_array_t<6> {
      *
      * @param[in] input_value value of the data.
      */
-    address_t(const uint8_t *input_value) {
+    address_t(const uint8_t *input_value)
+    {
         memcpy(_value, input_value, sizeof(_value));
     }
 };

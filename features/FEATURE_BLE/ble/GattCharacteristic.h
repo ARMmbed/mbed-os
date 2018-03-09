@@ -1377,7 +1377,8 @@ public:
         enabledReadAuthorization(false),
         enabledWriteAuthorization(false),
         readAuthorizationCallback(),
-        writeAuthorizationCallback() {
+        writeAuthorizationCallback()
+    {
     }
 
 public:
@@ -1405,7 +1406,8 @@ public:
      */
     void setWriteAuthorizationCallback(
         void (*callback)(GattWriteAuthCallbackParams *)
-    ) {
+    )
+    {
         writeAuthorizationCallback.attach(callback);
         enabledWriteAuthorization = true;
     }
@@ -1426,7 +1428,8 @@ public:
     void setWriteAuthorizationCallback(
         T *object,
         void (T::*member)(GattWriteAuthCallbackParams *)
-    ) {
+    )
+    {
         writeAuthorizationCallback.attach(object, member);
         enabledWriteAuthorization = true;
     }
@@ -1443,7 +1446,8 @@ public:
      */
     void setReadAuthorizationCallback(
         void (*callback)(GattReadAuthCallbackParams *)
-    ) {
+    )
+    {
         readAuthorizationCallback.attach(callback);
         enabledReadAuthorization = true;
     }
@@ -1465,7 +1469,8 @@ public:
     void setReadAuthorizationCallback(
         T *object,
         void (T::*member)(GattReadAuthCallbackParams *)
-    ) {
+    )
+    {
         readAuthorizationCallback.attach(object, member);
         enabledReadAuthorization = true;
     }
@@ -1536,7 +1541,7 @@ public:
      *
      * @return A reference to the characteristic's value attribute.
      */
-    GattAttribute& getValueAttribute()
+    GattAttribute &getValueAttribute()
     {
         return _valueAttribute;
     }
@@ -1546,7 +1551,7 @@ public:
      *
      * @return A const reference to the characteristic's value attribute.
      */
-    const GattAttribute& getValueAttribute() const
+    const GattAttribute &getValueAttribute() const
     {
         return _valueAttribute;
     }
@@ -1680,18 +1685,18 @@ private:
      * The registered callback handler for read authorization reply.
      */
     FunctionPointerWithContext<GattReadAuthCallbackParams *>
-        readAuthorizationCallback;
+    readAuthorizationCallback;
 
     /**
      * The registered callback handler for write authorization reply.
      */
     FunctionPointerWithContext<GattWriteAuthCallbackParams *>
-        writeAuthorizationCallback;
+    writeAuthorizationCallback;
 
 private:
     /* Disallow copy and assignment. */
     GattCharacteristic(const GattCharacteristic &);
-    GattCharacteristic& operator=(const GattCharacteristic &);
+    GattCharacteristic &operator=(const GattCharacteristic &);
 };
 
 /**
@@ -1725,15 +1730,16 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T),
-        sizeof(T),
-        BLE_GATT_CHAR_PROPERTIES_READ | additionalProperties,
-        descriptors,
-        numDescriptors,
-        false
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T),
+            sizeof(T),
+            BLE_GATT_CHAR_PROPERTIES_READ | additionalProperties,
+            descriptors,
+            numDescriptors,
+            false
+        )
+    {
     }
 };
 
@@ -1768,14 +1774,15 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T),
-        sizeof(T),
-        BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
-        descriptors,
-        numDescriptors
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T),
+            sizeof(T),
+            BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
+            descriptors,
+            numDescriptors
+        )
+    {
     }
 };
 
@@ -1810,14 +1817,15 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T),
-        sizeof(T),
-        BLE_GATT_CHAR_PROPERTIES_READ | BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
-        descriptors,
-        numDescriptors
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T),
+            sizeof(T),
+            BLE_GATT_CHAR_PROPERTIES_READ | BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
+            descriptors,
+            numDescriptors
+        )
+    {
     }
 };
 
@@ -1853,14 +1861,15 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T) * NUM_ELEMENTS,
-        sizeof(T) * NUM_ELEMENTS,
-        BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
-        descriptors,
-        numDescriptors
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T) * NUM_ELEMENTS,
+            sizeof(T) * NUM_ELEMENTS,
+            BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
+            descriptors,
+            numDescriptors
+        )
+    {
     }
 };
 
@@ -1897,15 +1906,16 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T) * NUM_ELEMENTS,
-        sizeof(T) * NUM_ELEMENTS,
-        BLE_GATT_CHAR_PROPERTIES_READ | additionalProperties,
-        descriptors,
-        numDescriptors,
-        false
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T) * NUM_ELEMENTS,
+            sizeof(T) * NUM_ELEMENTS,
+            BLE_GATT_CHAR_PROPERTIES_READ | additionalProperties,
+            descriptors,
+            numDescriptors,
+            false
+        )
+    {
     }
 };
 
@@ -1942,14 +1952,15 @@ public:
         GattAttribute *descriptors[] = NULL,
         unsigned numDescriptors = 0
     ) : GattCharacteristic(
-        uuid,
-        reinterpret_cast<uint8_t *>(valuePtr),
-        sizeof(T) * NUM_ELEMENTS,
-        sizeof(T) * NUM_ELEMENTS,
-        BLE_GATT_CHAR_PROPERTIES_READ | BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
-        descriptors,
-        numDescriptors
-    ) {
+            uuid,
+            reinterpret_cast<uint8_t *>(valuePtr),
+            sizeof(T) * NUM_ELEMENTS,
+            sizeof(T) * NUM_ELEMENTS,
+            BLE_GATT_CHAR_PROPERTIES_READ | BLE_GATT_CHAR_PROPERTIES_WRITE | additionalProperties,
+            descriptors,
+            numDescriptors
+        )
+    {
     }
 };
 

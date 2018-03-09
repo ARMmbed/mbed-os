@@ -31,8 +31,7 @@
  *
  * @attention This class is not part of the public API.
  */
-class GattServerEvents
-{
+class GattServerEvents {
 public:
     /**
      * Enumeration of events, which a GattServer

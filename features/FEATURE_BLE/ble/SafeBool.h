@@ -38,8 +38,8 @@ namespace SafeBool_ {
  * the trueTag function.
  */
 class base {
-  template<typename>
-  friend class SafeBool;
+    template<typename>
+    friend class SafeBool;
 
 protected:
     /**
@@ -116,8 +116,8 @@ public:
      */
     operator BoolType_t() const
     {
-        return (static_cast<const T*>(this))->toBool()
-            ? &SafeBool<T>::trueTag : 0;
+        return (static_cast<const T *>(this))->toBool()
+               ? &SafeBool<T>::trueTag : 0;
     }
 };
 
@@ -127,7 +127,7 @@ public:
  * @attention Will generate a compile time error if instantiated.
  */
 template <typename T, typename U>
-void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
+void operator==(const SafeBool<T> &lhs, const SafeBool<U> &rhs)
 {
     lhs.invalidTag();
     // return false;
@@ -138,8 +138,8 @@ void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
  *
  * @attention Will generate a compile time error if instantiated.
  */
-template <typename T,typename U>
-void operator!=(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
+template <typename T, typename U>
+void operator!=(const SafeBool<T> &lhs, const SafeBool<U> &rhs)
 {
     lhs.invalidTag();
     // return false;

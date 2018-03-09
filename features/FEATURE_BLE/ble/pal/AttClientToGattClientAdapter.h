@@ -41,8 +41,9 @@ public:
      * Construct an instance of GattClient from an instance of AttClient.
      * @param client The client to adapt.
      */
-    AttClientToGattClientAdapter(AttClient& client) :
-        GattClient(), _client(client) {
+    AttClientToGattClientAdapter(AttClient &client) :
+        GattClient(), _client(client)
+    {
         _client.when_server_message_received(
             mbed::callback(this, &AttClientToGattClientAdapter::on_server_event)
         );
@@ -56,7 +57,8 @@ public:
     /**
      * @see ble::pal::GattClient::exchange_mtu
      */
-    virtual ble_error_t exchange_mtu(connection_handle_t connection) {
+    virtual ble_error_t exchange_mtu(connection_handle_t connection)
+    {
         return _client.exchange_mtu_request(connection);
     }
 
@@ -65,8 +67,9 @@ public:
      */
     virtual ble_error_t get_mtu_size(
         connection_handle_t connection_handle,
-        uint16_t& mtu_size
-    ) {
+        uint16_t &mtu_size
+    )
+    {
         return _client.get_mtu_size(connection_handle, mtu_size);
     }
 
@@ -76,12 +79,13 @@ public:
     virtual ble_error_t discover_primary_service(
         connection_handle_t connection,
         attribute_handle_t discovery_range_begining
-    ) {
+    )
+    {
         return _client.read_by_group_type_request(
-            connection,
-            attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
-            SERVICE_TYPE_UUID
-        );
+                   connection,
+                   attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
+                   SERVICE_TYPE_UUID
+               );
     }
 
     /**
@@ -90,17 +94,18 @@ public:
     virtual ble_error_t discover_primary_service_by_service_uuid(
         connection_handle_t connection_handle,
         attribute_handle_t discovery_range_begining,
-        const UUID& uuid
-    ) {
+        const UUID &uuid
+    )
+    {
         return _client.find_by_type_value_request(
-            connection_handle,
-            attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
-            SERVICE_TYPE_UUID,
-            ArrayView<const uint8_t>(
-                uuid.getBaseUUID(),
-                (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) ? 2 : UUID::LENGTH_OF_LONG_UUID
-            )
-        );
+                   connection_handle,
+                   attribute_handle_range(discovery_range_begining, END_ATTRIBUTE_HANDLE),
+                   SERVICE_TYPE_UUID,
+                   ArrayView<const uint8_t>(
+                       uuid.getBaseUUID(),
+                       (uuid.shortOrLong() == UUID::UUID_TYPE_SHORT) ? 2 : UUID::LENGTH_OF_LONG_UUID
+                   )
+               );
     }
 
     /**
@@ -109,12 +114,13 @@ public:
     virtual ble_error_t find_included_service(
         connection_handle_t connection_handle,
         attribute_handle_range_t service_range
-    ) {
+    )
+    {
         return _client.read_by_type_request(
-            connection_handle,
-            service_range,
-            INCLUDE_TYPE_UUID
-        );
+                   connection_handle,
+                   service_range,
+                   INCLUDE_TYPE_UUID
+               );
     }
 
     /**
@@ -123,12 +129,13 @@ public:
     virtual ble_error_t discover_characteristics_of_a_service(
         connection_handle_t connection_handle,
         attribute_handle_range_t discovery_range
-    ) {
+    )
+    {
         return _client.read_by_type_request(
-            connection_handle,
-            discovery_range,
-            CHARACTERISTIC_TYPE_UUID
-        );
+                   connection_handle,
+                   discovery_range,
+                   CHARACTERISTIC_TYPE_UUID
+               );
     }
 
     /**
@@ -137,11 +144,12 @@ public:
     virtual ble_error_t discover_characteristics_descriptors(
         connection_handle_t connection_handle,
         attribute_handle_range_t descriptors_discovery_range
-    ) {
+    )
+    {
         return _client.find_information_request(
-            connection_handle,
-            descriptors_discovery_range
-        );
+                   connection_handle,
+                   descriptors_discovery_range
+               );
     }
 
     /**
@@ -150,11 +158,12 @@ public:
     virtual ble_error_t read_attribute_value(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle
-    ) {
+    )
+    {
         return _client.read_request(
-            connection_handle,
-            attribute_handle
-        );
+                   connection_handle,
+                   attribute_handle
+               );
     }
 
     /**
@@ -163,13 +172,14 @@ public:
     virtual ble_error_t read_using_characteristic_uuid(
         connection_handle_t connection_handle,
         attribute_handle_range_t read_range,
-        const UUID& uuid
-    ) {
+        const UUID &uuid
+    )
+    {
         return _client.read_by_type_request(
-            connection_handle,
-            read_range,
-            uuid
-        );
+                   connection_handle,
+                   read_range,
+                   uuid
+               );
     }
 
     /**
@@ -179,12 +189,13 @@ public:
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         uint16_t offset
-    ) {
+    )
+    {
         return _client.read_blob_request(
-            connection_handle,
-            attribute_handle,
-            offset
-        );
+                   connection_handle,
+                   attribute_handle,
+                   offset
+               );
     }
 
     /**
@@ -192,12 +203,13 @@ public:
      */
     virtual ble_error_t read_multiple_characteristic_values(
         connection_handle_t connection_handle,
-        const ArrayView<const attribute_handle_t>& characteristic_value_handles
-    ) {
+        const ArrayView<const attribute_handle_t> &characteristic_value_handles
+    )
+    {
         return _client.read_multiple_request(
-            connection_handle,
-            characteristic_value_handles
-        );
+                   connection_handle,
+                   characteristic_value_handles
+               );
     }
 
     /**
@@ -206,13 +218,14 @@ public:
     virtual ble_error_t write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         return _client.write_command(
-            connection_handle,
-            characteristic_value_handle,
-            value
-        );
+                   connection_handle,
+                   characteristic_value_handle,
+                   value
+               );
     }
 
     /**
@@ -221,13 +234,14 @@ public:
     virtual ble_error_t signed_write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         return _client.signed_write_command(
-            connection_handle,
-            characteristic_value_handle,
-            value
-        );
+                   connection_handle,
+                   characteristic_value_handle,
+                   value
+               );
     }
 
     /**
@@ -236,13 +250,14 @@ public:
     virtual ble_error_t write_attribute(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
-    ) {
+        const ArrayView<const uint8_t> &value
+    )
+    {
         return _client.write_request(
-            connection_handle,
-            attribute_handle,
-            value
-        );
+                   connection_handle,
+                   attribute_handle,
+                   value
+               );
     }
 
     /**
@@ -251,15 +266,16 @@ public:
     virtual ble_error_t queue_prepare_write(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
+        const ArrayView<const uint8_t> &value,
         uint16_t offset
-    ) {
+    )
+    {
         return _client.prepare_write_request(
-            connection_handle,
-            characteristic_value_handle,
-            offset,
-            value
-        );
+                   connection_handle,
+                   characteristic_value_handle,
+                   offset,
+                   value
+               );
     }
 
     /**
@@ -268,26 +284,29 @@ public:
     virtual ble_error_t execute_write_queue(
         connection_handle_t connection_handle,
         bool execute
-    ) {
+    )
+    {
         return _client.execute_write_request(connection_handle, execute);
     }
 
     /**
      * @see ble::pal::GattClient::initialize
      */
-    virtual ble_error_t initialize() {
+    virtual ble_error_t initialize()
+    {
         return _client.initialize();
     }
 
     /**
      * @see ble::pal::GattClient::terminate
      */
-    virtual ble_error_t terminate() {
+    virtual ble_error_t terminate()
+    {
         return _client.initialize();
     }
 
 private:
-    AttClient& _client;
+    AttClient &_client;
 };
 
 } // namespace pal

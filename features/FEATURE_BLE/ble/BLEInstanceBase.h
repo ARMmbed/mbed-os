@@ -51,8 +51,7 @@ class GattClient;
  *
  * @see BLE
  */
-class BLEInstanceBase
-{
+class BLEInstanceBase {
 public:
     /**
      * Base constructor.
@@ -114,7 +113,7 @@ public:
      */
     virtual ble_error_t init(
         BLE::InstanceID_t instanceID,
-        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext*> initCallback
+        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback
     ) = 0;
 
     /**
@@ -247,8 +246,8 @@ public:
 private:
     // this class is not a value type.
     // prohibit copy construction and copy assignement
-    BLEInstanceBase(const BLEInstanceBase&);
-    BLEInstanceBase &operator=(const BLEInstanceBase&);
+    BLEInstanceBase(const BLEInstanceBase &);
+    BLEInstanceBase &operator=(const BLEInstanceBase &);
 };
 
 /**

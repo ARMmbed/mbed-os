@@ -88,14 +88,14 @@ public:
      *
      * @see GattClient::onDataRead().
      */
-    typedef FunctionPointerWithContext<const GattReadCallbackParams*>
-        ReadCallback_t;
+    typedef FunctionPointerWithContext<const GattReadCallbackParams *>
+    ReadCallback_t;
 
     /**
      * Callchain of attribute read event handlers.
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams*>
-        ReadCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams *>
+    ReadCallbackChain_t;
 
     /**
      * GATT write operations.
@@ -123,32 +123,32 @@ public:
      *
      * @see GattClient::onDataWrite().
      */
-    typedef FunctionPointerWithContext<const GattWriteCallbackParams*>
-        WriteCallback_t;
+    typedef FunctionPointerWithContext<const GattWriteCallbackParams *>
+    WriteCallback_t;
 
     /**
      * Callchain of attribute write event handlers.
      *
      * @see GattClient::onDataWrite().
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams*>
-        WriteCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams *>
+    WriteCallbackChain_t;
 
     /**
      * Handle value notification/indication event handler.
      *
      * @see to GattClient::onHVX().
      */
-    typedef FunctionPointerWithContext<const GattHVXCallbackParams*>
-        HVXCallback_t;
+    typedef FunctionPointerWithContext<const GattHVXCallbackParams *>
+    HVXCallback_t;
 
     /**
      * Callchain of handle value notification/indication event handlers.
      *
      * @see GattClient::onHVX().
      */
-    typedef CallChainOfFunctionPointersWithContext<const GattHVXCallbackParams*>
-        HVXCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattHVXCallbackParams *>
+    HVXCallbackChain_t;
 
     /**
      * Shutdown event handler.
@@ -156,7 +156,7 @@ public:
      * @see GattClient::onShutdown().
      */
     typedef FunctionPointerWithContext<const GattClient *>
-        GattClientShutdownCallback_t;
+    GattClientShutdownCallback_t;
 
 
     /**
@@ -165,7 +165,7 @@ public:
      * @see to GattClient::onShutown().
      */
     typedef CallChainOfFunctionPointersWithContext<const GattClient *>
-        GattClientShutdownCallbackChain_t;
+    GattClientShutdownCallbackChain_t;
 
     /*
      * The following functions are meant to be overridden in the platform
@@ -231,7 +231,8 @@ public:
         ServiceDiscovery::CharacteristicCallback_t  cc = NULL,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN),
         const UUID &matchingCharacteristicUUIDIn = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)sc;
@@ -277,15 +278,16 @@ public:
         Gap::Handle_t connectionHandle,
         ServiceDiscovery::ServiceCallback_t callback,
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
-    ) {
+    )
+    {
         /* We take advantage of the property
          * that providing NULL for the characteristic callback results in
          * characteristic discovery being skipped for each matching
          * service. This allows for an inexpensive method to discover only
          * services. Porters are free to override this. */
         return launchServiceDiscovery(
-            connectionHandle, callback, NULL, matchingServiceUUID
-        );
+                   connectionHandle, callback, NULL, matchingServiceUUID
+               );
     }
 
     /**
@@ -319,7 +321,8 @@ public:
         ServiceDiscovery::ServiceCallback_t callback,
         GattAttribute::Handle_t startHandle,
         GattAttribute::Handle_t endHandle
-    ) {
+    )
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)callback;
@@ -391,7 +394,8 @@ public:
         Gap::Handle_t connHandle,
         GattAttribute::Handle_t attributeHandle,
         uint16_t offset
-    ) const {
+    ) const
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)connHandle;
         (void)attributeHandle;
@@ -445,7 +449,8 @@ public:
         GattAttribute::Handle_t attributeHandle,
         size_t length,
         const uint8_t *value
-    ) const {
+    ) const
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)cmd;
         (void)connHandle;
@@ -485,7 +490,7 @@ public:
      * @note It is possible to unregister an handler by using
      * onDataRead().detach(callback).
      */
-    ReadCallbackChain_t& onDataRead()
+    ReadCallbackChain_t &onDataRead()
     {
         return onDataReadCallbackChain;
     }
@@ -517,7 +522,7 @@ public:
      * @note It is possible to unregister an handler by using
      * onDataWritten().detach(callback).
      */
-    WriteCallbackChain_t& onDataWritten()
+    WriteCallbackChain_t &onDataWritten()
     {
         return onDataWriteCallbackChain;
     }
@@ -548,7 +553,8 @@ public:
      */
     virtual void onServiceDiscoveryTermination(
         ServiceDiscovery::TerminationCallback_t callback
-    ) {
+    )
+    {
         (void)callback; /* Avoid compiler warnings about ununsed variables. */
 
         /* Requesting action from porters: override this API if this capability
@@ -578,10 +584,11 @@ public:
      * procedure has been launched successfully otherwise an appropriate error.
      */
     virtual ble_error_t discoverCharacteristicDescriptors(
-        const DiscoveredCharacteristic& characteristic,
-        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
-        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
-    ) {
+        const DiscoveredCharacteristic &characteristic,
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t &discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t &terminationCallback
+    )
+    {
         (void) characteristic;
         (void) discoveryCallback;
         (void) terminationCallback;
@@ -601,8 +608,9 @@ public:
      * in input otherwise false.
      */
     virtual bool isCharacteristicDescriptorDiscoveryActive(
-        const DiscoveredCharacteristic& characteristic
-    ) const {
+        const DiscoveredCharacteristic &characteristic
+    ) const
+    {
         (void) characteristic;
         /* Requesting action from porter(s): override this API if this
            capability is supported. */
@@ -619,8 +627,9 @@ public:
      * being discovered.
      */
     virtual void terminateCharacteristicDescriptorDiscovery(
-        const DiscoveredCharacteristic& characteristic
-    ) {
+        const DiscoveredCharacteristic &characteristic
+    )
+    {
         /* Requesting action from porter(s): override this API if this
            capability is supported. */
         (void) characteristic;
@@ -653,7 +662,7 @@ public:
      *
      * @see BLE::shutdown()
      */
-    void onShutdown(const GattClientShutdownCallback_t& callback)
+    void onShutdown(const GattClientShutdownCallback_t &callback)
     {
         shutdownCallChain.add(callback);
     }
@@ -683,7 +692,7 @@ public:
      *
      * @note onShutdown().detach(callback) may be used to unregister an handler.
      */
-    GattClientShutdownCallbackChain_t& onShutdown()
+    GattClientShutdownCallbackChain_t &onShutdown()
     {
         return shutdownCallChain;
     }
@@ -697,7 +706,8 @@ public:
      *
      * @note It is possible to unregister callbacks using onHVX().detach(callback).
      */
-    HVXCallbackChain_t& onHVX() {
+    HVXCallbackChain_t &onHVX()
+    {
         return onHVXCallbackChain;
     }
 
@@ -812,7 +822,7 @@ protected:
 private:
     /* Disallow copy and assignment. */
     GattClient(const GattClient &);
-    GattClient& operator=(const GattClient &);
+    GattClient &operator=(const GattClient &);
 };
 
 /**

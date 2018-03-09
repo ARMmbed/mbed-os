@@ -59,8 +59,7 @@ static const uint8_t BEACON_EDDYSTONE[] = {0xAA, 0xFE};
 * See https://github.com/google/eddystone
 *
 */
-class EddystoneService
-{
+class EddystoneService {
 public:
     enum FrameTypes {
         NONE,
@@ -105,7 +104,8 @@ public:
                          UIDNamespaceID_t namespaceID,
                          UIDInstanceID_t  instanceID,
                          float            uidAdvPeriodIn,
-                         uint16_t         RFU = 0x0000) {
+                         uint16_t         RFU = 0x0000)
+    {
         if (0.0f == uidAdvPeriodIn) {
             uidIsSet = false;
             return;
@@ -131,7 +131,8 @@ public:
     *  @param[in] maxSize number of bytes left in array, effectively how much empty space is available to write to
     *  @return number of bytes used. negative number indicates error message.
     */
-    unsigned constructUIDFrame(uint8_t *Data, uint8_t maxSize) {
+    unsigned constructUIDFrame(uint8_t *Data, uint8_t maxSize)
+    {
         unsigned index = 0;
 
         Data[index++] = FRAME_TYPE_UID;                     // 1B  Type
@@ -152,7 +153,7 @@ public:
         DBG("'\r\n");
 
         DBG("UID InstanceID = '0x");
-        for (size_t x = 0; x< UID_INSTANCEID_SIZE; x++) {   // 6B  Instance ID
+        for (size_t x = 0; x < UID_INSTANCEID_SIZE; x++) {  // 6B  Instance ID
             Data[index++] = defaultUidInstanceID[x];
             DBG("%x,", defaultUidInstanceID[x]);
         }
@@ -173,7 +174,8 @@ public:
      *  @param[in] urlAdvPeriodIn How long to advertise the URL frame (measured in # of adv periods)
      *  @return false on success, true on failure.
      */
-    bool setURLFrameData(int8_t power, const char *urlIn, float urlAdvPeriodIn) {
+    bool setURLFrameData(int8_t power, const char *urlIn, float urlAdvPeriodIn)
+    {
         if (0.0f == urlAdvPeriodIn) {
             urlIsSet = false;
             return false;
@@ -196,7 +198,8 @@ public:
      *  @param[in] urlAdvPeriodIn     How long to advertise the URL frame (measured in # of adv periods)
      *  @return false on success, true on failure.
      */
-    bool setURLFrameEncodedData(int8_t power, const char *encodedUrlIn, uint8_t encodedUrlInLength, float urlAdvPeriodIn) {
+    bool setURLFrameEncodedData(int8_t power, const char *encodedUrlIn, uint8_t encodedUrlInLength, float urlAdvPeriodIn)
+    {
         if (0.0f == urlAdvPeriodIn) {
             urlIsSet = false;
             return false;
@@ -218,7 +221,8 @@ public:
     *  @param[in] maxSize number of bytes left in array, effectively how much emtpy space is available to write to
     *  @return number of bytes used. negative number indicates error message.
     */
-    int constructURLFrame(uint8_t *Data, uint8_t maxSize) {
+    int constructURLFrame(uint8_t *Data, uint8_t maxSize)
+    {
         int index = 0;
         Data[index++] = FRAME_TYPE_URL;                     // 1B  Type
         Data[index++] = defaultUrlPower;                    // 1B  TX Power
@@ -242,7 +246,8 @@ public:
                          uint16_t batteryVoltage = 0,
                          uint16_t beaconTemp     = 0x8000,
                          uint32_t pduCount       = 0,
-                         uint32_t timeSinceBoot  = 0) {
+                         uint32_t timeSinceBoot  = 0)
+    {
         if (0.0f == advPeriod) {
             tlmIsSet = false;
             return;
@@ -262,7 +267,8 @@ public:
     *  @param[in] maxSize number of bytes left in array, effectively how much emtpy space is available to write to
     *  @return number of bytes used. negative number indicates error message.
     */
-    int constructTLMFrame(uint8_t *Data, uint8_t maxSize) {
+    int constructTLMFrame(uint8_t *Data, uint8_t maxSize)
+    {
         uint32_t now = timeSinceBootTimer.read_ms();
         TlmTimeSinceBoot += (now - lastBootTimerRead) / 100;
         lastBootTimerRead = now;
@@ -291,7 +297,8 @@ public:
     *  @param[in] voltagemv Voltage to update the TLM field battery voltage with (in mV)
     *  @return nothing
     */
-    void updateTlmBatteryVoltage(uint16_t voltagemv) {
+    void updateTlmBatteryVoltage(uint16_t voltagemv)
+    {
         TlmBatteryVoltage = voltagemv;
     }
 
@@ -300,7 +307,8 @@ public:
     *  @param[in] temp Temperature of beacon (in 8.8fpn)
     *  @return nothing
     */
-    void updateTlmBeaconTemp(uint16_t temp) {
+    void updateTlmBeaconTemp(uint16_t temp)
+    {
         TlmBeaconTemp = temp;
     }
 
@@ -309,7 +317,8 @@ public:
     *  @param[in] pduCount Number of Advertisiting frames sent since powerup
     *  @return nothing
     */
-    void updateTlmPduCount(uint32_t pduCount) {
+    void updateTlmPduCount(uint32_t pduCount)
+    {
         TlmPduCount = pduCount;
     }
 
@@ -318,7 +327,8 @@ public:
     *  @param[in] timeSinceBoot Time since boot in 0.1s incriments
     *  @return nothing
     */
-    void updateTlmTimeSinceBoot(uint32_t timeSinceBoot) {
+    void updateTlmTimeSinceBoot(uint32_t timeSinceBoot)
+    {
         TlmTimeSinceBoot = timeSinceBoot;
     }
 
@@ -326,7 +336,8 @@ public:
     * Update advertising data
     * @return true on success, false on failure
     */
-    bool updateAdvPacket(uint8_t serviceData[], unsigned serviceDataLen) {
+    bool updateAdvPacket(uint8_t serviceData[], unsigned serviceDataLen)
+    {
         // Fields from the Service
         DBG("Updating AdvFrame: %d", serviceDataLen);
 
@@ -347,7 +358,8 @@ public:
     *   This function exists because of time constraints in the radioNotificationCallback, so it is effectively
     *   broken up into two functions.
     */
-    void swapOutFrames(FrameTypes frameType) {
+    void swapOutFrames(FrameTypes frameType)
+    {
         uint8_t  serviceData[SERVICE_DATA_MAX];
         unsigned serviceDataLen = 0;
         //hard code in the eddystone UUID
@@ -399,7 +411,8 @@ public:
     /*
     * Callback to swap in URL frame
     */
-    void urlCallback(void) {
+    void urlCallback(void)
+    {
         DBG("urlCallback");
         if (false == advLock) {
             advLock = true;
@@ -418,7 +431,8 @@ public:
     /*
     * Callback to swap in UID frame
     */
-    void uidCallback(void) {
+    void uidCallback(void)
+    {
         DBG("uidCallback");
         if (false == advLock) {
             advLock = true;
@@ -437,7 +451,8 @@ public:
     /*
     * Callback to swap in TLM frame
     */
-    void tlmCallback(void) {
+    void tlmCallback(void)
+    {
         DBG("tlmCallback");
         if (false == advLock) {
             // OK to broadcast
@@ -454,7 +469,8 @@ public:
         }
     }
 
-    void stopAdvCallback(void) {
+    void stopAdvCallback(void)
+    {
         if (overflow.empty()) {
             // if nothing left to transmit, stop
             ble.stopAdvertising();
@@ -472,7 +488,8 @@ public:
     *  Callback from onRadioNotification(), used to update the PDUCounter and process next state.
     */
 #define EDDYSTONE_SWAPFRAME_DELAYMS 1
-    void radioNotificationCallback(bool radioActive) {
+    void radioNotificationCallback(bool radioActive)
+    {
         // Update PDUCount
         TlmPduCount++;
         // True just before an frame is sent, false just after a frame is sent
@@ -500,13 +517,15 @@ public:
         advPeriodus(beaconPeriodus),
         txPower(txPowerIn),
         advLock(false),
-        frameIndex(NONE) {
+        frameIndex(NONE)
+    {
     }
 
     /*
     * @breif this function starts eddystone advertising based on configured frames.
     */
-    void start(void) {
+    void start(void)
+    {
         // Initialize Frame transition, start with URL to pass eddystone validator app on first try
         if (urlIsSet) {
             frameIndex = url;
@@ -581,7 +600,8 @@ public:
     /*
      *  Encode a human-readable URI into the binary format defined by URIBeacon spec (https://github.com/google/uribeacon/tree/master/specification).
      */
-    static void encodeURL(const char *uriDataIn, UriData_t uriDataOut, uint8_t &sizeofURIDataOut) {
+    static void encodeURL(const char *uriDataIn, UriData_t uriDataOut, uint8_t &sizeofURIDataOut)
+    {
         DBG("Encode URL = %s", uriDataIn);
         const char  *prefixes[] = {
             "http://www.",
