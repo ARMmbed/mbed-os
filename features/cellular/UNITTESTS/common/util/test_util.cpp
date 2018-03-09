@@ -116,7 +116,7 @@ void Test_util::test_util_prefer_ipv6()
 
 void Test_util::test_util_separate_ip_addresses()
 {
-    char* s = (char*)malloc(128);
+    char *s = (char *)malloc(128);
 
     char ip[64] = {0};
     char subnet[64] = {0};

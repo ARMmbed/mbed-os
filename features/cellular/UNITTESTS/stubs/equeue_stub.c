@@ -93,7 +93,7 @@ void equeue_cancel(equeue_t *queue, int id)
 }
 
 void equeue_background(equeue_t *queue,
-        void (*update)(void *timer, int ms), void *timer)
+                       void (*update)(void *timer, int ms), void *timer)
 {
 
 }

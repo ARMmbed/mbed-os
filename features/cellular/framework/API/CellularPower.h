@@ -26,8 +26,7 @@ namespace mbed {
  *
  *  An interface that provides power handling functions for modem/module.
  */
-class CellularPower
-{
+class CellularPower {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;

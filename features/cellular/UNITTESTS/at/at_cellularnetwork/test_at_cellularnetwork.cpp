@@ -32,7 +32,10 @@ class my_AT_CN : public AT_CellularNetwork {
 public:
     my_AT_CN(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
     virtual ~my_AT_CN() {}
-    NetworkStack *get_stack() {return AT_CellularNetwork::get_stack();}
+    NetworkStack *get_stack()
+    {
+        return AT_CellularNetwork::get_stack();
+    }
 };
 
 void conn_stat_cb(nsapi_error_t error)
@@ -277,11 +280,11 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_extended_signal_qualit
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    int rx,be,rs,ec,rsrq,rsrp;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_extended_signal_quality(rx, be,rs,ec,rsrq, rsrp));
+    int rx, be, rs, ec, rsrq, rsrp;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
 
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK == cn.get_extended_signal_quality(rx, be,rs,ec,rsrq, rsrp));
+    CHECK(NSAPI_ERROR_OK == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
 }
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_signal_quality()
@@ -291,11 +294,11 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_signal_quality()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    int rs,ber;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs,ber));
+    int rs, ber;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs, ber));
 
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK == cn.get_signal_quality(rs,ber));
+    CHECK(NSAPI_ERROR_OK == cn.get_signal_quality(rs, ber));
 }
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_cell_id()

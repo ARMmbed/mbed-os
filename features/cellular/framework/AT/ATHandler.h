@@ -64,8 +64,7 @@ struct device_err_t {
  *
  *  Class for sending AT commands and parsing AT responses.
  */
-class ATHandler
-{
+class ATHandler {
 
 public:
     /** Constructor
@@ -201,7 +200,7 @@ private:
     bool _processing;
     int32_t _ref_count;
 
-        //*************************************
+    //*************************************
 public:
 
     /** Starts the command writing by clearing the last error and writing the given command.
@@ -209,7 +208,7 @@ public:
      *
      *  @param cmd  AT command to be written to modem
      */
-    void cmd_start(const char* cmd);
+    void cmd_start(const char *cmd);
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
@@ -225,7 +224,7 @@ public:
      *  @param param string to be written to modem as AT command subparameter
      *  @param useQuotations flag indicating whether the string should be included in quotation marks
      */
-    void write_string(const char* param,  bool useQuotations = true);
+    void write_string(const char *param,  bool useQuotations = true);
 
     /** Stops the AT command by writing command-line terminator CR to mark command as finished.
      */
@@ -409,10 +408,10 @@ private:
     // Returns on first successful read OR on timeout.
     void fill_buffer();
 
-    void set_tag(tag_t* tag_dest, const char *tag_seq);
+    void set_tag(tag_t *tag_dest, const char *tag_seq);
 
     // Rewinds the receiving buffer and compares it against given str.
-    bool match(const char* str, size_t size);
+    bool match(const char *str, size_t size);
     // Iterates URCs and checks if they match the receiving buffer content.
     // If URC match sets the scope to information response and after urc's cb returns
     // finishes the information response scope(consumes to CRLF).
@@ -466,7 +465,7 @@ private:
      *
      * @return pointer to first occurrence of src in dest
      */
-    const char* mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len);
+    const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 };
 
 } // namespace mbed

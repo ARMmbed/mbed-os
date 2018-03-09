@@ -40,8 +40,7 @@ const int SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ = -5001;
  *
  *  An abstract interface for SMS sending, reading and deleting.
  */
-class CellularSMS
-{
+class CellularSMS {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -72,7 +71,7 @@ public:
      *  @param msg_len       Length of the message
      *  @return              possible error code or length of the sent sms
      */
-    virtual nsapi_size_or_error_t send_sms(const char* phone_number, const char* message, int msg_len) = 0;
+    virtual nsapi_size_or_error_t send_sms(const char *phone_number, const char *message, int msg_len) = 0;
 
     /** Gets the oldest received sms.
      *
@@ -88,8 +87,8 @@ public:
      *  @return              possible error code or size of buf. Will return SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ
      *                       if sms was multipart but not all parts are present/failed to read.
      */
-    virtual nsapi_size_or_error_t get_sms(char* buf, uint16_t buf_len, char* phone_num, uint16_t phone_len,
-            char* time_stamp, uint16_t time_len, int *buf_size) = 0;
+    virtual nsapi_size_or_error_t get_sms(char *buf, uint16_t buf_len, char *phone_num, uint16_t phone_len,
+                                          char *time_stamp, uint16_t time_len, int *buf_size) = 0;
 
     /** Callback which is called when new sms is received. SMS can be fetched via method get_sms().
      *

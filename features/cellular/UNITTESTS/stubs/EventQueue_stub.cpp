@@ -22,29 +22,37 @@ using namespace mbed;
 
 namespace events {
 
-EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer) {
+EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
+{
 }
 
-EventQueue::~EventQueue() {
+EventQueue::~EventQueue()
+{
 }
 
-void EventQueue::dispatch(int ms) {
+void EventQueue::dispatch(int ms)
+{
 }
 
-void EventQueue::break_dispatch() {
+void EventQueue::break_dispatch()
+{
 }
 
-unsigned EventQueue::tick() {
+unsigned EventQueue::tick()
+{
     return 0;
 }
 
-void EventQueue::cancel(int id) {
+void EventQueue::cancel(int id)
+{
 }
 
-void EventQueue::background(Callback<void(int)> update) {
+void EventQueue::background(Callback<void(int)> update)
+{
 }
 
-void EventQueue::chain(EventQueue *target) {
+void EventQueue::chain(EventQueue *target)
+{
 }
 
 }

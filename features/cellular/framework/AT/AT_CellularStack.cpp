@@ -22,9 +22,9 @@
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL),_socket_count(0),_cid(cid), _stack_type(stack_type)
+AT_CellularStack::AT_CellularStack(ATHandler &at, int cid, nsapi_ip_stack_t stack_type) : AT_CellularBase(at), _socket(NULL), _socket_count(0), _cid(cid), _stack_type(stack_type)
 {
-    memset(_ip,0, PDP_IPV6_SIZE);
+    memset(_ip, 0, PDP_IPV6_SIZE);
 }
 
 AT_CellularStack::~AT_CellularStack()
@@ -44,7 +44,7 @@ AT_CellularStack::~AT_CellularStack()
 /** NetworkStack
  */
 
-const char * AT_CellularStack::get_ip_address()
+const char *AT_CellularStack::get_ip_address()
 {
     _at.lock();
 
@@ -58,7 +58,7 @@ const char * AT_CellularStack::get_ip_address()
 
         _at.skip_param();
 
-        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE-1);
+        int len = _at.read_string(_ip, NSAPI_IPv4_SIZE - 1);
         if (len == -1) {
             _ip[0] = '\0';
             _at.unlock();
@@ -68,7 +68,7 @@ const char * AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE-1);
+            len = _at.read_string(_ip, PDP_IPV6_SIZE - 1);
         }
     }
 
@@ -131,7 +131,7 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
     int err = NSAPI_ERROR_DEVICE_ERROR;
 
     struct CellularSocket *socket = (struct CellularSocket *)handle;
-    if (!socket){
+    if (!socket) {
         return err;
     }
     int sock_id = socket->id;

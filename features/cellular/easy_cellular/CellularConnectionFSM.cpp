@@ -38,8 +38,8 @@
 namespace mbed {
 
 CellularConnectionFSM::CellularConnectionFSM() :
-        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _at_queue(8 * EVENTS_EVENT_SIZE)
+    _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0),
+    _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _at_queue(8 * EVENTS_EVENT_SIZE)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -60,7 +60,7 @@ CellularConnectionFSM::CellularConnectionFSM() :
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
-    
+
     _cellularDevice = new CELLULAR_DEVICE(_at_queue);
 }
 
@@ -114,7 +114,7 @@ bool CellularConnectionFSM::open_power(FileHandle *fh)
     return true;
 }
 
-void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
+void CellularConnectionFSM::set_sim_pin(const char *sim_pin)
 {
     strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
 }
@@ -195,19 +195,19 @@ bool CellularConnectionFSM::get_network_registration(CellularNetwork::Registrati
     switch (status) {
         case CellularNetwork::RegisteredRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredHomeNetwork:
             is_registered = true;
             break;
         case CellularNetwork::RegisteredSMSOnlyRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredSMSOnlyHome:
             tr_warn("SMS only network registration!");
             break;
         case CellularNetwork::RegisteredCSFBNotPreferredRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredCSFBNotPreferredHome:
             tr_warn("Not preferred network registration!");
             break;
@@ -247,7 +247,7 @@ bool CellularConnectionFSM::set_attach_network()
     return true;
 }
 
-void CellularConnectionFSM::report_failure(const char* msg)
+void CellularConnectionFSM::report_failure(const char *msg)
 {
     tr_error("Cellular network failed: %s", msg);
     if (_status_callback) {
@@ -538,17 +538,17 @@ events::EventQueue *CellularConnectionFSM::get_queue()
     return &_queue;
 }
 
-CellularNetwork* CellularConnectionFSM::get_network()
+CellularNetwork *CellularConnectionFSM::get_network()
 {
     return _network;
 }
 
-CellularDevice* CellularConnectionFSM::get_device()
+CellularDevice *CellularConnectionFSM::get_device()
 {
     return _cellularDevice;
 }
 
-CellularSIM* CellularConnectionFSM::get_sim()
+CellularSIM *CellularConnectionFSM::get_sim()
 {
     return _sim;
 }

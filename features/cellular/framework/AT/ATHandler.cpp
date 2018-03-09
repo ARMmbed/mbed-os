@@ -87,7 +87,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     if (output_delimiter) {
         _output_delimiter_length = strlen(output_delimiter);
         _output_delimiter = new char[_output_delimiter_length];
-        for (unsigned i=0; i<_output_delimiter_length; i++) {
+        for (unsigned i = 0; i < _output_delimiter_length; i++) {
             _output_delimiter[i] = output_delimiter[i];
         }
     } else {
@@ -217,7 +217,7 @@ void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeo
 void ATHandler::restore_at_timeout()
 {
     if (_previous_at_timeout != _at_timeout) {
-        _at_timeout =_previous_at_timeout;
+        _at_timeout = _previous_at_timeout;
     }
 }
 
@@ -269,7 +269,8 @@ void ATHandler::set_filehandle_sigio()
 void ATHandler::reset_buffer()
 {
     tr_debug("%s", __func__);
-    _recv_pos = 0; _recv_len = 0;
+    _recv_pos = 0;
+    _recv_len = 0;
 }
 
 void ATHandler::rewind_buffer()
@@ -295,19 +296,19 @@ void ATHandler::fill_buffer()
     Timer timer;
     timer.start();
     do {
-       ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
+        ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
         if (len > 0) {
             _recv_len += len;
-           at_debug("\n----------readable----------: %d\n", _recv_len);
-           for (size_t i = _recv_pos; i < _recv_len; i++) {
-               at_debug("%c", _recv_buff[i]);
-           }
-           at_debug("\n----------readable----------\n");
-           return;
-       } else if (len != -EAGAIN && len != 0) {
-           tr_warn("%s error: %d while reading", __func__, len);
-           break;
-       }
+            at_debug("\n----------readable----------: %d\n", _recv_len);
+            for (size_t i = _recv_pos; i < _recv_len; i++) {
+                at_debug("%c", _recv_buff[i]);
+            }
+            at_debug("\n----------readable----------\n");
+            return;
+        } else if (len != -EAGAIN && len != 0) {
+            tr_warn("%s error: %d while reading", __func__, len);
+            break;
+        }
 #ifdef MBED_CONF_RTOS_PRESENT
         rtos::Thread::yield();
 #endif
@@ -417,7 +418,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
         return -1;
     }
 
-    uint8_t *pbuf = (uint8_t*)buf;
+    uint8_t *pbuf = (uint8_t *)buf;
 
     size_t len = 0;
     size_t match_pos = 0;
@@ -461,9 +462,9 @@ int32_t ATHandler::read_int()
 {
     tr_debug("%s", __func__);
 
-     if (_last_err || !_stop_tag || _stop_tag->found) {
-         return -1;
-     }
+    if (_last_err || !_stop_tag || _stop_tag->found) {
+        return -1;
+    }
 
     char buff[BUFF_SIZE];
     char *first_no_digit;
@@ -485,7 +486,7 @@ void ATHandler::set_default_delimiter()
     _delimiter = DEFAULT_DELIMITER;
 }
 
-void ATHandler::set_tag(tag_t* tag_dst, const char *tag_seq)
+void ATHandler::set_tag(tag_t *tag_dst, const char *tag_seq)
 {
     if (tag_seq) {
         size_t tag_len = strlen(tag_seq);
@@ -512,30 +513,30 @@ void ATHandler::set_scope(ScopeType scope_type)
     if (_current_scope != scope_type) {
         _current_scope = scope_type;
         switch (_current_scope) {
-        case RespType:
-            _stop_tag = &_resp_stop;
-            _stop_tag->found = false;
-            break;
-        case InfoType:
-            _stop_tag = &_info_stop;
-            _stop_tag->found = false;
-            consume_char(' ');
-            break;
-        case ElemType:
-            _stop_tag = &_elem_stop;
-            _stop_tag->found = false;
-            break;
-        case NotSet:
-            _stop_tag = NULL;
-            return;
-        default:
-            break;
+            case RespType:
+                _stop_tag = &_resp_stop;
+                _stop_tag->found = false;
+                break;
+            case InfoType:
+                _stop_tag = &_info_stop;
+                _stop_tag->found = false;
+                consume_char(' ');
+                break;
+            case ElemType:
+                _stop_tag = &_elem_stop;
+                _stop_tag->found = false;
+                break;
+            case NotSet:
+                _stop_tag = NULL;
+                return;
+            default:
+                break;
         }
     }
 }
 
 // should match from recv_pos?
-bool ATHandler::match(const char* str, size_t size)
+bool ATHandler::match(const char *str, size_t size)
 {
     tr_debug("%s: %s", __func__, str);
     rewind_buffer();
@@ -636,7 +637,7 @@ void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
         // CMS errors 0-127 maps straight to 3GPP errors
         _last_3gpp_error = err;
     } else {
-        for (size_t i = 0; i<sizeof(map_3gpp_errors)/sizeof(map_3gpp_errors[0]); i++) {
+        for (size_t i = 0; i < sizeof(map_3gpp_errors) / sizeof(map_3gpp_errors[0]); i++) {
             if (map_3gpp_errors[i][0] == err) {
                 _last_3gpp_error = map_3gpp_errors[i][1];
                 tr_debug("AT3GPP error code %d", get_3gpp_error());
@@ -715,7 +716,7 @@ void ATHandler::resp(const char *prefix, bool check_urc)
         } else {
             // If no prefix, no CRLF and no more chance to match for OK, ERROR or URC(since max resp length is already in buffer)
             // return so data could be read
-            if (!prefix && ((_recv_len-_recv_pos) >= _max_resp_length)) {
+            if (!prefix && ((_recv_len - _recv_pos) >= _max_resp_length)) {
                 return;
             }
             fill_buffer();
@@ -765,7 +766,7 @@ bool ATHandler::info_resp()
 
     if (_prefix_matched) {
         _prefix_matched = false;
-       return true;
+        return true;
     }
 
     // If coming here after another info response was started(looping), stop the previous one.
@@ -777,9 +778,9 @@ bool ATHandler::info_resp()
     resp(_info_resp_prefix, false);
 
     if (_prefix_matched) {
-       set_scope(InfoType);
-       _prefix_matched = false;
-       return true;
+        set_scope(InfoType);
+        _prefix_matched = false;
+        return true;
     }
 
     // On mismatch go to response scope
@@ -858,7 +859,7 @@ bool ATHandler::consume_to_stop_tag()
         return true;
     }
 
-    if (consume_to_tag((const char*)_stop_tag->tag, true)) {
+    if (consume_to_tag((const char *)_stop_tag->tag, true)) {
         return true;
     }
 
@@ -922,19 +923,19 @@ void ATHandler::set_string(char *dest, const char *src, size_t src_len)
     dest[src_len] = '\0';
 }
 
-const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len)
+const char *ATHandler::mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len)
 {
     if (dest_len > src_len) {
-        for(size_t i = 0; i < dest_len-src_len+1; ++i) {
-            if(memcmp(dest+i, src, src_len) == 0) {
-                return dest+i;
+        for (size_t i = 0; i < dest_len - src_len + 1; ++i) {
+            if (memcmp(dest + i, src, src_len) == 0) {
+                return dest + i;
             }
         }
     }
     return NULL;
 }
 
-void ATHandler::cmd_start(const char* cmd)
+void ATHandler::cmd_start(const char *cmd)
 {
     tr_debug("AT> %s", cmd);
 
@@ -975,7 +976,7 @@ void ATHandler::write_int(int32_t param)
     }
 }
 
-void ATHandler::write_string(const char* param, bool useQuotations)
+void ATHandler::write_string(const char *param, bool useQuotations)
 {
     tr_debug("write_string: %s, %d", param, useQuotations);
     // do common checks before sending subparameter
@@ -1006,7 +1007,7 @@ void ATHandler::cmd_stop()
     if (_last_err != NSAPI_ERROR_OK) {
         return;
     }
-     // Finish with CR
+    // Finish with CR
     for (size_t i = 0; i < _output_delimiter_length; i++) {
         if (write_char(_output_delimiter[i]) == false) {
             break;

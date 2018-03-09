@@ -19,15 +19,13 @@
 
 TEST_GROUP(AT_CellularNetwork)
 {
-    Test_AT_CellularNetwork* unit;
+    Test_AT_CellularNetwork *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularNetwork();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

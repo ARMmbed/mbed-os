@@ -19,15 +19,13 @@
 
 TEST_GROUP(ATHandler)
 {
-    Test_ATHandler* unit;
+    Test_ATHandler *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_ATHandler();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

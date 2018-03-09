@@ -28,7 +28,7 @@ static bool wait_register()
     }
 
     CellularNetwork::RegistrationStatus status;
-    for (int i=0; i<180; i++) {
+    for (int i = 0; i < 180; i++) {
         tr_info("Register to network %d...", i);
         for (int type = 0; type < CellularNetwork::C_MAX; type++) {
             if (network->get_registration_status((CellularNetwork::RegistrationType)type, status) ==  NSAPI_ERROR_OK) {

@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARNETWORK_H
 #define TEST_AT_CELLULARNETWORK_H
 
-class Test_AT_CellularNetwork
-{
+class Test_AT_CellularNetwork {
 public:
     Test_AT_CellularNetwork();
 

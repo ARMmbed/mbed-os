@@ -40,7 +40,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-     AuthenticationType type, const char *username, const char *password)
+        AuthenticationType type, const char *username, const char *password)
 {
     return NSAPI_ERROR_OK;
 }
@@ -95,7 +95,7 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
 //    return false;
 //}
 
-nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
+nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char *pdp_type)
 {
     return IPV4_STACK;
 }
@@ -187,26 +187,26 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 }
 
 nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                               Preferred_UE_Opt preferred_opt)
+        Preferred_UE_Opt preferred_opt)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                               Preferred_UE_Opt& preferred_opt)
+nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+        Preferred_UE_Opt &preferred_opt)
 {
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::get_rate_control(
-        CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
+    CellularNetwork::RateControlExceptionReports &reports,
+    CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
 {
     return NSAPI_ERROR_OK;
 }
 
 
-nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params_list)
+nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     return NSAPI_ERROR_OK;
 }

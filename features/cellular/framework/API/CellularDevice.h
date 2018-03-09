@@ -27,8 +27,7 @@
 #include "CellularInformation.h"
 #include "NetworkStack.h"
 
-namespace mbed
-{
+namespace mbed {
 
 /**
  *  Class CellularDevice
@@ -36,8 +35,7 @@ namespace mbed
  *  An abstract interface that defines opening and closing of cellular interfaces.
  *  Deleting/Closing of opened interfaces can be done only via this class.
  */
-class CellularDevice
-{
+class CellularDevice {
 public:
     /** virtual Destructor
      */

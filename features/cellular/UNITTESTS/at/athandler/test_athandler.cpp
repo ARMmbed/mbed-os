@@ -313,7 +313,7 @@ void Test_ATHandler::test_ATHandler_write_int()
 
     at.write_int(2147483647);
 
-    at.write_int(2147483647+1);
+    at.write_int(2147483647 + 1);
 
 //    at.at_error(0, DeviceErrorType(0));
 //    at.write_int(4);
@@ -548,7 +548,7 @@ void Test_ATHandler::test_ATHandler_read_int()
 
     ATHandler at(&fh1, que, 0, ",");
 
-    int32_t ret= at.read_int();
+    int32_t ret = at.read_int();
     CHECK(-1 == ret);
 
     char table[] = "\",\"OK\r\n\0";
@@ -559,7 +559,7 @@ void Test_ATHandler::test_ATHandler_read_int()
     at.clear_error();
     at.resp_start();
 
-    ret= at.read_int();
+    ret = at.read_int();
     CHECK(-1 == ret);
 
     char table2[] = "\"2,\"OK\r\n\0";
@@ -570,7 +570,7 @@ void Test_ATHandler::test_ATHandler_read_int()
     at.clear_error();
     at.resp_start();
 
-    ret= at.read_int();
+    ret = at.read_int();
     CHECK(2 == ret);
 
 }
