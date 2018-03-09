@@ -191,7 +191,7 @@ Content-Type: text/html
 # Hardware interface
 There are a couple of evaluation and development kits available for ATECC508A. For interfacing with an Mbed platform I2C and power supply connections have to be made. Note that ATECC508A requires a 5V supply. Below is an example of connecting an [ATCRYPTOAUTH-XPRO-B](http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=ATCRYPTOAUTH-XPRO-B) ([header](http://ww1.microchip.com/downloads/en/DeviceDoc/CryptoAuth-XPRO-B_design_documentation.pdf)) and a K64F:
 
-![ATCRYPTOAUTH-XPRO-B-K64F](ATCRYPTOAUTH-XPRO-B-K64F.jpg)
+![ATCRYPTOAUTH-XPRO-B-K64F](ATCRYPTOAUTH-XPRO-B-K64F2.jpg)
 
 For secure connections a shield can be prepared with ATCRYPTOAUTH-XPRO-B. Most Mbed platforms support Arduino headers and an [Arduino shield](https://store.arduino.cc/usa/arduino-mega-proto-shield-rev3-pcb) can be used to prepare a shield for connecting ATCRYPTOAUTH-XPRO-B to an Mbed platform. See below image showing ATCRYPTOAUTH-XPRO-B on an Arduino shield:
 
