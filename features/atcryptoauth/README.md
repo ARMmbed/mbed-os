@@ -1,4 +1,15 @@
 # Atmel Crypto Auth (ATCAECC508A) driver
+### Table of Contents
+* [Introduction](#introduction)
+* [About ATCAECC508A](#about-atcaecc508a)
+* [Design considerations](#design-considerations)
+* [ATCAECC508A configuration](#atcaecc508a-configuration)
+* [Commissioning Application](#commissioning-application)
+* [Testing](#testing)
+    * [Generating certificates](#generating-certificates)
+    * [SSL Client sample](#ssl-client-sample)
+
+## Introduction
 This is the device driver for Atmel Crypto Auth device ATCAECC508A. It provides:
 - Driver for using ATCAECC508A device
 - Mbed TLS Opaque keys setup API
@@ -20,7 +31,7 @@ ATCAECC508A has following features relevant for sample development. There are mo
 -- 1 MHz Standard I2C Interface
 
 
-## Design considerations 
+## Design considerations
 This is the first draft of the driver. It is developed for demonstrating ECDSA operations using Opaque keys feature. Following considerations are taken in this first draft:
 - Only ECDSA sign and verify operations are implemented.
 - The device is commissioned with a minimalistic configuration to allow ECDSA operations.
@@ -35,7 +46,7 @@ The device configuration must be **locked** before use. Locking means that the c
 - Slot 8 is configured to store a x509 certificate.
 - Slot 9-14 are configured to store ECC Public keys.
 
-## Commissioning Application.
+## Commissioning Application
 Commissioning app is part of the driver source, but is disabled by default. To enable it, please enable flag ```MBED_CONF_ATCAECC_APP_ENABLE``` in ```mbed_lib.json```. In order to do commissioning mbed-os should be built with this flag enabled.
 
 On start it prints following options:
@@ -55,6 +66,8 @@ Commissioning is done in two steps:
 ***The demo config is done!***
 
 Note: The device allows re-generating Private keys. Any Public key or Certificates generated using same Key Id will be invalidated on re-generating the Private key.
+
+# Testing
 
 ## Generating certificates
 A self signed certificate can be generated using [modified](https://github.com/ARMmbed/mbedtls/pull/1360) ```cert_write.exe``` application. Steps are as follows:
