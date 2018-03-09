@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <string.h>
+
 #include "CordioPalSecurityManager.h"
 #include "dm_api.h"
 #include "smp_api.h"
@@ -27,7 +29,16 @@ namespace cordio {
 CordioSecurityManager::CordioSecurityManager() :
     ::ble::pal::SecurityManager(),
     _use_default_passkey(false),
-    _default_passkey(0)
+    _default_passkey(0),
+	_lesc_keys_generated(false),
+	_public_key_x(),
+    _peer_oob_present(false),
+    _peer_oob_address(),
+    _peer_oob_random(),
+    _peer_oob_confirm(),
+	_own_oob_present(false),
+	_confirm(),
+	_random()
 {
 
 }
@@ -43,6 +54,16 @@ CordioSecurityManager::~CordioSecurityManager()
 
 ble_error_t CordioSecurityManager::initialize()
 {
+	// reset local state
+    _use_default_passkey = false;
+    _default_passkey = 0;
+	_lesc_keys_generated = false;
+	_peer_oob_present = false;
+	_own_oob_present = false;
+
+	// generate a new set of keys
+	DmSecGenerateEccKeyReq();
+
     return BLE_ERROR_NONE;
 }
 
@@ -53,6 +74,7 @@ ble_error_t CordioSecurityManager::terminate()
 
 ble_error_t CordioSecurityManager::reset()
 {
+	initialize();
     return BLE_ERROR_NONE;
 }
 
@@ -253,12 +275,6 @@ ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::generate_public_key()
-{
-    // FIXME
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // Global parameters
 //
@@ -380,8 +396,8 @@ ble_error_t CordioSecurityManager::legacy_pairing_oob_request_reply(
 ble_error_t CordioSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
 ) {
-    // FIXME:
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecCompareRsp(connection, confirmation);
+    return BLE_ERROR_NONE;
 }
 
 // FIXME: remove when declaration from the stack is available
@@ -397,6 +413,13 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
 ble_error_t CordioSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
+	// Note: this is not tie to a connection; only one oob value is present in
+	// the pal.
+
+    uint8_t oobLocalRandom[SMP_RAND_LEN];
+    SecRand(oobLocalRandom, SMP_RAND_LEN);
+    DmSecCalcOobReq(oobLocalRandom, _public_key_x);
+
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -405,13 +428,21 @@ ble_error_t CordioSecurityManager::secure_connections_oob_received(
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    _peer_oob_present = true;
+    _peer_oob_address = address;
+    _peer_oob_random = random;
+    _peer_oob_confirm = confirm;
+
+    return BLE_ERROR_NONE;
 }
 
 bool CordioSecurityManager::is_secure_connections_oob_present(
     const address_t &address
 ) {
-    return false;
+	if (!_peer_oob_present) {
+		return false;
+	}
+    return address == _peer_oob_address;
 }
 
 CordioSecurityManager& CordioSecurityManager::get_security_manager()
@@ -421,8 +452,8 @@ CordioSecurityManager& CordioSecurityManager::get_security_manager()
 }
 
 bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
-    SecurityManager::EventHandler* handler =
-        get_security_manager().get_event_handler();
+    CordioSecurityManager& self = get_security_manager();
+    SecurityManager::EventHandler* handler = self.get_event_handler();
 
     if ((msg == NULL) || (handler == NULL)) {
         return false;
@@ -484,6 +515,11 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             connection_handle_t connection = evt->hdr.param;
 
             if (evt->oob) {
+            	// FIXME: Nothing in the API indicates if smp or sc OOB are
+            	// requested.
+            	// To set secure connection OOB:
+            	//   - DmSecSetOob(connection, oob_data)
+            	//   - DmSecAuthRsp(connection, 0, NULL)
                 handler->on_legacy_pairing_oob_request(connection);
             } else if (evt->display) {
                 if (get_security_manager()._use_default_passkey) {
@@ -607,14 +643,36 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
-        case DM_SEC_CALC_OOB_IND:
+        case DM_SEC_CALC_OOB_IND: {
+        	dmSecOobCalcIndEvt_t* evt = (dmSecOobCalcIndEvt_t*) msg;
+        	self._own_oob_present = true;
+        	memcpy(self._confirm, evt->confirm, sizeof(_confirm));
+        	memcpy(self._random, evt->random, sizeof(_random));
+        	handler->on_secure_connections_oob_generated(
+        		address_t(), /* which address should be used ??? */
+				evt->random,
+				evt->confirm
+        	);
             return true;
+        }
 
-        case DM_SEC_ECC_KEY_IND:
+        case DM_SEC_ECC_KEY_IND: {
+        	secEccMsg_t* evt = (secEccMsg_t*) msg;
+        	DmSecSetEccKey(&evt->data.key);
+        	memcpy(self._public_key_x, evt->data.key.pubKey_x, sizeof(_public_key_x));
+        	self._lesc_keys_generated = true;
             return true;
+        }
 
-        case DM_SEC_COMPARE_IND:
-            return true;
+        case DM_SEC_COMPARE_IND: {
+        	dmSecCnfIndEvt_t* evt = (dmSecCnfIndEvt_t*) msg;
+        	handler->on_passkey_display(
+        		/* connection */ evt->hdr.param,
+				DmSecGetCompareValue(evt->confirm)
+        	);
+        	handler->on_confirmation_request(/* connection */ evt->hdr.param);
+        	return true;
+        }
 
         case DM_SEC_KEYPRESS_IND: {
             dmSecKeypressIndEvt_t* evt = (dmSecKeypressIndEvt_t*) msg;

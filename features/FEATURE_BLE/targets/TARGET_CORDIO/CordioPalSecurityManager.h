@@ -20,6 +20,8 @@
 #include "ble/pal/PalSecurityManager.h"
 #include "wsf_types.h"
 #include "wsf_os.h"
+#include "sec_api.h"
+#include "smp_defs.h"
 
 namespace ble {
 namespace pal {
@@ -321,6 +323,15 @@ public:
 private:
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
+    bool _lesc_keys_generated;
+    uint8_t _public_key_x[SEC_ECC_KEY_LEN];
+    bool _peer_oob_present;
+    address_t _peer_oob_address;
+    oob_lesc_value_t _peer_oob_random;
+    oob_confirm_t _peer_oob_confirm;
+    bool _own_oob_present;
+    uint8_t _confirm[SMP_CONFIRM_LEN];
+    uint8_t _random[SMP_RAND_LEN];
 };
 
 } // cordio
