@@ -42,7 +42,7 @@ typedef struct sleep_statistic {
 
 static sleep_statistic_t sleep_stats[STATISTIC_COUNT];
 
-static const char* strip_path(const char* const filename)
+static const char *strip_path(const char *const filename)
 {
     char *output = strrchr(filename, '/');
 
@@ -59,7 +59,7 @@ static const char* strip_path(const char* const filename)
     return filename;
 }
 
-static sleep_statistic_t* sleep_tracker_find(const char *const filename)
+static sleep_statistic_t *sleep_tracker_find(const char *const filename)
 {
     char temp[IDENTIFIER_WIDTH];
     strncpy(temp, filename, IDENTIFIER_WIDTH);
@@ -75,7 +75,7 @@ static sleep_statistic_t* sleep_tracker_find(const char *const filename)
     return NULL;
 }
 
-static sleep_statistic_t* sleep_tracker_add(const char* const filename)
+static sleep_statistic_t *sleep_tracker_add(const char *const filename)
 {
     char temp[IDENTIFIER_WIDTH];
     strncpy(temp, filename, IDENTIFIER_WIDTH);
@@ -109,15 +109,15 @@ static void sleep_tracker_print_stats(void)
         }
 
         debug("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
-                                          sleep_stats[i].count);
+              sleep_stats[i].count);
     }
 }
 
-void sleep_tracker_lock(const char* const filename, int line)
+void sleep_tracker_lock(const char *const filename, int line)
 {
-    const char* const stripped_path = strip_path(filename);
+    const char *const stripped_path = strip_path(filename);
 
-    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
+    sleep_statistic_t *stat = sleep_tracker_find(stripped_path);
 
     // Entry for this driver does not exist, create one.
     if (stat == NULL) {
@@ -129,10 +129,10 @@ void sleep_tracker_lock(const char* const filename, int line)
     debug("LOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
 }
 
-void sleep_tracker_unlock(const char* const filename, int line)
+void sleep_tracker_unlock(const char *const filename, int line)
 {
-    const char* const stripped_path = strip_path(filename);
-    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
+    const char *const stripped_path = strip_path(filename);
+    sleep_statistic_t *stat = sleep_tracker_find(stripped_path);
 
     // Entry for this driver does not exist, something went wrong.
     if (stat == NULL) {

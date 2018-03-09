@@ -502,7 +502,7 @@ retry_without_dual_stack:
 }
 
 void  PPPCellularInterface::set_credentials(const char *apn, const char *uname,
-                                            const char *pwd)
+        const char *pwd)
 {
     _apn = apn;
     _uname = uname;
@@ -573,7 +573,7 @@ nsapi_error_t PPPCellularInterface::connect()
         user_specified_apn = true;
 #endif
     }
-    
+
     if (is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
@@ -681,7 +681,7 @@ retry_init:
         }
 
         tr_info("The APN being used is %s.\n", _apn);
-        
+
         /* Attempt to enter data mode */
         success = set_atd(_at); //enter into Data mode with the modem
         if (!success) {
