@@ -40,6 +40,9 @@
 
 #define NUM_OF_CYCLES 100000
 
+#define US_TICKER_OV_LIMIT 20000
+#define LP_TICKER_OV_LIMIT 4000
+
 using namespace utest::v1;
 
 volatile int intFlag = 0;
@@ -59,7 +62,7 @@ uint32_t count_ticks(uint32_t cycles, uint32_t step)
 
     const uint32_t start = intf->read();
 
-    while (cycles -= step) {
+    while (reg_cycles  -= step) {
         /* Just wait. */
     }
 
@@ -68,7 +71,7 @@ uint32_t count_ticks(uint32_t cycles, uint32_t step)
     core_util_critical_section_exit();
 
     /* Handle overflow - overflow protection may not work in this case. */
-    uint32_t diff = (start <= stop) ? (stop - start) : (uint32_t)(max_count - start + stop);
+    uint32_t diff = (start <= stop) ? (stop - start) : (uint32_t)(max_count - start + stop + 1);
 
     return (diff);
 }
@@ -338,12 +341,15 @@ void ticker_increment_test(void)
 
         TEST_ASSERT_UINT32_WITHIN(1, next_tick_count, base_tick_count);
     } else {  // high frequency tickers
-        const uint32_t base_tick_count = count_ticks(NUM_OF_CYCLES, 1);
+
+        uint32_t num_of_cycles = NUM_OF_CYCLES;
+
+        const uint32_t base_tick_count = count_ticks(num_of_cycles, 1);
         uint32_t next_tick_count = base_tick_count;
         uint32_t inc_val = 0;
 
         while (inc_val < 100) {
-            next_tick_count = count_ticks(NUM_OF_CYCLES + inc_val, 1);
+            next_tick_count = count_ticks(num_of_cycles + inc_val, 1);
 
             if (next_tick_count == base_tick_count) {
                 /* Same tick count, so increase num of cycles. */
@@ -351,9 +357,11 @@ void ticker_increment_test(void)
             } else {
                 /* It is possible that the difference between base and next
                  * tick count on some platforms is greater that 1, in this case we need
-                 * to repeat counting with the same number of cycles.
+                 * to repeat counting with the reduced number of cycles (for slower boards).
                  * In cases if difference is exactly 1 we can exit the loop.
                  */
+                num_of_cycles /= 2;
+
                 if (next_tick_count - base_tick_count == 1 ||
                     base_tick_count - next_tick_count == 1) {
                     break;
