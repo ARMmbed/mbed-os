@@ -67,12 +67,14 @@ int i2c_start(i2c_t *obj)
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t statusFlags = I2C_MasterGetStatusFlags(base);
 
-    /* Return an error if the bus is already in use. */
+    /* Check if the bus is already in use. */
     if (statusFlags & kI2C_BusBusyFlag) {
-        return 1;
+        /* Send a repeat START signal. */
+        base->C1 |= I2C_C1_RSTA_MASK;
+    } else {
+        /* Send the START signal. */
+        base->C1 |= I2C_C1_MST_MASK | I2C_C1_TX_MASK;
     }
-    /* Send the START signal. */
-    base->C1 |= I2C_C1_MST_MASK | I2C_C1_TX_MASK;
 
 #if defined(FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING) && FSL_FEATURE_I2C_HAS_DOUBLE_BUFFERING
     while (!(base->S2 & I2C_S2_EMPTY_MASK))
@@ -85,7 +87,6 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
-    obj->next_repeated_start = 0;
     if (I2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
         return 1;
     }
@@ -183,39 +184,64 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     uint8_t data;
     I2C_Type *base = i2c_addrs[obj->instance];
-    i2c_master_transfer_t master_xfer;
 
-    memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = i2c_address;
-    master_xfer.direction = kI2C_Read;
-    master_xfer.data = &data;
-    master_xfer.dataSize = 1;
+    /* Setup the I2C peripheral to receive data. */
+    base->C1 &= ~(I2C_C1_TX_MASK | I2C_C1_TXAK_MASK);
 
-    /* The below function will issue a STOP signal at the end of the transfer.
-     * This is required by the hardware in order to receive the last byte
-     */
-    if (I2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
-        return I2C_ERROR_NO_SLAVE;
+    if (last) {
+        base->C1 |= I2C_C1_TXAK_MASK; // NACK
     }
+
+    data = (base->D & 0xFF);
+
+    /* Change direction to Tx to avoid extra clocks. */
+    base->C1 |= I2C_C1_TX_MASK;
+
+    /* Wait until data transfer complete. */
+    while (!(base->S & kI2C_IntPendingFlag))
+    {
+    }
+
+    /* Clear the IICIF flag. */
+    base->S = kI2C_IntPendingFlag;
+
     return data;
 }
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    status_t ret_value;
-#if FSL_I2C_DRIVER_VERSION > MAKE_VERSION(2, 0, 1)
-    ret_value = I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag);
-#else
-    ret_value = I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1);
-#endif
+    int ret_value = 1;
+    uint8_t statusFlags = 0;
+    I2C_Type *base = i2c_addrs[obj->instance];
 
-    if (ret_value == kStatus_Success) {
-        return 1;
-    } else if (ret_value == kStatus_I2C_Nak) {
-        return 0;
-    } else {
-        return 2;
+    /* Setup the I2C peripheral to transmit data. */
+    base->C1 |= I2C_C1_TX_MASK;
+
+    /* Send a byte of data. */
+    base->D = data;
+
+    /* Wait until data transfer complete. */
+    while (!(base->S & kI2C_IntPendingFlag)) {
     }
+
+    statusFlags = base->S;
+
+    /* Clear the IICIF flag. */
+    base->S = kI2C_IntPendingFlag;
+
+    /* Check if arbitration lost */
+    if (statusFlags & kI2C_ArbitrationLostFlag) {
+        base->S = kI2C_ArbitrationLostFlag;
+        ret_value = 2;
+    }
+
+    /* Check if no acknowledgement (NAK) */
+    if (statusFlags & kI2C_ReceiveNakFlag) {
+        base->S = kI2C_ReceiveNakFlag;
+        ret_value = 0;
+    }
+
+    return ret_value;
 }
 
 
