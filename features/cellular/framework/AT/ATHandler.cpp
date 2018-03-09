@@ -314,7 +314,7 @@ void ATHandler::fill_buffer()
     } while ((uint32_t)timer.read_ms() < _at_timeout);
 
     set_error(NSAPI_ERROR_DEVICE_ERROR);
-    tr_error("AT TIMEOUT, scope: %d timeout: %lu", _current_scope, _at_timeout);
+    tr_debug("AT TIMEOUT, scope: %d timeout: %lu", _current_scope, _at_timeout);
 }
 
 int ATHandler::get_char()
@@ -846,7 +846,7 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
             match_pos = 0;
         }
     }
-    tr_error("consume_to_tag not found");
+    tr_debug("consume_to_tag not found");
     return false;
 }
 
@@ -862,7 +862,7 @@ bool ATHandler::consume_to_stop_tag()
         return true;
     }
 
-    tr_error("consume_to_stop_tag not found");
+    tr_debug("consume_to_stop_tag not found");
     set_error(NSAPI_ERROR_DEVICE_ERROR);
     return false;
 }
@@ -942,13 +942,7 @@ void ATHandler::cmd_start(const char* cmd)
         return;
     }
 
-    // write command
-    for (size_t i = 0; i < strlen(cmd); i++) {
-        if (write_char(cmd[i]) == false) {
-            // writing failed ---> write_char have set the last error, return...
-            return;
-        }
-    }
+    (void)write(cmd, strlen(cmd));
 
     _cmd_start = true;
 }
@@ -966,12 +960,7 @@ void ATHandler::write_int(int32_t param)
     char number_string[str_len];
     int32_t result = sprintf(number_string, "%ld", param);
     if (result > 0 && result < str_len) {
-        for (size_t i = 0; number_string[i]; i++) {
-            if (write_char(number_string[i]) == false) {
-                // writing failed ---> write_char have set the last error, break out
-                break;
-            }
-        }
+        (void)write(number_string, strlen(number_string));
     }
 }
 
@@ -984,20 +973,15 @@ void ATHandler::write_string(const char* param, bool useQuotations)
     }
 
     // we are writing string, surround it with quotes
-    if (useQuotations && write_char('\"') == false) {
+    if (useQuotations && write("\"", 1) != 1) {
         return;
     }
 
-    for (size_t i = 0; i < strlen(param); i++) {
-        if (write_char(param[i]) == false) {
-            // writing failed ---> write_char have set the last error, return
-            break;
-        }
-    }
+    (void)write(param, strlen(param));
 
     if (useQuotations) {
         // we are writing string, surround it with quotes
-        write_char('\"');
+        (void)write("\"", 1);
     }
 }
 
@@ -1007,11 +991,7 @@ void ATHandler::cmd_stop()
         return;
     }
      // Finish with CR
-    for (size_t i = 0; i < _output_delimiter_length; i++) {
-        if (write_char(_output_delimiter[i]) == false) {
-            break;
-        }
-    }
+    (void)write(_output_delimiter, _output_delimiter_length);
 }
 
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
@@ -1020,36 +1000,27 @@ size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
         return 0;
     }
 
-    size_t i = 0;
-    for (; i < len; i++) {
-        if (write_char(data[i]) == false) {
-            // writing failed ---> write_char have set the last error, return
-            break;
-        }
-    }
-
-    return i;
+    ssize_t write_len = write(data, len);
+    return write_len < 0 ? 0 : (size_t)write_len;
 }
 
-bool ATHandler::write_char(char c)
+ssize_t ATHandler::write(const void *data, size_t len)
 {
     pollfh fhs;
     fhs.fh = _fileHandle;
     fhs.events = POLLOUT;
-    bool retVal = true;
+    ssize_t write_len = -1;
 
     int count = poll(&fhs, 1, _at_timeout);
     if (count > 0 && (fhs.revents & POLLOUT)) {
-        retVal = _fileHandle->write(&c, 1) == 1 ? true : false;
-    } else {
-        retVal = false;
+        write_len = _fileHandle->write(data, len);
     }
 
-    if (retVal == false) {
+    if (write_len < 0 || (size_t)write_len != len) {
         set_error(NSAPI_ERROR_DEVICE_ERROR);
     }
 
-    return retVal;
+    return write_len;
 }
 
 // do common checks before sending subparameters
@@ -1063,8 +1034,8 @@ bool ATHandler::check_cmd_send()
     if (_cmd_start) {
         _cmd_start = false;
     } else {
-        if (write_char(_delimiter) == false) {
-            // writing of delimiter failed, return. write_char already have set the _last_err
+        if (write(&_delimiter, 1) != 1) {
+            // writing of delimiter failed, return. write() already have set the _last_err
             return false;
         }
     }
