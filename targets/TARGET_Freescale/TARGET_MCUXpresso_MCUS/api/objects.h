@@ -95,6 +95,14 @@ struct flash_s {
     flash_config_t flash_config;
 };
 
+#ifdef DEVICE_SAI
+struct sai_s {
+    I2S_Type *base;
+    uint32_t channel;
+    bool is_receiver;
+};
+#endif // DEVICE_SAI
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

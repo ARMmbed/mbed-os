@@ -191,6 +191,10 @@ typedef enum {
     PTE30 = (4 << GPIO_PORT_SHIFT | 30),
     PTE31 = (4 << GPIO_PORT_SHIFT | 31),
 
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
+    // common name
     LED_RED   = PTC9,
     LED_GREEN = PTE6,
     LED_BLUE  = PTA11,
@@ -211,6 +215,16 @@ typedef enum {
     // USB Pins
     USBTX = PTB17,
     USBRX = PTB16,
+
+    // Audio bus
+    SAI_A_MCLK = PTC6,
+    SAI_A_SD   = PTE7,
+    SAI_A_BCLK = PTE9,
+    SAI_A_WCLK = PTE8,
+    SAI_B_MCLK = PTC6,
+    SAI_B_SD   = PTC1,
+    SAI_B_BCLK = PTE12,
+    SAI_B_WCLK = PTE11,
 
     // Arduino Headers
     D0 = PTC3,
@@ -241,9 +255,6 @@ typedef enum {
     A5 = PTB2,
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
-
-    // Not connected
-    NC = (int)0xFFFFFFFF
 } PinName;
 
 
