@@ -180,7 +180,7 @@ unsigned char *mbed_stack_isr_start = 0;
 uint32_t mbed_stack_isr_size = 0;
 
 WEAK void mbed_main(void);
-void pre_main (void);
+void pre_main(void);
 
 osThreadAttr_t _main_thread_attr;
 
@@ -201,54 +201,54 @@ osMutexAttr_t             singleton_mutex_attr;
 #if defined(__ICCARM__) &&                                  \
     (defined(HEAP_START) || defined(HEAP_SIZE) ||           \
      defined(ISR_STACK_START) && defined(ISR_STACK_SIZE))
-    #error "No custom layout allowed for IAR. Use .icf file instead"
+#error "No custom layout allowed for IAR. Use .icf file instead"
 #endif
 #if defined(HEAP_START) && !defined(HEAP_SIZE)
-    #error "HEAP_SIZE must be defined if HEAP_START is defined"
+#error "HEAP_SIZE must be defined if HEAP_START is defined"
 #endif
 #if defined(ISR_STACK_START) && !defined(ISR_STACK_SIZE)
-    #error "ISR_STACK_SIZE must be defined if ISR_STACK_START is defined"
+#error "ISR_STACK_SIZE must be defined if ISR_STACK_START is defined"
 #endif
 #if defined(HEAP_SIZE) && !defined(HEAP_START)
-    #error "HEAP_START must be defined if HEAP_SIZE is defined"
+#error "HEAP_START must be defined if HEAP_SIZE is defined"
 #endif
 
 /* IAR - INITIAL_SP and HEAP_START ignored as described in Memory layout notes above
  */
 #if !defined(__ICCARM__) && !defined(INITIAL_SP) && !defined(HEAP_START)
-    #error "no target defined"
+#error "no target defined"
 #endif
 
 /* Interrupt stack and heap always defined for IAR
  * Main thread defined here
  */
 #if defined(__ICCARM__)
-    #pragma section="CSTACK"
-    #pragma section="HEAP"
-    #define HEAP_START          ((unsigned char*)__section_begin("HEAP"))
-    #define HEAP_SIZE           ((uint32_t)__section_size("HEAP"))
-    #define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
-    #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
+#pragma section="CSTACK"
+#pragma section="HEAP"
+#define HEAP_START          ((unsigned char*)__section_begin("HEAP"))
+#define HEAP_SIZE           ((uint32_t)__section_size("HEAP"))
+#define ISR_STACK_START     ((unsigned char*)__section_begin("CSTACK"))
+#define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
 #endif
 
 /* Define heap region if it has not been defined already */
 #if !defined(HEAP_START)
-    #if defined(__ICCARM__)
-        #error "Heap should already be defined for IAR"
-    #elif defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-        extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
-        #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
-        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
-    #elif defined(__GNUC__)
-        extern uint32_t         __end__[];
-        #define HEAP_START      ((unsigned char*)__end__)
-        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
-    #endif
+#if defined(__ICCARM__)
+#error "Heap should already be defined for IAR"
+#elif defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
+#define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
+#define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+#elif defined(__GNUC__)
+extern uint32_t         __end__[];
+#define HEAP_START      ((unsigned char*)__end__)
+#define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+#endif
 #endif
 
 /* Define stack sizes if they haven't been set already */
 #if !defined(ISR_STACK_SIZE)
-    #define ISR_STACK_SIZE ((uint32_t)1024)
+#define ISR_STACK_SIZE ((uint32_t)1024)
 #endif
 
 /*
@@ -258,7 +258,8 @@ osMutexAttr_t             singleton_mutex_attr;
  * -mbed_stack_isr_start
  * -mbed_stack_isr_size
  */
-void mbed_set_stack_heap(void) {
+void mbed_set_stack_heap(void)
+{
 
     unsigned char *free_start = HEAP_START;
     uint32_t free_size = HEAP_SIZE;
@@ -288,7 +289,7 @@ static void mbed_cpy_nvic(void)
 #if !defined(__CORTEX_M0) && !defined(__CORTEX_A9)
 #ifdef NVIC_RAM_VECTOR_ADDRESS
     uint32_t *old_vectors = (uint32_t *)SCB->VTOR;
-    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
         vectors[i] = old_vectors[i];
     }
@@ -302,7 +303,8 @@ static void mbed_cpy_nvic(void)
  * mbed_main(), it is not meant for user code, but for the SDK itself to perform
  * initializations before main() is called.
  */
-WEAK void mbed_main(void) {
+WEAK void mbed_main(void)
+{
 
 }
 
@@ -310,7 +312,8 @@ WEAK void mbed_main(void) {
  * RTX is started.
  */
 void mbed_sdk_init(void);
-WEAK void mbed_sdk_init(void) {
+WEAK void mbed_sdk_init(void)
+{
 }
 
 void mbed_start_main(void)
@@ -335,7 +338,8 @@ void mbed_start_main(void)
 
 /* Common for both ARMC and MICROLIB */
 int $Super$$main(void);
-int $Sub$$main(void) {
+int $Sub$$main(void)
+{
     mbed_main();
     return $Super$$main();
 }
@@ -343,10 +347,11 @@ int $Sub$$main(void) {
 #if defined (__MICROLIB)  /******************** MICROLIB ********************/
 
 int main(void);
-void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void _main_init(void) __attribute__((section(".ARM.Collect$$$$000000FF")));
 void $Super$$__cpp_initialize__aeabi_(void);
 
-void _main_init (void) {
+void _main_init(void)
+{
     mbed_set_stack_heap();
     /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
@@ -382,10 +387,10 @@ void pre_main()
 #include <rt_misc.h>
 extern __value_in_regs struct __argc_argv __rt_lib_init(unsigned heapbase, unsigned heaptop);
 extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(void);
-extern void _platform_post_stackheap_init (void);
-extern int main(int argc, char* argv[]);
+extern void _platform_post_stackheap_init(void);
+extern int main(int argc, char *argv[]);
 
-void pre_main (void)
+void pre_main(void)
 {
     singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
@@ -411,7 +416,8 @@ __asm(".global __use_no_semihosting\n\t");
 #endif
 
 /* Called by the C library */
-void __rt_entry (void) {
+void __rt_entry(void)
+{
     __user_setup_stackheap();
     mbed_set_stack_heap();
     /* Copy the vector table to RAM only if uVisor is not in use. */
@@ -438,7 +444,7 @@ typedef void *mutex;
 #define OS_MUTEX_STATIC_NUM   8
 mutex _static_mutexes[OS_MUTEX_STATIC_NUM] = {NULL};
 mbed_rtos_storage_mutex_t _static_mutexes_mem[OS_MUTEX_STATIC_NUM] = {NULL};
- 
+
 int _mutex_initialize(mutex *m)
 {
     osMutexAttr_t attr;
@@ -450,7 +456,7 @@ int _mutex_initialize(mutex *m)
     core_util_critical_section_enter();
     for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
         if (_static_mutexes[i] == NULL) {
-            _static_mutexes[i] = (mutex)-1; // dummy value to reserve slot
+            _static_mutexes[i] = (mutex) - 1; // dummy value to reserve slot
             slot = &_static_mutexes[i];
             //Use the static attrs
             attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
@@ -470,7 +476,7 @@ int _mutex_initialize(mutex *m)
 
     /* Mutex pool exhausted, try using HEAP */
     attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
-    attr.cb_mem = (void*)malloc(attr.cb_size);
+    attr.cb_mem = (void *)malloc(attr.cb_size);
     if (attr.cb_mem == NULL) {
         osRtxErrorNotify(osRtxErrorClibSpace, m);
         return 0;
@@ -485,7 +491,8 @@ int _mutex_initialize(mutex *m)
     return 1;
 }
 
-void _mutex_free(mutex *m) {
+void _mutex_free(mutex *m)
+{
     mutex *slot = NULL;
     core_util_critical_section_enter();
     for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
@@ -510,8 +517,8 @@ void _mutex_free(mutex *m) {
 #endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
 
-extern int main(int argc, char* argv[]);
-extern void __libc_init_array (void);
+extern int main(int argc, char *argv[]);
+extern void __libc_init_array(void);
 extern int __real_main(void);
 
 osMutexId_t               malloc_mutex_id;
@@ -526,7 +533,8 @@ osMutexAttr_t             env_mutex_attr;
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
-int __wrap_main(void) {
+int __wrap_main(void)
+{
     mbed_main();
     return __real_main();
 }
@@ -581,22 +589,22 @@ void software_init_hook(void)
 /* Opaque declaration of _reent structure */
 struct _reent;
 
-void __rtos_malloc_lock( struct _reent *_r )
+void __rtos_malloc_lock(struct _reent *_r)
 {
     osMutexAcquire(malloc_mutex_id, osWaitForever);
 }
 
-void __rtos_malloc_unlock( struct _reent *_r )
+void __rtos_malloc_unlock(struct _reent *_r)
 {
     osMutexRelease(malloc_mutex_id);
 }
 
-void __rtos_env_lock( struct _reent *_r )
+void __rtos_env_lock(struct _reent *_r)
 {
     osMutexAcquire(env_mutex_id, osWaitForever);
 }
 
-void __rtos_env_unlock( struct _reent *_r )
+void __rtos_env_unlock(struct _reent *_r)
 {
     osMutexRelease(env_mutex_id);
 }
@@ -605,11 +613,11 @@ void __rtos_env_unlock( struct _reent *_r )
 
 #if defined(__ICCARM__) /******************** IAR ********************/
 
-extern void* __vector_table;
+extern void *__vector_table;
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
-extern __weak void __iar_init_core( void );
-extern __weak void __iar_init_vfp( void );
+extern __weak void __iar_init_core(void);
+extern __weak void __iar_init_vfp(void);
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
 extern int main(void);
@@ -638,7 +646,7 @@ void pre_main(void)
 }
 
 #pragma required=__vector_table
-void __iar_program_start( void )
+void __iar_program_start(void)
 {
     __iar_init_core();
     __iar_init_vfp();
@@ -649,21 +657,21 @@ void __iar_program_start( void )
     if (low_level_init_needed_local) {
         __iar_data_init3();
 
-    /* Copy the vector table to RAM only if uVisor is not in use. */
+        /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
-    mbed_cpy_nvic();
+        mbed_cpy_nvic();
 #endif
-    mbed_sdk_init();
-  }
+        mbed_sdk_init();
+    }
 
-  mbed_set_stack_heap();
+    mbed_set_stack_heap();
 
-  /* Store in a global variable after RAM has been initialized */
-  low_level_init_needed = low_level_init_needed_local;
+    /* Store in a global variable after RAM has been initialized */
+    low_level_init_needed = low_level_init_needed_local;
 
-  osKernelInitialize();
+    osKernelInitialize();
 
-  mbed_start_main();
+    mbed_start_main();
 }
 
 /* Thread safety */
@@ -684,7 +692,7 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
             attr.cb_size = sizeof(std_mutex_sys[index]);
             attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_sys[index] = osMutexNew(&attr);
-            *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+            *mutex = (__iar_Rmtx *)&std_mutex_id_sys[index];
             return;
         }
     }
@@ -695,18 +703,18 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
 
 void __iar_system_Mtxdst(__iar_Rmtx *mutex) /* Destroy a system lock */
 {
-    osMutexDelete(*(osMutexId_t*)*mutex);
+    osMutexDelete(*(osMutexId_t *)*mutex);
     *mutex = 0;
 }
 
 void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
 {
-    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t *)*mutex, osWaitForever);
 }
 
 void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
 {
-    osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t *)*mutex);
 }
 
 void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
@@ -720,7 +728,7 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
             attr.cb_size = sizeof(std_mutex_file[index]);
             attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_file[index] = osMutexNew(&attr);
-            *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+            *mutex = (__iar_Rmtx *)&std_mutex_id_file[index];
             return;
         }
     }
@@ -730,18 +738,18 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
 
 void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
 {
-    osMutexDelete(*(osMutexId_t*)*mutex);
+    osMutexDelete(*(osMutexId_t *)*mutex);
     *mutex = 0;
 }
 
 void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
 {
-    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t *)*mutex, osWaitForever);
 }
 
 void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
 {
-    osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t *)*mutex);
 }
 
 #endif
