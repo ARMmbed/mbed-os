@@ -311,9 +311,9 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::is_secure_connectinos_oob_present
+     * @see ::ble::pal::SecurityManager::is_secure_connections_oob_present
      */
-    virtual bool is_secure_connectinos_oob_present(
+    virtual bool is_secure_connections_oob_present(
         const address_t &address
     );
 
