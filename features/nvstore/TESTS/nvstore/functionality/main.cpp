@@ -359,7 +359,7 @@ static void thread_test_check_key(uint16_t key)
 
     if (key == thr_test_data->last_key) {
         if ((thr_test_data->sizes[key][thr_test_data->last_ind] == actual_len_bytes) &&
-            (!memcmp(thr_test_data->buffs[key][thr_test_data->last_ind], get_buff, actual_len_bytes))) {
+                (!memcmp(thr_test_data->buffs[key][thr_test_data->last_ind], get_buff, actual_len_bytes))) {
             return;
         }
     }
@@ -428,7 +428,7 @@ static void nvstore_multi_thread_test()
     }
 
     for (i = 0; i < num_threads; i++) {
-        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal-num_threads+i), thr_test_stack_size);
+        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - num_threads + i), thr_test_stack_size);
         threads[i]->start(callback(thread_test_worker));
     }
 
@@ -529,7 +529,8 @@ static void nvstore_race_test()
 
 
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
