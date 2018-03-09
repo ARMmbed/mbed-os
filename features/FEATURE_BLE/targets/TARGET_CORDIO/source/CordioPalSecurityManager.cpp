@@ -408,7 +408,7 @@ ble_error_t CordioSecurityManager::secure_connections_oob_received(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-bool CordioSecurityManager::is_secure_connectinos_oob_present(
+bool CordioSecurityManager::is_secure_connections_oob_present(
     const address_t &address
 ) {
     return false;
