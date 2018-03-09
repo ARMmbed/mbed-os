@@ -39,6 +39,11 @@ ble_error_t GenericSecurityManager::init(
     const Passkey_t passkey,
     bool signing
 ) {
+    ble_error_t err = _pal.initialize();
+    if (err) {
+    	return err;
+    }
+
     _db.restore();
     _pal.set_io_capability((io_capability_t::type) iocaps);
 
@@ -73,6 +78,7 @@ ble_error_t GenericSecurityManager::init(
 
 ble_error_t GenericSecurityManager::reset(void) {
     _db.sync();
+    _pal.reset();
     SecurityManager::reset();
 
     return BLE_ERROR_NONE;
