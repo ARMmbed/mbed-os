@@ -23,8 +23,8 @@
 
 
 // Get endpoint direction
-#define IN_EP(endpoint)     ((endpoint) & 1U ? true : false)
-#define OUT_EP(endpoint)    ((endpoint) & 1U ? false : true)
+#define IN_EP(endpoint)     ((endpoint) & 0x80U ? true : false)
+#define OUT_EP(endpoint)    ((endpoint) & 0x80U ? false : true)
 
 // Convert physical endpoint number to register bit
 #define EP(endpoint) (1UL<<DESC_TO_PHY(endpoint))
@@ -368,6 +368,9 @@ void USBPhyHw::init(USBPhyEvents *events)
     // Disable IRQ
     NVIC_DisableIRQ(USB_IRQn);
 
+    memset(read_buffers, 0, sizeof(read_buffers));
+    memset(read_sizes, 0, sizeof(read_sizes));
+
     // Enable power to USB device controller
     LPC_SC->PCONP |= PCUSB;
 
@@ -466,14 +469,20 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
     endpointReadcore(EP0OUT, buffer, size);
 }
 
-void USBPhyHw::ep0_read(void)
+void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
 {
-    endpoint_read(EP0OUT, MAX_PACKET_SIZE_EP0);
+    read_buffers[EP0OUT] = data;
+    read_sizes[EP0OUT] = size;
+    SIEselectEndpoint(EP0OUT);
+    SIEclearBuffer();
 }
 
-uint32_t USBPhyHw::ep0_read_result(uint8_t *buffer, uint32_t size)
+uint32_t USBPhyHw::ep0_read_result()
 {
-    return endpointReadcore(EP0OUT, buffer, size);
+    uint32_t size = endpointReadcore(EP0OUT, read_buffers[EP0OUT], read_sizes[EP0OUT]);
+    read_buffers[EP0OUT] = NULL;
+    read_sizes[EP0OUT] = 0;
+    return size;
 }
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
@@ -487,29 +496,41 @@ void USBPhyHw::ep0_stall(void)
     endpoint_stall(EP0OUT);
 }
 
-bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint32_t maximumSize)
+bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
-    // Don't clear isochronous endpoints
-    if ((DESC_TO_PHY(endpoint) >> 1) % 3 || (DESC_TO_PHY(endpoint) >> 1) == 0) {
-        SIEselectEndpoint(endpoint);
-        SIEclearBuffer();
+    read_buffers[endpoint] = data;
+    read_sizes[endpoint] = size;
+    enableEndpointEvent(endpoint);
+    uint8_t status = SIEselectEndpoint(endpoint);
+    if (status & ((1 << 5) | (1 << 6))) {
+        // If any buffer has data then set the interrupt flag
+        LPC_USB->USBEpIntSet = EP(endpoint);
     }
     return true;
 }
 
-bool USBPhyHw::endpoint_read_result(usb_ep_t endpoint, uint8_t *buffer, uint32_t size, uint32_t *bytesRead)
+uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
 
     //for isochronous endpoint, we don't wait an interrupt
     if ((DESC_TO_PHY(endpoint) >> 1) % 3 || (DESC_TO_PHY(endpoint) >> 1) == 0) {
         if (!(epComplete & EP(endpoint))) {
-            return false;
+            return 0;
         }
     }
 
-    *bytesRead = endpointReadcore(endpoint, buffer, size);
+    uint32_t bytesRead = endpointReadcore(endpoint, read_buffers[endpoint], read_sizes[endpoint]);
+    read_buffers[endpoint] = NULL;
+    read_sizes[endpoint] = 0;
+
+    // Don't clear isochronous endpoints
+    if ((DESC_TO_PHY(endpoint) >> 1) % 3 || (DESC_TO_PHY(endpoint) >> 1) == 0) {
+        SIEselectEndpoint(endpoint);
+        SIEclearBuffer();
+    }
+
     epComplete &= ~EP(endpoint);
-    return true;
+    return bytesRead;
 }
 
 bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
@@ -536,7 +557,9 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t maxPacket, usb_ep_type_t
     while (!(LPC_USB->USBDevIntSt & EP_RLZED));
     LPC_USB->USBDevIntClr = EP_RLZED;
 
-    enableEndpointEvent(endpoint);
+    if (IN_EP(endpoint)) {
+        enableEndpointEvent(endpoint);
+    }
     return true;
 }
 
@@ -649,6 +672,8 @@ void USBPhyHw::process(void)
             if ((devStat & SIE_DS_SUS) == 0) {
                 events->suspend(true);
             }
+            memset(read_buffers, 0, sizeof(read_buffers));
+            memset(read_sizes, 0, sizeof(read_sizes));
             events->reset();
         }
     }
@@ -693,9 +718,10 @@ void USBPhyHw::process(void)
                 selectEndpointClearInterrupt(endpoint);
                 epComplete |= EP(endpoint);
                 LPC_USB->USBDevIntClr = EP_SLOW;
-                if (endpoint & 0x80) {//TODO - use macro
+                if (IN_EP(endpoint)) {
                     events->in(endpoint);
                 } else {
+                    disableEndpointEvent(endpoint);
                     events->out(endpoint);
                 }
             }
