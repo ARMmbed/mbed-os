@@ -32,9 +32,11 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "DigitalInOut.h"
 #include "SPI.h"
 #include "Timeout.h"
+#include "platform/PlatformMutex.h"
 #ifdef MBED_CONF_RTOS_PRESENT
  #include "rtos/Thread.h"
 #endif
+
 #include "lorawan/LoRaRadio.h"
 
 #ifdef MBED_CONF_SX1276_LORA_DRIVER_BUFFER_SIZE
@@ -42,6 +44,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #else
 #define MAX_DATA_BUFFER_SIZE_SX1276                        256
 #endif
+
+#ifdef DEVICE_SPI
 
 /**
  * Radio driver implementation for Semtech SX1272 plus variants.
@@ -433,5 +437,7 @@ private:
     void handle_dio5_irq();
     void handle_timeout_irq();
 };
+
+#endif //DEVICE_SPI
 
 #endif // SX1276_LORARADIO_H_

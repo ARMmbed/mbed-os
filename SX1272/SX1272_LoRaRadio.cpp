@@ -27,9 +27,12 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <math.h> //rint
 #include <string.h>
 #include "mbed.h"
+
 #include "SX1272_LoRaRadio.h"
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
+
+#ifdef DEVICE_SPI
 
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
@@ -54,6 +57,8 @@ SPDX-License-Identifier: BSD-3-Clause
 // SX1272 definitions
 #define XTAL_FREQ                                   32000000
 #define FREQ_STEP                                   61.03515625
+
+
 
 enum RadioVariant {
     SX1272MB2XAS = 0,
@@ -2165,3 +2170,6 @@ void SX1272_LoRaRadio::handle_timeout_irq()
          break;
      }
 }
+
+#endif //DEVICE_SPI
+

@@ -30,6 +30,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 
+#ifdef DEVICE_SPI
+
 /*!
  * Sync word for Private LoRa networks
  */
@@ -54,6 +56,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define RSSI_OFFSET_LF                              -164.0
 #define RSSI_OFFSET_HF                              -157.0
 #define RF_MID_BAND_THRESH                          525000000
+
 
 /*!
  * FSK bandwidth definition
@@ -2330,3 +2333,6 @@ void SX1276_LoRaRadio::handle_timeout_irq()
     }
 }
 // EOF
+
+#endif //DEVICE_SPI
+
