@@ -14,9 +14,7 @@
  */
 #include "UARTCellularInterface.h"
 
-/**
- * @attention UARTCellularInterface API will be deprecated, use mbed-os/features/cellular/framework/API instead.
- */
+
 #if NSAPI_PPP_AVAILABLE
 
 UARTCellularInterface::UARTCellularInterface(PinName txd, PinName rxd, PinName dcd, PinName rts, PinName cts, PinName ri,
