@@ -428,9 +428,6 @@ public:
        *                          callbacks.
        */
     virtual lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
-
-private:
-    bool _link_check_requested;
 };
 
 #endif /* LORAWANINTERFACE_H_ */

@@ -1839,30 +1839,6 @@ typedef struct lorawan_session {
     uint32_t downlink_counter;
 } lorawan_session_t;
 
-/** Commissioning data
- *
- * A structure for data in commission.
- */
-typedef struct {
-    /** Connection information
-     *
-     * Saves information for etc. keys
-     */
-    lorawan_connect_t connection;
-    /**
-     * LoRaWAN Up-link counter
-     *
-     * Related MIB type: LORA_MIB_UPLINK_COUNTER
-     */
-    uint32_t uplink_counter;
-    /**
-     * LoRaWAN Down-link counter
-     *
-     * Related MIB type: LORA_MIB_DOWNLINK_COUNTER
-     */
-    uint32_t downlink_counter;
-} lorawan_dev_commission_t;
-
 /** Structure containing the uplink status
  *
  */
