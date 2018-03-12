@@ -42,8 +42,6 @@
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
 
-#if DEVICE_EMAC
-
 #include "fsl_phy.h"
 
 #include "k64f_emac_config.h"
@@ -613,8 +611,6 @@ MBED_WEAK EMAC &EMAC::get_default_instance() {
 /**
  * @}
  */
-
-#endif // DEVICE_EMAC
 
 /* --------------------------------- End Of File ------------------------------ */
 
