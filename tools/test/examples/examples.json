@@ -238,6 +238,32 @@
       "compile" : true,
       "export": true,
       "auto-update" : true
-    }
+    },
+    {
+        "name": "mbed-os-example-lorawan",
+        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-nvstore",
+        "github":"https://github.com/ARMmbed/mbed-os-example-nvstore",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }      
   ]
 }
