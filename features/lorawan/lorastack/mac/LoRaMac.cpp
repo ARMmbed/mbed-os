@@ -1582,6 +1582,8 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
                                      LoRaPHY *phy, EventQueue *queue)
 {
+    _lora_time.activate_timer_subsystem(queue);
+
     //store event queue pointer
     ev_queue = queue;
 
@@ -1648,6 +1650,16 @@ lorawan_status_t LoRaMac::initialize(loramac_primitives_t *primitives,
 
     // Store the current initialization time
     _params.timers.mac_init_time = _lora_time.get_current_time();
+
+    loramac_mib_req_confirm_t mib_req;
+
+    mib_req.type = MIB_ADR;
+    mib_req.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
+    mib_set_request_confirm(&mib_req);
+
+    mib_req.type = MIB_PUBLIC_NETWORK;
+    mib_req.param.enable_public_nwk = MBED_CONF_LORA_PUBLIC_NETWORK;
+    mib_set_request_confirm(&mib_req);
 
     return LORAWAN_STATUS_OK;
 }
