@@ -1145,6 +1145,7 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
 
 static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_t handle, int backlog)
 {
+#if LWIP_TCP
     struct lwip_socket *s = (struct lwip_socket *)handle;
 
     if (s->conn->pcb.tcp->local_port == 0) {
@@ -1153,6 +1154,9 @@ static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_
 
     err_t err = netconn_listen_with_backlog(s->conn, backlog);
     return mbed_lwip_err_remap(err);
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 static nsapi_error_t mbed_lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t addr, uint16_t port)
@@ -1173,6 +1177,7 @@ static nsapi_error_t mbed_lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket
 
 static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi_socket_t *handle, nsapi_addr_t *addr, uint16_t *port)
 {
+#if LWIP_TCP
     struct lwip_socket *s = (struct lwip_socket *)server;
     struct lwip_socket *ns = mbed_lwip_arena_alloc();
     if (!ns) {
@@ -1199,6 +1204,9 @@ static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_
     netconn_set_nonblocking(ns->conn, true);
 
     return 0;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 static nsapi_size_or_error_t mbed_lwip_socket_send(nsapi_stack_t *stack, nsapi_socket_t handle, const void *data, nsapi_size_t size)
