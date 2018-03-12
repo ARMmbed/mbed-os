@@ -19,7 +19,7 @@
 #define _CELLULAR_CONNECTION_UTIL_H
 
 #include "CellularTargets.h"
-#ifdef CELLULAR_DEVICE
+#if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 
 #include "UARTSerial.h"
 #include "NetworkInterface.h"
@@ -171,6 +171,6 @@ private:
 
 } // namespace
 
-#endif // CELLULAR_DEVICE
+#endif // CELLULAR_DEVICE || DOXYGEN
 
 #endif /* _CELLULAR_CONNECTION_UTIL_H */
