@@ -20,7 +20,7 @@
 #define EASY_CELLULAR_CONNECTION_H
 
 #include "CellularConnectionFSM.h"
-#ifdef CELLULAR_DEVICE
+#if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 
 #include "netsocket/CellularBase.h"
 
@@ -158,7 +158,7 @@ private:
 
 } // namespace
 
-#endif // CELLULAR_DEVICE
+#endif // CELLULAR_DEVICE || DOXYGEN
 
 #endif // EASY_CELLULAR_CONNECTION_H
 
