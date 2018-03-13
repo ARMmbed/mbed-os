@@ -20,7 +20,7 @@
 #include "drivers/Timer.h"
 #include "platform/NonCopyable.h"
 
-#if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
+#if defined (DEVICE_LPTICKER) || defined(DOXYGEN_ONLY)
 
 #include "hal/lp_ticker_api.h"
 

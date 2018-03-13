@@ -23,7 +23,7 @@
 
 #include "device.h"
 #include "clocking.h"
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 /*******************************************************************************
  * The Silicon Labs lp_ticker implementation is mapped on top of an extended RTC
