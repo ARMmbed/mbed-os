@@ -51,7 +51,7 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
     if (ticker == get_us_ticker_data()) {
         us_ticker_clear_interrupt();
     } else {
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         lp_ticker_clear_interrupt();
 #endif
     }
@@ -111,7 +111,7 @@ utest::v1::status_t hf_ticker_case_setup_handler_t(const Case * const source, co
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 utest::v1::status_t lp_ticker_case_setup_handler_t(const Case * const source, const size_t index_of_case)
 {
     intf = get_lp_ticker_data()->interface;
@@ -130,7 +130,7 @@ utest::v1::status_t ticker_case_teardown_handler_t(const Case * const source, co
 Case cases[] = {
     Case("hf ticker frequency test", hf_ticker_case_setup_handler_t, ticker_frequency_test,
         ticker_case_teardown_handler_t),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     Case("lp ticker frequency test", lp_ticker_case_setup_handler_t, ticker_frequency_test,
             ticker_case_teardown_handler_t),
 #endif

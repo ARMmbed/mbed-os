@@ -15,7 +15,7 @@
  */
 #include "lp_ticker_api.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "common_rtc.h"
 #include "mbed_critical.h"
@@ -60,4 +60,4 @@ void lp_ticker_clear_interrupt(void)
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
 }
 
-#endif // DEVICE_LOWPOWERTIMER
+#endif // DEVICE_LPTICKER

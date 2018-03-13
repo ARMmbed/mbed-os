@@ -81,7 +81,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
         us_ticker_irq_handler();
     }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     if (m_common_sw_irq_flag & LP_TICKER_SW_IRQ_MASK) {
         m_common_sw_irq_flag &= ~LP_TICKER_SW_IRQ_MASK;
         lp_ticker_irq_handler();
@@ -133,7 +133,7 @@ void common_rtc_init(void)
 #if defined(TARGET_MCU_NRF51822)
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
 #endif
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
 #endif
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
@@ -142,7 +142,7 @@ void common_rtc_init(void)
     // events will be enabled or disabled as needed (such approach is more
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         LP_TICKER_INT_MASK |
 #endif
         US_TICKER_INT_MASK |
@@ -156,7 +156,7 @@ void common_rtc_init(void)
 #if defined(TARGET_MCU_NRF51822)
         OS_TICK_INT_MASK |
 #endif
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         LP_TICKER_INT_MASK |
 #endif
         US_TICKER_INT_MASK);

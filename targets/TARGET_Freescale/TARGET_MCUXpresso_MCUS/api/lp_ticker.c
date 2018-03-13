@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "lp_ticker_api.h"
 #include "fsl_rtc.h"
@@ -241,4 +241,4 @@ void lp_ticker_clear_interrupt(void)
     lptmr_schedule = 0;
 }
 
-#endif /* DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_LPTICKER */
