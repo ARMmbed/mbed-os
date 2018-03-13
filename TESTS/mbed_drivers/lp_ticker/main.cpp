@@ -19,7 +19,7 @@
 #include "unity/unity.h"
 
 
-#if !DEVICE_LOWPOWERTIMER
+#if !DEVICE_LPTICKER
     #error [NOT_SUPPORTED] Low power ticker not supported for this target
 #endif
 

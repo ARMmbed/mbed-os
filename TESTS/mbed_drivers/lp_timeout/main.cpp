@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if !DEVICE_LOWPOWERTIMER
+#if !DEVICE_LPTICKER
     #error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
