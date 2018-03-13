@@ -15,7 +15,7 @@
  */
 #include "hal/lp_ticker_api.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 static ticker_event_queue_t events = { 0 };
 
