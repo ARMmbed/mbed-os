@@ -15,7 +15,7 @@
  */
 #include "hal/lp_ticker_api.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 void lp_ticker_set_interrupt_wrapper(timestamp_t timestamp);
 

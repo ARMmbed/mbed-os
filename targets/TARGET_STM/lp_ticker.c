@@ -28,11 +28,11 @@
  *******************************************************************************
  */
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "rtc_api_hal.h"
 
-#if MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+#if MBED_CONF_TARGET_LPTICKER_LPTIM
 
 LPTIM_HandleTypeDef LptimHandle;
 
@@ -283,7 +283,7 @@ void lp_ticker_clear_interrupt(void)
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
 }
 
-#else /* MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
+#else /* MBED_CONF_TARGET_LPTICKER_LPTIM */
 
 void lp_ticker_init(void)
 {
@@ -319,6 +319,6 @@ void lp_ticker_clear_interrupt(void)
     NVIC_ClearPendingIRQ(RTC_WKUP_IRQn);
 }
 
-#endif /* MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
+#endif /* MBED_CONF_TARGET_LPTICKER_LPTIM */
 
-#endif /* DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_LPTICKER */

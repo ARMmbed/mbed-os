@@ -22,7 +22,7 @@
 #include "rtos.h"
 #include "hal/us_ticker_api.h"
 
-#if !DEVICE_LOWPOWERTIMER
+#if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] test not supported
 #endif
 

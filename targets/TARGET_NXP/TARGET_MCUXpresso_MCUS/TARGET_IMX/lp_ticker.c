@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "lp_ticker_api.h"
 #include "fsl_snvs_hp.h"
@@ -131,4 +131,4 @@ void lp_ticker_clear_interrupt(void)
     GPT_ClearStatusFlags(GPT2, kGPT_OutputCompare1Flag);
 }
 
-#endif /* DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_LPTICKER */

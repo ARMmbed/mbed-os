@@ -614,7 +614,7 @@
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
-        "device_has": ["USTICKER", "LOWPOWERTIMER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
         "features": ["LWIP", "STORAGE"],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
@@ -1065,8 +1065,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1172,8 +1172,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1336,8 +1336,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1365,8 +1365,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1393,8 +1393,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1420,8 +1420,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1443,8 +1443,8 @@
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1465,8 +1465,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1487,8 +1487,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1525,8 +1525,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1547,8 +1547,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1589,8 +1589,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1630,8 +1630,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1798,8 +1798,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
 
             }
@@ -1821,8 +1821,8 @@
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1855,8 +1855,8 @@
                 "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
                 "value": "1"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1878,8 +1878,8 @@
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1900,8 +1900,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -1923,8 +1923,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
@@ -3913,8 +3913,8 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
