@@ -40,6 +40,24 @@ public:
 
     ~USBTester();
 
+    /*
+    *
+    * @returns descriptor string in ASCII
+    */
+    const char *get_serial_desc_string();
+    const char *get_iproduct_desc_string();
+    const char *get_iinterface_desc_string();
+    uint32_t get_reset_count() const { return reset_count; }
+    uint32_t get_suspend_count() const { return suspend_count; }
+    uint32_t get_resume_count() const { return resume_count; }
+    void clear_reset_count() { reset_count = 0; }
+    void clear_suspend_count() { suspend_count = 0; }
+    void clear_resume_count() { resume_count = 0; }
+
+private:
+    const char *get_desc_string(const uint8_t *desc);
+    virtual void suspend(bool suspended);
+
 protected:
 
     /*
@@ -78,6 +96,9 @@ protected:
     uint8_t int_out;
     uint8_t int_buf[64];
     EventQueue *queue;
+    volatile uint32_t reset_count;
+    volatile uint32_t suspend_count;
+    volatile uint32_t resume_count;
 
     virtual void callback_state_change(DeviceState new_state);
     virtual void callback_request(const setup_packet_t *setup);
@@ -86,6 +107,7 @@ protected:
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate);
     virtual void epbulk_out_callback(usb_ep_t endpoint);
     virtual void epint_out_callback(usb_ep_t endpoint);
+    virtual void callback_reset() { ++reset_count; }
     uint8_t ctrl_buf[2048];
 
 };
