@@ -247,7 +247,7 @@
         "features" : [],
         "targets" : [],
         "toolchains" : [],
-        "exporters": [],
+        "exporters": false,
         "compile" : true,
         "export": true,
         "auto-update" : true
