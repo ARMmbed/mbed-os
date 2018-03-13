@@ -108,6 +108,8 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
             _network = new AT_CellularNetwork(*atHandler);
             if (!_network) {
                 release_at_handler(atHandler);
+            } else {
+                // TODO: set urc's if sync mode
             }
         }
     }

@@ -29,10 +29,12 @@ using namespace mbed;
 struct at_reg_t {
     const CellularNetwork::RegistrationType type;
     const char *const cmd;
+    const char *const urc;
+    void (*urc_handler)();
 };
 
 static const at_reg_t at_reg[] = {
-    { CellularNetwork::C_EREG, "AT+CEREG"},
+    { CellularNetwork::C_EREG, "AT+CEREG", "+CEREG:", AT_CellularNetwork::urc_creg},
     { CellularNetwork::C_GREG, "AT+CGREG"},
     { CellularNetwork::C_REG,  "AT+CREG"}
 };
@@ -44,10 +46,6 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 {
 
     _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
-
-    _at.set_urc_handler("+CEREG:", callback(this, &AT_CellularNetwork::urc_cereg));
-    _at.set_urc_handler("+CGREG:", callback(this, &AT_CellularNetwork::urc_cgreg));
-    _at.set_urc_handler("+CREG:", callback(this, &AT_CellularNetwork::urc_creg));
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
@@ -344,6 +342,9 @@ nsapi_connection_status_t AT_CellularNetwork::get_connection_status() const
 nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
 {
     _async = !blocking;
+    if (_async) {
+
+    }
 #if NSAPI_PPP_AVAILABLE
     return nsapi_ppp_set_blocking(blocking);
 #else
@@ -568,6 +569,11 @@ nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 
 nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
 {
+
+    /*_at.set_urc_handler("+CEREG:", callback(this, &AT_CellularNetwork::urc_cereg));
+    _at.set_urc_handler("+CGREG:", callback(this, &AT_CellularNetwork::urc_cgreg));
+    _at.set_urc_handler("+CREG:", callback(this, &AT_CellularNetwork::urc_creg));
+*/
     for (unsigned int i = 0; i < sizeof(at_reg)/sizeof(at_reg[0]); i++) {
         if (has_registration(at_reg[i].type)) {
             _last_reg_type = at_reg[i].type;
@@ -1136,21 +1142,17 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
     format = _at.read_int();
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
-
         switch (format) {
             case 0:
                 _at.read_string(operator_params.op_long, sizeof(operator_params.op_long));
                 break;
-
             case 1:
                 _at.read_string(operator_params.op_short, sizeof(operator_params.op_short));
                 break;
-
             default:
                 _at.read_string(operator_params.op_num, sizeof(operator_params.op_num));
                 break;
         }
-
         operator_params.op_rat = (RadioAccessTechnology)_at.read_int();
     }
 

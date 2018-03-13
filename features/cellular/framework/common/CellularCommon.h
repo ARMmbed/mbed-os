@@ -25,14 +25,12 @@
  * Connect and disconnect are handled via NSAPI_EVENT_CONNECTION_STATUS_CHANGE
  */
 typedef enum cellular_event_status {
-    CellularDeviceReady                     = 1,    /*!< Modem is powered and ready to receive commands */
-    CellularSIMStatusChanged                = 2,    /*!< SIM state changed, call SIM state  */
-    CellularRegistrationStatusChanged       = 3,    /*!< Registering status changed, e.g. roaming, registered, smsonly...  */
-    CellularRegistrationTypeChanged         = 4,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
-    CellularCellIDChanged                   = 5,    /*!< Network Cell ID have changed  */
-    CellularRadioAccessTechnologyChanged    = 6,    /*!< Network roaming status have changed  */
-
-
-} cellular_connection_status_t;
+    CellularDeviceReady                     = 0,    /*!< Modem is powered and ready to receive commands */
+    CellularSIMStatusChanged                = 1,    /*!< SIM state changed, call SIM state  */
+    CellularRegistrationStatusChanged       = 2,    /*!< Registering status changed, e.g. roaming, registered, smsonly...  */
+    CellularRegistrationTypeChanged         = 3,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
+    CellularCellIDChanged                   = 4,    /*!< Network Cell ID have changed  */
+    CellularRadioAccessTechnologyChanged    = 5,    /*!< Network roaming status have changed  */
+} cellular_connection_status_t
 
 #endif // CELLULAR_COMMON_

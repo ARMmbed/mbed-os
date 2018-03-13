@@ -40,7 +40,7 @@ namespace mbed {
 
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _state_retry_count(0), _event_timeout(-1),
+        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
         _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
@@ -89,8 +89,6 @@ nsapi_error_t CellularConnectionFSM::init()
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
-    // use asynchronous mode
-    _network->set_blocking(false);
 
     _sim = _cellularDevice->open_sim(_serial);
     if (!_sim) {
@@ -101,7 +99,6 @@ nsapi_error_t CellularConnectionFSM::init()
     _at_queue.chain(&_queue);
 
     _retry_count = 0;
-    _state_retry_count = 0;
     _state = STATE_INIT;
     _next_state = STATE_INIT;
     tr_info("init done...");
@@ -111,12 +108,7 @@ nsapi_error_t CellularConnectionFSM::init()
 
 bool CellularConnectionFSM::power_on()
 {
-    if (!_power) {
-        _power = _cellularDevice->open_power(_serial);
-        if (!_power) {
-            return false;
-        }
-    }
+    MBED_ASSERT(1);
     nsapi_error_t err = _power->on();
     if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
         tr_warn("Cellular start failed. Power off/on.");
@@ -139,44 +131,42 @@ bool CellularConnectionFSM::open_sim()
     CellularSIM::SimState state = CellularSIM::SimStateUnknown;
     // wait until SIM is readable
     // here you could add wait(secs) if you know start delay of your SIM
-    if (_sim->get_sim_state(state) != NSAPI_ERROR_OK || state == CellularSIM::SimStateUnknown) {
-        tr_info("Waiting for SIM (state %d)...", state);
+    if (_sim->get_sim_state(state) != NSAPI_ERROR_OK) {
+        tr_info("Waiting for SIM (err while reading)...");
         return false;
     }
-    tr_info("Initial SIM state: %d", state);
 
-    if (state == CellularSIM::SimStatePinNeeded) {
-        if (strlen(_sim_pin)) {
-            tr_info("SIM pin required, entering pin: %s", _sim_pin);
-            nsapi_error_t err = _sim->set_pin(_sim_pin);
-            if (err) {
-                if (_event_status_cb) {
-                    _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularSIMStatusChanged);
+    switch (state) {
+        case CellularSIM::SimStateReady:
+            tr_info("SIM Ready");
+            break;
+        case CellularSIM::SimStatePinNeeded: {
+            if (strlen(_sim_pin)) {
+                tr_info("SIM pin required, entering pin: %s", _sim_pin);
+                nsapi_error_t err = _sim->set_pin(_sim_pin);
+                if (err) {
+                    tr_error("SIM pin set failed with: %d, bailing out...", err);
                 }
-                tr_error("SIM pin set failed with: %d, bailing out...", err);
-                return false;
+            } else {
+                tr_warn("PIN required but No SIM pin provided.");
             }
-            // here you could add wait(secs) if you know delay of changing PIN on your SIM
-            for (int i = 0; i < MAX_SIM_READY_WAITING_TIME; i++) {
-                if (_sim->get_sim_state(state) == NSAPI_ERROR_OK && state == CellularSIM::SimStateReady) {
-                    break;
-                } else {
-                    tr_info("SIM state after set pin: %d, waiting fo ready state %d/%d", state, i, MAX_SIM_READY_WAITING_TIME);
-                    wait(1);
-                }
-            }
-        } else {
-            tr_warn("PIN required but No SIM pin provided.");
         }
-    }
-
-    if (state == CellularSIM::SimStateReady) {
-        tr_info("SIM Ready");
+            break;
+        case CellularSIM::SimStatePukNeeded:
+            tr_info("SIM PUK code needed...");
+            break;
+        case CellularSIM::SimStateUnknown:
+            tr_info("SIM, unknown state...");
+            break;
+        default:
+            MBED_ASSERT(1);
+            break;
     }
 
     if (_event_status_cb) {
         _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularSIMStatusChanged);
     }
+
     return state == CellularSIM::SimStateReady;
 }
 
@@ -299,7 +289,7 @@ void CellularConnectionFSM::report_failure(const char* msg)
 
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Register network", "Registering network", "Attach network", "Attaching network", "Connect network", "Connected"};
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connect network", "Connected"};
     return strings[state];
 }
 
@@ -350,9 +340,9 @@ void CellularConnectionFSM::enter_to_state(CellularState state)
 
 void CellularConnectionFSM::retry_state_or_fail()
 {
-    if (++_retry_count <= RETRY_COUNT_DEFAULT) {
-        tr_warn("Retry State %s, retry %d/%d", get_state_string(_state), _retry_count, RETRY_COUNT_DEFAULT);
-        _event_timeout = 3 * 1000;
+    if (++_retry_count < MAX_RETRY_ARRAY_SIZE) {
+        tr_info("Retry State %s, retry %d/%d", get_state_string(_state), _retry_count, MAX_RETRY_ARRAY_SIZE);
+        _event_timeout = _retry_timeout_array[_retry_count];
     } else {
         report_failure(get_state_string(_state));
         return;
@@ -381,7 +371,8 @@ void CellularConnectionFSM::state_power_on()
 void CellularConnectionFSM::state_device_ready()
 {
     _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
-    if (_power->set_at_mode() == NSAPI_ERROR_OK) {
+    if (_power->set_at_mode() == NSAPI_ERROR_OK) { // TODO: ask once, then wait for urc is possible as 3gpp does not define any first at command or such what we could listen
+                                                   //       This could be done by adding module specific at command which to listen
         tr_info("Cellular device ready");
         if (_event_status_cb) {
             _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularDeviceReady);
@@ -399,7 +390,6 @@ void CellularConnectionFSM::state_sim_pin()
     tr_info("Sim state (timeout %d ms)", TIMEOUT_SIM_PIN);
     if (open_sim()) {
         enter_to_state(STATE_REGISTERING_NETWORK);
-        _state_retry_count = 0;
     } else {
         retry_state_or_fail();
     }
@@ -407,73 +397,17 @@ void CellularConnectionFSM::state_sim_pin()
 
 void CellularConnectionFSM::state_registering()
 {
+    _cellularDevice->set_timeout(TIMEOUT_NETWORK);
+
     if (is_registered()) {
         // we are already registered, go to attach
-        _next_state = STATE_ATTACHING_NETWORK;
-    } else {
-        // by default we and start the registering but if automatic mode is on then we start waiting for async response
-        _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-        _next_state = STATE_REGISTER_NETWORK;
-        if (is_automatic_registering()) {
-            _network->set_registration_urc(true);
-            // Automatic registering is on, we now wait for async response with max time 180s
-            _next_state = STATE_REGISTERING_NETWORK;
-            _event_timeout = 180*1000;
-            tr_info("Automatic register was already on. Start waiting urc's: event timeout %ds", _event_timeout/1000);
-        }
-
-        if (_retry_count > 3) {
-            _event_timeout = -1;
-        }
-        if (_next_state == STATE_REGISTERING_NETWORK) {
-            _retry_count++;
-        }
-    }
-}
-
-void CellularConnectionFSM::state_register()
-{
-    _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
-    tr_info("Register to cellular network (timeout %d ms)", TIMEOUT_REGISTRATION);
-    if (set_network_registration()) {
-        enter_to_state(STATE_REGISTERING_NETWORK);
-        _retry_count = 0;
-        if (_state_retry_count > RETRY_COUNT_DEFAULT) {
-            report_failure("Registration retry");
-            return;
-        }
-        _state_retry_count++;
-    } else {
-        if (_retry_count < _retry_array_length) {
-            _event_timeout = _retry_timeout_array[_retry_count] * 1000;
-            _retry_count++;
-        } else {
-            report_failure("Registration");
-            return;
-        }
-    }
-}
-
-void CellularConnectionFSM::state_attach()
-{
-    _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-    tr_info("Attach to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
-    if (set_attach_network()) {
         enter_to_state(STATE_ATTACHING_NETWORK);
-        if (_state_retry_count >= RETRY_COUNT_DEFAULT) {
-            report_failure("Attach retry");
-            return;
-        }
-        _state_retry_count++;
-        tr_info("Cellular network attaching");
     } else {
-        if (_retry_count < _retry_array_length) {
-            _event_timeout = _retry_timeout_array[_retry_count] * 1000;
-            _retry_count++;
-        } else {
-            report_failure("Attach");
-            return;
+        if (!is_automatic_registering()) { // when we support plmn add this :  || plmn
+            // automatic registering is not on, set registration and retry
+            set_network_registration();
         }
+        retry_state_or_fail();
     }
 }
 
@@ -485,7 +419,8 @@ void CellularConnectionFSM::state_attaching()
         if (attach_status == CellularNetwork::Attached) {
             enter_to_state(STATE_CONNECT_NETWORK);
         } else {
-            enter_to_state(STATE_ATTACH_NETWORK);
+            set_attach_network();
+            retry_state_or_fail();
         }
     } else {
         retry_state_or_fail();
@@ -497,23 +432,11 @@ void CellularConnectionFSM::state_connect_to_network()
     _cellularDevice->set_timeout(TIMEOUT_NETWORK);
     tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
     nsapi_error_t err = _network->connect();
-    if (!err) {
-#if NSAPI_PPP_AVAILABLE
-        // In ppp mode connect is almost synchronous
-        _event_timeout = 180*1000;//_retry_timeout_array[_retry_count] * 1000;
-        tr_info("Waiting for connect...");
-#else
+    if (err == NSAPI_ERROR_OK) {
         // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTED;
-#endif // NSAPI_PPP_AVAILABLE
     } else {
-        if (_retry_count < _retry_array_length) {
-            _event_timeout = _retry_timeout_array[_retry_count] * 1000;
-            _retry_count++;
-        } else {
-            report_failure("Network Connect");
-            return;
-        }
+        retry_state_or_fail();
     }
 }
 
@@ -545,14 +468,8 @@ void CellularConnectionFSM::event()
         case STATE_REGISTERING_NETWORK:
             state_registering();
             break;
-        case STATE_REGISTER_NETWORK:
-            state_register();
-            break;
         case STATE_ATTACHING_NETWORK:
             state_attaching();
-            break;
-        case STATE_ATTACH_NETWORK:
-            state_attach();
             break;
         case STATE_CONNECT_NETWORK:
             state_connect_to_network();
@@ -644,7 +561,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
                 continue_from_state(STATE_ATTACHING_NETWORK);
             }
         }
-    } else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
+    } /*else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         if (ptr == NSAPI_STATUS_GLOBAL_UP) {
             // we are connected
             if (_state == STATE_CONNECT_NETWORK) {
@@ -652,7 +569,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
                 continue_from_state(STATE_CONNECTED);
             }
         }
-    }
+    }*/
 
     if (_event_status_cb) {
         _event_status_cb(ev, ptr);

@@ -58,9 +58,7 @@ public:
         STATE_POWER_ON,
         STATE_DEVICE_READY,
         STATE_SIM_PIN,
-        STATE_REGISTER_NETWORK,
         STATE_REGISTERING_NETWORK,
-        STATE_ATTACH_NETWORK,
         STATE_ATTACHING_NETWORK,
         STATE_CONNECT_NETWORK,
         STATE_CONNECTED,
@@ -157,9 +155,7 @@ private:
     void state_power_on();
     void state_device_ready();
     void state_sim_pin();
-    void state_register();
     void state_registering();
-    void state_attach();
     void state_attaching();
     void state_connect_to_network();
     void state_connected();
@@ -192,7 +188,6 @@ private:
     CellularDevice *_cellularDevice;
     char _sim_pin[PIN_SIZE+1];
     int _retry_count;
-    int _state_retry_count;
     int _start_time;
     int _event_timeout;
 

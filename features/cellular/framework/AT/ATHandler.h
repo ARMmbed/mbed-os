@@ -187,7 +187,6 @@ private:
     uint8_t _output_delimiter_length;
 
     struct oob_t {
-        bool matching_to_received;
         const char *prefix;
         mbed::Callback<void()> cb;
         oob_t *next;
@@ -471,6 +470,9 @@ private:
      * @return pointer to first occurrence of src in dest
      */
     const char* mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len);
+
+    // check is urc is already added so we don't add it twice
+    bool check_urc_existance(const char *prefix, mbed::Callback<void()> callback);
 };
 
 } // namespace mbed

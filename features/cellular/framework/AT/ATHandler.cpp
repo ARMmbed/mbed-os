@@ -155,19 +155,33 @@ void ATHandler::set_file_handle(FileHandle *fh)
 
 void ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
-    struct oob_t *oob = new struct oob_t;
-    oob->matching_to_received = true;
-    size_t prefix_len = strlen(prefix);
-    if (prefix_len > _oob_string_max_length) {
-        _oob_string_max_length = prefix_len;
-        if (_oob_string_max_length > _max_resp_length) {
-            _max_resp_length = _oob_string_max_length;
-        }
+    if (check_urc_existance(prefix, callback)) {
+        tr_warn("URC already added with prefix: %s", prefix);
+        return;
     }
-    oob->prefix = prefix;
-    oob->cb = callback;
-    oob->next = _oobs;
-    _oobs = oob;
+
+    // TODO: what to do if this allocation fails? Should this return boolean false? Quite a few urc urc's are
+    // called from constructors which is another problem...
+    struct oob_t *oob = new struct oob_t;
+    if (oob) {
+        size_t prefix_len = strlen(prefix);
+        if (prefix_len > _oob_string_max_length) {
+            _oob_string_max_length = prefix_len;
+            if (_oob_string_max_length > _max_resp_length) {
+                _max_resp_length = _oob_string_max_length;
+            }
+        }
+
+        oob->prefix = prefix;
+        oob->cb = callback;
+        oob->next = _oobs;
+        _oobs = oob;
+    }
+}
+
+bool ATHandler::check_urc_existance(const char *prefix, mbed::Callback<void()> callback)
+{
+
 }
 
 void ATHandler::event()
