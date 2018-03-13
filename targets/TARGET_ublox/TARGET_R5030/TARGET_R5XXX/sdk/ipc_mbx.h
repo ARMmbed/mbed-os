@@ -88,10 +88,10 @@ struct ipc_mbx_mbx_s {
 /** IPC Mailbox
 */
 struct ipc_mbx_s {
-   /** IPC Mailbox at address offset 0x000 size: 96 */
-   struct ipc_mbx_mbx_s mbx[3];
+   /** IPC Mailbox at address offset 0x000 size: 64 */
+   struct ipc_mbx_mbx_s mbx[2];
    /** Reserved space */
-   uint8_t fill0[3952];
+   uint8_t fill0[3984];
    /** Peripheral ID4 at address offset 0xFD0, read-only constant 0x00000007 */
    uint32_t peripheralid4;
    /** Peripheral ID5 at address offset 0xFD4, read-only constant 0x00000000 */

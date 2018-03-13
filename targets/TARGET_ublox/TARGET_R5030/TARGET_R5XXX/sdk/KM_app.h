@@ -1,87 +1,73 @@
-
 /**************************************************************************//**
  * @file     KM_app.h
  * @brief    CMSIS Cortex-M7 Core Peripheral Access Layer Header File for
  *           Device KM
- * @version  V3.10
- * @date     23. November 2012
- *
- * @note
- *
+ * @version  V5.00
+ * @date     02. March 2016
  ******************************************************************************/
-/* Copyright (c) 2012 ARM LIMITED
-
-   All rights reserved.
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are met:
-   - Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-   - Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-   - Neither the name of ARM nor the names of its contributors may be used
-     to endorse or promote products derived from this software without
-     specific prior written permission.
-   *
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
-   ---------------------------------------------------------------------------*/
-
+/*
+ * Copyright (c) 2009-2016 ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef KM_APP_H
 #define KM_APP_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/** @addtogroup KM_Definitions KM Definitions
-  This file defines all structures and symbols for KM:
-    - registers and bitfields
-    - peripheral base address
-    - peripheral ID
-    - Peripheral definitions
-  @{
-*/
+/** @addtogroup u-blox
+  * @{
+  */
 
 
-/******************************************************************************/
-/*                Processor and Core Peripherals                              */
-/******************************************************************************/
-/** @addtogroup KM_CMSIS Device CMSIS Definitions
-  Configuration of the Cortex-M# Processor and Core Peripherals
-  @{
-*/
+/** @addtogroup KM_app
+  * @{
+  */
 
-/*
- * ==========================================================================
- * ---------- Interrupt Number Definition -----------------------------------
- * ==========================================================================
- */
+
+/** @addtogroup Configuration_of_CMSIS
+  * @{
+  */
+
+
+
+/* =========================================================================================================================== */
+/* ================                                Interrupt Number Definition                                ================ */
+/* =========================================================================================================================== */
 
 typedef enum IRQn
 {
-/******  Cortex-M# Processor Exceptions Numbers ***************************************************/
+/* =======================================  ARM Cortex-M7 Specific Interrupt Numbers  ======================================== */
 
-  NonMaskableInt_IRQn           = -14,      /*!<  2 Non Maskable Interrupt                        */
-  MemoryManagement_IRQn         = -12,      /*!<  4 Memory Management Interrupt                   */
-  BusFault_IRQn                 = -11,      /*!<  5 Bus Fault Interrupt                           */
-  UsageFault_IRQn               = -10,      /*!<  6 Usage Fault Interrupt                         */
-  SVCall_IRQn                   = -5,       /*!< 11 SV Call Interrupt                             */
-  DebugMonitor_IRQn             = -4,       /*!< 12 Debug Monitor Interrupt                       */
-  PendSV_IRQn                   = -2,       /*!< 14 Pend SV Interrupt                             */
-  SysTick_IRQn                  = -1,       /*!< 15 System Tick Interrupt                         */
+  Reset_IRQn                = -15,              /*!< -15  Reset Vector, invoked on Power up and warm reset                     */
+  NonMaskableInt_IRQn       = -14,              /*!< -14  Non maskable Interrupt, cannot be stopped or preempted               */
+  HardFault_IRQn            = -13,              /*!< -13  Hard Fault, all classes of Fault                                     */
+  MemoryManagement_IRQn     = -12,              /*!< -12  Memory Management, MPU mismatch, including Access Violation
+                                                          and No Match                                                         */
+  BusFault_IRQn             = -11,              /*!< -11  Bus Fault, Pre-Fetch-, Memory Access Fault, other address/memory
+                                                          related Fault                                                        */
+  UsageFault_IRQn           = -10,              /*!< -10  Usage Fault, i.e. Undef Instruction, Illegal State Transition        */
+  SVCall_IRQn               =  -5,              /*!< -5 System Service Call via SVC instruction                                */
+  DebugMonitor_IRQn         =  -4,              /*!< -4 Debug Monitor                                                          */
+  PendSV_IRQn               =  -2,              /*!< -2 Pendable request for system service                                    */
+  SysTick_IRQn              =  -1,              /*!< -1 System Tick Timer                                                      */
 
-/******  Device Specific Interrupt Numbers ********************************************************/
+/* ===========================================  KM Specific Interrupt Numbers  ========================================= */
 /* Use enum APP_CPU_IRQ_CFG from hal_device.h instead of this enum??? */
 APP_CPU_APP_IRQ_CTIIRQ0_INT_IRQn = 0,
 APP_CPU_APP_IRQ_CTIIRQ1_INT_IRQn = 1,
@@ -133,66 +119,122 @@ APP_CPU_NUM_IRQS = 46
 } IRQn_Type;
 
 
-/*
- * ==========================================================================
- * ----------- Processor and Core Peripheral Section ------------------------
- * ==========================================================================
- */
 
-/* Configuration of the Cortex-M# Processor and Core Peripherals */
-/* ToDo: set the defines according your Device                                                    */
-#define __CM7_REV                 0x0101    /*!< Core Revision r?p?                               */
-#define __NVIC_PRIO_BITS          2         /*!< Number of Bits used for Priority Levels          */
-#define __Vendor_SysTickConfig    1         /*!< Set to 1 if different SysTick Config is used     */
-#define __MPU_PRESENT             1         /*!< MPU present or not                               */
-#define __FPU_PRESENT             0        /*!< FPU present or not                                */
+/* =========================================================================================================================== */
+/* ================                           Processor and Core Peripheral Section                           ================ */
+/* =========================================================================================================================== */
 
-/*@}*/ /* end of group KM_CMSIS */
+/* ===========================  Configuration of the ARM Cortex-M4 Processor and Core Peripherals  =========================== */
+#define __CM7_REV                 0x0101    /*!< Core Revision r2p1 */
+#define __MPU_PRESENT             1         /*!< Set to 1 if MPU is present */
+#define __VTOR_PRESENT            1         /*!< Set to 1 if VTOR is present */
+#define __NVIC_PRIO_BITS          2         /*!< Number of Bits used for Priority Levels */
+#define __Vendor_SysTickConfig    1         /*!< Set to 1 if different SysTick Config is used */
+#define __FPU_PRESENT             0         /*!< Set to 1 if FPU is present */
+#define __FPU_DP                  0         /*!< Set to 1 if FPU is double precision FPU (default is single precision FPU) */
+#define __ICACHE_PRESENT          1         /*!< Set to 1 if I-Cache is present */
+#define __DCACHE_PRESENT          1         /*!< Set to 1 if D-Cache is present */
+#define __DTCM_PRESENT            1         /*!< Set to 1 if DTCM is present */
+
+/** @} */ /* End of group Configuration_of_CMSIS */
 
 
-#if !defined(WIN32)
-#include <core_cm7.h>                       /* Cortex-M# processor and core peripherals           */
+#if defined(_lint) || (!defined(WIN32) && !defined(LINUX) && !defined(__linux__))
+#include <core_cm7.h>                           /*!< ARM Cortex-M7 processor and core peripherals */
 #endif
-#include "system_KM_app.h"                /* KM System  include file                      */
+#include "system_KM_app.h"                    /*!< KM_app System */
 
 
-/******************************************************************************/
-/*                Device Specific Peripheral registers structures             */
-/******************************************************************************/
-/** @addtogroup KM_Peripherals KM Peripherals
-  KM Device Specific Peripheral registers structures
-  @{
-*/
-
-typedef struct {
-    uint32_t UARTDR;
-    uint32_t UARTRSR;
-    uint32_t res0;
-    uint32_t res1;
-    uint32_t res2;
-    uint32_t res3;
-    uint32_t UARTFR;
-    uint32_t res4;
-    uint32_t UARTILPR;
-    uint32_t UARTIBRD; // Integer baud divider
-    uint32_t UARTFBRD; // Fractional Baud divider
-    uint32_t UARTLCR_H;
-    uint32_t UARTCR;
-    uint32_t UARTIFLS;
-    uint32_t UARTIMSC;
-    uint32_t UARTRIS;
-    uint32_t UARTMIS;
-    uint32_t UARTICR;
-    uint32_t UARTDMACR;
-} uart_ctrl_t;
-
-#if defined ( __CC_ARM   )
-#pragma anon_unions
+/* ========================================  Start of section using anonymous unions  ======================================== */
+#if   defined (__CC_ARM)
+  #pragma push
+  #pragma anon_unions
+#elif defined (__ICCARM__)
+  #pragma language=extended
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc11-extensions"
+  #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#elif defined (__GNUC__)
+  /* anonymous unions are enabled by default */
+#elif defined (__TMS470__)
+  /* anonymous unions are enabled by default */
+#elif defined (__TASKING__)
+  #pragma warning 586
+#elif defined (__CSMC__)
+  /* anonymous unions are enabled by default */
+#elif defined (_MSC_VER)
+  /* anonymous unions are enabled by default */
+#elif defined (__clang__)
+  /* anonymous unions are enabled by default */
+#else
+  #warning Not supported compiler type
 #endif
 
-#if defined ( __CC_ARM   )
-#pragma no_anon_unions
+
+/* =========================================================================================================================== */
+/* ================                            Device Specific Peripheral Section                             ================ */
+/* =========================================================================================================================== */
+
+
+/** @addtogroup Device_Peripheral_peripherals
+  * @{
+  */
+
+
+/*@}*/ /* end of group Device_Peripheral_peripherals */
+
+
+/* =========================================  End of section using anonymous unions  ========================================= */
+#if   defined (__CC_ARM)
+  #pragma pop
+#elif defined (__ICCARM__)
+  /* leave anonymous unions enabled */
+#elif (__ARMCC_VERSION >= 6010050)
+  #pragma clang diagnostic pop
+#elif defined (__GNUC__)
+  /* anonymous unions are enabled by default */
+#elif defined (__TMS470__)
+  /* anonymous unions are enabled by default */
+#elif defined (__TASKING__)
+  #pragma warning restore
+#elif defined (__CSMC__)
+  /* anonymous unions are enabled by default */
+#elif defined (_MSC_VER)
+  /* anonymous unions are enabled by default */
+#elif defined (__clang__)
+  /* anonymous unions are enabled by default */
+#else
+  #warning Not supported compiler type
 #endif
+
+
+/* =========================================================================================================================== */
+/* ================                          Device Specific Peripheral Address Map                           ================ */
+/* =========================================================================================================================== */
+
+
+/* ToDo: add here your device peripherals base addresses
+         following is an example for timer */
+/** @addtogroup Device_Peripheral_peripheralAddr
+  * @{
+  */
+
+/* Peripheral and SRAM base address */
+
+/* Peripheral memory map */
+
+/** @} */ /* End of group Device_Peripheral_peripheralAddr */
+
+
+/* =========================================================================================================================== */
+/* ================                                  Peripheral declaration                                   ================ */
+/* =========================================================================================================================== */
+
+
+/** @addtogroup Device_Peripheral_declaration
+  * @{
+  */
 
 #ifndef EXCLUDE_KM_PERIPHERALS
 #include "akira_cm3_ss_device.h"
@@ -201,8 +243,8 @@ typedef struct {
 #include "ar1de_dbg.h"
 #include "ar1de_mwu.h"
 #include "arm_crypto310.h"
-#include "aux_digif_apb_mmap.h"
 #include "aux_dig_top.h"
+#include "aux_digif_apb_mmap.h"
 #include "cortex_m3_dwt.h"
 #include "cortex_m3_etm.h"
 #include "cortex_m3_itm.h"
@@ -233,8 +275,6 @@ typedef struct {
 #include "inari_cm7_ss_device.h"
 #include "inari_cm7_ss_ppb.h"
 #include "ipc_mbx.h"
-#include "kmgo_rf_dig_ccu.h"
-#include "kmgo_sysctrl.h"
 #include "km_fbuf.h"
 #include "km_gnss_apps_tim.h"
 #include "km_go_config_regs.h"
@@ -245,7 +285,10 @@ typedef struct {
 #include "km_sf.h"
 #include "km_sss.h"
 #include "km_ul_bpe.h"
+#include "kmgo_rf_dig_ccu.h"
+#include "kmgo_sysctrl.h"
 #include "nic400_app_ic.h"
+#include "nic400_modem_ic.h"
 #include "ospi.h"
 #include "otp_ctrl.h"
 #include "pio.h"
@@ -274,8 +317,8 @@ typedef struct {
 #include "timer.h"
 #include "tmc.h"
 #include "tpiu.h"
-#include "tscu.h"
 #include "ts_mgr.h"
+#include "tscu.h"
 #include "tx_apb_mmap_txbb.h"
 #include "tx_apb_mmap_txrf.h"
 #include "tx_dig_top_txdfe1.h"
