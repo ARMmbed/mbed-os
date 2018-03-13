@@ -19,9 +19,10 @@ from builtins import str
 
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, relpath
-from os import makedirs, write, curdir
+from os.path import join, dirname, splitext, basename, exists, relpath, isfile
+from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
+from shutil import rmtree
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -254,6 +255,14 @@ class ARM(mbedToolchain):
         bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
+
+        # remove target binary file/path
+        if exists(bin):
+            if isfile(bin):
+                remove(bin)
+            else:
+                rmtree(bin)
+
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
