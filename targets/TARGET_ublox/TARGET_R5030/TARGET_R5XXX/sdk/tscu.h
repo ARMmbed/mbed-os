@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-#define TSCU_TCU0_CONFIG 0x00
-#define TSCU_TCU1_CONFIG 0x00
 #define TSCU_PERIPHERALID4 0x07
 #define TSCU_PERIPHERALID5 0x00
 #define TSCU_PERIPHERALID6 0x00
@@ -89,7 +87,7 @@ struct tscu_s {
    uint32_t tcu0_eventhalt;
    /** Reserved space */
    uint8_t fill5[236];
-   /** Configured FIFO size in bytes at address offset 0x500, read-only constant 0x00000000 */
+   /** Configured FIFO size in bytes at address offset 0x500, read-only */
    uint32_t tcu0_config;
    /** Reserved space */
    uint8_t fill6[252];
@@ -137,7 +135,7 @@ struct tscu_s {
    uint32_t tcu1_eventhalt;
    /** Reserved space */
    uint8_t fill12[236];
-   /** Configured FIFO size in bytes at address offset 0xB00, read-only constant 0x00000000 */
+   /** Configured FIFO size in bytes at address offset 0xB00, read-only */
    uint32_t tcu1_config;
    /** Reserved space */
    uint8_t fill13[252];
