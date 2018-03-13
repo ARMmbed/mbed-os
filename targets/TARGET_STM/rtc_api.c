@@ -35,14 +35,14 @@
 
 static RTC_HandleTypeDef RtcHandle;
 
-#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 
 #define GET_TICK_PERIOD(VALUE) (2048 * 1000000 / VALUE) /* 1s / SynchPrediv value * 2^11 (value to get the maximum precision value with no u32 overflow) */
 
 static void (*irq_handler)(void);
 static void RTC_IRQHandler(void);
 static uint32_t lp_TickPeriod_us = GET_TICK_PERIOD(4095); /* default SynchPrediv value = 4095 */
-#endif /* DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
+#endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
 
 void rtc_init(void)
 {
@@ -111,14 +111,25 @@ void rtc_init(void)
     RtcHandle.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
 #else /* TARGET_STM32F1 */
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv   = PREDIV_A_VALUE;
-    RtcHandle.Init.SynchPrediv    = PREDIV_S_VALUE;
+
+    /* PREDIV_A : 7-bit asynchronous prescaler */
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
+    /* PREDIV_A is set to a small value to improve the SubSeconds resolution */
+    /* with a 32768Hz clock, PREDIV_A=7 gives a precision of 244us */
+    RtcHandle.Init.AsynchPrediv = 7;
+#else
+    /* PREDIV_A is set to the maximum value to improve the consumption */
+    RtcHandle.Init.AsynchPrediv   = 0x007F;
+#endif
+    /* PREDIV_S : 15-bit synchronous prescaler */
+    /* PREDIV_S is set in order to get a 1 Hz clock */
+    RtcHandle.Init.SynchPrediv    = RTC_CLOCK / (RtcHandle.Init.AsynchPrediv + 1) - 1;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
 #endif /* TARGET_STM32F1 */
 
-#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
     lp_TickPeriod_us = GET_TICK_PERIOD(RtcHandle.Init.SynchPrediv);
 #endif
 
@@ -285,7 +296,7 @@ void rtc_synchronize(void)
     }
 }
 
-#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 
 static void RTC_IRQHandler(void)
 {
@@ -369,6 +380,6 @@ void rtc_deactivate_wake_up_timer(void)
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
 }
 
-#endif /* DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
+#endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
 
 #endif /* DEVICE_RTC */
