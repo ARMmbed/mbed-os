@@ -83,7 +83,8 @@ public: // CellularNetwork
 
     virtual const char *get_ip_address();
 
-    virtual nsapi_error_t set_access_technology(RadioAccessTechnology op_rat);
+    virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat);
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
@@ -109,7 +110,7 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params);
 
-    virtual nsapi_error_t set_registration_urc(bool on);
+    virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on);
 
 protected:
 

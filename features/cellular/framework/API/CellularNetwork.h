@@ -208,7 +208,6 @@ public:
         NWModeManualAutomatic   // if manual fails, fallback to automatic
     };
 
-    lisää gettter rat
 
     /** Request registering to network.
      *
@@ -224,7 +223,7 @@ public:
      */
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
 
-    virtual nsapi_error_t set_registration_urc(bool on) = 0;
+    virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
     /** Gets the network registration status.
      *
@@ -289,10 +288,12 @@ public:
 
     /** Sets radio access technology.
      *
-     *  @param op_rat Radio access technology
-     *  @return       zero on success
+     *  @param rat  Radio access technology
+     *  @return     zero on success
      */
-    virtual nsapi_error_t set_access_technology(RadioAccessTechnology op_rat) = 0;
+    virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
+
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat) = 0;
 
     /** Scans for operators module can reach.
      *

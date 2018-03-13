@@ -68,6 +68,18 @@ CellularConnectionFSM::CellularConnectionFSM() :
 CellularConnectionFSM::~CellularConnectionFSM()
 {
     stop();
+    delete _cellularDevice;
+}
+
+void CellularConnectionFSM::stop()
+{
+    tr_info("CellularConnectionUtil::stop");
+    _cellularDevice->close_power();
+    _cellularDevice->close_network();
+    if (_queue_thread) {
+        _queue_thread->terminate();
+        _queue_thread = NULL;
+    }
 }
 
 nsapi_error_t CellularConnectionFSM::init()
@@ -97,6 +109,10 @@ nsapi_error_t CellularConnectionFSM::init()
     }
 
     _at_queue.chain(&_queue);
+
+    _network->set_registration_urc(CellularNetwork::C_EREG, true);
+    _network->set_registration_urc(CellularNetwork::C_GREG, true);
+    _network->set_registration_urc(CellularNetwork::C_REG, true);
 
     _retry_count = 0;
     _state = STATE_INIT;
@@ -520,17 +536,6 @@ nsapi_error_t CellularConnectionFSM::start_dispatch()
     }
 
     return NSAPI_ERROR_OK;
-}
-
-void CellularConnectionFSM::stop()
-{
-    tr_info("CellularConnectionUtil::stop");
-    _cellularDevice->close_power();
-    _cellularDevice->close_network();
-    if (_queue_thread) {
-        _queue_thread->terminate();
-        _queue_thread = NULL;
-    }
 }
 
 void CellularConnectionFSM::set_serial(UARTSerial *serial)

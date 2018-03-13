@@ -181,7 +181,15 @@ void ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callb
 
 bool ATHandler::check_urc_existance(const char *prefix, mbed::Callback<void()> callback)
 {
+    struct oob_t *oob = _oobs;
+    while (oob) {
+        if (strcmp(prefix, oob->prefix) == 0 && oob->cb == callback) {
+            return true;
+        }
+        oob = oob->next;
+    }
 
+    return false;
 }
 
 void ATHandler::event()
