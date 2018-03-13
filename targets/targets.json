@@ -1609,7 +1609,7 @@
             }
         },
         "detect_code": ["0827"],
-        "macros_add": ["USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_add": ["USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L486RG"
@@ -1626,7 +1626,7 @@
             }
         },
         "detect_code": ["0460"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "WISE_1570"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "WISE_1570", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L486RG"
