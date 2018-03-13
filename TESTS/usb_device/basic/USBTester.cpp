@@ -30,12 +30,15 @@
 #define VENDOR_TEST_CTRL_NONE_DELAY         6
 #define VENDOR_TEST_CTRL_IN_STATUS_DELAY    7
 #define VENDOR_TEST_CTRL_OUT_STATUS_DELAY   8
+#define VENDOR_TEST_CTRL_IN_SIZES           9
+#define VENDOR_TEST_CTRL_OUT_SIZES          10
 
 #define MAX_EP_SIZE 64
 #define MIN_EP_SIZE 8
 
 
-USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking): USBDevice(vendor_id, product_id, product_release)
+USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking): USBDevice(vendor_id, product_id, product_release),
+                        reset_count(0), suspend_count(0), resume_count(0)
 {
 
     EndpointResolver resolver(endpoint_table());
@@ -59,6 +62,46 @@ USBTester::~USBTester()
 {
     deinit();
 }
+
+
+const char *USBTester::get_desc_string(const uint8_t *desc)
+{
+    static char ret_string[128] = {};
+    const uint8_t desc_size = desc[0] - 2;
+    const uint8_t *desc_str = &desc[2];
+    uint32_t j = 0;
+    for(uint32_t i = 0; i < desc_size; i+=2, j++) {
+        ret_string[j] = desc_str[i];
+    }
+    ret_string[j] = '\0';
+    return ret_string;
+}
+
+void USBTester::suspend(bool suspended)
+{
+    if(suspended) {
+        ++suspend_count;
+    } else {
+        ++resume_count;
+    }
+}
+
+const char *USBTester::get_serial_desc_string()
+{
+    return get_desc_string(string_iserial_desc());
+}
+
+const char *USBTester::get_iinterface_desc_string()
+{
+    return get_desc_string(string_iserial_desc());
+}
+
+const char *USBTester::get_iproduct_desc_string()
+{
+    return get_desc_string(string_iserial_desc());
+}
+
+
 
 void USBTester::callback_state_change(DeviceState new_state)
 {
@@ -93,6 +136,16 @@ void USBTester::callback_request(const setup_packet_t *setup)
                 result = Success;
                 delay = 2000;
                 break;
+            case VENDOR_TEST_CTRL_IN_SIZES:
+                result = Send;
+                data = ctrl_buf;
+                size = setup->wLength;
+                break;
+            case VENDOR_TEST_CTRL_OUT_SIZES:
+                result = Receive;
+                data = ctrl_buf;
+                size = setup->wValue;
+                break;
             default:
                 result = PassThrough;
                 break;
@@ -122,6 +175,12 @@ void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool abo
                 result = true;
                 break;
             case VENDOR_TEST_CTRL_OUT:
+                result = true;
+                break;
+            case VENDOR_TEST_CTRL_OUT_SIZES:
+                result = true;
+                break;
+            case VENDOR_TEST_CTRL_IN_SIZES:
                 result = true;
                 break;
             default:
