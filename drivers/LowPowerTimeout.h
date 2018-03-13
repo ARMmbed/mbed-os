@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
+#if defined (DEVICE_LPTICKER) || defined(DOXYGEN_ONLY)
 
 #include "hal/lp_ticker_api.h"
 #include "drivers/LowPowerTicker.h"
