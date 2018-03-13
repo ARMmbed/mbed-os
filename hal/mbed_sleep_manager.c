@@ -61,14 +61,18 @@ static sleep_statistic_t* sleep_tracker_add(const char* const filename)
         }
     }
 
-    debug("No free indexes left to use in mbed sleep tracker.\r\n");
+    MBED_ASSERT(false && "No free indexes left to use in mbed sleep tracker");
 
     return NULL;
 }
 
 static void sleep_tracker_print_stats(void)
 {
-    debug("Sleep locks held:\r\n");
+    if (core_util_in_critical_section()) {
+        return;
+    }
+
+    debug("Deep sleep locks held:\r\n");
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].count == 0) {
             continue;
@@ -93,8 +97,6 @@ void sleep_tracker_lock(const char* const filename, int line)
     }
 
     core_util_atomic_incr_u8(&stat->count, 1);
-
-    debug("LOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
 }
 
 void sleep_tracker_unlock(const char* const filename, int line)
@@ -103,13 +105,11 @@ void sleep_tracker_unlock(const char* const filename, int line)
 
     // Entry for this driver does not exist, something went wrong.
     if (stat == NULL) {
-        debug("Unlocking sleep for driver that was not previously locked: %s, ln: %i\r\n", filename, line);
+        MBED_ASSERT(stat != NULL && "Driver entry does not exist in sleep tracker");
         return;
     }
 
     core_util_atomic_decr_u8(&stat->count, 1);
-
-    debug("UNLOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
 }
 
 #endif // MBED_SLEEP_TRACING_ENABLED
