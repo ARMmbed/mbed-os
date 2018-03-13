@@ -18,7 +18,6 @@
 #ifndef CELLULAR_NETWORK_H_
 #define CELLULAR_NETWORK_H_
 
-#include "CellularInterface.h"
 #include "NetworkInterface.h"
 #include "CellularList.h"
 
