@@ -14,8 +14,8 @@
     Please tick one of the following types 
 -->
 
-- [ ] Fix
-- [ ] Refactor
-- [ ] New target
-- [ ] Feature
-- [ ] Breaking change
+* [ ] Fix
+* [ ] Refactor
+* [ ] New target
+* [ ] Feature
+* [ ] Breaking change
