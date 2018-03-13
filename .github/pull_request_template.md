@@ -11,7 +11,7 @@
 
 <!-- 
     Required
-    Please tick one of the following types 
+    Please tick only one of the following types 
 -->
 
 * [ ] Fix
