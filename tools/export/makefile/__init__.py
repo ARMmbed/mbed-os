@@ -124,6 +124,10 @@ class Makefile(Exporter):
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.format_flags())
+        # Add the virtual path the the include option in the ASM flags
+        for index, flag in enumerate(ctx['asm_flags']):
+            if flag.startswith('-I'):
+                ctx['asm_flags'][index] = "-I" + ctx['vpath'][0] + "/" + ctx['asm_flags'][index][2:]
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
