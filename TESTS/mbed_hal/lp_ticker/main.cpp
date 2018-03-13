@@ -21,8 +21,8 @@
 #include "lp_ticker_api_tests.h"
 #include "hal/lp_ticker_api.h"
 
-#if !DEVICE_LOWPOWERTIMER
-#error [NOT_SUPPORTED] test not supported
+#if !DEVICE_LPTICKER
+    #error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
 using namespace utest::v1;

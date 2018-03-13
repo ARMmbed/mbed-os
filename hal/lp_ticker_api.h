@@ -21,7 +21,7 @@
 
 #include "device.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "hal/ticker_api.h"
 

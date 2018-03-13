@@ -16,7 +16,7 @@
 
 #include "lp_ticker_api.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "sleep_api.h"
 #include "mbed_wait_api.h"
