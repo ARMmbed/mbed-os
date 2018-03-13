@@ -16,86 +16,97 @@
 
 #if defined(MBED_CONF_RTOS_PRESENT) && !defined(MBED_CONF_ZERO_BUFFER_LOGGING) && !defined(NDEBUG)
 #include <string.h>
-#include "platform/mbed_logger.h"
+#include "platform/logger.h"
 #include "platform/CircularBuffer.h"
 #include "platform/mbed_wait_api.h"
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_interface.h"
+#include "rtos/EventFlags.h"
+#include "mbed_events.h"
 
+#define LOG_MAX_BUFFER_SIZE_            (MBED_CONF_LOG_MAX_BUFFER_SIZE/sizeof(LOG_DATA_TYPE_))
+// Circular buffer should always have space for helper functions
+// in same line
+#define LOG_FREE_BUF_FLAG_              0x1u
+
+using namespace rtos;
 using namespace mbed;
 
-#if defined (MBED_ID_BASED_TRACING)
-#define LOG_DATA_TYPE   uint32_t
-CircularBuffer <LOG_DATA_TYPE, (MBED_CONF_LOG_MAX_BUFFER_SIZE/4)> log_buffer;
-#else
-#define LOG_DATA_TYPE   char
-CircularBuffer <LOG_DATA_TYPE, MBED_CONF_LOG_MAX_BUFFER_SIZE> log_buffer;
-#endif
+static EventQueue *log_equeue;
+static CircularBuffer <LOG_DATA_TYPE_, LOG_MAX_BUFFER_SIZE_> log_buffer;
 static const ticker_data_t *const log_ticker = get_us_ticker_data();
-static uint32_t logger_bytes_lost = 0;
+static uint32_t log_bytes_lost = 0;
+static EventFlags log_event_flag("logging");
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+static void log_print_data(void)
+{
+    LOG_DATA_TYPE_ data = 0;
+    uint32_t count = 0;
+    while (!log_buffer.empty()) {
+        log_buffer.pop(data);
+#if DEVICE_STDIO_MESSAGES
+#if defined (MBED_ID_BASED_TRACING)
+        fprintf(stderr, "0x%x ", data);
+#else
+        fputc(data, stderr);
+#endif
+#endif
+        if(++count > (LOG_SINGLE_STR_SIZE_ << 1)) {
+            break;
+        }
+    }
+    log_event_flag.set(LOG_FREE_BUF_FLAG_);
+}
+
+void mbed_logging_start(void)
+{
+    log_equeue = mbed_event_queue();
+    MBED_ASSERT(log_equeue != NULL);
+}
+
 void log_reset(void)
 {
     core_util_critical_section_enter();
     log_buffer.reset();
-    logger_bytes_lost = 0;
+    log_bytes_lost = 0;
     core_util_critical_section_exit();
 }
 
-uint32_t log_bytes_lost(void)
+uint32_t log_get_bytes_lost(void)
 {
-    return logger_bytes_lost;
+    return log_bytes_lost;
 }
 
-// Note: this call should be inside the critical section
-static inline void log_push_data(LOG_DATA_TYPE data)
+#if defined (MBED_ID_BASED_TRACING)
+static inline void log_push_data(const LOG_DATA_TYPE_ data)
 {
     if (log_buffer.full()) {
-        logger_bytes_lost++;
+        log_bytes_lost++;
     }
     log_buffer.push(data);
 }
 
-void log_thread(void)
-{
-    LOG_DATA_TYPE data = 0;
-    while (1) {
-        while (!log_buffer.empty()) {
-            log_buffer.pop(data);
-#if DEVICE_STDIO_MESSAGES
-#if defined (MBED_ID_BASED_TRACING)
-            fprintf(stderr, "0x%x ", data);
-#else
-            fputc(data, stderr);
-#endif
-#endif
-        }
-        wait_ms(1);
-    }
-}
-
-#if defined (MBED_ID_BASED_TRACING)
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
-void log_buffer_id_data(uint8_t argCount, ...)
+void log_buffer_id_data(uint32_t argCount, ...)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
-    LOG_DATA_TYPE data = 0;
-    LOG_DATA_TYPE checksum = 0;
+    LOG_DATA_TYPE_ data = 0;
+    LOG_DATA_TYPE_ checksum = 0;
 
-    data = (LOG_DATA_TYPE)(time/1000);
+    data = (LOG_DATA_TYPE_)(time/1000);
 
     va_list args;
     va_start(args, argCount);
     core_util_critical_section_enter();
     log_push_data(data);
     checksum ^= data;
-    for (uint8_t i = 0; i < argCount; i++) {
+    for (uint32_t i = 0; i < argCount; i++) {
         data = va_arg(args, uint32_t);
         log_push_data(data);
         checksum ^= data;
@@ -104,6 +115,7 @@ void log_buffer_id_data(uint8_t argCount, ...)
     log_push_data(0x0);
     core_util_critical_section_exit();
     va_end(args);
+    log_equeue->call(log_print_data);
 }
 
 void log_assert(const char *format, ...)
@@ -128,6 +140,58 @@ void log_assert(const char *format, ...)
 }
 
 #else // String based implementation
+// Push data in critical section, this is for ISR mode and could be lossy
+static void log_push_data_lossy(const LOG_DATA_TYPE_ *data, uint32_t count)
+{
+    MBED_ASSERT(true == core_util_in_critical_section());
+    uint32_t bytes_written = 0;
+    while (count--) {
+        if (log_buffer.full()) {
+            log_buffer.push('*');
+            log_buffer.push('\n');
+            log_bytes_lost += count;
+            break;
+        } else {
+            log_buffer.push(data[bytes_written++]);
+        }
+    }
+}
+
+// Push data in thread mode
+#define LOG_RETRY_COUNT     3
+static void log_push_data_blocking(const LOG_DATA_TYPE_ *data, uint32_t count, uint32_t buf_limit)
+{
+    MBED_ASSERT(true == core_util_in_critical_section());
+    uint32_t bytes_written = 0;
+    uint32_t retry = LOG_RETRY_COUNT;
+
+    // Get the buffer length and when size more then that is available push all
+    // data in one go
+    while (retry--) {
+        if (buf_limit > (LOG_MAX_BUFFER_SIZE_ - log_buffer.size())) {
+            core_util_critical_section_exit();
+            log_event_flag.clear(LOG_FREE_BUF_FLAG_);
+            log_equeue->call(log_print_data);
+            uint32_t flag = log_event_flag.wait_any(LOG_FREE_BUF_FLAG_);
+            MBED_ASSERT(true != (flag & osFlagsError));
+            core_util_critical_section_enter();
+        }
+        else {
+            break;
+        }
+    }
+    while (count--) {
+        if (log_buffer.full()) {
+            log_buffer.push('*');
+            log_buffer.push('\n');
+            log_bytes_lost += count;
+            break;
+        } else {
+            log_buffer.push(data[bytes_written++]);
+        }
+    }
+}
+
 void log_buffer_string_data(const char *format, ...)
 {
     va_list args;
@@ -138,28 +202,44 @@ void log_buffer_string_data(const char *format, ...)
 
 void log_buffer_string_vdata(const char *format, va_list args)
 {
-    volatile uint64_t time = ticker_read_us(log_ticker);
-    char one_line[MBED_CONF_MAX_LOG_STR_SIZE];
-    uint8_t count = snprintf(one_line, MBED_CONF_MAX_LOG_STR_SIZE, "[%-8lld]", time);
-    uint8_t bytes_written = 0;
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        log_buffer_string_vdata_critical(format, args, true);
+    } else {
+        mbed_log_helper_lock();
+        log_buffer_string_vdata_critical(format, args, false);
+        mbed_log_helper_unlock_all();
+    }
+    log_equeue->call(log_print_data);
+}
 
-    vsnprintf(one_line+count, (MBED_CONF_MAX_LOG_STR_SIZE-count), format, args);
+void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t lossy)
+{
+    volatile uint64_t time = ticker_read_us(log_ticker);
+    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_+1];
+    uint32_t count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+
+    vsnprintf(one_line+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
     count = strlen(one_line);
 
     core_util_critical_section_enter();
-    while (count--) {
-        log_push_data(one_line[bytes_written++]);
-    }
-    if (mbed_log_valid_helper_data()) {
-        char *str = mbed_log_get_helper_data();
-        bytes_written = 0;
-        count = strlen(str);
-        while (count--) {
-            log_push_data(str[bytes_written++]);
+    if (true == lossy) {
+        one_line[count++] = '\n';
+        one_line[count] = '\0';
+        log_push_data_lossy(one_line, count);
+    } else {
+        if (mbed_log_valid_helper_data()) {
+            log_push_data_blocking(one_line, count, (LOG_SINGLE_STR_SIZE_ << 1));
+            char *str = mbed_log_get_helper_data();
+            count = strlen(str);
+            str[count++] = '\n';
+            str[count] = '\0';
+            log_push_data_blocking(str, count, 0);
+        } else {
+            one_line[count++] = '\n';
+            one_line[count] = '\0';
+            log_push_data_blocking(one_line, count, count);
         }
-        mbed_log_helper_unlock();
     }
-    log_push_data('\n');
     core_util_critical_section_exit();
 }
 

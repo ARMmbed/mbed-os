@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// In case of no rtos or zero buffer logging flag enabled, prints from ISR mode will be discarded
 #if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT) || defined(NDEBUG)
 
 #include "platform/mbed_logger.h"
@@ -24,9 +25,44 @@
 extern "C" {
 #endif
 
+void mbed_logging_start(void)
+{
+}
+
+void log_reset(void)
+{
+}
+
+uint32_t log_get_bytes_lost(void)
+{
+    return 0;
+}
+
+#if defined (MBED_ID_BASED_TRACING)
+void log_buffer_id_data(uint32_t argCount, ...)
+{
+#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        return;
+    }
+    fprintf(stderr, "%d ", argCount);
+    va_list args;
+    va_start(args, argCount);
+    for (uint32_t i = 0; i < argCount; i++) {
+        fprintf(stderr, "%d ", va_arg(args, int));
+    }
+    fputc('\n', stderr);
+    va_end(args);
+#endif
+}
+
+#else
 void log_buffer_string_data(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        return;
+    }
     va_list args;
     va_start(args, format);
     log_buffer_string_vdata(format, args);
@@ -37,6 +73,9 @@ void log_buffer_string_data(const char *format, ...)
 void log_buffer_string_vdata(const char *format, va_list args)
 {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        return;
+    }
     vfprintf(stderr, format, args);
     fputc('\n', stderr);
     if (mbed_log_valid_helper_data()) {
@@ -44,20 +83,7 @@ void log_buffer_string_vdata(const char *format, va_list args)
     }
 #endif
 }
-
-void log_buffer_id_data(uint8_t argCount, ...)
-{
-#if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
-    fprintf(stderr, "%d ", argCount);
-    va_list args;
-    va_start(args, argCount);
-    for (uint8_t i = 0; i < argCount; i++) {
-        fprintf(stderr, "%d ", va_arg(args, int));
-    }
-    fputc('\n', stderr);
-    va_end(args);
 #endif
-}
 
 void log_assert(const char *format, ...)
 {

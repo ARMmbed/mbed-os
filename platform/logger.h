@@ -34,20 +34,25 @@ extern "C" {
 #include "platform/mbed_preprocessor.h"
 
 #ifndef MBED_CONF_MAX_LOG_STR_SIZE
-#define MBED_CONF_MAX_LOG_STR_SIZE          128
+#define MBED_CONF_MAX_LOG_STR_SIZE     128
 #endif
 
 #ifndef MBED_CONF_LOG_MAX_BUFFER_SIZE
-#define MBED_CONF_LOG_MAX_BUFFER_SIZE       1024
+#define MBED_CONF_LOG_MAX_BUFFER_SIZE  1024
 #endif
 
-#define LOG_TOTAL_BUFFER_SIZE    MBED_CONF_LOG_MAX_BUFFER_SIZE
-#define LOG_SINGLE_STR_SIZE      MBED_CONF_MAX_LOG_STR_SIZE
+#if defined (MBED_ID_BASED_TRACING)
+#define LOG_DATA_TYPE_                 uint32_t
+#define LOG_SINGLE_STR_SIZE_           4
+#else
+#define LOG_DATA_TYPE_                 char
+#define LOG_SINGLE_STR_SIZE_           MBED_CONF_MAX_LOG_STR_SIZE
+#endif
 
 #if defined(__ARMCC_VERSION)
-#define FILE_NAME_               __MODULE__
+#define LOG_FILE_NAME_           __MODULE__
 #else
-#define FILE_NAME_               __BASE_FILE__
+#define LOG_FILE_NAME_           __BASE_FILE__
 #endif
 
 #define LOG_LEVEL_ERR_CRITICAL   0x0
@@ -84,11 +89,16 @@ extern "C" {
 // Macros to log ID based data
 #define MBED_LOG_ID_4(...)                            log_buffer_id_data(__VA_ARGS__)
 // Data dumped in special section is : Unique ID, format string length and format string
+#if 0
 #define MBED_LOG_ID_3(counter, id, args, fmt, ...)    ({volatile static const __attribute__((section(".keep.log_data"))) char str##counter[] = fmt; \
                                                        volatile static const __attribute__((section(".keep.log_data"))) uint32_t len##counter = MBED_STRLEN(fmt); \
                                                        volatile static const __attribute__((section(".keep.log_data"))) uint32_t c##counter = id; \
                                                        MBED_LOG_ID_4(args, id, ##__VA_ARGS__); \
                                                       })
+#else
+#define MBED_LOG_ID_3(counter, id, args, fmt, ...)    MBED_LOG_ID_4(args, id, ##__VA_ARGS__);
+#endif
+
 #define MBED_LOG_ID_2(counter, id, ...)               MBED_LOG_ID_3(counter, id, MBED_COUNT_VA_ARGS(__VA_ARGS__), ##__VA_ARGS__)
 #define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), "[" mod "][" f "][" MBED_STRINGIFY(l) "]: " fmt, ##__VA_ARGS__)
 
@@ -103,13 +113,24 @@ extern "C" {
 #define MBED_LOG_VSTR_2(fmt1, ap)                     log_buffer_string_vdata(fmt1, ap)
 #define MBED_LOG_VSTR_1(ll, mod, fmt, ap)             MBED_LOG_VSTR_2("[" ll "][" mod "]: " fmt, ap)
 
-void log_buffer_id_data(uint8_t argCount, ...);
+void log_buffer_id_data(uint32_t argCount, ...);
 void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 void log_buffer_string_vdata(const char *format, va_list args);
+void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t lossy);
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 void log_reset(void);
-uint32_t log_bytes_lost(void);
+uint32_t log_get_bytes_lost(void);
 
+#if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
+#define mbed_log_array
+#define mbed_log_ipv6
+#define mbed_log_ipv6_prefix
+#define mbed_log_helper_lock
+#define mbed_log_helper_unlock
+#define mbed_log_helper_unlock_all
+#define mbed_log_valid_helper_data
+#define mbed_log_get_helper_data
+#else
 // Helper functions : Note helper functions are not ISR safe.
 char* mbed_log_array(const uint8_t* buf, uint32_t len);
 char* mbed_log_ipv6(const uint8_t* addr_ptr);
@@ -117,8 +138,10 @@ char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
 
 void mbed_log_helper_lock(void);
 void mbed_log_helper_unlock(void);
+void mbed_log_helper_unlock_all(void);
 int mbed_log_valid_helper_data(void);
 char* mbed_log_get_helper_data(void);
+#endif
 
 #ifdef __cplusplus
 }

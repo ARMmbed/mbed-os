@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
-#include "platform/mbed_trace_internal.h"
-#else
 /**
  * \file mbed_trace.h
  * Trace interface for MbedOS applications.
@@ -120,6 +117,10 @@ extern "C" {
 #define TRACE_LEVEL_ERROR         0x02
 /** special level for cmdline. Behaviours like "plain mode" */
 #define TRACE_LEVEL_CMD           0x01
+
+#ifndef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+#include "platform/mbed_trace_internal.h"
+#else
 
 #ifndef MBED_TRACE_MAX_LEVEL
 #define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
@@ -369,12 +370,15 @@ char* mbed_trace_ipv6_prefix(const uint8_t *prefix, uint8_t prefix_len);
  */
 char* mbed_trace_array(const uint8_t* buf, uint16_t len);
 
+#endif /* MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED */
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MBED_TRACE_H_ */
 
+#ifdef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
 /* These macros are outside the inclusion guard so they will be re-evaluated for every inclusion of the header.
  * If tracing is disabled, the dummies will hide the real functions. The real functions can still be reached by
  * surrounding the name of the function with brackets, e.g. "(mbed_tracef)(dlevel, grp, "like so");"
