@@ -50,6 +50,11 @@ typedef enum {
 // defines 2 areas - active and nonactive, not configurable
 #define NVSTORE_NUM_AREAS        2
 
+/** NVStore class
+ *
+ *  Class for storing data by keys in the internal flash
+ */
+
 class NVStore : private mbed::NonCopyable<NVStore> {
 public:
 
@@ -399,6 +404,7 @@ private:
     int do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags);
 
 };
+/** @}*/
 
 #endif // NVSTORE_ENABLED
 
