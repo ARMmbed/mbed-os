@@ -150,15 +150,6 @@ build_list = [
     },
 
     {
-        "MAXIM":
-        (
-            { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32620HSP",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
-        )
-    },
-
-    {
         "ATMEL":
         (
             { "target": "SAMR21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
