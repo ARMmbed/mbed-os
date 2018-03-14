@@ -26,11 +26,11 @@ SensorDigitalIn::SensorDigitalIn(PinName pin, EdgeSelection edgeSelection, uint1
 	_pulseDurationFilterSize(DEFAULT_PULSE_DURATION_FILTER_SIZE),
 	_edgeCounter(0) {
 	
+	_irq = donothing;
+
 	// set initial value
 	_din = new DigitalIn(pin);
 	this->setValue(_din->read());
-
-	_irq = donothing;
 
 	// prepare buffers
 	this->_pulseDurationBuffer = new MeasurementBuffer<int>(_pulseDurationFilterSize);
