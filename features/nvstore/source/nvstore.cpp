@@ -134,6 +134,7 @@ NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_key
       _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
       _min_prog_size(0), _page_buf(0)
 {
+    memcpy(_flash_area_params, 0, sizeof(_flash_area_params));
 }
 
 NVStore::~NVStore()
@@ -589,6 +590,10 @@ int NVStore::do_get(uint16_t key, uint16_t buf_size, void *buf, uint16_t &actual
 
     if (!buf) {
         buf_size = 0;
+        // This is only required in order to satisfy static code analysis tools, fearing
+        // that a null buff is dereferenced inside read_record function. However, this won't happen
+        // when buf_size is 0, so just have buf point to a dummy location.
+        buf = &flags;
     }
 
     _mutex->lock();
@@ -623,7 +628,7 @@ int NVStore::get_item_size(uint16_t key, uint16_t &actual_size)
     return do_get(key, 0, NULL, actual_size, 1);
 }
 
-int NVStore::do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags)
+int NVStore::do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t flags)
 {
     int ret = NVSTORE_SUCCESS;
     uint32_t record_offset, record_size, new_free_space;
@@ -636,7 +641,11 @@ int NVStore::do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t f
         }
     }
 
-    if (key >= _max_keys) {
+    if ((key != no_key) && (key >= _max_keys)) {
+        return NVSTORE_BAD_VALUE;
+    }
+
+    if ((key == no_key) && (flags & delete_item_flag)) {
         return NVSTORE_BAD_VALUE;
     }
 
@@ -648,13 +657,24 @@ int NVStore::do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t f
         return NVSTORE_NOT_FOUND;
     }
 
-    if (_offset_by_key[key] & offs_by_key_set_once_mask) {
+    if ((key != no_key) && (_offset_by_key[key] & offs_by_key_set_once_mask)) {
         return NVSTORE_ALREADY_EXISTS;
     }
 
     record_size = align_up(sizeof(nvstore_record_header_t) + buf_size, _min_prog_size);
 
     _mutex->lock();
+
+    if (key == no_key) {
+        for (key = NVSTORE_NUM_PREDEFINED_KEYS; key < _max_keys; key++) {
+            if (!_offset_by_key[key]) {
+                break;
+            }
+        }
+        if (key == _max_keys) {
+            return NVSTORE_NO_FREE_KEY;
+        }
+    }
 
     new_free_space = core_util_atomic_incr_u32(&_free_space_offset, record_size);
     record_offset = new_free_space - record_size;
@@ -694,6 +714,12 @@ int NVStore::set(uint16_t key, uint16_t buf_size, const void *buf)
 int NVStore::set_once(uint16_t key, uint16_t buf_size, const void *buf)
 {
     return do_set(key, buf_size, buf, set_once_flag);
+}
+
+int NVStore::set_alloc_key(uint16_t &key, uint16_t buf_size, const void *buf)
+{
+    key = no_key;
+    return do_set(key, buf_size, buf, 0);
 }
 
 int NVStore::remove(uint16_t key)

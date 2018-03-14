@@ -22,6 +22,7 @@ Each item is kept in an entry containing a header and data, where the header hol
 - get: Get the value of an item, given key.
 - set: Set the value of an item, given key and value.
 - set_once: Like set, but allows only a one time setting of this item (and disables deleting of this item).
+- set_alloc_key: Like set, but allocates a free key (from the non predefined keys).
 - remove: Remove an item, given key.
 - get_item_size: Get the item value size (in bytes).
 - set_max_keys: Set maximal value of unique keys. Overriding the default of NVSTORE_MAX_KEYS. This affects RAM consumption,
