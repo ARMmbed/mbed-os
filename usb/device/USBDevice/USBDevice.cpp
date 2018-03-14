@@ -866,8 +866,6 @@ void USBDevice::out(usb_ep_t endpoint)
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
 
     info->pending += 1;
-    _phy->endpoint_read(endpoint, info->max_packet_size);
-
     if (info->callback) {
         (this->*(info->callback))(endpoint);
     }
@@ -1229,6 +1227,7 @@ bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint
     bool ret = _phy->endpoint_read_result(endpoint, buffer, max_size, size);
     if (ret) {
         info->pending -= 1;
+        _phy->endpoint_read(endpoint, info->max_packet_size);
     }
 
     unlock();
