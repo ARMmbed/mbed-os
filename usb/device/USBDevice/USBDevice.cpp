@@ -866,6 +866,8 @@ void USBDevice::out(usb_ep_t endpoint)
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
 
     info->pending += 1;
+    _phy->endpoint_read(endpoint, info->max_packet_size);
+
     if (info->callback) {
         (this->*(info->callback))(endpoint);
     }
@@ -994,7 +996,11 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
         info->flags |= ENDPOINT_ENABLED;
         info->pending = 0;
         info->max_packet_size = max_packet_size;
-        ret = true;
+        ret = _phy->endpoint_read(endpoint, max_packet_size);
+        if (!ret) {
+            MBED_ASSERT(0);
+            endpoint_remove(endpoint);
+        }
     }
 
     unlock();
@@ -1191,36 +1197,7 @@ uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)
     return size;
 }
 
-bool USBDevice::read_start(usb_ep_t endpoint)
-{
-    lock();
-
-    if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
-        unlock();
-        return false;
-    }
-
-    if(!configured()) {
-        unlock();
-        return false;
-    }
-
-    endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
-    if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
-        unlock();
-        return false;
-    }
-
-    bool ret = _phy->endpoint_read(endpoint, info->max_packet_size);
-
-    unlock();
-    return ret;
-}
-
-bool USBDevice::read_finish(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size)
+bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size)
 {
     lock();
 
