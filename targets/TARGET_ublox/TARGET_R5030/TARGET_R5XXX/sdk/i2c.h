@@ -14,7 +14,7 @@
 
 /** Here comes the decription of this IP component
 */
-struct i2c_s {
+struct i2c_ss {
    /** Control register (set bit) at address offset 0x000, read-write */
    uint32_t crset;
    /** Control register (clear bit) at address offset 0x004, read-write */

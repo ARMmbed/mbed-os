@@ -57,6 +57,13 @@ struct serial_s {
     irq_setting_t irq_tx_setting;		
 };
 
+struct i2c_s {
+    volatile struct i2c_ss *reg_base;
+    PinName i2c_sda_pin;
+    PinName i2c_scl_pin;
+
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
