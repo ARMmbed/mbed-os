@@ -48,8 +48,8 @@
                          MXC_F_UART_INTFL_RX_FIFO_OVERFLOW)
 
 // Variables for managing the stdio UART
-int stdio_uart_inited;
-serial_t stdio_uart;
+int stdio_uart_inited = 0;
+serial_t stdio_uart = {0};
 
 // Variables for interrupt driven
 static uart_irq_handler irq_handler;
@@ -74,12 +74,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Set the uart index
     obj->index = MXC_UART_GET_IDX(obj->uart);
     obj->fifo = (mxc_uart_fifo_regs_t*)MXC_UART_GET_BASE_FIFO(obj->index);
-
-    // Manage stdio UART
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
 
     // Record the pins requested
     obj->tx = tx;
@@ -110,6 +104,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->cfg.baud = DEFAULT_BAUD;
     obj->cfg.size = UART_DATA_SIZE_8_BITS;
     obj->cfg.parity = UART_PARITY_DISABLE;
+
+    // Manage stdio UART
+    if (uart == STDIO_UART) {
+        stdio_uart_inited = 1;
+        stdio_uart = *obj;
+    }
 
     int retval = UART_Init(obj->uart, &obj->cfg, &obj->sys_cfg);
     MBED_ASSERT(retval == E_NO_ERROR);
@@ -181,7 +181,16 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 void uart_handler(serial_t *obj)
 {
     if (obj && obj->id) {
-        irq_handler(obj->id, RxIrq);
+        // Check for errors or RX Threshold
+        if (obj->uart->intfl & (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS)) {
+            irq_handler(obj->id, RxIrq);
+            obj->uart->intfl = (MXC_F_UART_INTFL_RX_FIFO_NOT_EMPTY | UART_ERRORS);
+        }
+        // Check for TX Threshold
+        if (obj->uart->intfl & MXC_F_UART_INTFL_TX_FIFO_AE) {
+            irq_handler(obj->id, TxIrq);
+            obj->uart->intfl = MXC_F_UART_INTFL_TX_FIFO_AE;
+        }
     }
 }
 
@@ -199,6 +208,9 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 //******************************************************************************
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
+    MBED_ASSERT(obj->index < MXC_CFG_UART_INSTANCES);
+    objs[obj->index] = obj;
+
     switch (obj->index) {
         case 0:
             NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);
@@ -250,7 +262,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 //******************************************************************************
 int serial_getc(serial_t *obj)
 {
-    int c = 0;
+    int c = -1;
 
     if (obj->rx != NC) {
         // Wait for data to be available

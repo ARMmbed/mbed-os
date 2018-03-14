@@ -121,8 +121,6 @@ void ADC_ClockPower_Configuration(void)
     POWER_DisablePD(kPDRUNCFG_PD_VREFP);   /* Power on the reference voltage source. */
     POWER_DisablePD(kPDRUNCFG_PD_TS);      /* Power on the temperature sensor. */
 
-    /* Enable the clock. */
-    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
 
     /* CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK); */
     /* Sync clock source is not used. Using sync clock source and would be divided by 2.
