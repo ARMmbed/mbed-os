@@ -201,22 +201,12 @@ public:
      */
     uint32_t endpoint_max_packet_size(usb_ep_t endpoint);
 
-    /** Start a read on the given endpoint
-     *
-     * After the read is finished call read_start to get the result.
-     *
-     * @param endpoint endpoint to perform the read on
-     * @return true if the read was started, false if no more reads can be started
-     * @note This endpoint must already have been setup with endpoint_add
-     */
-    bool read_start(usb_ep_t endpoint);
-
     /**
-     * Finish a read on the given endpoint
+     * Read a packet on the given endpoint
      *
-     * Get the contents of a read started with read_start. To ensure all
-     * the data from this endpoint is read make sure the buffer and size
-     * passed is at least as big as the maximum packet for this endpoint.
+     * Get the contents of an IN transfer. To ensure all the data from this
+     * endpoint is read make sure the buffer and size passed in is at least
+     * as big as the maximum packet for this endpoint.
      *
      * @param endpoint endpoint to read data from
      * @param buffer buffer to fill with read data
@@ -226,7 +216,7 @@ public:
      * @return true if the read was completed, otherwise false
      * @note This endpoint must already have been setup with endpoint_add
      */
-    bool read_finish(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size);
+    bool read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size);
 
     /**
      * Write a data to the given endpoint
