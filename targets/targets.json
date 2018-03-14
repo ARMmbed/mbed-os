@@ -4220,14 +4220,24 @@
         "macros": ["CMSDK_CM7"]
     },
     "NUMAKER_PFM_M2351": {
-        "core": "Cortex-M23",
+        "core": "Cortex-M23-NS",
         "default_toolchain": "GCC_ARM",
-        "extra_labels": ["NUVOTON", "M2351", "M2351K1AAEES"],
+        "extra_labels": ["NUVOTON", "M2351", "M2351KIAAEES"],
+        "OUTPUT_EXT": "hex",
         "macros": ["MBED_FAULT_HANDLER_DISABLED"],
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "inherits": ["Target"],
-        "device_has": ["LOWPOWERTIMER", "RTC", "INTERRUPTIN","PORTIN", "PORTINOUT", "PORTOUT", "SERIAL","SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP"],
+        "device_has": ["LOWPOWERTIMER", "RTC", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP"],
+        "detect_code": ["1305"],
         "release_versions": ["5"]
+    },
+    "NUMAKER_PFM_M2351_S": {
+        "core": "Cortex-M23",
+        "inherits": ["NUMAKER_PFM_M2351"]
+    },
+    "NUMAKER_PFM_M2351_NS": {
+        "core": "Cortex-M23-NS",
+        "inherits": ["NUMAKER_PFM_M2351"]
     }
 }
