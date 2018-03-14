@@ -151,8 +151,16 @@
 #warning "mbed-os version 5.6.1 or above required"
 #endif
 
-#define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
-#define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
+#ifndef MBED_CONF_SD_CMD_TIMEOUT
+#define MBED_CONF_SD_CMD_TIMEOUT                 5000   /*!< Timeout in ms for response */
+#endif
+
+#ifndef MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
+#define MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES     5      /*!< Number of retries for sending CMDO */
+#endif
+
+#define SD_COMMAND_TIMEOUT                       MBED_CONF_SD_CMD_TIMEOUT
+#define SD_CMD0_GO_IDLE_STATE_RETRIES            MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
 #define SD_CMD_TRACE                             0      /*!< 1 - Enable SD command tracing */
 
