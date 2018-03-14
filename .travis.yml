@@ -109,11 +109,25 @@ matrix:
           if [ $(cat astyle.out | grep Formatted | wc -l) -ne 0 ]; then
             git --no-pager diff;
             echo "Please fix style issues as shown above";
-            exit 1;
           else
             echo "Coding style check OK";
-            exit 0;
           fi
+      after_success:
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(cat astyle.out | grep Formatted | wc -l)
+          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\", (?<warnings>[0-9]+) warnings\").warnings" \
+              || echo 0)
+
+          STATUSM="Passed, ${CURR} warnings"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") warnings)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
 
     - env:
         - NAME=events
