@@ -6,7 +6,9 @@
         "SPI_MISO": "D12",
         "SPI_CLK": "D13",
         "DEVICE_SPI": 1,
-        "FSFAT_SDCARD_INSTALLED": 1
+        "FSFAT_SDCARD_INSTALLED": 1,
+        "CMD_TIMEOUT": 5000,
+        "CMD0_IDLE_STATE_RETRIES" : 5
     },
     "target_overrides": {
         "DISCO_F051R8": {
