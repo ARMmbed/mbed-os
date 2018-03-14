@@ -2698,7 +2698,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "features": ["BLE"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "MAX32600MBED": {
         "inherits": ["Target"],
@@ -2707,7 +2707,7 @@
         "extra_labels": ["Maxim", "MAX32600"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "MAX32620HSP": {
         "inherits": ["Target"],
@@ -2716,7 +2716,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["BLE"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "MAX32625MBED": {
         "inherits": ["Target"],
@@ -2725,7 +2725,7 @@
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "MAX32625NEXPAQ": {
         "inherits": ["Target"],
@@ -2734,7 +2734,7 @@
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "MAX32630FTHR": {
         "inherits": ["Target"],
@@ -2744,7 +2744,7 @@
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "features": ["BLE"],
-        "release_versions": ["2", "5"]
+        "release_versions": []
     },
     "EFM32": {
         "inherits": ["Target"],
