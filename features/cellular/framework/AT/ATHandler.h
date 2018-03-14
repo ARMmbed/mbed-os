@@ -106,11 +106,13 @@ public:
     nsapi_error_t unlock_return_error();
 
     /** Set the urc callback for urc. If urc is found when parsing AT responses, then call if called.
+     *  If urc is already set then it's not set twice.
      *
      *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
      *  @param callback Callback, which is called if urc is found in AT response
+     *  @return NSAPI_ERROR_OK or NSAPI_ERROR_NO_MEMORY if no memory
      */
-    void set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    nsapi_error_t set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 
     ATHandler *_nextATHandler; // linked list
 

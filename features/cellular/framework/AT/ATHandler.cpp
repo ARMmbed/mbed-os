@@ -153,17 +153,17 @@ void ATHandler::set_file_handle(FileHandle *fh)
     _fileHandle = fh;
 }
 
-void ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
     if (check_urc_existance(prefix, callback)) {
         tr_warn("URC already added with prefix: %s", prefix);
-        return;
+        return NSAPI_ERROR_OK;
     }
 
-    // TODO: what to do if this allocation fails? Should this return boolean false? Quite a few urc urc's are
-    // called from constructors which is another problem...
     struct oob_t *oob = new struct oob_t;
-    if (oob) {
+    if (!oob) {
+        return NSAPI_ERROR_NO_MEMORY;
+    } else {
         size_t prefix_len = strlen(prefix);
         if (prefix_len > _oob_string_max_length) {
             _oob_string_max_length = prefix_len;
@@ -177,6 +177,8 @@ void ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callb
         oob->next = _oobs;
         _oobs = oob;
     }
+
+    return NSAPI_ERROR_OK;
 }
 
 bool ATHandler::check_urc_existance(const char *prefix, mbed::Callback<void()> callback)

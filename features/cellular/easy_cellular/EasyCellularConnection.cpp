@@ -130,11 +130,6 @@ void EasyCellularConnection::set_sim_pin(const char *sim_pin)
     }
 }
 
-void EasyCellularConnection::set_is_blocking(bool blocking)
-{
-
-}
-
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
     if (_is_connected) {

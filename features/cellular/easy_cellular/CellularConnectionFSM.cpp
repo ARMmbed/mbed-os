@@ -24,7 +24,7 @@
 #endif
 #include "CellularLog.h"
 #include "CellularCommon.h"
-#include "mbed_wait_api.h"
+
 // timeout to wait for AT responses
 #define TIMEOUT_POWER_ON     (1*1000)
 #define TIMEOUT_SIM_PIN      (1*1000)
@@ -110,16 +110,11 @@ nsapi_error_t CellularConnectionFSM::init()
 
     _at_queue.chain(&_queue);
 
-    _network->set_registration_urc(CellularNetwork::C_EREG, true);
-    _network->set_registration_urc(CellularNetwork::C_GREG, true);
-    _network->set_registration_urc(CellularNetwork::C_REG, true);
-
     _retry_count = 0;
     _state = STATE_INIT;
     _next_state = STATE_INIT;
-    tr_info("init done...");
 
-    return NSAPI_ERROR_OK;
+    return _network->init();
 }
 
 bool CellularConnectionFSM::power_on()
@@ -305,7 +300,7 @@ void CellularConnectionFSM::report_failure(const char* msg)
 
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connect network", "Connected"};
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connecting network", "Connected"};
     return strings[state];
 }
 
@@ -393,6 +388,19 @@ void CellularConnectionFSM::state_device_ready()
         if (_event_status_cb) {
             _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularDeviceReady);
         }
+
+        bool success = false;
+        for (int type = 0; type < CellularNetwork::C_MAX; type++) {
+            if (!_network->set_registration_urc((CellularNetwork::RegistrationType)type, true)) {
+                 success = true;
+            }
+        }
+        if (!success) {
+            tr_error("Failed to set any URC's for registration");
+            report_failure(get_state_string(_state));
+            return;
+        }
+
         print_device_info();
         enter_to_state(STATE_SIM_PIN);
     } else {
@@ -433,7 +441,7 @@ void CellularConnectionFSM::state_attaching()
     CellularNetwork::AttachStatus attach_status;
     if (get_attach_network(attach_status)) {
         if (attach_status == CellularNetwork::Attached) {
-            enter_to_state(STATE_CONNECT_NETWORK);
+            enter_to_state(STATE_CONNECTING_NETWORK);
         } else {
             set_attach_network();
             retry_state_or_fail();
@@ -487,7 +495,7 @@ void CellularConnectionFSM::event()
         case STATE_ATTACHING_NETWORK:
             state_attaching();
             break;
-        case STATE_CONNECT_NETWORK:
+        case STATE_CONNECTING_NETWORK:
             state_connect_to_network();
             break;
         case STATE_CONNECTED:
@@ -500,20 +508,19 @@ void CellularConnectionFSM::event()
 
     if (_next_state != _state || _event_timeout >= 0) {
         if (_next_state != _state) { // state exit condition
-            //tr_info("Cellular state from %d to %d", _state, _next_state);
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
                     return;
                 }
             }
         } else {
-            tr_info("Cellular event in %d milliseconds", _event_timeout);
+            tr_info("Cellular event in %d seconds", _event_timeout);
         }
         _state = _next_state;
         if (_event_timeout == -1) {
             _event_timeout = 0;
         }
-        _eventID = _queue.call_in(_event_timeout, callback(this, &CellularConnectionFSM::event));
+        _eventID = _queue.call_in(_event_timeout*1000, callback(this, &CellularConnectionFSM::event));
         if (!_eventID) {
             report_failure("Cellular event failure!");
             return;
@@ -569,7 +576,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
     } /*else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         if (ptr == NSAPI_STATUS_GLOBAL_UP) {
             // we are connected
-            if (_state == STATE_CONNECT_NETWORK) {
+            if (_state == STATE_CONNECTING_NETWORK) {
                 _queue.cancel(_eventID);
                 continue_from_state(STATE_CONNECTED);
             }

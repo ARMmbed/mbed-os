@@ -176,9 +176,6 @@ const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii)/sizeof(gsm_to_ascii[0])
 AT_CellularSMS::AT_CellularSMS(ATHandler &at) : AT_CellularBase(at), _cb(0), _mode(CellularSMSMmodeText),
         _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
 {
-    /* URCs, handled out of band */
-    _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
-    _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 }
 
 AT_CellularSMS::~AT_CellularSMS()
@@ -258,6 +255,11 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 
 nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
 {
+    if (_at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
+            _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
     _at.lock();
     set_cnmi();     //set new SMS indication
     set_cmgf(mode); //set message format/PDU

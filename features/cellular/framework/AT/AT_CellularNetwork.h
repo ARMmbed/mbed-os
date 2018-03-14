@@ -60,6 +60,8 @@ protected:
     virtual NetworkStack *get_stack();
 
 public: // CellularNetwork
+    virtual nsapi_error_t init();
+
     virtual nsapi_error_t set_registration(const char *plmn = 0);
 
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode);
@@ -135,7 +137,6 @@ protected:
      */
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat);
 
-
 private:
     //  "NO CARRIER" urc
     void urc_no_carrier();
@@ -154,8 +155,8 @@ private:
 
     nsapi_error_t delete_current_context();
 
-    void read_reg_params_and_compare(int index);
-    void read_reg_params(int type_index, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
+    void read_reg_params_and_compare(RegistrationType type);
+    void read_reg_params(RegistrationType type, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
 
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
@@ -178,8 +179,7 @@ protected:
     bool _new_context_set;
     RegistrationStatus _reg_status;
     RadioAccessTechnology _current_act;
-    bool _async;
-
+    mbed::Callback<void()> _urc_funcs[C_MAX];
 };
 
 } // namespace mbed

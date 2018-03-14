@@ -209,6 +209,12 @@ public:
     };
 
 
+    /** Does all the needed initializations that can fail
+     *
+     *  @return         zero on success
+     */
+    virtual nsapi_error_t init() = 0;
+
     /** Request registering to network.
      *
      *  @param plmn     format is in numeric format or 0 for automatic network registration

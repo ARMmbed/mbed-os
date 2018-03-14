@@ -31,6 +31,6 @@ typedef enum cellular_event_status {
     CellularRegistrationTypeChanged         = 3,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
     CellularCellIDChanged                   = 4,    /*!< Network Cell ID have changed  */
     CellularRadioAccessTechnologyChanged    = 5,    /*!< Network roaming status have changed  */
-} cellular_connection_status_t
+} cellular_connection_status_t;
 
 #endif // CELLULAR_COMMON_
