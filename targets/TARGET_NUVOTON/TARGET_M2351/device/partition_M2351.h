@@ -326,7 +326,7 @@
 //   <o.31> PWM1_P2           <0=> Secure <1=> Non-Secure
 //
 */
-#define NVIC_INIT_ITNS0_VAL      0x3F0040
+#define NVIC_INIT_ITNS0_VAL      0xFFFFFFBF
 
 /*
     Initialize ITNS 1 (Interrupts 0..31)
@@ -367,7 +367,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS1_VAL      0x1C
+#define NVIC_INIT_ITNS1_VAL      0xFFFFFEFC
 
 /*
     Initialize ITNS 2 (Interrupts 0..31)
@@ -408,7 +408,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS2_VAL      0x000
+#define NVIC_INIT_ITNS2_VAL      0xFFFFFF7F
 
 
 /*
@@ -423,7 +423,7 @@
 //   <o.4>  LCD               <0=> Secure <1=> Non-Secure
 //   <o.5>  TRNG              <0=> Secure <1=> Non-Secure
 */
-#define NVIC_INIT_ITNS3_VAL      0x0
+#define NVIC_INIT_ITNS3_VAL      0xFFFFFFFF
 
 
 
@@ -556,7 +556,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.16>  EBI    <0=> Secure <1=> Non-Secure
 //   <o.24>  PDMA1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET0_VAL      0x00000001
+#define SCU_INIT_PNSSET0_VAL      0xFFFFFFFF
 /*
     PNSSET1
 */
@@ -565,7 +565,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.17>  CRC       <0=> Secure <1=> Non-Secure
 //   <o.18>  CRPT   <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET1_VAL      0x00040000
+#define SCU_INIT_PNSSET1_VAL      0xFFFBFFFF
 /*
     PNSSET2
 */
@@ -584,7 +584,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.26>  BPWM0      <0=> Secure <1=> Non-Secure
 //   <o.27>  BPWM1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET2_VAL      0x00020002
+#define SCU_INIT_PNSSET2_VAL      0xFFFFFFFD
 /*
     PNSSET3
 */
@@ -603,7 +603,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.20>  UART4      <0=> Secure <1=> Non-Secure
 //   <o.21>  UART5      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET3_VAL      0x00010000
+#define SCU_INIT_PNSSET3_VAL      0xFFFFFFFF
 /*
     PNSSET4
 */
@@ -616,7 +616,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.17>  SC1      <0=> Secure <1=> Non-Secure
 //   <o.18>  SC2      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET4_VAL      0x00000000
+#define SCU_INIT_PNSSET4_VAL      0xFFFFFFFF
 /*
     PNSSET5
 */
@@ -631,7 +631,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.24>  LCD      <0=> Secure <1=> Non-Secure
 //   <o.25>  TRNG    <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET5_VAL      0x00000000
+#define SCU_INIT_PNSSET5_VAL      0xFFFFFFFF
 /*
     PNSSET6
 */
@@ -641,7 +641,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.16>  USCI0   <0=> Secure <1=> Non-Secure
 //   <o.17>  USCI1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET6_VAL      0x00000000
+#define SCU_INIT_PNSSET6_VAL      0xFFFFFFFF
 /*
 // </h>
 */
@@ -665,7 +665,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.5>  PF      <0=> Secure <1=> Non-Secure
 //   <o.6>  PG      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_IONSSET_VAL      0x0000007F
+#define SCU_INIT_IONSSET_VAL      0xFFFFFFFF
 /*
 // </h>
 */
