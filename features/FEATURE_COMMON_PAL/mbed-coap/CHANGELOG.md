@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.4.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.0) 
+**New feature:**
+- Make sn_coap_protocol_send_rst as public needed for CoAP ping sending
+- Allow disabling resendings by defining SN_COAP_DISABLE_RESENDINGS
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.3.0...v4.4.0)
+
 ## [v4.3.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.3.0) 
 **New feature:**
 -  Add new API which clears the whole sent blockwise message list

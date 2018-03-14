@@ -55,6 +55,15 @@
 #undef COAP_DISABLE_OBS_FEATURE
 
 /**
+ * \def SN_COAP_DISABLE_RESENDINGS
+ *
+ * \brief Disables resending feature. Resending feature should not be needed
+ * when using CoAP with TCP transport for example. By default resendings are
+ * enabled. Set to 1 to disable.
+ */
+#undef SN_COAP_DISABLE_RESENDINGS          /* 0 */ // < Default re-sending are not disabled. Set to 1 to disable re-sendings
+
+/**
  * \def SN_COAP_RESENDING_QUEUE_SIZE_MSGS
  *
  * \brief Sets the number of messages stored
