@@ -265,7 +265,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer,
 
 int spi_slave_receive(spi_t *obj)
 {
-    return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
+    return spi_readable(obj) ? (1) : (0);
 }
 
 int spi_slave_read(spi_t *obj)

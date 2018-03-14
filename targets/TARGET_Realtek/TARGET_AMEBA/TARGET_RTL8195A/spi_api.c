@@ -266,14 +266,12 @@ int spi_slave_receive (spi_t *obj)
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
     int Readable;
-    int Busy;
 
     pHalSsiAdaptor = &obj->spi_adp;
     pHalSsiOp = &obj->spi_op;
 
     Readable = pHalSsiOp->HalSsiReadable(pHalSsiAdaptor);
-    Busy     = (int)pHalSsiOp->HalSsiBusy(pHalSsiAdaptor);
-    return ((Readable && !Busy) ? 1 : 0);
+    return (Readable ? 1 : 0);
 }
 
 int spi_slave_read (spi_t *obj)

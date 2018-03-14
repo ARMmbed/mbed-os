@@ -223,9 +223,8 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 int spi_slave_receive(spi_t *obj)
 {
     int32_t status = spi_pl022_get_status(obj->spi);
-    /* Rx FIFO not empty and device not busy */
-    int32_t ret = ((status & SPI_PL022_SSPSR_RNE_MSK) &&
-                        !(status & SPI_PL022_SSPSR_BSY_MSK));
+    /* Rx FIFO not empty */
+    int32_t ret = (status & SPI_PL022_SSPSR_RNE_MSK);
     return ret;
 }
 
