@@ -39,7 +39,11 @@ struct sn_coap_hdr_;
 /* * * * * * * * * * * */
 
 /* * For Message resending * */
+#ifdef SN_COAP_DISABLE_RESENDINGS
+#define ENABLE_RESENDINGS                               0 /* Disable resendings */
+#else
 #define ENABLE_RESENDINGS                               1   /**< Enable / Disable resending from library in building */
+#endif
 
 #define SN_COAP_RESENDING_MAX_COUNT                     3   /**< Default number of re-sendings  */
 

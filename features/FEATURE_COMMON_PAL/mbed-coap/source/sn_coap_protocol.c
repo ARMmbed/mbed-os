@@ -47,7 +47,6 @@
 /* * * * LOCAL FUNCTION PROTOTYPES * * * */
 /* * * * * * * * * * * * * * * * * * * * */
 
-static void                  sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param);
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT/* If Message duplication detection is not used at all, this part of code will not be compiled */
 static void                  sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id, void *param);
 static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle, sn_nsdl_addr_s *scr_addr_ptr, uint16_t msg_id);
@@ -667,6 +666,8 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
 
             /* Check if there is no room to store message for duplication detection purposes */
             if (stored_duplication_msgs_count >= handle->sn_coap_duplication_buffer_size) {
+                tr_debug("sn_coap_protocol_parse - duplicate list full, dropping oldest");
+
                 /* Get oldest stored duplication message */
                 coap_duplication_info_s *stored_duplication_info_ptr = ns_list_get_first(&handle->linked_list_duplication_msgs);
 
@@ -1028,7 +1029,7 @@ uint32_t sn_coap_calculate_new_resend_time(const uint32_t current_time, const ui
 
 #endif /* ENABLE_RESENDINGS */
 
-static void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param)
+void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param)
 {
     uint8_t packet_ptr[4];
 
