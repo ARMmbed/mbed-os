@@ -11,7 +11,7 @@
     "type": "array",
     "items": {
       "type": "string",
-      "pattern": "(^[\\w]+$|^[\\w]+=.+$)"
+      "pattern": "(^[\\w()_]+$|^[\\w()_]+=.+$)"
     }
   },
   "config_definition": {
