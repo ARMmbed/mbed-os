@@ -68,38 +68,37 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_send_sms()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSMS sms(at);
-    CHECK(NSAPI_ERROR_PARAMETER == sms.send_sms(NULL, "2", 1));
+    LONGS_EQUAL(NSAPI_ERROR_PARAMETER, sms.send_sms(NULL, "2", 1));
 
     sms.initialize(CellularSMS::CellularSMSMmodeText);
     ATHandler_stub::size_value = 1;
-    CHECK(1 == sms.send_sms("1", "22", 2));
+    LONGS_EQUAL(1, sms.send_sms("1", "22", 2));
 
     ATHandler_stub::size_value = 2;
-    CHECK(2 == sms.send_sms("1", "22", 2));
+    LONGS_EQUAL(2, sms.send_sms("1", "22", 2));
 
+    ATHandler_stub::return_given_size = true; // PDU mode write is much longer than than msg len
     sms.initialize(CellularSMS::CellularSMSMmodePDU);
-    CHECK(2 == sms.send_sms("1", "23", 2));
+    LONGS_EQUAL(2, sms.send_sms("1", "23", 2));;
 
     ATHandler_stub::nsapi_error_ok_counter = 1;
     ATHandler_stub::size_value = 32;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sms.send_sms("1", "23232323", 8));
+    LONGS_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sms.send_sms("1", "23232323", 8));
 
     ATHandler_stub::nsapi_error_ok_counter = 2;
     ATHandler_stub::size_value = 32;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sms.send_sms("1", "23232323", 8));
+    LONGS_EQUAL(NSAPI_ERROR_AUTH_FAILURE, sms.send_sms("1", "23232323", 8));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     char table[] = "232323232323232323232323232323232323232323232323232323\
                     232323232323232323232323232323232323232323232323232323\
                     232323232323232323232323232323232323232323232323232323\
                     23232323232323232323232323232323232323\0";
-    ATHandler_stub::size_value = 0;
-    ATHandler_stub::return_given_size = true;
-    CHECK(218 == sms.send_sms("1", table, strlen(table)));
 
-    CHECK(218 == sms.send_sms("12", table, strlen(table)));
+    LONGS_EQUAL(strlen(table), sms.send_sms("1", table, strlen(table)));
+    LONGS_EQUAL(strlen(table), sms.send_sms("12", table, strlen(table)));
 }
 
 
