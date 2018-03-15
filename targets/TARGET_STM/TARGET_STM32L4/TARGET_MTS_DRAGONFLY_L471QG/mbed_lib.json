@@ -1,0 +1,10 @@
+{
+	"name": "target",
+	    "config": {
+	"target_overrides": {
+        "MTS_DRAGONFLY_L471QG": {
+             "target.bootloader_img": "mbed-os/tools/bootloaders/MTS_DRAGONFLY_L471QG/bootloader.bin"
+        }
+	}
+	}
+}
