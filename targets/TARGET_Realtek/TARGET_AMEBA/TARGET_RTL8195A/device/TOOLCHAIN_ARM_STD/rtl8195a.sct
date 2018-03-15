@@ -18,6 +18,8 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
   }
 
   ER_IRAM +0 FIXED {
+    *(.ARM.exidx)
+    *(.init_array)
     *rtl8195a_crypto*.o (+RO)
     *(i.mbedtls*)
     *libc.a (+RO)
