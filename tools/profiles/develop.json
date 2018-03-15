@@ -46,7 +46,8 @@
     "IAR": {
         "common": [
             "--no_wrap_diagnostics", "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh", "--enable_restrict"],
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh", "--enable_restrict",
+            "--no_path_in_file_macros"],
         "asm": [],
         "c": ["--vla"],
         "cxx": ["--guard_calls", "--no_static_destruction"],

@@ -68,18 +68,26 @@ extern "C" {
 void sleep_tracker_lock(const char *const filename, int line);
 void sleep_tracker_unlock(const char *const filename, int line);
 
-#define sleep_manager_lock_deep_sleep()           \
-    do                                            \
-    {                                             \
-        sleep_manager_lock_deep_sleep_internal(); \
-        sleep_tracker_lock(__FILE__, __LINE__);   \
-    } while (0);
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#define __FILENAME__ __MODULE__
+#elif defined(__GNUC__)
+#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define __FILENAME__ __FILE__
+#endif
 
-#define sleep_manager_unlock_deep_sleep()           \
+#define sleep_manager_lock_deep_sleep()             \
     do                                              \
     {                                               \
-        sleep_manager_unlock_deep_sleep_internal(); \
-        sleep_tracker_unlock(__FILE__, __LINE__);   \
+        sleep_manager_lock_deep_sleep_internal();   \
+        sleep_tracker_lock(__FILENAME__, __LINE__); \
+    } while (0);
+
+#define sleep_manager_unlock_deep_sleep()             \
+    do                                                \
+    {                                                 \
+        sleep_manager_unlock_deep_sleep_internal();   \
+        sleep_tracker_unlock(__FILENAME__, __LINE__); \
     } while (0);
 
 #else
@@ -120,7 +128,6 @@ void sleep_manager_unlock_deep_sleep_internal(void);
  * @return true if a target can go to deepsleep, false otherwise
  */
 bool sleep_manager_can_deep_sleep(void);
-
 
 /** Enter auto selected sleep mode. It chooses the sleep or deeepsleep modes based
  *  on the deepsleep locking counter

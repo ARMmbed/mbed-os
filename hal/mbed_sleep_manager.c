@@ -42,23 +42,6 @@ typedef struct sleep_statistic {
 
 static sleep_statistic_t sleep_stats[STATISTIC_COUNT];
 
-static const char* strip_path(const char* const filename)
-{
-    char *output = strrchr(filename, '/');
-
-    if (output != NULL) {
-        return output + 1;
-    }
-
-    output = strrchr(filename, '\\');
-
-    if (output != NULL) {
-        return output + 1;
-    }
-
-    return filename;
-}
-
 static sleep_statistic_t* sleep_tracker_find(const char *const filename)
 {
     char temp[IDENTIFIER_WIDTH];
@@ -115,34 +98,31 @@ static void sleep_tracker_print_stats(void)
 
 void sleep_tracker_lock(const char* const filename, int line)
 {
-    const char* const stripped_path = strip_path(filename);
-
-    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
+    sleep_statistic_t *stat = sleep_tracker_find(filename);
 
     // Entry for this driver does not exist, create one.
     if (stat == NULL) {
-        stat = sleep_tracker_add(stripped_path);
+        stat = sleep_tracker_add(filename);
     }
 
     core_util_atomic_incr_u8(&stat->count, 1);
 
-    debug("LOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
+    debug("LOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
 }
 
 void sleep_tracker_unlock(const char* const filename, int line)
 {
-    const char* const stripped_path = strip_path(filename);
-    sleep_statistic_t* stat = sleep_tracker_find(stripped_path);
+    sleep_statistic_t *stat = sleep_tracker_find(filename);
 
     // Entry for this driver does not exist, something went wrong.
     if (stat == NULL) {
-        debug("Unlocking sleep for driver that was not previously locked: %s, ln: %i\r\n", stripped_path, line);
+        debug("Unlocking sleep for driver that was not previously locked: %s, ln: %i\r\n", filename, line);
         return;
     }
 
     core_util_atomic_decr_u8(&stat->count, 1);
 
-    debug("UNLOCK: %s, ln: %i, lock count: %u\r\n", stripped_path, line, deep_sleep_lock);
+    debug("UNLOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
 }
 
 #endif // MBED_SLEEP_TRACING_ENABLED
