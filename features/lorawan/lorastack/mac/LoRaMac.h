@@ -49,6 +49,7 @@
 #include "lorastack/mac/LoRaMacMcps.h"
 #include "lorastack/mac/LoRaMacMib.h"
 #include "lorastack/mac/LoRaMacChannelPlan.h"
+#include "loraphy_target.h"
 
 class LoRaMac {
 
@@ -57,7 +58,7 @@ public:
     /**
      * Constructor
      */
-    LoRaMac(LoRaWANTimeHandler &lora_time);
+    LoRaMac();
 
     /**
      * Destructor
@@ -75,15 +76,13 @@ public:
      * @param   primitives [in]   A pointer to the structure defining the LoRaMAC
      *                            event functions. Refer to \ref loramac_primitives_t.
      *
-     * @param   phy [in]          A pointer to the selected PHY layer.
-     *
      * @param   queue [in]        A pointer to the application provided EventQueue.
      *
      * @return  `lorawan_status_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t initialize(loramac_primitives_t *primitives, LoRaPHY *phy,
+    lorawan_status_t initialize(loramac_primitives_t *primitives,
                                 events::EventQueue *queue);
 
     /**
@@ -97,26 +96,16 @@ public:
     /**
      * @brief   Queries the LoRaMAC whether it is possible to send the next frame with
      *          a given payload size. The LoRaMAC takes the scheduled MAC commands into
-     *          account and reports when the frame can be sent.
+     *          account and returns corresponding value.
      *
      * @param   size     [in]    The size of the applicable payload to be sent next.
-     * @param   tx_info  [out]   The structure \ref loramac_tx_info_t contains
-     *                           information on the actual maximum payload possible
-     *                           (according to the configured datarate or the next
-     *                           datarate according to ADR), and the maximum frame
-     *                           size, taking the scheduled MAC commands into account.
      *
-     * @return  `lorawan_status_t` The status of the operation. When the parameters are
-     *          not valid, the function returns \ref LORAWAN_STATUS_PARAMETER_INVALID.
-     *          In case of a length error caused by the applicable payload in combination
-     *          with the MAC commands, the function returns \ref LORAWAN_STATUS_LENGTH_ERROR.
+     * @return  Size of the biggest packet that can be sent.
      *          Please note that if the size of the MAC commands in the queue do
      *          not fit into the payload size on the related datarate, the LoRaMAC will
      *          omit the MAC commands.
-     *          If the query is valid, and the LoRaMAC is able to send the frame,
-     *          the function returns \ref LORAWAN_STATUS_OK.
      */
-    lorawan_status_t query_tx_possible(uint8_t size, loramac_tx_info_t* tx_info);
+    uint8_t query_tx_possible(uint8_t size);
 
     /**
      * @brief   Adds a channel plan to the system.
@@ -358,13 +347,18 @@ public:
      */
     lorawan_status_t mcps_request(loramac_mcps_req_t *request);
 
-    /**
-     * @brief LoRaMAC layer provides its callback functions for
-     *        PHY layer.
+    /** Binds radio driver to PHY layer.
      *
-     * @return Pointer to callback functions for radio events
+     * MAC layer is totally detached from the PHY layer so the stack layer
+     * needs to play the role of an arbitrator. This API gets a radio driver
+     * object from the application (via LoRaWANInterface), binds it to the PHY
+     * layer and initialises radio callback handles which the radio driver will
+     * use in order to report events.
+     *
+     * @param radio            LoRaRadio object, i.e., the radio driver
+     *
      */
-    radio_events_t *get_phy_event_handlers();
+    void bind_radio_driver(LoRaRadio& radio);
 
     /**
      * @brief Configures the events to trigger an MLME-Indication with
@@ -427,7 +421,49 @@ public:
      */
     void open_continuous_rx2_window(void);
 
+    /**
+     * @brief get_default_tx_datarate Gets the default TX datarate
+     * @return default TX datarate.
+     */
+    uint8_t get_default_tx_datarate();
 
+    /**
+     * @brief tx_ongoing Check whether a prepare is done or not.
+     * @return True if prepare_ongoing_tx is called, false otherwise.
+     */
+    bool tx_ongoing();
+
+    /**
+     * @brief set_tx_ongoing Changes the ongoing status for prepared message.
+     * @param ongoing The value indicating the status.
+     */
+    void set_tx_ongoing(bool ongoing);
+
+    /**
+     * @brief reset_ongoing_tx Resets _ongoing_tx_msg.
+     * @param reset_pending If true resets pending size also.
+     */
+    void reset_ongoing_tx(bool reset_pending = false);
+
+    /**
+     * @brief prepare_ongoing_tx This will prepare (and override) ongoing_tx_msg.
+     * @param port The application port number.
+     * @param data A pointer to the data being sent. The ownership of the
+     *             buffer is not transferred.
+     * @param length The size of data in bytes.
+     * @param flags A flag used to determine what type of
+     *              message is being sent.
+     * @param num_retries Number of retries for a confirmed type message
+     * @return The number of bytes prepared for sending.
+     */
+    int16_t prepare_ongoing_tx(uint8_t port, const uint8_t* data,
+                               uint16_t length, uint8_t flags, uint8_t num_retries);
+
+    /**
+     * @brief send_ongoing_tx Sends the ongoing_tx_msg
+     * @return LORAWAN_STATUS_OK or a negative error code on failure.
+     */
+    lorawan_status_t send_ongoing_tx();
 
 private:
     /**
@@ -553,9 +589,14 @@ private:
 
 private:
     /**
+     * Timer subsystem handle
+     */
+    LoRaWANTimeHandler _lora_time;
+
+    /**
      * LoRa PHY layer object storage
      */
-    LoRaPHY *lora_phy;
+    LoRaPHY_region _lora_phy;
 
     /**
      * MAC command handle
@@ -583,11 +624,6 @@ private:
     LoRaMacChannelPlan channel_plan;
 
     /**
-     * Timer subsystem handle
-     */
-    LoRaWANTimeHandler &_lora_time;
-
-    /**
      * Central MAC layer data storage
      */
     loramac_protocol_params _params;
@@ -606,6 +642,8 @@ private:
      * EventQueue object storage
      */
     events::EventQueue *ev_queue;
+
+    loramac_tx_message_t _ongoing_tx_msg;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
 public: // Test interface

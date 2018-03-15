@@ -34,7 +34,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMac.h"
 #include "lorawan/system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
-#include "loraphy_target.h"
 
 /**
  * A mask for the network ID.
@@ -279,13 +278,15 @@ public:
      *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
      *                          mutually exclusive.
      *
+     * @param null_allowed      Internal use only. Needed for sending empty packet
+     *                          having CONFIRMED bit on.
      *
      * @return                  The number of bytes sent, or
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
     int16_t handle_tx(uint8_t port, const uint8_t* data,
-                      uint16_t length, uint8_t flags);
+                      uint16_t length, uint8_t flags, bool null_allowed = false);
 
     /** Receives a message from the Network Server.
      *
@@ -387,11 +388,6 @@ private:
     lorawan_status_t lora_state_machine(device_states_t new_state);
 
     /**
-     * Hands over the packet to Mac layer by posting an MCPS request.
-     */
-    lorawan_status_t send_frame_to_mac();
-
-    /**
      * Callback function for MLME indication. Mac layer calls this function once
      * an MLME indication is received. This method translates Mac layer data
      * structure into stack layer data structure.
@@ -443,16 +439,6 @@ private:
      */
     lorawan_status_t set_application_port(uint8_t port);
 
-    /**
-     * Helper function to figure out if the user defined data size is possible
-     * to send or not. The allowed size for transmission depends on the current
-     * data rate set for the channel. If its not possible to send user defined
-     * packet size, this method returns the maximum possible size at the moment,
-     * otherwise the user defined size is returned which means all of user data
-     * can be sent.
-     */
-    uint16_t check_possible_tx_size(uint16_t size);
-
     /** End device OTAA join.
      *
      * Based on the LoRaWAN standard 1.0.2.
@@ -481,9 +467,7 @@ private:
 
 private:
 
-    LoRaWANTimeHandler _lora_time;
     LoRaMac _loramac;
-    LoRaPHY_region _lora_phy;
     loramac_primitives_t LoRaMacPrimitives;
 
     device_states_t _device_current_state;
@@ -498,10 +482,6 @@ private:
     events::EventQueue *_queue;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
-    /**
-     * This function is used only for compliance testing
-     */
-    void prepare_special_tx_frame(uint8_t port);
 
     /**
      * Used only for compliance testing

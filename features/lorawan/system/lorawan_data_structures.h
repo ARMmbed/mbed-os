@@ -1550,20 +1550,6 @@ typedef struct {
     mib_params_t param;
 }loramac_mib_req_confirm_t;
 
-/*!
- * LoRaMAC TX information
- */
-typedef struct {
-    /*!
-     * Defines the size of the applicable payload that can be processed.
-     */
-    uint8_t max_possible_payload_size;
-    /*!
-     * The current payload size, dependent on the current datarate.
-     */
-    uint8_t current_payload_size;
-} loramac_tx_info_t;
-
 /** LoRaMAC status.
  *
  */

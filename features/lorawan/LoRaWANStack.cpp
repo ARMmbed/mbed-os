@@ -98,7 +98,6 @@ LoRaWANStack::LoRaWANStack()
 #endif
 
      memset(&_lw_session, 0, sizeof(_lw_session));
-     memset(&_tx_msg, 0, sizeof(_tx_msg));
      memset(&_rx_msg, 0, sizeof(_rx_msg));
 
      LoRaMacPrimitives.mcps_confirm     = callback(this, &LoRaWANStack::mcps_confirm_handler);
@@ -122,12 +121,7 @@ LoRaWANStack& LoRaWANStack::get_lorawan_stack()
 
 void LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
 {
-    //Move these to LoRaMAC class
-    radio_events_t *events = _loramac.get_phy_event_handlers();
-    _lora_phy.set_radio_instance(radio);
-    radio.lock();
-    radio.init_radio(events);
-    radio.unlock();
+    _loramac.bind_radio_driver(radio);
 }
 
 lorawan_status_t LoRaWANStack::connect()
@@ -209,88 +203,13 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     _compliance_test.app_data_buffer = compliance_test_buffer;
 #endif
 
-    _loramac.initialize(&LoRaMacPrimitives, &_lora_phy, queue);
+    _loramac.initialize(&LoRaMacPrimitives, queue);
 
     // Reset counters to zero. Will change in future with 1.1 support.
     _lw_session.downlink_counter = 0;
     _lw_session.uplink_counter = 0;
 
     return lora_state_machine(DEVICE_STATE_INIT);
-}
-
-uint16_t LoRaWANStack::check_possible_tx_size(uint16_t size)
-{
-    loramac_tx_info_t tx_info;
-    if (_loramac.query_tx_possible(size, &tx_info) == LORAWAN_STATUS_LENGTH_ERROR) {
-        // Cannot transmit this much. Return how much data can be sent
-        // at the moment
-        return tx_info.max_possible_payload_size;
-    }
-
-    return tx_info.current_payload_size;
-}
-
-/** Hands over the frame to MAC layer
- *
- * \return          returns the state of the LoRa MAC
- */
-lorawan_status_t LoRaWANStack::send_frame_to_mac()
-{
-    loramac_mcps_req_t mcps_req;
-    lorawan_status_t status;
-    loramac_mib_req_confirm_t mib_get_params;
-
-    mcps_req.type = _tx_msg.type;
-
-    if (MCPS_UNCONFIRMED == mcps_req.type) {
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-
-        mcps_req.fport = _tx_msg.fport;
-        mcps_req.nb_trials = 1;
-        mib_get_params.type = MIB_CHANNELS_DATARATE;
-        if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
-            tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
-        } else {
-            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
-        }
-
-    } else if (mcps_req.type == MCPS_CONFIRMED) {
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.fport = _tx_msg.fport;
-        mcps_req.nb_trials = _tx_msg.nb_trials;
-
-        mib_get_params.type = MIB_CHANNELS_DATARATE;
-        if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
-            tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
-        } else {
-            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
-        }
-
-    } else if ( mcps_req.type == MCPS_PROPRIETARY) {
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.fport = 0;
-        mcps_req.nb_trials = 1;
-
-        mib_get_params.type = MIB_CHANNELS_DATARATE;
-        if(mib_get_request(&mib_get_params) != LORAWAN_STATUS_OK) {
-            tr_debug("Couldn't get MIB parameters: Using default data rate");
-            mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
-        } else {
-            mcps_req.data_rate = mib_get_params.param.channel_data_rate;
-        }
-
-    } else {
-        return LORAWAN_STATUS_SERVICE_UNKNOWN;
-    }
-
-    status = mcps_request_handler(&mcps_req);
-
-    return status;
 }
 
 lorawan_status_t LoRaWANStack::set_confirmed_msg_retry(uint8_t count)
@@ -396,6 +315,8 @@ lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
+    //return _loramac.enable_adaptive_datarate(adr_enabled);
+
     loramac_mib_req_confirm_t adr_mib_params;
 
     adr_mib_params.type = MIB_ADR;
@@ -489,11 +410,14 @@ lorawan_status_t LoRaWANStack::activation_by_personalization(const lorawan_conne
 }
 
 int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
-                                uint16_t length, uint8_t flags)
+                                uint16_t length, uint8_t flags, bool null_allowed)
 {
+    if (!null_allowed && !data) {
+        return LORAWAN_STATUS_PARAMETER_INVALID;
+    }
+    // add a link check request with normal data, until the application
+    // explicitly removes it.
     if (_link_check_requested) {
-        // add a link check request with normal data, until the application
-        // explicitly removes it.
         set_link_check_request();
     }
 
@@ -501,12 +425,8 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
     }
 
-    if (_tx_msg.tx_ongoing) {
+    if(_loramac.tx_ongoing()) {
         return LORAWAN_STATUS_WOULD_BLOCK;
-    }
-
-    if (!data && length > 0) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
@@ -515,6 +435,7 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
     }
 #endif
 
+    //TODO: Stack MUST know joining status!!!!
     loramac_mib_req_confirm_t mib_req;
     lorawan_status_t status;
     mib_req.type = MIB_NETWORK_JOINED;
@@ -539,62 +460,14 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    _tx_msg.port = port;
+    int16_t len = _loramac.prepare_ongoing_tx(port, data, length, flags, _num_retry);
 
-    uint16_t max_possible_size = check_possible_tx_size(length);
 
-    if (max_possible_size > MBED_CONF_LORA_TX_MAX_SIZE) {
-        // LORAWAN_APP_DATA_MAX_SIZE should at least be
-        // either equal to or bigger than maximum possible
-        // tx size because our tx message buffer takes its
-        // length from that macro. Force maximum possible tx unit
-        // to be equal to the buffer size user chose.
-        max_possible_size = MBED_CONF_LORA_TX_MAX_SIZE;
-    }
-
-    if (max_possible_size < length) {
-        tr_info("Cannot transmit %d bytes. Possible TX Size is %d bytes",
-                length, max_possible_size);
-
-        _tx_msg.pending_size = length - max_possible_size;
-        _tx_msg.f_buffer_size = max_possible_size;
-        // copy user buffer upto the max_possible_size
-        memcpy(_tx_msg.f_buffer, data, _tx_msg.f_buffer_size);
-    } else {
-        // Whole message can be sent at one time
-        _tx_msg.f_buffer_size = length;
-        _tx_msg.pending_size = 0;
-        // copy user buffer upto the max_possible_size
-        if (length > 0) {
-            memcpy(_tx_msg.f_buffer, data, length);
-        }
-    }
-
-    // Handles all unconfirmed messages, including proprietary and multicast
-    if ((flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_FLAG
-            || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_MULTICAST
-            || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_PROPRIETARY) {
-
-         _tx_msg.type = MCPS_UNCONFIRMED;
-         _tx_msg.fport = _app_port;
-    }
-
-    // Handles all confirmed messages, including proprietary and multicast
-    if ((flags & MSG_FLAG_MASK) == MSG_CONFIRMED_FLAG
-            || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_MULTICAST
-            || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_PROPRIETARY) {
-
-        _tx_msg.type = MCPS_CONFIRMED;
-        _tx_msg.fport = _app_port;
-        _tx_msg.nb_trials = _num_retry;
-    }
-
-    tr_info("RTS = %u bytes, PEND = %u", _tx_msg.f_buffer_size, _tx_msg.pending_size);
     status = lora_state_machine(DEVICE_STATE_SEND);
 
     // send user the length of data which is scheduled now.
     // user should take care of the pending data.
-    return (status == LORAWAN_STATUS_OK) ? _tx_msg.f_buffer_size : (int16_t) status;
+    return (status == LORAWAN_STATUS_OK) ? len : (int16_t) status;
 }
 
 int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
@@ -766,9 +639,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
         // Couldn't schedule packet, ack not recieved in CONFIRMED case
         // or some other error happened. Discard buffer, unset the tx-ongoing
         // flag and let the application know
-        _tx_msg.tx_ongoing = false;
-        memset(_tx_msg.f_buffer, 0, MBED_CONF_LORA_TX_MAX_SIZE);
-        _tx_msg.f_buffer_size = MBED_CONF_LORA_TX_MAX_SIZE;
+        _loramac.reset_ongoing_tx();
 
         tr_error("mcps_confirm_handler: Error code = %d", mcps_confirm->status);
 
@@ -808,7 +679,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
     // Tell the application about successful transmission and store
     // data rate plus frame counter.
     _lw_session.uplink_counter = mcps_confirm->ul_frame_counter;
-    _tx_msg.tx_ongoing = false;
+    _loramac.set_tx_ongoing(false);
      if (_callbacks.events) {
          const int ret = _queue->call(_callbacks.events, TX_DONE);
          MBED_ASSERT(ret != 0);
@@ -909,7 +780,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 // that we could retry a certain number of times if the uplink
                 // failed for some reason
                 if (mcps_indication->fpending_status && mib_req.param.dev_class != CLASS_C) {
-                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
                 }
 
                 // Class C and node received a confirmed message so we need to
@@ -918,7 +789,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 // but version 1.1.0 says that network SHALL not send any new
                 // confirmed messages until ack has been sent
                 if (mib_req.param.dev_class == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
-                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
                 }
             } else {
                 // Invalid port, ports 0, 224 and 225-255 are reserved.
@@ -927,144 +798,6 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
         }
     }
 }
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-/** Compliance testing function
- *
- * \param mcps_indication   Pointer to the indication structure,
- *                          containing indication attributes.
- */
-void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indication)
-{
-    if (_compliance_test.running == false) {
-        // Check compliance test enable command (i)
-        if ((mcps_indication->buffer_size == 4) &&
-            (mcps_indication->buffer[0] == 0x01) &&
-            (mcps_indication->buffer[1] == 0x01) &&
-            (mcps_indication->buffer[2] == 0x01) &&
-            (mcps_indication->buffer[3] == 0x01)) {
-            _compliance_test.is_tx_confirmed = false;
-            _compliance_test.app_port = 224;
-            _compliance_test.app_data_size = 2;
-            _compliance_test.downlink_counter = 0;
-            _compliance_test.link_check = false;
-            _compliance_test.demod_margin = 0;
-            _compliance_test.nb_gateways = 0;
-            _compliance_test.running = true;
-            _compliance_test.state = 1;
-
-            loramac_mib_req_confirm_t mib_req;
-            mib_req.type = MIB_ADR;
-            mib_req.param.is_adr_enable = true;
-            mib_set_request(&mib_req);
-
-#if MBED_CONF_LORA_PHY      == 0
-            _loramac.LoRaMacTestSetDutyCycleOn(false);
-#endif
-            //5000ms
-            _loramac.LoRaMacSetTxTimer(5000);
-
-            //TODO: Should we call lora_state_machine here instead of just setting the state?
-            _device_current_state = DEVICE_STATE_COMPLIANCE_TEST;
-//            lora_state_machine(DEVICE_STATE_COMPLIANCE_TEST);
-            tr_debug("Compliance test activated.");
-        }
-    } else {
-        _compliance_test.state = mcps_indication->buffer[0];
-        switch (_compliance_test.state) {
-        case 0: // Check compliance test disable command (ii)
-            _compliance_test.is_tx_confirmed = true;
-            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
-            _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
-            _compliance_test.downlink_counter = 0;
-            _compliance_test.running = false;
-
-            loramac_mib_req_confirm_t mib_req;
-            mib_req.type = MIB_ADR;
-            mib_req.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
-            mib_set_request(&mib_req);
-#if MBED_CONF_LORA_PHY      == 0
-            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
-#endif
-            // Go to idle state after compliance test mode.
-            tr_debug("Compliance test disabled.");
-            _loramac.LoRaMacStopTxTimer();
-
-            // Clear any compliance test message stuff before going back to normal operation.
-            memset(&_tx_msg, 0, sizeof(_tx_msg));
-            lora_state_machine(DEVICE_STATE_IDLE);
-            break;
-        case 1: // (iii, iv)
-            _compliance_test.app_data_size = 2;
-            break;
-        case 2: // Enable confirmed messages (v)
-            _compliance_test.is_tx_confirmed = true;
-            _compliance_test.state = 1;
-            break;
-        case 3:  // Disable confirmed messages (vi)
-            _compliance_test.is_tx_confirmed = false;
-            _compliance_test.state = 1;
-            break;
-        case 4: // (vii)
-            _compliance_test.app_data_size = mcps_indication->buffer_size;
-
-            _compliance_test.app_data_buffer[0] = 4;
-            for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, LORAMAC_PHY_MAXPAYLOAD); ++i) {
-                _compliance_test.app_data_buffer[i] = mcps_indication->buffer[i] + 1;
-            }
-
-            send_compliance_test_frame_to_mac();
-            break;
-        case 5: // (viii)
-            loramac_mlme_req_t mlme_req;
-            mlme_req.type = MLME_LINK_CHECK;
-            _loramac.mlme_request(&mlme_req);
-            break;
-        case 6: // (ix)
-            loramac_mlme_req_t mlme_request;
-            loramac_mib_req_confirm_t mib_request;
-
-            // Disable TestMode and revert back to normal operation
-            _compliance_test.is_tx_confirmed = true;
-            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
-            _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
-            _compliance_test.downlink_counter = 0;
-            _compliance_test.running = false;
-
-            mib_request.type = MIB_ADR;
-            mib_request.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
-            mib_set_request(&mib_request);
-#if MBED_CONF_LORA_PHY      == 0
-            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
-#endif
-            mlme_request.type = MLME_JOIN;
-            mlme_request.req.join.dev_eui = _lw_session.connection.connection_u.otaa.dev_eui;
-            mlme_request.req.join.app_eui = _lw_session.connection.connection_u.otaa.app_eui;
-            mlme_request.req.join.app_key = _lw_session.connection.connection_u.otaa.app_key;
-            mlme_request.req.join.nb_trials = _lw_session.connection.connection_u.otaa.nb_trials;
-            _loramac.mlme_request(&mlme_request);
-            break;
-        case 7: // (x)
-            if (mcps_indication->buffer_size == 3) {
-                loramac_mlme_req_t mlme_req;
-                mlme_req.type = MLME_TXCW;
-                mlme_req.req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
-                _loramac.mlme_request(&mlme_req);
-            } else if (mcps_indication->buffer_size == 7) {
-                loramac_mlme_req_t mlme_req;
-                mlme_req.type = MLME_TXCW_1;
-                mlme_req.req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
-                mlme_req.req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16) | (mcps_indication->buffer[4] << 8)
-                        | mcps_indication->buffer[5]) * 100;
-                mlme_req.req.cw_tx_mode.power = mcps_indication->buffer[6];
-                _loramac.mlme_request(&mlme_req);
-            }
-            _compliance_test.state = 1;
-            break;
-        }
-    }
-}
-#endif
 
 lorawan_status_t LoRaWANStack::mib_set_request(loramac_mib_req_confirm_t *mib_set_params)
 {
@@ -1140,10 +873,8 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
             mib_set_request(&mib_req);
 
             // reset buffers to original state
-            memset(_tx_msg.f_buffer, 0, MBED_CONF_LORA_TX_MAX_SIZE);
-            _tx_msg.pending_size = 0;
-            _tx_msg.f_buffer_size = 0;
-            _tx_msg.tx_ongoing = false;
+            _loramac.reset_ongoing_tx(true);
+
             _rx_msg.msg.mcps_indication.buffer = NULL;
             _rx_msg.receive_ready = false;
             _rx_msg.prev_read_size = 0;
@@ -1243,11 +974,11 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
             break;
         case DEVICE_STATE_SEND:
             // If a transmission is ongoing, don't interrupt
-            if (_tx_msg.tx_ongoing) {
+            if (_loramac.tx_ongoing()) {
                 status = LORAWAN_STATUS_OK;
             } else {
-                _tx_msg.tx_ongoing = true;
-                status = send_frame_to_mac();
+                _loramac.set_tx_ongoing(true);
+                status = _loramac.send_ongoing_tx();
 
                 switch (status) {
                     case LORAWAN_STATUS_OK:
@@ -1300,63 +1031,53 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
 }
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
-/**
- *
- * Prepares the upload message to reserved ports
- *
- * \param port              Application port
- */
-void LoRaWANStack::prepare_special_tx_frame(uint8_t port)
-{
-    if (port == 224) {
-        // Clear any normal message stuff before compliance test.
-        memset(&_tx_msg, 0, sizeof(_tx_msg));
 
-        if (_compliance_test.link_check == true) {
-            _compliance_test.link_check = false;
-            _compliance_test.state = 1;
-            _tx_msg.f_buffer_size = 3;
-            _tx_msg.f_buffer[0] = 5;
-            _tx_msg.f_buffer[1] = _compliance_test.demod_margin;
-            _tx_msg.f_buffer[2] = _compliance_test.nb_gateways;
-        } else {
-            switch (_compliance_test.state) {
-            case 4:
-                _compliance_test.state = 1;
-                _tx_msg.f_buffer_size = _compliance_test.app_data_size;
-
-                _tx_msg.f_buffer[0] = _compliance_test.app_data_buffer[0];
-                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
-                    _tx_msg.f_buffer[i] = _compliance_test.app_data_buffer[i];
-                }
-                break;
-            case 1:
-                _tx_msg.f_buffer_size = 2;
-                _tx_msg.f_buffer[0] = _compliance_test.downlink_counter >> 8;
-                _tx_msg.f_buffer[1] = _compliance_test.downlink_counter;
-                break;
-            }
-        }
-    }
-}
-
-/** Hands over the compliance test frame to MAC layer
- *
- * \return          returns the state of the LoRa MAC
- */
 lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 {
     loramac_mcps_req_t mcps_req;
 
-    prepare_special_tx_frame(_compliance_test.app_port);
+//    prepare_special_tx_frame(_compliance_test.app_port);
+    //TODO: What if the port is not 224 ???
+    if (_compliance_test.app_port == 224) {
+        // Clear any normal message stuff before compliance test.
+        memset(&mcps_req, 0, sizeof(mcps_req));
 
+        if (_compliance_test.link_check == true) {
+            _compliance_test.link_check = false;
+            _compliance_test.state = 1;
+            mcps_req.f_buffer_size = 3;
+            mcps_req.f_buffer[0] = 5;
+            mcps_req.f_buffer[1] = _compliance_test.demod_margin;
+            mcps_req.f_buffer[2] = _compliance_test.nb_gateways;
+        } else {
+            switch (_compliance_test.state) {
+            case 4:
+                _compliance_test.state = 1;
+                mcps_req.f_buffer_size = _compliance_test.app_data_size;
+
+                mcps_req.f_buffer[0] = _compliance_test.app_data_buffer[0];
+                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
+                    mcps_req.f_buffer[i] = _compliance_test.app_data_buffer[i];
+                }
+                break;
+            case 1:
+                mcps_req.f_buffer_size = 2;
+                mcps_req.f_buffer[0] = _compliance_test.downlink_counter >> 8;
+                mcps_req.f_buffer[1] = _compliance_test.downlink_counter;
+                break;
+            }
+        }
+    }
+
+    //TODO: If port is not 224, this might not work!
+    //Is there a test case where same _tx_msg's buffer would be used, when port is not 224???
     if (!_compliance_test.is_tx_confirmed) {
         mcps_req.type = MCPS_UNCONFIRMED;
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
+//        mcps_req.f_buffer = _tx_msg.f_buffer;
+//        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.fport = _compliance_test.app_port;
         mcps_req.nb_trials = 1;
-        mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
+        mcps_req.data_rate = _loramac.get_default_tx_datarate();
 
         tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -1365,11 +1086,11 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         }
     } else if (_compliance_test.is_tx_confirmed) {
         mcps_req.type = MCPS_CONFIRMED;
-        mcps_req.f_buffer = _tx_msg.f_buffer;
-        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
+//        mcps_req.f_buffer = _tx_msg.f_buffer;
+//        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.fport = _compliance_test.app_port;
         mcps_req.nb_trials = _num_retry;
-        mcps_req.data_rate = _lora_phy.get_default_tx_datarate();
+        mcps_req.data_rate = _loramac.get_default_tx_datarate();
 
         tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
@@ -1381,6 +1102,142 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
     }
 
     return mcps_request_handler(&mcps_req);
+}
+
+/** Compliance testing function
+ *
+ * \param mcps_indication   Pointer to the indication structure,
+ *                          containing indication attributes.
+ */
+void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indication)
+{
+    if (_compliance_test.running == false) {
+        // Check compliance test enable command (i)
+        if ((mcps_indication->buffer_size == 4) &&
+            (mcps_indication->buffer[0] == 0x01) &&
+            (mcps_indication->buffer[1] == 0x01) &&
+            (mcps_indication->buffer[2] == 0x01) &&
+            (mcps_indication->buffer[3] == 0x01)) {
+            _compliance_test.is_tx_confirmed = false;
+            _compliance_test.app_port = 224;
+            _compliance_test.app_data_size = 2;
+            _compliance_test.downlink_counter = 0;
+            _compliance_test.link_check = false;
+            _compliance_test.demod_margin = 0;
+            _compliance_test.nb_gateways = 0;
+            _compliance_test.running = true;
+            _compliance_test.state = 1;
+
+            loramac_mib_req_confirm_t mib_req;
+            mib_req.type = MIB_ADR;
+            mib_req.param.is_adr_enable = true;
+            mib_set_request(&mib_req);
+
+#if MBED_CONF_LORA_PHY      == 0
+            _loramac.LoRaMacTestSetDutyCycleOn(false);
+#endif
+            //5000ms
+            _loramac.LoRaMacSetTxTimer(5000);
+
+            //TODO: Should we call lora_state_machine here instead of just setting the state?
+            _device_current_state = DEVICE_STATE_COMPLIANCE_TEST;
+//            lora_state_machine(DEVICE_STATE_COMPLIANCE_TEST);
+            tr_debug("Compliance test activated.");
+        }
+    } else {
+        _compliance_test.state = mcps_indication->buffer[0];
+        switch (_compliance_test.state) {
+        case 0: // Check compliance test disable command (ii)
+            _compliance_test.is_tx_confirmed = true;
+            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
+            _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
+            _compliance_test.downlink_counter = 0;
+            _compliance_test.running = false;
+
+            loramac_mib_req_confirm_t mib_req;
+            mib_req.type = MIB_ADR;
+            mib_req.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
+            mib_set_request(&mib_req);
+#if MBED_CONF_LORA_PHY      == 0
+            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
+#endif
+            // Go to idle state after compliance test mode.
+            tr_debug("Compliance test disabled.");
+            _loramac.LoRaMacStopTxTimer();
+
+            // Clear any compliance test message stuff before going back to normal operation.
+            _loramac.reset_ongoing_tx();
+            lora_state_machine(DEVICE_STATE_IDLE);
+            break;
+        case 1: // (iii, iv)
+            _compliance_test.app_data_size = 2;
+            break;
+        case 2: // Enable confirmed messages (v)
+            _compliance_test.is_tx_confirmed = true;
+            _compliance_test.state = 1;
+            break;
+        case 3:  // Disable confirmed messages (vi)
+            _compliance_test.is_tx_confirmed = false;
+            _compliance_test.state = 1;
+            break;
+        case 4: // (vii)
+            _compliance_test.app_data_size = mcps_indication->buffer_size;
+
+            _compliance_test.app_data_buffer[0] = 4;
+            for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, LORAMAC_PHY_MAXPAYLOAD); ++i) {
+                _compliance_test.app_data_buffer[i] = mcps_indication->buffer[i] + 1;
+            }
+
+            send_compliance_test_frame_to_mac();
+            break;
+        case 5: // (viii)
+            loramac_mlme_req_t mlme_req;
+            mlme_req.type = MLME_LINK_CHECK;
+            _loramac.mlme_request(&mlme_req);
+            break;
+        case 6: // (ix)
+            loramac_mlme_req_t mlme_request;
+            loramac_mib_req_confirm_t mib_request;
+
+            // Disable TestMode and revert back to normal operation
+            _compliance_test.is_tx_confirmed = true;
+            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
+            _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
+            _compliance_test.downlink_counter = 0;
+            _compliance_test.running = false;
+
+            mib_request.type = MIB_ADR;
+            mib_request.param.is_adr_enable = MBED_CONF_LORA_ADR_ON;
+            mib_set_request(&mib_request);
+#if MBED_CONF_LORA_PHY      == 0
+            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
+#endif
+            mlme_request.type = MLME_JOIN;
+            mlme_request.req.join.dev_eui = _lw_session.connection.connection_u.otaa.dev_eui;
+            mlme_request.req.join.app_eui = _lw_session.connection.connection_u.otaa.app_eui;
+            mlme_request.req.join.app_key = _lw_session.connection.connection_u.otaa.app_key;
+            mlme_request.req.join.nb_trials = _lw_session.connection.connection_u.otaa.nb_trials;
+            _loramac.mlme_request(&mlme_request);
+            break;
+        case 7: // (x)
+            if (mcps_indication->buffer_size == 3) {
+                loramac_mlme_req_t mlme_req;
+                mlme_req.type = MLME_TXCW;
+                mlme_req.req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
+                _loramac.mlme_request(&mlme_req);
+            } else if (mcps_indication->buffer_size == 7) {
+                loramac_mlme_req_t mlme_req;
+                mlme_req.type = MLME_TXCW_1;
+                mlme_req.req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
+                mlme_req.req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16) | (mcps_indication->buffer[4] << 8)
+                        | mcps_indication->buffer[5]) * 100;
+                mlme_req.req.cw_tx_mode.power = mcps_indication->buffer[6];
+                _loramac.mlme_request(&mlme_req);
+            }
+            _compliance_test.state = 1;
+            break;
+        }
+    }
 }
 #endif
 
