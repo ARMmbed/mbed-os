@@ -25,4 +25,12 @@
 
 #endif
 
+#if defined(TARGET_MPS2_M4)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20040000UL)
+#endif
+
+#endif
+
 #endif  // MBED_MBED_RTX_H
