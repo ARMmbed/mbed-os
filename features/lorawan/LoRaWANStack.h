@@ -476,10 +476,11 @@ private:
     loramac_tx_message_t _tx_msg;
     loramac_rx_message_t _rx_msg;
     uint8_t _num_retry;
-    events::EventQueue *_queue;
     uint8_t _app_port;
 
     bool _link_check_requested;
+    events::EventQueue *_queue;
+
 
 
 #if defined(LORAWAN_COMPLIANCE_TEST)

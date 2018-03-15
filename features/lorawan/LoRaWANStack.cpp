@@ -87,8 +87,7 @@ lorawan_status_t LoRaWANStack::set_application_port(uint8_t port)
 LoRaWANStack::LoRaWANStack()
 : _loramac(),
   _device_current_state(DEVICE_STATE_NOT_INITIALIZED), _num_retry(1),
-  _queue(NULL),
-  _app_port(INVALID_PORT), _link_check_requested(false)
+  _app_port(INVALID_PORT), _link_check_requested(false), _queue(NULL)
 {
 #ifdef MBED_CONF_LORA_APP_PORT
     if (is_port_valid(MBED_CONF_LORA_APP_PORT)) {
