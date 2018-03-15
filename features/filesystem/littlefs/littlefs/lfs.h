@@ -94,7 +94,7 @@ enum lfs_open_flags {
     LFS_F_DIRTY   = 0x10000, // File does not match storage
     LFS_F_WRITING = 0x20000, // File has been written since last flush
     LFS_F_READING = 0x40000, // File has been read since last flush
-    LFS_F_ERRED   = 0x80000, // An error occured during write
+    LFS_F_ERRED   = 0x80000, // An error occurred during write
 };
 
 // File seek flags
@@ -465,7 +465,7 @@ int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir);
 // Returns a negative error code on failure.
 int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data);
 
-// Prunes any recoverable errors that may have occured in the filesystem
+// Prunes any recoverable errors that may have occurred in the filesystem
 //
 // Not needed to be called by user unless an operation is interrupted
 // but the filesystem is still mounted. This is already called on first

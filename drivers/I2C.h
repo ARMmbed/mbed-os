@@ -159,9 +159,9 @@ public:
 
     /** Start non-blocking I2C transfer.
      *
-     * This function locks the deep sleep until any event has occured
+     * This function locks the deep sleep until any event has occurred
      * 
-     * @param address   8/10 bit I2c slave address
+     * @param address   8/10 bit I2C slave address
      * @param tx_buffer The TX buffer with data to be transfered
      * @param tx_length The length of TX buffer in bytes
      * @param rx_buffer The RX buffer which is used for received data

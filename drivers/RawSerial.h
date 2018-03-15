@@ -68,7 +68,7 @@ public:
      *
      * @param c The char to write
      *
-     * @returns The written char or -1 if an error occured
+     * @returns The written char or -1 if an error occurred
      */
     int putc(int c);
 

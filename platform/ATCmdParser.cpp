@@ -158,7 +158,7 @@ int ATCmdParser::vscanf(const char *format, va_list args)
         if (j+1 >= _buffer_size - offset) {
             return false;
         }
-        // Recieve next character
+        // Receive next character
         int c = getc();
         if (c < 0) {
             return -1;
