@@ -269,7 +269,7 @@ LoRaPHYEU433::LoRaPHYEU433(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_EU433;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater_EU433;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;

@@ -279,7 +279,7 @@ LoRaPHYAU915::LoRaPHYAU915(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payload_AU915;
     phy_params.payloads.size = 16;
     phy_params.payloads_with_repeater.table = (void *) max_payload_with_repeater_AU915;
-    phy_params.payloads.size = 16;
+    phy_params.payloads_with_repeater.size = 16;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;

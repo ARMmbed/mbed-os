@@ -280,7 +280,7 @@ LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payload_table;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payload_table_with_repeater;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting, 400 ms
     phy_params.ul_dwell_time_setting = 1;

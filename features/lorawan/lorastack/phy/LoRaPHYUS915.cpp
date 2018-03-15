@@ -271,7 +271,7 @@ LoRaPHYUS915::LoRaPHYUS915(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_US915;
     phy_params.payloads.size = 16;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater_US915;
-    phy_params.payloads.size = 16;
+    phy_params.payloads_with_repeater.size = 16;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;
