@@ -76,13 +76,11 @@ reflect(uint32_t data, unsigned char nBits)
     /*
      * Reflect the data about the center bit.
      */
-    for (bit = 0; bit < nBits; ++bit)
-    {
+    for (bit = 0; bit < nBits; ++bit) {
         /*
          * If the LSB bit is set, set the reflection of it.
          */
-        if (data & 0x01)
-        {
+        if (data & 0x01) {
             reflection |= (1 << ((nBits - 1) - bit));
         }
 
@@ -121,8 +119,7 @@ flashJournalCrcInit(void)
     /*
      * Compute the remainder of each possible dividend.
      */
-    for (dividend = 0; dividend < 256; ++dividend)
-    {
+    for (dividend = 0; dividend < 256; ++dividend) {
         /*
          * Start with the dividend followed by zeros.
          */
@@ -131,17 +128,13 @@ flashJournalCrcInit(void)
         /*
          * Perform modulo-2 division, a bit at a time.
          */
-        for (bit = 8; bit > 0; --bit)
-        {
+        for (bit = 8; bit > 0; --bit) {
             /*
              * Try to divide the current data bit.
              */
-            if (remainder & TOPBIT)
-            {
+            if (remainder & TOPBIT) {
                 remainder = (remainder << 1) ^ POLYNOMIAL;
-            }
-            else
-            {
+            } else {
                 remainder = (remainder << 1);
             }
         }
@@ -205,8 +198,7 @@ flashJournalCrcCummulative(unsigned char const message[], int nBytes)
     /*
      * Divide the message by the polynomial, a byte at a time.
      */
-    for (byte = 0; byte < nBytes; ++byte)
-    {
+    for (byte = 0; byte < nBytes; ++byte) {
         data = REFLECT_DATA(message[byte]) ^ (crcEngineRemainder >> (WIDTH - 8));
         crcEngineRemainder = crcTable[data] ^ (crcEngineRemainder << 8);
     }

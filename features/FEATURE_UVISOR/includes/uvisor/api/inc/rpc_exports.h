@@ -68,7 +68,7 @@ typedef struct uvisor_rpc_message {
     uint32_t p2;
     uint32_t p3;
 
-    const TRPCGateway * gateway;
+    const TRPCGateway *gateway;
 
     /* The box ID of the other box. For callers, this is the destination box
      * ID. For callees, this is the source box ID. */
@@ -96,7 +96,7 @@ typedef struct uvisor_rpc_message {
 
 typedef struct uvisor_rpc_fn_group {
     /* A pointer to the function group */
-    TFN_Ptr const * fn_ptr_array;
+    TFN_Ptr const *fn_ptr_array;
     size_t fn_count;
 
     /* The semaphore to wait on for this function group */
@@ -152,7 +152,7 @@ typedef struct uvisor_rpc_t {
     uint32_t result_counter;
 } uvisor_rpc_t;
 
-static inline uvisor_rpc_t * uvisor_rpc(UvisorBoxIndex * const index)
+static inline uvisor_rpc_t *uvisor_rpc(UvisorBoxIndex *const index)
 {
     return (uvisor_rpc_t *) index->bss.address_of.rpc;
 }

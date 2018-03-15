@@ -51,7 +51,7 @@ struct SimpleEventQueue : EventQueue {
      *
      * @param ble_id Id of the BLE instance using that event queue.
      */
-    void initialize(BLEInstanceBase* ble_base, BLE::InstanceID_t ble_id)
+    void initialize(BLEInstanceBase *ble_base, BLE::InstanceID_t ble_id)
     {
         _ble_base = ble_base;
         _ble_instance_id = ble_id;
@@ -68,13 +68,13 @@ struct SimpleEventQueue : EventQueue {
     /**
      * @see ble::pal::post
      */
-    virtual bool post(const mbed::Callback<void()>& event)
+    virtual bool post(const mbed::Callback<void()> &event)
     {
         if (_ble_base == NULL) {
             return false;
         }
 
-        EventNode* next = new (std::nothrow) EventNode(event);
+        EventNode *next = new (std::nothrow) EventNode(event);
         if (next == NULL) {
             return false;
         }
@@ -82,7 +82,7 @@ struct SimpleEventQueue : EventQueue {
         if (_events == NULL) {
             _events = next;
         } else {
-            EventNode* previous = _events;
+            EventNode *previous = _events;
             while (previous->next) {
                 previous = previous->next;
             }
@@ -101,7 +101,7 @@ struct SimpleEventQueue : EventQueue {
     void clear()
     {
         while (_events) {
-            EventNode* next = _events->next;
+            EventNode *next = _events->next;
             delete _events;
             _events = next;
         }
@@ -113,7 +113,7 @@ struct SimpleEventQueue : EventQueue {
     void process()
     {
         while (_events) {
-            EventNode* next = _events->next;
+            EventNode *next = _events->next;
             _events->event();
             delete _events;
             _events = next;
@@ -124,7 +124,7 @@ private:
     struct EventNode {
         EventNode(const event_t event) : event(event), next(NULL) { }
         event_t event;
-        EventNode* next;
+        EventNode *next;
     };
 
     void signal_event()
@@ -132,9 +132,9 @@ private:
         _ble_base->signalEventsToProcess(_ble_instance_id);
     }
 
-    BLEInstanceBase* _ble_base;
+    BLEInstanceBase *_ble_base;
     BLE::InstanceID_t _ble_instance_id;
-    EventNode* _events;
+    EventNode *_events;
 };
 
 } // namespace pal

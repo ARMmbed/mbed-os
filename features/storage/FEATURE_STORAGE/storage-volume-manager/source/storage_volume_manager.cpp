@@ -176,7 +176,7 @@ int32_t StorageVolumeManager::addVolume(uint64_t addr, uint64_t size, StorageVol
     }
     if ((addr < firstBlock.addr) || ((addr + size) > (firstBlock.addr + info.total_storage))) {
         tr_error("StorageVolumeManager_addVolume: given range [%" PRIu32 ", %" PRIu32 ") isn't entirely contained within available storage range [%" PRIu32 ", %" PRIu32 ")",
-            (uint32_t)addr, (uint32_t)(addr + size), (uint32_t)firstBlock.addr, (uint32_t)(firstBlock.addr + info.total_storage));
+                 (uint32_t)addr, (uint32_t)(addr + size), (uint32_t)firstBlock.addr, (uint32_t)(firstBlock.addr + info.total_storage));
         return ARM_DRIVER_ERROR;
     }
 
@@ -282,7 +282,8 @@ void StorageVolumeManager::storageCallback(int32_t status, ARM_STORAGE_OPERATION
     }
 }
 
-size_t StorageVolumeManager::findIndexOfUnusedVolume(void) const {
+size_t StorageVolumeManager::findIndexOfUnusedVolume(void) const
+{
     size_t index;
     for (index = 0; index < MAX_VOLUMES; index++) {
         if (!volumes[index].isAllocated()) {

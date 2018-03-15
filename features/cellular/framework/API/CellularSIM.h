@@ -29,8 +29,7 @@ const int MAX_IMSI_LENGTH = 15;
  *
  *  An abstract interface for SIM card handling.
  */
-class CellularSIM
-{
+class CellularSIM {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -84,7 +83,7 @@ public:
      *  @param imsi     preallocated char* which after successful request contains imsi
      *  @return         zero on success
      */
-    virtual nsapi_error_t get_imsi(char* imsi) = 0;
+    virtual nsapi_error_t get_imsi(char *imsi) = 0;
 };
 
 } // namespace mbed

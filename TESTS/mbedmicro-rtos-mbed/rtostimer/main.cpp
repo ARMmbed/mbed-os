@@ -36,7 +36,7 @@ private:
 
 public:
     Stopwatch() :
-            Timer(), _sem(1)
+        Timer(), _sem(1)
     {
     }
 
@@ -81,7 +81,7 @@ void sem_callback(Semaphore *sem)
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     (void) format;
 }

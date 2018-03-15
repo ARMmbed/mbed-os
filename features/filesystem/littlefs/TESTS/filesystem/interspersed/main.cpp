@@ -111,18 +111,18 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = file[3].open(&fs, "d", O_WRONLY | O_CREAT);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
-            res = file[0].write((const void*)"a", 1);
+            res = file[0].write((const void *)"a", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[1].write((const void*)"b", 1);
+            res = file[1].write((const void *)"b", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[2].write((const void*)"c", 1);
+            res = file[2].write((const void *)"c", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[3].write((const void*)"d", 1);
+            res = file[3].write((const void *)"d", 1);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         file[0].close();
         file[1].close();
         file[2].close();
@@ -147,28 +147,28 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "b");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "c");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "d");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
@@ -181,7 +181,7 @@ void test_parallel_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = file[3].open(&fs, "d", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = file[0].read(buffer, 1);
             TEST_ASSERT_EQUAL(1, res);
@@ -200,7 +200,7 @@ void test_parallel_file_test()
             res = buffer[0];
             TEST_ASSERT_EQUAL('d', res);
         }
-    
+
         file[0].close();
         file[1].close();
         file[2].close();
@@ -223,9 +223,9 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "e", O_WRONLY | O_CREAT);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = file[0].write((const void*)"e", 1);
+            res = file[0].write((const void *)"e", 1);
             TEST_ASSERT_EQUAL(1, res);
         }
         res = fs.remove("a");
@@ -236,12 +236,12 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = fs.remove("d");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = file[0].write((const void*)"e", 1);
+            res = file[0].write((const void *)"e", 1);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         file[0].close();
         res = dir[0].open(&fs, "/");
         TEST_ASSERT_EQUAL(0, res);
@@ -263,21 +263,21 @@ void test_parallel_remove_file_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "e", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = file[0].read(buffer, 1);
             TEST_ASSERT_EQUAL(1, res);
             res = buffer[0];
             TEST_ASSERT_EQUAL('e', res);
         }
-    
+
         file[0].close();
         res = fs.unmount();
         TEST_ASSERT_EQUAL(0, res);
@@ -301,27 +301,27 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = file[2].open(&fs, "g", O_WRONLY | O_CREAT);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = file[0].write((const void*)"e", 1);
+            res = file[0].write((const void *)"e", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[1].write((const void*)"f", 1);
+            res = file[1].write((const void *)"f", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[2].write((const void*)"g", 1);
+            res = file[2].write((const void *)"g", 1);
             TEST_ASSERT_EQUAL(1, res);
         }
         res = fs.remove("f");
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 5; i++) {
-            res = file[0].write((const void*)"e", 1);
+            res = file[0].write((const void *)"e", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[1].write((const void*)"f", 1);
+            res = file[1].write((const void *)"f", 1);
             TEST_ASSERT_EQUAL(1, res);
-            res = file[2].write((const void*)"g", 1);
+            res = file[2].write((const void *)"g", 1);
             TEST_ASSERT_EQUAL(1, res);
         }
-    
+
         file[0].close();
         file[1].close();
         file[2].close();
@@ -345,14 +345,14 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "g");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
@@ -361,7 +361,7 @@ void test_remove_inconveniently_test()
         TEST_ASSERT_EQUAL(0, res);
         res = file[1].open(&fs, "g", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         for (int i = 0; i < 10; i++) {
             res = file[0].read(buffer, 1);
             TEST_ASSERT_EQUAL(1, res);
@@ -372,7 +372,7 @@ void test_remove_inconveniently_test()
             res = buffer[0];
             TEST_ASSERT_EQUAL('g', res);
         }
-    
+
         file[0].close();
         file[1].close();
         res = fs.unmount();

@@ -40,7 +40,8 @@ struct SecurityDistributionFlags_t {
         csrk_mitm_protected(false),
         ltk_stored(false),
         ltk_mitm_protected(false),
-        secure_connections_paired(false) {
+        secure_connections_paired(false)
+    {
     }
 
     /** peer address */
@@ -49,20 +50,20 @@ struct SecurityDistributionFlags_t {
     /** encryption key size */
     uint8_t encryption_key_size;
     /** true if peer address is public, false if it's static random */
-    uint8_t peer_address_is_public:1;
+    uint8_t peer_address_is_public: 1;
     /** true if local address is public, false if it's static random */
-    uint8_t local_address_is_public:1;
+    uint8_t local_address_is_public: 1;
 
     /** CSRK (Connection Signature Resolving Key) has been distributed and stored */
-    uint8_t csrk_stored:1;
+    uint8_t csrk_stored: 1;
     /** CSRK that is stored has MITM protection */
-    uint8_t csrk_mitm_protected:1;
+    uint8_t csrk_mitm_protected: 1;
     /** LTK (Long Term Key) has been distributed and stored */
-    uint8_t ltk_stored:1;
+    uint8_t ltk_stored: 1;
     /** LTK that is stored has MITM protection */
-    uint8_t ltk_mitm_protected:1;
+    uint8_t ltk_mitm_protected: 1;
     /** the current pairing was done using Secure Connections */
-    uint8_t secure_connections_paired:1;
+    uint8_t secure_connections_paired: 1;
 };
 
 /** Long Term Key and data used to identify it */
@@ -95,16 +96,16 @@ public:
     /**
      * Opaque type representing a handle to a database entry.
      */
-    typedef void* entry_handle_t;
+    typedef void *entry_handle_t;
 
     /* callbacks for asynchronous data retrieval from the security db */
 
-    typedef mbed::Callback<void(entry_handle_t, const SecurityEntryKeys_t*)>
-        SecurityEntryKeysDbCb_t;
-    typedef mbed::Callback<void(entry_handle_t, const csrk_t*)>
-        SecurityEntryCsrkDbCb_t;
-    typedef mbed::Callback<void(::Gap::Whitelist_t*)>
-        WhitelistDbCb_t;
+    typedef mbed::Callback<void(entry_handle_t, const SecurityEntryKeys_t *)>
+    SecurityEntryKeysDbCb_t;
+    typedef mbed::Callback<void(entry_handle_t, const csrk_t *)>
+    SecurityEntryCsrkDbCb_t;
+    typedef mbed::Callback<void(::Gap::Whitelist_t *)>
+    WhitelistDbCb_t;
 
     SecurityDb() { };
     virtual ~SecurityDb() { };
@@ -116,7 +117,7 @@ public:
      * @return pointer to the flags or NULL if the entry do not have any
      * associated flags.
      */
-    virtual const SecurityDistributionFlags_t* get_distribution_flags(
+    virtual const SecurityDistributionFlags_t *get_distribution_flags(
         entry_handle_t db_entry
     ) = 0;
 
@@ -128,7 +129,7 @@ public:
      */
     virtual void set_distribution_flags(
         entry_handle_t db_entry,
-        const SecurityDistributionFlags_t& flags
+        const SecurityDistributionFlags_t &flags
     ) = 0;
 
     /* local keys */
@@ -277,7 +278,7 @@ public:
      *
      * @return pointer to local CSRK
      */
-    virtual const csrk_t* get_local_csrk() = 0;
+    virtual const csrk_t *get_local_csrk() = 0;
 
     /**
      * Update local signing key.
@@ -293,14 +294,14 @@ public:
      *
      * @return ref to x component of public key
      */
-    virtual const public_key_coord_t& get_public_key_x() = 0;
+    virtual const public_key_coord_t &get_public_key_x() = 0;
 
     /**
      * Return local public key.
      *
      * @return ref to y component of public key
      */
-    virtual const public_key_coord_t& get_public_key_y() = 0;
+    virtual const public_key_coord_t &get_public_key_y() = 0;
 
     /**
      * Set local public key.

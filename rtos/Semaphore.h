@@ -49,7 +49,7 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    Semaphore(int32_t count=0);
+    Semaphore(int32_t count = 0);
 
     /** Create and Initialize a Semaphore object used for managing resources.
       @param  count     number of available resources
@@ -65,7 +65,7 @@ public:
 
       @note You may call this function from ISR context if the millisec parameter is set to 0.
     */
-    int32_t wait(uint32_t millisec=osWaitForever);
+    int32_t wait(uint32_t millisec = osWaitForever);
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  absolute timeout time, referenced to Kernel::get_ms_count()

@@ -46,7 +46,7 @@ AT_CellularDevice::~AT_CellularDevice()
 }
 
 // each parser is associated with one filehandle (that is UART)
-ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
+ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     if (!fileHandle) {
         return NULL;
@@ -72,7 +72,7 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     return atHandler;
 }
 
-void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
+void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
     if (!at_handler) {
         return;
@@ -94,7 +94,7 @@ void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
                 break;
             } else {
                 prev = atHandler;
-                atHandler =atHandler->_nextATHandler;
+                atHandler = atHandler->_nextATHandler;
             }
         }
     }

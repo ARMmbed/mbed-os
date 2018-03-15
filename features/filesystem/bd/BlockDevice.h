@@ -40,8 +40,7 @@ typedef uint64_t bd_size_t;
 
 /** A hardware device capable of writing and reading blocks
  */
-class BlockDevice
-{
+class BlockDevice {
 public:
     /** Lifetime of a block device
      */
@@ -174,9 +173,9 @@ public:
     bool is_valid_read(bd_addr_t addr, bd_size_t size) const
     {
         return (
-            addr % get_read_size() == 0 &&
-            size % get_read_size() == 0 &&
-            addr + size <= this->size());
+                   addr % get_read_size() == 0 &&
+                   size % get_read_size() == 0 &&
+                   addr + size <= this->size());
     }
 
     /** Convenience function for checking block program validity
@@ -188,9 +187,9 @@ public:
     bool is_valid_program(bd_addr_t addr, bd_size_t size) const
     {
         return (
-            addr % get_program_size() == 0 &&
-            size % get_program_size() == 0 &&
-            addr + size <= this->size());
+                   addr % get_program_size() == 0 &&
+                   size % get_program_size() == 0 &&
+                   addr + size <= this->size());
     }
 
     /** Convenience function for checking block erase validity
@@ -202,9 +201,9 @@ public:
     bool is_valid_erase(bd_addr_t addr, bd_size_t size) const
     {
         return (
-            addr % get_erase_size() == 0 &&
-            size % get_erase_size() == 0 &&
-            addr + size <= this->size());
+                   addr % get_erase_size() == 0 &&
+                   size % get_erase_size() == 0 &&
+                   addr + size <= this->size());
     }
 };
 

@@ -116,7 +116,7 @@ public:
      *          If the query is valid, and the LoRaMAC is able to send the frame,
      *          the function returns \ref LORAWAN_STATUS_OK.
      */
-    lorawan_status_t query_tx_possible(uint8_t size, loramac_tx_info_t* tx_info);
+    lorawan_status_t query_tx_possible(uint8_t size, loramac_tx_info_t *tx_info);
 
     /**
      * @brief   Adds a channel plan to the system.
@@ -134,7 +134,7 @@ public:
      *          \ref LORAWAN_STATUS_BUSY
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t add_channel_plan(const lorawan_channelplan_t& plan);
+    lorawan_status_t add_channel_plan(const lorawan_channelplan_t &plan);
 
     /**
      * @brief   Removes a channel plan from the system.
@@ -165,7 +165,7 @@ public:
      *          \ref LORAWAN_STATUS_BUSY
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t get_channel_plan(lorawan_channelplan_t& plan);
+    lorawan_status_t get_channel_plan(lorawan_channelplan_t &plan);
 
     /**
      * @brief   Remove a given channel from the active plan.
@@ -441,7 +441,7 @@ public: // Test interface
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t LoRaMacSetTxTimer( uint32_t NextTxTime );
+    lorawan_status_t LoRaMacSetTxTimer(uint32_t NextTxTime);
 
     /**
      * \brief   LoRaMAC stop tx timer.
@@ -452,7 +452,7 @@ public: // Test interface
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t LoRaMacStopTxTimer( );
+    lorawan_status_t LoRaMacStopTxTimer();
 
     /**
      * \brief   Enabled or disables the reception windows
@@ -462,7 +462,7 @@ public: // Test interface
      *
      * \param   [in] enable - Enabled or disables the reception windows
      */
-    void LoRaMacTestRxWindowsOn( bool enable );
+    void LoRaMacTestRxWindowsOn(bool enable);
 
     /**
      * \brief   Enables the MIC field test
@@ -472,7 +472,7 @@ public: // Test interface
      *
      * \param   [in] txPacketCounter - Fixed Tx packet counter value
      */
-    void LoRaMacTestSetMic( uint16_t txPacketCounter );
+    void LoRaMacTestSetMic(uint16_t txPacketCounter);
 
     /**
      * \brief   Enabled or disables the duty cycle
@@ -482,7 +482,7 @@ public: // Test interface
      *
      * \param   [in] enable - Enabled or disables the duty cycle
      */
-    void LoRaMacTestSetDutyCycleOn( bool enable );
+    void LoRaMacTestSetDutyCycleOn(bool enable);
 
     /**
      * \brief   Sets the channel index
@@ -492,7 +492,7 @@ public: // Test interface
      *
      * \param   [in] channel - Channel index
      */
-    void LoRaMacTestSetChannel( uint8_t channel );
+    void LoRaMacTestSetChannel(uint8_t channel);
 
 private:
     /**

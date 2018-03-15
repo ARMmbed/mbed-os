@@ -23,7 +23,7 @@ using utest::v1::Case;
 
 static void dummy_callback(int)
 {
-   /* do nothing. */
+    /* do nothing. */
 }
 
 /** Test Transaction class - creation with initialisation
@@ -43,7 +43,7 @@ void test_Transaction_init()
     const uint8_t word_width = 8;
     unsigned char tx_buffer[tx_buffer_size];
     unsigned char rx_buffer[rx_buffer_size];
-    const event_callback_t& callback = dummy_callback;
+    const event_callback_t &callback = dummy_callback;
     transaction_t transaction_data =
     { tx_buffer, tx_buffer_size, rx_buffer, rx_buffer_size, event_id, callback, word_width };
 
@@ -51,8 +51,8 @@ void test_Transaction_init()
 
     TEST_ASSERT_EQUAL(&object, test_transaction.get_object());
 
-    TEST_ASSERT_EQUAL((void*)tx_buffer, test_transaction.get_transaction()->tx_buffer);
-    TEST_ASSERT_EQUAL((void*)rx_buffer, test_transaction.get_transaction()->rx_buffer);
+    TEST_ASSERT_EQUAL((void *)tx_buffer, test_transaction.get_transaction()->tx_buffer);
+    TEST_ASSERT_EQUAL((void *)rx_buffer, test_transaction.get_transaction()->rx_buffer);
     TEST_ASSERT_EQUAL(tx_buffer_size,   test_transaction.get_transaction()->tx_length);
     TEST_ASSERT_EQUAL(rx_buffer_size,   test_transaction.get_transaction()->rx_length);
     TEST_ASSERT_EQUAL(event_id,         test_transaction.get_transaction()->event);

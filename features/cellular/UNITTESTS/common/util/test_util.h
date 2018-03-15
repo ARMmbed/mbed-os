@@ -17,8 +17,7 @@
 #ifndef TEST_UTIL_H
 #define TEST_UTIL_H
 
-class Test_util
-{
+class Test_util {
 public:
     Test_util();
 

@@ -55,7 +55,7 @@ extern uint32_t g_page_head_end_rounded;
  * @param map   an array of `uint32_t` containing the page map
  * @param page  the index of the page to be set
  */
-static inline void page_allocator_map_set(uint32_t * const map, uint8_t page)
+static inline void page_allocator_map_set(uint32_t *const map, uint8_t page)
 {
     page += g_page_map_shift;
     map[page / 32] |= (1UL << (page % 32));
@@ -65,7 +65,7 @@ static inline void page_allocator_map_set(uint32_t * const map, uint8_t page)
  * @param map   an array of `uint32_t` containing the page map
  * @param page  the index of the page to be set
  */
-static inline void page_allocator_map_clear(uint32_t * const map, uint8_t page)
+static inline void page_allocator_map_clear(uint32_t *const map, uint8_t page)
 {
     page += g_page_map_shift;
     map[page / 32] &= ~(1UL << (page % 32));
@@ -77,7 +77,7 @@ static inline void page_allocator_map_clear(uint32_t * const map, uint8_t page)
  * @retval 0    if page bit is not set
  * @retval 1    if page bit is set
  */
-static inline int page_allocator_map_get(const uint32_t * const map, uint8_t page)
+static inline int page_allocator_map_get(const uint32_t *const map, uint8_t page)
 {
     page += g_page_map_shift;
     return (map[page / 32] >> (page % 32)) & 0x1;

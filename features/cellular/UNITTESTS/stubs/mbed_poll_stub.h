@@ -20,8 +20,8 @@
 #include <stdint.h>
 
 namespace mbed_poll_stub {
-    extern int revents_value;
-    extern int int_value;
+extern int revents_value;
+extern int int_value;
 }
 
 #endif

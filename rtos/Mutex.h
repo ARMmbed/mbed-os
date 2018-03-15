@@ -51,7 +51,7 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
  * \defgroup rtos_Mutex Mutex class
  * @{
  */
- 
+
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 
@@ -89,7 +89,7 @@ public:
 
       @note You cannot call this function from ISR context.
      */
-    osStatus lock(uint32_t millisec=osWaitForever);
+    osStatus lock(uint32_t millisec = osWaitForever);
 
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.

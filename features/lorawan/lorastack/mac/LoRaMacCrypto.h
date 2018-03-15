@@ -40,8 +40,8 @@ SPDX-License-Identifier: BSD-3-Clause
  * @return                        0 if successful, or a cipher specific error code
  */
 int compute_mic(const uint8_t *buffer, uint16_t size, const uint8_t *key,
-                      uint32_t address, uint8_t dir, uint32_t seq_counter,
-                      uint32_t *mic);
+                uint32_t address, uint8_t dir, uint32_t seq_counter,
+                uint32_t *mic);
 
 /**
  * Performs payload encryption
@@ -89,7 +89,7 @@ int decrypt_payload(const uint8_t *buffer, uint16_t size, const uint8_t *key,
  *
  */
 int compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
-                         const uint8_t *key, uint32_t *mic);
+                           const uint8_t *key, uint32_t *mic);
 
 /**
  * Computes the LoRaMAC join frame decryption
@@ -102,7 +102,7 @@ int compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
  * @return                        0 if successful, or a cipher specific error code
  */
 int decrypt_join_frame(const uint8_t *buffer, uint16_t size,
-                         const uint8_t *key, uint8_t *dec_buffer);
+                       const uint8_t *key, uint8_t *dec_buffer);
 
 /**
  * Computes the LoRaMAC join frame decryption
@@ -117,6 +117,6 @@ int decrypt_join_frame(const uint8_t *buffer, uint16_t size,
  */
 int compute_skeys_for_join_frame(const uint8_t *key, const uint8_t *app_nonce,
                                  uint16_t dev_nonce, uint8_t *nwk_skey,
-                                 uint8_t *app_skey );
+                                 uint8_t *app_skey);
 
 #endif // MBED_LORAWAN_MAC_LORAMAC_CRYPTO_H__

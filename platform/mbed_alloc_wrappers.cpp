@@ -76,33 +76,35 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 #endif/* FEATURE_UVISOR */
 
 extern "C" {
-    void * __real__malloc_r(struct _reent * r, size_t size);
-    void * __real__memalign_r(struct _reent * r, size_t alignment, size_t bytes);
-    void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
-    void __real__free_r(struct _reent * r, void * ptr);
-    void* __real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
-    void* malloc_wrapper(struct _reent * r, size_t size, void * caller);
-    void free_wrapper(struct _reent * r, void * ptr, void* caller);
+    void *__real__malloc_r(struct _reent *r, size_t size);
+    void *__real__memalign_r(struct _reent *r, size_t alignment, size_t bytes);
+    void *__real__realloc_r(struct _reent *r, void *ptr, size_t size);
+    void __real__free_r(struct _reent *r, void *ptr);
+    void *__real__calloc_r(struct _reent *r, size_t nmemb, size_t size);
+    void *malloc_wrapper(struct _reent *r, size_t size, void *caller);
+    void free_wrapper(struct _reent *r, void *ptr, void *caller);
 }
 
 // TODO: memory tracing doesn't work with uVisor enabled.
 #if !defined(FEATURE_UVISOR)
 
-extern "C" void * __wrap__malloc_r(struct _reent * r, size_t size) {
+extern "C" void *__wrap__malloc_r(struct _reent *r, size_t size)
+{
     return malloc_wrapper(r, size, MBED_CALLER_ADDR());
 }
 
-extern "C" void * malloc_wrapper(struct _reent * r, size_t size, void * caller) {
+extern "C" void *malloc_wrapper(struct _reent *r, size_t size, void *caller)
+{
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
 #ifdef MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
-    alloc_info_t *alloc_info = (alloc_info_t*)__real__malloc_r(r, size + sizeof(alloc_info_t));
+    alloc_info_t *alloc_info = (alloc_info_t *)__real__malloc_r(r, size + sizeof(alloc_info_t));
     if (alloc_info != NULL) {
         alloc_info->size = size;
-        ptr = (void*)(alloc_info + 1);
+        ptr = (void *)(alloc_info + 1);
         heap_stats.current_size += size;
         heap_stats.total_size += size;
         heap_stats.alloc_cnt += 1;
@@ -123,7 +125,8 @@ extern "C" void * malloc_wrapper(struct _reent * r, size_t size, void * caller) 
     return ptr;
 }
 
-extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+extern "C" void *__wrap__realloc_r(struct _reent *r, void *ptr, size_t size)
+{
     void *new_ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -139,7 +142,7 @@ extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) 
     // Get old size
     uint32_t old_size = 0;
     if (ptr != NULL) {
-        alloc_info_t *alloc_info = ((alloc_info_t*)ptr) - 1;
+        alloc_info_t *alloc_info = ((alloc_info_t *)ptr) - 1;
         old_size = alloc_info->size;
     }
 
@@ -152,7 +155,7 @@ extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) 
     // and free the old buffer
     if (new_ptr != NULL) {
         uint32_t copy_size = (old_size < size) ? old_size : size;
-        memcpy(new_ptr, (void*)ptr, copy_size);
+        memcpy(new_ptr, (void *)ptr, copy_size);
         free(ptr);
     }
 #else // #ifdef MBED_HEAP_STATS_ENABLED
@@ -165,11 +168,13 @@ extern "C" void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) 
     return new_ptr;
 }
 
-extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
+extern "C" void __wrap__free_r(struct _reent *r, void *ptr)
+{
     free_wrapper(r, ptr, MBED_CALLER_ADDR());
 }
 
-extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller) {
+extern "C" void free_wrapper(struct _reent *r, void *ptr, void *caller)
+{
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
@@ -177,11 +182,11 @@ extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller) {
     malloc_stats_mutex->lock();
     alloc_info_t *alloc_info = NULL;
     if (ptr != NULL) {
-        alloc_info = ((alloc_info_t*)ptr) - 1;
+        alloc_info = ((alloc_info_t *)ptr) - 1;
         heap_stats.current_size -= alloc_info->size;
         heap_stats.alloc_cnt -= 1;
     }
-    __real__free_r(r, (void*)alloc_info);
+    __real__free_r(r, (void *)alloc_info);
     malloc_stats_mutex->unlock();
 #else // #ifdef MBED_HEAP_STATS_ENABLED
     __real__free_r(r, ptr);
@@ -192,7 +197,8 @@ extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller) {
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
 
-extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size) {
+extern "C" void *__wrap__calloc_r(struct _reent *r, size_t nmemb, size_t size)
+{
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -214,7 +220,8 @@ extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size)
     return ptr;
 }
 
-extern "C" void * __wrap__memalign_r(struct _reent * r, size_t alignment, size_t bytes) {
+extern "C" void *__wrap__memalign_r(struct _reent *r, size_t alignment, size_t bytes)
+{
     return __real__memalign_r(r, alignment, bytes);
 }
 
@@ -255,26 +262,28 @@ extern "C" {
     void *SUPER_REALLOC(void *ptr, size_t size);
     void *SUPER_CALLOC(size_t nmemb, size_t size);
     void SUPER_FREE(void *ptr);
-    void *malloc_wrapper(size_t size, void* caller);
-    void free_wrapper(void *ptr, void* caller);
+    void *malloc_wrapper(size_t size, void *caller);
+    void free_wrapper(void *ptr, void *caller);
 }
 
 
-extern "C" void* SUB_MALLOC(size_t size) {
+extern "C" void *SUB_MALLOC(size_t size)
+{
     return malloc_wrapper(size, MBED_CALLER_ADDR());
 }
 
-extern "C" void* malloc_wrapper(size_t size, void* caller) {
+extern "C" void *malloc_wrapper(size_t size, void *caller)
+{
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
 #ifdef MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
-    alloc_info_t *alloc_info = (alloc_info_t*)SUPER_MALLOC(size + sizeof(alloc_info_t));
+    alloc_info_t *alloc_info = (alloc_info_t *)SUPER_MALLOC(size + sizeof(alloc_info_t));
     if (alloc_info != NULL) {
         alloc_info->size = size;
-        ptr = (void*)(alloc_info + 1);
+        ptr = (void *)(alloc_info + 1);
         heap_stats.current_size += size;
         heap_stats.total_size += size;
         heap_stats.alloc_cnt += 1;
@@ -296,7 +305,8 @@ extern "C" void* malloc_wrapper(size_t size, void* caller) {
 }
 
 
-extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
+extern "C" void *SUB_REALLOC(void *ptr, size_t size)
+{
     void *new_ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -307,7 +317,7 @@ extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
     // Get old size
     uint32_t old_size = 0;
     if (ptr != NULL) {
-        alloc_info_t *alloc_info = ((alloc_info_t*)ptr) - 1;
+        alloc_info_t *alloc_info = ((alloc_info_t *)ptr) - 1;
         old_size = alloc_info->size;
     }
 
@@ -320,7 +330,7 @@ extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
     // and free the old buffer
     if (new_ptr != NULL) {
         uint32_t copy_size = (old_size < size) ? old_size : size;
-        memcpy(new_ptr, (void*)ptr, copy_size);
+        memcpy(new_ptr, (void *)ptr, copy_size);
         free(ptr);
     }
 #else // #ifdef MBED_HEAP_STATS_ENABLED
@@ -333,7 +343,8 @@ extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
     return new_ptr;
 }
 
-extern "C" void *SUB_CALLOC(size_t nmemb, size_t size) {
+extern "C" void *SUB_CALLOC(size_t nmemb, size_t size)
+{
     void *ptr = NULL;
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
@@ -354,11 +365,13 @@ extern "C" void *SUB_CALLOC(size_t nmemb, size_t size) {
     return ptr;
 }
 
-extern "C" void SUB_FREE(void *ptr) {
+extern "C" void SUB_FREE(void *ptr)
+{
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
 
-extern "C" void free_wrapper(void *ptr, void* caller) {
+extern "C" void free_wrapper(void *ptr, void *caller)
+{
 #ifdef MBED_MEM_TRACING_ENABLED
     mbed_mem_trace_lock();
 #endif
@@ -366,11 +379,11 @@ extern "C" void free_wrapper(void *ptr, void* caller) {
     malloc_stats_mutex->lock();
     alloc_info_t *alloc_info = NULL;
     if (ptr != NULL) {
-        alloc_info = ((alloc_info_t*)ptr) - 1;
+        alloc_info = ((alloc_info_t *)ptr) - 1;
         heap_stats.current_size -= alloc_info->size;
         heap_stats.alloc_cnt -= 1;
     }
-    SUPER_FREE((void*)alloc_info);
+    SUPER_FREE((void *)alloc_info);
     malloc_stats_mutex->unlock();
 #else // #ifdef MBED_HEAP_STATS_ENABLED
     SUPER_FREE(ptr);

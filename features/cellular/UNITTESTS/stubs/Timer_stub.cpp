@@ -20,35 +20,45 @@
 
 namespace mbed {
 
-Timer::Timer()  {
+Timer::Timer()
+{
 }
 
-Timer::Timer(const ticker_data_t *data) {
+Timer::Timer(const ticker_data_t *data)
+{
 }
 
-Timer::~Timer() {
+Timer::~Timer()
+{
 }
 
-void Timer::start() {
+void Timer::start()
+{
 }
 
-void Timer::stop() {;
+void Timer::stop()
+{
+    ;
 }
 
-int Timer::read_us() {
+int Timer::read_us()
+{
     return 0;
 }
 
-float Timer::read() {
+float Timer::read()
+{
     return 0;
 }
 
-int Timer::read_ms() {
+int Timer::read_ms()
+{
     timer_stub_value += timer_stub_step;
     return timer_stub_value;
 }
 
-us_timestamp_t Timer::read_high_resolution_us() {
+us_timestamp_t Timer::read_high_resolution_us()
+{
     return 0;
 }
 
@@ -56,7 +66,8 @@ void Timer::reset()
 {
 }
 
-Timer::operator float() {
+Timer::operator float()
+{
     return 0;
 }
 

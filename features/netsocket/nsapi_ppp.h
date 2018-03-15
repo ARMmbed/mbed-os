@@ -47,7 +47,7 @@ nsapi_error_t nsapi_ppp_set_blocking(bool blocking);
  *
  *  @return             0 on success, negative error code on failure
  */
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t, intptr_t)> status_cb=0, const char *uname=0, const char *pwd=0, const nsapi_ip_stack_t stack=DEFAULT_STACK);
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t, intptr_t)> status_cb = 0, const char *uname = 0, const char *pwd = 0, const nsapi_ip_stack_t stack = DEFAULT_STACK);
 
 /** Close a PPP connection
  *

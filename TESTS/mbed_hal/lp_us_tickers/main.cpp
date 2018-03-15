@@ -24,11 +24,11 @@
 using namespace utest::v1;
 
 namespace {
-    volatile bool complete;
-    const ticker_interface_t* intf;
+volatile bool complete;
+const ticker_interface_t *intf;
 }
 
-/* Ticker init should be run just once, thus read should always return a value that 
+/* Ticker init should be run just once, thus read should always return a value that
  * increases (no reset).
  */
 void test_ticker_init(void)
@@ -96,7 +96,7 @@ Case cases[] = {
 #endif
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) 
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
@@ -104,7 +104,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() 
+int main()
 {
     Harness::run(specification);
 }

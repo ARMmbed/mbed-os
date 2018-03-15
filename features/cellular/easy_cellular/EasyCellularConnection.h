@@ -24,15 +24,13 @@
 
 #include "netsocket/CellularBase.h"
 
-namespace mbed
-{
+namespace mbed {
 
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
  */
-class EasyCellularConnection: public CellularBase
-{
+class EasyCellularConnection: public CellularBase {
 
 public:
     EasyCellularConnection(bool debug = false);

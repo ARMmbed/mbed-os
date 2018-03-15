@@ -19,12 +19,12 @@
 
 using namespace mbed;
 
-AT_CellularBase::AT_CellularBase(ATHandler& at) : _at(at)
+AT_CellularBase::AT_CellularBase(ATHandler &at) : _at(at)
 {
 
 }
 
-ATHandler& AT_CellularBase::get_at_handler()
+ATHandler &AT_CellularBase::get_at_handler()
 {
     return _at;
 }

@@ -36,7 +36,7 @@
  * Sequential Strategy to reuse that space for a SequentialFlashJournal_t.
  */
 #ifndef __ICCARM__
-typedef char AssertStorageVolumeManagerMaxVolumesIsSane[(((MAX_VOLUMES) > 0) && ((MAX_VOLUMES) <= 8)) ? 0:-1];
+typedef char AssertStorageVolumeManagerMaxVolumesIsSane[(((MAX_VOLUMES) > 0) &&((MAX_VOLUMES) <= 8)) ? 0 : -1];
 #endif
 
 #define CONCATENATE(A, B) A ## B
@@ -74,8 +74,7 @@ STORAGE_API_EXTERN_C_DECLARATIONS_LIST(MAX_VOLUMES);
  * int32_t to allow for both error and success status returns. This enumeration
  * contains all possible error status values.
  */
-typedef enum _StorageVolumeManager_Status
-{
+typedef enum _StorageVolumeManager_Status {
     STORAGE_VOLUME_MANAGER_STATUS_ERROR_EXHASTED_VOLUMES     = -7,  ///< exhausted the supply of available volumes
     STORAGE_VOLUME_MANAGER_STATUS_ERROR_NOT_ERASABLE         = -8,  ///< Part (or all) of the range provided to Erase() isn't erasable.
     STORAGE_VOLUME_MANAGER_STATUS_ERROR_NOT_PROGRAMMABLE     = -9,  ///< Part (or all) of the range provided to ProgramData() isn't programmable.
@@ -112,15 +111,17 @@ public:
     ARM_STORAGE_STATUS       GetStatus(void);
     int32_t                  GetInfo(ARM_STORAGE_INFO *infoP);
     uint32_t                 ResolveAddress(uint64_t addr);
-    int32_t                  GetNextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP);
+    int32_t                  GetNextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP);
     int32_t                  GetBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP);
 
 public:
-    bool isAllocated(void) const {
+    bool isAllocated(void) const
+    {
         return allocated;
     }
 
-    void deallocate(void) {
+    void deallocate(void)
+    {
         allocated = false;
     }
 
@@ -128,22 +129,27 @@ public:
      * Accessor methods.
      */
 
-    uint64_t getVolumeOffset(void) const {
+    uint64_t getVolumeOffset(void) const
+    {
         return volumeOffset;
     }
-    uint64_t getVolumeSize(void) const {
+    uint64_t getVolumeSize(void) const
+    {
         return volumeSize;
     }
-    const ARM_Storage_Callback_t &getCallback(void) const {
+    const ARM_Storage_Callback_t &getCallback(void) const
+    {
         return callback;
     }
 
 private:
-    bool overlapsWithBlock(const ARM_STORAGE_BLOCK* blockP) const {
+    bool overlapsWithBlock(const ARM_STORAGE_BLOCK *blockP) const
+    {
         return (((blockP->addr + blockP->size) <= volumeOffset) || ((volumeOffset + volumeSize) <= blockP->addr)) ? false : true;
     }
 
-    void transformBlockToVolume(ARM_STORAGE_BLOCK *blockP) const {
+    void transformBlockToVolume(ARM_STORAGE_BLOCK *blockP) const
+    {
         if (blockP->addr < volumeOffset) {
             blockP->addr = volumeOffset;
         }
@@ -194,19 +200,24 @@ public:
      * Accessor methods.
      */
 
-    bool isInitialized() const {
+    bool isInitialized() const
+    {
         return initialized;
     }
-    ARM_DRIVER_STORAGE *getStorage(void) const {
+    ARM_DRIVER_STORAGE *getStorage(void) const
+    {
         return storage;
     }
-    const ARM_STORAGE_INFO &getStorageInfo(void) const {
+    const ARM_STORAGE_INFO &getStorageInfo(void) const
+    {
         return storageInfo;
     }
-    const ARM_STORAGE_CAPABILITIES &getStorageCapabilities(void) const {
+    const ARM_STORAGE_CAPABILITIES &getStorageCapabilities(void) const
+    {
         return storageCapabilities;
     }
-    StorageVolume *volumeAtIndex(size_t index) {
+    StorageVolume *volumeAtIndex(size_t index)
+    {
         return &volumes[index];
     }
 
@@ -248,7 +259,7 @@ private:
 #define FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_2 FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_1 FRIEND_DECLARATIONS_FOR_VOLUME(1)
 #define FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_3 FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_2 FRIEND_DECLARATIONS_FOR_VOLUME(2)
 #define FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_4 FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_3 FRIEND_DECLARATIONS_FOR_VOLUME(3)
-/* ... add more of the above if ever needed */
+    /* ... add more of the above if ever needed */
 
 #define FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES(N) EXPAND(CONCATENATE(FRIEND_DECLARATIONS_FOR_STORAGE_API_INSTANCES_FOR_, N))
 

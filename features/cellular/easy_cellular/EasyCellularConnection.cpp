@@ -54,9 +54,9 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
 }
 
 EasyCellularConnection::EasyCellularConnection(bool debug) :
-        _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
-                MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(), _credentials_err(
-                NSAPI_ERROR_OK)
+    _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
+        MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(), _credentials_err(
+            NSAPI_ERROR_OK)
 {
     tr_info("EasyCellularConnection()");
 #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
@@ -99,7 +99,7 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
         if (_credentials_err) {
             return;
         }
-        CellularNetwork * network = _cellularConnectionFSM.get_network();
+        CellularNetwork *network = _cellularConnectionFSM.get_network();
         if (network) {
             _credentials_err = network->set_credentials(apn, uname, pwd);
 #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
@@ -168,20 +168,20 @@ nsapi_error_t EasyCellularConnection::connect()
         _target_state = CellularConnectionFSM::STATE_SIM_PIN;
         err = _cellularConnectionFSM.continue_to_state(_target_state);
         if (err == NSAPI_ERROR_OK) {
-            int sim_wait = _cellularSemaphore.wait(60*1000); // reserve 60 seconds to access to SIM
+            int sim_wait = _cellularSemaphore.wait(60 * 1000); // reserve 60 seconds to access to SIM
             if (sim_wait != 1) {
                 tr_error("NO SIM ACCESS");
                 err = NSAPI_ERROR_NO_CONNECTION;
             } else {
-                char imsi[MAX_IMSI_LENGTH+1];
+                char imsi[MAX_IMSI_LENGTH + 1];
                 wait(1); // need to wait to access SIM in some modems
                 err = _cellularConnectionFSM.get_sim()->get_imsi(imsi);
                 if (err == NSAPI_ERROR_OK) {
                     const char *apn_config = apnconfig(imsi);
                     if (apn_config) {
-                        const char* apn = _APN_GET(apn_config);
-                        const char* uname = _APN_GET(apn_config);
-                        const char* pwd = _APN_GET(apn_config);
+                        const char *apn = _APN_GET(apn_config);
+                        const char *uname = _APN_GET(apn_config);
+                        const char *pwd = _APN_GET(apn_config);
                         tr_info("Looked up APN %s", apn);
                         err = _cellularConnectionFSM.get_network()->set_credentials(apn, uname, pwd);
                     }

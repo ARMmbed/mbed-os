@@ -81,8 +81,8 @@ control_t cfstore_find_test_01(const size_t call_count)
 }
 
 
-/** @brief	test to call cfstore_find() with key_name that in includes
- *         	illegal characters
+/** @brief  test to call cfstore_find() with key_name that in includes
+ *          illegal characters
  *          - the character can be at the beginning of the key_name
  *          - the character can be at the end of the key_name
  *          - the character can be somewhere within the key_name string
@@ -120,15 +120,15 @@ control_t cfstore_find_test_02(const size_t call_count)
  */
 control_t cfstore_find_test_03_end(const size_t call_count)
 {
-    char* read_buf = NULL;
-    const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    char *read_buf = NULL;
+    const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     char key_name_buf[key_name_max_len];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_SIZE max_len = 0;
-    cfstore_kv_data_t* node;
-    cfstore_kv_data_t* client_node = cfstore_test_init_1_data;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    cfstore_kv_data_t *node;
+    cfstore_kv_data_t *client_node = cfstore_test_init_1_data;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_KEYDESC kdesc;
     ARM_CFSTORE_HANDLE_INIT(prev);
     ARM_CFSTORE_HANDLE_INIT(next);
@@ -136,20 +136,19 @@ control_t cfstore_find_test_03_end(const size_t call_count)
     CFSTORE_DBGLOG("%s:entered\r\n", __func__);
     (void) call_count;
     memset(&kdesc, 0, sizeof(kdesc));
-    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH+1);
+    memset(key_name_buf, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
 
     /*scan for max length of value blob*/
     node = client_node;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         len = strlen(node->value);
-        if(len > max_len){
+        if (len > max_len) {
             max_len = len;
         }
         node++;
     }
     max_len++;  /* space for a terminating null, if required */
-    read_buf = (char*) malloc(max_len);
+    read_buf = (char *) malloc(max_len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to allocated read buffer \r\n", __func__);
     TEST_ASSERT_MESSAGE(read_buf != NULL, cfstore_find_utest_msg_g);
 
@@ -160,8 +159,7 @@ control_t cfstore_find_test_03_end(const size_t call_count)
     /* now find and read back the key values  */
     ret = ARM_DRIVER_ERROR;
     node = client_node;
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         CFSTORE_DBGLOG("%s:About to find node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         ret = drv->Find(node->key_name, prev, next);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to find node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
@@ -174,7 +172,7 @@ control_t cfstore_find_test_03_end(const size_t call_count)
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
-        if(len > 0) {
+        if (len > 0) {
             ret = drv->Read(next, read_buf, &len);
             CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read value (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
@@ -227,15 +225,15 @@ control_t cfstore_find_test_04(const size_t call_count)
 
 /**
  * @brief   function to test whether a key name is valid, can be added to the
- * 			cfstore and found by a wildcard string
+ *          cfstore and found by a wildcard string
  *
- * @param	key_name
- * 			name of the key to create in the store
- * @param	match
- * 			string to use to try and find key_name in the cfstore
- * @param	should_find
- * 			if true, then 'match' should find 'key_name' in the store
- * 			if false, then 'match' should not find 'key_name' in the store
+ * @param   key_name
+ *          name of the key to create in the store
+ * @param   match
+ *          string to use to try and find key_name in the cfstore
+ * @param   should_find
+ *          if true, then 'match' should find 'key_name' in the store
+ *          if false, then 'match' should not find 'key_name' in the store
  *
  * @return  status code
  *          ARM_DRIVER_OK, the test passed successfully
@@ -246,7 +244,7 @@ static bool cfstore_find_key_name_validate(const char *key_name, const char *mat
 {
     bool bret = true;
     bool btest_status = false;
-    char* test_data = (char*) "test_data";
+    char *test_data = (char *) "test_data";
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_KEYDESC kdesc;
@@ -257,30 +255,27 @@ static bool cfstore_find_key_name_validate(const char *key_name, const char *mat
     /* create  */
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
     len = strlen(test_data);
-    ret = cfstore_test_create((const char*) key_name, test_data, &len, &kdesc);
-    if(ret < ARM_DRIVER_OK){
+    ret = cfstore_test_create((const char *) key_name, test_data, &len, &kdesc);
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to create kv (key_name=%s.\r\n", "cfstore_find_test_05_ex", key_name);
         return ret;
     }
     ret = cfstore_test_kv_is_found(match, &bret);
-    if(ret < ARM_DRIVER_OK && ret != ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND){
+    if (ret < ARM_DRIVER_OK && ret != ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
         CFSTORE_ERRLOG("%s:Error: cfstore_test_kv_is_found() failed.\r\n", "cfstore_find_test_05_ex");
         return ret;
     }
     /* dont not use any functions that require finding the created item as they may not work,
      * depending on the construction of the test key_name & match strings */
-    if(should_find == bret)
-    {
+    if (should_find == bret) {
         CFSTORE_DBGLOG("%s:Success: Find() behaved as expected.\r\n", "cfstore_find_test_05_ex");
         btest_status = true;
-    }
-    else
-    {
+    } else {
         CFSTORE_ERRLOG("cfstore_find_test_05_ex: Failed match on %s vs. %s\n",  key_name, match);
     }
     /*delete using the actual name */
-    ret = cfstore_test_delete((const char*) key_name);
-    if(ret < ARM_DRIVER_OK){
+    ret = cfstore_test_delete((const char *) key_name);
+    if (ret < ARM_DRIVER_OK) {
         CFSTORE_ERRLOG("%s:Error: failed to delete kv (key_name=%s)(ret=%d).\r\n", "cfstore_find_test_05_ex", key_name, (int)ret);
     }
     return btest_status;
@@ -289,23 +284,23 @@ static bool cfstore_find_key_name_validate(const char *key_name, const char *mat
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
 typedef struct cfstore_find_key_name_validate_t {
-    const char* key_name;
-    const char* match;
+    const char *key_name;
+    const char *match;
     uint32_t f_allowed : 1;
 } cfstore_find_key_name_validate_t;
 
 cfstore_find_key_name_validate_t cfstore_find_test_05_data[] = {
-        { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{*}{foot}backLeft", true},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}backLeft", true},
-        { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}*", true},
-        { "yotta.hello-world.animal{1}{foot}backLeft", "yotta.hello-world.animal{?}{foot}backLeft", false},
-        { "xyz", "xyz", true},
-        { "xyzijkXYZ", "XYZ", false},
-        { "xyzijkXYZ", "*XYZ", true},
-        { "xyzijkXYZ", "xyz*XYZ", true},
-        { "xyzijkXYZ", "*yz*XYZ", true},
-        { "xyzijkXYZ", "*ijk*", true},
-        { NULL, NULL, false},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{*}{foot}backLeft", true},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}backLeft", true},
+    { "yotta.hello-world.animal{wobbly-dog}{foot}backLeft", "yotta.hello-world.animal{wobbly-dog}{*}*", true},
+    { "yotta.hello-world.animal{1}{foot}backLeft", "yotta.hello-world.animal{?}{foot}backLeft", false},
+    { "xyz", "xyz", true},
+    { "xyzijkXYZ", "XYZ", false},
+    { "xyzijkXYZ", "*XYZ", true},
+    { "xyzijkXYZ", "xyz*XYZ", true},
+    { "xyzijkXYZ", "*yz*XYZ", true},
+    { "xyzijkXYZ", "*ijk*", true},
+    { NULL, NULL, false},
 };
 /// @endcond
 
@@ -319,13 +314,12 @@ control_t cfstore_find_test_05_end(const size_t call_count)
 {
     bool ret = false;
     int32_t ret32 = ARM_DRIVER_ERROR;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
-    cfstore_find_key_name_validate_t* node = cfstore_find_test_05_data;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
+    cfstore_find_key_name_validate_t *node = cfstore_find_test_05_data;
 
     (void) call_count;
 
-    while(node->key_name != NULL)
-    {
+    while (node->key_name != NULL) {
         ret = cfstore_find_key_name_validate(node->key_name, node->match, node->f_allowed);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: test failed (ret=%d)\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret == true, cfstore_find_utest_msg_g);
@@ -355,26 +349,26 @@ control_t cfstore_find_test_05_end(const size_t call_count)
 
 /* table 1: to initialise cfstore with CFSTORE_CREATE_TEST_01_TABLE_MID_ENTRY_01 */
 static cfstore_kv_data_t cfstore_find_test_06_data[] = {
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_01,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_02,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_03,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_04,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_05,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_06,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_07,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_08,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_10,
-        CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_11,
-        { NULL, NULL},
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_01,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_02,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_03,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_04,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_05,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_06,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_07,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_08,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_10,
+    CFSTORE_FIND_TEST_06_ENTRY_NOMATCH_11,
+    { NULL, NULL},
 };
 
 static cfstore_kv_data_t cfstore_find_test_06_data_match_results[] = {
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_03,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_05,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_07,
-        CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
-        { NULL, NULL},
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_03,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_05,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_07,
+    CFSTORE_FIND_TEST_06_ENTRY_MATCH_09,
+    { NULL, NULL},
 };
 /// @endcond
 
@@ -388,32 +382,31 @@ static cfstore_kv_data_t cfstore_find_test_06_data_match_results[] = {
  */
 control_t cfstore_find_test_06_end(const size_t call_count)
 {
-    const char* key_name_query = "0123456789abcdef0123456.y*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    const char *key_name_query = "0123456789abcdef0123456.y*";
+    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     int32_t ret = ARM_DRIVER_ERROR;
     int32_t find_count = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(next);
     ARM_CFSTORE_HANDLE_INIT(prev);
-    cfstore_kv_data_t* node = NULL;
+    cfstore_kv_data_t *node = NULL;
 
     ret = cfstore_test_create_table(cfstore_find_test_06_data);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to add cfstore_find_test_06_data table data (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
-    while((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK)
-    {
-        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    while ((ret = drv->Find(key_name_query, prev, next)) == ARM_DRIVER_OK) {
+        len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         ret = drv->GetKeyName(next, key_name, &len);
-        if(ret < ARM_DRIVER_OK){
+        if (ret < ARM_DRIVER_OK) {
             CFSTORE_ERRLOG("Error: failed to get key name%s", "\n");
             break;
         }
         CFSTORE_LOG("%s:Found entry key_name=%s\n", __func__, key_name);
         node = cfstore_find_test_06_data_match_results;
-        while(node->key_name != NULL){
-            if(strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0){
+        while (node->key_name != NULL) {
+            if (strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0) {
                 find_count++;
                 break;
             }
@@ -425,8 +418,8 @@ control_t cfstore_find_test_06_end(const size_t call_count)
         CFSTORE_HANDLE_SWAP(prev, next);
     }
 
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int) (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1);
-    TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1, cfstore_find_utest_msg_g);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int)(sizeof(cfstore_find_test_06_data_match_results) / sizeof(cfstore_kv_data_t)) - 1);
+    TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results) / sizeof(cfstore_kv_data_t)) - 1, cfstore_find_utest_msg_g);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: expected ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, but ret = %d.\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_find_utest_msg_g);
@@ -444,40 +437,39 @@ control_t cfstore_find_test_06_end(const size_t call_count)
  */
 control_t cfstore_find_test_07_end(const size_t call_count)
 {
-    const char* key_name_query = "0123456789abcdef0123456.y*";
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+    const char *key_name_query = "0123456789abcdef0123456.y*";
+    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    uint8_t len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
     int32_t ret = ARM_DRIVER_ERROR;
     int32_t find_count = 0;
-    ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
+    ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
     ARM_CFSTORE_HANDLE_INIT(next);
-    cfstore_kv_data_t* node = NULL;
+    cfstore_kv_data_t *node = NULL;
 
     ret = cfstore_test_create_table(cfstore_find_test_06_data);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to add cfstore_find_test_06_data table data (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
-    while(true)
-    {
+    while (true) {
 
         ret = drv->Find(key_name_query, NULL, next);
-        if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
+        if (ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
             /* no more attributes found matching search criteria.*/
-           break;
+            break;
         }
 
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Find() failed(ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
-        len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
+        len = CFSTORE_KEY_NAME_MAX_LENGTH + 1;
         ret = drv->GetKeyName(next, key_name, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to get key name for next (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
 
         CFSTORE_LOG("%s:Found entry key_name=%s\n", __func__, key_name);
         node = cfstore_find_test_06_data_match_results;
-        while(node->key_name != NULL){
-            if(strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0){
+        while (node->key_name != NULL) {
+            if (strncmp(node->key_name, key_name, CFSTORE_KEY_NAME_MAX_LENGTH) == 0) {
                 find_count++;
                 break;
             }
@@ -496,8 +488,8 @@ control_t cfstore_find_test_07_end(const size_t call_count)
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
     }
 
-    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int) (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1);
-    TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results)/sizeof(cfstore_kv_data_t))-1, cfstore_find_utest_msg_g);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: find_count=%d doesnt match the number of entries in match table = %d.\n", __func__, (int) find_count, (int)(sizeof(cfstore_find_test_06_data_match_results) / sizeof(cfstore_kv_data_t)) - 1);
+    TEST_ASSERT_MESSAGE(find_count == (sizeof(cfstore_find_test_06_data_match_results) / sizeof(cfstore_kv_data_t)) - 1, cfstore_find_utest_msg_g);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: expected ret == ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, but ret = %d.\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_find_utest_msg_g);
@@ -517,20 +509,20 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FIND_test_00", cfstore_find_test_00),
-        Case("FIND_test_01", cfstore_find_test_01),
-        Case("FIND_test_02", cfstore_find_test_02),
-        Case("FIND_test_03_start", cfstore_utest_default_start),
-        Case("FIND_test_03_end", cfstore_find_test_03_end),
-        Case("FIND_test_04", cfstore_find_test_04),
-        Case("FIND_test_05_start", cfstore_utest_default_start),
-        Case("FIND_test_05_end", cfstore_find_test_05_end),
-        Case("FIND_test_06_start", cfstore_utest_default_start),
-        Case("FIND_test_06_end", cfstore_find_test_06_end),
-        Case("FIND_test_07_start", cfstore_utest_default_start),
-        Case("FIND_test_07_end", cfstore_find_test_07_end),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FIND_test_00", cfstore_find_test_00),
+    Case("FIND_test_01", cfstore_find_test_01),
+    Case("FIND_test_02", cfstore_find_test_02),
+    Case("FIND_test_03_start", cfstore_utest_default_start),
+    Case("FIND_test_03_end", cfstore_find_test_03_end),
+    Case("FIND_test_04", cfstore_find_test_04),
+    Case("FIND_test_05_start", cfstore_utest_default_start),
+    Case("FIND_test_05_end", cfstore_find_test_05_end),
+    Case("FIND_test_06_start", cfstore_utest_default_start),
+    Case("FIND_test_06_end", cfstore_find_test_06_end),
+    Case("FIND_test_07_start", cfstore_utest_default_start),
+    Case("FIND_test_07_end", cfstore_find_test_07_end),
 };
 
 

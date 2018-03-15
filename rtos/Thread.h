@@ -83,9 +83,10 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    Thread(osPriority priority=osPriorityNormal,
-           uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL, const char *name=NULL) {
+    Thread(osPriority priority = osPriorityNormal,
+           uint32_t stack_size = OS_STACK_SIZE,
+           unsigned char *stack_mem = NULL, const char *name = NULL)
+    {
         constructor(priority, stack_size, stack_mem, name);
     }
 
@@ -109,12 +110,13 @@ public:
       @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(task).")
+                          "Thread-spawning constructors hide errors. "
+                          "Replaced by thread.start(task).")
     Thread(mbed::Callback<void()> task,
-           osPriority priority=osPriorityNormal,
-           uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL) {
+           osPriority priority = osPriorityNormal,
+           uint32_t stack_size = OS_STACK_SIZE,
+           unsigned char *stack_mem = NULL)
+    {
         constructor(task, priority, stack_size, stack_mem);
     }
 
@@ -140,12 +142,13 @@ public:
     */
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(task, argument)).")
+                          "Thread-spawning constructors hide errors. "
+                          "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (T::*task)(),
-           osPriority priority=osPriorityNormal,
-           uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL) {
+           osPriority priority = osPriorityNormal,
+           uint32_t stack_size = OS_STACK_SIZE,
+           unsigned char *stack_mem = NULL)
+    {
         constructor(mbed::callback(task, argument),
                     priority, stack_size, stack_mem);
     }
@@ -172,12 +175,13 @@ public:
     */
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(task, argument)).")
+                          "Thread-spawning constructors hide errors. "
+                          "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (*task)(T *),
-           osPriority priority=osPriorityNormal,
-           uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL) {
+           osPriority priority = osPriorityNormal,
+           uint32_t stack_size = OS_STACK_SIZE,
+           unsigned char *stack_mem = NULL)
+    {
         constructor(mbed::callback(task, argument),
                     priority, stack_size, stack_mem);
     }
@@ -204,12 +208,13 @@ public:
         @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "Thread-spawning constructors hide errors. "
-        "Replaced by thread.start(callback(task, argument)).")
-    Thread(void (*task)(void const *argument), void *argument=NULL,
-           osPriority priority=osPriorityNormal,
-           uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL) {
+                          "Thread-spawning constructors hide errors. "
+                          "Replaced by thread.start(callback(task, argument)).")
+    Thread(void (*task)(void const *argument), void *argument = NULL,
+           osPriority priority = osPriorityNormal,
+           uint32_t stack_size = OS_STACK_SIZE,
+           unsigned char *stack_mem = NULL)
+    {
         constructor(mbed::callback((void (*)(void *))task, argument),
                     priority, stack_size, stack_mem);
     }
@@ -234,9 +239,10 @@ public:
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The start function does not support cv-qualifiers. "
-        "Replaced by thread.start(callback(obj, method)).")
-    osStatus start(T *obj, M method) {
+                          "The start function does not support cv-qualifiers. "
+                          "Replaced by thread.start(callback(obj, method)).")
+    osStatus start(T *obj, M method)
+    {
         return start(mbed::callback(obj, method));
     }
 
@@ -307,28 +313,28 @@ public:
       @note You cannot call this function from ISR context.
     */
     State get_state();
-    
+
     /** Get the total stack memory size for this Thread
       @return  the total stack memory size in bytes
 
       @note You cannot call this function from ISR context.
     */
     uint32_t stack_size();
-    
+
     /** Get the currently unused stack memory for this Thread
       @return  the currently unused stack memory in bytes
 
       @note You cannot call this function from ISR context.
     */
     uint32_t free_stack();
-    
+
     /** Get the currently used stack memory for this Thread
       @return  the currently used stack memory in bytes
 
       @note You cannot call this function from ISR context.
     */
     uint32_t used_stack();
-    
+
     /** Get the maximum stack memory usage to date for this Thread
       @return  the maximum stack memory usage to date in bytes
 
@@ -358,7 +364,7 @@ public:
 
       @note You cannot call this function from ISR context.
     */
-    static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
+    static osEvent signal_wait(int32_t signals, uint32_t millisec = osWaitForever);
 
     /** Wait for a specified time period in milliseconds
       Being tick-based, the delay will be up to the specified time - eg for
@@ -424,16 +430,16 @@ public:
 private:
     // Required to share definitions without
     // delegated constructors
-    void constructor(osPriority priority=osPriorityNormal,
-                     uint32_t stack_size=OS_STACK_SIZE,
-                     unsigned char *stack_mem=NULL,
-                     const char *name=NULL);
+    void constructor(osPriority priority = osPriorityNormal,
+                     uint32_t stack_size = OS_STACK_SIZE,
+                     unsigned char *stack_mem = NULL,
+                     const char *name = NULL);
     void constructor(mbed::Callback<void()> task,
-                     osPriority priority=osPriorityNormal,
-                     uint32_t stack_size=OS_STACK_SIZE,
-                     unsigned char *stack_mem=NULL,
-                     const char *name=NULL);
-    static void _thunk(void * thread_ptr);
+                     osPriority priority = osPriorityNormal,
+                     uint32_t stack_size = OS_STACK_SIZE,
+                     unsigned char *stack_mem = NULL,
+                     const char *name = NULL);
+    static void _thunk(void *thread_ptr);
 
     mbed::Callback<void()>     _task;
     osThreadId_t               _tid;

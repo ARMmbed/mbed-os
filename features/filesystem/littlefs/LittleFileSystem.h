@@ -51,13 +51,13 @@ public:
      *      The lookahead buffer requires only 1 bit per block so it can be quite
      *      large with little ram impact. Should be a multiple of 32.
      */
-    LittleFileSystem(const char *name=NULL, BlockDevice *bd=NULL,
-            lfs_size_t read_size=MBED_LFS_READ_SIZE,
-            lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
-            lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
-            lfs_size_t lookahead=MBED_LFS_LOOKAHEAD);
+    LittleFileSystem(const char *name = NULL, BlockDevice *bd = NULL,
+                     lfs_size_t read_size = MBED_LFS_READ_SIZE,
+                     lfs_size_t prog_size = MBED_LFS_PROG_SIZE,
+                     lfs_size_t block_size = MBED_LFS_BLOCK_SIZE,
+                     lfs_size_t lookahead = MBED_LFS_LOOKAHEAD);
     virtual ~LittleFileSystem();
-    
+
     /** Formats a block device with the LittleFileSystem
      *
      *  The block device to format should be mounted when this function is called.
@@ -82,10 +82,10 @@ public:
      *      large with little ram impact. Should be a multiple of 32.
      */
     static int format(BlockDevice *bd,
-        lfs_size_t read_size=MBED_LFS_READ_SIZE,
-        lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
-        lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
-        lfs_size_t lookahead=MBED_LFS_LOOKAHEAD);
+                      lfs_size_t read_size = MBED_LFS_READ_SIZE,
+                      lfs_size_t prog_size = MBED_LFS_PROG_SIZE,
+                      lfs_size_t block_size = MBED_LFS_BLOCK_SIZE,
+                      lfs_size_t lookahead = MBED_LFS_LOOKAHEAD);
 
     /** Mounts a filesystem to a block device
      *
@@ -182,7 +182,7 @@ protected:
      *
      *  @param file     File handle
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
+     *  @param size     The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t file_write(mbed::fs_file_t file, const void *buffer, size_t size);
@@ -263,7 +263,7 @@ protected:
      *  @param dir      Dir handle
      */
     virtual void dir_rewind(mbed::fs_dir_t dir);
-    
+
 private:
     lfs_t _lfs; // _the actual filesystem
     struct lfs_config _config;

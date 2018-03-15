@@ -74,9 +74,9 @@ static control_t cfstore_example4_test_00(const size_t call_count)
     /* initialise the context */
     caps = gCfStoreDriver->GetCapabilities();
     CFSTORE_LOG("%s:INITIALIZING: caps.asynchronous_ops=%lu\n", __func__, caps.asynchronous_ops);
-    if(caps.asynchronous_ops == 1){
-    	/* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
-    	 * This means the test will conveniently pass when run in CI as part of async mode testing */
+    if (caps.asynchronous_ops == 1) {
+        /* This is a sync mode only test. If this test is not built for sync mode, then skip testing return true
+         * This means the test will conveniently pass when run in CI as part of async mode testing */
         CFSTORE_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
         return CaseNext;
     }
@@ -99,32 +99,32 @@ static const PvKeyValue_t testDataKeyValue[] = {
 
 
 static int32_t CreateKeyValueStore(
-	const char *keyName,
-	const char *data,
-	ARM_CFSTORE_SIZE *dataLength,
-	ARM_CFSTORE_KEYDESC *keyDesc)
+    const char *keyName,
+    const char *data,
+    ARM_CFSTORE_SIZE *dataLength,
+    ARM_CFSTORE_KEYDESC *keyDesc)
 {
-	int32_t cfsStatus = ARM_DRIVER_ERROR;
-	ARM_CFSTORE_SIZE valueLength = 0;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
+    int32_t cfsStatus = ARM_DRIVER_ERROR;
+    ARM_CFSTORE_SIZE valueLength = 0;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
 
-	valueLength = *dataLength;
-	cfsStatus = gCfStoreDriver->Create(keyName, valueLength, keyDesc, hkey);
+    valueLength = *dataLength;
+    cfsStatus = gCfStoreDriver->Create(keyName, valueLength, keyDesc, hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Create() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	valueLength = *dataLength;
-	cfsStatus = gCfStoreDriver->Write(hkey, data, &valueLength);
+    valueLength = *dataLength;
+    cfsStatus = gCfStoreDriver->Write(hkey, data, &valueLength);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Write() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: valueLength != *dataLength\n", __func__);
     TEST_ASSERT_MESSAGE(valueLength == *dataLength, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Close(hkey);
+    cfsStatus = gCfStoreDriver->Close(hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Close() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Flush();
+    cfsStatus = gCfStoreDriver->Flush();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Flush() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
@@ -134,49 +134,49 @@ static int32_t CreateKeyValueStore(
 
 static control_t cfstore_example4_test_01(const size_t call_count)
 {
-	int32_t cfsStatus = ARM_DRIVER_ERROR;
-	ARM_CFSTORE_KEYDESC kdesc;
-	ARM_CFSTORE_SIZE valueLen;
-	ARM_CFSTORE_FMODE flags;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
+    int32_t cfsStatus = ARM_DRIVER_ERROR;
+    ARM_CFSTORE_KEYDESC kdesc;
+    ARM_CFSTORE_SIZE valueLen;
+    ARM_CFSTORE_FMODE flags;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
 
-	(void) call_count;
-	PvMemSet(&kdesc, 0, sizeof(kdesc));
+    (void) call_count;
+    PvMemSet(&kdesc, 0, sizeof(kdesc));
 
-	kdesc.drl = ARM_RETENTION_NVM;
-	valueLen = PvStrLen(testDataKeyValue[0].value);
+    kdesc.drl = ARM_RETENTION_NVM;
+    valueLen = PvStrLen(testDataKeyValue[0].value);
 
-	cfsStatus = gCfStoreDriver->Initialize(NULL, NULL);
+    cfsStatus = gCfStoreDriver->Initialize(NULL, NULL);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Initialize() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = CreateKeyValueStore(testDataKeyValue[0].key_name, testDataKeyValue[0].value, &valueLen, &kdesc);
+    cfsStatus = CreateKeyValueStore(testDataKeyValue[0].key_name, testDataKeyValue[0].value, &valueLen, &kdesc);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: CreateKeyValueStore() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	PvMemSet(&flags, 0, sizeof(flags));
+    PvMemSet(&flags, 0, sizeof(flags));
 
-	cfsStatus = gCfStoreDriver->Open(testDataKeyValue[0].key_name, flags, hkey);
+    cfsStatus = gCfStoreDriver->Open(testDataKeyValue[0].key_name, flags, hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Open() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Delete(hkey);
+    cfsStatus = gCfStoreDriver->Delete(hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Delete() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Close(hkey);
+    cfsStatus = gCfStoreDriver->Close(hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Close() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Flush();
+    cfsStatus = gCfStoreDriver->Flush();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Flush() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	cfsStatus = gCfStoreDriver->Uninitialize();
+    cfsStatus = gCfStoreDriver->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
 
-	return CaseNext;
+    return CaseNext;
 }
 #endif // STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 
@@ -189,11 +189,11 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("EXAMPLE4_test_00", cfstore_example4_test_00),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("EXAMPLE4_test_00", cfstore_example4_test_00),
 #if defined STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS && STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==0
-        Case("EXAMPLE4_test_01", cfstore_example4_test_01),
+    Case("EXAMPLE4_test_01", cfstore_example4_test_01),
 #endif // STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 };
 

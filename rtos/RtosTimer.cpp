@@ -28,7 +28,8 @@
 
 namespace rtos {
 
-void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
+void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type)
+{
     _function = func;
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     osTimerAttr_t attr = { 0 };
@@ -38,15 +39,18 @@ void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
     MBED_ASSERT(_id);
 }
 
-osStatus RtosTimer::start(uint32_t millisec) {
+osStatus RtosTimer::start(uint32_t millisec)
+{
     return osTimerStart(_id, millisec);
 }
 
-osStatus RtosTimer::stop(void) {
+osStatus RtosTimer::stop(void)
+{
     return osTimerStop(_id);
 }
 
-RtosTimer::~RtosTimer() {
+RtosTimer::~RtosTimer()
+{
     osTimerDelete(_id);
 }
 

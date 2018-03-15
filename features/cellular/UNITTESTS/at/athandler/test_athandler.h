@@ -17,8 +17,7 @@
 #ifndef TEST_ATHANDLER_H
 #define TEST_ATHANDLER_H
 
-class Test_ATHandler
-{
+class Test_ATHandler {
 public:
     Test_ATHandler();
 

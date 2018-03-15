@@ -99,23 +99,23 @@ public:
          * @note If set, descriptors of the characteristic contain a Server
          * Characteristic Configuration Descriptor.
          */
-        uint8_t _broadcast :1;
+        uint8_t _broadcast : 1;
 
         /**
          * If set, the value of the characteristic can be read.
          */
-        uint8_t _read :1;
+        uint8_t _read : 1;
 
         /**
          * If set, a write command can write the characteristic value
          * (write without response).
          */
-        uint8_t _writeWoResp :1;
+        uint8_t _writeWoResp : 1;
 
         /**
          * If set, clients can issue requests to write the characteristic.
          */
-        uint8_t _write :1;
+        uint8_t _write : 1;
 
         /**
          * If set, the server can emit notifications of the Characteristic Value
@@ -124,7 +124,7 @@ public:
          * @note If set, descriptors of the characteristic contain a Client
          * Characteristic Configuration Descriptor.
          */
-        uint8_t _notify :1;
+        uint8_t _notify : 1;
 
         /**
          * If set, the server can emit indication of the Characteristic Value
@@ -133,12 +133,12 @@ public:
          * @note If set, descriptors of the characteristic contain a Client
          * Characteristic Configuration Descriptor.
          */
-        uint8_t _indicate :1;
+        uint8_t _indicate : 1;
 
         /**
          * If set, signed write of the Characteristic Value is supported.
          */
-        uint8_t _authSignedWrite :1;
+        uint8_t _authSignedWrite : 1;
 
     public:
         /**
@@ -432,7 +432,8 @@ public:
         const GattClient::WriteCallback_t &onWrite
     ) const;
 
-    void setupLongUUID(UUID::LongUUIDBytes_t longUUID, UUID::ByteOrder_t order = UUID::MSB) {
+    void setupLongUUID(UUID::LongUUIDBytes_t longUUID, UUID::ByteOrder_t order = UUID::MSB)
+    {
         uuid.setupLong(longUUID, order);
     }
 
@@ -515,7 +516,7 @@ public:
      *
      * @return The GattClient, which can operate on this characteristic.
      */
-    GattClient* getGattClient()
+    GattClient *getGattClient()
     {
         return gattc;
     }
@@ -525,7 +526,7 @@ public:
      *
      * @return The GattClient, which can operate on this characteristic.
      */
-    const GattClient* getGattClient() const
+    const GattClient *getGattClient() const
     {
         return gattc;
     }
@@ -551,8 +552,9 @@ public:
      * @return true if operands are equals and false otherwise.
      */
     friend bool operator==(
-        const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs
-    ) {
+        const DiscoveredCharacteristic &lhs, const DiscoveredCharacteristic &rhs
+    )
+    {
         return lhs.gattc == rhs.gattc &&
                lhs.uuid == rhs.uuid &&
                lhs.props == rhs.props &&
@@ -571,8 +573,9 @@ public:
      * @return true if operands are not equal and false otherwise.
      */
     friend bool operator !=(
-        const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs
-    ) {
+        const DiscoveredCharacteristic &lhs, const DiscoveredCharacteristic &rhs
+    )
+    {
         return !(lhs == rhs);
     }
 
@@ -584,7 +587,8 @@ public:
         declHandle(GattAttribute::INVALID_HANDLE),
         valueHandle(GattAttribute::INVALID_HANDLE),
         lastHandle(GattAttribute::INVALID_HANDLE),
-        connHandle() {
+        connHandle()
+    {
     }
 
 protected:

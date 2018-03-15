@@ -32,7 +32,7 @@ nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
 int ATHandler_stub::int_value = -1;
 ssize_t ATHandler_stub::ssize_value = 0;
-char* ATHandler_stub::read_string_value = NULL;
+char *ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
 size_t ATHandler_stub::return_given_size = false;
 bool ATHandler_stub::bool_value = false;
@@ -122,7 +122,8 @@ void ATHandler::clear_error()
 {
 }
 
-void ATHandler::skip_param(uint32_t count) {
+void ATHandler::skip_param(uint32_t count)
+{
 
 }
 
@@ -192,7 +193,7 @@ void ATHandler::resp_stop()
 {
 }
 
-void ATHandler::cmd_start(const char* cmd)
+void ATHandler::cmd_start(const char *cmd)
 {
 }
 
@@ -200,11 +201,11 @@ void ATHandler::write_int(int param)
 {
 }
 
-void ATHandler::write_string(const char* param, bool useQuotations)
+void ATHandler::write_string(const char *param, bool useQuotations)
 {
 }
 
-size_t ATHandler::write_bytes(const uint8_t* param, size_t len)
+size_t ATHandler::write_bytes(const uint8_t *param, size_t len)
 {
     if (ATHandler_stub::return_given_size) {
         return len;

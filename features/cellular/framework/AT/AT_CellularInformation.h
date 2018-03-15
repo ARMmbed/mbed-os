@@ -28,8 +28,7 @@ namespace mbed {
  *
  * Class that provides information about cellular device.
  */
-class AT_CellularInformation : public CellularInformation, public AT_CellularBase
-{
+class AT_CellularInformation : public CellularInformation, public AT_CellularBase {
 public:
     AT_CellularInformation(ATHandler &atHandler);
     virtual ~AT_CellularInformation();

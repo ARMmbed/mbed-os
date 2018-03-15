@@ -76,8 +76,8 @@ protected:
     GapEvent(GapEventType type) : type(type) { }
 
     // Disable copy construction and copy assignement operations.
-    GapEvent(const GapEvent&);
-    GapEvent& operator=(const GapEvent&);
+    GapEvent(const GapEvent &);
+    GapEvent &operator=(const GapEvent &);
 };
 
 
@@ -149,7 +149,7 @@ struct GapConnectionCompleteEvent : public GapEvent {
         connection_handle_t connection_handle,
         connection_role_t role,
         advertising_peer_address_type_t peer_address_type,
-        const address_t& peer_address,
+        const address_t &peer_address,
         uint16_t connection_interval,
         uint16_t connection_latency,
         uint16_t supervision_timeout
@@ -162,7 +162,8 @@ struct GapConnectionCompleteEvent : public GapEvent {
         peer_address(peer_address),
         connection_interval(connection_interval),
         connection_latency(connection_latency),
-        supervision_timeout(supervision_timeout) {
+        supervision_timeout(supervision_timeout)
+    {
     }
 
     /*
@@ -229,7 +230,7 @@ struct GapAdvertisingReportEvent : public GapEvent {
     struct advertising_t {
         received_advertising_type_t type;
         connection_peer_address_type_t address_type;
-        const address_t& address;
+        const address_t &address;
         ArrayView<const uint8_t> data;
         int8_t rssi;
     };
@@ -288,7 +289,8 @@ struct GapConnectionUpdateEvent : public GapEvent {
         connection_handle(connection_handle),
         connection_interval(connection_interval),
         connection_latency(connection_latency),
-        supervision_timeout(supervision_timeout) {
+        supervision_timeout(supervision_timeout)
+    {
     }
 
     /**
@@ -357,7 +359,8 @@ struct GapRemoteConnectionParameterRequestEvent : public GapEvent {
         min_connection_interval(min_connection_interval),
         max_connection_interval(max_connection_interval),
         connection_latency(connection_latency),
-        supervision_timeout(supervision_timeout) {
+        supervision_timeout(supervision_timeout)
+    {
     }
 
     /**
@@ -414,7 +417,8 @@ struct GapDisconnectionCompleteEvent : public GapEvent {
     ) : GapEvent(GapEventType::DISCONNECTION_COMPLETE),
         status(status),
         connection_handle(connection_handle),
-        reason(reason) {
+        reason(reason)
+    {
     }
 
     /**

@@ -27,7 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMacMcps.h"
 
 LoRaMacMcps::LoRaMacMcps()
-: _lora_mac(NULL), _lora_phy(NULL)
+    : _lora_mac(NULL), _lora_phy(NULL)
 {
 }
 
@@ -42,7 +42,7 @@ void LoRaMacMcps::activate_mcps_subsystem(LoRaMac *mac, LoRaPHY *phy)
 }
 
 lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
-                                          loramac_protocol_params *params)
+        loramac_protocol_params *params)
 {
 
     if (mcpsRequest == NULL || _lora_phy == NULL || _lora_mac == NULL) {
@@ -63,7 +63,7 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
     machdr.value = 0;
 
     // Before performing any MCPS request, clear the confirmation structure
-    memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
+    memset((uint8_t *) &confirmation, 0, sizeof(confirmation));
 
     confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
@@ -72,37 +72,37 @@ lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
 
     switch (mcpsRequest->type) {
         case MCPS_UNCONFIRMED: {
-            ready_to_send = true;
-            params->max_ack_timeout_retries = 1;
+                ready_to_send = true;
+                params->max_ack_timeout_retries = 1;
 
-            machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            fport = mcpsRequest->req.unconfirmed.fport;
-            fbuffer = mcpsRequest->f_buffer;
-            fbuffer_size = mcpsRequest->f_buffer_size;
-            datarate = mcpsRequest->req.unconfirmed.data_rate;
-            break;
-        }
+                machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
+                fport = mcpsRequest->req.unconfirmed.fport;
+                fbuffer = mcpsRequest->f_buffer;
+                fbuffer_size = mcpsRequest->f_buffer_size;
+                datarate = mcpsRequest->req.unconfirmed.data_rate;
+                break;
+            }
         case MCPS_CONFIRMED: {
-            ready_to_send = true;
-            params->max_ack_timeout_retries = mcpsRequest->req.confirmed.nb_trials;
+                ready_to_send = true;
+                params->max_ack_timeout_retries = mcpsRequest->req.confirmed.nb_trials;
 
-            machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
-            fport = mcpsRequest->req.confirmed.fport;
-            fbuffer = mcpsRequest->f_buffer;
-            fbuffer_size = mcpsRequest->f_buffer_size;
-            datarate = mcpsRequest->req.confirmed.data_rate;
-            break;
-        }
+                machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
+                fport = mcpsRequest->req.confirmed.fport;
+                fbuffer = mcpsRequest->f_buffer;
+                fbuffer_size = mcpsRequest->f_buffer_size;
+                datarate = mcpsRequest->req.confirmed.data_rate;
+                break;
+            }
         case MCPS_PROPRIETARY: {
-            ready_to_send = true;
-            params->max_ack_timeout_retries = 1;
+                ready_to_send = true;
+                params->max_ack_timeout_retries = 1;
 
-            machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
-            fbuffer = mcpsRequest->f_buffer;
-            fbuffer_size = mcpsRequest->f_buffer_size;
-            datarate = mcpsRequest->req.proprietary.data_rate;
-            break;
-        }
+                machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
+                fbuffer = mcpsRequest->f_buffer;
+                fbuffer_size = mcpsRequest->f_buffer_size;
+                datarate = mcpsRequest->req.proprietary.data_rate;
+                break;
+            }
         default:
             break;
     }

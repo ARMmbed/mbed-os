@@ -377,7 +377,7 @@ struct scanning_filter_policy_t : SafeEnum<scanning_filter_policy_t, uint8_t> {
         */
         FILTER_ADVERTISING = 0x01
 
-        // EXTENDED ADVERTISING FILTER POLICY (accept private resolvable direct advertising)
+                             // EXTENDED ADVERTISING FILTER POLICY (accept private resolvable direct advertising)
     };
 
     /**
@@ -419,7 +419,8 @@ struct advertising_data_t {
      *
      * @param input_value Reference to the array containing the advertising data
      */
-    advertising_data_t(const uint8_t (&input_value)[31]) {
+    advertising_data_t(const uint8_t (&input_value)[31])
+    {
         memcpy(value, input_value, sizeof(value));
     }
 
@@ -430,7 +431,8 @@ struct advertising_data_t {
      *
      * @param len Length of the buffer.
      */
-    advertising_data_t(const uint8_t* input_value, size_t len) {
+    advertising_data_t(const uint8_t *input_value, size_t len)
+    {
         const size_t actual_len = std::min(len, sizeof(value));
         memcpy(value, input_value, actual_len);
         memset(value + actual_len, 0x00, sizeof(value) - actual_len);
@@ -440,8 +442,9 @@ struct advertising_data_t {
      * Equal operator between two advertising data.
      */
     friend bool operator==(
-        const advertising_data_t& lhs, const advertising_data_t& rhs
-    ) {
+        const advertising_data_t &lhs, const advertising_data_t &rhs
+    )
+    {
         return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
     }
 
@@ -449,29 +452,33 @@ struct advertising_data_t {
      * Non equal operator between two advertising data.
      */
     friend bool operator!=(
-        const advertising_data_t& lhs, const advertising_data_t& rhs
-    ) {
+        const advertising_data_t &lhs, const advertising_data_t &rhs
+    )
+    {
         return !(lhs == rhs);
     }
 
     /**
      * Subscript operator used to access the content of the advertising data.
      */
-    uint8_t operator[](uint8_t i) const {
+    uint8_t operator[](uint8_t i) const
+    {
         return value[i];
     }
 
     /**
      * Return a pointer to the advertising data buffer.
      */
-    const uint8_t* data() const {
+    const uint8_t *data() const
+    {
         return value;
     }
 
     /**
      * Return (fixed) size of advertising data.
      */
-    uint8_t size() const {
+    uint8_t size() const
+    {
         return sizeof(value);
     }
 

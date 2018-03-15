@@ -50,7 +50,8 @@ void Mutex::constructor(const char *name)
     MBED_ASSERT(_id);
 }
 
-osStatus Mutex::lock(uint32_t millisec) {
+osStatus Mutex::lock(uint32_t millisec)
+{
     osStatus status = osMutexAcquire(_id, millisec);
     if (osOK == status) {
         _count++;
@@ -58,11 +59,13 @@ osStatus Mutex::lock(uint32_t millisec) {
     return status;
 }
 
-bool Mutex::trylock() {
+bool Mutex::trylock()
+{
     return trylock_for(0);
 }
 
-bool Mutex::trylock_for(uint32_t millisec) {
+bool Mutex::trylock_for(uint32_t millisec)
+{
     osStatus status = lock(millisec);
     if (status == osOK) {
         return true;
@@ -73,7 +76,8 @@ bool Mutex::trylock_for(uint32_t millisec) {
     return false;
 }
 
-bool Mutex::trylock_until(uint64_t millisec) {
+bool Mutex::trylock_until(uint64_t millisec)
+{
     uint64_t now = Kernel::get_ms_count();
 
     if (now >= millisec) {
@@ -86,16 +90,19 @@ bool Mutex::trylock_until(uint64_t millisec) {
     }
 }
 
-osStatus Mutex::unlock() {
+osStatus Mutex::unlock()
+{
     _count--;
     return osMutexRelease(_id);
 }
 
-osThreadId Mutex::get_owner() {
+osThreadId Mutex::get_owner()
+{
     return osMutexGetOwner(_id);
 }
 
-Mutex::~Mutex() {
+Mutex::~Mutex()
+{
     osMutexDelete(_id);
 }
 

@@ -79,29 +79,29 @@ ARM_CFSTORE_DRIVER *drv = &cfstore_driver;
 
 
 static int32_t CreateKeyValueStore(
-	const char *keyName,
-	const char *data,
-	ARM_CFSTORE_SIZE *dataLength,
-	ARM_CFSTORE_KEYDESC *keyDesc)
+    const char *keyName,
+    const char *data,
+    ARM_CFSTORE_SIZE *dataLength,
+    ARM_CFSTORE_KEYDESC *keyDesc)
 {
-	int32_t cfsStatus = ARM_DRIVER_ERROR;
-	ARM_CFSTORE_SIZE valueLength = 0;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
+    int32_t cfsStatus = ARM_DRIVER_ERROR;
+    ARM_CFSTORE_SIZE valueLength = 0;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
 
-	valueLength = *dataLength;
-	cfsStatus = drv->Create(keyName, valueLength, keyDesc, hkey);
-	TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
+    valueLength = *dataLength;
+    cfsStatus = drv->Create(keyName, valueLength, keyDesc, hkey);
+    TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
 
-	valueLength = *dataLength;
-	cfsStatus = drv->Write(hkey, data, &valueLength);
-	/*
-	 * (1) Note the following:
-	 * - if cfsStatus > 0 then Write() has completed synchronously and returned the number of bytes written (irrespective of the caps.asynchronous_ops attribute).
-	 * - if cfsStatus == ARM_DRIVER_OK then:
+    valueLength = *dataLength;
+    cfsStatus = drv->Write(hkey, data, &valueLength);
+    /*
+     * (1) Note the following:
+     * - if cfsStatus > 0 then Write() has completed synchronously and returned the number of bytes written (irrespective of the caps.asynchronous_ops attribute).
+     * - if cfsStatus == ARM_DRIVER_OK then:
      *      - if caps.asynchronous_ops == true then the operation will be completed with registered client callback passed to Initialize().
      *      - if caps.asynchronous_ops == false then the operation has completed synchronously and no bytes were written.
      * - if cfsStatus < ARM_DRIVER_OK then an error has occurred
-	 */
+     */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key (rc=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example2_utest_msg_g);
 
@@ -111,71 +111,71 @@ static int32_t CreateKeyValueStore(
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%sError: Write() return value cfsStatus(%d) does not match the expected dataLength(%d)\n", __func__, (int) cfsStatus, (int) *dataLength);
     TEST_ASSERT_MESSAGE((int32_t) *dataLength == cfsStatus, cfstore_example2_utest_msg_g);
 
-	drv->Close(hkey);
-	/* CreateKeyValueStore() returns what was returned from Write(). See (1) above for description. */
-	return cfsStatus;
+    drv->Close(hkey);
+    /* CreateKeyValueStore() returns what was returned from Write(). See (1) above for description. */
+    return cfsStatus;
 }
 
 static control_t cfstore_example2_test_01(const size_t call_count)
 {
-	int32_t cfsStatus;
-	ARM_CFSTORE_HANDLE_INIT(hkey);
-	ARM_CFSTORE_HANDLE_INIT(updatedKeyH);
-	ARM_CFSTORE_FMODE flags;
-	ARM_CFSTORE_KEYDESC kdesc;
-	ARM_CFSTORE_SIZE valueLen;
-	char* ptr = NULL;
-	
-	const char key[]   = "com.arm.mbed.spv.assets.asset2.payload";
-	const char value[] = "Grumpy old man";
+    int32_t cfsStatus;
+    ARM_CFSTORE_HANDLE_INIT(hkey);
+    ARM_CFSTORE_HANDLE_INIT(updatedKeyH);
+    ARM_CFSTORE_FMODE flags;
+    ARM_CFSTORE_KEYDESC kdesc;
+    ARM_CFSTORE_SIZE valueLen;
+    char *ptr = NULL;
 
-	(void) call_count;
+    const char key[]   = "com.arm.mbed.spv.assets.asset2.payload";
+    const char value[] = "Grumpy old man";
 
-	// It must not exceed the value_len field specified when the Key-Value pair was created
-	const char newDataToWrite[] = "Grumpy man";
-	
-	char readBuf[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
-	ARM_CFSTORE_SIZE len = 0;
+    (void) call_count;
 
-	// Write a key-value pair
+    // It must not exceed the value_len field specified when the Key-Value pair was created
+    const char newDataToWrite[] = "Grumpy man";
 
-	PvMemSet(&kdesc, 0, sizeof(kdesc));
-	PvMemSet(&flags, 0, sizeof(flags));
-	PvMemSet(readBuf, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
+    char readBuf[CFSTORE_KEY_NAME_MAX_LENGTH + 1];
+    ARM_CFSTORE_SIZE len = 0;
 
-	kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
-	/* The length supplied to Write() is the number of octets to store in the blob.
-	 * Specifying the following value for valueLen will store the terminating null to
-	 * a string, for example.
-	 */
-	valueLen = PvStrLen(value) + 1;
+    // Write a key-value pair
 
-	cfsStatus = drv->Initialize(NULL, NULL);
+    PvMemSet(&kdesc, 0, sizeof(kdesc));
+    PvMemSet(&flags, 0, sizeof(flags));
+    PvMemSet(readBuf, 0, CFSTORE_KEY_NAME_MAX_LENGTH + 1);
+
+    kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
+    /* The length supplied to Write() is the number of octets to store in the blob.
+     * Specifying the following value for valueLen will store the terminating null to
+     * a string, for example.
+     */
+    valueLen = PvStrLen(value) + 1;
+
+    cfsStatus = drv->Initialize(NULL, NULL);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Initialize() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example2_utest_msg_g);
 
-	cfsStatus = CreateKeyValueStore(key, value, &valueLen, &kdesc);
+    cfsStatus = CreateKeyValueStore(key, value, &valueLen, &kdesc);
 
-	/* CreateKeyValueStore() returns the number of characters written, which can vary between 0 and the supplied arg valueLen
-	 * - in the case that this example is compiled for flash mode sync, CreateKeyValueStore(), on success should always return valueLen
-	 * - in the case that this example is compiled for flash mode async, CreateKeyValueStore() on success may return a value 0 to valueLen
-	 *   with async notification of the completed transaction.
-	 */
+    /* CreateKeyValueStore() returns the number of characters written, which can vary between 0 and the supplied arg valueLen
+     * - in the case that this example is compiled for flash mode sync, CreateKeyValueStore(), on success should always return valueLen
+     * - in the case that this example is compiled for flash mode async, CreateKeyValueStore() on success may return a value 0 to valueLen
+     *   with async notification of the completed transaction.
+     */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%sError: valueLen(%d) does not match the expected returned value from CreateKeyValueStore(%d)\n", __func__, (int) valueLen, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus == (int32_t) valueLen, cfstore_example2_utest_msg_g);
 
-	// Read key-value pair with 'Write' permission
+    // Read key-value pair with 'Write' permission
 
-	flags.read = true;
-	flags.write = true;
-	cfsStatus = drv->Open(key, flags, hkey);
-	TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
+    flags.read = true;
+    flags.write = true;
+    cfsStatus = drv->Open(key, flags, hkey);
+    TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
 
-	len = sizeof(readBuf);
-	cfsStatus = drv->Read(hkey, readBuf, &len);
+    len = sizeof(readBuf);
+    cfsStatus = drv->Read(hkey, readBuf, &len);
     /* Read() returns the number of characters read, which can vary between 0 and the size of the value blob, and the size of the supplied buffer  */
-	CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned value (%d) does not match the created length of the value blob(%d)\n", __func__, (int) cfsStatus, (int) PvStrLen(value) + 1);
-    TEST_ASSERT_MESSAGE(cfsStatus == (int32_t) (PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned value (%d) does not match the created length of the value blob(%d)\n", __func__, (int) cfsStatus, (int) PvStrLen(value) + 1);
+    TEST_ASSERT_MESSAGE(cfsStatus == (int32_t)(PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned len value (%d) does not match the created length of the value blob(%d)\n", __func__, (int) len, (int) PvStrLen(value) + 1);
     TEST_ASSERT_MESSAGE(len == PvStrLen(value) + 1, cfstore_example2_utest_msg_g);
@@ -187,34 +187,33 @@ static control_t cfstore_example2_test_01(const size_t call_count)
      * - The new data is shorter that the old data so it will be accommodated in the value blob
      * - The size of the value blob will stay the same.
      */
-	// Update the value and value length
+    // Update the value and value length
     /* note len set to sizeof(newDataToWrite) which includes the terminating null of the string */
-	len = sizeof(newDataToWrite);
-	cfsStatus = drv->Write(hkey, newDataToWrite, &len);
+    len = sizeof(newDataToWrite);
+    cfsStatus = drv->Write(hkey, newDataToWrite, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Write() returned cfsStatus value (%d) does not match the length of new data written(%d)\n", __func__, (int) cfsStatus, (int)  sizeof(newDataToWrite));
     TEST_ASSERT_MESSAGE(cfsStatus == (int32_t) sizeof(newDataToWrite), cfstore_example2_utest_msg_g);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Write() returned len (%d) does not match the length of new data written(%d)\n", __func__, (int) len, (int) sizeof(newDataToWrite));
     TEST_ASSERT_MESSAGE((int32_t) len == (int32_t) sizeof(newDataToWrite), cfstore_example2_utest_msg_g);
 
-	drv->Close(hkey);
+    drv->Close(hkey);
 
-	// Check that the value was updated
-	flags.write = false;
-	cfsStatus = drv->Open(key, flags, updatedKeyH);
-	TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
+    // Check that the value was updated
+    flags.write = false;
+    cfsStatus = drv->Open(key, flags, updatedKeyH);
+    TEST_ASSERT_EQUAL(ARM_DRIVER_OK, cfsStatus);
 
-	len = CFSTORE_KEY_NAME_MAX_LENGTH;
-	PvMemSet(readBuf, 0, len);
-	cfsStatus = drv->Read(updatedKeyH, readBuf, &len);
+    len = CFSTORE_KEY_NAME_MAX_LENGTH;
+    PvMemSet(readBuf, 0, len);
+    cfsStatus = drv->Read(updatedKeyH, readBuf, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned value (%d) does not match the created length of the value blob(%d)\n", __func__, (int) cfsStatus, (int) PvStrLen(value) + 1);
-    TEST_ASSERT_MESSAGE(cfsStatus == (int32_t) (PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
+    TEST_ASSERT_MESSAGE(cfsStatus == (int32_t)(PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned len value (%d) does not match the created length of the value blob(%d)\n", __func__, (int) len, (int) PvStrLen(value) + 1);
     TEST_ASSERT_MESSAGE(len == (PvStrLen(value) + 1), cfstore_example2_utest_msg_g);
 
     /* convert any terminating nulls to '=' */
-    while( (ptr = (char*) memchr(readBuf, 0, (PvStrLen(value) + 1))) != NULL)
-    {
+    while ((ptr = (char *) memchr(readBuf, 0, (PvStrLen(value) + 1))) != NULL) {
         *ptr = '=';
     }
     /* check the data is as expected */
@@ -224,13 +223,13 @@ static control_t cfstore_example2_test_01(const size_t call_count)
     /* revert to CFSTORE_LOG if more trace required */
     CFSTORE_DBGLOG("Success: New value of KV (%s) value blob (with nulls converted to '=') = (%s)\n", key, readBuf);
 
-	drv->Close(updatedKeyH);
+    drv->Close(updatedKeyH);
 
-	cfsStatus = drv->Uninitialize();
+    cfsStatus = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() failed (cfsStatus=%d)\n", __func__, (int) cfsStatus);
     TEST_ASSERT_MESSAGE(cfsStatus >= ARM_DRIVER_OK, cfstore_example2_utest_msg_g);
 
-	return CaseNext;
+    return CaseNext;
 }
 
 
@@ -242,10 +241,10 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("EXAMPLE2_test_00", cfstore_example2_test_00),
-        Case("EXAMPLE2_test_01", cfstore_example2_test_01),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("EXAMPLE2_test_00", cfstore_example2_test_00),
+    Case("EXAMPLE2_test_01", cfstore_example2_test_01),
 };
 
 

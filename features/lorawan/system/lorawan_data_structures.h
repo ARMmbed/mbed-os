@@ -125,8 +125,8 @@ typedef uint32_t lorawan_time_t;
  */
 // reject if user tries to set more than MTU
 #if MBED_CONF_LORA_TX_MAX_SIZE > 255
-    #warning "Cannot set TX Max size more than MTU=255"
-    #define MBED_CONF_LORA_TX_MAX_SIZE              255
+#warning "Cannot set TX Max size more than MTU=255"
+#define MBED_CONF_LORA_TX_MAX_SIZE              255
 #endif
 
 /*!
@@ -166,15 +166,14 @@ typedef union {
     /*!
      * The structure to store the minimum and the maximum datarate.
      */
-    struct sFields
-    {
-         /*!
-         * The minimum data rate.
-         *
-         * LoRaWAN Regional Parameters V1.0.2rB.
-         *
-         * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-         */
+    struct sFields {
+        /*!
+        * The minimum data rate.
+        *
+        * LoRaWAN Regional Parameters V1.0.2rB.
+        *
+        * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
+        */
         int8_t min : 4;
         /*!
          * The maximum data rate.
@@ -560,8 +559,7 @@ typedef union {
     /*!
      * The structure containing single access to header bits.
      */
-    struct hdr_bits_s
-    {
+    struct hdr_bits_s {
         /*!
          * Major version.
          */
@@ -590,8 +588,7 @@ typedef union {
     /*!
      * The structure containing single access to bits.
      */
-    struct ctrl_bits_s
-    {
+    struct ctrl_bits_s {
         /*!
          * Frame options length.
          */
@@ -691,8 +688,7 @@ typedef union {
     /*!
      * The structure containing single access to bits.
      */
-    struct mac_flag_bits_s
-    {
+    struct mac_flag_bits_s {
         /*!
          * MCPS-Req pending
          */
@@ -841,8 +837,7 @@ typedef struct {
     /*!
      * MCPS-Request parameters.
      */
-    union
-    {
+    union {
         /*!
          * MCPS-Request parameters for an unconfirmed frame.
          */
@@ -861,12 +856,12 @@ typedef struct {
       *
       * A pointer to the buffer of the frame payload.
       */
-     void *f_buffer;
-     /** Payload size
-      *
-      * The size of the frame payload.
-      */
-     uint16_t f_buffer_size;
+    void *f_buffer;
+    /** Payload size
+     *
+     * The size of the frame payload.
+     */
+    uint16_t f_buffer_size;
 
 } loramac_mcps_req_t;
 
@@ -1450,31 +1445,31 @@ typedef union {
      *
      * Related MIB type: \ref MIB_CHANNELS
      */
-    channel_params_t* channel_list;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_CHANNEL
-     */
+    channel_params_t *channel_list;
+    /*!
+    * Channel for the receive window 2
+    *
+    * Related MIB type: \ref MIB_RX2_CHANNEL
+    */
     rx2_channel_params rx2_channel;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
-     */
+    /*!
+    * Channel for the receive window 2
+    *
+    * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
+    */
     rx2_channel_params default_rx2_channel;
     /*!
      * Channel mask
      *
      * Related MIB type: \ref MIB_CHANNELS_MASK
      */
-    uint16_t* channel_mask;
+    uint16_t *channel_mask;
     /*!
      * Default channel mask
      *
      * Related MIB type: \ref MIB_CHANNELS_DEFAULT_MASK
      */
-    uint16_t* default_channel_mask;
+    uint16_t *default_channel_mask;
     /*!
      * Number of frame repetitions
      *
@@ -1552,7 +1547,7 @@ typedef union {
      *
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
-    multicast_params_t* multicast_list;
+    multicast_params_t *multicast_list;
     /*!
      * System overall timing error in milliseconds
      *
@@ -1586,7 +1581,7 @@ typedef struct {
      * MLME-RequestConfirm parameters
      */
     mib_params_t param;
-}loramac_mib_req_confirm_t;
+} loramac_mib_req_confirm_t;
 
 /*!
  * LoRaMAC TX information
@@ -1639,29 +1634,29 @@ typedef struct {
      *
      * \param   [OUT] MCPS-Confirm parameters.
      */
-    mbed::Callback<void(loramac_mcps_confirm_t*)> mcps_confirm;
+    mbed::Callback<void(loramac_mcps_confirm_t *)> mcps_confirm;
 
     /*!
      * \brief   MCPS-Indication primitive.
      *
      * \param   [OUT] MCPS-Indication parameters.
      */
-    mbed::Callback<void(loramac_mcps_indication_t*)> mcps_indication;
+    mbed::Callback<void(loramac_mcps_indication_t *)> mcps_indication;
 
     /*!
      * \brief   MLME-Confirm primitive.
      *
      * \param   [OUT] MLME-Confirm parameters.
      */
-    mbed::Callback<void(loramac_mlme_confirm_t*)> mlme_confirm;
+    mbed::Callback<void(loramac_mlme_confirm_t *)> mlme_confirm;
 
     /*!
      * \brief   MLME-Indication primitive
      *
      * \param   [OUT] MLME-Indication parameters
      */
-    mbed::Callback<void(loramac_mlme_indication_t*)> mlme_indication;
-}loramac_primitives_t;
+    mbed::Callback<void(loramac_mlme_indication_t *)> mlme_indication;
+} loramac_primitives_t;
 
 /** End-device states.
  *
@@ -2057,7 +2052,7 @@ typedef struct {
     /*!
      * The RX window timeout
      */
-     uint32_t window_timeout;
+    uint32_t window_timeout;
     /*!
      * The RX window offset
      */
@@ -2131,45 +2126,45 @@ typedef struct {
 } loramac_keys;
 
 typedef struct {
-      /*!
-       * Aggregated duty cycle management
-       */
-      lorawan_time_t aggregated_last_tx_time;
-      lorawan_time_t aggregated_timeoff;
+    /*!
+     * Aggregated duty cycle management
+     */
+    lorawan_time_t aggregated_last_tx_time;
+    lorawan_time_t aggregated_timeoff;
 
-      /*!
-       * Stores the time at LoRaMac initialization.
-       *
-       * \remark Used for the BACKOFF_DC computation.
-       */
-      lorawan_time_t mac_init_time;
+    /*!
+     * Stores the time at LoRaMac initialization.
+     *
+     * \remark Used for the BACKOFF_DC computation.
+     */
+    lorawan_time_t mac_init_time;
 
 
-      /*!
-       * Last transmission time on air
-       */
-      lorawan_time_t tx_toa;
+    /*!
+     * Last transmission time on air
+     */
+    lorawan_time_t tx_toa;
 
-      /*!
-       * LoRaMac timer used to check the LoRaMacState (runs every second)
-       */
-      timer_event_t mac_state_check_timer;
+    /*!
+     * LoRaMac timer used to check the LoRaMacState (runs every second)
+     */
+    timer_event_t mac_state_check_timer;
 
-      /*!
-       * LoRaMac duty cycle delayed Tx timer
-       */
-      timer_event_t tx_delayed_timer;
+    /*!
+     * LoRaMac duty cycle delayed Tx timer
+     */
+    timer_event_t tx_delayed_timer;
 
-      /*!
-       * LoRaMac reception windows timers
-       */
-      timer_event_t rx_window1_timer;
-      timer_event_t rx_window2_timer;
+    /*!
+     * LoRaMac reception windows timers
+     */
+    timer_event_t rx_window1_timer;
+    timer_event_t rx_window2_timer;
 
-      /*!
-       * Acknowledge timeout timer. Used for packet retransmissions.
-       */
-      timer_event_t ack_timeout_timer;
+    /*!
+     * Acknowledge timeout timer. Used for packet retransmissions.
+     */
+    timer_event_t ack_timeout_timer;
 
 } lorawan_timers;
 
@@ -2183,7 +2178,7 @@ typedef struct {
     /*!
      * Holds the type of current Receive window slot
      */
-     rx_slot_t rx_slot;
+    rx_slot_t rx_slot;
 
     /*!
      * Indicates if the node is connected to a private or public network
@@ -2376,7 +2371,7 @@ typedef struct {
  *
  */
 typedef enum lora_events {
-    CONNECTED=0,
+    CONNECTED = 0,
     DISCONNECTED,
     TX_DONE,
     TX_TIMEOUT,
@@ -2390,21 +2385,21 @@ typedef enum lora_events {
 } lorawan_event_t;
 
 typedef struct  {
-     // Mandatory. Event Callback must be provided
-     mbed::Callback<void(lorawan_event_t)> events;
+    // Mandatory. Event Callback must be provided
+    mbed::Callback<void(lorawan_event_t)> events;
 
-     // Rest are optional
-     // If the user do not assign these callbacks, these callbacks would return
-     // null if checked with bool operator
-     // link_check_resp callback and other such callbacks will be maped in
-     // future releases of Mbed-OS
-     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
+    // Rest are optional
+    // If the user do not assign these callbacks, these callbacks would return
+    // null if checked with bool operator
+    // link_check_resp callback and other such callbacks will be maped in
+    // future releases of Mbed-OS
+    mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
 
-     // Battery level callback goes in the down direction, i.e., it informs
-     // the stack about the battery level by calling a function provided
-     // by the upper layers
-     mbed::Callback<uint8_t(void)> battery_level;
- } lorawan_app_callbacks_t;
+    // Battery level callback goes in the down direction, i.e., it informs
+    // the stack about the battery level by calling a function provided
+    // by the upper layers
+    mbed::Callback<uint8_t(void)> battery_level;
+} lorawan_app_callbacks_t;
 
 typedef struct lora_channelplan {
     uint8_t nb_channels;    // number of channels

@@ -48,13 +48,13 @@ extern uint32_t SystemCoreClock;
 #define TOLERANCE_FACTOR 30000.0f
 #define US_FACTOR        1000000.0f
 
-static const int delta_sys_clk_us = ((int) (TOLERANCE_FACTOR / (float)SystemCoreClock * US_FACTOR));
+static const int delta_sys_clk_us = ((int)(TOLERANCE_FACTOR / (float)SystemCoreClock *US_FACTOR));
 
 /* When test performs time measurement using Timer in sequence, then measurement error accumulates
  * in the successive attempts. */
- #define DELTA_US(i) (delta_sys_clk_us * i)
- #define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
- #define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
+#define DELTA_US(i) (delta_sys_clk_us * i)
+#define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
+#define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
 
 #define TICKER_FREQ_1MHZ 1000000
 #define TICKER_BITS 32
@@ -107,7 +107,7 @@ static void stub_fire_interrupt(void)
 ticker_info_t info =
 { TICKER_FREQ_1MHZ, TICKER_BITS };
 
-const ticker_info_t * stub_get_info(void)
+const ticker_info_t *stub_get_info(void)
 {
     return &info;
 }
@@ -133,7 +133,7 @@ static const ticker_data_t us_data = {
 };
 
 /* Function which returns user ticker data. */
-const ticker_data_t* get_user_ticker_data(void)
+const ticker_data_t *get_user_ticker_data(void)
 {
     return &us_data;
 }
@@ -734,7 +734,8 @@ void test_timer_time_measurement()
     TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), wait_val_us, p_timer->read_high_resolution_us());
 }
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -763,7 +764,8 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

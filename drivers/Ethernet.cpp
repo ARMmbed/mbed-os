@@ -21,48 +21,72 @@
 
 namespace mbed {
 
-Ethernet::Ethernet() {
+Ethernet::Ethernet()
+{
     ethernet_init();
 }
 
-Ethernet::~Ethernet() {
+Ethernet::~Ethernet()
+{
     ethernet_free();
 }
 
-int Ethernet::write(const char *data, int size) {
+int Ethernet::write(const char *data, int size)
+{
     return ethernet_write(data, size);
 }
 
-int Ethernet::send() {
+int Ethernet::send()
+{
     return ethernet_send();
 }
 
-int Ethernet::receive() {
+int Ethernet::receive()
+{
     return ethernet_receive();
 }
 
-int Ethernet::read(char *data, int size) {
+int Ethernet::read(char *data, int size)
+{
     return ethernet_read(data, size);
 }
 
-void Ethernet::address(char *mac) {
+void Ethernet::address(char *mac)
+{
     return ethernet_address(mac);
 }
 
-int Ethernet::link() {
+int Ethernet::link()
+{
     return ethernet_link();
 }
 
-void Ethernet::set_link(Mode mode) {
+void Ethernet::set_link(Mode mode)
+{
     int speed = -1;
     int duplex = 0;
 
-    switch(mode) {
-        case AutoNegotiate : speed = -1; duplex = 0; break;
-        case HalfDuplex10  : speed = 0;  duplex = 0; break;
-        case FullDuplex10  : speed = 0;  duplex = 1; break;
-        case HalfDuplex100 : speed = 1;  duplex = 0; break;
-        case FullDuplex100 : speed = 1;  duplex = 1; break;
+    switch (mode) {
+        case AutoNegotiate :
+            speed = -1;
+            duplex = 0;
+            break;
+        case HalfDuplex10  :
+            speed = 0;
+            duplex = 0;
+            break;
+        case FullDuplex10  :
+            speed = 0;
+            duplex = 1;
+            break;
+        case HalfDuplex100 :
+            speed = 1;
+            duplex = 0;
+            break;
+        case FullDuplex100 :
+            speed = 1;
+            duplex = 1;
+            break;
     }
 
     ethernet_set_link(speed, duplex);

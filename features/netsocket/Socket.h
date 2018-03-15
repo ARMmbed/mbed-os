@@ -49,10 +49,11 @@ public:
     nsapi_error_t open(NetworkStack *stack);
 
     template <typename S>
-    nsapi_error_t open(S *stack) {
+    nsapi_error_t open(S *stack)
+    {
         return open(nsapi_create_stack(stack));
     }
-    
+
     /** Close the socket
      *
      *  Closes any open connection and deallocates any memory associated
@@ -61,7 +62,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t close();
-    
+
     /** Subscribes to an IP multicast group
      *
      * @param address   Multicast group IP address
@@ -106,7 +107,7 @@ public:
      *  @return         0 on success, negative error code on failure.
      */
     nsapi_error_t bind(const SocketAddress &address);
-    
+
     /** Set blocking or non-blocking mode of the socket
      *
      *  Initially all sockets are in blocking mode. In non-blocking mode
@@ -119,7 +120,7 @@ public:
      *  @param blocking true for blocking mode, false for non-blocking mode.
      */
     void set_blocking(bool blocking);
-    
+
     /** Set timeout on blocking socket operations
      *
      *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
@@ -148,7 +149,7 @@ public:
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
 
     /*  Get socket options
@@ -165,7 +166,7 @@ public:
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
 
     /** Register a callback on state change of the socket
@@ -194,8 +195,8 @@ public:
      *      mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
-        "The behaviour of Socket::attach differs from other attach functions in "
-        "mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
+                          "The behaviour of Socket::attach differs from other attach functions in "
+                          "mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
     void attach(mbed::Callback<void()> func);
 
     /** Register a callback on state change of the socket
@@ -207,9 +208,10 @@ public:
      */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method)).")
-    void attach(T *obj, M method) {
+                          "The attach function does not support cv-qualifiers. Replaced by "
+                          "attach(callback(obj, method)).")
+    void attach(T *obj, M method)
+    {
         attach(mbed::callback(obj, method));
     }
 

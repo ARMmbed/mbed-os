@@ -36,7 +36,7 @@ public:
     /**
      * Create a GenericGattClient from a pal::GattClient
      */
-    GenericGattClient(pal::GattClient* pal_client);
+    GenericGattClient(pal::GattClient *pal_client);
 
     /**
      * @see GattClient::launchServiceDiscovery
@@ -45,73 +45,73 @@ public:
         Gap::Handle_t connection_handle,
         ServiceDiscovery::ServiceCallback_t service_callback,
         ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
-        const UUID& matching_service_uuid,
-        const UUID& matching_characteristic_uuid
+        const UUID &matching_service_uuid,
+        const UUID &matching_characteristic_uuid
     );
 
-	/**
-	 * @see GattClient::isServiceDiscoveryActive
-	 */
+    /**
+     * @see GattClient::isServiceDiscoveryActive
+     */
     virtual bool isServiceDiscoveryActive() const;
 
-	/**
-	 * @see GattClient::terminateServiceDiscovery
-	 */
+    /**
+     * @see GattClient::terminateServiceDiscovery
+     */
     virtual void terminateServiceDiscovery();
 
-	/**
-	 * @see GattClient::read
-	 */
+    /**
+     * @see GattClient::read
+     */
     virtual ble_error_t read(
         Gap::Handle_t connection_handle,
         GattAttribute::Handle_t attribute_handle,
         uint16_t offset
     ) const;
 
-	/**
-	 * @see GattClient::write
-	 */
+    /**
+     * @see GattClient::write
+     */
     virtual ble_error_t write(
         GattClient::WriteOp_t cmd,
         Gap::Handle_t connection_handle,
         GattAttribute::Handle_t attribute_handle,
         size_t length,
-        const uint8_t* value
+        const uint8_t *value
     ) const;
 
-	/**
-	 * @see GattClient::onServiceDiscoveryTermination
-	 */
+    /**
+     * @see GattClient::onServiceDiscoveryTermination
+     */
     virtual void onServiceDiscoveryTermination(
         ServiceDiscovery::TerminationCallback_t callback
     );
 
-	/**
-	 * @see GattClient::discoverCharacteristicDescriptors
-	 */
+    /**
+     * @see GattClient::discoverCharacteristicDescriptors
+     */
     virtual ble_error_t discoverCharacteristicDescriptors(
-        const DiscoveredCharacteristic& characteristic,
-        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
-        const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
+        const DiscoveredCharacteristic &characteristic,
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t &discoveryCallback,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t &terminationCallback
     );
 
-	/**
-	 * @see GattClient::isCharacteristicDescriptorDiscoveryActive
-	 */
+    /**
+     * @see GattClient::isCharacteristicDescriptorDiscoveryActive
+     */
     virtual bool isCharacteristicDescriptorDiscoveryActive(
-        const DiscoveredCharacteristic& characteristic
+        const DiscoveredCharacteristic &characteristic
     ) const;
 
-	/**
-	 * @see GattClient::terminateCharacteristicDescriptorDiscovery
-	 */
+    /**
+     * @see GattClient::terminateCharacteristicDescriptorDiscovery
+     */
     virtual void terminateCharacteristicDescriptorDiscovery(
-        const DiscoveredCharacteristic& characteristic
+        const DiscoveredCharacteristic &characteristic
     );
 
-	/**
-	 * @see GattClient::reset
-	 */
+    /**
+     * @see GattClient::reset
+     */
     virtual ble_error_t reset(void);
 
 private:
@@ -121,22 +121,22 @@ private:
     struct WriteControlBlock;
     struct DescriptorDiscoveryControlBlock;
 
-    ProcedureControlBlock* get_control_block(Gap::Handle_t connection);
-    const ProcedureControlBlock* get_control_block(Gap::Handle_t connection) const;
-    void insert_control_block(ProcedureControlBlock* cb) const;
-    void remove_control_block(ProcedureControlBlock* cb) const;
+    ProcedureControlBlock *get_control_block(Gap::Handle_t connection);
+    const ProcedureControlBlock *get_control_block(Gap::Handle_t connection) const;
+    void insert_control_block(ProcedureControlBlock *cb) const;
+    void remove_control_block(ProcedureControlBlock *cb) const;
 
     void on_termination(Gap::Handle_t connection_handle);
-    void on_server_message_received(connection_handle_t, const pal::AttServerMessage&);
-    void on_server_response(connection_handle_t, const pal::AttServerMessage&);
-    void on_server_event(connection_handle_t, const pal::AttServerMessage&);
+    void on_server_message_received(connection_handle_t, const pal::AttServerMessage &);
+    void on_server_response(connection_handle_t, const pal::AttServerMessage &);
+    void on_server_event(connection_handle_t, const pal::AttServerMessage &);
     void on_transaction_timeout(connection_handle_t);
 
     uint16_t get_mtu(Gap::Handle_t connection) const;
 
-    pal::GattClient* const _pal_client;
+    pal::GattClient *const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
-    mutable ProcedureControlBlock* control_blocks;
+    mutable ProcedureControlBlock *control_blocks;
     bool _is_reseting;
 };
 

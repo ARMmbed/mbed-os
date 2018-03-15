@@ -46,21 +46,24 @@ struct SimpleAttFindInformationResponse : public AttFindInformationResponse {
         Format format, ArrayView<const uint8_t> information_data
     ) : AttFindInformationResponse(),
         _format(format), _information_data(information_data),
-        _item_size(information_data_item_size()) {
+        _item_size(information_data_item_size())
+    {
     }
 
     /**
      * @see ble::pal::AttFindInformationResponse::size
      */
-    virtual size_t size() const {
+    virtual size_t size() const
+    {
         return _information_data.size() / _item_size;
     }
 
     /**
      * @see ble::pal::AttFindInformationResponse::operator[]
      */
-    virtual information_data_t operator[](size_t index) const  {
-        const uint8_t* item = &_information_data[index * _item_size];
+    virtual information_data_t operator[](size_t index) const
+    {
+        const uint8_t *item = &_information_data[index * _item_size];
 
         information_data_t result;
         memcpy(&result.handle, item, sizeof(result.handle));
@@ -77,7 +80,8 @@ struct SimpleAttFindInformationResponse : public AttFindInformationResponse {
     }
 
 private:
-    size_t information_data_item_size() const {
+    size_t information_data_item_size() const
+    {
         return sizeof(attribute_handle_t) + ((_format == FORMAT_16_BIT_UUID) ? 2 : 16);
     }
 
@@ -98,22 +102,25 @@ struct SimpleAttFindByTypeValueResponse : public AttFindByTypeValueResponse {
      * @param handles raw array containing one or more Handle Informations.
      */
     SimpleAttFindByTypeValueResponse(ArrayView<const uint8_t> handles) :
-        AttFindByTypeValueResponse(), _handles(handles) {
+        AttFindByTypeValueResponse(), _handles(handles)
+    {
     }
 
     /**
      * @see ble::pal::AttFindByTypeValueResponse::size
      */
-    virtual std::size_t size() const {
+    virtual std::size_t size() const
+    {
         return _handles.size() / item_size;
     }
 
     /**
      * @see ble::pal::AttFindByTypeValueResponse::operator[]
      */
-    virtual attribute_handle_range_t operator[](size_t index) const {
+    virtual attribute_handle_range_t operator[](size_t index) const
+    {
         attribute_handle_range_t result;
-        const uint8_t* item = &_handles[index * item_size];
+        const uint8_t *item = &_handles[index * item_size];
         memcpy(&result.begin, item, sizeof(result.begin));
         memcpy(&result.end, item + sizeof(result.begin), sizeof(result.end));
         return result;
@@ -140,21 +147,24 @@ struct SimpleAttReadByTypeResponse : public AttReadByTypeResponse {
     SimpleAttReadByTypeResponse(
         uint8_t element_size, ArrayView<const uint8_t> attribute_data
     ) : AttReadByTypeResponse(),
-        _attribute_data(attribute_data), _element_size(element_size) {
+        _attribute_data(attribute_data), _element_size(element_size)
+    {
     }
 
     /**
      * @see ble::pal::AttReadByTypeResponse::size
      */
-    virtual size_t size() const {
+    virtual size_t size() const
+    {
         return _attribute_data.size() / _element_size;
     }
 
     /**
      * @see ble::pal::AttReadByTypeResponse::operator[]
      */
-    virtual attribute_data_t operator[](size_t index) const {
-        const uint8_t* item = &_attribute_data[index * _element_size];
+    virtual attribute_data_t operator[](size_t index) const
+    {
+        const uint8_t *item = &_attribute_data[index * _element_size];
         uint16_t handle;
         memcpy(&handle, item, sizeof(handle));
 
@@ -189,21 +199,24 @@ struct SimpleAttReadByGroupTypeResponse : public AttReadByGroupTypeResponse {
     SimpleAttReadByGroupTypeResponse(
         uint8_t element_size, ArrayView<const uint8_t> attribute_data
     ) : AttReadByGroupTypeResponse(),
-        _attribute_data(attribute_data), _element_size(element_size) {
+        _attribute_data(attribute_data), _element_size(element_size)
+    {
     }
 
     /**
      * @see ble::pal::AttReadByGroupTypeResponse::size
      */
-    virtual size_t size() const {
+    virtual size_t size() const
+    {
         return _attribute_data.size() / _element_size;
     }
 
     /**
      * @see ble::pal::AttReadByGroupTypeResponse::operator[]
      */
-    virtual attribute_data_t operator[](size_t index) const {
-        const uint8_t* item = &_attribute_data[index * _element_size];
+    virtual attribute_data_t operator[](size_t index) const
+    {
+        const uint8_t *item = &_attribute_data[index * _element_size];
         uint16_t begin;
         uint16_t end;
 

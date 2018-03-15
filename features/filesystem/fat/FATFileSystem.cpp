@@ -34,7 +34,7 @@
 
 static int fat_error_remap(FRESULT res)
 {
-    switch(res) {
+    switch (res) {
         case FR_OK:                     /* (0) Succeeded */
             return 0;                   /* no error */
         case FR_DISK_ERR:               /* (1) A hard error occurred in the low level disk I/O layer */
@@ -78,8 +78,8 @@ public:
     T _t;
     Callback<void(T)> _ondefer;
 
-    Deferred(const Deferred&);
-    Deferred &operator=(const Deferred&);
+    Deferred(const Deferred &);
+    Deferred &operator=(const Deferred &);
 
 public:
     Deferred(T t, Callback<void(T)> ondefer = NULL)
@@ -107,7 +107,7 @@ static void dodelete(const char *data)
 
 // Adds prefix needed internally by fatfs, this can be avoided for the first fatfs
 // (id 0) otherwise a prefix of "id:/" is inserted in front of the string.
-static Deferred<const char*> fat_path_prefix(int id, const char *path)
+static Deferred<const char *> fat_path_prefix(int id, const char *path)
 {
     // We can avoid dynamic allocation when only on fatfs is in use
     if (id == 0) {
@@ -124,7 +124,7 @@ static Deferred<const char*> fat_path_prefix(int id, const char *path)
     buffer[1] = ':';
     buffer[2] = '/';
     strcpy(buffer + strlen("0:/"), path);
-    return Deferred<const char*>(buffer, dodelete);
+    return Deferred<const char *>(buffer, dodelete);
 }
 
 
@@ -142,11 +142,11 @@ DWORD get_fattime(void)
     time(&rawtime);
     struct tm *ptm = localtime(&rawtime);
     return (DWORD)(ptm->tm_year - 80) << 25
-           | (DWORD)(ptm->tm_mon + 1  ) << 21
-           | (DWORD)(ptm->tm_mday     ) << 16
-           | (DWORD)(ptm->tm_hour     ) << 11
-           | (DWORD)(ptm->tm_min      ) << 5
-           | (DWORD)(ptm->tm_sec/2    );
+           | (DWORD)(ptm->tm_mon + 1) << 21
+           | (DWORD)(ptm->tm_mday) << 16
+           | (DWORD)(ptm->tm_hour) << 11
+           | (DWORD)(ptm->tm_min) << 5
+           | (DWORD)(ptm->tm_sec / 2);
 }
 
 void *ff_memalloc(UINT size)
@@ -196,8 +196,8 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    bd_addr_t addr = (bd_addr_t)sector*ssize;
-    bd_size_t size = (bd_size_t)count*ssize;
+    bd_addr_t addr = (bd_addr_t)sector * ssize;
+    bd_size_t size = (bd_size_t)count * ssize;
     int err = _ffs[pdrv]->read(buff, addr, size);
     return err ? RES_PARERR : RES_OK;
 }
@@ -206,8 +206,8 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    bd_addr_t addr = (bd_addr_t)sector*ssize;
-    bd_size_t size = (bd_size_t)count*ssize;
+    bd_addr_t addr = (bd_addr_t)sector * ssize;
+    bd_size_t size = (bd_size_t)count * ssize;
     int err = _ffs[pdrv]->erase(addr, size);
     if (err) {
         return RES_PARERR;
@@ -235,27 +235,27 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                *((DWORD*)buff) = disk_get_sector_count(pdrv);
+                *((DWORD *)buff) = disk_get_sector_count(pdrv);
                 return RES_OK;
             }
         case GET_SECTOR_SIZE:
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                *((WORD*)buff) = disk_get_sector_size(pdrv);
+                *((WORD *)buff) = disk_get_sector_size(pdrv);
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
-            *((DWORD*)buff) = 1; // default when not known
+            *((DWORD *)buff) = 1; // default when not known
             return RES_OK;
         case CTRL_TRIM:
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD *sectors = (DWORD*)buff;
+                DWORD *sectors = (DWORD *)buff;
                 DWORD ssize = disk_get_sector_size(pdrv);
-                bd_addr_t addr = (bd_addr_t)sectors[0]*ssize;
-                bd_size_t size = (bd_size_t)(sectors[1]-sectors[0]+1)*ssize;
+                bd_addr_t addr = (bd_addr_t)sectors[0] * ssize;
+                bd_size_t size = (bd_size_t)(sectors[1] - sectors[0] + 1) * ssize;
                 int err = _ffs[pdrv]->trim(addr, size);
                 return err ? RES_PARERR : RES_OK;
             }
@@ -269,7 +269,8 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 
 // Filesystem implementation (See FATFilySystem.h)
 FATFileSystem::FATFileSystem(const char *name, BlockDevice *bd)
-        : FileSystem(name), _id(-1) {
+    : FileSystem(name), _id(-1)
+{
     if (bd) {
         mount(bd);
     }
@@ -387,7 +388,7 @@ int FATFileSystem::reformat(BlockDevice *bd, int allocation_unit)
 
 int FATFileSystem::remove(const char *path)
 {
-    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+    Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
     FRESULT res = f_unlink(fpath);
@@ -401,8 +402,8 @@ int FATFileSystem::remove(const char *path)
 
 int FATFileSystem::rename(const char *oldpath, const char *newpath)
 {
-    Deferred<const char*> oldfpath = fat_path_prefix(_id, oldpath);
-    Deferred<const char*> newfpath = fat_path_prefix(_id, newpath);
+    Deferred<const char *> oldfpath = fat_path_prefix(_id, oldpath);
+    Deferred<const char *> newfpath = fat_path_prefix(_id, newpath);
 
     lock();
     FRESULT res = f_rename(oldfpath, newfpath);
@@ -416,7 +417,7 @@ int FATFileSystem::rename(const char *oldpath, const char *newpath)
 
 int FATFileSystem::mkdir(const char *path, mode_t mode)
 {
-    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+    Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
     FRESULT res = f_mkdir(fpath);
@@ -430,7 +431,7 @@ int FATFileSystem::mkdir(const char *path, mode_t mode)
 
 int FATFileSystem::stat(const char *path, struct stat *st)
 {
-    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+    Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
     FILINFO f;
@@ -448,8 +449,8 @@ int FATFileSystem::stat(const char *path, struct stat *st)
     st->st_mode = 0;
     st->st_mode |= (f.fattrib & AM_DIR) ? S_IFDIR : S_IFREG;
     st->st_mode |= (f.fattrib & AM_RDO) ?
-        (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
-        (S_IRWXU | S_IRWXG | S_IRWXO);
+                   (S_IRUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) :
+                   (S_IRWXU | S_IRWXG | S_IRWXO);
 #endif /* TOOLCHAIN_GCC */
     unlock();
 
@@ -502,7 +503,7 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags)
     debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _id);
 
     FIL *fh = new FIL;
-    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+    Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -544,7 +545,7 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags)
 
 int FATFileSystem::file_close(fs_file_t file)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     FRESULT res = f_close(fh);
@@ -556,7 +557,7 @@ int FATFileSystem::file_close(fs_file_t file)
 
 ssize_t FATFileSystem::file_read(fs_file_t file, void *buffer, size_t len)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     UINT n;
@@ -573,7 +574,7 @@ ssize_t FATFileSystem::file_read(fs_file_t file, void *buffer, size_t len)
 
 ssize_t FATFileSystem::file_write(fs_file_t file, const void *buffer, size_t len)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     UINT n;
@@ -590,7 +591,7 @@ ssize_t FATFileSystem::file_write(fs_file_t file, const void *buffer, size_t len
 
 int FATFileSystem::file_sync(fs_file_t file)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     FRESULT res = f_sync(fh);
@@ -604,12 +605,12 @@ int FATFileSystem::file_sync(fs_file_t file)
 
 off_t FATFileSystem::file_seek(fs_file_t file, off_t offset, int whence)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     if (whence == SEEK_END) {
         offset += f_size(fh);
-    } else if(whence==SEEK_CUR) {
+    } else if (whence == SEEK_CUR) {
         offset += f_tell(fh);
     }
 
@@ -627,7 +628,7 @@ off_t FATFileSystem::file_seek(fs_file_t file, off_t offset, int whence)
 
 off_t FATFileSystem::file_tell(fs_file_t file)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     off_t res = f_tell(fh);
@@ -638,7 +639,7 @@ off_t FATFileSystem::file_tell(fs_file_t file)
 
 off_t FATFileSystem::file_size(fs_file_t file)
 {
-    FIL *fh = static_cast<FIL*>(file);
+    FIL *fh = static_cast<FIL *>(file);
 
     lock();
     off_t res = f_size(fh);
@@ -652,7 +653,7 @@ off_t FATFileSystem::file_size(fs_file_t file)
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
 {
     FATFS_DIR *dh = new FATFS_DIR;
-    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+    Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
     FRESULT res = f_opendir(dh, fpath);
@@ -670,7 +671,7 @@ int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
 
 int FATFileSystem::dir_close(fs_dir_t dir)
 {
-    FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     FRESULT res = f_closedir(dh);
@@ -682,7 +683,7 @@ int FATFileSystem::dir_close(fs_dir_t dir)
 
 ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 {
-    FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
     FILINFO finfo;
 
     lock();
@@ -711,7 +712,7 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent)
 
 void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 {
-    FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
     off_t dptr = static_cast<off_t>(dh->dptr);
 
     lock();
@@ -735,7 +736,7 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
 
 off_t FATFileSystem::dir_tell(fs_dir_t dir)
 {
-    FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     off_t offset = dh->dptr;
@@ -746,7 +747,7 @@ off_t FATFileSystem::dir_tell(fs_dir_t dir)
 
 void FATFileSystem::dir_rewind(fs_dir_t dir)
 {
-    FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
+    FATFS_DIR *dh = static_cast<FATFS_DIR *>(dir);
 
     lock();
     f_rewinddir(dh);

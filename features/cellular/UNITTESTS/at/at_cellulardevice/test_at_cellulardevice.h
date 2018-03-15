@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARDEVICE_H
 #define TEST_AT_CELLULARDEVICE_H
 
-class Test_AT_CellularDevice
-{
+class Test_AT_CellularDevice {
 public:
     Test_AT_CellularDevice();
 

@@ -31,8 +31,8 @@ namespace generic {
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class GenericSecurityManager : public SecurityManager,
-                               public pal::SecurityManager::EventHandler,
-                               public pal::ConnectionEventMonitor::EventHandler {
+    public pal::SecurityManager::EventHandler,
+    public pal::ConnectionEventMonitor::EventHandler {
 public:
     typedef ble::pal::SecurityDistributionFlags_t SecurityDistributionFlags_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
@@ -239,7 +239,8 @@ public:
         _pairing_authorisation_required(false),
         _legacy_pairing_allowed(true),
         _master_sends_keys(false),
-        _public_keys_generated(false) {
+        _public_keys_generated(false)
+    {
         _pal.set_event_handler(this);
     }
 
@@ -296,7 +297,7 @@ private:
      */
     void enable_encryption_cb(
         pal::SecurityDb::entry_handle_t entry,
-        const SecurityEntryKeys_t* entryKeys
+        const SecurityEntryKeys_t *entryKeys
     );
 
     /**
@@ -307,7 +308,7 @@ private:
      */
     void set_ltk_cb(
         pal::SecurityDb::entry_handle_t entry,
-        const SecurityEntryKeys_t* entryKeys
+        const SecurityEntryKeys_t *entryKeys
     );
 
     /**
@@ -411,7 +412,7 @@ private:
      * @param[in] params information about the new connection.
      */
     void connection_callback(
-        const Gap::ConnectionCallbackParams_t* params
+        const Gap::ConnectionCallbackParams_t *params
     );
 
     /**
@@ -420,23 +421,27 @@ private:
      * @param[in] params handle and reason of the disconnection.
      */
     void disconnection_callback(
-        const Gap::DisconnectionCallbackParams_t* params
+        const Gap::DisconnectionCallbackParams_t *params
     );
 
 private:
     struct ControlBlock_t : public pal::SecurityDistributionFlags_t {
         ControlBlock_t();
 
-        pal::KeyDistribution get_initiator_key_distribution() {
+        pal::KeyDistribution get_initiator_key_distribution()
+        {
             return pal::KeyDistribution(initiator_key_distribution);
         };
-        pal::KeyDistribution get_responder_key_distribution() {
+        pal::KeyDistribution get_responder_key_distribution()
+        {
             return pal::KeyDistribution(responder_key_distribution);
         };
-        void set_initiator_key_distribution(pal::KeyDistribution mask) {
+        void set_initiator_key_distribution(pal::KeyDistribution mask)
+        {
             initiator_key_distribution = mask.value();
         };
-        void set_responder_key_distribution(pal::KeyDistribution mask) {
+        void set_responder_key_distribution(pal::KeyDistribution mask)
+        {
             responder_key_distribution = mask.value();
         };
 
@@ -446,25 +451,25 @@ private:
         address_t local_address; /**< address used for connection, possibly different from identity */
 
     private:
-        uint8_t initiator_key_distribution:4;
-        uint8_t responder_key_distribution:4;
+        uint8_t initiator_key_distribution: 4;
+        uint8_t responder_key_distribution: 4;
     public:
-        uint8_t connected:1;
-        uint8_t authenticated:1; /**< have we turned encryption on during this connection */
-        uint8_t is_master:1;
+        uint8_t connected: 1;
+        uint8_t authenticated: 1; /**< have we turned encryption on during this connection */
+        uint8_t is_master: 1;
 
-        uint8_t encryption_requested:1;
-        uint8_t encryption_failed:1;
-        uint8_t encrypted:1;
-        uint8_t signing_requested:1;
-        uint8_t signing_override_default:1;
+        uint8_t encryption_requested: 1;
+        uint8_t encryption_failed: 1;
+        uint8_t encrypted: 1;
+        uint8_t signing_requested: 1;
+        uint8_t signing_override_default: 1;
 
-        uint8_t mitm_requested:1;
-        uint8_t mitm_performed:1; /**< keys exchange will have MITM protection */
+        uint8_t mitm_requested: 1;
+        uint8_t mitm_performed: 1; /**< keys exchange will have MITM protection */
 
-        uint8_t attempt_oob:1;
-        uint8_t oob_mitm_protection:1;
-        uint8_t oob_present:1;
+        uint8_t attempt_oob: 1;
+        uint8_t oob_mitm_protection: 1;
+        uint8_t oob_present: 1;
     };
 
     pal::SecurityManager &_pal;
@@ -689,15 +694,15 @@ public:
 
     /* list management */
 
-    ControlBlock_t* acquire_control_block(connection_handle_t connection);
+    ControlBlock_t *acquire_control_block(connection_handle_t connection);
 
-    ControlBlock_t* get_control_block(connection_handle_t connection);
+    ControlBlock_t *get_control_block(connection_handle_t connection);
 
-    ControlBlock_t* get_control_block(const address_t &peer_address);
+    ControlBlock_t *get_control_block(const address_t &peer_address);
 
-    ControlBlock_t* get_control_block(pal::SecurityDb::entry_handle_t db_entry);
+    ControlBlock_t *get_control_block(pal::SecurityDb::entry_handle_t db_entry);
 
-    void release_control_block(ControlBlock_t* entry);
+    void release_control_block(ControlBlock_t *entry);
 };
 
 

@@ -301,8 +301,8 @@ void test_multi_block_directory()
         res = mkdir("/fs/" "cactus", 0777);
         TEST_ASSERT_EQUAL(0, res);
         for (int i = 0; i < 128; i++) {
-            sprintf((char*)buffer, "/fs/" "cactus/test%d", i);
-            res = mkdir((char*)buffer, 0777);
+            sprintf((char *)buffer, "/fs/" "cactus/test%d", i);
+            res = mkdir((char *)buffer, 0777);
             TEST_ASSERT_EQUAL(0, res);
         }
         res = fs.unmount();
@@ -327,10 +327,10 @@ void test_multi_block_directory()
         res = ed->d_type;
         TEST_ASSERT_EQUAL(DT_DIR, res);
         for (int i = 0; i < 128; i++) {
-            sprintf((char*)buffer, "test%d", i);
+            sprintf((char *)buffer, "test%d", i);
             res = ((ed = readdir(dd[0])) != NULL);
             TEST_ASSERT_EQUAL(1, res);
-            res = strcmp(ed->d_name, (char*)buffer);
+            res = strcmp(ed->d_name, (char *)buffer);
             TEST_ASSERT_EQUAL(0, res);
         }
         res = ((ed = readdir(dd[0])) != NULL);

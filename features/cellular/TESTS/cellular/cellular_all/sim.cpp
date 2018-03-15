@@ -39,12 +39,12 @@ void test_get_sim_state()
 }
 
 // creates PIN which is different than one defined in MBED_CONF_APP_CELLULAR_SIM_PIN
-static void create_random_pin(char* random_pin)
+static void create_random_pin(char *random_pin)
 {
 
     char s[11];
     do {
-        sprintf(s,"%d", rand());
+        sprintf(s, "%d", rand());
 
     } while (strncmp(s, MBED_CONF_APP_CELLULAR_SIM_PIN, 4) == 0);
 

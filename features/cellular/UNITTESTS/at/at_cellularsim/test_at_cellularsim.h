@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARSIM_H
 #define TEST_AT_CELLULARSIM_H
 
-class Test_AT_CellularSIM
-{
+class Test_AT_CellularSIM {
 public:
     Test_AT_CellularSIM();
 

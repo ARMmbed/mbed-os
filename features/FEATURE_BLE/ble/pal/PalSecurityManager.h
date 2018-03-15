@@ -52,48 +52,57 @@ public:
     KeyDistribution(bool encryption,
                     bool identity,
                     bool signing,
-                    bool link) : _value(0) {
+                    bool link) : _value(0)
+    {
         set_encryption(encryption);
         set_identity(identity);
         set_signing(signing);
         set_link(link);
     }
 
-    bool get_encryption() const {
+    bool get_encryption() const
+    {
         return _value & KEY_DISTRIBUTION_ENCRYPTION;
     }
-    bool get_identity() const {
+    bool get_identity() const
+    {
         return _value & KEY_DISTRIBUTION_IDENTITY;
     }
-    bool get_signing() const {
+    bool get_signing() const
+    {
         return _value & KEY_DISTRIBUTION_SIGNING;
     }
-    bool get_link() const {
+    bool get_link() const
+    {
         return _value & KEY_DISTRIBUTION_LINK;
     }
 
-    void set_encryption(bool enabled = true) {
+    void set_encryption(bool enabled = true)
+    {
         if (enabled) {
             _value |= KEY_DISTRIBUTION_ENCRYPTION;
         } else {
             _value &= ~KEY_DISTRIBUTION_ENCRYPTION;
         }
     }
-    void set_identity(bool enabled = true) {
+    void set_identity(bool enabled = true)
+    {
         if (enabled) {
             _value |= KEY_DISTRIBUTION_IDENTITY;
         } else {
             _value &= ~KEY_DISTRIBUTION_IDENTITY;
         }
     }
-    void set_signing(bool enabled = true) {
+    void set_signing(bool enabled = true)
+    {
         if (enabled) {
             _value |= KEY_DISTRIBUTION_SIGNING;
         } else {
             _value &= ~KEY_DISTRIBUTION_SIGNING;
         }
     }
-    void set_link(bool enabled = true) {
+    void set_link(bool enabled = true)
+    {
         if (enabled) {
             _value |= KEY_DISTRIBUTION_LINK;
         } else {
@@ -101,21 +110,25 @@ public:
         }
     }
 
-    operator uint8_t() {
+    operator uint8_t()
+    {
         return _value;
     }
 
-    KeyDistribution operator&(const KeyDistribution& other) const {
+    KeyDistribution operator&(const KeyDistribution &other) const
+    {
         KeyDistribution result(this->value() & other.value());
         return result;
     }
 
-    KeyDistribution& operator&=(const KeyDistribution& other) {
+    KeyDistribution &operator&=(const KeyDistribution &other)
+    {
         this->_value = this->_value & other.value();
         return *this;
     }
 
-    uint8_t value() const {
+    uint8_t value() const
+    {
         return _value;
     }
 
@@ -141,48 +154,57 @@ public:
     AuthenticationMask(bool bondable,
                        bool mitm,
                        bool secure_connections,
-                       bool keypress) : _value(0) {
+                       bool keypress) : _value(0)
+    {
         set_bondable(bondable);
         set_mitm(mitm);
         set_secure_connections(secure_connections);
         set_keypress_notification(keypress);
     }
 
-    bool get_bondable() const {
+    bool get_bondable() const
+    {
         return _value & AUTHENTICATION_BONDABLE;
     }
-    bool get_mitm() const {
+    bool get_mitm() const
+    {
         return _value & AUTHENTICATION_MITM;
     }
-    bool get_secure_connections() const {
+    bool get_secure_connections() const
+    {
         return _value & AUTHENTICATION_SECURE_CONNECTIONS;
     }
-    bool get_keypress_notification() const {
+    bool get_keypress_notification() const
+    {
         return _value & AUTHENTICATION_KEYPRESS_NOTIFICATION;
     }
 
-    void set_bondable(bool enabled = true) {
+    void set_bondable(bool enabled = true)
+    {
         if (enabled) {
             _value |= AUTHENTICATION_BONDABLE;
         } else {
             _value &= ~AUTHENTICATION_BONDABLE;
         }
     }
-    void set_mitm(bool enabled = true) {
+    void set_mitm(bool enabled = true)
+    {
         if (enabled) {
             _value |= AUTHENTICATION_MITM;
         } else {
             _value &= ~AUTHENTICATION_MITM;
         }
     }
-    void set_secure_connections(bool enabled = true) {
+    void set_secure_connections(bool enabled = true)
+    {
         if (enabled) {
             _value |= AUTHENTICATION_SECURE_CONNECTIONS;
         } else {
             _value &= ~AUTHENTICATION_SECURE_CONNECTIONS;
         }
     }
-    void set_keypress_notification(bool enabled = true) {
+    void set_keypress_notification(bool enabled = true)
+    {
         if (enabled) {
             _value |= AUTHENTICATION_KEYPRESS_NOTIFICATION;
         } else {
@@ -190,10 +212,12 @@ public:
         }
     }
 
-    operator uint8_t() {
+    operator uint8_t()
+    {
         return _value;
     }
-    uint8_t value() const {
+    uint8_t value() const
+    {
         return _value;
     }
 
@@ -990,11 +1014,13 @@ public:
      */
     void set_event_handler(
         EventHandler *event_handler
-    ) {
+    )
+    {
         _pal_event_handler = event_handler;
     }
 
-    EventHandler* get_event_handler() {
+    EventHandler *get_event_handler()
+    {
         return _pal_event_handler;
     }
 

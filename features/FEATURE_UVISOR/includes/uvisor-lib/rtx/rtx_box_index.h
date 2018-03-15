@@ -24,8 +24,7 @@
 extern "C" {
 #endif
 
-typedef struct
-{
+typedef struct {
     /* The uvisor box index must be placed at the beginning */
     UvisorBoxIndex index;
 

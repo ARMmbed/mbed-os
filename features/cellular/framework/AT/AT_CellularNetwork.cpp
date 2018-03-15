@@ -78,27 +78,27 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 {
     size_t len;
     if (apn && (len = strlen(apn)) > 0) {
-        _apn = (char*)malloc(len*sizeof(char)+1);
+        _apn = (char *)malloc(len * sizeof(char) +1);
         if (_apn) {
-            memcpy(_apn, apn, len+1);
+            memcpy(_apn, apn, len + 1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
     }
 
     if (username && (len = strlen(username)) > 0) {
-        _uname = (char*)malloc(len*sizeof(char)+1);
+        _uname = (char *)malloc(len * sizeof(char) +1);
         if (_uname) {
-            memcpy(_uname, username, len+1);
+            memcpy(_uname, username, len + 1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
     }
 
     if (password && (len = strlen(password)) > 0) {
-        _pwd = (char*)malloc(len*sizeof(char)+1);
+        _pwd = (char *)malloc(len * sizeof(char) +1);
         if (_pwd) {
-            memcpy(_pwd, password, len+1);
+            memcpy(_pwd, password, len + 1);
         } else {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -357,7 +357,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
         }
     }
 
-    char pdp_type[8+1] = {0};
+    char pdp_type[8 + 1] = {0};
 
     switch (tmp_stack) {
         case IPV4_STACK:
@@ -429,7 +429,7 @@ bool AT_CellularNetwork::get_context()
         if (pdp_type_len > 0) {
             apn_len = _at.read_string(apn, sizeof(apn) - 1);
             if (apn_len >= 0) {
-                if (_apn && strcmp(apn, _apn) != 0 ) {
+                if (_apn && strcmp(apn, _apn) != 0) {
                     continue;
                 }
                 nsapi_ip_stack_t pdp_stack = string_to_stack_type(pdp_type_from_context);
@@ -459,7 +459,7 @@ bool AT_CellularNetwork::get_context()
                                 _cid = cid;
                                 break;
                             }
-                        // If PDP is IPV4 or IPV6 they are already checked if supported
+                            // If PDP is IPV4 or IPV6 they are already checked if supported
                         } else {
                             _ip_stack_type = pdp_stack;
                             _cid = cid;
@@ -478,16 +478,16 @@ bool AT_CellularNetwork::get_context()
     }
     _at.resp_stop();
     if (_cid == -1) { // no suitable context was found so create a new one
-        if (!set_new_context(cid_max+1)) {
+        if (!set_new_context(cid_max + 1)) {
             return false;
         }
     }
 
     // save the apn
     if (apn_len > 0 && !_apn) {
-        _apn = (char*)malloc(apn_len*sizeof(char)+1);
+        _apn = (char *)malloc(apn_len * sizeof(char) +1);
         if (_apn) {
-            memcpy(_apn, apn, apn_len+1);
+            memcpy(_apn, apn, apn_len + 1);
         } else {
             return false;
         }
@@ -497,7 +497,7 @@ bool AT_CellularNetwork::get_context()
     return true;
 }
 
-nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
+nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char *pdp_type)
 {
     nsapi_ip_stack_t stack = DEFAULT_STACK;
     int len = strlen(pdp_type);
@@ -514,7 +514,7 @@ nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 
 nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
 {
-    for (unsigned int i = 0; i < sizeof(at_reg)/sizeof(at_reg[0]); i++) {
+    for (unsigned int i = 0; i < sizeof(at_reg) / sizeof(at_reg[0]); i++) {
         if (has_registration(at_reg[i].type)) {
             _last_reg_type = at_reg[i].type;
             if (urc_on) {
@@ -598,12 +598,12 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     status = (RegistrationStatus)_at.read_int();
 
     int len = _at.read_string(lac_string, LAC_LENGTH);
-    if (memcmp(lac_string, "ffff", LAC_LENGTH-1) && len >= 0) {
+    if (memcmp(lac_string, "ffff", LAC_LENGTH - 1) && len >= 0) {
         lac_read = true;
     }
 
     len = _at.read_string(cell_id_string, CELL_ID_LENGTH);
-    if (memcmp(cell_id_string, "ffffffff", CELL_ID_LENGTH-1) && len >= 0) {
+    if (memcmp(cell_id_string, "ffffffff", CELL_ID_LENGTH - 1) && len >= 0) {
         cell_id_read = true;
     }
 
@@ -619,12 +619,12 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
     if (lac_read) {
         _lac = hex_str_to_int(lac_string, LAC_LENGTH);
-        tr_debug("lac %s %d", lac_string, _lac );
+        tr_debug("lac %s %d", lac_string, _lac);
     }
 
     if (cell_id_read) {
         _cell_id = hex_str_to_int(cell_id_string, CELL_ID_LENGTH);
-        tr_debug("cell_id %s %d", cell_id_string, _cell_id );
+        tr_debug("cell_id %s %d", cell_id_string, _cell_id);
     }
 
     return ret;
@@ -798,7 +798,7 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 
         // Optional - try read an int
         ret = _at.read_int();
-        op->op_rat = (ret == error_code) ? operator_t::RAT_UNKNOWN:(operator_t::RadioAccessTechnology)ret;
+        op->op_rat = (ret == error_code) ? operator_t::RAT_UNKNOWN : (operator_t::RadioAccessTechnology)ret;
 
         if ((_op_act == operator_t::RAT_UNKNOWN) ||
                 ((op->op_rat != operator_t::RAT_UNKNOWN) && (op->op_rat == _op_act))) {
@@ -832,8 +832,8 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-        Preferred_UE_Opt& preferred_opt)
+nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+        Preferred_UE_Opt &preferred_opt)
 {
     _at.lock();
 
@@ -870,7 +870,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
         int next_element = _at.read_int();
         if (next_element >= 0) {
             reports = (RateControlExceptionReports)next_element;
-            tr_debug("reports %d",reports);
+            tr_debug("reports %d", reports);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -878,7 +878,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             timeUnit = (RateControlUplinkTimeUnit)next_element;
-            tr_debug("time %d",timeUnit);
+            tr_debug("time %d", timeUnit);
             next_element = _at.read_int();
         } else {
             comma_found = false;
@@ -886,7 +886,7 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
 
         if (comma_found && next_element >= 0) {
             uplinkRate = next_element;
-            tr_debug("rate %d",uplinkRate);
+            tr_debug("rate %d", uplinkRate);
         }
     }
     _at.resp_stop();
@@ -896,16 +896,16 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
     return (ret == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_PARAMETER;
 }
 
-nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params_list)
+nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     const int ipv6_subnet_size = 128;
     const int max_ipv6_size = 64;
-    char* ipv6_and_subnetmask = (char*)malloc(ipv6_subnet_size);
+    char *ipv6_and_subnetmask = (char *)malloc(ipv6_subnet_size);
     if (!ipv6_and_subnetmask) {
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    char* temp = (char*)malloc(max_ipv6_size);
+    char *temp = (char *)malloc(max_ipv6_size);
     if (!temp) {
         free(ipv6_and_subnetmask);
         return NSAPI_ERROR_NO_MEMORY;

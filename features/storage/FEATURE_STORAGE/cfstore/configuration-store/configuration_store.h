@@ -80,11 +80,11 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <string.h>								/* requierd for memset() in ARM_CFSTORE_HANDLE_INIT() */
+#include <string.h>                             /* requierd for memset() in ARM_CFSTORE_HANDLE_INIT() */
 
 #include "mbed_toolchain.h"                     /* required for MBED_DEPRECATED_SINCE */
 
-#define DEVICE_STORAGE 1						/* enable storage */
+#define DEVICE_STORAGE 1                        /* enable storage */
 /// @cond CFSTORE_DOXYGEN_DISABLE
 #include <Driver_Storage.h>
 #include <Driver_Common.h>
@@ -145,17 +145,17 @@ typedef size_t ARM_CFSTORE_OFFSET;  //!< CFSTORE type for offset parameters.
  */
 typedef struct _ARM_CFSTORE_STATUS {
     uint32_t in_progress  : 1;      //!< indicates a previous \ref ARM_CFSTORE_DRIVER ::Dispatch_Method_Xxx()
-                                    //!< function is still in progress and will complete sometime in the future.
+    //!< function is still in progress and will complete sometime in the future.
     uint32_t error : 1;             //!< indicates a previous \ref ARM_CFSTORE_DRIVER ::Dispatch_Method_Xxx()
-                                    //!< function is errored and will complete  sometime in the future.
+    //!< function is errored and will complete  sometime in the future.
 } ARM_CFSTORE_STATUS;
 
 /* Defines */
 #define CFSTORE_KEY_NAME_MAX_LENGTH     220         //!< The maximum length of the null terminated character
-                                                    //!< string used as a key name string.
+//!< string used as a key name string.
 #define CFSTORE_VALUE_SIZE_MAX          (1<<26)     //!< Max size of the KV value blob (currently 64MB)
 #define CFSTORE_HANDLE_BUFSIZE          24          //!< size of the buffer owned and supplied by client
-                                                    //!< to CFSTORE to hold internal data structures, referenced by the key handle.
+//!< to CFSTORE to hold internal data structures, referenced by the key handle.
 
 /** @brief   Helper macro to declare handle and client owned buffer supplied
  *           to CFSTORE for storing opaque handle state
@@ -198,8 +198,7 @@ typedef struct _ARM_CFSTORE_STATUS {
 #endif
 
 /** @brief   The access control permissions for the key-value. */
-typedef struct ARM_CFSTORE_ACCESS_CONTROL_LIST
-{
+typedef struct ARM_CFSTORE_ACCESS_CONTROL_LIST {
     uint32_t perm_owner_read : 1;       //!< When set this KV is owner readable
     uint32_t perm_owner_write : 1;      //!< When set this KV is owner writable. The owner should set this bit to be able delete the KV.
     uint32_t perm_owner_execute : 1;    //!< When set this KV is owner executable
@@ -217,35 +216,33 @@ typedef struct ARM_CFSTORE_ACCESS_CONTROL_LIST
  * - ARM_CFSTORE_DRIVER::(*Create)(), when creating a KV.
  * - ARM_CFSTORE_DRIVER::(*Open)(), when opening a pre-existing KV.
  */
-typedef struct ARM_CFSTORE_FMODE
-{
+typedef struct ARM_CFSTORE_FMODE {
     uint32_t continuous : 1;        //!< If set, the key value should be stored in a continuous sequence
-                                    //!< of hardware addresses (not implemented).
+    //!< of hardware addresses (not implemented).
     uint32_t lazy_flush : 1;        //!< If set then configuration store will defer flushing the KV
-                                    //!< changes until an optimal time. e.g. to save energy rather than
-                                    //!< performing the operation immediately (not implemented).
+    //!< changes until an optimal time. e.g. to save energy rather than
+    //!< performing the operation immediately (not implemented).
     uint32_t flush_on_close : 1;    //!< If set then the key-value should be flushed to the backing store
-                                    //!< when the key is closed (not implemented).
+    //!< when the key is closed (not implemented).
     uint32_t read : 1;              //!< If set then the KV can be read.
     uint32_t write : 1;             //!< If set then the KV can be written.
     uint32_t execute : 1;           //!< If set then the KV can be executed (not implemented).
     uint32_t storage_detect : 1;    //!< If set then the call to ARM_CFSTORE_DRIVER::(*Create)() returns
-                                    //!< whether a key could be created with the required storage
-                                    //!< characteristics. The key is not created.
+    //!< whether a key could be created with the required storage
+    //!< characteristics. The key is not created.
     uint32_t reserved : 25;         //!< Reserved.
 } ARM_CFSTORE_FMODE;
 
 
 /** @brief   Descriptor used to create keys */
-typedef struct ARM_CFSTORE_KEYDESC
-{
+typedef struct ARM_CFSTORE_KEYDESC {
     /*key descriptor attributes */
     ARM_CFSTORE_ACCESS_CONTROL_LIST acl;        //!< Access Control List specifying the access permissions of the KV.
     uint8_t drl;                                //!< Data retention level for the KV required by the client.
-                                                //!< CFSTORE will store the KV in the specified type store/media.
+    //!< CFSTORE will store the KV in the specified type store/media.
     ARM_STORAGE_SECURITY_FEATURES security;     //!< flash security properties for the KV required by the client.
-                                                //!< CFSTORE will store the KV in a storage media supporting
-                                                //!< the specified security attributes.
+    //!< CFSTORE will store the KV in a storage media supporting
+    //!< the specified security attributes.
     ARM_CFSTORE_FMODE flags;                    //!< A bitfield containing the access mode setting for the key.
 } ARM_CFSTORE_KEYDESC;
 
@@ -304,10 +301,9 @@ typedef void (*ARM_CFSTORE_CALLBACK)(int32_t status, ARM_CFSTORE_OPCODE cmd_code
 
 
 /** @brief   Find the capabilities of the configuration store. */
-typedef struct ARM_CFSTORE_CAPABILITIES
-{
+typedef struct ARM_CFSTORE_CAPABILITIES {
     uint32_t asynchronous_ops : 1;          //!< When set then the configuration store dispatch interface is operating in non-blocking (asynchronous) mode.
-                                            //!< When unset then the configuration store dispatch interface is operating in blocking (synchronous) mode.
+    //!< When unset then the configuration store dispatch interface is operating in blocking (synchronous) mode.
     uint32_t uvisor_support_enabled : 1;    //!< The configuration store is using uvisor security contexts.
 } ARM_CFSTORE_CAPABILITIES;
 
@@ -321,8 +317,7 @@ typedef struct ARM_CFSTORE_CAPABILITIES
  * (*GetCapabilities) method to determine the operational mode and then
  * behave accordingly.
  */
-typedef struct _ARM_DRIVER_CFSTORE
-{
+typedef struct _ARM_DRIVER_CFSTORE {
     /** @brief  Get driver version.
      *
      * The synchronous function GetVersion() returns version information of the
@@ -337,7 +332,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @return    \ref ARM_DRIVER_VERSION, the configuration store driver
      *            version information
      */
-    ARM_DRIVER_VERSION (*GetVersion)(void);
+    ARM_DRIVER_VERSION(*GetVersion)(void);
 
 
     /** @brief  Close the hkey context previously recovered from CFSTORE.
@@ -410,7 +405,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      *           as registered with ARM_CFSTORE_DRIVER::(*Initialize)()
      * @param    hkey now contains returned handle to newly created key.
      */
-    int32_t (*Create)(const char* key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC* kdesc, ARM_CFSTORE_HANDLE hkey);
+    int32_t (*Create)(const char *key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC *kdesc, ARM_CFSTORE_HANDLE hkey);
 
 
     /** @brief  Delete key-value from configuration store
@@ -542,7 +537,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      *           ARM_DRIVER_OK => contains returned handle to newly found key.
      *           else, indeterminate data.
      */
-    int32_t (*Find)(const char* key_name_query, const ARM_CFSTORE_HANDLE previous, ARM_CFSTORE_HANDLE next);
+    int32_t (*Find)(const char *key_name_query, const ARM_CFSTORE_HANDLE previous, ARM_CFSTORE_HANDLE next);
 
 
     /** @brief
@@ -574,7 +569,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      *
      * @return \ref ARM_CFSTORE_CAPABILITIES
      */
-    ARM_CFSTORE_CAPABILITIES (*GetCapabilities)(void);
+    ARM_CFSTORE_CAPABILITIES(*GetCapabilities)(void);
 
 
     /** @brief  Get the name of an open key handle.
@@ -603,7 +598,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      *           the additional character corresponds to the terminating null.
      *
      */
-    int32_t (*GetKeyName)(ARM_CFSTORE_HANDLE hkey, char* key_name, uint8_t *key_len);
+    int32_t (*GetKeyName)(ARM_CFSTORE_HANDLE hkey, char *key_name, uint8_t *key_len);
 
 
     /** @brief  Get the status of the configuration store.
@@ -627,7 +622,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @param    hkey
      *              unused.
      */
-    ARM_CFSTORE_STATUS (*GetStatus)(void);
+    ARM_CFSTORE_STATUS(*GetStatus)(void);
 
 
     /** @brief  Get the value length from an open key handle
@@ -696,7 +691,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @param    hkey, unused.
      *
      */
-    int32_t (*Initialize)(ARM_CFSTORE_CALLBACK callback, void* client_context);
+    int32_t (*Initialize)(ARM_CFSTORE_CALLBACK callback, void *client_context);
 
 
     /** @brief  Function to set the target configuration store power state.
@@ -759,7 +754,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @param    client context, registered ARM_CFSTORE_DRIVER::(*Initialize)()
      * @param    hkey, unused.
      */
-    int32_t (*Read)(ARM_CFSTORE_HANDLE hkey, void* data, ARM_CFSTORE_SIZE* len);
+    int32_t (*Read)(ARM_CFSTORE_HANDLE hkey, void *data, ARM_CFSTORE_SIZE *len);
 
 
     /** @brief  Open a key-value object for future operations.
@@ -783,7 +778,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @param    client context, registered ARM_CFSTORE_DRIVER::(*Initialize)()
      * @param    hkey now contains returned handle to newly opened key.
      */
-    int32_t (*Open)(const char* key_name, ARM_CFSTORE_FMODE flags, ARM_CFSTORE_HANDLE hkey);
+    int32_t (*Open)(const char *key_name, ARM_CFSTORE_FMODE flags, ARM_CFSTORE_HANDLE hkey);
 
 
     /** @brief  Move the position of the read pointer within a value
@@ -867,7 +862,7 @@ typedef struct _ARM_DRIVER_CFSTORE
      * @param    client context, registered ARM_CFSTORE_DRIVER::(*Initialize)()
      * @param    hkey, unused.
      */
-    int32_t (*Write)(ARM_CFSTORE_HANDLE hkey, const char* data, ARM_CFSTORE_SIZE* len);
+    int32_t (*Write)(ARM_CFSTORE_HANDLE hkey, const char *data, ARM_CFSTORE_SIZE *len);
 
 } const ARM_CFSTORE_DRIVER;
 

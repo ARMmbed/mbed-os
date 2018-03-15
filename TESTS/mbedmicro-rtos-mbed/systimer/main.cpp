@@ -50,7 +50,7 @@ private:
 
 public:
     SysTimerTest() :
-            SysTimer(), _sem(0, 1)
+        SysTimer(), _sem(0, 1)
     {
     }
 

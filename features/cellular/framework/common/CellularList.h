@@ -27,51 +27,50 @@ namespace mbed {
  *  Templated linked list class for common usage.
  *
  */
-template <class T> class CellularList
-{
+template <class T> class CellularList {
 private:
     T *_head, *_tail;
 public:
     CellularList()
     {
-      _head=NULL;
-      _tail=NULL;
+        _head = NULL;
+        _tail = NULL;
     }
 
-    T* add_new()
+    T *add_new()
     {
-      T *temp=new T;
-      if (!temp) {
-          return NULL;
-      }
-      temp->next = NULL;
-      if (_head == NULL) {
-        _head = temp;
-      } else {
-        _tail->next=temp;
-      }
-      _tail = temp;
+        T *temp = new T;
+        if (!temp) {
+            return NULL;
+        }
+        temp->next = NULL;
+        if (_head == NULL) {
+            _head = temp;
+        } else {
+            _tail->next = temp;
+        }
+        _tail = temp;
 
-      return _tail;
+        return _tail;
     }
 
     void delete_last()
     {
-        T* previous = NULL;
-        T *current=_head;
+        T *previous = NULL;
+        T *current = _head;
 
         if (!current) {
             return;
         }
 
         while (current->next != NULL) {
-            previous=current;
-            current=current->next;
+            previous = current;
+            current = current->next;
         }
 
         if (previous) {
-            _tail=previous;
-            previous->next=NULL;
+            _tail = previous;
+            previous->next = NULL;
         } else {
             _head = NULL;
             _tail = NULL;

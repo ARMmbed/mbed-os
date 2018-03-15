@@ -82,8 +82,7 @@
  *
  * @note More information at https://developer.apple.com/ibeacon/Getting-Started-with-iBeacon.pdf
  */
-class iBeacon
-{
+class iBeacon {
 public:
     /**
      * Data buffer of a location UUID.
@@ -170,8 +169,7 @@ public:
             len(0x15),
             majorNumber(__REV16(majNum)),
             minorNumber(__REV16(minNum)),
-            txPower(transmitPower)
-        {
+            txPower(transmitPower) {
             memcpy(proximityUUID, uuid, sizeof(LocationUUID_t));
         }
     };

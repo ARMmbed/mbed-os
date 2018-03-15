@@ -26,16 +26,17 @@
 using namespace utest::v1;
 
 #ifndef MBED_EXTENDED_TESTS
-    #error [NOT_SUPPORTED] Filesystem tests not supported by default
+#error [NOT_SUPPORTED] Filesystem tests not supported by default
 #endif
 
 // Test block device
 #define BLOCK_SIZE 512
-HeapBlockDevice bd(128*BLOCK_SIZE, BLOCK_SIZE);
+HeapBlockDevice bd(128 * BLOCK_SIZE, BLOCK_SIZE);
 
 
 // Test formatting
-void test_format() {
+void test_format()
+{
     int err = FATFileSystem::format(&bd);
     TEST_ASSERT_EQUAL(0, err);
 }
@@ -43,7 +44,8 @@ void test_format() {
 
 // Simple test for reading/writing files
 template <ssize_t TEST_SIZE>
-void test_read_write() {
+void test_read_write()
+{
     FATFileSystem fs("fat");
 
     int err = fs.mount(&bd);
@@ -51,7 +53,7 @@ void test_read_write() {
 
     uint8_t *buffer = (uint8_t *)malloc(TEST_SIZE);
     TEST_ASSERT(buffer);
-    
+
     // Fill with random sequence
     srand(1);
     for (int i = 0; i < TEST_SIZE; i++) {
@@ -86,7 +88,8 @@ void test_read_write() {
 
 
 // Simple test for iterating dir entries
-void test_read_dir() {
+void test_read_dir()
+{
     FATFileSystem fs("fat");
 
     int err = fs.mount(&bd);
@@ -147,20 +150,22 @@ void test_read_dir() {
 
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(10, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
     Case("Testing formating", test_format),
-    Case("Testing read write < block", test_read_write<BLOCK_SIZE/2>),
-    Case("Testing read write > block", test_read_write<2*BLOCK_SIZE>),
+    Case("Testing read write < block", test_read_write < BLOCK_SIZE / 2 >),
+    Case("Testing read write > block", test_read_write<2 * BLOCK_SIZE>),
     Case("Testing dir iteration", test_read_dir),
 };
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

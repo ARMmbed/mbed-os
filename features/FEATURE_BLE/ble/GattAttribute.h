@@ -114,7 +114,8 @@ public:
         _lenMax(maxLen),
         _len(len),
         _hasVariableLen(hasVariableLen),
-        _handle() {
+        _handle()
+    {
     }
 
 public:
@@ -243,7 +244,7 @@ private:
 private:
     /* Disallow copy and assignment. */
     GattAttribute(const GattAttribute &);
-    GattAttribute& operator=(const GattAttribute &);
+    GattAttribute &operator=(const GattAttribute &);
 };
 
 /**

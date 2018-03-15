@@ -44,8 +44,7 @@ const int MAX_RETRY_ARRAY_SIZE = 10;
  *
  *  Finite State Machine for connecting to cellular network
  */
-class CellularConnectionFSM
-{
+class CellularConnectionFSM {
 public:
     CellularConnectionFSM();
     virtual ~CellularConnectionFSM();
@@ -86,7 +85,7 @@ public:
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
-    events::EventQueue* get_queue();
+    events::EventQueue *get_queue();
 
     /** Start event queue dispatching
      *  @return see nsapi_error_t, 0 on success
@@ -100,17 +99,17 @@ public:
     /** Get cellular network interface
      *  @return network interface, NULL on failure
      */
-    CellularNetwork* get_network();
+    CellularNetwork *get_network();
 
     /** Get cellular device interface
      *  @return device interface, NULL on failure
      */
-    CellularDevice* get_device();
+    CellularDevice *get_device();
 
     /** Get cellular sim interface
      *  @return sim interface, NULL on failure
      */
-    CellularSIM* get_sim();
+    CellularSIM *get_sim();
 
     /** Change cellular connection to the target state
      *  @param state to continue
@@ -145,7 +144,7 @@ private:
 
 private:
     void device_ready();
-    void report_failure(const char* msg);
+    void report_failure(const char *msg);
     void event();
 
     UARTSerial *_serial;
@@ -160,7 +159,7 @@ private:
     events::EventQueue _queue;
     rtos::Thread *_queue_thread;
     CellularDevice *_cellularDevice;
-    char _sim_pin[PIN_SIZE+1];
+    char _sim_pin[PIN_SIZE + 1];
     int _retry_count;
     int _state_retry_count;
     int _start_time;

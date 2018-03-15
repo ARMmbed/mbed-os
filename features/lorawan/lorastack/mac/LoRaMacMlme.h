@@ -78,7 +78,7 @@ public:
      *
      * @return               a reference to MLME confirm data structure
      */
-    inline loramac_mlme_confirm_t& get_confirmation()
+    inline loramac_mlme_confirm_t &get_confirmation()
     {
         return confirmation;
     }
@@ -87,7 +87,7 @@ public:
      *
      * @return               a reference to MLME indication data structure
      */
-    inline loramac_mlme_indication_t& get_indication()
+    inline loramac_mlme_indication_t &get_indication()
     {
         return indication;
     }

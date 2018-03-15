@@ -58,8 +58,7 @@ using namespace utest::v1;
 
 
 // Simple xorshift pseudorandom number generator
-class RandSeq
-{
+class RandSeq {
 private:
     uint32_t x;
     uint32_t y;
@@ -136,14 +135,13 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max)
 
 
 // Global variables shared between pressure tests
-NetworkInterface* net;
+NetworkInterface *net;
 SocketAddress tcp_addr;
 Timer timer;
 Mutex iomutex;
 
 // Single instance of a pressure test
-class PressureTest
-{
+class PressureTest {
 private:
     uint8_t *buffer;
     size_t buffer_size;

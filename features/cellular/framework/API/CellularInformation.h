@@ -28,8 +28,7 @@ namespace mbed {
  *
  *  An abstract interface that provides information about cellular device.
  */
-class CellularInformation
-{
+class CellularInformation {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;

@@ -58,8 +58,8 @@ typedef struct i2c_s i2c_t;
 #endif
 
 enum {
-  I2C_ERROR_NO_SLAVE = -1,
-  I2C_ERROR_BUS_BUSY = -2
+    I2C_ERROR_NO_SLAVE = -1,
+    I2C_ERROR_BUS_BUSY = -2
 };
 
 #ifdef __cplusplus
@@ -73,7 +73,7 @@ extern "C" {
 
 /** Initialize the I2C peripheral. It sets the default parameters for I2C
  *  peripheral, and configures its specifieds pins.
- *  
+ *
  *  @param obj  The I2C object
  *  @param sda  The sda pin
  *  @param scl  The scl pin
@@ -117,7 +117,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop);
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    Stop to be generated after the transfer is done
- *  @return 
+ *  @return
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */

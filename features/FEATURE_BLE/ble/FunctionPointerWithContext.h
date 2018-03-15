@@ -94,7 +94,8 @@ public:
      */
     FunctionPointerWithContext(const FunctionPointerWithContext &that) :
         _memberFunctionAndPointer(that._memberFunctionAndPointer),
-        _caller(that._caller), _next(NULL) {
+        _caller(that._caller), _next(NULL)
+    {
     }
 
     /**
@@ -144,7 +145,7 @@ public:
         _memberFunctionAndPointer._object = static_cast<void *>(object);
         memcpy(
             _memberFunctionAndPointer._memberFunction,
-            (char*) &member,
+            (char *) &member,
             sizeof(member)
         );
         _caller = &FunctionPointerWithContext::membercaller<T>;
@@ -167,7 +168,7 @@ public:
      */
     void call(ContextType context)
     {
-        ((const FunctionPointerWithContext*)  this)->call(context);
+        ((const FunctionPointerWithContext *)  this)->call(context);
     }
 
     /**
@@ -249,7 +250,8 @@ public:
     friend bool operator==(
         const FunctionPointerWithContext &lhs,
         const FunctionPointerWithContext &rhs
-    ) {
+    )
+    {
         return rhs._caller == lhs._caller &&
                memcmp(
                    &rhs._memberFunctionAndPointer,
@@ -260,16 +262,18 @@ public:
 
 private:
     template<typename T>
-    static void membercaller(cpFunctionPointerWithContext_t self, ContextType context) {
+    static void membercaller(cpFunctionPointerWithContext_t self, ContextType context)
+    {
         if (self->_memberFunctionAndPointer._object) {
             T *o = static_cast<T *>(self->_memberFunctionAndPointer._object);
             void (T::*m)(ContextType);
-            memcpy((char*) &m, self->_memberFunctionAndPointer._memberFunction, sizeof(m));
+            memcpy((char *) &m, self->_memberFunctionAndPointer._memberFunction, sizeof(m));
             (o->*m)(context);
         }
     }
 
-    static void functioncaller(cpFunctionPointerWithContext_t self, ContextType context) {
+    static void functioncaller(cpFunctionPointerWithContext_t self, ContextType context)
+    {
         if (self->_function) {
             self->_function(context);
         }
@@ -285,7 +289,7 @@ private:
         class UndefinedClass;
         typedef void (UndefinedClass::*UndefinedMemberFunction)(ContextType);
 
-        void* _object;
+        void *_object;
         union {
             char _memberFunction[sizeof(UndefinedMemberFunction)];
             UndefinedMemberFunction _alignment;
@@ -301,7 +305,7 @@ private:
         mutable MemberFunctionAndPtr _memberFunctionAndPointer;
     };
 
-    void (*_caller)(const FunctionPointerWithContext*, ContextType);
+    void (*_caller)(const FunctionPointerWithContext *, ContextType);
 
     pFunctionPointerWithContext_t _next;                /**< Optional link to make a chain out of functionPointers. This
                                                          *   allows chaining function pointers without requiring
@@ -350,7 +354,8 @@ template<typename T, typename ContextType>
 FunctionPointerWithContext<ContextType> makeFunctionPointer(
     T *object,
     void (T::*member)(ContextType context)
-) {
+)
+{
     return FunctionPointerWithContext<ContextType>(object, member);
 }
 

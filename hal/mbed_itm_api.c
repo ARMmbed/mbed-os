@@ -21,7 +21,7 @@
 
 #include <stdbool.h>
 
-#define ITM_ENABLE_WRITE 0xC5ACCE55 
+#define ITM_ENABLE_WRITE 0xC5ACCE55
 
 #define SWO_NRZ 0x02
 #define SWO_STIMULUS_PORT 0x01
@@ -56,13 +56,13 @@ void mbed_itm_init(void)
         ITM->TPR  = 0x0;
 
         /* Trace Control Register */
-        ITM->TCR  = (1 << ITM_TCR_TraceBusID_Pos) | 
-                    (1 << ITM_TCR_DWTENA_Pos)     | 
+        ITM->TCR  = (1 << ITM_TCR_TraceBusID_Pos) |
+                    (1 << ITM_TCR_DWTENA_Pos)     |
                     (1 << ITM_TCR_SYNCENA_Pos)    |
                     (1 << ITM_TCR_ITMENA_Pos);
 
         /* Trace Enable Register */
-        ITM->TER = SWO_STIMULUS_PORT;    
+        ITM->TER = SWO_STIMULUS_PORT;
     }
 }
 
@@ -70,8 +70,7 @@ uint32_t mbed_itm_send(uint32_t port, uint32_t data)
 {
     /* Check if ITM and port is enabled */
     if (((ITM->TCR & ITM_TCR_ITMENA_Msk) != 0UL) &&      /* ITM enabled */
-        ((ITM->TER & (1UL << port)     ) != 0UL)   )     /* ITM Port enabled */
-    {
+            ((ITM->TER & (1UL << port)) != 0UL)) {           /* ITM Port enabled */
         /* write data to port */
         ITM->PORT[port].u32 = data;
 

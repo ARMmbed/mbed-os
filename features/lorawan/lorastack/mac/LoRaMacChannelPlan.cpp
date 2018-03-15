@@ -39,7 +39,7 @@ void LoRaMacChannelPlan::activate_channelplan_subsystem(LoRaPHY *phy, LoRaMacMib
     _mib = mib;
 }
 
-lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
+lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t &plan)
 {
     channel_params_t mac_layer_ch_params;
     lorawan_status_t status;
@@ -86,8 +86,8 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
-                                             loramac_protocol_params *params)
+lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t &plan,
+        loramac_protocol_params *params)
 {
     if (params == NULL) {
         return LORAWAN_STATUS_PARAMETER_INVALID;

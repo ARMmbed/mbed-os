@@ -36,8 +36,7 @@ const int MAX_OPERATOR_NAME_SHORT = 8;
  *
  *  An abstract interface for connecting to a network and getting information from it.
  */
-class CellularNetwork : public NetworkInterface
-{
+class CellularNetwork : public NetworkInterface {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -142,13 +141,14 @@ public:
 
 
         Status op_status;
-        char op_long[MAX_OPERATOR_NAME_LONG+1];
-        char op_short[MAX_OPERATOR_NAME_SHORT+1];
-        char op_num[MAX_OPERATOR_NAME_SHORT+1];
+        char op_long[MAX_OPERATOR_NAME_LONG + 1];
+        char op_short[MAX_OPERATOR_NAME_SHORT + 1];
+        char op_num[MAX_OPERATOR_NAME_SHORT + 1];
         RadioAccessTechnology op_rat;
         operator_t *next;
 
-        operator_t() {
+        operator_t()
+        {
             op_status = Unknown;
             op_rat = RAT_UNKNOWN;
             next = NULL;
@@ -159,14 +159,14 @@ public:
 
     /* PDP Context information */
     struct pdpcontext_params_t {
-        char apn[MAX_ACCESSPOINT_NAME_LENGTH+1];
-        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char apn[MAX_ACCESSPOINT_NAME_LENGTH + 1];
+        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
         int cid;
         int bearer_id;
         int im_signalling_flag;
@@ -176,9 +176,10 @@ public:
         int local_addr_ind;
         int non_ip_mtu;
         int serving_plmn_rate_control_value;
-        pdpcontext_params_t* next;
+        pdpcontext_params_t *next;
 
-        pdpcontext_params_t() {
+        pdpcontext_params_t()
+        {
             apn[0] = '\0';
             local_addr[0] = '\0';
             local_subnet_mask[0] = '\0';
@@ -235,14 +236,14 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *apn, AuthenticationType type,
-                const char *username = 0, const char *password = 0) = 0;
+                                          const char *username = 0, const char *password = 0) = 0;
 
     /** Request attach to network.
      *
      *  @param timeout milliseconds to wait for attach response
      *  @return        zero on success
      */
-    virtual nsapi_error_t set_attach(int timeout = 10*1000) = 0;
+    virtual nsapi_error_t set_attach(int timeout = 10 * 1000) = 0;
 
     /** Request attach status from network.
      *
@@ -260,7 +261,7 @@ public:
      *  @return              zero on success
      */
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
+                                           CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
 
     /** Get backoff timer value
      *
@@ -291,7 +292,7 @@ public:
      *  @return zero on success
      */
     virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-                                                       Preferred_UE_Opt preferred_opt) = 0;
+            Preferred_UE_Opt preferred_opt) = 0;
 
     /** Get CIoT optimizations.
      *
@@ -299,8 +300,8 @@ public:
      *  @param preferred_opt Preferred CIoT EPS optimizations.
      *  @return zero on success
      */
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                       Preferred_UE_Opt& preferred_opt) = 0;
+    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+            Preferred_UE_Opt &preferred_opt) = 0;
 
     /** Start the interface. Attempts to connect to a cellular network.
      *
@@ -340,7 +341,7 @@ public:
      *  @param params_list  reference to linked list which is filled on successful call
      *  @return             0 on success, negative error code on failure
      */
-    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t& params_list) = 0;
+    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list) = 0;
 
     /** Get extended signal quality parameters.
      *

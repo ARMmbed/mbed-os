@@ -101,7 +101,7 @@ void test_socket_send_receive_non_blocking()
 
     int32_t event;
     event = sock_event.wait(10000);
-    TEST_ASSERT_MESSAGE( event>=1, "No Socket event within 10 seconds");
+    TEST_ASSERT_MESSAGE(event >= 1, "No Socket event within 10 seconds");
 
     // Read response
     SocketAddress address;

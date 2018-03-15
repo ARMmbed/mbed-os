@@ -23,7 +23,8 @@
 
 using namespace utest::v1;
 
-void wifi_constructor() {
+void wifi_constructor()
+{
     WiFiInterface *wifi = get_interface();
     TEST_ASSERT(wifi);
 }
