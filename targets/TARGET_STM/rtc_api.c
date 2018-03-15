@@ -330,6 +330,11 @@ uint32_t rtc_read_us(void)
 
 void rtc_set_wake_up_timer(uint32_t delta)
 {
+#define RTC_CLOCK_US (((uint64_t)RTC_CLOCK << 32 ) / 1000000)
+
+    uint32_t WakeUpCounter;
+    uint32_t WakeUpClock;
+
     /* Ex for Wakeup period resolution with RTCCLK=32768 Hz :
     *    RTCCLK_DIV2: ~122us < wakeup period < ~4s
     *    RTCCLK_DIV4: ~244us < wakeup period < ~8s
@@ -338,19 +343,21 @@ void rtc_set_wake_up_timer(uint32_t delta)
     *    CK_SPRE_16BITS: 1s < wakeup period < (0xFFFF+ 1) x 1 s = 65536 s (18 hours)
     *    CK_SPRE_17BITS: 18h+1s < wakeup period < (0x1FFFF+ 1) x 1 s = 131072 s (36 hours)
     */
-    uint32_t WakeUpClock[6] = {RTC_WAKEUPCLOCK_RTCCLK_DIV2, RTC_WAKEUPCLOCK_RTCCLK_DIV4, RTC_WAKEUPCLOCK_RTCCLK_DIV8, RTC_WAKEUPCLOCK_RTCCLK_DIV16, RTC_WAKEUPCLOCK_CK_SPRE_16BITS, RTC_WAKEUPCLOCK_CK_SPRE_17BITS};
-    uint8_t ClockDiv[4] = {2, 4, 8, 16};
-    uint32_t WakeUpCounter;
-    uint8_t DivIndex = 0;
-
-    do {
-        WakeUpCounter = delta / (ClockDiv[DivIndex] * 1000000 / RTC_CLOCK);
-        DivIndex++;
-    } while ( (WakeUpCounter > 0xFFFF) && (DivIndex < 4) );
-
-    if (WakeUpCounter > 0xFFFF) {
-        WakeUpCounter = delta / 1000000;
-        DivIndex++;
+    if (delta < (0x10000 * 2 / RTC_CLOCK * 1000000) ) { // (0xFFFF + 1) * RTCCLK_DIV2 / RTC_CLOCK * 1s
+        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 1 ;
+        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV2;
+    } else if (delta < (0x10000 * 4 / RTC_CLOCK * 1000000) ) {
+        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 2 ;
+        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV4;
+    } else if (delta < (0x10000 * 8 / RTC_CLOCK * 1000000) ) {
+        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 3 ;
+        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV8;
+    } else if (delta < (0x10000 * 16 / RTC_CLOCK * 1000000) ) {
+        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 4 ;
+        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV16;
+    } else {
+        WakeUpCounter = (delta / 1000000) ;
+        WakeUpClock = RTC_WAKEUPCLOCK_CK_SPRE_16BITS;
     }
 
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
@@ -358,8 +365,8 @@ void rtc_set_wake_up_timer(uint32_t delta)
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
 
     RtcHandle.Instance = RTC;
-    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex - 1]) != HAL_OK) {
-        error("rtc_set_wake_up_timer init error (%d)\n", DivIndex);
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, (uint32_t)WakeUpCounter, WakeUpClock) != HAL_OK) {
+        error("rtc_set_wake_up_timer init error\n");
     }
 }
 
