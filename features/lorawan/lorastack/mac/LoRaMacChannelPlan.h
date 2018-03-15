@@ -54,7 +54,6 @@ public:
      * Stores pointers to PHY layer MIB subsystem
      *
      * @param phy    pointer to PHY layer
-     * @param mib    pointer to MIB subsystem
      */
     void activate_channelplan_subsystem(LoRaPHY *phy);
 
@@ -78,7 +77,7 @@ public:
      * @param plan      a reference to application provided channel plan structure
      *                  which gets filled in with active channel plan data.
      *
-     * @param params    pointer to active MAC layer parameters.
+     * @param mib_confirm    pointer to mib request.
      *
      * @return          LORAWAN_STATUS_OK if everything goes well otherwise
      *                  a negative error code is returned.
