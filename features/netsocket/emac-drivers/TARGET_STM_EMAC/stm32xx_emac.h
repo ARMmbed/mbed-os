@@ -154,7 +154,7 @@ public:
 private:
     bool low_level_init_successful();
     void packet_rx();
-    emac_mem_buf_t *low_level_input();
+    int low_level_input(emac_mem_buf_t **buf);
     static void thread_function(void* pvParameters);
     static void rmii_watchdog_thread_function(void* pvParameters);
     void phy_task();
