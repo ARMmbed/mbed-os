@@ -33,6 +33,9 @@
 #define OS_TICK_CC_CHANNEL      1
 #define LP_TICKER_CC_CHANNEL    2
 
+#define US_TICKER_SW_IRQ_MASK 0x1
+#define LP_TICKER_SW_IRQ_MASK 0x2
+
 #define COMMON_RTC_EVENT_COMPARE(channel) \
     CONCAT_2(NRF_RTC_EVENT_COMPARE_, channel)
 #define COMMON_RTC_INT_COMPARE_MASK(channel) \
@@ -47,6 +50,7 @@
 
 extern bool              m_common_rtc_enabled;
 extern uint32_t volatile m_common_rtc_overflows;
+extern uint8_t volatile m_common_sw_irq_flag; 
 
 void     common_rtc_init(void);
 uint32_t common_rtc_32bit_ticks_get(void);

@@ -55,6 +55,9 @@
 bool              m_common_rtc_enabled = false;
 uint32_t volatile m_common_rtc_overflows = 0;
 
+// lp/us ticker fire interrupt flag for IRQ handler
+volatile uint8_t m_common_sw_irq_flag = 0; 
+
 __STATIC_INLINE void rtc_ovf_event_check(void)
 {
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
@@ -74,11 +77,15 @@ void COMMON_RTC_IRQ_HANDLER(void)
 
     rtc_ovf_event_check();
 
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
+    if ((m_common_sw_irq_flag & US_TICKER_SW_IRQ_MASK) || nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
         us_ticker_irq_handler();
     }
 
 #if DEVICE_LOWPOWERTIMER
+    if (m_common_sw_irq_flag & LP_TICKER_SW_IRQ_MASK) {
+        m_common_sw_irq_flag &= ~LP_TICKER_SW_IRQ_MASK;
+        lp_ticker_irq_handler();
+    }
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, LP_TICKER_EVENT)) {
 
         lp_ticker_irq_handler();
@@ -273,10 +280,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_fire_interrupt(void)
 {
-    uint32_t closest_safe_compare = common_rtc_32bit_ticks_get() + 2;
-
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, US_TICKER_CC_CHANNEL, RTC_WRAP(closest_safe_compare));
-    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
+    core_util_critical_section_enter();
+    m_common_sw_irq_flag |= US_TICKER_SW_IRQ_MASK;
+    NVIC_SetPendingIRQ(RTC1_IRQn);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_disable_interrupt(void)
@@ -286,6 +293,7 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
+    m_common_sw_irq_flag &= ~US_TICKER_SW_IRQ_MASK;
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, US_TICKER_EVENT);
 }
 

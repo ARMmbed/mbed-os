@@ -755,18 +755,19 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2", "5"],
         "device_name" : "LPC54628J512ET180"
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_LPC546XX"],
-        "detect_code": ["1056"]
+        "detect_code": ["1056"],
+        "release_versions": ["2", "5"]
     },
     "FF_LPC546XX": {
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
-        "detect_code": ["8081"]
+        "detect_code": ["8081"],
+        "release_versions": ["2", "5"]
     },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
@@ -1035,6 +1036,23 @@
         "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
+    },
+    "STEVAL_3DP001V1": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F401xE", "STM32F401VE"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "HSE_VALUE=25000000"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
+        "overrides": {"lse_available": 0},
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F401VE"
     },
     "NUCLEO_F410RB": {
         "inherits": ["FAMILY_STM32"],
@@ -1550,7 +1568,7 @@
             }
         },
         "detect_code": ["0765"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG",
@@ -1569,7 +1587,7 @@
             }
         },
         "detect_code": ["0766"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L476JG"
@@ -1861,7 +1879,7 @@
         },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
@@ -1883,7 +1901,7 @@
             }
         },
         "detect_code": ["0820"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
@@ -2109,6 +2127,10 @@
         "release_versions": ["5"]
     },
     "UBLOX_C030_N211": {
+        "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_R410M": {
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
@@ -3423,11 +3445,17 @@
         "device_has": ["I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"]
     },
+    "OSHCHIP": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
+        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
+        "device_name": "nRF51822_xxAC"
+    },
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],
+        "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM", "TRNG"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5", "SDK11", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -3505,6 +3533,29 @@
                 "help": "Value p5",
                 "value": "p5"
             }
+        }
+    },
+    "MTB_LAIRD_BL652": {
+        "inherits": ["MCU_NRF52"],
+        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "extra_labels_add": ["MTB_LAIRD_BL652"],
+        "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA",
+        "bootloader_supported": true,
+        "config": {
+            "usb_tx": {
+                "help": "Value SIO_06",
+                "value": "SIO_6"
+            },
+            "usb_rx": {
+                "help": "Value SIO_08",
+                "value": "SIO_8"
+            }
+        },
+        "overrides": {
+            "lf_clock_src": "NRF_LF_SRC_RC",
+            "uart_hwfc": 0
         }
     },
     "DELTA_DFBM_NQ620": {
