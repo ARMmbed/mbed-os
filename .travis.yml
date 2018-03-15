@@ -115,6 +115,24 @@ matrix:
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
         - make -C $EVENTS/equeue test
+        # Run profiling tests
+        - make -C $EVENTS/equeue prof | tee prof
+      after_success:
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
+          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
+              || echo 0)
+
+          STATUSM="Passed, runtime is ${CURR} cycles"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
 
     - env:
         - NAME=littlefs
