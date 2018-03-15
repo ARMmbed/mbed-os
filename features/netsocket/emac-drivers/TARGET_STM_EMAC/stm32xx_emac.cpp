@@ -237,26 +237,27 @@ error:
 }
 
 /**
- * Should allocate a a contiguous memory buffer and transfer the bytes of the incoming
+ * Should allocate a contiguous memory buffer and transfer the bytes of the incoming
  * packet to the buffer.
  *
- * @return a memory buffer filled with the received packet (including MAC header)
- *         NULL on memory error
+ * @param buf If a frame was received and the memory buffer allocation was successful, a memory
+ *            buffer filled with the received packet (including MAC header)
+ * @return negative value when no more frames,
+ *         zero when frame is received
  */
-emac_mem_buf_t *STM32_EMAC::low_level_input()
+int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
 {
     uint16_t len = 0;
     uint8_t *buffer;
     __IO ETH_DMADescTypeDef *dmarxdesc;
     uint32_t bufferoffset = 0;
     uint32_t byteslefttocopy = 0;
-    emac_mem_buf_t *buf = 0;
     emac_mem_buf_t *q;
     uint32_t payloadoffset = 0;
 
     /* get received frame */
-    if (HAL_ETH_GetReceivedFrame(&EthHandle) != HAL_OK) {
-        return NULL;
+    if (HAL_ETH_GetReceivedFrame_IT(&EthHandle) != HAL_OK) {
+        return -1;
     }
 
     /* Obtain the size of the packet and put it into the "len" variable. */
@@ -268,13 +269,13 @@ emac_mem_buf_t *STM32_EMAC::low_level_input()
 
     if (len > 0) {
         /* Allocate a memory buffer chain from buffer pool */
-        buf = memory_manager->alloc_pool(len, 0);
+        *buf = memory_manager->alloc_pool(len, 0);
     }
 
-    if (buf != NULL) {
+    if (*buf != NULL) {
         dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
         bufferoffset = 0;
-        for (q = buf; q != NULL; q = memory_manager->get_next(q)) {
+        for (q = *buf; q != NULL; q = memory_manager->get_next(q)) {
             byteslefttocopy = memory_manager->get_len(q);
             payloadoffset = 0;
 
@@ -316,7 +317,7 @@ emac_mem_buf_t *STM32_EMAC::low_level_input()
         /* Resume DMA reception */
         EthHandle.Instance->DMARPDR = 0;
     }
-    return buf;
+    return 0;
 }
 
 
@@ -325,15 +326,16 @@ emac_mem_buf_t *STM32_EMAC::low_level_input()
  */
 void STM32_EMAC::packet_rx()
 {
-  emac_mem_buf_t *p;
-
   /* move received packet into a new buf */
-  p = low_level_input();
-  if (p == NULL) {
-      return;
+  while (1) {
+      emac_mem_buf_t *p = NULL;
+      if (low_level_input(&p) < 0) {
+          break;
+      }
+      if (p) {
+          emac_link_input_cb(p);
+      }
   }
-
-  emac_link_input_cb(p);
 }
 
 /** \brief  Worker thread.
