@@ -169,7 +169,6 @@ private:
     NetworkStack *get_stack();
 
 private:
-    void print_device_info();
     void report_failure(const char* msg);
     void event();
 

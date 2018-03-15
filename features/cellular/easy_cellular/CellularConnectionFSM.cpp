@@ -181,22 +181,6 @@ bool CellularConnectionFSM::open_sim()
     return state == CellularSIM::SimStateReady;
 }
 
-void CellularConnectionFSM::print_device_info()
-{
-    CellularInformation *info = _cellularDevice->open_information(_serial);
-    char device_info_buf[2048]; // may be up to 2048 according to 3GPP
-
-    if (info->get_manufacturer(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device manufacturer: %s", device_info_buf);
-    }
-    if (info->get_model(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device model: %s", device_info_buf);
-    }
-    if (info->get_revision(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device revision: %s", device_info_buf);
-    }
-}
-
 bool CellularConnectionFSM::set_network_registration(char *plmn)
 {
     if (_network->set_registration(plmn) != NSAPI_ERROR_OK) {
@@ -401,7 +385,6 @@ void CellularConnectionFSM::state_device_ready()
             return;
         }
 
-        print_device_info();
         enter_to_state(STATE_SIM_PIN);
     } else {
         retry_state_or_fail();
@@ -532,7 +515,7 @@ nsapi_error_t CellularConnectionFSM::start_dispatch()
 {
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread;
+    _queue_thread = new rtos::Thread(osPriorityNormal, 1024);
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -573,15 +556,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
                 continue_from_state(STATE_ATTACHING_NETWORK);
             }
         }
-    } /*else if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
-        if (ptr == NSAPI_STATUS_GLOBAL_UP) {
-            // we are connected
-            if (_state == STATE_CONNECTING_NETWORK) {
-                _queue.cancel(_eventID);
-                continue_from_state(STATE_CONNECTED);
-            }
-        }
-    }*/
+    }
 
     if (_event_status_cb) {
         _event_status_cb(ev, ptr);

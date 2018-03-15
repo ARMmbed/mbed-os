@@ -139,21 +139,23 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 {
     int sent_len = 0;
 
-    char hexstr[BC95_MAX_PACKET_SIZE*2 + 1] = {0};
-    char_str_to_hex_str((const char*)data, size, hexstr);
+    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2];
+    int hexlen = char_str_to_hex_str((const char*)data, size, hexstr);
 
     _at.cmd_start("AT+NSOST=");
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
     _at.write_int(size);
-    _at.write_string(hexstr, false);
+    _at.write_bytes((uint8_t*)hexstr, hexlen);
     _at.cmd_stop();
     _at.resp_start();
     // skip socket id
     _at.skip_param();
     sent_len = _at.read_int();
     _at.resp_stop();
+
+    delete hexstr;
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         return sent_len;
@@ -168,7 +170,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     nsapi_size_or_error_t recv_len=0;
     int port;
     char ip_address[NSAPI_IP_SIZE];
-    char hexstr[BC95_MAX_PACKET_SIZE*2 + 1];
+    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2+1];
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
@@ -180,12 +182,13 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
     recv_len = _at.read_int();
-    _at.read_string(hexstr, sizeof(hexstr));
+    int hexlen = _at.read_string(hexstr, BC95_MAX_PACKET_SIZE*2+1);
     // remaining length
     _at.skip_param();
     _at.resp_stop();
 
     if (!recv_len || (recv_len == -1) || (_at.get_last_error() != NSAPI_ERROR_OK)) {
+        delete hexstr;
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
@@ -194,9 +197,10 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
         address->set_port(port);
     }
 
-    if (recv_len > 0) {
-        hex_str_to_char_str((const char*) hexstr, recv_len*2, (char*)buffer);
+    if (hexlen > 0) {
+        hex_str_to_char_str((const char*) hexstr, hexlen, (char*)buffer);
     }
 
+    delete hexstr;
     return recv_len;
 }

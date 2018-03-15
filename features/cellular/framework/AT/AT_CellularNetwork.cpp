@@ -275,8 +275,8 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
         tr_warn("Failed to CONNECT");
     }
     /* Initialize PPP
-     * mbed_ppp_init() is a blocking call, it will block until
-     * connected, or timeout after 30 seconds*/
+     * If blocking: mbed_ppp_init() is a blocking call, it will block until
+                  connected, or timeout after 30 seconds*/
     err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularNetwork::ppp_status_cb), _uname, _pwd, _ip_stack_type);
 #else
     // do check for stack to validate that we have support for stack
