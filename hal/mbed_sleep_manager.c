@@ -30,13 +30,11 @@ static uint16_t deep_sleep_lock = 0U;
 
 #ifdef MBED_SLEEP_TRACING_ENABLED
 
-// Length of the identifier extracted from the driver name to store for logging.
-#define IDENTIFIER_WIDTH 15
 // Number of drivers that can be stored in the structure
 #define STATISTIC_COUNT  10
 
 typedef struct sleep_statistic {
-    char identifier[IDENTIFIER_WIDTH];
+    const char* identifier;
     uint8_t count;
 } sleep_statistic_t;
 
@@ -44,13 +42,8 @@ static sleep_statistic_t sleep_stats[STATISTIC_COUNT];
 
 static sleep_statistic_t* sleep_tracker_find(const char *const filename)
 {
-    char temp[IDENTIFIER_WIDTH];
-    strncpy(temp, filename, IDENTIFIER_WIDTH);
-    temp[IDENTIFIER_WIDTH - 1] = '\0';
-
-    // Search for the a driver matching the current name and return it's index
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
-        if (strcmp(sleep_stats[i].identifier, temp) == 0) {
+        if (sleep_stats[i].identifier == filename) {
             return &sleep_stats[i];
         }
     }
@@ -60,15 +53,9 @@ static sleep_statistic_t* sleep_tracker_find(const char *const filename)
 
 static sleep_statistic_t* sleep_tracker_add(const char* const filename)
 {
-    char temp[IDENTIFIER_WIDTH];
-    strncpy(temp, filename, IDENTIFIER_WIDTH);
-    temp[IDENTIFIER_WIDTH - 1] = '\0';
-
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
-        if (sleep_stats[i].identifier[0] == '\0') {
-            core_util_critical_section_enter();
-            strncpy(sleep_stats[i].identifier, temp, sizeof(temp));
-            core_util_critical_section_exit();
+        if (sleep_stats[i].identifier == NULL) {
+            sleep_stats[i].identifier = filename;
 
             return &sleep_stats[i];
         }
@@ -87,12 +74,12 @@ static void sleep_tracker_print_stats(void)
             continue;
         }
 
-        if (sleep_stats[i].identifier[0] == '\0') {
+        if (sleep_stats[i].identifier == NULL) {
             return;
         }
 
         debug("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
-                                          sleep_stats[i].count);
+                                         sleep_stats[i].count);
     }
 }
 
