@@ -44,6 +44,10 @@ typedef enum {
     I2C_2 = 2,
 } I2CName;
 
+typedef enum {
+    SAI_0 = 0
+} SAIName;
+
 #define TPM_SHIFT   8
 typedef enum {
     PWM_1  = (0 << TPM_SHIFT) | (0),  // FTM0 CH0
