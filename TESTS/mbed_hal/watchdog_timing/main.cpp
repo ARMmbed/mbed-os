@@ -134,9 +134,9 @@ int testsuite_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("Timing, 200 ms", case_setup, test_timing<200UL, 55UL>),
-    Case("Timing, 500 ms", case_setup, test_timing<500UL, 65UL>),
-    Case("Timing, 1000 ms", case_setup, test_timing<1000UL, 130UL>),
-    Case("Timing, 3000 ms", case_setup, test_timing<3000UL, 190UL>),
+    Case("Timing, 500 ms", case_setup, test_timing<500UL, 130UL>),
+    Case("Timing, 1000 ms", case_setup, test_timing<1000UL, 255UL>),
+    Case("Timing, 3000 ms", case_setup, test_timing<3000UL, 380UL>),
 };
 
 Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);
