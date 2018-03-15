@@ -37,6 +37,9 @@ nRF5xGap::nRF5xGap() : Gap(),
     advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
     scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
     whitelistAddressesSize(0),
+    whitelistAddresses(),
+    radioNotificationCallbackParam(false),
+    radioNotificationTimeout(),
     _connection_event_handler(NULL)
 {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
