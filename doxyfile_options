@@ -2088,6 +2088,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_PORTINOUT        \
                          DEVICE_PORTOUT          \
                          DEVICE_PWMOUT           \
+                         DEVICE_RESET_REASON     \
                          DEVICE_RTC              \
                          DEVICE_TRNG             \
                          DEVICE_SERIAL           \
@@ -2099,6 +2100,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_SPISLAVE         \
                          DEVICE_QSPI             \
                          DEVICE_STORAGE          \
+                         DEVICE_WATCHDOG         \
                          COMPONENT_SPE           \
                          COMPONENT_SPM_MAILBOX   \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
