@@ -1140,6 +1140,8 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     this->product_release = product_release;
 
     memset(_endpoint_info, 0, sizeof(_endpoint_info));
+    memset(&_transfer, 0, sizeof(_transfer));
+    _transfer.user_callback = None;
 
     _setup_ready = false;
     _abort_control = false;
@@ -1163,6 +1165,8 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     this->product_release = product_release;
 
     memset(_endpoint_info, 0, sizeof(_endpoint_info));
+    memset(&_transfer, 0, sizeof(_transfer));
+    _transfer.user_callback = None;
 
     _setup_ready = false;
     _abort_control = false;
