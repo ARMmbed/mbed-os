@@ -334,9 +334,9 @@ int8_t LoRaPHYAS923::get_alternate_DR(uint8_t nb_trials)
     return AS923_DWELL_LIMIT_DATARATE;
 }
 
-bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_prams,
-                                    uint8_t* channel, lorawan_time_t* time,
-                                    lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_prams,
+                                                uint8_t* channel, lorawan_time_t* time,
+                                                lorawan_time_t* aggregate_timeoff)
 {
     uint8_t next_channel_idx = 0;
     uint8_t nb_enabled_channels = 0;
@@ -387,23 +387,23 @@ bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_pra
                 _radio->unlock();
                 *channel = next_channel_idx;
                 *time = 0;
-                return true;
+                return LORAWAN_STATUS_OK;
             }
         }
         _radio->unlock();
-        return false;
+        return LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND;
     } else {
 
         if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = next_tx_delay;
-            return true;
+            return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
         }
 
         // Datarate not supported by any channel, restore defaults
         channel_mask[0] |= LC( 1 ) + LC( 2 );
         *time = 0;
-        return false;
+        return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

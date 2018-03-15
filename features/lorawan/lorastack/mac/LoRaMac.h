@@ -49,6 +49,7 @@
 #include "lorastack/mac/LoRaMacMcps.h"
 #include "lorastack/mac/LoRaMacMib.h"
 #include "lorastack/mac/LoRaMacChannelPlan.h"
+#include "loraphy_target.h"
 
 class LoRaMac {
 
@@ -57,7 +58,7 @@ public:
     /**
      * Constructor
      */
-    LoRaMac(LoRaWANTimeHandler &lora_time);
+    LoRaMac();
 
     /**
      * Destructor
@@ -75,15 +76,13 @@ public:
      * @param   primitives [in]   A pointer to the structure defining the LoRaMAC
      *                            event functions. Refer to \ref loramac_primitives_t.
      *
-     * @param   phy [in]          A pointer to the selected PHY layer.
-     *
      * @param   queue [in]        A pointer to the application provided EventQueue.
      *
      * @return  `lorawan_status_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t initialize(loramac_primitives_t *primitives, LoRaPHY *phy,
+    lorawan_status_t initialize(loramac_primitives_t *primitives,
                                 events::EventQueue *queue);
 
     /**
@@ -97,26 +96,16 @@ public:
     /**
      * @brief   Queries the LoRaMAC whether it is possible to send the next frame with
      *          a given payload size. The LoRaMAC takes the scheduled MAC commands into
-     *          account and reports when the frame can be sent.
+     *          account and returns corresponding value.
      *
      * @param   size     [in]    The size of the applicable payload to be sent next.
-     * @param   tx_info  [out]   The structure \ref loramac_tx_info_t contains
-     *                           information on the actual maximum payload possible
-     *                           (according to the configured datarate or the next
-     *                           datarate according to ADR), and the maximum frame
-     *                           size, taking the scheduled MAC commands into account.
      *
-     * @return  `lorawan_status_t` The status of the operation. When the parameters are
-     *          not valid, the function returns \ref LORAWAN_STATUS_PARAMETER_INVALID.
-     *          In case of a length error caused by the applicable payload in combination
-     *          with the MAC commands, the function returns \ref LORAWAN_STATUS_LENGTH_ERROR.
+     * @return  Size of the biggest packet that can be sent.
      *          Please note that if the size of the MAC commands in the queue do
      *          not fit into the payload size on the related datarate, the LoRaMAC will
      *          omit the MAC commands.
-     *          If the query is valid, and the LoRaMAC is able to send the frame,
-     *          the function returns \ref LORAWAN_STATUS_OK.
      */
-    lorawan_status_t query_tx_possible(uint8_t size, loramac_tx_info_t* tx_info);
+    uint8_t query_tx_possible(uint8_t size);
 
     /**
      * @brief   Adds a channel plan to the system.
@@ -334,9 +323,9 @@ public:
      *
      * loramac_mcps_req_t request;
      * request.type = MCPS_UNCONFIRMED;
-     * request.req.unconfirmed.fport = 1;
-     * request.req.unconfirmed.f_buffer = buffer;
-     * request.req.unconfirmed.f_buffer_size = sizeof(buffer);
+     * request.fport = 1;
+     * request.f_buffer = buffer;
+     * request.f_buffer_size = sizeof(buffer);
      *
      * if (mcps_request(&request) == LORAWAN_STATUS_OK) {
      *   // Service started successfully. Waiting for the MCPS-Confirm event
@@ -358,13 +347,18 @@ public:
      */
     lorawan_status_t mcps_request(loramac_mcps_req_t *request);
 
-    /**
-     * @brief LoRaMAC layer provides its callback functions for
-     *        PHY layer.
+    /** Binds radio driver to PHY layer.
      *
-     * @return Pointer to callback functions for radio events
+     * MAC layer is totally detached from the PHY layer so the stack layer
+     * needs to play the role of an arbitrator. This API gets a radio driver
+     * object from the application (via LoRaWANInterface), binds it to the PHY
+     * layer and initialises radio callback handles which the radio driver will
+     * use in order to report events.
+     *
+     * @param radio            LoRaRadio object, i.e., the radio driver
+     *
      */
-    radio_events_t *get_phy_event_handlers();
+    void bind_radio_driver(LoRaRadio& radio);
 
     /**
      * @brief Configures the events to trigger an MLME-Indication with
@@ -426,6 +420,230 @@ public:
      *        class c devices.
      */
     void open_continuous_rx2_window(void);
+
+    /**
+     * @brief get_default_tx_datarate Gets the default TX datarate
+     * @return default TX datarate.
+     */
+    uint8_t get_default_tx_datarate();
+
+    /**
+     * @brief tx_ongoing Check whether a prepare is done or not.
+     * @return True if prepare_ongoing_tx is called, false otherwise.
+     */
+    bool tx_ongoing();
+
+    /**
+     * @brief set_tx_ongoing Changes the ongoing status for prepared message.
+     * @param ongoing The value indicating the status.
+     */
+    void set_tx_ongoing(bool ongoing);
+
+    /**
+     * @brief reset_ongoing_tx Resets _ongoing_tx_msg.
+     * @param reset_pending If true resets pending size also.
+     */
+    void reset_ongoing_tx(bool reset_pending = false);
+
+    /**
+     * @brief prepare_ongoing_tx This will prepare (and override) ongoing_tx_msg.
+     * @param port The application port number.
+     * @param data A pointer to the data being sent. The ownership of the
+     *             buffer is not transferred.
+     * @param length The size of data in bytes.
+     * @param flags A flag used to determine what type of
+     *              message is being sent.
+     * @param num_retries Number of retries for a confirmed type message
+     * @return The number of bytes prepared for sending.
+     */
+    int16_t prepare_ongoing_tx(uint8_t port, const uint8_t* data,
+                               uint16_t length, uint8_t flags, uint8_t num_retries);
+
+    /**
+     * @brief send_ongoing_tx Sends the ongoing_tx_msg
+     * @return LORAWAN_STATUS_OK or a negative error code on failure.
+     */
+    lorawan_status_t send_ongoing_tx();
+
+private:
+    /**
+     * Function to be executed on Radio Tx Done event
+     */
+    void on_radio_tx_done(void);
+
+    /**
+     * This function prepares the MAC to abort the execution of function
+     * on_radio_rx_done() in case of a reception error.
+     */
+    void prepare_rx_done_abort(void);
+
+    /**
+     * Function to be executed on Radio Rx Done event
+     */
+    void on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
+                          int8_t snr);
+
+    /**
+     * Function executed on Radio Tx Timeout event
+     */
+    void on_radio_tx_timeout(void);
+
+    /**
+     * Function executed on Radio Rx error event
+     */
+    void on_radio_rx_error(void);
+
+    /**
+     * Function executed on Radio Rx Timeout event
+     */
+    void on_radio_rx_timeout(void);
+
+    /**
+     *Function executed on Resend Frame timer event.
+     */
+    void on_mac_state_check_timer_event(void);
+
+    /**
+     * Function executed on duty cycle delayed Tx  timer event
+     */
+    void on_tx_delayed_timer_event(void);
+
+    /**
+     * Function executed on first Rx window timer event
+     */
+    void on_rx_window1_timer_event(void);
+
+    /**
+     * Function executed on second Rx window timer event
+     */
+    void on_rx_window2_timer_event(void);
+
+
+    /*!
+     * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
+     *        function disables it.
+     *
+     * \param [in] node_ack_requested Set to true, if the node has requested an ACK
+     * \param [in] dev_class The device class
+     * \param [in] ack_received Set to true, if the node has received an ACK
+     * \param [in] ack_timeout_retries_counter Retries counter for confirmed uplinks
+     * \param [in] ack_timeout_retries Maximum retries for confirmed uplinks
+     */
+    void check_to_disable_ack_timeout(bool node_ack_requested,
+                                      device_class_t dev_class,
+                                      bool ack_received,
+                                      uint8_t ack_timeout_retries_counter,
+                                      uint8_t ack_timeout_retries);
+
+    /**
+     * Function executed on AckTimeout timer event
+     */
+    void on_ack_timeout_timer_event(void);
+
+    /**
+     * Initializes and opens the reception window
+     */
+    void rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time);
+
+    /**
+     * Validates if the payload fits into the frame, taking the datarate
+     * into account.
+     *
+     * Please Refer to chapter 4.3.2 of the LoRaWAN specification, v1.0.2
+     */
+    bool validate_payload_length(uint8_t length, int8_t datarate, uint8_t fopts_len);
+
+    /**
+     * Prepares MAC frame on the behest of send() API.
+     */
+    lorawan_status_t prepare_frame(loramac_mhdr_t *mac_hdr,
+                                   loramac_frame_ctrl_t *fctrl, uint8_t fport,
+                                   void *fbuffer, uint16_t fbuffer_size);
+
+    /**
+     * Schedules a transmission on the behest of send() API.
+     */
+    lorawan_status_t schedule_tx(void);
+
+    /**
+     * Calculates the back-off time for the band of a channel.
+     * Takes in the last used channel id as a parameter.
+     */
+    void calculate_backOff(uint8_t channel_id);
+
+    /**
+     * Hands over the MAC frame to PHY layer.
+     */
+    lorawan_status_t send_frame_on_channel(uint8_t channel);
+
+    /**
+     * Prototypes for ISR handlers
+     */
+    void handle_cad_done(bool cad);
+    void handle_tx_done(void);
+    void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+    void handle_rx_error(void);
+    void handle_rx_timeout(void);
+    void handle_tx_timeout(void);
+    void handle_fhss_change_channel(uint8_t cur_channel);
+
+private:
+    /**
+     * Timer subsystem handle
+     */
+    LoRaWANTimeHandler _lora_time;
+
+    /**
+     * LoRa PHY layer object storage
+     */
+    LoRaPHY_region _lora_phy;
+
+    /**
+     * MAC command handle
+     */
+    LoRaMacCommand mac_commands;
+
+    /**
+     * MLME subsystem handle
+     */
+    LoRaMacMlme mlme;
+
+    /**
+     * MCPS subsystem handle
+     */
+    LoRaMacMcps mcps;
+
+    /**
+     * MCPS subsystem handle
+     */
+    LoRaMacMib mib;
+
+    /**
+     * Channel planning subsystem
+     */
+    LoRaMacChannelPlan channel_plan;
+
+    /**
+     * Central MAC layer data storage
+     */
+    loramac_protocol_params _params;
+
+    /**
+     * Radio event callback handlers for MAC
+     */
+    radio_events_t radio_events;
+
+    /**
+     * LoRaMac upper layer event functions
+     */
+    loramac_primitives_t *mac_primitives;
+
+    /**
+     * EventQueue object storage
+     */
+    events::EventQueue *ev_queue;
+
+    loramac_tx_message_t _ongoing_tx_msg;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
 public: // Test interface
@@ -500,179 +718,6 @@ private:
      */
     timer_event_t tx_next_packet_timer;
 #endif
-
-private:
-    /**
-     * Function to be executed on Radio Tx Done event
-     */
-    void on_radio_tx_done(void);
-
-    /**
-     * This function prepares the MAC to abort the execution of function
-     * on_radio_rx_done() in case of a reception error.
-     */
-    void prepare_rx_done_abort(void);
-
-    /**
-     * Function to be executed on Radio Rx Done event
-     */
-    void on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
-                          int8_t snr);
-
-    /**
-     * Function executed on Radio Tx Timeout event
-     */
-    void on_radio_tx_timeout(void);
-
-    /**
-     * Function executed on Radio Rx error event
-     */
-    void on_radio_rx_error(void);
-
-    /**
-     * Function executed on Radio Rx Timeout event
-     */
-    void on_radio_rx_timeout(void);
-
-    /**
-     *Function executed on Resend Frame timer event.
-     */
-    void on_mac_state_check_timer_event(void);
-
-    /**
-     * Function executed on duty cycle delayed Tx  timer event
-     */
-    void on_tx_delayed_timer_event(void);
-
-    /**
-     * Function executed on first Rx window timer event
-     */
-    void on_rx_window1_timer_event(void);
-
-    /**
-     * Function executed on second Rx window timer event
-     */
-    void on_rx_window2_timer_event(void);
-
-    /**
-     * Function executed on AckTimeout timer event
-     */
-    void on_ack_timeout_timer_event(void);
-
-    /**
-     * Initializes and opens the reception window
-     */
-    void rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time);
-
-    /**
-     * Validates if the payload fits into the frame, taking the datarate
-     * into account.
-     *
-     * Please Refer to chapter 4.3.2 of the LoRaWAN specification, v1.0.2
-     */
-    bool validate_payload_length(uint8_t length, int8_t datarate, uint8_t fopts_len);
-
-    /**
-     * Prepares MAC frame on the behest of send() API.
-     */
-    lorawan_status_t prepare_frame(loramac_mhdr_t *mac_hdr,
-                                   loramac_frame_ctrl_t *fctrl, uint8_t fport,
-                                   void *fbuffer, uint16_t fbuffer_size);
-
-    /**
-     * Schedules a transmission on the behest of send() API.
-     */
-    lorawan_status_t schedule_tx(void);
-
-    /**
-     * Calculates the back-off time for the band of a channel.
-     * Takes in the last used channel id as a parameter.
-     */
-    void calculate_backOff(uint8_t channel_id);
-
-    /**
-     * Hands over the MAC frame to PHY layer.
-     */
-    lorawan_status_t send_frame_on_channel(uint8_t channel);
-
-    /**
-     * Checks for Port validity.
-     */
-    bool is_fPort_allowed(uint8_t fPort);
-
-    /**
-     * Prototypes for ISR handlers
-     */
-    void handle_cad_done(bool cad);
-    void handle_tx_done(void);
-    void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
-                        int8_t snr);
-    void handle_rx_error(void);
-    void handle_rx_timeout(void);
-    void handle_tx_timeout(void);
-    void handle_fhss_change_channel(uint8_t cur_channel);
-    void handle_rx1_timer_event(void);
-    void handle_rx2_timer_event(void);
-    void handle_ack_timeout(void);
-    void handle_delayed_tx_timer_event(void);
-    void handle_mac_state_check_timer_event(void);
-    void handle_next_tx_timer_event(void);
-
-private:
-    /**
-     * LoRa PHY layer object storage
-     */
-    LoRaPHY *lora_phy;
-
-    /**
-     * MAC command handle
-     */
-    LoRaMacCommand mac_commands;
-
-    /**
-     * MLME subsystem handle
-     */
-    LoRaMacMlme mlme;
-
-    /**
-     * MCPS subsystem handle
-     */
-    LoRaMacMcps mcps;
-
-    /**
-     * MCPS subsystem handle
-     */
-    LoRaMacMib mib;
-
-    /**
-     * Channel planning subsystem
-     */
-    LoRaMacChannelPlan channel_plan;
-
-    /**
-     * Timer subsystem handle
-     */
-    LoRaWANTimeHandler &_lora_time;
-
-    /**
-     * Central MAC layer data storage
-     */
-    loramac_protocol_params _params;
-
-    /**
-     * Radio event callback handlers for MAC
-     */
-    radio_events_t radio_events;
-
-    /**
-     * LoRaMac upper layer event functions
-     */
-    loramac_primitives_t *mac_primitives;
-
-    /**
-     * EventQueue object storage
-     */
-    events::EventQueue *ev_queue;
 };
 
 #endif // MBED_LORAWAN_MAC_H__

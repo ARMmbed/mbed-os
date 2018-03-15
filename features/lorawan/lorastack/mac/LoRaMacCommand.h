@@ -54,7 +54,7 @@ class LoRaMac;
 class LoRaMacCommand {
 
 public:
-    LoRaMacCommand(LoRaMac &lora_mac);
+    LoRaMacCommand();
     ~LoRaMacCommand();
 
     /**
@@ -125,9 +125,21 @@ public:
     /**
      * @brief Check if MAC command buffer has commands to be sent in next TX
      *
-     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer]
+     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer
      */
     bool is_mac_command_in_next_tx() const;
+
+    /**
+     * @brief Clear sticky MAC commands.
+     */
+    void clear_sticky_mac_cmd();
+
+    /**
+     * @brief Check if MAC command buffer contains sticky commands
+     *
+     * @return status  True: buffer has sticky MAC commands in it, false: no sticky commands in buffer
+     */
+    bool has_sticky_mac_cmd() const;
 
     /**
      * @brief Decodes MAC commands in the fOpts field and in the payload
@@ -148,12 +160,15 @@ public:
     bool is_sticky_mac_command_pending();
 
 private:
-    LoRaMac& _lora_mac;
-
     /**
      * Indicates if the MAC layer wants to send MAC commands
      */
     bool mac_cmd_in_next_tx;
+
+    /**
+      * Indicates if there are any pending sticky MAC commands
+      */
+    bool sticky_mac_cmd;
 
     /**
      * Contains the current Mac command buffer index in 'mac_cmd_buffer'

@@ -28,7 +28,6 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
-#include "lorastack/mac/LoRaMacCommand.h"
 
 // forward declaration
 class LoRaMac;
@@ -50,56 +49,49 @@ public:
      */
     ~LoRaMacMlme();
 
+    /**
+     * @brief reset_confirmation Resets the confirmation struct
+     */
+    void reset_confirmation();
+
     /** Activating MLME subsystem
      *
      * Stores pointers to MAC and PHY layer handles
      *
-     * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
-     * @param cmd    pointer to MAC commands
      */
-    void activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy, LoRaMacCommand *cmd);
-
-    /** Sets up an MLME Request
-     *
-     * Sets up an MLME request, e.g., a Join Request and sends it through
-     * to the central MAC control. It also modifies or uses protocol information
-     * provided in the MAC protocol data structure.
-     *
-     * @param request        pointer to MLME request structure
-     * @param params         pointer to MAC protocol parameters
-     *
-     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
-     *                       a negative error code is returned.
-     */
-    lorawan_status_t set_request(loramac_mlme_req_t *request, loramac_protocol_params *params);
+    void activate_mlme_subsystem(LoRaPHY *phy);
 
     /** Grants access to MLME confirmation data
      *
      * @return               a reference to MLME confirm data structure
      */
-    inline loramac_mlme_confirm_t& get_confirmation()
-    {
-        return confirmation;
-    }
+    loramac_mlme_confirm_t& get_confirmation();
 
     /** Grants access to MLME indication data
      *
      * @return               a reference to MLME indication data structure
      */
-    inline loramac_mlme_indication_t& get_indication()
-    {
-        return indication;
-    }
+    loramac_mlme_indication_t& get_indication();
+
+    /**
+     * @brief set_tx_continuous_wave Puts the system in continuous transmission mode
+     * @param [in] channel A Channel to use
+     * @param [in] datarate A datarate to use
+     * @param [in] tx_power A RF output power to use
+     * @param [in] max_eirp A maximum possible EIRP to use
+     * @param [in] antenna_gain Antenna gain to use
+     * @param [in] timeout Time in seconds while the radio is kept in continuous wave mode
+     */
+    void set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
+                                float max_eirp, float antenna_gain, uint16_t timeout);
 
 private:
 
     /**
-     * Pointers to MAC and PHY handles
+     * Pointer to PHY handle
      */
-    LoRaMac *_lora_mac;
     LoRaPHY *_lora_phy;
-    LoRaMacCommand *_mac_cmd;
 
     /**
      * Structure to hold MLME indication data.
