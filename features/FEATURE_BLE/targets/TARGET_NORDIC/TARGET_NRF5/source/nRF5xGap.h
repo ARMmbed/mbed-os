@@ -65,6 +65,8 @@ class nRF5xGap : public ::Gap, public ble::pal::ConnectionEventMonitor {
 public:
     nRF5xGap();
 
+    virtual ~nRF5xGap() { }
+
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
