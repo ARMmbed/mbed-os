@@ -2106,6 +2106,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_WATCHDOG         \
                          COMPONENT_SPE           \
                          COMPONENT_SPM_MAILBOX   \
+                         DEVICE_WATCHDOG         \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \
                          "MBED_DEPRECATED(s)="
