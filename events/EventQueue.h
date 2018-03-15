@@ -702,6 +702,9 @@ public:
 
     /** Calls an event on the queue periodically
      *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
+     *
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.
      *
