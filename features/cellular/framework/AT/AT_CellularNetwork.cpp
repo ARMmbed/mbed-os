@@ -546,14 +546,12 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
 
     if (!plmn) {
         tr_debug("Automatic network registration");
-        uint8_t len=8;
-        uint8_t buf[8];
         _at.cmd_start("AT+COPS?");
         _at.cmd_stop();
-        _at.resp_start();
-        _at.read_bytes(buf,len);
+        _at.resp_start("AT+COPS:");
+        int mode = _at.read_int();
         _at.resp_stop();
-        if (strncmp((char*)buf,"+COPS: 0",len) != 0) {
+        if (mode != 0) {
             _at.clear_error();
             _at.cmd_start("AT+COPS=0");
             _at.cmd_stop();
