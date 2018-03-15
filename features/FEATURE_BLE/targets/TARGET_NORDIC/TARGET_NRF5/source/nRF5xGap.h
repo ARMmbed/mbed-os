@@ -55,8 +55,6 @@ extern "C" {
 
 void radioNotificationStaticCallback(bool param);
 
-namespace ble { namespace pal { class ConnectionEventHandler; }}
-
 /**************************************************************************/
 /*!
     \brief
@@ -260,7 +258,9 @@ public:
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
-    void set_connection_event_handler(ble::pal::ConnectionEventHandler *_connection_event_handler);
+    void set_connection_event_handler(
+        ConnectionEventMonitor::EventHandler* connection_event_handler
+    );
 
     /**
      * @copydoc ::Gap::processConnectionEvent
@@ -285,7 +285,7 @@ public:
 
     uint16_t m_connectionHandle;
 
-    ble::pal::ConnectionEventHandler* _connection_event_handler;
+    ConnectionEventMonitor::EventHandler* _connection_event_handler;
 
     /*
      * Allow instantiation from nRF5xn when required.

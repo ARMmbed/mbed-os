@@ -25,6 +25,7 @@
 #include "common/common.h"
 #include "ble_advdata.h"
 #include "headers/nrf_ble_hci.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 
 
 void radioNotificationStaticCallback(bool param) {
@@ -1045,8 +1046,9 @@ ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack()
 }
 #endif
 
-void nRF5xGap::set_connection_event_handler(ble::pal::ConnectionEventHandler *connection_event_handler)
-{
+void nRF5xGap::set_connection_event_handler(
+    ConnectionEventMonitor::EventHandler* connection_event_handler
+) {
     _connection_event_handler = connection_event_handler;
 }
 
