@@ -2143,7 +2143,7 @@
                 "core.stdio-flush-at-exit": false
             }
         },
-        "device_has": ["PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "STDIO_MESSAGES", "I2C", "I2CSLAVE"],
+        "device_has": ["PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "STDIO_MESSAGES", "I2C"],
         "default_lib": "std",
         "release_versions": ["5"]
    },
