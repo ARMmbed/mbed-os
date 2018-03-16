@@ -215,10 +215,10 @@ bool USBDevice::_control_out()
     /* Check if transfer has completed */
     if (_transfer.remaining == 0) {
         /* Transfer completed */
+        _transfer.user_callback = RequestXferDone;
         if (_transfer.notify) {
             /* Notify class layer. */
             _transfer.notify = false;
-            _transfer.user_callback = true;
             callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
@@ -276,10 +276,10 @@ bool USBDevice::_control_in()
      */
     if ((_transfer.remaining == 0) && !_transfer.zlp) {
         /* Transfer completed */
+        _transfer.user_callback = RequestXferDone;
         if (_transfer.notify) {
             /* Notify class layer. */
             _transfer.notify = false;
-            _transfer.user_callback = true;
             callback_request_xfer_done(&_transfer.setup, false);
         } else {
             complete_request_xfer_done(true);
@@ -298,7 +298,8 @@ void USBDevice::complete_request_xfer_done(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == RequestXferDone);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -350,7 +351,7 @@ bool USBDevice::_request_set_configuration()
         _phy->unconfigure();
         _change_state(Address);
     } else {
-        _transfer.user_callback = true;
+        _transfer.user_callback = SetConfiguration;
         callback_set_configuration(_device.configuration);
     }
 
@@ -361,7 +362,8 @@ void USBDevice::complete_set_configuration(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == SetConfiguration);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -413,7 +415,7 @@ bool USBDevice::_request_set_interface()
 {
     assert_locked();
 
-    _transfer.user_callback = true;
+    _transfer.user_callback = SetInterface;
     callback_set_interface(_transfer.setup.wIndex, _transfer.setup.wValue);
     return true;
 }
@@ -422,7 +424,8 @@ void USBDevice::complete_set_interface(bool success)
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == SetInterface);
+    _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
         unlock();
@@ -457,10 +460,10 @@ bool USBDevice::_request_set_feature()
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
-            if (!EP_VALID(_transfer.setup.wIndex)) {
+            if (!EP_INDEXABLE(_transfer.setup.wIndex)) {
                 break;
             } else if (_transfer.setup.wValue == ENDPOINT_HALT) {
-                _phy->endpoint_stall(_transfer.setup.wIndex);
+                endpoint_stall(_transfer.setup.wIndex);
                 success = true;
             }
             break;
@@ -489,10 +492,10 @@ bool USBDevice::_request_clear_feature()
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
-            if (!EP_VALID(_transfer.setup.wIndex)) {
+            if (!EP_INDEXABLE(_transfer.setup.wIndex)) {
                 break;
             } else if (_transfer.setup.wValue == ENDPOINT_HALT) {
-                _phy->endpoint_unstall(_transfer.setup.wIndex);
+                endpoint_unstall(_transfer.setup.wIndex);
                 success = true;
             }
             break;
@@ -619,6 +622,7 @@ void USBDevice::_control_setup()
     _transfer.zlp = false;
     _transfer.notify = false;
     _transfer.stage = Setup;
+    _transfer.user_callback = Request;
 
 #ifdef DEBUG
     printf("dataTransferDirection: %d\r\nType: %d\r\nRecipient: %d\r\nbRequest: %d\r\nwValue: %d\r\nwIndex: %d\r\nwLength: %d\r\n", _transfer.setup.bmRequestType.dataTransferDirection,
@@ -638,10 +642,11 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
 {
     lock();
 
-    _transfer.user_callback = false;
+    MBED_ASSERT(_transfer.user_callback == Request);
+    _transfer.user_callback = None;
     if (_abort_control) {
         if ((direction == Receive) || (direction == Send)) {
-            _transfer.user_callback = true;
+            _transfer.user_callback = RequestXferDone;
             callback_request_xfer_done(&_transfer.setup, true);
         } else {
             _control_abort();
@@ -657,7 +662,7 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
         }
 
         /* user_callback may be set by _request_setup() */
-        if (!_transfer.user_callback) {
+        if (_transfer.user_callback == None) {
             _control_setup_continue();
         }
     } else if (direction == Failure) {
@@ -678,10 +683,10 @@ void USBDevice::_control_abort_start()
     assert_locked();
 
     _setup_ready = false;
-    if (_transfer.user_callback) {
-        _abort_control = true;
-    } else {
+    if (_transfer.user_callback == None) {
         _control_abort();
+    } else {
+        _abort_control = true;
     }
 }
 
@@ -787,12 +792,12 @@ void USBDevice::ep0_setup()
     _setup_ready = true;
 
     /* Endpoint 0 setup event */
-    if (_transfer.user_callback) {
+    if (_transfer.user_callback == None) {
+        _control_setup();
+    } else {
         /* A new setup packet has arrived so abort the
         current control transfer */
         _abort_control = true;
-    } else {
-        _control_setup();
     }
 
 }
@@ -806,7 +811,7 @@ void USBDevice::ep0_out()
         return;
     }
 
-    if (_transfer.user_callback) {
+    if (_transfer.user_callback != None) {
         /* EP0 OUT should not receive data if the stack is waiting
            on a user callback for the buffer to fill or status */
         MBED_ASSERT(0);
@@ -989,7 +994,11 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
         info->flags |= ENDPOINT_ENABLED;
         info->pending = 0;
         info->max_packet_size = max_packet_size;
-        ret = true;
+        ret = _phy->endpoint_read(endpoint, max_packet_size);
+        if (!ret) {
+            MBED_ASSERT(0);
+            endpoint_remove(endpoint);
+        }
     }
 
     unlock();
@@ -1131,6 +1140,8 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     this->product_release = product_release;
 
     memset(_endpoint_info, 0, sizeof(_endpoint_info));
+    memset(&_transfer, 0, sizeof(_transfer));
+    _transfer.user_callback = None;
 
     _setup_ready = false;
     _abort_control = false;
@@ -1154,6 +1165,8 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     this->product_release = product_release;
 
     memset(_endpoint_info, 0, sizeof(_endpoint_info));
+    memset(&_transfer, 0, sizeof(_transfer));
+    _transfer.user_callback = None;
 
     _setup_ready = false;
     _abort_control = false;
@@ -1186,36 +1199,7 @@ uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)
     return size;
 }
 
-bool USBDevice::read_start(usb_ep_t endpoint)
-{
-    lock();
-
-    if (!EP_INDEXABLE(endpoint)) {
-        MBED_ASSERT(0);
-        unlock();
-        return false;
-    }
-
-    if(!configured()) {
-        unlock();
-        return false;
-    }
-
-    endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
-    if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
-        unlock();
-        return false;
-    }
-
-    bool ret = _phy->endpoint_read(endpoint, info->max_packet_size);
-
-    unlock();
-    return ret;
-}
-
-bool USBDevice::read_finish(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size)
+bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size)
 {
     lock();
 
@@ -1247,6 +1231,7 @@ bool USBDevice::read_finish(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_siz
     bool ret = _phy->endpoint_read_result(endpoint, buffer, max_size, size);
     if (ret) {
         info->pending -= 1;
+        _phy->endpoint_read(endpoint, info->max_packet_size);
     }
 
     unlock();
