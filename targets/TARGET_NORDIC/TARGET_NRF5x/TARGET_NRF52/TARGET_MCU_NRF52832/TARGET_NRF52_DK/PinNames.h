@@ -140,6 +140,8 @@ typedef enum {
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
+    STDIO_UART_TX = TX_PIN_NUMBER,
+    STDIO_UART_RX = RX_PIN_NUMBER,
 
     SPI_PSELMOSI0 = p23,
     SPI_PSELMISO0 = p24,

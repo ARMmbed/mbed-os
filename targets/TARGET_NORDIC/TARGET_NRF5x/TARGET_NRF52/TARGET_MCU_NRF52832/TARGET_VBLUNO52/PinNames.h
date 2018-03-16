@@ -141,6 +141,8 @@ typedef enum {
     TX_PIN_NUMBER  = p6,
     CTS_PIN_NUMBER = p7,          //not on Header
     RTS_PIN_NUMBER = p5,          //not on Header
+    STDIO_UART_TX = TX_PIN_NUMBER,
+    STDIO_UART_RX = RX_PIN_NUMBER,
 
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
