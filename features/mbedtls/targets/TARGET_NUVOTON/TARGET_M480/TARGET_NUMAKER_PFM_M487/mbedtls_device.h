@@ -23,9 +23,17 @@
 #define MBEDTLS_SHA512_ALT
 
 #define MBEDTLS_AES_ALT
-#define MBEDTLS_AES_SETKEY_ENC_ALT
-#define MBEDTLS_AES_SETKEY_DEC_ALT
-#define MBEDTLS_AES_ENCRYPT_ALT
-#define MBEDTLS_AES_DECRYPT_ALT
+
+#define MBEDTLS_ECP_INTERNAL_ALT
+/* Support for Weierstrass curves with Jacobi representation */
+//#define MBEDTLS_ECP_RANDOMIZE_JAC_ALT
+#define MBEDTLS_ECP_ADD_MIXED_ALT
+#define MBEDTLS_ECP_DOUBLE_JAC_ALT
+#define MBEDTLS_ECP_NORMALIZE_JAC_ALT
+#define MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT
+/* Support for curves with Montgomery arithmetic */
+//#define MBEDTLS_ECP_DOUBLE_ADD_MXZ_ALT
+//#define MBEDTLS_ECP_RANDOMIZE_MXZ_ALT
+//#define MBEDTLS_ECP_NORMALIZE_MXZ_ALT
 
 #endif /* MBEDTLS_DEVICE_H */

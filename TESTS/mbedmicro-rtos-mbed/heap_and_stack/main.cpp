@@ -16,7 +16,7 @@
  */
 
 #if defined(TARGET_CORTEX_A)
-　  #error [NOT_SUPPORTED] This function not supported for this target
+    #error [NOT_SUPPORTED] This function not supported for this target
 #endif
 
 #include <stdio.h>

@@ -18,13 +18,12 @@
 #ifndef USBHAL_IP_OTGFSHS_H
 #define USBHAL_IP_OTGFSHS_H
 
-//==================================================================
-// This board has both USB OTG FS and HS connectors.
-// Select one line only.
-//==================================================================
 #if defined(TARGET_DISCO_F746NG)
-//#define TARGET_DISCO_F746NG_OTG_FS
+#if (MBED_CONF_TARGET_USB_SPEED == 1) // Defined in json configuration file
 #define TARGET_DISCO_F746NG_OTG_HS
+#else
+#define TARGET_DISCO_F746NG_OTG_FS
+#endif
 #endif
 
 #if defined(TARGET_DISCO_F429ZI) || \
@@ -141,12 +140,14 @@ USBHAL::USBHAL(void) {
     defined(TARGET_NUCLEO_F401RE) || \
     defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F413ZH) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F446RE) || \
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
     defined(TARGET_DISCO_F407VG) || \
+    defined(TARGET_DISCO_F413ZH) || \
     defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_F746NG_OTG_FS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -200,6 +201,12 @@ USBHAL::USBHAL(void) {
 #endif
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+
+#elif defined(TARGET_STEVAL_3DP001V1)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
 #else
 #error "USB pins are not configured !"

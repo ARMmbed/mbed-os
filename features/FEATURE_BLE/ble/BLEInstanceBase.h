@@ -46,7 +46,7 @@ class GattClient;
  * createBLEInstance(). The BLE API uses this singleton function to gain
  * access to a concrete implementation of this class defined in the vendor port.
  *
- * @important This class is part of the porting API and is not meant to be used
+ * @attention This class is part of the porting API and is not meant to be used
  * by end users of BLE API.
  *
  * @see BLE
@@ -237,7 +237,7 @@ public:
      * Process pending events present in the vendor subsystem; then, put the MCU
      * to sleep until an external source wakes it up.
      *
-     * @important This function is deprecated in the BLE class. It will be
+     * @attention This function is deprecated in the BLE class. It will be
      * removed from this interface once it is removed from BLE.
      *
      * @see BLE::waitForEvent() BLE::processEvents()
@@ -254,10 +254,10 @@ private:
 /**
  * Return the instance of the vendor implementation of BLEInstanceBase.
  *
- * @important Contrary to its name, this function does not return a new instance
+ * @attention Contrary to its name, this function does not return a new instance
  * at each call. It rather acts like an accessor to a singleton.
  *
- * @important The vendor library must provide an implementation for this function
+ * @attention The vendor library must provide an implementation for this function
  * library. Otherwise, there will be a linker error.
  */
 extern BLEInstanceBase *createBLEInstance(void);

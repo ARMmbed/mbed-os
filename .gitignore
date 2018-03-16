@@ -16,6 +16,9 @@ BUILD/
 .mbed
 venv/
 
+# Mbedls
+.mbedls-mock.lock
+
 # Eclipse Project Files
 .cproject
 .project
@@ -44,6 +47,8 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+.cache
+.hypothesis
 
 # Translations
 *.mo
@@ -71,6 +76,9 @@ debug.log
 
 # Cscope
 cscope.*
+
+# Ctags
+tags
 
 # vim swap files
 *.swp

@@ -709,7 +709,19 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     }
     else
     {
-      return HAL_ERROR;
+      /* MBED patch - ST internal ticket 42806 */
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) {
+        return HAL_ERROR;
+      }
+
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLDIV) != RCC_OscInitStruct->PLL.PLLDIV) {
+        return HAL_ERROR;
+      }
+
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLMUL) != RCC_OscInitStruct->PLL.PLLMUL) {
+        return HAL_ERROR;
+      }
+      /* MBED patch - ST internal ticket 42806 */
     }
   }
   return HAL_OK;

@@ -20,14 +20,17 @@
 
 #if defined(TARGET_NUCLEO_F207ZG) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_STEVAL_3DP001V1) || \
     defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F413ZH) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F446RE) || \
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
     defined(TARGET_DISCO_F407VG) || \
+    defined(TARGET_DISCO_F413ZH) || \
     defined(TARGET_DISCO_F429ZI) || \
     defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_F746NG) || \

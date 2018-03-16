@@ -272,7 +272,7 @@ ADI_DMA_RESULT adi_dma_RegisterCallback (
 /* ARM Cortex-M3/M4, GNU-ARM compiler */
 #define ADI_CLZ(X)     __builtin_clz(X)
 
-#elif defined(__CC_ARM)
+#elif defined(__ARMCC_VERSION)
 
 /* ARM Cortex-M3/M4, Keil compiler */
 #define ADI_CLZ(X)    __clz(X)

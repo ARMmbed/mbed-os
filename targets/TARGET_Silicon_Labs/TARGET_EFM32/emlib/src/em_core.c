@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_core.c
  * @brief Core interrupt handling API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -41,6 +41,7 @@
  * @{
  ******************************************************************************/
 
+/* *INDENT-OFF* */
 /***************************************************************************//**
   @addtogroup CORE
   @brief Core interrupt handling API
@@ -65,16 +66,15 @@
   @li <b>CRITICAL</b> section: Inside a critical sections all interrupts are
       disabled (except for fault handlers). The PRIMASK register is always used for
       interrupt disable/enable.
-  @li <b>ATOMIC</b> section: This type of section is configurable and the default 
-      method is to use PRIMASK. With BASEPRI configuration, interrupts with priority 
-      equal to or lower than a given configurable level are disabled. The interrupt 
-      disable priority level is defined at compile time. The BASEPRI register is not 
+  @li <b>ATOMIC</b> section: This type of section is configurable and the default
+      method is to use PRIMASK. With BASEPRI configuration, interrupts with priority
+      equal to or lower than a given configurable level are disabled. The interrupt
+      disable priority level is defined at compile time. The BASEPRI register is not
       available for all architectures.
   @li <b>NVIC mask</b> section: Disable NVIC (external interrupts) on an
       individual manner.
 
   em_core also has an API for manipulating RAM based interrupt vector tables.
-
 
 @n @section core_conf Compile time configuration
 
@@ -100,7 +100,6 @@
         ATOMIC type critical sections using the BASEPRI register. On M0+
         devices ATOMIC section helper macros are available but they are
         implemented as CRITICAL sections using PRIMASK register.
-
 
 @n @section core_macro_api The macro API
 
@@ -152,7 +151,6 @@
   Refer to @em Macros or <em>Macro Definition Documentation</em> below for a
   full list of macros.
 
-
 @n @section core_reimplementation API reimplementation
 
   Most of the functions in the API are implemented as weak functions. This means
@@ -186,7 +184,6 @@
   #define CORE_INTERRUPT_ENTRY()   OSIntEnter()
   #define CORE_INTERRUPT_EXIT()    OSIntExit()
   @endverbatim
-
 
 @n @section core_vector_tables Interrupt vector tables
 
@@ -227,7 +224,7 @@
   @endverbatim
 
 @n @section core_porting Porting from em_int
-  
+
   Existing code using INT_Enable() and INT_Disable() must be ported to the
   em_core API. While em_int used a global counter to store the interrupt state,
   em_core uses a local variable. Any usage of INT_Disable() therefore needs to
@@ -259,6 +256,7 @@
   @endverbatim
  * @{
  ******************************************************************************/
+/* *INDENT-ON* */
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -295,7 +293,7 @@
 
 // Compile time sanity check.
 #if (CORE_ATOMIC_METHOD != CORE_ATOMIC_METHOD_PRIMASK) \
-    && (CORE_ATOMIC_METHOD != CORE_ATOMIC_METHOD_BASEPRI)
+  && (CORE_ATOMIC_METHOD != CORE_ATOMIC_METHOD_BASEPRI)
 #error "em_core: Undefined ATOMIC IRQ handling strategy."
 #endif
 
@@ -518,7 +516,7 @@ void CORE_EnterNvicMask(CORE_nvicMask_t *nvicState,
   CORE_CRITICAL_SECTION(
     *nvicState = *(CORE_nvicMask_t*)&NVIC->ICER[0];
     *(CORE_nvicMask_t*)&NVIC->ICER[0] = *disable;
-  )
+    )
 }
 
 /***************************************************************************//**
@@ -532,7 +530,7 @@ void CORE_NvicDisableMask(const CORE_nvicMask_t *disable)
 {
   CORE_CRITICAL_SECTION(
     *(CORE_nvicMask_t*)&NVIC->ICER[0] = *disable;
-  )
+    )
 }
 
 /***************************************************************************//**
@@ -546,7 +544,7 @@ void CORE_NvicEnableMask(const CORE_nvicMask_t *enable)
 {
   CORE_CRITICAL_SECTION(
     *(CORE_nvicMask_t*)&NVIC->ISER[0] = *enable;
-  )
+    )
 }
 
 /***************************************************************************//**
@@ -567,7 +565,7 @@ void CORE_YieldNvicMask(const CORE_nvicMask_t *enable)
   // Get current NVIC enable mask.
   CORE_CRITICAL_SECTION(
     nvicMask = *(CORE_nvicMask_t*)&NVIC->ISER[0];
-  )
+    )
 
   // Make a mask with bits set for those interrupts that are currently
   // disabled but are set in the enable mask.
@@ -576,7 +574,6 @@ void CORE_YieldNvicMask(const CORE_nvicMask_t *enable)
   nvicMask.a[0] = ~nvicMask.a[0] & enable->a[0];
 
   if (nvicMask.a[0] != 0) {
-
 #elif (CORE_NVIC_REG_WORDS == 2)
   nvicMask.a[0] &= enable->a[0];
   nvicMask.a[1] &= enable->a[1];
@@ -584,7 +581,6 @@ void CORE_YieldNvicMask(const CORE_nvicMask_t *enable)
   nvicMask.a[1] = ~nvicMask.a[1] & enable->a[1];
 
   if ((nvicMask.a[0] != 0) || (nvicMask.a[1] != 0)) {
-
 #elif (CORE_NVIC_REG_WORDS == 3)
   nvicMask.a[0] &= enable->a[0];
   nvicMask.a[1] &= enable->a[1];
@@ -729,7 +725,7 @@ void CORE_GetNvicEnabledMask(CORE_nvicMask_t *mask)
 {
   CORE_CRITICAL_SECTION(
     *mask = *(CORE_nvicMask_t*)&NVIC->ISER[0];
-  )
+    )
 }
 
 /***************************************************************************//**
@@ -748,8 +744,7 @@ bool CORE_GetNvicMaskDisableState(const CORE_nvicMask_t *mask)
 
   CORE_CRITICAL_SECTION(
     nvicMask = *(CORE_nvicMask_t*)&NVIC->ISER[0];
-  )
-
+    )
 
 #if (CORE_NVIC_REG_WORDS == 1)
   return (mask->a[0] & nvicMask.a[0]) == 0;
@@ -800,7 +795,7 @@ bool CORE_NvicIRQDisabled(IRQn_Type irqN)
 void *CORE_GetNvicRamTableHandler(IRQn_Type irqN)
 {
   EFM_ASSERT((irqN >= -16) && (irqN < EXT_IRQ_COUNT));
-  return (void*)(((uint32_t*)SCB->VTOR)[irqN+16]);
+  return (void*)(((uint32_t*)SCB->VTOR)[irqN + 16]);
 }
 
 /***************************************************************************//**
@@ -819,7 +814,7 @@ void *CORE_GetNvicRamTableHandler(IRQn_Type irqN)
 void CORE_SetNvicRamTableHandler(IRQn_Type irqN, void *handler)
 {
   EFM_ASSERT((irqN >= -16) && (irqN < EXT_IRQ_COUNT));
-  ((uint32_t*)SCB->VTOR)[irqN+16] = (uint32_t)handler;
+  ((uint32_t*)SCB->VTOR)[irqN + 16] = (uint32_t)handler;
 }
 
 /***************************************************************************//**
@@ -879,15 +874,15 @@ void CORE_InitNvicVectorTable(uint32_t *sourceTable,
   EFM_ASSERT(((uint32_t)targetTable
               & ((1 << (32 - __CLZ((targetSize * 4) - 1))) - 1)) == 0);
 
-  for (i=0; i<targetSize; i++) {
+  for (i = 0; i < targetSize; i++) {
     if (overwriteActive) {                      // Overwrite target entries ?
-      if (i<sourceSize) {                       //   targetSize <= sourceSize
+      if (i < sourceSize) {                       //   targetSize <= sourceSize
         targetTable[i] = sourceTable[i];
       } else {                                  //   targetSize > sourceSize
         targetTable[i] = (uint32_t)defaultHandler;
       }
     } else {                            // Overwrite target entries which are 0
-      if (i<sourceSize) {                       // targetSize <= sourceSize
+      if (i < sourceSize) {                       // targetSize <= sourceSize
         if (targetTable[i] == 0) {
           targetTable[i] = sourceTable[i];
         }

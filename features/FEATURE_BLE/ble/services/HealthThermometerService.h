@@ -29,7 +29,6 @@
 class HealthThermometerService {
 public:
     /**
-    * @enum Sensor Location.
     * @brief Location of sensor on the body.
     */
     enum SensorLocation_t {
@@ -47,7 +46,7 @@ public:
 public:
     /**
      * @brief Add the Health Thermometer Service to an existing BLE object, initialize with temperature and location.
-     * @param[ref] _ble         Reference to the BLE device.
+     * @param[in] _ble         Reference to the BLE device.
      * @param[in] initialTemp  Initial value in celsius.
      * @param[in] _location
      */

@@ -47,7 +47,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -80,7 +79,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADCName peripheral;
     uint32_t function, channel;
 
-    peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);	// gives peripheral
+    memset(obj, 0, sizeof(analogin_t) );
+    memset( DeviceMemory, 0, sizeof( DeviceMemory ) );
+
+    peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);   // gives peripheral
     MBED_ASSERT(peripheral != (ADCName)NC);
 
     /* verify read function */
@@ -142,6 +144,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Set the acquisition time. (Application need to change it based on the impedence) */
     adi_adc_SetAcquisitionTime(hDevice, obj->SampleCycles);
+
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -165,6 +168,11 @@ uint16_t analogin_read_u16(analogin_t *obj)
 {
     ADI_ADC_HANDLE  hDevice = obj->hDevice;
     ADI_ADC_BUFFER  *pAdcBuffer;
+    uint32_t        ADCsample;
+
+    obj->UserBuffer.pDataBuffer = &ADCsample;
+    obj->UserBuffer.nNumConversionPasses = 1;
+    obj->UserBuffer.nBuffSize = 1;
 
     /* Submit the buffer to the driver */
     adi_adc_SubmitBuffer(hDevice, &obj->UserBuffer);
@@ -178,8 +186,9 @@ uint16_t analogin_read_u16(analogin_t *obj)
     return( (uint16_t)( ((uint16_t *)pAdcBuffer->pDataBuffer)[(pAdcBuffer->nNumConversionPasses) - 1]) );
 }
 
-/* Retrieve te active channel correspondoing to the input pin */
-static uint32_t adi_pin2channel(PinName pin) {
+/* Retrieve the active channel corresponding to the input pin */
+static uint32_t adi_pin2channel(PinName pin)
+{
 
     uint32_t activech;
 

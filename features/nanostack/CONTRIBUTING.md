@@ -39,22 +39,18 @@ Send contributions directly to this repository.
 
 ## sal-stack-nanostack
 
-This directory holds binary libraries generated from the Nanostack networking library.
+This directory holds source code snapshot of the Nanostack networking library. Master repository is available for **mbed Partners** in https://github.com/ARMmbed/sal-stack-nanostack-private. 
 
-**Only mbed Partners have access to the source code.**
+If you have access to the master repository, please send contributions against that repository.
 
-If you have access, the source directory is available in https://github.com/ARMmbed/sal-stack-nanostack-private
-
-You can replace the binary libraries with the source tree as follows:
-
-* Remove the sal-stack-nanostack directory: `rm -rf sal-stack-nanostack`
-* Remove the binaries located one directory up: `rm -rf ../nanostack-binaries`
-* Clone the original source repository to root folder of your application: `git@github.com:ARMmbed/sal-stack-nanostack-private.git`
+To test changes with access to master repository:
+ * Remove the sal-stack-nanostack directory: `rm -rf sal-stack-nanostack`
+ * Clone the master repository `git clone git@github.com:ARMmbed/sal-stack-nanostack-private.git`as sal-stack-nanostack
 
 Now you can modify, build and test your changes with the mbed OS build.
 
-**NOTE:** You do not need to clone the Nanostack to exactly same location in the build tree. This may even cause build problems.
+**NOTE:** You do not need to clone the Nanostack master repository to exactly same location in the build tree. 
 
-### Instructions for generating the binary modules
+If you don't have access to the master repository then you can send contributions directly to this repository.
 
-Check `Releasing.md` from the Nanostack source repository.
+

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_ebi.c
  * @brief External Bus Interface (EBI) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -50,6 +50,55 @@
  * @{
  ******************************************************************************/
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+
+/* The ROUTE register has been renamed in the newest platform so these register
+ * field names have been created in order to make it easier to work with both
+ * the new and the old names in a generic way. */
+#if defined(_EBI_ROUTE_MASK)
+#define _EBI_GENERIC_ALEPEN_SHIFT  _EBI_ROUTE_ALEPEN_SHIFT
+#define _EBI_GENERIC_BLPEN_SHIFT   _EBI_ROUTE_BLPEN_SHIFT
+#define _EBI_GENERIC_EBIPEN_SHIFT  _EBI_ROUTE_EBIPEN_SHIFT
+#define _EBI_GENERIC_CS0PEN_SHIFT  _EBI_ROUTE_CS0PEN_SHIFT
+#define _EBI_GENERIC_CS1PEN_SHIFT  _EBI_ROUTE_CS1PEN_SHIFT
+#define _EBI_GENERIC_CS2PEN_SHIFT  _EBI_ROUTE_CS2PEN_SHIFT
+#define _EBI_GENERIC_CS3PEN_SHIFT  _EBI_ROUTE_CS3PEN_SHIFT
+#define _EBI_GENERIC_RESETVALUE    _EBI_ROUTE_RESETVALUE
+#define EBI_GENERIC_ROUTE_REG     EBI->ROUTE
+#define _EBI_GENERIC_ALB_MASK      _EBI_ROUTE_ALB_MASK
+#define _EBI_GENERIC_APEN_MASK     _EBI_ROUTE_APEN_MASK
+#define EBI_GENERIC_TFTPEN        EBI_ROUTE_TFTPEN
+#else
+#define _EBI_GENERIC_ALEPEN_SHIFT  _EBI_ROUTEPEN_ALEPEN_SHIFT
+#define _EBI_GENERIC_BLPEN_SHIFT   _EBI_ROUTEPEN_BLPEN_SHIFT
+#define _EBI_GENERIC_EBIPEN_SHIFT  _EBI_ROUTEPEN_EBIPEN_SHIFT
+#define _EBI_GENERIC_CS0PEN_SHIFT  _EBI_ROUTEPEN_CS0PEN_SHIFT
+#define _EBI_GENERIC_CS1PEN_SHIFT  _EBI_ROUTEPEN_CS1PEN_SHIFT
+#define _EBI_GENERIC_CS2PEN_SHIFT  _EBI_ROUTEPEN_CS2PEN_SHIFT
+#define _EBI_GENERIC_CS3PEN_SHIFT  _EBI_ROUTEPEN_CS3PEN_SHIFT
+#define _EBI_GENERIC_RESETVALUE    _EBI_ROUTEPEN_RESETVALUE
+#define EBI_GENERIC_ROUTE_REG     EBI->ROUTEPEN
+#define _EBI_GENERIC_ALB_MASK      _EBI_ROUTEPEN_ALB_MASK
+#define _EBI_GENERIC_APEN_MASK     _EBI_ROUTEPEN_APEN_MASK
+#define EBI_GENERIC_TFTPEN        EBI_ROUTEPEN_TFTPEN
+#endif
+
+/***************************************************************************//**
+ * @brief
+ *   Perform a single-bit write operation on a EBI route register
+ *
+ * @param[in] bit
+ *   bit Bit position to write, 0-31
+ *
+ * @param[in] val
+ *   0 to clear bit and 1 to set bit
+ ******************************************************************************/
+__STATIC_INLINE void EBI_RouteBitWrite(uint32_t bit, uint32_t val)
+{
+  BUS_RegBitWrite(&(EBI_GENERIC_ROUTE_REG), bit, val);
+}
+/** @endcond */
+
 /***************************************************************************//**
  * @brief
  *   Configure and enable External Bus Interface
@@ -65,7 +114,18 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
 {
   uint32_t ctrl = EBI->CTRL;
 
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if defined(_EFM32_GECKO_FAMILY)
+  /* Set polarity of address ready */
+  EBI_PolaritySet(ebiLineARDY, ebiInit->ardyPolarity);
+  /* Set polarity of address latch enable */
+  EBI_PolaritySet(ebiLineALE, ebiInit->alePolarity);
+  /* Set polarity of write enable */
+  EBI_PolaritySet(ebiLineWE, ebiInit->wePolarity);
+  /* Set polarity of read enable */
+  EBI_PolaritySet(ebiLineRE, ebiInit->rePolarity);
+  /* Set polarity of chip select lines */
+  EBI_PolaritySet(ebiLineCS, ebiInit->csPolarity);
+#else
   /* Enable Independent Timing for devices that supports it */
   ctrl |= EBI_CTRL_ITS;
 
@@ -81,23 +141,36 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
   EBI_BankPolaritySet(ebiInit->banks, ebiLineCS, ebiInit->csPolarity);
   /* Set polarity of byte lane line */
   EBI_BankPolaritySet(ebiInit->banks, ebiLineBL, ebiInit->blPolarity);
-#else
-  /* Set polarity of address ready */
-  EBI_PolaritySet(ebiLineARDY, ebiInit->ardyPolarity);
-  /* Set polarity of address latch enable */
-  EBI_PolaritySet(ebiLineALE, ebiInit->alePolarity);
-  /* Set polarity of write enable */
-  EBI_PolaritySet(ebiLineWE, ebiInit->wePolarity);
-  /* Set polarity of read enable */
-  EBI_PolaritySet(ebiLineRE, ebiInit->rePolarity);
-  /* Set polarity of chip select lines */
-  EBI_PolaritySet(ebiLineCS, ebiInit->csPolarity);
 #endif
 
   /* Configure EBI mode and control settings  */
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
-  if (ebiInit->banks & EBI_BANK0)
-  {
+#if defined(_EFM32_GECKO_FAMILY)
+  ctrl &= ~(_EBI_CTRL_MODE_MASK
+            | _EBI_CTRL_ARDYEN_MASK
+            | _EBI_CTRL_ARDYTODIS_MASK
+            | _EBI_CTRL_BANK0EN_MASK
+            | _EBI_CTRL_BANK1EN_MASK
+            | _EBI_CTRL_BANK2EN_MASK
+            | _EBI_CTRL_BANK3EN_MASK);
+  if ( ebiInit->enable) {
+    if ( ebiInit->banks & EBI_BANK0 ) {
+      ctrl |= EBI_CTRL_BANK0EN;
+    }
+    if ( ebiInit->banks & EBI_BANK1 ) {
+      ctrl |= EBI_CTRL_BANK1EN;
+    }
+    if ( ebiInit->banks & EBI_BANK2 ) {
+      ctrl |= EBI_CTRL_BANK2EN;
+    }
+    if ( ebiInit->banks & EBI_BANK3 ) {
+      ctrl |= EBI_CTRL_BANK3EN;
+    }
+  }
+  ctrl |= ebiInit->mode;
+  ctrl |= (ebiInit->ardyEnable << _EBI_CTRL_ARDYEN_SHIFT);
+  ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTODIS_SHIFT);
+#else
+  if (ebiInit->banks & EBI_BANK0) {
     ctrl &= ~(_EBI_CTRL_MODE_MASK
               | _EBI_CTRL_ARDYEN_MASK
               | _EBI_CTRL_ARDYTODIS_MASK
@@ -109,13 +182,11 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
     ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTODIS_SHIFT);
     ctrl |= (ebiInit->blEnable << _EBI_CTRL_BL_SHIFT);
     ctrl |= (ebiInit->noIdle << _EBI_CTRL_NOIDLE_SHIFT);
-    if ( ebiInit->enable)
-    {
+    if ( ebiInit->enable) {
       ctrl |= EBI_CTRL_BANK0EN;
     }
   }
-  if (ebiInit->banks & EBI_BANK1)
-  {
+  if (ebiInit->banks & EBI_BANK1) {
     ctrl &= ~(_EBI_CTRL_BL1_MASK
               | _EBI_CTRL_MODE1_MASK
               | _EBI_CTRL_ARDY1EN_MASK
@@ -127,13 +198,11 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
     ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTO1DIS_SHIFT);
     ctrl |= (ebiInit->blEnable << _EBI_CTRL_BL1_SHIFT);
     ctrl |= (ebiInit->noIdle << _EBI_CTRL_NOIDLE1_SHIFT);
-    if ( ebiInit->enable)
-    {
+    if ( ebiInit->enable) {
       ctrl |= EBI_CTRL_BANK1EN;
     }
   }
-  if (ebiInit->banks & EBI_BANK2)
-  {
+  if (ebiInit->banks & EBI_BANK2) {
     ctrl &= ~(_EBI_CTRL_BL2_MASK
               | _EBI_CTRL_MODE2_MASK
               | _EBI_CTRL_ARDY2EN_MASK
@@ -145,13 +214,11 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
     ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTO2DIS_SHIFT);
     ctrl |= (ebiInit->blEnable << _EBI_CTRL_BL2_SHIFT);
     ctrl |= (ebiInit->noIdle << _EBI_CTRL_NOIDLE2_SHIFT);
-    if ( ebiInit->enable)
-    {
+    if ( ebiInit->enable) {
       ctrl |= EBI_CTRL_BANK2EN;
     }
   }
-  if (ebiInit->banks & EBI_BANK3)
-  {
+  if (ebiInit->banks & EBI_BANK3) {
     ctrl &= ~(_EBI_CTRL_BL3_MASK
               | _EBI_CTRL_MODE3_MASK
               | _EBI_CTRL_ARDY3EN_MASK
@@ -163,45 +230,23 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
     ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTO3DIS_SHIFT);
     ctrl |= (ebiInit->blEnable << _EBI_CTRL_BL3_SHIFT);
     ctrl |= (ebiInit->noIdle << _EBI_CTRL_NOIDLE3_SHIFT);
-    if ( ebiInit->enable)
-    {
+    if ( ebiInit->enable) {
       ctrl |= EBI_CTRL_BANK3EN;
     }
   }
-#else
-  ctrl &= ~(_EBI_CTRL_MODE_MASK
-            | _EBI_CTRL_ARDYEN_MASK
-            | _EBI_CTRL_ARDYTODIS_MASK
-            | _EBI_CTRL_BANK0EN_MASK
-            | _EBI_CTRL_BANK1EN_MASK
-            | _EBI_CTRL_BANK2EN_MASK
-            | _EBI_CTRL_BANK3EN_MASK);
-  if ( ebiInit->enable)
-  {
-    if ( ebiInit->banks & EBI_BANK0 )
-    {
-      ctrl |= EBI_CTRL_BANK0EN;
-    }
-    if ( ebiInit->banks & EBI_BANK1 )
-    {
-      ctrl |= EBI_CTRL_BANK1EN;
-    }
-    if ( ebiInit->banks & EBI_BANK2 )
-    {
-      ctrl |= EBI_CTRL_BANK2EN;
-    }
-    if ( ebiInit->banks & EBI_BANK3 )
-    {
-      ctrl |= EBI_CTRL_BANK3EN;
-    }
-  }
-  ctrl |= ebiInit->mode;
-  ctrl |= (ebiInit->ardyEnable << _EBI_CTRL_ARDYEN_SHIFT);
-  ctrl |= (ebiInit->ardyDisableTimeout << _EBI_CTRL_ARDYTODIS_SHIFT);
 #endif
 
   /* Configure timing */
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if defined(_EFM32_GECKO_FAMILY)
+  EBI_ReadTimingSet(ebiInit->readSetupCycles,
+                    ebiInit->readStrobeCycles,
+                    ebiInit->readHoldCycles);
+  EBI_WriteTimingSet(ebiInit->writeSetupCycles,
+                     ebiInit->writeStrobeCycles,
+                     ebiInit->writeHoldCycles);
+  EBI_AddressTimingSet(ebiInit->addrSetupCycles,
+                       ebiInit->addrHoldCycles);
+#else
   EBI_BankReadTimingSet(ebiInit->banks,
                         ebiInit->readSetupCycles,
                         ebiInit->readStrobeCycles,
@@ -222,56 +267,48 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
                            ebiInit->addrHoldCycles);
   EBI_BankAddressTimingConfig(ebiInit->banks,
                               ebiInit->addrHalfALE);
-#else
-  EBI_ReadTimingSet(ebiInit->readSetupCycles,
-                    ebiInit->readStrobeCycles,
-                    ebiInit->readHoldCycles);
-  EBI_WriteTimingSet(ebiInit->writeSetupCycles,
-                     ebiInit->writeStrobeCycles,
-                     ebiInit->writeHoldCycles);
-  EBI_AddressTimingSet(ebiInit->addrSetupCycles,
-                       ebiInit->addrHoldCycles);
 #endif
 
   /* Activate new configuration */
   EBI->CTRL = ctrl;
 
   /* Configure Adress Latch Enable */
-  switch (ebiInit->mode)
-  {
+  switch (ebiInit->mode) {
     case ebiModeD16A16ALE:
     case ebiModeD8A24ALE:
       /* Address Latch Enable */
-      BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_ALEPEN_SHIFT, 1);
+      EBI_RouteBitWrite(_EBI_GENERIC_ALEPEN_SHIFT, 1);
       break;
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if defined(EBI_CTRL_MODE_D16)
     case ebiModeD16:
 #endif
     case ebiModeD8A8:
       /* Make sure Address Latch is disabled */
-      BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_ALEPEN_SHIFT, 0);
+      EBI_RouteBitWrite(_EBI_GENERIC_ALEPEN_SHIFT, 0);
       break;
   }
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+
+#if !defined(_EFM32_GECKO_FAMILY)
   /* Limit pin enable */
-  EBI->ROUTE = (EBI->ROUTE & ~_EBI_ROUTE_ALB_MASK) | ebiInit->aLow;
-  EBI->ROUTE = (EBI->ROUTE & ~_EBI_ROUTE_APEN_MASK) | ebiInit->aHigh;
+  EBI_GENERIC_ROUTE_REG = (EBI_GENERIC_ROUTE_REG & ~_EBI_GENERIC_ALB_MASK) | ebiInit->aLow;
+  EBI_GENERIC_ROUTE_REG = (EBI_GENERIC_ROUTE_REG & ~_EBI_GENERIC_APEN_MASK) | ebiInit->aHigh;
+#if defined(_EBI_ROUTE_LOCATION_MASK)
   /* Location */
   EBI->ROUTE = (EBI->ROUTE & ~_EBI_ROUTE_LOCATION_MASK) | ebiInit->location;
+#endif
 
   /* Enable EBI BL pin if necessary */
-  if(ctrl & (_EBI_CTRL_BL_MASK|_EBI_CTRL_BL1_MASK|_EBI_CTRL_BL2_MASK|_EBI_CTRL_BL3_MASK))
-  {
-    BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_BLPEN_SHIFT, ebiInit->blEnable);
+  if (ctrl & (_EBI_CTRL_BL_MASK | _EBI_CTRL_BL1_MASK | _EBI_CTRL_BL2_MASK | _EBI_CTRL_BL3_MASK)) {
+    EBI_RouteBitWrite(_EBI_GENERIC_BLPEN_SHIFT, ebiInit->blEnable);
   }
 #endif
+
   /* Enable EBI pins EBI_WEn and EBI_REn */
-  BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_EBIPEN_SHIFT, 1);
+  EBI_RouteBitWrite(_EBI_GENERIC_EBIPEN_SHIFT, 1);
 
   /* Enable chip select lines */
   EBI_ChipSelectEnable(ebiInit->csLines, true);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -280,11 +317,10 @@ void EBI_Init(const EBI_Init_TypeDef *ebiInit)
 void EBI_Disable(void)
 {
   /* Disable pins */
-  EBI->ROUTE = _EBI_ROUTE_RESETVALUE;
+  EBI_GENERIC_ROUTE_REG = _EBI_GENERIC_RESETVALUE;
   /* Disable banks */
   EBI->CTRL = _EBI_CTRL_RESETVALUE;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -298,24 +334,19 @@ void EBI_Disable(void)
  ******************************************************************************/
 void EBI_BankEnable(uint32_t banks, bool enable)
 {
-  if (banks & EBI_BANK0)
-  {
+  if (banks & EBI_BANK0) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BANK0EN_SHIFT, enable);
   }
-  if (banks & EBI_BANK1)
-  {
+  if (banks & EBI_BANK1) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BANK1EN_SHIFT, enable);
   }
-  if (banks & EBI_BANK2)
-  {
+  if (banks & EBI_BANK2) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BANK2EN_SHIFT, enable);
   }
-  if (banks & EBI_BANK3)
-  {
+  if (banks & EBI_BANK3) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BANK3EN_SHIFT, enable);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -329,22 +360,20 @@ void EBI_BankEnable(uint32_t banks, bool enable)
  ******************************************************************************/
 uint32_t EBI_BankAddress(uint32_t bank)
 {
-#if defined (_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
-  if(EBI->CTRL & EBI_CTRL_ALTMAP)
-  {
-    switch (bank)
-    {
+#if defined (EBI_CTRL_ALTMAP)
+  if (EBI->CTRL & EBI_CTRL_ALTMAP) {
+    switch (bank) {
       case EBI_BANK0:
-        return(EBI_MEM_BASE);
+        return EBI_MEM_BASE;
 
       case EBI_BANK1:
-        return(EBI_MEM_BASE + 0x10000000UL);
+        return EBI_MEM_BASE + 0x10000000UL;
 
       case EBI_BANK2:
-        return(EBI_MEM_BASE + 0x20000000UL);
+        return EBI_MEM_BASE + 0x20000000UL;
 
       case EBI_BANK3:
-        return(EBI_MEM_BASE + 0x30000000UL);
+        return EBI_MEM_BASE + 0x30000000UL;
 
       default:
         EFM_ASSERT(0);
@@ -352,19 +381,18 @@ uint32_t EBI_BankAddress(uint32_t bank)
     }
   }
 #endif
-  switch (bank)
-  {
+  switch (bank) {
     case EBI_BANK0:
-      return(EBI_MEM_BASE);
+      return EBI_MEM_BASE;
 
     case EBI_BANK1:
-      return(EBI_MEM_BASE + 0x04000000UL);
+      return EBI_MEM_BASE + 0x04000000UL;
 
     case EBI_BANK2:
-      return(EBI_MEM_BASE + 0x08000000UL);
+      return EBI_MEM_BASE + 0x08000000UL;
 
     case EBI_BANK3:
-      return(EBI_MEM_BASE + 0x0C000000UL);
+      return EBI_MEM_BASE + 0x0C000000UL;
 
     default:
       EFM_ASSERT(0);
@@ -372,7 +400,6 @@ uint32_t EBI_BankAddress(uint32_t bank)
   }
   return 0;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -386,24 +413,19 @@ uint32_t EBI_BankAddress(uint32_t bank)
  ******************************************************************************/
 void EBI_ChipSelectEnable(uint32_t cs, bool enable)
 {
-  if (cs & EBI_CS0)
-  {
-    BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_CS0PEN_SHIFT, enable);
+  if (cs & EBI_CS0) {
+    EBI_RouteBitWrite(_EBI_GENERIC_CS0PEN_SHIFT, enable);
   }
-  if (cs & EBI_CS1)
-  {
-    BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_CS1PEN_SHIFT, enable);
+  if (cs & EBI_CS1) {
+    EBI_RouteBitWrite(_EBI_GENERIC_CS1PEN_SHIFT, enable);
   }
-  if (cs & EBI_CS2)
-  {
-    BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_CS2PEN_SHIFT, enable);
+  if (cs & EBI_CS2) {
+    EBI_RouteBitWrite(_EBI_GENERIC_CS2PEN_SHIFT, enable);
   }
-  if (cs & EBI_CS3)
-  {
-    BUS_RegBitWrite(&(EBI->ROUTE), _EBI_ROUTE_CS3PEN_SHIFT, enable);
+  if (cs & EBI_CS3) {
+    EBI_RouteBitWrite(_EBI_GENERIC_CS3PEN_SHIFT, enable);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -417,41 +439,42 @@ void EBI_ChipSelectEnable(uint32_t cs, bool enable)
  ******************************************************************************/
 void EBI_PolaritySet(EBI_Line_TypeDef line, EBI_Polarity_TypeDef polarity)
 {
-  switch (line)
-  {
+  switch (line) {
     case ebiLineARDY:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_ARDYPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_ARDYPOL_SHIFT, polarity);
       break;
     case ebiLineALE:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_ALEPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_ALEPOL_SHIFT, polarity);
       break;
     case ebiLineWE:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_WEPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_WEPOL_SHIFT, polarity);
       break;
     case ebiLineRE:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_REPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_REPOL_SHIFT, polarity);
       break;
     case ebiLineCS:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_CSPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_CSPOL_SHIFT, polarity);
       break;
-#if defined (_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if defined(_EBI_POLARITY_BLPOL_MASK)
     case ebiLineBL:
-      BUS_RegBitWrite(&(EBI->POLARITY), _EBI_POLARITY_BLPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->POLARITY, _EBI_POLARITY_BLPOL_SHIFT, polarity);
       break;
+#endif
+#if defined (_EBI_TFTPOLARITY_MASK)
     case ebiLineTFTVSync:
-      BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_VSYNCPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->TFTPOLARITY, _EBI_TFTPOLARITY_VSYNCPOL_SHIFT, polarity);
       break;
     case ebiLineTFTHSync:
-      BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_HSYNCPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->TFTPOLARITY, _EBI_TFTPOLARITY_HSYNCPOL_SHIFT, polarity);
       break;
     case ebiLineTFTDataEn:
-      BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_DATAENPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->TFTPOLARITY, _EBI_TFTPOLARITY_DATAENPOL_SHIFT, polarity);
       break;
     case ebiLineTFTDClk:
-      BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_DCLKPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->TFTPOLARITY, _EBI_TFTPOLARITY_DCLKPOL_SHIFT, polarity);
       break;
     case ebiLineTFTCS:
-      BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_CSPOL_SHIFT, polarity);
+      BUS_RegBitWrite(&EBI->TFTPOLARITY, _EBI_TFTPOLARITY_CSPOL_SHIFT, polarity);
       break;
 #endif
     default:
@@ -459,7 +482,6 @@ void EBI_PolaritySet(EBI_Line_TypeDef line, EBI_Polarity_TypeDef polarity)
       break;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -489,14 +511,12 @@ void EBI_ReadTimingSet(int setupCycles, int strobeCycles, int holdCycles)
                | (strobeCycles << _EBI_RDTIMING_RDSTRB_SHIFT)
                | (holdCycles << _EBI_RDTIMING_RDHOLD_SHIFT);
 
-
   EBI->RDTIMING = (EBI->RDTIMING
                    & ~(_EBI_RDTIMING_RDSETUP_MASK
                        | _EBI_RDTIMING_RDSTRB_MASK
                        | _EBI_RDTIMING_RDHOLD_MASK))
                   | readTiming;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -532,7 +552,6 @@ void EBI_WriteTimingSet(int setupCycles, int strobeCycles, int holdCycles)
                   | writeTiming;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Configure timing values of address latch bus accesses
@@ -562,7 +581,7 @@ void EBI_AddressTimingSet(int setupCycles, int holdCycles)
                     | addressLatchTiming;
 }
 
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if defined(_EBI_TFTCTRL_MASK)
 /***************************************************************************//**
  * @brief
  *   Configure and initialize TFT Direct Drive
@@ -614,12 +633,10 @@ void EBI_TFTInit(const EBI_TFTInit_TypeDef *ebiTFTInit)
   EBI->TFTCTRL = ctrl;
 
   /* Enable TFT pins */
-  if (ebiTFTInit->driveMode != ebiTFTDDModeDisabled)
-  {
-    EBI->ROUTE |= EBI_ROUTE_TFTPEN;
+  if (ebiTFTInit->driveMode != ebiTFTDDModeDisabled) {
+    EBI_GENERIC_ROUTE_REG |= EBI_GENERIC_TFTPEN;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -632,11 +649,11 @@ void EBI_TFTInit(const EBI_TFTInit_TypeDef *ebiTFTInit)
  ******************************************************************************/
 void EBI_TFTSizeSet(uint32_t horizontal, uint32_t vertical)
 {
-  EFM_ASSERT((horizontal-1) < 1024);
-  EFM_ASSERT((vertical-1) < 1024);
+  EFM_ASSERT((horizontal - 1) < 1024);
+  EFM_ASSERT((vertical - 1) < 1024);
 
-  EBI->TFTSIZE = ((horizontal-1) << _EBI_TFTSIZE_HSZ_SHIFT)
-                 | ((vertical-1) << _EBI_TFTSIZE_VSZ_SHIFT);
+  EBI->TFTSIZE = ((horizontal - 1) << _EBI_TFTSIZE_HSZ_SHIFT)
+                 | ((vertical - 1) << _EBI_TFTSIZE_VSZ_SHIFT);
 }
 
 /***************************************************************************//**
@@ -654,13 +671,12 @@ void EBI_TFTHPorchSet(int front, int back, int pulseWidth)
 {
   EFM_ASSERT(front < 256);
   EFM_ASSERT(back < 256);
-  EFM_ASSERT((pulseWidth-1) < 128);
+  EFM_ASSERT((pulseWidth - 1) < 128);
 
   EBI->TFTHPORCH = (front << _EBI_TFTHPORCH_HFPORCH_SHIFT)
                    | (back << _EBI_TFTHPORCH_HBPORCH_SHIFT)
-                   | ((pulseWidth-1) << _EBI_TFTHPORCH_HSYNC_SHIFT);
+                   | ((pulseWidth - 1) << _EBI_TFTHPORCH_HSYNC_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -677,13 +693,12 @@ void EBI_TFTVPorchSet(int front, int back, int pulseWidth)
 {
   EFM_ASSERT(front < 256);
   EFM_ASSERT(back < 256);
-  EFM_ASSERT((pulseWidth-1) < 128);
+  EFM_ASSERT((pulseWidth - 1) < 128);
 
   EBI->TFTVPORCH = (front << _EBI_TFTVPORCH_VFPORCH_SHIFT)
                    | (back << _EBI_TFTVPORCH_VBPORCH_SHIFT)
-                   | ((pulseWidth-1) << _EBI_TFTVPORCH_VSYNC_SHIFT);
+                   | ((pulseWidth - 1) << _EBI_TFTVPORCH_VSYNC_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -715,7 +730,7 @@ void EBI_TFTTimingSet(int dclkPeriod, int start, int setup, int hold)
 }
 #endif
 
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#if !defined(_EFM32_GECKO_FAMILY)
 /***************************************************************************//**
  * @brief
  *   Configure read operation parameters for selected bank
@@ -734,30 +749,26 @@ void EBI_TFTTimingSet(int dclkPeriod, int start, int setup, int hold)
  ******************************************************************************/
 void EBI_BankReadTimingConfig(uint32_t banks, bool pageMode, bool prefetch, bool halfRE)
 {
- /* Verify only valid banks are used */
+  /* Verify only valid banks are used */
   EFM_ASSERT((banks & ~(EBI_BANK0 | EBI_BANK1 | EBI_BANK2 | EBI_BANK3)) == 0);
 
   /* Configure read operation parameters */
-  if( banks & EBI_BANK0 )
-  {
+  if ( banks & EBI_BANK0 ) {
     BUS_RegBitWrite(&EBI->RDTIMING, _EBI_RDTIMING_PAGEMODE_SHIFT, pageMode);
     BUS_RegBitWrite(&EBI->RDTIMING, _EBI_RDTIMING_PREFETCH_SHIFT, prefetch);
     BUS_RegBitWrite(&EBI->RDTIMING, _EBI_RDTIMING_HALFRE_SHIFT, halfRE);
   }
-  if( banks & EBI_BANK1 )
-  {
+  if ( banks & EBI_BANK1 ) {
     BUS_RegBitWrite(&EBI->RDTIMING1, _EBI_RDTIMING_PAGEMODE_SHIFT, pageMode);
     BUS_RegBitWrite(&EBI->RDTIMING1, _EBI_RDTIMING_PREFETCH_SHIFT, prefetch);
     BUS_RegBitWrite(&EBI->RDTIMING1, _EBI_RDTIMING_HALFRE_SHIFT, halfRE);
   }
-  if( banks & EBI_BANK2 )
-  {
+  if ( banks & EBI_BANK2 ) {
     BUS_RegBitWrite(&EBI->RDTIMING2, _EBI_RDTIMING_PAGEMODE_SHIFT, pageMode);
     BUS_RegBitWrite(&EBI->RDTIMING2, _EBI_RDTIMING_PREFETCH_SHIFT, prefetch);
     BUS_RegBitWrite(&EBI->RDTIMING2, _EBI_RDTIMING_HALFRE_SHIFT, halfRE);
   }
-  if( banks & EBI_BANK3 )
-  {
+  if ( banks & EBI_BANK3 ) {
     BUS_RegBitWrite(&EBI->RDTIMING3, _EBI_RDTIMING_PAGEMODE_SHIFT, pageMode);
     BUS_RegBitWrite(&EBI->RDTIMING3, _EBI_RDTIMING_PREFETCH_SHIFT, prefetch);
     BUS_RegBitWrite(&EBI->RDTIMING3, _EBI_RDTIMING_HALFRE_SHIFT, halfRE);
@@ -798,32 +809,28 @@ void EBI_BankReadTimingSet(uint32_t banks, int setupCycles, int strobeCycles, in
                | (strobeCycles << _EBI_RDTIMING_RDSTRB_SHIFT)
                | (holdCycles << _EBI_RDTIMING_RDHOLD_SHIFT);
 
-  if (banks & EBI_BANK0)
-  {
+  if (banks & EBI_BANK0) {
     EBI->RDTIMING = (EBI->RDTIMING
                      & ~(_EBI_RDTIMING_RDSETUP_MASK
                          | _EBI_RDTIMING_RDSTRB_MASK
                          | _EBI_RDTIMING_RDHOLD_MASK))
                     | readTiming;
   }
-  if (banks & EBI_BANK1)
-  {
+  if (banks & EBI_BANK1) {
     EBI->RDTIMING1 = (EBI->RDTIMING1
                       & ~(_EBI_RDTIMING1_RDSETUP_MASK
-                           | _EBI_RDTIMING1_RDSTRB_MASK
-                           | _EBI_RDTIMING1_RDHOLD_MASK))
+                          | _EBI_RDTIMING1_RDSTRB_MASK
+                          | _EBI_RDTIMING1_RDHOLD_MASK))
                      | readTiming;
   }
-  if (banks & EBI_BANK2)
-  {
+  if (banks & EBI_BANK2) {
     EBI->RDTIMING2 = (EBI->RDTIMING2
                       & ~(_EBI_RDTIMING2_RDSETUP_MASK
                           | _EBI_RDTIMING2_RDSTRB_MASK
                           | _EBI_RDTIMING2_RDHOLD_MASK))
                      | readTiming;
   }
-  if (banks & EBI_BANK3)
-  {
+  if (banks & EBI_BANK3) {
     EBI->RDTIMING3 = (EBI->RDTIMING3
                       & ~(_EBI_RDTIMING3_RDSETUP_MASK
                           | _EBI_RDTIMING3_RDSTRB_MASK
@@ -831,7 +838,6 @@ void EBI_BankReadTimingSet(uint32_t banks, int setupCycles, int strobeCycles, in
                      | readTiming;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -852,28 +858,23 @@ void EBI_BankWriteTimingConfig(uint32_t banks, bool writeBufDisable, bool halfWE
   EFM_ASSERT((banks & ~(EBI_BANK0 | EBI_BANK1 | EBI_BANK2 | EBI_BANK3)) == 0);
 
   /* Configure write operation parameters */
-  if( banks & EBI_BANK0 )
-  {
+  if ( banks & EBI_BANK0 ) {
     BUS_RegBitWrite(&EBI->WRTIMING, _EBI_WRTIMING_WBUFDIS_SHIFT, writeBufDisable);
     BUS_RegBitWrite(&EBI->WRTIMING, _EBI_WRTIMING_HALFWE_SHIFT, halfWE);
   }
-  if( banks & EBI_BANK1 )
-  {
+  if ( banks & EBI_BANK1 ) {
     BUS_RegBitWrite(&EBI->WRTIMING1, _EBI_WRTIMING_WBUFDIS_SHIFT, writeBufDisable);
     BUS_RegBitWrite(&EBI->WRTIMING1, _EBI_WRTIMING_HALFWE_SHIFT, halfWE);
   }
-  if( banks & EBI_BANK2 )
-  {
+  if ( banks & EBI_BANK2 ) {
     BUS_RegBitWrite(&EBI->WRTIMING2, _EBI_WRTIMING_WBUFDIS_SHIFT, writeBufDisable);
     BUS_RegBitWrite(&EBI->WRTIMING2, _EBI_WRTIMING_HALFWE_SHIFT, halfWE);
   }
-  if( banks & EBI_BANK3 )
-  {
+  if ( banks & EBI_BANK3 ) {
     BUS_RegBitWrite(&EBI->WRTIMING3, _EBI_WRTIMING_WBUFDIS_SHIFT, writeBufDisable);
     BUS_RegBitWrite(&EBI->WRTIMING3, _EBI_WRTIMING_HALFWE_SHIFT, halfWE);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -908,32 +909,28 @@ void EBI_BankWriteTimingSet(uint32_t banks, int setupCycles, int strobeCycles, i
                 | (strobeCycles << _EBI_WRTIMING_WRSTRB_SHIFT)
                 | (holdCycles << _EBI_WRTIMING_WRHOLD_SHIFT);
 
-  if (banks & EBI_BANK0)
-  {
+  if (banks & EBI_BANK0) {
     EBI->WRTIMING = (EBI->WRTIMING
                      & ~(_EBI_WRTIMING_WRSETUP_MASK
                          | _EBI_WRTIMING_WRSTRB_MASK
                          | _EBI_WRTIMING_WRHOLD_MASK))
                     | writeTiming;
   }
-  if (banks & EBI_BANK1)
-  {
+  if (banks & EBI_BANK1) {
     EBI->WRTIMING1 = (EBI->WRTIMING1
                       & ~(_EBI_WRTIMING1_WRSETUP_MASK
                           | _EBI_WRTIMING1_WRSTRB_MASK
                           | _EBI_WRTIMING1_WRHOLD_MASK))
                      | writeTiming;
   }
-  if (banks & EBI_BANK2)
-  {
+  if (banks & EBI_BANK2) {
     EBI->WRTIMING2 = (EBI->WRTIMING2
                       & ~(_EBI_WRTIMING2_WRSETUP_MASK
                           | _EBI_WRTIMING2_WRSTRB_MASK
                           | _EBI_WRTIMING2_WRHOLD_MASK))
                      | writeTiming;
   }
-  if (banks & EBI_BANK3)
-  {
+  if (banks & EBI_BANK3) {
     EBI->WRTIMING3 = (EBI->WRTIMING3
                       & ~(_EBI_WRTIMING3_WRSETUP_MASK
                           | _EBI_WRTIMING3_WRSTRB_MASK
@@ -941,7 +938,6 @@ void EBI_BankWriteTimingSet(uint32_t banks, int setupCycles, int strobeCycles, i
                      | writeTiming;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -958,24 +954,19 @@ void EBI_BankAddressTimingConfig(uint32_t banks, bool halfALE)
   /* Verify only valid banks are used */
   EFM_ASSERT((banks & ~(EBI_BANK0 | EBI_BANK1 | EBI_BANK2 | EBI_BANK3)) == 0);
 
-  if( banks & EBI_BANK0 )
-  {
+  if ( banks & EBI_BANK0 ) {
     BUS_RegBitWrite(&EBI->ADDRTIMING, _EBI_ADDRTIMING_HALFALE_SHIFT, halfALE);
   }
-  if( banks & EBI_BANK1 )
-  {
+  if ( banks & EBI_BANK1 ) {
     BUS_RegBitWrite(&EBI->ADDRTIMING1, _EBI_ADDRTIMING_HALFALE_SHIFT, halfALE);
   }
-  if( banks & EBI_BANK2 )
-  {
+  if ( banks & EBI_BANK2 ) {
     BUS_RegBitWrite(&EBI->ADDRTIMING2, _EBI_ADDRTIMING_HALFALE_SHIFT, halfALE);
   }
-  if( banks & EBI_BANK3 )
-  {
+  if ( banks & EBI_BANK3 ) {
     BUS_RegBitWrite(&EBI->ADDRTIMING3, _EBI_ADDRTIMING_HALFALE_SHIFT, halfALE);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1006,36 +997,31 @@ void EBI_BankAddressTimingSet(uint32_t banks, int setupCycles, int holdCycles)
   addressLatchTiming = (setupCycles << _EBI_ADDRTIMING_ADDRSETUP_SHIFT)
                        | (holdCycles << _EBI_ADDRTIMING_ADDRHOLD_SHIFT);
 
-  if (banks & EBI_BANK0)
-  {
+  if (banks & EBI_BANK0) {
     EBI->ADDRTIMING = (EBI->ADDRTIMING
                        & ~(_EBI_ADDRTIMING_ADDRSETUP_MASK
                            | _EBI_ADDRTIMING_ADDRHOLD_MASK))
                       | addressLatchTiming;
   }
-  if (banks & EBI_BANK1)
-  {
+  if (banks & EBI_BANK1) {
     EBI->ADDRTIMING1 = (EBI->ADDRTIMING1
                         & ~(_EBI_ADDRTIMING1_ADDRSETUP_MASK
                             | _EBI_ADDRTIMING1_ADDRHOLD_MASK))
                        | addressLatchTiming;
   }
-  if (banks & EBI_BANK2)
-  {
+  if (banks & EBI_BANK2) {
     EBI->ADDRTIMING2 = (EBI->ADDRTIMING2
                         & ~(_EBI_ADDRTIMING2_ADDRSETUP_MASK
                             | _EBI_ADDRTIMING2_ADDRHOLD_MASK))
                        | addressLatchTiming;
   }
-  if (banks & EBI_BANK3)
-  {
+  if (banks & EBI_BANK3) {
     EBI->ADDRTIMING3 = (EBI->ADDRTIMING3
                         & ~(_EBI_ADDRTIMING3_ADDRSETUP_MASK
                             | _EBI_ADDRTIMING3_ADDRHOLD_MASK))
                        | addressLatchTiming;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1059,37 +1045,26 @@ void EBI_BankPolaritySet(uint32_t banks, EBI_Line_TypeDef line, EBI_Polarity_Typ
   /* Verify only valid banks are used */
   EFM_ASSERT((banks & ~(EBI_BANK0 | EBI_BANK1 | EBI_BANK2 | EBI_BANK3)) == 0);
 
-  while (banks)
-  {
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
-    if (banks & EBI_BANK0)
-    {
+  while (banks) {
+    if (banks & EBI_BANK0) {
       polRegister = &EBI->POLARITY;
       bankSet = EBI_BANK0;
     }
-    if (banks & EBI_BANK1)
-    {
+    if (banks & EBI_BANK1) {
       polRegister = &EBI->POLARITY1;
       bankSet = EBI_BANK1;
     }
-    if (banks & EBI_BANK2)
-    {
+    if (banks & EBI_BANK2) {
       polRegister = &EBI->POLARITY2;
       bankSet = EBI_BANK2;
     }
-    if (banks & EBI_BANK3)
-    {
+    if (banks & EBI_BANK3) {
       polRegister = &EBI->POLARITY3;
       bankSet = EBI_BANK3;
     }
-#else
-    polRegister = &EBI->POLARITY;
-    banks       = 0;
-#endif
 
     /* What line to configure */
-    switch (line)
-    {
+    switch (line) {
       case ebiLineARDY:
         BUS_RegBitWrite(polRegister, _EBI_POLARITY_ARDYPOL_SHIFT, polarity);
         break;
@@ -1105,7 +1080,6 @@ void EBI_BankPolaritySet(uint32_t banks, EBI_Line_TypeDef line, EBI_Polarity_Typ
       case ebiLineCS:
         BUS_RegBitWrite(polRegister, _EBI_POLARITY_CSPOL_SHIFT, polarity);
         break;
-#if defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
       case ebiLineBL:
         BUS_RegBitWrite(polRegister, _EBI_POLARITY_BLPOL_SHIFT, polarity);
         break;
@@ -1124,7 +1098,6 @@ void EBI_BankPolaritySet(uint32_t banks, EBI_Line_TypeDef line, EBI_Polarity_Typ
       case ebiLineTFTCS:
         BUS_RegBitWrite(&(EBI->TFTPOLARITY), _EBI_TFTPOLARITY_CSPOL_SHIFT, polarity);
         break;
-#endif
       default:
         EFM_ASSERT(0);
         break;
@@ -1132,7 +1105,6 @@ void EBI_BankPolaritySet(uint32_t banks, EBI_Line_TypeDef line, EBI_Polarity_Typ
     banks = banks & ~bankSet;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1151,24 +1123,19 @@ void EBI_BankByteLaneEnable(uint32_t banks, bool enable)
   EFM_ASSERT((banks & ~(EBI_BANK0 | EBI_BANK1 | EBI_BANK2 | EBI_BANK3)) == 0);
 
   /* Configure byte lane support for each selected bank */
-  if (banks & EBI_BANK0)
-  {
+  if (banks & EBI_BANK0) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BL_SHIFT, enable);
   }
-  if (banks & EBI_BANK1)
-  {
+  if (banks & EBI_BANK1) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BL1_SHIFT, enable);
   }
-  if (banks & EBI_BANK2)
-  {
+  if (banks & EBI_BANK2) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BL2_SHIFT, enable);
   }
-  if (banks & EBI_BANK3)
-  {
+  if (banks & EBI_BANK3) {
     BUS_RegBitWrite(&(EBI->CTRL), _EBI_CTRL_BL3_SHIFT, enable);
   }
 }
-
 
 /***************************************************************************//**
  * @brief

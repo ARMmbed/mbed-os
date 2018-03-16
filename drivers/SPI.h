@@ -79,7 +79,7 @@ public:
 
     /** Create a SPI master connected to the specified pins
      *
-     *  mosi or miso can be specfied as NC if not used
+     *  mosi or miso can be specified as NC if not used
      *
      *  @param mosi SPI Master Out, Slave In pin
      *  @param miso SPI Master In, Slave Out pin
@@ -121,7 +121,7 @@ public:
 
     /** Write to the SPI Slave and obtain the response
      *
-     *  The total number of bytes sent and recieved will be the maximum of
+     *  The total number of bytes sent and received will be the maximum of
      *  tx_length and rx_length. The bytes written will be padded with the
      *  value 0xff.
      *
@@ -156,7 +156,7 @@ public:
 
     /** Start non-blocking SPI transfer using 8bit buffers.
      *
-     * This function locks the deep sleep until any event has occured
+     * This function locks the deep sleep until any event has occurred
      * 
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent
@@ -246,6 +246,14 @@ protected:
     */
     void start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
 
+private:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep();
+
+    /** Unlock deep sleep in case it is locked */
+    void unlock_deep_sleep();
+
+
 #if TRANSACTION_QUEUE_SIZE_SPI
 
     /** Start a new transaction
@@ -274,6 +282,7 @@ protected:
     CThunk<SPI> _irq;
     event_callback_t _callback;
     DMAUsage _usage;
+    bool _deep_sleep_locked;
 #endif
 
     void aquire(void);

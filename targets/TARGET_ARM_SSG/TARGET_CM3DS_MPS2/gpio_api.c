@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,177 +17,236 @@
 #include <stddef.h>
 #include "gpio_api.h"
 #include "pinmap.h"
+#include "objects.h"
+#include "mbed_error.h"
 
-#define GPIO_PIN_POS_MASK 0x0F /* pin % 16 */
-#define RESERVED_MISC_PIN 7
+enum io_type {
+    GPIO_DEVICE,
+    MPS2_IO_DEVICE,
+    DEVICE_UNKNOWN
+};
 
-/* \brief Gets the FPGA MISC (Miscellaneous control) bit position for the given
- *        pin name
- *
- *  FPGA MISC bit mapping:
- *    [31:7] Reserved
- *    [6] CLCD_BL_CTRL
- *    [5] CLCD_RD
- *    [4] CLCD_RS
- *    [3] CLCD_RESET
- *    [2] Reserved
- *    [1] SPI_nSS
- *    [0] CLCD_CS
- *
- *  \param[in] pin  MISC pin name
- *
- *  \return FPGA MISC bit position
- */
-static uint8_t get_fpga_misc_pin_pos(PinName pin)
+/* Tell if the gpio is from GPIO device or MPS2 IO */
+static enum io_type io_type(gpio_t *obj)
 {
-    uint8_t pin_position = RESERVED_MISC_PIN;
-
-    if (pin == SPI_SCLK) {
-        pin_position = 0;
-    } else if (pin == CLCD_SSEL) {
-        pin_position = 1;
-    } else if (pin == CLCD_RESET) {
-        pin_position = 3;
-    } else if (pin == CLCD_RS) {
-        pin_position = 4;
-    } else if (pin == CLCD_RD) {
-        pin_position = 5;
-    } else if (pin == CLCD_BL_CTRL){
-        pin_position = 6;
+    if (obj->gpio_dev != NULL && obj->mps2_io_dev == NULL) {
+        return GPIO_DEVICE;
     }
-
-    return pin_position;
+    if (obj->gpio_dev == NULL && obj->mps2_io_dev != NULL) {
+        return MPS2_IO_DEVICE;
+    }
+    return DEVICE_UNKNOWN;
 }
 
+/* Return the correct mask of the given PIN */
 uint32_t gpio_set(PinName pin)
 {
-    uint8_t pin_position;
+    pin_function(pin, (int)GPIO_FUNC);
 
-    if (pin >=EXP0 && pin <= EXP51) {
-        /* Set pin functinality as GPIO. pin_function asserts if pin == NC */
-        pin_function(pin, GPIO_FUNC);
+    if (pin >= EXP0 && pin <= EXP51) {
+        /* GPIO pins */
+        return (1 << GPIO_PIN_NUMBER(pin));
+    } else if (pin == USERLED1 || pin == USERLED2) {
+        /* User LEDs */
+        return (1 << (pin - USERLED1));
+    } else if (pin == USERSW1 || pin == USERSW2) {
+        /* User Push buttons */
+        return (1 << (pin - USERSW1));
+    } else if (pin >= LED1 && pin <= LED8) {
+        /* MCC LEDs */
+        return (1 << (pin - LED1));
+    } else if (pin >= SW1 && pin <= SW8) {
+        /* MCC Switches */
+        return (1 << (pin - SW1));
     } else {
-        /* Check if pin is a MISC pin */
-        pin_position = get_fpga_misc_pin_pos(pin);
-        if (pin_position != RESERVED_MISC_PIN) {
-            return (1 << pin_position);
-        }
+        return 0;
     }
-
-    /* Return pin mask */
-    return (1 << (pin & 0xFF));
 }
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    uint8_t pin_position;
+    struct arm_gpio_dev_t *gpio_dev;
 
-    if (pin == NC) {
-       return;
-    }
-
-    obj->pin = pin;
-    obj->pin_number = pin;
-
-    if (pin <= EXP15) {
-        obj->reg_data   = &CMSDK_GPIO0->DATAOUT;
-        obj->reg_in     = &CMSDK_GPIO0->DATA;
-        obj->reg_dir    = &CMSDK_GPIO0->OUTENABLESET;
-        obj->reg_dirclr = &CMSDK_GPIO0->OUTENABLECLR;
-        /* Set pin function as a GPIO */
-        pin_function(pin, GPIO_FUNC);
-        pin_position = pin;
-    } else if (pin >= EXP16 && pin <= EXP31) {
-        obj->reg_data   = &CMSDK_GPIO1->DATAOUT;
-        obj->reg_in     = &CMSDK_GPIO1->DATA;
-        obj->reg_dir    = &CMSDK_GPIO1->OUTENABLESET;
-        obj->reg_dirclr = &CMSDK_GPIO1->OUTENABLECLR;
-        /* Set pin function as a GPIO */
-        pin_function(pin, GPIO_FUNC);
-        pin_position = (pin & GPIO_PIN_POS_MASK);
-    } else if (pin >= EXP32 && pin <= EXP47) {
-        obj->reg_data   = &CMSDK_GPIO2->DATAOUT;
-        obj->reg_in     = &CMSDK_GPIO2->DATA;
-        obj->reg_dir    = &CMSDK_GPIO2->OUTENABLESET;
-        obj->reg_dirclr = &CMSDK_GPIO2->OUTENABLECLR;
-        /* Set pin function as a GPIO */
-        pin_function(pin, GPIO_FUNC);
-        pin_position = (pin & GPIO_PIN_POS_MASK);
-    } else if (pin >= EXP48 && pin <= EXP51) {
-        obj->reg_data   = &CMSDK_GPIO3->DATAOUT;
-        obj->reg_in     = &CMSDK_GPIO3->DATA;
-        obj->reg_dir    = &CMSDK_GPIO3->OUTENABLESET;
-        obj->reg_dirclr = &CMSDK_GPIO3->OUTENABLECLR;
-        /* Set pin function as a GPIO */
-        pin_function(pin, GPIO_FUNC);
-        pin_position = (pin & GPIO_PIN_POS_MASK);
-    } else if (pin == 100 || pin == 101) {
-        /* User LEDs */
-        pin_position = (pin - 100);
-        obj->reg_data   = &MPS2_FPGAIO->LED;
-        obj->reg_in     = &MPS2_FPGAIO->LED;
-        obj->reg_dir    = NULL;
-        obj->reg_dirclr = NULL;
-    } else if (pin == 110 || pin == 111) {
-        /* User buttons */
-        pin_position = (pin - 110);
-        obj->reg_data   = &MPS2_FPGAIO->BUTTON;
-        obj->reg_in     = &MPS2_FPGAIO->BUTTON;
-        obj->reg_dir    = NULL;
-        obj->reg_dirclr = NULL;
-    } else if (pin >= 200 && pin <= 207) {
-        /* MCC LEDs */
-        pin_position = (pin - 200);
-        obj->reg_data   = &MPS2_SCC->LEDS;
-        obj->reg_in     = &MPS2_SCC->LEDS;
-        obj->reg_dir    = NULL;
-        obj->reg_dirclr = NULL;
-    } else if (pin >= 210 && pin <= 217) {
-        /* MCC switches */
-        pin_position = (pin - 210);
-        obj->reg_in     = &MPS2_SCC->SWITCHES;
-        obj->reg_data   = NULL;
-        obj->reg_dir    = NULL;
-        obj->reg_dirclr = NULL;
-    } else {
-        /* Check if pin is a MISC pin */
-        pin_position = get_fpga_misc_pin_pos(pin);
-        if (pin_position != RESERVED_MISC_PIN) {
-            obj->reg_data = &MPS2_FPGAIO->MISC;
-        } else {
-            pin_position = 0;
+    if (pin >= EXP0 && pin <= EXP51) {
+        /* GPIO pins */
+        switch (GPIO_DEV_NUMBER(pin)) {
+#ifdef ARM_GPIO0
+        case GPIO0_NUMBER:
+            gpio_dev = &ARM_GPIO0_DEV;
+            break;
+#endif /* ARM_GPIO0 */
+#ifdef ARM_GPIO1
+        case GPIO1_NUMBER:
+            gpio_dev = &ARM_GPIO1_DEV;
+            break;
+#endif /* ARM_GPIO1 */
+#ifdef ARM_GPIO2
+        case GPIO2_NUMBER:
+            gpio_dev = &ARM_GPIO2_DEV;
+            break;
+#endif /* ARM_GPIO2 */
+#ifdef ARM_GPIO3
+        case GPIO3_NUMBER:
+            gpio_dev = &ARM_GPIO3_DEV;
+            break;
+#endif /* ARM_GPIO3 */
+        default:
+            error("GPIO %d, associated with expansion pin %d, is disabled",
+                  GPIO_DEV_NUMBER(pin), pin);
+            return;
         }
+
+        arm_gpio_init(gpio_dev);
+
+        obj->gpio_dev = gpio_dev;
+        obj->mps2_io_dev = NULL;
+        obj->pin_number = GPIO_PIN_NUMBER(pin);
+        /* GPIO is input by default */
+        obj->direction = PIN_INPUT;
+        return;
     }
 
-    /* Set pin mask */
-    obj->mask = (1 << pin_position);
+#ifdef ARM_MPS2_IO_FPGAIO
+    if (pin == USERLED1 || pin == USERLED2) {
+        /* User LEDs */
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = &ARM_MPS2_IO_FPGAIO_DEV;
+        obj->pin_number = pin - USERLED1;
+        obj->direction = PIN_OUTPUT;
+        return;
+    } else if (pin == USERSW1 || pin == USERSW2) {
+        /* User Push buttons */
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = &ARM_MPS2_IO_FPGAIO_DEV;
+        obj->pin_number = pin - USERSW1;
+        obj->direction = PIN_INPUT;
+        return;
+    }
+#endif /* ARM_MPS2_IO_FPGAIO */
+
+#ifdef ARM_MPS2_IO_SCC
+    if (pin >= LED1 && pin <= LED8) {
+        /* MCC LEDs */
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = &ARM_MPS2_IO_SCC_DEV;
+        obj->pin_number = pin - LED1;
+        obj->direction = PIN_OUTPUT;
+        return;
+    } else if (pin >= SW1 && pin <= SW8) {
+        /* MCC Switches */
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = &ARM_MPS2_IO_SCC_DEV;
+        obj->pin_number = pin - SW1;
+        obj->direction = PIN_INPUT;
+        return;
+    }
+#endif /* ARM_MPS2_IO_SCC */
+
+    error("pin %d is not a GPIO", pin);
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-    pin_mode(obj->pin, mode);
+    /* PinMode is not supported */
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
-    if (obj->pin >= EXP0 && obj->pin <= EXP51) {
+    uint32_t flags = ARM_GPIO_PIN_ENABLE;
+
+    obj->direction = direction;
+
+    switch (io_type(obj)) {
+    case GPIO_DEVICE:
         switch (direction) {
-            case PIN_INPUT :
-                *obj->reg_dirclr = obj->mask;
-                break;
-            case PIN_OUTPUT:
-                *obj->reg_dir |= obj->mask;
-                break;
+        case PIN_INPUT:
+            flags |= ARM_GPIO_INPUT;
+            break;
+        case PIN_OUTPUT:
+            flags |= ARM_GPIO_OUTPUT;
+            break;
+        /* default: not added to force to cover all enumeration cases */
         }
+
+        (void)arm_gpio_config(obj->gpio_dev, ARM_GPIO_ACCESS_PIN,
+                              obj->pin_number, flags);
+        return;
+    case MPS2_IO_DEVICE:
+        /* Do nothing as MPS2 IO direction can not be changed */
+        return;
+    case DEVICE_UNKNOWN:
+        break;
+    /* default:  The default is not defined intentionally to force the
+     *           compiler to check that all the enumeration values are
+     *           covered in the switch.*/
     }
+
+    error("can not change the direction of pin");
 }
 
 int gpio_is_connected(const gpio_t *obj)
 {
-    if (obj->pin != (PinName)NC) {
+    if (obj->pin_number == (uint32_t)NC) {
+        return 0;
+    } else {
         return 1;
     }
-
-    return 0;
 }
 
+void gpio_write(gpio_t *obj, int value)
+{
+    switch (io_type(obj)) {
+    case GPIO_DEVICE:
+        (void)arm_gpio_write(obj->gpio_dev, ARM_GPIO_ACCESS_PIN,
+                             obj->pin_number, (uint32_t)value);
+        return;
+    case MPS2_IO_DEVICE:
+        if (obj->direction == PIN_INPUT) {
+            /*
+             * If the given gpio is in fact a button, ignore the call to not
+             * write to the corresponding LED instead.
+             */
+            return;
+        }
+        arm_mps2_io_write_leds(obj->mps2_io_dev, ARM_MPS2_IO_ACCESS_PIN,
+                               obj->pin_number, (uint32_t)value);
+        return;
+    case DEVICE_UNKNOWN:
+        break;
+    /* default:  The default is not defined intentionally to force the
+     *           compiler to check that all the enumeration values are
+     *           covered in the switch.*/
+    }
+
+    error("can not write pin");
+}
+
+int gpio_read(gpio_t *obj)
+{
+    switch (io_type(obj)) {
+    case GPIO_DEVICE:
+        return (int)arm_gpio_read(obj->gpio_dev, ARM_GPIO_ACCESS_PIN,
+                                  obj->pin_number);
+    case MPS2_IO_DEVICE:
+        switch (obj->direction) {
+        case PIN_INPUT:
+
+            return (int)arm_mps2_io_read_buttons(obj->mps2_io_dev,
+                                                 ARM_MPS2_IO_ACCESS_PIN,
+                                                 obj->pin_number);
+        case PIN_OUTPUT:
+            return (int)arm_mps2_io_read_leds(obj->mps2_io_dev,
+                                              ARM_MPS2_IO_ACCESS_PIN,
+                                              obj->pin_number);
+        }
+
+    case DEVICE_UNKNOWN:
+        break;
+    /* default:  The default is not defined intentionally to force the
+     *           compiler to check that all the enumeration values are
+     *           covered in the switch.*/
+    }
+
+    error("can not read pin");
+    return 0;
+}

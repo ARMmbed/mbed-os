@@ -45,6 +45,7 @@ extern "C" {
 #define DMA_CAP_2DCOPY (1 << 0)
 #define DMA_CAP_NONE   (0 << 0)
 
+#ifdef DMA_PRESENT
 #if ( DMA_CHAN_COUNT <= 4 )
 #define DMACTRL_CH_CNT      4
 #define DMACTRL_ALIGNMENT   256
@@ -59,6 +60,7 @@ extern "C" {
 
 #else
 #error "Unsupported DMA channel count (dma_api.c)."
+#endif
 #endif
 
 #ifdef LDMA_PRESENT

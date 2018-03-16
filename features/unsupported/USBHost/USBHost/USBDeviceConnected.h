@@ -106,7 +106,7 @@ public:
     template<typename T>
     inline void onDisconnect(uint8_t intf_nb, T* tptr, void (T::*mptr)(void)) {
         if ((mptr != NULL) && (tptr != NULL)) {
-            intf[intf_nb].detach.attach(tptr, mptr);
+            intf[intf_nb].detach = callback(tptr, mptr);
         }
     }
 
@@ -118,7 +118,7 @@ public:
      */
     inline void onDisconnect(uint8_t intf_nb, void (*fn)(void)) {
         if (fn != NULL) {
-            intf[intf_nb].detach.attach(fn);
+            intf[intf_nb].detach = fn;
         }
     }
 

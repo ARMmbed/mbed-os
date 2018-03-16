@@ -50,6 +50,7 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
+
 typedef enum {
     PA_0  = (PORT_A<<4|0),
     PA_1  = (PORT_A<<4|1),
@@ -158,7 +159,7 @@ typedef enum {
     PK_5  = (PORT_K<<4|5),
     PK_6  = (PORT_K<<4|6),
     /* unavailable pins */
-//    PK_7  = (PORT_K<<4|7),
+    //    PK_7  = (PORT_K<<4|7),
 
     AD_1  = (PORT_V<<4|1),
     AD_2  = (PORT_V<<4|2),
@@ -166,34 +167,9 @@ typedef enum {
 
     DA_0  = (PORT_U<<4|0),
     DA_1  = (PORT_U<<4|1),
-    
-    // Arduino connector namings
 
-    A0          = AD_2,//A0 and A1 are connected
-    A1          = AD_2,
-    A2          = AD_3,
-    
-    D0          = PA_6,
-    D1          = PA_7,
-    D2          = PA_5,
-    D3          = PD_4,
-    D4          = PD_5,
-    D5          = PA_4,
-    D6          = PA_3,
-    D7          = PA_2,
-    D8          = PB_4,
-    D9          = PB_5,
-    D10         = PC_0,
-    D11         = PC_2,
-    D12         = PC_3,
-    D13         = PC_1,
-    D14         = PB_3,
-    D15         = PB_2,
-    
-    D16         = PA_1,
-    D17         = PA_0,
-    D18         = PE_5,
-
+    // Not connected
+    NC = (uint32_t)0xFFFFFFFF,
 
     // Generic signals namings
     /* LED1~4 are defined as alias of GPIO pins, they are not the LEDs on board*/
@@ -213,8 +189,35 @@ typedef enum {
     SPI_CS      = PC_0,
     PWM_OUT     = PD_4,
 
-    // Not connected
-    NC = (uint32_t)0xFFFFFFFF
+    // Arduino connector namings
+
+    A0          = AD_2,//A0 and A1 are connected
+    A1          = AD_2,
+    A2          = AD_3,
+    A3          = NC,
+    A4          = NC,
+    A5          = NC,
+
+    D0          = PA_6,
+    D1          = PA_7,
+    D2          = PA_5,
+    D3          = PD_4,
+    D4          = PD_5,
+    D5          = PA_4,
+    D6          = PA_3,
+    D7          = PA_2,
+    D8          = PB_4,
+    D9          = PB_5,
+    D10         = PC_0,
+    D11         = PC_2,
+    D12         = PC_3,
+    D13         = PC_1,
+    D14         = PB_3,
+    D15         = PB_2,
+    D16         = PA_1,
+    D17         = PA_0,
+    D18         = PE_5
+
 } PinName;
 
 typedef enum {

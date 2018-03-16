@@ -167,19 +167,58 @@ int spi_master_write(spi_t *obj, int value)
     return *req.rx_data;
 }
 
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
-                           char *rx_buffer, int rx_length, char write_fill) {
-    int total = (tx_length > rx_length) ? tx_length : rx_length;
+//******************************************************************************
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
+{
+    spim_req_t req;
 
-    for (int i = 0; i < total; i++) {
-        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
-        char in = spi_master_write(obj, out);
-        if (i < rx_length) {
-            rx_buffer[i] = in;
-        }
+    if (!(tx_length | rx_length) ||
+        (tx_length < 0) ||
+        (rx_length < 0)) {
+        return 0;
     }
 
-    return total;
+    req.width = SPIM_WIDTH_1;
+    req.ssel = 0;
+    req.deass = 1;
+    req.callback = NULL;
+
+    core_util_critical_section_enter();
+    if (tx_length == rx_length) {
+        req.tx_data = (uint8_t *)tx_buffer;
+        req.rx_data = (uint8_t *)rx_buffer;
+        req.len = tx_length;
+        SPIM_Trans(obj->spi, &req);
+    } else if (tx_length < rx_length) {
+        req.tx_data = (tx_length > 0) ? (uint8_t *)tx_buffer : NULL;
+        req.rx_data = (uint8_t *)rx_buffer;
+        req.len = (tx_length > 0) ? tx_length : rx_length;
+        SPIM_Trans(obj->spi, &req);
+
+        if (tx_length) {
+            req.tx_data = NULL;
+            req.rx_data = (uint8_t *)(rx_buffer + tx_length);
+            req.len = rx_length - tx_length;
+            SPIM_Trans(obj->spi, &req);
+        }
+    } else {
+        req.tx_data = (uint8_t *)tx_buffer;
+        req.rx_data = (rx_length > 0) ? (uint8_t *)rx_buffer : NULL;
+        req.len = (rx_length > 0) ? rx_length : tx_length;
+        SPIM_Trans(obj->spi, &req);
+
+        if (rx_length) {
+            req.tx_data = (uint8_t *)(tx_buffer + rx_length);
+            req.rx_data = NULL;
+            req.len = tx_length - rx_length;
+            SPIM_Trans(obj->spi, &req);
+        }
+    }
+    core_util_critical_section_exit();
+
+    while (SPIM_Busy(obj->spi));
+
+    return tx_length > rx_length ? tx_length : rx_length;
 }
 
 //******************************************************************************
@@ -193,4 +232,3 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return obj->index;
 }
-

@@ -41,11 +41,11 @@ void analogout_init(dac_t *obj, PinName pin)
 {
     /* init in-memory structure */
     obj->dac = (DAC_TypeDef *) pinmap_peripheral(pin, PinMap_DAC);
-    MBED_ASSERT((int) obj->dac != NC);
+    MBED_ASSERT((unsigned int) obj->dac != NC);
 
     obj->channel = pin_location(pin, PinMap_DAC);
-    MBED_ASSERT((int) obj->channel != NC);
-    
+    MBED_ASSERT((unsigned int) obj->channel != NC);
+
     pin_mode(pin, Disabled);
 
     if (!dac_initialized) {
@@ -78,7 +78,7 @@ void analogout_free(dac_t *obj)
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
     initChannel.enable = false;
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
-    
+
     //Check all channels to see if we can disable the DAC completely
     if((DAC0->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC0->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
         CMU_ClockEnable(cmuClock_DAC0, false);

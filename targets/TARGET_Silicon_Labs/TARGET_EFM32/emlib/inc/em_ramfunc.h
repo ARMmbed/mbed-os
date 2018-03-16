@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_ramfunc.h
  * @brief RAM code support.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 
+/* *INDENT-OFF* */
 /***************************************************************************//**
  * @addtogroup emlib
  * @{
@@ -60,6 +61,11 @@ extern "C" {
     add '-ffreestanding' to the build command line. This is the only way to
     guarantee no calls to standard libraries with GCC.
     Read more at https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Standards.html
+
+  @warning
+    Keil/ARM uVision users must add a section named "ram_code" in their linker
+    scatter file. This section must be in RAM memory. Look in the MCU SDK for
+    example scatter files (ram_code.sct).
 
   @n @section ramfunc_usage Usage
 
@@ -87,10 +93,10 @@ extern "C" {
   SL_RAMFUNC_DEFINITION_END
   @endverbatim
 
-
  ******************************************************************************/
+/* *INDENT-ON* */
 
- /*******************************************************************************
+/*******************************************************************************
  ******************************   DEFINES    ***********************************
  ******************************************************************************/
 

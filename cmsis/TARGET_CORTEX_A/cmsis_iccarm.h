@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     cmsis_iccarm.h
  * @brief    CMSIS compiler ICCARM (IAR compiler) header file
- * @version  V5.0.3
- * @date     29. August 2017
+ * @version  V5.0.4
+ * @date     01. December 2017
  ******************************************************************************/
 
 //------------------------------------------------------------------------------
@@ -74,7 +74,11 @@
 #endif
 
 #ifndef   __NO_RETURN
-  #define __NO_RETURN _Pragma("object_attribute=__noreturn")
+  #if __ICCARM_V8
+    #define __NO_RETURN __attribute__((__noreturn__))
+  #else
+    #define __NO_RETURN _Pragma("object_attribute=__noreturn")
+  #endif
 #endif
 
 #ifndef   __PACKED
@@ -105,25 +109,30 @@
 #endif
 
 #ifndef   __RESTRICT
-  #define __RESTRICT 							restrict
+  #define __RESTRICT            restrict
 #endif
 
-
 #ifndef   __STATIC_INLINE
-  #define __STATIC_INLINE 						static inline
+  #define __STATIC_INLINE       static inline
+#endif
+
+#ifndef   __FORCEINLINE
+  #define __FORCEINLINE         _Pragma("inline=forced")
 #endif
 
 #ifndef   __STATIC_FORCEINLINE
-  #define __STATIC_FORCEINLINE                  _Pragma("inline=forced") static inline
+  #define __STATIC_FORCEINLINE  __FORCEINLINE __STATIC_INLINE
 #endif
-#ifndef   __FORCEINLINE
-  #define __FORCEINLINE                         _Pragma("inline=forced")
+
+#ifndef   CMSIS_DEPRECATED
+  #define CMSIS_DEPRECATED      __attribute__((deprecated))
 #endif
 
 #ifndef __UNALIGNED_UINT16_READ
   #pragma language=save
   #pragma language=extended
-  __IAR_FT uint16_t __iar_uint16_read(void const *ptr) {
+  __IAR_FT uint16_t __iar_uint16_read(void const *ptr)
+  {
     return *(__packed uint16_t*)(ptr);
   }
   #pragma language=restore
@@ -134,7 +143,8 @@
 #ifndef __UNALIGNED_UINT16_WRITE
   #pragma language=save
   #pragma language=extended
-  __IAR_FT void __iar_uint16_write(void const *ptr, uint16_t val) {
+  __IAR_FT void __iar_uint16_write(void const *ptr, uint16_t val)
+  {
     *(__packed uint16_t*)(ptr) = val;;
   }
   #pragma language=restore
@@ -144,7 +154,8 @@
 #ifndef __UNALIGNED_UINT32_READ
   #pragma language=save
   #pragma language=extended
-  __IAR_FT uint32_t __iar_uint32_read(void const *ptr) {
+  __IAR_FT uint32_t __iar_uint32_read(void const *ptr)
+  {
     return *(__packed uint32_t*)(ptr);
   }
   #pragma language=restore
@@ -154,7 +165,8 @@
 #ifndef __UNALIGNED_UINT32_WRITE
   #pragma language=save
   #pragma language=extended
-  __IAR_FT void __iar_uint32_write(void const *ptr, uint32_t val) {
+  __IAR_FT void __iar_uint32_write(void const *ptr, uint32_t val)
+  {
     *(__packed uint32_t*)(ptr) = val;;
   }
   #pragma language=restore
@@ -212,12 +224,12 @@
 
   #include "iccarm_builtin.h"
 
-  #define __enable_irq    		__iar_builtin_enable_interrupt
-  #define __disable_irq   		__iar_builtin_disable_interrupt
-  #define __enable_fault_irq 		__iar_builtin_enable_fiq
-  #define __disable_fault_irq 	__iar_builtin_disable_fiq
-  #define __arm_rsr 			    __iar_builtin_rsr
-  #define __arm_wsr 			    __iar_builtin_wsr
+  #define __enable_irq        __iar_builtin_enable_interrupt
+  #define __disable_irq       __iar_builtin_disable_interrupt
+  #define __enable_fault_irq    __iar_builtin_enable_fiq
+  #define __disable_fault_irq   __iar_builtin_disable_fiq
+  #define __arm_rsr           __iar_builtin_rsr
+  #define __arm_wsr           __iar_builtin_wsr
 
   #if __FPU_PRESENT
     #define __get_FPSCR()             (__arm_rsr("FPSCR"))
@@ -234,28 +246,31 @@
   #define __set_mode(VALUE)           (__arm_wsr("CPSR_c", (VALUE)))
 
 
-  #define __get_FPEXC() 			(__arm_rsr("FPEXC"))
-  #define __set_FPEXC(VALUE) 		(__arm_wsr("FPEXC", VALUE))
+  #define __get_FPEXC()       (__arm_rsr("FPEXC"))
+  #define __set_FPEXC(VALUE)    (__arm_wsr("FPEXC", VALUE))
 
   #define __get_CP(cp, op1, RT, CRn, CRm, op2) \
-    (RT = __arm_rsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2))
+    ((RT) = __arm_rsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2))
 
   #define __set_CP(cp, op1, RT, CRn, CRm, op2) \
-    (__arm_wsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2, RT))
+    (__arm_wsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2, (RT)))
+
+  #define __get_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MRRC p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : "=r" (Rt) : : "memory" )
+
+  #define __set_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MCRR p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : : "r" (Rt) : "memory" )
 
   #include "cmsis_cp15.h"
 
-  #define __NOP    __iar_builtin_no_operation
+  #define __NOP     __iar_builtin_no_operation
 
-  __IAR_FT uint8_t __CLZ(uint32_t val) {
-    return __iar_builtin_CLZ(val);
-  }
+  #define __CLZ     __iar_builtin_CLZ
+  #define __CLREX   __iar_builtin_CLREX
 
-  #define __CLREX __iar_builtin_CLREX
-
-  #define __DMB   __iar_builtin_DMB
-  #define __DSB   __iar_builtin_DSB
-  #define __ISB   __iar_builtin_ISB
+  #define __DMB     __iar_builtin_DMB
+  #define __DSB     __iar_builtin_DSB
+  #define __ISB     __iar_builtin_ISB
 
   #define __LDREXB  __iar_builtin_LDREXB
   #define __LDREXH  __iar_builtin_LDREXH
@@ -265,8 +280,9 @@
   #define __REV     __iar_builtin_REV
   #define __REV16   __iar_builtin_REV16
 
-  __IAR_FT int32_t __REVSH(int32_t val) {
-    return __iar_builtin_REVSH((int16_t)val);
+  __IAR_FT int16_t __REVSH(int16_t val)
+  {
+    return (int16_t) __iar_builtin_REVSH(val);
   }
 
   #define __ROR     __iar_builtin_ROR
@@ -354,6 +370,10 @@
   #define __get_FPSCR __cmsis_iar_get_FPSR_not_active
   #endif
 
+  #ifdef __INTRINSICS_INCLUDED
+  #error intrinsics.h is already included previously!
+  #endif
+
   #include <intrinsics.h>
 
   #if !__FPU_PRESENT
@@ -363,36 +383,40 @@
   #pragma diag_suppress=Pe940
   #pragma diag_suppress=Pe177
 
-  #define __enable_irq    		__enable_interrupt
-  #define __disable_irq   		__disable_interrupt
-  #define __enable_fault_irq 		__enable_fiq
-  #define __disable_fault_irq 	__disable_fiq
-  #define __NOP           		__no_operation
+  #define __enable_irq        __enable_interrupt
+  #define __disable_irq       __disable_interrupt
+  #define __enable_fault_irq    __enable_fiq
+  #define __disable_fault_irq   __disable_fiq
+  #define __NOP               __no_operation
 
-  #define __get_xPSR      		__get_PSR
+  #define __get_xPSR          __get_PSR
 
   __IAR_FT void __set_mode(uint32_t mode)
   {
     __ASM volatile("MSR  cpsr_c, %0" : : "r" (mode) : "memory");
   }
 
-  __IAR_FT uint32_t __LDREXW(uint32_t volatile *ptr) {
+  __IAR_FT uint32_t __LDREXW(uint32_t volatile *ptr)
+  {
     return __LDREX((unsigned long *)ptr);
   }
 
-  __IAR_FT uint32_t __STREXW(uint32_t value, uint32_t volatile *ptr) {
+  __IAR_FT uint32_t __STREXW(uint32_t value, uint32_t volatile *ptr)
+  {
     return __STREX(value, (unsigned long *)ptr);
   }
 
 
-  __IAR_FT uint32_t __RRX(uint32_t value) {
+  __IAR_FT uint32_t __RRX(uint32_t value)
+  {
     uint32_t result;
     __ASM("RRX      %0, %1" : "=r"(result) : "r" (value) : "cc");
     return(result);
   }
 
 
-  __IAR_FT uint32_t __ROR(uint32_t op1, uint32_t op2) {
+  __IAR_FT uint32_t __ROR(uint32_t op1, uint32_t op2)
+  {
     return (op1 >> op2) | (op1 << ((sizeof(op1)*8)-op2));
   }
 
@@ -418,7 +442,11 @@
   #define __get_CP(cp, op1, Rt, CRn, CRm, op2) \
     __ASM volatile("MRC p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : "=r" (Rt) : : "memory" )
   #define __set_CP(cp, op1, Rt, CRn, CRm, op2) \
-      __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+    __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+  #define __get_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MRRC p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : "=r" (Rt) : : "memory" )
+  #define __set_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MCRR p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : : "r" (Rt) : "memory" )
 
   #include "cmsis_cp15.h"
 
@@ -455,86 +483,27 @@ __IAR_FT void __set_SP_usr(uint32_t topOfProcStack)
 
 #define __get_mode()                (__get_CPSR() & 0x1FU)
 
-
-__STATIC_INLINE
-void __L1C_CleanInvalidateCache(uint32_t op)
-{
-  __ASM volatile(
-    "        PUSH    {R4-R11}                   \n"
-
-    "        MRC     p15, 1, R6, c0, c0, 1      \n" // Read CLIDR
-    "        ANDS    R3, R6, #0x07000000        \n" // Extract coherency level
-    "        MOV     R3, R3, LSR #23            \n" // Total cache levels << 1
-    "        BEQ     Finished                   \n" // If 0, no need to clean
-
-    "        MOV     R10, #0                    \n" // R10 holds current cache level << 1
-    "Loop1:  ADD     R2, R10, R10, LSR #1       \n" // R2 holds cache "Set" position
-    "        MOV     R1, R6, LSR R2             \n" // Bottom 3 bits are the Cache-type for this level
-    "        AND     R1, R1, #7                 \n" // Isolate those lower 3 bits
-    "        CMP     R1, #2                     \n"
-    "        BLT     Skip                       \n" // No cache or only instruction cache at this level
-
-    "        MCR     p15, 2, R10, c0, c0, 0     \n" // Write the Cache Size selection register
-    "        ISB                                \n" // ISB to sync the change to the CacheSizeID reg
-    "        MRC     p15, 1, R1, c0, c0, 0      \n" // Reads current Cache Size ID register
-    "        AND     R2, R1, #7                 \n" // Extract the line length field
-    "        ADD     R2, R2, #4                 \n" // Add 4 for the line length offset (log2 16 bytes)
-    "        MOVW    R4, #0x3FF                 \n"
-    "        ANDS    R4, R4, R1, LSR #3         \n" // R4 is the max number on the way size (right aligned)
-    "        CLZ     R5, R4                     \n" // R5 is the bit position of the way size increment
-    "        MOVW    R7, #0x7FFF                \n"
-    "        ANDS    R7, R7, R1, LSR #13        \n" // R7 is the max number of the index size (right aligned)
-
-    "Loop2:  MOV     R9, R4                     \n" // R9 working copy of the max way size (right aligned)
-
-    "Loop3:  ORR     R11, R10, R9, LSL R5       \n" // Factor in the Way number and cache number into R11
-    "        ORR     R11, R11, R7, LSL R2       \n" // Factor in the Set number
-    "        CMP     R0, #0                     \n"
-    "        BNE     Dccsw                      \n"
-    "        MCR     p15, 0, R11, c7, c6, 2     \n" // DCISW. Invalidate by Set/Way
-    "        B       cont                       \n"
-    "Dccsw:  CMP     R0, #1                     \n"
-    "        BNE     Dccisw                     \n"
-    "        MCR     p15, 0, R11, c7, c10, 2    \n" // DCCSW. Clean by Set/Way
-    "        B       cont                       \n"
-    "Dccisw: MCR     p15, 0, R11, c7, c14, 2    \n" // DCCISW. Clean and Invalidate by Set/Way
-    "cont:   SUBS    R9, R9, #1                 \n" // Decrement the Way number
-    "        BGE     Loop3                      \n"
-    "        SUBS    R7, R7, #1                 \n" // Decrement the Set number
-    "        BGE     Loop2                      \n"
-    "Skip:   ADD     R10, R10, #2               \n" // Increment the cache number
-    "        CMP     R3, R10                    \n"
-    "        BGT     Loop1                      \n"
-
-    "Finished:                                  \n"
-    "        DSB                                \n"
-    "        POP    {R4-R11}                      "
-  );
-}
-
-
 __STATIC_INLINE
 void __FPU_Enable(void)
 {
   __ASM volatile(
-	    //Permit access to VFP/NEON, registers by modifying CPACR
+    //Permit access to VFP/NEON, registers by modifying CPACR
     "        MRC     p15,0,R1,c1,c0,2  \n"
     "        ORR     R1,R1,#0x00F00000 \n"
     "        MCR     p15,0,R1,c1,c0,2  \n"
 
-	    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
     "        ISB                       \n"
 
-	    //Enable VFP/NEON
+    //Enable VFP/NEON
     "        VMRS    R1,FPEXC          \n"
     "        ORR     R1,R1,#0x40000000 \n"
     "        VMSR    FPEXC,R1          \n"
 
-	    //Initialise VFP/NEON registers to 0
+    //Initialise VFP/NEON registers to 0
     "        MOV     R2,#0             \n"
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT >= 16
-	    //Initialise D16 registers to 0
+    //Initialise D16 registers to 0
     "        VMOV    D0, R2,R2         \n"
     "        VMOV    D1, R2,R2         \n"
     "        VMOV    D2, R2,R2         \n"
@@ -551,10 +520,9 @@ void __FPU_Enable(void)
     "        VMOV    D13,R2,R2         \n"
     "        VMOV    D14,R2,R2         \n"
     "        VMOV    D15,R2,R2         \n"
-#endif
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-	    //Initialise D32 registers to 0
+#ifdef __ARM_ADVANCED_SIMD__
+    //Initialise D32 registers to 0
     "        VMOV    D16,R2,R2         \n"
     "        VMOV    D17,R2,R2         \n"
     "        VMOV    D18,R2,R2         \n"
@@ -571,12 +539,12 @@ void __FPU_Enable(void)
     "        VMOV    D29,R2,R2         \n"
     "        VMOV    D30,R2,R2         \n"
     "        VMOV    D31,R2,R2         \n"
-    ".endif                            \n"
 #endif
-	    //Initialise FPSCR to a known state
+
+    //Initialise FPSCR to a known state
     "        VMRS    R2,FPSCR          \n"
     "        MOV32   R3,#0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-	"        AND     R2,R2,R3          \n"
+    "        AND     R2,R2,R3          \n"
     "        VMSR    FPSCR,R2          \n");
 }
 

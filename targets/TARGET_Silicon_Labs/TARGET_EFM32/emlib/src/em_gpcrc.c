@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief General Purpose Cyclic Redundancy Check (GPCRC) API.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -30,6 +30,7 @@
  *
  ******************************************************************************/
 
+#include "em_common.h"
 #include "em_gpcrc.h"
 #include "em_assert.h"
 
@@ -73,29 +74,26 @@
 void GPCRC_Init(GPCRC_TypeDef * gpcrc, const GPCRC_Init_TypeDef * init)
 {
   uint32_t polySelect;
+  uint32_t revPoly = 0;
 
-  if (init->crcPoly == 0x04C11DB7)
-  {
+  if (init->crcPoly == 0x04C11DB7) {
     polySelect = GPCRC_CTRL_POLYSEL_CRC32;
-  }
-  else
-  {
+  } else {
     // If not using the fixed CRC-32 polynomial then we must be using 16-bit
     EFM_ASSERT((init->crcPoly & 0xFFFF0000) == 0);
     polySelect = GPCRC_CTRL_POLYSEL_16;
+    revPoly = SL_RBIT16(init->crcPoly);
   }
 
   gpcrc->CTRL = (((uint32_t)init->autoInit << _GPCRC_CTRL_AUTOINIT_SHIFT)
-                | ((uint32_t)init->reverseByteOrder << _GPCRC_CTRL_BYTEREVERSE_SHIFT)
-                | ((uint32_t)init->reverseBits << _GPCRC_CTRL_BITREVERSE_SHIFT)
-                | ((uint32_t)init->enableByteMode << _GPCRC_CTRL_BYTEMODE_SHIFT)
-                | polySelect
-                | ((uint32_t)init->enable << _GPCRC_CTRL_EN_SHIFT));
+                 | ((uint32_t)init->reverseByteOrder << _GPCRC_CTRL_BYTEREVERSE_SHIFT)
+                 | ((uint32_t)init->reverseBits << _GPCRC_CTRL_BITREVERSE_SHIFT)
+                 | ((uint32_t)init->enableByteMode << _GPCRC_CTRL_BYTEMODE_SHIFT)
+                 | polySelect
+                 | ((uint32_t)init->enable << _GPCRC_CTRL_EN_SHIFT));
 
-  if (polySelect == GPCRC_CTRL_POLYSEL_16)
-  {
+  if (polySelect == GPCRC_CTRL_POLYSEL_16) {
     // Set CRC polynomial value
-    uint32_t revPoly = __RBIT(init->crcPoly) >> 16;
     gpcrc->POLY = revPoly & _GPCRC_POLY_POLY_MASK;
   }
 

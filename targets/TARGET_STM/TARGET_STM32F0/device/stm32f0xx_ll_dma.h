@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_dma.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of DMA LL module.
   ******************************************************************************
   * @attention
@@ -280,19 +278,19 @@ typedef struct
 /** @defgroup DMA_LL_EC_CHANNEL CHANNEL
   * @{
   */
-#define LL_DMA_CHANNEL_1                  ((uint32_t)0x00000001U) /*!< DMA Channel 1 */
-#define LL_DMA_CHANNEL_2                  ((uint32_t)0x00000002U) /*!< DMA Channel 2 */
-#define LL_DMA_CHANNEL_3                  ((uint32_t)0x00000003U) /*!< DMA Channel 3 */
-#define LL_DMA_CHANNEL_4                  ((uint32_t)0x00000004U) /*!< DMA Channel 4 */
-#define LL_DMA_CHANNEL_5                  ((uint32_t)0x00000005U) /*!< DMA Channel 5 */
+#define LL_DMA_CHANNEL_1                  0x00000001U /*!< DMA Channel 1 */
+#define LL_DMA_CHANNEL_2                  0x00000002U /*!< DMA Channel 2 */
+#define LL_DMA_CHANNEL_3                  0x00000003U /*!< DMA Channel 3 */
+#define LL_DMA_CHANNEL_4                  0x00000004U /*!< DMA Channel 4 */
+#define LL_DMA_CHANNEL_5                  0x00000005U /*!< DMA Channel 5 */
 #if defined(DMA1_Channel6)
-#define LL_DMA_CHANNEL_6                  ((uint32_t)0x00000006U) /*!< DMA Channel 6 */
+#define LL_DMA_CHANNEL_6                  0x00000006U /*!< DMA Channel 6 */
 #endif
 #if defined(DMA1_Channel7)
-#define LL_DMA_CHANNEL_7                  ((uint32_t)0x00000007U) /*!< DMA Channel 7 */
+#define LL_DMA_CHANNEL_7                  0x00000007U /*!< DMA Channel 7 */
 #endif
 #if defined(USE_FULL_LL_DRIVER)
-#define LL_DMA_CHANNEL_ALL                ((uint32_t)0xFFFF0000U) /*!< DMA Channel all (used only for function @ref LL_DMA_DeInit(). */
+#define LL_DMA_CHANNEL_ALL                0xFFFF0000U /*!< DMA Channel all (used only for function @ref LL_DMA_DeInit(). */
 #endif /*USE_FULL_LL_DRIVER*/
 /**
   * @}
@@ -301,7 +299,7 @@ typedef struct
 /** @defgroup DMA_LL_EC_DIRECTION Transfer Direction
   * @{
   */
-#define LL_DMA_DIRECTION_PERIPH_TO_MEMORY ((uint32_t)0x00000000U) /*!< Peripheral to memory direction */
+#define LL_DMA_DIRECTION_PERIPH_TO_MEMORY 0x00000000U             /*!< Peripheral to memory direction */
 #define LL_DMA_DIRECTION_MEMORY_TO_PERIPH DMA_CCR_DIR             /*!< Memory to peripheral direction */
 #define LL_DMA_DIRECTION_MEMORY_TO_MEMORY DMA_CCR_MEM2MEM         /*!< Memory to memory direction     */
 /**
@@ -311,7 +309,7 @@ typedef struct
 /** @defgroup DMA_LL_EC_MODE Transfer mode
   * @{
   */
-#define LL_DMA_MODE_NORMAL                ((uint32_t)0x00000000U) /*!< Normal Mode                  */
+#define LL_DMA_MODE_NORMAL                0x00000000U             /*!< Normal Mode                  */
 #define LL_DMA_MODE_CIRCULAR              DMA_CCR_CIRC            /*!< Circular Mode                */
 /**
   * @}
@@ -321,7 +319,7 @@ typedef struct
   * @{
   */
 #define LL_DMA_PERIPH_INCREMENT           DMA_CCR_PINC            /*!< Peripheral increment mode Enable */
-#define LL_DMA_PERIPH_NOINCREMENT         ((uint32_t)0x00000000U) /*!< Peripheral increment mode Disable */
+#define LL_DMA_PERIPH_NOINCREMENT         0x00000000U             /*!< Peripheral increment mode Disable */
 /**
   * @}
   */
@@ -330,7 +328,7 @@ typedef struct
   * @{
   */
 #define LL_DMA_MEMORY_INCREMENT           DMA_CCR_MINC            /*!< Memory increment mode Enable  */
-#define LL_DMA_MEMORY_NOINCREMENT         ((uint32_t)0x00000000U) /*!< Memory increment mode Disable */
+#define LL_DMA_MEMORY_NOINCREMENT         0x00000000U             /*!< Memory increment mode Disable */
 /**
   * @}
   */
@@ -338,7 +336,7 @@ typedef struct
 /** @defgroup DMA_LL_EC_PDATAALIGN Peripheral data alignment
   * @{
   */
-#define LL_DMA_PDATAALIGN_BYTE            ((uint32_t)0x00000000U) /*!< Peripheral data alignment : Byte     */
+#define LL_DMA_PDATAALIGN_BYTE            0x00000000U             /*!< Peripheral data alignment : Byte     */
 #define LL_DMA_PDATAALIGN_HALFWORD        DMA_CCR_PSIZE_0         /*!< Peripheral data alignment : HalfWord */
 #define LL_DMA_PDATAALIGN_WORD            DMA_CCR_PSIZE_1         /*!< Peripheral data alignment : Word     */
 /**
@@ -348,7 +346,7 @@ typedef struct
 /** @defgroup DMA_LL_EC_MDATAALIGN Memory data alignment
   * @{
   */
-#define LL_DMA_MDATAALIGN_BYTE            ((uint32_t)0x00000000U) /*!< Memory data alignment : Byte     */
+#define LL_DMA_MDATAALIGN_BYTE            0x00000000U             /*!< Memory data alignment : Byte     */
 #define LL_DMA_MDATAALIGN_HALFWORD        DMA_CCR_MSIZE_0         /*!< Memory data alignment : HalfWord */
 #define LL_DMA_MDATAALIGN_WORD            DMA_CCR_MSIZE_1         /*!< Memory data alignment : Word     */
 /**
@@ -358,7 +356,7 @@ typedef struct
 /** @defgroup DMA_LL_EC_PRIORITY Transfer Priority level
   * @{
   */
-#define LL_DMA_PRIORITY_LOW               ((uint32_t)0x00000000U) /*!< Priority level : Low       */
+#define LL_DMA_PRIORITY_LOW               0x00000000U             /*!< Priority level : Low       */
 #define LL_DMA_PRIORITY_MEDIUM            DMA_CCR_PL_0            /*!< Priority level : Medium    */
 #define LL_DMA_PRIORITY_HIGH              DMA_CCR_PL_1            /*!< Priority level : High      */
 #define LL_DMA_PRIORITY_VERYHIGH          DMA_CCR_PL              /*!< Priority level : Very_High */
@@ -370,22 +368,22 @@ typedef struct
 /** @defgroup DMA_LL_EC_REQUEST Transfer peripheral request
   * @{
   */
-#define LL_DMA_REQUEST_0                  ((uint32_t)0x00000000U) /*!< DMA peripheral request 0  */
-#define LL_DMA_REQUEST_1                  ((uint32_t)0x00000001U) /*!< DMA peripheral request 1  */
-#define LL_DMA_REQUEST_2                  ((uint32_t)0x00000002U) /*!< DMA peripheral request 2  */
-#define LL_DMA_REQUEST_3                  ((uint32_t)0x00000003U) /*!< DMA peripheral request 3  */
-#define LL_DMA_REQUEST_4                  ((uint32_t)0x00000004U) /*!< DMA peripheral request 4  */
-#define LL_DMA_REQUEST_5                  ((uint32_t)0x00000005U) /*!< DMA peripheral request 5  */
-#define LL_DMA_REQUEST_6                  ((uint32_t)0x00000006U) /*!< DMA peripheral request 6  */
-#define LL_DMA_REQUEST_7                  ((uint32_t)0x00000007U) /*!< DMA peripheral request 7  */
-#define LL_DMA_REQUEST_8                  ((uint32_t)0x00000008U) /*!< DMA peripheral request 8  */
-#define LL_DMA_REQUEST_9                  ((uint32_t)0x00000009U) /*!< DMA peripheral request 9  */
-#define LL_DMA_REQUEST_10                 ((uint32_t)0x0000000AU) /*!< DMA peripheral request 10 */
-#define LL_DMA_REQUEST_11                 ((uint32_t)0x0000000BU) /*!< DMA peripheral request 11 */
-#define LL_DMA_REQUEST_12                 ((uint32_t)0x0000000CU) /*!< DMA peripheral request 12 */
-#define LL_DMA_REQUEST_13                 ((uint32_t)0x0000000DU) /*!< DMA peripheral request 13 */
-#define LL_DMA_REQUEST_14                 ((uint32_t)0x0000000EU) /*!< DMA peripheral request 14 */
-#define LL_DMA_REQUEST_15                 ((uint32_t)0x0000000FU) /*!< DMA peripheral request 15 */
+#define LL_DMA_REQUEST_0                  0x00000000U /*!< DMA peripheral request 0  */
+#define LL_DMA_REQUEST_1                  0x00000001U /*!< DMA peripheral request 1  */
+#define LL_DMA_REQUEST_2                  0x00000002U /*!< DMA peripheral request 2  */
+#define LL_DMA_REQUEST_3                  0x00000003U /*!< DMA peripheral request 3  */
+#define LL_DMA_REQUEST_4                  0x00000004U /*!< DMA peripheral request 4  */
+#define LL_DMA_REQUEST_5                  0x00000005U /*!< DMA peripheral request 5  */
+#define LL_DMA_REQUEST_6                  0x00000006U /*!< DMA peripheral request 6  */
+#define LL_DMA_REQUEST_7                  0x00000007U /*!< DMA peripheral request 7  */
+#define LL_DMA_REQUEST_8                  0x00000008U /*!< DMA peripheral request 8  */
+#define LL_DMA_REQUEST_9                  0x00000009U /*!< DMA peripheral request 9  */
+#define LL_DMA_REQUEST_10                 0x0000000AU /*!< DMA peripheral request 10 */
+#define LL_DMA_REQUEST_11                 0x0000000BU /*!< DMA peripheral request 11 */
+#define LL_DMA_REQUEST_12                 0x0000000CU /*!< DMA peripheral request 12 */
+#define LL_DMA_REQUEST_13                 0x0000000DU /*!< DMA peripheral request 13 */
+#define LL_DMA_REQUEST_14                 0x0000000EU /*!< DMA peripheral request 14 */
+#define LL_DMA_REQUEST_15                 0x0000000FU /*!< DMA peripheral request 15 */
 /**
   * @}
   */
@@ -1054,7 +1052,8 @@ __STATIC_INLINE uint32_t LL_DMA_GetDataLength(DMA_TypeDef *DMAx, uint32_t Channe
 
 /**
   * @brief  Configure the Source and Destination addresses.
-  * @note   Each IP using DMA provides an API to get directly the register adress (LL_PPP_DMA_GetRegAddr)
+  * @note   This API must not be called when the DMA channel is enabled.
+  * @note   Each IP using DMA provides an API to get directly the register adress (LL_PPP_DMA_GetRegAddr).
   * @rmtoll CPAR         PA            LL_DMA_ConfigAddresses\n
   *         CMAR         MA            LL_DMA_ConfigAddresses
   * @param  DMAx DMAx Instance
@@ -1080,24 +1079,21 @@ __STATIC_INLINE void LL_DMA_ConfigAddresses(DMA_TypeDef *DMAx, uint32_t Channel,
   /* Direction Memory to Periph */
   if (Direction == LL_DMA_DIRECTION_MEMORY_TO_PERIPH)
   {
-    MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, DMA_CMAR_MA,
-               SrcAddress);
-    MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, DMA_CPAR_PA,
-               DstAddress);
+    WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, SrcAddress);
+    WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, DstAddress);
   }
   /* Direction Periph to Memory and Memory to Memory */
   else
   {
-    MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, DMA_CPAR_PA,
-               SrcAddress);
-    MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, DMA_CMAR_MA,
-               DstAddress);
+    WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, SrcAddress);
+    WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, DstAddress);
   }
 }
 
 /**
   * @brief  Set the Memory address.
   * @note   Interface used for direction LL_DMA_DIRECTION_PERIPH_TO_MEMORY or LL_DMA_DIRECTION_MEMORY_TO_PERIPH only.
+  * @note   This API must not be called when the DMA channel is enabled.
   * @rmtoll CMAR         MA            LL_DMA_SetMemoryAddress
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:
@@ -1113,13 +1109,13 @@ __STATIC_INLINE void LL_DMA_ConfigAddresses(DMA_TypeDef *DMAx, uint32_t Channel,
   */
 __STATIC_INLINE void LL_DMA_SetMemoryAddress(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t MemoryAddress)
 {
-  MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, DMA_CMAR_MA,
-             MemoryAddress);
+  WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, MemoryAddress);
 }
 
 /**
   * @brief  Set the Peripheral address.
   * @note   Interface used for direction LL_DMA_DIRECTION_PERIPH_TO_MEMORY or LL_DMA_DIRECTION_MEMORY_TO_PERIPH only.
+  * @note   This API must not be called when the DMA channel is enabled.
   * @rmtoll CPAR         PA            LL_DMA_SetPeriphAddress
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:
@@ -1135,8 +1131,7 @@ __STATIC_INLINE void LL_DMA_SetMemoryAddress(DMA_TypeDef *DMAx, uint32_t Channel
   */
 __STATIC_INLINE void LL_DMA_SetPeriphAddress(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t PeriphAddress)
 {
-  MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, DMA_CPAR_PA,
-             PeriphAddress);
+  WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, PeriphAddress);
 }
 
 /**
@@ -1156,8 +1151,7 @@ __STATIC_INLINE void LL_DMA_SetPeriphAddress(DMA_TypeDef *DMAx, uint32_t Channel
   */
 __STATIC_INLINE uint32_t LL_DMA_GetMemoryAddress(DMA_TypeDef *DMAx, uint32_t Channel)
 {
-  return (READ_BIT(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR,
-                   DMA_CMAR_MA));
+  return (READ_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR));
 }
 
 /**
@@ -1177,13 +1171,13 @@ __STATIC_INLINE uint32_t LL_DMA_GetMemoryAddress(DMA_TypeDef *DMAx, uint32_t Cha
   */
 __STATIC_INLINE uint32_t LL_DMA_GetPeriphAddress(DMA_TypeDef *DMAx, uint32_t Channel)
 {
-  return (READ_BIT(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR,
-                   DMA_CPAR_PA));
+  return (READ_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR));
 }
 
 /**
   * @brief  Set the Memory to Memory Source address.
   * @note   Interface used for direction LL_DMA_DIRECTION_MEMORY_TO_MEMORY only.
+  * @note   This API must not be called when the DMA channel is enabled.
   * @rmtoll CPAR         PA            LL_DMA_SetM2MSrcAddress
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:
@@ -1199,13 +1193,13 @@ __STATIC_INLINE uint32_t LL_DMA_GetPeriphAddress(DMA_TypeDef *DMAx, uint32_t Cha
   */
 __STATIC_INLINE void LL_DMA_SetM2MSrcAddress(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t MemoryAddress)
 {
-  MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, DMA_CPAR_PA,
-             MemoryAddress);
+  WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR, MemoryAddress);
 }
 
 /**
   * @brief  Set the Memory to Memory Destination address.
   * @note   Interface used for direction LL_DMA_DIRECTION_MEMORY_TO_MEMORY only.
+  * @note   This API must not be called when the DMA channel is enabled.
   * @rmtoll CMAR         MA            LL_DMA_SetM2MDstAddress
   * @param  DMAx DMAx Instance
   * @param  Channel This parameter can be one of the following values:
@@ -1221,8 +1215,7 @@ __STATIC_INLINE void LL_DMA_SetM2MSrcAddress(DMA_TypeDef *DMAx, uint32_t Channel
   */
 __STATIC_INLINE void LL_DMA_SetM2MDstAddress(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t MemoryAddress)
 {
-  MODIFY_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, DMA_CMAR_MA,
-             MemoryAddress);
+  WRITE_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR, MemoryAddress);
 }
 
 /**
@@ -1242,8 +1235,7 @@ __STATIC_INLINE void LL_DMA_SetM2MDstAddress(DMA_TypeDef *DMAx, uint32_t Channel
   */
 __STATIC_INLINE uint32_t LL_DMA_GetM2MSrcAddress(DMA_TypeDef *DMAx, uint32_t Channel)
 {
-  return (READ_BIT(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR,
-                   DMA_CPAR_PA));
+  return (READ_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CPAR));
 }
 
 /**
@@ -1263,8 +1255,7 @@ __STATIC_INLINE uint32_t LL_DMA_GetM2MSrcAddress(DMA_TypeDef *DMAx, uint32_t Cha
   */
 __STATIC_INLINE uint32_t LL_DMA_GetM2MDstAddress(DMA_TypeDef *DMAx, uint32_t Channel)
 {
-  return (READ_BIT(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR,
-                   DMA_CMAR_MA));
+  return (READ_REG(((DMA_Channel_TypeDef *)((uint32_t)((uint32_t)DMAx + CHANNEL_OFFSET_TAB[Channel - 1U])))->CMAR));
 }
 
 #if (defined(DMA1_CSELR_DEFAULT)||defined(DMA2_CSELR_DEFAULT))
@@ -1695,7 +1686,7 @@ __STATIC_INLINE uint32_t LL_DMA_IsActiveFlag_TE7(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI1(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF1);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF1);
 }
 
 /**
@@ -1706,7 +1697,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI1(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI2(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF2);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF2);
 }
 
 /**
@@ -1717,7 +1708,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI2(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI3(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF3);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF3);
 }
 
 /**
@@ -1728,7 +1719,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI3(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI4(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF4);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF4);
 }
 
 /**
@@ -1739,7 +1730,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI4(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI5(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF5);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF5);
 }
 
 #if defined(DMA1_Channel6)
@@ -1751,7 +1742,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI5(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI6(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF6);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF6);
 }
 #endif
 
@@ -1764,7 +1755,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI6(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_GI7(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CGIF7);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CGIF7);
 }
 #endif
 
@@ -1776,7 +1767,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_GI7(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC1(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF1);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF1);
 }
 
 /**
@@ -1787,7 +1778,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC1(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC2(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF2);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF2);
 }
 
 /**
@@ -1798,7 +1789,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC2(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC3(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF3);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF3);
 }
 
 /**
@@ -1809,7 +1800,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC3(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC4(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF4);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF4);
 }
 
 /**
@@ -1820,7 +1811,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC4(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC5(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF5);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF5);
 }
 
 #if defined(DMA1_Channel6)
@@ -1832,7 +1823,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC5(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC6(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF6);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF6);
 }
 #endif
 
@@ -1845,7 +1836,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC6(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TC7(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTCIF7);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTCIF7);
 }
 #endif
 
@@ -1857,7 +1848,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TC7(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT1(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF1);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF1);
 }
 
 /**
@@ -1868,7 +1859,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT1(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT2(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF2);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF2);
 }
 
 /**
@@ -1879,7 +1870,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT2(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT3(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF3);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF3);
 }
 
 /**
@@ -1890,7 +1881,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT3(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT4(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF4);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF4);
 }
 
 /**
@@ -1901,7 +1892,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT4(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT5(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF5);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF5);
 }
 
 #if defined(DMA1_Channel6)
@@ -1913,7 +1904,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT5(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT6(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF6);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF6);
 }
 #endif
 
@@ -1926,7 +1917,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT6(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_HT7(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CHTIF7);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CHTIF7);
 }
 #endif
 
@@ -1938,7 +1929,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_HT7(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE1(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF1);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF1);
 }
 
 /**
@@ -1949,7 +1940,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE1(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE2(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF2);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF2);
 }
 
 /**
@@ -1960,7 +1951,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE2(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE3(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF3);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF3);
 }
 
 /**
@@ -1971,7 +1962,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE3(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE4(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF4);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF4);
 }
 
 /**
@@ -1982,7 +1973,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE4(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE5(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF5);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF5);
 }
 
 #if defined(DMA1_Channel6)
@@ -1994,7 +1985,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE5(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE6(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF6);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF6);
 }
 #endif
 
@@ -2007,7 +1998,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE6(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_ClearFlag_TE7(DMA_TypeDef *DMAx)
 {
-  SET_BIT(DMAx->IFCR, DMA_IFCR_CTEIF7);
+  WRITE_REG(DMAx->IFCR, DMA_IFCR_CTEIF7);
 }
 #endif
 

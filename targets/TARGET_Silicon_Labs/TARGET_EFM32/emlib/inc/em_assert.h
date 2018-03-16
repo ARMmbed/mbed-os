@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_assert.h
  * @brief Emlib peripheral API "assert" implementation.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -44,8 +44,8 @@ extern "C" {
 
 #if defined(DOXY_DOC_ONLY)
 /** @brief Included for documentation purposes only. This define is not present by default.
-  * @ref DEBUG_EFM should be defined from the compiler to enable the default internal
-  * assert handler. */
+ *  @ref DEBUG_EFM should be defined from the compiler to enable the default internal
+ *  assert handler. */
 #define DEBUG_EFM
 /** @endcond */
 #endif

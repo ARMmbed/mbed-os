@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_system.c
  * @brief System Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -61,10 +61,10 @@ void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
   uint8_t tmp;
 
   EFM_ASSERT(rev);
-  
-  uint32_t pid0 = SECURE_READ(&(ROMTABLE->PID0));		
-  uint32_t pid1 = SECURE_READ(&(ROMTABLE->PID1));		
-  uint32_t pid2 = SECURE_READ(&(ROMTABLE->PID2));		
+
+  uint32_t pid0 = SECURE_READ(&(ROMTABLE->PID0));
+  uint32_t pid1 = SECURE_READ(&(ROMTABLE->PID1));
+  uint32_t pid2 = SECURE_READ(&(ROMTABLE->PID2));
   uint32_t pid3 = SECURE_READ(&(ROMTABLE->PID3));
 
   /* CHIP FAMILY bit [5:2] */
@@ -82,7 +82,6 @@ void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
   tmp |=  ((pid3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
   rev->minor = tmp;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -103,15 +102,8 @@ bool SYSTEM_GetCalibrationValue(volatile uint32_t *regAddress)
   p   = (SYSTEM_CalAddrVal_TypeDef *)(DEVINFO_BASE & 0xFFFFF000);
   end = (SYSTEM_CalAddrVal_TypeDef *)DEVINFO_BASE;
 
-  for ( ; p < end; p++)
-  {
-    if (p->address == 0xFFFFFFFF)
-    {
-      /* Found table terminator */
-      return false;
-    }
-    if (p->address == (uint32_t)regAddress)
-    {
+  for (; p < end; p++) {
+    if (p->address == (uint32_t)regAddress) {
       *regAddress = p->calValue;
       return true;
     }

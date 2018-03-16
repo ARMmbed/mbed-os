@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_csen.c
  * @brief Capacitive Sense Module (CSEN) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -31,7 +31,7 @@
  ******************************************************************************/
 
 #include "em_csen.h"
-#if defined( CSEN_COUNT ) && ( CSEN_COUNT > 0 )
+#if defined(CSEN_COUNT) && (CSEN_COUNT > 0)
 
 #include "em_assert.h"
 #include "em_cmu.h"
@@ -68,8 +68,8 @@
  *
  * @details
  *   Sets the initial value of the integrator(s) for the Delta Modulation (DM)
- *   converter. The initial value for the ramp-down integrator has no effect 
- *   if low frequency attenuation was not selected by the mode initialization  
+ *   converter. The initial value for the ramp-down integrator has no effect
+ *   if low frequency attenuation was not selected by the mode initialization
  *   function @ref CSEN_InitMode().
  *
  * @note
@@ -82,7 +82,7 @@
  *   Initial value for the ramp-up integrator.
  *
  * @param[in] down
- *  Initial value for the ramp-down integrator. Has no effect if low frequency 
+ *  Initial value for the ramp-down integrator. Has no effect if low frequency
  *  attenuation is not configured.
  ******************************************************************************/
 void CSEN_DMBaselineSet(CSEN_TypeDef *csen, uint32_t up, uint32_t down)
@@ -93,7 +93,6 @@ void CSEN_DMBaselineSet(CSEN_TypeDef *csen, uint32_t up, uint32_t down)
   csen->DMBASELINE = (up << _CSEN_DMBASELINE_BASELINEUP_SHIFT)
                      | (down << _CSEN_DMBASELINE_BASELINEDN_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -122,18 +121,15 @@ void CSEN_Init(CSEN_TypeDef *csen, const CSEN_Init_TypeDef *init)
   /* Initialize CTRL. This will stop any conversion in progress. */
   tmp = CSEN_CTRL_STM_DEFAULT;
 
-  if (init->cpAccuracyHi)
-  {
+  if (init->cpAccuracyHi) {
     tmp |= CSEN_CTRL_CPACCURACY_HI;
   }
 
-  if (init->localSense)
-  {
+  if (init->localSense) {
     tmp |= _CSEN_CTRL_LOCALSENS_MASK;
   }
 
-  if (init->keepWarm)
-  {
+  if (init->keepWarm) {
     tmp |= CSEN_CTRL_WARMUPMODE_KEEPCSENWARM;
   }
 
@@ -160,18 +156,17 @@ void CSEN_Init(CSEN_TypeDef *csen, const CSEN_Init_TypeDef *init)
                         | (init->input56To63 << _CSEN_SCANINPUTSEL1_INPUT56TO63SEL_SHIFT);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Initialize a CSEN measurement mode.
  *
  * @details
- *   Used to configure any type of measurement mode. After the measurement 
- *   has been configured, calling @ref CSEN_Enable() will enable CSEN and 
- *   allow it to start a conversion from the selected trigger source. To 
- *   manually start a conversion use @ref CSEN_Start(). To check if a 
+ *   Used to configure any type of measurement mode. After the measurement
+ *   has been configured, calling @ref CSEN_Enable() will enable CSEN and
+ *   allow it to start a conversion from the selected trigger source. To
+ *   manually start a conversion use @ref CSEN_Start(). To check if a
  *   conversion is in progress use @ref CSEN_IsBusy(), or alternatively
- *   use the interrupt flags returned by @ref CSEN_IntGet() to detect when 
+ *   use the interrupt flags returned by @ref CSEN_IntGet() to detect when
  *   a conversion is completed.
  *
  * @note
@@ -191,36 +186,33 @@ void CSEN_InitMode(CSEN_TypeDef *csen, const CSEN_InitMode_TypeDef *init)
   EFM_ASSERT(init->dmIterPerCycle < 0x10);
   EFM_ASSERT(init->dmCycles < 0x10);
 
-  /* Initialize CTRL. This will stop any conversion in progress. 
-   * These composite inputs set multiple fields. They do not need 
+  /* Initialize CTRL. This will stop any conversion in progress.
+   * These composite inputs set multiple fields. They do not need
    * to be shifted. */
   tmp = ((uint32_t)init->sampleMode
-        | (uint32_t)init->convSel
-        | (uint32_t)init->cmpMode);
+         | (uint32_t)init->convSel
+         | (uint32_t)init->cmpMode);
 
   tmp |= (init->trigSel << _CSEN_CTRL_STM_SHIFT)
          | (init->accMode << _CSEN_CTRL_ACU_SHIFT)
          | (init->sarRes << _CSEN_CTRL_SARCR_SHIFT);
 
-  if (init->enableDma)
-  {
+  if (init->enableDma) {
     tmp |= CSEN_CTRL_DMAEN_ENABLE;
   }
 
-  if (init->sumOnly)
-  {
+  if (init->sumOnly) {
     tmp |= CSEN_CTRL_DRSF_ENABLE;
   }
 
-  if (init->autoGnd)
-  {
+  if (init->autoGnd) {
     tmp |= CSEN_CTRL_AUTOGND_ENABLE;
   }
 
   /* Preserve the fields that were initialized by CSEN_Init(). */
   tmp |= csen->CTRL & (_CSEN_CTRL_CPACCURACY_MASK
-                      | _CSEN_CTRL_LOCALSENS_MASK
-                      | _CSEN_CTRL_WARMUPMODE_MASK);
+                       | _CSEN_CTRL_LOCALSENS_MASK
+                       | _CSEN_CTRL_WARMUPMODE_MASK);
 
   csen->CTRL = tmp;
 
@@ -243,8 +235,7 @@ void CSEN_InitMode(CSEN_TypeDef *csen, const CSEN_InitMode_TypeDef *init)
         | (init->dmIterPerCycle << _CSEN_DMCFG_DMR_SHIFT)
         | (init->dmDelta << _CSEN_DMCFG_DMG_SHIFT);
 
-  if (init->dmFixedDelta)
-  {
+  if (init->dmFixedDelta) {
     tmp |= CSEN_DMCFG_DMGRDIS;
   }
 
@@ -255,7 +246,6 @@ void CSEN_InitMode(CSEN_TypeDef *csen, const CSEN_InitMode_TypeDef *init)
                   | (init->driveSel << _CSEN_ANACTRL_IDACIREFS_SHIFT)
                   | (init->gainSel << _CSEN_ANACTRL_IREFPROG_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -287,7 +277,6 @@ void CSEN_Reset(CSEN_TypeDef *csen)
   csen->IEN           = _CSEN_IEN_RESETVALUE;
   csen->IFC           = _CSEN_IF_MASK;
 }
-
 
 /** @} (end addtogroup CSEN) */
 /** @} (end addtogroup emlib) */

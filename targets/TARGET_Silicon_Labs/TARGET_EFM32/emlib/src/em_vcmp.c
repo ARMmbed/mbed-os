@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_vcmp.c
  * @brief Voltage Comparator (VCMP) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -64,12 +64,9 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
   EFM_ASSERT((vcmpInit->biasProg >= 0) && (vcmpInit->biasProg < 16));
 
   /* Configure Half Bias setting */
-  if (vcmpInit->halfBias)
-  {
+  if (vcmpInit->halfBias) {
     VCMP->CTRL |= VCMP_CTRL_HALFBIAS;
-  }
-  else
-  {
+  } else {
     VCMP->CTRL &= ~(VCMP_CTRL_HALFBIAS);
   }
 
@@ -78,22 +75,16 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
   VCMP->CTRL |= (vcmpInit->biasProg << _VCMP_CTRL_BIASPROG_SHIFT);
 
   /* Configure sense for falling edge */
-  if (vcmpInit->irqFalling)
-  {
+  if (vcmpInit->irqFalling) {
     VCMP->CTRL |= VCMP_CTRL_IFALL;
-  }
-  else
-  {
+  } else {
     VCMP->CTRL &= ~(VCMP_CTRL_IFALL);
   }
 
   /* Configure sense for rising edge */
-  if (vcmpInit->irqRising)
-  {
+  if (vcmpInit->irqRising) {
     VCMP->CTRL |= VCMP_CTRL_IRISE;
-  }
-  else
-  {
+  } else {
     VCMP->CTRL &= ~(VCMP_CTRL_IRISE);
   }
 
@@ -102,8 +93,7 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
   VCMP->CTRL |= (vcmpInit->warmup << _VCMP_CTRL_WARMTIME_SHIFT);
 
   /* Configure hysteresis */
-  switch (vcmpInit->hyst)
-  {
+  switch (vcmpInit->hyst) {
     case vcmpHyst20mV:
       VCMP->CTRL |= VCMP_CTRL_HYSTEN;
       break;
@@ -121,29 +111,24 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
   VCMP_TriggerSet(vcmpInit->triggerLevel);
 
   /* Enable or disable VCMP */
-  if (vcmpInit->enable)
-  {
+  if (vcmpInit->enable) {
     VCMP->CTRL |= VCMP_CTRL_EN;
-  }
-  else
-  {
+  } else {
     VCMP->CTRL &= ~(VCMP_CTRL_EN);
   }
 
   /* If Low Power Reference is enabled, wait until VCMP is ready */
   /* before enabling it, see reference manual for deatils        */
   /* Configuring Low Power Ref without enable has no effect      */
-  if(vcmpInit->lowPowerRef && vcmpInit->enable)
-  {
+  if (vcmpInit->lowPowerRef && vcmpInit->enable) {
     /* Poll for VCMP ready */
-    while(!VCMP_Ready());
+    while (!VCMP_Ready()) ;
     VCMP_LowPowerRefSet(vcmpInit->lowPowerRef);
   }
 
   /* Clear edge interrupt */
   VCMP_IntClear(VCMP_IF_EDGE);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -154,16 +139,12 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
  ******************************************************************************/
 void VCMP_LowPowerRefSet(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     VCMP->INPUTSEL |= VCMP_INPUTSEL_LPREF;
-  }
-  else
-  {
+  } else {
     VCMP->INPUTSEL &= ~VCMP_INPUTSEL_LPREF;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -181,7 +162,6 @@ void VCMP_TriggerSet(int level)
   VCMP->INPUTSEL = (VCMP->INPUTSEL & ~(_VCMP_INPUTSEL_TRIGLEVEL_MASK))
                    | (level << _VCMP_INPUTSEL_TRIGLEVEL_SHIFT);
 }
-
 
 /** @} (end addtogroup VCMP) */
 /** @} (end addtogroup emlib) */

@@ -29,11 +29,13 @@
 
 using namespace utest::v1;
 
+#ifndef MBED_CONF_APP_HTTP_SERVER_NAME
+#define MBED_CONF_APP_HTTP_SERVER_NAME "os.mbed.com"
+#define MBED_CONF_APP_HTTP_SERVER_FILE_PATH "/media/uploads/mbed_official/hello.txt"
+#endif
 
 namespace {
     // Test connection information
-    const char *HTTP_SERVER_NAME = "os.mbed.com";
-    const char *HTTP_SERVER_FILE_PATH = "/media/uploads/mbed_official/hello.txt";
     const int HTTP_SERVER_PORT = 80;
 #if defined(TARGET_VK_RZ_A1H)
     const int RECV_BUFFER_SIZE = 300;
@@ -65,16 +67,17 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 void get_data(TCPSocket* sock){
     bool result = false;
     // Server will respond with HTTP GET's success code
-    const int ret = sock->recv(buffer, sizeof(buffer) - 1);
-    if(ret <= 0)
-        return;
-
-    buffer[ret] = '\0';
+    int len = 0;
+    int ret;
+    while((ret = sock->recv(buffer+len, sizeof(buffer) - 1 - len)) > 0) {
+      len += ret;
+    }
+    buffer[len] = '\0';
 
     // Find 200 OK HTTP status in reply
-    bool found_200_ok = find_substring(buffer, buffer + ret, HTTP_OK_STR, HTTP_OK_STR + strlen(HTTP_OK_STR));
+    bool found_200_ok = find_substring(buffer, buffer + len, HTTP_OK_STR, HTTP_OK_STR + strlen(HTTP_OK_STR));
     // Find "Hello World!" string in reply
-    bool found_hello = find_substring(buffer, buffer + ret, HTTP_HELLO_STR, HTTP_HELLO_STR + strlen(HTTP_HELLO_STR));
+    bool found_hello = find_substring(buffer, buffer + len, HTTP_HELLO_STR, HTTP_HELLO_STR + strlen(HTTP_HELLO_STR));
 
     TEST_ASSERT_TRUE(found_200_ok);
     TEST_ASSERT_TRUE(found_hello);
@@ -83,7 +86,7 @@ void get_data(TCPSocket* sock){
 
     TEST_ASSERT_EQUAL(result, true);
 
-    printf("HTTP: Received %d chars from server\r\n", ret);
+    printf("HTTP: Received %d chars from server\r\n", len);
     printf("HTTP: Received 200 OK status ... %s\r\n", found_200_ok ? "[OK]" : "[FAIL]");
     printf("HTTP: Received '%s' status ... %s\r\n", HTTP_HELLO_STR, found_hello ? "[OK]" : "[FAIL]");
     printf("HTTP: Received message:\r\n");
@@ -97,22 +100,24 @@ void prep_buffer() {
     // We are constructing GET command like this:
     // GET http://developer.mbed.org/media/uploads/mbed_official/hello.txt HTTP/1.0\n\n
     strcpy(buffer, "GET http://");
-    strcat(buffer, HTTP_SERVER_NAME);
-    strcat(buffer, HTTP_SERVER_FILE_PATH);
+    strcat(buffer, MBED_CONF_APP_HTTP_SERVER_NAME);
+    strcat(buffer, MBED_CONF_APP_HTTP_SERVER_FILE_PATH);
     strcat(buffer, " HTTP/1.0\n\n");
 }
 
 void test_socket_attach() {
+    bool result = false;
+
     // Dispatch event queue
     Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
+    EventQueue queue(10*EVENTS_EVENT_SIZE);
     eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
 
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
-    printf("HTTP: Connection to %s:%d\r\n", HTTP_SERVER_NAME, HTTP_SERVER_PORT);
-    if (sock.connect(HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
+    printf("HTTP: Connection to %s:%d\r\n", MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT);
+    if (sock.connect(MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
         printf("HTTP: OK\r\n");
 
         prep_buffer();
@@ -122,10 +127,13 @@ void test_socket_attach() {
         sock.send(buffer, strlen(buffer));
         // wait for recv data
         recvd.wait();
+
+        result = true;
     } else {
         printf("HTTP: ERROR\r\n");
     }
     sock.close();
+    TEST_ASSERT_EQUAL(true, result);
 }
 
 void cb_fail() {
@@ -145,8 +153,8 @@ void test_socket_detach() {
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
-    printf("HTTP: Connection to %s:%d\r\n", HTTP_SERVER_NAME, HTTP_SERVER_PORT);
-    if (sock.connect(HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
+    printf("HTTP: Connection to %s:%d\r\n", MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT);
+    if (sock.connect(MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
         printf("HTTP: OK\r\n");
 
         prep_buffer();
@@ -172,8 +180,8 @@ void test_socket_reattach() {
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
-    printf("HTTP: Connection to %s:%d\r\n", HTTP_SERVER_NAME, HTTP_SERVER_PORT);
-    if (sock.connect(HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
+    printf("HTTP: Connection to %s:%d\r\n", MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT);
+    if (sock.connect(MBED_CONF_APP_HTTP_SERVER_NAME, HTTP_SERVER_PORT) == 0) {
         printf("HTTP: OK\r\n");
 
         prep_buffer();

@@ -68,11 +68,17 @@ void thread_tasklet_init(void);
 int8_t thread_tasklet_network_init(int8_t device_id);
 
 /*
- * \brief Set device configuration for thread network
- * \param eui64 mac address of the registered rf device
+ * \brief Sets eui64 for the device configuration
+ * \param eui64 eui64 to be set
  * \param pskd private shared key
  */
-void thread_tasklet_device_config_set(uint8_t *eui64, char *pskd);
+void thread_tasklet_device_eui64_set(const uint8_t *eui64);
+
+/*
+ * \brief Sets PSKd for the device configuration
+ * \param pskd private shared key to be set
+ */
+uint8_t thread_tasklet_device_pskd_set(const char *pskd);
 
 /*
  * \brief Disconnect network interface.

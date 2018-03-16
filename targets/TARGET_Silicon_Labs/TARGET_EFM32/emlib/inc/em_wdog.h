@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_wdog.h
  * @brief Watchdog (WDOG) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -29,7 +29,6 @@
  * arising from your use of this Software.
  *
  ******************************************************************************/
-
 
 #ifndef EM_WDOG_H
 #define EM_WDOG_H
@@ -58,16 +57,14 @@ extern "C" {
  ******************************************************************************/
 
 /** Watchdog clock selection. */
-typedef enum
-{
+typedef enum {
   wdogClkSelULFRCO = _WDOG_CTRL_CLKSEL_ULFRCO,   /**< Ultra low frequency (1 kHz) clock */
   wdogClkSelLFRCO  = _WDOG_CTRL_CLKSEL_LFRCO,    /**< Low frequency RC oscillator */
   wdogClkSelLFXO   = _WDOG_CTRL_CLKSEL_LFXO      /**< Low frequency crystal oscillator */
 } WDOG_ClkSel_TypeDef;
 
 /** Watchdog period selection. */
-typedef enum
-{
+typedef enum {
   wdogPeriod_9    = 0x0, /**< 9 clock periods */
   wdogPeriod_17   = 0x1, /**< 17 clock periods */
   wdogPeriod_33   = 0x2, /**< 33 clock periods */
@@ -86,11 +83,9 @@ typedef enum
   wdogPeriod_256k = 0xF  /**< 262145 clock periods */
 } WDOG_PeriodSel_TypeDef;
 
-
-#if defined( _WDOG_CTRL_WARNSEL_MASK )
+#if defined(_WDOG_CTRL_WARNSEL_MASK)
 /** Select watchdog warning timeout period as percentage of timeout. */
-typedef enum
-{
+typedef enum {
   wdogWarnDisable   = 0,
   wdogWarnTime25pct = 1,
   wdogWarnTime50pct = 2,
@@ -98,10 +93,9 @@ typedef enum
 } WDOG_WarnSel_TypeDef;
 #endif
 
-#if defined( _WDOG_CTRL_WINSEL_MASK )
+#if defined(_WDOG_CTRL_WINSEL_MASK)
 /**  Select watchdog illegal window limit. */
-typedef enum
-{
+typedef enum {
   wdogIllegalWindowDisable     = 0,
   wdogIllegalWindowTime12_5pct = 1,
   wdogIllegalWindowTime25_0pct = 2,
@@ -118,8 +112,7 @@ typedef enum
  ******************************************************************************/
 
 /** Watchdog initialization structure. */
-typedef struct
-{
+typedef struct {
   /** Enable watchdog when init completed. */
   bool                   enable;
 
@@ -147,59 +140,57 @@ typedef struct
   /** Watchdog timeout period. */
   WDOG_PeriodSel_TypeDef perSel;
 
-#if defined( _WDOG_CTRL_WARNSEL_MASK )
+#if defined(_WDOG_CTRL_WARNSEL_MASK)
   /** Select warning time as % of the watchdog timeout */
   WDOG_WarnSel_TypeDef   warnSel;
 #endif
 
-#if defined( _WDOG_CTRL_WINSEL_MASK )
+#if defined(_WDOG_CTRL_WINSEL_MASK)
   /** Select illegal window time as % of the watchdog timeout */
   WDOG_WinSel_TypeDef    winSel;
 #endif
 
-#if defined( _WDOG_CTRL_WDOGRSTDIS_MASK )
+#if defined(_WDOG_CTRL_WDOGRSTDIS_MASK)
   /** Disable watchdog reset output if true */
   bool                   resetDisable;
 #endif
-
 } WDOG_Init_TypeDef;
 
 /** Suggested default config for WDOG init structure. */
-#if defined( _WDOG_CTRL_WARNSEL_MASK )          \
-    && defined( _WDOG_CTRL_WDOGRSTDIS_MASK )    \
-    && defined( _WDOG_CTRL_WINSEL_MASK )
-#define WDOG_INIT_DEFAULT                                                       \
-{                                                                               \
-  true,                         /* Start watchdog when init done */             \
-  false,                        /* WDOG not counting during debug halt */       \
-  false,                        /* WDOG not counting when in EM2 */             \
-  false,                        /* WDOG not counting when in EM3 */             \
-  false,                        /* EM4 can be entered */                        \
-  false,                        /* Do not block disabling LFRCO/LFXO in CMU */  \
-  false,                        /* Do not lock WDOG configuration (if locked,
-                                   reset needed to unlock) */                   \
-  wdogClkSelULFRCO,             /* Select 1kHZ WDOG oscillator */               \
-  wdogPeriod_256k,              /* Set longest possible timeout period */       \
-  wdogWarnDisable,              /* Disable warning interrupt */                 \
-  wdogIllegalWindowDisable,     /* Disable illegal window interrupt */          \
-  false                         /* Do not disable reset */                      \
-}
+#if defined(_WDOG_CTRL_WARNSEL_MASK)     \
+  && defined(_WDOG_CTRL_WDOGRSTDIS_MASK) \
+  && defined(_WDOG_CTRL_WINSEL_MASK)
+#define WDOG_INIT_DEFAULT                                                      \
+  {                                                                            \
+    true,                       /* Start watchdog when init done */            \
+    false,                      /* WDOG not counting during debug halt */      \
+    false,                      /* WDOG not counting when in EM2 */            \
+    false,                      /* WDOG not counting when in EM3 */            \
+    false,                      /* EM4 can be entered */                       \
+    false,                      /* Do not block disabling LFRCO/LFXO in CMU */ \
+    false,                      /* Do not lock WDOG configuration (if locked,
+                                   reset needed to unlock) */             \
+    wdogClkSelULFRCO,           /* Select 1kHZ WDOG oscillator */         \
+    wdogPeriod_256k,            /* Set longest possible timeout period */ \
+    wdogWarnDisable,            /* Disable warning interrupt */           \
+    wdogIllegalWindowDisable,   /* Disable illegal window interrupt */    \
+    false                       /* Do not disable reset */                \
+  }
 #else
-#define WDOG_INIT_DEFAULT                                                       \
-{                                                                               \
-  true,                         /* Start watchdog when init done */             \
-  false,                        /* WDOG not counting during debug halt */       \
-  false,                        /* WDOG not counting when in EM2 */             \
-  false,                        /* WDOG not counting when in EM3 */             \
-  false,                        /* EM4 can be entered */                        \
-  false,                        /* Do not block disabling LFRCO/LFXO in CMU */  \
-  false,                        /* Do not lock WDOG configuration (if locked,
-                                   reset needed to unlock) */                   \
-  wdogClkSelULFRCO,             /* Select 1kHZ WDOG oscillator */               \
-  wdogPeriod_256k               /* Set longest possible timeout period */       \
-}
+#define WDOG_INIT_DEFAULT                                                      \
+  {                                                                            \
+    true,                       /* Start watchdog when init done */            \
+    false,                      /* WDOG not counting during debug halt */      \
+    false,                      /* WDOG not counting when in EM2 */            \
+    false,                      /* WDOG not counting when in EM3 */            \
+    false,                      /* EM4 can be entered */                       \
+    false,                      /* Do not block disabling LFRCO/LFXO in CMU */ \
+    false,                      /* Do not lock WDOG configuration (if locked,
+                                   reset needed to unlock) */             \
+    wdogClkSelULFRCO,           /* Select 1kHZ WDOG oscillator */         \
+    wdogPeriod_256k             /* Set longest possible timeout period */ \
+  }
 #endif
-
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -210,8 +201,7 @@ void WDOGn_Feed(WDOG_TypeDef *wdog);
 void WDOGn_Init(WDOG_TypeDef *wdog, const WDOG_Init_TypeDef *init);
 void WDOGn_Lock(WDOG_TypeDef *wdog);
 
-
-#if defined( _WDOG_IF_MASK )
+#if defined(_WDOG_IF_MASK)
 /***************************************************************************//**
  * @brief
  *   Clear one or more pending WDOG interrupts.
@@ -325,7 +315,6 @@ __STATIC_INLINE void WDOGn_IntSet(WDOG_TypeDef *wdog, uint32_t flags)
 }
 #endif
 
-
 /** Default WDOG instance for deprecated functions. */
 #if !defined(DEFAULT_WDOG)
 #if defined(WDOG)
@@ -352,7 +341,6 @@ __STATIC_INLINE void WDOG_Enable(bool enable)
   WDOGn_Enable(DEFAULT_WDOG, enable);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Feed the watchdog.
@@ -365,7 +353,6 @@ __STATIC_INLINE void WDOG_Feed(void)
 {
   WDOGn_Feed(DEFAULT_WDOG);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -385,7 +372,6 @@ __STATIC_INLINE void WDOG_Init(const WDOG_Init_TypeDef *init)
   WDOGn_Init(DEFAULT_WDOG, init);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Lock the watchdog configuration.
@@ -398,7 +384,6 @@ __STATIC_INLINE void WDOG_Lock(void)
 {
   WDOGn_Lock(DEFAULT_WDOG);
 }
-
 
 /** @} (end addtogroup WDOG) */
 /** @} (end addtogroup emlib) */

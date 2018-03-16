@@ -29,6 +29,7 @@
  */
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "mbed_debug.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -286,6 +287,16 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     handle->Init.Mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
 
+    if (slave && (handle->Init.Direction == SPI_DIRECTION_1LINE)) {
+        /*  SPI slave implemtation in MBED does not support the 3 wires SPI.
+         *  (e.g. when MISO is not connected). So we're forcing slave in
+         *  2LINES mode. As MISO is not connected, slave will only read
+         *  from master, and cannot write to it. Inform user.
+         */
+        debug("3 wires SPI slave not supported - slave will only read\r\n");
+        handle->Init.Direction = SPI_DIRECTION_2LINES;
+    }
+
     init_spi(obj);
 }
 
@@ -514,6 +525,11 @@ static int spi_master_start_asynch_transfer(spi_t *obj, transfer_type_t transfer
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
     NVIC_EnableIRQ(irq_n);
+
+    // flush FIFO
+#if defined(SPI_FLAG_FRLVL) // STM32F0 STM32F3 STM32F7 STM32L4
+    HAL_SPIEx_FlushRxFifo(handle);
+#endif
 
     // enable the right hal transfer
     int rc = 0;

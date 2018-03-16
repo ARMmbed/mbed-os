@@ -38,14 +38,23 @@ extern "C" {
 #endif
 
 typedef enum {
+  ALT0 = 0x100,
+  ALT1 = 0x200
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
+    PA_2_ALT0 = PA_2|ALT0,
     PA_3  = 0x03,
+    PA_3_ALT0 = PA_3|ALT0,
     PA_4  = 0x04,
+    PA_4_ALT0 = PA_4|ALT0,
     PA_5  = 0x05,
     PA_6  = 0x06,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7|ALT0,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -54,17 +63,25 @@ typedef enum {
     PA_13 = 0x0D,
     PA_14 = 0x0E,
     PA_15 = 0x0F,
+    PA_15_ALT0 = PA_15|ALT0,
 
     PB_0  = 0x10,
+    PB_0_ALT0 = PB_0|ALT0,
     PB_1  = 0x11,
+    PB_1_ALT0 = PB_1|ALT0,
     PB_2  = 0x12,
     PB_3  = 0x13,
+    PB_3_ALT0 = PB_3|ALT0,
     PB_4  = 0x14,
+    PB_4_ALT0 = PB_4|ALT0,
     PB_5  = 0x15,
+    PB_5_ALT0 = PB_5|ALT0,
     PB_6  = 0x16,
     PB_7  = 0x17,
     PB_8  = 0x18,
+    PB_8_ALT0 = PB_8|ALT0,
     PB_9  = 0x19,
+    PB_9_ALT0 = PB_9|ALT0,
     PB_10 = 0x1A,
     PB_12 = 0x1C,
     PB_13 = 0x1D,
@@ -85,13 +102,13 @@ typedef enum {
     PC_11 = 0x2B,
     PC_12 = 0x2C,
     PC_13 = 0x2D,
-    PC_14 = 0x2E,
-    PC_15 = 0x2F,
+    PC_14 = 0x2E, // Connected to RCC_OSC32_IN
+    PC_15 = 0x2F, // Connected to RCC_OSC32_OUT
 
     PD_2  = 0x32,
 
-    PH_0  = 0x70,
-    PH_1  = 0x71,
+    PH_0  = 0x70, // Connected to RCC_OSC_IN
+    PH_1  = 0x71, // Connected to RCC_OSC_OUT
 
     // ADC internal channels
     ADC_TEMP = 0xF0,
@@ -122,6 +139,18 @@ typedef enum {
     D14         = PB_9,
     D15         = PB_8,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_2,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_3,
+#endif
+
     // Generic signals namings
     LED1        = PA_5,
     LED2        = PA_5,
@@ -131,10 +160,10 @@ typedef enum {
     USER_BUTTON = PC_13,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
+    SERIAL_TX   = STDIO_UART_TX,
+    SERIAL_RX   = STDIO_UART_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
     SPI_MOSI    = PA_7,

@@ -138,36 +138,47 @@ ssize_t UARTSerial::write(const void* buffer, size_t length)
     size_t data_written = 0;
     const char *buf_ptr = static_cast<const char *>(buffer);
 
+    if (length == 0) {
+        return 0;
+    }
+
     api_lock();
 
-    while (_txbuf.full()) {
-        if (!_blocking) {
-            api_unlock();
-            return -EAGAIN;
-        }
-        api_unlock();
-        wait_ms(1); // XXX todo - proper wait, WFE for non-rtos ?
-        api_lock();
-    }
+    // Unlike read, we should write the whole thing if blocking. POSIX only
+    // allows partial as a side-effect of signal handling; it normally tries to
+    // write everything if blocking. Without signals we can always write all.
+    while (data_written < length) {
 
-    while (data_written < length && !_txbuf.full()) {
-        _txbuf.push(*buf_ptr++);
-        data_written++;
-    }
-
-    core_util_critical_section_enter();
-    if (!_tx_irq_enabled) {
-        UARTSerial::tx_irq();                // only write to hardware in one place
-        if (!_txbuf.empty()) {
-            SerialBase::attach(callback(this, &UARTSerial::tx_irq), TxIrq);
-            _tx_irq_enabled = true;
+        if (_txbuf.full()) {
+            if (!_blocking) {
+                break;
+            }
+            do {
+                api_unlock();
+                wait_ms(1); // XXX todo - proper wait, WFE for non-rtos ?
+                api_lock();
+            } while (_txbuf.full());
         }
+
+        while (data_written < length && !_txbuf.full()) {
+            _txbuf.push(*buf_ptr++);
+            data_written++;
+        }
+
+        core_util_critical_section_enter();
+        if (!_tx_irq_enabled) {
+            UARTSerial::tx_irq();                // only write to hardware in one place
+            if (!_txbuf.empty()) {
+                SerialBase::attach(callback(this, &UARTSerial::tx_irq), TxIrq);
+                _tx_irq_enabled = true;
+            }
+        }
+        core_util_critical_section_exit();
     }
-    core_util_critical_section_exit();
 
     api_unlock();
 
-    return data_written;
+    return data_written != 0 ? (ssize_t) data_written : (ssize_t) -EAGAIN;
 }
 
 ssize_t UARTSerial::read(void* buffer, size_t length)
@@ -175,6 +186,10 @@ ssize_t UARTSerial::read(void* buffer, size_t length)
     size_t data_read = 0;
 
     char *ptr = static_cast<char *>(buffer);
+
+    if (length == 0) {
+        return 0;
+    }
 
     api_lock();
 

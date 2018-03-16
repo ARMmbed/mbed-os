@@ -384,19 +384,18 @@ osRtxContextSave
 
                 VMRS    R2, FPSCR
                 STMDB   R3!, {R2,R12}               ; Push FPSCR, maintain 8-byte alignment
-                IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 16
-                VSTMDB  R3!, {D0-D15}
-                LDRB    R2, [R0, #TCB_SP_FRAME]     ; Record in TCB that VFP/D16 state is stacked
-                ORR     R2, R2, #2
-                STRB    R2, [R0, #TCB_SP_FRAME]
-                ENDIF
+
+                VSTMDB  R3!, {D0-D15}               ; Save D0-D15
                 IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
-                VSTMDB  R3!, {D0-D15}
-                VSTMDB  R3!, {D16-D31}
-                LDRB    R2, [R0, #TCB_SP_FRAME]     ; Record in TCB that NEON/D32 state is stacked
-                ORR     R2, R2, #4
-                STRB    R2, [R0, #TCB_SP_FRAME]
+                VSTMDB  R3!, {D16-D31}              ; Save D16-D31
                 ENDIF
+                LDRB    R2, [R0, #TCB_SP_FRAME]
+                IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
+                ORR     R2, R2, #4                  ; NEON state
+                ELSE
+                ORR     R2, R2, #2                  ; VFP state
+                ENDIF
+                STRB    R2, [R0, #TCB_SP_FRAME]     ; Record VFP/NEON state
 
 osRtxContextSave1
                 STR     R3, [R0, #TCB_SP_OFS]       ; Store user sp to osRtxInfo.thread.run.curr
@@ -414,11 +413,11 @@ osRtxContextRestore
                 BEQ     osRtxContextRestore1        ; No VFP
                 ISB                                 ; Only sync if we enabled VFP, otherwise we will context switch before next VFP instruction anyway
                 IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
-                VLDMIA  R3!, {D16-D31}
+                VLDMIA  R3!, {D16-D31}              ; Restore D16-D31
                 ENDIF
-                VLDMIA  R3!, {D0-D15}
+                VLDMIA  R3!, {D0-D15}               ; Restore D0-D15
                 LDR     R2, [R3]
-                VMSR    FPSCR, R2
+                VMSR    FPSCR, R2                   ; Restore FPSCR
                 ADD     R3, R3, #8
 
 osRtxContextRestore1

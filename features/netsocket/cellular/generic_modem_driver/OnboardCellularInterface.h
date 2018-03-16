@@ -16,7 +16,10 @@
 #ifndef ONBOARD_CELLULAR_INTERFACE_
 #define ONBOARD_CELLULAR_INTERFACE_
 
-#if MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
+#include "EasyCellularConnection.h"
+#ifdef CELLULAR_DEVICE
+typedef mbed::EasyCellularConnection OnboardCellularInterface;
+#elif MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 
 #include "UARTCellularInterface.h"
 
@@ -40,16 +43,16 @@ public:
 protected:
     /** Sets the modem up for powering on
      *
-     *  modem_init() is equivalent to plugging in the device, e.g., attaching power and serial port.
-     *  Uses onboard_modem_api.h where the implementation of onboard_modem_api is provided by the target.
+     *  modem_init() is equivalent to plugging in the device, for example, attaching power and serial port.
+     *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
     virtual void modem_init();
 
     /** Sets the modem in unplugged state
      *
-     *  modem_deinit() will be equivalent to pulling the plug off of the device, i.e., detaching power
+     *  modem_deinit() will be equivalent to pulling the plug off of the device, in other words, detaching power
      *  and serial port. This puts the modem in lowest power state.
-     *  Uses onboard_modem_api.h where the implementation of onboard_modem_api is provided by the target.
+     *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
     virtual void modem_deinit();
 
@@ -57,14 +60,14 @@ protected:
      *
      *  modem_power_up() is equivalent to pressing the soft power button.
      *  The driver may repeat this if the modem is not responsive to AT commands.
-     *  Uses onboard_modem_api.h where the implementation of onboard_modem_api is provided by the target.
+     *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
     virtual void modem_power_up();
 
     /** Powers down the modem
      *
      *  modem_power_down() is equivalent to turning off the modem by button press.
-     *  Uses onboard_modem_api.h where the implementation of onboard_modem_api is provided by the target.
+     *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
     virtual void modem_power_down();
 };

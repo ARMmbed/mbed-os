@@ -19,10 +19,16 @@
 
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface()
-    : _dhcp(true), _ip_address(), _netmask(), _gateway()
+EthernetInterface::EthernetInterface() : 
+    _dhcp(true), 
+    _ip_address(), 
+    _netmask(), 
+    _gateway(),
+    _connection_status_cb(NULL),
+    _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
 }
+
 
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -93,4 +99,33 @@ const char *EthernetInterface::get_gateway()
 NetworkStack *EthernetInterface::get_stack()
 {
     return nsapi_create_stack(&lwip_stack);
+}
+
+void EthernetInterface::attach(
+    Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    _connection_status_cb = status_cb;
+    mbed_lwip_attach(netif_status_cb, this);
+}
+
+nsapi_connection_status_t EthernetInterface::get_connection_status() const
+{
+    return _connect_status;
+}
+
+void EthernetInterface::netif_status_cb(void *ethernet_if_ptr, 
+    nsapi_event_t reason, intptr_t parameter) 
+{
+    EthernetInterface *eth_ptr = static_cast<EthernetInterface*>(ethernet_if_ptr);
+    eth_ptr->_connect_status = (nsapi_connection_status_t)parameter;
+    if (eth_ptr->_connection_status_cb)
+    {
+        eth_ptr->_connection_status_cb(reason, parameter);
+    }   
+}
+
+nsapi_error_t EthernetInterface::set_blocking(bool blocking)
+{
+    mbed_lwip_set_blocking(blocking);
+    return NSAPI_ERROR_OK;
 }

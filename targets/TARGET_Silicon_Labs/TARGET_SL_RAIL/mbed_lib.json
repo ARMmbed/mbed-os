@@ -8,7 +8,7 @@
         "PTI": true,
         "has-2p4": false,
         "has-subgig": false,
-        "pti-mode": "RADIO_PTI_MODE_UART",
+        "pti-mode": "RAIL_PTI_MODE_UART",
         "pti-baudrate" : 1600000,
         "pti-dout-location": 6,
         "pti-dout-port": "gpioPortB",

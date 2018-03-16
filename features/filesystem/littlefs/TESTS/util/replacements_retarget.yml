@@ -1,0 +1,37 @@
+- ['lfs_format\(&lfs, &cfg\)', 'MBED_TEST_FILESYSTEM::format(&bd)']
+- ['lfs_mount\(&lfs, &cfg\)', 'fs.mount(&bd)']
+- ['lfs_unmount\(&lfs\)', 'fs.unmount()']
+- ['lfs_mkdir\(&lfs, (.*)\)', 'mkdir("/fs/" \1, 0777)']
+- ['lfs_remove\(&lfs, (.*)\)', 'remove("/fs/" \1)']
+- ['lfs_rename\(&lfs, (.*), ?(.*)\)', 'rename("/fs/" \1, "/fs/" \2)']
+
+- ['lfs_dir_open\(&lfs, &dir\[(.*)\], ?(.*)\)', '!((dd[\1] = opendir("/fs/" \2)) != NULL)']
+- ['lfs_dir_close\(&lfs, &dir\[(.*)\]\)', 'closedir(dd[\1])']
+- ['lfs_dir_read\(&lfs, &dir\[(.*)\], &info\)', '((ed = readdir(dd[\1])) != NULL)']
+- ['lfs_dir_seek\(&lfs, &dir\[(.*)\], ?(.*)\).*;', 'seekdir(dd[\1], \2);'] # no dir errors
+- ['lfs_dir_rewind\(&lfs, &dir\[(.*)\]\).*;', 'rewinddir(dd[\1]);'] # no dir errors
+- ['lfs_dir_tell\(&lfs, &dir\[(.*)\]\)', 'telldir(dd[\1])']
+
+- ['lfs_file_open\(&lfs, &file\[(.*)\], ?(.*)\)', '!((fd[\1] = fopen("/fs/" \2)) != NULL)']
+- ['lfs_file_close\(&lfs, &file\[(.*)\]\)', 'fclose(fd[\1])']
+- ['lfs_file_sync\(&lfs, &file\[(.*)\]\)', 'fflush(fd[\1])']
+- ['lfs_file_write\(&lfs, &file\[(.*)\], ?(.*), (.*)\)', 'fwrite(\2, 1, \3, fd[\1])']
+- ['lfs_file_read\(&lfs, &file\[(.*)\], ?(.*), (.*)\)', 'fread(\2, 1, \3, fd[\1])']
+- ['lfs_file_tell\(&lfs, &file\[(.*)\]\)', 'ftell(fd[\1])']
+- ['lfs_file_rewind\(&lfs, &file\[(.*)\]\).*;', 'rewind(fd[\1]);'] # no errors
+
+- ['LFS_TYPE_([A-Z]+)', 'DT_\1']
+- ['LFS_SEEK_([A-Z]+)', 'SEEK_\1']
+- ['LFS_ERR_([A-Z]+)', '-E\1']
+- ['lfs_(s?)size_t', '\1size_t']
+- ['lfs_soff_t', 'off_t']
+- ['info\.name', 'ed->d_name']
+- ['info\.type', 'ed->d_type']
+- ['^.*info\.size.*$', ''] # dirent sizes not supported
+
+- ['LFS_O_WRONLY \| LFS_O_CREAT \| LFS_O_APPEND', '"ab"']
+- ['LFS_O_WRONLY \| LFS_O_TRUNC', '"wb"']
+- ['LFS_O_CREAT \| LFS_O_WRONLY', '"wb"']
+- ['LFS_O_WRONLY \| LFS_O_CREAT', '"wb"']
+- ['LFS_O_RDONLY', '"rb"']
+- ['LFS_O_RDWR', '"r+b"']

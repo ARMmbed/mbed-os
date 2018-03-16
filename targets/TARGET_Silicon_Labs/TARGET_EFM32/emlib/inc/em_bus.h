@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_bus.h
  * @brief RAM and peripheral bit-field set and clear API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -76,7 +76,7 @@ __STATIC_INLINE void BUS_RamBitWrite(volatile uint32_t *addr,
                                      unsigned int bit,
                                      unsigned int val)
 {
-#if defined( BITBAND_RAM_BASE )
+#if defined(BITBAND_RAM_BASE)
   uint32_t aliasAddr =
     BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
 
@@ -88,7 +88,6 @@ __STATIC_INLINE void BUS_RamBitWrite(volatile uint32_t *addr,
   *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -114,7 +113,7 @@ __STATIC_INLINE void BUS_RamBitWrite(volatile uint32_t *addr,
 __STATIC_INLINE unsigned int BUS_RamBitRead(volatile const uint32_t *addr,
                                             unsigned int bit)
 {
-#if defined( BITBAND_RAM_BASE )
+#if defined(BITBAND_RAM_BASE)
   uint32_t aliasAddr =
     BITBAND_RAM_BASE + (((uint32_t)addr - SRAM_BASE) * 32) + (bit * 4);
 
@@ -123,7 +122,6 @@ __STATIC_INLINE unsigned int BUS_RamBitRead(volatile const uint32_t *addr,
   return ((*addr) >> bit) & 1;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -149,7 +147,7 @@ __STATIC_INLINE void BUS_RegBitWrite(volatile uint32_t *addr,
                                      unsigned int bit,
                                      unsigned int val)
 {
-#if defined( BITBAND_PER_BASE )
+#if defined(BITBAND_PER_BASE)
   uint32_t aliasAddr =
     BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
 
@@ -161,7 +159,6 @@ __STATIC_INLINE void BUS_RegBitWrite(volatile uint32_t *addr,
   *addr = (tmp & ~(1 << bit)) | ((val & 1) << bit);
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -187,7 +184,7 @@ __STATIC_INLINE void BUS_RegBitWrite(volatile uint32_t *addr,
 __STATIC_INLINE unsigned int BUS_RegBitRead(volatile const uint32_t *addr,
                                             unsigned int bit)
 {
-#if defined( BITBAND_PER_BASE )
+#if defined(BITBAND_PER_BASE)
   uint32_t aliasAddr =
     BITBAND_PER_BASE + (((uint32_t)addr - PER_MEM_BASE) * 32) + (bit * 4);
 
@@ -196,7 +193,6 @@ __STATIC_INLINE unsigned int BUS_RegBitRead(volatile const uint32_t *addr,
   return ((*addr) >> bit) & 1;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -221,14 +217,13 @@ __STATIC_INLINE unsigned int BUS_RegBitRead(volatile const uint32_t *addr,
 __STATIC_INLINE void BUS_RegMaskedSet(volatile uint32_t *addr,
                                       uint32_t mask)
 {
-#if defined( PER_BITSET_MEM_BASE )
+#if defined(PER_BITSET_MEM_BASE)
   uint32_t aliasAddr = PER_BITSET_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
   *(volatile uint32_t *)aliasAddr = mask;
 #else
   *addr |= mask;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -253,14 +248,13 @@ __STATIC_INLINE void BUS_RegMaskedSet(volatile uint32_t *addr,
 __STATIC_INLINE void BUS_RegMaskedClear(volatile uint32_t *addr,
                                         uint32_t mask)
 {
-#if defined( PER_BITCLR_MEM_BASE )
+#if defined(PER_BITCLR_MEM_BASE)
   uint32_t aliasAddr = PER_BITCLR_MEM_BASE + ((uint32_t)addr - PER_MEM_BASE);
   *(volatile uint32_t *)aliasAddr = mask;
 #else
   *addr &= ~mask;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -289,14 +283,13 @@ __STATIC_INLINE void BUS_RegMaskedWrite(volatile uint32_t *addr,
                                         uint32_t mask,
                                         uint32_t val)
 {
-#if defined( PER_BITCLR_MEM_BASE )
+#if defined(PER_BITCLR_MEM_BASE)
   BUS_RegMaskedClear(addr, mask);
   BUS_RegMaskedSet(addr, val);
 #else
   *addr = (*addr & ~mask) | val;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -320,7 +313,6 @@ __STATIC_INLINE uint32_t BUS_RegMaskedRead(volatile const uint32_t *addr,
 {
   return *addr & mask;
 }
-
 
 /** @} (end addtogroup BUS) */
 /** @} (end addtogroup emlib) */

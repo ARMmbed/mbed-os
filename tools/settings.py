@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+from __future__ import print_function
 from os import getenv
 from os.path import join, abspath, dirname, exists
 import logging
@@ -54,6 +54,9 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+# Print compiler warnings and errors as link format
+PRINT_COMPILER_OUTPUT_AS_LINK = False
+
 CLI_COLOR_MAP = {
     "warning": "yellow",
     "error"  : "red"
@@ -74,14 +77,15 @@ except ImportError:
 # User Settings (env vars)
 ##############################################################################
 _ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH',
-              'ARMC6_PATH']
+              'ARMC6_PATH', 'PRINT_COMPILER_OUTPUT_AS_LINK']
 
 for _n in _ENV_PATHS:
     if getenv('MBED_'+_n):
         if exists(getenv('MBED_'+_n)):
             globals()[_n] = getenv('MBED_'+_n)
         else:
-            print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
+            print("WARNING: MBED_%s set as environment variable but doesn't"
+                  " exist" % _n)
 
 
 ##############################################################################

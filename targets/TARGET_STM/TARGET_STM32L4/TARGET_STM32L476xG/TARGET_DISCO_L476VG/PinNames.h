@@ -131,6 +131,18 @@ typedef enum {
     ADC_VREF = 0xF1,
     ADC_VBAT = 0xF2,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PD_5,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PD_6,
+#endif
+
     // Generic signals namings
     LED1 = PE_8, // LD5 Green
     LED2 = PB_2, // LD4 Red
@@ -149,10 +161,10 @@ typedef enum {
     BUTTON4 = JOYSTICK_UP, 
     BUTTON5 = JOYSTICK_DOWN,
 
-    SERIAL_TX = PD_5,
-    SERIAL_RX = PD_6,
-    USBTX = PD_5,
-    USBRX = PD_6,
+    SERIAL_TX = STDIO_UART_TX,
+    SERIAL_RX = STDIO_UART_RX,
+    USBTX = STDIO_UART_TX,
+    USBRX = STDIO_UART_RX,
 
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,

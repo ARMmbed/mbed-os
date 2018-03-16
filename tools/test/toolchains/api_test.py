@@ -15,13 +15,6 @@ from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
     Resources, TOOLCHAIN_PATHS, mbedToolchain
 from tools.targets import TARGET_MAP
 
-def test_instantiation():
-    """Test that all exported toolchain may be instantiated"""
-    for name, tc_class in  TOOLCHAIN_CLASSES.items():
-        cls = tc_class(TARGET_MAP["K64F"])
-        assert name == cls.name or\
-            name == LEGACY_TOOLCHAIN_NAMES[cls.name]
-
 ALPHABET = [char for char in printable if char not in [u'.', u'/']]
 
 @given(fixed_dictionaries({

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
@@ -98,8 +96,8 @@
   */
            
 /** @brief  Reports the UART clock source.
-  * @param  __HANDLE__: specifies the UART Handle
-  * @param  __CLOCKSOURCE__: output variable   
+  * @param  __HANDLE__ specifies the UART Handle
+  * @param  __CLOCKSOURCE__ output variable   
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
 #define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
@@ -272,7 +270,7 @@
   *         by the reception API().
   *         This masking operation is not carried out in the case of
   *         DMA transfers.        
-  * @param  __HANDLE__: specifies the UART Handle
+  * @param  __HANDLE__ specifies the UART Handle
   * @retval mask to apply to UART RDR register value.
   */
 #define UART_MASK_COMPUTATION(__HANDLE__)                       \

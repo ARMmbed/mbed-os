@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -153,7 +151,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask);
 /**
   * @brief  Initializes the TSC peripheral according to the specified parameters 
   *         in the TSC_InitTypeDef structure.           
-  * @param  htsc: TSC handle
+  * @param  htsc TSC handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
@@ -241,7 +239,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Deinitializes the TSC peripheral registers to their default reset values.
-  * @param  htsc: TSC handle  
+  * @param  htsc TSC handle  
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
@@ -273,7 +271,7 @@ HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Initializes the TSC MSP.
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.  
   * @retval None
   */
@@ -289,7 +287,7 @@ __weak void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  DeInitializes the TSC MSP.
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.  
   * @retval None
   */
@@ -327,7 +325,7 @@ __weak void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Starts the acquisition.
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL status
   */
@@ -370,7 +368,7 @@ HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Enables the interrupt and starts the acquisition
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL status.
   */
@@ -424,7 +422,7 @@ HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Stops the acquisition previously launched in polling mode
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL status
   */
@@ -457,7 +455,7 @@ HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Stops the acquisition previously launched in interrupt mode
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL status
   */
@@ -493,9 +491,9 @@ HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Gets the acquisition status for a group
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
-  * @param  gx_index: Index of the group
+  * @param  gx_index Index of the group
   * @retval Group status
   */
 TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t gx_index)
@@ -510,9 +508,9 @@ TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t 
 
 /**
   * @brief  Gets the acquisition measure for a group
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
-  * @param  gx_index: Index of the group
+  * @param  gx_index Index of the group
   * @retval Acquisition measure
   */
 uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index)
@@ -545,9 +543,9 @@ uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index)
 
 /**
   * @brief  Configures TSC IOs
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
-  * @param  config: pointer to the configuration structure.
+  * @param  config pointer to the configuration structure.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef* htsc, TSC_IOConfigTypeDef* config)
@@ -582,9 +580,9 @@ HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef* htsc, TSC_IOConfigTypeDef*
 
 /**
   * @brief  Discharge TSC IOs
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
-  * @param  choice: enable or disable
+  * @param  choice enable or disable
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice)
@@ -634,7 +632,7 @@ HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice)
 
 /**
   * @brief  Return the TSC state
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL state
   */
@@ -670,7 +668,7 @@ HAL_TSC_StateTypeDef HAL_TSC_GetState(TSC_HandleTypeDef* htsc)
   * @brief  Start acquisition and wait until completion
   * @note   There is no need of a timeout parameter as the max count error is already
   *         managed by the TSC peripheral.
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval HAL state
   */
@@ -696,7 +694,7 @@ HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Handles TSC interrupt request  
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval None
   */
@@ -742,7 +740,7 @@ void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc)
  
 /**
   * @brief  Acquisition completed callback in non blocking mode 
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval None
   */
@@ -758,7 +756,7 @@ __weak void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc)
 
 /**
   * @brief  Error callback in non blocking mode
-  * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
+  * @param  htsc pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
   * @retval None
   */
@@ -786,7 +784,7 @@ __weak void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc)
       
 /**
   * @brief  Utility function used to set the acquired groups mask
-  * @param  iomask: Channels IOs mask
+  * @param  iomask Channels IOs mask
   * @retval Acquired groups mask
   */
 static uint32_t TSC_extract_groups(uint32_t iomask)

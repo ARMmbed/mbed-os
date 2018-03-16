@@ -1,0 +1,100 @@
+{
+  "name_definition": {
+    "description": "Name of the library",
+    "type": "string",
+    "items": {
+      "type": "string"
+    }
+  },
+  "macro_definition": {
+    "description": "A list of extra macros that will be defined when compiling a project that includes this library.",
+    "type": "array",
+    "items": {
+      "type": "string",
+      "pattern": "(^[\\w()_]+$|^[\\w()_]+=.+$)"
+    }
+  },
+  "config_definition": {
+    "description": "List of configuration parameters",
+    "type": "object",
+    "patternProperties": {
+      "^[^ ]+$": {
+        "$ref": "#/config_parameter_base"
+      }
+    },
+    "additionalProperties": false
+  },
+  "target_overrides_definition": {
+    "description": "List of overrides for specific targets",
+    "type": "object",
+    "patternProperties": {
+      "\\*": {
+        "$ref": "#/target_override_entry"
+      },
+      "^\\S+$": {
+        "$ref": "#/target_override_entry"
+      }
+    },
+    "additionalProperties": false
+  },
+  "config_parameter_long": {
+    "type": "object",
+    "properties": {
+      "help": {
+        "description": "An optional help message that describes the purpose of the parameter",
+        "type": "string"
+      },
+      "value": {
+        "description": "An optional field that defines the value of the parameter",
+        "type": [
+          "integer",
+          "string",
+          "boolean",
+          "null"
+        ]
+      },
+      "required": {
+        "description": "An optional field that specifies whether the parameter must be given a value before compiling the code. (False by default)",
+        "type": "boolean"
+      },
+      "macro_name": {
+        "description": "An optional field for the macro defined at compile time for this configuration parameter. The system will automatically figure out the macro name from the configuration parameter, but this field will override it",
+        "type": "string"
+      }
+    }
+  },
+  "config_parameter_short": {
+    "type": [
+      "array",
+      "string",
+      "integer",
+      "boolean",
+      "null"
+    ]
+  },
+  "config_parameter_base": {
+    "oneOf": [
+      {
+        "$ref": "#/config_parameter_long"
+      },
+      {
+        "$ref": "#/config_parameter_short"
+      }
+    ]
+  },
+  "target_override_entry": {
+    "type": "object",
+    "patternProperties": {
+      "^\\S+$": {
+        "type": [
+          "array",
+          "string",
+          "integer",
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    "additionalProperties": false
+  }
+}

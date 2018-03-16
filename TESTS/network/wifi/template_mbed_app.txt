@@ -12,6 +12,10 @@
             "help": "WiFi Password",
             "value": "\"PASSWORD\""
         },
+        "wifi-secure-protocol": {
+            "help": "WiFi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2",
+            "value": "\"WPA/WPA2\""
+        },
         "wifi-ch-secure": {
             "help": "Channel number of secure SSID",
             "value": 1
@@ -21,7 +25,7 @@
             "value": 2
         },
         "wifi-driver": {
-            "help": "Wifi driver to use, valid values are INTERNAL, WIFI_ESP8266 and X_NUCLEO_IDW01M1",
+            "help": "Wifi driver to use, valid values are INTERNAL, WIFI_ESP8266 and X_NUCLEO_IDW0XX1",
             "value": "INTERNAL"
         },
         "wifi-tx": {

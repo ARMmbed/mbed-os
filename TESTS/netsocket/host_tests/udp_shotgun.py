@@ -34,7 +34,7 @@ class UDPEchoClientHandler(BaseRequestHandler):
         data, sock = self.request
         pattern = [ord(d) << 4 for d in data]
 
-        # Each byte in request indicates size of packet to recieve
+        # Each byte in request indicates size of packet to receive
         # Each packet size is shifted over by 4 to fit in a byte, which
         # avoids any issues with endianess or decoding
         for packet in pattern:

@@ -1,17 +1,16 @@
 /*
- * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
- *
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -21,11 +20,18 @@
 #include "ns_types.h"
 
 #ifdef NS_USE_EXTERNAL_MBED_TLS
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+#if defined(MBEDTLS_SSL_TLS_C)
 #include "mbedtls/ssl.h"
-#ifdef MBEDTLS_SSL_TLS_C
 #define COAP_SECURITY_AVAILABLE
 #endif
-#endif
+
+#endif /* NS_USE_EXTERNAL_MBED_TLS */
 
 #define COOKIE_SIMPLE_LEN 8
 typedef struct simple_cookie {
@@ -52,18 +58,21 @@ typedef enum {
 }SecureSocketMode;
 
 typedef enum {
-    Certificate,
+    CERTIFICATE,
     PSK,
     ECJPAKE
 }SecureConnectionMode;
 
 typedef struct {
-    unsigned char *_server_cert;
-    uint8_t _server_cert_len;
-    unsigned char *_pub_cert_or_identifier;
-    uint8_t _pub_len;
-    unsigned char *_priv;
-    uint8_t _priv_len;
+    SecureConnectionMode mode;
+    /* Certificate pointers, not owned */
+    const unsigned char *_cert;
+    uint16_t _cert_len;
+    const unsigned char *_priv_key;
+    uint8_t _priv_key_len;
+    /* Secure key pointer, owned */
+    unsigned char *_key;
+    uint8_t _key_len;
 } coap_security_keys_t;
 
 typedef struct coap_security_s coap_security_t;
@@ -78,8 +87,6 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, void *h
                                           timer_status_cb *timer_status_cb);
 
 void coap_security_destroy(coap_security_t *sec);
-
-int coap_security_handler_connect(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys);
 
 int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys, uint32_t timeout_min, uint32_t timeout_max);
 
@@ -119,7 +126,6 @@ NS_DUMMY_DEFINITIONS_OK
 #define coap_security_create(socket_id, timer_id, handle, \
                              mode, send_cb, receive_cb, start_timer_cb, timer_status_cb) ((coap_security_t *) 0)
 #define coap_security_destroy(sec) ((void) 0)
-#define coap_security_handler_connect(sec, is_server, sock_mode, keys) (-1)
 #define coap_security_handler_connect_non_blocking(sec, is_server, sock_mode, keys, timeout_min, timeout_max) (-1)
 #define coap_security_handler_continue_connecting(sec) (-1)
 #define coap_security_handler_send_message(sec, message, len) (-1)

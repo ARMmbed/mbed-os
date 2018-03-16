@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file      startup_stm32f413xx.s
   * @author    MCD Application Team
-  * @version   V2.6.1
-  * @date      14-February-2017
   * @brief     STM32F413xx Devices vector table for GCC based toolchains. 
   *            This module performs:
   *                - Set the initial SP

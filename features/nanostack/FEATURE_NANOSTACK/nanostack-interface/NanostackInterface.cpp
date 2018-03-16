@@ -1,5 +1,6 @@
-/* Nanostack implementation of NetworkSocketAPI
- * Copyright (c) 2016 ARM Limited
+/*
+ * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* Nanostack implementation of NetworkSocketAPI */
 
 #include "mbed.h"
 #include "rtos.h"
@@ -123,6 +126,20 @@ static void convert_ns_addr_to_mbed(SocketAddress *s_addr, const ns_address_t *n
 {
     s_addr->set_port(ns_addr->identifier);
     s_addr->set_ip_bytes(ns_addr->address, NSAPI_IPv6);
+}
+
+static int8_t find_interface_by_address(const uint8_t target_addr[16])
+{
+    for (int if_id = 1; if_id <= 127; if_id++) {
+        int i = 0;
+        uint8_t if_addr[16];
+        while (arm_net_address_list_get_next(if_id, &i, if_addr) == 0) {
+            if (memcmp(target_addr, if_addr, 16) == 0) {
+                return if_id;
+            }
+        }
+    }
+    return -1;
 }
 
 void* NanostackSocket::operator new(std::size_t sz) {
@@ -690,17 +707,50 @@ nsapi_error_t NanostackInterface::setsockopt(void *handle, int level, int optnam
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    nsapi_error_t ret;
-
     NanostackLockGuard lock;
 
-    if (::socket_setsockopt(socket->socket_id, level, optname, optval, optlen) == 0) {
-        ret = NSAPI_ERROR_OK;
-    } else {
-        ret = NSAPI_ERROR_PARAMETER;
+    ns_ipv6_mreq_t ns_mreq;
+
+    if (level == NSAPI_SOCKET) {
+        switch (optname) {
+            case NSAPI_ADD_MEMBERSHIP:
+            case NSAPI_DROP_MEMBERSHIP: {
+                if (optlen != sizeof(nsapi_ip_mreq_t)) {
+                    return NSAPI_ERROR_PARAMETER;
+                }
+                const nsapi_ip_mreq_t *imr = static_cast<const nsapi_ip_mreq_t *>(optval);
+
+                /* Check address types are IPv6, or unspecified for interface */
+                if (imr->imr_multiaddr.version != NSAPI_IPv6 ||
+                    (imr->imr_interface.version != NSAPI_UNSPEC && imr->imr_interface.version != NSAPI_IPv6)) {
+                    return NSAPI_ERROR_PARAMETER;
+                }
+
+                /* Convert all parameters to Nanostack native, and proceed with setsockopt */
+                memcpy(ns_mreq.ipv6mr_multiaddr, imr->imr_multiaddr.bytes, 16);
+                if (imr->imr_interface.version == NSAPI_UNSPEC || memcmp(imr->imr_interface.bytes, ns_in6addr_any, 16) == 0) {
+                    ns_mreq.ipv6mr_interface = 0;
+                } else {
+                    // If this fails, Nanostack will itself fault the invalid -1 interface ID
+                    ns_mreq.ipv6mr_interface = find_interface_by_address(imr->imr_interface.bytes);
+                }
+
+                level = SOCKET_IPPROTO_IPV6;
+                optname = optname == NSAPI_ADD_MEMBERSHIP ? SOCKET_IPV6_JOIN_GROUP : SOCKET_IPV6_LEAVE_GROUP;
+                optval = &ns_mreq;
+                optlen = sizeof ns_mreq;
+                break;
+            }
+            default:
+                return NSAPI_ERROR_PARAMETER;
+        }
     }
 
-    return ret;
+    if (::socket_setsockopt(socket->socket_id, level, optname, optval, optlen) == 0) {
+        return NSAPI_ERROR_OK;
+    } else {
+        return NSAPI_ERROR_PARAMETER;
+    }
 }
 
 nsapi_error_t NanostackInterface::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)

@@ -39,7 +39,7 @@ class DiscoveredCharacteristic;
  * This class is also an interface that may be used in vendor port to model
  * the service discovery process. This interface is not used in user code.
  *
- * @important Implementing this interface is not a requirement for the
+ * @attention Implementing this interface is not a requirement for the
  * implementation of the service discover process.
  */
 class ServiceDiscovery {
@@ -49,7 +49,7 @@ public:
      *
      * The callback accepts a pointer to a DiscoveredService as parameter.
      *
-     * @important The argument passed to the callback may not persist after the
+     * @attention The argument passed to the callback may not persist after the
      * callback invocation; therefore, the callbacks must make a shallow copy
      * of the DiscoveredService passed as parameter to access its value beyond
      * the callback scope.
@@ -63,7 +63,7 @@ public:
      * The callback accepts a pointer to a DiscoveredCharacteristic as
      * parameter.
      *
-     * @important The argument passed to the callback may not persist after the
+     * @attention The argument passed to the callback may not persist after the
      * callback invocation; therefore, the callbacks must make a shallow copy
      * of the DiscoveredCharacteristic passed as parameter to access its value
      * beyond the callback scope.

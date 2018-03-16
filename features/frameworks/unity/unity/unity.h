@@ -20,6 +20,8 @@ extern "C"
 #define UNITY_SUPPORT_64
 // support double precision floating point
 #define UNITY_INCLUDE_DOUBLE
+// support float values in error print
+#define UNITY_FLOAT_VERBOSE
 
 #include "unity_internals.h"
 

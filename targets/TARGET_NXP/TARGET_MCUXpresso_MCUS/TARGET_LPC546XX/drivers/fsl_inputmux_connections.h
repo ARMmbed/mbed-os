@@ -1,9 +1,13 @@
 /*
- * Copyright (c) 2013-2016, NXP Semiconductors.
+ * The Clear BSD License
+ * Copyright (c) 2016, Freescale Semiconductor, Inc.
+ * Copyright (c) 2017, NXP
  * All rights reserved.
  *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +20,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -90,8 +95,8 @@ typedef enum _inputmux_connection_t
     kINPUTMUX_WdtOscToFreqmeas = 3U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_32KhzOscToFreqmeas = 4U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_MainClkToFreqmeas = 5U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_FreqmeGpioClk_a = 5U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_FreqmeGpioClk_b = 6U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_FreqmeGpioClk_a = 6U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_FreqmeGpioClk_b = 7U + (FREQMEAS_PMUX_ID << PMUX_SHIFT),
 
     /*!< Pin Interrupt. */
     kINPUTMUX_GpioPort0Pin0ToPintsel = 0U + (PINTSEL_PMUX_ID << PMUX_SHIFT),
@@ -163,18 +168,18 @@ typedef enum _inputmux_connection_t
     kINPUTMUX_Adc0SeqbIrqToDma = 1U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Sct0DmaReq0ToDma = 2U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Sct0DmaReq1ToDma = 3U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer0M0ToDma = 4U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer0M1ToDma = 5U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer1M0ToDma = 6U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer2M0ToDma = 7U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer2M1ToDma = 8U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer3M0ToDma = 9U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer4M0ToDma = 10U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_Ctimer4M1ToDma = 11U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_PinInt0ToDma = 12U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_PinInt1ToDma = 13U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_PinInt2ToDma = 14U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
-    kINPUTMUX_PinInt3ToDma = 15U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_PinInt0ToDma = 4U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_PinInt1ToDma = 5U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_PinInt2ToDma = 6U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_PinInt3ToDma = 7U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer0M0ToDma = 8U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer0M1ToDma = 9U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer1M0ToDma = 10U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer2M0ToDma = 11U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer2M1ToDma = 12U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer3M0ToDma = 13U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer4M0ToDma = 14U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
+    kINPUTMUX_Ctimer4M1ToDma = 15U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Otrig0ToDma = 16U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Otrig1ToDma = 17U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),
     kINPUTMUX_Otrig2ToDma = 18U + (DMA_TRIG0_PMUX_ID << PMUX_SHIFT),

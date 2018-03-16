@@ -105,7 +105,7 @@ bool USBHID::USBCallback_request() {
                             && (reportDescLength() != 0))
                         {
                             transfer->remaining = reportDescLength();
-                            transfer->ptr = reportDesc();
+                            transfer->ptr = (uint8_t*)reportDesc();
                             transfer->direction = DEVICE_TO_HOST;
                             success = true;
                         }
@@ -177,8 +177,8 @@ bool USBHID::USBCallback_setConfiguration(uint8_t configuration) {
 }
 
 
-uint8_t * USBHID::stringIinterfaceDesc() {
-    static uint8_t stringIinterfaceDescriptor[] = {
+const uint8_t * USBHID::stringIinterfaceDesc() {
+    static const uint8_t stringIinterfaceDescriptor[] = {
         0x08,               //bLength
         STRING_DESCRIPTOR,  //bDescriptorType 0x03
         'H',0,'I',0,'D',0,  //bString iInterface - HID
@@ -186,8 +186,8 @@ uint8_t * USBHID::stringIinterfaceDesc() {
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBHID::stringIproductDesc() {
-    static uint8_t stringIproductDescriptor[] = {
+const uint8_t * USBHID::stringIproductDesc() {
+    static const uint8_t stringIproductDescriptor[] = {
         0x16,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
         'H',0,'I',0,'D',0,' ',0,'D',0,'E',0,'V',0,'I',0,'C',0,'E',0 //bString iProduct - HID device
@@ -197,8 +197,8 @@ uint8_t * USBHID::stringIproductDesc() {
 
 
 
-uint8_t * USBHID::reportDesc() {
-    static uint8_t reportDescriptor[] = {
+const uint8_t * USBHID::reportDesc() {
+    uint8_t reportDescriptorTemp[] = {
         USAGE_PAGE(2), LSB(0xFFAB), MSB(0xFFAB),
         USAGE(2), LSB(0x0200), MSB(0x0200),
         COLLECTION(1), 0x01, // Collection (Application)
@@ -218,6 +218,8 @@ uint8_t * USBHID::reportDesc() {
         END_COLLECTION(0),
     };
     reportLength = sizeof(reportDescriptor);
+    MBED_ASSERT(sizeof(reportDescriptorTemp) == sizeof(reportDescriptor));
+    memcpy(reportDescriptor, reportDescriptorTemp, sizeof(reportDescriptor));
     return reportDescriptor;
 }
 
@@ -227,8 +229,8 @@ uint8_t * USBHID::reportDesc() {
                                + (1 * HID_DESCRIPTOR_LENGTH) \
                                + (2 * ENDPOINT_DESCRIPTOR_LENGTH))
 
-uint8_t * USBHID::configurationDesc() {
-    static uint8_t configurationDescriptor[] = {
+const uint8_t * USBHID::configurationDesc() {
+    uint8_t configurationDescriptorTemp[] = {
         CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
         CONFIGURATION_DESCRIPTOR,           // bDescriptorType
         LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
@@ -275,5 +277,7 @@ uint8_t * USBHID::configurationDesc() {
         MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
         1,                                  // bInterval (milliseconds)
     };
+    MBED_ASSERT(sizeof(configurationDescriptorTemp) == sizeof(configurationDescriptor));
+    memcpy(configurationDescriptor, configurationDescriptorTemp, sizeof(configurationDescriptor));
     return configurationDescriptor;
 }

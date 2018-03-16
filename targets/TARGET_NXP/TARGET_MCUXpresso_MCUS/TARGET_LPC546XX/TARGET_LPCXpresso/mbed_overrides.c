@@ -17,6 +17,10 @@
 #include "clock_config.h"
 #include "fsl_emc.h"
 #include "fsl_power.h"
+#include "fsl_flashiap.h"
+
+#define CRC16
+#include "crc.h"
 
 /*******************************************************************************
  * Definitions
@@ -37,10 +41,27 @@
 #define SDRAM_MODEREG_VALUE (0x23u)
 #define SDRAM_DEV_MEMORYMAP (0x09u) /* 128Mbits (8M*16, 4banks, 12 rows, 9 columns)*/
 
+uint32_t FLASHIAP_ReadUid(uint32_t *addr)
+{
+    uint32_t command[5], result[5];
+
+    command[0] = kIapCmd_FLASHIAP_ReadUid;
+    iap_entry(command, result);
+
+    memcpy(addr, &result[1], (sizeof(uint32_t) * 4));
+
+    return result[0];
+}
+
 // called before main
 void mbed_sdk_init()
 {
-    BOARD_BootClockFROHF48M();
+    if (SYSCON->DEVICE_ID0 == 0xFFF54628) {
+        /* LPC54628 runs at a higher core speed */
+        BOARD_BootClockPLL220M();
+    } else {
+        BOARD_BootClockFROHF48M();
+    }
 }
 
 // Change the NMI pin to an input. This allows NMI pin to
@@ -59,6 +80,38 @@ void rtc_setup_oscillator(void)
     SYSCON->RTCOSCCTRL |= SYSCON_RTCOSCCTRL_EN_MASK;
 }
 
+// Provide ethernet devices with a semi-unique MAC address from the UUID
+void mbed_mac_address(char *mac)
+{
+    uint16_t MAC[3];                        // 3 16 bits words for the MAC
+    uint32_t UID[4];
+
+    // get UID via ISP commands
+    FLASHIAP_ReadUid(UID);
+
+    // generate three CRC16's using different slices of the UUID
+    MAC[0] = crcSlow((const uint8_t *)UID, 8);  // most significant half-word
+    MAC[1] = crcSlow((const uint8_t *)UID, 12);
+    MAC[2] = crcSlow((const uint8_t *)UID, 16); // least significant half word
+
+    // The network stack expects an array of 6 bytes
+    // so we copy, and shift and copy from the half-word array to the byte array
+    mac[0] = MAC[0] >> 8;
+    mac[1] = MAC[0];
+    mac[2] = MAC[1] >> 8;
+    mac[3] = MAC[1];
+    mac[4] = MAC[2] >> 8;
+    mac[5] = MAC[2];
+
+    // We want to force bits [1:0] of the most significant byte [0]
+    // to be "10"
+    // http://en.wikipedia.org/wiki/MAC_address
+
+    mac[0] |= 0x02; // force bit 1 to a "1" = "Locally Administered"
+    mac[0] &= 0xFE; // force bit 0 to a "0" = Unicast
+
+}
+
 void ADC_ClockPower_Configuration(void)
 {
     /* SYSCON power. */
@@ -68,8 +121,6 @@ void ADC_ClockPower_Configuration(void)
     POWER_DisablePD(kPDRUNCFG_PD_VREFP);   /* Power on the reference voltage source. */
     POWER_DisablePD(kPDRUNCFG_PD_TS);      /* Power on the temperature sensor. */
 
-    /* Enable the clock. */
-    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
 
     /* CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK); */
     /* Sync clock source is not used. Using sync clock source and would be divided by 2.

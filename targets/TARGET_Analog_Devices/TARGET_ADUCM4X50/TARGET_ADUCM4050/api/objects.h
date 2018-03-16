@@ -79,7 +79,11 @@ struct i2c_s {
     ADI_I2C_HANDLE  *pI2C_Handle;
 #if defined(BUILD_I2C_MI_DYNAMIC)
     ADI_I2C_HANDLE  I2C_Handle;
-    uint8_t         I2C_Mem[ADI_I2C_MEMORY_SIZE];
+/*******************************************************************************
+   ADI_I2C_DEV_DATA_TYPE Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
+    uint32_t        I2C_Mem[(ADI_I2C_MEMORY_SIZE + 3)/4];
 #endif
 };
 
@@ -90,7 +94,11 @@ struct spi_s {
     ADI_SPI_HANDLE  *pSPI_Handle;
 #if defined(BUILD_SPI_MI_DYNAMIC)
     ADI_SPI_HANDLE  SPI_Handle;
-    uint8_t         SPI_Mem[ADI_SPI_MEMORY_SIZE];
+/*******************************************************************************
+   ADI_SPI_DEV_DATA_TYPE Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
+    uint32_t        SPI_Mem[(ADI_SPI_MEMORY_SIZE + 3)/4];
 #endif
 };
 

@@ -26,11 +26,11 @@
 #if DEVICE_PWMOUT
 
 #include "mbed_assert.h"
+#include "mbed_power_mgmt.h"
 #include "pwmout_api.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "device_peripherals.h"
-#include "sleepmodes.h"
 
 #include "em_cmu.h"
 #include "em_gpio.h"
@@ -180,7 +180,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         return;
     } else {
         pwmout_set_channel_route(pwmout_get_channel_route(obj->channel));
-        blockSleepMode(EM1);
+        sleep_manager_lock_deep_sleep();
         pwmout_enable(obj, true);
         pwmout_enable_pins(obj, true);
     }
@@ -214,7 +214,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     if(pwmout_all_inactive()) {
         PWM_TIMER->ROUTE |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT;
     } else {
-        MBED_ASSERT(PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK == pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
+        MBED_ASSERT((PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK) == pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
     }
 #endif
 
@@ -226,18 +226,18 @@ void pwmout_free(pwmout_t *obj)
 {
     if(pwmout_disable_channel_route(pwmout_get_channel_route(obj->channel))) {
         //Channel was previously enabled, so do housekeeping
-        unblockSleepMode(EM1);
+        sleep_manager_unlock_deep_sleep();
     } else {
         //This channel was disabled already
     }
-    
+
     pwmout_enable_pins(obj, false);
-    
+
     if(pwmout_all_inactive()) {
         //Stop timer
         PWM_TIMER->CMD = TIMER_CMD_STOP;
         while(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING);
-        
+
         //Disable clock
         CMU_ClockEnable(PWM_TIMER_CLOCK, false);
     }

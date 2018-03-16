@@ -22,7 +22,7 @@
 #include "hal/us_ticker_api.h"
 #include "rtos/rtos.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 
 void wait(float s) {
     wait_us(s * 1000000.0f);

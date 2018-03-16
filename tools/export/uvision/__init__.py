@@ -215,14 +215,16 @@ class Uvision(Exporter):
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
             # UVFile tuples defined above
-            'project_files': sorted(list(self.format_src(srcs).iteritems()),
+            'project_files': sorted(list(self.format_src(srcs).items()),
                                     key=lambda (group, _): group.lower()),
-            'linker_script':self.toolchain.correct_scatter_shebang(
-                self.resources.linker_script),
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
-        self.generated_files.append(ctx['linker_script'])
+        sct_file = self.resources.linker_script
+        ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
+            sct_file, self.resources.file_basepath[sct_file])
+        if ctx['linker_script'] != sct_file:
+            self.generated_files.append(ctx['linker_script'])
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")
         if core.endswith("FD"):
@@ -235,6 +237,16 @@ class Uvision(Exporter):
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
+
+    @staticmethod
+    def clean(project_name):
+        os.remove(project_name + ".uvprojx")
+        os.remove(project_name + ".uvoptx")
+        # legacy .build directory cleaned if exists
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
 
     @staticmethod
     def build(project_name, log_name='build_log.txt', cleanup=True):
@@ -255,13 +267,7 @@ class Uvision(Exporter):
         # Cleanup the exported and built files
         if cleanup:
             os.remove(log_name)
-            os.remove(project_name+".uvprojx")
-            os.remove(project_name+".uvoptx")
-            # legacy .build directory cleaned if exists
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            Uvision.clean(project_name)
 
         # Returns 0 upon success, 1 upon a warning, and neither upon an error
         if ret_code != 0 and ret_code != 1:

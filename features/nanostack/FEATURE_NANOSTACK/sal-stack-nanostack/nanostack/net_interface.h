@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef NET_INTERFACE_H_
@@ -984,6 +987,23 @@ void arm_print_protocols2(void (*print_fn)(const char *fmt, ...), char sep);
   *
   */
 extern void net_get_version_information(uint8_t *ptr);
+
+/**
+ * \brief Set buffer size for sleepy device parent.
+ *
+ * This function can be used to set sleepy device parent buffer size and packet threshold.
+ *
+ * Note! In Thread mode parent buffer size is automatically set during Thread initialization.
+ *
+ * \param big_packet_threshold Indicate how long packets are considered big. For Thread, must be 106 bytes.
+ * \param small_packets_per_child_count Number of small packets stored for each sleepy children. For Thread, must be at least 1.
+ * \param big_packets_total_count Total number of big packets parent can store for all sleepy children. For Thread, must be at least 1.
+ * \return 0 on success, <0 on errors.
+ */
+
+extern int arm_nwk_sleepy_device_parent_buffer_size_set(int8_t interface_id, uint16_t big_packet_threshold, uint16_t small_packets_per_child_count, uint16_t big_packets_total_count);
+
+
 #ifdef __cplusplus
 }
 #endif

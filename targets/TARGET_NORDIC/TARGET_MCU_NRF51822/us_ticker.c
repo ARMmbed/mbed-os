@@ -20,6 +20,7 @@
 #include "PeripheralNames.h"
 #include "nrf_delay.h"
 #include "mbed_toolchain.h"
+#include "mbed_critical.h"
 
 /*
  * Note: The micro-second timer API on the nRF51 platform is implemented using
@@ -52,6 +53,8 @@
 #define RTC_UNITS_TO_MICROSECONDS(RTC_UNITS) (((RTC_UNITS) * (uint64_t)1000000) / RTC_CLOCK_FREQ)
 #define MICROSECONDS_TO_RTC_UNITS(MICROS)    ((((uint64_t)(MICROS) * RTC_CLOCK_FREQ) + 999999) / 1000000)
 
+#define US_TICKER_SW_IRQ_MASK 0x1
+
 static bool              us_ticker_inited = false;
 static volatile uint32_t overflowCount;                   /**< The number of times the 24-bit RTC counter has overflowed. */
 static volatile bool     us_ticker_callbackPending = false;
@@ -61,6 +64,9 @@ static bool              os_tick_started = false;         /**< flag indicating i
  * The value previously set in the capture compare register of channel 1
  */
 static uint32_t          previous_tick_cc_value = 0;
+
+// us ticker fire interrupt flag for IRQ handler
+volatile uint8_t m_common_sw_irq_flag = 0; 
 
 /*
  RTX provide the following definitions which are used by the tick code:
@@ -181,6 +187,11 @@ static inline uint32_t rtc1_getCounter(void)
  */
 void us_ticker_handler(void)
 {
+    if (m_common_sw_irq_flag & US_TICKER_SW_IRQ_MASK) {
+        m_common_sw_irq_flag &= ~US_TICKER_SW_IRQ_MASK;
+        us_ticker_irq_handler();
+    }
+
     if (NRF_RTC1->EVENTS_OVRFLW) {
         overflowCount++;
         NRF_RTC1->EVENTS_OVRFLW = 0;
@@ -287,7 +298,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_fire_interrupt(void)
 {
+    core_util_critical_section_enter();
+    m_common_sw_irq_flag |= US_TICKER_SW_IRQ_MASK;
     NVIC_SetPendingIRQ(RTC1_IRQn);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_disable_interrupt(void)

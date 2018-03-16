@@ -53,9 +53,12 @@ typedef struct {
     gpio_irq_event event;
     uint8_t int_enable;
 } gpio_chan_info_t;
-
-extern uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
-extern uint8_t gpio_initialized;
+/*******************************************************************************
+   ADI_GPIO_DEV_DATA Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
+extern uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
+extern uint8_t  gpio_initialized;
 static gpio_chan_info_t channel_ids[MAX_GPIO_PORTS][MAX_GPIO_LINES];
 static gpio_irq_handler irq_handler = NULL;
 

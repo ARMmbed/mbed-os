@@ -76,7 +76,7 @@ To do so, add the following to your mbed_app.json:
 
 Don't forget to fulfill the other [prerequisites](#prerequisites)!
 
-([Click here for more information on the configuration system](https://github.com/ARMmbed/mbed-os/blob/master/docs/config_system.md))
+([Click here for more information on the configuration system](https://docs.mbed.com/docs/mbed-os-api/en/latest/config_system/))
 
 ### Traces
 

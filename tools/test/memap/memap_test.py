@@ -20,6 +20,7 @@ import json
 
 import pytest
 
+import tools.memap
 from tools.memap import MemapParser
 from copy import deepcopy
 
@@ -137,7 +138,7 @@ def memap_parser():
     return memap_parser
 
 
-def generate_test_helper(memap_parser, format, depth, file_output=None):
+def generate_test_helper(memap_parser, format, depth, sep, file_output=None):
     """
     Helper that tests that the member variables "modules" is
     unchanged after calling "generate_output"
@@ -147,17 +148,21 @@ def generate_test_helper(memap_parser, format, depth, file_output=None):
     :param format:  the file type to output
     :param file_output: the file to output to
     """
-
     old_modules = deepcopy(memap_parser.modules)
 
+    tools.memap.sep = sep
     memap_parser.generate_output(format, depth, file_output=file_output)
 
     assert memap_parser.modules == old_modules,\
         "generate_output modified the 'modules' property"
 
+    for file_name in memap_parser.short_modules:
+        assert(len(file_name.split(tools.memap.sep)) <= depth)
+
 
 @pytest.mark.parametrize("depth", [1, 2, 20])
-def test_report_computed(memap_parser, depth):
+@pytest.mark.parametrize("sep", ["\\", "/"])
+def test_report_computed(memap_parser, depth, sep):
     """
     Test that a report and summary are computed
 
@@ -165,7 +170,7 @@ def test_report_computed(memap_parser, depth):
     :param depth: the detail of the output
     """
 
-    memap_parser.generate_output('table', depth)
+    memap_parser.generate_output('table', depth, sep)
 
     # Report is created after generating output
     assert memap_parser.mem_summary
@@ -173,17 +178,19 @@ def test_report_computed(memap_parser, depth):
 
 
 @pytest.mark.parametrize("depth", [1, 2, 20])
-def test_generate_output_table(memap_parser, depth):
+@pytest.mark.parametrize("sep", ["\\", "/"])
+def test_generate_output_table(memap_parser, depth, sep):
     """
     Test that an output of type "table" can be generated correctly
     :param memap_parser: Mocked parser
     :param depth: the detail of the output
     """
-    generate_test_helper(memap_parser, 'table', depth)
+    generate_test_helper(memap_parser, 'table', depth, sep)
 
 
 @pytest.mark.parametrize("depth", [1, 2, 20])
-def test_generate_output_json(memap_parser, tmpdir, depth):
+@pytest.mark.parametrize("sep", ["\\", "/"])
+def test_generate_output_json(memap_parser, tmpdir, depth, sep):
     """
     Test that an output of type "json" can be generated correctly
     :param memap_parser: Mocked parser
@@ -191,13 +198,14 @@ def test_generate_output_json(memap_parser, tmpdir, depth):
     :param depth: the detail of the output
     """
     file_name = str(tmpdir.join('output.json').realpath())
-    generate_test_helper(memap_parser, 'json', depth, file_name)
+    generate_test_helper(memap_parser, 'json', depth, sep, file_name)
     assert isfile(file_name), "Failed to create json file"
     json.load(open(file_name))
 
 
 @pytest.mark.parametrize("depth", [1, 2, 20])
-def test_generate_output_csv_ci(memap_parser, tmpdir, depth):
+@pytest.mark.parametrize("sep", ["\\", "/"])
+def test_generate_output_csv_ci(memap_parser, tmpdir, depth, sep):
     """
     Test ensures that an output of type "csv-ci" can be generated correctly
 
@@ -206,5 +214,5 @@ def test_generate_output_csv_ci(memap_parser, tmpdir, depth):
     :param depth: the detail of the output
     """
     file_name = str(tmpdir.join('output.csv').realpath())
-    generate_test_helper(memap_parser, 'csv-ci', depth, file_name)
+    generate_test_helper(memap_parser, 'csv-ci', depth, sep, file_name)
     assert isfile(file_name), "Failed to create csv-ci file"

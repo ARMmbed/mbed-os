@@ -57,10 +57,6 @@ typedef enum {
     UART_8 = (int)UART8_BASE
 } UARTName;
 
-#define STDIO_UART_TX  PA_9
-#define STDIO_UART_RX  PA_10
-#define STDIO_UART     UART_1
-
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
     SPI_2 = (int)SPI2_BASE,
@@ -94,7 +90,8 @@ typedef enum {
 
 typedef enum {
     CAN_1 = (int)CAN1_BASE,
-    CAN_2 = (int)CAN2_BASE
+    CAN_2 = (int)CAN2_BASE,
+    CAN_3 = (int)CAN3_BASE
 } CANName;
 
 #ifdef __cplusplus

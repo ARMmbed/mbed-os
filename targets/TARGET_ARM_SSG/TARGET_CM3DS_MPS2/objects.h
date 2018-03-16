@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#ifndef __MBED_OBJECTS_H__
+#define __MBED_OBJECTS_H__
 
 #include "cmsis.h"
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "platform_devices.h"
+#include "gpio_objects.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct gpio_s {
+    struct arm_gpio_dev_t *gpio_dev;
+    struct arm_mps2_io_dev_t *mps2_io_dev;
+    uint32_t pin_number;
+    PinDirection direction;
+} gpio_t;
+
 struct gpio_irq_s {
-    uint32_t ch;
+    struct arm_gpio_dev_t *gpio_dev;
+    uint32_t pin_number;             /* Pin number inside the GPIO */
+    uint32_t exp_pin_number;         /* Pin number on the expension port */
+    IRQn_Type irq_number;            /* IRQ number of the GPIO interrupt of
+                                        this pin */
 };
 
 struct port_s {
-    __IO uint32_t *reg_dir;
-    __IO uint32_t *reg_dirclr;
-    __IO uint32_t *reg_out;
-    __IO  uint32_t *reg_in;
-    PortName port;
-    uint32_t mask;
+    struct arm_gpio_dev_t *gpio_dev;
 };
 
 struct serial_s {
-    CMSDK_UART_TypeDef *uart;
-    int index;
+    struct arm_uart_dev_t *uart;
+    UARTName index;
+    IRQn_Type irq_number;               /* IRQ number of the RX interrupt for
+                                            this UART device */
 };
 
 struct i2c_s {
@@ -58,21 +68,15 @@ struct audio_s {
 };
 
 struct spi_s {
-    MPS2_SSP_TypeDef *spi;
-};
-
-struct clcd_s {
-    MPS2_SSP_TypeDef *clcd;
+    struct spi_pl022_dev_t *spi;
 };
 
 struct analogin_s {
     uint16_t ctrl_register;  /* Control bits with the channel identifier */
 };
 
-#include "gpio_object.h"
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* __MBED_OBJECTS_H__ */

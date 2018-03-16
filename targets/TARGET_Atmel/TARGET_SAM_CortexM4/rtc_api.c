@@ -71,7 +71,11 @@ time_t rtc_read(void)
     timeinfo.tm_year = (ul_year - 1900);
 
     /* Convert to timestamp */
-    time_t t = _rtc_mktime(&timeinfo);
+    time_t t;
+    if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
+        return 0;
+    }
+
     return t;
 }
 
@@ -81,8 +85,9 @@ void rtc_write(time_t t)
         /* Initialize the RTC is not yet initialized */
         rtc_init();
     }
+
     struct tm timeinfo;
-    if (_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
     }
     uint32_t ul_hour, ul_minute, ul_second;

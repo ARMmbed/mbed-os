@@ -27,6 +27,7 @@
 #if defined( USB_DEVICE )
 
 #include "em_cmu.h"
+#include "em_core.h"
 #include "em_usbtypes.h"
 #include "em_usbhal.h"
 #include "em_usbd.h"
@@ -106,8 +107,9 @@ void USB_IRQHandler( void )
 {
   uint32_t status;
   bool servedVbusInterrupt = false;
+  CORE_DECLARE_IRQ_STATE;
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 
 #if ( USB_PWRSAVE_MODE )
   if ( USBD_poweredDown )
@@ -192,7 +194,7 @@ void USB_IRQHandler( void )
   status = USBHAL_GetCoreInts();
   if ( status == 0 )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     if ( !servedVbusInterrupt )
     {
       DEBUG_USB_INT_LO_PUTS( "\nSinT" );
@@ -209,7 +211,7 @@ void USB_IRQHandler( void )
   HANDLE_INT( USB_GINTSTS_IEPINT     )
   HANDLE_INT( USB_GINTSTS_OEPINT     )
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   if ( status != 0 )
   {

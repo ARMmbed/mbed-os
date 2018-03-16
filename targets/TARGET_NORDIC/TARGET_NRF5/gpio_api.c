@@ -112,7 +112,7 @@ static void gpiote_pin_uninit(uint8_t pin)
         if ((m_gpio_cfg[pin].direction == PIN_OUTPUT) && (!m_gpio_cfg[pin].used_as_irq)) {
             nrf_drv_gpiote_out_uninit(pin);
         }
-        else {
+        else if (m_gpio_cfg[pin].used_as_irq) {
             nrf_drv_gpiote_in_uninit(pin);
         }
     }

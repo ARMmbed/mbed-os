@@ -1,9 +1,9 @@
-/**************************************************************************//**
+/***************************************************************************//**
  * @file em_opamp.c
  * @brief Operational Amplifier (OPAMP) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  ******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -32,7 +32,7 @@
 
 #include "em_opamp.h"
 #if ((defined(_SILICON_LABS_32B_SERIES_0) && defined(OPAMP_PRESENT) && (OPAMP_COUNT == 1)) \
-     || (defined(_SILICON_LABS_32B_SERIES_1) && defined(VDAC_PRESENT)  && (VDAC_COUNT > 0)))
+  || (defined(_SILICON_LABS_32B_SERIES_1) && defined(VDAC_PRESENT)  && (VDAC_COUNT > 0)))
 
 #include "em_system.h"
 #include "em_assert.h"
@@ -42,7 +42,7 @@
  * @{
  ******************************************************************************/
 
-
+/* *INDENT-OFF* */
 /***************************************************************************//**
  * @addtogroup OPAMP
  * @brief Operational Amplifier (OPAMP) peripheral API
@@ -206,7 +206,7 @@
  * @if DOXYDOC_P2_DEVICE
  * \n<b>Instrumentation amplifier.</b>\n
  * Use predefined macros @ref OPA_INIT_INSTR_AMP_OPA0 and
- * @ref OPA_INIT_INSTR_AMP_OPA0.
+ * @ref OPA_INIT_INSTR_AMP_OPA1.
  * @verbatim
 
                        |\
@@ -235,6 +235,7 @@
  *
  * @{
  ******************************************************************************/
+/* *INDENT-ON* */
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -268,18 +269,13 @@ void OPAMP_Disable(
   EFM_ASSERT(DAC_REF_VALID(dac));
   EFM_ASSERT(DAC_OPA_VALID(opa));
 
-  if (opa == OPA0)
-  {
+  if (opa == OPA0) {
     dac->CH0CTRL &= ~DAC_CH0CTRL_EN;
     dac->OPACTRL &= ~DAC_OPACTRL_OPA0EN;
-  }
-  else if (opa == OPA1)
-  {
+  } else if (opa == OPA1) {
     dac->CH1CTRL &= ~DAC_CH1CTRL_EN;
     dac->OPACTRL &= ~DAC_OPACTRL_OPA1EN;
-  }
-  else /* OPA2 */
-  {
+  } else { /* OPA2 */
     dac->OPACTRL &= ~DAC_OPACTRL_OPA2EN;
   }
 
@@ -287,30 +283,27 @@ void OPAMP_Disable(
   EFM_ASSERT(VDAC_REF_VALID(dac));
   EFM_ASSERT(VDAC_OPA_VALID(opa));
 
-  if (opa == OPA0)
-  {
+  if (opa == OPA0) {
+#if defined(VDAC_STATUS_OPA0ENS)
     dac->CMD |= VDAC_CMD_OPA0DIS;
-    while (dac->STATUS & VDAC_STATUS_OPA0ENS)
-    {
+    while (dac->STATUS & VDAC_STATUS_OPA0ENS) {
     }
-  }
-  else if (opa == OPA1)
-  {
+#endif
+  } else if (opa == OPA1) {
+#if defined(VDAC_STATUS_OPA1ENS)
     dac->CMD |= VDAC_CMD_OPA1DIS;
-    while (dac->STATUS & VDAC_STATUS_OPA1ENS)
-    {
+    while (dac->STATUS & VDAC_STATUS_OPA1ENS) {
     }
-  }
-  else /* OPA2 */
-  {
+#endif
+  } else { /* OPA2 */
+#if defined(VDAC_STATUS_OPA2ENS)
     dac->CMD |= VDAC_CMD_OPA2DIS;
-    while (dac->STATUS & VDAC_STATUS_OPA2ENS)
-    {
+    while (dac->STATUS & VDAC_STATUS_OPA2ENS) {
     }
+#endif
   }
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -379,15 +372,14 @@ void OPAMP_Enable(
   const OPAMP_Init_TypeDef *init)
 {
 #if defined(_SILICON_LABS_32B_SERIES_0)
-  uint32_t offset;
+  uint32_t gain;
 
   EFM_ASSERT(DAC_REF_VALID(dac));
   EFM_ASSERT(DAC_OPA_VALID(opa));
   EFM_ASSERT(init->bias <= (_DAC_BIASPROG_BIASPROG_MASK
-                             >> _DAC_BIASPROG_BIASPROG_SHIFT));
+                            >> _DAC_BIASPROG_BIASPROG_SHIFT));
 
-  if (opa == OPA0)
-  {
+  if (opa == OPA0) {
     EFM_ASSERT((init->outPen & ~_DAC_OPA0MUX_OUTPEN_MASK) == 0);
 
     dac->BIASPROG = (dac->BIASPROG
@@ -396,14 +388,11 @@ void OPAMP_Enable(
                     | (init->bias     << _DAC_BIASPROG_BIASPROG_SHIFT)
                     | (init->halfBias ?   DAC_BIASPROG_HALFBIAS : 0);
 
-    if (init->defaultOffset)
-    {
-      offset = SYSTEM_GetCalibrationValue(&dac->CAL);
-      dac->CAL = (dac->CAL & ~_DAC_CAL_CH0OFFSET_MASK)
-                 | (offset &  _DAC_CAL_CH0OFFSET_MASK);
-    }
-    else
-    {
+    if (init->defaultOffset) {
+      gain = dac->CAL & _DAC_CAL_GAIN_MASK;
+      SYSTEM_GetCalibrationValue(&dac->CAL);
+      dac->CAL = (dac->CAL & ~_DAC_CAL_GAIN_MASK) | gain;
+    } else {
       EFM_ASSERT(init->offset <= (_DAC_CAL_CH0OFFSET_MASK
                                   >> _DAC_CAL_CH0OFFSET_SHIFT));
 
@@ -417,9 +406,9 @@ void OPAMP_Enable(
                     | (uint32_t)init->resInMux
                     | (uint32_t)init->negSel
                     | (uint32_t)init->posSel
-                    | ( init->nextOut ? DAC_OPA0MUX_NEXTOUT : 0)
-                    | ( init->npEn    ? DAC_OPA0MUX_NPEN    : 0)
-                    | ( init->ppEn    ? DAC_OPA0MUX_PPEN    : 0);
+                    | (init->nextOut ? DAC_OPA0MUX_NEXTOUT : 0)
+                    | (init->npEn    ? DAC_OPA0MUX_NPEN    : 0)
+                    | (init->ppEn    ? DAC_OPA0MUX_PPEN    : 0);
 
     dac->CH0CTRL |= DAC_CH0CTRL_EN;
     dac->OPACTRL  = (dac->OPACTRL
@@ -433,25 +422,20 @@ void OPAMP_Enable(
                        ? DAC_OPACTRL_OPA0LPFDIS_NLPFDIS : 0)
                     | (init->hcmDisable ? DAC_OPACTRL_OPA0HCMDIS : 0)
                     | DAC_OPACTRL_OPA0EN;
-  }
-  else if ( opa == OPA1 )
-  {
+  } else if ( opa == OPA1 ) {
     EFM_ASSERT((init->outPen & ~_DAC_OPA1MUX_OUTPEN_MASK) == 0);
 
     dac->BIASPROG = (dac->BIASPROG
                      & ~(_DAC_BIASPROG_BIASPROG_MASK
                          | DAC_BIASPROG_HALFBIAS))
                     | (init->bias   << _DAC_BIASPROG_BIASPROG_SHIFT)
-                    | (init->halfBias ? DAC_BIASPROG_HALFBIAS : 0 );
+                    | (init->halfBias ? DAC_BIASPROG_HALFBIAS : 0);
 
-    if (init->defaultOffset)
-    {
-      offset = SYSTEM_GetCalibrationValue(&dac->CAL);
-      dac->CAL = (dac->CAL & ~_DAC_CAL_CH1OFFSET_MASK)
-                 | (offset &  _DAC_CAL_CH1OFFSET_MASK);
-    }
-    else
-    {
+    if (init->defaultOffset) {
+      gain = dac->CAL & _DAC_CAL_GAIN_MASK;
+      SYSTEM_GetCalibrationValue(&dac->CAL);
+      dac->CAL = (dac->CAL & ~_DAC_CAL_GAIN_MASK) | gain;
+    } else {
       EFM_ASSERT(init->offset <= (_DAC_CAL_CH1OFFSET_MASK
                                   >> _DAC_CAL_CH1OFFSET_SHIFT));
 
@@ -481,9 +465,7 @@ void OPAMP_Enable(
                        ? DAC_OPACTRL_OPA1LPFDIS_NLPFDIS : 0)
                     | (init->hcmDisable ? DAC_OPACTRL_OPA1HCMDIS : 0)
                     | DAC_OPACTRL_OPA1EN;
-  }
-  else /* OPA2 */
-  {
+  } else { /* OPA2 */
     EFM_ASSERT((init->posSel == DAC_OPA2MUX_POSSEL_DISABLE)
                || (init->posSel == DAC_OPA2MUX_POSSEL_POSPAD)
                || (init->posSel == DAC_OPA2MUX_POSSEL_OPA1INP)
@@ -499,14 +481,9 @@ void OPAMP_Enable(
                     | (init->bias << _DAC_BIASPROG_OPA2BIASPROG_SHIFT)
                     | (init->halfBias ? DAC_BIASPROG_OPA2HALFBIAS : 0);
 
-    if (init->defaultOffset)
-    {
-      offset = SYSTEM_GetCalibrationValue(&dac->OPAOFFSET);
-      dac->OPAOFFSET = (dac->OPAOFFSET & ~_DAC_OPAOFFSET_OPA2OFFSET_MASK)
-                       | (offset       &  _DAC_OPAOFFSET_OPA2OFFSET_MASK);
-    }
-    else
-    {
+    if (init->defaultOffset) {
+      SYSTEM_GetCalibrationValue(&dac->OPAOFFSET);
+    } else {
       EFM_ASSERT(init->offset <= (_DAC_OPAOFFSET_OPA2OFFSET_MASK
                                   >> _DAC_OPAOFFSET_OPA2OFFSET_SHIFT));
       dac->OPAOFFSET = (dac->OPAOFFSET & ~_DAC_OPAOFFSET_OPA2OFFSET_MASK)
@@ -519,9 +496,9 @@ void OPAMP_Enable(
                     | (uint32_t)init->resInMux
                     | (uint32_t)init->negSel
                     | (uint32_t)init->posSel
-                    | ( init->nextOut ? DAC_OPA2MUX_NEXTOUT : 0 )
-                    | ( init->npEn    ? DAC_OPA2MUX_NPEN    : 0 )
-                    | ( init->ppEn    ? DAC_OPA2MUX_PPEN    : 0 );
+                    | (init->nextOut ? DAC_OPA2MUX_NEXTOUT : 0)
+                    | (init->npEn    ? DAC_OPA2MUX_NPEN    : 0)
+                    | (init->ppEn    ? DAC_OPA2MUX_PPEN    : 0);
 
     dac->OPACTRL  = (dac->OPACTRL
                      & ~(DAC_OPACTRL_OPA2SHORT
@@ -548,8 +525,8 @@ void OPAMP_Enable(
                                   >> _VDAC_OPA_TIMER_STARTUPDLY_SHIFT));
   EFM_ASSERT((init->outPen & ~_VDAC_OPA_OUT_ALTOUTPADEN_MASK) == 0);
   EFM_ASSERT(!((init->gain3xEn == true)
-             && ((init->negSel == opaNegSelResTap)
-                 || (init->posSel == opaPosSelResTap))));
+               && ((init->negSel == opaNegSelResTap)
+                   || (init->posSel == opaPosSelResTap))));
   EFM_ASSERT((init->drvStr == opaDrvStrLowerAccLowStr)
              || (init->drvStr == opaDrvStrLowAccLowStr)
              || (init->drvStr == opaDrvStrHighAccHighStr)
@@ -559,11 +536,10 @@ void OPAMP_Enable(
   OPAMP_Disable(dac, opa);
 
   /* Get the calibration value based on OPAMP, Drive Strength, and INCBW. */
-  switch (opa)
-  {
+  switch (opa) {
+#if defined(VDAC_STATUS_OPA0ENS)
     case OPA0:
-      switch (init->drvStr)
-      {
+      switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
           calData = (init->ugBwScale ? DEVINFO->OPA0CAL0 : DEVINFO->OPA0CAL4);
           break;
@@ -578,10 +554,11 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
 
+#if defined(VDAC_STATUS_OPA1ENS)
     case OPA1:
-      switch (init->drvStr)
-      {
+      switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
           calData = (init->ugBwScale ? DEVINFO->OPA1CAL0 : DEVINFO->OPA1CAL4);
           break;
@@ -596,10 +573,11 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
 
+#if defined(VDAC_STATUS_OPA2ENS)
     case OPA2:
-      switch (init->drvStr)
-      {
+      switch (init->drvStr) {
         case opaDrvStrLowerAccLowStr:
           calData = (init->ugBwScale ? DEVINFO->OPA2CAL0 : DEVINFO->OPA2CAL4);
           break;
@@ -614,16 +592,15 @@ void OPAMP_Enable(
           break;
       }
       break;
+#endif
   }
-  if (!init->defaultOffsetN)
-  {
+  if (!init->defaultOffsetN) {
     EFM_ASSERT(init->offsetN <= (_VDAC_OPA_CAL_OFFSETN_MASK
                                  >> _VDAC_OPA_CAL_OFFSETN_SHIFT));
     calData = (calData & ~_VDAC_OPA_CAL_OFFSETN_MASK)
               | (init->offsetN << _VDAC_OPA_CAL_OFFSETN_SHIFT);
   }
-  if (!init->defaultOffsetP)
-  {
+  if (!init->defaultOffsetP) {
     EFM_ASSERT(init->offsetP <= (_VDAC_OPA_CAL_OFFSETP_MASK
                                  >> _VDAC_OPA_CAL_OFFSETP_SHIFT));
     calData = (calData & ~_VDAC_OPA_CAL_OFFSETP_MASK)
@@ -641,8 +618,7 @@ void OPAMP_Enable(
   dac->OPA[opa].OUT = (uint32_t)init->outMode
                       | (uint32_t)init->outPen;
 
-  switch (init->drvStr)
-  {
+  switch (init->drvStr) {
     case opaDrvStrHigherAccHighStr:
       warmupTime = 6;
       break;
@@ -678,22 +654,23 @@ void OPAMP_Enable(
                         | (init->prsEn ? VDAC_OPA_CTRL_PRSEN : 0)
                         | (init->halfDrvStr
                            ? VDAC_OPA_CTRL_OUTSCALE_HALF
-                             : VDAC_OPA_CTRL_OUTSCALE_FULL)
+                           : VDAC_OPA_CTRL_OUTSCALE_FULL)
                         | (init->hcmDisable ? VDAC_OPA_CTRL_HCMDIS : 0)
                         | (init->ugBwScale ? VDAC_OPA_CTRL_INCBW : 0)
                         | (uint32_t)init->drvStr;
 
-  if (opa == OPA0)
-  {
+  if (opa == OPA0) {
+#if defined(VDAC_STATUS_OPA0ENS)
     dac->CMD |= VDAC_CMD_OPA0EN;
-  }
-  else if (opa == OPA1)
-  {
+#endif
+  } else if (opa == OPA1) {
+#if defined(VDAC_STATUS_OPA1ENS)
     dac->CMD |= VDAC_CMD_OPA1EN;
-  }
-  else /* OPA2 */
-  {
+#endif
+  } else { /* OPA2 */
+#if defined(VDAC_STATUS_OPA2ENS)
     dac->CMD |= VDAC_CMD_OPA2EN;
+#endif
   }
 
 #endif
@@ -703,4 +680,4 @@ void OPAMP_Enable(
 /** @} (end addtogroup emlib) */
 
 #endif /* (defined(OPAMP_PRESENT) && (OPAMP_COUNT == 1)
-           || defined(VDAC_PRESENT) && (VDAC_COUNT > 0) */
+       || defined(VDAC_PRESENT) && (VDAC_COUNT > 0) */

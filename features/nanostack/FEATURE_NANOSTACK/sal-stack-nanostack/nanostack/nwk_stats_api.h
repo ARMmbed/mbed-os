@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #ifndef NWK_STATS_API_H
 #define NWK_STATS_API_H
@@ -35,22 +38,6 @@ extern "C" {
  * /brief Struct for network stats buffer structure.
  */
 typedef struct nwk_stats_t {
-    /*mac stats*/
-    uint16_t mac_tx_buffer_overflow; /**< MAC TX queue overflow count. */
-    uint16_t mac_tx_queue_size;     /**< MAC TX queue current size. */
-    uint16_t mac_tx_queue_peak;     /**< MAC TX queue peak size. */
-    uint32_t mac_rx_count;          /**< MAC RX packet count. */
-    uint32_t mac_tx_count;          /**< MAC TX packet count. */
-    uint32_t mac_bc_tx_count;       /**< MAC broadcast TX packet count. */
-    uint32_t mac_rx_drop;           /**< MAC RX packet drop count. */
-    /* Mac Payload Flow */
-    uint32_t mac_tx_bytes;          /**< MAC TX bytes count. */
-    uint32_t mac_rx_bytes;          /**< MAC RX bytes count. */
-    uint32_t mac_tx_failed;         /**< MAC TX failed count. */
-    uint32_t mac_tx_retry;          /**< MAC TX retry count. */
-    uint32_t mac_tx_cca_cnt;        /**< MAC TX CCA count. */
-    uint32_t mac_tx_failed_cca;     /**< MAC failed CCA count. */
-    uint32_t mac_security_drop;     /**< MAC security packet drops count. */
     /* 6Lowpan */
     uint32_t ip_rx_count;           /**< IP RX packet count. */
     uint32_t ip_tx_count;           /**< IP TX packet count. */

@@ -84,7 +84,7 @@ public:
     /**
      * Construct a DiscoveredService instance.
      *
-     * @important This API is not meant to be used publicly. It is meant to be
+     * @attention This API is not meant to be used publicly. It is meant to be
      * used by internal APIs of Mbed BLE.
      */
     DiscoveredService() :
@@ -96,7 +96,7 @@ public:
     /**
      * Set information about the discovered service.
      *
-     * @important This API is not meant to be used publicly. It is meant to be
+     * @attention This API is not meant to be used publicly. It is meant to be
      * used by internal APIs of Mbed BLE.
      *
      * @param[in] uuidIn The UUID of the discovered service.
@@ -118,7 +118,7 @@ public:
     /**
      * Set the start and end handle of the discovered service.
      *
-     * @important This API is not meant to be used publicly. It is meant to be
+     * @attention This API is not meant to be used publicly. It is meant to be
      * used by internal APIs of Mbed BLE.
      *
      * @param[in] startHandleIn The start handle of the discovered service in
@@ -137,7 +137,7 @@ public:
     /**
      * Set the long UUID of the discovered service.
      *
-     * @important This API is not meant to be used publicly. It is meant to be
+     * @attention This API is not meant to be used publicly. It is meant to be
      * used by internal APIs of Mbed BLE.
      *
      * @param[in] longUUID The bytes composing the long UUID of this discovered

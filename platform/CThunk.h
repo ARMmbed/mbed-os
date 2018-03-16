@@ -42,7 +42,7 @@
 #define CTHUNK_VARIABLES volatile uint32_t code[2]
 
 #if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9) \
-    || defined(__CORTEX_M23) || defined(__CORTEX_M33))
+    || defined(__CORTEX_M33))
 /**
 * CTHUNK disassembly for Cortex-M3/M4/M7/A9 (thumb2):
 * * adr  r0, #4
@@ -59,7 +59,7 @@
                              m_thunk.code[1] = 0x00008007; \
                          } while (0)
 
-#elif (defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0))
+#elif (defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0) || defined(__CORTEX_M23))
 /*
 * CTHUNK disassembly for Cortex M0/M0+ (thumb):
 * * adr  r0, #4
