@@ -111,6 +111,7 @@ void us_ticker_init(void)
     TIMER_EnableInt(timer_base);
 
     TIMER_Start(timer_base);
+    /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
 }
 
