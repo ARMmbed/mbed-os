@@ -112,7 +112,6 @@ def main():
 
     parser.add_argument("-m", "--mcu",
                         metavar="MCU",
-                        type=str.upper,
                         help="generate project for the given MCU ({})".format(
                             ', '.join(targetnames)))
 
