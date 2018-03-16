@@ -23,7 +23,9 @@
 
 /**
  * OnboardCellularInterface is an on-board specific implementation.
+ *
  */
+
 OnboardCellularInterface::OnboardCellularInterface(bool debug) :
                                                       UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
                                                                             MDMCTS, MDMRI, MDMDTR, MDMDSR,
