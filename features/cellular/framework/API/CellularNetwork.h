@@ -211,6 +211,7 @@ public:
 
     /** Does all the needed initializations that can fail
      *
+     *  @remark         must be called immediately after constructor.
      *  @return         zero on success
      */
     virtual nsapi_error_t init() = 0;
@@ -229,6 +230,15 @@ public:
      */
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
 
+    /** Activate/deactivate listening of network events for the given RegistrationType.
+     *  This should be called after network class is created and ready to receive AT commands.
+     *  After successful call network class starts to get information about network changes like
+     *  registration statue, access technology, cell id...
+     *
+     *  @param type RegistrationType to set urc on/off
+     *  @param on   Controls are urc' active or not
+     *  @return     zero on success
+     */
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
     /** Gets the network registration status.
@@ -299,6 +309,11 @@ public:
      */
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
 
+    /** Get current radio access technology.
+     *
+     *  @param rat  Radio access technology
+     *  @return     zero on success
+     */
     virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat) = 0;
 
     /** Scans for operators module can reach.

@@ -174,7 +174,6 @@ protected:
     RadioAccessTechnology _op_act;
     AuthenticationType _authentication_type;
     int _cell_id;
-    RegistrationType _last_reg_type;
     nsapi_connection_status_t _connect_status;
     bool _new_context_set;
     RegistrationStatus _reg_status;

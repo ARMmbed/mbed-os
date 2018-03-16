@@ -155,7 +155,7 @@ void ATHandler::set_file_handle(FileHandle *fh)
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
-    if (check_urc_existance(prefix, callback)) {
+    if (find_urc_handler(prefix, callback)) {
         tr_warn("URC already added with prefix: %s", prefix);
         return NSAPI_ERROR_OK;
     }
@@ -200,7 +200,7 @@ void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> ca
     }
 }
 
-bool ATHandler::check_urc_existance(const char *prefix, mbed::Callback<void()> callback)
+bool ATHandler::find_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
     struct oob_t *oob = _oobs;
     while (oob) {
