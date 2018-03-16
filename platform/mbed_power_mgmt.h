@@ -68,7 +68,7 @@ extern "C" {
 void sleep_tracker_lock(const char *const filename, int line);
 void sleep_tracker_unlock(const char *const filename, int line);
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+#if defined(__CC_ARM)
 #define __FILENAME__ __MODULE__
 #elif defined(__GNUC__)
 #define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
