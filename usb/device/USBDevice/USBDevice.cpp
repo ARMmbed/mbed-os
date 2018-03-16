@@ -460,10 +460,10 @@ bool USBDevice::_request_set_feature()
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
-            if (!EP_VALID(_transfer.setup.wIndex)) {
+            if (!EP_INDEXABLE(_transfer.setup.wIndex)) {
                 break;
             } else if (_transfer.setup.wValue == ENDPOINT_HALT) {
-                _phy->endpoint_stall(_transfer.setup.wIndex);
+                endpoint_stall(_transfer.setup.wIndex);
                 success = true;
             }
             break;
@@ -492,10 +492,10 @@ bool USBDevice::_request_clear_feature()
             /* TODO: Remote wakeup feature not supported */
             break;
         case ENDPOINT_RECIPIENT:
-            if (!EP_VALID(_transfer.setup.wIndex)) {
+            if (!EP_INDEXABLE(_transfer.setup.wIndex)) {
                 break;
             } else if (_transfer.setup.wValue == ENDPOINT_HALT) {
-                _phy->endpoint_unstall(_transfer.setup.wIndex);
+                endpoint_unstall(_transfer.setup.wIndex);
                 success = true;
             }
             break;
