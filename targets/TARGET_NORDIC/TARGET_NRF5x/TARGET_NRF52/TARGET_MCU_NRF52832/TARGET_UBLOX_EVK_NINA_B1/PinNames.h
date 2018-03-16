@@ -107,6 +107,8 @@ typedef enum {
     TX_PIN_NUMBER = p6,
     CTS_PIN_NUMBER = p7,
     RTS_PIN_NUMBER = p31,
+    STDIO_UART_TX = TX_PIN_NUMBER,
+    STDIO_UART_RX = RX_PIN_NUMBER,
     I2C_SDA0 = p2,
     I2C_SCL0 = p3,
     // mBed interface pins

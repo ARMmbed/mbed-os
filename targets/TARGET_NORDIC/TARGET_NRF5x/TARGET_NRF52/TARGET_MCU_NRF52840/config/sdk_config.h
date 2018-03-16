@@ -3004,7 +3004,7 @@
 // <e> UART_ENABLED - nrf_drv_uart - UART/UARTE peripheral driver
 //==========================================================
 #ifndef UART_ENABLED
-#define UART_ENABLED 0
+#define UART_ENABLED 1
 #endif
 // <o> UART_DEFAULT_CONFIG_HWFC  - Hardware Flow Control
  
@@ -3044,7 +3044,7 @@
 // <268435456=> 1000000 baud 
 
 #ifndef UART_DEFAULT_CONFIG_BAUDRATE
-#define UART_DEFAULT_CONFIG_BAUDRATE 30801920
+#define UART_DEFAULT_CONFIG_BAUDRATE 2576384
 #endif
 
 // <o> UART_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -3095,7 +3095,7 @@
 // <e> UART1_ENABLED - Enable UART1 instance
 //==========================================================
 #ifndef UART1_ENABLED
-#define UART1_ENABLED 0
+#define UART1_ENABLED 1
 #endif
 // <q> UART1_CONFIG_USE_EASY_DMA  - Default setting for using EasyDMA
  
