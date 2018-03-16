@@ -304,8 +304,8 @@ lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
         tr_error("Stack not initialized!");
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
-
-    return _loramac.enable_adaptive_datarate(adr_enabled);
+    _loramac.enable_adaptive_datarate(adr_enabled);
+    return LORAWAN_STATUS_OK;
 }
 
 lorawan_status_t LoRaWANStack::set_channel_data_rate(uint8_t data_rate)

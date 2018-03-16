@@ -45,8 +45,6 @@
 #include "lorawan/system/lorawan_data_structures.h"
 #include "LoRaMacCommand.h"
 #include "events/EventQueue.h"
-#include "LoRaMacMlme.h"
-#include "LoRaMacMcps.h"
 #include "LoRaMacChannelPlan.h"
 #include "loraphy_target.h"
 
@@ -104,7 +102,7 @@ public:
      *          not fit into the payload size on the related datarate, the LoRaMAC will
      *          omit the MAC commands.
      */
-    uint8_t query_tx_possible(uint8_t size);
+    uint8_t get_max_possible_tx_size(uint8_t size);
 
     /**
      * @brief nwk_joined Checks if device has joined to network
@@ -292,9 +290,8 @@ public:
     /**
      * @brief enable_adaptive_datarate Enables or disables adaptive datarate.
      * @param adr_enabled Flag indicating is adr enabled or disabled.
-     * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    lorawan_status_t enable_adaptive_datarate(bool adr_enabled);
+    void enable_adaptive_datarate(bool adr_enabled);
 
     /** Sets up the data rate.
      *
@@ -492,6 +489,28 @@ private:
     lorawan_status_t send_frame_on_channel(uint8_t channel);
 
     /**
+     * @brief reset_mcps_confirmation Resets the MCPS confirmation struct
+     */
+    void reset_mcps_confirmation();
+
+    /**
+     * @brief reset_mlme_confirmation Resets the MLME confirmation struct
+     */
+    void reset_mlme_confirmation();
+
+    /**
+     * @brief set_tx_continuous_wave Puts the system in continuous transmission mode
+     * @param [in] channel A Channel to use
+     * @param [in] datarate A datarate to use
+     * @param [in] tx_power A RF output power to use
+     * @param [in] max_eirp A maximum possible EIRP to use
+     * @param [in] antenna_gain Antenna gain to use
+     * @param [in] timeout Time in seconds while the radio is kept in continuous wave mode
+     */
+    void set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
+                                float max_eirp, float antenna_gain, uint16_t timeout);
+
+    /**
      * Prototypes for ISR handlers
      */
     void handle_cad_done(bool cad);
@@ -519,16 +538,6 @@ private:
     LoRaMacCommand mac_commands;
 
     /**
-     * MLME subsystem handle
-     */
-    LoRaMacMlme mlme;
-
-    /**
-     * MCPS subsystem handle
-     */
-    LoRaMacMcps mcps;
-
-    /**
      * Channel planning subsystem
      */
     LoRaMacChannelPlan channel_plan;
@@ -552,6 +561,26 @@ private:
      * EventQueue object storage
      */
     events::EventQueue *ev_queue;
+
+    /**
+     * Structure to hold MCPS indication data.
+     */
+    loramac_mcps_indication_t _mcps_indication;
+
+    /**
+     * Structure to hold MCPS confirm data.
+     */
+    loramac_mcps_confirm_t _mcps_confirmation;
+
+    /**
+     * Structure to hold MLME indication data.
+     */
+    loramac_mlme_indication_t _mlme_indication;
+
+    /**
+     * Structure to hold MLME confirm data.
+     */
+    loramac_mlme_confirm_t _mlme_confirmation;
 
     loramac_tx_message_t _ongoing_tx_msg;
 

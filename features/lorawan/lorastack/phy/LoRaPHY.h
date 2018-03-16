@@ -512,10 +512,6 @@ public: //Verifiers
     bool verify_nb_join_trials(uint8_t nb_join_trials);
 
 protected:
-    LoRaRadio *_radio;
-    LoRaWANTimeHandler &_lora_time;
-    loraphy_params_t phy_params;
-
     LoRaPHY(LoRaWANTimeHandler &lora_time);
 
     /**
@@ -616,6 +612,11 @@ protected:
                                   uint8_t* delayTx);
 
     bool is_datarate_supported(const int8_t datarate) const;
+
+protected:
+    LoRaRadio *_radio;
+    LoRaWANTimeHandler &_lora_time;
+    loraphy_params_t phy_params;
 };
 
 #endif /* MBED_OS_LORAPHY_BASE_ */
