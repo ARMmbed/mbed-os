@@ -30,7 +30,6 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
-#include "lorastack/mac/LoRaMacMib.h"
 
 class LoRaMacChannelPlan {
 
@@ -77,12 +76,12 @@ public:
      * @param plan          a reference to application provided channel plan structure
      *                      which gets filled in with active channel plan data.
      *
-     * @param mib_confirm   pointer to MIB request structure containing channel information
+     * @param channel_list  pointer to structure containing channel information
      *
      * @return              LORAWAN_STATUS_OK if everything goes well otherwise
      *                      a negative error code is returned.
      */
-    lorawan_status_t get_plan(lorawan_channelplan_t& plan, const loramac_mib_req_confirm_t *mib_confirm);
+    lorawan_status_t get_plan(lorawan_channelplan_t& plan, const channel_params_t* channel_list);
 
     /** Remove the active channel plan
      *

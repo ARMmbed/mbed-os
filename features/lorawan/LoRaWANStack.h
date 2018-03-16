@@ -371,7 +371,7 @@ public:
      *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
      *                          or other negative error code if request failed.
      */
-    lorawan_status_t set_device_class(const device_class_t device_class);
+    lorawan_status_t set_device_class(const device_class_t& device_class);
 
 private:
     LoRaWANStack();
@@ -402,13 +402,6 @@ private:
     void mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm);
 
     /**
-     * Handles an MCPS request while attempting to hand over a packet from
-     * upper layers to Mac layer. For example in response to send_frame_to_mac(),
-     * an MCPS request is generated.
-     */
-    lorawan_status_t mcps_request_handler(loramac_mcps_req_t *mcps_request);
-
-    /**
      * Handles an MCPS confirmation coming from the Mac layer in response to an
      * MCPS request. We take appropriate actions in response to the confirmation,
      * e.g., letting the application know that ack was not received in case of
@@ -423,16 +416,6 @@ private:
      * there is something available to read.
      */
     void mcps_indication_handler(loramac_mcps_indication_t *mcps_indication);
-
-    /**
-     * Sets a MIB request, i.e., update a particular parameter etc.
-     */
-    lorawan_status_t mib_set_request(loramac_mib_req_confirm_t *mib_set_params);
-
-    /**
-     * Requests the MIB to inquire about a particular parameter.
-     */
-    lorawan_status_t mib_get_request(loramac_mib_req_confirm_t *mib_get_params);
 
     /**
      * Sets up user application port
@@ -487,6 +470,11 @@ private:
      * Used only for compliance testing
      */
     void compliance_test_handler(loramac_mcps_indication_t *mcps_indication);
+
+    /**
+     * Used only for compliance testing
+     */
+    lorawan_status_t mcps_request_handler(loramac_mcps_req_t *mcps_request);
 
     /**
      * Used only for compliance testing

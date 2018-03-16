@@ -56,21 +56,6 @@ typedef uint32_t lorawan_time_t;
 #define MSG_PROPRIETARY_FLAG                  0x08
 
 /**
- * A macro to test a if a bit is on in a channel mask or not.
- */
-//#define MASK_BIT_TEST(mask, bit)    (mask & (1U << bit))
-//#define MASK_BIT_TEST(mask, bit)    ((mask)[(bit) / 16] & (1U << ((bit) % 16)))
-/**
- * A macro to clear a bit in a channel mask.
- */
-//#define MASK_BIT_CLEAR(mask, bit)   (mask &= ~(1 << bit))
-
-/**
- * A macro to clear a bit in a channel mask.
- */
-//#define MASK_BIT_SET(mask, bit)   (mask |= (1 << bit))
-
-/**
  * Bit mask for message flags
  */
 
@@ -763,62 +748,6 @@ typedef enum {
 } mcps_type_t;
 
 /*!
- * LoRaMAC MCPS-Request structure.
- */
-typedef struct {
-    /*!
-     * MCPS-Request type.
-     */
-    mcps_type_t type;
-
-    /*!
-     * Frame port field. Must be set if the payload is not empty. Use the
-     * application-specific frame port values: [1...223].
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.2.
-     */
-    uint8_t fport;
-
-    /*!
-     * Uplink datarate, if ADR is off.
-     */
-    int8_t data_rate;
-    /*!
-     * The number of trials to transmit the frame, if the LoRaMAC layer did not
-     * receive an acknowledgment. The MAC performs a datarate adaptation
-     * according to the LoRaWAN Specification V1.0.2, chapter 18.4, as in
-     * the following table:
-     *
-     * Transmission nb | Data Rate
-     * ----------------|-----------
-     * 1 (first)       | DR
-     * 2               | DR
-     * 3               | max(DR-1,0)
-     * 4               | max(DR-1,0)
-     * 5               | max(DR-2,0)
-     * 6               | max(DR-2,0)
-     * 7               | max(DR-3,0)
-     * 8               | max(DR-3,0)
-     *
-     * Note that if nb_trials is set to 1 or 2, the MAC will not decrease
-     * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
-     */
-    uint8_t nb_trials;
-
-    /** Payload data
-      *
-      * A pointer to the buffer of the frame payload.
-      */
-     void *f_buffer;
-     /** Payload size
-      *
-      * The size of the frame payload.
-      */
-     uint16_t f_buffer_size;
-
-} loramac_mcps_req_t;
-
-/*!
  * LoRaMAC MCPS-Confirm.
  */
 typedef struct {
@@ -1025,29 +954,6 @@ typedef struct {
     uint8_t power;
 } mlme_cw_tx_mode_t;
 
-/*!
- * LoRaMAC MLME-Request structure.
- */
-typedef struct {
-    /*!
-     * MLME-Request type.
-     */
-    mlme_type_t type;
-
-    /*!
-     * MLME-Request parameters.
-     */
-    union {
-        /*!
-         * MLME-Request parameters for a join request.
-         */
-        mlme_join_req_t join;
-        /*!
-         * MLME-Request parameters for TX continuous mode request.
-         */
-        mlme_cw_tx_mode_t cw_tx_mode;
-    } req;
-} loramac_mlme_req_t;
 
 /*!
  * LoRaMAC MLME-Confirm primitive.
@@ -1090,465 +996,6 @@ typedef struct {
      */
     mlme_type_t indication_type;
 } loramac_mlme_indication_t;
-
-/*!
- * LoRa MAC Information Base (MIB).
- *
- * The following table lists the MIB parameters and the related attributes:
- *
- * Attribute                         | Get | Set
- * --------------------------------- | :-: | :-:
- * \ref MIB_DEVICE_CLASS             | YES | YES
- * \ref MIB_NETWORK_JOINED           | YES | YES
- * \ref MIB_ADR                      | YES | YES
- * \ref MIB_NET_ID                   | YES | YES
- * \ref MIB_DEV_ADDR                 | YES | YES
- * \ref MIB_NWK_SKEY                 | YES | YES
- * \ref MIB_APP_SKEY                 | YES | YES
- * \ref MIB_PUBLIC_NETWORK           | YES | YES
- * \ref MIB_REPEATER_SUPPORT         | YES | YES
- * \ref MIB_CHANNELS                 | YES | NO
- * \ref MIB_RX2_CHANNEL              | YES | YES
- * \ref MIB_CHANNELS_MASK            | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_MASK    | YES | YES
- * \ref MIB_CHANNELS_NB_REP          | YES | YES
- * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
- * \ref MIB_RECEIVE_DELAY_1          | YES | YES
- * \ref MIB_RECEIVE_DELAY_2          | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_1      | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_2      | YES | YES
- * \ref MIB_CHANNELS_DATARATE        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
- * \ref MIB_CHANNELS_TX_POWER        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_TX_POWER| YES | YES
- * \ref MIB_UPLINK_COUNTER           | YES | YES
- * \ref MIB_DOWNLINK_COUNTER         | YES | YES
- * \ref MIB_MULTICAST_CHANNEL        | YES | NO
- * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
- * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
- * \ref MIB_ANTENNA_GAIN             | YES | YES
- * \ref MIB_DEFAULT_ANTENNA_GAIN     | YES | YES
- *
- * The following table provides links to the function implementations of the
- * related MIB primitives:
- *
- * Primitive        | Function
- * ---------------- | :---------------------:
- * MIB-Set          | LoRaMacMibSetRequestConfirm
- * MIB-Get          | LoRaMacMibGetRequestConfirm
- */
-typedef enum {
-    /*!
-     * LoRaWAN device class.
-     *
-     * LoRaWAN Specification V1.0.2.
-     */
-    MIB_DEVICE_CLASS,
-    /*!
-     * LoRaWAN Network joined attribute.
-     *
-     * LoRaWAN Specification V1.0.2.
-     */
-    MIB_NETWORK_JOINED,
-    /*!
-     * Adaptive data rate.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.1.1.
-     *
-     * [true: ADR enabled, false: ADR disabled].
-     */
-    MIB_ADR,
-    /*!
-     * Network identifier.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.1.
-     */
-    MIB_NET_ID,
-    /*!
-     * End-device address.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.1.
-     */
-    MIB_DEV_ADDR,
-    /*!
-     * Network session key.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.3.
-     */
-    MIB_NWK_SKEY,
-    /*!
-     * Application session key.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.4.
-     */
-    MIB_APP_SKEY,
-    /*!
-     * Set the network type to public or private.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * [true: public network, false: private network]
-     */
-    MIB_PUBLIC_NETWORK,
-    /*!
-     * Support the operation with repeaters.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * [true: repeater support enabled, false: repeater support disabled]
-     */
-    MIB_REPEATER_SUPPORT,
-    /*!
-     * Communication channels. A GET request will return a
-     * pointer that references the first entry of the channel list. The
-     * list is of size LORA_MAX_NB_CHANNELS.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_CHANNELS,
-    /*!
-     * Set receive window 2 channel.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 3.3.1.
-     */
-    MIB_RX2_CHANNEL,
-    /*!
-     * Set receive window 2 channel.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 3.3.2.
-     */
-    MIB_RX2_DEFAULT_CHANNEL,
-    /*!
-     * LoRaWAN channels mask.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_CHANNELS_MASK,
-    /*!
-     * LoRaWAN default channels mask.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_CHANNELS_DEFAULT_MASK,
-    /*!
-     * Set the number of repetitions on a channel.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 5.2.
-     */
-    MIB_CHANNELS_NB_REP,
-    /*!
-     * The maximum receive window duration in [ms].
-     *
-     * LoRaWAN Specification V1.0.2, chapter 3.3.3.
-     */
-    MIB_MAX_RX_WINDOW_DURATION,
-    /*!
-     * The receive delay 1 in [ms].
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_RECEIVE_DELAY_1,
-    /*!
-     * The receive delay 2 in [ms].
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_RECEIVE_DELAY_2,
-    /*!
-     * The join accept delay 1 in [ms].
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_JOIN_ACCEPT_DELAY_1,
-    /*!
-     * The join accept delay 2 in [ms].
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     */
-    MIB_JOIN_ACCEPT_DELAY_2,
-    /*!
-     * The default data rate of a channel.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-     */
-    MIB_CHANNELS_DEFAULT_DATARATE,
-    /*!
-     * The data rate of a channel.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-     */
-    MIB_CHANNELS_DATARATE,
-    /*!
-     * The transmission power of a channel.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * The allowed ranges are region-specific. Please refer to \ref TX_POWER_0 to \ref TX_POWER_15 for details.
-     */
-    MIB_CHANNELS_TX_POWER,
-    /*!
-     * The transmission power of a channel.
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB.
-     *
-     * The allowed ranges are region-specific. Please refer to \ref TX_POWER_0 to \ref TX_POWER_15 for details.
-     */
-    MIB_CHANNELS_DEFAULT_TX_POWER,
-    /*!
-     * LoRaWAN uplink counter.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.1.5.
-     */
-    MIB_UPLINK_COUNTER,
-    /*!
-     * LoRaWAN downlink counter.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.1.5.
-     */
-    MIB_DOWNLINK_COUNTER,
-    /*!
-     * Multicast channels. A GET request will return a pointer to the first
-     * entry of the multicast channel linked list. If the pointer is equal to
-     * NULL, the list is empty.
-     */
-    MIB_MULTICAST_CHANNEL,
-    /*!
-     * System overall timing error in milliseconds.
-     * [-SystemMaxRxError : +SystemMaxRxError]
-     * Default: +/-10 ms
-     */
-    MIB_SYSTEM_MAX_RX_ERROR,
-    /*!
-     * The minimum  number of symbols required to detect an RX frame.
-     * Default: 6 symbols
-     */
-    MIB_MIN_RX_SYMBOLS,
-    /*!
-     * The antenna gain of the node. The default value is region-specific.
-     * The antenna gain is used to calculate the TX power of the node.
-     * The formula is:
-     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
-     */
-    MIB_ANTENNA_GAIN,
-    /*!
-     * Default antenna gain of the node. Default value is region specific.
-     * The antenna gain is used to calculate the TX power of the node.
-     * The formula is:
-     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
-     */
-    MIB_DEFAULT_ANTENNA_GAIN
-} mib_type_t;
-
-/*!
- * LoRaMAC MIB parameters.
- */
-typedef union {
-    /*!
-     * LoRaWAN device class.
-     *
-     * Related MIB type: \ref MIB_DEVICE_CLASS
-     */
-    device_class_t dev_class;
-    /*!
-     * LoRaWAN network joined attribute
-     *
-     * Related MIB type: \ref MIB_NETWORK_JOINED
-     */
-    bool is_nwk_joined;
-    /*!
-     * Activation state of ADR
-     *
-     * Related MIB type: \ref MIB_ADR
-     */
-    bool is_adr_enable;
-    /*!
-     * Network identifier
-     *
-     * Related MIB type: \ref MIB_NET_ID
-     */
-    uint32_t net_id;
-    /*!
-     * End-device address
-     *
-     * Related MIB type: \ref MIB_DEV_ADDR
-     */
-    uint32_t dev_addr;
-    /*!
-     * Network session key
-     *
-     * Related MIB type: \ref MIB_NWK_SKEY
-     */
-    uint8_t *nwk_skey;
-    /*!
-     * Application session key
-     *
-     * Related MIB type: \ref MIB_APP_SKEY
-     */
-    uint8_t *app_skey;
-    /*!
-     * Enable or disable a public network
-     *
-     * Related MIB type: \ref MIB_PUBLIC_NETWORK
-     */
-    bool enable_public_nwk;
-    /*!
-     * Enable or disable repeater support
-     *
-     * Related MIB type: \ref MIB_REPEATER_SUPPORT
-     */
-    bool enable_repeater_support;
-    /*!
-     * LoRaWAN channel
-     *
-     * Related MIB type: \ref MIB_CHANNELS
-     */
-    channel_params_t* channel_list;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_CHANNEL
-     */
-    rx2_channel_params rx2_channel;
-     /*!
-     * Channel for the receive window 2
-     *
-     * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
-     */
-    rx2_channel_params default_rx2_channel;
-    /*!
-     * Channel mask
-     *
-     * Related MIB type: \ref MIB_CHANNELS_MASK
-     */
-    uint16_t* channel_mask;
-    /*!
-     * Default channel mask
-     *
-     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_MASK
-     */
-    uint16_t* default_channel_mask;
-    /*!
-     * Number of frame repetitions
-     *
-     * Related MIB type: \ref MIB_CHANNELS_NB_REP
-     */
-    uint8_t channel_nb_rep;
-    /*!
-     * Maximum receive window duration
-     *
-     * Related MIB type: \ref MIB_MAX_RX_WINDOW_DURATION
-     */
-    uint32_t max_rx_window;
-    /*!
-     * Receive delay 1
-     *
-     * Related MIB type: \ref MIB_RECEIVE_DELAY_1
-     */
-    uint32_t recv_delay1;
-    /*!
-     * Receive delay 2
-     *
-     * Related MIB type: \ref MIB_RECEIVE_DELAY_2
-     */
-    uint32_t recv_delay2;
-    /*!
-     * Join accept delay 1
-     *
-     * Related MIB type: \ref MIB_JOIN_ACCEPT_DELAY_1
-     */
-    uint32_t join_accept_delay1;
-    /*!
-     * Join accept delay 2
-     *
-     * Related MIB type: \ref MIB_JOIN_ACCEPT_DELAY_2
-     */
-    uint32_t join_accept_delay2;
-    /*!
-     * Channels data rate
-     *
-     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_DATARATE
-     */
-    int8_t default_channel_data_rate;
-    /*!
-     * Channels data rate
-     *
-     * Related MIB type: \ref MIB_CHANNELS_DATARATE
-     */
-    int8_t channel_data_rate;
-    /*!
-     * Channels TX power
-     *
-     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_TX_POWER
-     */
-    int8_t default_channel_tx_pwr;
-    /*!
-     * Channels TX power
-     *
-     * Related MIB type: \ref MIB_CHANNELS_TX_POWER
-     */
-    int8_t channel_tx_pwr;
-    /*!
-     * LoRaWAN uplink counter
-     *
-     * Related MIB type: \ref MIB_UPLINK_COUNTER
-     */
-    uint32_t ul_frame_counter;
-    /*!
-     * LoRaWAN downlink counter
-     *
-     * Related MIB type: \ref MIB_DOWNLINK_COUNTER
-     */
-    uint32_t dl_frame_counter;
-    /*!
-     * Multicast channel
-     *
-     * Related MIB type: \ref MIB_MULTICAST_CHANNEL
-     */
-    multicast_params_t* multicast_list;
-    /*!
-     * System overall timing error in milliseconds
-     *
-     * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
-     */
-    uint32_t max_rx_sys_error;
-    /*!
-     * Minimum required number of symbols to detect an RX frame
-     *
-     * Related MIB type: \ref MIB_MIN_RX_SYMBOLS
-     */
-    uint8_t min_rx_symb;
-    /*!
-     * Antenna gain
-     *
-     * Related MIB type: \ref MIB_ANTENNA_GAIN
-     */
-    float antenna_gain;
-    /*!
-     * Default antenna gain
-     *
-     * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
-     */
-    float default_antenna_gain;
-} mib_params_t;
-
-/*!
- * LoRaMAC MIB-RequestConfirm structure
- */
-typedef struct {
-    /*!
-     * MIB-Request type
-     */
-    mib_type_t type;
-
-    /*!
-     * MLME-RequestConfirm parameters
-     */
-    mib_params_t param;
-}loramac_mib_req_confirm_t;
 
 /** LoRaMAC status.
  *
@@ -1830,14 +1277,10 @@ typedef struct lorawan_session {
     lorawan_connect_t connection;
     /**
      * LoRaWAN uplink counter
-     *
-     * Related MIB type: LORA_MIB_UPLINK_COUNTER
      */
     uint32_t uplink_counter;
     /**
      * LoRaWAN downlink counter
-     *
-     * Related MIB type: LORA_MIB_DOWNLINK_COUNTER
      */
     uint32_t downlink_counter;
 } lorawan_session_t;
@@ -2050,11 +1493,6 @@ typedef struct {
 } lorawan_timers;
 
 typedef struct {
-
-    /*!
-     * Actual device class
-     */
-    device_class_t dev_class;
 
     /*!
      * Holds the type of current Receive window slot
@@ -2288,6 +1726,69 @@ typedef struct lora_channelplan {
 } lorawan_channelplan_t;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
+
+typedef struct {
+    /*!
+     * MLME-Request type.
+     */
+    mlme_type_t type;
+
+    mlme_cw_tx_mode_t cw_tx_mode;
+} loramac_mlme_req_t;
+
+typedef struct {
+    /*!
+     * MCPS-Request type.
+     */
+    mcps_type_t type;
+
+    /*!
+     * Frame port field. Must be set if the payload is not empty. Use the
+     * application-specific frame port values: [1...223].
+     *
+     * LoRaWAN Specification V1.0.2, chapter 4.3.2.
+     */
+    uint8_t fport;
+
+    /*!
+     * Uplink datarate, if ADR is off.
+     */
+    int8_t data_rate;
+    /*!
+     * The number of trials to transmit the frame, if the LoRaMAC layer did not
+     * receive an acknowledgment. The MAC performs a datarate adaptation
+     * according to the LoRaWAN Specification V1.0.2, chapter 18.4, as in
+     * the following table:
+     *
+     * Transmission nb | Data Rate
+     * ----------------|-----------
+     * 1 (first)       | DR
+     * 2               | DR
+     * 3               | max(DR-1,0)
+     * 4               | max(DR-1,0)
+     * 5               | max(DR-2,0)
+     * 6               | max(DR-2,0)
+     * 7               | max(DR-3,0)
+     * 8               | max(DR-3,0)
+     *
+     * Note that if nb_trials is set to 1 or 2, the MAC will not decrease
+     * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
+     */
+    uint8_t nb_trials;
+
+    /** Payload data
+      *
+      * A pointer to the buffer of the frame payload.
+      */
+     void *f_buffer;
+     /** Payload size
+      *
+      * The size of the frame payload.
+      */
+     uint16_t f_buffer_size;
+
+} loramac_mcps_req_t;
+
 /**  LoRaWAN compliance tests support data
  *
  */
