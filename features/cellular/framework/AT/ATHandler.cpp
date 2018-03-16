@@ -181,6 +181,25 @@ nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void
     return NSAPI_ERROR_OK;
 }
 
+void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+{
+    struct oob_t *current = _oobs;
+    struct oob_t *prev = NULL;
+    while (current) {
+        if (strcmp(prefix, current->prefix) == 0 && current->cb == callback) {
+            if (prev) {
+                prev->next = current->next;
+            } else {
+                _oobs = current->next;
+            }
+            delete current;
+            break;
+        }
+        prev = current;
+        current = prev->next;
+    }
+}
+
 bool ATHandler::check_urc_existance(const char *prefix, mbed::Callback<void()> callback)
 {
     struct oob_t *oob = _oobs;

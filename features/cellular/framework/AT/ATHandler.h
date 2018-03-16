@@ -114,6 +114,13 @@ public:
      */
     nsapi_error_t set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 
+    /** Remove urc handler from linked list of urc's
+     *
+     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
+     *  @param callback Callback, which is called if urc is found in AT response
+     */
+    void remove_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+
     ATHandler *_nextATHandler; // linked list
 
     /** returns the last error while parsing AT responses.

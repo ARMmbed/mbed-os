@@ -19,6 +19,7 @@
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "nsapi_types.h"
+#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 static const int PSMTimerBits = 5;
 
@@ -42,8 +43,6 @@ nsapi_error_t AT_CellularPower::off()
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
-
-// wiat filehandle irq
 
 nsapi_error_t AT_CellularPower::set_at_mode()
 {
@@ -232,4 +231,20 @@ nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnolog
     _at.resp_stop();
 
     return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
+{
+#ifdef DEVICE_READY_URC
+    return _at.set_urc_handler(DEVICE_READY_URC, callback);
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif // DEVICE_READY_URC
+}
+
+void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
+{
+#ifdef DEVICE_READY_URC
+    _at.remove_urc_handler(DEVICE_READY_URC, callback);
+#endif // DEVICE_READY_URC
 }

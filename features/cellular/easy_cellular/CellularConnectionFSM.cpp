@@ -303,6 +303,8 @@ bool CellularConnectionFSM::is_automatic_registering()
 nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 {
     _state = state;
+    _next_state = state;
+    _retry_count = 0;
     if (!_queue.call_in(0, callback(this, &CellularConnectionFSM::event))) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -313,6 +315,7 @@ nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 
 nsapi_error_t CellularConnectionFSM::continue_to_state(CellularState state)
 {
+    _retry_count = 0;
     if (state < _state) {
         _state = state;
     } else {
@@ -336,7 +339,7 @@ void CellularConnectionFSM::enter_to_state(CellularState state)
 void CellularConnectionFSM::retry_state_or_fail()
 {
     if (++_retry_count < MAX_RETRY_ARRAY_SIZE) {
-        tr_info("Retry State %s, retry %d/%d", get_state_string(_state), _retry_count, MAX_RETRY_ARRAY_SIZE);
+        tr_debug("Retry State %s, retry %d/%d", get_state_string(_state), _retry_count, MAX_RETRY_ARRAY_SIZE);
         _event_timeout = _retry_timeout_array[_retry_count];
     } else {
         report_failure(get_state_string(_state));
@@ -363,30 +366,41 @@ void CellularConnectionFSM::state_power_on()
     }
 }
 
+bool CellularConnectionFSM::device_ready()
+{
+    tr_info("Cellular device ready");
+    if (_event_status_cb) {
+        _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularDeviceReady);
+    }
+
+    _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
+
+    bool success = false;
+    for (int type = 0; type < CellularNetwork::C_MAX; type++) {
+        if (!_network->set_registration_urc((CellularNetwork::RegistrationType)type, true)) {
+             success = true;
+        }
+    }
+    if (!success) {
+        tr_error("Failed to set any URC's for registration");
+        report_failure(get_state_string(_state));
+        return false;
+    }
+
+    return true;
+}
+
 void CellularConnectionFSM::state_device_ready()
 {
     _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
-    if (_power->set_at_mode() == NSAPI_ERROR_OK) { // TODO: ask once, then wait for urc is possible as 3gpp does not define any first at command or such what we could listen
-                                                   //       This could be done by adding module specific at command which to listen
-        tr_info("Cellular device ready");
-        if (_event_status_cb) {
-            _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularDeviceReady);
+    if (_power->set_at_mode() == NSAPI_ERROR_OK) {
+        if (device_ready()) {
+            enter_to_state(STATE_SIM_PIN);
         }
-
-        bool success = false;
-        for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-            if (!_network->set_registration_urc((CellularNetwork::RegistrationType)type, true)) {
-                 success = true;
-            }
-        }
-        if (!success) {
-            tr_error("Failed to set any URC's for registration");
-            report_failure(get_state_string(_state));
-            return;
-        }
-
-        enter_to_state(STATE_SIM_PIN);
     } else {
+        if (_retry_count == 0) {
+            (void)_power->set_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
+        }
         retry_state_or_fail();
     }
 }
@@ -560,6 +574,18 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 
     if (_event_status_cb) {
         _event_status_cb(ev, ptr);
+    }
+}
+
+void CellularConnectionFSM::ready_urc_cb()
+{
+    tr_info("Device ready URC func called");
+    if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
+        tr_info("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
+        _queue.cancel(_eventID);
+        if (device_ready()) {
+            continue_from_state(STATE_SIM_PIN);
+        }
     }
 }
 

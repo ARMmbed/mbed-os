@@ -22,13 +22,7 @@
 
 namespace mbed {
 
-#ifdef TARGET_MCU_K64F
-#define CELLULAR_SERIAL_TX PTC17
-#define CELLULAR_SERIAL_RX PTC16
-#else
-#define CELLULAR_SERIAL_TX PC_1
-#define CELLULAR_SERIAL_RX PC_0
-#endif
+#define DEVICE_READY_URC "CPIN:"
 
 class QUECTEL_BG96 : public AT_CellularDevice
 {

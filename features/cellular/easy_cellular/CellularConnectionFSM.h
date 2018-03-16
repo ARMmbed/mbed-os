@@ -29,10 +29,9 @@
 #include "CellularNetwork.h"
 #include "CellularPower.h"
 #include "CellularSIM.h"
+#include "CellularUtil.h"
 
 // modem type is defined as CELLULAR_DEVICE macro
-#define _CELLULAR_STRINGIFY(a) #a
-#define CELLULAR_STRINGIFY(a) _CELLULAR_STRINGIFY(a)
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 namespace mbed {
@@ -149,6 +148,7 @@ private:
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
     bool is_registered();
+    bool device_ready();
 
     // state functions to keep state machine simple
     void state_init();
@@ -171,6 +171,7 @@ private:
 private:
     void report_failure(const char* msg);
     void event();
+    void ready_urc_cb();
 
     UARTSerial *_serial;
     CellularState _state;
