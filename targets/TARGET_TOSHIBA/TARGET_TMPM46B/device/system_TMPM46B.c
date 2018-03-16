@@ -3,12 +3,12 @@
  * @file    system_TMPM46B.c
  * @brief   CMSIS Cortex-M4 Device Peripheral Access Layer Source File for the
  *          TOSHIBA 'TMPM46B' Device Series
- * @version V2.0.2.3
- * @date    2015/4/9
+ * @version V2.0.2.4
+ * @date    2018/3/15
  *
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  *
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
  *******************************************************************************
  */
 
@@ -31,25 +31,22 @@
 #define CG_8M_MUL_4_FPLL        (0x00006A0FUL<<1U)
 #define CG_8M_MUL_5_FPLL        (0x00006A13UL<<1U)
 #define CG_8M_MUL_6_FPLL        (0x00006917UL<<1U)
-#define CG_8M_MUL_8_FPLL        (0x0000691FUL<<1U)
 #define CG_8M_MUL_10_FPLL       (0x00006A26UL<<1U)
 #define CG_8M_MUL_12_FPLL       (0x0000692EUL<<1U)
 
 #define CG_10M_MUL_4_FPLL       (0x00006A0FUL<<1U)
 #define CG_10M_MUL_5_FPLL       (0x00006A13UL<<1U)
 #define CG_10M_MUL_6_FPLL       (0x00006917UL<<1U)
-#define CG_10M_MUL_8_FPLL       (0x0000691FUL<<1U)
+#define CG_10M_MUL_8_FPLL       (0x00006A1EUL<<1U)
 #define CG_10M_MUL_10_FPLL      (0x00006A26UL<<1U)
 #define CG_10M_MUL_12_FPLL      (0x0000692EUL<<1U)
 
 #define CG_12M_MUL_4_FPLL       (0x00006A0FUL<<1U)
 #define CG_12M_MUL_5_FPLL       (0x00006A13UL<<1U)
-#define CG_12M_MUL_6_FPLL       (0x00006917UL<<1U)
-#define CG_12M_MUL_8_FPLL       (0x0000691FUL<<1U)
+#define CG_12M_MUL_8_FPLL       (0x00006A1EUL<<1U)
 #define CG_12M_MUL_10_FPLL      (0x00006A26UL<<1U)
 
 #define CG_16M_MUL_4_FPLL       (0x00006A0FUL<<1U)
-#define CG_16M_MUL_5_FPLL       (0x00006A13UL<<1U)
 
 #define CG_PLLSEL_PLLON_SET                  ((uint32_t)0x00010000)
 #define CG_PLLSEL_PLLON_CLEAR                ((uint32_t)0xFFFEFFFF)
@@ -225,8 +222,6 @@ void SystemCoreClockUpdate(void)
                 CoreClockInput = CoreClock * 5U;                            /* output clock is 40MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_8M_MUL_6_FPLL) {
                 CoreClockInput = CoreClock * 6U;                            /* output clock is 48MHz */
-            } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_8M_MUL_8_FPLL) {
-                CoreClockInput = CoreClock * 8U;                            /* output clock is 64MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_8M_MUL_10_FPLL) {
                 CoreClockInput = CoreClock * 10U;                            /* output clock is 80MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_8M_MUL_12_FPLL) {
@@ -255,8 +250,6 @@ void SystemCoreClockUpdate(void)
                 CoreClockInput = CoreClock * 4U;                             /* output clock is 48MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_12M_MUL_5_FPLL) {
                 CoreClockInput = CoreClock * 5U;                             /* output clock is 60MHz */
-            } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_12M_MUL_6_FPLL) {
-                CoreClockInput = CoreClock * 6U;                             /* output clock is 72MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_12M_MUL_8_FPLL) {
                 CoreClockInput = CoreClock * 8U;                             /* output clock is 96MHz */
             } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_12M_MUL_10_FPLL) {
@@ -267,8 +260,6 @@ void SystemCoreClockUpdate(void)
         } else if (CoreClock == OSC_16M) {                                  /* If input is 16MHz */
             if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_16M_MUL_4_FPLL) {
                 CoreClockInput = CoreClock * 4U;                             /* output clock is 64MHz */
-            } else if ((TSB_CG->PLLSEL & PLLSEL_MASK) == CG_16M_MUL_5_FPLL) {
-                CoreClockInput = CoreClock * 5U;                             /* output clock is 80MHz */
             } else {
                 CoreClockInput = 0U;                                         /* fc -> reserved        */
             }
@@ -325,6 +316,14 @@ void SystemInit(void)
     volatile uint32_t wuef = 0U;
     volatile uint32_t oscf = 0U;
     uint32_t wdte = 0U;
+
+#if defined ( __CC_ARM  )/*Enable FPU for Keil*/
+  #if (__FPU_USED == 1)                        /* __FPU_USED is defined in core_cm4.h */
+    /* enable FPU if available and used */
+    SCB->CPACR |= ((3UL << 10*2) |             /* set CP10 Full Access                */
+                   (3UL << 11*2)  );           /* set CP11 Full Access                */
+  #endif
+#endif 
 
 #if (WD_SETUP)                  /* Watchdog Setup */
     while (TSB_WD->FLG != 0U) {

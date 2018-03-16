@@ -3,10 +3,10 @@
  * @file     system_TMPM46B.h
  * @brief    CMSIS Cortex-M4 Device Peripheral Access Layer Header File for the
  *           TOSHIBA 'TMPM46B' Device Series 
- * @version  V2.0.2.1 (Tentative)
+ * @version  V2.0.2.1
  * @date     2014/12/03
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
  * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
  *****************************************************************************

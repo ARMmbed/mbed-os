@@ -2,12 +2,12 @@
  *******************************************************************************
  * @file    tmpm46B_esg.c
  * @brief   This file provides API functions for ESG driver.
- * @version V2.0.2.1
- * @date    2015/02/04
+ * @version V2.0.2.2
+ * @date    2018/03/15
  * 
- * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LISENCE AGREEMENT.
+ * DO NOT USE THIS SOFTWARE WITHOUT THE SOFTWARE LICENSE AGREEMENT.
  * 
- * (C)Copyright TOSHIBA CORPORATION 2015 All rights reserved
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
  *******************************************************************************
  */
  
@@ -250,12 +250,6 @@ void ESG_IPReset(void)
     TSB_SRST->PROTECT = SRST_PROTECT_DISABLE;
 
     TSB_SRST->IPRST |= SRST_IPRST_3_SET;
-
-    /* Confirm SRSTIPRST<IPRST3> = 1 */
-    do {
-        iprst3 = TSB_SRST->IPRST & SRST_IPRST_3_SET;
-    }
-    while (iprst3 != SRST_IPRST_3_SET);
 
     /* Release reset state */
     TSB_SRST->IPRST &= SRST_IPRST_3_CLEAR;
