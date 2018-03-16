@@ -302,19 +302,13 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::secure_connections_oob_received
+     * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
      */
-    virtual ble_error_t secure_connections_oob_received(
-        const address_t &address,
-        const oob_lesc_value_t &random,
-        const oob_confirm_t &confirm
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::is_secure_connections_oob_present
-     */
-    virtual bool is_secure_connections_oob_present(
-        const address_t &address
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
     );
 
     // singleton of the ARM Cordio Security Manager

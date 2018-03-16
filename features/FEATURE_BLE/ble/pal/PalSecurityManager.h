@@ -371,6 +371,17 @@ public:
          * Request OOB data from the user application.
          *
          * @param[in] connection connection handle
+         * @note shall be followed by: pal::SecurityManager::secure_connections_oob_request_reply
+         * or a cancellation of the procedure.
+         */
+        virtual void on_secure_connections_oob_request(
+            connection_handle_t connection
+        ) = 0;
+
+        /**
+         * Request OOB data from the user application.
+         *
+         * @param[in] connection connection handle
          * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_request_reply
          * or a cancellation of the procedure.
          */
@@ -381,14 +392,14 @@ public:
         /**
          * Send OOB data to the application for transport to the peer.
          *
-         * @param[in] address address of the local device
+         * @param[in] connection connection handle
          * @param[in] random random number used to generate the confirmation
          * @param[in] confirm confirmation value to be use for authentication
          *                    in secure connections pairing
          * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
          */
         virtual void on_secure_connections_oob_generated(
-            const address_t &local_address,
+            connection_handle_t connection,
             const oob_lesc_value_t &random,
             const oob_confirm_t &confirm
         ) = 0;
@@ -909,7 +920,24 @@ public:
     ) = 0;
 
     /**
-     * Reply to an oob data request received from the SecurityManagerEventHandler.
+     * Reply to a Secure Connections oob data request received from the SecurityManagerEventHandler.
+     *
+     * @param[in] connection connection handle
+     * @param[in] local_random local random number used for the last oob exchange
+     * @param[in] peer_random random number used to generate the confirmation on peer
+     * @param[in] peer_confirm confirmation value to be use for authentication
+     *                         in secure connections pairing
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
+    ) = 0;
+
+    /**
+     * Reply to a legacy pairing oob data request received from the SecurityManagerEventHandler.
      *
      * @param[in] connection connection handle
      * @param[in] oob_data pointer to out of band data
@@ -953,32 +981,6 @@ public:
      */
     virtual ble_error_t generate_secure_connections_oob(
         connection_handle_t connection
-    ) = 0;
-
-    /**
-     * Supply the stack with the OOB data for secure connections.
-     *
-     * @param[in] address address of the peer device this data comes from
-     * @param[in] random random number used to generate the confirmation
-     * @param[in] confirm confirmation value to be use for authentication
-     *                    in secure connections pairing
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t secure_connections_oob_received(
-        const address_t &address,
-        const oob_lesc_value_t &random,
-        const oob_confirm_t &confirm
-    ) = 0;
-
-    /**
-     * Supply the stack with the OOB data for secure connections.
-     *
-     * @param[in] address address of the peer device oob data is needed for
-     * @return True if oob data present, false if not or if the functionality
-     *         is not implemented.
-     */
-    virtual bool is_secure_connections_oob_present(
-        const address_t &address
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
