@@ -1,0 +1,29 @@
+{
+    "name": "nordic",
+    "config": {
+        "uart-hwfc": {
+            "help": "Enable hardware flow control for STDIO.",
+            "value": 1
+        },
+        "lf-clock-src": {
+            "help": "Select Low Frequency clock source.",
+            "value": "NRF_LF_SRC_XTAL"
+        },
+        "uart-timeout-us": {
+            "help": "Idle time in micro seconds between characters before buffer is flushed.",
+            "value": 2000
+        },
+        "uart-0-fifo-size": {
+            "help": "UART0 FIFO buffer. FIFO buffer is filled from DMA buffer.",
+            "value": 32
+        },
+        "uart-1-fifo-size": {
+            "help": "UART1 FIFO buffer. FIFO buffer is filled from DMA buffer.",
+            "value": 32
+        },
+        "uart-dma-size": {
+            "help": "UART DMA buffer. 2 buffers per instance. DMA buffer is filled by UARTE",
+            "value": 8
+        }
+    }
+}

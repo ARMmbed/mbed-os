@@ -32,6 +32,7 @@
 #define NORDIC_TWI_COUNT TWI_COUNT
 #define NORDIC_SPI_COUNT SPI_COUNT
 #define NORDIC_PWM_COUNT PWM_COUNT
+#define NORDIC_UART_COUNT UARTE_COUNT
 
 /* Define which instance to return when there are no free instances left.
  * The Mbed HAL API doesn't provide a way for signaling initialization errors
@@ -41,6 +42,7 @@
 #define DEFAULT_I2C_INSTANCE 0 // SPI counts down, choose instance furthest away
 #define DEFAULT_SPI_INSTANCE (NORDIC_SPI_COUNT - 1) // I2C counts up, choose instance furthers away
 #define DEFAULT_PWM_INSTANCE (NORDIC_PWM_COUNT - 1)
+#define DEFAULT_UART_INSTANCE (NORDIC_UART_COUNT - 1)
 
 
 /***
@@ -365,3 +367,115 @@ int pin_instance_pwm(PinName pwm)
 
     return instance;
 }
+
+
+/***
+ *      _    _         _____ _______
+ *     | |  | |  /\   |  __ \__   __|
+ *     | |  | | /  \  | |__) | | |
+ *     | |  | |/ /\ \ |  _  /  | |
+ *     | |__| / ____ \| | \ \  | |
+ *      \____/_/    \_\_|  \_\ |_|
+ *
+ *
+ */
+
+/* Internal data structure to keep track of allocated instances.
+ */
+typedef struct {
+    PinName tx;
+    PinName rx;
+} uart_t;
+
+static uart_t nordic_internal_uart[NORDIC_UART_COUNT] = {
+    { NC, NC },
+#if (NORDIC_UART_COUNT == 2)
+    { NC, NC }
+#endif
+};
+
+/**
+ * Brief       Find hardware instance for the provided UART pin.
+ *
+ *             The function will search the PeripheralPin map for a pre-allocated
+ *             assignment. If none is found the allocation map will be searched
+ *             to see if the same pins have been assigned an instance before.
+ *
+ *             If no assignement is found and there is an empty slot left in the
+ *             map, the pins are stored in the map and the hardware instance is
+ *             returned.
+ *
+ *             If no free instances are available, the default instance is returned.
+ *
+ * Parameter   tx    tx pin.
+ * Parameter   rx    rx pin.
+ *
+ * Return      Hardware instance associated with provided pins.
+ */
+int pin_instance_uart(PinName tx, PinName rx)
+{
+    int instance = NC;
+
+    /* Search pin map for pre-allocated instance */
+    for (size_t index = 0; ((PinMap_UART[index].tx != NC) && (PinMap_UART[index].rx != NC)); index++) {
+
+        /* Compare pins to entry. */
+        if ((PinMap_UART[index].tx == tx) && (PinMap_UART[index].rx == rx)) {
+
+            DEBUG_PRINTF("found: %d %d %d\r\n", tx, rx, PinMap_UART[index].instance);
+
+            /* Instance found, save result. */
+            instance = PinMap_UART[index].instance;
+
+            /* Lock out entry in map. */
+            nordic_internal_uart[instance].tx = tx;
+            nordic_internal_uart[instance].rx = rx;
+            break;
+        }
+    }
+
+    /* No instance was found in static map. */
+    if (instance == NC) {
+
+        /* Search dynamic map for entry. */
+        for (size_t index = 0; index < NORDIC_UART_COUNT; index++) {
+
+            /* Pins match previous dynamic allocation, return instance. */
+            if ((nordic_internal_uart[index].tx == tx) && (nordic_internal_uart[index].rx == rx)) {
+
+                instance = index;
+                break;
+            }
+        }
+    }
+
+    /* No instance was found in dynamic map. */
+    if (instance == NC) {
+
+        /* Search dynamic map for empty slot. */
+        for (size_t index = 0; index < NORDIC_UART_COUNT; index++) {
+
+            /* Empty slot found, reserve slot by storing pins. */
+            if ((nordic_internal_uart[index].tx == NC) && (nordic_internal_uart[index].rx == NC)) {
+
+                nordic_internal_uart[index].tx = tx;
+                nordic_internal_uart[index].rx = rx;
+
+                instance = index;
+                break;
+            }
+        }
+    }
+
+#if defined(DEFAULT_UART_INSTANCE)
+    /* Exhausted all options. Return default value. */
+    if (instance == NC) {
+        instance = DEFAULT_UART_INSTANCE;
+    }
+#endif
+
+    DEBUG_PRINTF("UART: %d %d %d\r\n", tx, rx, instance);
+
+    return instance;
+}
+

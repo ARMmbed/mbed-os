@@ -21,19 +21,26 @@
  * Can be overwritten by user.
  */
 MBED_WEAK const PinMapI2C PinMap_I2C[1] = {
-    {NC, NC, NC}
+    { NC, NC, NC }
 };
 
 /* Default mapping between SPI pins and SPI instance.
  * Can be overwritten by user.
  */
 MBED_WEAK const PinMapSPI PinMap_SPI[1] = {
-    {NC, NC, NC, NC}
+    { NC, NC, NC, NC }
 };
 
 /* Default mapping between PWM pins and PWM instance.
  * Can be overwritten by user.
  */
 MBED_WEAK const PinMapPWM PinMap_PWM[1] = {
-    {NC, NC}
+    { NC, NC }
+};
+
+/* Default mapping between UART pins and UART instance.
+ * Can be overwritten by user.
+ */
+MBED_WEAK const PinMapUART PinMap_UART[1] = {
+    { NC, NC, NC }
 };
