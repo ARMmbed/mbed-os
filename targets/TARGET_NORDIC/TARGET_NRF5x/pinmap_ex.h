@@ -50,6 +50,15 @@ typedef struct {
 
 extern const PinMapPWM PinMap_PWM[];
 
+/* Data structure for pre-allocated UART instances. */
+typedef struct {
+    PinName tx;
+    PinName rx;
+    int instance;
+} PinMapUART;
+
+extern const PinMapUART PinMap_UART[];
+
 /**
  * @brief      Find hardware instance for the provided I2C pins.
  *
@@ -109,6 +118,26 @@ int pin_instance_spi(PinName mosi, PinName miso, PinName clk);
  * @return     Hardware instance associated with provided pins.
  */
 int pin_instance_pwm(PinName pwm);
+
+/**
+ * @brief      Find hardware instance for the provided UART pins.
+ *
+ *             The function will search the PeripheralPin map for a pre-allocated
+ *             assignment. If none is found the allocation map will be searched
+ *             to see if the same pins have been assigned an instance before.
+ *
+ *             If no assignement is found and there is an empty slot left in the
+ *             map, the pins are stored in the map and the hardware instance is
+ *             returned.
+ *
+ *             If no free instances are available, the default instance is returned.
+ *
+ * @param[in]  tx     tx pin.
+ * @param[in]  rx     rx pin.
+ *
+ * @return     Hardware instance associated with provided pins.
+ */
+int pin_instance_uart(PinName tx, PinName rx);
 
 #ifdef __cplusplus
 }

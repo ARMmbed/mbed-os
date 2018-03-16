@@ -52,9 +52,32 @@
 extern "C" {
 #endif
 
+#include "nrf_uart.h"
+
 struct serial_s {
-    uint32_t placeholder; // struct is unused by nRF5x API implementation
-};                        // but it must be not empty (required by strict compiler - IAR)
+    int                 instance;
+    uint32_t            tx;
+    uint32_t            rx;
+    uint32_t            cts;
+    uint32_t            rts;
+    nrf_uart_hwfc_t     hwfc;
+    nrf_uart_parity_t   parity;
+    nrf_uart_baudrate_t baudrate;
+    uint32_t            context;
+    uint32_t            handler;
+    uint32_t            mask;
+    uint32_t            event;
+    bool                update;
+#if DEVICE_SERIAL_ASYNCH
+    bool                rx_asynch;
+    uint32_t            tx_handler;
+    uint32_t            tx_mask;
+    uint32_t            tx_event;
+    uint32_t            rx_handler;
+    uint32_t            rx_mask;
+    uint32_t            rx_event;
+#endif
+};
 
 struct spi_s {
     int instance;
