@@ -1256,7 +1256,8 @@ bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint
         return false;
     }
 
-    if (!configured()) {
+    bool configuring = _transfer.user_callback == SetConfiguration;
+    if (!configured() && !configuring) {
         unlock();
         return false;
     }
@@ -1295,7 +1296,8 @@ bool USBDevice::write(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
         return false;
     }
 
-    if (!configured()) {
+    bool configuring = _transfer.user_callback == SetConfiguration;
+    if (!configured() && !configuring) {
         unlock();
         return false;
     }
