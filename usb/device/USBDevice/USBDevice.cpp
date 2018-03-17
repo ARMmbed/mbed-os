@@ -200,7 +200,7 @@ bool USBDevice::_control_out()
     }
 
     /* Read from endpoint */
-    packetSize = _phy->ep0_read_result(_transfer.ptr, _transfer.remaining);
+    packetSize = _phy->ep0_read_result();
 
     /* Check if transfer size is valid */
     if (packetSize > _transfer.remaining) {
@@ -224,7 +224,7 @@ bool USBDevice::_control_out()
             complete_request_xfer_done(true);
         }
     } else {
-        _phy->ep0_read();
+        _phy->ep0_read(_transfer.ptr, _transfer.remaining);
     }
 
     return true;
@@ -330,7 +330,7 @@ void USBDevice::_complete_request_xfer_done()
         _phy->ep0_write(NULL, 0);
     }  else if (_transfer.stage == DataIn) {
         _transfer.stage = Status;
-        _phy->ep0_read();
+        _phy->ep0_read(NULL, 0);
     }
 }
 
@@ -800,7 +800,7 @@ void USBDevice::_control_setup_continue()
         } else {
             /* OUT stage */
             _transfer.stage = DataOut;
-            _phy->ep0_read();
+            _phy->ep0_read(_transfer.ptr, _transfer.remaining);
         }
     } else {
         /* Status stage */
@@ -1052,11 +1052,6 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
         info->flags |= ENDPOINT_ENABLED;
         info->pending = 0;
         info->max_packet_size = max_packet_size;
-        ret = _phy->endpoint_read(endpoint, max_packet_size);
-        if (!ret) {
-            MBED_ASSERT(0);
-            endpoint_remove(endpoint);
-        }
     }
 
     unlock();
@@ -1261,7 +1256,7 @@ uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)
     return size;
 }
 
-bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size)
+bool USBDevice::read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size)
 {
     lock();
 
@@ -1291,17 +1286,43 @@ bool USBDevice::read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint
         return false;
     }
 
-    bool ret = _phy->endpoint_read_result(endpoint, buffer, max_size, size);
-    if (ret) {
-        info->pending -= 1;
-        _phy->endpoint_read(endpoint, info->max_packet_size);
-    }
+    _phy->endpoint_read(endpoint, buffer, info->max_packet_size);
 
     unlock();
-    return ret;
+
+    return true;
 }
 
-bool USBDevice::write(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
+uint32_t USBDevice::read_finish(usb_ep_t endpoint)
+{
+    lock();
+
+    if (!EP_INDEXABLE(endpoint)) {
+        MBED_ASSERT(0);
+        unlock();
+        return 0;
+    }
+
+    if (!configured()) {
+        unlock();
+        return 0;
+    }
+
+    endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
+    if (!(info->flags & ENDPOINT_ENABLED)) {
+        // Invalid endpoint is being used
+        MBED_ASSERT(0);
+        unlock();
+        return 0;
+    }
+
+    uint32_t size = 0;
+    size = _phy->endpoint_read_result(endpoint);
+    unlock();
+    return size;
+}
+
+bool USBDevice::write_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
 {
     lock();
 
@@ -1341,8 +1362,42 @@ bool USBDevice::write(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
     /* Send report */
     bool ret = _phy->endpoint_write(endpoint, buffer, size);
     if (ret) {
+        info->transfer_size = size;
         info->pending += 1;
+    } else {
+        info->transfer_size = 0;
     }
+
+    unlock();
+    return ret;
+}
+
+uint32_t USBDevice::write_finish(usb_ep_t endpoint)
+{
+    uint32_t ret = 0;
+
+    lock();
+
+    if (!EP_INDEXABLE(endpoint)) {
+        MBED_ASSERT(0);
+        unlock();
+        return false;
+    }
+
+    if (!configured()) {
+        unlock();
+        return false;
+    }
+
+    endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
+    if (!(info->flags & ENDPOINT_ENABLED)) {
+        // Invalid endpoint is being used
+        MBED_ASSERT(0);
+        unlock();
+        return 0;
+    }
+
+    ret = info->transfer_size;
 
     unlock();
     return ret;
