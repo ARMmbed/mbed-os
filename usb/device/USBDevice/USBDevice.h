@@ -202,26 +202,33 @@ public:
     uint32_t endpoint_max_packet_size(usb_ep_t endpoint);
 
     /**
-     * Read a packet on the given endpoint
+     * start a read on the given endpoint
      *
-     * Get the contents of an IN transfer. To ensure all the data from this
-     * endpoint is read make sure the buffer and size passed in is at least
-     * as big as the maximum packet for this endpoint.
+     * Start a read on the given endpoint. The data buffer must remain
+     * unchanged until the transfer either completes or is aborted.
      *
      * @param endpoint endpoint to read data from
      * @param buffer buffer to fill with read data
-     * @param max_size the total size of the data buffer. This must be at least
-     * the max packet size of this endpoint
-     * @param size The size of data that was read
+     * @param size The size of data to read. This must be greater than or equal
+     *        to the max packet size for this endpoint
      * @return true if the read was completed, otherwise false
      * @note This endpoint must already have been setup with endpoint_add
      */
-    bool read(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size, uint32_t *size);
+    bool read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size);
+
+    /**
+     * Get the status of a read
+     *
+     * @param endpoint endpoint to get the status of
+     * @return number of bytes read by this endpoint
+     */
+    uint32_t read_finish(usb_ep_t endpoint);
 
     /**
      * Write a data to the given endpoint
      *
-     * Write data to an endpoint.
+     * Write data to an endpoint. The data sent must remain unchanged until
+     * the transfer either completes or is aborted.
      *
      * @param endpoint endpoint to write data to
      * @param buffer data to write
@@ -229,7 +236,15 @@ public:
      * max packet size of this endpoint
      * @note This endpoint must already have been setup with endpoint_add
      */
-    bool write(usb_ep_t endpoint, uint8_t *buffer, uint32_t size);
+    bool write_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size);
+
+    /**
+     * Get the status of a write
+     *
+     * @param endpoint endpoint to get the status of
+     * @return number of bytes sent by this endpoint
+     */
+    uint32_t write_finish(usb_ep_t endpoint);
 
     /*
     * Get device descriptor.
@@ -519,6 +534,7 @@ private:
     struct endpoint_info_t {
         void (USBDevice::*callback)(usb_ep_t endpoint);
         uint16_t max_packet_size;
+        uint16_t transfer_size;
         uint8_t flags;
         uint8_t pending;
     };
