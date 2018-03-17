@@ -399,6 +399,7 @@ void USBDevice::_complete_set_configuration()
         _control_setup_continue();
     } else {
         _phy->ep0_stall();
+        return;
     }
 
 }
@@ -471,6 +472,7 @@ void USBDevice::_complete_set_interface()
         _control_setup_continue();
     } else {
         _phy->ep0_stall();
+        return;
     }
 }
 
@@ -706,6 +708,7 @@ void USBDevice::_complete_request()
         /* Standard requests */
         if (!_request_setup()) {
             _phy->ep0_stall();
+            return;
         }
 
         /* user_callback may be set by _request_setup() */
@@ -714,6 +717,7 @@ void USBDevice::_complete_request()
         }
     } else if (direction == Failure) {
         _phy->ep0_stall();
+        return;
     } else {
         _transfer.notify = true;
         _transfer.remaining = size;
@@ -872,6 +876,7 @@ void USBDevice::ep0_out()
     if (!_control_out()) {
         /* Protocol stall; this will stall both endpoints */
         _phy->ep0_stall();
+        return;
     }
 }
 
@@ -896,6 +901,7 @@ void USBDevice::ep0_in()
     if (!_control_in()) {
         /* Protocol stall; this will stall both endpoints */
         _phy->ep0_stall();
+        return;
     }
 }
 
