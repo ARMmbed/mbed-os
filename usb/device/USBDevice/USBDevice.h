@@ -509,6 +509,12 @@ private:
     bool _request_get_interface();
     bool _request_set_interface();
     void _change_state(DeviceState state);
+    void _run_later(void (USBDevice::*function)());
+
+    void _complete_request();
+    void _complete_request_xfer_done();
+    void _complete_set_configuration();
+    void _complete_set_interface();
 
     struct endpoint_info_t {
         void (USBDevice::*callback)(usb_ep_t endpoint);
@@ -538,6 +544,17 @@ private:
         SetInterface
     };
 
+    struct complete_request_t {
+        RequestResult result;
+        uint8_t *data;
+        uint32_t size;
+    };
+
+    union complete_args_t {
+        complete_request_t request;
+        bool status;
+    };
+
     struct control_transfer_t {
         setup_packet_t setup;
         uint8_t *ptr;
@@ -547,6 +564,7 @@ private:
         bool notify;
         ControlState stage;
         UserCallback user_callback;
+        complete_args_t args;
     };
 
     endpoint_info_t _endpoint_info[32 - 2];
@@ -556,6 +574,7 @@ private:
     control_transfer_t _transfer;
     usb_device_t _device;
     uint32_t _max_packet_size_ep0;
+    void (USBDevice::*_post_process)();
 
     bool _setup_ready;
     bool _abort_control;
