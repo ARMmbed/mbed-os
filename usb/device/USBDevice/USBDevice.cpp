@@ -299,6 +299,18 @@ void USBDevice::complete_request_xfer_done(bool success)
     lock();
 
     MBED_ASSERT(_transfer.user_callback == RequestXferDone);
+    _transfer.args.status = success;
+    _run_later(&USBDevice::_complete_request_xfer_done);
+
+    unlock();
+}
+
+void USBDevice::_complete_request_xfer_done()
+{
+    assert_locked();
+
+    bool success = _transfer.args.status;
+
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
@@ -320,8 +332,6 @@ void USBDevice::complete_request_xfer_done(bool success)
         _transfer.stage = Status;
         _phy->ep0_read();
     }
-
-    unlock();
 }
 
 bool USBDevice::_request_set_address()
@@ -363,6 +373,18 @@ void USBDevice::complete_set_configuration(bool success)
     lock();
 
     MBED_ASSERT(_transfer.user_callback == SetConfiguration);
+    _transfer.args.status = success;
+    _run_later(&USBDevice::_complete_set_configuration);
+
+    unlock();
+}
+
+void USBDevice::_complete_set_configuration()
+{
+    assert_locked();
+
+    bool success = _transfer.args.status;
+
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
@@ -379,7 +401,6 @@ void USBDevice::complete_set_configuration(bool success)
         _phy->ep0_stall();
     }
 
-    unlock();
 }
 
 bool USBDevice::_request_get_configuration()
@@ -425,6 +446,18 @@ void USBDevice::complete_set_interface(bool success)
     lock();
 
     MBED_ASSERT(_transfer.user_callback == SetInterface);
+    _transfer.args.status = success;
+    _run_later(&USBDevice::_complete_set_interface);
+
+    unlock();
+}
+
+void USBDevice::_complete_set_interface()
+{
+    assert_locked();
+
+    bool success = _transfer.args.status;
+
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
@@ -439,8 +472,6 @@ void USBDevice::complete_set_interface(bool success)
     } else {
         _phy->ep0_stall();
     }
-
-    unlock();
 }
 
 bool USBDevice::_request_set_feature()
@@ -643,6 +674,22 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
     lock();
 
     MBED_ASSERT(_transfer.user_callback == Request);
+    _transfer.args.request.result = direction;
+    _transfer.args.request.data = data;
+    _transfer.args.request.size = size;
+    _run_later(&USBDevice::_complete_request);
+
+    unlock();
+}
+
+void USBDevice::_complete_request()
+{
+    assert_locked();
+
+    RequestResult direction = _transfer.args.request.result;
+    uint8_t *data = _transfer.args.request.data;
+    uint32_t size = _transfer.args.request.size;
+
     _transfer.user_callback = None;
     if (_abort_control) {
         if ((direction == Receive) || (direction == Send)) {
@@ -674,8 +721,6 @@ void USBDevice::complete_request(RequestResult direction, uint8_t *data, uint32_
         _transfer.direction = direction;
         _control_setup_continue();
     }
-
-    unlock();
 }
 
 void USBDevice::_control_abort_start()
@@ -1151,6 +1196,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _current_interface = 0;
     _current_alternate = 0;
     _locked = 0;
+    _post_process = NULL;
 
     /* Set initial device state */
     _device.state = Powered;
@@ -1176,6 +1222,7 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     _current_interface = 0;
     _current_alternate = 0;
     _locked = 0;
+    _post_process = NULL;
 
     /* Set initial device state */
     _device.state = Powered;
@@ -1390,6 +1437,16 @@ void USBDevice::lock()
 void USBDevice::unlock()
 {
     MBED_ASSERT(_locked > 0);
+
+    if (_locked == 1) {
+        // Perform post processing before fully unlocking
+        while (_post_process != NULL) {
+            void (USBDevice::*call)() = _post_process;
+            _post_process = NULL;
+            (this->*call)();
+        }
+    }
+
     _locked--;
     core_util_critical_section_exit();
 }
@@ -1423,4 +1480,9 @@ void USBDevice::_change_state(DeviceState new_state) {
     }
 
     callback_state_change(new_state);
+}
+
+void USBDevice::_run_later(void (USBDevice::*function)())
+{
+    _post_process = function;
 }
