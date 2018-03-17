@@ -202,6 +202,14 @@ public:
     uint32_t endpoint_max_packet_size(usb_ep_t endpoint);
 
     /**
+     * Abort the current transfer on this endpoint
+     *
+     * @param endpoint endpoint with transfer to abort
+     * @note This endpoint must already have been setup with endpoint_add
+     */
+    void endpoint_abort(usb_ep_t endpoint);
+
+    /**
      * start a read on the given endpoint
      *
      * Start a read on the given endpoint. The data buffer must remain
