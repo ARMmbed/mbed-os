@@ -1,24 +1,19 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2013 ARM Limited
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 #ifndef MBED_SD_BLOCK_DEVICE_H
 #define MBED_SD_BLOCK_DEVICE_H
 
@@ -27,7 +22,7 @@
 
 #include "BlockDevice.h"
 #include "mbed.h"
-
+#include "platform/PlatformMutex.h"
 
 /** Access an SD Card using SPI
  *
@@ -189,8 +184,8 @@ private:
     uint32_t _go_idle_state();
     int _initialise_card();
 
-    uint32_t _sectors;
-    uint32_t _sd_sectors();
+    bd_size_t _sectors;
+    bd_size_t _sd_sectors();
 
     bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
 
@@ -217,9 +212,17 @@ private:
     void _select();
     void _deselect();
 
-    mutable Mutex _lock;
-    uint32_t _block_size;
-    uint32_t _erase_size;
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
+    PlatformMutex _mutex;
+    bd_size_t _block_size;
+    bd_size_t _erase_size;
     bool _is_initialized;
     bool _dbg;
 };

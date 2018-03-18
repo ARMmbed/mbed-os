@@ -71,7 +71,7 @@ void test_read_write() {
     int err = sd.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    err = sd.frequency(25000000);
+    err = sd.frequency(8000000);
     TEST_ASSERT_EQUAL(0, err);
 
     for (unsigned a = 0; a < sizeof(ATTRS)/sizeof(ATTRS[0]); a++) {
@@ -111,7 +111,7 @@ void test_read_write() {
         // Write, sync, and read the block
         printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
 
-        err = sd.erase(block, block_size);
+        err = sd.trim(block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
         err = sd.program(write_block, block, block_size);

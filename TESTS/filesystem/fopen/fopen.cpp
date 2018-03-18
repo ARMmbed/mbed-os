@@ -40,14 +40,6 @@
  * consistent values for all toolchains */
 #include "platform/mbed_retarget.h"
 
-/* This is needed for stat() test, but is not available on ARMCC.
- * The following checks whether GCC_ARM compiler is being used because:
- * - both the ARMCC compiler and the GCC_ARM compile define __GNUC__.
- * - only the ARMCC compiler defines __ARMCC_VERSION.
- * - hence if __ARMCC_VERSION is not defined and __GNUC__ is defined, it must be GCC_ARM. */
-#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
-#include <sys/stat.h>
-#endif
 using namespace utest::v1;
 
 /// @cond FSFAT_DOXYGEN_DISABLE
@@ -75,11 +67,11 @@ using namespace utest::v1;
  *      },
  *  	<<< lines removed >>>
  */
-#if defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED)
-
+ 
+#if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
-#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/" FSFAT_FOPEN_TEST_MOUNT_PT_NAME
 #define FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1    64
 #define FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const char *sd_badfile_path = "/sd/badfile.txt";
@@ -207,8 +199,10 @@ int32_t fsfat_filepath_remove_all(char* filepath)
     pos = fpathbuf + strlen(fpathbuf);
     while (pos != fpathbuf) {
         /* If the remaining file path is the mount point path then finish as the mount point cannot be removed */
-        if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH) && strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
-            break;
+        if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH)) {
+            if( strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
+                break;
+            }
         }
         ret = remove(fpathbuf);
         pos = strrchr(fpathbuf, '/');
@@ -1100,15 +1094,6 @@ control_t fsfat_fopen_test_12(const size_t call_count)
     *pos = '\0';
     dir = opendir(buf);
 
-    dp = readdir(dir);
-    TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected object name (name=%s, expected=%s).\n", __func__, dp->d_name, ".");
-    TEST_ASSERT_MESSAGE(strncmp(dp->d_name, ".", strlen(".")) == 0, fsfat_fopen_utest_msg_g);
-    dp = readdir(dir);
-    TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected object name (name=%s, expected=%s).\n", __func__, dp->d_name, "..");
-    TEST_ASSERT_MESSAGE(strncmp(dp->d_name, "..", strlen("..")) == 0, fsfat_fopen_utest_msg_g);
-
     while ((dp = readdir(dir)) != NULL) {
         FSFAT_DBGLOG("%s: filename: \"%s\"\n", __func__, dp->d_name);
         TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
@@ -1490,7 +1475,7 @@ static control_t fsfat_fopen_test_dummy()
     return CaseNext;
 }
 
-#endif  /* defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) */
+#endif
 
 
 /// @cond FSFAT_DOXYGEN_DISABLE

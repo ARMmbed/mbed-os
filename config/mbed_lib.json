@@ -1,40 +1,14 @@
 {
     "name": "sd",
     "config": {
-        "UART_RX": "D0",
-        "UART_TX": "D1",
-        "DIO_0": "D0",
-        "DIO_1": "D1",
-        "DIO_2": "D2",
-        "DIO_3": "D3",
-        "DIO_4": "D4",
-        "DIO_5": "D5",
-        "DIO_6": "D6",
-        "DIO_7": "D7",
-        "DIO_8": "D8",
-        "DIO_9": "D9",
         "SPI_CS": "D10",
         "SPI_MOSI": "D11",
         "SPI_MISO": "D12",
         "SPI_CLK": "D13",
-        "I2C_SDA": "D14",
-        "I2C_SCL": "D15",
-        "I2C_TEMP_ADDR":"0x90",
-        "I2C_EEPROM_ADDR":"0xA0",
-        "AIN_0": "A0",
-        "AIN_1": "A1",
-        "AIN_2": "A2",
-        "AIN_3": "A3",
-        "AIN_4": "A4",
-        "AIN_5": "A5",
-        "AOUT" : "A5",
-        "PWM_0": "D3",
-        "PWM_1": "D5",
-        "PWM_2": "D6",
-        "PWM_3": "D9",
-        "DEBUG_MSG": 0,
         "DEVICE_SPI": 1,
-        "FSFAT_SDCARD_INSTALLED": 1
+        "FSFAT_SDCARD_INSTALLED": 1,
+        "CMD_TIMEOUT": 5000,
+        "CMD0_IDLE_STATE_RETRIES" : 5
     },
     "target_overrides": {
         "DISCO_F051R8": {
@@ -109,6 +83,12 @@
              "SPI_CLK":  "PC_10",
              "SPI_CS":   "PA_15"
          },
+         "DISCO_F429ZI": {
+            "SPI_MOSI": "PC_12",
+            "SPI_MISO": "PC_11",
+            "SPI_CLK":  "PC_10",
+            "SPI_CS":   "PA_15"
+        },
         "NUCLEO_L031K6": {
              "SPI_MOSI": "SPI_MOSI",
              "SPI_MISO": "SPI_MISO",
@@ -145,6 +125,12 @@
              "SPI_CLK":  "P8_3",
              "SPI_CS":   "P8_4"
         },
+        "GR_LYCHEE": {
+             "SPI_MOSI": "P5_6",
+             "SPI_MISO": "P5_7",
+             "SPI_CLK":  "P5_4",
+             "SPI_CS":   "P5_5"
+        },
         "HEXIWEAR": {
              "SPI_MOSI": "PTE3",
              "SPI_MISO": "PTE1",
@@ -156,6 +142,12 @@
              "SPI_MISO": "SPI2_MISO",
              "SPI_CLK":  "SPI2_SCK",
              "SPI_CS":   "SPI_CS2"
+        },
+        "TB_SENSE_12": {
+             "SPI_MOSI": "PC6",
+             "SPI_MISO": "PC7",
+             "SPI_CLK": "PC8",
+             "SPI_CS": "PC9"
         }
     }
 }

@@ -1,24 +1,19 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2013 ARM Limited
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 /* Introduction
  * ------------
  * SD and MMC cards support a number of interfaces, but common to them all
@@ -148,16 +143,24 @@
 #include <errno.h>
 
 /* Required version: 5.6.1 and above */
-#ifdef MBED_MAJOR_VERSION
+#if defined(MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
 #if (MBED_VERSION < MBED_ENCODE_VERSION(5,6,1))
-#error "Incompatible mbed-os version detected! Required 5.5.4 and above"
+#error "Incompatible mbed-os version detected! Required 5.6.1 and above"
 #endif
 #else
 #warning "mbed-os version 5.6.1 or above required"
 #endif
 
-#define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
-#define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
+#ifndef MBED_CONF_SD_CMD_TIMEOUT
+#define MBED_CONF_SD_CMD_TIMEOUT                 5000   /*!< Timeout in ms for response */
+#endif
+
+#ifndef MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
+#define MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES     5      /*!< Number of retries for sending CMDO */
+#endif
+
+#define SD_COMMAND_TIMEOUT                       MBED_CONF_SD_CMD_TIMEOUT
+#define SD_CMD0_GO_IDLE_STATE_RETRIES            MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
 #define SD_CMD_TRACE                             0      /*!< 1 - Enable SD command tracing */
 
@@ -242,7 +245,7 @@
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz)
-    : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
+    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
     _cs = 1;
     _card_type = SDCARD_NONE;
@@ -253,6 +256,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
+    _erase_size = BLOCK_SIZE_HC;
 }
 
 SDBlockDevice::~SDBlockDevice()
@@ -346,44 +350,45 @@ int SDBlockDevice::_initialise_card()
 
 int SDBlockDevice::init()
 {
-    _lock.lock();
+    lock();
     int err = _initialise_card();
     _is_initialized = (err == BD_ERROR_OK);
     if (!_is_initialized) {
         debug_if(SD_DBG, "Fail to initialize card\n");
-        _lock.unlock();
+        unlock();
         return err;
     }
     debug_if(SD_DBG, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
     // CMD9 failed
     if (0 == _sectors) {
-        _lock.unlock();
+        unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
     // Set block length to 512 (CMD16)
     if (_cmd(CMD16_SET_BLOCKLEN, _block_size) != 0) {
         debug_if(SD_DBG, "Set %d-byte block timed out\n", _block_size);
-        _lock.unlock();
+        unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
     // Set SCK for data transfer
     err = _freq();
     if (err) {
-        _lock.unlock();
+        unlock();
         return err;
     }
-    _lock.unlock();
+    unlock();
     return BD_ERROR_OK;
 }
 
 int SDBlockDevice::deinit()
 {
-    _lock.lock();
+    lock();
     _is_initialized = false;
-    _lock.unlock();
+    _sectors = 0;
+    unlock();
     return 0;
 }
 
@@ -394,9 +399,9 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
@@ -417,7 +422,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     if (blockCnt == 1) {
         // Single block write command
         if (BD_ERROR_OK != (status = _cmd(CMD24_WRITE_BLOCK, addr))) {
-            _lock.unlock();
+            unlock();
             return status;
         }
 
@@ -435,7 +440,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
         // Multiple block write command
         if (BD_ERROR_OK != (status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr))) {
-            _lock.unlock();
+            unlock();
             return status;
         }
 
@@ -457,7 +462,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     }
 
     _deselect();
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -467,9 +472,9 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
@@ -490,7 +495,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
     }
     if (BD_ERROR_OK != status) {
-        _lock.unlock();
+        unlock();
         return status;
     }
 
@@ -509,7 +514,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     if (size > _block_size) {
         status = _cmd(CMD12_STOP_TRANSMISSION, 0x0);
     }
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -527,9 +532,9 @@ int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
     int status = BD_ERROR_OK;
@@ -544,17 +549,17 @@ int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
 
     // Start lba sent in start command
     if (BD_ERROR_OK != (status = _cmd(CMD32_ERASE_WR_BLK_START_ADDR, addr))) {
-        _lock.unlock();
+        unlock();
         return status;
     }
 
     // End lba = addr+size sent in end addr command
     if (BD_ERROR_OK != (status = _cmd(CMD33_ERASE_WR_BLK_END_ADDR, addr+size))) {
-        _lock.unlock();
+        unlock();
         return status;
     }
     status = _cmd(CMD38_ERASE, 0x0);
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -570,13 +575,7 @@ bd_size_t SDBlockDevice::get_program_size() const
 
 bd_size_t SDBlockDevice::size() const
 {
-    bd_size_t sectors = 0;
-    _lock.lock();
-    if (_is_initialized) {
-    	sectors = _sectors;
-    }
-    _lock.unlock();
-    return _block_size*sectors;
+    return _block_size*_sectors;
 }
 
 void SDBlockDevice::debug(bool dbg)
@@ -586,10 +585,10 @@ void SDBlockDevice::debug(bool dbg)
 
 int SDBlockDevice::frequency(uint64_t freq)
 {
-    _lock.lock();
+    lock();
     _transfer_sck = freq;
     int err = _freq();
-    _lock.unlock();
+    unlock();
     return err;
 }
 
@@ -886,7 +885,7 @@ static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
     return bits;
 }
 
-uint32_t SDBlockDevice::_sd_sectors() {
+bd_size_t SDBlockDevice::_sd_sectors() {
     uint32_t c_size, c_size_mult, read_bl_len;
     uint32_t block_len, mult, blocknr;
     uint32_t hc_c_size;

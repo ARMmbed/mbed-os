@@ -5,7 +5,7 @@ Simon Hughes
 
 20170329
 
-Version 0.1.1
+Version 0.1.2
 
 
 # Executive Summary
@@ -192,38 +192,10 @@ The following is an example of the `mbed_lib.json` file available in the reposit
 
     {
         "config": {
-            "UART_RX": "D0",
-            "UART_TX": "D1",
-            "DIO_0": "D0",
-            "DIO_1": "D1",
-            "DIO_2": "D2",
-            "DIO_3": "D3",
-            "DIO_4": "D4",
-            "DIO_5": "D5",
-            "DIO_6": "D6",
-            "DIO_7": "D7",
-            "DIO_8": "D8",
-            "DIO_9": "D9",
             "SPI_CS": "D10",
             "SPI_MOSI": "D11",
             "SPI_MISO": "D12",
             "SPI_CLK": "D13",
-            "I2C_SDA": "D14",
-            "I2C_SCL": "D15",
-            "I2C_TEMP_ADDR":"0x90",
-            "I2C_EEPROM_ADDR":"0xA0",
-            "AIN_0": "A0",
-            "AIN_1": "A1",
-            "AIN_2": "A2",
-            "AIN_3": "A3",
-            "AIN_4": "A4",
-            "AIN_5": "A5",
-            "AOUT" : "A5",
-            "PWM_0": "D3",
-            "PWM_1": "D5",
-            "PWM_2": "D6",
-            "PWM_3": "D9",
-            "DEBUG_MSG": 0,
             "DEVICE_SPI": 1,
             "FSFAT_SDCARD_INSTALLED": 1
         },
@@ -233,30 +205,6 @@ The following is an example of the `mbed_lib.json` file available in the reposit
                  "SPI_MISO": "SPI_MISO",
                  "SPI_CLK":  "SPI_SCK",
                  "SPI_CS":   "SPI_CS"
-            },
-            "K20D50M": {
-                 "SPI_MOSI": "PTD2",
-                 "SPI_MISO": "PTD3",
-                 "SPI_CLK":  "PTD1",
-                 "SPI_CS":   "PTC2"
-            },
-            "KL22F": {
-                 "SPI_MOSI": "PTD6",
-                 "SPI_MISO": "PTD7",
-                 "SPI_CLK":  "PTD5",
-                 "SPI_CS":   "PTD4"
-            },
-            "KL25Z": {
-                 "SPI_MOSI": "PTD2",
-                 "SPI_MISO": "PTD3",
-                 "SPI_CLK":  "PTD1",
-                 "SPI_CS":   "PTD0"
-            },
-            "KL43Z": {
-                 "SPI_MOSI": "PTD6",
-                 "SPI_MISO": "PTD7",
-                 "SPI_CLK":  "PTD5",
-                 "SPI_CS":   "PTD4"
             },
             "KL46Z": {
                  "SPI_MOSI": "PTD6",
@@ -269,44 +217,7 @@ The following is an example of the `mbed_lib.json` file available in the reposit
                  "SPI_MISO": "PTE1",
                  "SPI_CLK":  "PTE2",
                  "SPI_CS":   "PTE4"
-            },
-            "K66F": {
-                 "SPI_MOSI": "PTE3",
-                 "SPI_MISO": "PTE1",
-                 "SPI_CLK":  "PTE2",
-                 "SPI_CS":   "PTE4"
-            },
-            "LPC11U37H_401": {
-                 "SPI_MOSI": "SDMOSI",
-                 "SPI_MISO": "SDMISO",
-                 "SPI_CLK":  "SDSCLK",
-                 "SPI_CS":   "SDSSEL"
-            },
-            "LPC2368": {
-                 "SPI_MOSI": "p11",
-                 "SPI_MISO": "p12",
-                 "SPI_CLK":  "p13",
-                 "SPI_CS":   "p14"
-            },
-            "NUCLEO_L031K6": {
-                 "SPI_MOSI": "SPI_MOSI",
-                 "SPI_MISO": "SPI_MISO",
-                 "SPI_CLK":  "SPI_SCK",
-                 "SPI_CS":   "SPI_CS"
-            },
-            "nRF51822": {
-                 "SPI_MOSI": "p12",
-                 "SPI_MISO": "p13",
-                 "SPI_CLK":  "p15",
-                 "SPI_CS":   "p14"
-            },
-            "RZ_A1H": {
-                 "SPI_MOSI": "P8_5",
-                 "SPI_MISO": "P8_6",
-                 "SPI_CLK":  "P8_3",
-                 "SPI_CS":   "P8_4"
             }
-        }
     }
 
 Note the following things about the `mbed_lib.json` file:
@@ -483,9 +394,13 @@ The build trace is quite extensive but on a successful build you should see the 
       * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-HEAP_BLOCK_DEVICE
       * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-UTIL_BLOCK_DEVICE
       <trace removed>
-      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC
-      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
       * K64F::GCC_ARM::SD-DRIVER-TESTS-BLOCK_DEVICE-BASIC
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-DIRS
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FILES
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-PARALLEL
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-SEEK
     
     Build skips:
       * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
@@ -494,15 +409,23 @@ The build trace is quite extensive but on a successful build you should see the 
 
 Notice the following tests in the sd-driver tree are listed above:
 
-- `K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC`
-- `K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN`
-- `K64F::GCC_ARM::SD-DRIVER-TESTS-BLOCK_DEVICE-BASIC`
+- `SD-DRIVER-TESTS-BLOCK_DEVICE-BASIC`
+- `SD-DRIVER-TESTS-FILESYSTEM-BASIC`
+- `SD-DRIVER-TESTS-FILESYSTEM-DIRS`
+- `SD-DRIVER-TESTS-FILESYSTEM-FILES`
+- `SD-DRIVER-TESTS-FILESYSTEM-FOPEN`
+- `SD-DRIVER-TESTS-FILESYSTEM-PARALLEL`
+- `SD-DRIVER-TESTS-FILESYSTEM-SEEK`
 
 The FAT32/SDCard test cases are at following locations in the source code tree:
 
     /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/basic/basic.cpp
     /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/fopen/fopen.cpp
     /d/demo_area/ex_app1/sd-driver/TESTS/block_device/basic/basic.cpp
+    /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/dirs/main.cpp
+    /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/files/main.cpp
+    /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/parallel/main.cpp
+    /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/seek/main.cpp
 
 #### <a name="settting-repos-to-compatible-versions"></a> Setting mbed-os/sd-driver Repositories To Compatible Versions
 
