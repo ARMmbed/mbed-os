@@ -73,8 +73,10 @@ protected:
 protected:
     uint8_t bulk_in;
     uint8_t bulk_out;
+    uint8_t bulk_buf[64];
     uint8_t int_in;
     uint8_t int_out;
+    uint8_t int_buf[64];
     EventQueue *queue;
 
     virtual void callback_state_change(DeviceState new_state);
