@@ -958,6 +958,7 @@ void USBDevice::deinit()
     lock();
 
     if (_initialized) {
+        disconnect();
         this->_phy->deinit();
         _initialized = false;
     }
@@ -980,7 +981,10 @@ void USBDevice::connect(bool blocking)
 {
     /* Connect device */
     lock();
-    _phy->connect();
+    if (!_connected) {
+        _phy->connect();
+        _connected = true;
+    }
     unlock();
 
     if (blocking) {
@@ -994,7 +998,10 @@ void USBDevice::disconnect()
     lock();
 
     /* Disconnect device */
-    _phy->disconnect();
+    if (_connected) {
+        _phy->disconnect();
+        _connected = false;
+    }
 
     /* Set initial device state */
     if (_device.state > Powered) {
@@ -1199,6 +1206,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
 
     _phy = phy;
     _initialized = false;
+    _connected = false;
     _current_interface = 0;
     _current_alternate = 0;
     _locked = 0;
@@ -1225,6 +1233,7 @@ USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
 
     _phy = get_usb_phy();
     _initialized = false;
+    _connected = false;
     _current_interface = 0;
     _current_alternate = 0;
     _locked = 0;
