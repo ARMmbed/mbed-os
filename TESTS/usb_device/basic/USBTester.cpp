@@ -145,8 +145,10 @@ void USBTester::callback_set_configuration(uint8_t configuration)
     // Configure endpoints > 0
     endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
     endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
+    read_start(int_out, int_buf, sizeof(int_buf));
     endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
     endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
+    read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 
     complete_set_configuration(true);
 }
@@ -161,8 +163,10 @@ void USBTester::callback_set_interface(uint16_t interface, uint8_t alternate)
 
         endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
         endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
+        read_start(int_out, int_buf, sizeof(int_buf));
         endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
         endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
+        read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 
         complete_set_interface(true);
         return;
@@ -175,8 +179,10 @@ void USBTester::callback_set_interface(uint16_t interface, uint8_t alternate)
 
         endpoint_add(int_in, MIN_EP_SIZE, USB_EP_TYPE_INT);
         endpoint_add(int_out, MIN_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
+        read_start(int_out, int_buf, sizeof(int_buf));
         endpoint_add(bulk_in, MIN_EP_SIZE, USB_EP_TYPE_BULK);
         endpoint_add(bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
+        read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 
         complete_set_interface(true);
         return;
@@ -350,20 +356,12 @@ const uint8_t *USBTester::configuration_desc()
 
 void USBTester::epint_out_callback(usb_ep_t endpoint)
 {
-    uint8_t buffer[65];
-    uint32_t size = 0;
-
-    if (!read(endpoint, buffer, sizeof(buffer), &size)) {
-        return;
-    }
+    read_finish(endpoint);
+    read_start(endpoint, int_buf, sizeof(int_buf));
 }
 void USBTester::epbulk_out_callback(usb_ep_t endpoint)
 {
-    uint8_t buffer[65];
-    uint32_t size = 0;
-
-    if (!read(endpoint, buffer, sizeof(buffer), &size)) {
-        return;
-    }
+    read_finish(endpoint);
+    read_start(endpoint, bulk_buf, sizeof(bulk_buf));
 }
 
