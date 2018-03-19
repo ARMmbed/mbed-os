@@ -74,7 +74,7 @@ static const sector_info_t sectors_info[] = {
 };
 
 static const flash_target_config_t flash_target_config = {
-    .page_size   = 0x800,
+    .page_size   = 0x8,                       // minimal programmable unit size
     .flash_start = 0x0,
     .flash_size  = 0x0007F000,
     .sectors     = sectors_info,
