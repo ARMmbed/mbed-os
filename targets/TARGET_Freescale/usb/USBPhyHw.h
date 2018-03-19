@@ -40,8 +40,8 @@ public:
 
     virtual uint32_t ep0_set_max_packet(uint32_t max_packet);
     virtual void ep0_setup_read_result(uint8_t *buffer, uint32_t size);
-    virtual void ep0_read();
-    virtual uint32_t ep0_read_result(uint8_t *buffer, uint32_t size);
+    virtual void ep0_read(uint8_t *data, uint32_t size);
+    virtual uint32_t ep0_read_result();
     virtual void ep0_write(uint8_t *buffer, uint32_t size);
     virtual void ep0_stall();
 
@@ -50,8 +50,8 @@ public:
     virtual void endpoint_stall(usb_ep_t endpoint);
     virtual void endpoint_unstall(usb_ep_t endpoint);
 
-    virtual bool endpoint_read(usb_ep_t endpoint, uint32_t maximumSize);
-    virtual bool endpoint_read_result(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytesRead);
+    virtual bool endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size);
+    virtual uint32_t endpoint_read_result(usb_ep_t endpoint);
     virtual bool endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size);
     virtual void endpoint_abort(usb_ep_t endpoint);
 
@@ -59,6 +59,12 @@ public:
 
 private:
     USBPhyEvents *events;
+    uint8_t *read_buffers[16];
+    uint16_t read_sizes[16];
+
+    bool endpoint_read_core(usb_ep_t endpoint, uint32_t max_packet);
+    bool endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytesRead);
+
 
     static void _usbisr(void);
 };
