@@ -51,8 +51,7 @@
         "common": [
             "--no_wrap_diagnostics",  "-e",
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-On", "-r", "-DMBED_DEBUG",
-            "-DMBED_TRAP_ERRORS_ENABLED=1", "--enable_restrict",
-            "--no_path_in_file_macros"],
+            "-DMBED_TRAP_ERRORS_ENABLED=1", "--enable_restrict"],
         "asm": [],
         "c": ["--vla"],
         "cxx": ["--guard_calls", "--no_static_destruction"],
