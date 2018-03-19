@@ -279,7 +279,9 @@ Case cases[] = {
     Case("Flash - erase sector", flash_erase_sector_test),
     Case("Flash - program page", flash_program_page_test),
     Case("Flash - buffer alignment test", flash_buffer_alignment_test),
+#ifndef MCU_NRF52
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
