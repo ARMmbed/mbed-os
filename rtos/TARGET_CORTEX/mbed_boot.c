@@ -313,8 +313,10 @@ void mbed_sdk_init(void);
 WEAK void mbed_sdk_init(void) {
 }
 
-
+#if ENABLE_SPM
 void psa_spm_init(void);
+#endif
+
 void mbed_start_main(void)
 {
     _main_thread_attr.stack_mem = _main_stack;
@@ -327,9 +329,9 @@ void mbed_start_main(void)
     if ((void *)result == NULL) {
         error("Pre main thread not created");
     }
-
+#if ENABLE_SPM
     psa_spm_init();
-
+#endif
     osKernelStart();
 }
 
@@ -442,7 +444,7 @@ typedef void *mutex;
 #define OS_MUTEX_STATIC_NUM   8
 mutex _static_mutexes[OS_MUTEX_STATIC_NUM] = {NULL};
 mbed_rtos_storage_mutex_t _static_mutexes_mem[OS_MUTEX_STATIC_NUM] = {NULL};
- 
+
 int _mutex_initialize(mutex *m)
 {
     osMutexAttr_t attr;
