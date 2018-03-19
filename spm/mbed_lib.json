@@ -1,9 +1,55 @@
 {
     "name": "spm",
     "config": {
+        "enable" : {
+            "help": "Enable Secure Partition Manager",
+            "macro_name": "ENABLE_SPM",
+            "value": 1
+        },
         "ipc_max_num_of_channels": {
             "help": "Maximum number of active channels",
             "value": 10
+        }
+    },
+    "target_overrides": {
+        "KL25Z": {
+            "enable": 0
+        },
+        "KL46Z": {
+            "enable": 0
+        },
+        "MAXWSNENV": {
+            "enable": 0
+        },
+        "NRF51_DK": {
+            "enable": 0
+        },
+        "NRF51_DONGLE": {
+            "enable": 0
+        },
+        "NUCLEO_F070RB": {
+            "enable": 0
+        },
+        "NUCLEO_F072RB": {
+            "enable": 0
+        },
+        "NUCLEO_F103RB": {
+            "enable": 0
+        },
+        "NUMAKER_PFM_M453": {
+            "enable": 0
+        },
+        "NUMAKER_PFM_NANO130": {
+            "enable": 0
+        },
+        "SARA_NBIOT_EVK": {
+            "enable": 0
+        },
+        "TMPM066": {
+            "enable": 0
+        },
+        "TY51822R3": {
+            "enable": 0
         }
     }
 }
