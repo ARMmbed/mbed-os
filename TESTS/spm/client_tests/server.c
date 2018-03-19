@@ -18,11 +18,11 @@
 #include "psa_part1_partition.h"
 
 #define MSG_BUF_SIZE 128
+uint8_t data[MSG_BUF_SIZE] = {0};
 
 void server_main(void *ptr)
 {
     uint32_t signals = 0;
-    uint8_t data[MSG_BUF_SIZE] = {0};
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART1_SF1_MSK) {
