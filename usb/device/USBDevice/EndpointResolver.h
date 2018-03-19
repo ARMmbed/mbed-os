@@ -63,6 +63,11 @@ public:
     usb_ep_t endpoint_out(usb_ep_type_t type, uint32_t size);
 
     /**
+     * Get next free endpoint
+     */
+    usb_ep_t next_free_endpoint(bool in_not_out, usb_ep_type_t type, uint32_t size);
+
+    /**
      * Check if the endpoint configuration created so far is valid
      *
      * @return true if all endpoint sizes are available and fit, false otherwise
