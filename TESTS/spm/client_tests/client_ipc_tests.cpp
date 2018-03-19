@@ -13,6 +13,11 @@
  * limitations under the License.
  */
 
+#if !ENABLE_SPM
+    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#endif
+
+
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
