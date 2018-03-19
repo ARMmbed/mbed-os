@@ -26,7 +26,6 @@ using namespace utest::v1;
 /* ------------------------------------ Definitions ---------------------------------- */
 
 #define CLIENT_MINOR_VERSION            0
-#define CLIENT_MSG_BUF_SIZE             30
 #define CLIENT_RSP_BUF_SIZE             20
 #define SERVER_WRITE_OFFSET             5
 
@@ -35,18 +34,22 @@ using namespace utest::v1;
 
 /* ------------------------------------ Client Code ---------------------------------- */
 
+char msg_buf[] = CLIENT_TX_MSG;
+
 void example_main(void)
 {
     psa_handle_t conn_handle = psa_connect(SF1, CLIENT_MINOR_VERSION);
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
-    char msg_buf[CLIENT_MSG_BUF_SIZE] = CLIENT_TX_MSG;
+
     iovec iovec[PSA_MAX_INVEC_LEN] = {
         { msg_buf, 6 },
         { msg_buf + 6, 12 },
         { msg_buf + 18, 4 }
     };
-    uint8_t response_buf[CLIENT_RSP_BUF_SIZE] = {0};
+
+    uint8_t *response_buf = (uint8_t*)malloc(sizeof(uint8_t) * CLIENT_RSP_BUF_SIZE);
+    memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
 
     psa_error_t status = psa_call(
         conn_handle,
@@ -58,6 +61,7 @@ void example_main(void)
     TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_call() failed");
     TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf + SERVER_WRITE_OFFSET);
 
+    free(response_buf);
     status = psa_close(conn_handle);
     TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_close() failed");
 }

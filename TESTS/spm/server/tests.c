@@ -235,8 +235,8 @@ PSA_TEST_SERVER(msg_size_assertion)
     uint32_t signals = 0;
     size_t read_size = 0;
 
-    char buff[11] = {0};
-
+    char *buff = malloc(sizeof(char) * 11);
+    memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -265,6 +265,7 @@ PSA_TEST_SERVER(msg_size_assertion)
     }
 
     psa_end(msg.handle, test_status);
+    free(buff);
     disconnect_status = proccess_disconnect_request();
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;
@@ -334,7 +335,8 @@ PSA_TEST_SERVER(msg_read_truncation)
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
-    char buff[11] = {0};
+    char *buff = malloc(sizeof(char) * 11);
+    memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -351,7 +353,7 @@ PSA_TEST_SERVER(msg_read_truncation)
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    read_size = psa_read(msg.handle, 1, buff, sizeof(buff));
+    read_size = psa_read(msg.handle, 1, buff, 11);
     if ((msg.size[1] != read_size) ||
         ((msg.size[0] + msg.size[1] + msg.size[2]) != 11) ||
         (buff[6] != 0)   ||
@@ -363,6 +365,7 @@ PSA_TEST_SERVER(msg_read_truncation)
 
     psa_end(msg.handle, test_status);
     disconnect_status = proccess_disconnect_request();
+    free(buff);
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;
 }
@@ -462,8 +465,9 @@ PSA_TEST_SERVER(cross_partition_call)
     psa_error_t disconnect_status = PSA_SUCCESS;
     psa_error_t partition_call_status = PSA_SUCCESS;
     uint32_t data_read = 0;
-    char buff[60] = {0};
+    char *buff = malloc(sizeof(char) * 60);
     uint32_t str_len = 0;
+    memset(buff, 0, 60);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -513,6 +517,7 @@ PSA_TEST_SERVER(cross_partition_call)
     }
 
     psa_end(msg.handle, partition_call_status);
+    free(buff);
     disconnect_status = proccess_disconnect_request();
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;

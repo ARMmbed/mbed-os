@@ -36,6 +36,7 @@ using namespace utest::v1;
 
 Semaphore test_sem(0);
 bool error_thrown = false;
+uint8_t response_buf[CLIENT_RSP_BUF_SIZE];
 extern "C" void spm_reboot(void);
 
 void error(const char* format, ...)
@@ -67,7 +68,7 @@ static void client_ipc_tests_call( psa_handle_t handle,
                                  )
 {
     error_t status = PSA_SUCCESS;
-    uint8_t response_buf[CLIENT_RSP_BUF_SIZE] = {0};
+    memset(response_buf, 0, sizeof(response_buf));
 
     status = psa_call( handle,
                        iovec_temp,
@@ -77,177 +78,6 @@ static void client_ipc_tests_call( psa_handle_t handle,
                      );
 
     TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
-}
-
-static void client_ipc_tests_close(psa_handle_t handle)
-{
-    error_t status = PSA_SUCCESS;
-    status = psa_close(handle);
-
-    TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
-}
-
-//Testing client call with an invalid SFID
-void client_connect_invalid_sfid()
-{
-    psa_connect( INVALID_SFID,
-                 MINOR_VER
-               );
-
-    TEST_FAIL_MESSAGE("client_connect_invalid_sfid negative test failed");
-}
-
-//Testing client connect version policy is RELAXED and minor version is bigger than the minimum version
-void client_connect_invalid_pol_ver_relaxed()
-{
-    psa_connect( PART1_SF1,           //PART1_SF1 should have relaxed policy
-                 INVALID_MINOR
-               );
-
-    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_relaxed negative test failed");
-}
-
-//Testing client connect version policy is STRICT and minor version is different than the minimum version
-void client_connect_invalid_pol_ver_strict()
-{
-    psa_connect( PART1_SF2,           //PART1_SF2 should have strict policy
-                 INVALID_MINOR
-               );
-
-    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_strict negative test failed");
-}
-
-//Testing client call num of iovec (tx_len) is bigger than max value allowed
-void client_call_invalid_tx_len()
-{
-    psa_handle_t handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{data, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    client_ipc_tests_call(handle, iovec_temp, INVALID_TX_LEN, CLIENT_RSP_BUF_SIZE);
-
-    TEST_FAIL_MESSAGE("client_call_invalid_tx_len negative test failed");
-}
-
-//Testing client call return buffer (rx_buff) is NULL and return buffer len is not 0
-void client_call_rx_buff_null_rx_len_not_zero()
-{
-    psa_handle_t handle = 0;
-    size_t rx_len = 1;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{data, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    psa_call( handle,
-              iovec_temp,
-              PSA_MAX_INVEC_LEN,
-              NULL,
-              rx_len
-            );
-
-    TEST_FAIL_MESSAGE("client_call_rx_buff_null_rx_len_not_zero negative test failed");
-}
-
-//Testing client call iovecs pointer is NULL and num of iovecs is not 0
-void client_call_iovecs_null_tx_len_not_zero()
-{
-    psa_handle_t handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t response_buf[CLIENT_RSP_BUF_SIZE] = {0};
-
-    psa_call( handle,
-              NULL,
-              PSA_MAX_INVEC_LEN,
-              response_buf,
-              CLIENT_RSP_BUF_SIZE
-            );
-
-    TEST_FAIL_MESSAGE("client_call_iovecs_null_tx_len_not_zero negative test failed");
-}
-
-//Testing client call iovec base
-void client_call_iovec_base_null_len_not_zero()
-{
-    client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{NULL, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    client_ipc_tests_call(PSA_NULL_HANDLE, iovec_temp, PSA_MAX_INVEC_LEN, 0);
-
-    TEST_FAIL_MESSAGE("client_call_iovec_base_null_len_not_zero negative test failed");
-}
-
-//Testing client call handle does not exist on the platform
-void client_call_invalid_handle()
-{
-    psa_handle_t handle = 0, invalid_handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-    invalid_handle = handle + 10;
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{data, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    client_ipc_tests_call(invalid_handle, iovec_temp, PSA_MAX_INVEC_LEN, 0);
-
-    TEST_FAIL_MESSAGE("client_call_invalid_handle negative test failed");
-}
-
-//Testing client call handle is null (PSA_NULL_HANDLE)
-void client_call_handle_is_null()
-{
-    client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{data, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    client_ipc_tests_call(PSA_NULL_HANDLE, iovec_temp, PSA_MAX_INVEC_LEN, 0);
-
-    TEST_FAIL_MESSAGE("client_call_handle_is_null negative test failed");
-}
-
-//Testing client close handle does not exist on the platform
-void client_close_invalid_handle()
-{
-    psa_handle_t handle = 0, invalid_handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-    invalid_handle = handle + 10;
-
-    uint8_t data[2] = {1, 0};
-
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{data, sizeof(data)},
-                                           {data, sizeof(data)},
-                                           {data, sizeof(data)}};
-
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, 0);
-
-    client_ipc_tests_close(invalid_handle);
-
-    TEST_FAIL_MESSAGE("client_close_invalid_handle negative test failed");
 }
 
 //Testing server interrupt mask contains only a subset of interrupt signal mask
@@ -508,16 +338,6 @@ void server_set_rhandle_part_id_invalid()
     TEST_FAIL_MESSAGE("server_set_rhandle_part_id_invalid negative test failed at client side");
 }
 
-PSA_NEG_TEST(client_connect_invalid_sfid)
-PSA_NEG_TEST(client_connect_invalid_pol_ver_relaxed)
-PSA_NEG_TEST(client_connect_invalid_pol_ver_strict)
-PSA_NEG_TEST(client_call_invalid_tx_len)
-PSA_NEG_TEST(client_call_rx_buff_null_rx_len_not_zero)
-PSA_NEG_TEST(client_call_iovecs_null_tx_len_not_zero)
-PSA_NEG_TEST(client_call_iovec_base_null_len_not_zero)
-PSA_NEG_TEST(client_call_invalid_handle)
-PSA_NEG_TEST(client_call_handle_is_null)
-PSA_NEG_TEST(client_close_invalid_handle)
 PSA_NEG_TEST(server_interrupt_mask_invalid)
 PSA_NEG_TEST(server_get_msg_null)
 PSA_NEG_TEST(server_get_multiple_bit_signum)
@@ -550,16 +370,6 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 
 // Test cases
 Case cases[] = {
-    Case("Testing client connect invalid sfid", PSA_NEG_TEST_NAME(client_connect_invalid_sfid), spm_case_teardown),
-    Case("Testing client connect version policy relaxed invalid minor", PSA_NEG_TEST_NAME(client_connect_invalid_pol_ver_relaxed), spm_case_teardown),
-    Case("Testing client connect version policy strict invalid minor", PSA_NEG_TEST_NAME(client_connect_invalid_pol_ver_strict), spm_case_teardown),
-    Case("Testing client call invalid tx_len", PSA_NEG_TEST_NAME(client_call_invalid_tx_len), spm_case_teardown),
-    Case("Testing client call rx_buff is NULL rx_len is not 0", PSA_NEG_TEST_NAME(client_call_rx_buff_null_rx_len_not_zero), spm_case_teardown),
-    Case("Testing client call iovecs is NULL tx_len is not 0", PSA_NEG_TEST_NAME(client_call_iovecs_null_tx_len_not_zero), spm_case_teardown),
-    Case("Testing client call iovec base NULL while iovec len not 0", PSA_NEG_TEST_NAME(client_call_iovec_base_null_len_not_zero), spm_case_teardown),
-    Case("Testing client call handle does not exist", PSA_NEG_TEST_NAME(client_call_invalid_handle), spm_case_teardown),
-    Case("Testing client call handle is PSA_NULL_HANDLE", PSA_NEG_TEST_NAME(client_call_handle_is_null), spm_case_teardown),
-    Case("Testing client close handle does not exist", PSA_NEG_TEST_NAME(client_close_invalid_handle), spm_case_teardown),
     Case("Testing server interrupt mask invalid", PSA_NEG_TEST_NAME(server_interrupt_mask_invalid), spm_case_teardown),
     Case("Testing server get with msg NULL", PSA_NEG_TEST_NAME(server_get_msg_null), spm_case_teardown),
     Case("Testing server get signum have more than one bit ON", PSA_NEG_TEST_NAME(server_get_multiple_bit_signum), spm_case_teardown),

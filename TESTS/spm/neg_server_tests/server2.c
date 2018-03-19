@@ -14,6 +14,7 @@
  */
 
 #include <stdbool.h>
+#include <string.h>
 #include "unity.h"
 #include "spm_panic.h"
 #include "spm_server.h"
@@ -28,12 +29,15 @@
 #define FALSE_RHANDLE           10
 
 
+char msg_buf[MSG_BUF_SIZE];
+char res_buff[MSG_BUF_SIZE];
+
 void server_main2(void *ptr)
 {
     psa_msg_t msg = {0};
     uint32_t signals = 0;
-    char msg_buf[MSG_BUF_SIZE] =  {0};
-    char res_buff[MSG_BUF_SIZE] = {0};
+    memset(msg_buf, 0, sizeof(msg_buf));
+    memset(res_buff, 0, sizeof(res_buff));
 
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);

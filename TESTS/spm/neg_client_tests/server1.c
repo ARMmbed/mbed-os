@@ -19,13 +19,13 @@
 #include "spm_panic.h"
 #include "psa_part1_partition.h"
 
-#define MSG_BUF_SIZE 128
+#define msg_buff_SIZE 128
+char msg_buff[msg_buff_SIZE];
 
 void server_main1(void *ptr)
 {
     uint32_t signals = 0;
-    char msg_buf[MSG_BUF_SIZE] = {0};
-
+    memset(msg_buff, 0, sizeof(msg_buff));
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART1_SF1_MSK) {
@@ -36,14 +36,14 @@ void server_main1(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    memset(msg_buf, 0, MSG_BUF_SIZE);
+                    memset(msg_buff, 0, msg_buff_SIZE);
                     uint32_t bytes_read = 0;
                     for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
-                        bytes_read = psa_read(msg.handle, i, msg_buf + bytes_read, msg.size[i]);
+                        bytes_read = psa_read(msg.handle, i, msg_buff + bytes_read, msg.size[i]);
                     }
 
                     if (msg.response_size > 0) {
-                        psa_write(msg.handle, 0, msg_buf, bytes_read);
+                        psa_write(msg.handle, 0, msg_buff, bytes_read);
                     }
                     break;
                 }
