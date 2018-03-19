@@ -15,7 +15,7 @@
  */
 
 #include "cmsis.h"
-
+#include "mbed_error.h"
 
 void mbed_sdk_init(void)
 {
@@ -64,6 +64,31 @@ void mbed_sdk_init(void)
     /* Set core clock as 48M from PLL */
     CLK_SetCoreClock(FREQ_48MHZ);
 #else
+    /* Trim HIRC48 to 48M against LXT */
+
+    /* Reset TISTS48M status flags */
+    SYS->TISTS48M |= (SYS_TISTS48M_FREQLOCK_Msk | SYS_TISTS48M_TFAILIF_Msk | SYS_TISTS48M_CLKERRIF_Msk);
+    
+    /* With reference clock from LXT, start trimming HIRC48 to 48M */
+    SYS->TCTL48M = (SYS->TCTL48M & ~(SYS_TCTL48M_FREQSEL_Msk | SYS_TCTL48M_REFCKSEL_Msk)) | (0x01 << SYS_TCTL48M_FREQSEL_Pos) | (0x00 << SYS_TCTL48M_REFCKSEL_Pos);
+    
+    /* Wait for HIRC48 clock locked */
+    while (1)
+    {
+        if (SYS->TISTS48M & SYS_TISTS48M_FREQLOCK_Msk)
+        {
+            break;
+        }
+        else if (SYS->TISTS48M & SYS_TISTS48M_TFAILIF_Msk)
+        {
+            error("HIRC48 auto-trim error: SYS_TISTS48M_TFAILIF_Msk");
+        }
+        else if (SYS->TISTS48M & SYS_TISTS48M_CLKERRIF_Msk)
+        {
+            error("HIRC48 auto-trim error: SYS_TISTS48M_CLKERRIF_Msk");
+        }
+    }
+    
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC48, CLK_CLKDIV0_HCLK(1UL));
 #endif
     

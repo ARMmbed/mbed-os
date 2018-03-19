@@ -1064,7 +1064,7 @@ typedef struct
     __IO uint32_t SRAMPPCT;              /*!< [0x00E0] Peripheral SRAM Power Mode Control Register                      */
     __IO uint32_t TCTL48M;               /*!< [0x00E4] HIRC 48M Trim Control Register                                   */
     __IO uint32_t TIEN48M;               /*!< [0x00E8] HIRC 48M Trim Interrupt Enable Register                          */
-    __IO uint32_t TOSTS48M;              /*!< [0x00EC] HIRC 48M Trim Interrupt Status Register                          */
+    __IO uint32_t TISTS48M;              /*!< [0x00EC] HIRC 48M Trim Interrupt Status Register                          */
     __IO uint32_t TCTL12M;               /*!< [0x00F0] HIRC 12M Trim Control Register                                   */
     __IO uint32_t TIEN12M;               /*!< [0x00F4] HIRC 12M Trim Interrupt Enable Register                          */
     __IO uint32_t TISTS12M;              /*!< [0x00F8] HIRC 12M Trim Interrupt Status Register                          */
