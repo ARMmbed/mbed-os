@@ -273,10 +273,10 @@ uint32_t USBPhyHw::ep0_set_max_packet(uint32_t max_packet)
 void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
 {
     uint32_t sz;
-    endpoint_read_result(EP0OUT, buffer, size, &sz);
+    endpoint_read_result_core(EP0OUT, buffer, size, &sz);
 }
 
-void USBPhyHw::ep0_read()
+void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
 {
     if (ctrl_xfer == CTRL_XFER_READY) {
         // Transfer is done so ignore call
@@ -301,15 +301,15 @@ void USBPhyHw::ep0_read()
         // This allows a subsequent SETUP packet to be stored
         // without any processor intervention.
         Data1 &= ~1UL;  // set DATA0
+        endpoint_read_core(EP0OUT, MAX_PACKET_SIZE_EP0);
+    } else {
+        endpoint_read(EP0OUT, data, size);
     }
-    endpoint_read(EP0OUT, MAX_PACKET_SIZE_EP0);
 }
 
-uint32_t USBPhyHw::ep0_read_result(uint8_t *buffer, uint32_t size)
+uint32_t USBPhyHw::ep0_read_result()
 {
-    uint32_t sz;
-    endpoint_read_result(EP0OUT, buffer, size, &sz);
-    return sz;
+    return endpoint_read_result(EP0OUT);
 }
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
@@ -320,7 +320,7 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
     }
     if ((ctrl_xfer == CTRL_XFER_NONE) || (ctrl_xfer == CTRL_XFER_OUT)) {
         // Prepare for next setup packet
-        endpoint_read(EP0OUT, MAX_PACKET_SIZE_EP0);
+        endpoint_read_core(EP0OUT, MAX_PACKET_SIZE_EP0);
         ctrl_xfer = CTRL_XFER_READY;
      }
     endpoint_write(EP0IN, buffer, size);
@@ -339,7 +339,7 @@ void USBPhyHw::ep0_stall()
     // Note - time between stalling and setting up the endpoint
     //      must be kept to a minimum to prevent a dropped SETUP
     //      packet.
-    endpoint_read(EP0OUT, MAX_PACKET_SIZE_EP0);
+    endpoint_read_core(EP0OUT, MAX_PACKET_SIZE_EP0);
     core_util_critical_section_exit();
 }
 
@@ -406,7 +406,16 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
     USB0->ENDPOINT[DESC_TO_LOG(endpoint)].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
 }
 
-bool USBPhyHw:: endpoint_read(usb_ep_t endpoint, uint32_t max_packet)
+bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
+{
+    uint8_t log = DESC_TO_LOG(endpoint);
+
+    read_buffers[log] = data;
+    read_sizes[log] = size;
+    return endpoint_read_core(endpoint, size);
+}
+
+bool USBPhyHw::endpoint_read_core(usb_ep_t endpoint, uint32_t max_packet)
 {
     uint8_t log_endpoint = DESC_TO_LOG(endpoint);
 
@@ -423,7 +432,19 @@ bool USBPhyHw:: endpoint_read(usb_ep_t endpoint, uint32_t max_packet)
     return true;
 }
 
-bool USBPhyHw::endpoint_read_result(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytes_read)
+uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
+{
+    uint8_t log = DESC_TO_LOG(endpoint);
+
+    uint32_t bytes_read = 0;
+    endpoint_read_result_core(endpoint, read_buffers[log], read_sizes[log], &bytes_read);
+    read_buffers[log] = NULL;
+    read_sizes[log] = 0;
+    return bytes_read;
+}
+
+
+bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytes_read)
 {
     uint32_t n, sz, idx, setup = 0;
     uint8_t not_iso;
@@ -540,6 +561,9 @@ void USBPhyHw::process()
         USB0->ERRSTAT =  0xFF;  // clear all error flags
         USB0->ERREN   =  0xFF;  // enable error interrupt sources
         USB0->ADDR    =  0x00;  // set default address
+
+        memset(read_buffers, 0, sizeof(read_buffers));
+        memset(read_sizes, 0, sizeof(read_sizes));
 
         // reset bus for USBDevice layer
         events->reset();
