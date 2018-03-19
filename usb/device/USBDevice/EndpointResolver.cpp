@@ -44,9 +44,9 @@ void EndpointResolver::endpoint_ctrl(uint32_t size)
     endpoint_out(USB_EP_TYPE_CTRL, size);
 }
 
-usb_ep_t EndpointResolver::endpoint_in(usb_ep_type_t type, uint32_t size)
+usb_ep_t EndpointResolver::next_free_endpoint(bool in_not_out, usb_ep_type_t type, uint32_t size)
 {
-    int index = next_index(type, true);
+    int index = next_index(type, in_not_out);
     if (index < 0) {
         _valid = false;
         return 0;
@@ -57,21 +57,16 @@ usb_ep_t EndpointResolver::endpoint_in(usb_ep_type_t type, uint32_t size)
     _used |= 1 << index;
 
     return index_to_endpoint(index);
+
+}
+usb_ep_t EndpointResolver::endpoint_in(usb_ep_type_t type, uint32_t size)
+{
+    return next_free_endpoint(true, type, size);
 }
 
 usb_ep_t EndpointResolver::endpoint_out(usb_ep_type_t type, uint32_t size)
 {
-    int index = next_index(type, false);
-    if (index < 0) {
-        _valid = false;
-        return 0;
-    }
-
-    const usb_ep_entry_t &entry = _table->table[index_to_logical(index)];
-    _cost += entry.base_cost + entry.byte_cost * size;
-    _used |= 1 << index;
-
-    return index_to_endpoint(index);
+    return next_free_endpoint(false, type, size);
 }
 
 bool EndpointResolver::valid()
