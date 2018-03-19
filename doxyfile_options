@@ -2070,6 +2070,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_I2CSLAVE         \
                          DEVICE_I2C_ASYNCH       \
                          DEVICE_INTERRUPTIN      \
+                         DEVICE_ITM              \
                          DEVICE_LOWPOWERTIMER    \
                          DEVICE_PORTIN           \
                          DEVICE_PORTINOUT        \
