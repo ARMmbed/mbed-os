@@ -182,16 +182,18 @@ public:
 
     /**
      * Start receiving a packet of up to wMaxPacketSize on endpoint 0
+     *
+     * @param data Buffer to fill with the data read
+     * @param size Size of buffer
      */
-    virtual void ep0_read() = 0;
+    virtual void ep0_read(uint8_t *data, uint32_t size) = 0;
 
     /**
      * Read the contents of a received packet
      *
-     * @param buffer Buffer to fill with the data read
-     * @param size Size of buffer
+     * @return Size of data read
      */
-    virtual uint32_t ep0_read_result(uint8_t *buffer, uint32_t size) = 0;
+    virtual uint32_t ep0_read_result() = 0;
 
     /**
      * Write a packet on endpoint 0
@@ -253,23 +255,20 @@ public:
      * Start a read on the given endpoint
      *
      * @param endpoint Endpoint to start the read on
-     * @param max_packet A hint as to the wMaxPacketSize of this endpoint.
-     *  This must match the size in endpoint_add.
+     * @param data Buffer to fill with data
+     * @param size Size of the read buffer. This must be at least
+     *     the max packet size for this endpoint.
      * @return true if the read was successfully started, false otherwise
      */
-    virtual bool endpoint_read(usb_ep_t endpoint, uint32_t max_packet) = 0;
+    virtual bool endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size) = 0;
 
     /**
      * Finish a read on the given endpoint
      *
-     * @param endpoint Endpoint to read data from
-     * @param data Buffer to fill with data
-     * @param size Size of buffer
-     * @param bytes_read The number of bytes in the current packet. This can be larger than
-     *  the size parameter if the buffer passed in was too small.
+     * @param endpoint Endpoint to check
      * @return true if data was read false otherwise
      */
-    virtual bool endpoint_read_result(usb_ep_t endpoint, uint8_t *data, uint32_t size, uint32_t *bytes_read) = 0;
+    virtual uint32_t endpoint_read_result(usb_ep_t endpoint) = 0;
 
     /**
      * Start a write on the given endpoint
