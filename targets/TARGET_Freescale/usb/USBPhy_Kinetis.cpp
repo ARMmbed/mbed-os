@@ -366,15 +366,14 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
 
     // IN endpt -> device to host (TX)
     if (DESC_EP_IN(endpoint)) {
+        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].address = (uint32_t) buf;
+        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].info       = 0;
+        bdt[EP_BDT_IDX(log_endpoint, TX, EVEN)].address = 0;
         USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
                                               USB_ENDPT_EPTXEN_MASK;  // en TX (IN) tran
-        bdt[EP_BDT_IDX(log_endpoint, TX, ODD )].address = (uint32_t) buf;
-        bdt[EP_BDT_IDX(log_endpoint, TX, EVEN)].address = 0;
     }
     // OUT endpt -> host to device (RX)
     else {
-        USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
-                                              USB_ENDPT_EPRXEN_MASK;  // en RX (OUT) tran.
         bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].byte_count = max_packet;
         bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].address    = (uint32_t) buf;
         bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info       = BD_DTS_MASK;
@@ -383,6 +382,8 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_
             // Prepare for setup packet
             bdt[EP_BDT_IDX(log_endpoint, RX, ODD )].info |= BD_OWN_MASK;
         }
+        USB0->ENDPOINT[log_endpoint].ENDPT |= handshake_flag |        // ep handshaking (not if iso endpoint)
+                                              USB_ENDPT_EPRXEN_MASK;  // en RX (OUT) tran.
     }
 
     // First transfer will be a DATA0 packet
