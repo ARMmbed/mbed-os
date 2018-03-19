@@ -55,28 +55,20 @@ extern "C" {
 #define LOG_FILE_NAME_           __BASE_FILE__
 #endif
 
-#define LOG_LEVEL_ERR_CRITICAL   0x0
-#define LOG_LEVEL_GEN            0x1
-#define LOG_LEVEL_ERR            0x2
-#define LOG_LEVEL_WARN           0x4
-#define LOG_LEVEL_INFO           0x8
-#define LOG_LEVEL_DEBUG          0x10
-#define LOG_LEVEL_TRACE          0x20
-
 // Log-Level Strings
 #define LOG_GEN_                 "GEN "
 #define LOG_ERR_CRITICAL_        "CRT "
 #define LOG_ERR_                 "ERR "
 #define LOG_WARN_                "WARN"
 #define LOG_DEBUG_               "DBG "
-#define LOG_INFO_                "INF0"
+#define LOG_INFO_                "INFO"
 #define LOG_TRACE_               "TRAC"
 
 #define GET_LOG_STRING(ll)      ((ll > LOG_LEVEL_DEBUG) ? LOG_TRACE_ : \
                                 ((ll > LOG_LEVEL_INFO)  ? LOG_DEBUG_ : \
                                 ((ll > LOG_LEVEL_WARN)  ? LOG_INFO_  : \
                                 ((ll > LOG_LEVEL_ERR)   ? LOG_WARN_  : \
-                                ((ll > LOG_LEVEL_GEN)   ? LOG_ERR_   : LOG_GEN_)))))
+                                ((ll > 1)   ? LOG_ERR_   : LOG_GEN_)))))
 
 #define GET_MODULE_ID_(a, b, c, d)   (375 + (a << 1) + (b << 2) + (c >> 2) + (d >> 1))
 #define GET_MODULE_ID(x)        (GET_MODULE_ID_(x[0], x[1], x[2], x[3]))
@@ -118,8 +110,12 @@ void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(
 void log_buffer_string_vdata(const char *format, va_list args);
 void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t lossy);
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+
+// Functions added to test the logging feature
 void log_reset(void);
 uint32_t log_get_bytes_lost(void);
+void log_buffer_data(char *str);
+void log_disable_time_capture(void);
 
 #if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
 #define mbed_log_array

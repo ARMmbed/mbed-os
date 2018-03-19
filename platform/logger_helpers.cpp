@@ -36,6 +36,7 @@ static char log_helper_data[LOG_SINGLE_HELPER_STR_SIZE_];
 static bool log_data_valid = false;
 static char send_null[] = "";
 static char send_null_str[] = "<null>";
+static char send_err_str[] = "<err>";
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,10 +50,9 @@ char* mbed_log_ipv6(const uint8_t* addr_ptr)
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
     MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 41, "Not enough room for ipv6 string, max 41");
     mbed_log_helper_lock();
-
-    if (NULL == addr_ptr) {
+    if (addr_ptr == NULL) {
         mbed_log_helper_unlock();
-        return send_null;
+        return send_null_str;
     }
 
     log_helper_data[0] = 0;
@@ -74,14 +74,9 @@ char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len)
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
     MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 44, "Not enough room for ipv6+prefix string, max 44");
     mbed_log_helper_lock();
-
-    if (0 == prefix_len) {
+    if ((prefix_len != 0 && prefix == NULL) || prefix_len > 128) {
         mbed_log_helper_unlock();
-        return send_null;
-    }
-    if (NULL == prefix) {
-        mbed_log_helper_unlock();
-        return send_null_str;
+        return send_err_str;
     }
 
     ip6_prefix_tos(prefix, prefix_len, log_helper_data);
@@ -111,9 +106,10 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len)
     }
 
     char* str = log_helper_data;
-    uint32_t count = 0, retVal;
-    for (uint32_t i = 0; i < len; i++) {
-        retVal = snprintf(str+count, (LOG_SINGLE_HELPER_STR_SIZE_-count), "%02x", *buf++);
+    uint32_t retVal = snprintf(str, LOG_SINGLE_HELPER_STR_SIZE_, "%02x", *buf++);
+    uint32_t count = retVal;
+    for (uint32_t i = 1; i < len; i++) {
+        retVal = snprintf(str + count, (LOG_SINGLE_HELPER_STR_SIZE_ - count), ":%02x", *buf++);
         if (retVal <= 0) {
             break;
         }

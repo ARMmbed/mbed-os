@@ -24,7 +24,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_interface.h"
 #include "rtos/EventFlags.h"
-#include "mbed_events.h"
 
 #define LOG_MAX_BUFFER_SIZE_            (MBED_CONF_LOG_MAX_BUFFER_SIZE/sizeof(LOG_DATA_TYPE_))
 // Circular buffer should always have space for helper functions
@@ -34,53 +33,63 @@
 using namespace rtos;
 using namespace mbed;
 
-static EventQueue *log_equeue;
 static CircularBuffer <LOG_DATA_TYPE_, LOG_MAX_BUFFER_SIZE_> log_buffer;
 static const ticker_data_t *const log_ticker = get_us_ticker_data();
 static uint32_t log_bytes_lost = 0;
 static EventFlags log_event_flag("logging");
-
+static LOG_DATA_TYPE_ *extern_buf = NULL;
+static uint32_t xbuf_count = 0;
+static bool time_enable = true;
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static void log_print_data(void)
+void log_print_data(void)
 {
     LOG_DATA_TYPE_ data = 0;
     uint32_t count = 0;
-    while (!log_buffer.empty()) {
-        log_buffer.pop(data);
+    while (1) {
+        while (!log_buffer.empty()) {
+            log_buffer.pop(data);
+
+            if (NULL != extern_buf) {
+                extern_buf[xbuf_count++] = data;
+                xbuf_count %= MBED_CONF_LOG_MAX_BUFFER_SIZE;
+            } else {
 #if DEVICE_STDIO_MESSAGES
 #if defined (MBED_ID_BASED_TRACING)
-        fprintf(stderr, "0x%x ", data);
+                fprintf(stderr, "0x%x ", data);
 #else
-        fputc(data, stderr);
+                fputc(data, stderr);
 #endif
 #endif
-        if(++count > (LOG_SINGLE_STR_SIZE_ << 1)) {
-            break;
+            }
+            if(++count > (LOG_SINGLE_STR_SIZE_ << 1)) {
+                break;
+            }
         }
+        log_event_flag.set(LOG_FREE_BUF_FLAG_);
     }
-    log_event_flag.set(LOG_FREE_BUF_FLAG_);
-}
-
-void mbed_logging_start(void)
-{
-    log_equeue = mbed_event_queue();
-    MBED_ASSERT(log_equeue != NULL);
 }
 
 void log_reset(void)
 {
-    core_util_critical_section_enter();
     log_buffer.reset();
-    log_bytes_lost = 0;
-    core_util_critical_section_exit();
+    time_enable = true;
+    xbuf_count = 0;
 }
 
 uint32_t log_get_bytes_lost(void)
 {
     return log_bytes_lost;
+}
+
+void log_buffer_data(LOG_DATA_TYPE_ *str) {
+    extern_buf = str;
+}
+
+void log_disable_time_capture(void) {
+    time_enable = false;
 }
 
 #if defined (MBED_ID_BASED_TRACING)
@@ -96,16 +105,17 @@ static inline void log_push_data(const LOG_DATA_TYPE_ data)
 void log_buffer_id_data(uint32_t argCount, ...)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
+    data = (LOG_DATA_TYPE_)(time/1000);
     LOG_DATA_TYPE_ data = 0;
     LOG_DATA_TYPE_ checksum = 0;
-
-    data = (LOG_DATA_TYPE_)(time/1000);
 
     va_list args;
     va_start(args, argCount);
     core_util_critical_section_enter();
-    log_push_data(data);
-    checksum ^= data;
+    if (time_enable) {
+        log_push_data(data);
+        checksum ^= data;
+    }
     for (uint32_t i = 0; i < argCount; i++) {
         data = va_arg(args, uint32_t);
         log_push_data(data);
@@ -115,14 +125,16 @@ void log_buffer_id_data(uint32_t argCount, ...)
     log_push_data(0x0);
     core_util_critical_section_exit();
     va_end(args);
-    log_equeue->call(log_print_data);
 }
 
+extern void log_terminate_thread(void);
 void log_assert(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES
     volatile uint64_t time = ticker_read_us(log_ticker);
     uint32_t data;
+
+    log_terminate_thread();
 
     // Empty the thread buffer first
     while (!log_buffer.empty()) {
@@ -132,7 +144,9 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n[%-8lld]", time);
+    if (time_enable) {
+        mbed_error_printf("\n[%-8lld]", time);
+    }
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
@@ -171,7 +185,6 @@ static void log_push_data_blocking(const LOG_DATA_TYPE_ *data, uint32_t count, u
         if (buf_limit > (LOG_MAX_BUFFER_SIZE_ - log_buffer.size())) {
             core_util_critical_section_exit();
             log_event_flag.clear(LOG_FREE_BUF_FLAG_);
-            log_equeue->call(log_print_data);
             uint32_t flag = log_event_flag.wait_any(LOG_FREE_BUF_FLAG_);
             MBED_ASSERT(true != (flag & osFlagsError));
             core_util_critical_section_enter();
@@ -209,15 +222,16 @@ void log_buffer_string_vdata(const char *format, va_list args)
         log_buffer_string_vdata_critical(format, args, false);
         mbed_log_helper_unlock_all();
     }
-    log_equeue->call(log_print_data);
 }
 
 void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t lossy)
 {
     volatile uint64_t time = ticker_read_us(log_ticker);
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_+1];
-    uint32_t count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
-
+    uint32_t count = 0;
+    if (time_enable) {
+        count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+    }
     vsnprintf(one_line+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
     count = strlen(one_line);
 
@@ -243,6 +257,7 @@ void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t 
     core_util_critical_section_exit();
 }
 
+extern void log_terminate_thread(void);
 void log_assert(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES
@@ -251,6 +266,8 @@ void log_assert(const char *format, ...)
     char data[ASSERT_BUF_LENGTH];
     memset((void *)data, 0, ASSERT_BUF_LENGTH);
     int count = 0;
+
+    log_terminate_thread();
 
     // Empty the thread buffer first
     while (!log_buffer.empty()) {
@@ -269,7 +286,9 @@ void log_assert(const char *format, ...)
     core_util_critical_section_enter();
     va_list args;
     va_start(args, format);
-    mbed_error_printf("\n[%-8lld]", time);
+    if (time_enable) {
+        mbed_error_printf("\n[%-8lld]", time);
+    }
     mbed_error_vfprintf(format, args);
     va_end(args);
     mbed_die();
