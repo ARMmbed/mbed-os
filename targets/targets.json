@@ -4179,7 +4179,6 @@
             "EMAC",
             "TRNG",
             "FLASH",
-            "WATCHDOG",
             "WIFI",
             "SERIAL_FC",
             "SERIAL"
