@@ -56,7 +56,8 @@ static void client_ipc_tests_call(
         )
 {
     error_t status = PSA_SUCCESS;
-    uint8_t response_buf[CLIENT_RSP_BUF_SIZE] = {0};
+    uint8_t *response_buf = (uint8_t*)malloc(CLIENT_RSP_BUF_SIZE * sizeof(uint8_t));
+    memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
 
     status = psa_call( handle,
                         (tx_len ? iovec_temp : NULL),
@@ -68,7 +69,7 @@ static void client_ipc_tests_call(
     if (expected) {
         TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, response_buf, expected_size);
     }
-
+    free(response_buf);
     TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
 }
 
