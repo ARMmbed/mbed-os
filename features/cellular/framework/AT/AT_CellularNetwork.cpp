@@ -42,7 +42,7 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     _stack(NULL), _apn(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK),
     _ip_stack_type(DEFAULT_STACK), _cid(-1), _connection_status_cb(NULL), _op_act(RAT_UNKNOWN),
     _authentication_type(CHAP), _cell_id(-1), _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false),
-    _reg_status(NotRegistered), _current_act(RAT_UNKNOWN)
+    _is_context_active(false), _reg_status(NotRegistered), _current_act(RAT_UNKNOWN)
 {
 }
 
@@ -100,14 +100,17 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
         tr_debug("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);
+        if (act != -1 && (RadioAccessTechnology)act != _current_act) {
+            _current_act = (RadioAccessTechnology)act;
+            _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, _current_act);
+        }
         if (reg_status != _reg_status) {
-            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularRegistrationStatusChanged);
+            _reg_status = reg_status;
+            _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, _reg_status);
         }
         if (cell_id != -1 && cell_id != _cell_id) {
-            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularCellIDChanged);
-        }
-        if (act != -1 && (RadioAccessTechnology)act != _current_act) {
-            _connection_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularRadioAccessTechnologyChanged);
+            _cell_id = cell_id;
+            _connection_status_cb((nsapi_event_t)CellularCellIDChanged, _cell_id);
         }
     }
 }
@@ -206,14 +209,9 @@ nsapi_error_t AT_CellularNetwork::delete_current_context()
     return _at.get_last_error();
 }
 
-nsapi_error_t AT_CellularNetwork::connect()
+nsapi_error_t AT_CellularNetwork::activate_context()
 {
     _at.lock();
-
-    _connect_status = NSAPI_STATUS_CONNECTING;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
-    }
 
     nsapi_error_t err = set_context_to_be_activated();
     if (err != NSAPI_ERROR_OK) {
@@ -228,18 +226,58 @@ nsapi_error_t AT_CellularNetwork::connect()
         return err;
     }
 
-    err = open_data_channel();
-    if (err != NSAPI_ERROR_OK) {
+    // do check for stack to validate that we have support for stack
+    _stack = get_stack();
+    if (!_stack) {
+        return err;
+    }
 
-        // If new PDP context was created and failed to activate, delete it
-        if (_new_context_set) {
-            delete_current_context();
+    _is_context_active = false;
+    _at.cmd_start("AT+CGACT?");
+    _at.cmd_stop();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        int context_activation_state = _at.read_int();
+        if (context_id == _cid && context_activation_state == 1) {
+            _is_context_active = true;
         }
+    }
+    _at.resp_stop();
 
-        _at.unlock();
+    if (!_is_context_active) {
+        tr_info("Activate PDP context");
+        _at.cmd_start("AT+CGACT=1,");
+        _at.write_int(_cid);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
 
-        tr_error("Failed to open data channel!");
+    err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
 
+    // If new PDP context was created and failed to activate, delete it
+    if (err != NSAPI_ERROR_OK && _new_context_set) {
+        delete_current_context();
+    }
+
+    _at.unlock();
+
+    return err;
+}
+
+nsapi_error_t AT_CellularNetwork::connect()
+{
+    _connect_status = NSAPI_STATUS_CONNECTING;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
+
+    nsapi_error_t err = NSAPI_ERROR_OK;
+    if (!_is_context_active) {
+        err = activate_context();
+    }
+    if (err) {
         _connect_status = NSAPI_STATUS_DISCONNECTED;
         if (_connection_status_cb) {
             _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
@@ -248,9 +286,19 @@ nsapi_error_t AT_CellularNetwork::connect()
         return err;
     }
 
+#if NSAPI_PPP_AVAILABLE
+    _at.lock();
+    err = open_data_channel();
     _at.unlock();
-
-#if !NSAPI_PPP_AVAILABLE
+    if (err != NSAPI_ERROR_OK) {
+        tr_error("Failed to open data channel!");
+        _connect_status = NSAPI_STATUS_DISCONNECTED;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        }
+        return err;
+    }
+#else
     _connect_status = NSAPI_STATUS_GLOBAL_UP;
     if (_connection_status_cb) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_GLOBAL_UP);
@@ -262,9 +310,6 @@ nsapi_error_t AT_CellularNetwork::connect()
 
 nsapi_error_t AT_CellularNetwork::open_data_channel()
 {
-    //old way: _at.send("ATD*99***%d#", _cid) && _at.recv("CONNECT");
-    nsapi_error_t err = NSAPI_ERROR_NO_CONNECTION;
-#if NSAPI_PPP_AVAILABLE
     tr_info("Open data channel in PPP mode");
     _at.cmd_start("AT+CGDATA=\"PPP\",");
     _at.write_int(_cid);
@@ -277,41 +322,7 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
     /* Initialize PPP
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
-    err = nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularNetwork::ppp_status_cb), _uname, _pwd, _ip_stack_type);
-#else
-    // do check for stack to validate that we have support for stack
-    _stack = get_stack();
-    if (!_stack) {
-        return err;
-    }
-
-    bool is_context_active = false;
-    _at.cmd_start("AT+CGACT?");
-    _at.cmd_stop();
-    _at.resp_start("+CGACT:");
-    while (_at.info_resp()) {
-        int context_id = _at.read_int();
-        int context_activation_state = _at.read_int();
-        if (context_id == _cid && context_activation_state == 1) {
-            is_context_active = true;
-            tr_debug("PDP context %d is active.", _cid);
-            break;
-        }
-    }
-    _at.resp_stop();
-
-    if (!is_context_active) {
-        tr_info("Activate PDP context %d", _cid);
-        _at.cmd_start("AT+CGACT=1,");
-        _at.write_int(_cid);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-    }
-
-    err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
-#endif
-    return err;
+    return nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularNetwork::ppp_status_cb), NULL, NULL, _ip_stack_type);
 }
 
 /**
@@ -695,6 +706,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     int lac = -1, cell_id = -1, act = -1;
     read_reg_params(type, status, lac, cell_id, act);
     _at.resp_stop();
+    _reg_status = status;
 
     if (cell_id != -1) {
         _cell_id = cell_id;

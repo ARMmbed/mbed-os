@@ -358,6 +358,13 @@ public:
     virtual nsapi_error_t connect(const char *apn,
                                   const char *username = 0, const char *password = 0) = 0;
 
+    /** Finds the correct PDP context and activates it. If correct PDP context is not found, one is created.
+     *  Given APN (or not given) and stack type (IPv4/IPv6/dual) are influencing when finding the PDP context.
+     *
+     *  @return zero on success
+     */
+    virtual nsapi_error_t activate_context() = 0;
+
     /**
      * Set the pdn type to be used
      *

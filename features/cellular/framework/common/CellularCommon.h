@@ -19,18 +19,19 @@
 #define CELLULAR_COMMON_
 
 #include <stdint.h>
+#include "nsapi_types.h"
 
 /**
  * Cellular specific event changes.
  * Connect and disconnect are handled via NSAPI_EVENT_CONNECTION_STATUS_CHANGE
  */
 typedef enum cellular_event_status {
-    CellularDeviceReady                     = 0,    /*!< Modem is powered and ready to receive commands */
-    CellularSIMStatusChanged                = 1,    /*!< SIM state changed, call SIM state  */
-    CellularRegistrationStatusChanged       = 2,    /*!< Registering status changed, e.g. roaming, registered, smsonly...  */
-    CellularRegistrationTypeChanged         = 3,    /*!< Registration type changed, e.g. C_EREG, C_GREG, C_REG */
-    CellularCellIDChanged                   = 4,    /*!< Network Cell ID have changed  */
-    CellularRadioAccessTechnologyChanged    = 5,    /*!< Network roaming status have changed  */
+    CellularDeviceReady                     = NSAPI_EVENT_CELLULAR_STATUS_BASE,     /* Modem is powered and ready to receive commands. No additional info in callback intptr_t. */
+    CellularSIMStatusChanged                = NSAPI_EVENT_CELLULAR_STATUS_BASE + 1, /* SIM state changed, call SIM state. enum SimState as additional info callback intptr_t. See enum SimState in ../API/CellularSIM.h  */
+    CellularRegistrationStatusChanged       = NSAPI_EVENT_CELLULAR_STATUS_BASE + 2, /* Registering status changed. enum RegistrationStatus as additional info callback intptr_t. See enum RegistrationStatus in ../API/CellularNetwork.h  */
+    CellularRegistrationTypeChanged         = NSAPI_EVENT_CELLULAR_STATUS_BASE + 3, /* Registration type changed. enum RegistrationType as additional info callback intptr_t. See enum RegistrationType in ../API/CellularNetwork.h  */
+    CellularCellIDChanged                   = NSAPI_EVENT_CELLULAR_STATUS_BASE + 4, /* Network Cell ID have changed. int cellid as additional info callback intptr_t. */
+    CellularRadioAccessTechnologyChanged    = NSAPI_EVENT_CELLULAR_STATUS_BASE + 5, /* Network roaming status have changed. enum RadioAccessTechnology as additional info callback intptr_t. See enum RadioAccessTechnology in ../API/CellularNetwork.h  */
 } cellular_connection_status_t;
 
 #endif // CELLULAR_COMMON_

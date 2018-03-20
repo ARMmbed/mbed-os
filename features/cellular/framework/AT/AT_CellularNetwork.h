@@ -62,6 +62,8 @@ protected:
 public: // CellularNetwork
     virtual nsapi_error_t init();
 
+    virtual nsapi_error_t activate_context();
+
     virtual nsapi_error_t set_registration(const char *plmn = 0);
 
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode);
@@ -176,6 +178,7 @@ protected:
     int _cell_id;
     nsapi_connection_status_t _connect_status;
     bool _new_context_set;
+    bool _is_context_active;
     RegistrationStatus _reg_status;
     RadioAccessTechnology _current_act;
     mbed::Callback<void()> _urc_funcs[C_MAX];

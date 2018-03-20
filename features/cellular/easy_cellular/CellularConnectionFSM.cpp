@@ -175,7 +175,7 @@ bool CellularConnectionFSM::open_sim()
     }
 
     if (_event_status_cb) {
-        _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularSIMStatusChanged);
+        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, state);
     }
 
     return state == CellularSIM::SimStateReady;
@@ -302,6 +302,8 @@ bool CellularConnectionFSM::is_automatic_registering()
 
 nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 {
+    tr_info("Continue state from %s to %s", get_state_string((CellularConnectionFSM::CellularState)_state),
+                    get_state_string((CellularConnectionFSM::CellularState)state));
     _state = state;
     _next_state = state;
     _retry_count = 0;
@@ -370,7 +372,7 @@ bool CellularConnectionFSM::device_ready()
 {
     tr_info("Cellular device ready");
     if (_event_status_cb) {
-        _event_status_cb(NSAPI_EVENT_CELLULAR_STATUS_CHANGE, CellularDeviceReady);
+        _event_status_cb((nsapi_event_t)CellularDeviceReady, 0);
     }
 
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
@@ -505,6 +507,8 @@ void CellularConnectionFSM::event()
 
     if (_next_state != _state || _event_timeout >= 0) {
         if (_next_state != _state) { // state exit condition
+            tr_info("Cellular state from %s to %s", get_state_string((CellularConnectionFSM::CellularState)_state),
+                    get_state_string((CellularConnectionFSM::CellularState)_next_state));
             if (_status_callback) {
                 if (!_status_callback(_state, _next_state)) {
                     return;
@@ -529,7 +533,7 @@ nsapi_error_t CellularConnectionFSM::start_dispatch()
 {
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread(osPriorityNormal, 1024);
+    _queue_thread = new rtos::Thread(osPriorityNormal, 2048);
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -562,14 +566,9 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
 
     tr_debug("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
-    if (ev == NSAPI_EVENT_CELLULAR_STATUS_CHANGE) {
-        if (ptr == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
-            // check for registration status
-            if (is_registered()) {
-                _queue.cancel(_eventID);
-                continue_from_state(STATE_ATTACHING_NETWORK);
-            }
-        }
+    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && ptr == CellularNetwork::RegisteredHomeNetwork && _state == STATE_REGISTERING_NETWORK) {
+        _queue.cancel(_eventID);
+        continue_from_state(STATE_ATTACHING_NETWORK);
     }
 
     if (_event_status_cb) {
@@ -579,7 +578,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 
 void CellularConnectionFSM::ready_urc_cb()
 {
-    tr_info("Device ready URC func called");
+    tr_debug("Device ready URC func called");
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
         tr_info("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
         _queue.cancel(_eventID);
