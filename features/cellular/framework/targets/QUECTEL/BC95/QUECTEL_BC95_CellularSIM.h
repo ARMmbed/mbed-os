@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-#ifndef QUECTEL_BC95_CELLULAR_POWER_H_
-#define QUECTEL_BC95_CELLULAR_POWER_H_
+#ifndef QUECTEL_BC95_CELLULAR_SIM_H_
+#define QUECTEL_BC95_CELLULAR_SIM_H_
 
-#include "AT_CellularPower.h"
+#include "AT_CellularSIM.h"
 
 namespace mbed {
 
-class QUECTEL_BC95_CellularPower : public AT_CellularPower
+class QUECTEL_BC95_CellularSIM : public AT_CellularSIM
 {
 public:
-    QUECTEL_BC95_CellularPower(ATHandler &atHandler);
-    virtual ~QUECTEL_BC95_CellularPower();
+    QUECTEL_BC95_CellularSIM(ATHandler &atHandler);
+    virtual ~QUECTEL_BC95_CellularSIM();
 
-public: //from CellularPower
-    virtual nsapi_error_t set_at_mode();
-
-    virtual nsapi_error_t reset();
+public: //from CellularSIM
+    virtual nsapi_error_t get_sim_state(SimState &state);
 };
 
 } // namespace mbed
 
-#endif // QUECTEL_BC95_CELLULAR_POWER_H_
+#endif // QUECTEL_BC95_CELLULAR_SIM_H_
