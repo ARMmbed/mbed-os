@@ -345,11 +345,8 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t 
                 break;
             }
             case SRV_MAC_NEW_CHANNEL_REQ: {
-                new_channel_req_params_t newChannelReq;
                 channel_params_t chParam;
-
-                newChannelReq.channel_id = payload[mac_index++];
-                newChannelReq.new_channel = &chParam;
+                int8_t channel_id = payload[mac_index++];
 
                 chParam.frequency = (uint32_t) payload[mac_index++];
                 chParam.frequency |= (uint32_t) payload[mac_index++] << 8;
@@ -358,7 +355,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t 
                 chParam.rx1_frequency = 0;
                 chParam.dr_range.value = payload[mac_index++];
 
-                status = lora_phy.request_new_channel(&newChannelReq);
+                status = lora_phy.request_new_channel(channel_id, &chParam);
 
                 ret_value = add_mac_command(MOTE_MAC_NEW_CHANNEL_ANS, status, 0);
             }
@@ -375,44 +372,47 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t 
             }
                 break;
             case SRV_MAC_TX_PARAM_SETUP_REQ: {
-                tx_param_setup_req_t txParamSetupReq;
                 uint8_t eirpDwellTime = payload[mac_index++];
+                uint8_t ul_dwell_time;
+                uint8_t dl_dwell_time;
+                uint8_t max_eirp;
 
-                txParamSetupReq.ul_dwell_time = 0;
-                txParamSetupReq.dl_dwell_time = 0;
+                ul_dwell_time = 0;
+                dl_dwell_time = 0;
 
                 if ((eirpDwellTime & 0x20) == 0x20) {
-                    txParamSetupReq.dl_dwell_time = 1;
+                    dl_dwell_time = 1;
                 }
                 if ((eirpDwellTime & 0x10) == 0x10) {
-                    txParamSetupReq.ul_dwell_time = 1;
+                    ul_dwell_time = 1;
                 }
-                txParamSetupReq.max_eirp = eirpDwellTime & 0x0F;
+                max_eirp = eirpDwellTime & 0x0F;
 
                 // Check the status for correctness
-                if (lora_phy.accept_tx_param_setup_req(&txParamSetupReq)) {
+                if (lora_phy.accept_tx_param_setup_req(ul_dwell_time, dl_dwell_time)) {
                     // Accept command
                     mac_sys_params.uplink_dwell_time =
-                            txParamSetupReq.ul_dwell_time;
+                            ul_dwell_time;
                     mac_sys_params.downlink_dwell_time =
-                            txParamSetupReq.dl_dwell_time;
+                            dl_dwell_time;
                     mac_sys_params.max_eirp =
-                            max_eirp_table[txParamSetupReq.max_eirp];
+                            max_eirp_table[max_eirp];
                     // Add command response
                     ret_value = add_mac_command(MOTE_MAC_TX_PARAM_SETUP_ANS, 0, 0);
                 }
             }
                 break;
             case SRV_MAC_DL_CHANNEL_REQ: {
-                dl_channel_req_params_t dlChannelReq;
 
-                dlChannelReq.channel_id = payload[mac_index++];
-                dlChannelReq.rx1_frequency = (uint32_t) payload[mac_index++];
-                dlChannelReq.rx1_frequency |= (uint32_t) payload[mac_index++] << 8;
-                dlChannelReq.rx1_frequency |= (uint32_t) payload[mac_index++] << 16;
-                dlChannelReq.rx1_frequency *= 100;
+                uint8_t channel_id = payload[mac_index++];
+                uint32_t rx1_frequency;
 
-                status = lora_phy.dl_channel_request(&dlChannelReq);
+                rx1_frequency = (uint32_t) payload[mac_index++];
+                rx1_frequency |= (uint32_t) payload[mac_index++] << 8;
+                rx1_frequency |= (uint32_t) payload[mac_index++] << 16;
+                rx1_frequency *= 100;
+
+                status = lora_phy.dl_channel_request(channel_id, rx1_frequency);
 
                 ret_value = add_mac_command(MOTE_MAC_DL_CHANNEL_ANS, status, 0);
             }

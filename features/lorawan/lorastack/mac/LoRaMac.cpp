@@ -182,7 +182,6 @@ void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
  **************************************************************************/
 void LoRaMac::on_radio_tx_done( void )
 {
-    set_band_txdone_params_t tx_done_params;
     lorawan_time_t cur_time = _lora_time.get_current_time( );
 
     if (_device_class != CLASS_C) {
@@ -223,10 +222,7 @@ void LoRaMac::on_radio_tx_done( void )
 
     _params.last_channel_idx = _params.channel;
 
-    tx_done_params.channel = _params.channel;
-    tx_done_params.joined = _is_nwk_joined;
-    tx_done_params.last_tx_done_time = cur_time;
-    _lora_phy.set_last_tx_done(&tx_done_params);
+    _lora_phy.set_last_tx_done(_params.channel, _is_nwk_joined, cur_time);
 
     _params.timers.aggregated_last_tx_time = cur_time;
 
@@ -257,7 +253,6 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 {
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
-    cflist_params_t cflist;
 
     uint8_t pkt_header_len = 0;
     uint32_t address = 0;
@@ -361,11 +356,8 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                 _params.sys_params.recv_delay1 *= 1000;
                 _params.sys_params.recv_delay2 = _params.sys_params.recv_delay1 + 1000;
 
-                cflist.payload = &_params.payload[13];
                 // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
-                cflist.size = size - 17;
-
-                _lora_phy.apply_cf_list(&cflist);
+                _lora_phy.apply_cf_list(&_params.payload[13], size - 17);
 
                 _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
                 _is_nwk_joined = true;
@@ -1182,17 +1174,12 @@ lorawan_status_t LoRaMac::schedule_tx(void)
 
 void LoRaMac::calculate_backOff(uint8_t channel)
 {
-    backoff_params_t backoff_params;
+    lorawan_time_t elapsed_time = _lora_time.get_elapsed_time(_params.timers.mac_init_time);
 
-    backoff_params.joined = _is_nwk_joined;
     _params.is_dutycycle_on = MBED_CONF_LORA_DUTY_CYCLE_ON;
-    backoff_params.dc_enabled = _params.is_dutycycle_on;
-    backoff_params.channel = channel;
-    backoff_params.elapsed_time = _lora_time.get_elapsed_time(_params.timers.mac_init_time);
-    backoff_params.tx_toa = _params.timers.tx_toa;
-    backoff_params.last_tx_was_join_req = _params.is_last_tx_join_request;
 
-    _lora_phy.calculate_backoff(&backoff_params);
+    _lora_phy.calculate_backoff(_is_nwk_joined, _params.is_last_tx_join_request, _params.is_dutycycle_on,
+                                channel, elapsed_time, _params.timers.tx_toa);
 
     // Update aggregated time-off. This must be an assignment and no incremental
     // update as we do only calculate the time-off based on the last transmission

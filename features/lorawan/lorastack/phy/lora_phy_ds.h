@@ -525,40 +525,6 @@
 #define TX_POWER_15                                 15
 
 /**
- * The parameter structure for the function RegionSetBandTxDone.
- */
-typedef struct
-{
-    /**
-     * The channel to update.
-     */
-    uint8_t channel;
-    /**
-     * Joined set to true, if the node has joined the network.
-     */
-    bool joined;
-    /**
-     * The last TX done time.
-     */
-    lorawan_time_t last_tx_done_time;
-} set_band_txdone_params_t;
-
-/**
- * The parameter structure for the function RegionApplyCFList.
- */
-typedef struct
-{
-    /**
-     * The payload containing the CF list.
-     */
-    uint8_t* payload;
-    /**
-     * The size of the payload.
-     */
-    uint8_t size;
-} cflist_params_t;
-
-/**
  * TX configuration parameters.
  */
 typedef struct
@@ -718,90 +684,6 @@ typedef struct rx_param_setup_req_s
 } rx_param_setup_req_t;
 
 /**
- * Contains tx parameter setup request coming from
- * network server.
- */
-typedef struct tx_param_setup_req_s
-{
-    /**
-     * The uplink dwell time.
-     */
-    uint8_t ul_dwell_time;
-    /**
-     * The downlink dwell time.
-     */
-    uint8_t dl_dwell_time;
-    /**
-     * The max EIRP.
-     */
-    uint8_t max_eirp;
-} tx_param_setup_req_t;
-
-/**
- * A structure that holds new channel parameters coming
- * from the network server.
- */
-typedef struct new_channel_req_params_s
-{
-    /**
-     * A pointer to the new channel's parameters.
-     */
-    channel_params_t* new_channel;
-    /**
-     * The channel ID.
-     */
-    int8_t channel_id;
-
-} new_channel_req_params_t;
-
-/**
- * The parameter structure for the function RegionDlChannelReq.
- */
-typedef struct dl_channel_req_params_s
-{
-    /**
-     * The channel ID to add the frequency.
-     */
-    uint8_t channel_id;
-    /**
-     * The alternative frequency for the Rx1 window.
-     */
-    uint32_t rx1_frequency;
-} dl_channel_req_params_t;
-
-/*!
- * The parameter structure for the function RegionCalcBackOff.
- */
-typedef struct backoff_params_s
-{
-    /**
-     * Set to true, if the node has already joined a network, otherwise false.
-     */
-    bool joined;
-    /**
-     * set to true, if the last uplink was a join request.
-     */
-    bool last_tx_was_join_req;
-    /**
-     * Set to true, if the duty cycle is enabled, otherwise false.
-     */
-    bool dc_enabled;
-    /**
-     * The current channel index.
-     */
-    uint8_t channel;
-    /**
-     * Elapsed time since the start of the node.
-     */
-    lorawan_time_t elapsed_time;
-    /**
-     * Time-on-air of the last transmission.
-     */
-    lorawan_time_t tx_toa;
-
-} backoff_params_t;
-
-/**
  * The parameter structure for the function RegionNextChannel.
  */
 typedef struct channel_selection_params_s
@@ -865,13 +747,13 @@ typedef struct {
 } loraphy_table_t;
 
 typedef struct {
-    channel_params_t *channel_list;
+
     uint8_t channel_list_size;
+    uint8_t  mask_size;
 
     uint16_t *mask;
     uint16_t *default_mask;
-    uint8_t  mask_size;
-
+    channel_params_t *channel_list;
 } loraphy_channels_t;
 
 typedef struct {
