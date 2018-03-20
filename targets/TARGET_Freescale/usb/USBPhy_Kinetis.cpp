@@ -483,7 +483,7 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
 
     if (setup) {
         // Record the setup type
-        if (data[6] == 0)  {
+        if ((data[6] == 0) && (data[7] == 0))  {
             ctrl_xfer = CTRL_XFER_NONE;
         } else {
             uint8_t in_xfer = (data[0] >> 7) & 1;
