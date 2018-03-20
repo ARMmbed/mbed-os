@@ -724,6 +724,7 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
         FRESULT res;
 
         res = f_readdir(dh, &finfo);
+        dptr = dh->dptr;
         if (res != FR_OK) {
             break;
         } else if (finfo.fname[0] == 0) {
