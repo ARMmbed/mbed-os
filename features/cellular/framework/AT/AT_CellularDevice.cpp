@@ -41,7 +41,6 @@ AT_CellularDevice::~AT_CellularDevice()
         ATHandler *old = atHandler;
         atHandler = atHandler->_nextATHandler;
         delete old;
-        old = NULL;
     }
 }
 
@@ -90,7 +89,6 @@ void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
                     prev->_nextATHandler = atHandler->_nextATHandler;
                 }
                 delete atHandler;
-                atHandler = NULL;
                 break;
             } else {
                 prev = atHandler;
