@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#if defined(TARGET_RZ_A1H) || defined(TARGET_GR_LYCHEE)
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H) || defined(TARGET_GR_LYCHEE)
 #define OS_IDLE_THREAD_STACK_SIZE   512
 
 #if defined(__CC_ARM)
