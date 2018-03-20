@@ -134,6 +134,7 @@ public:
      *
      *  @param instruction Instruction value to be used in instruction phase
      *  @param alt Alt value to be used in instruction phase
+     *  @param dummy_cnt Amount of dummy cycles to be sent after instruction phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param rx_buffer Buffer for data to be read from the peripheral                          
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
@@ -141,12 +142,13 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(unsigned int instruction, unsigned int alt, unsigned int dummy_cnt, unsigned int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
      *  @param alt Alt value to be used in instruction phase
+     *  @param dummy_cnt Amount of dummy cycles to be sent after instruction phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral                          
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
@@ -154,7 +156,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(unsigned int instruction, unsigned int alt, unsigned int dummy_cnt, unsigned int address, const char *tx_buffer, size_t *tx_length);
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
@@ -195,7 +197,6 @@ protected:
     qspi_alt_size_t _alt_size;
     qspi_bus_width_t _data_width; //Bus width for Data phase
     qspi_command_t _qspi_command; //QSPI Hal command struct
-    unsigned int _num_dummy_cycles; //Number of dummy cycles to be used
     int _hz; //Bus Frequency
     int _mode; //SPI mode
     bool _initialized;
@@ -211,7 +212,7 @@ private:
     /* 
      * This function builds the qspi command struct to be send to Hal
      */
-    inline void _build_qspi_command(int instruction, int address, int alt);
+    inline void _build_qspi_command(int instruction, int address, int alt, int dummy_cnt);
 };
 
 } // namespace mbed
