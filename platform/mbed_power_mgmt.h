@@ -68,26 +68,18 @@ extern "C" {
 void sleep_tracker_lock(const char *const filename, int line);
 void sleep_tracker_unlock(const char *const filename, int line);
 
-#if defined(__CC_ARM)
-#define __FILENAME__ __MODULE__
-#elif defined(__GNUC__)
-#define __FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
-#else
-#define __FILENAME__ __FILE__
-#endif
-
-#define sleep_manager_lock_deep_sleep()             \
-    do                                              \
-    {                                               \
-        sleep_manager_lock_deep_sleep_internal();   \
-        sleep_tracker_lock(__FILENAME__, __LINE__); \
+#define sleep_manager_lock_deep_sleep()              \
+    do                                               \
+    {                                                \
+        sleep_manager_lock_deep_sleep_internal();    \
+        sleep_tracker_lock(MBED_FILENAME, __LINE__); \
     } while (0);
 
-#define sleep_manager_unlock_deep_sleep()             \
-    do                                                \
-    {                                                 \
-        sleep_manager_unlock_deep_sleep_internal();   \
-        sleep_tracker_unlock(__FILENAME__, __LINE__); \
+#define sleep_manager_unlock_deep_sleep()              \
+    do                                                 \
+    {                                                  \
+        sleep_manager_unlock_deep_sleep_internal();    \
+        sleep_tracker_unlock(MBED_FILENAME, __LINE__); \
     } while (0);
 
 #else
