@@ -34,7 +34,7 @@ extern "C" {
 
 using namespace mbed;
 
-#ifdef MBED_TICKLESS
+#if (defined(MBED_TICKLESS) && defined(DEVICE_LPTICKER))
 
 #if (defined(NO_SYSTICK))
 /**
@@ -227,7 +227,7 @@ static void default_idle_hook(void)
     core_util_critical_section_exit();
 }
 
-#endif // MBED_TICKLESS
+#endif // (defined(MBED_TICKLESS) && defined(DEVICE_LPTICKER))
 
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
