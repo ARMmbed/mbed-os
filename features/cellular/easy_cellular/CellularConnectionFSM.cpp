@@ -78,6 +78,7 @@ void CellularConnectionFSM::stop()
     _cellularDevice->close_network();
     if (_queue_thread) {
         _queue_thread->terminate();
+        delete _queue_thread;
         _queue_thread = NULL;
     }
 }
@@ -135,6 +136,7 @@ bool CellularConnectionFSM::power_on()
 void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
 {
     strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
+    _sim_pin[sizeof(_sim_pin)] = '\0';
 }
 
 bool CellularConnectionFSM::open_sim()
