@@ -68,7 +68,8 @@ protected:
 	typedef enum {
 		BT_STATE_INITIAL = 0,
 		BT_STATE_DISCOVER,
-		BT_STATE_READY
+		BT_STATE_READY,
+		BT_STATE_DISCOVER_FAILED
 	} bt_state_t;
 	bt_state_t _state;
 	
@@ -99,6 +100,7 @@ protected:
 	virtual void _start(void) = 0;
 	virtual void _frame_received_internal(const char * data, size_t size) = 0;	// caution runs in same thread!
 	
+	void _start_rx_processing();
 	char _get_message_type(const char * data);
 	uint64_t _get_address(const char * data);
 	void _send_enqueue(uint8_t messageType, uint64_t slaveId, const void * data, size_t size);

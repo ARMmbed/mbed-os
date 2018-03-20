@@ -172,16 +172,22 @@ void BTBase::_tx_frame_queue_clear(void) {
 
 }
 
-void BTBase::bt_start(uint64_t id) {
-	
-	// set board id
-	this->_id = id;
-	
+void BTBase::_start_rx_processing(){
+
 	// start rx processing
 	this->_dmaSerial->startRead(
 		this->_rx_buffer,
 		BT_BUFFER_SIZE
 	);
+
+}
+
+void BTBase::bt_start(uint64_t id) {
+	
+	// set board id
+	this->_id = id;
+	
+	this->_start_rx_processing();
 
 	this->_start();
 	

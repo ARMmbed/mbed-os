@@ -32,7 +32,7 @@ BTMaster::~BTMaster() {
 void BTMaster::_main_loop(void) {
 	
 	uint64_t tempId;
-	
+
 	while(true) {
 		
 		switch(_state) {
@@ -86,9 +86,26 @@ void BTMaster::_main_loop(void) {
 					_activity_led_on();
 				
 				}
+				else {
+					
+					_state = BT_STATE_DISCOVER_FAILED;
+
+				}
 			
 				break;
 			
+			case BT_STATE_DISCOVER_FAILED:
+
+				wd_log_error("BTMaster -> BT_STATE_DISCOVER_FAILED");
+
+				// At least one slave didn't get the discovery-confirmation from the master and pushes the BUS_IRQ still to 0
+				// Therefore the assumption is that the read of the discover-confirmation of the slave could not be read by the master
+				// The restart of the rx-processing is the current solution
+				this->_start_rx_processing();
+
+				_state = BT_STATE_DISCOVER;
+
+				break;
 			
 			case BT_STATE_READY:
 		
