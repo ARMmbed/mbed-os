@@ -68,7 +68,7 @@ const char * AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE-1);
+            (void)_at.read_string(_ip, PDP_IPV6_SIZE-1);
         }
     }
 
@@ -158,7 +158,6 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
     _at.unlock();
 
     delete socket;
-    socket = NULL;
 
     return err;
 }
