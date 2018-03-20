@@ -36,7 +36,7 @@
  *
  */
 
-#if DEVICE_FLASH
+#if (defined(DEVICE_FLASH) && defined(DEVICE_LPTICKER))
 
 #include "hal/flash_api.h"
 #include "hal/lp_ticker_api.h"
