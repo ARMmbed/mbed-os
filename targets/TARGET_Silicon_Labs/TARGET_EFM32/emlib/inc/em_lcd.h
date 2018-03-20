@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_lcd.h
  * @brief Liquid Crystal Display (LCD) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -54,12 +54,18 @@ extern "C" {
  ******************************************************************************/
 
 /*******************************************************************************
+ ********************************   DEFINES   **********************************
+ ******************************************************************************/
+
+#define LCD_DEFAULT_FRAME_RATE_DIV  4
+#define LCD_DEFAULT_CONTRAST        15
+
+/*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
 /** MUX setting */
-typedef enum
-{
+typedef enum {
   /** Static (segments can be multiplexed with LCD_COM[0]) */
   lcdMuxStatic     = LCD_DISPCTRL_MUX_STATIC,
   /** Duplex / 1/2 Duty cycle (segments can be multiplexed with LCD_COM[0:1]) */
@@ -73,12 +79,24 @@ typedef enum
   lcdMuxSextaplex  = LCD_DISPCTRL_MUXE_MUXE | LCD_DISPCTRL_MUX_DUPLEX,
   /** Octaplex / 1/6 Duty cycle (segments can be multiplexed with LCD_COM[0:5]) */
   lcdMuxOctaplex   = LCD_DISPCTRL_MUXE_MUXE | LCD_DISPCTRL_MUX_QUADRUPLEX
+#elif defined(LCD_DISPCTRL_MUX_SEXTAPLEX)
+  /** Sextaplex / 1/6 Duty cycle (segments can be multiplexed with LCD_COM[0:5]) */
+  lcdMuxSextaplex  = LCD_DISPCTRL_MUX_SEXTAPLEX,
+  /** Octaplex / 1/6 Duty cycle (segments can be multiplexed with LCD_COM[0:5]) */
+  lcdMuxOctaplex   = LCD_DISPCTRL_MUX_OCTAPLEX,
 #endif
 } LCD_Mux_TypeDef;
 
+/** Wave type */
+typedef enum {
+  /** Low power optimized waveform output */
+  lcdWaveLowPower = LCD_DISPCTRL_WAVE_LOWPOWER,
+  /** Regular waveform output */
+  lcdWaveNormal   = LCD_DISPCTRL_WAVE_NORMAL
+} LCD_Wave_TypeDef;
+
 /** Bias setting */
-typedef enum
-{
+typedef enum {
   /** Static (2 levels) */
   lcdBiasStatic    = LCD_DISPCTRL_BIAS_STATIC,
   /** 1/2 Bias (3 levels) */
@@ -91,36 +109,29 @@ typedef enum
 #endif
 } LCD_Bias_TypeDef;
 
-/** Wave type */
-typedef enum
-{
-  /** Low power optimized waveform output */
-  lcdWaveLowPower = LCD_DISPCTRL_WAVE_LOWPOWER,
-  /** Regular waveform output */
-  lcdWaveNormal   = LCD_DISPCTRL_WAVE_NORMAL
-} LCD_Wave_TypeDef;
-
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /** VLCD Voltage Source */
-typedef enum
-{
+typedef enum {
   /** VLCD Powered by VDD */
   lcdVLCDSelVDD       = LCD_DISPCTRL_VLCDSEL_VDD,
   /** VLCD Powered by external VDD / Voltage Boost */
   lcdVLCDSelVExtBoost = LCD_DISPCTRL_VLCDSEL_VEXTBOOST
 } LCD_VLCDSel_TypeDef;
+#endif
 
 /** Contrast Configuration */
-typedef enum
-{
+#if defined(_SILICON_LABS_32B_SERIES_0)
+typedef enum {
   /** Contrast is adjusted relative to VDD (VLCD) */
   lcdConConfVLCD = LCD_DISPCTRL_CONCONF_VLCD,
   /** Contrast is adjusted relative to Ground */
   lcdConConfGND  = LCD_DISPCTRL_CONCONF_GND
 } LCD_ConConf_TypeDef;
+#endif
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /** Voltage Boost Level - Datasheets document setting for each part number */
-typedef enum
-{
+typedef enum {
   lcdVBoostLevel0 = LCD_DISPCTRL_VBLEV_LEVEL0, /**< Voltage boost LEVEL0 */
   lcdVBoostLevel1 = LCD_DISPCTRL_VBLEV_LEVEL1, /**< Voltage boost LEVEL1 */
   lcdVBoostLevel2 = LCD_DISPCTRL_VBLEV_LEVEL2, /**< Voltage boost LEVEL2 */
@@ -130,10 +141,19 @@ typedef enum
   lcdVBoostLevel6 = LCD_DISPCTRL_VBLEV_LEVEL6, /**< Voltage boost LEVEL6 */
   lcdVBoostLevel7 = LCD_DISPCTRL_VBLEV_LEVEL7  /**< Voltage boost LEVEL7 */
 } LCD_VBoostLevel_TypeDef;
+#endif
+
+#if defined(_SILICON_LABS_32B_SERIES_1)
+/** Mode */
+typedef enum {
+  lcdModeNoExtCap = LCD_DISPCTRL_MODE_NOEXTCAP, /**< No external capacitor */
+  lcdModeStepDown = LCD_DISPCTRL_MODE_STEPDOWN, /**< External cap with resistor string */
+  lcdModeCpIntOsc = LCD_DISPCTRL_MODE_CPINTOSC, /**< External cap and internal oscillator */
+} LCD_Mode_Typedef;
+#endif
 
 /** Frame Counter Clock Prescaler, FC-CLK = FrameRate (Hz) / this factor */
-typedef enum
-{
+typedef enum {
   /** Prescale Div 1 */
   lcdFCPrescDiv1 = LCD_BACTRL_FCPRESC_DIV1,
   /** Prescale Div 2 */
@@ -144,9 +164,9 @@ typedef enum
   lcdFCPrescDiv8 = LCD_BACTRL_FCPRESC_DIV8
 } LCD_FCPreScale_TypeDef;
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /** Segment selection */
-typedef enum
-{
+typedef enum {
   /** Select segment lines 0 to 3 */
   lcdSegment0_3   = (1 << 0),
   /** Select segment lines 4 to 7 */
@@ -175,10 +195,10 @@ typedef enum
   lcdSegmentAll   = (0x03ff)
 #endif
 } LCD_SegmentRange_TypeDef;
+#endif
 
 /** Update Data Control */
-typedef enum
-{
+typedef enum {
   /** Regular update, data transfer done immediately */
   lcdUpdateCtrlRegular    = LCD_CTRL_UDCTRL_REGULAR,
   /** Data transfer done at Frame Counter event */
@@ -188,8 +208,7 @@ typedef enum
 } LCD_UpdateCtrl_TypeDef;
 
 /** Animation Shift operation; none, left or right */
-typedef enum
-{
+typedef enum {
   /** No shift */
   lcdAnimShiftNone  = _LCD_BACTRL_AREGASC_NOSHIFT,
   /** Shift segment bits left */
@@ -199,22 +218,19 @@ typedef enum
 } LCD_AnimShift_TypeDef;
 
 /** Animation Logic Control, how AReg and BReg should be combined */
-typedef enum
-{
+typedef enum {
   /** Use bitwise logic AND to mix animation register A (AREGA) and B (AREGB) */
   lcdAnimLogicAnd = LCD_BACTRL_ALOGSEL_AND,
   /** Use bitwise logic OR to mix animation register A (AREGA) and B (AREGB) */
   lcdAnimLogicOr  = LCD_BACTRL_ALOGSEL_OR
 } LCD_AnimLogic_TypeDef;
 
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** LCD Animation Configuration */
-typedef struct
-{
+typedef struct {
   /** Enable Animation at end of initialization */
   bool                  enable;
   /** Initial Animation Register A Value */
@@ -234,8 +250,7 @@ typedef struct
 } LCD_AnimInit_TypeDef;
 
 /** LCD Frame Control Initialization */
-typedef struct
-{
+typedef struct {
   /** Enable at end */
   bool                   enable;
   /** Frame Counter top value */
@@ -245,8 +260,7 @@ typedef struct
 } LCD_FrameCountInit_TypeDef;
 
 /** LCD Controller Initialization structure */
-typedef struct
-{
+typedef struct {
   /** Enable controller at end of initialization */
   bool                enable;
   /** Mux configuration */
@@ -255,45 +269,80 @@ typedef struct
   LCD_Bias_TypeDef    bias;
   /** Wave configuration */
   LCD_Wave_TypeDef    wave;
+#if defined(_SILICON_LABS_32B_SERIES_0)
   /** VLCD Select */
   LCD_VLCDSel_TypeDef vlcd;
   /** Contrast Configuration */
   LCD_ConConf_TypeDef contrast;
+#endif
+#if defined(_SILICON_LABS_32B_SERIES_1)
+  /** Mode */
+  LCD_Mode_Typedef    mode;
+  uint8_t             chgrDst;
+  uint8_t             frameRateDivider;
+  int                 contrastLevel;
+#endif
 } LCD_Init_TypeDef;
 
 /** Default config for LCD init structure, enables 160 segments  */
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define LCD_INIT_DEFAULT \
-{                        \
-  true,                  \
-  lcdMuxQuadruplex,      \
-  lcdBiasOneThird,       \
-  lcdWaveLowPower,       \
-  lcdVLCDSelVDD,         \
-  lcdConConfVLCD         \
-}
+  {                      \
+    true,                \
+    lcdMuxQuadruplex,    \
+    lcdBiasOneThird,     \
+    lcdWaveLowPower,     \
+    lcdVLCDSelVDD,       \
+    lcdConConfVLCD,      \
+  }
+#endif
+
+#if defined(_SILICON_LABS_32B_SERIES_1)
+#define LCD_INIT_DEFAULT        \
+  {                             \
+    true,                       \
+    lcdMuxQuadruplex,           \
+    lcdBiasOneThird,            \
+    lcdWaveLowPower,            \
+    lcdModeNoExtCap,            \
+    0,                          \
+    LCD_DEFAULT_FRAME_RATE_DIV, \
+    LCD_DEFAULT_CONTRAST        \
+  }
+#endif
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
 void LCD_Init(const LCD_Init_TypeDef *lcdInit);
+#if defined(_SILICON_LABS_32B_SERIES_0)
 void LCD_VLCDSelect(LCD_VLCDSel_TypeDef vlcd);
+#endif
 void LCD_UpdateCtrl(LCD_UpdateCtrl_TypeDef ud);
 void LCD_FrameCountInit(const LCD_FrameCountInit_TypeDef *fcInit);
 void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit);
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 void LCD_SegmentRangeEnable(LCD_SegmentRange_TypeDef segment, bool enable);
+#endif
 void LCD_SegmentSet(int com, int bit, bool enable);
 void LCD_SegmentSetLow(int com, uint32_t mask, uint32_t bits);
 #if defined(_LCD_SEGD0H_MASK)
 void LCD_SegmentSetHigh(int com, uint32_t mask, uint32_t bits);
 #endif
 void LCD_ContrastSet(int level);
+void LCD_BiasSet(LCD_Bias_TypeDef bias);
+#if defined(_SILICON_LABS_32B_SERIES_0)
 void LCD_VBoostSet(LCD_VBoostLevel_TypeDef vboost);
-
+#endif
 #if defined(LCD_CTRL_DSC)
 void LCD_BiasSegmentSet(int segment, int biasLevel);
 void LCD_BiasComSet(int com, int biasLevel);
+#endif
+#if defined(_SILICON_LABS_32B_SERIES_1)
+void LCD_ModeSet(LCD_Mode_Typedef mode);
+void LCD_ChargeRedistributionCyclesSet(uint8_t cycles);
 #endif
 
 /***************************************************************************//**
@@ -307,16 +356,12 @@ void LCD_BiasComSet(int com, int biasLevel);
  ******************************************************************************/
 __STATIC_INLINE void LCD_Enable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->CTRL |= LCD_CTRL_EN;
-  }
-  else
-  {
+  } else {
     LCD->CTRL &= ~LCD_CTRL_EN;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -327,16 +372,12 @@ __STATIC_INLINE void LCD_Enable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void LCD_AnimEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->BACTRL |= LCD_BACTRL_AEN;
-  }
-  else
-  {
+  } else {
     LCD->BACTRL &= ~LCD_BACTRL_AEN;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -347,16 +388,12 @@ __STATIC_INLINE void LCD_AnimEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void LCD_BlinkEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->BACTRL |= LCD_BACTRL_BLINKEN;
-  }
-  else
-  {
+  } else {
     LCD->BACTRL &= ~LCD_BACTRL_BLINKEN;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -367,16 +404,12 @@ __STATIC_INLINE void LCD_BlinkEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void LCD_BlankEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->BACTRL |= LCD_BACTRL_BLANK;
-  }
-  else
-  {
+  } else {
     LCD->BACTRL &= ~LCD_BACTRL_BLANK;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -387,16 +420,12 @@ __STATIC_INLINE void LCD_BlankEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void LCD_FrameCountEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->BACTRL |= LCD_BACTRL_FCEN;
-  }
-  else
-  {
+  } else {
     LCD->BACTRL &= ~LCD_BACTRL_FCEN;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -410,7 +439,6 @@ __STATIC_INLINE int LCD_AnimState(void)
   return (int)(LCD->STATUS & _LCD_STATUS_ASTATE_MASK) >> _LCD_STATUS_ASTATE_SHIFT;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Returns current blink state
@@ -423,7 +451,6 @@ __STATIC_INLINE int LCD_BlinkState(void)
   return (int)(LCD->STATUS & _LCD_STATUS_BLINK_MASK) >> _LCD_STATUS_BLINK_SHIFT;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   When set, LCD registers will not be updated until cleared,
@@ -434,16 +461,12 @@ __STATIC_INLINE int LCD_BlinkState(void)
  ******************************************************************************/
 __STATIC_INLINE void LCD_FreezeEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->FREEZE = LCD_FREEZE_REGFREEZE_FREEZE;
-  }
-  else
-  {
+  } else {
     LCD->FREEZE = LCD_FREEZE_REGFREEZE_UPDATE;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -456,7 +479,6 @@ __STATIC_INLINE uint32_t LCD_SyncBusyGet(void)
 {
   return LCD->SYNCBUSY;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -471,7 +493,6 @@ __STATIC_INLINE void LCD_SyncBusyDelay(uint32_t flags)
     ;
 }
 
-
 /***************************************************************************//**
  * @brief
  *    Get pending LCD interrupt flags
@@ -484,7 +505,6 @@ __STATIC_INLINE uint32_t LCD_IntGet(void)
 {
   return LCD->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -516,7 +536,6 @@ __STATIC_INLINE uint32_t LCD_IntGetEnabled(void)
   return LCD->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *    Set one or more pending LCD interrupts from SW.
@@ -530,7 +549,6 @@ __STATIC_INLINE void LCD_IntSet(uint32_t flags)
 {
   LCD->IFS = flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -546,7 +564,6 @@ __STATIC_INLINE void LCD_IntEnable(uint32_t flags)
   LCD->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *    Disable LCD interrupts
@@ -560,7 +577,6 @@ __STATIC_INLINE void LCD_IntDisable(uint32_t flags)
 {
   LCD->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -576,7 +592,6 @@ __STATIC_INLINE void LCD_IntClear(uint32_t flags)
   LCD->IFC = flags;
 }
 
-
 #if defined(LCD_CTRL_DSC)
 /***************************************************************************//**
  * @brief
@@ -589,12 +604,9 @@ __STATIC_INLINE void LCD_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LCD_DSCEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->CTRL |= LCD_CTRL_DSC;
-  }
-  else
-  {
+  } else {
     LCD->CTRL &= ~LCD_CTRL_DSC;
   }
 }

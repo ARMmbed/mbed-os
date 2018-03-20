@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_rcc.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   RCC LL module driver.
   ******************************************************************************
   * @attention
@@ -148,7 +146,7 @@ ErrorStatus LL_RCC_DeInit(void)
 
   /* Reset HSEBYP bit */
   LL_RCC_HSE_DisableBypass();
- 
+
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);
 
@@ -499,6 +497,12 @@ uint32_t RCC_GetSystemClockFreq(void)
       frequency = RCC_PLL_GetFreqDomain_SYS();
       break;
 
+#if defined(RCC_HSI48_SUPPORT)
+    case LL_RCC_SYS_CLKSOURCE_STATUS_HSI48:/* HSI48 used as system clock  source */
+      frequency = HSI48_VALUE;
+      break;
+#endif /* RCC_HSI48_SUPPORT */
+
     default:
       frequency = HSI_VALUE;
       break;
@@ -548,15 +552,15 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void)
       pllinputfreq = HSI_VALUE;
 #else
     case LL_RCC_PLLSOURCE_HSI_DIV_2: /* HSI used as PLL clock source */
-      pllinputfreq = HSI_VALUE / 2;
+      pllinputfreq = HSI_VALUE / 2U;
 #endif /* RCC_PLLSRC_PREDIV1_SUPPORT */
       break;
 
-#if defined(RCC_CFGR_SW_HSI48)
+#if defined(RCC_HSI48_SUPPORT)
     case LL_RCC_PLLSOURCE_HSI48:     /* HSI48 used as PLL clock source */
       pllinputfreq = HSI48_VALUE;
       break;
-#endif /* RCC_CFGR_SW_HSI48 */
+#endif /* RCC_HSI48_SUPPORT */
 
     case LL_RCC_PLLSOURCE_HSE:       /* HSE used as PLL clock source */
       pllinputfreq = HSE_VALUE;
@@ -566,7 +570,7 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void)
 #if defined(RCC_PLLSRC_PREDIV1_SUPPORT)
       pllinputfreq = HSI_VALUE;
 #else
-      pllinputfreq = HSI_VALUE / 2;
+      pllinputfreq = HSI_VALUE / 2U;
 #endif /* RCC_PLLSRC_PREDIV1_SUPPORT */
       break;
   }

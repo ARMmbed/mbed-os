@@ -25,6 +25,7 @@
 #include "em_usb.h"
 #if defined( USB_DEVICE ) || defined( USB_HOST )
 #include "em_cmu.h"
+#include "em_core.h"
 #include "em_timer.h"
 #include "em_usbtypes.h"
 #include "em_usbhal.h"
@@ -244,8 +245,9 @@ void USBTIMER_Start( uint32_t id, uint32_t timeout,
 {
   uint32_t accumulated;
   USBTIMER_Timer_TypeDef *this, **last;
+  CORE_DECLARE_IRQ_STATE;
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 
   if ( timers[ id ].running )
   {
@@ -255,7 +257,7 @@ void USBTIMER_Start( uint32_t id, uint32_t timeout,
   if ( timeout == 0 )
   {
     callback();
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     return;
   }
 
@@ -297,7 +299,7 @@ void USBTIMER_Start( uint32_t id, uint32_t timeout,
     }
   }
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 
 /***************************************************************************//**
@@ -310,8 +312,9 @@ void USBTIMER_Start( uint32_t id, uint32_t timeout,
 void USBTIMER_Stop( uint32_t id )
 {
   USBTIMER_Timer_TypeDef *this, **last;
+  CORE_DECLARE_IRQ_STATE;
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 
   if ( head )                                           /* Queue empty ?    */
   {
@@ -335,7 +338,7 @@ void USBTIMER_Stop( uint32_t id )
     }
   }
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 #endif /* ( NUM_QTIMERS > 0 ) */
 
@@ -347,8 +350,9 @@ void USBTIMER_Stop( uint32_t id )
 static void TimerTick( void )
 {
   USBTIMER_Callback_TypeDef cb;
+  CORE_DECLARE_IRQ_STATE;
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 
   if ( head )
   {
@@ -372,7 +376,7 @@ static void TimerTick( void )
     }
   }
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 /** @endcond */
 #endif /* ( NUM_QTIMERS > 0 ) */

@@ -82,10 +82,17 @@ typedef enum {
     // Cellular modem (a DCE)
     MDMPWRON  = PE_14,   // Power (active high)
     MDMRST    = PB_5,    // Reset (active low)
+#if defined(TARGET_UBLOX_C030_R410M)
+    MDMTXD    = PA_9,    // Transmit Data
+    MDMRXD    = PA_10,    // Receive Data
+    MDMCTS    = PA_11,    // Clear to Send
+    MDMRTS    = PA_12,    // Request to Send
+#else
     MDMTXD    = PD_5,    // Transmit Data
     MDMRXD    = PD_6,    // Receive Data
     MDMCTS    = PD_3,    // Clear to Send
     MDMRTS    = PD_4,    // Request to Send
+#endif
     MDMDCD    = NC,      // DCD line not connected
     MDMDSR    = NC,      // DSR line not connected
     MDMDTR    = NC,      // DTR line not connected
@@ -145,9 +152,29 @@ typedef enum {
     SPI_CLK     = D13,
     SPI_NSS     = D10,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+#if defined(TARGET_UBLOX_C030_R410M)
+    STDIO_UART_TX = PD_5,
+#else
+    STDIO_UART_TX = PA_9,
+#endif
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+#if defined(TARGET_UBLOX_C030_R410M)
+    STDIO_UART_RX = PD_6,
+#else
+    STDIO_UART_RX = PA_10,
+#endif	
+#endif
+
     // ST-Link
-    USBRX   = PA_10,
-    USBTX   = PA_9,
+    USBRX   = STDIO_UART_RX,
+    USBTX   = STDIO_UART_TX,
     SWDIO   = PA_13, 
     SWCLK   = PA_14, 
     NTRST   = PB_4,  

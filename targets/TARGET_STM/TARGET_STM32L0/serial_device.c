@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,194 +27,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "mbed_assert.h"
-#include "serial_api.h"
-#include "serial_api_hal.h"
 
 #if DEVICE_SERIAL
 
-#include "cmsis.h"
-#include "pinmap.h"
-#include <string.h>
-#include "PeripheralPins.h"
-#include "mbed_error.h"
+#include "serial_api_hal.h"
 
-#define UART_NUM (5)
+#if defined (TARGET_STM32L011K4) || defined (TARGET_STM32L031K6)
+    #define UART_NUM (2)
+#elif defined (TARGET_STM32L053x8)
+    #define UART_NUM (3)
+#else
+    #define UART_NUM (5)
+#endif
 
-static uint32_t serial_irq_ids[UART_NUM] = {0};
+uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
-int stdio_uart_inited = 0;
-serial_t stdio_uart;
-
-void serial_init(serial_t *obj, PinName tx, PinName rx)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    
-    // Determine the UART to use (UART_1, UART_2, ...)
-    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-
-    // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
-    obj_s->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-    MBED_ASSERT(obj_s->uart != (UARTName)NC);
-
-    // Enable UART clock
-#if defined(USART1_BASE)
-    if (obj_s->uart == UART_1) {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-        __HAL_RCC_USART1_CLK_ENABLE();
-        obj_s->index = 0;
-    }
-#endif
-
-    if (obj_s->uart == UART_2) {
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
-        __HAL_RCC_USART2_CLK_ENABLE();
-        obj_s->index = 1;
-    }
-
-    if (obj_s->uart == LPUART_1) {
-        __HAL_RCC_LPUART1_FORCE_RESET();
-        __HAL_RCC_LPUART1_RELEASE_RESET();
-        __HAL_RCC_LPUART1_CLK_ENABLE();
-        obj_s->index = 2;
-    }
-
-#if defined(USART4_BASE)
-    if (obj_s->uart == UART_4) {
-        __HAL_RCC_USART4_FORCE_RESET();
-        __HAL_RCC_USART4_RELEASE_RESET();
-        __HAL_RCC_USART4_CLK_ENABLE();
-        obj_s->index = 3;
-    }
-#endif
-
-#if defined(USART5_BASE)
-    if (obj_s->uart == UART_5) {
-        __HAL_RCC_USART5_FORCE_RESET();
-        __HAL_RCC_USART5_RELEASE_RESET();
-        __HAL_RCC_USART5_CLK_ENABLE();
-        obj_s->index = 4;
-    }
-#endif
-
-    // Configure the UART pins
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
-    
-    if (tx != NC) {
-        pin_mode(tx, PullUp);
-    }
-    if (rx != NC) {
-        pin_mode(rx, PullUp);
-    }
-
-    // Configure UART
-    obj_s->baudrate = 9600;
-    obj_s->databits = UART_WORDLENGTH_8B;
-    obj_s->stopbits = UART_STOPBITS_1;
-    obj_s->parity   = UART_PARITY_NONE;
-    
-#if DEVICE_SERIAL_FC
-    obj_s->hw_flow_ctl = UART_HWCONTROL_NONE;
-#endif
-
-    obj_s->pin_tx = tx;
-    obj_s->pin_rx = rx;
-
-    init_uart(obj);
-
-    // For stdio management
-    if (obj_s->uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-}
-
-void serial_free(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-      
-    // Reset UART and disable clock
-#if defined(USART1_BASE)
-    if (obj_s->uart == UART_1) {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-        __HAL_RCC_USART1_CLK_DISABLE();
-    }
-#endif
-
-    if (obj_s->uart == UART_2) {
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
-        __HAL_RCC_USART2_CLK_DISABLE();
-    }
-
-    if (obj_s->uart == LPUART_1) {
-        __HAL_RCC_LPUART1_FORCE_RESET();
-        __HAL_RCC_LPUART1_RELEASE_RESET();
-        __HAL_RCC_LPUART1_CLK_DISABLE();
-    }
-
-#if defined(USART4_BASE)
-    if (obj_s->uart == UART_4) {
-        __HAL_RCC_USART4_FORCE_RESET();
-        __HAL_RCC_USART4_RELEASE_RESET();
-        __HAL_RCC_USART4_CLK_DISABLE();
-    }
-#endif
-
-#if defined(USART5_BASE)
-    if (obj_s->uart == UART_5) {
-        __HAL_RCC_USART5_FORCE_RESET();
-        __HAL_RCC_USART5_RELEASE_RESET();
-        __HAL_RCC_USART5_CLK_DISABLE();
-    }
-#endif
-
-    // Configure GPIOs
-    pin_function(obj_s->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-    pin_function(obj_s->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-
-    serial_irq_ids[obj_s->index] = 0;
-}
-
-void serial_baud(serial_t *obj, int baudrate)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-
-    obj_s->baudrate = baudrate;
-    init_uart(obj);
-}
+// Defined in serial_api.c
+inline int8_t get_uart_index(UARTName uart_name);
 
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
 
-static void uart_irq(int id)
+static void uart_irq(UARTName uart_name)
 {
-    UART_HandleTypeDef * huart = &uart_handlers[id];
-    
-    if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
-                irq_handler(serial_irq_ids[id], TxIrq);
+    int8_t id = get_uart_index(uart_name);
+
+    if (id >= 0) {
+        UART_HandleTypeDef * huart = &uart_handlers[id];
+        if (serial_irq_ids[id] != 0) {
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
+                    irq_handler(serial_irq_ids[id], TxIrq);
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
-                irq_handler(serial_irq_ids[id], RxIrq);
-                /*  Flag has been cleared when reading the content */
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
+                    irq_handler(serial_irq_ids[id], RxIrq);
+                    /* Flag has been cleared when reading the content */
+                }
             }
-        }
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
-                __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+            if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
+                if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
+                    __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+                }
             }
         }
     }
@@ -223,31 +82,35 @@ static void uart_irq(int id)
 #if defined(USART1_BASE)
 static void uart1_irq(void)
 {
-    uart_irq(0);
+    uart_irq(UART_1);
 }
 #endif
 
+#if defined(USART2_BASE)
 static void uart2_irq(void)
 {
-    uart_irq(1);
+    uart_irq(UART_2);
 }
-
-static void lpuart1_irq(void)
-{
-    uart_irq(2);
-}
+#endif
 
 #if defined(USART4_BASE)
 static void uart4_irq(void)
 {
-    uart_irq(3);
+    uart_irq(UART_4);
 }
 #endif
 
 #if defined(USART5_BASE)
 static void uart5_irq(void)
 {
-    uart_irq(4);
+    uart_irq(UART_5);
+}
+#endif
+
+#if defined(LPUART1_BASE)
+static void lpuart1_irq(void)
+{
+    uart_irq(LPUART_1);
 }
 #endif
 
@@ -273,15 +136,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     }
 #endif
 
+#if defined(USART2_BASE)
     if (obj_s->uart == UART_2) {
         irq_n = USART2_IRQn;
         vector = (uint32_t)&uart2_irq;
     }
-
-    if (obj_s->uart == LPUART_1) {
-        irq_n = RNG_LPUART1_IRQn;
-        vector = (uint32_t)&lpuart1_irq;
-    }
+#endif
 
 #if defined(USART4_BASE)
     if (obj_s->uart == UART_4) {
@@ -294,6 +154,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     if (obj_s->uart == UART_5) {
         irq_n = USART4_5_IRQn;
         vector = (uint32_t)&uart5_irq;
+    }
+#endif
+
+#if defined(LPUART1_BASE)
+    if (obj_s->uart == LPUART_1) {
+        irq_n = RNG_LPUART1_IRQn;
+        vector = (uint32_t)&lpuart1_irq;
     }
 #endif
 
@@ -438,41 +305,43 @@ static void serial_enable_event(serial_t *obj, int event, uint8_t enable)
 /**
 * Get index of serial object TX IRQ, relating it to the physical peripheral.
 *
-* @param obj pointer to serial object
+* @param uart_name i.e. UART_1, UART_2, ...
 * @return internal NVIC TX IRQ index of U(S)ART peripheral
 */
-static IRQn_Type serial_get_irq_n(serial_t *obj)
+static IRQn_Type serial_get_irq_n(UARTName uart_name)
 {
-    struct serial_s *obj_s = SERIAL_S(obj);
     IRQn_Type irq_n;
 
-    switch (obj_s->index) {
+    switch (uart_name) {
 #if defined(USART1_BASE)
-        case 0:
+        case UART_1:
             irq_n = USART1_IRQn;
             break;
 #endif
-        case 1:
+#if defined(USART2_BASE)
+        case UART_2:
             irq_n = USART2_IRQn;
             break;
-            
-        case 2:
-            irq_n = RNG_LPUART1_IRQn;
-            break;
+#endif
 #if defined(USART4_BASE)
-        case 3:
+        case UART_4:
             irq_n = USART4_5_IRQn;
             break;
 #endif
 #if defined(USART5_BASE)
-        case 4:
+        case UART_5:
             irq_n = USART4_5_IRQn;
+            break;
+#endif
+#if defined(LPUART1_BASE)
+        case LPUART_1:
+            irq_n = RNG_LPUART1_IRQn;
             break;
 #endif
         default:
             irq_n = (IRQn_Type)0;
     }
-    
+
     return irq_n;
 }
 
@@ -518,7 +387,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_enable_event(obj, event, 1); // Set only the wanted events
     
     // Enable interrupt
-    IRQn_Type irq_n = serial_get_irq_n(obj);
+    IRQn_Type irq_n = serial_get_irq_n(obj_s->uart);
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
     NVIC_SetPriority(irq_n, 1);
@@ -568,7 +437,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
-    IRQn_Type irq_n = serial_get_irq_n(obj);
+    IRQn_Type irq_n = serial_get_irq_n(obj_s->uart);
     NVIC_ClearPendingIRQ(irq_n);
     NVIC_DisableIRQ(irq_n);
     NVIC_SetPriority(irq_n, 0);
@@ -761,7 +630,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     }
 }
 
-#endif
+#endif /* DEVICE_SERIAL_ASYNCH */
 
 #if DEVICE_SERIAL_FC
 
@@ -820,6 +689,6 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     init_uart(obj);
 }
 
-#endif
+#endif /* DEVICE_SERIAL_FC */
 
-#endif
+#endif /* DEVICE_SERIAL */

@@ -22,12 +22,6 @@
 #include <stdint.h>
 #endif /* _LANGUAGE_C */
 
-#if defined ( __CC_ARM   )
-#pragma push
-#pragma anon_unions
-#endif
-
-
 #if defined (_MISRA_RULES)
 /*
   anonymous unions violate ISO 9899:1990 and therefore MISRA Rule 1.1.
@@ -11243,10 +11237,5 @@ typedef struct _ADI_NVIC_INTCID3_t {
 #if defined (_MISRA_RULES)
 #pragma diag(pop)
 #endif /* _MISRA_RULES */
-
-
-#if defined (__CC_ARM)
-#pragma pop
-#endif 
 
 #endif

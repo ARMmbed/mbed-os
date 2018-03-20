@@ -28,7 +28,7 @@
 #ifdef YOTTA_CFG_MBED_OS
 #include "mbed-drivers/mbed_error.h"
 #else
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 #endif
 
 #include "platform/mbed_toolchain.h"
@@ -280,7 +280,7 @@ public:
      * function-pointer, init() can also take an <Object, member> pair as its
      * callback target.
      *
-     * @important This should be called before using anything else in the BLE
+     * @attention This should be called before using anything else in the BLE
      * API.
      */
     ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL) {
@@ -321,7 +321,7 @@ public:
      * @return BLE_ERROR_NONE if the instance was shut down without error or the
      * appropriate error code.
      *
-     * @important init() must be called afterward to reinstate services and
+     * @attention init() must be called afterward to reinstate services and
      * GAP state. This API offers a way to repopulate the GATT database with new
      * services and characteristics.
      */
@@ -399,6 +399,15 @@ public:
      * BLE instance.
      */
     const SecurityManager& securityManager() const;
+
+    /**
+     * Translate error code into a printable string.
+     *
+     * @param[in] error Error code returned by BLE functions.
+     *
+     * @return A pointer to a const string describing the error.
+     */
+    static const char* errorToString(ble_error_t error);
 
     /*
      * Deprecation alert!

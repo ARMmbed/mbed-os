@@ -1,15 +1,30 @@
 /*
- * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
- * SPDX-License-Identifier: LicenseRef-PBL
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the
+ *    names of its contributors may be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef NET_THREAD_TEST_H_
@@ -472,6 +487,36 @@ int8_t thread_test_joiner_router_joiner_port_set(uint16_t port);
  */
 int8_t thread_test_router_address_set(int8_t interface_id, uint16_t router_addr);
 
+/**
+ *\brief sends any MLE message to any destination.
+ *
+ * \param interface_id               Network Interface
+ * \param dst_address                destination address
+ * \param msg_id                     MLE message id
+ * \param write_src_addr             write short address of the device
+ * \param write_leader_data          write leader data
+ * \param write_network_data         write network data
+ * \param write_timestamp            write current timestamps*
+ * \param write_operational_set      write current operational datasets *
+ * \param write_challenge            add challenge to the message
+ * \param msg_ptr                    additional buffer addded to message
+ * \param msg_len                    length of the additional message
+ * \return 0,                        Command OK
+ * \return <0                        Command Fail
+ */
+int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint8_t msg_id, bool write_src_addr, bool write_leader_data, bool write_network_data, bool write_timestamp, bool write_operational_set, bool write_challenge, uint8_t *msg_ptr, uint8_t msg_len);
+
+
+/**
+ * \brief Set extension name.
+ *
+ * \param interface_id               Network Interface
+ * \param extension_name             Extension name string
+ *
+ * \return 0                         OK
+ * \return <0                        Failure
+ */
+int thread_test_extension_name_set(int8_t interface_id, char extension_name[16]);
 #ifdef __cplusplus
 }
 #endif

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_rtc.c
  * @brief Real Time Counter (RTC) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -61,7 +61,6 @@
 
 /** @endcond */
 
-
 /*******************************************************************************
  **************************   LOCAL FUNCTIONS   ********************************
  ******************************************************************************/
@@ -88,8 +87,9 @@ __STATIC_INLINE void regSync(uint32_t mask)
 {
   /* Avoid deadlock if modifying the same register twice when freeze mode is */
   /* activated. */
-  if (RTC->FREEZE & RTC_FREEZE_REGFREEZE)
+  if (RTC->FREEZE & RTC_FREEZE_REGFREEZE) {
     return;
+  }
 
   /* Wait for any pending previous write operation to have been completed */
   /* in low frequency domain. This is only required for the Gecko Family */
@@ -120,9 +120,11 @@ uint32_t RTC_CompareGet(unsigned int comp)
 
   EFM_ASSERT(RTC_COMP_REG_VALID(comp));
 
+#if defined(_RTC_COMP_COMP_MASK)
+  ret = RTC->COMP[comp].COMP;
+#elif defined(_RTC_COMP0_MASK)
   /* Initialize selected compare value */
-  switch (comp)
-  {
+  switch (comp) {
     case 0:
       ret = RTC->COMP0;
       break;
@@ -136,10 +138,9 @@ uint32_t RTC_CompareGet(unsigned int comp)
       ret = 0;
       break;
   }
-
+#endif
   return ret;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -165,13 +166,19 @@ void RTC_CompareSet(unsigned int comp, uint32_t value)
   uint32_t          syncbusy;
 #endif
 
-  EFM_ASSERT(RTC_COMP_REG_VALID(comp)
-             && ((value & ~(_RTC_COMP0_COMP0_MASK
-                            >> _RTC_COMP0_COMP0_SHIFT)) == 0));
+  EFM_ASSERT(RTC_COMP_REG_VALID(comp));
 
+#if defined(_RTC_COMP_COMP_COMP_MASK)
+  EFM_ASSERT((value & ~(_RTC_COMP_COMP_COMP_MASK >> _RTC_COMP_COMP_COMP_SHIFT)) == 0);
+#elif defined(_RTC_COMP0_COMP0_MASK)
+  EFM_ASSERT((value & ~(_RTC_COMP0_COMP0_MASK >> _RTC_COMP0_COMP0_SHIFT)) == 0);
+#endif
+
+#if defined(_RTC_COMP_COMP_MASK)
+  compReg = &(RTC->COMP[comp].COMP);
+#elif defined(_RTC_COMP0_MASK)
   /* Initialize selected compare value */
-  switch (comp)
-  {
+  switch (comp) {
     case 0:
       compReg = &(RTC->COMP0);
 #if defined(_EFM32_GECKO_FAMILY)
@@ -190,6 +197,8 @@ void RTC_CompareSet(unsigned int comp, uint32_t value)
       /* Unknown compare register selected, abort */
       return;
   }
+#endif
+
 #if defined(_EFM32_GECKO_FAMILY)
   /* LF register about to be modified require sync. busy check */
   regSync(syncbusy);
@@ -197,7 +206,6 @@ void RTC_CompareSet(unsigned int comp, uint32_t value)
 
   *compReg = value;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -231,7 +239,7 @@ void RTC_Enable(bool enable)
 #endif
 }
 
-
+#if defined(_RTC_FREEZE_MASK)
 /***************************************************************************//**
  * @brief
  *   RTC register synchronization freeze control.
@@ -260,8 +268,7 @@ void RTC_Enable(bool enable)
  ******************************************************************************/
 void RTC_FreezeEnable(bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
 #if defined(_EFM32_GECKO_FAMILY)
     /* Wait for any ongoing LF synchronization to complete. This is just to */
     /* protect against the rare case when a user                            */
@@ -274,13 +281,11 @@ void RTC_FreezeEnable(bool enable)
       ;
 #endif
     RTC->FREEZE = RTC_FREEZE_REGFREEZE;
-  }
-  else
-  {
+  } else {
     RTC->FREEZE = 0;
   }
 }
-
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -306,26 +311,21 @@ void RTC_Init(const RTC_Init_TypeDef *init)
 {
   uint32_t tmp;
 
-  if (init->enable)
-  {
+  if (init->enable) {
     tmp = RTC_CTRL_EN;
-  }
-  else
-  {
+  } else {
     tmp = 0;
   }
 
   /* Configure DEBUGRUN flag, sets whether or not counter should be
    * updated when debugger is active */
-  if (init->debugRun)
-  {
+  if (init->debugRun) {
     tmp |= RTC_CTRL_DEBUGRUN;
   }
 
   /* Configure COMP0TOP, this will use the COMP0 compare value as an
    * overflow value, instead of default 24-bit 0x00ffffff */
-  if (init->comp0Top)
-  {
+  if (init->comp0Top) {
     tmp |= RTC_CTRL_COMP0TOP;
   }
 
@@ -337,8 +337,6 @@ void RTC_Init(const RTC_Init_TypeDef *init)
   RTC->CTRL = tmp;
 }
 
-
-
 /***************************************************************************//**
  * @brief
  *   Restore RTC to reset state
@@ -346,10 +344,17 @@ void RTC_Init(const RTC_Init_TypeDef *init)
 void RTC_Reset(void)
 {
   /* Restore all essential RTC register to default config */
+#if defined(_RTC_FREEZE_MASK)
   RTC->FREEZE = _RTC_FREEZE_RESETVALUE;
+#endif
   RTC->CTRL   = _RTC_CTRL_RESETVALUE;
+#if defined(_RTC_COMP_COMP_MASK)
+  RTC->COMP[0].COMP = _RTC_COMP_COMP_RESETVALUE;
+  RTC->COMP[1].COMP = _RTC_COMP_COMP_RESETVALUE;
+#elif defined(_RTC_COMP0_MASK)
   RTC->COMP0  = _RTC_COMP0_RESETVALUE;
   RTC->COMP1  = _RTC_COMP1_RESETVALUE;
+#endif
   RTC->IEN    = _RTC_IEN_RESETVALUE;
   RTC->IFC    = _RTC_IFC_RESETVALUE;
 
@@ -361,8 +366,6 @@ void RTC_Reset(void)
 #endif
 }
 
-
-
 /***************************************************************************//**
  * @brief
  *   Restart RTC counter from zero
@@ -373,7 +376,6 @@ void RTC_CounterReset(void)
   RTC_Enable(false);
   RTC_Enable(true);
 }
-
 
 /** @} (end addtogroup RTC) */
 /** @} (end addtogroup emlib) */

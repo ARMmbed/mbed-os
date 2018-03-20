@@ -23,8 +23,17 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+
 void wifi_connect_params_valid_secure(void)
 {
     WiFiInterface *wifi = get_interface();
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2));
+
+    if(wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security()) == NSAPI_ERROR_OK) {
+        return;
+    }
+
+    TEST_FAIL();
 }
+
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)

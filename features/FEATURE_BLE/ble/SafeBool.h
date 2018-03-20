@@ -124,7 +124,7 @@ public:
 /**
  * Avoid conversion to bool between different classes.
  *
- * @important Will generate a compile time error if instantiated.
+ * @attention Will generate a compile time error if instantiated.
  */
 template <typename T, typename U>
 void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
@@ -136,7 +136,7 @@ void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
 /**
  * Avoid conversion to bool between different classes.
  *
- * @important Will generate a compile time error if instantiated.
+ * @attention Will generate a compile time error if instantiated.
  */
 template <typename T,typename U>
 void operator!=(const SafeBool<T>& lhs,const SafeBool<U>& rhs)

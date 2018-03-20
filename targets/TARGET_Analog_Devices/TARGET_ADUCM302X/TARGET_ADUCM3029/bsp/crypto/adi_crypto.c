@@ -123,7 +123,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define __ADI_BYTE_SWAP(X)                        __REV(X)
 #elif defined (__GNUC__)
 #define __ADI_BYTE_SWAP(X)                        __builtin_bswap32(X)
-#elif defined (__CC_ARM)
+#elif defined (__ARMCC_VERSION)
 #define __ADI_BYTE_SWAP(X)                        __rev(X)
 #else
 #error "This toolchain is not supported"

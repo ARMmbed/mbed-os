@@ -58,11 +58,13 @@ static SingletonPtr<TestClass> test_class;
 static void main_func_race()
 {
     get_test_class();
+    TEST_ASSERT_EQUAL_UINT32(1, instance_count);
 }
 
 static void main_class_race()
 {
     test_class->do_something();
+    TEST_ASSERT_EQUAL_UINT32(1, instance_count);
 }
 
 void test_case_func_race()

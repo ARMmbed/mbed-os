@@ -71,6 +71,12 @@ public:
 
     /** Write the contents of a buffer to a file
      *
+     *  Follows POSIX semantics:
+     *
+     * * if blocking, block until all data is written
+     * * if no data can be written, and non-blocking set, return -EAGAIN
+     * * if some data can be written, and non-blocking set, write partial
+     *
      *  @param buffer   The buffer to write from
      *  @param length   The number of bytes to write
      *  @return         The number of bytes written, negative error on failure

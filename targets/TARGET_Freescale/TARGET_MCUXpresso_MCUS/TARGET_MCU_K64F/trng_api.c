@@ -50,6 +50,7 @@ void trng_free(trng_t *obj)
  */
 static void trng_get_byte(unsigned char *byte)
 {
+    *byte = 0;
     size_t bit;
 
     /* 34.5 Steps 3-4-5: poll SR and read from OR when ready */

@@ -63,16 +63,14 @@ RESET_EXCPT_HNDLR
 
 #define VECTOR_SECTION                 ".vectors"
 
-#ifdef __CC_ARM
-extern unsigned Image$$ADUCM_HEAP$$Base[];
-extern unsigned Image$$ADUCM_HEAP$$ZI$$Limit[];
+#ifdef __ARMCC_VERSION
 void Default_Handler(void);
-#define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
-#define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
+#define SECTION_NAME(sectionname)      __attribute__((section(sectionname)))
+#define SECTION_PLACE(def,sectionname) def __attribute__((section(sectionname)))
 #define IVT_NAME                       __Vectors
 #define RESET_EXCPT_HNDLR              __main
 #define COMPILER_NAME                  "ARMCC"
-#define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
+#define WEAK_FUNCTION(x)               void x (void) __attribute__((weak, alias("Default_Handler")));
 
 #elif defined(__ICCARM__)
 #pragma diag_suppress=Pm093,Pm140

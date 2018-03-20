@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_ll_utils.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    30-December-2016
   * @brief   UTILS LL module driver.
   ******************************************************************************
   * @attention
@@ -39,6 +37,12 @@
 #include "stm32f7xx_ll_rcc.h"
 #include "stm32f7xx_ll_system.h"
 #include "stm32f7xx_ll_pwr.h"
+// MBED: removed
+//#ifdef  USE_FULL_ASSERT
+//#include "stm32_assert.h"
+//#else
+//#define assert_param(expr) ((void)0U)
+//#endif /* USE_FULL_ASSERT */
 
 /** @addtogroup STM32F7xx_LL_Driver
   * @{

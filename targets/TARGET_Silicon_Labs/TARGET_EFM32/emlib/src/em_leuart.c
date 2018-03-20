@@ -2,9 +2,9 @@
  * @file em_leuart.c
  * @brief Low Energy Universal Asynchronous Receiver/Transmitter (LEUART)
  *   Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -60,7 +60,6 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-
 /** Validation of LEUART register block pointer reference
  *  for assert statements. */
 #if (LEUART_COUNT == 1)
@@ -94,8 +93,7 @@ __STATIC_INLINE void LEUART_Sync(LEUART_TypeDef *leuart, uint32_t mask)
 {
   /* Avoid deadlock if modifying the same register twice when freeze mode is */
   /* activated. */
-  if (leuart->FREEZE & LEUART_FREEZE_REGFREEZE)
-  {
+  if (leuart->FREEZE & LEUART_FREEZE_REGFREEZE) {
     return;
   }
 
@@ -194,7 +192,6 @@ uint32_t LEUART_BaudrateCalc(uint32_t refFreq, uint32_t clkdiv)
   return br;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get current baudrate for LEUART.
@@ -215,18 +212,15 @@ uint32_t LEUART_BaudrateGet(LEUART_TypeDef *leuart)
   CMU_Clock_TypeDef clock;
 
   /* Get current frequency */
-  if (leuart == LEUART0)
-  {
+  if (leuart == LEUART0) {
     clock = cmuClock_LEUART0;
   }
 #if (LEUART_COUNT > 1)
-  else if (leuart == LEUART1)
-  {
+  else if (leuart == LEUART1) {
     clock = cmuClock_LEUART1;
   }
 #endif
-  else
-  {
+  else {
     EFM_ASSERT(0);
     return 0;
   }
@@ -235,7 +229,6 @@ uint32_t LEUART_BaudrateGet(LEUART_TypeDef *leuart)
 
   return LEUART_BaudrateCalc(freq, leuart->CLKDIV);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -295,20 +288,16 @@ void LEUART_BaudrateSet(LEUART_TypeDef *leuart,
    */
 
   /* Get current frequency? */
-  if (!refFreq)
-  {
-    if (leuart == LEUART0)
-    {
+  if (!refFreq) {
+    if (leuart == LEUART0) {
       clock = cmuClock_LEUART0;
     }
 #if (LEUART_COUNT > 1)
-    else if (leuart == LEUART1)
-    {
+    else if (leuart == LEUART1) {
       clock = cmuClock_LEUART1;
     }
 #endif
-    else
-    {
+    else {
       EFM_ASSERT(0);
       return;
     }
@@ -332,7 +321,6 @@ void LEUART_BaudrateSet(LEUART_TypeDef *leuart,
 
   leuart->CLKDIV = clkdiv;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -374,7 +362,6 @@ void LEUART_Enable(LEUART_TypeDef *leuart, LEUART_Enable_TypeDef enable)
   leuart->CMD = tmp;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   LEUART register synchronization freeze control.
@@ -404,8 +391,7 @@ void LEUART_Enable(LEUART_TypeDef *leuart, LEUART_Enable_TypeDef enable)
  ******************************************************************************/
 void LEUART_FreezeEnable(LEUART_TypeDef *leuart, bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     /*
      * Wait for any ongoing LF synchronization to complete. This is just to
      * protect against the rare case when a user
@@ -419,13 +405,10 @@ void LEUART_FreezeEnable(LEUART_TypeDef *leuart, bool enable)
       ;
 
     leuart->FREEZE = LEUART_FREEZE_REGFREEZE;
-  }
-  else
-  {
+  } else {
     leuart->FREEZE = 0;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -489,7 +472,6 @@ void LEUART_Init(LEUART_TypeDef *leuart, LEUART_Init_TypeDef const *init)
   LEUART_FreezeEnable(leuart, false);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Reset LEUART to same state as after a HW reset.
@@ -526,7 +508,6 @@ void LEUART_Reset(LEUART_TypeDef *leuart)
   LEUART_FreezeEnable(leuart, false);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Receive one 8 bit frame, (or part of 9 bit frame).
@@ -556,7 +537,6 @@ uint8_t LEUART_Rx(LEUART_TypeDef *leuart)
   return (uint8_t)leuart->RXDATA;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Receive one 8-9 bit frame, with extended information.
@@ -581,7 +561,6 @@ uint16_t LEUART_RxExt(LEUART_TypeDef *leuart)
 
   return (uint16_t)leuart->RXDATAX;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -617,7 +596,6 @@ void LEUART_Tx(LEUART_TypeDef *leuart, uint8_t data)
 
   leuart->TXDATA = (uint32_t)data;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -667,12 +645,9 @@ void LEUART_TxDmaInEM2Enable(LEUART_TypeDef *leuart, bool enable)
   /* LF register about to be modified require sync. busy check */
   LEUART_Sync(leuart, LEUART_SYNCBUSY_CTRL);
 
-  if (enable)
-  {
+  if (enable) {
     leuart->CTRL |= LEUART_CTRL_TXDMAWU;
-  }
-  else
-  {
+  } else {
     leuart->CTRL &= ~LEUART_CTRL_TXDMAWU;
   }
 }
@@ -694,16 +669,12 @@ void LEUART_RxDmaInEM2Enable(LEUART_TypeDef *leuart, bool enable)
   /* LF register about to be modified require sync. busy check */
   LEUART_Sync(leuart, LEUART_SYNCBUSY_CTRL);
 
-  if (enable)
-  {
+  if (enable) {
     leuart->CTRL |= LEUART_CTRL_RXDMAWU;
-  }
-  else
-  {
+  } else {
     leuart->CTRL &= ~LEUART_CTRL_RXDMAWU;
   }
 }
-
 
 /** @} (end addtogroup LEUART) */
 /** @} (end addtogroup emlib) */

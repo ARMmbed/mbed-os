@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_rmu.h
  * @brief Reset Management Unit (RMU) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -58,8 +58,7 @@ extern "C" {
  ******************************************************************************/
 
 /** RMU reset modes */
-typedef enum
-{
+typedef enum {
 #if defined(_RMU_CTRL_PINRMODE_MASK)
   rmuResetModeDisabled = _RMU_CTRL_PINRMODE_DISABLED,
   rmuResetModeLimited  = _RMU_CTRL_PINRMODE_LIMITED,
@@ -72,8 +71,7 @@ typedef enum
 } RMU_ResetMode_TypeDef;
 
 /** RMU controlled peripheral reset control and reset source control */
-typedef enum
-{
+typedef enum {
 #if defined(RMU_CTRL_BURSTEN)
   rmuResetBU = _RMU_CTRL_BURSTEN_MASK,              /**< Reset control over Backup Power domain select */
 #endif

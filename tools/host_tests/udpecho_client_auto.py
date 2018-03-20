@@ -14,11 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import sys
 import socket
 from sys import stdout
-from SocketServer import BaseRequestHandler, UDPServer
+try:
+    from SocketServer import BaseRequestHandler, UDPServer
+except ImportError:
+    from socketserver import BaseRequestHandler, UDPServer
 
 class UDPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
@@ -27,8 +31,7 @@ class UDPEchoClient_Handler(BaseRequestHandler):
         data, socket = self.request
         socket.sendto(data, self.client_address)
         if '{{end}}' in data:
-            print
-            print data
+            print("\n%s" % data)
         else:
             sys.stdout.write('.')
         stdout.flush()
@@ -72,6 +75,6 @@ class UDPEchoClientTest():
 
         # Returning none will suppress host test from printing success code
         server = UDPServer((SERVER_IP, SERVER_PORT), UDPEchoClient_Handler)
-        print "HOST: Listening for UDP connections..."
+        print("HOST: Listening for UDP connections...")
         self.send_server_ip_port(selftest, SERVER_IP, SERVER_PORT)
         server.serve_forever()

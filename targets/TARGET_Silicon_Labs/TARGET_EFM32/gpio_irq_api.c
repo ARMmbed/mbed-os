@@ -29,13 +29,10 @@
 #include "pinmap.h"
 
 #include "em_gpio.h"
-#include "em_int.h"
 #include "em_cmu.h"
 #include "sleep_api.h"
-#include "sleepmodes.h"
 
 #define NUM_GPIO_CHANNELS (16)
-#define GPIO_LEAST_ACTIVE_SLEEPMODE EM3
 
 /* Macro return index of the LSB flag which is set. */
 #if ((__CORTEX_M == 3) || (__CORTEX_M == 4))
@@ -64,15 +61,11 @@ static void handle_interrupt_in(uint8_t pin)
         return;
     }
 
-    //we are storing two ports in each uint8, so we must aquire the one we want.
-    // If pin is odd, the port is encoded in the 4 most significant bits. If pin is even, the port is encoded in the 4 least significant bits
-    uint8_t isRise = GPIO_PinInGet((pin & 0x1) ? channel_ports[(pin>>1) & 0x7] >> 4 & 0xF : channel_ports[(pin>>1) & 0x7] & 0xF, pin);
-
     // Get trigger event
     gpio_irq_event event = IRQ_NONE;
-    if ((GPIO->EXTIFALL & (1 << pin)) && !isRise) {
+    if (GPIO->EXTIFALL & (1 << pin)) {
         event = IRQ_FALL;
-    } else if ((GPIO->EXTIRISE & (1 << pin)) && isRise) {
+    } else if (GPIO->EXTIRISE & (1 << pin)) {
         event = IRQ_RISE;
     }
     GPIO_IntClear(pin);
@@ -143,21 +136,16 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     if(GPIO->IEN == 0) was_disabled = true;
 
     GPIO_IntConfig((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin &0xF, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
-    if ((GPIO->IEN != 0) && (obj->risingEdge || obj->fallingEdge) && was_disabled) {
-        blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
-    }
 }
 
 inline void gpio_irq_enable(gpio_irq_t *obj)
 {
-    if(GPIO->IEN == 0) blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
     GPIO_IntEnable(1 << (obj->pin & 0xF)); // pin mask for pins to enable
 }
 
 inline void gpio_irq_disable(gpio_irq_t *obj)
 {
     GPIO_IntDisable(1 << (obj->pin & 0xF)); // pin mask for pins to disable
-    if(GPIO->IEN == 0) unblockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
 }
 
 /***************************************************************************//**

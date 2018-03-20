@@ -98,6 +98,7 @@ public:
      *  @param[in] power       TX Power in dB measured at 0 meters from the device. Range of -100 to +20 dB.
      *  @param[in] namespaceID 10B namespace ID
      *  @param[in] instanceID  6B instance ID
+     *  @param[in] uidAdvPeriodIn Advertising period of UID frames.
      *  @param[in] RFU         2B of RFU, initialized to 0x0000 and not broadcast, included for future reference.
      */
     void setUIDFrameData(int8_t           power,
@@ -168,7 +169,7 @@ public:
     /**
      *  Set Eddystone URL Frame information.
      *  @param[in] power          TX Power in dB measured at 0 meters from the device.
-     *  @param[in] url            URL to encode
+     *  @param[in] urlIn            URL to encode
      *  @param[in] urlAdvPeriodIn How long to advertise the URL frame (measured in # of adv periods)
      *  @return false on success, true on failure.
      */

@@ -39,9 +39,12 @@
  ******************************************************************************/
 
 #include <drivers/gpio/adi_gpio.h>
-
+/*******************************************************************************
+   ADI_GPIO_DEV_DATA Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
 // ADI GPIO device driver state memory. Only one state memory is required globally.
-uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
+uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
 
 // Flag to indicate whether the GPIO driver has been initialized
-uint8_t gpio_initialized = 0;
+uint8_t  gpio_initialized = 0;

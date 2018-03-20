@@ -23,6 +23,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+
 void wifi_connect_params_channel(void)
 {
     WiFiInterface *wifi = get_interface();
@@ -32,7 +34,8 @@ void wifi_connect_params_channel(void)
         return;
     }
 
-    nsapi_error_t error = wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2, MBED_CONF_APP_WIFI_CH_SECURE);
+    nsapi_error_t error = wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security(), MBED_CONF_APP_WIFI_CH_SECURE);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
 }
 
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)

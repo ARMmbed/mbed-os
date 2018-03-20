@@ -175,13 +175,13 @@ struct GapConnectionCompleteEvent : public GapEvent {
 
     /**
      * Handle of the connection created, valid if status is equal to 0.
-     * @important Valid if status is equal to 0.
+     * @attention Valid if status is equal to 0.
      */
     const connection_handle_t connection_handle;
 
     /**
      * Role of the device in the connection
-     * @important Valid if status is equal to 0.
+     * @attention Valid if status is equal to 0.
      */
     const connection_role_t role;
 
@@ -217,7 +217,7 @@ struct GapConnectionCompleteEvent : public GapEvent {
 /**
  * Report advertising from one or more LE device.
  *
- * @important This class has to be implemented by the BLE port.
+ * @attention This class has to be implemented by the BLE port.
  *
  * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.2 LE Advertising Report Event
  */
@@ -432,7 +432,7 @@ struct GapDisconnectionCompleteEvent : public GapEvent {
     /**
      * Reason for disconnection.
      *
-     * @important ignored in case of faillure.
+     * @attention ignored in case of faillure.
      */
     const uint8_t reason;
 };

@@ -35,12 +35,10 @@
 #include "mbed_assert.h"
 
 #include "CordioPalAttClient.h"
+#include "CordioPalSecurityManager.h"
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
-
-/* Store the Event signaling state */
-bool isEventsSignaled = false;
 
 /**
  * Weak definition of ble_cordio_get_hci_driver.
@@ -78,10 +76,7 @@ extern "C" void hci_mbed_os_handle_reset_sequence(uint8_t* msg)
  */
 extern "C" void wsf_mbed_ble_signal_event(void)
 {
-    if(isEventsSignaled == false) {
-        isEventsSignaled = true;
-        ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
-    }
+    ble::vendor::cordio::BLE::deviceInstance().signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
 }
 
 /**
@@ -99,7 +94,8 @@ namespace cordio {
 
 BLE::BLE(CordioHCIDriver& hci_driver) :
     initialization_status(NOT_INITIALIZED),
-    instanceID(::BLE::DEFAULT_INSTANCE)
+    instanceID(::BLE::DEFAULT_INSTANCE),
+    _event_queue()
 {
     _hci_driver = &hci_driver;
     stack_setup();
@@ -122,9 +118,9 @@ ble_error_t BLE::init(
     ::BLE::InstanceID_t instanceID,
     FunctionPointerWithContext< ::BLE::InitializationCompleteCallbackContext *> initCallback)
 {
-
     switch (initialization_status) {
         case NOT_INITIALIZED:
+            _event_queue.initialize(this, instanceID);
             _init_callback = initCallback;
             start_stack_reset();
             return BLE_ERROR_NONE;
@@ -157,6 +153,7 @@ ble_error_t BLE::shutdown()
     getGattServer().reset();
     getGattClient().reset();
     getGap().reset();
+    _event_queue.clear();
 
     return BLE_ERROR_NONE;
 }
@@ -167,14 +164,29 @@ const char* BLE::getVersion()
     return version;
 }
 
-Gap& BLE::getGap()
+::Gap& BLE::getGap()
 {
-    return cordio::Gap::getInstance();
+    typedef ::Gap& return_type;
+    const BLE* self = this;
+    return const_cast<return_type>(self->getGap());
 }
 
-const Gap& BLE::getGap() const
+const ::Gap& BLE::getGap() const
 {
-    return cordio::Gap::getInstance();
+    return getGenericGap();
+};
+
+const generic::GenericGap& BLE::getGenericGap() const
+{
+    static pal::vendor::cordio::Gap& cordio_pal_gap =
+        pal::vendor::cordio::Gap::get_gap();
+    static pal::vendor::cordio::GenericAccessService cordio_gap_service;
+    static ble::generic::GenericGap gap(
+        _event_queue,
+        cordio_pal_gap,
+        cordio_gap_service
+    );
+    return gap;
 }
 
 GattServer& BLE::getGattServer()
@@ -199,12 +211,21 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    return cordio::SecurityManager::getInstance();
+    const BLE* self = this;
+    return const_cast<SecurityManager&>(self->getSecurityManager());
 }
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    return cordio::SecurityManager::getInstance();
+    static pal::MemorySecurityDb m_db;
+    pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
+    static generic::GenericSecurityManager m_instance(
+        m_pal,
+        m_db,
+        const_cast<generic::GenericGap&>(getGenericGap())
+    );
+
+    return m_instance;
 }
 
 void BLE::waitForEvent()
@@ -226,15 +247,16 @@ void BLE::waitForEvent()
 
 void BLE::processEvents()
 {
-    if (isEventsSignaled) {
-         isEventsSignaled = false;
-         callDispatcher();
-     }
- }
+    callDispatcher();
+}
 
  void BLE::stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg)
  {
     if (msg == NULL) {
+        return;
+    }
+
+    if (ble::pal::vendor::cordio::CordioSecurityManager::get_security_manager().sm_handler(msg)) {
         return;
     }
 
@@ -245,66 +267,12 @@ void BLE::processEvents()
                 BLE_ERROR_NONE
             };
             deviceInstance().getGattServer().initialize();
-            deviceInstance().getGap().initialize();
             deviceInstance().initialization_status = INITIALIZED;
             _init_callback.call(&context);
         }   break;
 
-        case DM_ADV_START_IND:
-            break;
-
-        case DM_ADV_STOP_IND:
-            Gap::getInstance().advertisingStopped();
-            break;
-
-        case DM_SCAN_REPORT_IND: {
-            hciLeAdvReportEvt_t *scan_report = (hciLeAdvReportEvt_t*) msg;
-            Gap::getInstance().processAdvertisementReport(
-                scan_report->addr,
-                scan_report->rssi,
-                (scan_report->eventType == DM_RPT_SCAN_RESPONSE) ? true : false,
-                (GapAdvertisingParams::AdvertisingType_t) scan_report->eventType,
-                scan_report->len,
-                scan_report->pData
-            );
-        }   break;
-
-        case DM_CONN_OPEN_IND: {
-            hciLeConnCmplEvt_t* conn_evt = (hciLeConnCmplEvt_t*) msg;
-            dmConnId_t connection_id = conn_evt->hdr.param;
-            Gap::getInstance().setConnectionHandle(connection_id);
-            Gap::AddressType_t own_addr_type;
-            Gap::Address_t own_addr;
-            Gap::getInstance().getAddress(&own_addr_type, own_addr);
-
-            Gap::ConnectionParams_t params = {
-                conn_evt->connInterval,
-                conn_evt->connInterval,
-                conn_evt->connLatency,
-                conn_evt->supTimeout
-            };
-
-            Gap::getInstance().processConnectionEvent(
-                connection_id,
-                (conn_evt->role == DM_ROLE_MASTER) ? Gap::CENTRAL : Gap::PERIPHERAL,
-                (Gap::AddressType_t) conn_evt->addrType,
-                conn_evt->peerAddr,
-                own_addr_type,
-                own_addr,
-                &params
-            );
-        }   break;
-
-        case DM_CONN_CLOSE_IND: {
-            dmEvt_t *disconnect_evt = (dmEvt_t*) msg;
-            Gap::getInstance().setConnectionHandle(DM_CONN_ID_NONE);
-            Gap::getInstance().processDisconnectionEvent(
-                disconnect_evt->hdr.param,
-                (Gap::DisconnectionReason_t) disconnect_evt->connClose.reason
-            );
-        }   break;
-
         default:
+            ble::pal::vendor::cordio::Gap::gap_handler(msg);
             break;
     }
 }
@@ -362,11 +330,10 @@ void BLE::stack_setup()
     SecInit();
 
     // Note: enable once security is supported
-#if 0
+    SecRandInit();
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -380,10 +347,8 @@ void BLE::stack_setup()
     DmSecInit();
 
     // Note: enable once security is supported
-#if 0
     DmSecLescInit();
     DmPrivInit();
-#endif
     DmHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
@@ -400,10 +365,14 @@ void BLE::stack_setup()
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+    SmprInit();
     SmprScInit();
     SmpiInit();
+    SmpiScInit();
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
+
+    HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);
@@ -419,6 +388,10 @@ void BLE::start_stack_reset()
 
 void BLE::callDispatcher()
 {
+    // process the external event queue
+    _event_queue.process();
+
+    // follow by stack events
     static uint32_t lastTimeUs = us_ticker_read();
     uint32_t currTimeUs, deltaTimeMs;
 

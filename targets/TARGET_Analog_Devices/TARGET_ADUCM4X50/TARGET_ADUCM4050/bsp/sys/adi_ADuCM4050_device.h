@@ -25,12 +25,6 @@
 /* pickup register bitfield and bit masks */
 #include "adi_ADuCM4050_typedefs.h"
 
-#if defined ( __CC_ARM   )
-#pragma push
-#pragma anon_unions
-#endif
-
-
 #ifndef __IO
 #ifdef __cplusplus
 #define     __I     volatile      /* read-only */
@@ -1329,10 +1323,5 @@ typedef enum
 #if defined (_MISRA_RULES)
 #pragma diag(pop)
 #endif /* _MISRA_RULES */
-
-
-#if defined (__CC_ARM)
-#pragma pop
-#endif 
 
 #endif

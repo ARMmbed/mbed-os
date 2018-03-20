@@ -237,7 +237,7 @@ class GapAdvertisingData;
  *    // Initiate the connection procedure
  *    gap.connect(
  *       packet->peerAddr,
- *       BLEProtocol::RANDOM_STATIC,
+ *       packet->addressType,
  *       &connection_parameters,
  *       &scanning_params
  *    );
@@ -347,7 +347,7 @@ public:
     /**
      * Enumeration of disconnection reasons.
      *
-     * @important There might be a mismatch between the disconnection reason
+     * @attention There might be a mismatch between the disconnection reason
      * passed to disconnect() and the disconnection event generated locally
      * because the disconnection reason passed to disconnect() is the
      * disconnection reason to be transmitted to the peer.
@@ -356,7 +356,7 @@ public:
         /**
          * The connection timed out.
          *
-         * @important shall not be used as a reason in disconnect().
+         * @attention shall not be used as a reason in disconnect().
          */
         CONNECTION_TIMEOUT = 0x08,
 
@@ -379,7 +379,7 @@ public:
          * Indicate that the local user or the internal
          * Bluetooth subsystem terminated the connection.
          *
-         * @important shall not be used as a reason in disconnect().
+         * @attention shall not be used as a reason in disconnect().
          */
         LOCAL_HOST_TERMINATED_CONNECTION = 0x16,
 
@@ -548,7 +548,7 @@ public:
      *
      * @note The BLE API does not express the broadcaster and scanner roles.
      *
-     * @important A device can fulfill different roles concurrently.
+     * @attention A device can fulfill different roles concurrently.
      */
     enum Role_t {
         /**
@@ -608,6 +608,11 @@ public:
          * Pointer to the advertisement packet's data.
          */
         const uint8_t *advertisingData;
+
+        /**
+         * Type of the address received
+         */
+        AddressType_t addressType;
     };
 
     /**
@@ -1147,7 +1152,7 @@ public:
      * invoked with the @p deviceName parameter set to NULL.
      *
      * @param[out] deviceName Pointer to an empty buffer where the UTF-8
-     * <b>non NULL-terminated<b> string is placed.
+     * <b>non NULL-terminated</b> string is placed.
      *
      * @param[in,out] lengthP Length of the @p deviceName buffer. If the device
      * name is successfully copied, then the length of the device name
@@ -1192,7 +1197,7 @@ public:
     /**
      * Get the value of the appearance characteristic in the GAP service.
      *
-     * @param[out] appearance The current device-appearance value.
+     * @param[out] appearanceP The current device-appearance value.
      *
      * @return BLE_ERROR_NONE if the device-appearance was fetched correctly
      * from the underlying BLE stack.
@@ -1265,8 +1270,6 @@ public:
      *
      * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
      * copied into the supplied reference.
-     *
-     * @experimental
      */
     virtual ble_error_t getWhitelist(Whitelist_t &whitelist) const
     {
@@ -1284,7 +1287,7 @@ public:
      * populated with the addresses in the given whitelist.
      *
      * @note The whitelist must not contain addresses of type @ref
-     * BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
      * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
      * change its private address at any time, and it is not possible to resolve
      * it.
@@ -1971,14 +1974,14 @@ private:
     /**
      * Start the advertising procedure.
      *
-     * @param[in] Advertising parameters to use.
+     * @param[in] params Advertising parameters to use.
      *
      * @return BLE_ERROR_NONE if the advertising procedure successfully
      * started.
      *
      * @note Must be implemented in vendor port.
      */
-    virtual ble_error_t startAdvertising(const GapAdvertisingParams &) = 0;
+    virtual ble_error_t startAdvertising(const GapAdvertisingParams &params) = 0;
 
 public:
     /**
@@ -2271,7 +2274,7 @@ public:
     /**
      * Notify all registered connection event handlers of a connection event.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a connection event occurs.
      *
      * @param[in] handle Handle of the new connection.
@@ -2306,13 +2309,14 @@ public:
             ownAddr,
             connectionParams
         );
+
         connectionCallChain.call(&callbackParams);
     }
 
     /**
      * Notify all registered disconnection event handlers of a disconnection event.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] handle Handle of the terminated connection.
@@ -2334,16 +2338,17 @@ public:
      * Forward a received advertising packet to all registered event handlers
      * listening for scanned packet events.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] peerAddr Address of the peer that has emitted the packet.
      * @param[in] rssi Value of the RSSI measured for the received packet.
-     * @param[in] isScanReponse If true, then the packet is a response to a scan
+     * @param[in] isScanResponse If true, then the packet is a response to a scan
      * request.
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
+     * @param[in] addressType Type of the address of the peer that has emitted the packet.
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
@@ -2351,8 +2356,13 @@ public:
         bool isScanResponse,
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
-        const uint8_t *advertisingData
+        const uint8_t *advertisingData,
+        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
     ) {
+       // FIXME: remove default parameter for addressType when ST shield is merged;
+       // this has been added to mitigate the lack of dependency management in
+       // testing jobs ....
+
         AdvertisementCallbackParams_t params;
         memcpy(params.peerAddr, peerAddr, ADDR_LEN);
         params.rssi = rssi;
@@ -2360,6 +2370,7 @@ public:
         params.type = type;
         params.advertisingDataLen = advertisingDataLen;
         params.advertisingData = advertisingData;
+        params.addressType = addressType;
         onAdvertisementReport.call(&params);
     }
 
@@ -2367,7 +2378,7 @@ public:
      * Notify the occurrence of a timeout event to all registered timeout events
      * handler.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] source Source of the timout event.

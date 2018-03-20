@@ -75,17 +75,17 @@ class URIBeaconConfigService {
     };
 
     /**
-     * @param[ref]    ble
+     * @param[in]    bleIn
      *                    BLE object for the underlying controller.
-     * @param[in/out] paramsIn
+     * @param[in,out] paramsIn
      *                    Reference to application-visible beacon state, loaded
      *                    from persistent storage at startup.
-     * @paramsP[in]   resetToDefaultsFlag
+     * @param[in]   resetToDefaultsFlag
      *                    Applies to the state of the 'paramsIn' parameter.
      *                    If true, it indicates that paramsIn is potentially
      *                    un-initialized, and default values should be used
      *                    instead. Otherwise, paramsIn overrides the defaults.
-     * @param[in]     defaultUriDataIn
+     * @param[in]     defaultURIDataIn
      *                    Default un-encoded URI. Applies only if the resetToDefaultsFlag is true.
      * @param[in]     defaultAdvPowerLevelsIn
      *                    Default power-levels array. Applies only if the resetToDefaultsFlag is true.

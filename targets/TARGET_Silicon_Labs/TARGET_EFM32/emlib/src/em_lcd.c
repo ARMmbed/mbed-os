@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_lcd.c
  * @brief Liquid Crystal Display (LCD) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -81,27 +81,48 @@ void LCD_Init(const LCD_Init_TypeDef *lcdInit)
                 | _LCD_DISPCTRL_MUX_MASK
                 | _LCD_DISPCTRL_BIAS_MASK
                 | _LCD_DISPCTRL_WAVE_MASK
+#if defined(_LCD_DISPCTRL_VLCDSEL_MASK)
                 | _LCD_DISPCTRL_VLCDSEL_MASK
-                | _LCD_DISPCTRL_CONCONF_MASK);
+#endif
+#if defined(_LCD_DISPCTRL_CONCONF_MASK)
+                | _LCD_DISPCTRL_CONCONF_MASK
+#endif
+#if defined(_LCD_DISPCTRL_MODE_MASK)
+                | _LCD_DISPCTRL_MODE_MASK
+#endif
+#if defined(_LCD_DISPCTRL_CHGRDST_MASK)
+                | _LCD_DISPCTRL_CHGRDST_MASK
+#endif
+                );
 
   /* Configure controller according to initialization structure */
   dispCtrl |= lcdInit->mux; /* also configures MUXE */
   dispCtrl |= lcdInit->bias;
   dispCtrl |= lcdInit->wave;
+#if defined(_SILICON_LABS_32B_SERIES_0)
   dispCtrl |= lcdInit->vlcd;
   dispCtrl |= lcdInit->contrast;
+#endif
+#if defined(_SILICON_LABS_32B_SERIES_1)
+  dispCtrl |= lcdInit->mode;
+  dispCtrl |= (lcdInit->chgrDst << _LCD_DISPCTRL_CHGRDST_SHIFT);
+#endif
 
   /* Update display controller */
   LCD->DISPCTRL = dispCtrl;
 
+#if defined(_SILICON_LABS_32B_SERIES_1)
+  LCD->FRAMERATE = lcdInit->frameRateDivider;
+  LCD_ContrastSet(lcdInit->contrastLevel);
+#endif
+
   /* Enable controller if wanted */
-  if (lcdInit->enable)
-  {
+  if (lcdInit->enable) {
     LCD_Enable(true);
   }
 }
 
-
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /***************************************************************************//**
  * @brief
  *   Select source for VLCD
@@ -115,8 +136,7 @@ void LCD_VLCDSelect(LCD_VLCDSel_TypeDef vlcd)
 
   /* Select VEXT or VDD */
   dispctrl &= ~_LCD_DISPCTRL_VLCDSEL_MASK;
-  switch (vlcd)
-  {
+  switch (vlcd) {
     case lcdVLCDSelVExtBoost:
       dispctrl |= LCD_DISPCTRL_VLCDSEL_VEXTBOOST;
       break;
@@ -129,7 +149,7 @@ void LCD_VLCDSelect(LCD_VLCDSel_TypeDef vlcd)
 
   LCD->DISPCTRL = dispctrl;
 }
-
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -142,7 +162,6 @@ void LCD_UpdateCtrl(LCD_UpdateCtrl_TypeDef ud)
 {
   LCD->CTRL = (LCD->CTRL & ~_LCD_CTRL_UDCTRL_MASK) | ud;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -171,7 +190,6 @@ void LCD_FrameCountInit(const LCD_FrameCountInit_TypeDef *fcInit)
 
   LCD_FrameCountEnable(fcInit->enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -202,12 +220,9 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
 #if defined(LCD_BACTRL_ALOC)
   bactrl &= ~(_LCD_BACTRL_ALOC_MASK);
 
-  if(animInit->startSeg == 0)
-  {
+  if (animInit->startSeg == 0) {
     bactrl |= LCD_BACTRL_ALOC_SEG0TO7;
-  }
-  else if(animInit->startSeg == 8)
-  {
+  } else if (animInit->startSeg == 8) {
     bactrl |= LCD_BACTRL_ALOC_SEG8TO15;
   }
 #endif
@@ -218,7 +233,6 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
   /* Enable */
   LCD_AnimEnable(animInit->enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -231,18 +245,16 @@ void LCD_AnimInit(const LCD_AnimInit_TypeDef *animInit)
  * @param[in] enable
  *   Bool true to enable segment updates, false to disable updates
  ******************************************************************************/
+#if defined(_SILICON_LABS_32B_SERIES_0)
 void LCD_SegmentRangeEnable(LCD_SegmentRange_TypeDef segmentRange, bool enable)
 {
-  if (enable)
-  {
+  if (enable) {
     LCD->SEGEN |= segmentRange;
-  }
-  else
-  {
+  } else {
     LCD->SEGEN &= ~((uint32_t)segmentRange);
   }
 }
-
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -280,55 +292,46 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 
   /* Use bitband access for atomic bit set/clear of segment */
-  switch (com)
-  {
+  switch (com) {
     case 0:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD0L), bit, enable);
       }
 #if defined(_LCD_SEGD0H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD0H), bit, enable);
       }
 #endif
       break;
     case 1:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD1L), bit, enable);
       }
 #if defined(_LCD_SEGD1H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD1H), bit, enable);
       }
 #endif
       break;
     case 2:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD2L), bit, enable);
       }
 #if defined(_LCD_SEGD2H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD2H), bit, enable);
       }
 #endif
       break;
     case 3:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD3L), bit, enable);
       }
 #if defined(_LCD_SEGD3H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD3H), bit, enable);
       }
@@ -336,13 +339,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
       break;
 #if defined(_LCD_SEGD4L_MASK)
     case 4:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD4L), bit, enable);
       }
 #if defined(_LCD_SEGD4H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD4H), bit, enable);
       }
@@ -351,13 +352,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 #if defined(_LCD_SEGD5L_MASK)
     case 5:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD5L), bit, enable);
       }
 #if defined(_LCD_SEGD5H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD5H), bit, enable);
       }
@@ -366,13 +365,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
     case 6:
 #if defined(_LCD_SEGD6L_MASK)
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD6L), bit, enable);
       }
 #if defined(_LCD_SEGD6H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD6H), bit, enable);
       }
@@ -381,13 +378,11 @@ void LCD_SegmentSet(int com, int bit, bool enable)
 #endif
 #if defined(_LCD_SEGD7L_MASK)
     case 7:
-      if (bit < 32)
-      {
+      if (bit < 32) {
         BUS_RegBitWrite(&(LCD->SEGD7L), bit, enable);
       }
 #if defined(_LCD_SEGD7H_MASK)
-      else
-      {
+      else {
         bit -= 32;
         BUS_RegBitWrite(&(LCD->SEGD7H), bit, enable);
       }
@@ -400,7 +395,6 @@ void LCD_SegmentSet(int com, int bit, bool enable)
       break;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -428,8 +422,7 @@ void LCD_SegmentSetLow(int com, uint32_t mask, uint32_t bits)
   EFM_ASSERT(com < 4);
 #endif
 
-  switch (com)
-  {
+  switch (com) {
     case 0:
       segData     = LCD->SEGD0L;
       segData    &= ~(mask);
@@ -492,7 +485,6 @@ void LCD_SegmentSetLow(int com, uint32_t mask, uint32_t bits)
   }
 }
 
-
 #if defined(_LCD_SEGD0H_MASK)
 /***************************************************************************//**
  * @brief
@@ -518,8 +510,7 @@ void LCD_SegmentSetHigh(int com, uint32_t mask, uint32_t bits)
 #endif
 
   /* Maximum number of com lines */
-  switch (com)
-  {
+  switch (com) {
     case 0:
       segData     = LCD->SEGD0H;
       segData    &= ~(mask);
@@ -582,6 +573,7 @@ void LCD_SegmentSetHigh(int com, uint32_t mask, uint32_t bits)
 }
 #endif
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /***************************************************************************//**
  * @brief
  *   Configure contrast level on LCD panel
@@ -596,8 +588,38 @@ void LCD_ContrastSet(int level)
   LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_CONLEV_MASK)
                   | (level << _LCD_DISPCTRL_CONLEV_SHIFT);
 }
+#endif
 
+#if defined(_SILICON_LABS_32B_SERIES_1)
+/***************************************************************************//**
+ * @brief
+ *   Configure contrast level on LCD panel
+ *
+ * @param[in] level
+ *   Contrast level in the range 0-63
+ ******************************************************************************/
+void LCD_ContrastSet(int level)
+{
+  EFM_ASSERT(level < 64);
 
+  LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_CONTRAST_MASK)
+                  | (level << _LCD_DISPCTRL_CONTRAST_SHIFT);
+}
+#endif
+
+/***************************************************************************//**
+ * @brief
+ *   Configure bias level on LCD panel
+ *
+ * @param[in] bias
+ *   Bias level
+ ******************************************************************************/
+void LCD_BiasSet(LCD_Bias_TypeDef bias)
+{
+  LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_BIAS_MASK) | bias;
+}
+
+#if defined(_SILICON_LABS_32B_SERIES_0)
 /***************************************************************************//**
  * @brief
  *   Configure voltage booster
@@ -612,7 +634,7 @@ void LCD_VBoostSet(LCD_VBoostLevel_TypeDef vboost)
   /* Reconfigure Voltage Boost */
   LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_VBLEV_MASK) | vboost;
 }
-
+#endif
 
 #if defined(LCD_CTRL_DSC)
 /***************************************************************************//**
@@ -647,8 +669,7 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   biasRegister = segmentLine / 8;
   bitShift     = (segmentLine % 8) * 4;
 
-  switch (biasRegister)
-  {
+  switch (biasRegister) {
     case 0:
       segmentRegister = &LCD->SEGD0L;
       break;
@@ -673,48 +694,35 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   biasRegister = segmentLine / 10;
   bitShift     = (segmentLine % 10) * 4;
 
-  switch (biasRegister)
-  {
+  switch (biasRegister) {
     case 0:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD0L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD0H;
         bitShift       -= 32;
       }
       break;
     case 1:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD1L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD1H;
         bitShift       -= 32;
       }
       break;
     case 2:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD2L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD1H;
         bitShift       -= 32;
       }
       break;
     case 3:
-      if (bitShift < 32)
-      {
+      if (bitShift < 32) {
         segmentRegister = &LCD->SEGD3L;
-      }
-      else
-      {
+      } else {
         segmentRegister = &LCD->SEGD3H;
         bitShift       -= 32;
       }
@@ -730,7 +738,6 @@ void LCD_BiasSegmentSet(int segmentLine, int biasLevel)
   *segmentRegister = (*segmentRegister & ~(0xF << bitShift)) | (biasLevel << bitShift);
 }
 #endif
-
 
 #if defined(LCD_CTRL_DSC)
 /***************************************************************************//**
@@ -759,6 +766,35 @@ void LCD_BiasComSet(int comLine, int biasLevel)
 
   bitShift    = comLine * 4;
   LCD->SEGD4L = (LCD->SEGD4L & ~(0xF << bitShift)) | (biasLevel << bitShift);
+}
+#endif
+
+#if defined(_SILICON_LABS_32B_SERIES_1)
+/***************************************************************************//**
+ * @brief
+ *   Configure the mode for the LCD panel
+ *
+ * @param[in] mode
+ *   Mode
+ ******************************************************************************/
+void LCD_ModeSet(LCD_Mode_Typedef mode)
+{
+  LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_MODE_MASK) | mode;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Configure the charge redistribution cycles for the LCD panel
+ *
+ * @param[in] chgrDst
+ *   Charge redistribution cycles, range 0-4
+ ******************************************************************************/
+void LCD_ChargeRedistributionCyclesSet(uint8_t cycles)
+{
+  EFM_ASSERT(cycles <= 4);
+
+  LCD->DISPCTRL = (LCD->DISPCTRL & ~_LCD_DISPCTRL_CHGRDST_MASK)
+                  | (cycles << _LCD_DISPCTRL_CHGRDST_SHIFT);
 }
 #endif
 

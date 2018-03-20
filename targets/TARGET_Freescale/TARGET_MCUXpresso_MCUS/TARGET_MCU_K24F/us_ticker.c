@@ -83,10 +83,14 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta = timestamp - us_ticker_read();
+    uint32_t now_us, delta_us;
+
+    now_us = us_ticker_read();
+    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+
     PIT_StopTimer(PIT, kPIT_Chnl_3);
     PIT_StopTimer(PIT, kPIT_Chnl_2);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, (uint32_t)delta);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, (uint32_t)delta_us);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
     PIT_StartTimer(PIT, kPIT_Chnl_3);
     PIT_StartTimer(PIT, kPIT_Chnl_2);

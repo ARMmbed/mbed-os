@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_burtc.h
  * @brief Backup Real Time Counter (BURTC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -73,8 +73,7 @@ extern "C" {
  ******************************************************************************/
 
 /** BURTC clock selection */
-typedef enum
-{
+typedef enum {
   /** Ultra low frequency (1 kHz) clock */
   burtcClkSelULFRCO = BURTC_CTRL_CLKSEL_ULFRCO,
   /** Low frequency RC oscillator */
@@ -83,10 +82,8 @@ typedef enum
   burtcClkSelLFXO   = BURTC_CTRL_CLKSEL_LFXO
 } BURTC_ClkSel_TypeDef;
 
-
 /** BURTC mode of operation */
-typedef enum
-{
+typedef enum {
   /** Disable BURTC */
   burtcModeDisable = BURTC_CTRL_MODE_DISABLE,
   /** Enable and start BURTC counter in EM0 to EM2 */
@@ -98,8 +95,7 @@ typedef enum
 } BURTC_Mode_TypeDef;
 
 /** BURTC low power mode */
-typedef enum
-{
+typedef enum {
   /** Low Power Mode is disabled */
   burtcLPDisable = BURTC_LPMODE_LPMODE_DISABLE,
   /** Low Power Mode is always enabled */
@@ -113,8 +109,7 @@ typedef enum
  ******************************************************************************/
 
 /** BURTC initialization structure. */
-typedef struct
-{
+typedef struct {
   bool                 enable;       /**< Enable BURTC after initialization (starts counter) */
 
   BURTC_Mode_TypeDef   mode;         /**< Configure energy mode operation */
@@ -131,18 +126,18 @@ typedef struct
 } BURTC_Init_TypeDef;
 
 /** Default configuration for BURTC init structure */
-#define BURTC_INIT_DEFAULT  \
-{                           \
-  true,                     \
-  burtcModeEM2,             \
-  false,                    \
-  burtcClkSelULFRCO,        \
-  burtcClkDiv_1,            \
-  0,                        \
-  true,                     \
-  false,                    \
-  burtcLPDisable,           \
-}
+#define BURTC_INIT_DEFAULT \
+  {                        \
+    true,                  \
+    burtcModeEM2,          \
+    false,                 \
+    burtcClkSelULFRCO,     \
+    burtcClkDiv_1,         \
+    0,                     \
+    true,                  \
+    false,                 \
+    burtcLPDisable,        \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -162,7 +157,6 @@ __STATIC_INLINE void BURTC_IntClear(uint32_t flags)
   BURTC->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more BURTC interrupts.
@@ -176,7 +170,6 @@ __STATIC_INLINE void BURTC_IntDisable(uint32_t flags)
 {
   BURTC->IEN &= ~(flags);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -197,7 +190,6 @@ __STATIC_INLINE void BURTC_IntEnable(uint32_t flags)
   BURTC->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending BURTC interrupt flags.
@@ -213,7 +205,6 @@ __STATIC_INLINE uint32_t BURTC_IntGet(void)
 {
   return(BURTC->IF);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -238,7 +229,6 @@ __STATIC_INLINE uint32_t BURTC_IntGetEnabled(void)
   return BURTC->IF & tmp;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending BURTC interrupts from SW.
@@ -253,7 +243,6 @@ __STATIC_INLINE void BURTC_IntSet(uint32_t flags)
   BURTC->IFS = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Status of BURTC RAM, timestamp and LP Mode
@@ -265,7 +254,6 @@ __STATIC_INLINE uint32_t BURTC_Status(void)
   return BURTC->STATUS;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Clear and reset BURTC status register
@@ -274,7 +262,6 @@ __STATIC_INLINE void BURTC_StatusClear(void)
 {
   BURTC->CMD = BURTC_CMD_CLRSTATUS;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -289,16 +276,12 @@ __STATIC_INLINE void BURTC_Enable(bool enable)
               && ((BURTC->CTRL & _BURTC_CTRL_MODE_MASK)
                   != BURTC_CTRL_MODE_DISABLE))
              || (enable == false));
-  if (enable)
-  {
+  if (enable) {
     BUS_RegBitWrite(&BURTC->CTRL, _BURTC_CTRL_RSTEN_SHIFT, 0);
-  }
-  else
-  {
+  } else {
     BUS_RegBitWrite(&BURTC->CTRL, _BURTC_CTRL_RSTEN_SHIFT, 1);
   }
 }
-
 
 /***************************************************************************//**
  * @brief Get BURTC counter
@@ -311,7 +294,6 @@ __STATIC_INLINE uint32_t BURTC_CounterGet(void)
   return BURTC->CNT;
 }
 
-
 /***************************************************************************//**
  * @brief Get BURTC timestamp for entering BU
  *
@@ -323,7 +305,6 @@ __STATIC_INLINE uint32_t BURTC_TimestampGet(void)
   return BURTC->TIMESTAMP;
 }
 
-
 /***************************************************************************//**
  * @brief Freeze register updates until enabled
  * @param[in] enable If true, registers are not updated until enabled again.
@@ -332,7 +313,6 @@ __STATIC_INLINE void BURTC_FreezeEnable(bool enable)
 {
   BUS_RegBitWrite(&BURTC->FREEZE, _BURTC_FREEZE_REGFREEZE_SHIFT, enable);
 }
-
 
 /***************************************************************************//**
  * @brief Shut down power to rentention register bank.
@@ -346,7 +326,6 @@ __STATIC_INLINE void BURTC_Powerdown(bool enable)
 {
   BUS_RegBitWrite(&BURTC->POWERDOWN, _BURTC_POWERDOWN_RAM_SHIFT, enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -364,7 +343,6 @@ __STATIC_INLINE void BURTC_RetRegSet(uint32_t num, uint32_t data)
   BURTC->RET[num].REG = data;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Read a value from one of the retention registers
@@ -379,7 +357,6 @@ __STATIC_INLINE uint32_t BURTC_RetRegGet(uint32_t num)
   return BURTC->RET[num].REG;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Lock BURTC registers, will protect from writing new config settings
@@ -388,7 +365,6 @@ __STATIC_INLINE void BURTC_Lock(void)
 {
   BURTC->LOCK = BURTC_LOCK_LOCKKEY_LOCK;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -399,14 +375,12 @@ __STATIC_INLINE void BURTC_Unlock(void)
   BURTC->LOCK = BURTC_LOCK_LOCKKEY_UNLOCK;
 }
 
-
 void BURTC_Reset(void);
 void BURTC_Init(const BURTC_Init_TypeDef *burtcInit);
 void BURTC_CounterReset(void);
 void BURTC_CompareSet(unsigned int comp, uint32_t value);
 uint32_t BURTC_CompareGet(unsigned int comp);
 uint32_t BURTC_ClockFreqGet(void);
-
 
 /** @} (end addtogroup BURTC) */
 /** @} (end addtogroup emlib) */

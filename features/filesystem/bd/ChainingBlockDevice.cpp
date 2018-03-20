@@ -20,6 +20,7 @@
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
     : _bds(bds), _bd_count(bd_count)
     , _read_size(0), _program_size(0), _erase_size(0), _size(0)
+    , _erase_value(-1)
 {
 }
 
@@ -33,6 +34,7 @@ int ChainingBlockDevice::init()
     _read_size = 0;
     _program_size = 0;
     _erase_size = 0;
+    _erase_value = -1;
     _size = 0;
 
     // Initialize children block devices, find all sizes and
@@ -66,6 +68,13 @@ int ChainingBlockDevice::init()
             MBED_ASSERT(_erase_size > erase && is_aligned(_erase_size, erase));
         }
 
+        int value = _bds[i]->get_erase_value();
+        if (i == 0 || value == _erase_value) {
+            _erase_value = value;
+        } else {
+            _erase_value = -1;
+        }
+
         _size += _bds[i]->size();
     }
 
@@ -76,6 +85,18 @@ int ChainingBlockDevice::deinit()
 {
     for (size_t i = 0; i < _bd_count; i++) {
         int err = _bds[i]->deinit();
+        if (err) {
+            return err;
+        }
+    }
+
+    return 0;
+}
+
+int ChainingBlockDevice::sync()
+{
+    for (size_t i = 0; i < _bd_count; i++) {
+        int err = _bds[i]->sync();
         if (err) {
             return err;
         }
@@ -188,6 +209,11 @@ bd_size_t ChainingBlockDevice::get_program_size() const
 bd_size_t ChainingBlockDevice::get_erase_size() const
 {
     return _erase_size;
+}
+
+int ChainingBlockDevice::get_erase_value() const
+{
+    return _erase_value;
 }
 
 bd_size_t ChainingBlockDevice::size() const

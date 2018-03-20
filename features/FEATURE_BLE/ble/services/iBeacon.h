@@ -76,7 +76,7 @@
  *
  * Beacon configuration and advertising commencement is left to the user.
  *
- * @important If you are interested in manufacturing iBeacons, you must obtain a
+ * @attention If you are interested in manufacturing iBeacons, you must obtain a
  * license from Apple. More information at https://developer.apple.com/ibeacon/.
  * The licence also grant access to the iBeacons technical specification.
  *

@@ -23,6 +23,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+
 void wifi_connect_disconnect_repeat(void)
 {
     WiFiInterface *wifi = get_interface();
@@ -38,3 +40,5 @@ void wifi_connect_disconnect_repeat(void)
         TEST_ASSERT(error == NSAPI_ERROR_OK);
     }
 }
+
+#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)

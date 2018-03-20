@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_cryotimer.h
  * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -116,8 +116,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Prescaler selection. */
-typedef enum
-{
+typedef enum {
   cryotimerPresc_1     = _CRYOTIMER_CTRL_PRESC_DIV1,      /**< Divide clock by 1. */
   cryotimerPresc_2     = _CRYOTIMER_CTRL_PRESC_DIV2,      /**< Divide clock by 2. */
   cryotimerPresc_4     = _CRYOTIMER_CTRL_PRESC_DIV4,      /**< Divide clock by 4. */
@@ -129,16 +128,14 @@ typedef enum
 } CRYOTIMER_Presc_TypeDef;
 
 /** Low frequency oscillator selection. */
-typedef enum
-{
+typedef enum {
   cryotimerOscLFRCO   = _CRYOTIMER_CTRL_OSCSEL_LFRCO,  /**< Select Low Frequency RC Oscillator. */
   cryotimerOscLFXO    = _CRYOTIMER_CTRL_OSCSEL_LFXO,   /**< Select Low Frequency Crystal Oscillator. */
   cryotimerOscULFRCO  = _CRYOTIMER_CTRL_OSCSEL_ULFRCO, /**< Select Ultra Low Frequency RC Oscillator. */
 } CRYOTIMER_Osc_TypeDef;
 
 /** Period selection value */
-typedef enum
-{
+typedef enum {
   cryotimerPeriod_1     = 0,    /**< Wakeup event after every Pre-scaled clock cycle. */
   cryotimerPeriod_2     = 1,    /**< Wakeup event after 2 Pre-scaled clock cycles. */
   cryotimerPeriod_4     = 2,    /**< Wakeup event after 4 Pre-scaled clock cycles. */
@@ -179,8 +176,7 @@ typedef enum
  ******************************************************************************/
 
 /** CRYOTIMER initialization structure. */
-typedef struct
-{
+typedef struct {
   /** Enable/disable counting when initialization is completed. */
   bool                      enable;
 
@@ -205,15 +201,15 @@ typedef struct
  ******************************************************************************/
 
 /** Default CRYOTIMER init structure. */
-#define CRYOTIMER_INIT_DEFAULT                                                   \
-{                                                                                \
-  true,                  /* Start counting when init done.                    */ \
-  false,                 /* Disable CRYOTIMER during debug halt.              */ \
-  false,                 /* Disable EM4 wakeup.                               */ \
-  cryotimerOscLFRCO,     /* Select Low Frequency RC Oscillator.               */ \
-  cryotimerPresc_1,      /* LF Oscillator frequency undivided.                */ \
-  cryotimerPeriod_4096m, /* Wakeup event after 4096M pre-scaled clock cycles. */ \
-}
+#define CRYOTIMER_INIT_DEFAULT                                                     \
+  {                                                                                \
+    true,                  /* Start counting when init done.                    */ \
+    false,                 /* Disable CRYOTIMER during debug halt.              */ \
+    false,                 /* Disable EM4 wakeup.                               */ \
+    cryotimerOscLFRCO,     /* Select Low Frequency RC Oscillator.               */ \
+    cryotimerPresc_1,      /* LF Oscillator frequency undivided.                */ \
+    cryotimerPeriod_4096m, /* Wakeup event after 4096M pre-scaled clock cycles. */ \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************

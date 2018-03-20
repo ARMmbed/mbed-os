@@ -27,6 +27,7 @@
 #if defined( USB_DEVICE )
 
 #include "em_cmu.h"
+#include "em_core.h"
 #include "em_usbtypes.h"
 #include "em_usbhal.h"
 #include "em_usbd.h"
@@ -69,9 +70,10 @@ static const char *stateNames[] =
  ******************************************************************************/
 void USBD_AbortAllTransfers( void )
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   USBDHAL_AbortAllTransfers( USB_STATUS_EP_ABORTED );
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 
 /***************************************************************************//**
@@ -85,6 +87,7 @@ int USBD_AbortTransfer( int epAddr )
 {
   USB_XferCompleteCb_TypeDef callback;
   USBD_Ep_TypeDef *ep = USBD_GetEpFromAddr( epAddr );
+  CORE_DECLARE_IRQ_STATE;
 
   if ( ep == NULL )
   {
@@ -100,10 +103,10 @@ int USBD_AbortTransfer( int epAddr )
     return USB_STATUS_ILLEGAL;
   }
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
   if ( ep->state == D_EP_IDLE )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     return USB_STATUS_OK;
   }
 
@@ -125,7 +128,7 @@ int USBD_AbortTransfer( int epAddr )
     callback( USB_STATUS_EP_ABORTED, ep->xferred, ep->remaining );
   }
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
   return USB_STATUS_OK;
 }
 
@@ -139,9 +142,10 @@ int USBD_AbortTransfer( int epAddr )
  ******************************************************************************/
 void USBD_Connect( void )
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   USBDHAL_Connect();
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 
 /***************************************************************************//**
@@ -154,9 +158,10 @@ void USBD_Connect( void )
  ******************************************************************************/
 void USBD_Disconnect( void )
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
   USBDHAL_Disconnect();
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 }
 
 /***************************************************************************//**
@@ -239,6 +244,7 @@ const char *USBD_GetUsbStateName( USBD_State_TypeDef state )
 int USBD_Init( const USBD_Init_TypeDef *p )
 {
   USBD_Ep_TypeDef *ep;
+  CORE_DECLARE_IRQ_STATE;
 
 #if !defined( USB_CORECLK_HFRCO ) || !defined( CMU_OSCENCMD_USHFRCOEN )
   /* Devices supporting crystal-less USB can use HFRCO or HFXO as core clock. */
@@ -308,7 +314,7 @@ int USBD_Init( const USBD_Init_TypeDef *p )
    */
   totalRxFifoSize += 10 + 1 + ( 2 * (MAX_NUM_OUT_EPS + 1) );
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 
   /* Enable USB clock */
   CMU->HFCORECLKEN0 |= CMU_HFCORECLKEN0_USB | CMU_HFCORECLKEN0_USBC;
@@ -339,7 +345,7 @@ int USBD_Init( const USBD_Init_TypeDef *p )
   }
   else
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Init(), FIFO setup error" );
     EFM_ASSERT( false );
     return USB_STATUS_ILLEGAL;
@@ -356,7 +362,7 @@ int USBD_Init( const USBD_Init_TypeDef *p )
     USBD_SetUsbState( USBD_STATE_NONE );
   }
 
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
   return USB_STATUS_OK;
 }
 
@@ -389,6 +395,7 @@ int USBD_Init( const USBD_Init_TypeDef *p )
 int USBD_Read( int epAddr, void *data, int byteCount,
                USB_XferCompleteCb_TypeDef callback )
 {
+  CORE_DECLARE_IRQ_STATE;
   USBD_Ep_TypeDef *ep = USBD_GetEpFromAddr( epAddr );
 
   USB_PRINTF("USBD: Read addr %x, data %p, size %d, cb 0x%lx\n",
@@ -416,24 +423,25 @@ int USBD_Read( int epAddr, void *data, int byteCount,
     return USB_STATUS_ILLEGAL;
   }
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
+
   if ( USBDHAL_EpIsStalled( ep ) )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Read(), Endpoint is halted" );
     return USB_STATUS_EP_STALLED;
   }
 
   if ( ep->state != D_EP_IDLE )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Read(), Endpoint is busy" );
     return USB_STATUS_EP_BUSY;
   }
 
   if ( ( ep->num > 0 ) && ( USBD_GetUsbState() != USBD_STATE_CONFIGURED ) )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Read(), Device not configured" );
     return USB_STATUS_DEVICE_UNCONFIGURED;
   }
@@ -448,7 +456,7 @@ int USBD_Read( int epAddr, void *data, int byteCount,
   }
   else if ( ep->in != false )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Read(), Illegal EP direction" );
     EFM_ASSERT( false );
     return USB_STATUS_ILLEGAL;
@@ -458,7 +466,7 @@ int USBD_Read( int epAddr, void *data, int byteCount,
   ep->xferCompleteCb = callback;
 
   USBD_ArmEp( ep );
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
   return USB_STATUS_OK;
 }
 
@@ -477,22 +485,26 @@ int USBD_Read( int epAddr, void *data, int byteCount,
  ******************************************************************************/
 int USBD_RemoteWakeup( void )
 {
-  INT_Disable();
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
 
   if ( ( dev->state != USBD_STATE_SUSPENDED ) ||
        ( dev->remoteWakeupEnabled == false  )    )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_RemoteWakeup(), Illegal remote wakeup" );
     return USB_STATUS_ILLEGAL;
   }
 
   USBDHAL_SetRemoteWakeup();
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
+
   USBTIMER_DelayMs( 10 );
-  INT_Disable();
+
+  CORE_ENTER_CRITICAL();
   USBDHAL_ClearRemoteWakeup();
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
+
   return USB_STATUS_OK;
 }
 
@@ -565,6 +577,7 @@ void USBD_SetUsbState( USBD_State_TypeDef newState )
 int USBD_StallEp( int epAddr )
 {
   USB_Status_TypeDef retVal;
+  CORE_DECLARE_IRQ_STATE;
   USBD_Ep_TypeDef *ep = USBD_GetEpFromAddr( epAddr );
 
   if ( ep == NULL )
@@ -581,9 +594,9 @@ int USBD_StallEp( int epAddr )
     return USB_STATUS_ILLEGAL;
   }
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
   retVal = USBDHAL_StallEp( ep );
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   if ( retVal != USB_STATUS_OK )
   {
@@ -626,6 +639,7 @@ void USBD_Stop( void )
 int USBD_UnStallEp( int epAddr )
 {
   USB_Status_TypeDef retVal;
+  CORE_DECLARE_IRQ_STATE;
   USBD_Ep_TypeDef *ep = USBD_GetEpFromAddr( epAddr );
 
   if ( ep == NULL )
@@ -642,9 +656,9 @@ int USBD_UnStallEp( int epAddr )
     return USB_STATUS_ILLEGAL;
   }
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
   retVal = USBDHAL_UnStallEp( ep );
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   if ( retVal != USB_STATUS_OK )
   {
@@ -678,6 +692,7 @@ int USBD_Write( int epAddr, void *data, int byteCount,
                 USB_XferCompleteCb_TypeDef callback )
 {
   USBD_Ep_TypeDef *ep = USBD_GetEpFromAddr( epAddr );
+  CORE_DECLARE_IRQ_STATE;
 
   USB_PRINTF("USBD: Write addr %x, data %p, size %d, cb 0x%lx\n",
              epAddr, data, byteCount, (uint32_t)callback);
@@ -704,24 +719,25 @@ int USBD_Write( int epAddr, void *data, int byteCount,
     return USB_STATUS_ILLEGAL;
   }
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
+
   if ( USBDHAL_EpIsStalled( ep ) )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Write(), Endpoint is halted" );
     return USB_STATUS_EP_STALLED;
   }
 
   if ( ep->state != D_EP_IDLE )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Write(), Endpoint is busy" );
     return USB_STATUS_EP_BUSY;
   }
 
   if ( ( ep->num > 0 ) && ( USBD_GetUsbState() != USBD_STATE_CONFIGURED ) )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Write(), Device not configured" );
     return USB_STATUS_DEVICE_UNCONFIGURED;
   }
@@ -736,7 +752,7 @@ int USBD_Write( int epAddr, void *data, int byteCount,
   }
   else if ( ep->in != true )
   {
-    INT_Enable();
+    CORE_EXIT_CRITICAL();
     DEBUG_USB_API_PUTS( "\nUSBD_Write(), Illegal EP direction" );
     EFM_ASSERT( false );
     return USB_STATUS_ILLEGAL;
@@ -746,7 +762,7 @@ int USBD_Write( int epAddr, void *data, int byteCount,
   ep->xferCompleteCb = callback;
 
   USBD_ArmEp( ep );
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
   return USB_STATUS_OK;
 }
 
@@ -841,6 +857,7 @@ static void USBD_ResetEndpoints(void)
 int USBD_AddEndpoint(int epAddr, int transferType,
                      int maxPacketSize, int bufferMult)
 {
+  CORE_DECLARE_IRQ_STATE;
   USBD_Ep_TypeDef *ep;
 
   numEps++;
@@ -890,7 +907,7 @@ int USBD_AddEndpoint(int epAddr, int transferType,
              ep->num, numEps, ep->in, ep->addr, ep->type, ep->packetSize, ep->fifoSize,
              totalTxFifoSize, totalRxFifoSize);
 
-  INT_Disable();
+  CORE_ENTER_CRITICAL();
 #if defined( CMU_OSCENCMD_USHFRCOEN )
   /* Happy Gecko workaround: disable LEM GATE mode if using ISOC endpoints. */
   if ( transferType == USB_EPTYPE_ISOC )
@@ -900,7 +917,7 @@ int USBD_AddEndpoint(int epAddr, int transferType,
 #endif
 
   int ret = USBDHAL_ReconfigureFifos(totalRxFifoSize, totalTxFifoSize);
-  INT_Enable();
+  CORE_EXIT_CRITICAL();
 
   if( ret != USB_STATUS_OK ) {
     return ret;

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_dac.h
  * @brief Digital to Analog Converter (DAC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -44,7 +44,6 @@
 extern "C" {
 #endif
 
-
 /***************************************************************************//**
  * @addtogroup emlib
  * @{
@@ -67,83 +66,73 @@ extern "C" {
  ******************************************************************************/
 
 /** Conversion mode. */
-typedef enum
-{
+typedef enum {
   dacConvModeContinuous = _DAC_CTRL_CONVMODE_CONTINUOUS, /**< Continuous mode. */
   dacConvModeSampleHold = _DAC_CTRL_CONVMODE_SAMPLEHOLD, /**< Sample/hold mode. */
   dacConvModeSampleOff  = _DAC_CTRL_CONVMODE_SAMPLEOFF   /**< Sample/shut off mode. */
 } DAC_ConvMode_TypeDef;
 
 /** Output mode. */
-typedef enum
-{
+typedef enum {
   dacOutputDisable = _DAC_CTRL_OUTMODE_DISABLE, /**< Output to pin and ADC disabled. */
   dacOutputPin     = _DAC_CTRL_OUTMODE_PIN,     /**< Output to pin only. */
   dacOutputADC     = _DAC_CTRL_OUTMODE_ADC,     /**< Output to ADC only */
   dacOutputPinADC  = _DAC_CTRL_OUTMODE_PINADC   /**< Output to pin and ADC. */
 } DAC_Output_TypeDef;
 
-
 /** Peripheral Reflex System signal used to trigger single sample. */
-typedef enum
-{
+typedef enum {
   dacPRSSELCh0 = _DAC_CH0CTRL_PRSSEL_PRSCH0, /**< PRS channel 0. */
   dacPRSSELCh1 = _DAC_CH0CTRL_PRSSEL_PRSCH1, /**< PRS channel 1. */
   dacPRSSELCh2 = _DAC_CH0CTRL_PRSSEL_PRSCH2, /**< PRS channel 2. */
   dacPRSSELCh3 = _DAC_CH0CTRL_PRSSEL_PRSCH3, /**< PRS channel 3. */
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH4 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH4)
   dacPRSSELCh4 = _DAC_CH0CTRL_PRSSEL_PRSCH4, /**< PRS channel 4. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH5 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH5)
   dacPRSSELCh5 = _DAC_CH0CTRL_PRSSEL_PRSCH5, /**< PRS channel 5. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH6 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH6)
   dacPRSSELCh6 = _DAC_CH0CTRL_PRSSEL_PRSCH6, /**< PRS channel 6. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH7 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH7)
   dacPRSSELCh7 = _DAC_CH0CTRL_PRSSEL_PRSCH7, /**< PRS channel 7. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH8 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH8)
   dacPRSSELCh8 = _DAC_CH0CTRL_PRSSEL_PRSCH8, /**< PRS channel 8. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH9 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH9)
   dacPRSSELCh9 = _DAC_CH0CTRL_PRSSEL_PRSCH9, /**< PRS channel 9. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH10 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH10)
   dacPRSSELCh10 = _DAC_CH0CTRL_PRSSEL_PRSCH10, /**< PRS channel 10. */
 #endif
-#if defined( _DAC_CH0CTRL_PRSSEL_PRSCH11 )
+#if defined(_DAC_CH0CTRL_PRSSEL_PRSCH11)
   dacPRSSELCh11 = _DAC_CH0CTRL_PRSSEL_PRSCH11, /**< PRS channel 11. */
 #endif
 } DAC_PRSSEL_TypeDef;
 
-
 /** Reference voltage for DAC. */
-typedef enum
-{
+typedef enum {
   dacRef1V25 = _DAC_CTRL_REFSEL_1V25, /**< Internal 1.25V bandgap reference. */
   dacRef2V5  = _DAC_CTRL_REFSEL_2V5,  /**< Internal 2.5V bandgap reference. */
   dacRefVDD  = _DAC_CTRL_REFSEL_VDD   /**< VDD reference. */
 } DAC_Ref_TypeDef;
 
-
 /** Refresh interval. */
-typedef enum
-{
+typedef enum {
   dacRefresh8  = _DAC_CTRL_REFRSEL_8CYCLES,  /**< Refresh every 8 prescaled cycles. */
   dacRefresh16 = _DAC_CTRL_REFRSEL_16CYCLES, /**< Refresh every 16 prescaled cycles. */
   dacRefresh32 = _DAC_CTRL_REFRSEL_32CYCLES, /**< Refresh every 32 prescaled cycles. */
   dacRefresh64 = _DAC_CTRL_REFRSEL_64CYCLES  /**< Refresh every 64 prescaled cycles. */
 } DAC_Refresh_TypeDef;
 
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** DAC init structure, common for both channels. */
-typedef struct
-{
+typedef struct {
   /** Refresh interval. Only used if REFREN bit set for a DAC channel. */
   DAC_Refresh_TypeDef  refresh;
 
@@ -180,23 +169,21 @@ typedef struct
 
 /** Default config for DAC init structure. */
 #define DAC_INIT_DEFAULT                                               \
-{                                                                      \
-  dacRefresh8,              /* Refresh every 8 prescaled cycles. */    \
-  dacRef1V25,               /* 1.25V internal reference. */            \
-  dacOutputPin,             /* Output to pin only. */                  \
-  dacConvModeContinuous,    /* Continuous mode. */                     \
-  0,                        /* No prescaling. */                       \
-  false,                    /* Do not enable low pass filter. */       \
-  false,                    /* Do not reset prescaler on ch0 start. */ \
-  false,                    /* DAC output enable always on. */         \
-  false,                    /* Disable sine mode. */                   \
-  false                     /* Single ended mode. */                   \
-}
-
+  {                                                                    \
+    dacRefresh8,            /* Refresh every 8 prescaled cycles. */    \
+    dacRef1V25,             /* 1.25V internal reference. */            \
+    dacOutputPin,           /* Output to pin only. */                  \
+    dacConvModeContinuous,  /* Continuous mode. */                     \
+    0,                      /* No prescaling. */                       \
+    false,                  /* Do not enable low pass filter. */       \
+    false,                  /* Do not reset prescaler on ch0 start. */ \
+    false,                  /* DAC output enable always on. */         \
+    false,                  /* Disable sine mode. */                   \
+    false                   /* Single ended mode. */                   \
+  }
 
 /** DAC channel init structure. */
-typedef struct
-{
+typedef struct {
   /** Enable channel. */
   bool               enable;
 
@@ -221,13 +208,12 @@ typedef struct
 
 /** Default config for DAC channel init structure. */
 #define DAC_INITCHANNEL_DEFAULT                                         \
-{                                                                       \
-  false,              /* Leave channel disabled when init done. */      \
-  false,              /* Disable PRS triggering. */                     \
-  false,              /* Channel not refreshed automatically. */        \
-  dacPRSSELCh0        /* Select PRS ch0 (if PRS triggering enabled). */ \
-}
-
+  {                                                                     \
+    false,            /* Leave channel disabled when init done. */      \
+    false,            /* Disable PRS triggering. */                     \
+    false,            /* Channel not refreshed automatically. */        \
+    dacPRSSELCh0      /* Select PRS ch0 (if PRS triggering enabled). */ \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -256,13 +242,12 @@ void DAC_ChannelOutputSet(DAC_TypeDef *dac,
  * @param[in] value
  *   Value to write to the channel 0 output register CH0DATA.
  ******************************************************************************/
-__STATIC_INLINE void DAC_Channel0OutputSet( DAC_TypeDef *dac,
-                                            uint32_t     value )
+__STATIC_INLINE void DAC_Channel0OutputSet(DAC_TypeDef *dac,
+                                           uint32_t     value)
 {
-  EFM_ASSERT(value<=_DAC_CH0DATA_MASK);
+  EFM_ASSERT(value <= _DAC_CH0DATA_MASK);
   dac->CH0DATA = value;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -278,13 +263,12 @@ __STATIC_INLINE void DAC_Channel0OutputSet( DAC_TypeDef *dac,
  * @param[in] value
  *   Value to write to the channel 1 output register CH1DATA.
  ******************************************************************************/
-__STATIC_INLINE void DAC_Channel1OutputSet( DAC_TypeDef *dac,
-                                            uint32_t     value )
+__STATIC_INLINE void DAC_Channel1OutputSet(DAC_TypeDef *dac,
+                                           uint32_t     value)
 {
-  EFM_ASSERT(value<=_DAC_CH1DATA_MASK);
+  EFM_ASSERT(value <= _DAC_CH1DATA_MASK);
   dac->CH1DATA = value;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -302,7 +286,6 @@ __STATIC_INLINE void DAC_IntClear(DAC_TypeDef *dac, uint32_t flags)
   dac->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more DAC interrupts.
@@ -318,7 +301,6 @@ __STATIC_INLINE void DAC_IntDisable(DAC_TypeDef *dac, uint32_t flags)
 {
   dac->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -341,7 +323,6 @@ __STATIC_INLINE void DAC_IntEnable(DAC_TypeDef *dac, uint32_t flags)
   dac->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending DAC interrupt flags.
@@ -360,7 +341,6 @@ __STATIC_INLINE uint32_t DAC_IntGet(DAC_TypeDef *dac)
 {
   return dac->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -392,7 +372,6 @@ __STATIC_INLINE uint32_t DAC_IntGetEnabled(DAC_TypeDef *dac)
   /* Bitwise AND of pending and enabled interrupts */
   return dac->IF & ien;
 }
-
 
 /***************************************************************************//**
  * @brief

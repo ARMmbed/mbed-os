@@ -73,6 +73,17 @@ typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void* caller, ...);
 void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb);
 
 /**
+ * Trace lock.
+ * @note Locking prevent recursive tracing of malloc/free inside relloc/calloc
+ */
+void mbed_mem_trace_lock();
+
+/**
+ * Trace unlock.
+ */
+void mbed_mem_trace_unlock();
+
+/**
  * Trace a call to 'malloc'.
  * @param res the result of running 'malloc'.
  * @param size the 'size' argument given to 'malloc'.

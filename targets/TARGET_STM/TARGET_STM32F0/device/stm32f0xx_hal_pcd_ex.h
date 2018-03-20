@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of PCD HAL Extension module.
   ******************************************************************************
   * @attention
@@ -36,8 +34,8 @@
   */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L0xx_HAL_PCD_EX_H
-#define __STM32L0xx_HAL_PCD_EX_H
+#ifndef __STM32F0xx_HAL_PCD_EX_H
+#define __STM32F0xx_HAL_PCD_EX_H
 
 #ifdef __cplusplus
  extern "C" {

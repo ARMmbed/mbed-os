@@ -2,9 +2,9 @@
  * @file em_rmu.c
  * @brief Reset Management Unit (RMU) peripheral module peripheral API
  *
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -124,11 +124,25 @@
 #define RMU_RSTCAUSE_EM4RST_XMASK        0x0000001DUL /** 0000000000011101  < EM4H/S Reset */
 #define NUM_RSTCAUSES                               9
 
+/* EFM32GG11 */
+#elif ((_RMU_RSTCAUSE_MASK & 0x0FFFFFFF) == 0x00011F1DUL)
+#define RMU_RSTCAUSE_PORST_XMASK         0x00000000UL /** 0000000000000000  < Power On Reset */
+#define RMU_RSTCAUSE_BODAVDD_XMASK       0x00000001UL /** 0000000000000001  < AVDD BOD Reset */
+#define RMU_RSTCAUSE_BODDVDD_XMASK       0x00000001UL /** 0000000000000001  < DVDD BOD Reset */
+#define RMU_RSTCAUSE_BODREGRST_XMASK     0x00000001UL /** 0000000000000001  < Regulated Domain (DEC) BOD Reset */
+#define RMU_RSTCAUSE_EXTRST_XMASK        0x00000001UL /** 0000000000000001  < External Pin Reset */
+#define RMU_RSTCAUSE_LOCKUPRST_XMASK     0x0000001DUL /** 0000000000011101  < LOCKUP Reset */
+#define RMU_RSTCAUSE_SYSREQRST_XMASK     0x0000001DUL /** 0000000000011101  < System Request Reset */
+#define RMU_RSTCAUSE_WDOGRST_XMASK       0x0000001DUL /** 0000000000011101  < Watchdog Reset */
+#define RMU_RSTCAUSE_BUMODERST_XMASK     0x0000001DUL /** 0000000000011101  < Backup mode reset */
+#define RMU_RSTCAUSE_EM4RST_XMASK        0x0000001DUL /** 0000000000011101  < EM4H/S Reset */
+#define NUM_RSTCAUSES                              10
+
 #else
 #error "RMU_RSTCAUSE XMASKs are not defined for this family."
 #endif
 
-#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
 /* Fix for errata EMU_E208 - Occasional Full Reset After Exiting EM4H */
 #define ERRATA_FIX_EMU_E208_EN
 #endif
@@ -138,14 +152,12 @@
  ******************************************************************************/
 
 /** Reset cause mask type. */
-typedef struct
-{
+typedef struct {
   /** Reset-cause 1 bits */
   uint32_t resetCauseMask;
   /** Reset-cause 0 and "don't care" bits */
   uint32_t resetCauseZeroXMask;
 } RMU_ResetCauseMasks_Typedef;
-
 
 /*******************************************************************************
  *******************************   TYPEDEFS   **********************************
@@ -153,48 +165,49 @@ typedef struct
 
 /** Reset cause mask table. */
 static const RMU_ResetCauseMasks_Typedef  resetCauseMasks[NUM_RSTCAUSES] =
-  {
-    { RMU_RSTCAUSE_PORST,        RMU_RSTCAUSE_PORST_XMASK },
+{
+  { RMU_RSTCAUSE_PORST, RMU_RSTCAUSE_PORST_XMASK },
 #if defined(RMU_RSTCAUSE_BODUNREGRST)
-    { RMU_RSTCAUSE_BODUNREGRST,  RMU_RSTCAUSE_BODUNREGRST_XMASK },
+  { RMU_RSTCAUSE_BODUNREGRST, RMU_RSTCAUSE_BODUNREGRST_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_BODREGRST)
-    { RMU_RSTCAUSE_BODREGRST,    RMU_RSTCAUSE_BODREGRST_XMASK },
+  { RMU_RSTCAUSE_BODREGRST, RMU_RSTCAUSE_BODREGRST_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_AVDDBOD)
-    { RMU_RSTCAUSE_AVDDBOD,      RMU_RSTCAUSE_BODAVDD_XMASK },
+  { RMU_RSTCAUSE_AVDDBOD, RMU_RSTCAUSE_BODAVDD_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_DVDDBOD)
-    { RMU_RSTCAUSE_DVDDBOD,      RMU_RSTCAUSE_BODDVDD_XMASK },
+  { RMU_RSTCAUSE_DVDDBOD, RMU_RSTCAUSE_BODDVDD_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_DECBOD)
-    { RMU_RSTCAUSE_DECBOD,       RMU_RSTCAUSE_BODREGRST_XMASK },
+  { RMU_RSTCAUSE_DECBOD, RMU_RSTCAUSE_BODREGRST_XMASK },
 #endif
-    { RMU_RSTCAUSE_EXTRST,       RMU_RSTCAUSE_EXTRST_XMASK },
-    { RMU_RSTCAUSE_WDOGRST,      RMU_RSTCAUSE_WDOGRST_XMASK },
-    { RMU_RSTCAUSE_LOCKUPRST,    RMU_RSTCAUSE_LOCKUPRST_XMASK },
-    { RMU_RSTCAUSE_SYSREQRST,    RMU_RSTCAUSE_SYSREQRST_XMASK },
+  { RMU_RSTCAUSE_EXTRST, RMU_RSTCAUSE_EXTRST_XMASK },
+  { RMU_RSTCAUSE_WDOGRST, RMU_RSTCAUSE_WDOGRST_XMASK },
+  { RMU_RSTCAUSE_LOCKUPRST, RMU_RSTCAUSE_LOCKUPRST_XMASK },
+  { RMU_RSTCAUSE_SYSREQRST, RMU_RSTCAUSE_SYSREQRST_XMASK },
 #if defined(RMU_RSTCAUSE_EM4RST)
-    { RMU_RSTCAUSE_EM4RST,       RMU_RSTCAUSE_EM4RST_XMASK },
+  { RMU_RSTCAUSE_EM4RST, RMU_RSTCAUSE_EM4RST_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_EM4WURST)
-    { RMU_RSTCAUSE_EM4WURST,     RMU_RSTCAUSE_EM4WURST_XMASK },
+  { RMU_RSTCAUSE_EM4WURST, RMU_RSTCAUSE_EM4WURST_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_BODAVDD0)
-    { RMU_RSTCAUSE_BODAVDD0,     RMU_RSTCAUSE_BODAVDD0_XMASK },
+  { RMU_RSTCAUSE_BODAVDD0, RMU_RSTCAUSE_BODAVDD0_XMASK },
 #endif
 #if defined(RMU_RSTCAUSE_BODAVDD1)
-    { RMU_RSTCAUSE_BODAVDD1,     RMU_RSTCAUSE_BODAVDD1_XMASK },
+  { RMU_RSTCAUSE_BODAVDD1, RMU_RSTCAUSE_BODAVDD1_XMASK },
 #endif
-#if defined(BU_PRESENT)
-    { RMU_RSTCAUSE_BUBODVDDDREG, RMU_RSTCAUSE_BUBODVDDDREG_XMASK },
-    { RMU_RSTCAUSE_BUBODBUVIN,   RMU_RSTCAUSE_BUBODBUVIN_XMASK },
-    { RMU_RSTCAUSE_BUBODUNREG,   RMU_RSTCAUSE_BUBODUNREG_XMASK },
-    { RMU_RSTCAUSE_BUBODREG,     RMU_RSTCAUSE_BUBODREG_XMASK },
-    { RMU_RSTCAUSE_BUMODERST,    RMU_RSTCAUSE_BUMODERST_XMASK },
+#if defined(BU_PRESENT) && defined(_SILICON_LABS_32B_SERIES_0)
+  { RMU_RSTCAUSE_BUBODVDDDREG, RMU_RSTCAUSE_BUBODVDDDREG_XMASK },
+  { RMU_RSTCAUSE_BUBODBUVIN, RMU_RSTCAUSE_BUBODBUVIN_XMASK },
+  { RMU_RSTCAUSE_BUBODUNREG, RMU_RSTCAUSE_BUBODUNREG_XMASK },
+  { RMU_RSTCAUSE_BUBODREG, RMU_RSTCAUSE_BUBODREG_XMASK },
+  { RMU_RSTCAUSE_BUMODERST, RMU_RSTCAUSE_BUMODERST_XMASK },
+#elif defined(RMU_RSTCAUSE_BUMODERST)
+  { RMU_RSTCAUSE_BUMODERST, RMU_RSTCAUSE_BUMODERST_XMASK },
 #endif
-  };
-
+};
 
 /*******************************************************************************
  ********************************     TEST     ********************************
@@ -236,7 +249,6 @@ void RMU_ResetControl(RMU_Reset_TypeDef reset, RMU_ResetMode_TypeDef mode)
 #endif
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Clear the reset cause register.
@@ -257,22 +269,19 @@ void RMU_ResetCauseClear(void)
     /* Clear some reset causes not cleared with RMU CMD register */
     /* (If EMU registers locked, they must be unlocked first) */
     locked = EMU->LOCK & EMU_LOCK_LOCKKEY_LOCKED;
-    if (locked)
-    {
+    if (locked) {
       EMU_Unlock();
     }
 
     BUS_RegBitWrite(&(EMU->AUXCTRL), _EMU_AUXCTRL_HRCCLR_SHIFT, 1);
     BUS_RegBitWrite(&(EMU->AUXCTRL), _EMU_AUXCTRL_HRCCLR_SHIFT, 0);
 
-    if (locked)
-    {
+    if (locked) {
       EMU_Lock();
     }
   }
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -290,7 +299,7 @@ void RMU_ResetCauseClear(void)
  ******************************************************************************/
 uint32_t RMU_ResetCauseGet(void)
 {
-#define LB_CLW0 	        (* ((volatile uint32_t *)(LOCKBITS_BASE) + 122))
+#define LB_CLW0           (*((volatile uint32_t *)(LOCKBITS_BASE) +122))
 #define LB_CLW0_PINRESETSOFT    (1 << 2)
 
 #if !defined(EMLIB_REGRESSION_TEST)
@@ -300,22 +309,19 @@ uint32_t RMU_ResetCauseGet(void)
   uint32_t zeroXMask;
   uint32_t i;
 
-  for (i = 0; i < NUM_RSTCAUSES; i++)
-  {
+  for (i = 0; i < NUM_RSTCAUSES; i++) {
     zeroXMask = resetCauseMasks[i].resetCauseZeroXMask;
-#if defined( _SILICON_LABS_32B_SERIES_1 )
+#if defined(_SILICON_LABS_32B_SERIES_1)
     /* Handle soft/hard pin reset */
-    if (!(LB_CLW0 & LB_CLW0_PINRESETSOFT))
-    {
+    if (!(LB_CLW0 & LB_CLW0_PINRESETSOFT)) {
       /* RSTCAUSE_EXTRST must be 0 if pin reset is configured as hard reset */
-      switch (resetCauseMasks[i].resetCauseMask)
-      {
+      switch (resetCauseMasks[i].resetCauseMask) {
         case RMU_RSTCAUSE_LOCKUPRST:
-          /* Fallthrough */
+        /* Fallthrough */
         case RMU_RSTCAUSE_SYSREQRST:
-          /* Fallthrough */
+        /* Fallthrough */
         case RMU_RSTCAUSE_WDOGRST:
-          /* Fallthrough */
+        /* Fallthrough */
         case RMU_RSTCAUSE_EM4RST:
           zeroXMask |= RMU_RSTCAUSE_EXTRST;
           break;
@@ -323,10 +329,9 @@ uint32_t RMU_ResetCauseGet(void)
     }
 #endif
 
-#if defined( _EMU_EM4CTRL_MASK ) && defined( ERRATA_FIX_EMU_E208_EN )
+#if defined(_EMU_EM4CTRL_MASK) && defined(ERRATA_FIX_EMU_E208_EN)
     /* Ignore BOD flags impacted by EMU_E208 */
-    if (*(volatile uint32_t *)(EMU_BASE + 0x88) & (0x1 << 8))
-    {
+    if (*(volatile uint32_t *)(EMU_BASE + 0x88) & (0x1 << 8)) {
       zeroXMask &= ~(RMU_RSTCAUSE_DECBOD
                      | RMU_RSTCAUSE_DVDDBOD
                      | RMU_RSTCAUSE_AVDDBOD);
@@ -336,24 +341,21 @@ uint32_t RMU_ResetCauseGet(void)
     /* Check reset cause requirements. Note that a bit is "don't care" if 0 in
        both resetCauseMask and resetCauseZeroXMask. */
     if ((rstCause & resetCauseMasks[i].resetCauseMask)
-        && !(rstCause & zeroXMask))
-    {
+        && !(rstCause & zeroXMask)) {
       /* Add this reset-cause to the mask of qualified reset-causes */
       validRstCause |= resetCauseMasks[i].resetCauseMask;
     }
   }
-#if defined( _EMU_EM4CTRL_MASK ) && defined( ERRATA_FIX_EMU_E208_EN )
+#if defined(_EMU_EM4CTRL_MASK) && defined(ERRATA_FIX_EMU_E208_EN)
   /* Clear BOD flags impacted by EMU_E208 */
-  if (validRstCause & RMU_RSTCAUSE_EM4RST)
-  {
+  if (validRstCause & RMU_RSTCAUSE_EM4RST) {
     validRstCause &= ~(RMU_RSTCAUSE_DECBOD
-                      | RMU_RSTCAUSE_DVDDBOD
-                      | RMU_RSTCAUSE_AVDDBOD);
+                       | RMU_RSTCAUSE_DVDDBOD
+                       | RMU_RSTCAUSE_AVDDBOD);
   }
 #endif
   return validRstCause;
 }
-
 
 /** @} (end addtogroup RMU) */
 /** @} (end addtogroup emlib) */

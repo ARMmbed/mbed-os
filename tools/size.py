@@ -101,7 +101,7 @@ def compare(t1, t2, target):
                     benchmarks_data[name][t] = map(int, (code, data, bss, flash))
 
     print "%s vs %s for %s" % (t1, t2, target)
-    for name, data in benchmarks_data.iteritems():
+    for name, data in benchmarks_data.items():
         try:
             # Check Size
             code_a, data_a, bss_a, flash_a = data[t1]

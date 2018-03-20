@@ -81,6 +81,56 @@ void flashiap_program_test()
     TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
+void flashiap_cross_sector_program_test()
+{
+    FlashIAP flash_device;
+    uint32_t ret = flash_device.init();
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint32_t page_size = flash_device.get_page_size();
+
+    // Erase last two sectors
+    uint32_t address = flash_device.get_flash_start() + flash_device.get_flash_size();
+    uint32_t sector_size, agg_size = 0;
+    for (uint32_t i = 0; i < 2; i++) {
+        sector_size = flash_device.get_sector_size(address - 1UL);
+        TEST_ASSERT_NOT_EQUAL(0, sector_size);
+        TEST_ASSERT_TRUE(sector_size % page_size == 0);
+        agg_size += sector_size;
+        address -= sector_size;
+    }
+    ret = flash_device.erase(address, agg_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    address += sector_size - page_size;
+    uint32_t aligned_prog_size = 2 * page_size;
+    uint32_t prog_size = aligned_prog_size;
+    if (page_size > 1) {
+        prog_size--;
+    }
+    uint8_t *data = new uint8_t[aligned_prog_size];
+    for (uint32_t i = 0; i < prog_size; i++) {
+        data[i] = rand() % 256;
+    }
+    for (uint32_t i = prog_size; i < aligned_prog_size; i++) {
+        data[i] = 0xFF;
+    }
+
+    ret = flash_device.program(data, address, prog_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    uint8_t *data_flashed = new uint8_t[aligned_prog_size];
+    ret = flash_device.read(data_flashed, address, aligned_prog_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, aligned_prog_size);
+
+    delete[] data;
+    delete[] data_flashed;
+
+    ret = flash_device.deinit();
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+}
+
 void flashiap_program_error_test()
 {
     FlashIAP flash_device;
@@ -111,12 +161,6 @@ void flashiap_program_error_test()
         TEST_ASSERT_EQUAL_INT32(-1, ret);
     }
 
-    if (flash_device.get_page_size() > 1) {
-        // unaligned page size
-        ret = flash_device.program(data, address, page_size + 1);
-        TEST_ASSERT_EQUAL_INT32(-1, ret);
-    }
-
     delete[] data;
 
     ret = flash_device.deinit();
@@ -126,6 +170,7 @@ void flashiap_program_error_test()
 Case cases[] = {
     Case("FlashIAP - init", flashiap_init_test),
     Case("FlashIAP - program", flashiap_program_test),
+    Case("FlashIAP - program across sectors", flashiap_cross_sector_program_test),
     Case("FlashIAP - program errors", flashiap_program_error_test),
 };
 

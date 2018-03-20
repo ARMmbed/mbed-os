@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_system.h
  * @brief System API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -61,17 +61,22 @@ extern "C" {
  ******************************************************************************/
 
 /** Family identifiers. */
-typedef enum
-{
+typedef enum {
 /* New style family #defines */
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32G)
   systemPartFamilyEfm32Gecko   = _DEVINFO_PART_DEVICE_FAMILY_EFM32G,      /**< EFM32 Gecko Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32GG)
-  systemPartFamilyEfm32Giant   = _DEVINFO_PART_DEVICE_FAMILY_EFM32GG,     /**< EFM32 Giant Gecko Device Family */
+  systemPartFamilyEfm32Giant   = _DEVINFO_PART_DEVICE_FAMILY_EFM32GG,     /**< EFM32 Giant Gecko Series 0 Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32GG11B)
+  systemPartFamilyEfm32Giant11B = _DEVINFO_PART_DEVICE_FAMILY_EFM32GG11B, /**< EFM32 Giant Gecko Series 1 Config 1 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32TG)
   systemPartFamilyEfm32Tiny    = _DEVINFO_PART_DEVICE_FAMILY_EFM32TG,     /**< EFM32 Tiny Gecko Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32TG11B)
+  systemPartFamilyEfm32Tiny11B = _DEVINFO_PART_DEVICE_FAMILY_EFM32TG11B,  /**< EFM32 Tiny Gecko 11 Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32LG)
   systemPartFamilyEfm32Leopard = _DEVINFO_PART_DEVICE_FAMILY_EFM32LG,     /**< EFM32 Leopard Gecko Device Family */
@@ -92,16 +97,16 @@ typedef enum
   systemPartFamilyEfm32Jade1B  = _DEVINFO_PART_DEVICE_FAMILY_EFM32JG1B,   /**< EFM32 Jade Gecko Series 1 Config 1 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32PG12B)
-  systemPartFamilyEfm32Pearl12B = _DEVINFO_PART_DEVICE_FAMILY_EFM32PG12B,   /**< EFM32 Pearl Gecko Series 1 Config 2 Basic Device Family */
+  systemPartFamilyEfm32Pearl12B = _DEVINFO_PART_DEVICE_FAMILY_EFM32PG12B, /**< EFM32 Pearl Gecko Series 1 Config 2 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32JG12B)
-  systemPartFamilyEfm32Jade12B  = _DEVINFO_PART_DEVICE_FAMILY_EFM32JG12B,   /**< EFM32 Jade Gecko Series 1 Config 2 Basic Device Family */
+  systemPartFamilyEfm32Jade12B  = _DEVINFO_PART_DEVICE_FAMILY_EFM32JG12B, /**< EFM32 Jade Gecko Series 1 Config 2 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32PG13B)
-  systemPartFamilyEfm32Pearl13B = _DEVINFO_PART_DEVICE_FAMILY_EFM32PG13B,   /**< EFM32 Pearl Gecko Series 1 Config 3 Basic Device Family */
+  systemPartFamilyEfm32Pearl13B = _DEVINFO_PART_DEVICE_FAMILY_EFM32PG13B, /**< EFM32 Pearl Gecko Series 1 Config 3 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFM32JG13B)
-  systemPartFamilyEfm32Jade13B  = _DEVINFO_PART_DEVICE_FAMILY_EFM32JG13B,   /**< EFM32 Jade Gecko Series 1 Config 3 Basic Device Family */
+  systemPartFamilyEfm32Jade13B  = _DEVINFO_PART_DEVICE_FAMILY_EFM32JG13B, /**< EFM32 Jade Gecko Series 1 Config 3 Basic Device Family */
 #endif
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EZR32WG)
   systemPartFamilyEzr32Wonder  = _DEVINFO_PART_DEVICE_FAMILY_EZR32WG,     /**< EZR32 Wonder Device Family */
@@ -196,8 +201,33 @@ typedef enum
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG13V)
   systemPartFamilyFlex13V = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG13V,       /**< EFR32 Flex Gecko Series 1 Config 3 Value Device Family */
 #endif
-
-
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG14P)
+  systemPartFamilyMighty14P = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG14P,     /**< EFR32 Mighty Gecko Series 1 Config 4 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG14B)
+  systemPartFamilyMighty14B = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG14B,     /**< EFR32 Mighty Gecko Series 1 Config 4 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32MG14V)
+  systemPartFamilyMighty14V = _DEVINFO_PART_DEVICE_FAMILY_EFR32MG14V,     /**< EFR32 Mighty Gecko Series 1 Config 4 Value Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG14P)
+  systemPartFamilyBlue14P = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG14P,       /**< EFR32 Blue Gecko Series 1 Config 4 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG14B)
+  systemPartFamilyBlue14B = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG14B,       /**< EFR32 Blue Gecko Series 1 Config 4 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32BG14V)
+  systemPartFamilyBlue14V = _DEVINFO_PART_DEVICE_FAMILY_EFR32BG14V,       /**< EFR32 Blue Gecko Series 1 Config 4 Value Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG14P)
+  systemPartFamilyFlex14P = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG14P,       /**< EFR32 Flex Gecko Series 1 Config 4 Premium Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG14B)
+  systemPartFamilyFlex14B = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG14B,       /**< EFR32 Flex Gecko Series 1 Config 4 Basic Device Family */
+#endif
+#if defined(_DEVINFO_PART_DEVICE_FAMILY_EFR32FG14V)
+  systemPartFamilyFlex14V = _DEVINFO_PART_DEVICE_FAMILY_EFR32FG14V,       /**< EFR32 Flex Gecko Series 1 Config 4 Value Device Family */
+#endif
 
 /* Deprecated family #defines */
 #if defined(_DEVINFO_PART_DEVICE_FAMILY_G)
@@ -226,14 +256,12 @@ typedef enum
                                                                   on unprogrammed parts. */
 } SYSTEM_PartFamily_TypeDef;
 
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** Chip revision details */
-typedef struct
-{
+typedef struct {
   uint8_t minor; /**< Minor revision number */
   uint8_t major; /**< Major revision number */
   uint8_t family;/**< Device family number  */
@@ -241,8 +269,7 @@ typedef struct
 
 #if defined(__FPU_PRESENT) && (__FPU_PRESENT == 1)
 /** Floating point coprocessor access modes. */
-typedef enum
-{
+typedef enum {
   fpuAccessDenied         = (0x0 << 20),  /**< Access denied, any attempted access generates a NOCP UsageFault. */
   fpuAccessPrivilegedOnly = (0x5 << 20),  /**< Privileged access only, an unprivileged access generates a NOCP UsageFault. */
   fpuAccessReserved       = (0xA << 20),  /**< Reserved. */
@@ -251,8 +278,7 @@ typedef enum
 #endif
 
 /** DEVINFO calibration address/value pair */
-typedef struct
-{
+typedef struct {
   uint32_t address;                       /**< Peripheral calibration register address */
   uint32_t calValue;                      /**< Calibration value for register at address */
 }
@@ -324,14 +350,13 @@ __STATIC_INLINE uint16_t SYSTEM_GetSRAMSize(void)
 
 #if defined(_EFM32_GECKO_FAMILY)
   /* Early Gecko devices had a bug where SRAM and Flash size were swapped. */
-  if (SYSTEM_GetProdRev() < 5)
-  {
+  if (SYSTEM_GetProdRev() < 5) {
     sizekb = (DEVINFO->MSIZE & _DEVINFO_MSIZE_FLASH_MASK)
-              >> _DEVINFO_MSIZE_FLASH_SHIFT;
+             >> _DEVINFO_MSIZE_FLASH_SHIFT;
   }
 #endif
   sizekb = (DEVINFO->MSIZE & _DEVINFO_MSIZE_SRAM_MASK)
-            >> _DEVINFO_MSIZE_SRAM_SHIFT;
+           >> _DEVINFO_MSIZE_SRAM_SHIFT;
 
 #if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80) && defined(_EFR_DEVICE)
   /* Do not include EFR32xG1 RAMH */
@@ -357,8 +382,7 @@ __STATIC_INLINE uint16_t SYSTEM_GetFlashSize(void)
 {
 #if defined(_EFM32_GECKO_FAMILY)
   /* Early Gecko devices had a bug where SRAM and Flash size were swapped. */
-  if (SYSTEM_GetProdRev() < 5)
-  {
+  if (SYSTEM_GetProdRev() < 5) {
     return (DEVINFO->MSIZE & _DEVINFO_MSIZE_SRAM_MASK)
            >> _DEVINFO_MSIZE_SRAM_SHIFT;
   }
@@ -366,7 +390,6 @@ __STATIC_INLINE uint16_t SYSTEM_GetFlashSize(void)
   return (DEVINFO->MSIZE & _DEVINFO_MSIZE_FLASH_MASK)
          >> _DEVINFO_MSIZE_FLASH_SHIFT;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -384,18 +407,18 @@ __STATIC_INLINE uint32_t SYSTEM_GetFlashPageSize(void)
 {
   uint32_t tmp;
 
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #if defined(_EFM32_GIANT_FAMILY)
-  if (SYSTEM_GetProdRev() < 18)
-  {
+  if (SYSTEM_GetProdRev() < 18) {
     /* Early Giant/Leopard devices did not have MEMINFO in DEVINFO. */
     return FLASH_PAGE_SIZE;
   }
 #elif defined(_EFM32_ZERO_FAMILY)
-  if (SYSTEM_GetProdRev() < 24)
-  {
+  if (SYSTEM_GetProdRev() < 24) {
     /* Early Zero devices have an incorrect DEVINFO flash page size */
     return FLASH_PAGE_SIZE;
   }
+#endif
 #endif
 
   tmp = (DEVINFO->MEMINFO & _DEVINFO_MEMINFO_FLASH_PAGE_SIZE_MASK)
@@ -404,8 +427,7 @@ __STATIC_INLINE uint32_t SYSTEM_GetFlashPageSize(void)
   return 1 << ((tmp + 10) & 0xFF);
 }
 
-
-#if defined( _DEVINFO_DEVINFOREV_DEVINFOREV_MASK )
+#if defined(_DEVINFO_DEVINFOREV_DEVINFOREV_MASK)
 /***************************************************************************//**
  * @brief
  *   Get DEVINFO revision.
@@ -416,10 +438,9 @@ __STATIC_INLINE uint32_t SYSTEM_GetFlashPageSize(void)
 __STATIC_INLINE uint8_t SYSTEM_GetDevinfoRev(void)
 {
   return (DEVINFO->DEVINFOREV & _DEVINFO_DEVINFOREV_DEVINFOREV_MASK)
-          >> _DEVINFO_DEVINFOREV_DEVINFOREV_SHIFT;
+         >> _DEVINFO_DEVINFOREV_DEVINFOREV_SHIFT;
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -454,7 +475,6 @@ __STATIC_INLINE SYSTEM_PartFamily_TypeDef SYSTEM_GetFamily(void)
          ((DEVINFO->PART & _DEVINFO_PART_DEVICE_FAMILY_MASK)
           >> _DEVINFO_PART_DEVICE_FAMILY_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief

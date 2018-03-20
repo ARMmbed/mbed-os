@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 ARM Limited
+/* Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,22 @@
 /* size is 1522 bytes to accommodate the four-byte VLAN tag. */
 #define ETH_MAX_FLEN                  1522u /* recommended size for a VLAN frame */
 
-  /* Maximum Transfer Unit
-   * The IEEE 802.3 specification limits the data portion of the 802.3 frame
-   * to a minimum of 46 and a maximum of 1500 bytes, this is on L3 level.
-   */
+/*
+ * Maximum Transfer Unit
+ * The IEEE 802.3 specification limits the data portion of the 802.3 frame
+ * to a minimum of 46 and a maximum of 1522 bytes, this is on L2 level.
+ */
 #define ETH_L2_HEADER_LEN             22u
 
 #define ETH_MAX_PAYLOAD_LEN           (ETH_MAX_FLEN - ETH_L2_HEADER_LEN)
+
+/*
+ * Set this value to 2 to ensure that payload address of packet buffers is
+ * aligned on a 32 bits boundary.
+ * The padding is removed before passing the packet to the ethernet driver,
+ * hence defining this value to 2 will not prevent alignment issues inside the
+ * ethernet driver.
+ */
+#define ETH_PAD_SIZE                  0
 
 #endif /* LWIPOPTS_CONF_H */

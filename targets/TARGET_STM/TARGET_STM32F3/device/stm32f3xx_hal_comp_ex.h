@@ -447,16 +447,6 @@
 /**
   * @}
   */
-#elif  defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
-/** @defgroup COMPEx_WindowMode COMP Extended WindowMode (STM32F302xE/STM32F303xE/STM32F398xx Product devices)
-  * @{
-  */
-#define COMP_WINDOWMODE_DISABLE           (0x00000000U)  /*!< Window mode disabled */
-#define COMP_WINDOWMODE_ENABLE            COMP_CSR_COMPxWNDWEN    /*!< Window mode enabled: non inverting input of comparator X (x=2U,4,6U)
-                                                                       is connected to the non inverting input of comparator X-1U */
-/**
-  * @}
-  */
 #elif defined(STM32F373xC) || defined(STM32F378xx)
 /** @defgroup COMPEx_WindowMode COMP Extended WindowMode (STM32F373xC/STM32F378xx Product devices)
   * @{
@@ -2395,8 +2385,7 @@
     ||                                                         \
     (((INPUT) == COMP_NONINVERTINGINPUT_IO1)))
 
-#define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLE) || \
-                                        ((WINDOWMODE) == COMP_WINDOWMODE_ENABLE))
+#define IS_COMP_WINDOWMODE(WINDOWMODE) ((WINDOWMODE) == (WINDOWMODE))    /*!< Not available: check always true */ 
 
 #define IS_COMP_MODE(MODE)  ((MODE) == (MODE))  /*!< Not available: check always true */
 

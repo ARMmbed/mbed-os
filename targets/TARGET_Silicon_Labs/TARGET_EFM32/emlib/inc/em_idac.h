@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_idac.h
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -90,9 +90,8 @@ extern "C" {
  ******************************************************************************/
 
 /** Output mode. */
-typedef enum
-{
-#if defined( _IDAC_CTRL_OUTMODE_MASK )
+typedef enum {
+#if defined(_IDAC_CTRL_OUTMODE_MASK)
   idacOutputPin     = IDAC_CTRL_OUTMODE_PIN,     /**< Output to IDAC OUT pin */
   idacOutputADC     = IDAC_CTRL_OUTMODE_ADC      /**< Output to ADC */
 #elif ( _IDAC_CTRL_APORTOUTSEL_MASK )
@@ -131,20 +130,18 @@ typedef enum
 #endif
 } IDAC_OutMode_TypeDef;
 
-
 /** Selects which Peripheral Reflex System (PRS) signal to use when
     PRS is set to control the IDAC output. */
-typedef enum
-{
+typedef enum {
   idacPRSSELCh0 = IDAC_CTRL_PRSSEL_PRSCH0,      /**< PRS channel 0. */
   idacPRSSELCh1 = IDAC_CTRL_PRSSEL_PRSCH1,      /**< PRS channel 1. */
   idacPRSSELCh2 = IDAC_CTRL_PRSSEL_PRSCH2,      /**< PRS channel 2. */
   idacPRSSELCh3 = IDAC_CTRL_PRSSEL_PRSCH3,      /**< PRS channel 3. */
-#if defined( IDAC_CTRL_PRSSEL_PRSCH4 )
+#if defined(IDAC_CTRL_PRSSEL_PRSCH4)
   idacPRSSELCh4 = IDAC_CTRL_PRSSEL_PRSCH4,      /**< PRS channel 4. */
   idacPRSSELCh5 = IDAC_CTRL_PRSSEL_PRSCH5,      /**< PRS channel 5. */
 #endif
-#if defined( IDAC_CTRL_PRSSEL_PRSCH6 )
+#if defined(IDAC_CTRL_PRSSEL_PRSCH6)
   idacPRSSELCh6 = IDAC_CTRL_PRSSEL_PRSCH6,      /**< PRS channel 6. */
   idacPRSSELCh7 = IDAC_CTRL_PRSSEL_PRSCH7,      /**< PRS channel 7. */
   idacPRSSELCh8 = IDAC_CTRL_PRSSEL_PRSCH8,      /**< PRS channel 8. */
@@ -154,10 +151,8 @@ typedef enum
 #endif
 } IDAC_PRSSEL_TypeDef;
 
-
 /** Selects which current range to use. */
-typedef enum
-{
+typedef enum {
   idacCurrentRange0 = IDAC_CURPROG_RANGESEL_RANGE0, /**< current range 0. */
   idacCurrentRange1 = IDAC_CURPROG_RANGESEL_RANGE1, /**< current range 1. */
   idacCurrentRange2 = IDAC_CURPROG_RANGESEL_RANGE2, /**< current range 2. */
@@ -169,8 +164,7 @@ typedef enum
  ******************************************************************************/
 
 /** IDAC init structure, common for both channels. */
-typedef struct
-{
+typedef struct {
   /** Enable IDAC. */
   bool                  enable;
 
@@ -192,35 +186,32 @@ typedef struct
 
   /** Enable/disable current sink mode. */
   bool                  sinkEnable;
-
 } IDAC_Init_TypeDef;
 
 /** Default config for IDAC init structure. */
-#if defined( _IDAC_CTRL_OUTMODE_MASK )
+#if defined(_IDAC_CTRL_OUTMODE_MASK)
 #define IDAC_INIT_DEFAULT                                              \
-{                                                                      \
-  false,          /**< Leave IDAC disabled when init done. */          \
-  idacOutputPin,  /**< Output to IDAC output pin. */                   \
-  false,          /**< Disable PRS triggering. */                      \
-  idacPRSSELCh0,  /**< Select PRS ch0 (if PRS triggering enabled). */  \
-  false           /**< Disable current sink mode. */                   \
-}
-#elif ( _IDAC_CTRL_APORTOUTSEL_MASK )
+  {                                                                    \
+    false,         /**< Leave IDAC disabled when init done. */         \
+    idacOutputPin, /**< Output to IDAC output pin. */                  \
+    false,         /**< Disable PRS triggering. */                     \
+    idacPRSSELCh0, /**< Select PRS ch0 (if PRS triggering enabled). */ \
+    false          /**< Disable current sink mode. */                  \
+  }
+#elif (_IDAC_CTRL_APORTOUTSEL_MASK)
 #define IDAC_INIT_DEFAULT                                              \
-{                                                                      \
-  false,          /**< Leave IDAC disabled when init done. */          \
-  idacOutputAPORT1XCH0, /**< Output to APORT. */                       \
-  false,          /**< Disable PRS triggering. */                      \
-  idacPRSSELCh0,  /**< Select PRS ch0 (if PRS triggering enabled). */  \
-  false           /**< Disable current sink mode. */                   \
-}
+  {                                                                    \
+    false,         /**< Leave IDAC disabled when init done. */         \
+    idacOutputAPORT1XCH0, /**< Output to APORT. */                     \
+    false,         /**< Disable PRS triggering. */                     \
+    idacPRSSELCh0, /**< Select PRS ch0 (if PRS triggering enabled). */ \
+    false          /**< Disable current sink mode. */                  \
+  }
 #endif
-
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
-
 
 void IDAC_Init(IDAC_TypeDef *idac, const IDAC_Init_TypeDef *init);
 void IDAC_Enable(IDAC_TypeDef *idac, bool enable);
@@ -230,8 +221,7 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range);
 void IDAC_StepSet(IDAC_TypeDef *idac, const uint32_t step);
 void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable);
 
-
-#if defined( _IDAC_IEN_MASK )
+#if defined(_IDAC_IEN_MASK)
 /***************************************************************************//**
  * @brief
  *   Clear one or more pending IDAC interrupts.
@@ -248,7 +238,6 @@ __STATIC_INLINE void IDAC_IntClear(IDAC_TypeDef *idac, uint32_t flags)
   idac->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more IDAC interrupts.
@@ -264,7 +253,6 @@ __STATIC_INLINE void IDAC_IntDisable(IDAC_TypeDef *idac, uint32_t flags)
 {
   idac->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -287,7 +275,6 @@ __STATIC_INLINE void IDAC_IntEnable(IDAC_TypeDef *idac, uint32_t flags)
   idac->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending IDAC interrupt flags.
@@ -306,7 +293,6 @@ __STATIC_INLINE uint32_t IDAC_IntGet(IDAC_TypeDef *idac)
 {
   return idac->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -339,7 +325,6 @@ __STATIC_INLINE uint32_t IDAC_IntGetEnabled(IDAC_TypeDef *idac)
   return idac->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending IDAC interrupts from SW.
@@ -356,7 +341,6 @@ __STATIC_INLINE void IDAC_IntSet(IDAC_TypeDef *idac, uint32_t flags)
   idac->IFS = flags;
 }
 #endif
-
 
 /** @} (end addtogroup IDAC) */
 /** @} (end addtogroup emlib) */

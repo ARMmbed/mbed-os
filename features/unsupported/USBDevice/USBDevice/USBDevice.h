@@ -165,60 +165,60 @@ public:
     virtual bool USBCallback_setInterface(uint16_t interface, uint8_t alternate) { return false; };
 
     /*
-    * Get device descriptor. Warning: this method has to store the length of the report descriptor in reportLength.
+    * Get device descriptor.
     *
     * @returns pointer to the device descriptor
     */
-    virtual uint8_t * deviceDesc();
+    virtual const uint8_t * deviceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc(){return NULL;};
+    virtual const uint8_t * configurationDesc(){return NULL;};
 
     /*
     * Get string lang id descriptor
     *
     * @return pointer to the string lang id descriptor
     */
-    virtual uint8_t * stringLangidDesc();
+    virtual const uint8_t * stringLangidDesc();
 
     /*
     * Get string manufacturer descriptor
     *
     * @returns pointer to the string manufacturer descriptor
     */
-    virtual uint8_t * stringImanufacturerDesc();
+    virtual const uint8_t * stringImanufacturerDesc();
 
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual const uint8_t * stringIproductDesc();
 
     /*
     * Get string serial descriptor
     *
     * @returns pointer to the string serial descriptor
     */
-    virtual uint8_t * stringIserialDesc();
+    virtual const uint8_t * stringIserialDesc();
 
     /*
     * Get string configuration descriptor
     *
     * @returns pointer to the string configuration descriptor
     */
-    virtual uint8_t * stringIConfigurationDesc();
+    virtual const uint8_t * stringIConfigurationDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t * stringIinterfaceDesc();
 
     /*
     * Get the length of the report descriptor
@@ -242,6 +242,7 @@ protected:
     uint16_t VENDOR_ID;
     uint16_t PRODUCT_ID;
     uint16_t PRODUCT_RELEASE;
+    uint8_t deviceDescriptor[18];
 
 private:
     bool addRateFeedbackEndpoint(uint8_t endpoint, uint32_t maxPacket);

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of USART HAL Extended module.
   ******************************************************************************
   * @attention
@@ -125,7 +123,7 @@
   */
 
 /** @brief  Flush the USART Data registers.
-  * @param  __HANDLE__: specifies the USART Handle.
+  * @param  __HANDLE__ specifies the USART Handle.
   * @retval None  
   */
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6)  && !defined(STM32F070xB)  && !defined(STM32F030xC)
@@ -151,8 +149,8 @@
   */
 
 /** @brief  Report the USART clock source.
-  * @param  __HANDLE__: specifies the USART Handle.
-  * @param  __CLOCKSOURCE__: output variable.
+  * @param  __HANDLE__ specifies the USART Handle.
+  * @param  __CLOCKSOURCE__ output variable.
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
 #if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx)
@@ -460,7 +458,7 @@
   *         by the reception API().
   *         This masking operation is not carried out in the case of
   *         DMA transfers.
-  * @param  __HANDLE__: specifies the USART Handle.
+  * @param  __HANDLE__ specifies the USART Handle.
   * @retval None, the mask to apply to USART RDR register is stored in (__HANDLE__)->Mask field.
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
@@ -535,7 +533,7 @@
 
 /**
   * @brief Ensure that USART frame length is valid.
-  * @param __LENGTH__: USART frame length. 
+  * @param __LENGTH__ USART frame length. 
   * @retval SET (__LENGTH__ is valid) or RESET (__LENGTH__ is invalid)
   */
 #if defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6) || \
@@ -553,7 +551,7 @@
 
 /**
   * @brief Ensure that USART request parameter is valid.
-  * @param __PARAM__: USART request parameter. 
+  * @param __PARAM__ USART request parameter. 
   * @retval SET (__PARAM__ is valid) or RESET (__PARAM__ is invalid)
   */
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6)  && !defined(STM32F070xB)  && !defined(STM32F030xC)

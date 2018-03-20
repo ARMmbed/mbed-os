@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_hash_ex.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of HASH HAL Extension module.
   ******************************************************************************
   * @attention

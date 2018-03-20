@@ -199,6 +199,21 @@
       "auto-update" : true
     },
     {
+        "name": "mbed-os-example-filesystem",
+        "github":"https://github.com/ARMmbed/mbed-os-example-filesystem",
+        "mbed": [
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-filesystem"
+        ],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
       "name": "nanostack-border-router",
       "github":"https://github.com/ARMmbed/nanostack-border-router",
       "mbed": [],
@@ -223,6 +238,32 @@
       "compile" : true,
       "export": true,
       "auto-update" : true
-    }
+    },
+    {
+        "name": "mbed-os-example-lorawan",
+        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": false,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-nvstore",
+        "github":"https://github.com/ARMmbed/mbed-os-example-nvstore",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }      
   ]
 }

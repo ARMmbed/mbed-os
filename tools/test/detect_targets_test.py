@@ -28,42 +28,60 @@ class MbedLsToolsMock():
     def __init__(self, test_type):
         self.interface_test_type = test_type
     
-    def get_details_txt(self, mount_point):
-        return self.details_txt_types[self.interface_test_type];
+    def list_mbeds(self, unique_names=False, read_details_txt=False):
+        return self.mbed_types[self.interface_test_type];
     
     # Static details.txt types.
-    details_txt_types = {    
-        'details_valid_interface_version' : {
-            'Unique ID': '0226000029164e45002f0012706e0006f301000097969900',
-            'HIF ID': '97969900',
-            'Auto Reset': '0',
-            'Automation allowed': '0',
-            'Daplink Mode': 'Interface',
-            'Interface Version': '0240',
-            'Git SHA': 'c765cbb590f57598756683254ca38b211693ae5e',
-            'Local Mods': '0',
-            'USB Interfaces': 'MSD, CDC, HID',
-            'Interface CRC': '0x26764ebf'
-        },
-        'details_valid_version' : {
-            'Version': '0226',
-            'Build':   'Aug 24 2015 17:06:30',
-            'Git Commit SHA': '27a236b9fe39c674a703c5c89655fbd26b8e27e1',
-            'Git Local mods': 'Yes'
-        }, 
-        'details_missing_interface_version' : {
-            'Unique ID': '0226000033514e450044500585d4001de981000097969900',
-            'HIC ID': '97969900',
-            'Auto Reset': '0',
-            'Automation allowed': '0',
-            'Overflow detection': '0',
-            'Daplink Mode': 'Interface',
-            'Git SHA': 'b403a07e3696cee1e116d44cbdd64446e056ce38',
-            'Local Mods': '0',
-            'USB Interfaces': 'MSD, CDC, HID',
-            'Interface CRC': '0x4d98bf7e',
-            'Remount count': '0'
-        },
+    mbed_types = {    
+        'details_valid_interface_version' : [{
+            'daplink_hic_id': u'97969900', 
+            'daplink_version': u'0244', 
+            'target_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'serial_port': u'COM3', 
+            'target_id_usb_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'daplink_auto_reset': u'0', 
+            'daplink_git_sha': u'392f85aa88a41125dec0b963ce73c6795b8bdd0d', 
+            'daplink_interface_version': u'0244', 
+            'daplink_overflow_detection': u'0', 
+            'daplink_daplink_mode': u'Interface', 
+            'target_id_mbed_htm': u'0240000034544e45001500048e41001b8321000097969900', 
+            'mount_point': 'D:', 
+            'daplink_automation_allowed': u'0', 
+            'daplink_interface_crc': u'0xc525d856', 
+            'daplink_local_mods': u'0', 
+            'daplink_unique_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'daplink_remount_count': u'0', 
+            'daplink_bootloader_crc': u'0xc4ebf65c', 
+            'platform_name': u'K64F', 
+            'platform_name_unique': u'K64F[0]', 
+            'daplink_bootloader_version': u'0244', 
+            'daplink_usb_interfaces': u'MSD, CDC, HID'
+
+        }],
+        'details_missing_interface_version' : [{
+            'daplink_hic_id': u'97969900', 
+            'target_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'serial_port': u'COM3', 
+            'target_id_usb_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'daplink_auto_reset': u'0', 
+            'daplink_git_sha': u'392f85aa88a41125dec0b963ce73c6795b8bdd0d', 
+            'daplink_interface_version': u'0244', 
+            'daplink_overflow_detection': u'0', 
+            'daplink_daplink_mode': u'Interface', 
+            'target_id_mbed_htm': u'0240000034544e45001500048e41001b8321000097969900', 
+            'mount_point': 'D:', 
+            'daplink_automation_allowed': u'0', 
+            'daplink_interface_crc': u'0xc525d856', 
+            'daplink_local_mods': u'0', 
+            'daplink_unique_id': u'0240000034544e45001500048e41001b8321000097969900', 
+            'daplink_remount_count': u'0', 
+            'daplink_bootloader_crc': u'0xc4ebf65c', 
+            'platform_name': u'K64F', 
+            'platform_name_unique': u'K64F[0]', 
+            'daplink_bootloader_version': u'0244', 
+            'daplink_usb_interfaces': u'MSD, CDC, HID'
+
+        }],
         'details_invalid_none' : None
     }
 
@@ -84,6 +102,7 @@ class DetectTargetsTest(unittest.TestCase):
         """      
         self.missing_mount_point = None
         self.mount_point = "D:"
+        self.invalid_mount_point = "F:"
 
     def tearDown(self):
         """
@@ -102,21 +121,9 @@ class DetectTargetsTest(unittest.TestCase):
         :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
         :return 
         """
-
-        interface_version = get_interface_version(self.mount_point)
-        assert interface_version == '0240'
         
-    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_valid_version'))
-    def test_version_valid(self, mbed_lstools_mock):
-        """
-        Test that checks function returns correctly when given a valid Version
-        
-        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
-        :return 
-        """
-
         interface_version = get_interface_version(self.mount_point)
-        assert interface_version == '0226'
+        assert interface_version == '0244'
         
     @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_missing_interface_version'))
     def test_interface_version_missing_interface_version(self, mbed_lstools_mock):
@@ -143,7 +150,19 @@ class DetectTargetsTest(unittest.TestCase):
         
         interface_version = get_interface_version(self.mount_point)
         assert interface_version == 'unknown'
-    
+        
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_valid_interface_version'))
+    def test_interface_version_wrong_mount_point(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when there is no board attached to supplied mount point.
+        
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
+        
+        interface_version = get_interface_version(self.invalid_mount_point)
+        assert interface_version == 'unknown'
+        
     @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_invalid_none'))
     def test_interface_version_missing_mount_point(self, mbed_lstools_mock):
         """

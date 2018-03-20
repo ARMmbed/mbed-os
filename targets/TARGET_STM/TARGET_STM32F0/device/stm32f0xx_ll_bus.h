@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_bus.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of BUS LL module.
 
   @verbatim                

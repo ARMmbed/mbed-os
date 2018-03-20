@@ -19,7 +19,7 @@
 
 #include "blecommon.h"
 
-/// @cond 0
+/// @cond INVALID_SECTIONS
 
 /*!
     \brief

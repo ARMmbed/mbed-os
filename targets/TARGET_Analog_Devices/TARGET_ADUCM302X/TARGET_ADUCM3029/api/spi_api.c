@@ -59,12 +59,16 @@
 int adi_spi_memtype = 0;
 #endif
 #else
+/*******************************************************************************
+   ADI_SPI_DEV_DATA_TYPE Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
 ADI_SPI_HANDLE      spi_Handle0;
-uint8_t             spi_Mem0[ADI_SPI_MEMORY_SIZE];
+uint32_t            spi_Mem0[(ADI_SPI_MEMORY_SIZE + 3)/4];
 ADI_SPI_HANDLE      spi_Handle1;
-uint8_t             spi_Mem1[ADI_SPI_MEMORY_SIZE];
+uint32_t            spi_Mem1[(ADI_SPI_MEMORY_SIZE + 3)/4];
 ADI_SPI_HANDLE      spi_Handle2;
-uint8_t             spi_Mem2[ADI_SPI_MEMORY_SIZE];
+uint32_t            spi_Mem2[(ADI_SPI_MEMORY_SIZE + 3)/4];
 #if defined(ADI_DEBUG)
 #warning "BUILD_SPI_MI_DYNAMIC is NOT defined.  Memory allocation for SPI will be static"
 int adi_spi_memtype = 1;
@@ -92,7 +96,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
     ADI_SPI_HANDLE      *pSPI_Handle;
-    uint8_t             *SPI_Mem;
+    uint32_t            *SPI_Mem;
     ADI_SPI_RESULT      SPI_Return = ADI_SPI_SUCCESS;
     uint32_t            nDeviceNum = 0;
     ADI_SPI_CHIP_SELECT spi_cs = ADI_SPI_CS_NONE;

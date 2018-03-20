@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of SMARTCARD HAL Extended module.
   ******************************************************************************
   * @attention
@@ -65,8 +63,8 @@
   */
   
 /** @brief  Report the SMARTCARD clock source.
-  * @param  __HANDLE__: specifies the SMARTCARD Handle.
-  * @param  __CLOCKSOURCE__: output variable.
+  * @param  __HANDLE__ specifies the SMARTCARD Handle.
+  * @param  __CLOCKSOURCE__ output variable.
   * @retval the SMARTCARD clocking source, written in __CLOCKSOURCE__.
   */
 #if defined(STM32F031x6) || defined(STM32F038xx)

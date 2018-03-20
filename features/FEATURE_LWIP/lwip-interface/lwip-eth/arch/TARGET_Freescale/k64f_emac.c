@@ -140,7 +140,9 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
  */
 void enet_mac_rx_isr()
 {
-    osThreadFlagsSet(k64f_enetdata.thread, FLAG_RX);
+    if (k64f_enetdata.thread) {
+        osThreadFlagsSet(k64f_enetdata.thread, FLAG_RX);
+    }
 }
 
 void enet_mac_tx_isr()
@@ -246,6 +248,16 @@ static err_t low_level_init(struct netif *netif)
   config.txAccelerConfig = kENET_TxAccelIsShift16Enabled;
   config.rxAccelerConfig = kENET_RxAccelisShift16Enabled | kENET_RxAccelMacCheckEnabled;
   ENET_Init(ENET, &g_handle, &config, &buffCfg, netif->hwaddr, sysClock);
+
+#if defined(TOOLCHAIN_ARM)
+#if defined(__OPTIMISE_TIME) && (__ARMCC_VERSION < 5060750)
+  /* Add multicast groups
+     work around for https://github.com/ARMmbed/mbed-os/issues/4372 */
+  ENET->GAUR = 0xFFFFFFFFu;
+  ENET->GALR = 0xFFFFFFFFu;
+#endif
+#endif
+
   ENET_SetCallback(&g_handle, ethernet_callback, netif);
   ENET_ActiveRead(ENET);
 
@@ -745,6 +757,9 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
   /* Worker thread */
   k64f_enetdata.thread = sys_thread_new("k64f_emac_thread", emac_thread, netif->state, THREAD_STACKSIZE, THREAD_PRIORITY)->id;
+
+  /* Trigger thread to deal with any RX packets that arrived before thread was started */
+  enet_mac_rx_isr();
 
   return ERR_OK;
 }

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_ldma.c
  * @brief Direct memory access (LDMA) module peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -32,7 +32,7 @@
 
 #include "em_ldma.h"
 
-#if defined( LDMA_PRESENT ) && ( LDMA_COUNT == 1 )
+#if defined(LDMA_PRESENT) && (LDMA_COUNT == 1)
 
 #include <stddef.h>
 #include "em_assert.h"
@@ -50,7 +50,7 @@
  * @{
  ******************************************************************************/
 
-#if defined( LDMA_IRQ_HANDLER_TEMPLATE )
+#if defined(LDMA_IRQ_HANDLER_TEMPLATE)
 /***************************************************************************//**
  * @brief
  *   Template for an LDMA IRQ handler.
@@ -62,16 +62,13 @@ void LDMA_IRQHandler(void)
   uint32_t pending = LDMA_IntGetEnabled();
 
   /* Loop here on an LDMA error to enable debugging. */
-  while (pending & LDMA_IF_ERROR)
-  {
+  while (pending & LDMA_IF_ERROR) {
   }
 
   /* Iterate over all LDMA channels. */
-  for (ch = 0; ch < DMA_CHAN_COUNT; ch++)
-  {
+  for (ch = 0; ch < DMA_CHAN_COUNT; ch++) {
     uint32_t mask = 0x1 << ch;
-    if (pending & mask)
-    {
+    if (pending & mask) {
       /* Clear interrupt flag. */
       LDMA->IFC = mask;
 
@@ -204,7 +201,7 @@ void LDMA_StartTransfer(int ch,
   EFM_ASSERT(!((transfer->ldmaCfgArbSlots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
                & ~_LDMA_CH_CFG_ARBSLOTS_MASK));
   EFM_ASSERT(!((transfer->ldmaCfgSrcIncSign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
-               & ~_LDMA_CH_CFG_SRCINCSIGN_MASK ) );
+               & ~_LDMA_CH_CFG_SRCINCSIGN_MASK) );
   EFM_ASSERT(!((transfer->ldmaCfgDstIncSign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT)
                & ~_LDMA_CH_CFG_DSTINCSIGN_MASK));
   EFM_ASSERT(!((transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT)
@@ -228,37 +225,31 @@ void LDMA_StartTransfer(int ch,
   /* Enable channel interrupt. */
   LDMA->IEN |= chMask;
 
-  if (transfer->ldmaReqDis)
-  {
+  if (transfer->ldmaReqDis) {
     LDMA->REQDIS |= chMask;
   }
 
-  if (transfer->ldmaDbgHalt)
-  {
+  if (transfer->ldmaDbgHalt) {
     LDMA->DBGHALT |= chMask;
   }
 
   tmp = LDMA->CTRL;
 
-  if (transfer->ldmaCtrlSyncPrsClrOff)
-  {
+  if (transfer->ldmaCtrlSyncPrsClrOff) {
     tmp &= ~_LDMA_CTRL_SYNCPRSCLREN_MASK
            | (~transfer->ldmaCtrlSyncPrsClrOff << _LDMA_CTRL_SYNCPRSCLREN_SHIFT);
   }
 
-  if (transfer->ldmaCtrlSyncPrsClrOn)
-  {
+  if (transfer->ldmaCtrlSyncPrsClrOn) {
     tmp |= transfer->ldmaCtrlSyncPrsClrOn << _LDMA_CTRL_SYNCPRSCLREN_SHIFT;
   }
 
-  if (transfer->ldmaCtrlSyncPrsSetOff)
-  {
+  if (transfer->ldmaCtrlSyncPrsSetOff) {
     tmp &= ~_LDMA_CTRL_SYNCPRSSETEN_MASK
            | (~transfer->ldmaCtrlSyncPrsSetOff << _LDMA_CTRL_SYNCPRSSETEN_SHIFT);
   }
 
-  if (transfer->ldmaCtrlSyncPrsSetOn)
-  {
+  if (transfer->ldmaCtrlSyncPrsSetOn) {
     tmp |= transfer->ldmaCtrlSyncPrsSetOn << _LDMA_CTRL_SYNCPRSSETEN_SHIFT;
   }
 
@@ -290,7 +281,7 @@ void LDMA_StopTransfer(int ch)
   CORE_ATOMIC_SECTION(
     LDMA->IEN &= ~chMask;
     BUS_RegMaskedClear(&LDMA->CHEN, chMask);
-  )
+    )
 }
 
 /***************************************************************************//**
@@ -312,11 +303,10 @@ bool LDMA_TransferDone(int ch)
 
   CORE_ATOMIC_SECTION(
     if (((LDMA->CHEN & chMask) == 0)
-        && ((LDMA->CHDONE & chMask) == chMask))
-    {
-      retVal = true;
-    }
-  )
+        && ((LDMA->CHDONE & chMask) == chMask)) {
+    retVal = true;
+  }
+    )
   return retVal;
 }
 
@@ -346,15 +336,14 @@ uint32_t LDMA_TransferRemainingCount(int ch)
     iflag  = LDMA->IF;
     done   = LDMA->CHDONE;
     remaining = LDMA->CH[ch].CTRL;
-  )
+    )
 
   iflag    &= chMask;
   done     &= chMask;
   remaining = (remaining & _LDMA_CH_CTRL_XFERCNT_MASK)
               >> _LDMA_CH_CTRL_XFERCNT_SHIFT;
 
-  if (done || ((remaining == 0) && iflag))
-  {
+  if (done || ((remaining == 0) && iflag)) {
     return 0;
   }
 

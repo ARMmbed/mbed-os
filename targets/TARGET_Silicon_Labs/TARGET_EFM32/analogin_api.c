@@ -40,10 +40,10 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Init structure */
     obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->adc != NC);
+    MBED_ASSERT((unsigned int) obj->adc != NC);
 
     obj->channel = pin_location(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->channel != NC);
+    MBED_ASSERT((unsigned int) obj->channel != NC);
 
     /* Only initialize the ADC once */
     if (!adc_initialized) {

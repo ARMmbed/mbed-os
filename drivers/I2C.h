@@ -159,9 +159,9 @@ public:
 
     /** Start non-blocking I2C transfer.
      *
-     * This function locks the deep sleep until any event has occured
+     * This function locks the deep sleep until any event has occurred
      * 
-     * @param address   8/10 bit I2c slave address
+     * @param address   8/10 bit I2C slave address
      * @param tx_buffer The TX buffer with data to be transfered
      * @param tx_length The length of TX buffer in bytes
      * @param rx_buffer The RX buffer which is used for received data
@@ -176,11 +176,19 @@ public:
     /** Abort the on-going I2C transfer
      */
     void abort_transfer();
-protected:
+
+  protected:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep();
+
+    /** Unlock deep sleep only if it has been locked */
+    void unlock_deep_sleep();
+
     void irq_handler_asynch(void);
     event_callback_t _callback;
     CThunk<I2C> _irq;
     DMAUsage _usage;
+    bool _deep_sleep_locked;
 #endif
 
 protected:

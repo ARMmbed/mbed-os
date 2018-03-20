@@ -65,7 +65,31 @@ static const ble_gatts_rw_authorize_reply_params_t write_auth_invalid_reply = {
     }
 };
 
+static ble_error_t set_attribute_value(
+    Gap::Handle_t connectionHandle,
+    GattAttribute::Handle_t attributeHandle,
+    ble_gatts_value_t *value
+) {
+    uint32_t err = sd_ble_gatts_value_set(connectionHandle, attributeHandle, value);
+    switch(err) {
+        case NRF_SUCCESS:
+            return BLE_ERROR_NONE;
+        case NRF_ERROR_INVALID_ADDR:
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_NOT_FOUND:
+        case NRF_ERROR_DATA_SIZE:
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+        case BLE_ERROR_GATTS_INVALID_ATTR_TYPE:
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        case NRF_ERROR_FORBIDDEN:
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
 }
+
+} // end of anonymous namespace
 
 /**************************************************************************/
 /*!
@@ -106,6 +130,8 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             return BLE_ERROR_NO_MEM;
         }
         GattCharacteristic *p_char = service.getCharacteristic(i);
+        GattAttribute *p_description_descriptor = NULL;
+        GattAttribute *p_presentation_format_descriptor = NULL;
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
@@ -116,16 +142,24 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
 
         nordicUUID = custom_convert_to_nordic_uuid(p_char->getValueAttribute().getUUID());
 
-        /* The user-description descriptor is a special case which needs to be
-         * handled at the time of adding the characteristic. The following block
-         * is meant to discover its presence. */
+        /* The user-description and presentation-format descriptors are special cases
+         * that need to be handled at the time of adding each characteristic. The
+         * following block is meant to discover their presence. */
         const uint8_t *userDescriptionDescriptorValuePtr = NULL;
         uint16_t userDescriptionDescriptorValueLen = 0;
+        const uint8_t *presentationFormatDescriptorValuePtr = NULL;
+        uint16_t presentationFormatDescriptorValueLen = 0;
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
             if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+                p_description_descriptor = p_desc;
                 userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
                 userDescriptionDescriptorValueLen = p_desc->getLength();
+            }
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT) {
+                p_presentation_format_descriptor = p_desc;
+                presentationFormatDescriptorValuePtr = p_desc->getValuePtr();
+                presentationFormatDescriptorValueLen = p_desc->getLength();
             }
         }
 
@@ -140,6 +174,8 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                               p_char->getValueAttribute().hasVariableLength(),
                                               userDescriptionDescriptorValuePtr,
                                               userDescriptionDescriptorValueLen,
+                                              presentationFormatDescriptorValuePtr,
+                                              presentationFormatDescriptorValueLen,
                                               p_char->isReadAuthorizationEnabled(),
                                               p_char->isWriteAuthorizationEnabled(),
                                               &nrfCharacteristicHandles[characteristicCount]),
@@ -148,6 +184,15 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         /* Update the characteristic handle */
         p_characteristics[characteristicCount] = p_char;
         p_char->getValueAttribute().setHandle(nrfCharacteristicHandles[characteristicCount].value_handle);
+        if (p_description_descriptor) {
+            p_description_descriptor->setHandle(
+                nrfCharacteristicHandles[characteristicCount].user_desc_handle
+            );
+        }
+        if (p_presentation_format_descriptor) {
+            // The handle is not available from the SoftDevice
+            p_presentation_format_descriptor->setHandle(GattAttribute::INVALID_HANDLE);
+        }
         characteristicCount++;
 
         /* Add optional descriptors if any */
@@ -157,8 +202,10 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             }
 
             GattAttribute *p_desc = p_char->getDescriptor(j);
-            /* skip the user-description-descriptor here; this has already been handled when adding the characteristic (above). */
-            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+            /* skip the user-description or presentation-format descriptor here;
+             * they have already been handled when adding the characteristic (above). */
+            if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC
+                || p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_PRESENTATION_FORMAT) {
                 continue;
             }
 
@@ -285,53 +332,49 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
             connectionHandle = gap.getConnectionHandle();
         }
-        error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
-        if (error != ERROR_NONE) {
-            switch (error) {
-                case ERROR_BLE_NO_TX_BUFFERS: /*  Notifications consume application buffers. The return value can be used for resending notifications. */
-                case ERROR_BUSY:
-                    returnValue = BLE_STACK_BUSY;
-                    break;
 
-                case ERROR_INVALID_STATE:
-                case ERROR_BLEGATTS_SYS_ATTR_MISSING:
-                    returnValue = BLE_ERROR_INVALID_STATE;
-                    break;
+        bool updatesEnabled = false;
+        if (connectionHandle != BLE_CONN_HANDLE_INVALID) {
+            ble_error_t err = areUpdatesEnabled(connectionHandle, attributeHandle, &updatesEnabled);
 
-                default :
-                    ASSERT_INT( ERROR_NONE,
-                                sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
-                                BLE_ERROR_PARAM_OUT_OF_RANGE );
-
-                    /* Notifications consume application buffers. The return value can
-                     * be used for resending notifications. */
-                    returnValue = BLE_STACK_BUSY;
-                    break;
+            // FIXME: The softdevice allocates and populates CCCD when the client
+            // interract with them. Checking for updates may return an out of
+            // range error in such case.
+            if(err && err != BLE_ERROR_PARAM_OUT_OF_RANGE) {
+                return err;
             }
         }
-    } else {
-        uint32_t err = sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value);
-        switch(err) {
-            case NRF_SUCCESS:
-                returnValue = BLE_ERROR_NONE;
-                break;
-            case NRF_ERROR_INVALID_ADDR:
-            case NRF_ERROR_INVALID_PARAM:
-                returnValue = BLE_ERROR_INVALID_PARAM;
-                break;
-            case NRF_ERROR_NOT_FOUND:
-            case NRF_ERROR_DATA_SIZE:
-            case BLE_ERROR_INVALID_CONN_HANDLE:
-            case BLE_ERROR_GATTS_INVALID_ATTR_TYPE:
-                returnValue = BLE_ERROR_PARAM_OUT_OF_RANGE;
-                break;
-            case NRF_ERROR_FORBIDDEN:
-                returnValue = BLE_ERROR_OPERATION_NOT_PERMITTED;
-                break;
-            default:
-                returnValue = BLE_ERROR_UNSPECIFIED;
-                break;
+
+        if (updatesEnabled) {
+            error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
+            if (error != ERROR_NONE) {
+                switch (error) {
+                    case ERROR_BLE_NO_TX_BUFFERS: /*  Notifications consume application buffers. The return value can be used for resending notifications. */
+                    case ERROR_BUSY:
+                        returnValue = BLE_STACK_BUSY;
+                        break;
+
+                    case ERROR_INVALID_STATE:
+                    case ERROR_BLEGATTS_SYS_ATTR_MISSING:
+                        returnValue = BLE_ERROR_INVALID_STATE;
+                        break;
+
+                    default :
+                        ASSERT_INT( ERROR_NONE,
+                                    sd_ble_gatts_value_set(connectionHandle, attributeHandle, &value),
+                                    BLE_ERROR_PARAM_OUT_OF_RANGE );
+
+                        /* Notifications consume application buffers. The return value can
+                        * be used for resending notifications. */
+                        returnValue = BLE_STACK_BUSY;
+                        break;
+                }
+            }
+        } else {
+            returnValue = set_attribute_value(connectionHandle, attributeHandle, &value);
         }
+    } else {
+        returnValue = set_attribute_value(connectionHandle, attributeHandle, &value);
     }
 
     return returnValue;
@@ -346,7 +389,12 @@ ble_error_t nRF5xGattServer::areUpdatesEnabled(const GattCharacteristic &charact
 
 ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
 {
-    int characteristicIndex = resolveValueHandleToCharIndex(characteristic.getValueHandle());
+    return areUpdatesEnabled(connectionHandle, characteristic.getValueHandle(), enabledP);
+}
+
+ble_error_t nRF5xGattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, bool *enabledP)
+{
+    int characteristicIndex = resolveValueHandleToCharIndex(attributeHandle);
     if (characteristicIndex == -1) {
         return BLE_ERROR_INVALID_PARAM;
     }

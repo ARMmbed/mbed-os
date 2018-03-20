@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_irda_ex.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -83,8 +81,8 @@
   * @{
   */
 /** @brief  Reports the IRDA clock source.
-  * @param  __HANDLE__: specifies the IRDA Handle
-  * @param  __CLOCKSOURCE__ : output variable
+  * @param  __HANDLE__ specifies the IRDA Handle
+  * @param  __CLOCKSOURCE__  output variable
   * @retval IRDA clocking source, written in __CLOCKSOURCE__.
   */
 #define IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
@@ -173,7 +171,7 @@
 
 /** @brief  Reports the mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
-  * @param  __HANDLE__: specifies the IRDA Handle
+  * @param  __HANDLE__ specifies the IRDA Handle
   * @retval mask to apply to USART RDR register value.
   */    
 #define IRDA_MASK_COMPUTATION(__HANDLE__)                       \

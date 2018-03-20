@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
@@ -87,7 +85,7 @@
   *         by the reception API().
   *         This masking operation is not carried out in the case of
   *         DMA transfers.
-  * @param  __HANDLE__: specifies the USART Handle
+  * @param  __HANDLE__ specifies the USART Handle
   * @retval none
   */
 #define __HAL_USART_MASK_COMPUTATION(__HANDLE__)                      \
