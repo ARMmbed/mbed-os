@@ -3511,8 +3511,7 @@
             "TARGET_MCU_NRF51822",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
-            "NO_SYSTICK",
-            "MBED_TICKLESS"
+            "NO_SYSTICK"
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": [
@@ -3598,7 +3597,6 @@
             "I2C_ASYNCH",
             "INTERRUPTIN",
             "ITM",
-            "LOWPOWERTIMER",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
