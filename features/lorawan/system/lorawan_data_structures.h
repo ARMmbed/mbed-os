@@ -142,6 +142,7 @@ typedef enum {
 
 /*!
  * LoRaMAC channel parameters definition.
+ * DO NOT MODIFY, WILL BREAK THE API!
  */
 typedef union {
     /*!
@@ -174,6 +175,7 @@ typedef union {
 
 /*!
  * LoRaMAC channel definition.
+ * DO NOT MODIFY, WILL BREAK THE API!
  */
 typedef struct {
     /*!
@@ -1233,6 +1235,7 @@ typedef struct {
 
 /**
  * Structure to hold A list of LoRa Channels
+ * DO NOT MODIFY, WILL BREAK THE API!
  */
 typedef struct lora_channels_s {
     uint8_t id;
@@ -1720,6 +1723,9 @@ typedef struct  {
      mbed::Callback<uint8_t(void)> battery_level;
  } lorawan_app_callbacks_t;
 
+/**
+  * DO NOT MODIFY, WILL BREAK THE API!
+  */
 typedef struct lora_channelplan {
     uint8_t nb_channels;    // number of channels
     loramac_channel_t *channels;
