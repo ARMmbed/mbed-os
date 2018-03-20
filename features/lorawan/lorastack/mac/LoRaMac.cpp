@@ -1332,11 +1332,11 @@ void LoRaMac::reset_mac_parameters(void)
 
     get_phy.attribute = PHY_DEF_MAX_EIRP;
     phy_param = lora_phy->get_phy_params(&get_phy);
-    _params.sys_params.max_eirp = phy_param.value;
+    _params.sys_params.max_eirp = phy_param.f_value;
 
     get_phy.attribute = PHY_DEF_ANTENNA_GAIN;
     phy_param = lora_phy->get_phy_params(&get_phy);
-    _params.sys_params.antenna_gain = phy_param.value;
+    _params.sys_params.antenna_gain = phy_param.f_value;
 
     _params.is_node_ack_requested = false;
     _params.is_srv_ack_requested = false;
