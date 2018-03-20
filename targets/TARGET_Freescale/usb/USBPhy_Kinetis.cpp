@@ -195,6 +195,10 @@ void USBPhyHw::connect()
 
 void USBPhyHw::disconnect()
 {
+    // disable all endpoints to prevent them from nacking when disconnected
+    for(int i = 0; i < 16; i++) {
+        USB0->ENDPOINT[i].ENDPT = 0x00;
+    }
     // disable USB
     USB0->CTL &= ~USB_CTL_USBENSOFEN_MASK;
     // Pull up disable
