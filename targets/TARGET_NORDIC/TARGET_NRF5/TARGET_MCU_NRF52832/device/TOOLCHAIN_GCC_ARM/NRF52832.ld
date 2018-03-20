@@ -16,10 +16,17 @@
 
 /* Linker script to configure memory regions. */
 
+#include "mbed_config.h"
+#ifdef MBED_CONF_SD_RAM_ALLOC
+#define APP_RAM_BASE (0x20000000 + MBED_CONF_SD_RAM_ALLOC)
+#else
+#define APP_RAM_BASE 0x20002ef8
+#endif
+
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x1C000, LENGTH = 0x64000
-  RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
+  RAM (rwx) :  ORIGIN = APP_RAM_BASE, LENGTH = 0x20010000-APP_RAM_BASE
 }
 
 

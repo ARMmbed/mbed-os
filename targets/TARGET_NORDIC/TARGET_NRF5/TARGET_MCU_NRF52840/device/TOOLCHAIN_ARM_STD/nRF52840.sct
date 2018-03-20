@@ -8,16 +8,22 @@
   #define MBED_APP_SIZE 0xDF000
 #endif
 
+#if defined(MBED_CONF_SD_RAM_ALLOC)
+  #define APP_RAM_BASE (0x20000000 + MBED_CONF_SD_RAM_ALLOC)
+#else
+  #define APP_RAM_BASE 0x20003288
+#endif
+
 LR_IROM1 MBED_APP_START MBED_APP_SIZE  {
   ER_IROM1 MBED_APP_START MBED_APP_SIZE  {
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM0 0x20003288 UNINIT 0x000000F8  { ;no init section
+  RW_IRAM0 APP_RAM_BASE UNINIT 0x000000F8  { ;no init section
         *(*noinit)
   }
-  RW_IRAM1 0x20003380 0x0003cc80  {
+  RW_IRAM1 (APP_RAM_BASE + 0xF8) (0x20040000 - APP_RAM_BASE - 0xF8)  {
    .ANY (+RW +ZI)
   }
 }

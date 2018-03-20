@@ -3377,8 +3377,59 @@
         "default_lib": "std",
         "device_name": "ATSAMG55J19"
     },
-    "MCU_NRF51_UNIFIED": {
+    "MCU_NRF5": {
         "inherits": ["Target"],
+        "features": ["BLE"],
+        "config": {
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
+            "uart_hwfc": {
+                "help": "Value: 1 for enable, 0 for disable",
+                "value": 1,
+                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
+            },
+            "softdevice_ram_alloc": {
+                "help": "RAM set aside for the softdevice. 8 if no BLE/softdevice used else SD version specific. GCC only.",
+                "value": "8",
+                "macro_name": "MBED_CONF_SD_RAM_ALLOC"
+            },
+            "debug_softdevice_ram_alloc": {
+                "help": "If set, check RAM set aside for the softdevice. Will breakpoint/printf if a discrepancy is detected. GCC only.",
+                "value": "0",
+                "macro_name": "MBED_CONF_DEBUG_SD_RAM_ALLOC"
+            },
+            "nrf_central_link_count": {
+                "help": "When acting as BLE central, how many peripherals can connect",
+                "value": "3",
+                "macro_name": "MBED_CONF_NRF_CENTRAL_LINK_COUNT"
+            },
+            "nrf_peripheral_link_count": {
+                "help": "When acting as BLE peripheral, how many centrals can we conenct to",
+                "value": "1",
+                "macro_name": "MBED_CONF_NRF_PERIPHERAL_LINK_COUNT"
+            },
+            "nrf_gatt_attr_tab_size": {
+                "help": "The size of the table used to hold gatts. Can be adjusted by trial and error",
+                "value": "0x600",
+                "macro_name": "MBED_CONF_NRF_GATTS_ATTR_TAB_SIZE"
+            },
+            "nrf_uuid_table_max_entries": {
+                "help": "maximum number of 128-bit UUIDs with distinct bases that we expect to be in use",
+                "value": "4",
+                "macro_name": "MBED_CONF_NRF_UUID_TABLE_MAX_ENTRIES"
+            },
+            "nrf_is_srvc_changed_charact_present": {
+                "help": "select whether to include the Service Changed characteristic in the GATT Server",
+                "value": "1",
+                "macro_name": "MBED_CONF_NRF_IS_SRVC_CHANGED_CHARACT_PRESENT"
+            }
+        },
+        "public": false
+    },
+    "MCU_NRF51_UNIFIED": {
+        "inherits": ["MCU_NRF5"],
         "core": "Cortex-M0",
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
         "macros": [
@@ -3413,25 +3464,14 @@
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "program_cycle_s": 6,
-        "features": ["BLE"],
-        "config": {
-            "lf_clock_src": {
-                "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            },
-            "uart_hwfc": {
-                "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
-                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
-            }
-        },
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "MCU_NRF51_32K_UNIFIED": {
         "inherits": ["MCU_NRF51_UNIFIED"],
         "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
         "macros_add": ["TARGET_MCU_NORDIC_32K", "TARGET_MCU_NRF51_32K"],
-        "public": false
+        "public": false,
+        "overrides": { "softdevice_ram_alloc": "0x2ef8" }
     },
     "NRF51_DK": {
         "supported_form_factors": ["ARDUINO"],
@@ -3453,7 +3493,7 @@
         "device_name": "nRF51822_xxAC"
     },
     "MCU_NRF52": {
-        "inherits": ["Target"],
+        "inherits": ["MCU_NRF5"],
         "core": "Cortex-M4F",
         "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
         "device_has": ["STCLK_OFF_DURING_SLEEP", "ITM", "TRNG"],
@@ -3477,18 +3517,7 @@
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "MERGE_BOOTLOADER": false,
-        "features": ["BLE"],
-        "config": {
-            "lf_clock_src": {
-                "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            },
-            "uart_hwfc": {
-                "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
-                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
-            }
-        }
+        "overrides": { "softdevice_ram_alloc": "0x2ef8" }
     },
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
@@ -3615,7 +3644,8 @@
                 "value": 1,
                 "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
-        }
+        },
+        "overrides": { "softdevice_ram_alloc": "0x3288" }
     },
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
