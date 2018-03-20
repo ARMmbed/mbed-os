@@ -49,6 +49,8 @@
 #endif
 #define MAX_PACKET_SIZE_EP0 64
 
+#define USB_MIN(a, b) ((a) > (b) ? (b) : (a))
+
 
 bool USBDevice::_request_get_descriptor()
 {
@@ -224,7 +226,7 @@ bool USBDevice::_control_out()
             complete_request_xfer_done(true);
         }
     } else {
-        _phy->ep0_read(_transfer.ptr, _transfer.remaining);
+        _phy->ep0_read(_transfer.ptr, USB_MIN(_transfer.remaining, _max_packet_size_ep0));
     }
 
     return true;
@@ -800,7 +802,7 @@ void USBDevice::_control_setup_continue()
         } else {
             /* OUT stage */
             _transfer.stage = DataOut;
-            _phy->ep0_read(_transfer.ptr, _transfer.remaining);
+            _phy->ep0_read(_transfer.ptr, USB_MIN(_transfer.remaining, _max_packet_size_ep0));
         }
     } else {
         /* Status stage */
