@@ -68,7 +68,7 @@ static sleep_statistic_t* sleep_tracker_add(const char* const filename)
 
 static void sleep_tracker_print_stats(void)
 {
-    if (core_util_in_critical_section()) {
+    if (core_util_in_critical_section() || core_util_is_isr_active()) {
         return;
     }
 
