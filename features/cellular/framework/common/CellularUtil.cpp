@@ -168,7 +168,7 @@ void separate_ip_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size
             if (ip2 && (ip2_size > strlen(temp))) {
                 memcpy(ip2, temp, strlen(temp));
                 ip2[strlen(temp)] = '\0';
-            } else {
+            } else if (ip2) {
                 ip2[0] = '\0';
             }
         } else {
