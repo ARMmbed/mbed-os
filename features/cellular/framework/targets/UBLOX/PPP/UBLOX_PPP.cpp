@@ -15,30 +15,33 @@
  * limitations under the License.
  */
 
-#include "UBLOX_LISA_U_CellularNetwork.h"
+#include "UBLOX_PPP.h"
+#include "UBLOX_PPP_CellularNetwork.h"
+#include "UBLOX_PPP_CellularPower.h"
 
 using namespace mbed;
+using namespace events;
 
-UBLOX_LISA_U_CellularNetwork::UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+UBLOX_PPP::UBLOX_PPP(EventQueue &queue) : AT_CellularDevice(queue)
 {
 }
 
-UBLOX_LISA_U_CellularNetwork::~UBLOX_LISA_U_CellularNetwork()
+UBLOX_PPP::~UBLOX_PPP()
 {
 }
 
-bool UBLOX_LISA_U_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
+CellularNetwork *UBLOX_PPP::open_network(FileHandle *fh)
 {
-    return requested_stack == IPV4_STACK ? true : false;
+    if (!_network) {
+        _network = new UBLOX_PPP_CellularNetwork(*get_at_handler(fh));
+    }
+    return _network;
 }
 
-bool UBLOX_LISA_U_CellularNetwork::has_registration(RegistrationType reg_type)
+CellularPower *UBLOX_PPP::open_power(FileHandle *fh)
 {
-    return (reg_type == C_REG || reg_type == C_GREG);
-}
-
-nsapi_error_t UBLOX_LISA_U_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opRat)
-{
-    _op_act = operator_t::RAT_UNKNOWN;
-    return NSAPI_ERROR_UNSUPPORTED;
+    if (!_power) {
+        _power = new UBLOX_PPP_CellularPower(*get_at_handler(fh));
+    }
+    return _power;
 }

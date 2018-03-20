@@ -15,27 +15,35 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_LISA_U_CELLULAR_NETWORK_H_
-#define UBLOX_LISA_U_CELLULAR_NETWORK_H_
+#include "UBLOX_PPP_CellularPower.h"
 
-#include "AT_CellularNetwork.h"
+#include "onboard_modem_api.h"
 
-namespace mbed {
+using namespace mbed;
 
-class UBLOX_LISA_U_CellularNetwork : public AT_CellularNetwork
+UBLOX_PPP_CellularPower::UBLOX_PPP_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
 {
-public:
-    UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler);
-    virtual ~UBLOX_LISA_U_CellularNetwork();
 
-protected:
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
+}
 
-    virtual bool has_registration(RegistrationType rat);
+UBLOX_PPP_CellularPower::~UBLOX_PPP_CellularPower()
+{
 
-    virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
-};
+}
 
-} // namespace mbed
+nsapi_error_t UBLOX_PPP_CellularPower::on()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
+}
 
-#endif // UBLOX_LISA_U_CELLULAR_NETWORK_H_
+nsapi_error_t UBLOX_PPP_CellularPower::off()
+{
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
+}

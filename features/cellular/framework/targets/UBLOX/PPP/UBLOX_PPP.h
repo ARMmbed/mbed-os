@@ -15,33 +15,25 @@
  * limitations under the License.
  */
 
-#include "UBLOX_LISA_U.h"
-#include "UBLOX_LISA_U_CellularNetwork.h"
-#include "UBLOX_LISA_U_CellularPower.h"
+#ifndef UBLOX_PPP_H_
+#define UBLOX_PPP_H_
 
-using namespace mbed;
-using namespace events;
+#include "AT_CellularDevice.h"
 
-UBLOX_LISA_U::UBLOX_LISA_U(EventQueue &queue) : AT_CellularDevice(queue)
+namespace mbed {
+
+class UBLOX_PPP : public AT_CellularDevice
 {
-}
 
-UBLOX_LISA_U::~UBLOX_LISA_U()
-{
-}
+public:
+    UBLOX_PPP(events::EventQueue &queue);
+    virtual ~UBLOX_PPP();
 
-CellularNetwork *UBLOX_LISA_U::open_network(FileHandle *fh)
-{
-    if (!_network) {
-        _network = new UBLOX_LISA_U_CellularNetwork(*get_at_handler(fh));
-    }
-    return _network;
-}
+public: // CellularDevice
+    virtual CellularNetwork *open_network(FileHandle *fh);
+    virtual CellularPower *open_power(FileHandle *fh);
+};
 
-CellularPower *UBLOX_LISA_U::open_power(FileHandle *fh)
-{
-    if (!_power) {
-        _power = new UBLOX_LISA_U_CellularPower(*get_at_handler(fh));
-    }
-    return _power;
-}
+} // namespace mbed
+
+#endif // UBLOX_PPP_H_

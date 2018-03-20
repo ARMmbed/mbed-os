@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_LISA_U_CELLULARPOWER_H_
-#define UBLOX_LISA_U_CELLULARPOWER_H_
+#ifndef UBLOX_PPP_CELLULARPOWER_H_
+#define UBLOX_PPP_CELLULARPOWER_H_
 
 #include "AT_CellularPower.h"
 
 namespace mbed {
 
-class UBLOX_LISA_U_CellularPower : public AT_CellularPower
+class UBLOX_PPP_CellularPower : public AT_CellularPower
 {
 public:
-    UBLOX_LISA_U_CellularPower(ATHandler &atHandler);
-    virtual ~UBLOX_LISA_U_CellularPower();
+    UBLOX_PPP_CellularPower(ATHandler &atHandler);
+    virtual ~UBLOX_PPP_CellularPower();
 
 public: //from CellularPower
 
@@ -37,4 +37,4 @@ public: //from CellularPower
 
 } // namespace mbed
 
-#endif // UBLOX_LISA_U_CELLULARPOWER_H_
+#endif // UBLOX_PPP_CELLULARPOWER_H_
