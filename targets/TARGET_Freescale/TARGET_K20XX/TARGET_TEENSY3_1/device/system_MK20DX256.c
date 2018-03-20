@@ -25,7 +25,7 @@
 **
 ** ###################################################################
 */
-
+ 
 /**
  * @file MK20DX256
  * @version 1.0
@@ -36,13 +36,13 @@
  * the system frequency. It configures the device and initializes the oscillator
  * (PLL) that is part of the microcontroller device.
  */
-
+ 
 #include <stdint.h>
 #include "MK20DX256.h"
-
+ 
 #define DISABLE_WDOG    1
-
-#define CLOCK_SETUP     1
+ 
+#define CLOCK_SETUP     3
 /* Predefined clock setups
    0 ... Multipurpose Clock Generator (MCG) in FLL Engaged Internal (FEI) mode
          Reference clock source for MCG module is the slow internal clock source 32.768kHz
@@ -55,9 +55,12 @@
    2 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
          Reference clock source for MCG module is an external crystal 16MHz
          Core clock = 72MHz, BusClock = 36MHz
-            Alternative standard 'slower' Teensy3.1 72Mhz set up      
+            Alternative standard 'slower' Teensy3.1 72Mhz set up    
+   3 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
+         Reference clock source for MCG module is an external crystal 16Mhz
+         Core clock = 120Mhz, BusClock = 60Mhz, FlashClock = 30Mhz  
 */
-
+ 
 /*----------------------------------------------------------------------------
   Define clock source values
  *----------------------------------------------------------------------------*/
@@ -78,22 +81,28 @@
     #define CPU_XTAL32k_CLK_HZ              32768u   /* Value of the external 32k crystal or oscillator clock frequency in Hz */
     #define CPU_INT_SLOW_CLK_HZ             32768u   /* Value of the slow internal oscillator clock frequency in Hz  */
     #define CPU_INT_FAST_CLK_HZ             4000000u /* Value of the fast internal oscillator clock frequency in Hz  */
-    #define DEFAULT_SYSTEM_CLOCK            72000000u /* Default System clock value */         
+    #define DEFAULT_SYSTEM_CLOCK            72000000u /* Default System clock value */       
+#elif (CLOCK_SETUP == 3)
+    #define CPU_XTAL_CLK_HZ                 16000000u /* Value of the external crystal or oscillator clock frequency in Hz */
+    #define CPU_XTAL32k_CLK_HZ              32768u   /* Value of the external 32k crystal or oscillator clock frequency in Hz */
+    #define CPU_INT_SLOW_CLK_HZ             32768u   /* Value of the slow internal oscillator clock frequency in Hz  */
+    #define CPU_INT_FAST_CLK_HZ             4000000u /* Value of the fast internal oscillator clock frequency in Hz  */
+    #define DEFAULT_SYSTEM_CLOCK            120000000u /* Default System clock value */       
 #endif /* (CLOCK_SETUP == 2) */
-
-
+ 
+ 
 /* ----------------------------------------------------------------------------
    -- Core clock
    ---------------------------------------------------------------------------- */
-
+ 
 uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
-
+ 
 /* ----------------------------------------------------------------------------
    -- SystemInit()
    ---------------------------------------------------------------------------- */
 void SystemInit (void) {
   /* SystemInit MUST NOT use any variables from the .data section, as this section is not loaded yet! */
-
+ 
 #if (DISABLE_WDOG)
   /* Disable the WDOG module */
   /* WDOG_UNLOCK: WDOGUNLOCK=0xC520 */
@@ -103,7 +112,7 @@ void SystemInit (void) {
   /* WDOG_STCTRLH: DISTESTWDOG=0,BYTESEL=0,TESTSEL=0,TESTWDOG=0,STNDBYEN=1,WAITEN=1,STOPEN=1,DBGEN=0,ALLOWUPDATE=1,WINEN=0,IRQRSTEN=0,CLKSRC=1,WDOGEN=0 */
   WDOG->STCTRLH = (uint16_t)0x01D2u;
 #endif /* (DISABLE_WDOG) */
-
+ 
 #if (CLOCK_SETUP == 0)
   /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 Set Prescalers 41.94MHz cpu, 41.94MHz system, 20.97MHz flash*/
   SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV4(1);
@@ -192,17 +201,53 @@ void SystemInit (void) {
   MCG->C1 = MCG_C1_FRDIV(2) | MCG_C1_IRCLKEN_MASK;
   while((MCG->S & 0x0Cu) != 0x0Cu) { } /* Wait until output of the PLL is selected */
   while((MCG->S & MCG_S_LOCK0_MASK) == 0u) { } /* Wait until locked */    
+#elif (CLOCK_SETUP == 3)
+  /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=1,OUTDIV4=3 Set Prescalers 120MHz cpu, 60MHz bus, 30MHz flash*/
+  SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0) | SIM_CLKDIV1_OUTDIV2(1) |  SIM_CLKDIV1_OUTDIV4(3);
+  /* SIM->CLKDIV2: USBDIV=2, Divide 120MHz system clock for USB 48MHz */
+  //SIM->CLKDIV2 = SIM_CLKDIV2_USBDIV(1);  
+  SIM->CLKDIV2 = SIM_CLKDIV2_USBDIV(4) | SIM_CLKDIV2_USBFRAC_MASK;      // Set USBFRAC = 1     USBFRAC+1 / USBDIV+1  2/5 = 0.4 * 120 = 48
+  /* OSC0->CR: ERCLKEN=0,EREFSTEN=0,SC2P=1,SC4P=0,SC8P=1,SC16P=0 10pF loading capacitors for 16MHz system oscillator*/
+  OSC0->CR = OSC_CR_SC8P_MASK | OSC_CR_SC2P_MASK;
+  /* Switch to FBE Mode */
+  /* MCG->C7: OSCSEL=0 */
+  MCG->C7 = (uint8_t)0x00u;
+  /* MCG->C2: LOCKRE0=0,RANGE0=2,HGO=0,EREFS=1,LP=0,IRCS=0 */
+  MCG->C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS0_MASK;
+  //MCG->C2 = (uint8_t)0x24u;
+  /* MCG->C1: CLKS=2,FRDIV=3,IREFS=0,IRCLKEN=1,IREFSTEN=0 */
+  MCG->C1 = MCG_C1_CLKS(2) | MCG_C1_FRDIV(3) | MCG_C1_IRCLKEN_MASK;
+  /* MCG->C4: DMX32=0,DRST_DRS=0,FCTRIM=0,SCFTRIM=0 */  
+  MCG->C4 &= (uint8_t)~(uint8_t)0xE0u; 
+  /* MCG->C5: PLLCLKEN=0,PLLSTEN=0,PRDIV0=7 */
+  MCG->C5 = MCG_C5_PRDIV0(7);
+  /* MCG->C6: LOLIE=0,PLLS=0,CME=0,VDIV0=0 */
+  MCG->C6 = (uint8_t)0x00u;
+  while((MCG->S & MCG_S_OSCINIT0_MASK) == 0u) { } /* Check that the oscillator is running */
+  while((MCG->S & 0x0Cu) != 0x08u) { } /* Wait until external reference clock is selected as MCG output */
+  /* Switch to PBE Mode */
+  /* MCG_C5: PLLCLKEN=0,PLLSTEN=0,PRDIV0=5 */
+  MCG->C5 = MCG_C5_PRDIV0(3); // config PLL input for 16 MHz Crystal / 4 = 4 MHz
+  /* MCG->C6: LOLIE=0,PLLS=1,CME=0,VDIV0=3 */
+  MCG->C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV0(6);// config PLL for 120 MHz output
+  while((MCG->S & MCG_S_PLLST_MASK) == 0u) { } /* Wait until the source of the PLLS clock has switched to the PLL */
+  while((MCG->S & MCG_S_LOCK0_MASK) == 0u) { } /* Wait until locked */
+  /* Switch to PEE Mode */
+  /* MCG->C1: CLKS=0,FRDIV=2,IREFS=0,IRCLKEN=1,IREFSTEN=0 */
+  MCG->C1 = MCG_C1_FRDIV(2) | MCG_C1_IRCLKEN_MASK;
+  while((MCG->S & 0x0Cu) != 0x0Cu) { } /* Wait until output of the PLL is selected */
+  while((MCG->S & MCG_S_LOCK0_MASK) == 0u) { } /* Wait until locked */ 
 #endif /* (CLOCK_SETUP) */
 }
-
+ 
 /* ----------------------------------------------------------------------------
    -- SystemCoreClockUpdate()
    ---------------------------------------------------------------------------- */
-
+ 
 void SystemCoreClockUpdate (void) {
   uint32_t MCGOUTClock;                                                        /* Variable to store output clock frequency of the MCG module */
   uint8_t Divider;
-
+ 
   if ((MCG->C1 & MCG_C1_CLKS_MASK) == 0x0u) {
     /* Output of FLL or PLL is selected */
     if ((MCG->C6 & MCG_C6_PLLS_MASK) == 0x0u) {
