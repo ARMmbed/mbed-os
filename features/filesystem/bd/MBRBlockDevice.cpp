@@ -276,6 +276,11 @@ bd_size_t MBRBlockDevice::get_erase_size() const
     return _bd->get_erase_size();
 }
 
+bd_size_t MBRBlockDevice::get_erase_size(bd_addr_t addr) const
+{
+    return _bd->get_erase_size(_offset + addr);
+}
+
 int MBRBlockDevice::get_erase_value() const
 {
     return _bd->get_erase_value();

@@ -135,14 +135,25 @@ public:
      */
     virtual bd_size_t get_program_size() const = 0;
 
-    /** Get the size of a eraseable block
+    /** Get the size of an erasable block
      *
-     *  @return         Size of a eraseable block in bytes
+     *  @return         Size of an erasable block in bytes
      *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size() const
     {
         return get_program_size();
+    }
+
+    /** Get the size of an erasable block given address
+     *
+     *  @param addr     Address within the erasable block
+     *  @return         Size of an erasable block in bytes
+     *  @note Must be a multiple of the program size
+     */
+    virtual bd_size_t get_erase_size(bd_addr_t addr) const
+    {
+        return get_erase_size();
     }
 
     /** Get the value of storage when erased
