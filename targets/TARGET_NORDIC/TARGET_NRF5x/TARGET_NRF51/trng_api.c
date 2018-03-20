@@ -36,7 +36,7 @@
  *
  */
 
-#if defined(DEVICE_TRNG)
+#if (defined(DEVICE_TRNG) && defined(DEVICE_LPTICKER))
 
 #include "hal/trng_api.h"
 #include "hal/lp_ticker_api.h"
