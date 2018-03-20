@@ -1,0 +1,11 @@
+{
+    "name": "storagelite",
+    "macros": ["MBEDTLS_CIPHER_MODE_CTR", "MBEDTLS_CMAC_C"],
+    "config": {
+        "max_files": {
+            "macro_name": "STORAGELITE_MAX_FILES",
+            "value": 64,
+            "help": "Maximal number of files"
+        }
+    }
+}
