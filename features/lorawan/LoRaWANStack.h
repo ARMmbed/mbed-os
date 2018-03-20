@@ -77,6 +77,24 @@ SPDX-License-Identifier: BSD-3-Clause
 #define LORAWAN_NETWORK_ID_MASK                          ( uint32_t )0xFE000000
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
+private:
+    /** End-device states.
+     *
+     */
+    typedef enum device_states {
+        DEVICE_STATE_NOT_INITIALIZED,
+        DEVICE_STATE_INIT,
+        DEVICE_STATE_JOINING,
+        DEVICE_STATE_ABP_CONNECTING,
+        DEVICE_STATE_JOINED,
+        DEVICE_STATE_SEND,
+        DEVICE_STATE_IDLE,
+#if defined(LORAWAN_COMPLIANCE_TEST)
+        DEVICE_STATE_COMPLIANCE_TEST,
+#endif
+        DEVICE_STATE_SHUTDOWN
+    } device_states_t;
+
 public:
     static LoRaWANStack& get_lorawan_stack();
 
@@ -424,6 +442,24 @@ private:
      */
     uint16_t check_possible_tx_size(uint16_t size);
 
+private:
+
+    LoRaWANTimeHandler _lora_time;
+    LoRaMac _loramac;
+    LoRaPHY_region _lora_phy;
+    loramac_primitives_t LoRaMacPrimitives;
+
+    device_states_t _device_current_state;
+    lorawan_app_callbacks_t _callbacks;
+    radio_events_t *_mac_handlers;
+    lorawan_session_t _lw_session;
+    loramac_tx_message_t _tx_msg;
+    loramac_rx_message_t _rx_msg;
+    uint8_t _num_retry;
+    uint8_t _app_port;
+    bool _duty_cycle_on;
+    events::EventQueue *_queue;
+
 #if defined(LORAWAN_COMPLIANCE_TEST)
     /**
      * This function is used only for compliance testing
@@ -439,28 +475,10 @@ private:
      * Used only for compliance testing
      */
     lorawan_status_t send_compliance_test_frame_to_mac();
-#endif
 
-    LoRaWANTimeHandler _lora_time;
-    LoRaMac _loramac;
-    LoRaPHY_region _lora_phy;
-    loramac_primitives_t LoRaMacPrimitives;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
     uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
     compliance_test_t _compliance_test;
 #endif
-
-    device_states_t _device_current_state;
-    lorawan_app_callbacks_t _callbacks;
-    radio_events_t *_mac_handlers;
-    lorawan_session_t _lw_session;
-    loramac_tx_message_t _tx_msg;
-    loramac_rx_message_t _rx_msg;
-    uint8_t _app_port;
-    uint8_t _num_retry;
-    events::EventQueue *_queue;
-    bool _duty_cycle_on;
 };
 
 #endif /* LORAWANSTACK_H_ */

@@ -49,55 +49,30 @@ public:
      */
     ~LoRaMacMcps();
 
+    /**
+     * @brief reset_confirmation Resets the confirmation struct
+     */
+    void reset_confirmation();
+
     /** Activating MCPS subsystem
      *
      * Stores pointers to MAC and PHY layer handles
-     *
-     * @param mac    pointer to MAC layer
-     * @param phy    pointer to PHY layer
      */
-    void activate_mcps_subsystem(LoRaMac *mac, LoRaPHY *phy);
-
-    /** Sets up an MCPS Request
-     *
-     * Sets up an MCPS request and sends it through to the central MAC control.
-     * It also modifies or uses protocol information provided in the MAC
-     * protocol data structure.
-     *
-     * @param mcpsRequest    pointer to MCPS request structure
-     * @param params         pointer to MAC protocol parameters
-     *
-     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
-     *                       a negative error code is returned.
-     */
-    lorawan_status_t set_request(loramac_mcps_req_t *mcpsRequest, loramac_protocol_params *params);
+    void activate_mcps_subsystem();
 
     /** Grants access to MCPS confirmation data
      *
      * @return               a reference to MCPS confirm data structure
      */
-    inline loramac_mcps_confirm_t& get_confirmation()
-    {
-        return confirmation;
-    }
+    loramac_mcps_confirm_t& get_confirmation();
 
     /** Grants access to MCPS indication data
      *
      * @return               a reference to MCPS indication data structure
      */
-    inline loramac_mcps_indication_t& get_indication()
-    {
-        return indication;
-    }
-
+    loramac_mcps_indication_t& get_indication();
 
 private:
-
-    /**
-     * Pointers to MAC and PHY handles
-     */
-    LoRaMac *_lora_mac;
-    LoRaPHY *_lora_phy;
 
     /**
      * Structure to hold MCPS indication data.
