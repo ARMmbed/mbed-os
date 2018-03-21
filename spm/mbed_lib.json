@@ -56,6 +56,12 @@
         },
         "ARCH_PRO": {
             "enable": 0
+        },
+        "K22F": {
+            "enable": 0
+        },
+        "NCS36510": {
+            "enable": 0
         }
     }
 }
