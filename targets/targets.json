@@ -3493,6 +3493,19 @@
         },
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
+    "MCU_NRF51_16K_UNIFIED_S130": {
+        "inherits": ["MCU_NRF51_UNIFIED"],
+        "extra_labels_add": ["MCU_NORDIC_16K", "MCU_NRF51_16K_S130", "MCU_NRF51_16K"],
+        "macros_add": ["TARGET_MCU_NORDIC_16K", "TARGET_MCU_NRF51_16K_S130", "TARGET_MCU_NRF51_16K"],
+        "public": false
+    },
+    "Raytac_MDBT40": {
+        "inherits": ["MCU_NRF51_16K_UNIFIED_S130"],
+        "macros_add": ["TARGET_NRF_LFCLK_RC"],
+        "release_versions": ["2"],
+        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_name": "nRF51822_xxAA"
+    },
     "MCU_NRF51_32K_UNIFIED": {
         "inherits": ["MCU_NRF51_UNIFIED"],
         "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
