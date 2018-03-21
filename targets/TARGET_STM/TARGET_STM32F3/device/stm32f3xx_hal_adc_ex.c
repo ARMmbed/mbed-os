@@ -5660,12 +5660,6 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
       /* Set handle of the other ADC sharing the same common register         */
       ADC_COMMON_ADC_OTHER(hadc, &tmphadcSharingSameCommonRegister);
       
-      /* Software is allowed to change common parameters only when all ADCs   */
-      /* of the common group are disabled.                                    */
-      if ((ADC_IS_ENABLE(hadc) == RESET)                                    &&
-          ( (tmphadcSharingSameCommonRegister.Instance == NULL)         ||
-            (ADC_IS_ENABLE(&tmphadcSharingSameCommonRegister) == RESET)   )   )
-      {
         /* If Channel_16 is selected, enable Temp. sensor measurement path    */
         /* Note: Temp. sensor internal channels available on ADC1 only        */
         if ((sConfig->Channel == ADC_CHANNEL_TEMPSENSOR) && (hadc->Instance == ADC1))
@@ -5694,17 +5688,6 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
         {
           SET_BIT(tmpADC_Common->CCR, ADC_CCR_VREFEN);
         }
-      }
-      /* If the requested internal measurement path has already been          */
-      /* enabled and other ADC of the common group are enabled, internal      */
-      /* measurement paths cannot be enabled.                                 */
-      else  
-      {
-        /* Update ADC state machine to error */
-        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
-        
-        tmp_hal_status = HAL_ERROR;
-      }
     }
     
   }
