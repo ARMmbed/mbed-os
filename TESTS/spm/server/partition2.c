@@ -41,12 +41,12 @@ void part2_main(void *ptr)
                         SPM_PANIC("got a zero message size to REVERSE SF\n");
                     }
 
-                    psa_read(msg.handle, 0, &len, sizeof(len));
+                    len = msg.size[0];
                     str = (char*)malloc(sizeof(char) * len);
                     if (NULL == str) {
                         SPM_PANIC("memory allocation failure\n");
                     }
-                    psa_read(msg.handle, 1, str, len);
+                    psa_read(msg.handle, 0, str, len);
                     for(size_t i = 0; i < len / 2; i ++) {
                         char a = str[i];
                         str[i] = str[len - i - 1];
