@@ -66,6 +66,7 @@ public:
      *  @param pin InterruptIn pin to connect to
      */
     InterruptIn(PinName pin);
+
     /** Create an InterruptIn connected to the specified pin,
      *  and the pin configured to the specified mode.
      *
@@ -73,6 +74,7 @@ public:
      *  @param mode The mode to set the pin to (PullUp/PullDown/etc.)
      */
     InterruptIn(PinName pin, PinMode mode);
+
     virtual ~InterruptIn();
 
     /** Read the input, represented as 0 or 1 (int)
