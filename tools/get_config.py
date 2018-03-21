@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
+from __future__ import print_function
 import sys
 from os.path import isdir, abspath, dirname, join
 from os import _exit
@@ -28,8 +29,8 @@ from tools.utils import args_error
 from tools.options import get_default_options_parser
 from tools.options import extract_mcus
 from tools.build_api import get_config
-from config import Config
-from utils import argparse_filestring_type
+from tools.config import Config
+from tools.utils import argparse_filestring_type
 try:
     import tools.private_settings as ps
 except:
@@ -62,31 +63,31 @@ if __name__ == '__main__':
     try:
         params, macros, features = get_config(options.source_dir, target, toolchain)
         if not params and not macros:
-            print "No configuration data available."
+            print("No configuration data available.")
             _exit(0)
         if params:
-            print "Configuration parameters"
-            print "------------------------"
+            print("Configuration parameters")
+            print("------------------------")
             for p in sorted(params):
                 for s in options.prefix:
                     if p.startswith(s):
                         print(str(params[p]) if not options.verbose else params[p].get_verbose_description())
                         break
-            print ""
+            print("")
 
-        print "Macros"
-        print "------"
+        print("Macros")
+        print("------")
         if macros:
-            print 'Defined with "macros":', Config.config_macros_to_macros(macros)
-        print "Generated from configuration parameters:", Config.parameters_to_macros(params)
+            print('Defined with "macros":', Config.config_macros_to_macros(macros))
+        print("Generated from configuration parameters:", Config.parameters_to_macros(params))
 
-    except KeyboardInterrupt, e:
-        print "\n[CTRL+c] exit"
-    except Exception,e:
+    except KeyboardInterrupt as e:
+        print("\n[CTRL+c] exit")
+    except Exception as e:
         if options.verbose:
             import traceback
             traceback.print_exc(file=sys.stdout)
         else:
-            print "[ERROR] %s" % str(e)
+            print("[ERROR] %s" % str(e))
 
         sys.exit(1)
