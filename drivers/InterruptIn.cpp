@@ -19,14 +19,31 @@
 
 namespace mbed {
 
+// Note: This single-parameter constructor exists to maintain binary
+//       compatibility.
+//       If not for that, we could simplify by having only the 2-param
+//       constructor, with a default value for the PinMode.
+InterruptIn::InterruptIn(PinName pin) : gpio(),
+                                        gpio_irq(),
+                                        _rise(NULL),
+                                        _fall(NULL) {
+    // No lock needed in the constructor
+    irq_init(pin);
+    gpio_init_in(&gpio, pin);
+}
+
 InterruptIn::InterruptIn(PinName pin, PinMode mode) :
                                         gpio(),
                                         gpio_irq(),
                                         _rise(NULL),
                                         _fall(NULL) {
     // No lock needed in the constructor
-    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    irq_init(pin);
     gpio_init_in_ex(&gpio, pin, mode);
+}
+
+void InterruptIn::irq_init(PinName pin) {
+   gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
 }
 
 InterruptIn::~InterruptIn() {
