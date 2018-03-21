@@ -34,7 +34,11 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
      * interested in. In future, his spinning behaviour will be replaced with
      * condition variables.
      */
+#if MBED_CONF_PLATFORM_POLL_USE_LOWPOWER_TIMER
+    LowPowerTimer timer;
+#else
     Timer timer;
+#endif
     if (timeout > 0) {
         timer.start();
     }
