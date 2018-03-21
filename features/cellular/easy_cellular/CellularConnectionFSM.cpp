@@ -120,7 +120,6 @@ nsapi_error_t CellularConnectionFSM::init()
 
 bool CellularConnectionFSM::power_on()
 {
-    MBED_ASSERT(1);
     nsapi_error_t err = _power->on();
     if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
         tr_warn("Cellular start failed. Power off/on.");

@@ -193,7 +193,6 @@ private:
     device_err_t  _last_at_err;
     uint16_t _oob_string_max_length;
     char *_output_delimiter;
-    uint8_t _output_delimiter_length;
 
     struct oob_t {
         const char *prefix;
@@ -201,7 +200,6 @@ private:
         oob_t *next;
     };
     oob_t *_oobs;
-    bool _response_terminated;
     uint32_t _at_timeout;
     uint32_t _previous_at_timeout;
 

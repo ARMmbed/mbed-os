@@ -88,17 +88,18 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     clear_error();
 
     if (output_delimiter) {
-        _output_delimiter_length = strlen(output_delimiter);
-        _output_delimiter = new char[_output_delimiter_length];
-        for (unsigned i=0; i<_output_delimiter_length; i++) {
-            _output_delimiter[i] = output_delimiter[i];
+        _output_delimiter = new char[strlen(output_delimiter) + 1];
+        if (!_output_delimiter) {
+            MBED_ASSERT(0);
+        } else {
+            memcpy(_output_delimiter, output_delimiter, strlen(output_delimiter) + 1);
         }
     } else {
-        _output_delimiter = NULL;
-        _output_delimiter_length = 0;
+         _output_delimiter = NULL;
     }
 
     reset_buffer();
+    memset(_recv_buff, 0, sizeof(_recv_buff));
     memset(_info_resp_prefix, 0, sizeof(_info_resp_prefix));
 
     _current_scope = NotSet;
@@ -481,7 +482,9 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             break;
         } else if (c == '\"') {
             match_pos = 0;
-            len--;
+            if (len > 0) {
+                len--;
+            }
             continue;
         } else if (_stop_tag->len && c == _stop_tag->tag[match_pos]) {
             match_pos++;
@@ -694,11 +697,9 @@ void ATHandler::set_3gpp_error(int err, DeviceErrorType error_type)
 
 void ATHandler::at_error(bool error_code_expected, DeviceErrorType error_type)
 {
-    int32_t err = -1;
-
     if (error_code_expected && (error_type == DeviceErrorTypeErrorCMS || error_type == DeviceErrorTypeErrorCME)) {
         set_scope(InfoType);
-        err = read_int();
+        int32_t err = read_int();
 
         if (err != -1) {
             set_3gpp_error(err, error_type);
@@ -1052,7 +1053,7 @@ void ATHandler::cmd_stop()
         return;
     }
      // Finish with CR
-    (void)write(_output_delimiter, _output_delimiter_length);
+    (void)write(_output_delimiter, strlen(_output_delimiter));
 }
 
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
