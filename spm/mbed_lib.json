@@ -50,6 +50,12 @@
         },
         "TY51822R3": {
             "enable": 0
+        },
+        "NRF52_DK": {
+            "enable": 0
+        },
+        "ARCH_PRO": {
+            "enable": 0
         }
     }
 }
