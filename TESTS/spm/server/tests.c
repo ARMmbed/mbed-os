@@ -484,8 +484,8 @@ PSA_TEST_SERVER(cross_partition_call)
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    psa_read(msg.handle, 0, &str_len, sizeof(str_len));
-    data_read = psa_read(msg.handle, 1, buff, str_len);
+    str_len = msg.size[0];
+    data_read = psa_read(msg.handle, 0, buff, str_len);
     if (data_read != 21) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
@@ -493,17 +493,14 @@ PSA_TEST_SERVER(cross_partition_call)
     memcpy(buff + str_len, buff, str_len);
     data_read *= 2;
 
-    iovec_t data[] = {
-        { &data_read, sizeof(data_read) },
-        { buff, data_read }
-    };
+    iovec_t data = { buff, data_read };
     psa_handle_t conn_handle = psa_connect(SF_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_GENERIC_ERROR;
     }
 
     if (partition_call_status == PSA_SUCCESS) {
-        partition_call_status = psa_call(conn_handle, data, sizeof(data) / sizeof(data[0]), buff, sizeof(buff));
+        partition_call_status = psa_call(conn_handle, &data, 1, buff, 60);
     }
 
     if (partition_call_status == PSA_SUCCESS) {
