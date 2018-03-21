@@ -364,7 +364,7 @@ ble_error_t CordioSecurityManager::passkey_request_reply(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::legacy_pairing_oob_data_request_reply(
+ble_error_t CordioSecurityManager::legacy_pairing_oob_request_reply(
     connection_handle_t connection,
     const oob_tk_t &oob_data
 ) {
@@ -394,12 +394,18 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::oob_data_verified(
+ble_error_t CordioSecurityManager::generate_secure_connections_oob(
+    connection_handle_t connection
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t CordioSecurityManager::secure_connections_oob_request_reply(
     connection_handle_t connection,
     const oob_lesc_value_t &local_random,
-    const oob_lesc_value_t &peer_random
+    const oob_lesc_value_t &peer_random,
+    const oob_confirm_t &peer_confirm
 ) {
-    // FIXME:
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 

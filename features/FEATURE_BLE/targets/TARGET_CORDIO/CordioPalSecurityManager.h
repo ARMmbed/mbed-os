@@ -273,9 +273,9 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::legacy_pairing_oob_data_request_reply
+     * @see ::ble::pal::SecurityManager::legacy_pairing_oob_request_reply
      */
-    virtual ble_error_t legacy_pairing_oob_data_request_reply(
+    virtual ble_error_t legacy_pairing_oob_request_reply(
         connection_handle_t connection,
         const oob_tk_t &oob_data
     );
@@ -295,12 +295,20 @@ public:
     );
 
     /**
-     * @see ::ble::pal::SecurityManager::oob_data_verified
+     * @see ::ble::pal::SecurityManager::generate_secure_connections_oob
      */
-    virtual ble_error_t oob_data_verified(
+    virtual ble_error_t generate_secure_connections_oob(
+        connection_handle_t connection
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
         connection_handle_t connection,
         const oob_lesc_value_t &local_random,
-        const oob_lesc_value_t &peer_random
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
     );
 
     // singleton of the ARM Cordio Security Manager

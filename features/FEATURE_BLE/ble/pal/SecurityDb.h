@@ -286,33 +286,6 @@ public:
      */
     virtual void set_local_csrk(const csrk_t &csrk) = 0;
 
-    /* public keys */
-
-    /**
-     * Return local public key.
-     *
-     * @return ref to x component of public key
-     */
-    virtual const public_key_coord_t& get_public_key_x() = 0;
-
-    /**
-     * Return local public key.
-     *
-     * @return ref to y component of public key
-     */
-    virtual const public_key_coord_t& get_public_key_y() = 0;
-
-    /**
-     * Set local public key.
-     *
-     * @param[in] public_key_x new public key value of the x coordinate
-     * @param[in] public_key_y new public key value of the y coordinate
-     */
-    virtual void set_public_key(
-        const public_key_coord_t &public_key_x,
-        const public_key_coord_t &public_key_y
-    ) = 0;
-
     /* list management */
 
     /**

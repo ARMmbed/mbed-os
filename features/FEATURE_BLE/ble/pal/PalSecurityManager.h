@@ -371,7 +371,18 @@ public:
          * Request OOB data from the user application.
          *
          * @param[in] connection connection handle
-         * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_data_request_reply
+         * @note shall be followed by: pal::SecurityManager::secure_connections_oob_request_reply
+         * or a cancellation of the procedure.
+         */
+        virtual void on_secure_connections_oob_request(
+            connection_handle_t connection
+        ) = 0;
+
+        /**
+         * Request OOB data from the user application.
+         *
+         * @param[in] connection connection handle
+         * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_request_reply
          * or a cancellation of the procedure.
          */
         virtual void on_legacy_pairing_oob_request(
@@ -379,31 +390,23 @@ public:
         ) = 0;
 
         /**
-         * Request OOB data to be verified against received public keys.
+         * Send OOB data to the application for transport to the peer.
          *
-         * @param[in] public_key_x newly generated public key (x coordinate)
-         * @param[in] public_key_y newly generated public key (y coordinate)
+         * @param[in] connection connection handle
+         * @param[in] random random number used to generate the confirmation
+         * @param[in] confirm confirmation value to be use for authentication
+         *                    in secure connections pairing
+         * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
          */
-        virtual void on_oob_data_verification_request(
+        virtual void on_secure_connections_oob_generated(
             connection_handle_t connection,
-            const public_key_coord_t &peer_public_key_x,
-            const public_key_coord_t &peer_public_key_y
+            const oob_lesc_value_t &random,
+            const oob_confirm_t &confirm
         ) = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         // Keys
         //
-
-        /**
-         * Provide the local public key.
-         *
-         * @param[in] public_key_x newly generated public key (x coordinate)
-         * @param[in] public_key_y newly generated public key (y coordinate)
-         */
-        virtual void on_public_key_generated(
-            const public_key_coord_t &public_key_x,
-            const public_key_coord_t &public_key_y
-        ) = 0;
 
         /**
          * Store the results of key generation of the stage 2 of secure connections pairing
@@ -863,14 +866,6 @@ public:
         const csrk_t &csrk
     ) = 0;
 
-    /**
-     * Generate the Public key. This will also generate the private key.
-     * Public key will be returned as an event handler callback when it's ready.
-     *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
-     */
-    virtual ble_error_t generate_public_key() = 0;
-
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
@@ -925,13 +920,30 @@ public:
     ) = 0;
 
     /**
-     * Reply to an oob data request received from the SecurityManagerEventHandler.
+     * Reply to a Secure Connections oob data request received from the SecurityManagerEventHandler.
+     *
+     * @param[in] connection connection handle
+     * @param[in] local_random local random number used for the last oob exchange
+     * @param[in] peer_random random number used to generate the confirmation on peer
+     * @param[in] peer_confirm confirmation value to be use for authentication
+     *                         in secure connections pairing
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
+    ) = 0;
+
+    /**
+     * Reply to a legacy pairing oob data request received from the SecurityManagerEventHandler.
      *
      * @param[in] connection connection handle
      * @param[in] oob_data pointer to out of band data
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t legacy_pairing_oob_data_request_reply(
+    virtual ble_error_t legacy_pairing_oob_request_reply(
         connection_handle_t connection,
         const oob_tk_t &oob_data
     ) = 0;
@@ -963,20 +975,12 @@ public:
     ) = 0;
 
     /**
-     * Notify the stack that the OOB data has been verified and supply the peer's random number.
-     * If the verification failed this will not be called and cancel_pairing will be called instead.
+     * Generate local OOB data to be sent to the application which sends it to the peer.
      *
-     * @param[in] connection connection handle
-     * @param[in] local_random random number sent from the local device to be used in further
-     *                       calculations by the stack, set to 0 if peer reported no OOB present
-     * @param[in] peer_random random number from the peer to be used in further
-     *                       calculations by the stack, set to 0 if no OOB data received
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @param[in] connectionHandle Handle to identify the connection.
      */
-    virtual ble_error_t oob_data_verified(
-        connection_handle_t connection,
-        const oob_lesc_value_t &local_random,
-        const oob_lesc_value_t &peer_random
+    virtual ble_error_t generate_secure_connections_oob(
+        connection_handle_t connection
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
