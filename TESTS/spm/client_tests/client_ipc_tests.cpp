@@ -33,10 +33,10 @@ using namespace utest::v1;
 
 typedef struct th_struct {
     psa_handle_t handle;
-    iovec *iovec_temp;
+    iovec_t *iovec_temp;
     uint8_t *expected;
     uint8_t expected_size;
-} th_struct;
+} th_struct_t;
 
 /* ------------------------------------- Functions ----------------------------------- */
 
@@ -53,7 +53,7 @@ static psa_handle_t client_ipc_tests_connect(uint32_t sfid, uint32_t minor_versi
 
 static void client_ipc_tests_call(
         psa_handle_t handle,
-        iovec *iovec_temp,
+        iovec_t *iovec_temp,
         size_t tx_len,
         size_t rx_len,
         uint8_t *expected,
@@ -100,7 +100,7 @@ void iovec_0_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {1, 2, 3, 4, 5};
 
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{NULL, 0},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{NULL, 0},
                                            {meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)}};
 
@@ -123,7 +123,7 @@ void iovec_1_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {NULL, 0},
                                            {buff1, sizeof(buff1)}};
 
@@ -146,7 +146,7 @@ void iovec_2_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {NULL, 0}};
 
@@ -167,7 +167,7 @@ void rx_buff_null()
     uint8_t meta_iovec[2] = {expect_size, off};
     uint8_t buff1[] = {1, 2, 3, 4, 5}, buff2[] = {6};
 
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
@@ -214,7 +214,7 @@ void multiple_call()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff[] = {1, 2};
 
-    iovec iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
@@ -237,7 +237,7 @@ void multiple_call()
     client_ipc_tests_close(handle);
 }
 
-static void set_struct(th_struct *thr_attr, psa_handle_t handle, iovec *iovec_temp, uint8_t *expect, uint8_t expected_size)
+static void set_struct(th_struct_t *thr_attr, psa_handle_t handle, iovec_t *iovec_temp, uint8_t *expect, uint8_t expected_size)
 {
     thr_attr->handle = handle;
     thr_attr->iovec_temp = iovec_temp;
@@ -245,7 +245,7 @@ static void set_struct(th_struct *thr_attr, psa_handle_t handle, iovec *iovec_te
     thr_attr->expected_size = expected_size;
 }
 
-static void call_diff_handle(th_struct *thr_attr)
+static void call_diff_handle(th_struct_t *thr_attr)
 {
     psa_handle_t handle = 0;
 
@@ -267,7 +267,7 @@ static void call_diff_handle(th_struct *thr_attr)
 void multi_thread_diff_handles()
 {
     Thread T1, T2, T3;
-    th_struct thr_attr[] = {{0}, {0}, {0}};
+    th_struct_t thr_attr[] = {{0}, {0}, {0}};
 
     uint8_t meta_iovec_1[] = { 2,            //expect_size
                                2             //off
@@ -276,12 +276,12 @@ void multi_thread_diff_handles()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff_1[] = {1, 2};
 
-    iovec iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
+    iovec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[0], 0, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
-    osStatus err = T1.start(callback(call_diff_handle, (th_struct *)&thr_attr[0]));
+    osStatus err = T1.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[0]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -291,11 +291,11 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_2[] = {2, 3};
 
-    iovec iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
+    iovec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[1], 0, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
-    err = T2.start(callback(call_diff_handle, (th_struct *)&thr_attr[1]));
+    err = T2.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[1]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -305,12 +305,12 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_3[] = {3, 4};
 
-    iovec iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
+    iovec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[2], 0, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
-    err = T3.start(callback(call_diff_handle, (th_struct *)&thr_attr[2]));
+    err = T3.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[2]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -330,7 +330,7 @@ void multi_thread_diff_handles()
 
 }
 
-static void call_same_handle(th_struct *thr_attr)
+static void call_same_handle(th_struct_t *thr_attr)
 {
     client_ipc_tests_call(thr_attr->handle,
                           thr_attr->iovec_temp,
@@ -345,7 +345,7 @@ static void call_same_handle(th_struct *thr_attr)
 void multi_thread_same_handle()
 {
     Thread T1, T2, T3;
-    th_struct thr_attr[] = {{0}, {0}, {0}};
+    th_struct_t thr_attr[] = {{0}, {0}, {0}};
 
     psa_handle_t handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
 
@@ -356,12 +356,12 @@ void multi_thread_same_handle()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff_1[] = {1, 2};
 
-    iovec iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
+    iovec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[0], handle, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
-    osStatus err = T1.start(callback(call_same_handle, (th_struct *)&thr_attr[0]));
+    osStatus err = T1.start(callback(call_same_handle, (th_struct_t *)&thr_attr[0]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -371,11 +371,11 @@ void multi_thread_same_handle()
                              };
     uint8_t expected_buff_2[] = {2, 3};
 
-    iovec iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
+    iovec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
                                             {buff1, sizeof(buff1)},
                                             {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[1], handle, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
-    err = T2.start(callback(call_same_handle, (th_struct *)&thr_attr[1]));
+    err = T2.start(callback(call_same_handle, (th_struct_t *)&thr_attr[1]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -385,7 +385,7 @@ void multi_thread_same_handle()
                              };
     uint8_t expected_buff_3[] = {3, 4};
 
-    iovec iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
+    iovec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
                                             {buff1, sizeof(buff1)},
                                             {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[2], handle, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
