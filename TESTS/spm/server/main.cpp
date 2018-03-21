@@ -177,14 +177,11 @@ PSA_TEST_CLIENT(cross_partition_call)
     size_t in_len = strlen(cross_part_buf);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
-    iovec_t iovec[] = {
-        { &in_len, sizeof(in_len) },
-        { cross_part_buf, in_len }
-    };
+    iovec_t iovec = { cross_part_buf, in_len };
     uint8_t *response_buf = (uint8_t*)malloc(sizeof(uint8_t) * OUT_BUFFER_SIZE);
     memset(response_buf, 0, OUT_BUFFER_SIZE);
 
-    psa_error_t status = psa_call(test_handle, iovec, sizeof(iovec) / sizeof(iovec[0]), response_buf, OUT_BUFFER_SIZE);
+    psa_error_t status = psa_call(test_handle, &iovec, 1, response_buf, OUT_BUFFER_SIZE);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL_STRING_LEN("MPS emoclew dna olleHMPS emoclew dna olleH", response_buf, in_len*2);
     free(response_buf);
