@@ -161,11 +161,11 @@ static uint8_t SIEgetDeviceStatus(void)
     return SIEReadData(SIE_CMD_GET_DEVICE_STATUS);
 }
 
-void SIEsetAddress(uint8_t address)
+void SIEsetAddress(uint8_t address, bool enable=true)
 {
     // Write SIE device address register
     SIECommand(SIE_CMD_SET_ADDRESS);
-    SIEWriteData((address & 0x7f) | SIE_DSA_DEV_EN);
+    SIEWriteData((address & 0x7f) | (enable ? SIE_DSA_DEV_EN : 0));
 }
 
 static uint8_t SIEselectEndpoint(uint8_t endpoint)
@@ -402,8 +402,8 @@ void USBPhyHw::init(USBPhyEvents *events)
 
     // Enable interrupts for device events and EP0
     LPC_USB->USBDevIntEn = EP_SLOW | DEV_STAT | FRAME;
-    enableEndpointEvent(EP0IN);
-    enableEndpointEvent(EP0OUT);
+
+    NVIC_EnableIRQ(USB_IRQn);
 }
 
 void USBPhyHw::deinit()
@@ -422,14 +422,28 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect(void)
 {
-    NVIC_EnableIRQ(USB_IRQn);
+    enableEndpointEvent(EP0IN);
+    enableEndpointEvent(EP0OUT);
+
     // Connect USB device
     SIEconnect();
 }
 
 void USBPhyHw::disconnect(void)
 {
-    NVIC_DisableIRQ(USB_IRQn);
+    disableEndpointEvent(EP0IN);
+    disableEndpointEvent(EP0OUT);
+
+    if (LPC_USB->USBEpIntSt & EP(EP0IN)) {
+        selectEndpointClearInterrupt(EP0IN);
+    }
+    if (LPC_USB->USBEpIntSt & EP(EP0OUT)) {
+        selectEndpointClearInterrupt(EP0OUT);
+    }
+
+    // Turn off USB nacking
+    SIEsetAddress(0, false);
+
     // Disconnect USB device
     SIEdisconnect();
 }
@@ -696,7 +710,6 @@ void USBPhyHw::process(void)
         // case of OUT as SETUP clobbers the OUT data).
         if (LPC_USB->USBEpIntSt & EP(EP0IN)) {
             selectEndpointClearInterrupt(EP0IN);
-            LPC_USB->USBDevIntClr = EP_SLOW;
             events->ep0_in();
         }
 
@@ -708,7 +721,6 @@ void USBPhyHw::process(void)
             } else {
                 events->ep0_out();
             }
-            LPC_USB->USBDevIntClr = EP_SLOW;
         }
 
         //TODO - should probably process in the reverse order
@@ -717,7 +729,6 @@ void USBPhyHw::process(void)
             if (LPC_USB->USBEpIntSt & EP(endpoint)) {
                 selectEndpointClearInterrupt(endpoint);
                 epComplete |= EP(endpoint);
-                LPC_USB->USBDevIntClr = EP_SLOW;
                 if (IN_EP(endpoint)) {
                     events->in(endpoint);
                 } else {
@@ -726,6 +737,8 @@ void USBPhyHw::process(void)
                 }
             }
         }
+
+        LPC_USB->USBDevIntClr = EP_SLOW;
     }
 
     NVIC_ClearPendingIRQ(USB_IRQn);
