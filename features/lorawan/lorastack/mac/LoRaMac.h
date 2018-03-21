@@ -621,20 +621,20 @@ public: // Test interface
      *
      * uint8_t buffer[] = {1, 2, 3};
      *
-     * loramac_mcps_req_t request;
+     * loramac_compliance_test_req_t request;
      * request.type = MCPS_UNCONFIRMED;
      * request.fport = 1;
      * request.f_buffer = buffer;
      * request.f_buffer_size = sizeof(buffer);
      *
-     * if (mcps_request(&request) == LORAWAN_STATUS_OK) {
+     * if (test_request(&request) == LORAWAN_STATUS_OK) {
      *   // Service started successfully. Waiting for the MCPS-Confirm event
      * }
      *
      * @endcode
      *
-     * @param [in] request    The MCPS request to perform.
-     *                        Refer to \ref loramac_mcps_req_t.
+     * @param [in] request    The test request to perform.
+     *                        Refer to \ref loramac_compliance_test_req_t.
      *
      * @return  `lorawan_status_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
@@ -645,7 +645,7 @@ public: // Test interface
      *          \ref LORAWAN_STATUS_LENGTH_ERROR
      *          \ref LORAWAN_STATUS_DEVICE_OFF
      */
-    lorawan_status_t mcps_request(loramac_mcps_req_t *request);
+    lorawan_status_t test_request(loramac_compliance_test_req_t *request);
 
     /**
      * \brief   LoRaMAC set tx timer.

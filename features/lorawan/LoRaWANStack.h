@@ -474,14 +474,8 @@ private:
     /**
      * Used only for compliance testing
      */
-    lorawan_status_t mcps_request_handler(loramac_mcps_req_t *mcps_request);
-
-    /**
-     * Used only for compliance testing
-     */
     lorawan_status_t send_compliance_test_frame_to_mac();
 
-    uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
     compliance_test_t _compliance_test;
 #endif
 };

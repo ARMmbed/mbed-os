@@ -1995,7 +1995,7 @@ lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
     return status;
 }
 
-lorawan_status_t LoRaMac::mcps_request( loramac_mcps_req_t *mcpsRequest )
+lorawan_status_t LoRaMac::test_request( loramac_compliance_test_req_t *mcpsRequest )
 {
     if (_params.mac_state != LORAMAC_IDLE) {
         return LORAWAN_STATUS_BUSY;
