@@ -112,42 +112,56 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         const uint8_t *data, uint32_t size)
 {
     unsigned long n;
+    const uint32_t copySize = 1024; // should be 256|512|1024|4096
+    uint8_t *alignedData, *source;
+
     // always malloc outside critical section
-    uint8_t *alignedData = malloc(size);
+    alignedData = malloc(size);
+    if (alignedData == 0) {
+        return (1);
+    }
 
     n = GetSecNum(address); // Get Sector Number
 
+    memcpy(alignedData, data, size);
+    source = alignedData;
+
     core_util_critical_section_enter();
-    IAP.cmd = 50;// Prepare Sector for Write
-    IAP.par[0] = n;// Start Sector
-    IAP.par[1] = n;// End Sector
-    IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    if (IAP.stat) {
-        return (1); // Command Failed
+
+    while (size) {
+        /*
+        Prepare_Sector_for_Write command must be exected before
+        Copy_RAM_to_Flash command.
+        */
+        IAP.cmd = 50;    // Prepare Sector for Write
+        IAP.par[0] = n;  // Start Sector
+        IAP.par[1] = n;  // End Sector
+        IAP_Call (&IAP.cmd, &IAP.stat); // Call IAP Command
+        if (IAP.stat) {
+            return (1); // Command Failed
+        }
+
+        IAP.cmd = 51; // Copy RAM to Flash
+        IAP.par[0] = address; // Destination Flash Address
+        IAP.par[1] = (unsigned long)source; // Source RAM Address        
+        IAP.par[2] = copySize; // number of bytes to be written
+        IAP.par[3] = CCLK; // CCLK in kHz
+        IAP_Call (&IAP.cmd, &IAP.stat); // Call IAP Command
+        if (IAP.stat) {
+            return (1); // Command Failed
+        }
+
+        source += copySize;
+        size -= copySize;
+        address += copySize;
     }
 
-    IAP.cmd = 51; // Copy RAM to Flash
-    IAP.par[0] = address;// Destination Flash Address
-
-    if ((unsigned long)data%4==0) { // Word boundary
-        IAP.par[1] = (unsigned long)data;// Source RAM Address
-    } else {
-        memcpy(alignedData,data,size);
-        IAP.par[1] = (unsigned long)alignedData; // Source RAM Address
-    }
-
-    IAP.par[2] = 1024; // Fixed Page Size
-    IAP.par[3] = CCLK;// CCLK in kHz
-    IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
     core_util_critical_section_exit();
 
-    if(alignedData !=0) { // We allocated our own memory
+    if(alignedData != 0) { // We allocated our own memory
         free(alignedData);
     }
 
-    if (IAP.stat) {
-        return (1); // Command Failed
-    }
     return (0); // Finished without Errors
 }
 
