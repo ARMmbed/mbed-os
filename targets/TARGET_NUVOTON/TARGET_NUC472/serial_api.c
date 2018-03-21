@@ -543,6 +543,10 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         // Register DMA event handler
         dma_set_handler(obj->serial.dma_chn_id_tx, (uint32_t) uart_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
         serial_tx_enable_interrupt(obj, handler, 1);
+        /* We needn't actually enable UART INT to go UART ISR -> handler.
+         * Instead, as PDMA INT is triggered, we will go PDMA ISR -> UART ISR -> handler
+         * with serial_tx/rx_enable_interrupt having set up this call path. */
+        UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
         ((UART_T *) NU_MODBASE(obj->serial.uart))->INTEN |= UART_INTEN_TXPDMAEN_Msk;  // Start DMA transfer
     }
     
@@ -604,6 +608,10 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         // Register DMA event handler
         dma_set_handler(obj->serial.dma_chn_id_rx, (uint32_t) uart_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
         serial_rx_enable_interrupt(obj, handler, 1);
+        /* We needn't actually enable UART INT to go UART ISR -> handler.
+         * Instead, as PDMA INT is triggered, we will go PDMA ISR -> UART ISR -> handler
+         * with serial_tx/rx_enable_interrupt having set up this call path. */
+        UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
         ((UART_T *) NU_MODBASE(obj->serial.uart))->INTEN |= UART_INTEN_RXPDMAEN_Msk;  // Start DMA transfer
     }
 }
