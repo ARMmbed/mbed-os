@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "tmpm46b.h"
+#include "TMPM46B.h"
 #include "tx04_common.h"     
 
 /** @addtogroup TX04_Periph_Driver
