@@ -136,7 +136,7 @@ bool CellularConnectionFSM::power_on()
 void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
 {
     strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
-    _sim_pin[sizeof(_sim_pin)] = '\0';
+    _sim_pin[sizeof(_sim_pin)-1] = '\0';
 }
 
 bool CellularConnectionFSM::open_sim()

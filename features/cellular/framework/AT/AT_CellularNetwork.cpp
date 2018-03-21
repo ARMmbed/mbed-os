@@ -310,6 +310,7 @@ nsapi_error_t AT_CellularNetwork::connect()
 
 nsapi_error_t AT_CellularNetwork::open_data_channel()
 {
+#if NSAPI_PPP_AVAILABLE
     tr_info("Open data channel in PPP mode");
     _at.cmd_start("AT+CGDATA=\"PPP\",");
     _at.write_int(_cid);
@@ -323,6 +324,9 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
     return nsapi_ppp_connect(_at.get_file_handle(), callback(this, &AT_CellularNetwork::ppp_status_cb), NULL, NULL, _ip_stack_type);
+#else
+    return NSAPI_ERROR_OK;
+#endif // #if NSAPI_PPP_AVAILABLE
 }
 
 /**
