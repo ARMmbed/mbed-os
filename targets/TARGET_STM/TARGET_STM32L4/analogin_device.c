@@ -35,11 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_calibrated = false;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -94,8 +92,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     // ADC calibration is done only once
-    if (!adc_calibrated) {
-        adc_calibrated = true;
+    if (!HAL_ADCEx_Calibration_GetValue(&obj->handle, ADC_SINGLE_ENDED)) {
         HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
     }
 }
