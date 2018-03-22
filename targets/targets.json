@@ -2753,7 +2753,7 @@
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
         "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC", "TRNG"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt"
     },
@@ -3904,7 +3904,7 @@
         },
         "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
         "default_lib": "std",
-        "release_versions": ["5"]
+        "release_versions": []
    },
     "SARA_NBIOT": {
         "inherits": ["HI2110"],
