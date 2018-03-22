@@ -1,6 +1,5 @@
 language: python
-python:
-    '2.7'
+python: 2.7
 
 env:
   global:
@@ -30,6 +29,7 @@ before_install:
   - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+  - sudo add-apt-repository -y ppa:deadsnakes/ppa
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
@@ -72,14 +72,16 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - env:
-        - NAME=tools
+    - &tools-pytest
+      env: NAME=tools-py2.7
+      python: 2.7
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
         - pip install -r requirements.txt
         - pip install pytest pylint hypothesis mock coverage coveralls
         # Print versions we use
+
         - arm-none-eabi-gcc --version
         - python --version
       script:
@@ -93,6 +95,14 @@ matrix:
         - coveralls
         # Report success since we have overridden default behaviour
         - bash -c "$STATUS" success "Local $NAME testing has passed"
+
+#    - <<: *tools-pytest
+#      env: NAME=tools-py3.5
+#      python: 3.5
+#
+#    - <<: *tools-pytest
+#      env: NAME=tools-py3.6
+#      python: 3.6
 
     - env:
         - NAME=astyle
