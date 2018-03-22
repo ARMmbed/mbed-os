@@ -189,10 +189,6 @@ lorawan_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     tr_debug("Initializing MAC layer");
     _queue = queue;
 
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    _compliance_test.app_data_buffer = compliance_test_buffer;
-#endif
-
     _loramac.initialize(&LoRaMacPrimitives, queue);
 
     // Reset counters to zero. Will change in future with 1.1 support.
@@ -876,36 +872,34 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
 
 lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 {
-    loramac_mcps_req_t mcps_req;
+    loramac_compliance_test_req_t test_req;
 
-//    prepare_special_tx_frame(_compliance_test.app_port);
     //TODO: What if the port is not 224 ???
     if (_compliance_test.app_port == 224) {
         // Clear any normal message stuff before compliance test.
-        memset(&mcps_req, 0, sizeof(mcps_req));
+        memset(&test_req, 0, sizeof(test_req));
 
         if (_compliance_test.link_check == true) {
             _compliance_test.link_check = false;
             _compliance_test.state = 1;
-            mcps_req.f_buffer_size = 3;
-            mcps_req.f_buffer[0] = 5;
-            mcps_req.f_buffer[1] = _compliance_test.demod_margin;
-            mcps_req.f_buffer[2] = _compliance_test.nb_gateways;
+            test_req.f_buffer_size = 3;
+            test_req.f_buffer[0] = 5;
+            test_req.f_buffer[1] = _compliance_test.demod_margin;
+            test_req.f_buffer[2] = _compliance_test.nb_gateways;
         } else {
             switch (_compliance_test.state) {
             case 4:
                 _compliance_test.state = 1;
-                mcps_req.f_buffer_size = _compliance_test.app_data_size;
-
-                mcps_req.f_buffer[0] = _compliance_test.app_data_buffer[0];
+                test_req.f_buffer_size = _compliance_test.app_data_size;
+                test_req.f_buffer[0] = _compliance_test.app_data_buffer[0];
                 for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
-                    mcps_req.f_buffer[i] = _compliance_test.app_data_buffer[i];
+                    test_req.f_buffer[i] = _compliance_test.app_data_buffer[i];
                 }
                 break;
             case 1:
-                mcps_req.f_buffer_size = 2;
-                mcps_req.f_buffer[0] = _compliance_test.downlink_counter >> 8;
-                mcps_req.f_buffer[1] = _compliance_test.downlink_counter;
+                test_req.f_buffer_size = 2;
+                test_req.f_buffer[0] = _compliance_test.downlink_counter >> 8;
+                test_req.f_buffer[1] = _compliance_test.downlink_counter;
                 break;
             }
         }
@@ -914,45 +908,32 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
     //TODO: If port is not 224, this might not work!
     //Is there a test case where same _tx_msg's buffer would be used, when port is not 224???
     if (!_compliance_test.is_tx_confirmed) {
-        mcps_req.type = MCPS_UNCONFIRMED;
-//        mcps_req.f_buffer = _tx_msg.f_buffer;
-//        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.fport = _compliance_test.app_port;
-        mcps_req.nb_trials = 1;
-        mcps_req.data_rate = _loramac.get_default_tx_datarate();
+        test_req.type = MCPS_UNCONFIRMED;
+        test_req.fport = _compliance_test.app_port;
+        test_req.nb_trials = 1;
+        test_req.data_rate = _loramac.get_default_tx_datarate();
 
-        tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
+        tr_info("Transmit unconfirmed compliance test frame %d bytes.", test_req.f_buffer_size);
 
-        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
-            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
+        for (uint8_t i = 0; i < test_req.f_buffer_size; ++i) {
+            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)test_req.f_buffer)[i]);
         }
     } else if (_compliance_test.is_tx_confirmed) {
-        mcps_req.type = MCPS_CONFIRMED;
-//        mcps_req.f_buffer = _tx_msg.f_buffer;
-//        mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.fport = _compliance_test.app_port;
-        mcps_req.nb_trials = _num_retry;
-        mcps_req.data_rate = _loramac.get_default_tx_datarate();
+        test_req.type = MCPS_CONFIRMED;
+        test_req.fport = _compliance_test.app_port;
+        test_req.nb_trials = _num_retry;
+        test_req.data_rate = _loramac.get_default_tx_datarate();
 
-        tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
+        tr_info("Transmit confirmed compliance test frame %d bytes.", test_req.f_buffer_size);
 
-        for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
-            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
+        for (uint8_t i = 0; i < test_req.f_buffer_size; ++i) {
+            tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)test_req.f_buffer)[i]);
         }
     } else {
         return LORAWAN_STATUS_SERVICE_UNKNOWN;
     }
 
-    return mcps_request_handler(&mcps_req);
-}
-
-lorawan_status_t LoRaWANStack::mcps_request_handler(loramac_mcps_req_t *mcps_request)
-{
-    if (mcps_request == NULL) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
-    return _loramac.mcps_request(mcps_request);
+    return _loramac.test_request(&test_req);
 }
 
 void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indication)
@@ -1035,8 +1016,6 @@ void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indic
             _loramac.setup_link_check_request();
             break;
         case 6: // (ix)
-            loramac_mlme_req_t mlme_req;
-
             // Disable TestMode and revert back to normal operation
             _compliance_test.is_tx_confirmed = true;
             _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;

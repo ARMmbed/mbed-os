@@ -1744,7 +1744,7 @@ typedef struct {
 
 typedef struct {
     /*!
-     * MCPS-Request type.
+     * Compiliance test request
      */
     mcps_type_t type;
 
@@ -1786,14 +1786,15 @@ typedef struct {
       *
       * A pointer to the buffer of the frame payload.
       */
-     void *f_buffer;
-     /** Payload size
-      *
-      * The size of the frame payload.
-      */
-     uint16_t f_buffer_size;
+    uint8_t f_buffer[LORAMAC_PHY_MAXPAYLOAD];
 
-} loramac_mcps_req_t;
+    /** Payload size
+     *
+     * The size of the frame payload.
+     */
+    uint16_t f_buffer_size;
+
+} loramac_compliance_test_req_t;
 
 /**  LoRaWAN compliance tests support data
  *
@@ -1822,7 +1823,7 @@ typedef struct compliance_test {
     /** Data provided by application
      *
      */
-    uint8_t *app_data_buffer;
+    uint8_t app_data_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
     /** Downlink counter
      *
      */
