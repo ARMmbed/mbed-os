@@ -262,6 +262,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         qspi_prepare_command(command, &st_command);
 
         st_command.NbData = 1;
+        st_command.DataMode = QSPI_DATA_NONE; /* Instruction only */ 
         if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             status = QSPI_STATUS_ERROR;
             return status;
