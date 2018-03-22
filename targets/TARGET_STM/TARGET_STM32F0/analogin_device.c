@@ -35,11 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_calibrated = false;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -89,9 +87,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         error("Cannot initialize ADC");
     }
 
-    // ADC calibration is done only once
-    if (!adc_calibrated) {
-        adc_calibrated = true;
+    if (!LL_ADC_REG_ReadConversionData6(obj->handle.Instance)) {
         HAL_ADCEx_Calibration_Start(&obj->handle);
     }
 }
@@ -102,11 +98,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_RANK_CHANNEL_NUMBER;
-#if defined (TARGET_STM32F091RC)
-    sConfig.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
-#else
-    sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
-#endif
+    sConfig.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
 
     switch (obj->channel) {
         case 0:
@@ -159,13 +151,16 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
 #ifdef ADC_CHANNEL_VBAT
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
 #endif
         default:
