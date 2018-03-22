@@ -565,6 +565,10 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
 
         if (cb->legacy_pairing_oob_request_pending) {
             on_legacy_pairing_oob_request(cb->connection);
+            /* legacy_pairing_oob_request_pending stops us from
+             * going into a loop of asking the user for oob
+             * so this reset needs to happen after the call above */
+            cb->legacy_pairing_oob_request_pending = false;
         }
     }
     return BLE_ERROR_NONE;
@@ -720,6 +724,11 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
         cb->mitm_performed = enable;
+        /* whenever we reset mitm performed we also reset pending requests
+         * as this happens whenever a new pairing attempt happens */
+        if (!enable) {
+            cb->legacy_pairing_oob_request_pending = false;
+        }
     }
 }
 
