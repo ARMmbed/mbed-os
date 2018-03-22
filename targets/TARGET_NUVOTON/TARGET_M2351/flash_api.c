@@ -90,7 +90,9 @@ static const sector_info_t sectors_info[] = {
 
 /* Secure flash */
 static const flash_target_config_t flash_target_config = {
-    .page_size  = 0x800,                                    // 2 KB
+    .page_size  = 4,                                        // 4 bytes
+                                                            // Here page_size is program unit, which is different
+                                                            // than FMC definition.
     .flash_start = 0x0,
 #if SAU_INIT_REGION1
     .flash_size = (SAU_INIT_START1 & ~NS_OFFSET) - 0x0,
@@ -108,7 +110,9 @@ static const sector_info_t sectors_info_ns[] = {
 
 /* Non-secure flash */
 static const flash_target_config_t flash_target_config_ns = {
-    .page_size  = 0x800,                                    // 2 KB
+    .page_size  = 4,                                        // 4 bytes
+                                                            // Here page_size is program unit, which is different
+                                                            // than FMC definition.
     .flash_start = SAU_INIT_START1,
 #if SAU_INIT_REGION1
     .flash_size = SAU_INIT_END1 - SAU_INIT_START1 + 1,
