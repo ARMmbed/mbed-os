@@ -513,6 +513,14 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
+    _oob_temporary_key_creator_address = cb->local_address;
+    get_random_data(_oob_temporary_key.buffer(), 16);
+
+    eventHandler->legacyPairingOobGenerated(
+        &_oob_temporary_key_creator_address,
+        &_oob_temporary_key
+    );
+
     _pal.generate_secure_connections_oob(connection);
 
     return BLE_ERROR_NONE;
@@ -552,7 +560,13 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        return _pal.legacy_pairing_oob_request_reply(cb->connection, *tk);
+        _oob_temporary_key = *tk;
+        _oob_peer_address = *address;
+
+        if (cb->legacy_pairing_oob_request_pending) {
+            cb->legacy_pairing_oob_request_pending = false;
+            return _pal.legacy_pairing_oob_request_reply(cb->connection, *tk);
+        }
     }
     return BLE_ERROR_NONE;
 }
@@ -964,7 +978,19 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
 
 void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    eventHandler->legacyPairingOobRequest(connection);
+
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    if (cb->peer_address == _oob_temporary_key_creator_address
+        || cb->local_address == _oob_temporary_key_creator_address) {
+        _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
+    } else {
+        cb->legacy_pairing_oob_request_pending = true;
+        eventHandler->legacyPairingOobRequest(connection);
+    }
 }
 
 void GenericSecurityManager::on_secure_connections_oob_generated(
@@ -1135,7 +1161,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     mitm_performed(false),
     attempt_oob(false),
     oob_mitm_protection(false),
-    oob_present(false) { }
+    oob_present(false),
+    legacy_pairing_oob_request_pending(false) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {
