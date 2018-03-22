@@ -563,6 +563,10 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
         _oob_temporary_key = *tk;
         _oob_temporary_key_creator_address = *address;
 
+        if (cb->peer_address == _oob_temporary_key_creator_address) {
+            cb->attempt_oob = true;
+        }
+
         if (cb->legacy_pairing_oob_request_pending) {
             on_legacy_pairing_oob_request(cb->connection);
             /* legacy_pairing_oob_request_pending stops us from
