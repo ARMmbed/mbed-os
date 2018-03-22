@@ -148,11 +148,13 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms) {
         timeout.attach_us(callback(equeue_sema_timeout, s), ms*1000);
     }
 
+    core_util_critical_section_enter();
     while (!*s) {
         sleep();
+        core_util_critical_section_exit();
+        core_util_critical_section_enter();
     }
 
-    core_util_critical_section_enter();
     signal = *s;
     *s = false;
     core_util_critical_section_exit();

@@ -128,7 +128,6 @@ static void default_idle_hook(void)
 
 static void default_idle_hook(void)
 {
-    // critical section to complete sleep with locked deepsleep
     sleep_manager_lock_deep_sleep();
     sleep();
     sleep_manager_unlock_deep_sleep();
