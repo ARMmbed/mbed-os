@@ -867,7 +867,7 @@ void GenericSecurityManager::on_slave_security_request(
 
     if (pairing_required) {
         requestPairing(connection);
-    } else {
+    } else if (!cb->encryption_requested) {
         /* this will refresh keys if encryption is already present */
         enable_encryption(connection);
     }
