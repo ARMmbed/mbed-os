@@ -2660,7 +2660,7 @@
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
         "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt"
     },
@@ -3495,7 +3495,7 @@
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "overrides": {"uart_hwfc": 0},
         "device_name": "nRF52832_xxAA"
     },
@@ -3504,7 +3504,7 @@
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_UBLOX_NINA_B1": {
@@ -3512,7 +3512,7 @@
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "extra_labels_add": ["MTB_UBLOX_NINA_B1"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA",
         "bootloader_supported": true,
         "overrides": {
@@ -3557,7 +3557,7 @@
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
         "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
         "config": {
             "lf_clock_rc_calib_timer_interval": {
@@ -3773,7 +3773,7 @@
         },
         "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
         "default_lib": "std",
-        "release_versions": ["5"]
+        "release_versions": []
    },
     "SARA_NBIOT": {
         "inherits": ["HI2110"],
