@@ -31,7 +31,7 @@ before_install:
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   # Loop until update succeeds (timeouts can occur)
-  - while [ -n "$(sudo apt-get update 2>&1 |grep Failed)" ]; do :; done
+  - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
 after_success:
   - bash -c "$STATUS" success "Local $NAME testing has passed"
