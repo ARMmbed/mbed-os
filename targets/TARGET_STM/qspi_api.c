@@ -81,7 +81,8 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
         st_command->AddressSize = 0;
     } else {
         st_command->Address = command->address.value;
-        st_command->AddressSize = command->address.size;
+        /* command->address.size needs to be shifted by QUADSPI_CCR_ADSIZE_Pos */
+        st_command->AddressSize = (command->address.size << QUADSPI_CCR_ADSIZE_Pos) & QUADSPI_CCR_ADSIZE_Msk;
     }
 
     switch (command->alt.bus_width) {
@@ -104,6 +105,8 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
         st_command->AlternateBytesSize = 0;
     } else {
         st_command->AlternateBytes = command->alt.value;
+        /* command->AlternateBytesSize needs to be shifted by QUADSPI_CCR_ABSIZE_Pos */
+        st_command->AlternateBytesSize = (command->alt.size << QUADSPI_CCR_ABSIZE_Pos) & QUADSPI_CCR_ABSIZE_Msk;
         st_command->AlternateBytesSize = command->alt.size;
     }
 
