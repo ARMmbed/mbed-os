@@ -561,11 +561,10 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
         }
 
         _oob_temporary_key = *tk;
-        _oob_peer_address = *address;
+        _oob_temporary_key_creator_address = *address;
 
         if (cb->legacy_pairing_oob_request_pending) {
-            cb->legacy_pairing_oob_request_pending = false;
-            return _pal.legacy_pairing_oob_request_reply(cb->connection, *tk);
+            on_legacy_pairing_oob_request(cb->connection);
         }
     }
     return BLE_ERROR_NONE;
@@ -977,8 +976,6 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
 }
 
 void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
-    set_mitm_performed(connection);
-
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return;
@@ -986,10 +983,15 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
 
     if (cb->peer_address == _oob_temporary_key_creator_address
         || cb->local_address == _oob_temporary_key_creator_address) {
+
+        set_mitm_performed(connection);
         _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
-    } else {
+
+    } else if (!cb->legacy_pairing_oob_request_pending) {
+
         cb->legacy_pairing_oob_request_pending = true;
         eventHandler->legacyPairingOobRequest(connection);
+
     }
 }
 
