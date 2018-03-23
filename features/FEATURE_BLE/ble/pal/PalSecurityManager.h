@@ -399,7 +399,6 @@ public:
          * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
          */
         virtual void on_secure_connections_oob_generated(
-            connection_handle_t connection,
             const oob_lesc_value_t &random,
             const oob_confirm_t &confirm
         ) = 0;
@@ -975,13 +974,9 @@ public:
     ) = 0;
 
     /**
-     * Generate local OOB data to be sent to the application which sends it to the peer.
-     *
-     * @param[in] connectionHandle Handle to identify the connection.
+     * Generate local OOB data to be sent to the application which sends it to the peer.p
      */
-    virtual ble_error_t generate_secure_connections_oob(
-        connection_handle_t connection
-    ) = 0;
+    virtual ble_error_t generate_secure_connections_oob() = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:

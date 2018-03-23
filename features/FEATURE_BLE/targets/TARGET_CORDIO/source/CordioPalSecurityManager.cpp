@@ -394,9 +394,7 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::generate_secure_connections_oob(
-    connection_handle_t connection
-) {
+ble_error_t CordioSecurityManager::generate_secure_connections_oob() {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 

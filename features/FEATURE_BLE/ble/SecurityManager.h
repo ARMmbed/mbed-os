@@ -736,8 +736,22 @@ public:
     //
 
     /**
+     * Generate OOB data with the given address. If Secure Connections is supported this will
+     * also generate Secure Connections OOB data on top of legacy pairing OOB data. This can be used
+     * to generate such data before any connections take place.
+     *
+     * @param[in] address The local address you will use in the connection using this OOB data.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t generateOOB(const ble::address_t *address) {
+        /* Avoid compiler warnings about unused variables */
+        (void) address;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
      * Enable OOB data usage during paring. If Secure Connections is supported enabling useOOB will
-     * generate Secure Connections OOB data through oobGenerated().
+     * generate Secure Connections OOB data through oobGenerated() on top of legacy pairing OOB data.
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] useOOB If set to true, authenticate using OOB data.

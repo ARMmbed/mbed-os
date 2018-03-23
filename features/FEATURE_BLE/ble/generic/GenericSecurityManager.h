@@ -192,6 +192,10 @@ public:
     // MITM
     //
 
+    virtual ble_error_t generateOOB(
+        const address_t *address
+    );
+
     virtual ble_error_t setOOBDataUsage(
         connection_handle_t connection,
         bool useOOB,
@@ -441,6 +445,7 @@ private:
     pal::ConnectionEventMonitor &_connection_monitor;
 
     /* OOB data */
+    address_t _oob_local_address;
     address_t _oob_peer_address;
     oob_lesc_value_t _oob_peer_random;
     oob_confirm_t _oob_peer_confirm;
@@ -572,7 +577,6 @@ public:
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_generated
      */
     virtual void on_secure_connections_oob_generated(
-        connection_handle_t connection,
         const oob_lesc_value_t &random,
         const oob_confirm_t &confirm
     );

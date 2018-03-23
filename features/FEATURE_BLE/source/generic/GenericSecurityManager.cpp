@@ -500,6 +500,25 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
 // MITM
 //
 
+ble_error_t GenericSecurityManager::generateOOB(
+    const address_t *address
+) {
+    /* legacy pairing */
+    _oob_temporary_key_creator_address = *address;
+    get_random_data(_oob_temporary_key.buffer(), 16);
+
+    eventHandler->legacyPairingOobGenerated(
+        &_oob_temporary_key_creator_address,
+        &_oob_temporary_key
+    );
+
+    /* secure connections */
+    _oob_local_address = *address;
+    _pal.generate_secure_connections_oob();
+
+    return BLE_ERROR_NONE;
+}
+
 ble_error_t GenericSecurityManager::setOOBDataUsage(
     connection_handle_t connection,
     bool useOOB,
@@ -513,6 +532,7 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
+    /* legacy pairing */
     _oob_temporary_key_creator_address = cb->local_address;
     get_random_data(_oob_temporary_key.buffer(), 16);
 
@@ -521,7 +541,9 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
         &_oob_temporary_key
     );
 
-    _pal.generate_secure_connections_oob(connection);
+    /* secure connections */
+    _oob_local_address = cb->local_address;
+    _pal.generate_secure_connections_oob();
 
     return BLE_ERROR_NONE;
 }
@@ -714,13 +736,18 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
         return;
     }
 
-    /* only update the oob state if we support secure connections,
-     * otherwise follow the user set preference for providing legacy
-     * pairing oob data */
-    cb->oob_present = cb->attempt_oob;
-
+    /* if we support secure connection we only care about secure connections oob data */
     if (_default_authentication.get_secure_connections()) {
         cb->oob_present = (cb->peer_address == _oob_peer_address);
+    } else {
+        /* otherwise for legacy pairing we first set the oob based on set preference */
+        cb->oob_present = cb->attempt_oob;
+
+        /* and also turn it on if we have oob data for legacy pairing */
+        if (cb->peer_address == _oob_temporary_key_creator_address
+            || cb->local_address == _oob_temporary_key_creator_address) {
+            cb->oob_present = true;
+        }
     }
 }
 
@@ -1016,15 +1043,10 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
 }
 
 void GenericSecurityManager::on_secure_connections_oob_generated(
-    connection_handle_t connection,
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
 ) {
-    ControlBlock_t *cb = get_control_block(connection);
-    if (!cb) {
-        return;
-    }
-    eventHandler->oobGenerated(&cb->local_address, &random, &confirm);
+    eventHandler->oobGenerated(&_oob_local_address, &random, &confirm);
     _oob_local_random = random;
 }
 

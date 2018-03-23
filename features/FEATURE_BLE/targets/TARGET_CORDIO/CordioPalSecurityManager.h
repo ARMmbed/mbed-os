@@ -297,9 +297,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::generate_secure_connections_oob
      */
-    virtual ble_error_t generate_secure_connections_oob(
-        connection_handle_t connection
-    );
+    virtual ble_error_t generate_secure_connections_oob();
 
     /**
      * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
