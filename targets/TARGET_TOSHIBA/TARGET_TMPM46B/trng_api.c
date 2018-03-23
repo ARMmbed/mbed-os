@@ -65,20 +65,18 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
     *output_length = 0;
 
-    if (!obj->trng_init){
+    if (!obj->trng_init) {
         error("TRNG is not Initialised");
-        return -1;
+        return FAIL; // fail i.e. -1 
     }
 
-    while (ESG_GetIntStatus() == DISABLE)
-    {
-       // Wait for ESG core for generating an interrupt
+    while (ESG_GetIntStatus() == DISABLE) {
+        // Wait for ESG core for generating an interrupt
     }
     // Interrupt clearing
     ret = ESG_ClrInt();
-    if (ret == ERROR)
-    {
-        return ret;
+    if (ret == ERROR) {
+        return FAIL; // fail i.e. -1 
     }
     // Get the calculation result
     ESG_GetResult((uint32_t*)random); //512-bit entropy
@@ -90,8 +88,11 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     }
     *output_length = i;
     //clear and restart the ESG core
-    ESG_IPReset(); 
+    ESG_IPReset();
     ret |= ESG_Startup();
+    if (ret == ERROR) {
+        return FAIL; // fail i.e. -1
+    }
 
     return ret;
 }

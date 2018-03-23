@@ -108,7 +108,7 @@ void pwmout_write(pwmout_t *obj, float value)
     }
     TMRB_SetFlipFlop(obj->channel, &FFStruct);
 
-    if (obj->period > 0.7){
+    if (obj->period > 0.7) {
         value = 1; //TMPM46B duty cycle should be < 700ms, above 700ms fixed 50% duty cycle
     }
     // Store the new leading_timing value
@@ -148,7 +148,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
     seconds = (float)((us) / 1000000.0f);
     obj->period = seconds;
 
-    if (obj->period > 0.7){
+    if (obj->period > 0.7) {
         clk_freq = (CLOCK_FREQUENCY / 2);
     } else {
         clk_freq = CLOCK_FREQUENCY;

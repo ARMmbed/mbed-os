@@ -84,7 +84,7 @@ int32_t flash_free(flash_t *obj)
 #endif
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    int status = ERROR;
+    int status = FAIL;
     /* We need to prevent flash accesses during erase operation */
     core_util_critical_section_enter();
 
@@ -110,7 +110,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         if (FC_SUCCESS == FC_WritePage((uint32_t)address, (uint32_t *)data)) {      /* write one page every time */
             /* Do nothing */
         } else {
-            status = ERROR;
+            status = FAIL;
             break;
         }
         size = size - PROGRAM_WIRTE_MAX;
@@ -120,7 +120,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     if (FC_SUCCESS == FC_WritePage((uint32_t)address, (uint32_t *)data)) {  /* write the last data, no more than one page */
         /* Do nothing */
     } else {
-        status = ERROR;
+        status = FAIL;
     }
 
     core_util_critical_section_exit();

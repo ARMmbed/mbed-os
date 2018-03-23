@@ -60,18 +60,6 @@ static const PinMap PinMap_SPI_SSEL[] = {
     {NC,  NC,    0}
 };
 
-typedef enum {
-    SPI_SPH0_SPO0 = 0,   // [Clock Phase 0, Clock Polarity 0] = 0
-    SPI_SPH0_SPO1,       // [Clock Phase 0, Clock Polarity 1] = 1
-    SPI_SPH1_SPO0,       // [Clock Phase 1, Clock Polarity 0] = 2
-    SPI_SPH1_SPO1        // [Clock Phase 1, Clock Polarity 1] = 3
-} SPI_MODE;
-
-typedef enum {
-    SPI_MASTER,
-    SPI_SLAVE
-} spi_mode;
-
 #define TMPM46B_SPI_2_FMAX    20000000
 #define TMPM46B_SPI_FMAX      10000000
 
@@ -149,7 +137,7 @@ void spi_free(spi_t *obj)
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     TSB_SSP_TypeDef* spi;
-    MBED_ASSERT(slave == SPI_MASTER);   // Master mode only
+    MBED_ASSERT(slave == SSP_MASTER);   // Master mode only
 
     spi = obj->spi;
 
@@ -194,9 +182,9 @@ void spi_frequency(spi_t *obj, int hz)
 
     spi = obj->spi;
     fr_gear = SystemCoreClock / hz;
-    if (fr_gear < 48){
+    if (fr_gear < 48) {
         cur_cpsdvsr = fr_gear;
-    } 
+    }
     while (best_diff != 0 && cur_cpsdvsr <= 254) {
         cur_scr = fr_gear / cur_cpsdvsr - 1;
 
