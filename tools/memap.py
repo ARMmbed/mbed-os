@@ -14,8 +14,15 @@ from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
 
-from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
-                    argparse_uppercase_type)
+# Be sure that the tools directory is in the search path
+# import sys.path.insert
+import sys
+from os.path import abspath
+ROOT = abspath(join(dirname(__file__), ".."))
+sys.path.insert(0, ROOT)
+
+from tools.utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                         argparse_uppercase_type)
 
 
 class _Parser(object):
