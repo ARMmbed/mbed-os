@@ -286,9 +286,11 @@ const uint8_t *USBTester::string_iinterface_desc()
 const uint8_t *USBTester::string_iproduct_desc()
 {
     static const uint8_t string_iproduct_descriptor[] = {
-        0x16,
+        0x22,
         STRING_DESCRIPTOR,
-        'C', 0, 'D', 0, 'C', 0, ' ', 0, 'D', 0, 'E', 0, 'V', 0, 'I', 0, 'C', 0, 'E', 0
+        'M', 0, 'B', 0, 'E', 0, 'D', 0, ' ', 0,
+        'T', 0, 'E', 0, 'S', 0, 'T', 0, ' ', 0,
+        'D', 0, 'E', 0, 'V', 0, 'I', 0, 'C', 0, 'E', 0,
     };
     return string_iproduct_descriptor;
 }
