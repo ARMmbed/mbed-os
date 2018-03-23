@@ -30,7 +30,7 @@
 #define TICKER_DELTA 10
 
 #define LP_TICKER_OVERFLOW_DELTA 0 // this will allow to detect that ticker counter rollovers to 0
-#define HF_TICKER_OVERFLOW_DELTA 50
+#define US_TICKER_OVERFLOW_DELTA 50
 
 #define TICKER_100_TICKS 100
 
@@ -396,7 +396,7 @@ void overflow_protect()
     while (intf->read() > ticks_now);
 }
 
-utest::v1::status_t hf_ticker_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index_of_case)
 {
     intf = get_us_ticker_data()->interface;
 
@@ -404,7 +404,7 @@ utest::v1::status_t hf_ticker_setup(const Case *const source, const size_t index
 
     set_us_ticker_irq_handler(ticker_event_handler_stub);
 
-    ticker_overflow_delta = HF_TICKER_OVERFLOW_DELTA;
+    ticker_overflow_delta = US_TICKER_OVERFLOW_DELTA;
 
     overflow_protect();
 
@@ -435,15 +435,15 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("hf ticker init is safe to call repeatedly", hf_ticker_setup, ticker_init_test),
-    Case("hf ticker info test", hf_ticker_setup, ticker_info_test),
-    Case("hf ticker interrupt test", hf_ticker_setup, ticker_interrupt_test),
-    Case("hf ticker past interrupt test", hf_ticker_setup, ticker_past_test),
-    Case("hf ticker reschedule test", hf_ticker_setup, ticker_repeat_reschedule_test),
-    Case("hf ticker fire interrupt", hf_ticker_setup, ticker_fire_now_test),
-    Case("hf ticker overflow test", hf_ticker_setup, ticker_overflow_test),
-    Case("hf ticker increment test", hf_ticker_setup, ticker_increment_test),
-    Case("hf ticker speed test", hf_ticker_setup, ticker_speed_test),
+    Case("Microsecond ticker init is safe to call repeatedly", us_ticker_setup, ticker_init_test),
+    Case("Microsecond ticker info test", us_ticker_setup, ticker_info_test),
+    Case("Microsecond ticker interrupt test", us_ticker_setup, ticker_interrupt_test),
+    Case("Microsecond ticker past interrupt test", us_ticker_setup, ticker_past_test),
+    Case("Microsecond ticker reschedule test", us_ticker_setup, ticker_repeat_reschedule_test),
+    Case("Microsecond ticker fire interrupt", us_ticker_setup, ticker_fire_now_test),
+    Case("Microsecond ticker overflow test", us_ticker_setup, ticker_overflow_test),
+    Case("Microsecond ticker increment test", us_ticker_setup, ticker_increment_test),
+    Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test),
 #if DEVICE_LPTICKER
     Case("lp ticker init is safe to call repeatedly", lp_ticker_setup, ticker_init_test),
     Case("lp ticker info test", lp_ticker_setup, ticker_info_test),
