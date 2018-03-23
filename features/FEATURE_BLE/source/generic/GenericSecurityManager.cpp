@@ -853,16 +853,23 @@ void GenericSecurityManager::on_slave_security_request(
         return;
     }
 
-    if (authentication.get_secure_connections()
-        && _default_authentication.get_secure_connections()
-        && !cb->secure_connections_paired) {
-        requestPairing(connection);
+    bool pairing_required = false;
+
+    if (authentication.get_secure_connections() && !cb->secure_connections_paired
+        && _default_authentication.get_secure_connections()) {
+        pairing_required = true;
     }
 
-    if (authentication.get_mitm()
-        && !cb->ltk_mitm_protected) {
+    if (authentication.get_mitm() && !cb->ltk_mitm_protected) {
+        pairing_required = true;
         cb->mitm_requested = true;
+    }
+
+    if (pairing_required) {
         requestPairing(connection);
+    } else if (!cb->encryption_requested) {
+        /* this will refresh keys if encryption is already present */
+        enable_encryption(connection);
     }
 }
 
