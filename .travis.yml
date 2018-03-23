@@ -20,6 +20,15 @@ cache:
     - $HOME/.cache/apt
     - $HOME/gcc-arm-none-eabi-6-2017-q2-update
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
+
 before_install:
   - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
@@ -133,6 +142,25 @@ matrix:
               STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
           fi
         - bash -c "$STATUS" success "$STATUSM"
+
+    - env:
+        - NAME=ble-host-tests
+        - BLE_HOST_TESTS=$PWD/features/FEATURE_BLE/tests
+      install:
+        # Install dependencies
+        - sudo apt-get install cmake
+        # Print versions we use
+        - gcc --version
+        - cmake --version
+      script:
+        # Compile the tests
+        - mkdir $BLE_HOST_TESTS/build
+        - cd $BLE_HOST_TESTS/build && CC=gcc-6 CXX=g++-6 cmake .. -G "Unix Makefiles"
+        - ls $BLE_HOST_TESTS
+        - ls $BLE_HOST_TESTS/build
+        - cd $BLE_HOST_TESTS/build && make 
+        # Run ble host tests
+        - $BLE_HOST_TESTS/build/gatt-client-tests
 
     - env:
         - NAME=littlefs
