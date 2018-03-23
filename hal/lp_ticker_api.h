@@ -57,7 +57,7 @@ extern "C" {
  *
  * To run the low power ticker hal tests use the command:
  *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-us_lp_ticker*,tests-mbed_hal-lp_ticker*
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-common_ticker*,tests-mbed_hal-lp_ticker*
  *
  */
 
