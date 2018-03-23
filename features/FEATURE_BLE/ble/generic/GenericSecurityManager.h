@@ -433,6 +433,7 @@ private:
         uint8_t attempt_oob:1;
         uint8_t oob_mitm_protection:1;
         uint8_t oob_present:1;
+        uint8_t legacy_pairing_oob_request_pending:1;
     };
 
     pal::SecurityManager &_pal;
@@ -444,6 +445,8 @@ private:
     oob_lesc_value_t _oob_peer_random;
     oob_confirm_t _oob_peer_confirm;
     oob_lesc_value_t _oob_local_random;
+    address_t _oob_temporary_key_creator_address; /**< device which generated and sent the TK */
+    oob_tk_t _oob_temporary_key; /**< used for legacy pairing */
 
     pal::AuthenticationMask _default_authentication;
     pal::KeyDistribution _default_key_distribution;
