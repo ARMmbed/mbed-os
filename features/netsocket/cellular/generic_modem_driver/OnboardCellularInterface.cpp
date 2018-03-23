@@ -52,3 +52,22 @@ void OnboardCellularInterface::modem_power_down()
     ::onboard_modem_power_down();
 }
 #endif
+
+#define CELLULAR 0x2345
+#if ONBOARD_CELLULAR_INTERFACE_AVAILABLE && MBED_CONF_NSAPI_DEFAULT_INTERFACE_TYPE == CELLULAR
+MBED_WEAK NetworkInterface &NetworkInterface::get_default_instance()
+{
+    static OnboardCellularInterface cellular;
+
+#ifdef MBED_CONF_DEFAULT_CELLULAR_APN
+#ifndef MBED_CONF_DEFAULT_CELLULAR_USERNAME
+#define MBED_CONF_DEFAULT_CELLULAR_USERNAME NULL
+#endif
+#ifndef MBED_CONF_DEFAULT_CELLULAR_PASSWORD
+#define MBED_CONF_DEFAULT_CELLULAR_PASSWORD NULL
+#endif
+    cellular.set_credentials(MBED_CONF_DEFAULT_CELLULAR_APN, MBED_CONF_DEFAULT_CELLULAR_USERNAME, MBED_CONF_DEFAULT_CELLULAR_PASSWORD);
+#endif
+
+    return cellular;
+}

@@ -69,5 +69,7 @@ protected:
     virtual void modem_power_down();
 };
 
+#define ONBOARD_CELLULAR_INTERFACE_AVAILABLE
+
 #endif //MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 #endif //ONBOARD_CELLULAR_INTERFACE_

@@ -215,3 +215,14 @@ mesh_error_t Nanostack::ThreadInterface::device_pskd_set(const char *pskd)
 {
     return (mesh_error_t)thread_tasklet_device_pskd_set(pskd);
 }
+
+#define MESH 0x2345
+#define THREAD 0x2345
+#if MBED_CONF_NSAPI_DEFAULT_INTERFACE_TYPE == MESH && MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == THREAD
+MBED_WEAK NetworkInterface &NetworkInterface::get_default_instance()
+{
+    static ThreadInterface thread(NanostackRfPhy::get_default_instance());
+
+    return thread;
+}
+#endif
