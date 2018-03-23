@@ -141,7 +141,8 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value)
 {
-    /* only continue if buffer can fit at least 1 characters */
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         MBED_UNSIGNED_STORAGE new_value = 0;
@@ -184,7 +185,8 @@ static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value)
 {
-    /* only continue if buffer can fit at least 1 characters */
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* treat 0 as a corner case */
@@ -248,7 +250,8 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
 {
     bool print_leading_zero = false;
 
-    /* only continue each loop if buffer can fit at least 2 characters */
+    /* only continue each loop if buffer can fit at least 2 characters
+       and if 'result' doesn't overflow */
     for (int index = 7; (*result >= 0) && (*result <= INT_MAX - 2) && ((size_t)*result + 2 <= length) && (index >= 0); index--)
     {
         /* get most significant byte */
@@ -293,7 +296,8 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
  */
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, const void* value)
 {
-    /* only continue if buffer can fit '0x' and twice the size of a void* */
+    /* only continue if buffer can fit '0x' and twice the size of a void*
+       and if 'result' doesn't overflow */
     size_t needed = 2 + 2 * sizeof(void*);
     if ((*result >= 0) && ((size_t)*result <= INT_MAX - needed) && ((size_t)*result + needed <= length))
     {
@@ -327,7 +331,8 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
  */
 static void mbed_minimal_formatted_string_double(char* buffer, size_t length, int* result, double value)
 {
-    /* only continue if buffer can fit at least 1 characters */
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* get integer part */
@@ -386,7 +391,8 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character)
 {
-    /* only continue if the buffer can fit 1 character */
+    /* only continue if the buffer can fit 1 character and if
+       'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* write character */
@@ -426,7 +432,8 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
  */
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string)
 {
-    /* only continue if the buffer can fit at least 1 character */
+    /* only continue if the buffer can fit at least 1 character and if
+       'result' doesn't overflow */
     if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* count characters in string */
@@ -483,9 +490,10 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
 
     int result = 0;
 
-    /* ensure that function wasn't called with an empty buffer, or with
-       a buffer size that is larger than the maximum 'int' value */
-    if (length > 0 && length <= INT_MAX)
+    /* ensure that function wasn't called with an empty buffer, or with or with
+       a buffer size that is larger than the maximum 'int' value, or with
+       a NULL format specifier */
+    if (format && length > 0 && length <= INT_MAX)
     {
         /* parse string */
         for (size_t index = 0; format[index] != '\0'; index++)
