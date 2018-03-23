@@ -49,7 +49,7 @@ extern "C" {
  *
  * To run the microsecond ticker hal tests use the command:
  *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-us_lp_ticker*,tests-mbed_hal-us_ticker*
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-common_ticker*,tests-mbed_hal-us_ticker*
  *
  * @see hal_ticker_tests
  *
@@ -96,7 +96,7 @@ extern "C" {
  *
  * To run the ticker hal tests use the command:
  *
- *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-us_lp_ticker*
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-common_ticker*
  *
  * @ingroup hal_us_ticker
  * @ingroup hal_lp_ticker

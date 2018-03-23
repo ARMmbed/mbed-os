@@ -104,7 +104,7 @@ void ticker_frequency_test()
     intf->disable_interrupt();
 }
 
-utest::v1::status_t hf_ticker_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t us_ticker_case_setup_handler_t(const Case * const source, const size_t index_of_case)
 {
     intf = get_us_ticker_data()->interface;
     set_us_ticker_irq_handler(ticker_event_handler_stub);
@@ -128,10 +128,10 @@ utest::v1::status_t ticker_case_teardown_handler_t(const Case * const source, co
 
 // Test cases
 Case cases[] = {
-    Case("hf ticker frequency test", hf_ticker_case_setup_handler_t, ticker_frequency_test,
+    Case("Microsecond ticker frequency test", us_ticker_case_setup_handler_t, ticker_frequency_test,
         ticker_case_teardown_handler_t),
 #if DEVICE_LPTICKER
-    Case("lp ticker frequency test", lp_ticker_case_setup_handler_t, ticker_frequency_test,
+    Case("Low power ticker frequency test", lp_ticker_case_setup_handler_t, ticker_frequency_test,
             ticker_case_teardown_handler_t),
 #endif
         };
