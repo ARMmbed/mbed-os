@@ -17,7 +17,8 @@
 
 typedef enum {
     SUCCESS = 0U,
-    ERROR = 1U
+    ERROR = 1U,
+    FAIL = -1
 } Result;
 
 typedef enum {

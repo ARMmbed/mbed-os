@@ -22,17 +22,11 @@
 static uint8_t us_ticker_inited = 0;                // Is ticker initialized yet?
 static volatile uint32_t us_ticker = 0;             // timer counter
 
-void INTTB1_IRQHandler(void)
-{
-    // This function is going to disable the interrupts if there are
-    us_ticker_irq_handler();
-}
-
 const ticker_info_t* us_ticker_get_info()
 {
     static const ticker_info_t info = {
-			1875000,//1875000,
-            16     // 16 bit counter
+        1875000, // 1875000,
+        16       // 16 bit counter
     };
     return &info;
 }
@@ -91,7 +85,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     const uint32_t now_ticks = us_ticker_read();
     uint32_t delta_ticks =
-            timestamp >= now_ticks ? timestamp - now_ticks : (uint32_t)((uint64_t) timestamp + 0xFFFF - now_ticks);
+        timestamp >= now_ticks ? timestamp - now_ticks : (uint32_t)((uint64_t) timestamp + 0xFFFF - now_ticks);
 
     if (delta_ticks == 0) {
         /* The requested delay is less than the minimum resolution of this counter. */
@@ -101,6 +95,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     // Ticker interrupt handle
     TMRB_Enable(TSB_TB1);
     TMRB_SetRunState(TSB_TB1, TMRB_STOP);
+    NVIC_SetVector(INTTB1_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(INTTB1_IRQn);
 
     // Split delta for preventing the Multiply overflowing
