@@ -20,7 +20,8 @@
 #include "nsapi_types.h"
 #include "Callback.h"
 
-namespace mbed {
+namespace mbed
+{
 
 /**
  *  Class CellularPower
@@ -121,7 +122,7 @@ public:
     virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
 
     /** Set URC callback function for device specific ready urc. URC is defined in device specific
-     *  header (for example in QUECTEL_BG96.h). Used in startup sequence to listen when device is ready
+     *  power API. Used in startup sequence to listen when device is ready
      *  for using at commands and possible sim.
      *
      *  @param callback Callback function called when urc received

@@ -236,16 +236,9 @@ nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnolog
 
 nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
-#ifdef DEVICE_READY_URC
-    return _at.set_urc_handler(DEVICE_READY_URC, callback);
-#else
     return NSAPI_ERROR_UNSUPPORTED;
-#endif // DEVICE_READY_URC
 }
 
 void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
-#ifdef DEVICE_READY_URC
-    _at.remove_urc_handler(DEVICE_READY_URC, callback);
-#endif // DEVICE_READY_URC
 }

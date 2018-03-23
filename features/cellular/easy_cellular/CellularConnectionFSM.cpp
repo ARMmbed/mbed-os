@@ -36,12 +36,13 @@
 
 #define RETRY_COUNT_DEFAULT 3
 
-namespace mbed {
+namespace mbed
+{
 
 CellularConnectionFSM::CellularConnectionFSM() :
-        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
+    _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
+    _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
+    _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -52,14 +53,14 @@ CellularConnectionFSM::CellularConnectionFSM() :
 #endif // MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY
 
     // set initial retry values in seconds
-    _retry_timeout_array[0] = 1;
+    _retry_timeout_array[0] = 1; // double time on each retry in order to keep network happy
     _retry_timeout_array[1] = 2;
     _retry_timeout_array[2] = 4;
-    _retry_timeout_array[3] = 16;
-    _retry_timeout_array[4] = 32;
-    _retry_timeout_array[5] = 60;
-    _retry_timeout_array[6] = 120;
-    _retry_timeout_array[7] = 360;
+    _retry_timeout_array[3] = 8;
+    _retry_timeout_array[4] = 16;
+    _retry_timeout_array[5] = 32;
+    _retry_timeout_array[6] = 64;
+    _retry_timeout_array[7] = 128; // if around two minutes was not enough then let's wait much longer
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
@@ -163,7 +164,7 @@ bool CellularConnectionFSM::open_sim()
                 tr_warn("PIN required but No SIM pin provided.");
             }
         }
-            break;
+        break;
         case CellularSIM::SimStatePukNeeded:
             tr_info("SIM PUK code needed...");
             break;
@@ -223,19 +224,19 @@ bool CellularConnectionFSM::get_network_registration(CellularNetwork::Registrati
     switch (status) {
         case CellularNetwork::RegisteredRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredHomeNetwork:
             is_registered = true;
             break;
         case CellularNetwork::RegisteredSMSOnlyRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredSMSOnlyHome:
             tr_warn("SMS only network registration!");
             break;
         case CellularNetwork::RegisteredCSFBNotPreferredRoaming:
             is_roaming = true;
-            // fall-through
+        // fall-through
         case CellularNetwork::RegisteredCSFBNotPreferredHome:
             tr_warn("Not preferred network registration!");
             break;
@@ -304,7 +305,7 @@ bool CellularConnectionFSM::is_automatic_registering()
 nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 {
     tr_info("Continue state from %s to %s", get_state_string((CellularConnectionFSM::CellularState)_state),
-                    get_state_string((CellularConnectionFSM::CellularState)state));
+            get_state_string((CellularConnectionFSM::CellularState)state));
     _state = state;
     _next_state = state;
     _retry_count = 0;
@@ -381,7 +382,7 @@ bool CellularConnectionFSM::device_ready()
     bool success = false;
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (!_network->set_registration_urc((CellularNetwork::RegistrationType)type, true)) {
-             success = true;
+            success = true;
         }
     }
     if (!success) {
@@ -422,13 +423,13 @@ void CellularConnectionFSM::state_sim_pin()
 void CellularConnectionFSM::state_registering()
 {
     _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-
     if (is_registered()) {
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
         if (!is_automatic_registering()) { // when we support plmn add this :  || plmn
             // automatic registering is not on, set registration and retry
+            _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
             set_network_registration();
         }
         retry_state_or_fail();
@@ -566,7 +567,7 @@ void CellularConnectionFSM::attach(mbed::Callback<void(nsapi_event_t, intptr_t)>
 void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
 
-    tr_debug("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
+    tr_info("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
     if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && ptr == CellularNetwork::RegisteredHomeNetwork && _state == STATE_REGISTERING_NETWORK) {
         _queue.cancel(_eventID);
         continue_from_state(STATE_ATTACHING_NETWORK);
