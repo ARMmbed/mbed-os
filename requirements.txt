@@ -15,3 +15,4 @@ pyelftools>=0.24
 jsonschema>=2.6
 future>=0.16.0
 six>=1.11.0
+pyusb>=1.0.0
