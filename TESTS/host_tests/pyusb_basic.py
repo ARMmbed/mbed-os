@@ -217,6 +217,10 @@ class PyusbBasicTest(BaseHostTest):
         except (RuntimeError) as exc:
             self.report_error(exc)
 
+    def _callback_reset_support(self, key, value, timestamp):
+        status = "false" if sys.platform == "darwin" else "true"
+        self.log("Reset supported: %s" % status)
+        self.send_kv("placeholder", status)
 
     def find_device(self, serial_number):
         # to make it more reliable, 20 retries in 2[s]
@@ -263,6 +267,7 @@ class PyusbBasicTest(BaseHostTest):
         self.register_callback('device_suspend_resume_test', self._callback_device_suspend_resume_test)
         self.register_callback('repeated_construction_destruction_test', self._callback_repeated_construction_destruction_test)
 
+        self.register_callback('reset_support', self._callback_reset_support)
 
     def result(self):
         return self.__result

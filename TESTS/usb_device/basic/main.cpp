@@ -107,7 +107,10 @@ void device_reset_test()
     char _key[11] = {};
     char _value[128] = {};
 
-    {
+    greentea_send_kv("reset_support", 0);
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    if (strcmp(_value, "false") != 0) {
+
         USBTester serial(vendor_id, product_id, product_release, true);
 
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
