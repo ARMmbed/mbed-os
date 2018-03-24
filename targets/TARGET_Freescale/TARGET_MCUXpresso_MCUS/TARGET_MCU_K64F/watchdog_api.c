@@ -118,7 +118,6 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
 {
   watchdog_features_t features;
   features.max_timeout = MAX_TIMEOUT_MS;
-  features.update_config = true;
   features.disable_watchdog = true;
 
   return features;
