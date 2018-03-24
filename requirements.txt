@@ -13,3 +13,4 @@ beautifulsoup4>=4
 fuzzywuzzy>=0.11
 pyelftools>=0.24
 jsonschema>=2.6
+pyusb>=1.0.0
