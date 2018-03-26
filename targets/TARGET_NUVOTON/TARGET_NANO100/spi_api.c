@@ -450,14 +450,39 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_rx, (uint32_t) spi_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
-        
-        // Start tx/rx DMA transfer
+
+        /* Start tx/rx DMA transfer
+         *
+         * If we have both PDMA and SPI interrupts enabled and PDMA priority is lower than SPI priority,
+         * we would trap in SPI interrupt handler endlessly with the sequence:
+         *
+         * 1. PDMA TX transfer done interrupt occurs and is well handled.
+         * 2. SPI RX FIFO threshold interrupt occurs. Trap here because PDMA RX transfer done interrupt doesn't get handled.
+         * 3. PDMA RX transfer done interrupt occurs but it cannot be handled due to above.
+         *
+         * To fix it, we don't enable SPI TX/RX threshold interrupts but keep SPI vector handler set to be called
+         * in PDMA TX/RX transfer done interrupt handlers (spi_dma_handler_tx/spi_dma_handler_rx).
+         */
         spi_enable_vector_interrupt(obj, handler, 1);
-        // No TX/RX FIFO threshold interrupt
+        /* No TX/RX FIFO threshold interrupt */
         spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
-        // NOTE: It is safer to start rx DMA first and then tx DMA. Otherwise, receive FIFO is subject to overflow by tx DMA.
+
+        /* Order to enable PDMA TX/RX functions
+         *
+         * H/W spec: In SPI Master mode with full duplex transfer, if both TX and RX PDMA functions are
+         *           enabled, RX PDMA function cannot be enabled prior to TX PDMA function. User can enable
+         *           TX PDMA function firstly or enable both functions simultaneously.
+         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is 
+         * subject to overflow by TX DMA.
+         *
+         * With the above conflicts, we enable PDMA TX/RX functions simultaneously.
+         */
+#if 0
         SPI_TRIGGER_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         SPI_TRIGGER_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
+#else
+        spi_base->DMA |= (SPI_DMA_TX_DMA_EN_Msk | SPI_DMA_RX_DMA_EN_Msk);
+#endif
         PDMA_Trigger(obj->spi.dma_chn_id_rx);
         PDMA_Trigger(obj->spi.dma_chn_id_tx);
     }
