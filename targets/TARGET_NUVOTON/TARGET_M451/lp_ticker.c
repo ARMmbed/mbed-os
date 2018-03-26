@@ -47,6 +47,9 @@ static int ticker_inited = 0;
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
+/* NOTE: When system clock is higher than timer clock, we need to add 3 engine clock
+ *       (recommended by designer) delay to wait for above timer control to take effect. */
+
 void lp_ticker_init(void)
 {
     if (ticker_inited) {
@@ -75,8 +78,10 @@ void lp_ticker_init(void)
     // Continuous mode
     // NOTE: TIMER_CTL_CNTDATEN_Msk exists in NUC472, but not in M451. In M451, TIMER_CNT is updated continuously by default.
     timer_base->CTL = TIMER_CONTINUOUS_MODE | prescale_timer/* | TIMER_CTL_CNTDATEN_Msk*/;
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     timer_base->CMP = cmp_timer;
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     // Set vector
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
@@ -84,11 +89,13 @@ void lp_ticker_init(void)
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
     TIMER_EnableInt(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_EnableWakeup(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_Start(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
@@ -129,11 +136,13 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 void lp_ticker_disable_interrupt(void)
 {
     TIMER_DisableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
 void lp_ticker_fire_interrupt(void)
@@ -155,8 +164,10 @@ const ticker_info_t* lp_ticker_get_info()
 static void tmr1_vec(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
     lp_ticker_irq_handler();
