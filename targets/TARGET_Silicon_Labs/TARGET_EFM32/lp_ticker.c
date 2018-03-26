@@ -125,6 +125,20 @@ void lp_ticker_free()
         CMU_ClockEnable(cmuClock_RTC, false);
         rtc_inited = false;
     }
+    RTC_FreezeEnable(false);
+}
+
+void rtc_set_comp0_value(uint64_t value, bool enable)
+{
+    rtc_enable_comp0(false);
+
+    /* Set callback */
+    RTC_FreezeEnable(true);
+    extended_comp0 = (uint32_t) (value >> RTC_BITS);
+    RTC_CompareSet(0, (uint32_t) (value & RTC_MAX_VALUE));
+    RTC_FreezeEnable(false);
+
+    rtc_enable_comp0(enable);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)

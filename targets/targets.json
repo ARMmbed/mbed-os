@@ -2919,7 +2919,7 @@
     "EFM32GG_STK3700": {
         "inherits": ["EFM32GG990F1024"],
         "progen": {"target": "efm32gg-stk"},
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH", "ITM"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH", "ITM"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -2972,7 +2972,7 @@
     },
     "EFM32LG_STK3600": {
         "inherits": ["EFM32LG990F256"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 2,
         "device_name": "EFM32LG990F256",
         "config": {
@@ -3027,7 +3027,7 @@
     "EFM32WG_STK3800": {
         "inherits": ["EFM32WG990F256"],
         "progen": {"target": "efm32wg-stk"},
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3188,7 +3188,7 @@
     },
     "EFM32PG_STK3401": {
         "inherits": ["EFM32PG1B100F256GM32"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3251,7 +3251,7 @@
     },
     "EFR32MG1_BRD4150": {
         "inherits": ["EFR32MG1P132F256GM48"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3294,7 +3294,7 @@
     },
     "TB_SENSE_1": {
         "inherits": ["EFR32MG1P233F256GM48"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
@@ -3342,7 +3342,7 @@
     },
     "EFM32PG12_STK3402": {
         "inherits": ["EFM32PG12B500F1024GL125"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3396,7 +3396,7 @@
     "TB_SENSE_12": {
         "inherits": ["EFR32MG12P332F1024GL125"],
         "device_name": "EFR32MG12P332F1024GL125",
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "FLASH"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
