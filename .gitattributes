@@ -13,3 +13,6 @@
 *.dia     binary
 *.elf     binary
 *.bin     binary
+
+* text=auto
+text eol=lf
