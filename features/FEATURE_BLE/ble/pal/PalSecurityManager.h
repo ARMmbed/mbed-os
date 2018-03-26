@@ -27,10 +27,10 @@
 namespace ble {
 namespace pal {
 
-typedef SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
-typedef SecurityManager::SecurityMode_t SecurityMode_t;
-typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
-typedef SecurityManager::Keypress_t Keypress_t;
+typedef ::SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
+typedef ::SecurityManager::SecurityMode_t SecurityMode_t;
+typedef ::SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
+typedef ::SecurityManager::Keypress_t Keypress_t;
 
 /**
  * Key distribution as required by the SMP with convenient setters and getters,
