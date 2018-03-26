@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    stm32l151xb.h
+  * @file    stm32l151xba.h
   * @author  MCD Application Team
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer Header File.
   *          This file contains all the peripheral register's definitions, bits
@@ -45,12 +45,12 @@
   * @{
   */
 
-/** @addtogroup stm32l151xb
+/** @addtogroup stm32l151xba
   * @{
   */
 
-#ifndef __STM32L151xB_H
-#define __STM32L151xB_H
+#ifndef __STM32L151xBA_H
+#define __STM32L151xBA_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -431,15 +431,15 @@ typedef struct
   __IO uint32_t ALRMAR;     /*!< RTC alarm A register,                                      Address offset: 0x1C */
   __IO uint32_t ALRMBR;     /*!< RTC alarm B register,                                      Address offset: 0x20 */
   __IO uint32_t WPR;        /*!< RTC write protection register,                             Address offset: 0x24 */
-  uint32_t RESERVED1;       /*!< Reserved, 0x28                                                                  */
-  uint32_t RESERVED2;       /*!< Reserved, 0x2C                                                                  */
+  __IO uint32_t SSR;        /*!< RTC sub second register,                                   Address offset: 0x28 */
+  __IO uint32_t SHIFTR;     /*!< RTC shift control register,                                Address offset: 0x2C */
   __IO uint32_t TSTR;       /*!< RTC time stamp time register,                              Address offset: 0x30 */
   __IO uint32_t TSDR;       /*!< RTC time stamp date register,                              Address offset: 0x34 */
-  uint32_t RESERVED3;       /*!< Reserved, 0x38                                                                  */
-  uint32_t RESERVED4;       /*!< Reserved, 0x3C                                                                  */
+  __IO uint32_t TSSSR;      /*!< RTC time-stamp sub second register,                        Address offset: 0x38 */
+  __IO uint32_t CALR;       /*!< RRTC calibration register,                                 Address offset: 0x3C */
   __IO uint32_t TAFCR;      /*!< RTC tamper and alternate function configuration register,  Address offset: 0x40 */
-  uint32_t RESERVED5;       /*!< Reserved, 0x44                                                                  */
-  uint32_t RESERVED6;       /*!< Reserved, 0x48                                                                  */
+  __IO uint32_t ALRMASSR;   /*!< RTC alarm A sub second register,                           Address offset: 0x44 */
+  __IO uint32_t ALRMBSSR;   /*!< RTC alarm B sub second register,                           Address offset: 0x48 */
   uint32_t RESERVED7;       /*!< Reserved, 0x4C                                                                  */
   __IO uint32_t BKP0R;      /*!< RTC backup register 0,                                     Address offset: 0x50 */
   __IO uint32_t BKP1R;      /*!< RTC backup register 1,                                     Address offset: 0x54 */
@@ -567,6 +567,13 @@ typedef struct
 /**
   * @brief Universal Serial Bus Full Speed Device
   */
+/**
+  * @}
+  */
+/** @addtogroup FLASH_Page_Size
+  * @{
+  */
+#define FLASH_SIZE                (uint32_t)(*((uint8_t *)FLASHSIZE_BASE) * 1024U)
 /**
   * @}
   */
@@ -1788,6 +1795,9 @@ typedef struct
 #define DBGMCU_APB1_FZ_DBG_TIM7_STOP_Pos         (5U)
 #define DBGMCU_APB1_FZ_DBG_TIM7_STOP_Msk         (0x1U << DBGMCU_APB1_FZ_DBG_TIM7_STOP_Pos) /*!< 0x00000020 */
 #define DBGMCU_APB1_FZ_DBG_TIM7_STOP             DBGMCU_APB1_FZ_DBG_TIM7_STOP_Msk /*!< TIM7 counter stopped when core is halted */
+#define DBGMCU_APB1_FZ_DBG_RTC_STOP_Pos          (10U)
+#define DBGMCU_APB1_FZ_DBG_RTC_STOP_Msk          (0x1U << DBGMCU_APB1_FZ_DBG_RTC_STOP_Pos) /*!< 0x00000400 */
+#define DBGMCU_APB1_FZ_DBG_RTC_STOP              DBGMCU_APB1_FZ_DBG_RTC_STOP_Msk /*!< RTC Counter stopped when Core is halted */
 #define DBGMCU_APB1_FZ_DBG_WWDG_STOP_Pos         (11U)
 #define DBGMCU_APB1_FZ_DBG_WWDG_STOP_Msk         (0x1U << DBGMCU_APB1_FZ_DBG_WWDG_STOP_Pos) /*!< 0x00000800 */
 #define DBGMCU_APB1_FZ_DBG_WWDG_STOP             DBGMCU_APB1_FZ_DBG_WWDG_STOP_Msk /*!< Debug Window Watchdog stopped when Core is halted */
@@ -2854,11 +2864,17 @@ typedef struct
 #define FLASH_SR_OPTVERR_Pos                 (11U)
 #define FLASH_SR_OPTVERR_Msk                 (0x1U << FLASH_SR_OPTVERR_Pos)    /*!< 0x00000800 */
 #define FLASH_SR_OPTVERR                     FLASH_SR_OPTVERR_Msk              /*!< Option validity error */
+#define FLASH_SR_RDERR_Pos                   (13U)
+#define FLASH_SR_RDERR_Msk                   (0x1U << FLASH_SR_RDERR_Pos)      /*!< 0x00002000 */
+#define FLASH_SR_RDERR                       FLASH_SR_RDERR_Msk                /*!< Read protected error */
 
 /******************  Bit definition for FLASH_OBR register  *******************/
 #define FLASH_OBR_RDPRT_Pos                  (0U)
 #define FLASH_OBR_RDPRT_Msk                  (0xFFU << FLASH_OBR_RDPRT_Pos)    /*!< 0x000000FF */
 #define FLASH_OBR_RDPRT                      FLASH_OBR_RDPRT_Msk               /*!< Read Protection */
+#define FLASH_OBR_SPRMOD_Pos                 (8U)
+#define FLASH_OBR_SPRMOD_Msk                 (0x1U << FLASH_OBR_SPRMOD_Pos)    /*!< 0x00000100 */
+#define FLASH_OBR_SPRMOD                     FLASH_OBR_SPRMOD_Msk              /*!< Selection of protection mode of WPRi bits */
 #define FLASH_OBR_BOR_LEV_Pos                (16U)
 #define FLASH_OBR_BOR_LEV_Msk                (0xFU << FLASH_OBR_BOR_LEV_Pos)   /*!< 0x000F0000 */
 #define FLASH_OBR_BOR_LEV                    FLASH_OBR_BOR_LEV_Msk             /*!< BOR_LEV[3:0] Brown Out Reset Threshold Level*/
@@ -3711,6 +3727,11 @@ typedef struct
 /*                      Reset and Clock Control (RCC)                         */
 /*                                                                            */
 /******************************************************************************/
+/*
+* @brief Specific device feature definitions  (not present on all devices in the STM32F0 serie)
+*/
+#define RCC_LSECSS_SUPPORT          /*!< LSE CSS feature support */
+
 /********************  Bit definition for RCC_CR register  ********************/
 #define RCC_CR_HSION_Pos                    (0U)
 #define RCC_CR_HSION_Msk                    (0x1U << RCC_CR_HSION_Pos)         /*!< 0x00000001 */
@@ -3978,6 +3999,9 @@ typedef struct
 #define RCC_CIR_MSIRDYF_Pos                 (5U)
 #define RCC_CIR_MSIRDYF_Msk                 (0x1U << RCC_CIR_MSIRDYF_Pos)      /*!< 0x00000020 */
 #define RCC_CIR_MSIRDYF                     RCC_CIR_MSIRDYF_Msk                /*!< MSI Ready Interrupt flag */
+#define RCC_CIR_LSECSSF_Pos                 (6U)
+#define RCC_CIR_LSECSSF_Msk                 (0x1U << RCC_CIR_LSECSSF_Pos)      /*!< 0x00000040 */
+#define RCC_CIR_LSECSSF                     RCC_CIR_LSECSSF_Msk                /*!< LSE CSS Interrupt flag */
 #define RCC_CIR_CSSF_Pos                    (7U)
 #define RCC_CIR_CSSF_Msk                    (0x1U << RCC_CIR_CSSF_Pos)         /*!< 0x00000080 */
 #define RCC_CIR_CSSF                        RCC_CIR_CSSF_Msk                   /*!< Clock Security System Interrupt flag */
@@ -4000,6 +4024,9 @@ typedef struct
 #define RCC_CIR_MSIRDYIE_Pos                (13U)
 #define RCC_CIR_MSIRDYIE_Msk                (0x1U << RCC_CIR_MSIRDYIE_Pos)     /*!< 0x00002000 */
 #define RCC_CIR_MSIRDYIE                    RCC_CIR_MSIRDYIE_Msk               /*!< MSI Ready Interrupt Enable */
+#define RCC_CIR_LSECSSIE_Pos                (14U)
+#define RCC_CIR_LSECSSIE_Msk                (0x1U << RCC_CIR_LSECSSIE_Pos)     /*!< 0x00004000 */
+#define RCC_CIR_LSECSSIE                    RCC_CIR_LSECSSIE_Msk               /*!< LSE CSS Interrupt Enable */
 
 #define RCC_CIR_LSIRDYC_Pos                 (16U)
 #define RCC_CIR_LSIRDYC_Msk                 (0x1U << RCC_CIR_LSIRDYC_Pos)      /*!< 0x00010000 */
@@ -4019,6 +4046,9 @@ typedef struct
 #define RCC_CIR_MSIRDYC_Pos                 (21U)
 #define RCC_CIR_MSIRDYC_Msk                 (0x1U << RCC_CIR_MSIRDYC_Pos)      /*!< 0x00200000 */
 #define RCC_CIR_MSIRDYC                     RCC_CIR_MSIRDYC_Msk                /*!< MSI Ready Interrupt Clear */
+#define RCC_CIR_LSECSSC_Pos                 (22U)
+#define RCC_CIR_LSECSSC_Msk                 (0x1U << RCC_CIR_LSECSSC_Pos)      /*!< 0x00400000 */
+#define RCC_CIR_LSECSSC                     RCC_CIR_LSECSSC_Msk                /*!< LSE CSS Interrupt Clear */
 #define RCC_CIR_CSSC_Pos                    (23U)
 #define RCC_CIR_CSSC_Msk                    (0x1U << RCC_CIR_CSSC_Pos)         /*!< 0x00800000 */
 #define RCC_CIR_CSSC                        RCC_CIR_CSSC_Msk                   /*!< Clock Security System Interrupt Clear */
@@ -4344,6 +4374,13 @@ typedef struct
 #define RCC_CSR_LSEBYP_Msk                  (0x1U << RCC_CSR_LSEBYP_Pos)       /*!< 0x00000400 */
 #define RCC_CSR_LSEBYP                      RCC_CSR_LSEBYP_Msk                 /*!< External Low Speed oscillator Bypass */
 
+#define RCC_CSR_LSECSSON_Pos                (11U)
+#define RCC_CSR_LSECSSON_Msk                (0x1U << RCC_CSR_LSECSSON_Pos)     /*!< 0x00000800 */
+#define RCC_CSR_LSECSSON                    RCC_CSR_LSECSSON_Msk               /*!< External Low Speed oscillator CSS Enable */
+#define RCC_CSR_LSECSSD_Pos                 (12U)
+#define RCC_CSR_LSECSSD_Msk                 (0x1U << RCC_CSR_LSECSSD_Pos)      /*!< 0x00001000 */
+#define RCC_CSR_LSECSSD                     RCC_CSR_LSECSSD_Msk                /*!< External Low Speed oscillator CSS Detected */
+
 #define RCC_CSR_RTCSEL_Pos                  (16U)
 #define RCC_CSR_RTCSEL_Msk                  (0x3U << RCC_CSR_RTCSEL_Pos)       /*!< 0x00030000 */
 #define RCC_CSR_RTCSEL                      RCC_CSR_RTCSEL_Msk                 /*!< RTCSEL[1:0] bits (RTC clock source selection) */
@@ -4403,8 +4440,12 @@ typedef struct
 * @brief Specific device feature definitions  (not present on all devices in the STM32F0 serie)
 */
 #define RTC_TAMPER1_SUPPORT       /*!< TAMPER 1 feature support */
+#define RTC_TAMPER2_SUPPORT       /*!< TAMPER 2 feature support */
+#define RTC_TAMPER3_SUPPORT       /*!< TAMPER 3 feature support */
 #define RTC_BACKUP_SUPPORT        /*!< BACKUP register feature support */
 #define RTC_WAKEUP_SUPPORT        /*!< WAKEUP feature support */
+#define RTC_SMOOTHCALIB_SUPPORT   /*!< Smooth digital calibration feature support */
+#define RTC_SUBSECOND_SUPPORT     /*!< Sub-second feature support */
 
 /********************  Bits definition for RTC_TR register  *******************/
 #define RTC_TR_PM_Pos                        (22U)
@@ -4505,6 +4546,9 @@ typedef struct
 #define RTC_CR_POL_Pos                       (20U)
 #define RTC_CR_POL_Msk                       (0x1U << RTC_CR_POL_Pos)          /*!< 0x00100000 */
 #define RTC_CR_POL                           RTC_CR_POL_Msk
+#define RTC_CR_COSEL_Pos                     (19U)
+#define RTC_CR_COSEL_Msk                     (0x1U << RTC_CR_COSEL_Pos)        /*!< 0x00080000 */
+#define RTC_CR_COSEL                         RTC_CR_COSEL_Msk
 #define RTC_CR_BKP_Pos                       (18U)
 #define RTC_CR_BKP_Msk                       (0x1U << RTC_CR_BKP_Pos)          /*!< 0x00040000 */
 #define RTC_CR_BKP                           RTC_CR_BKP_Msk
@@ -4544,6 +4588,9 @@ typedef struct
 #define RTC_CR_FMT_Pos                       (6U)
 #define RTC_CR_FMT_Msk                       (0x1U << RTC_CR_FMT_Pos)          /*!< 0x00000040 */
 #define RTC_CR_FMT                           RTC_CR_FMT_Msk
+#define RTC_CR_BYPSHAD_Pos                   (5U)
+#define RTC_CR_BYPSHAD_Msk                   (0x1U << RTC_CR_BYPSHAD_Pos)      /*!< 0x00000020 */
+#define RTC_CR_BYPSHAD                       RTC_CR_BYPSHAD_Msk
 #define RTC_CR_REFCKON_Pos                   (4U)
 #define RTC_CR_REFCKON_Msk                   (0x1U << RTC_CR_REFCKON_Pos)      /*!< 0x00000010 */
 #define RTC_CR_REFCKON                       RTC_CR_REFCKON_Msk
@@ -4563,6 +4610,15 @@ typedef struct
 #define  RTC_CR_BCK     RTC_CR_BKP
 
 /********************  Bits definition for RTC_ISR register  ******************/
+#define RTC_ISR_RECALPF_Pos                  (16U)
+#define RTC_ISR_RECALPF_Msk                  (0x1U << RTC_ISR_RECALPF_Pos)     /*!< 0x00010000 */
+#define RTC_ISR_RECALPF                      RTC_ISR_RECALPF_Msk
+#define RTC_ISR_TAMP3F_Pos                   (15U)
+#define RTC_ISR_TAMP3F_Msk                   (0x1U << RTC_ISR_TAMP3F_Pos)      /*!< 0x00008000 */
+#define RTC_ISR_TAMP3F                       RTC_ISR_TAMP3F_Msk
+#define RTC_ISR_TAMP2F_Pos                   (14U)
+#define RTC_ISR_TAMP2F_Msk                   (0x1U << RTC_ISR_TAMP2F_Pos)      /*!< 0x00004000 */
+#define RTC_ISR_TAMP2F                       RTC_ISR_TAMP2F_Msk
 #define RTC_ISR_TAMP1F_Pos                   (13U)
 #define RTC_ISR_TAMP1F_Msk                   (0x1U << RTC_ISR_TAMP1F_Pos)      /*!< 0x00002000 */
 #define RTC_ISR_TAMP1F                       RTC_ISR_TAMP1F_Msk
@@ -4593,6 +4649,9 @@ typedef struct
 #define RTC_ISR_INITS_Pos                    (4U)
 #define RTC_ISR_INITS_Msk                    (0x1U << RTC_ISR_INITS_Pos)       /*!< 0x00000010 */
 #define RTC_ISR_INITS                        RTC_ISR_INITS_Msk
+#define RTC_ISR_SHPF_Pos                     (3U)
+#define RTC_ISR_SHPF_Msk                     (0x1U << RTC_ISR_SHPF_Pos)        /*!< 0x00000008 */
+#define RTC_ISR_SHPF                         RTC_ISR_SHPF_Msk
 #define RTC_ISR_WUTWF_Pos                    (2U)
 #define RTC_ISR_WUTWF_Msk                    (0x1U << RTC_ISR_WUTWF_Pos)       /*!< 0x00000004 */
 #define RTC_ISR_WUTWF                        RTC_ISR_WUTWF_Msk
@@ -4608,7 +4667,7 @@ typedef struct
 #define RTC_PRER_PREDIV_A_Msk                (0x7FU << RTC_PRER_PREDIV_A_Pos)  /*!< 0x007F0000 */
 #define RTC_PRER_PREDIV_A                    RTC_PRER_PREDIV_A_Msk
 #define RTC_PRER_PREDIV_S_Pos                (0U)
-#define RTC_PRER_PREDIV_S_Msk                (0x1FFFU << RTC_PRER_PREDIV_S_Pos) /*!< 0x00001FFF */
+#define RTC_PRER_PREDIV_S_Msk                (0x7FFFU << RTC_PRER_PREDIV_S_Pos) /*!< 0x00007FFF */
 #define RTC_PRER_PREDIV_S                    RTC_PRER_PREDIV_S_Msk
 
 /********************  Bits definition for RTC_WUTR register  *****************/
@@ -4769,6 +4828,19 @@ typedef struct
 #define RTC_WPR_KEY_Msk                      (0xFFU << RTC_WPR_KEY_Pos)        /*!< 0x000000FF */
 #define RTC_WPR_KEY                          RTC_WPR_KEY_Msk
 
+/********************  Bits definition for RTC_SSR register  ******************/
+#define RTC_SSR_SS_Pos                       (0U)
+#define RTC_SSR_SS_Msk                       (0xFFFFU << RTC_SSR_SS_Pos)       /*!< 0x0000FFFF */
+#define RTC_SSR_SS                           RTC_SSR_SS_Msk
+
+/********************  Bits definition for RTC_SHIFTR register  ***************/
+#define RTC_SHIFTR_SUBFS_Pos                 (0U)
+#define RTC_SHIFTR_SUBFS_Msk                 (0x7FFFU << RTC_SHIFTR_SUBFS_Pos) /*!< 0x00007FFF */
+#define RTC_SHIFTR_SUBFS                     RTC_SHIFTR_SUBFS_Msk
+#define RTC_SHIFTR_ADD1S_Pos                 (31U)
+#define RTC_SHIFTR_ADD1S_Msk                 (0x1U << RTC_SHIFTR_ADD1S_Pos)    /*!< 0x80000000 */
+#define RTC_SHIFTR_ADD1S                     RTC_SHIFTR_ADD1S_Msk
+
 /********************  Bits definition for RTC_TSTR register  *****************/
 #define RTC_TSTR_PM_Pos                      (22U)
 #define RTC_TSTR_PM_Msk                      (0x1U << RTC_TSTR_PM_Pos)         /*!< 0x00400000 */
@@ -4842,10 +4914,72 @@ typedef struct
 #define RTC_TSDR_DU_2                        (0x4U << RTC_TSDR_DU_Pos)         /*!< 0x00000004 */
 #define RTC_TSDR_DU_3                        (0x8U << RTC_TSDR_DU_Pos)         /*!< 0x00000008 */
 
+/********************  Bits definition for RTC_TSSSR register  ****************/
+#define RTC_TSSSR_SS_Pos                     (0U)
+#define RTC_TSSSR_SS_Msk                     (0xFFFFU << RTC_TSSSR_SS_Pos)     /*!< 0x0000FFFF */
+#define RTC_TSSSR_SS                         RTC_TSSSR_SS_Msk
+
+/********************  Bits definition for RTC_CAL register  *****************/
+#define RTC_CALR_CALP_Pos                    (15U)
+#define RTC_CALR_CALP_Msk                    (0x1U << RTC_CALR_CALP_Pos)       /*!< 0x00008000 */
+#define RTC_CALR_CALP                        RTC_CALR_CALP_Msk
+#define RTC_CALR_CALW8_Pos                   (14U)
+#define RTC_CALR_CALW8_Msk                   (0x1U << RTC_CALR_CALW8_Pos)      /*!< 0x00004000 */
+#define RTC_CALR_CALW8                       RTC_CALR_CALW8_Msk
+#define RTC_CALR_CALW16_Pos                  (13U)
+#define RTC_CALR_CALW16_Msk                  (0x1U << RTC_CALR_CALW16_Pos)     /*!< 0x00002000 */
+#define RTC_CALR_CALW16                      RTC_CALR_CALW16_Msk
+#define RTC_CALR_CALM_Pos                    (0U)
+#define RTC_CALR_CALM_Msk                    (0x1FFU << RTC_CALR_CALM_Pos)     /*!< 0x000001FF */
+#define RTC_CALR_CALM                        RTC_CALR_CALM_Msk
+#define RTC_CALR_CALM_0                      (0x001U << RTC_CALR_CALM_Pos)     /*!< 0x00000001 */
+#define RTC_CALR_CALM_1                      (0x002U << RTC_CALR_CALM_Pos)     /*!< 0x00000002 */
+#define RTC_CALR_CALM_2                      (0x004U << RTC_CALR_CALM_Pos)     /*!< 0x00000004 */
+#define RTC_CALR_CALM_3                      (0x008U << RTC_CALR_CALM_Pos)     /*!< 0x00000008 */
+#define RTC_CALR_CALM_4                      (0x010U << RTC_CALR_CALM_Pos)     /*!< 0x00000010 */
+#define RTC_CALR_CALM_5                      (0x020U << RTC_CALR_CALM_Pos)     /*!< 0x00000020 */
+#define RTC_CALR_CALM_6                      (0x040U << RTC_CALR_CALM_Pos)     /*!< 0x00000040 */
+#define RTC_CALR_CALM_7                      (0x080U << RTC_CALR_CALM_Pos)     /*!< 0x00000080 */
+#define RTC_CALR_CALM_8                      (0x100U << RTC_CALR_CALM_Pos)     /*!< 0x00000100 */
+
 /********************  Bits definition for RTC_TAFCR register  ****************/
 #define RTC_TAFCR_ALARMOUTTYPE_Pos           (18U)
 #define RTC_TAFCR_ALARMOUTTYPE_Msk           (0x1U << RTC_TAFCR_ALARMOUTTYPE_Pos) /*!< 0x00040000 */
 #define RTC_TAFCR_ALARMOUTTYPE               RTC_TAFCR_ALARMOUTTYPE_Msk
+#define RTC_TAFCR_TAMPPUDIS_Pos              (15U)
+#define RTC_TAFCR_TAMPPUDIS_Msk              (0x1U << RTC_TAFCR_TAMPPUDIS_Pos) /*!< 0x00008000 */
+#define RTC_TAFCR_TAMPPUDIS                  RTC_TAFCR_TAMPPUDIS_Msk
+#define RTC_TAFCR_TAMPPRCH_Pos               (13U)
+#define RTC_TAFCR_TAMPPRCH_Msk               (0x3U << RTC_TAFCR_TAMPPRCH_Pos)  /*!< 0x00006000 */
+#define RTC_TAFCR_TAMPPRCH                   RTC_TAFCR_TAMPPRCH_Msk
+#define RTC_TAFCR_TAMPPRCH_0                 (0x1U << RTC_TAFCR_TAMPPRCH_Pos)  /*!< 0x00002000 */
+#define RTC_TAFCR_TAMPPRCH_1                 (0x2U << RTC_TAFCR_TAMPPRCH_Pos)  /*!< 0x00004000 */
+#define RTC_TAFCR_TAMPFLT_Pos                (11U)
+#define RTC_TAFCR_TAMPFLT_Msk                (0x3U << RTC_TAFCR_TAMPFLT_Pos)   /*!< 0x00001800 */
+#define RTC_TAFCR_TAMPFLT                    RTC_TAFCR_TAMPFLT_Msk
+#define RTC_TAFCR_TAMPFLT_0                  (0x1U << RTC_TAFCR_TAMPFLT_Pos)   /*!< 0x00000800 */
+#define RTC_TAFCR_TAMPFLT_1                  (0x2U << RTC_TAFCR_TAMPFLT_Pos)   /*!< 0x00001000 */
+#define RTC_TAFCR_TAMPFREQ_Pos               (8U)
+#define RTC_TAFCR_TAMPFREQ_Msk               (0x7U << RTC_TAFCR_TAMPFREQ_Pos)  /*!< 0x00000700 */
+#define RTC_TAFCR_TAMPFREQ                   RTC_TAFCR_TAMPFREQ_Msk
+#define RTC_TAFCR_TAMPFREQ_0                 (0x1U << RTC_TAFCR_TAMPFREQ_Pos)  /*!< 0x00000100 */
+#define RTC_TAFCR_TAMPFREQ_1                 (0x2U << RTC_TAFCR_TAMPFREQ_Pos)  /*!< 0x00000200 */
+#define RTC_TAFCR_TAMPFREQ_2                 (0x4U << RTC_TAFCR_TAMPFREQ_Pos)  /*!< 0x00000400 */
+#define RTC_TAFCR_TAMPTS_Pos                 (7U)
+#define RTC_TAFCR_TAMPTS_Msk                 (0x1U << RTC_TAFCR_TAMPTS_Pos)    /*!< 0x00000080 */
+#define RTC_TAFCR_TAMPTS                     RTC_TAFCR_TAMPTS_Msk
+#define RTC_TAFCR_TAMP3TRG_Pos               (6U)
+#define RTC_TAFCR_TAMP3TRG_Msk               (0x1U << RTC_TAFCR_TAMP3TRG_Pos)  /*!< 0x00000040 */
+#define RTC_TAFCR_TAMP3TRG                   RTC_TAFCR_TAMP3TRG_Msk
+#define RTC_TAFCR_TAMP3E_Pos                 (5U)
+#define RTC_TAFCR_TAMP3E_Msk                 (0x1U << RTC_TAFCR_TAMP3E_Pos)    /*!< 0x00000020 */
+#define RTC_TAFCR_TAMP3E                     RTC_TAFCR_TAMP3E_Msk
+#define RTC_TAFCR_TAMP2TRG_Pos               (4U)
+#define RTC_TAFCR_TAMP2TRG_Msk               (0x1U << RTC_TAFCR_TAMP2TRG_Pos)  /*!< 0x00000010 */
+#define RTC_TAFCR_TAMP2TRG                   RTC_TAFCR_TAMP2TRG_Msk
+#define RTC_TAFCR_TAMP2E_Pos                 (3U)
+#define RTC_TAFCR_TAMP2E_Msk                 (0x1U << RTC_TAFCR_TAMP2E_Pos)    /*!< 0x00000008 */
+#define RTC_TAFCR_TAMP2E                     RTC_TAFCR_TAMP2E_Msk
 #define RTC_TAFCR_TAMPIE_Pos                 (2U)
 #define RTC_TAFCR_TAMPIE_Msk                 (0x1U << RTC_TAFCR_TAMPIE_Pos)    /*!< 0x00000004 */
 #define RTC_TAFCR_TAMPIE                     RTC_TAFCR_TAMPIE_Msk
@@ -4855,6 +4989,30 @@ typedef struct
 #define RTC_TAFCR_TAMP1E_Pos                 (0U)
 #define RTC_TAFCR_TAMP1E_Msk                 (0x1U << RTC_TAFCR_TAMP1E_Pos)    /*!< 0x00000001 */
 #define RTC_TAFCR_TAMP1E                     RTC_TAFCR_TAMP1E_Msk
+
+/********************  Bits definition for RTC_ALRMASSR register  *************/
+#define RTC_ALRMASSR_MASKSS_Pos              (24U)
+#define RTC_ALRMASSR_MASKSS_Msk              (0xFU << RTC_ALRMASSR_MASKSS_Pos) /*!< 0x0F000000 */
+#define RTC_ALRMASSR_MASKSS                  RTC_ALRMASSR_MASKSS_Msk
+#define RTC_ALRMASSR_MASKSS_0                (0x1U << RTC_ALRMASSR_MASKSS_Pos) /*!< 0x01000000 */
+#define RTC_ALRMASSR_MASKSS_1                (0x2U << RTC_ALRMASSR_MASKSS_Pos) /*!< 0x02000000 */
+#define RTC_ALRMASSR_MASKSS_2                (0x4U << RTC_ALRMASSR_MASKSS_Pos) /*!< 0x04000000 */
+#define RTC_ALRMASSR_MASKSS_3                (0x8U << RTC_ALRMASSR_MASKSS_Pos) /*!< 0x08000000 */
+#define RTC_ALRMASSR_SS_Pos                  (0U)
+#define RTC_ALRMASSR_SS_Msk                  (0x7FFFU << RTC_ALRMASSR_SS_Pos)  /*!< 0x00007FFF */
+#define RTC_ALRMASSR_SS                      RTC_ALRMASSR_SS_Msk
+
+/********************  Bits definition for RTC_ALRMBSSR register  *************/
+#define RTC_ALRMBSSR_MASKSS_Pos              (24U)
+#define RTC_ALRMBSSR_MASKSS_Msk              (0xFU << RTC_ALRMBSSR_MASKSS_Pos) /*!< 0x0F000000 */
+#define RTC_ALRMBSSR_MASKSS                  RTC_ALRMBSSR_MASKSS_Msk
+#define RTC_ALRMBSSR_MASKSS_0                (0x1U << RTC_ALRMBSSR_MASKSS_Pos) /*!< 0x01000000 */
+#define RTC_ALRMBSSR_MASKSS_1                (0x2U << RTC_ALRMBSSR_MASKSS_Pos) /*!< 0x02000000 */
+#define RTC_ALRMBSSR_MASKSS_2                (0x4U << RTC_ALRMBSSR_MASKSS_Pos) /*!< 0x04000000 */
+#define RTC_ALRMBSSR_MASKSS_3                (0x8U << RTC_ALRMBSSR_MASKSS_Pos) /*!< 0x08000000 */
+#define RTC_ALRMBSSR_SS_Pos                  (0U)
+#define RTC_ALRMBSSR_SS_Msk                  (0x7FFFU << RTC_ALRMBSSR_SS_Pos)  /*!< 0x00007FFF */
+#define RTC_ALRMBSSR_SS                      RTC_ALRMBSSR_SS_Msk
 
 /********************  Bits definition for RTC_BKP0R register  ****************/
 #define RTC_BKP0R_Pos                        (0U)
@@ -4881,83 +5039,8 @@ typedef struct
 #define RTC_BKP4R_Msk                        (0xFFFFFFFFU << RTC_BKP4R_Pos)    /*!< 0xFFFFFFFF */
 #define RTC_BKP4R                            RTC_BKP4R_Msk
 
-/********************  Bits definition for RTC_BKP5R register  ****************/
-#define RTC_BKP5R_Pos                        (0U)
-#define RTC_BKP5R_Msk                        (0xFFFFFFFFU << RTC_BKP5R_Pos)    /*!< 0xFFFFFFFF */
-#define RTC_BKP5R                            RTC_BKP5R_Msk
-
-/********************  Bits definition for RTC_BKP6R register  ****************/
-#define RTC_BKP6R_Pos                        (0U)
-#define RTC_BKP6R_Msk                        (0xFFFFFFFFU << RTC_BKP6R_Pos)    /*!< 0xFFFFFFFF */
-#define RTC_BKP6R                            RTC_BKP6R_Msk
-
-/********************  Bits definition for RTC_BKP7R register  ****************/
-#define RTC_BKP7R_Pos                        (0U)
-#define RTC_BKP7R_Msk                        (0xFFFFFFFFU << RTC_BKP7R_Pos)    /*!< 0xFFFFFFFF */
-#define RTC_BKP7R                            RTC_BKP7R_Msk
-
-/********************  Bits definition for RTC_BKP8R register  ****************/
-#define RTC_BKP8R_Pos                        (0U)
-#define RTC_BKP8R_Msk                        (0xFFFFFFFFU << RTC_BKP8R_Pos)    /*!< 0xFFFFFFFF */
-#define RTC_BKP8R                            RTC_BKP8R_Msk
-
-/********************  Bits definition for RTC_BKP9R register  ****************/
-#define RTC_BKP9R_Pos                        (0U)
-#define RTC_BKP9R_Msk                        (0xFFFFFFFFU << RTC_BKP9R_Pos)    /*!< 0xFFFFFFFF */
-#define RTC_BKP9R                            RTC_BKP9R_Msk
-
-/********************  Bits definition for RTC_BKP10R register  ***************/
-#define RTC_BKP10R_Pos                       (0U)
-#define RTC_BKP10R_Msk                       (0xFFFFFFFFU << RTC_BKP10R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP10R                           RTC_BKP10R_Msk
-
-/********************  Bits definition for RTC_BKP11R register  ***************/
-#define RTC_BKP11R_Pos                       (0U)
-#define RTC_BKP11R_Msk                       (0xFFFFFFFFU << RTC_BKP11R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP11R                           RTC_BKP11R_Msk
-
-/********************  Bits definition for RTC_BKP12R register  ***************/
-#define RTC_BKP12R_Pos                       (0U)
-#define RTC_BKP12R_Msk                       (0xFFFFFFFFU << RTC_BKP12R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP12R                           RTC_BKP12R_Msk
-
-/********************  Bits definition for RTC_BKP13R register  ***************/
-#define RTC_BKP13R_Pos                       (0U)
-#define RTC_BKP13R_Msk                       (0xFFFFFFFFU << RTC_BKP13R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP13R                           RTC_BKP13R_Msk
-
-/********************  Bits definition for RTC_BKP14R register  ***************/
-#define RTC_BKP14R_Pos                       (0U)
-#define RTC_BKP14R_Msk                       (0xFFFFFFFFU << RTC_BKP14R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP14R                           RTC_BKP14R_Msk
-
-/********************  Bits definition for RTC_BKP15R register  ***************/
-#define RTC_BKP15R_Pos                       (0U)
-#define RTC_BKP15R_Msk                       (0xFFFFFFFFU << RTC_BKP15R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP15R                           RTC_BKP15R_Msk
-
-/********************  Bits definition for RTC_BKP16R register  ***************/
-#define RTC_BKP16R_Pos                       (0U)
-#define RTC_BKP16R_Msk                       (0xFFFFFFFFU << RTC_BKP16R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP16R                           RTC_BKP16R_Msk
-
-/********************  Bits definition for RTC_BKP17R register  ***************/
-#define RTC_BKP17R_Pos                       (0U)
-#define RTC_BKP17R_Msk                       (0xFFFFFFFFU << RTC_BKP17R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP17R                           RTC_BKP17R_Msk
-
-/********************  Bits definition for RTC_BKP18R register  ***************/
-#define RTC_BKP18R_Pos                       (0U)
-#define RTC_BKP18R_Msk                       (0xFFFFFFFFU << RTC_BKP18R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP18R                           RTC_BKP18R_Msk
-
-/********************  Bits definition for RTC_BKP19R register  ***************/
-#define RTC_BKP19R_Pos                       (0U)
-#define RTC_BKP19R_Msk                       (0xFFFFFFFFU << RTC_BKP19R_Pos)   /*!< 0xFFFFFFFF */
-#define RTC_BKP19R                           RTC_BKP19R_Msk
-
 /******************** Number of backup registers ******************************/
-#define RTC_BKP_NUMBER 20
+#define RTC_BKP_NUMBER 5
 
 /******************************************************************************/
 /*                                                                            */
@@ -8077,7 +8160,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif /* __STM32L151xB_H */
+#endif /* __STM32L151xBA_H */
 
 
 

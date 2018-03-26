@@ -27,7 +27,7 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32L151CB: 128KB FLASH + 16KB SRAM
+; STM32L151CB: 128KB FLASH + 32KB SRAM
 LR_IROM1 0x08000000 0x20000  {    ; load region size_region
 
   ER_IROM1 0x08000000 0x20000  {  ; load address = execution address
@@ -37,7 +37,7 @@ LR_IROM1 0x08000000 0x20000  {    ; load region size_region
   }
 
   ; 61 vectors = 244 bytes (0xF4) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0xF4) (0x4000-0xF4)  {  ; RW data
+  RW_IRAM1 (0x20000000+0xF4) (0x8000-0xF4)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
