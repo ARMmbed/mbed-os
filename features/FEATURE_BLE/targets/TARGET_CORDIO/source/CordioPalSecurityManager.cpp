@@ -636,7 +636,6 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         case DM_SEC_CALC_OOB_IND: {
             dmSecOobCalcIndEvt_t* evt = (dmSecOobCalcIndEvt_t*) msg;
             handler->on_secure_connections_oob_generated(
-                evt->hdr.param,
                 evt->random,
                 evt->confirm
             );
