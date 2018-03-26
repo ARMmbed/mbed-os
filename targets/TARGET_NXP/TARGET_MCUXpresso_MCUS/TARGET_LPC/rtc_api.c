@@ -15,13 +15,15 @@
  */
 #include "rtc_api.h"
 
-#if DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 #include "pinmap.h"
 #include "fsl_rtc.h"
 #include "PeripheralPins.h"
 
 extern void rtc_setup_oscillator(void);
+
+static bool rtc_time_set = false;
 
 void rtc_init(void)
 {
@@ -34,7 +36,10 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-    RTC_Deinit(RTC);
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    /* Gate the module clock */
+    CLOCK_DisableClock(kCLOCK_Rtc);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 /*
@@ -43,8 +48,19 @@ void rtc_free(void)
  */
 int rtc_isenabled(void)
 {
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    /* Enable the RTC peripheral clock */
     CLOCK_EnableClock(kCLOCK_Rtc);
-    return (int)((RTC->CTRL & RTC_CTRL_RTC_EN_MASK) >> RTC_CTRL_RTC_EN_SHIFT);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+    const bool rtc_init_done = ((RTC->CTRL & RTC_CTRL_RTC_EN_MASK) >> RTC_CTRL_RTC_EN_SHIFT);
+
+    /* If RTC is not initialized, then disable the clock gate on exit. */
+    if(!rtc_init_done) {
+        rtc_free();
+    }
+
+    return (rtc_init_done & rtc_time_set);
 }
 
 time_t rtc_read(void)
@@ -57,6 +73,8 @@ void rtc_write(time_t t)
     RTC_StopTimer(RTC);
     RTC->COUNT = t;
     RTC_StartTimer(RTC);
+
+    rtc_time_set = true;
 }
 
 #endif
