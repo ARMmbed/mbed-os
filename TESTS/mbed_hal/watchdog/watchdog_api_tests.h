@@ -32,14 +32,6 @@
  */
 void test_max_timeout_is_valid();
 
-/** Test stopped watchdog can be started again
- *
- * Given a device supporting watchdog HAL API
- * When the device supports the @a disable_watchdog feature
- * Then the device also supports @a update_config feature
- */
-void test_restart_is_possible();
-
 /** Test watchdog can be stopped
  *
  * Given a device without a support for the @a disable_watchdog feature
@@ -57,22 +49,6 @@ void test_restart_is_possible();
  * Then WATCHDOG_STATUS_OK is returned
  */
 void test_stop();
-
-/** Test update config with multiple init calls
- *
- * Given @a max_timeout value returned by @a hal_watchdog_get_platform_features()
- *     and @a hal_watchdog_init() called multiple times with same @a config
- * When @a config.timeout_ms is set to WDG_CONFIG_DEFAULT
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns WDG_CONFIG_DEFAULT
- * When @a config.timeout_ms is set to max_timeout-delta
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns max_timeout-delta
- * When @a config.timeout_ms is set to max_timeout
- * Then return value of hal_watchdog_init() is @a WATCHDOG_STATUS_OK
- *     and @a hal_watchdog_get_reload_value() returns max_timeout
- */
-void test_update_config();
 
 /** Test init with a valid config
  *
