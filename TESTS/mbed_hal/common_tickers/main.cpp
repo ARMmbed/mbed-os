@@ -52,6 +52,7 @@ unsigned int ticker_overflow_delta;
 uint32_t count_ticks(uint32_t cycles, uint32_t step)
 {
     register uint32_t reg_cycles = cycles;
+    const ticker_info_t* p_ticker_info = intf->get_info();
 
     core_util_critical_section_enter();
 
@@ -65,7 +66,10 @@ uint32_t count_ticks(uint32_t cycles, uint32_t step)
 
     core_util_critical_section_exit();
 
-    return (stop - start);
+    if ( stop > start)
+        return (stop - start);
+    else
+        return (((1 << p_ticker_info->bits) - start)  + stop);
 }
 
 void ticker_event_handler_stub(const ticker_data_t * const ticker)
