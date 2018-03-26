@@ -556,20 +556,7 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
-    /* legacy pairing */
-    _oob_temporary_key_creator_address = cb->local_address;
-    get_random_data(_oob_temporary_key.buffer(), 16);
-
-    eventHandler->legacyPairingOobGenerated(
-        &_oob_temporary_key_creator_address,
-        &_oob_temporary_key
-    );
-
-    /* secure connections */
-    _oob_local_address = cb->local_address;
-    _pal.generate_secure_connections_oob();
-
-    return BLE_ERROR_NONE;
+    return generateOOB(&cb->local_address);;
 }
 
 ble_error_t GenericSecurityManager::confirmationEntered(
