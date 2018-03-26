@@ -115,9 +115,11 @@ public:
     void attach_us(Callback<void()> func, us_timestamp_t t) {
         core_util_critical_section_enter();
         // lock only for the initial callback setup and this is not low power ticker
+#if DEVICE_SLEEP
         if(!_function && _lock_deepsleep) {
             sleep_manager_lock_deep_sleep();
         }
+#endif
         _function = func;
         setup(t);
         core_util_critical_section_exit();
