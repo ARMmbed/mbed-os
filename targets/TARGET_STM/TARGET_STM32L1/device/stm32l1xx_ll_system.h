@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_system.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of SYSTEM LL module.
   @verbatim
   ==============================================================================
@@ -21,7 +19,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -77,15 +75,12 @@ extern "C" {
   * @{
   */
 
-/* Defines used for position in the register */
-#define DBGMCU_REVID_POSITION         (uint32_t)POSITION_VAL(DBGMCU_IDCODE_REV_ID)
-
 /**
  * @brief Power-down in Run mode Flash key
  */
-#define FLASH_PDKEY1                  ((uint32_t)0x04152637U) /*!< Flash power down key1 */
-#define FLASH_PDKEY2                  ((uint32_t)0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
-                                                                   to unlock the RUN_PD bit in FLASH_ACR */
+#define FLASH_PDKEY1                  (0x04152637U) /*!< Flash power down key1 */
+#define FLASH_PDKEY2                  (0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
+                                                       to unlock the RUN_PD bit in FLASH_ACR */
 
 /**
   * @}
@@ -102,7 +97,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_REMAP SYSCFG REMAP
 * @{
 */
-#define LL_SYSCFG_REMAP_FLASH              (uint32_t)0x00000000U                                  /*<! Main Flash memory mapped at 0x00000000 */
+#define LL_SYSCFG_REMAP_FLASH              (0x00000000U)                                         /*<! Main Flash memory mapped at 0x00000000 */
 #define LL_SYSCFG_REMAP_SYSTEMFLASH        SYSCFG_MEMRMP_MEM_MODE_0                              /*<! System Flash memory mapped at 0x00000000 */
 #define LL_SYSCFG_REMAP_SRAM               (SYSCFG_MEMRMP_MEM_MODE_1 | SYSCFG_MEMRMP_MEM_MODE_0) /*<! Embedded SRAM mapped at 0x00000000 */
 #if defined(FSMC_R_BASE)
@@ -115,7 +110,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_BOOT SYSCFG BOOT MODE
   * @{
   */
-#define LL_SYSCFG_BOOTMODE_FLASH               ((uint32_t)0x00000000U)   /*<! Main Flash memory boot mode */
+#define LL_SYSCFG_BOOTMODE_FLASH               (0x00000000U)             /*<! Main Flash memory boot mode */
 #define LL_SYSCFG_BOOTMODE_SYSTEMFLASH         SYSCFG_MEMRMP_BOOT_MODE_0 /*<! System Flash memory boot mode */
 #if defined(FSMC_BANK1)
 #define LL_SYSCFG_BOOTMODE_FSMC                SYSCFG_MEMRMP_BOOT_MODE_1 /*<! FSMC boot mode */
@@ -143,20 +138,20 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_EXTI SYSCFG EXTI PORT
   * @{
   */
-#define LL_SYSCFG_EXTI_PORTA               (uint32_t)0U /*!< EXTI PORT A                        */
-#define LL_SYSCFG_EXTI_PORTB               (uint32_t)1U /*!< EXTI PORT B                        */
-#define LL_SYSCFG_EXTI_PORTC               (uint32_t)2U /*!< EXTI PORT C                        */
-#define LL_SYSCFG_EXTI_PORTD               (uint32_t)3U /*!< EXTI PORT D                        */
+#define LL_SYSCFG_EXTI_PORTA               0U /*!< EXTI PORT A                        */
+#define LL_SYSCFG_EXTI_PORTB               1U /*!< EXTI PORT B                        */
+#define LL_SYSCFG_EXTI_PORTC               2U /*!< EXTI PORT C                        */
+#define LL_SYSCFG_EXTI_PORTD               3U /*!< EXTI PORT D                        */
 #if defined(GPIOE)
-#define LL_SYSCFG_EXTI_PORTE               (uint32_t)4U /*!< EXTI PORT E                        */
+#define LL_SYSCFG_EXTI_PORTE               4U /*!< EXTI PORT E                        */
 #endif /* GPIOE */
 #if defined(GPIOF)
-#define LL_SYSCFG_EXTI_PORTF               (uint32_t)6U /*!< EXTI PORT F                        */
+#define LL_SYSCFG_EXTI_PORTF               6U /*!< EXTI PORT F                        */
 #endif /* GPIOF */
 #if defined(GPIOG)
-#define LL_SYSCFG_EXTI_PORTG               (uint32_t)7U /*!< EXTI PORT G                        */
+#define LL_SYSCFG_EXTI_PORTG               7U /*!< EXTI PORT G                        */
 #endif /* GPIOG */
-#define LL_SYSCFG_EXTI_PORTH               (uint32_t)5U /*!< EXTI PORT H                        */
+#define LL_SYSCFG_EXTI_PORTH               5U /*!< EXTI PORT H                        */
 /**
   * @}
   */
@@ -187,7 +182,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_TRACE DBGMCU TRACE Pin Assignment
   * @{
   */
-#define LL_DBGMCU_TRACE_NONE               (uint32_t)0x00000000U                           /*!< TRACE pins not assigned (default state) */
+#define LL_DBGMCU_TRACE_NONE               0x00000000U                                     /*!< TRACE pins not assigned (default state) */
 #define LL_DBGMCU_TRACE_ASYNCH             DBGMCU_CR_TRACE_IOEN                            /*!< TRACE pin assignment for Asynchronous Mode */
 #define LL_DBGMCU_TRACE_SYNCH_SIZE1        (DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE_0) /*!< TRACE pin assignment for Synchronous Mode with a TRACEDATA size of 1 */
 #define LL_DBGMCU_TRACE_SYNCH_SIZE2        (DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE_1) /*!< TRACE pin assignment for Synchronous Mode with a TRACEDATA size of 2 */
@@ -231,7 +226,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_TIM_SELECT RI TIM selection
   * @{
   */
-#define LL_RI_TIM_SELECT_NONE              ((uint32_t)0x00000000U) /*!< No timer selected */
+#define LL_RI_TIM_SELECT_NONE              (0x00000000U)           /*!< No timer selected */
 #define LL_RI_TIM_SELECT_TIM2              RI_ICR_TIM_0            /*!< Timer 2 selected */
 #define LL_RI_TIM_SELECT_TIM3              RI_ICR_TIM_1            /*!< Timer 3 selected */
 #define LL_RI_TIM_SELECT_TIM4              RI_ICR_TIM              /*!< Timer 4 selected */
@@ -253,24 +248,24 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_INPUTCAPTUREROUTING RI Input Capture Routing
   * @{
   */
-                                                                   /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4   */  
-#define LL_RI_INPUTCAPTUREROUTING_0        ((uint32_t)0x00000000U) /*!< PA0       PA1      PA2       PA3      */
-#define LL_RI_INPUTCAPTUREROUTING_1        ((uint32_t)0x00000001U) /*!< PA4       PA5      PA6       PA7      */
-#define LL_RI_INPUTCAPTUREROUTING_2        ((uint32_t)0x00000002U) /*!< PA8       PA9      PA10      PA11     */
-#define LL_RI_INPUTCAPTUREROUTING_3        ((uint32_t)0x00000003U) /*!< PA12      PA13     PA14      PA15     */
-#define LL_RI_INPUTCAPTUREROUTING_4        ((uint32_t)0x00000004U) /*!< PC0       PC1      PC2       PC3      */
-#define LL_RI_INPUTCAPTUREROUTING_5        ((uint32_t)0x00000005U) /*!< PC4       PC5      PC6       PC7      */
-#define LL_RI_INPUTCAPTUREROUTING_6        ((uint32_t)0x00000006U) /*!< PC8       PC9      PC10      PC11     */
-#define LL_RI_INPUTCAPTUREROUTING_7        ((uint32_t)0x00000007U) /*!< PC12      PC13     PC14      PC15     */
-#define LL_RI_INPUTCAPTUREROUTING_8        ((uint32_t)0x00000008U) /*!< PD0       PD1      PD2       PD3      */
-#define LL_RI_INPUTCAPTUREROUTING_9        ((uint32_t)0x00000009U) /*!< PD4       PD5      PD6       PD7      */
-#define LL_RI_INPUTCAPTUREROUTING_10       ((uint32_t)0x0000000AU) /*!< PD8       PD9      PD10      PD11     */
-#define LL_RI_INPUTCAPTUREROUTING_11       ((uint32_t)0x0000000BU) /*!< PD12      PD13     PD14      PD15     */
+                                                         /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4   */  
+#define LL_RI_INPUTCAPTUREROUTING_0        (0x00000000U) /*!< PA0       PA1      PA2       PA3      */
+#define LL_RI_INPUTCAPTUREROUTING_1        (0x00000001U) /*!< PA4       PA5      PA6       PA7      */
+#define LL_RI_INPUTCAPTUREROUTING_2        (0x00000002U) /*!< PA8       PA9      PA10      PA11     */
+#define LL_RI_INPUTCAPTUREROUTING_3        (0x00000003U) /*!< PA12      PA13     PA14      PA15     */
+#define LL_RI_INPUTCAPTUREROUTING_4        (0x00000004U) /*!< PC0       PC1      PC2       PC3      */
+#define LL_RI_INPUTCAPTUREROUTING_5        (0x00000005U) /*!< PC4       PC5      PC6       PC7      */
+#define LL_RI_INPUTCAPTUREROUTING_6        (0x00000006U) /*!< PC8       PC9      PC10      PC11     */
+#define LL_RI_INPUTCAPTUREROUTING_7        (0x00000007U) /*!< PC12      PC13     PC14      PC15     */
+#define LL_RI_INPUTCAPTUREROUTING_8        (0x00000008U) /*!< PD0       PD1      PD2       PD3      */
+#define LL_RI_INPUTCAPTUREROUTING_9        (0x00000009U) /*!< PD4       PD5      PD6       PD7      */
+#define LL_RI_INPUTCAPTUREROUTING_10       (0x0000000AU) /*!< PD8       PD9      PD10      PD11     */
+#define LL_RI_INPUTCAPTUREROUTING_11       (0x0000000BU) /*!< PD12      PD13     PD14      PD15     */
 #if defined(GPIOE)
-#define LL_RI_INPUTCAPTUREROUTING_12       ((uint32_t)0x0000000CU) /*!< PE0       PE1      PE2       PE3      */
-#define LL_RI_INPUTCAPTUREROUTING_13       ((uint32_t)0x0000000DU) /*!< PE4       PE5      PE6       PE7      */
-#define LL_RI_INPUTCAPTUREROUTING_14       ((uint32_t)0x0000000EU) /*!< PE8       PE9      PE10      PE11     */
-#define LL_RI_INPUTCAPTUREROUTING_15       ((uint32_t)0x0000000FU) /*!< PE12      PE13     PE14      PE15     */
+#define LL_RI_INPUTCAPTUREROUTING_12       (0x0000000CU) /*!< PE0       PE1      PE2       PE3      */
+#define LL_RI_INPUTCAPTUREROUTING_13       (0x0000000DU) /*!< PE4       PE5      PE6       PE7      */
+#define LL_RI_INPUTCAPTUREROUTING_14       (0x0000000EU) /*!< PE8       PE9      PE10      PE11     */
+#define LL_RI_INPUTCAPTUREROUTING_15       (0x0000000FU) /*!< PE12      PE13     PE14      PE15     */
 #endif /* GPIOE */
 /**
   * @}
@@ -355,18 +350,18 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_HSYTERESIS_PORT RI HSYTERESIS PORT
   * @{
   */
-#define LL_RI_HSYTERESIS_PORT_A            (uint32_t)0U         /*!< HYSTERESIS PORT A  */
-#define LL_RI_HSYTERESIS_PORT_B            (uint32_t)1U         /*!< HYSTERESIS PORT B  */
-#define LL_RI_HSYTERESIS_PORT_C            (uint32_t)2U         /*!< HYSTERESIS PORT C  */
-#define LL_RI_HSYTERESIS_PORT_D            (uint32_t)3U         /*!< HYSTERESIS PORT D  */
+#define LL_RI_HSYTERESIS_PORT_A            0U         /*!< HYSTERESIS PORT A  */
+#define LL_RI_HSYTERESIS_PORT_B            1U         /*!< HYSTERESIS PORT B  */
+#define LL_RI_HSYTERESIS_PORT_C            2U         /*!< HYSTERESIS PORT C  */
+#define LL_RI_HSYTERESIS_PORT_D            3U         /*!< HYSTERESIS PORT D  */
 #if defined(GPIOE)
-#define LL_RI_HSYTERESIS_PORT_E            (uint32_t)4U         /*!< HYSTERESIS PORT E  */
+#define LL_RI_HSYTERESIS_PORT_E            4U         /*!< HYSTERESIS PORT E  */
 #endif /* GPIOE */
 #if defined(GPIOF)
-#define LL_RI_HSYTERESIS_PORT_F            (uint32_t)5U         /*!< HYSTERESIS PORT F  */
+#define LL_RI_HSYTERESIS_PORT_F            5U         /*!< HYSTERESIS PORT F  */
 #endif /* GPIOF */
 #if defined(GPIOG)
-#define LL_RI_HSYTERESIS_PORT_G            (uint32_t)6U         /*!< HYSTERESIS PORT G  */
+#define LL_RI_HSYTERESIS_PORT_G            6U         /*!< HYSTERESIS PORT G  */
 #endif /* GPIOG */
 /**
   * @}
@@ -400,14 +395,14 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_PORT RI PORT
   * @{
   */
-#define LL_RI_PORT_A                       (uint32_t)0U         /*!< PORT A   */
-#define LL_RI_PORT_B                       (uint32_t)1U         /*!< PORT B   */
-#define LL_RI_PORT_C                       (uint32_t)2U         /*!< PORT C   */
+#define LL_RI_PORT_A                       0U         /*!< PORT A   */
+#define LL_RI_PORT_B                       1U         /*!< PORT B   */
+#define LL_RI_PORT_C                       2U         /*!< PORT C   */
 #if defined(GPIOF)
-#define LL_RI_PORT_F                       (uint32_t)3U         /*!< PORT F   */
+#define LL_RI_PORT_F                       3U         /*!< PORT F   */
 #endif /* GPIOF */
 #if defined(GPIOG)
-#define LL_RI_PORT_G                       (uint32_t)4U         /*!< PORT G   */
+#define LL_RI_PORT_G                       4U         /*!< PORT G   */
 #endif /* GPIOG */
 /**
   * @}
@@ -419,7 +414,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_LATENCY FLASH LATENCY
   * @{
   */
-#define LL_FLASH_LATENCY_0                 ((uint32_t)0x00000000U) /*!< FLASH Zero Latency cycle */
+#define LL_FLASH_LATENCY_0                 0x00000000U             /*!< FLASH Zero Latency cycle */
 #define LL_FLASH_LATENCY_1                 FLASH_ACR_LATENCY       /*!< FLASH One Latency cycle */
 /**
   * @}
@@ -779,7 +774,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
+  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
 }
 
 /**

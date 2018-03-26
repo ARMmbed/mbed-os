@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -108,16 +106,16 @@ typedef struct
   * @{
   */
 
-#define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bits for pre-emption priority
-                                                                 4 bits for subpriority */
-#define NVIC_PRIORITYGROUP_1         ((uint32_t)0x00000006) /*!< 1 bits for pre-emption priority
-                                                                 3 bits for subpriority */
-#define NVIC_PRIORITYGROUP_2         ((uint32_t)0x00000005) /*!< 2 bits for pre-emption priority
-                                                                 2 bits for subpriority */
-#define NVIC_PRIORITYGROUP_3         ((uint32_t)0x00000004) /*!< 3 bits for pre-emption priority
-                                                                 1 bits for subpriority */
-#define NVIC_PRIORITYGROUP_4         ((uint32_t)0x00000003) /*!< 4 bits for pre-emption priority
-                                                                 0 bits for subpriority */
+#define NVIC_PRIORITYGROUP_0         (0x00000007U) /*!< 0 bits for pre-emption priority
+                                                        4 bits for subpriority */
+#define NVIC_PRIORITYGROUP_1         (0x00000006U) /*!< 1 bits for pre-emption priority
+                                                        3 bits for subpriority */
+#define NVIC_PRIORITYGROUP_2         (0x00000005U) /*!< 2 bits for pre-emption priority
+                                                        2 bits for subpriority */
+#define NVIC_PRIORITYGROUP_3         (0x00000004U) /*!< 3 bits for pre-emption priority
+                                                        1 bits for subpriority */
+#define NVIC_PRIORITYGROUP_4         (0x00000003U) /*!< 4 bits for pre-emption priority
+                                                        0 bits for subpriority */
 /**
   * @}
   */
@@ -125,8 +123,8 @@ typedef struct
 /** @defgroup CORTEX_SysTick_clock_source CORTEX SysTick clock source
   * @{
   */
-#define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
-#define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
+#define SYSTICK_CLKSOURCE_HCLK_DIV8    (0x00000000U)
+#define SYSTICK_CLKSOURCE_HCLK         (0x00000004U)
 
 /**
   * @}
@@ -136,10 +134,11 @@ typedef struct
 /** @defgroup CORTEX_MPU_HFNMI_PRIVDEF_Control MPU HFNMI and PRIVILEGED Access control
   * @{
   */
-#define  MPU_HFNMI_PRIVDEF_NONE      ((uint32_t)0x00000000)  
-#define  MPU_HARDFAULT_NMI           ((uint32_t)0x00000002)
-#define  MPU_PRIVILEGED_DEFAULT      ((uint32_t)0x00000004)
-#define  MPU_HFNMI_PRIVDEF           ((uint32_t)0x00000006)
+#define  MPU_HFNMI_PRIVDEF_NONE      (0x00000000U)  
+#define  MPU_HARDFAULT_NMI           (MPU_CTRL_HFNMIENA_Msk)
+#define  MPU_PRIVILEGED_DEFAULT      (MPU_CTRL_PRIVDEFENA_Msk)
+#define  MPU_HFNMI_PRIVDEF           (MPU_CTRL_HFNMIENA_Msk | MPU_CTRL_PRIVDEFENA_Msk)
+
 /**
   * @}
   */
@@ -386,40 +385,6 @@ typedef struct
   * @{
   */
 
-#if (__MPU_PRESENT == 1)
-/**
-  * @brief  Disables the MPU
-  * @retval None
-  */
-__STATIC_INLINE void HAL_MPU_Disable(void)
-{
-  /* Disable fault exceptions */
-  SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;
-  
-  /* Disable the MPU */
-  MPU->CTRL  &= ~MPU_CTRL_ENABLE_Msk;
-}
-
-/**
-  * @brief  Enables the MPU
-  * @param  MPU_Control: Specifies the control mode of the MPU during hard fault, 
-  *          NMI, FAULTMASK and privileged accessto the default memory 
-  *          This parameter can be one of the following values:
-  *            @arg MPU_HFNMI_PRIVDEF_NONE
-  *            @arg MPU_HARDFAULT_NMI
-  *            @arg MPU_PRIVILEGED_DEFAULT
-  *            @arg MPU_HFNMI_PRIVDEF
-  * @retval None
-  */
-__STATIC_INLINE void HAL_MPU_Enable(uint32_t MPU_Control)
-{
-  /* Enable the MPU */
-  MPU->CTRL   = MPU_Control | MPU_CTRL_ENABLE_Msk;
-  
-  /* Enable fault exceptions */
-  SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
-}
-#endif /* __MPU_PRESENT */
 
 /**
   * @}
@@ -449,6 +414,8 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb);
   */ 
 /* Peripheral Control functions ***********************************************/
 #if (__MPU_PRESENT == 1)
+void HAL_MPU_Enable(uint32_t MPU_Control);
+void HAL_MPU_Disable(void);
 void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init);
 #endif /* __MPU_PRESENT */
 uint32_t HAL_NVIC_GetPriorityGrouping(void);
