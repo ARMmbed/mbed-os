@@ -182,6 +182,16 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.event = 0;
     obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
     obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
+    
+    /* NOTE: We use vector to judge if asynchronous transfer is on-going (spi_active).
+     *       At initial time, asynchronous transfer is not on-going and so vector must
+     *       be cleared to zero for correct judgement. */
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
+#if 0
+    NVIC_SetVector(modinit->irq_n, 0);
+#else
+    obj->spi.hdlr_async = 0;
+#endif
 #endif
 
     // Mark this module to be inited.
@@ -266,6 +276,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         // NANO130: Configure slave select signal to edge-trigger rather than level-trigger
         spi_base->SSR |= SPI_SSR_SS_LTRIG_Msk;
     }
+    
+    /* NOTE: M451's/M480's/M2351's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk).
+     *       We cannot use SPI_CTL_SPIEN_Msk for judgement of spi_active().
+     *       Judge with vector instead. */
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -297,7 +311,9 @@ int spi_master_write(spi_t *obj, int value)
     while (! spi_readable(obj));
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
     int value2 = M32(RX);
-    
+
+    /* We don't call SPI_DISABLE_SYNC here for performance. */
+
     return value2;
 }
 
@@ -511,9 +527,19 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    return SPI_IS_BUSY(spi_base);
+    const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
+    MBED_ASSERT(modinit != NULL);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
+    /* Vector will be cleared when asynchronous transfer is finished or aborted.
+       Use it to judge if asynchronous transfer is on-going. */
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
+#if 0
+    uint32_t vec = NVIC_GetVector(modinit->irq_n);
+    return vec ? 1 : 0;
+#else    
+    return obj->spi.hdlr_async ? 1 : 0;
+#endif
 }
 
 void SPI0_IRQHandler(void)
@@ -567,13 +593,20 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
     if (enable) {
         var->obj = obj;
         obj->spi.hdlr_async = handler;
+        /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
+#if 0
         NVIC_SetVector(modinit->irq_n, (uint32_t) var->vec);
+#endif
         NVIC_EnableIRQ(modinit->irq_n);
     }
     else {
         NVIC_DisableIRQ(modinit->irq_n);
+        /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
+#if 0
+        NVIC_SetVector(modinit->irq_n, 0);
+#endif
         var->obj = NULL;
-        obj->spi.hdlr_async = handler;
+        obj->spi.hdlr_async = 0;
     }
 }
 

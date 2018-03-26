@@ -165,6 +165,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.event = 0;
     obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
     obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
+    
+    /* NOTE: We use vector to judge if asynchronous transfer is on-going (spi_active).
+     *       At initial time, asynchronous transfer is not on-going and so vector must
+     *       be cleared to zero for correct judgement. */
+    NVIC_SetVector(modinit->irq_n, 0);
 #endif
 
     // Mark this module to be inited.
@@ -236,9 +241,10 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         spi_base->SSCTL &= ~SPI_SSCTL_SSACTPOL_Msk;
         // NOTE: SPI_SS0 is defined as the slave select input in Slave mode.
     }
-    
-    // NOTE: M451's/M480's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk). This will violate judgement of spi_active(). Disable it.
-    SPI_DISABLE_SYNC(spi_base);
+
+    /* NOTE: M451's/M480's/M2351's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk).
+     *       We cannot use SPI_CTL_SPIEN_Msk for judgement of spi_active().
+     *       Judge with vector instead. */
 }
 
 void spi_frequency(spi_t *obj, int hz)
@@ -265,9 +271,9 @@ int spi_master_write(spi_t *obj, int value)
     // Wait for rx buffer full
     while (! spi_readable(obj));
     int value2 = SPI_READ_RX(spi_base);
-    
-    SPI_DISABLE_SYNC(spi_base);
-    
+
+    /* We don't call SPI_DISABLE_SYNC here for performance. */
+
     return value2;
 }
 
@@ -479,20 +485,14 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    // FIXME
-    /*
-    if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
-            || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
-        return 1;
-    } else  {
-        // interrupts are disabled, all transaction have been completed
-        // TODO: checking rx fifo, it reports data eventhough RFDF is not set
-        return DSPI_HAL_GetIntMode(obj->spi.address, kDspiRxFifoDrainRequest);
-    }*/
-    
-    //return SPI_IS_BUSY(spi_base);
-    return (spi_base->CTL & SPI_CTL_SPIEN_Msk);
+    const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
+    MBED_ASSERT(modinit != NULL);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
+    /* Vector will be cleared when asynchronous transfer is finished or aborted.
+       Use it to judge if asynchronous transfer is on-going. */
+    uint32_t vec = NVIC_GetVector(modinit->irq_n);
+    return vec ? 1 : 0;
 }
 
 static int spi_writeable(spi_t * obj)
@@ -527,8 +527,8 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
         NVIC_EnableIRQ(modinit->irq_n);
     }
     else {
-        //NVIC_SetVector(modinit->irq_n, handler);
         NVIC_DisableIRQ(modinit->irq_n);
+        NVIC_SetVector(modinit->irq_n, 0);
     }
 }
 
