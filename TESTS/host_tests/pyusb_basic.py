@@ -491,11 +491,6 @@ def get_status_test(dev, log):
 
 
 def set_clear_feature_test(dev, log):
-    # The state of the Direction bit is ignored if the wLength field is zero,
-    # signifying there is no Data stage - see USB spec 9.3.1
-    # according to this SET/CLEAR_FEATURE ignores direction bits and should 
-    # work for both CTRL_OUT and CTRL_IN
-
     # Control OUT SET_FEATURE on endpoint - halt
     request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
                                       CTRL_RECIPIENT_ENDPOINT)
@@ -522,55 +517,6 @@ def set_clear_feature_test(dev, log):
 
     # Control OUT CLEAR_FEATURE on endpoint - unhalt
     request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_CLEAR_FEATURE
-    value = FEATURE_ENDPOINT_HALT
-    index = 1                                   # Endpoint index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "endpoint was not unhalted")
-
-    # check if endpoint was unhalted
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 1                                   # Endpoint index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0]
-    if(ret != 0):
-        raise_unconditionally(lineno(), "endpoint unhalthalt failed")
-
-    # retest for CTRL_IN
-    # Control IN SET_FEATURE on endpoint - halt
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_SET_FEATURE
-    value = FEATURE_ENDPOINT_HALT
-    index = 1                                   # Endpoint index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "endpoint halt failed")
-
-    # check if endpoint was halted
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 1                                   # Endpoint index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0] | (ret[1] << 8)
-    if(ret != 1):
-        raise_unconditionally(lineno(), "endpoint was not halted")
-
-    # Control IN CLEAR_FEATURE on endpoint - unhalt
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
                                       CTRL_RECIPIENT_ENDPOINT)
     request = REQUEST_CLEAR_FEATURE
     value = FEATURE_ENDPOINT_HALT
