@@ -2,11 +2,11 @@
 
 MEMORY
 {
-  /* 128KB FLASH, 16KB RAM, Reserve up till 0xF4. There are 61 vectors = 244
+  /* 128KB FLASH, 32KB RAM, Reserve up till 0xF4. There are 61 vectors = 244
    * bytes (0xF4) in RAM.
    */
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 128k
-  RAM (rwx) : ORIGIN = 0x200000F4, LENGTH = 0x4000-0xF4
+  RAM (rwx) : ORIGIN = 0x200000F4, LENGTH = 0x8000-0xF4
 }
 
 /* Linker script to place sections and symbol values. Should be used together
