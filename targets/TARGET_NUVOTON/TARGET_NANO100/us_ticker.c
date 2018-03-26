@@ -60,23 +60,28 @@ void us_ticker_init(void)
     // Enable IP clock
     CLK_EnableModuleClock(TIMER_MODINIT.clkidx);
 
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+
     // Timer for normal counter
-    uint32_t clk_timer = TIMER_GetModuleClock((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    uint32_t clk_timer = TIMER_GetModuleClock(timer_base);
     uint32_t prescale_timer = clk_timer / NU_TMRCLK_PER_SEC - 1;
     MBED_ASSERT((prescale_timer != (uint32_t) -1) && prescale_timer <= 127);
     MBED_ASSERT((clk_timer % NU_TMRCLK_PER_SEC) == 0);
     uint32_t cmp_timer = TMR_CMP_MAX;
     MBED_ASSERT(cmp_timer >= TMR_CMP_MIN && cmp_timer <= TMR_CMP_MAX);
-    ((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname))->CTL = TIMER_CONTINUOUS_MODE;
-    ((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname))->PRECNT = prescale_timer;
-    ((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname))->CMPR = cmp_timer;
+    timer_base->CTL = TIMER_CONTINUOUS_MODE;
+    timer_base->PRECNT = prescale_timer;
+    timer_base->CMPR = cmp_timer;
 
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_EnableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    TIMER_Start((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    TIMER_EnableInt(timer_base);
+
+    TIMER_Start(timer_base);
+    /* Wait for timer to start counting and raise active flag */
+    while(! (timer_base->CTL & TIMER_CTL_TMR_ACT_Msk));
 }
 
 uint32_t us_ticker_read()
@@ -85,7 +90,7 @@ uint32_t us_ticker_read()
         us_ticker_init();
     }
 
-    TIMER_T * timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
 
     return  (TIMER_GetCounter(timer_base) / NU_TMRCLK_PER_TICK);
 }
@@ -100,7 +105,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      * This behavior is not what we want. To fix it, we could configure new CMP value
      * without stopping counting first.
      */
-    TIMER_T * timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
 
     /* NOTE: Because H/W timer requests min compare value, our implementation would have alarm delay of 
      *       (TMR_CMP_MIN - interval_clk) clocks when interval_clk is between [1, TMR_CMP_MIN). */
