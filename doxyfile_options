@@ -847,7 +847,8 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/FEATURE_COMMON_PAL/* \
                          */features/FEATURE_LWIP/* \
                          */features/FEATURE_UVISOR/* \
-                         */features/nanostack/* \
+                         */features/nanostack/FEATURE_NANOSTACK/sal-stack-nanostack/* \
+                         */features/nanostack/FEATURE_NANOSTACK/coap-service/* \
                          */ble/generic/* \
                          */ble/pal/*
 

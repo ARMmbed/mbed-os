@@ -29,6 +29,7 @@
 
 struct ns_address;
 
+/** Network interface class for Nanostack */
 class NanostackInterface : public NetworkStack {
 public:
     static NanostackInterface *get_stack();
@@ -179,7 +180,7 @@ protected:
      *
      *  @param handle   Socket handle
      *  @param address  Destination for the source address or NULL
-     *  @param data     Destination buffer for data received from the host
+     *  @param buffer   Destination buffer for data received from the host
      *  @param size     Size of the buffer in bytes
      *  @return         Number of received bytes on success, negative error
      *                  code on failure

@@ -19,6 +19,10 @@
 
 #include "MeshInterfaceNanostack.h"
 
+/** Thread mesh network interface class
+ *
+ * Configure Nanostack to use Thread protocol.
+ */
 class ThreadInterface : public MeshInterfaceNanostack {
 public:
 
