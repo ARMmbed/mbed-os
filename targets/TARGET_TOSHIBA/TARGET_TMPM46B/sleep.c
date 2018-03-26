@@ -15,19 +15,52 @@
  */
 #include "sleep_api.h"
 
+// Number of warm-up cycle = warm-up time to set / input frequency cycle (s)
+// Number of 3*10^-6 (s) / (1/12 (MHz)) = 60000 = 0xea60
+#define CG_WUODR_INT     ((uint16_t)0xea60)
+
+static void external_losc_enable(void);
+
 void hal_sleep(void)
 {
     // Set low power consumption mode IDLE
     CG_SetSTBYMode(CG_STBY_MODE_IDLE);
-    __DSB();
     // Enter idle mode
     __WFI();
 }
 
 void hal_deepsleep(void)
 {
-    // deepsleep = sleep because, TMPM46BF10FG does not support the low power
-    // consumption mode configured with the SLEEPDEEP bit in the Cortex-M4 core.
-    // Setting the bit of the system control register is prohibited.
-    hal_sleep();
+    // Set low power consumption mode STOP1
+    CG_SetSTBYMode(CG_STBY_MODE_STOP1);
+    // Setup warm up time
+    CG_SetWarmUpTime(CG_WARM_UP_SRC_OSC_EXT_HIGH, CG_WUODR_INT);
+    // Enter stop1 mode
+    __WFI();
+    // Switch over from IHOSC to EHOSC
+    external_losc_enable();
+}
+
+static void external_losc_enable(void)
+{
+    // Enable high-speed oscillator
+    CG_SetFosc(CG_FOSC_OSC_EXT, ENABLE);
+    // Select internal(fIHOSC) as warm-up clock
+    CG_SetWarmUpTime(CG_WARM_UP_SRC_OSC_INT_HIGH, CG_WUODR_INT);
+    // Start warm-up
+    CG_StartWarmUp();
+    // Wait until EHOSC become stable
+    while (CG_GetWarmUpState() != DONE) {
+        // Do nothing
+    }
+
+    // Set fosc source
+    CG_SetFoscSrc(CG_FOSC_OSC_EXT);
+    // Wait for <OSCSEL> to become "1"
+    while (CG_GetFoscSrc() != CG_FOSC_OSC_EXT) {
+        // Do nothing
+    }
+
+    // Stop IHOSC
+    CG_SetFosc(CG_FOSC_OSC_INT, DISABLE);
 }
