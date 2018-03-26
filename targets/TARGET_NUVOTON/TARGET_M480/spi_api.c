@@ -211,6 +211,7 @@ void spi_free(spi_t *obj)
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask &= ~(1 << i);
 }
+
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     MBED_ASSERT(bits >= NU_SPI_FRAME_MIN && bits <= NU_SPI_FRAME_MAX);
@@ -776,14 +777,14 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
 
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect SPI IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->tx_buff.pos = obj->tx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
 
@@ -799,14 +800,14 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
 
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect SPI IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->rx_buff.pos = obj->rx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
 
