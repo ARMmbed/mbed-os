@@ -142,7 +142,7 @@
 #include "mbed_debug.h"
 #include <errno.h>
 
-/* Required version: 5.8.1 and above */
+/* Required version: 5.8.0 and above */
 #if defined(    MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
 #if (MBED_VERSION < MBED_ENCODE_VERSION(5,8,0))
 #error "Incompatible mbed-os version detected! Required 5.8.0 and above"
