@@ -736,7 +736,8 @@ public:
     //
 
     /**
-     * Enable OOB data usage during paring.
+     * Enable OOB data usage during paring. If Secure Connections is supported enabling useOOB will
+     * generate Secure Connections OOB data through oobGenerated().
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] useOOB If set to true, authenticate using OOB data.

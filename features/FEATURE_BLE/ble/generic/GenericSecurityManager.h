@@ -433,11 +433,20 @@ private:
         uint8_t attempt_oob:1;
         uint8_t oob_mitm_protection:1;
         uint8_t oob_present:1;
+        uint8_t legacy_pairing_oob_request_pending:1;
     };
 
     pal::SecurityManager &_pal;
     pal::SecurityDb &_db;
     pal::ConnectionEventMonitor &_connection_monitor;
+
+    /* OOB data */
+    address_t _oob_peer_address;
+    oob_lesc_value_t _oob_peer_random;
+    oob_confirm_t _oob_peer_confirm;
+    oob_lesc_value_t _oob_local_random;
+    address_t _oob_temporary_key_creator_address; /**< device which generated and sent the TK */
+    oob_tk_t _oob_temporary_key; /**< used for legacy pairing */
 
     pal::AuthenticationMask _default_authentication;
     pal::KeyDistribution _default_key_distribution;
@@ -548,6 +557,12 @@ public:
         connection_handle_t connection
     );
 
+    /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_request
+     */
+    virtual void on_secure_connections_oob_request(
+        connection_handle_t connection
+    );
+
     /** @copydoc ble::pal::SecurityManager::on_legacy_pairing_oob_request
      */
     virtual void on_legacy_pairing_oob_request(
@@ -557,7 +572,7 @@ public:
     /** @copydoc ble::pal::SecurityManager::on_secure_connections_oob_generated
      */
     virtual void on_secure_connections_oob_generated(
-        const address_t &local_address,
+        connection_handle_t connection,
         const oob_lesc_value_t &random,
         const oob_confirm_t &confirm
     );

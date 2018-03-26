@@ -85,15 +85,41 @@ public:
     virtual ble_error_t clear_resolving_list();
 
     ////////////////////////////////////////////////////////////////////////////
-    // Feature support
+    // Pairing
     //
 
     /**
-     * @see ::ble::pal::SecurityManager::set_secure_connections_support
+     * @see ::ble::pal::SecurityManager::send_pairing_request
      */
-    virtual ble_error_t set_secure_connections_support(
-        bool enabled, bool secure_connections_only = false
+    virtual ble_error_t send_pairing_request(
+        connection_handle_t connection,
+        bool oob_data_flag,
+        AuthenticationMask authentication_requirements,
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
     );
+
+    /**
+     * @see ::ble::pal::SecurityManager::send_pairing_response
+     */
+    virtual ble_error_t send_pairing_response(
+        connection_handle_t connection,
+        bool oob_data_flag,
+        AuthenticationMask authentication_requirements,
+        KeyDistribution initiator_dist,
+        KeyDistribution responder_dist
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::cancel_pairing
+     */
+    virtual ble_error_t cancel_pairing(
+        connection_handle_t connection, pairing_failure_t reason
+    );
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Feature support
+    //
 
     /**
      * @see ::ble::pal::SecurityManager::get_secure_connections_support
@@ -101,6 +127,11 @@ public:
     virtual ble_error_t get_secure_connections_support(
         bool &enabled
     );
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_io_capability
+     */
+    virtual ble_error_t set_io_capability(io_capability_t io_capability);
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
@@ -120,6 +151,17 @@ public:
         connection_handle_t, uint16_t &timeout_in_10ms
     );
 
+    /**
+     * @see ::ble::pal::SecurityManager::set_encryption_key_requirements
+     */
+    virtual ble_error_t set_encryption_key_requirements(
+        uint8_t min_encryption_key_size,
+        uint8_t max_encryption_key_size
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::slave_security_request
+     */
     virtual ble_error_t slave_security_request(
         connection_handle_t connection,
         AuthenticationMask authentication
@@ -198,59 +240,8 @@ public:
     virtual ble_error_t set_csrk(const csrk_t &csrk);
 
     ////////////////////////////////////////////////////////////////////////////
-    // Global parameters
-    //
-
-    /**
-     * @see ::ble::pal::SecurityManager::set_display_passkey
-     */
-    virtual ble_error_t set_display_passkey(passkey_num_t passkey);
-
-    /**
-     * @see ::ble::pal::SecurityManager::set_io_capability
-     */
-    virtual ble_error_t set_io_capability(io_capability_t io_capability);
-
-    /**
-     * @see ::ble::pal::SecurityManager::set_encryption_key_requirements
-     */
-    virtual ble_error_t set_encryption_key_requirements(
-        uint8_t min_encryption_key_size,
-        uint8_t max_encryption_key_size
-    );
-
-    ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
-
-    /**
-     * @see ::ble::pal::SecurityManager::send_pairing_request
-     */
-    virtual ble_error_t send_pairing_request(
-        connection_handle_t connection,
-        bool oob_data_flag,
-        AuthenticationMask authentication_requirements,
-        KeyDistribution initiator_dist,
-        KeyDistribution responder_dist
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::send_pairing_response
-     */
-    virtual ble_error_t send_pairing_response(
-        connection_handle_t connection,
-        bool oob_data_flag,
-        AuthenticationMask authentication_requirements,
-        KeyDistribution initiator_dist,
-        KeyDistribution responder_dist
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::cancel_pairing
-     */
-    virtual ble_error_t cancel_pairing(
-        connection_handle_t connection, pairing_failure_t reason
-    );
 
     /**
      * @see ::ble::pal::SecurityManager::get_random_data
@@ -262,11 +253,26 @@ public:
     //
 
     /**
+     * @see ::ble::pal::SecurityManager::set_display_passkey
+     */
+    virtual ble_error_t set_display_passkey(passkey_num_t passkey);
+
+    /**
      * @see ::ble::pal::SecurityManager::passkey_request_reply
      */
     virtual ble_error_t passkey_request_reply(
         connection_handle_t connection,
         passkey_num_t passkey
+    );
+
+    /**
+     * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
     );
 
     /**
@@ -298,22 +304,6 @@ public:
         connection_handle_t connection
     );
 
-    /**
-     * @see ::ble::pal::SecurityManager::secure_connections_oob_received
-     */
-    virtual ble_error_t secure_connections_oob_received(
-        const address_t &address,
-        const oob_lesc_value_t &random,
-        const oob_confirm_t &confirm
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::is_secure_connections_oob_present
-     */
-    virtual bool is_secure_connections_oob_present(
-        const address_t &address
-    );
-
     // singleton of the ARM Cordio Security Manager
     static CordioSecurityManager &get_security_manager();
 
@@ -325,13 +315,6 @@ private:
     passkey_num_t _default_passkey;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
-    bool _peer_oob_present;
-    address_t _peer_oob_address;
-    oob_lesc_value_t _peer_oob_random;
-    oob_confirm_t _peer_oob_confirm;
-    bool _own_oob_present;
-    uint8_t _confirm[SMP_CONFIRM_LEN];
-    uint8_t _random[SMP_RAND_LEN];
 };
 
 } // cordio

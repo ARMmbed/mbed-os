@@ -519,6 +519,14 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
+    _oob_temporary_key_creator_address = cb->local_address;
+    get_random_data(_oob_temporary_key.buffer(), 16);
+
+    eventHandler->legacyPairingOobGenerated(
+        &_oob_temporary_key_creator_address,
+        &_oob_temporary_key
+    );
+
     _pal.generate_secure_connections_oob(connection);
 
     return BLE_ERROR_NONE;
@@ -558,7 +566,20 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
             return BLE_ERROR_INVALID_PARAM;
         }
 
-        return _pal.legacy_pairing_oob_request_reply(cb->connection, *tk);
+        _oob_temporary_key = *tk;
+        _oob_temporary_key_creator_address = *address;
+
+        if (cb->peer_address == _oob_temporary_key_creator_address) {
+            cb->attempt_oob = true;
+        }
+
+        if (cb->legacy_pairing_oob_request_pending) {
+            on_legacy_pairing_oob_request(cb->connection);
+            /* legacy_pairing_oob_request_pending stops us from
+             * going into a loop of asking the user for oob
+             * so this reset needs to happen after the call above */
+            cb->legacy_pairing_oob_request_pending = false;
+        }
     }
     return BLE_ERROR_NONE;
 }
@@ -569,7 +590,10 @@ ble_error_t GenericSecurityManager::oobReceived(
     const oob_confirm_t *confirm
 ) {
     if (address && random && confirm) {
-        return _pal.secure_connections_oob_received(*address, *random, *confirm);
+        _oob_peer_address = *address;
+        _oob_peer_random = *random;
+        _oob_peer_confirm = *confirm;
+        return BLE_ERROR_NONE;
     }
 
     return BLE_ERROR_INVALID_PARAM;
@@ -702,7 +726,7 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
     cb->oob_present = cb->attempt_oob;
 
     if (_default_authentication.get_secure_connections()) {
-        cb->oob_present = _pal.is_secure_connections_oob_present(cb->peer_address);
+        cb->oob_present = (cb->peer_address == _oob_peer_address);
     }
 }
 
@@ -710,6 +734,11 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
         cb->mitm_performed = enable;
+        /* whenever we reset mitm performed we also reset pending requests
+         * as this happens whenever a new pairing attempt happens */
+        if (!enable) {
+            cb->legacy_pairing_oob_request_pending = false;
+        }
     }
 }
 
@@ -856,16 +885,23 @@ void GenericSecurityManager::on_slave_security_request(
         return;
     }
 
-    if (authentication.get_secure_connections()
-        && _default_authentication.get_secure_connections()
-        && !cb->secure_connections_paired) {
-        requestPairing(connection);
+    bool pairing_required = false;
+
+    if (authentication.get_secure_connections() && !cb->secure_connections_paired
+        && _default_authentication.get_secure_connections()) {
+        pairing_required = true;
     }
 
-    if (authentication.get_mitm()
-        && !cb->ltk_mitm_protected) {
+    if (authentication.get_mitm() && !cb->ltk_mitm_protected) {
+        pairing_required = true;
         cb->mitm_requested = true;
+    }
+
+    if (pairing_required) {
         requestPairing(connection);
+    } else if (!cb->encryption_requested) {
+        /* this will refresh keys if encryption is already present */
+        enable_encryption(connection);
     }
 }
 
@@ -950,17 +986,52 @@ void GenericSecurityManager::on_confirmation_request(connection_handle_t connect
     eventHandler->confirmationRequest(connection);
 }
 
-void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
+void GenericSecurityManager::on_secure_connections_oob_request(connection_handle_t connection) {
     set_mitm_performed(connection);
-    eventHandler->legacyPairingOobRequest(connection);
+
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    if (cb->peer_address == _oob_peer_address) {
+        _pal.secure_connections_oob_request_reply(connection, _oob_local_random, _oob_peer_random, _oob_peer_confirm);
+    } else {
+        _pal.cancel_pairing(connection, pairing_failure_t::OOB_NOT_AVAILABLE);
+    }
+}
+
+void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    if (cb->peer_address == _oob_temporary_key_creator_address
+        || cb->local_address == _oob_temporary_key_creator_address) {
+
+        set_mitm_performed(connection);
+        _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
+
+    } else if (!cb->legacy_pairing_oob_request_pending) {
+
+        cb->legacy_pairing_oob_request_pending = true;
+        eventHandler->legacyPairingOobRequest(connection);
+
+    }
 }
 
 void GenericSecurityManager::on_secure_connections_oob_generated(
-    const address_t &local_address,
+    connection_handle_t connection,
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
 ) {
-    eventHandler->oobGenerated(&local_address, &random, &confirm);
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+    eventHandler->oobGenerated(&cb->local_address, &random, &confirm);
+    _oob_local_random = random;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1118,7 +1189,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     mitm_performed(false),
     attempt_oob(false),
     oob_mitm_protection(false),
-    oob_present(false) { }
+    oob_present(false),
+    legacy_pairing_oob_request_pending(false) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {
