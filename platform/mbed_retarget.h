@@ -31,13 +31,27 @@
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
 typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
+#ifndef TARGET_SIMULATOR
 typedef signed   long off_t;    ///< Offset in a data stream
+#endif
 typedef unsigned int  nfds_t;   ///< Number of file descriptors
 typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
 typedef unsigned long ino_t;    ///< File serial number
+typedef unsigned int  nlink_t;  ///< Number of links to a file
+typedef unsigned int  uid_t;    ///< User ID
+typedef unsigned int  gid_t;    ///< Group ID
+#endif
+
+#if defined(TARGET_SIMULATOR)
+#include <sys/stat.h>
+
+#define _HAS_STAT_H_
+
+typedef unsigned int  mode_t;   ///< Mode for opening files
+typedef unsigned int  dev_t;    ///< Device ID type
 typedef unsigned int  nlink_t;  ///< Number of links to a file
 typedef unsigned int  uid_t;    ///< User ID
 typedef unsigned int  gid_t;    ///< Group ID
@@ -398,6 +412,7 @@ typedef struct Dir DIR;
  * GCC_ARM/IAR/standard POSIX definitions. Guard against this and future
  * changes by changing the symbol definition for filesystem use.
  */
+#ifndef _HAS_STAT_H_
 #define     _IFMT   0170000 //< type of file
 #define     _IFSOCK 0140000 //< socket
 #define     _IFLNK  0120000 //< symbolic link
@@ -447,6 +462,7 @@ struct stat {
     time_t    st_mtime;   ///< Time of last data modification
     time_t    st_ctime;   ///< Time of last status change
 };
+#endif // _HAS_STAT_H_
 
 struct statvfs {
     unsigned long  f_bsize;    ///< Filesystem block size
