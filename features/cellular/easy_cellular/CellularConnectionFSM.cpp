@@ -40,9 +40,9 @@ namespace mbed
 {
 
 CellularConnectionFSM::CellularConnectionFSM() :
-    _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
-    _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-    _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
+        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
+        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
+        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0), _auto_registration(false)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -164,7 +164,7 @@ bool CellularConnectionFSM::open_sim()
                 tr_warn("PIN required but No SIM pin provided.");
             }
         }
-        break;
+            break;
         case CellularSIM::SimStatePukNeeded:
             tr_info("SIM PUK code needed...");
             break;
@@ -290,17 +290,21 @@ const char* CellularConnectionFSM::get_state_string(CellularState state)
     return strings[state];
 }
 
-bool CellularConnectionFSM::is_automatic_registering()
+nsapi_error_t CellularConnectionFSM::is_automatic_registering(bool& auto_reg)
 {
+    if (_auto_registration == CellularNetwork::NWModeAutomatic) {
+        auto_reg = _auto_registration;
+        return NSAPI_ERROR_OK;
+    }
     CellularNetwork::NWRegisteringMode mode;
     nsapi_error_t err = _network->get_network_registering_mode(mode);
-    tr_debug("automatic registering mode: %d", mode);
-    if (err == NSAPI_ERROR_OK && mode == CellularNetwork::NWModeAutomatic) {
-        return true;
+    if (err == NSAPI_ERROR_OK) {
+        tr_info("automatic registering mode: %d", mode);
+        _auto_registration = (mode == CellularNetwork::NWModeAutomatic);
+        auto_reg = _auto_registration;
     }
-    return false;
+    return err;
 }
-
 
 nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 {
@@ -427,7 +431,9 @@ void CellularConnectionFSM::state_registering()
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
-        if (!is_automatic_registering()) { // when we support plmn add this :  || plmn
+        bool auto_reg = false;
+        nsapi_error_t err = is_automatic_registering(auto_reg);
+        if (err == NSAPI_ERROR_OK && !auto_reg) { // when we support plmn add this :  || plmn
             // automatic registering is not on, set registration and retry
             _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
             set_network_registration();
@@ -456,8 +462,7 @@ void CellularConnectionFSM::state_connect_to_network()
 {
     _cellularDevice->set_timeout(TIMEOUT_NETWORK);
     tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
-    nsapi_error_t err = _network->connect();
-    if (err == NSAPI_ERROR_OK) {
+    if (_network->connect() == NSAPI_ERROR_OK) {
         // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTED;
     } else {
@@ -582,7 +587,7 @@ void CellularConnectionFSM::ready_urc_cb()
 {
     tr_debug("Device ready URC func called");
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
-        tr_info("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
+        tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
         _queue.cancel(_eventID);
         if (device_ready()) {
             continue_from_state(STATE_SIM_PIN);

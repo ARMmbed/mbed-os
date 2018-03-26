@@ -138,7 +138,6 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
-    bool is_automatic_registering();
     const char* get_state_string(CellularState state);
 private:
     bool power_on();
@@ -149,6 +148,7 @@ private:
     bool set_attach_network();
     bool is_registered();
     bool device_ready();
+    nsapi_error_t is_automatic_registering(bool& auto_reg);
 
     // state functions to keep state machine simple
     void state_init();
@@ -196,6 +196,7 @@ private:
     events::EventQueue _at_queue;
     char _st_string[20];
     int _eventID;
+    bool _auto_registration;
 };
 
 } // namespace
