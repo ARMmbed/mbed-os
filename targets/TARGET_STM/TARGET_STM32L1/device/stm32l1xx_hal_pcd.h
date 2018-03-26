@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -198,7 +196,7 @@ typedef struct
   * @{
   */
 
-#define  USB_WAKEUP_EXTI_LINE              ((uint32_t)0x00040000)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
+#define  USB_WAKEUP_EXTI_LINE              (0x00040000U)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
 /**
   * @}
   */
@@ -328,10 +326,11 @@ typedef struct
  */
 
 /* SetENDPOINT */
-#define PCD_SET_ENDPOINT(USBx, bEpNum,wRegValue)  (*(&(USBx)->EP0R + (bEpNum) * 2)= (uint16_t)(wRegValue))
+/* SetENDPOINT */
+#define PCD_SET_ENDPOINT(USBx, bEpNum,wRegValue)  (*((uint16_t *)(((uint32_t)(&(USBx)->EP0R + (bEpNum) * 2U))))= (uint16_t)(wRegValue))
 
 /* GetENDPOINT */
-#define PCD_GET_ENDPOINT(USBx, bEpNum)        (*(&(USBx)->EP0R + (bEpNum) * 2))
+#define PCD_GET_ENDPOINT(USBx, bEpNum)            (*((uint16_t *)(((uint32_t)(&(USBx)->EP0R + (bEpNum) * 2U)))))
 
 
 
@@ -343,7 +342,7 @@ typedef struct
   * @retval None
   */
 #define PCD_SET_EPTYPE(USBx, bEpNum,wType) (PCD_SET_ENDPOINT((USBx), (bEpNum),\
-                                  ((PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EP_T_MASK) | (wType) )))
+                                  ((((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & ((uint32_t)(USB_EP_T_MASK))) | ((uint32_t)(wType)) )))
 
 /**
   * @brief  gets the type in the endpoint register(bits EP_TYPE[1:0])
@@ -351,7 +350,7 @@ typedef struct
   * @param  bEpNum: Endpoint Number.
   * @retval Endpoint Type
   */
-#define PCD_GET_EPTYPE(USBx, bEpNum) (PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EP_T_FIELD)
+#define PCD_GET_EPTYPE(USBx, bEpNum) (((uint16_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EP_T_FIELD)
 
 
 /**
@@ -400,18 +399,18 @@ typedef struct
   */
 #define PCD_SET_EP_TX_STATUS(USBx, bEpNum, wState) { register uint16_t _wRegVal;\
    \
-    _wRegVal = PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPTX_DTOGMASK;\
+    _wRegVal = (uint32_t) (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPTX_DTOGMASK);\
    /* toggle first bit ? */     \
    if((USB_EPTX_DTOG1 & (wState))!= 0)      \
    {                                                                            \
-     _wRegVal ^= USB_EPTX_DTOG1;        \
+     _wRegVal ^=(uint16_t) USB_EPTX_DTOG1;        \
    }                                                                            \
    /* toggle second bit ?  */         \
-   if((USB_EPTX_DTOG2 & (wState))!= 0)      \
+   if((USB_EPTX_DTOG2 & ((uint32_t)(wState)))!= 0U)      \
    {                                                                            \
-     _wRegVal ^= USB_EPTX_DTOG2;        \
+     _wRegVal ^=(uint16_t) USB_EPTX_DTOG2;        \
    }                                                                            \
-   PCD_SET_ENDPOINT((USBx), (bEpNum), (_wRegVal | USB_EP_CTR_RX|USB_EP_CTR_TX));    \
+   PCD_SET_ENDPOINT((USBx), (bEpNum), (((uint32_t)(_wRegVal)) | USB_EP_CTR_RX|USB_EP_CTR_TX));\
   } /* PCD_SET_EP_TX_STATUS */
 
 /**
@@ -424,18 +423,18 @@ typedef struct
 #define PCD_SET_EP_RX_STATUS(USBx, bEpNum,wState) {\
     register uint16_t _wRegVal;   \
     \
-    _wRegVal = PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPRX_DTOGMASK;\
+    _wRegVal = (uint32_t) (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPRX_DTOGMASK);\
     /* toggle first bit ? */  \
     if((USB_EPRX_DTOG1 & (wState))!= 0) \
     {                                                                             \
-      _wRegVal ^= USB_EPRX_DTOG1;  \
+      _wRegVal ^= (uint16_t) USB_EPRX_DTOG1;  \
     }                                                                             \
     /* toggle second bit ? */  \
-    if((USB_EPRX_DTOG2 & (wState))!= 0) \
+    if((USB_EPRX_DTOG2 & ((uint32_t)(wState)))!= 0U) \
     {                                                                             \
-      _wRegVal ^= USB_EPRX_DTOG2;  \
+      _wRegVal ^= (uint16_t) USB_EPRX_DTOG2;  \
     }                                                                             \
-    PCD_SET_ENDPOINT((USBx), (bEpNum), (_wRegVal | USB_EP_CTR_RX|USB_EP_CTR_TX)); \
+    PCD_SET_ENDPOINT((USBx), (bEpNum), (((uint32_t)(_wRegVal)) | USB_EP_CTR_RX|USB_EP_CTR_TX)); \
   } /* PCD_SET_EP_RX_STATUS */
 
 /**
@@ -480,9 +479,8 @@ typedef struct
   * @param  bEpNum: Endpoint Number.
   * @retval status
   */
-#define PCD_GET_EP_TX_STATUS(USBx, bEpNum) ((uint16_t)PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPTX_STAT)
-
-#define PCD_GET_EP_RX_STATUS(USBx, bEpNum) ((uint16_t)PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPRX_STAT)
+#define PCD_GET_EP_TX_STATUS(USBx, bEpNum) (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPTX_STAT)
+#define PCD_GET_EP_RX_STATUS(USBx, bEpNum) (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPRX_STAT)
 
 /**
   * @brief  sets directly the VALID tx/rx-status into the endpoint register
@@ -512,9 +510,9 @@ typedef struct
   * @retval None
   */
 #define PCD_SET_EP_KIND(USBx, bEpNum)    (PCD_SET_ENDPOINT((USBx), (bEpNum), \
-                                (USB_EP_CTR_RX|USB_EP_CTR_TX|((PCD_GET_ENDPOINT((USBx), (bEpNum)) | USB_EP_KIND) & USB_EPREG_MASK))))
+                                (USB_EP_CTR_RX|USB_EP_CTR_TX|((((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) | USB_EP_KIND) & USB_EPREG_MASK))))
 #define PCD_CLEAR_EP_KIND(USBx, bEpNum)  (PCD_SET_ENDPOINT((USBx), (bEpNum), \
-                                (USB_EP_CTR_RX|USB_EP_CTR_TX|(PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPKIND_MASK))))
+                                (USB_EP_CTR_RX|USB_EP_CTR_TX|((((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPKIND_MASK))))
 
 /**
   * @brief  Sets/clears directly STATUS_OUT bit in the endpoint register.
@@ -541,9 +539,9 @@ typedef struct
   * @retval None
   */
 #define PCD_CLEAR_RX_EP_CTR(USBx, bEpNum)   (PCD_SET_ENDPOINT((USBx), (bEpNum),\
-                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0x7FFF & USB_EPREG_MASK))
+                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0x7FFFU & USB_EPREG_MASK))
 #define PCD_CLEAR_TX_EP_CTR(USBx, bEpNum)   (PCD_SET_ENDPOINT((USBx), (bEpNum),\
-                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0xFF7F & USB_EPREG_MASK))
+                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0xFF7FU & USB_EPREG_MASK))
 
 /**
   * @brief  Toggles DTOG_RX / DTOG_TX bit in the endpoint register.
@@ -552,9 +550,9 @@ typedef struct
   * @retval None
   */
 #define PCD_RX_DTOG(USBx, bEpNum)    (PCD_SET_ENDPOINT((USBx), (bEpNum), \
-                                   USB_EP_CTR_RX|USB_EP_CTR_TX|USB_EP_DTOG_RX | (PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPREG_MASK)))
+                                   USB_EP_CTR_RX|USB_EP_CTR_TX|USB_EP_DTOG_RX | (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPREG_MASK)))
 #define PCD_TX_DTOG(USBx, bEpNum)    (PCD_SET_ENDPOINT((USBx), (bEpNum), \
-                                   USB_EP_CTR_RX|USB_EP_CTR_TX|USB_EP_DTOG_TX | (PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPREG_MASK)))
+                                   USB_EP_CTR_RX|USB_EP_CTR_TX|USB_EP_DTOG_TX | (((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPREG_MASK)))
 
 /**
   * @brief  Clears DTOG_RX / DTOG_TX bit in the endpoint register.
@@ -562,13 +560,13 @@ typedef struct
   * @param  bEpNum: Endpoint Number.
   * @retval None
   */
-#define PCD_CLEAR_RX_DTOG(USBx, bEpNum)  if((PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EP_DTOG_RX) != 0)\
+#define PCD_CLEAR_RX_DTOG(USBx, bEpNum)  if((((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EP_DTOG_RX) != 0)\
                                          {                                                              \
-                                           PCD_RX_DTOG((USBx), (bEpNum));                               \
+                                           PCD_RX_DTOG((USBx),(bEpNum));\
                                          }
-#define PCD_CLEAR_TX_DTOG(USBx, bEpNum)  if((PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EP_DTOG_TX) != 0)\
-                                         {                                                              \
-                                            PCD_TX_DTOG((USBx), (bEpNum));                              \
+#define PCD_CLEAR_TX_DTOG(USBx, bEpNum)  if((((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EP_DTOG_TX) != 0)\
+                                         {\
+                                           PCD_TX_DTOG((USBx),(bEpNum));\
                                          }
       
 /**
@@ -579,18 +577,18 @@ typedef struct
   * @retval None
   */
 #define PCD_SET_EP_ADDRESS(USBx, bEpNum,bAddr) PCD_SET_ENDPOINT((USBx), (bEpNum),\
-    USB_EP_CTR_RX|USB_EP_CTR_TX|(PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPREG_MASK) | (bAddr))
+    USB_EP_CTR_RX|USB_EP_CTR_TX|(((uint32_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)))) & USB_EPREG_MASK) | (bAddr))
 
 #define PCD_GET_EP_ADDRESS(USBx, bEpNum) ((uint8_t)(PCD_GET_ENDPOINT((USBx), (bEpNum)) & USB_EPADDR_FIELD))
 
-#define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8)*2+     ((uint32_t)(USBx) + 0x400)))
-#define PCD_EP_TX_CNT(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8+2)*2+  ((uint32_t)(USBx) + 0x400)))
-#define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8+4)*2+  ((uint32_t)(USBx) + 0x400)))
-#define PCD_EP_RX_CNT(USBx, bEpNum) ((uint32_t *)(((USBx)->BTABLE+(bEpNum)*8+6)*2+  ((uint32_t)(USBx) + 0x400)))
+#define PCD_EP_TX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8)*2+     ((uint32_t)(USBx) + 0x400U)))))
+#define PCD_EP_TX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+2)*2+  ((uint32_t)(USBx) + 0x400U)))))
+#define PCD_EP_RX_ADDRESS(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+4)*2+ ((uint32_t)(USBx) + 0x400U)))))
+#define PCD_EP_RX_CNT(USBx, bEpNum) ((uint16_t *)((uint32_t)((((USBx)->BTABLE+(bEpNum)*8+6)*2+  ((uint32_t)(USBx) + 0x400U)))))
       
 #define PCD_SET_EP_RX_CNT(USBx, bEpNum,wCount) {\
-    uint32_t *pdwReg = PCD_EP_RX_CNT((USBx), (bEpNum)); \
-    PCD_SET_EP_CNT_RX_REG(pdwReg, (wCount));\
+    uint16_t *pdwReg =PCD_EP_RX_CNT((USBx),(bEpNum)); \
+    PCD_SET_EP_CNT_RX_REG((pdwReg), (wCount))\
   }
 
 /**
@@ -625,7 +623,7 @@ typedef struct
     {                                                  \
       (wNBlocks)--;\
     }                                                  \
-    *pdwReg = (uint16_t)((uint16_t)((wNBlocks) << 10) | 0x8000); \
+    *pdwReg = (uint16_t)((uint16_t)((wNBlocks) << 10U) | (uint16_t)0x8000U); \
   }/* PCD_CALC_BLK32 */
 
 #define PCD_CALC_BLK2(dwReg,wCount,wNBlocks) {\
@@ -641,17 +639,17 @@ typedef struct
     uint16_t wNBlocks;\
     if((wCount) > 62)                                \
     {                                                \
-      PCD_CALC_BLK32((dwReg),(wCount),wNBlocks);     \
+      PCD_CALC_BLK32((dwReg),(wCount),wNBlocks)     \
     }                                                \
     else                                             \
     {                                                \
-      PCD_CALC_BLK2((dwReg),(wCount),wNBlocks);      \
+      PCD_CALC_BLK2((dwReg),(wCount),wNBlocks)     \
     }                                                \
   }/* PCD_SET_EP_CNT_RX_REG */
 
 #define PCD_SET_EP_RX_DBUF0_CNT(USBx, bEpNum,wCount) {\
-    uint32_t *pdwReg = PCD_EP_TX_CNT((USBx), (bEpNum)); \
-    PCD_SET_EP_CNT_RX_REG(pdwReg, (wCount));\
+    uint16_t *pdwReg = PCD_EP_TX_CNT((USBx), (bEpNum)); \
+    PCD_SET_EP_CNT_RX_REG(pdwReg, (wCount))\
   }
 /**
   * @brief  sets counter for the tx/rx buffer.
@@ -679,8 +677,8 @@ typedef struct
   * @param  wBuf0Addr: buffer 0 address.
   * @retval Counter value
   */
-#define PCD_SET_EP_DBUF0_ADDR(USBx, bEpNum,wBuf0Addr) {PCD_SET_EP_TX_ADDRESS((USBx), (bEpNum), (wBuf0Addr));}
-#define PCD_SET_EP_DBUF1_ADDR(USBx, bEpNum,wBuf1Addr) {PCD_SET_EP_RX_ADDRESS((USBx), (bEpNum), (wBuf1Addr));}
+#define PCD_SET_EP_DBUF0_ADDR(USBx, bEpNum,wBuf0Addr) (PCD_SET_EP_TX_ADDRESS((USBx), (bEpNum), (wBuf0Addr)))
+#define PCD_SET_EP_DBUF1_ADDR(USBx, bEpNum,wBuf1Addr) (PCD_SET_EP_RX_ADDRESS((USBx), (bEpNum), (wBuf1Addr)))
 
 /**
   * @brief  Sets addresses in a double buffer endpoint.
@@ -716,7 +714,7 @@ typedef struct
 #define PCD_SET_EP_DBUF0_CNT(USBx, bEpNum, bDir, wCount)  { \
     if((bDir) == PCD_EP_DBUF_OUT)\
       /* OUT endpoint */ \
-    {PCD_SET_EP_RX_DBUF0_CNT((USBx), (bEpNum),(wCount));} \
+    {PCD_SET_EP_RX_DBUF0_CNT((USBx), (bEpNum),(wCount))} \
     else if((bDir) == PCD_EP_DBUF_IN)\
       /* IN endpoint */ \
       *PCD_EP_TX_CNT((USBx), (bEpNum)) = (uint32_t)(wCount);  \
@@ -725,17 +723,17 @@ typedef struct
 #define PCD_SET_EP_DBUF1_CNT(USBx, bEpNum, bDir, wCount)  { \
     if((bDir) == PCD_EP_DBUF_OUT)\
     {/* OUT endpoint */                                       \
-      PCD_SET_EP_RX_CNT((USBx), (bEpNum),(wCount));           \
+      PCD_SET_EP_RX_CNT((USBx), (bEpNum),(wCount))           \
     }                                                         \
     else if((bDir) == PCD_EP_DBUF_IN)\
     {/* IN endpoint */                                        \
-      *PCD_EP_TX_CNT((USBx), (bEpNum)) = (uint32_t)(wCount); \
+      *PCD_EP_RX_CNT((USBx), (bEpNum)) = (uint32_t)(wCount); \
     }                                                         \
   } /* SetEPDblBuf1Count */
 
 #define PCD_SET_EP_DBUF_CNT(USBx, bEpNum, bDir, wCount) {\
-    PCD_SET_EP_DBUF0_CNT((USBx), (bEpNum), (bDir), (wCount)); \
-    PCD_SET_EP_DBUF1_CNT((USBx), (bEpNum), (bDir), (wCount)); \
+    PCD_SET_EP_DBUF0_CNT((USBx), (bEpNum), (bDir), (wCount)) \
+    PCD_SET_EP_DBUF1_CNT((USBx), (bEpNum), (bDir), (wCount)) \
   } /* PCD_SET_EP_DBUF_CNT  */
 
 /**

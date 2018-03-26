@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -108,7 +106,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -279,7 +277,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     tmp = tmp / 10;  
 
     /* Check the parity of the divider */
-    i2sodd = (uint32_t)(tmp & (uint32_t)1);
+    i2sodd = (uint32_t)(tmp & 1U);
 
     /* Compute the i2sdiv prescaler */
     i2sdiv = (uint32_t)((tmp - i2sodd) / 2);

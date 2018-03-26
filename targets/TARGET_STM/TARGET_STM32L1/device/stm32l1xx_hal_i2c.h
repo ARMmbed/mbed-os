@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -179,13 +177,13 @@ typedef enum
   * @brief  I2C Error Code definition  
   * @{
   */ 
-#define HAL_I2C_ERROR_NONE       ((uint32_t)0x00000000U)    /*!< No error           */
-#define HAL_I2C_ERROR_BERR       ((uint32_t)0x00000001U)    /*!< BERR error         */
-#define HAL_I2C_ERROR_ARLO       ((uint32_t)0x00000002U)    /*!< ARLO error         */
-#define HAL_I2C_ERROR_AF         ((uint32_t)0x00000004U)    /*!< AF error           */
-#define HAL_I2C_ERROR_OVR        ((uint32_t)0x00000008U)    /*!< OVR error          */
-#define HAL_I2C_ERROR_DMA        ((uint32_t)0x00000010U)    /*!< DMA transfer error */
-#define HAL_I2C_ERROR_TIMEOUT    ((uint32_t)0x00000020U)    /*!< Timeout Error      */
+#define HAL_I2C_ERROR_NONE       (0x00000000U)    /*!< No error           */
+#define HAL_I2C_ERROR_BERR       (0x00000001U)    /*!< BERR error         */
+#define HAL_I2C_ERROR_ARLO       (0x00000002U)    /*!< ARLO error         */
+#define HAL_I2C_ERROR_AF         (0x00000004U)    /*!< AF error           */
+#define HAL_I2C_ERROR_OVR        (0x00000008U)    /*!< OVR error          */
+#define HAL_I2C_ERROR_DMA        (0x00000010U)    /*!< DMA transfer error */
+#define HAL_I2C_ERROR_TIMEOUT    (0x00000020U)    /*!< Timeout Error      */
 /**
   * @}
   */
@@ -248,7 +246,7 @@ typedef struct
 /** @defgroup I2C_duty_cycle_in_fast_mode I2C duty cycle in fast mode
   * @{
   */
-#define I2C_DUTYCYCLE_2                 ((uint32_t)0x00000000U)
+#define I2C_DUTYCYCLE_2                 (0x00000000U)
 #define I2C_DUTYCYCLE_16_9              I2C_CCR_DUTY
 /**
   * @}
@@ -257,8 +255,8 @@ typedef struct
 /** @defgroup I2C_addressing_mode I2C addressing mode
   * @{
   */
-#define I2C_ADDRESSINGMODE_7BIT         ((uint32_t)0x00004000U)
-#define I2C_ADDRESSINGMODE_10BIT        (I2C_OAR1_ADDMODE | ((uint32_t)0x00004000U))
+#define I2C_ADDRESSINGMODE_7BIT         (0x00004000U)
+#define I2C_ADDRESSINGMODE_10BIT        (I2C_OAR1_ADDMODE | (0x00004000U))
 /**
   * @}
   */
@@ -266,7 +264,7 @@ typedef struct
 /** @defgroup I2C_dual_addressing_mode  I2C dual addressing mode
   * @{
   */
-#define I2C_DUALADDRESS_DISABLE         ((uint32_t)0x00000000U)
+#define I2C_DUALADDRESS_DISABLE         (0x00000000U)
 #define I2C_DUALADDRESS_ENABLE          I2C_OAR2_ENDUAL
 /**
   * @}
@@ -275,7 +273,7 @@ typedef struct
 /** @defgroup I2C_general_call_addressing_mode I2C general call addressing mode
   * @{
   */
-#define I2C_GENERALCALL_DISABLE         ((uint32_t)0x00000000U)
+#define I2C_GENERALCALL_DISABLE         (0x00000000U)
 #define I2C_GENERALCALL_ENABLE          I2C_CR1_ENGC
 /**
   * @}
@@ -284,7 +282,7 @@ typedef struct
 /** @defgroup I2C_nostretch_mode I2C nostretch mode
   * @{
   */
-#define I2C_NOSTRETCH_DISABLE           ((uint32_t)0x00000000U)
+#define I2C_NOSTRETCH_DISABLE           (0x00000000U)
 #define I2C_NOSTRETCH_ENABLE            I2C_CR1_NOSTRETCH
 /**
   * @}
@@ -293,8 +291,8 @@ typedef struct
 /** @defgroup I2C_Memory_Address_Size I2C Memory Address Size
   * @{
   */
-#define I2C_MEMADD_SIZE_8BIT            ((uint32_t)0x00000001U)
-#define I2C_MEMADD_SIZE_16BIT           ((uint32_t)0x00000010U)
+#define I2C_MEMADD_SIZE_8BIT            (0x00000001U)
+#define I2C_MEMADD_SIZE_16BIT           (0x00000010U)
 /**
   * @}
   */
@@ -302,8 +300,8 @@ typedef struct
 /** @defgroup I2C_XferDirection_definition I2C XferDirection definition Master Point of View
   * @{
   */
-#define I2C_DIRECTION_RECEIVE           ((uint32_t)0x00000000U) 
-#define I2C_DIRECTION_TRANSMIT          ((uint32_t)0x00000001U)
+#define I2C_DIRECTION_RECEIVE           (0x00000000U) 
+#define I2C_DIRECTION_TRANSMIT          (0x00000001U)
 /**
   * @}
   */
@@ -311,10 +309,10 @@ typedef struct
 /** @defgroup I2C_XferOptions_definition I2C XferOptions definition
   * @{
   */
-#define  I2C_FIRST_FRAME                ((uint32_t)0x00000001U)
-#define  I2C_NEXT_FRAME                 ((uint32_t)0x00000002U)
-#define  I2C_FIRST_AND_LAST_FRAME       ((uint32_t)0x00000004U)
-#define  I2C_LAST_FRAME                 ((uint32_t)0x00000008U)
+#define  I2C_FIRST_FRAME                (0x00000001U)
+#define  I2C_NEXT_FRAME                 (0x00000002U)
+#define  I2C_FIRST_AND_LAST_FRAME       (0x00000004U)
+#define  I2C_LAST_FRAME                 (0x00000008U)
 /**
   * @}
   */
@@ -581,7 +579,7 @@ uint32_t             HAL_I2C_GetError(I2C_HandleTypeDef *hi2c);
 /** @defgroup I2C_Private_Constants I2C Private Constants
   * @{
   */
-#define I2C_FLAG_MASK  ((uint32_t)0x0000FFFFU)
+#define I2C_FLAG_MASK  (0x0000FFFFU)
 /**
   * @}
   */ 

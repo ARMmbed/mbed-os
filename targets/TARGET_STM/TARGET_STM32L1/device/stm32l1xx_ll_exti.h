@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_exti.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of EXTI LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -122,7 +120,9 @@ typedef struct
 #define LL_EXTI_LINE_16                EXTI_IMR_IM16          /*!< Extended line 16 */
 #endif
 #define LL_EXTI_LINE_17                EXTI_IMR_IM17          /*!< Extended line 17 */
+#if defined(EXTI_IMR_IM18)
 #define LL_EXTI_LINE_18                EXTI_IMR_IM18          /*!< Extended line 18 */
+#endif
 #define LL_EXTI_LINE_19                EXTI_IMR_IM19          /*!< Extended line 19 */
 #if defined(EXTI_IMR_IM20)
 #define LL_EXTI_LINE_20                EXTI_IMR_IM20          /*!< Extended line 20 */
@@ -161,10 +161,10 @@ typedef struct
 #define LL_EXTI_LINE_ALL_0_31          EXTI_IMR_IM            /*!< All Extended line not reserved*/
 
 
-#define LL_EXTI_LINE_ALL               ((uint32_t)0xFFFFFFFFU)  /*!< All Extended line */
+#define LL_EXTI_LINE_ALL               (0xFFFFFFFFU)  /*!< All Extended line */
 
 #if defined(USE_FULL_LL_DRIVER)
-#define LL_EXTI_LINE_NONE              ((uint32_t)0x00000000U)  /*!< None Extended line */
+#define LL_EXTI_LINE_NONE              (0x00000000U)  /*!< None Extended line */
 #endif /*USE_FULL_LL_DRIVER*/
 
 /**
