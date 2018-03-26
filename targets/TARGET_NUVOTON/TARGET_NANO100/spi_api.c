@@ -75,6 +75,38 @@ static struct nu_spi_var spi2_var = {
 #endif
 };
 
+/* Synchronous version of SPI_ENABLE()/SPI_DISABLE() macros
+ *
+ * The SPI peripheral clock is asynchronous with the system clock. In order to make sure the SPI
+ * control logic is enabled/disabled, this bit indicates the real status of SPI controller.
+ *
+ * NOTE: All configurations shall be ready before calling SPI_ENABLE_SYNC().
+ * NOTE: Before changing the configurations of SPIx_CTL, SPIx_CLKDIV, SPIx_SSCTL and SPIx_FIFOCTL registers,
+ *       user shall clear the SPIEN (SPIx_CTL[0]) and confirm the SPIENSTS (SPIx_STATUS[15]) is 0
+ *       (by SPI_DISABLE_SYNC here).
+ *
+ * NOTE:
+ * 1. NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+ * 2. NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
+ */
+__STATIC_INLINE void SPI_ENABLE_SYNC(SPI_T *spi_base)
+{
+    /* NOTE: On NANO130, FIFO mode defaults to disabled. */
+    if (! (spi_base->CTL & SPI_CTL_FIFOM_Msk)) {
+        SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
+    }
+}
+__STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
+{
+    /* NOTE: On NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first. */
+    if (spi_base->CTL & SPI_CTL_FIFOM_Msk) {
+        SPI_DisableFIFO(spi_base);
+    }
+    
+    /* NOTE: SPI H/W may get out of state without the busy check */
+    while (SPI_IS_BUSY(spi_base));
+}
+
 #if DEVICE_SPI_ASYNCH
 static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t enable);
 static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable, uint32_t mask);
@@ -191,13 +223,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE: All configurations should be ready before enabling SPI peripheral.
-    // NOTE: Re-configuration is allowed only as SPI peripheral is idle.
-    // NOTE: 
-    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
-    SPI_DisableFIFO(spi_base);
-    while (SPI_IS_BUSY(spi_base));
-
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
         slave ? SPI_SLAVE : SPI_MASTER,
@@ -240,25 +266,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         // NANO130: Configure slave select signal to edge-trigger rather than level-trigger
         spi_base->SSR |= SPI_SSR_SS_LTRIG_Msk;
     }
-    
-    // NOTE: 
-    // NANO130: FIFO mode defaults to disabled.
-    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
-    SPI_DisableFIFO(spi_base);
-    while (SPI_IS_BUSY(spi_base));
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
-    
-    // NOTE: 
-    // NANO130: FIFO mode defaults to disabled.
-    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 }
 
 
@@ -270,7 +286,8 @@ int spi_master_write(spi_t *obj, int value)
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
@@ -303,21 +320,19 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 #if DEVICE_SPISLAVE
 int spi_slave_receive(spi_t *obj)
 {
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+
+    SPI_ENABLE_SYNC(spi_base);
+
     return spi_readable(obj);
 };
 
 int spi_slave_read(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for rx buffer full
     while (! spi_readable(obj));
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
@@ -328,11 +343,9 @@ int spi_slave_read(spi_t *obj)
 void spi_slave_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
@@ -364,11 +377,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // SPI IRQ is necessary for both interrupt way and DMA way
     spi_enable_event(obj, event, 1);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
-            
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         // Interrupt way
         spi_master_write_asynch(obj, NU_SPI_FIFO_DEPTH / 2);
@@ -473,9 +484,9 @@ void spi_abort_asynch(spi_t *obj)
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
 
-    // NOTE: SPI H/W may get out of state without the busy check.
-    while (SPI_IS_BUSY(spi_base));
-    
+    /* Necessary for accessing FIFOCTL below */
+    SPI_DISABLE_SYNC(spi_base);
+
     SPI_ClearRxFIFO(spi_base);
     SPI_ClearTxFIFO(spi_base);
 }
