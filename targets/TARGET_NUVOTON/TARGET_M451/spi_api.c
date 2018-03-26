@@ -60,6 +60,34 @@ static struct nu_spi_var spi2_var = {
 #endif
 };
 
+/* Synchronous version of SPI_ENABLE()/SPI_DISABLE() macros
+ *
+ * The SPI peripheral clock is asynchronous with the system clock. In order to make sure the SPI
+ * control logic is enabled/disabled, this bit indicates the real status of SPI controller.
+ *
+ * NOTE: All configurations shall be ready before calling SPI_ENABLE_SYNC().
+ * NOTE: Before changing the configurations of SPIx_CTL, SPIx_CLKDIV, SPIx_SSCTL and SPIx_FIFOCTL registers,
+ *       user shall clear the SPIEN (SPIx_CTL[0]) and confirm the SPIENSTS (SPIx_STATUS[15]) is 0
+ *       (by SPI_DISABLE_SYNC here).
+ */
+__STATIC_INLINE void SPI_ENABLE_SYNC(SPI_T *spi_base)
+{
+    if (! (spi_base->CTL & SPI_CTL_SPIEN_Msk)) {
+        SPI_ENABLE(spi_base);
+    }
+    while (! (spi_base->STATUS & SPI_STATUS_SPIENSTS_Msk));
+}
+__STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
+{
+    if (spi_base->CTL & SPI_CTL_SPIEN_Msk) {
+        // NOTE: SPI H/W may get out of state without the busy check.
+        while (SPI_IS_BUSY(spi_base));
+    
+        SPI_DISABLE(spi_base);
+    }
+    while (spi_base->STATUS & SPI_STATUS_SPIENSTS_Msk);
+}
+
 #if DEVICE_SPI_ASYNCH
 static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t enable);
 static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable);
@@ -177,10 +205,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE 1: All configurations should be ready before enabling SPI peripheral.
-    // NOTE 2: Re-configuration is allowed only as SPI peripheral is idle.
-    while (SPI_IS_BUSY(spi_base));
-    SPI_DISABLE(spi_base);
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
         slave ? SPI_SLAVE : SPI_MASTER,
@@ -207,15 +232,14 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     }
 
     // NOTE: M451's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk). This will violate judgement of spi_active(). Disable it.
-    SPI_DISABLE(spi_base);
+    SPI_DISABLE_SYNC(spi_base);
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    while (SPI_IS_BUSY(spi_base));
-    SPI_DISABLE(spi_base);
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
 }
@@ -226,7 +250,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
     // NOTE: Data in receive FIFO can be read out via ICE.
-    SPI_ENABLE(spi_base);
+    SPI_ENABLE_SYNC(spi_base);
     
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
@@ -236,7 +260,7 @@ int spi_master_write(spi_t *obj, int value)
     while (! spi_readable(obj));
     int value2 = SPI_READ_RX(spi_base);
     
-    SPI_DISABLE(spi_base);
+    SPI_DISABLE_SYNC(spi_base);
     
     return value2;
 }
@@ -261,7 +285,7 @@ int spi_slave_receive(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    SPI_ENABLE(spi_base);
+    SPI_ENABLE_SYNC(spi_base);
     
     return spi_readable(obj);
 };
@@ -270,7 +294,7 @@ int spi_slave_read(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    SPI_ENABLE(spi_base);
+    SPI_ENABLE_SYNC(spi_base);
     
     // Wait for rx buffer full
     while (! spi_readable(obj));
@@ -282,7 +306,7 @@ void spi_slave_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    SPI_ENABLE(spi_base);
+    SPI_ENABLE_SYNC(spi_base);
     
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
@@ -316,7 +340,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, event, 1);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
             
-    SPI_ENABLE(spi_base);
+    SPI_ENABLE_SYNC(spi_base);
     
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         // Interrupt way
@@ -426,9 +450,8 @@ void spi_abort_asynch(spi_t *obj)
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0);
 
-    // FIXME: SPI H/W may get out of state without the busy check.
-    while (SPI_IS_BUSY(spi_base));
-    SPI_DISABLE(spi_base);
+    /* Necessary for accessing FIFOCTL below */
+    SPI_DISABLE_SYNC(spi_base);
     
     SPI_ClearRxFIFO(spi_base);
     SPI_ClearTxFIFO(spi_base);
