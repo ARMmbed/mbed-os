@@ -117,10 +117,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
     timer_base->CMPR = cmp_timer;
-
-    /* NOTE: When engine is clocked by low power clock source (LXT/LIRC), we need to wait for 3 engine clocks. */
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-    TIMER_Start(timer_base);
 }
 
 void lp_ticker_disable_interrupt(void)
