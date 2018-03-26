@@ -556,7 +556,11 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
-    return generateOOB(&cb->local_address);;
+    if (useOOB) {
+        return generateOOB(&cb->local_address);
+    } else {
+        return BLE_ERROR_NONE;
+    }
 }
 
 ble_error_t GenericSecurityManager::confirmationEntered(
