@@ -43,8 +43,8 @@ struct nu_spi_var {
 #endif
 };
 
-// NOTE:
-// NANO130: No support for relocating vector table. ISR vector passed into NVIC_SetVector() can only be weak symbol defined in startup_Nano100Series.c.
+/* NOTE: NANO130 doesn't support relocating vector table. ISR vector passed into NVIC_SetVector() can
+ *       only be weak symbol defined in startup_Nano100Series.c. */
 void SPI0_IRQHandler(void);
 void SPI1_IRQHandler(void);
 void SPI2_IRQHandler(void);
@@ -156,27 +156,27 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
-    
+
     // Select IP clock source
     CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
-    
+
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    
+
     obj->spi.pin_mosi = mosi;
     obj->spi.pin_miso = miso;
     obj->spi.pin_sclk = sclk;
     obj->spi.pin_ssel = ssel;
 
-    
+
 #if DEVICE_SPI_ASYNCH
     obj->spi.dma_usage = DMA_USAGE_NEVER;
     obj->spi.event = 0;
@@ -213,26 +213,28 @@ void spi_free(spi_t *obj)
 #endif
 
     SPI_Close((SPI_T *) NU_MODBASE(obj->spi.spi));
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     SPI_DisableInt(((SPI_T *) NU_MODBASE(obj->spi.spi)), (SPI_FIFO_RXOVR_INTEN_MASK | SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK));
     NVIC_DisableIRQ(modinit->irq_n);
-    
+
     // Disable IP clock
     CLK_DisableModuleClock(modinit->clkidx);
-    
+
     // Mark this module to be deinited.
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask &= ~(1 << i);
 }
+
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     MBED_ASSERT(bits >= NU_SPI_FRAME_MIN && bits <= NU_SPI_FRAME_MAX);
-    
+
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
@@ -295,7 +297,7 @@ void spi_frequency(spi_t *obj, int hz)
 int spi_master_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     // NOTE: Data in receive FIFO can be read out via ICE.
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
@@ -306,7 +308,7 @@ int spi_master_write(spi_t *obj, int value)
     while(! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
     M32(TX) = value;
-    
+
     // Wait for rx buffer full
     while (! spi_readable(obj));
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
@@ -389,7 +391,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         dma_channel_free(obj->spi.dma_chn_id_rx);
         obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
     }
-    
+
     // SPI IRQ is necessary for both interrupt way and DMA way
     spi_enable_event(obj, event, 1);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
@@ -405,7 +407,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+        MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
         
         // Configure tx DMA
         dma_enable(obj->spi.dma_chn_id_tx, 1);                  // Enable this DMA channel
@@ -497,7 +499,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 void spi_abort_asynch(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     if (obj->spi.dma_usage != DMA_USAGE_NEVER) {
         // Receive FIFO Overrun in case of tx length > rx length on DMA way
         if (spi_base->STATUS & SPI_STATUS_RX_OVER_RUN_Msk) {
@@ -509,18 +511,16 @@ void spi_abort_asynch(spi_t *obj)
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             dma_enable(obj->spi.dma_chn_id_tx, 0);
         }
-        //SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         spi_base->DMA &= ~SPI_DMA_TX_DMA_EN_Msk;
-        
+
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_IER_TD_IE_Msk);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             dma_enable(obj->spi.dma_chn_id_rx, 0);
         }
-        //SPI_DISABLE_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         spi_base->DMA &= ~SPI_DMA_RX_DMA_EN_Msk;
     }
-    
+
     // Necessary for both interrupt way and DMA way
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
@@ -599,7 +599,7 @@ static int spi_readable(spi_t * obj)
 }
 
 static void spi_enable_event(spi_t *obj, uint32_t event, uint8_t enable)
-{   
+{
     obj->spi.event &= ~SPI_EVENT_ALL;
     obj->spi.event |= (event & SPI_EVENT_ALL);
     if (event & SPI_EVENT_RX_OVERFLOW) {
@@ -611,7 +611,7 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
     
     struct nu_spi_var *var = (struct nu_spi_var *) modinit->var;
     
@@ -654,16 +654,16 @@ static uint32_t spi_event_check(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t event = 0;
-    
+
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         uint32_t n_rec = spi_master_read_asynch(obj);
         spi_master_write_asynch(obj, n_rec);
     }
-    
+
     if (spi_is_tx_complete(obj) && spi_is_rx_complete(obj)) {
         event |= SPI_EVENT_COMPLETE;
     }
-    
+
     // Receive FIFO Overrun
     if (spi_base->STATUS & SPI_STATUS_RX_OVER_RUN_Msk) {
         spi_base->STATUS = SPI_STATUS_RX_OVER_RUN_Msk;
@@ -672,10 +672,11 @@ static uint32_t spi_event_check(spi_t *obj)
             event |= SPI_EVENT_RX_OVERFLOW;
         }
     }
-    
+
     // Receive Time-Out
     if (spi_base->STATUS & SPI_STATUS_TIME_OUT_STS_Msk) {
         spi_base->STATUS = SPI_STATUS_TIME_OUT_STS_Msk;
+        // Not using this IF. Just clear it.
     }
     
     return event;
@@ -721,12 +722,12 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
                     tx += 1;
                     break;
             }
-        
+
             obj->tx_buff.pos ++;
         }
         n_words ++;
     }
-    
+
     //Return the number of words that have been sent
     return n_words;
 }
@@ -777,12 +778,12 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
                     *rx ++ = M32(RX);
                     break;
             }
-        
+
             obj->rx_buff.pos ++;
         }
         n_words ++;
     }
-    
+
     // Return the number of words received
     return n_words;
 }
@@ -808,12 +809,12 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
         if (*dma_ch_rx == DMA_ERROR_OUT_OF_CHANNELS) {
             *dma_ch_rx = dma_channel_allocate(DMA_CAP_NONE);
         }
-        
+
         if (*dma_ch_tx == DMA_ERROR_OUT_OF_CHANNELS || *dma_ch_rx == DMA_ERROR_OUT_OF_CHANNELS) {
             *dma_usage = DMA_USAGE_NEVER;
         }
     }
-    
+
     if (*dma_usage == DMA_USAGE_NEVER) {
         dma_channel_free(*dma_ch_tx);
         *dma_ch_tx = DMA_ERROR_OUT_OF_CHANNELS;
@@ -825,12 +826,12 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 static uint8_t spi_get_data_width(spi_t *obj)
 {    
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     uint32_t data_width = ((spi_base->CTL & SPI_CTL_TX_BIT_LEN_Msk) >> SPI_CTL_TX_BIT_LEN_Pos);
     if (data_width == 0) {
         data_width = 32;
     }
-    
+
     return data_width;
 }
 
@@ -847,7 +848,7 @@ static int spi_is_rx_complete(spi_t *obj)
 static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
-    
+
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
@@ -858,11 +859,11 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
 }
@@ -870,7 +871,7 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
-    
+
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
@@ -881,11 +882,11 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
 }
