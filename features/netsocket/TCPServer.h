@@ -18,6 +18,8 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
+#ifdef MBED_CONF_RTOS_PRESENT
+
 #include "netsocket/Socket.h"
 #include "netsocket/TCPSocket.h"
 #include "netsocket/NetworkStack.h"
@@ -66,7 +68,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t listen(int backlog = 1);
-    
+
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.
@@ -91,5 +93,6 @@ protected:
     rtos::Semaphore _accept_sem;
 };
 
+#endif // MBED_CONF_RTOS_PRESENT
 
 #endif

@@ -21,22 +21,33 @@
 #endif
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_toolchain.h"
-// #include "platform/mbed_semihost_api.h"
+#ifndef TARGET_SIMULATOR
+#include "platform/mbed_semihost_api.h"
+#endif
 #include "platform/mbed_interface.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
-// #include "platform/mbed_stats.h"
+#ifndef TARGET_SIMULATOR
+#include "platform/mbed_stats.h"
+#endif
 #include "platform/mbed_critical.h"
+#include "platform/mbed_poll.h"
 #include "platform/PlatformMutex.h"
+#include "drivers/UARTSerial.h"
+#include "us_ticker_api.h"
+#include "lp_ticker_api.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#if DEVICE_STDIO_MESSAGES
-#include <stdio.h>
+#ifndef SSIZE_MAX
+#define SSIZE_MAX INT_MAX
 #endif
+#include <stdio.h>
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+
+static SingletonPtr<PlatformMutex> _mutex;
 
 #if defined(__ARMCC_VERSION)
 #   if __ARMCC_VERSION >= 6010050
@@ -63,14 +74,188 @@
 #else
 #   include <sys/stat.h>
 #   define PREFIX(x)    x
+#   define OPEN_MAX         16
 #endif
 
-#define FILE_HANDLE_RESERVED    0xFFFFFFFF
+#define FILE_HANDLE_RESERVED    ((FileHandle*)0xFFFFFFFF)
 
 using namespace mbed;
 
+#if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
+// Before version 5.03, we were using a patched version of microlib with proper names
+extern const char __stdin_name[]  = ":tt";
+extern const char __stdout_name[] = ":tt";
+extern const char __stderr_name[] = ":tt";
+
+#else
+extern const char __stdin_name[]  = "/stdin";
+extern const char __stdout_name[] = "/stdout";
+extern const char __stderr_name[] = "/stderr";
+#endif
+
 unsigned char *mbed_heap_start = 0;
 uint32_t mbed_heap_size = 0;
+
+/* newlib has the filehandle field in the FILE struct as a short, so
+ * we can't just return a Filehandle* from _open and instead have to
+ * put it in a filehandles array and return the index into that array
+ */
+static FileHandle *filehandles[OPEN_MAX] = { FILE_HANDLE_RESERVED, FILE_HANDLE_RESERVED, FILE_HANDLE_RESERVED };
+static char stdio_in_prev[OPEN_MAX];
+static char stdio_out_prev[OPEN_MAX];
+static SingletonPtr<PlatformMutex> filehandle_mutex;
+
+namespace mbed {
+void mbed_set_unbuffered_stream(std::FILE *_file);
+
+void remove_filehandle(FileHandle *file) {
+    filehandle_mutex->lock();
+    /* Remove all open filehandles for this */
+    for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
+        if (filehandles[fh_i] == file) {
+            filehandles[fh_i] = NULL;
+        }
+    }
+    filehandle_mutex->unlock();
+}
+}
+
+#if DEVICE_SERIAL
+extern int stdio_uart_inited;
+extern serial_t stdio_uart;
+
+/* Private FileHandle to implement backwards-compatible functionality of
+ * direct HAL serial access for default stdin/stdout/stderr.
+ * This is not a particularly well-behaved FileHandle for a stream, which
+ * is why it's not public. People should be using UARTSerial.
+ */
+class DirectSerial : public FileHandle {
+public:
+    DirectSerial(PinName tx, PinName rx, int baud);
+    virtual ssize_t write(const void *buffer, size_t size);
+    virtual ssize_t read(void *buffer, size_t size);
+    virtual off_t seek(off_t offset, int whence = SEEK_SET) {
+        return -ESPIPE;
+    }
+    virtual off_t size() {
+        return -EINVAL;
+    }
+    virtual int isatty() {
+        return true;
+    }
+    virtual int close() {
+        return 0;
+    }
+    virtual short poll(short events) const;
+};
+
+DirectSerial::DirectSerial(PinName tx, PinName rx, int baud) {
+    if (stdio_uart_inited) return;
+    serial_init(&stdio_uart, tx, rx);
+    serial_baud(&stdio_uart, baud);
+}
+
+ssize_t DirectSerial::write(const void *buffer, size_t size) {
+    const unsigned char *buf = static_cast<const unsigned char *>(buffer);
+    for (size_t i = 0; i < size; i++) {
+        serial_putc(&stdio_uart, buf[i]);
+    }
+    return size;
+}
+
+ssize_t DirectSerial::read(void *buffer, size_t size) {
+    unsigned char *buf = static_cast<unsigned char *>(buffer);
+    if (size == 0) {
+        return 0;
+    }
+    buf[0] = serial_getc(&stdio_uart);
+    return 1;
+}
+
+short DirectSerial::poll(short events) const {
+    short revents = 0;
+    if ((events & POLLIN) && serial_readable(&stdio_uart)) {
+        revents |= POLLIN;
+    }
+    if ((events & POLLOUT) && serial_writable(&stdio_uart)) {
+        revents |= POLLOUT;
+    }
+    return revents;
+}
+
+class Sink : public FileHandle {
+public:
+    virtual ssize_t write(const void *buffer, size_t size);
+    virtual ssize_t read(void *buffer, size_t size);
+    virtual off_t seek(off_t offset, int whence = SEEK_SET) { return ESPIPE; }
+    virtual off_t size() { return -EINVAL; }
+    virtual int isatty() { return true; }
+    virtual int close() { return 0; }
+};
+
+ssize_t Sink::write(const void *buffer, size_t size) {
+    // Just swallow the data - this is historical non-DEVICE_SERIAL behaviour
+    return size;
+}
+
+ssize_t Sink::read(void *buffer, size_t size) {
+    // Produce 1 zero byte - historical behaviour returned 1 without touching
+    // the buffer
+    unsigned char *buf = static_cast<unsigned char *>(buffer);
+    buf[0] = 0;
+    return 1;
+}
+#endif
+
+MBED_WEAK FileHandle* mbed::mbed_target_override_console(int fd)
+{
+    return NULL;
+}
+
+MBED_WEAK FileHandle* mbed::mbed_override_console(int fd)
+{
+    return NULL;
+}
+
+static int reserve_filehandle() {
+    // find the first empty slot in filehandles, after the slots reserved for stdin/stdout/stderr
+    filehandle_mutex->lock();
+    int fh_i;
+    for (fh_i = 3; fh_i < OPEN_MAX; fh_i++) {
+        /* Take a next free filehandle slot available. */
+        if (filehandles[fh_i] == NULL) break;
+    }
+    if (fh_i >= OPEN_MAX) {
+        /* Too many file handles have been opened */
+        errno = EMFILE;
+        filehandle_mutex->unlock();
+        return -1;
+    }
+    filehandles[fh_i] = FILE_HANDLE_RESERVED;
+    filehandle_mutex->unlock();
+
+    return fh_i;
+}
+
+int mbed::bind_to_fd(FileHandle *fh) {
+    int fh_i = reserve_filehandle();
+    if (fh_i < 0) {
+        return fh_i;
+    }
+
+    filehandles[fh_i] = fh;
+    stdio_in_prev[fh_i] = 0;
+    stdio_out_prev[fh_i] = 0;
+
+    return fh_i;
+}
+
+#ifdef __ARMCC_VERSION
+extern "C" char *_sys_command_string(char *cmd, int len) {
+    return NULL;
+}
+#endif
+
 
 #if defined(TOOLCHAIN_GCC)
 /* prevents the exception handling name demangling code getting pulled in */
@@ -101,11 +286,13 @@ extern "C" uint32_t  __HeapLimit;
 extern "C" int errno;
 
 // Dynamic memory allocation related syscall.
-#if defined(TARGET_NUVOTON)
+#if (defined(TARGET_NUVOTON) || defined(TWO_RAM_REGIONS))
+
 // Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
 // __wrap__sbrk() is implemented in:
 // TARGET_NUMAKER_PFM_NUC472    targets/TARGET_NUVOTON/TARGET_NUC472/TARGET_NUMAKER_PFM_NUC472/TOOLCHAIN_GCC_ARM/nuc472_retarget.c
 // TARGET_NUMAKER_PFM_M453      targets/TARGET_NUVOTON/TARGET_M451/TARGET_NUMAKER_PFM_M453/TOOLCHAIN_GCC_ARM/m451_retarget.c
+// TARGET_STM32L4               targets/TARGET_STM/TARGET_STM32L4/TARGET_STM32L4/l4_retarget.c
 extern "C" void *__wrap__sbrk(int incr);
 extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) __wrap__sbrk(incr);
@@ -113,7 +300,8 @@ extern "C" caddr_t _sbrk(int incr) {
 #else
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" uint32_t __end__;
-extern "C" caddr_t _sbrk(int incr) {
+// Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
+extern "C" WEAK caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
@@ -239,28 +427,6 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
 #endif
 }
 
-/* Applications are expected to use fdopen()
- * not this function directly. This code had to live here because FILE and FileHandle
- * processes are all linked together here.
- */
-std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
-{
-    // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
-    char buf[1 + sizeof(fh)]; /* :(pointer) */
-    MBED_STATIC_ASSERT(sizeof(buf) == 5, "Pointers should be 4 bytes.");
-    buf[0] = ':';
-    memcpy(buf + 1, &fh, sizeof(fh));
-
-    std::FILE *stream = std::fopen(buf, mode);
-    /* newlib-nano doesn't appear to ever call _isatty itself, so
-     * happily fully buffers an interactive stream. Deal with that here.
-     */
-    if (stream && fh->isatty()) {
-        mbed_set_unbuffered_stream(stream);
-    }
-    return stream;
-}
-
 int mbed_getc(std::FILE *_file){
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
     /*This is only valid for unbuffered streams*/
@@ -304,7 +470,11 @@ extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
-extern "C" WEAK void *__aeabi_read_tp (void) { return NULL ;}
+#pragma section="__iar_tls$$DATA"
+extern "C" WEAK void *__aeabi_read_tp (void) {
+  // Thread Local storage is not supported, using main thread memory for errno
+  return __section_begin("__iar_tls$$DATA");
+}
 #endif
 #elif defined(__CC_ARM)
 // Do nothing
@@ -335,7 +505,9 @@ extern "C" void __env_unlock( struct _reent *_r )
 {
     __rtos_env_unlock(_r);
 }
+
 #endif
+
 
 /* @brief   standard c library clock() function.
  *
@@ -349,8 +521,10 @@ extern "C" void __env_unlock( struct _reent *_r )
  * */
 extern "C" clock_t clock()
 {
+    _mutex->lock();
     clock_t t = ticker_read(get_us_ticker_data());
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
+    _mutex->unlock();
     return t;
 }
 

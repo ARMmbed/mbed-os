@@ -23,7 +23,9 @@
 #include "netsocket/Socket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/EventFlags.h"
+#endif
 
 
 /** TCP socket connection
@@ -45,7 +47,11 @@ public:
      */
     template <typename S>
     TCPSocket(S *stack)
+#ifdef MBED_CONF_RTOS_PRESENT
         : _pending(0), _event_flag(0),
+#else
+        : _pending(0),
+#endif
           _read_in_progress(false), _write_in_progress(false)
     {
         open(stack);
@@ -82,7 +88,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t connect(const SocketAddress &address);
-    
+
     /** Send data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -98,7 +104,7 @@ public:
      *                  code on failure
      */
     nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
-    
+
     /** Receive data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -124,7 +130,9 @@ protected:
     virtual void event();
 
     volatile unsigned _pending;
+#ifdef MBED_CONF_RTOS_PRESENT
     rtos::EventFlags _event_flag;
+#endif
     bool _read_in_progress;
     bool _write_in_progress;
 };

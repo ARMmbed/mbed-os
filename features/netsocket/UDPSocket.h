@@ -23,8 +23,9 @@
 #include "netsocket/Socket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/EventFlags.h"
-
+#endif
 
 /** UDP socket
  */
@@ -45,7 +46,11 @@ public:
      */
     template <typename S>
     UDPSocket(S *stack)
+#ifdef MBED_CONF_RTOS_PRESENT
         : _pending(0), _event_flag(0)
+#else
+        : _pending(0)
+#endif
     {
         open(stack);
     }
@@ -118,7 +123,9 @@ protected:
     virtual void event();
 
     volatile unsigned _pending;
+#ifdef MBED_CONF_RTOS_PRESENT
     rtos::EventFlags _event_flag;
+#endif
 };
 
 

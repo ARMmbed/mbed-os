@@ -23,7 +23,11 @@
 #define WRITE_FLAG          0x2u
 
 UDPSocket::UDPSocket()
+#ifdef MBED_CONF_RTOS_PRESENT
     : _pending(0), _event_flag()
+#else
+    : _pending(0)
+#endif
 {
 }
 
@@ -69,19 +73,25 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
             ret = sent;
             break;
         } else {
+#ifdef MBED_CONF_RTOS_PRESENT
             uint32_t flag;
+#endif
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
+#ifdef MBED_CONF_RTOS_PRESENT
             flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
+#endif
             _lock.lock();
 
+#ifdef MBED_CONF_RTOS_PRESENT
             if (flag & osFlagsError) {
                 // Timeout break
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
+#endif
         }
     }
 
@@ -106,19 +116,25 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
             ret = recv;
             break;
         } else {
+#ifdef MBED_CONF_RTOS_PRESENT
             uint32_t flag;
+#endif
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
+#ifdef MBED_CONF_RTOS_PRESENT
             flag = _event_flag.wait_any(READ_FLAG, _timeout);
+#endif
             _lock.lock();
 
+#ifdef MBED_CONF_RTOS_PRESENT
             if (flag & osFlagsError) {
                 // Timeout break
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
+#endif
         }
     }
 
@@ -128,7 +144,9 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
 void UDPSocket::event()
 {
+#ifdef MBED_CONF_RTOS_PRESENT
     _event_flag.set(READ_FLAG|WRITE_FLAG);
+#endif
 
     _pending += 1;
     if (_callback && _pending == 1) {
