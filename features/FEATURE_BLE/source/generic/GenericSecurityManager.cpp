@@ -510,17 +510,35 @@ ble_error_t GenericSecurityManager::generateOOB(
     const address_t *address
 ) {
     /* legacy pairing */
-    _oob_temporary_key_creator_address = *address;
-    get_random_data(_oob_temporary_key.buffer(), 16);
+    ble_error_t status = get_random_data(_oob_temporary_key.buffer(), 16);
 
-    eventHandler->legacyPairingOobGenerated(
-        &_oob_temporary_key_creator_address,
-        &_oob_temporary_key
-    );
+    if (status == BLE_ERROR_NONE) {
+        _oob_temporary_key_creator_address = *address;
 
-    /* secure connections */
-    _oob_local_address = *address;
-    _pal.generate_secure_connections_oob();
+        eventHandler->legacyPairingOobGenerated(
+            &_oob_temporary_key_creator_address,
+            &_oob_temporary_key
+        );
+    } else {
+        return status;
+    }
+
+    /* Secure connections. Avoid generating if we're already waiting for it.
+     * If a local random is set to 0 it means we're already calculating
+     * unless the address is invalid which means we've never done so yet */
+    if (_oob_local_random != 0 || _oob_local_address == address_t()) {
+        status = _pal.generate_secure_connections_oob();
+
+        if (status == BLE_ERROR_NONE) {
+            _oob_local_address = *address;
+            /* this will be updated when calculation completes */
+            _oob_local_random = 0;
+        } else if (status != BLE_ERROR_NOT_IMPLEMENTED) {
+            return status;
+        }
+    } else {
+        return BLE_STACK_BUSY;
+    }
 
     return BLE_ERROR_NONE;
 }

@@ -974,7 +974,8 @@ public:
     ) = 0;
 
     /**
-     * Generate local OOB data to be sent to the application which sends it to the peer.p
+     * Generate local OOB data to be sent to the application which sends it to the peer.
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t generate_secure_connections_oob() = 0;
 
