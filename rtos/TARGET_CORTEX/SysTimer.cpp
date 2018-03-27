@@ -24,6 +24,7 @@
 #if DEVICE_LOWPOWERTIMER
 
 #include "hal/lp_ticker_api.h"
+#include "mbed_critical.h"
 #include "rtx_core_cm.h"
 extern "C" {
 #include "rtx_lib.h"
@@ -45,6 +46,8 @@ SysTimer::SysTimer() :
         TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
+    _suspend_time_passed = true;
+    _suspended = false;
 }
 
 void SysTimer::setup_irq()
@@ -61,23 +64,30 @@ void SysTimer::setup_irq()
 #endif
 }
 
-void SysTimer::schedule_tick(uint32_t delta)
+void SysTimer::suspend(uint32_t ticks)
 {
-    insert_absolute(_start_time + (_tick + delta) * 1000000ULL / OS_TICK_FREQ);
+    core_util_critical_section_enter();
+
+    schedule_tick(ticks);
+    _suspend_time_passed = false;
+    _suspended = true;
+
+    core_util_critical_section_exit();
 }
 
-void SysTimer::cancel_tick()
+bool SysTimer::suspend_time_passed()
 {
+    return _suspend_time_passed;
+}
+
+uint32_t SysTimer::resume()
+{
+    core_util_critical_section_enter();
+
+    _suspended = false;
+    _suspend_time_passed = true;
     remove();
-}
 
-uint32_t SysTimer::get_tick()
-{
-    return _tick & 0xFFFFFFFF;
-}
-
-uint32_t SysTimer::update_tick()
-{
     uint64_t new_tick = (ticker_read_us(_ticker_data) - _start_time) * OS_TICK_FREQ / 1000000;
     if (new_tick > _tick) {
         // Don't update to the current tick. Instead, update to the
@@ -88,7 +98,32 @@ uint32_t SysTimer::update_tick()
     }
     uint32_t elapsed_ticks = new_tick - _tick;
     _tick = new_tick;
+
+    core_util_critical_section_exit();
     return elapsed_ticks;
+}
+
+void SysTimer::schedule_tick(uint32_t delta)
+{
+    core_util_critical_section_enter();
+
+    insert_absolute(_start_time + (_tick + delta) * 1000000ULL / OS_TICK_FREQ);
+
+    core_util_critical_section_exit();
+}
+
+void SysTimer::cancel_tick()
+{
+    core_util_critical_section_enter();
+
+    remove();
+
+    core_util_critical_section_exit();
+}
+
+uint32_t SysTimer::get_tick()
+{
+    return _tick & 0xFFFFFFFF;
 }
 
 us_timestamp_t SysTimer::get_time()
@@ -100,8 +135,10 @@ SysTimer::~SysTimer()
 {
 }
 
-void SysTimer::set_irq_pending()
+void SysTimer::_set_irq_pending()
 {
+    // Protected function synchronized externally
+
 #if (defined(NO_SYSTICK))
     NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
 #else
@@ -109,15 +146,25 @@ void SysTimer::set_irq_pending()
 #endif
 }
 
-void SysTimer::increment_tick()
+void SysTimer::_increment_tick()
 {
+    // Protected function synchronized externally
+
     _tick++;
 }
 
 void SysTimer::handler()
 {
-    set_irq_pending();
-    increment_tick();
+    core_util_critical_section_enter();
+
+    if (_suspended) {
+        _suspend_time_passed = true;
+    } else {
+        _set_irq_pending();
+        _increment_tick();
+    }
+
+    core_util_critical_section_exit();
 }
 
 }
