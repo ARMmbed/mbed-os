@@ -16,10 +16,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import copy
+import stat
 import os
-from os.path import splitext, basename
+from os.path import splitext, basename, dirname, abspath
 from os import remove
-from shutil import rmtree
+from shutil import rmtree, copyfile
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter
 from tools.export.makefile import GccArm
