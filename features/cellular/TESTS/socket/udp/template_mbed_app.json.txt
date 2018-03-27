@@ -1,6 +1,5 @@
 {
     "config": {
-        "sock-type": "UDP",
         "network-interface":{
             "help": "Options are ETHERNET,CELLULAR",
             "value": "CELLULAR"
@@ -9,22 +8,36 @@
             "help": "PIN code",
             "value": "\"1234\""
         },
+        "apn": {
+            "help": "The APN string to use for this SIM/network, set to 0 if none",
+            "value": 0
+        },
+        "username": {
+            "help": "The user name string to use for this APN, set to zero if none",
+            "value": 0
+        },
+        "password": {
+            "help": "The password string to use for this APN, set to 0 if none",
+            "value": 0
+        },
         "trace-level": {
             "help": "Options are TRACE_LEVEL_ERROR,TRACE_LEVEL_WARN,TRACE_LEVEL_INFO,TRACE_LEVEL_DEBUG",
             "macro_name": "MBED_TRACE_MAX_LEVEL",
             "value": "TRACE_LEVEL_INFO"
         }
-	},
+    },
     "target_overrides": {
         "*": {
+            "ppp-cell-iface.apn-lookup": false,
+            "cellular.use-apn-lookup": false,
             "target.features_add": ["LWIP", "COMMON_PAL"],
             "mbed-trace.enable": true,
             "lwip.ipv4-enabled": true,
-            "lwip.ethernet-enabled": false,
+            "lwip.ipv6-enabled": true,
+            "lwip.tcp-enabled": false,
             "lwip.ppp-enabled": true,
-            "lwip.tcp-enabled": true,            
+            "lwip.ethernet-enabled": false,
             "platform.stdio-convert-newlines": true,
-            "platform.stdio-baud-rate": 115200,
             "platform.default-serial-baud-rate": 115200
         }
     }
