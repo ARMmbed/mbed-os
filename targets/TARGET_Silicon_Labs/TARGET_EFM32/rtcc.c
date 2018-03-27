@@ -36,7 +36,6 @@
 
 static bool lptick_inited = false;
 static uint32_t lptick_offset = 0;
-static uint32_t extended_comp0 = 0;
 
 void rtc_init(void)
 {
@@ -79,30 +78,32 @@ void rtc_write(time_t t)
 {
     core_util_critical_section_enter();
     uint32_t diff = t - RTCC_CounterGet();
-    if (extended_comp0 != 0xFFFFFFFFUL) {
-        extended_comp0 += diff;
-    }
     lptick_offset += diff;
+
+    if(RTCC_IntGetEnabled() & RTCC_IF_CC0) {
+        RTCC->CC[0].CCV += diff << 15;
+    }
 
     RTCC_CounterSet(t);
     core_util_critical_section_exit();
 }
 
 /************************* LP_TICKER **************************/
+const ticker_info_t* lp_ticker_get_info(void)
+{
+    static const ticker_info_t rtc_info = {
+        LOW_ENERGY_CLOCK_FREQUENCY,
+        32
+    };
+    return &rtc_info;
+}
+
 void RTCC_IRQHandler(void)
 {
     uint32_t flags;
     flags = RTCC_IntGet();
     if (flags & RTCC_IF_CC0) {
-        RTCC_IntClear(RTCC_IF_CC0);
-        if ((RTCC_CounterGet() - lptick_offset) == extended_comp0) {
-            RTCC_IntDisable(RTCC_IF_CC0);
-            lp_ticker_irq_handler();
-        }
-        if (0xFFFFFFFFUL == extended_comp0) {
-            RTCC_IntDisable(RTCC_IF_CC0);
-            lp_ticker_irq_handler();
-        }
+        lp_ticker_irq_handler();
     }
 }
 
@@ -113,12 +114,17 @@ void lp_ticker_init()
         lptick_offset = RTCC_CounterGet();
         RTCC_CCChConf_TypeDef lp_chan_init = RTCC_CH_INIT_COMPARE_DEFAULT;
         lp_chan_init.compBase = rtccCompBasePreCnt;
-        lp_chan_init.compMask = 17;
+        lp_chan_init.compMask = 0;
         RTCC_ChannelInit(0, &lp_chan_init);
         lptick_inited = true;
 
-        /* Enable Interrupt from RTCC */
+        /* Enable Interrupt from RTCC in NVIC, but don't start generating them */
+        RTCC_IntDisable(RTCC_IF_CC0);
+        RTCC_IntClear(RTCC_IF_CC0);
         NVIC_EnableIRQ(RTCC_IRQn);
+    } else {
+        RTCC_IntDisable(RTCC_IF_CC0);
+        RTCC_IntClear(RTCC_IF_CC0);
     }
 }
 
@@ -133,45 +139,13 @@ void lp_ticker_free()
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint64_t rtc_compare_value;
-    uint64_t current_ticks = 0;
-    do
-    {
-        current_ticks = (uint64_t)((uint64_t)RTCC_CounterGet() - lptick_offset) << 15;
-        current_ticks += RTCC_PreCounterGet();
-    }
-    while ( (current_ticks & 0x7FFF) != RTCC_PreCounterGet() );
-
-    uint64_t ticks_temp = (current_ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
-    timestamp_t current_time = ticks_temp & 0xFFFFFFFF;
-
-    /* calculate offset value */
-    timestamp_t offset = timestamp - current_time;
-
-    /* If the requested timestamp is too far in the future, we might not be able
-     * to set the interrupt accurately due to potentially having ticked between
-     * calculating the timestamp to set and us calculating the offset. */
-    if(offset > 0xFFFF0000) offset = 100;
-
-    /* map offset to RTC value */
-    // ticks = offset * RTC frequency div 1000000
-    rtc_compare_value = ((uint64_t)offset * LOW_ENERGY_CLOCK_FREQUENCY) / 1000000;
-
-    /* If RTC offset is less then 2 RTC ticks, the interrupt won't fire */
-    if(rtc_compare_value < 2) {
-        rtc_compare_value = 2;
-    }
-
-    rtc_compare_value += current_ticks;
-
-    extended_comp0 = rtc_compare_value >> 15;
-    RTCC_ChannelCCVSet(0, rtc_compare_value & 0xFFFFFFFFUL);
+    RTCC_ChannelCCVSet(0, timestamp + (lptick_offset << 15));
     RTCC_IntEnable(RTCC_IF_CC0);
 }
 
 void lp_ticker_fire_interrupt(void)
 {
-    extended_comp0 = 0xFFFFFFFFUL;
+    RTCC_IntEnable(RTCC_IF_CC0);
     RTCC_IntSet(RTCC_IF_CC0);
 }
 
@@ -187,25 +161,11 @@ void lp_ticker_clear_interrupt()
 
 timestamp_t lp_ticker_read()
 {
-    lp_ticker_init();
+    core_util_critical_section_enter();
+    uint32_t ticks = RTCC_CombinedCounterGet() - (lptick_offset << 15);
+    core_util_critical_section_exit();
 
-    uint64_t ticks_temp;
-    uint64_t ticks = 0;
-
-    do
-    {
-        ticks = (uint64_t)((uint64_t)RTCC_CounterGet() - lptick_offset) << 15;
-        ticks += RTCC_PreCounterGet();
-    }
-    while ( (ticks & 0x7FFF) != RTCC_PreCounterGet() );
-
-    /* ticks = counter tick value
-     * timestamp = value in microseconds
-     * timestamp = ticks * 1.000.000 / RTC frequency
-     */
-
-    ticks_temp = (ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
-    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
+    return (timestamp_t) (ticks);
 }
 #endif /* RTCC_PRESENT */
 #endif /* DEVICE_RTC */
