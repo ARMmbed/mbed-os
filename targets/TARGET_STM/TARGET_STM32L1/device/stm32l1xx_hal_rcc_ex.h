@@ -56,7 +56,7 @@
  * @{
  */
 
-#define LSI_VALUE                  (37000U)  /* ~37kHz */
+#define LSI_VALUE                  (37000)  /* ~37kHz */
 
 #if defined(STM32L100xBA) || defined(STM32L151xBA) || defined(STM32L152xBA)\
  || defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC)\
