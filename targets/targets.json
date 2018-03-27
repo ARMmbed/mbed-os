@@ -522,7 +522,7 @@
         "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "device_name": "MK22DN512xxx5"
     },
     "K22F": {
@@ -568,7 +568,7 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "MKL82Z128xxx7"
     },
@@ -586,7 +586,7 @@
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0250"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5",
         "bootloader_supported": true
@@ -612,7 +612,7 @@
         "public": false,
         "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "device_name": "MK24FN1M0xxx12"
     },
     "RO359B": {
@@ -670,7 +670,7 @@
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K64F"],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"],
-        "device_has": ["USTICKER", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "device_name": "MK64FN1M0xxx12"
     },
     "HEXIWEAR": {
@@ -682,7 +682,7 @@
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0214"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "default_lib": "std",
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
@@ -697,7 +697,7 @@
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "MK66FN2M0xxx18",
@@ -715,7 +715,7 @@
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "MK82FN256xxx15"
     },
