@@ -66,7 +66,6 @@
 #define RTC_MAX_VALUE (0xFFFFFFUL)
 
 static bool         rtc_inited  = false;
-static time_t       time_base   = 0;
 static uint32_t     time_extend = 0;
 static uint32_t     extended_comp0 = 0;
 
@@ -81,7 +80,7 @@ void RTC_IRQHandler(void)
     }
     if (flags & RTC_IF_COMP0) {
         RTC_IntClear(RTC_IF_COMP0);
-        if (lp_ticker_irq_handler != NULL && time_extend == extended_comp0) {
+        if (time_extend == extended_comp0) {
             lp_ticker_irq_handler();
         }
     }
