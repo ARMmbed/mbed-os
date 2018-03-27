@@ -94,13 +94,27 @@ void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle);
  *       @a size attribute of the psa_msg structure returned from psa_get().@n
  *       The copy is truncated if the requested range extends beyond the end of the payload.@n
  *       In such a case, the remaining space in @a buffer is not modified.
+ *
  * @param[in]  msg_handle Handle for the client's message.
- * @param[in]  iovec_idx  IOvec index to be read.
+ * @param[in]  invec_idx  ::psa_invec index to be read.
  * @param[out] buf        Buffer to copy the requested data to.
  * @param[in]  num_bytes  Number of bytes to read from the client's message payload.
  * @return Number of bytes copied or 0 if offset is greater than the size attribute of psa_msg.
  */
-size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t num_bytes);
+size_t psa_read(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes);
+
+/**
+ * Advance the current read offset by skipping @a num_bytes bytes for input vector
+ * indexed by @а invec_idx.@n
+ * If @a num_bytes is greater than the remaining number of bytes in the vector then
+ * all the remaining bytes are skipped.
+ *
+ * @param[in]  msg_handle Handle for the client's message.
+ * @param[in]  invec_idx  ::psa_invec index to be skipped.
+ * @param[in]  num_bytes  Number of bytes to skip.
+ * @return Number of bytes skipped.
+ */
+size_t psa_skip(psa_handle_t msg_handle, uint32_t invec_idx, size_t num_bytes);
 
 /**
  * Write a response payload of @a bytes bytes starting at position @a offset in the client's response buffer.
@@ -109,7 +123,7 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t n
  *       (@a response_size attribute of the psa_msg structure returned from psa_get()) a fatal error occurs.
  *
  * @param[in] msg_handle  Handle for the client's message.
- * @param[in] outvec_idx  IOvec index to be written to.
+ * @param[in] outvec_idx  ::psa_outvec index to be written to.
  * @param[in] buffer      Buffer with the data to write.
  * @param[in] num_bytes   Number of bytes to write.
  */
