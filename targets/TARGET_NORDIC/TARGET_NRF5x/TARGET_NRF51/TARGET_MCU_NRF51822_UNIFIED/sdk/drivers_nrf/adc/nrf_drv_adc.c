@@ -93,7 +93,8 @@ void nrf_drv_adc_uninit(void)
 void nrf_drv_adc_channel_enable(nrf_drv_adc_channel_t * const p_channel)
 {
     ASSERT(m_cb.state == NRF_DRV_STATE_INITIALIZED);
-    ASSERT(!is_address_from_stack(p_channel));
+    // This assert has been removed as it requires non-existent symbols from linker
+    //ASSERT(!is_address_from_stack(p_channel));
 
     p_channel->p_next = NULL;
     if (m_cb.p_head == NULL)
