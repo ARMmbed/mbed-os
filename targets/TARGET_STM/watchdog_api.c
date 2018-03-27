@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-#include "watchdog_api.h"
-
-#include "reset_reason_api.h"
 
 #ifdef DEVICE_WATCHDOG
 
+#include "watchdog_api.h"
+#include "reset_reason_api.h"
 #include "device.h"
-
+#include "mbed_error.h"
 #include <stdbool.h>
 
-#define LSI_RC_HZ   32000 // Frequency of the low-speed internal RC oscillator that drives IWDG
 #define MAX_IWDG_PR 0x6 // Max value of Prescaler_divider bits (PR) of Prescaler_register (IWDG_PR)
 #define MAX_IWDG_RL 0xFFFUL // Max value of Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR).
 
@@ -36,12 +34,12 @@
 // and Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR)
 // to a timeout value [ms].
 #define PR_RL2UINT64_TIMEOUT_MS(PR_BITS, RL_BITS) \
-	((PR2PRESCALER_DIV(PR_BITS)) * (RL_BITS) * 1000ULL / (LSI_RC_HZ))
+	((PR2PRESCALER_DIV(PR_BITS)) * (RL_BITS) * 1000ULL / (LSI_VALUE))
 
 // Convert Prescaler_divider bits (PR) of Prescaler_register (IWDG_PR) and a timeout value [ms]
 // to Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR)
 #define PR_TIMEOUT_MS2RL(PR_BITS, TIMEOUT_MS) \
-	((TIMEOUT_MS) * (LSI_RC_HZ) / (PR2PRESCALER_DIV(PR_BITS)) / 1000UL)
+	((TIMEOUT_MS) * (LSI_VALUE) / (PR2PRESCALER_DIV(PR_BITS)) / 1000UL)
 
 #define MAX_TIMEOUT_MS_UINT64 PR_RL2UINT64_TIMEOUT_MS(MAX_IWDG_PR, MAX_IWDG_RL)
 #if (MAX_TIMEOUT_MS_UINT64 > UINT32_MAX)
@@ -64,6 +62,8 @@ static uint8_t pick_min_iwdg_pr(const uint32_t timeout_ms) {
     return INVALID_IWDG_PR;
 }
 
+IWDG_HandleTypeDef IwdgHandle;
+
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
     const uint8_t pr = pick_min_iwdg_pr(config->timeout_ms);
@@ -72,40 +72,25 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     }
     const uint32_t rl = PR_TIMEOUT_MS2RL(pr, config->timeout_ms);
 
-    // Set the Key_value bits (KEY) of Key_register (IWDG_KR) to 0x5555
-    // in order to enable write access to IWDG_PR and IWDG_RLR registers.
-    MODIFY_REG(IWDG->KR, IWDG_KR_KEY_Msk, (IWDG_KR_KEY_Msk & (0x5555U << IWDG_KR_KEY_Pos)));
+  IwdgHandle.Instance = IWDG;
 
-    // Wait for the Watchdog_prescaler_value_update bit (PVU) of
-    // Status_register (IWDG_SR) to be reset.
-    while (READ_BIT(IWDG->SR, IWDG_SR_PVU)) {
+  IwdgHandle.Init.Prescaler = pr;
+  IwdgHandle.Init.Reload    = rl;
+#if defined IWDG_WINR_WIN
+  IwdgHandle.Init.Window = IWDG_WINDOW_DISABLE;
+#endif
+
+    if (HAL_IWDG_Init(&IwdgHandle) != HAL_OK)
+    {
+        error("HAL_IWDG_Init error\n");
     }
-    // Set the Prescaler_divider bits (PR) of Prescaler_register (IWDG_PR).
-    MODIFY_REG(IWDG->PR, IWDG_PR_PR_Msk, (IWDG_PR_PR_Msk & (pr << IWDG_PR_PR_Pos)));
-
-    // Wait for the Watchdog_counter_reload_value_update bit (RVU) of
-    // Status_register (IWDG_SR) to be reset.
-    while (READ_BIT(IWDG->SR, IWDG_SR_RVU)) {
-    }
-    // Set the Watchdog_counter_reload_value bits (RL) of Reload_register (IWDG_RLR).
-    MODIFY_REG(IWDG->RLR, IWDG_RLR_RL_Msk, (IWDG_RLR_RL_Msk & (rl << IWDG_RLR_RL_Pos)));
-
-    // Set the Key_value bits (KEY) of Key_register (IWDG_KR) to 0xAAAA
-    // in order to reload IWDG_RLR register value.
-    MODIFY_REG(IWDG->KR, IWDG_KR_KEY_Msk, (IWDG_KR_KEY_Msk & (0xAAAAU << IWDG_KR_KEY_Pos)));
-
-    // Set the Key_value bits (KEY) of Key_register (IWDG_KR) to 0xCCCC
-    // in order to start the watchdog.
-    MODIFY_REG(IWDG->KR, IWDG_KR_KEY_Msk, (IWDG_KR_KEY_Msk & (0xCCCCU << IWDG_KR_KEY_Pos)));
 
     return WATCHDOG_STATUS_OK;
 }
 
 void hal_watchdog_kick(void)
 {
-    // Set the Key_value bits (KEY) of Key_register (IWDG_KR) to 0xAAAA
-    // in order to reload IWDG_RLR register value.
-    MODIFY_REG(IWDG->KR, IWDG_KR_KEY_Msk, (IWDG_KR_KEY_Msk & (0xAAAAU << IWDG_KR_KEY_Pos)));
+    HAL_IWDG_Refresh(&IwdgHandle);
 }
 
 watchdog_status_t hal_watchdog_stop(void)
