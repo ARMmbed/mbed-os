@@ -22,7 +22,7 @@
  ******************************************************************************/
 
 #include "device.h"
-#if DEVICE_RTC || DEVICE_LPTIMER
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 /* Use RTCC on devices that have it */
 #if defined(RTCC_PRESENT)
@@ -35,8 +35,8 @@
 #include "clocking.h"
 
 static bool lptick_inited = false;
-static uint32_t lptick_offset = 0;
-static uint32_t extended_comp0 = 0;
+static volatile uint32_t lptick_offset = 0;
+static volatile uint32_t extended_comp0 = 0;
 
 void rtc_init(void)
 {
@@ -110,7 +110,9 @@ void lp_ticker_init()
 {
     if (!lptick_inited) {
         rtc_init();
+        core_util_critical_section_enter();
         lptick_offset = RTCC_CounterGet();
+        core_util_critical_section_exit();
         RTCC_CCChConf_TypeDef lp_chan_init = RTCC_CH_INIT_COMPARE_DEFAULT;
         lp_chan_init.compBase = rtccCompBasePreCnt;
         lp_chan_init.compMask = 17;
@@ -134,15 +136,12 @@ void lp_ticker_free()
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint64_t rtc_compare_value;
-    uint64_t current_ticks = 0;
-    do
-    {
-        current_ticks = (uint64_t)((uint64_t)RTCC_CounterGet() - lptick_offset) << 15;
-        current_ticks += RTCC_PreCounterGet();
-    }
-    while ( (current_ticks & 0x7FFF) != RTCC_PreCounterGet() );
+    core_util_critical_section_enter();
+    uint32_t current_ticks = RTCC_CombinedCounterGet();
+    current_ticks -= (lptick_offset << 15);
+    core_util_critical_section_exit();
 
-    uint64_t ticks_temp = (current_ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
+    uint64_t ticks_temp = ((uint64_t)current_ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
     timestamp_t current_time = ticks_temp & 0xFFFFFFFF;
 
     /* calculate offset value */
@@ -151,7 +150,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* If the requested timestamp is too far in the future, we might not be able
      * to set the interrupt accurately due to potentially having ticked between
      * calculating the timestamp to set and us calculating the offset. */
-    if(offset > 0xFFFF0000) offset = 100;
+    if(offset > 0xFFFF0000) {
+        offset = 100;
+    }
 
     /* map offset to RTC value */
     // ticks = offset * RTC frequency div 1000000
@@ -190,21 +191,18 @@ timestamp_t lp_ticker_read()
     lp_ticker_init();
 
     uint64_t ticks_temp;
-    uint64_t ticks = 0;
 
-    do
-    {
-        ticks = (uint64_t)((uint64_t)RTCC_CounterGet() - lptick_offset) << 15;
-        ticks += RTCC_PreCounterGet();
-    }
-    while ( (ticks & 0x7FFF) != RTCC_PreCounterGet() );
+    core_util_critical_section_enter();
+    uint32_t ticks = RTCC_CombinedCounterGet();
+    ticks -= (lptick_offset << 15);
+    core_util_critical_section_exit();
 
     /* ticks = counter tick value
      * timestamp = value in microseconds
      * timestamp = ticks * 1.000.000 / RTC frequency
      */
 
-    ticks_temp = (ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
+    ticks_temp = ((uint64_t)ticks * 1000000) / LOW_ENERGY_CLOCK_FREQUENCY;
     return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
 }
 #endif /* RTCC_PRESENT */

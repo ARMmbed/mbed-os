@@ -91,8 +91,7 @@ uint64_t rtc_get_full(void)
 {
     uint64_t ticks = 0;
 
-    do
-    {
+    do {
         /* In case someone's trying to read time in a critical section */
         if (RTC_IntGet() & RTC_IF_OF) {
             RTC_IntClear(RTC_IF_OF);
@@ -101,8 +100,7 @@ uint64_t rtc_get_full(void)
 
         ticks = (uint64_t)time_extend << RTC_BITS;
         ticks += RTC_CounterGet();
-    }
-    while ( (ticks & RTC_MAX_VALUE) != RTC_CounterGet() );
+    } while ((ticks & RTC_MAX_VALUE) != RTC_CounterGet());
 
     return ticks;
 }
@@ -182,7 +180,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* If the requested timestamp is too far in the future, we might not be able
      * to set the interrupt accurately due to potentially having ticked between
      * calculating the timestamp to set and us calculating the offset. */
-    if(offset > 0xFFFF0000) offset = 100;
+    if(offset > 0xFFFF0000) {
+        offset = 100;
+    }
 
     /* map offset to RTC value */
     // ticks = offset * RTC frequency div 1000000
