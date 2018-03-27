@@ -57,7 +57,7 @@ class CodeBlocks(GccArm):
         debug_flags = []
         next_is_include = False
         for f in self.flags['c_flags'] + self.flags['cxx_flags'] + self.flags['common_flags']:
-            f=f.strip()
+            f = f.strip()
             if f == "-include":
                 next_is_include = True
                 continue
@@ -68,15 +68,18 @@ class CodeBlocks(GccArm):
             next_is_include = False
             if f.startswith('-O') or f.startswith('-g'):
                 debug_flags.append(f)
-                continue
-            comp_flags.append(f)
+            else:
+                comp_flags.append(f)
         comp_flags = list(set(comp_flags))
         inc_dirs = [self.filter_dot(s) for s in self.resources.inc_dirs];
-        inc_dirs = [x for x in inc_dirs if x is not None and x != '' and x != '.' and not x.startswith('bin') and not x.startswith('obj')];
+        inc_dirs = [x for x in inc_dirs if (x is not None and
+                                            x != '' and x != '.' and
+                                            not x.startswith('bin') and
+                                            not x.startswith('obj'))];
 
         c_sources = [self.filter_dot(s) for s in self.resources.c_sources]
-        targ = TARGET_MAP[self.target]
-        ncs36510fib = hasattr(targ, 'post_binary_hook') and targ.post_binary_hook['function'] == 'NCS36510TargetCode.ncs36510_addfib'
+        ncs36510fib = (hasattr(self.toolchain.target, 'post_binary_hook') and
+                       self.toolchain.target.post_binary_hook['function'] == 'NCS36510TargetCode.ncs36510_addfib')
         if ncs36510fib:
             c_sources.append('ncs36510fib.c')
             c_sources.append('ncs36510trim.c')
@@ -129,13 +132,16 @@ class CodeBlocks(GccArm):
                 'rssi': 0x3D,
                 'txtune': 0xFFFFFFFF
             }
-            if hasattr(targ, 'config'):
-                for an, cn in [ ['mac-addr-low', 'mac_addr_low'], ['mac-addr-high', 'mac_addr_high'],
-                                ['32KHz-clk-trim', 'clk_32k_trim'], ['32MHz-clk-trim', 'clk_32m_trim'],
-                                ['rssi-trim', 'rssi'], ['txtune-trim', 'txtune'] ]:
-                    if an in targ.config:
-                        if 'value' in targ.config[an]:
-                            ctx[cn] = int(targ.config[an]['value'], 0)           
+            if hasattr(self.toolchain.target, 'config'):
+                for an, cn in [ ['mac-addr-low', 'mac_addr_low'],
+                                ['mac-addr-high', 'mac_addr_high'],
+                                ['32KHz-clk-trim', 'clk_32k_trim'],
+                                ['32MHz-clk-trim', 'clk_32m_trim'],
+                                ['rssi-trim', 'rssi'],
+                                ['txtune-trim', 'txtune'] ]:
+                    if an in self.toolchain.target.config:
+                        if 'value' in self.toolchain.target.config[an]:
+                            ctx[cn] = int(self.toolchain.target.config[an]['value'], 0)
             for f in [ 'ncs36510fib.c', 'ncs36510trim.c' ]:
                 self.gen_file("codeblocks/%s" % f, ctx, f)
 
