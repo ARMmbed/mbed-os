@@ -152,6 +152,48 @@ PSA_TEST_CLIENT(msg_read_truncation)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 }
 
+PSA_TEST_CLIENT(skip_zero)
+{
+    psa_error_t status = PSA_SUCCESS;
+    psa_invec_t data = { test_str, sizeof(test_str) };
+    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    TEST_ASSERT(test_handle > 0);
+
+    status = psa_call(test_handle, &data, 1, NULL, 0);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
+    status = psa_close(test_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+}
+
+PSA_TEST_CLIENT(skip_some)
+{
+    psa_error_t status = PSA_SUCCESS;
+    psa_invec_t data = { test_str, sizeof(test_str) };
+    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    TEST_ASSERT(test_handle > 0);
+
+    status = psa_call(test_handle, &data, 1, NULL, 0);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
+    status = psa_close(test_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+}
+
+PSA_TEST_CLIENT(skip_more_than_left)
+{
+    psa_error_t status = PSA_SUCCESS;
+    psa_invec_t data = { test_str, 8 };
+    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    TEST_ASSERT(test_handle > 0);
+
+    status = psa_call(test_handle, &data, 1, NULL, 0);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+
+    status = psa_close(test_handle);
+    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+}
+
 PSA_TEST_CLIENT(rhandle_factorial)
 {
     uint32_t secure_value = 0;
@@ -262,6 +304,9 @@ Case cases[] = {
     SPM_UTEST_CASE("Reject on connect", reject_connection),
     SPM_UTEST_CASE("Read at an out of bound offset", read_at_outofboud_offset),
     SPM_UTEST_CASE("Read msg with size bigger than message", msg_read_truncation),
+    SPM_UTEST_CASE("Make sure skip with 0 byte number skips nothing", skip_zero),
+    SPM_UTEST_CASE("Skip a few bytes while reading a message", skip_some),
+    SPM_UTEST_CASE("Try to skip more bytes than left while reading", skip_more_than_left),
     SPM_UTEST_CASE("Test rhandle implementation by calculating the factorial function", rhandle_factorial),
     SPM_UTEST_CASE("Test a call flow between 2 secure partitions", cross_partition_call),
     SPM_UTEST_CASE("Test a common DOORBELL scenario", doorbell_test),
