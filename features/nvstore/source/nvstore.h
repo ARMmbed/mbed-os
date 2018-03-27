@@ -53,6 +53,12 @@ typedef enum {
     NVSTORE_NUM_PREDEFINED_KEYS
 } nvstore_predefined_keys_e;
 
+typedef enum {
+    NVSTORE_UNSPECIFIED_OWNER           = 0,
+    // All owners (by features) should be specified here.
+    NVSTORE_MAX_OWNERS                  = 16
+} nvstore_owner_e;
+
 #ifndef NVSTORE_MAX_KEYS
 #define NVSTORE_MAX_KEYS ((uint16_t)NVSTORE_NUM_PREDEFINED_KEYS)
 #endif
@@ -159,22 +165,28 @@ public:
     int set(uint16_t key, uint16_t buf_size, const void *buf);
 
     /**
-     * @brief Programs one item of data on Flash, allocating a key.
+     * @brief Allocate a free key (to be used later in a set operation).
      *
      * @param[out] key                  Returned key of stored item.
-     * @param[in]  buf_size             Item size in bytes.
-     * @param[in]  buf                  Buffer containing data.
+     * @param[in]  owner                Owner of allocated key.
+     *
+     * @returns NVSTORE_SUCCESS           Key was successfully allocated.
+     *          NVSTORE_NO_FREE_KEY       Couldn't allocate a key for this call.
+     *
+     */
+    int allocate_key(uint16_t &key, uint8_t owner = NVSTORE_UNSPECIFIED_OWNER);
+
+    /**
+     * @brief Free all allocated keys that belong to a specific owner.
+     *
+     * @param[in]  owner                Owner.
      *
      * @returns NVSTORE_SUCCESS           Value was successfully written on Flash.
      *          NVSTORE_WRITE_ERROR       Physical error writing data.
      *          NVSTORE_BAD_VALUE         Bad value in any of the parameters.
-     *          NVSTORE_FLASH_AREA_TOO_SMALL
-     *                                    Not enough space in Flash area.
-     *          NVSTORE_ALREADY_EXISTS    Item set with write once API already exists.
-     *          NVSTORE_NO_FREE_KEY       Couldn't allocate a key for this call.
      *
      */
-    int set_alloc_key(uint16_t &key, uint16_t buf_size, const void *buf);
+    int free_all_keys_by_owner(uint8_t owner);
 
     /**
      * @brief Programs one item of data on Flash, given key, allowing no consequent sets to this key.
@@ -344,13 +356,14 @@ private:
      * @param[out] valid                  Is the record valid.
      * @param[out] key                    Record key.
      * @param[out] flags                  Record flags.
+     * @param[out] owner                  Owner.
      * @param[out] next_offset            Offset of next record.
      *
      * @returns 0 for success, nonzero for failure.
      */
     int read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void *buf,
                     uint16_t &actual_size, int validate_only, int &valid,
-                    uint16_t &key, uint16_t &flags, uint32_t &next_offset);
+                    uint16_t &key, uint16_t &flags, uint8_t &owner, uint32_t &next_offset);
 
     /**
      * @brief Write an NVStore record from a given location.
@@ -359,13 +372,14 @@ private:
      * @param[in]  offset                 Offset of record in area.
      * @param[in]  key                    Record key.
      * @param[in]  flags                  Record flags.
+     * @param[in]  owner                  Owner.
      * @param[in]  data_size              Data size (bytes).
      * @param[in]  data_buf               Data buffer.
      * @param[out] next_offset            Offset of next record.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t flags,
+    int write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t flags, uint8_t owner,
                      uint32_t data_size, const void *data_buf, uint32_t &next_offset);
 
     /**
@@ -398,12 +412,13 @@ private:
      *
      * @param[in]  key                    Record key.
      * @param[in]  flags                  Record flags.
+     * @param[in]  owner                  Owner.
      * @param[in]  buf_size               Data size (bytes).
      * @param[in]  buf                    Data buffer.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int garbage_collection(uint16_t key, uint16_t flags, uint16_t buf_size, const void *buf);
+    int garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uint16_t buf_size, const void *buf);
 
     /**
      * @brief Actual logics of get API (covers also get size API).
@@ -422,14 +437,14 @@ private:
     /**
      * @brief Actual logics of set API (covers also set_once and remove APIs).
      *
-     * @param[out] key                    key (both input and output).
+     * @param[in]  key                    key.
      * @param[in]  buf_size               Buffer size (bytes).
      * @param[in]  buf                    Input Buffer.
      * @param[in]  flags                  Record flags.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t flags);
+    int do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags);
 
 };
 /** @}*/
