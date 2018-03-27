@@ -78,11 +78,6 @@ class CodeBlocks(GccArm):
                                             not x.startswith('obj'))];
 
         c_sources = [self.filter_dot(s) for s in self.resources.c_sources]
-        ncs36510fib = (hasattr(self.toolchain.target, 'post_binary_hook') and
-                       self.toolchain.target.post_binary_hook['function'] == 'NCS36510TargetCode.ncs36510_addfib')
-        if ncs36510fib:
-            c_sources.append('ncs36510fib.c')
-            c_sources.append('ncs36510trim.c')
 
         ctx = {
             'project_name': self.project_name,
@@ -96,7 +91,6 @@ class CodeBlocks(GccArm):
             'include_paths': inc_dirs,
             'linker_script': self.filter_dot(self.resources.linker_script),
             'libraries': self.resources.libraries,
-            'ncs36510addfib': ncs36510fib,
             'openocdboard': ''
             }
 
@@ -123,28 +117,6 @@ class CodeBlocks(GccArm):
 
         self.gen_file('codeblocks/cbp.tmpl', ctx, "%s.%s" % (self.project_name, 'cbp'))
 
-        if ncs36510fib:
-            ctx = {
-                'mac_addr_low': 0xFFFFFFFF,
-                'mac_addr_high': 0xFFFFFFFF,
-                'clk_32k_trim': 0x39,
-                'clk_32m_trim': 0x17,
-                'rssi': 0x3D,
-                'txtune': 0xFFFFFFFF
-            }
-            if hasattr(self.toolchain.target, 'config'):
-                for an, cn in [ ['mac-addr-low', 'mac_addr_low'],
-                                ['mac-addr-high', 'mac_addr_high'],
-                                ['32KHz-clk-trim', 'clk_32k_trim'],
-                                ['32MHz-clk-trim', 'clk_32m_trim'],
-                                ['rssi-trim', 'rssi'],
-                                ['txtune-trim', 'txtune'] ]:
-                    if an in self.toolchain.target.config:
-                        if 'value' in self.toolchain.target.config[an]:
-                            ctx[cn] = int(self.toolchain.target.config[an]['value'], 0)
-            for f in [ 'ncs36510fib.c', 'ncs36510trim.c' ]:
-                self.gen_file("codeblocks/%s" % f, ctx, f)
-
         # finally, generate the project file
         super(CodeBlocks, self).generate()
 
@@ -152,7 +124,7 @@ class CodeBlocks(GccArm):
     def clean(project_name):
         for ext in ['cbp', 'depend', 'layout']:
             remove("%s.%s" % (project_name, ext))
-        for f in ['openocd.log', 'ncs36510fib.c', 'ncs36510trim.c']:
+        for f in ['openocd.log']:
             remove(f)
         for d in ['bin', 'obj']:
             rmtree(d, ignore_errors=True)
