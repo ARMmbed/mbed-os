@@ -557,6 +557,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
 {
     if (mcps_indication->status != LORAMAC_EVENT_INFO_STATUS_OK) {
         if (_callbacks.events) {
+            tr_error("RX_ERROR: mcps_indication status = %d", mcps_indication->status);
             const int ret = _queue->call(_callbacks.events, RX_ERROR);
             MBED_ASSERT(ret != 0);
             (void)ret;
@@ -638,6 +639,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 // that we could retry a certain number of times if the uplink
                 // failed for some reason
                 if (_loramac.get_device_class() != CLASS_C && mcps_indication->fpending_status) {
+                    tr_debug("Pending bit set. Sending empty message to receive pending data...");
                     handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
                 }
 
@@ -647,6 +649,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 // but version 1.1.0 says that network SHALL not send any new
                 // confirmed messages until ack has been sent
                 if (_loramac.get_device_class() == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
+                    tr_debug("Acknowledging confirmed message (class C)...");
                     handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
                 }
             } else {
