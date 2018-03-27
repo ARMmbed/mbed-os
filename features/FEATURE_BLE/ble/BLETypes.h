@@ -325,6 +325,25 @@ struct byte_array_t {
     }
 
     /**
+     * Returns true if every byte is equal to zero
+     */
+    bool is_all_zeros() {
+        for (size_t i = 0; i < array_size; i++) {
+            if (_value[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Zero out all bytes
+     */
+    void set_all_zeros() {
+        memset(_value, 0x00, array_size);
+    }
+
+    /**
      * Size in byte of a data.
      */
     static size_t size() {

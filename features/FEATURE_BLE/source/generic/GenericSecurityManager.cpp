@@ -524,15 +524,15 @@ ble_error_t GenericSecurityManager::generateOOB(
     }
 
     /* Secure connections. Avoid generating if we're already waiting for it.
-     * If a local random is set to 0 it means we're already calculating
-     * unless the address is invalid which means we've never done so yet */
-    if (_oob_local_random != 0 || _oob_local_address == address_t()) {
+     * If a local random is set to 0 it means we're already calculating. */
+    if (!_oob_local_random.is_all_zeros()) {
         status = _pal.generate_secure_connections_oob();
 
         if (status == BLE_ERROR_NONE) {
             _oob_local_address = *address;
-            /* this will be updated when calculation completes */
-            _oob_local_random = 0;
+            /* this will be updated when calculation completes,
+             * a value of all zeros is an invalid random value */
+            _oob_local_random.set_all_zeros();
         } else if (status != BLE_ERROR_NOT_IMPLEMENTED) {
             return status;
         }

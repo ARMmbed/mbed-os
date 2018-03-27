@@ -244,6 +244,11 @@ public:
         _legacy_pairing_allowed(true),
         _master_sends_keys(false) {
         _pal.set_event_handler(this);
+
+        /* We create a fake value for oob to allow creation of the next oob which needs
+         * the last process to finish first before restarting (this is to simplify checking).
+         * This fake value will not be used as the oob address is currently invalid */
+        _oob_local_random[0] = 1;
     }
 
     ////////////////////////////////////////////////////////////////////////////
