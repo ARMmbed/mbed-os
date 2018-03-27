@@ -232,7 +232,8 @@ struct pwmout_s {
 };
 
 struct serial_s {
-    int index;
+    PinName tx_pin;
+    PinName rx_pin;
 };
 
 struct analogin_s {

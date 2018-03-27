@@ -23,7 +23,12 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     // No lock needed in constructor
     /* open ourselves */
 #ifdef TARGET_SIMULATOR
-    _file = fopen(name, "w+");
+    if (name == 0) {
+        _file = stdout;
+    }
+    else {
+        _file = fopen(name, "w+");
+    }
 #else
     _file = fdopen(this, "w+");
 #endif

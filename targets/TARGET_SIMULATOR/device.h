@@ -24,8 +24,8 @@
  ******************************************************************************/
 
 
-#ifndef __LPC17xx_H__
-#define __LPC17xx_H__
+#ifndef __SIMULATOR_DEVICE_H__
+#define __SIMULATOR_DEVICE_H__
 
 #include <stdint.h>
 #include "cmsis.h"
@@ -35,10 +35,12 @@
 #include "PortNames.h"
 
 #define osWaitForever         0xFFFFFFFFU ///< Wait forever timeout value.
+#define MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE     9600
 
 #define DEVICE_INTERRUPTIN    1
 #define DEVICE_ANALOGIN       1
 #define DEVICE_ANALOGOUT      1
 #define DEVICE_PWMOUT         1
+#define DEVICE_SERIAL         1
 
-#endif  // __LPC17xx_H__
+#endif  // __SIMULATOR_DEVICE_H__
