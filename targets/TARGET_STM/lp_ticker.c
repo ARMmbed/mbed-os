@@ -36,17 +36,24 @@
 
 LPTIM_HandleTypeDef LptimHandle;
 
-volatile uint32_t lp_SlaveCounter = 0;
-volatile uint32_t lp_oc_int_part = 0;
-volatile uint16_t lp_TickPeriod_us;
+const ticker_info_t* lp_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        RTC_CLOCK,
+        16
+    };
+    return &info;
+}
+
 volatile uint8_t  lp_Fired = 0;
 
 static void LPTIM1_IRQHandler(void);
 static void (*irq_handler)(void);
 
-
 void lp_ticker_init(void)
 {
+    NVIC_DisableIRQ(LPTIM1_IRQn);
+
     /* Check if LPTIM is already configured */
 #if (TARGET_STM32L0)
     if (READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN) != RESET) {
@@ -111,21 +118,7 @@ void lp_ticker_init(void)
     LptimHandle.Instance = LPTIM1;
     LptimHandle.State = HAL_LPTIM_STATE_RESET;
     LptimHandle.Init.Clock.Source = LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC;
-
-    /*  Prescaler impact:
-            tick period = Prescaler division factor / LPTIM clock
-            Example with LPTIM clock = 32768 Hz LSE
-                Prescaler = LPTIM_PRESCALER_DIV1   => lp_TickPeriod_us = 31us  =>   2s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV2   => lp_TickPeriod_us = 61us  =>   4s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV4   => lp_TickPeriod_us = 122us =>   8s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV8   => lp_TickPeriod_us = 244us =>  16s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV16  => lp_TickPeriod_us = 488us =>  32s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV32  => lp_TickPeriod_us = 976us =>  64s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV64  => lp_TickPeriod_us = 1.9ms => 128s with 16b timer
-                Prescaler = LPTIM_PRESCALER_DIV128 => lp_TickPeriod_us = 3.9ms => 256s with 16b timer
-    */
-    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV2;
-    lp_TickPeriod_us = 2 * 1000000 / RTC_CLOCK;
+    LptimHandle.Init.Clock.Prescaler = LPTIM_PRESCALER_DIV1;
 
     LptimHandle.Init.Trigger.Source = LPTIM_TRIGSOURCE_SOFTWARE;
     LptimHandle.Init.OutputPolarity = LPTIM_OUTPUTPOLARITY_HIGH;
@@ -142,7 +135,6 @@ void lp_ticker_init(void)
     }
 
     NVIC_SetVector(LPTIM1_IRQn, (uint32_t)LPTIM1_IRQHandler);
-    NVIC_EnableIRQ(LPTIM1_IRQn);
 
 #if !(TARGET_STM32L4)
     /* EXTI lines are not configured by default */
@@ -150,10 +142,10 @@ void lp_ticker_init(void)
     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
 #endif
 
-    __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_ARRM);
     __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPM);
-    __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPOK);
     HAL_LPTIM_Counter_Start(&LptimHandle, 0xFFFF);
+
+    __HAL_LPTIM_COMPARE_SET(&LptimHandle, 0);
 }
 
 static void LPTIM1_IRQHandler(void)
@@ -173,30 +165,9 @@ static void LPTIM1_IRQHandler(void)
             /* Clear Compare match flag */
             __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
 
-            if (lp_oc_int_part > 0) {
-                lp_oc_int_part--;
-            } else {
                 if (irq_handler) {
                     irq_handler();
-                }
             }
-        }
-    }
-
-    /* Compare write interrupt */
-    if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) != RESET) {
-        if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_CMPOK) != RESET) {
-            /* Clear Compare write flag */
-            __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
-        }
-    }
-
-    /* Autoreload match interrupt */
-    if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_ARRM) != RESET) {
-        if (__HAL_LPTIM_GET_IT_SOURCE(&LptimHandle, LPTIM_IT_ARRM) != RESET) {
-            /* Clear Autoreload match flag */
-            __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_ARRM);
-            lp_SlaveCounter++;
         }
     }
 
@@ -205,82 +176,47 @@ static void LPTIM1_IRQHandler(void)
 #endif
 }
 
-
-uint32_t lp_ticker_read_TickCounter(void)
-{
-    uint16_t cntH_old, cntH, cntL;
-
-    LptimHandle.Instance = LPTIM1;
-
-    /* same algo as us_ticker_read in us_ticker_16b.c */
-    do {
-        cntH_old = lp_SlaveCounter;
-        if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_ARRM) == SET) {
-            cntH_old += 1;
-        }
-        cntL = LPTIM1->CNT;
-        cntH = lp_SlaveCounter;
-        if (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_ARRM) == SET) {
-            cntH += 1;
-        }
-    } while (cntH_old != cntH);
-    uint32_t lp_time = (uint32_t)(cntH << 16 | cntL);
-    return lp_time;
-}
-
 uint32_t lp_ticker_read(void)
 {
-    lp_ticker_init();
-    return lp_ticker_read_TickCounter() * (uint32_t)lp_TickPeriod_us;
+    uint32_t lp_time = LPTIM1->CNT;
+    return lp_time;     
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    // Disable IRQs
-    core_util_critical_section_enter();
-
-    uint32_t timestamp_TickCounter = timestamp / (uint32_t)lp_TickPeriod_us;
-
     LptimHandle.Instance = LPTIM1;
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
 
-    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
-    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
-    __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp_TickCounter & 0xFFFF);
-
     /* CMPOK is set by hardware to inform application that the APB bus write operation to the LPTIM_CMP register has been successfully completed */
+    /* Any successive write before respectively the ARROK flag or the CMPOK flag be set, will lead to unpredictable results */
     while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
     }
 
-    /* same algo as us_ticker_set_interrupt in us_ticker_16b.c */
-    uint32_t current_time_TickCounter = lp_ticker_read_TickCounter();
-    uint32_t delta = timestamp_TickCounter - current_time_TickCounter;
-    lp_oc_int_part = (delta - 1) >> 16;
-    if ( ((delta - 1) & 0xFFFF) >= 0x8000 &&
-            __HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPM) == SET ) {
-        ++lp_oc_int_part;
-    }
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK);
+    __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
+    __HAL_LPTIM_COMPARE_SET(&LptimHandle, timestamp);
 
-    // Enable IRQs
-    core_util_critical_section_exit();
+    NVIC_EnableIRQ(LPTIM1_IRQn);
 }
 
 void lp_ticker_fire_interrupt(void)
 {
     lp_Fired = 1;
     NVIC_SetPendingIRQ(LPTIM1_IRQn);
+    NVIC_EnableIRQ(LPTIM1_IRQn);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
     LptimHandle.Instance = LPTIM1;
-    __HAL_LPTIM_DISABLE_IT(&LptimHandle, LPTIM_IT_CMPM);
+    NVIC_DisableIRQ(LPTIM1_IRQn);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
     LptimHandle.Instance = LPTIM1;
     __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
+    NVIC_ClearPendingIRQ(LPTIM1_IRQn);
 }
 
 #else /* MBED_CONF_TARGET_LPTICKER_LPTIM */
