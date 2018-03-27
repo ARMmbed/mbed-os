@@ -172,7 +172,7 @@
 
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
-  uint32_t tickstart = 0U;
+  uint32_t tickstart;
 
   /* Check the IWDG handle allocation */
   if(hiwdg == NULL)
@@ -181,77 +181,51 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   }
 
   /* Check the parameters */
+  assert_param(IS_IWDG_ALL_INSTANCE(hiwdg->Instance));
   assert_param(IS_IWDG_PRESCALER(hiwdg->Init.Prescaler));
   assert_param(IS_IWDG_RELOAD(hiwdg->Init.Reload));
   assert_param(IS_IWDG_WINDOW(hiwdg->Init.Window));
 
-  /* Check pending flag, if previous update not done, return error */
-  if(((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0U)
-  {
-    return HAL_ERROR;
-  }
+  /* Enable IWDG. LSI is turned on automaticaly */
+  __HAL_IWDG_START(hiwdg);
 
-  if(hiwdg->State == HAL_IWDG_STATE_RESET)
-  { 
-     /* Allocate lock resource and initialize it */
-     hiwdg->Lock = HAL_UNLOCKED;
-
-     /* Init the low level hardware */
-     HAL_IWDG_MspInit(hiwdg);
-  }
-
-  /* Change IWDG peripheral state */
-  hiwdg->State = HAL_IWDG_STATE_BUSY;
-
-  /* Enable write access to IWDG_PR, IWDG_RLR and IWDG_WINR registers */
-  /* by writing 0x5555 in KR */
+  /* Enable write access to IWDG_PR, IWDG_RLR and IWDG_WINR registers by writing
+  0x5555 in KR */
   IWDG_ENABLE_WRITE_ACCESS(hiwdg);
 
-  /* Write to IWDG registers the IWDG_Prescaler & IWDG_Reload values to work with */
-  MODIFY_REG(hiwdg->Instance->PR, (uint32_t)IWDG_PR_PR, hiwdg->Init.Prescaler);
-  MODIFY_REG(hiwdg->Instance->RLR, (uint32_t)IWDG_RLR_RL, hiwdg->Init.Reload);
+  /* Write to IWDG registers the Prescaler & Reload values to work with */
+  hiwdg->Instance->PR = hiwdg->Init.Prescaler;
+  hiwdg->Instance->RLR = hiwdg->Init.Reload;
 
-  /* check if window option is enabled */
-  if (((hiwdg->Init.Window) != IWDG_WINDOW_DISABLE) || ((hiwdg->Instance->WINR) != IWDG_WINDOW_DISABLE))
+  /* Check pending flag, if previous update not done, return timeout */
+  tickstart = HAL_GetTick();
+
+  /* Wait for register to be updated */
+  while(hiwdg->Instance->SR != RESET)
   {
-    tickstart = HAL_GetTick();
-
-     /* Wait for register to be updated */
-     while (((hiwdg->Instance->SR) & IWDG_SR_FLAGS) != 0U)
-     {
-       if((HAL_GetTick()-tickstart) > HAL_IWDG_DEFAULT_TIMEOUT)
-       {
-         /* Set IWDG state */
-         hiwdg->State = HAL_IWDG_STATE_TIMEOUT;
-         return HAL_TIMEOUT;
-       }
+    if((HAL_GetTick() - tickstart ) > HAL_IWDG_DEFAULT_TIMEOUT)
+    {
+      return HAL_TIMEOUT;
     }
-
-    /* Write to IWDG WINR the IWDG_Window value to compare with */
-    MODIFY_REG(hiwdg->Instance->WINR, (uint32_t)IWDG_WINR_WIN, hiwdg->Init.Window);
-
   }
-  /* Change IWDG peripheral state */
-  hiwdg->State = HAL_IWDG_STATE_READY;
+
+  /* If window parameter is different than current value, modify window
+  register */
+  if(hiwdg->Instance->WINR != hiwdg->Init.Window)
+  {
+    /* Write to IWDG WINR the IWDG_Window value to compare with. In any case,
+    even if window feature is disabled, Watchdog will be reloaded by writing
+    windows register */
+    hiwdg->Instance->WINR = hiwdg->Init.Window;
+  }
+  else
+  {
+    /* Reload IWDG counter with value defined in the reload register */
+    __HAL_IWDG_RELOAD_COUNTER(hiwdg);
+  }
 
   /* Return function status */
   return HAL_OK;
-}
-
-/**
-  * @brief  Initializes the IWDG MSP.
-  * @param  hiwdg: pointer to a IWDG_HandleTypeDef structure that contains
-  *                the configuration information for the specified IWDG module.
-  * @retval None
-  */
-__weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
-{
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hiwdg);
-
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_IWDG_MspInit could be implemented in the user file
-   */
 }
 
 /**
