@@ -197,7 +197,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   /* Check pending flag, if previous update not done, return timeout */
   tickstart = HAL_GetTick();
 
-   /* Wait for register to be updated */
+  /* Wait for register to be updated */
   while(hiwdg->Instance->SR != RESET)
   {
     if((HAL_GetTick() - tickstart ) > HAL_IWDG_DEFAULT_TIMEOUT)
@@ -206,12 +206,12 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
     }
   }
 
-  /* If window parameter is different than current value, modify window 
+  /* If window parameter is different than current value, modify window
   register */
   if(hiwdg->Instance->WINR != hiwdg->Init.Window)
   {
     /* Write to IWDG WINR the IWDG_Window value to compare with. In any case,
-    even if window feature is disabled, Watchdog will be reloaded by writing 
+    even if window feature is disabled, Watchdog will be reloaded by writing
     windows register */
     hiwdg->Instance->WINR = hiwdg->Init.Window;
   }
