@@ -36,7 +36,7 @@ Stack_Size      EQU     0x00001000
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
-__initial_sp
+__initial_sp    EQU     0x20040000
 
 
 ; <h> Heap Configuration
