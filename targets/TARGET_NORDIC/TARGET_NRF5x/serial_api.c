@@ -188,6 +188,7 @@ typedef struct {
     uint8_t buffer[NUMBER_OF_BANKS][DMA_BUFFER_SIZE];
     uint32_t rxdrdy_counter;
     uint32_t endrx_counter;
+    uint32_t usage_counter;
     uint8_t tx_data;
     volatile uint8_t tx_in_progress;
     volatile uint8_t rx_in_progress;
@@ -1006,7 +1007,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         /* Enable interrupts for UARTE0. */
         NVIC_SetVector(UARTE0_UART0_IRQn, (uint32_t) nordic_nrf5_uart0_handler);
         nordic_nrf5_uart_irq_enable(0);
-        nrf_uarte_enable(nordic_nrf5_uart_register[0]);
 
 #if UART1_ENABLED
         /* Initialize FIFO buffer for UARTE1. */
@@ -1019,7 +1019,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         /* Enable interrupts for UARTE1. */
         NVIC_SetVector(UARTE1_IRQn, (uint32_t) nordic_nrf5_uart1_handler);
         nordic_nrf5_uart_irq_enable(1);
-        nrf_uarte_enable(nordic_nrf5_uart_register[1]);
 #endif
     }
 
@@ -1027,6 +1026,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     int instance = pin_instance_uart(tx, rx);
 
     uart_object->instance = instance;
+
+    /* Increment usage counter for this instance. */
+    nordic_nrf5_uart_state[instance].usage_counter++;
+
+    /* Enable instance on first usage. */
+    if (nordic_nrf5_uart_state[instance].usage_counter == 1) {
+
+        nrf_uarte_enable(nordic_nrf5_uart_register[instance]);
+    }
 
     /* Store pins in serial object. */
     if (tx == NC) {
@@ -1086,7 +1094,27 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
  */
 void serial_free(serial_t *obj)
 {
+    MBED_ASSERT(obj);
 
+#if DEVICE_SERIAL_ASYNCH
+    struct serial_s *uart_object = &obj->serial;
+#else
+    struct serial_s *uart_object = obj;
+#endif
+
+    int instance = uart_object->instance;
+
+    if (nordic_nrf5_uart_state[instance].usage_counter > 1) {
+
+        /* Decrement usage counter for this instance. */
+        nordic_nrf5_uart_state[instance].usage_counter--;
+
+        /* Disable instance when not in use. */
+        if (nordic_nrf5_uart_state[instance].usage_counter == 0) {
+
+            nrf_uarte_disable(nordic_nrf5_uart_register[instance]);
+        }
+    }
 }
 
 /** Configure the baud rate
