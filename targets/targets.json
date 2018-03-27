@@ -1071,7 +1071,7 @@
             }
         },
         "detect_code": ["0744"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
     },
@@ -1179,7 +1179,7 @@
         },
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1193,11 +1193,15 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
             }
         },
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1344,7 +1348,7 @@
         "macros_add": ["USBHOST_OTHER"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG",
@@ -1373,7 +1377,7 @@
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0819"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG"
@@ -1401,7 +1405,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": ["USBHOST_OTHER"],
         "detect_code": ["0818"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F767ZI",
@@ -1426,7 +1430,7 @@
             }
         },
         "detect_code": ["0780"],
-        "device_has_add": ["SERIAL_FC", "FLASH"],
+        "device_has_add": ["LPTICKER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L011K4"
@@ -1449,7 +1453,7 @@
             }
         },
         "detect_code": ["0790"],
-        "device_has_add": ["SERIAL_FC", "FLASH"],
+        "device_has_add": ["LPTICKER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L031K6"
@@ -1471,7 +1475,7 @@
             }
         },
         "detect_code": ["0715"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L053R8"
@@ -1493,7 +1497,7 @@
             }
         },
         "detect_code": ["0760"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L073RZ"
     },
@@ -1531,7 +1535,7 @@
             }
         },
         "detect_code": ["0770"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L432KC",
         "bootloader_supported": true
@@ -1553,7 +1557,7 @@
             }
         },
         "detect_code": ["0779"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L433RC",
         "bootloader_supported": true
@@ -1596,7 +1600,7 @@
         },
         "detect_code": ["0765"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG",
         "bootloader_supported": true
@@ -1637,7 +1641,7 @@
         },
         "detect_code": ["0827"],
         "macros_add": ["USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L486RG"
     },
@@ -1805,7 +1809,7 @@
             }
         },
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L053C8"
@@ -1827,7 +1831,7 @@
             }
         },
         "detect_code": ["0833"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L072CZ"
     },
@@ -1862,7 +1866,7 @@
         },
         "detect_code": ["0815"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG"
@@ -1885,7 +1889,7 @@
         },
         "detect_code": ["0817"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI"
@@ -1908,7 +1912,7 @@
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
         "bootloader_supported": true
@@ -1930,7 +1934,7 @@
         },
         "detect_code": ["0820"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
@@ -3918,7 +3922,7 @@
             }
         },
         "detect_code": ["0823"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496ZG"
     },
