@@ -42,7 +42,7 @@ namespace mbed
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
         _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0), _auto_registration(false)
+        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -294,16 +294,11 @@ const char* CellularConnectionFSM::get_state_string(CellularState state)
 
 nsapi_error_t CellularConnectionFSM::is_automatic_registering(bool& auto_reg)
 {
-    if (_auto_registration == CellularNetwork::NWModeAutomatic) {
-        auto_reg = _auto_registration;
-        return NSAPI_ERROR_OK;
-    }
     CellularNetwork::NWRegisteringMode mode;
     nsapi_error_t err = _network->get_network_registering_mode(mode);
     if (err == NSAPI_ERROR_OK) {
-        tr_info("automatic registering mode: %d", mode);
-        _auto_registration = (mode == CellularNetwork::NWModeAutomatic);
-        auto_reg = _auto_registration;
+        tr_debug("automatic registering mode: %d", mode);
+        auto_reg = (mode == CellularNetwork::NWModeAutomatic);
     }
     return err;
 }

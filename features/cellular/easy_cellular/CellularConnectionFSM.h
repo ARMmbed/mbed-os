@@ -196,7 +196,6 @@ private:
     events::EventQueue _at_queue;
     char _st_string[20];
     int _eventID;
-    bool _auto_registration;
 };
 
 } // namespace
