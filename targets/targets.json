@@ -5814,7 +5814,8 @@
             "USTICKER",
             "FLASH",
             "ITM",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5890,7 +5891,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "device_name": "EFM32LG990F256",
@@ -5968,7 +5970,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6041,7 +6044,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6114,7 +6118,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6190,7 +6195,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6289,7 +6295,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6359,7 +6366,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
@@ -6437,7 +6445,8 @@
             "USTICKER",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -6525,7 +6534,8 @@
             "USTICKER",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
