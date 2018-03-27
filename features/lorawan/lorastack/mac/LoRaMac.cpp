@@ -292,6 +292,7 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
     _mcps_indication.is_ack_recvd = false;
     _mcps_indication.dl_frame_counter = 0;
     _mcps_indication.type = MCPS_UNCONFIRMED;
+    _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_OK;
 
     if (_device_class != CLASS_C) {
         _lora_phy.put_radio_to_sleep();
