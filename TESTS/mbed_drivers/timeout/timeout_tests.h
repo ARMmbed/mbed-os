@@ -276,7 +276,7 @@ void test_sleep(void)
     timeout.detach();
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /** Template for tests: timeout during deepsleep
  *
  * Test timeout during deepsleep
