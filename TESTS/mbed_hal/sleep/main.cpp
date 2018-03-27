@@ -28,16 +28,6 @@
 
 #define US_PER_S 1000000
 
-unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
-{
-    return (unsigned int)((unsigned long long)ticks * US_PER_S / freq);
-}
-
-unsigned int us_to_ticks(unsigned int us, unsigned int freq)
-{
-    return (unsigned int)((unsigned long long)us * freq / US_PER_S);
-}
-
 using namespace utest::v1;
 
 /* The following ticker frequencies are possible:
@@ -53,6 +43,45 @@ static const uint32_t sleep_mode_delta_us = (10 + 4 + 5);
  * delta = default 10 ms + worst ticker resolution + extra time for code execution */
 static const uint32_t deepsleep_mode_delta_us = (10000 + 125 + 5);
 
+unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
+{
+    return (unsigned int)((unsigned long long)ticks * US_PER_S / freq);
+}
+
+unsigned int us_to_ticks(unsigned int us, unsigned int freq)
+{
+    return (unsigned int)((unsigned long long)us * freq / US_PER_S);
+}
+
+unsigned int overflow_protect(unsigned int timestamp, unsigned int ticker_width)
+{
+    unsigned int counter_mask = ((1 << ticker_width) - 1);
+
+    return (timestamp & counter_mask);
+}
+
+bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, unsigned int expected, unsigned int actual)
+{
+    const unsigned int counter_mask = ((1 << ticker_width) - 1);
+
+    const unsigned int lower_bound = ((expected - delta_ticks) & counter_mask);
+    const unsigned int upper_bound = ((expected + delta_ticks) & counter_mask);
+
+    if(lower_bound < upper_bound) {
+        if (actual >= lower_bound && actual <= upper_bound) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        if ((actual >= lower_bound && actual <= counter_mask) ||
+            (actual >= 0 && actual <= upper_bound)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
 
 void us_ticker_isr(const ticker_data_t *const ticker_data)
 {
@@ -73,6 +102,7 @@ void sleep_usticker_test()
     Timeout timeout;
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
+    const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
     const ticker_irq_handler_type  us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
@@ -83,14 +113,18 @@ void sleep_usticker_test()
     /* Testing wake-up time 10 us. */
     for (timestamp_t i = 100; i < 1000; i += 100) {
         /* note: us_ticker_read() operates on ticks. */
+        const timestamp_t next_match_timestamp = overflow_protect(us_ticker_read() + us_to_ticks(i, ticker_freq),
+                ticker_width);
 
-        const timestamp_t next_match_timestamp = us_ticker_read() + us_to_ticks(i, ticker_freq);
         us_ticker_set_interrupt(next_match_timestamp);
 
         sleep();
 
-        TEST_ASSERT_UINT32_WITHIN(us_to_ticks(sleep_mode_delta_us, ticker_freq), next_match_timestamp,
-                                  us_ticker_read());
+        const unsigned int wakeup_timestamp = us_ticker_read();
+
+        TEST_ASSERT(
+                compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp,
+                        wakeup_timestamp));
     }
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
@@ -107,6 +141,7 @@ void deepsleep_lpticker_test()
 {
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
+    const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
     const ticker_irq_handler_type  lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
 
@@ -120,13 +155,15 @@ void deepsleep_lpticker_test()
     /* Testing wake-up time 10 ms. */
     for (timestamp_t i = 20000; i < 200000; i += 20000) {
         /* note: lp_ticker_read() operates on ticks. */
-        const timestamp_t next_match_timestamp = lp_ticker_read() + us_to_ticks(i, ticker_freq);
+        const timestamp_t next_match_timestamp = overflow_protect(lp_ticker_read() + us_to_ticks(i, ticker_freq), ticker_width);
+
         lp_ticker_set_interrupt(next_match_timestamp);
 
         sleep();
 
-        TEST_ASSERT_UINT32_WITHIN(us_to_ticks(deepsleep_mode_delta_us, ticker_freq), next_match_timestamp,
-                                  lp_ticker_read());
+        const timestamp_t wakeup_timestamp = lp_ticker_read();
+
+        TEST_ASSERT(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp));
     }
 
     set_lp_ticker_irq_handler(lp_ticker_irq_handler_org);
@@ -139,6 +176,9 @@ void deepsleep_high_speed_clocks_turned_off_test()
     const ticker_data_t * lp_ticker = get_lp_ticker_data();
     const unsigned int us_ticker_freq = us_ticker->interface->get_info()->frequency;
     const unsigned int lp_ticker_freq = lp_ticker->interface->get_info()->frequency;
+    const unsigned int us_ticker_width = us_ticker->interface->get_info()->bits;
+    const unsigned int lp_ticker_width = lp_ticker->interface->get_info()->bits;
+    const unsigned int us_ticker_mask = ((1 << us_ticker_width) - 1);
 
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
@@ -162,10 +202,12 @@ void deepsleep_high_speed_clocks_turned_off_test()
      * Since we went to sleep for about 200 ms check if time counted by high frequency timer does not
      * exceed 1 ms.
      */
-    TEST_ASSERT_UINT32_WITHIN(1000, 0, ticks_to_us(us_ticks_after_sleep - us_ticks_before_sleep, us_ticker_freq));
+    const unsigned int us_ticks_diff = (us_ticks_before_sleep <= us_ticks_after_sleep) ? (us_ticks_after_sleep - us_ticks_before_sleep) : (us_ticker_mask - us_ticks_before_sleep + us_ticks_after_sleep + 1);
+
+    TEST_ASSERT_UINT32_WITHIN(1000, 0, ticks_to_us(us_ticks_diff, us_ticker_freq));
 
     /* Check if we have woken-up after expected time. */
-    TEST_ASSERT_UINT32_WITHIN(us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), wakeup_time, lp_ticks_after_sleep);
+    TEST_ASSERT(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width, wakeup_time, lp_ticks_after_sleep));
 }
 
 #endif
