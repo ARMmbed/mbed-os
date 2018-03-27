@@ -2206,7 +2206,6 @@
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
@@ -2254,8 +2253,7 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
@@ -2279,7 +2277,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "WATCHDOG"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
         "bootloader_supported": true
@@ -2303,8 +2301,7 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F412ZG",
@@ -2513,8 +2510,7 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
@@ -2564,8 +2560,7 @@
             "EMAC",
             "SERIAL_FC",
             "TRNG",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "detect_code": ["0797"],
         "release_versions": ["2", "5"],
@@ -2594,8 +2589,7 @@
             "CAN",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE",
@@ -2620,8 +2614,7 @@
             "CAN",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
@@ -2637,8 +2630,7 @@
             "CAN",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "FLASH",
-            "WATCHDOG"
+            "FLASH"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446VE"
@@ -3629,7 +3621,6 @@
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
-        "device_has_add": ["WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
@@ -3906,7 +3897,7 @@
             "GNSSBAUD=9600"
         ],
         "overrides": { "lse_available": 0 },
-        "device_has_add": ["ANALOGOUT", "EMAC", "SERIAL_FC", "TRNG", "FLASH", "WATCHDOG"],
+        "device_has_add": ["ANALOGOUT", "EMAC", "SERIAL_FC", "TRNG", "FLASH"],
         "public": false,
         "device_name": "STM32F437VG",
         "bootloader_supported": true,
