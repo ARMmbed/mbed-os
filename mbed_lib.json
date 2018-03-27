@@ -30,6 +30,12 @@
              "SPI_MISO": "PTD7",
              "SPI_CLK":  "PTD5",
              "SPI_CS":   "PTD4"
+        },
+        "MTB_UBLOX_ODIN_W2": {
+             "SPI_MOSI": "PE_14",
+             "SPI_MISO": "PE_13",
+             "SPI_CLK":  "PE_12",
+             "SPI_CS":   "PE_11"
         }
     }
 }
