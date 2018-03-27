@@ -78,11 +78,11 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
  *
  * @param[in]  handle   Handle for the connection.
  * @param[in]  in_vec   Array of ::psa_invec_t structures.
- * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most PSA_MAX_INVEC_LEN)
+ * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_INVEC_LEN)
  * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Secure function response.
- * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most PSA_MAX_OUTVEC_LEN)
+ * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_OUTVEC_LEN)
  * @return Positive numbers with an application-specific return code or negative numbers on error:@n
- *         @a PSA_INVALID_MEM if the specified buffers in tx_iovec or rx_buf contain an invalid memory address
+ *         @a PSA_INVALID_MEM if the specified buffers in in_vec or out_vec contain an invalid memory address
  *                            (pointing to non-existent memory or lack of permission for this memory).
  *         @a PSA_MSG_PAYLOAD_TOO_LARGE/PSA_MSG_PAYLOAD_TOO_SMALL if there is an issue with the payload size.@n
  *         @a PSA_INVALID_HANDLE if the handle is not valid.@n
