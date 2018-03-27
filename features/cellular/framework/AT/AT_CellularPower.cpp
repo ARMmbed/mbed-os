@@ -20,7 +20,6 @@
 #include "CellularLog.h"
 #include "CellularTargets.h"
 #include "nsapi_types.h"
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 static const int PSMTimerBits = 5;
 

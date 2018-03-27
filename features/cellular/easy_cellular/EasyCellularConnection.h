@@ -16,7 +16,6 @@
  */
 
 #ifndef EASY_CELLULAR_CONNECTION_H
-
 #define EASY_CELLULAR_CONNECTION_H
 
 #include "CellularConnectionFSM.h"
