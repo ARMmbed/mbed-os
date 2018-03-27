@@ -25,16 +25,24 @@
 #include "common/common.h"
 #include "ble_advdata.h"
 #include "headers/nrf_ble_hci.h"
-
-#if  (NRF_SD_BLE_API_VERSION >= 3)
-    #include "peer_manager.h"
-    #include "peer_data_storage.h"
-#endif
+#include "ble/pal/ConnectionEventMonitor.h"
 
 
 void radioNotificationStaticCallback(bool param) {
     nRF5xGap &gap = (nRF5xGap &) nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getGap();
     gap.processRadioNotificationEvent(param);
+}
+
+nRF5xGap::nRF5xGap() : Gap(),
+    advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
+    scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
+    whitelistAddressesSize(0),
+    whitelistAddresses(),
+    radioNotificationCallbackParam(false),
+    radioNotificationTimeout(),
+    _connection_event_handler(NULL)
+{
+        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
 
 /**************************************************************************/
@@ -143,7 +151,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 {
     uint32_t             err;
     ble_gap_adv_params_t adv_para = {0};
-    
+
     /* Make sure we support the advertising type */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
         /* ToDo: This requires a propery security implementation, etc. */
@@ -195,11 +203,11 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
             return error;
         }
     }
-    
+
     adv_para.p_whitelist = &whitelist;
 #endif
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     /* Start Advertising */
 
 
@@ -208,7 +216,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.fp          = advertisingPolicyMode;
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
-    
+
 
     err = sd_ble_gap_adv_start(&adv_para);
     switch(err) {
@@ -225,9 +233,9 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
 {
-    
+
     ble_gap_scan_params_t scanParams;
-    
+
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -246,16 +254,16 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
             return error;
         }
     }
-    
+
     scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
     scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     scanParams.use_whitelist  = scanningPolicyMode;
     scanParams.adv_dir_report = 0;
 #endif
-    
+
     scanParams.active      = scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
 
     scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
@@ -327,7 +335,7 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     }
 
     ble_gap_scan_params_t scanParams ={0};
-    
+
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -346,12 +354,12 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
             return error;
         }
     }
-    
+
     scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
     scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     scanParams.use_whitelist = (whitelistAddressesSize) ? 1 : 0;
 
     if ((addr.addr_type == 	BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE)
@@ -365,7 +373,7 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     } else {
         addr.addr_id_peer = 0;
     }
-        
+
 #endif
 
     if (scanParamsIn != NULL) {
@@ -492,7 +500,7 @@ ble_error_t nRF5xGap::reset(void)
 
     /* Clear the internal whitelist */
     whitelistAddressesSize = 0;
-    
+
 
     return BLE_ERROR_NONE;
 }
@@ -541,7 +549,7 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
     ble_gap_privacy_params_t privacy_params = {0};
 #endif
 
-    
+
     ble_gap_addr_t dev_addr;
 
     /* When using Public or Static addresses, the cycle mode must be None.
@@ -565,7 +573,7 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
     {
 #if  (NRF_SD_BLE_API_VERSION <= 2)
         cycle_mode = BLE_GAP_ADDR_CYCLE_MODE_AUTO;
-#else   
+#else
         privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_DEVICE_PRIVACY;
         privacy_params.private_addr_type = type;
 
@@ -936,105 +944,29 @@ Gap::InitiatorPolicyMode_t nRF5xGap::getInitiatorPolicyMode(void) const
 /*!
     @brief  Helper function used to populate the ble_gap_whitelist_t that
             will be used by the SoftDevice for filtering requests.
-
     @returns    \ref ble_error_t
-
     @retval     BLE_ERROR_NONE
                 Everything executed properly
-
     @retval     BLE_ERROR_INVALID_STATE
                 The internal stack was not initialized correctly.
-
     @note  Both the SecurityManager and Gap must initialize correctly for
            this function to succeed.
-
     @note  This function is needed because for the BLE API the whitelist
            is just a collection of keys, but for the stack it also includes
            the IRK table.
-
     @section EXAMPLE
-
     @code
-
     @endcode
 */
 /**************************************************************************/
 ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
 {
-    ble_gap_whitelist_t  whitelistFromBondTable;
-    ble_gap_addr_t      *addressPtr[1];
-    ble_gap_irk_t       *irkPtr[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-
-    nRF5xSecurityManager& securityManager = (nRF5xSecurityManager&) nRF5xn::Instance(0).getSecurityManager();
-
-    if (securityManager.hasInitialized()) {
-        /* We do not care about the addresses, set the count to 0 */
-        whitelistFromBondTable.addr_count = 0;
-        /* The Nordic SDK will return a failure if we set pp_addr to NULL */
-        whitelistFromBondTable.pp_addrs   = addressPtr;
-        /* We want all the IRKs we can get because we do not know which ones match the addresses */
-        whitelistFromBondTable.irk_count  = YOTTA_CFG_IRK_TABLE_MAX_SIZE;
-        whitelistFromBondTable.pp_irks    = irkPtr;
-
-        /* Use the security manager to get the IRKs from the bond table */
-        ble_error_t error = securityManager.createWhitelistFromBondTable(whitelistFromBondTable);
-        if (error != BLE_ERROR_NONE) {
-            return error;
-        }
-    } else  {
-        /**
-         * If there is no security manager then we cannot access the bond table,
-         * so disable IRK matching
-         */
-        whitelistFromBondTable.addr_count = 0;
-        whitelistFromBondTable.irk_count  = 0;
-    }
-
-    /**
-     * For every private resolvable address in the local whitelist check if
-     * there is an IRK for said address in the bond table and add it to the
-     * local IRK list.
-     */
-    whitelist.irk_count  = 0;
-    whitelist.addr_count = 0;
-    for (uint8_t i = 0; i < whitelistAddressesSize; ++i) {
-        if (whitelistAddresses[i].addr_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) {
-            /* Test if there is a matching IRK for this private resolvable address */
-            for (uint8_t j = 0; j < whitelistFromBondTable.irk_count; ++j) {
-                if (securityManager.matchAddressAndIrk(&whitelistAddresses[i], whitelistFromBondTable.pp_irks[j])) {
-                    /* Found the corresponding IRK, add it to our local whitelist */
-                    whitelist.pp_irks[whitelist.irk_count] = whitelistFromBondTable.pp_irks[j];
-                    whitelist.irk_count++;
-                    /* Make sure we do not look at this IRK again */
-                    if (j != whitelistFromBondTable.irk_count - 1) {
-                        /**
-                         * This is not the last IRK, so replace the pointer
-                         * with the last pointer in the array
-                         */
-                        whitelistFromBondTable.pp_irks[j] =
-                            whitelistFromBondTable.pp_irks[whitelistFromBondTable.irk_count - 1];
-                    }
-                    /**
-                     * If the IRK is the last pointer in the array simply
-                     * decrement the total IRK count
-                     */
-                    whitelistFromBondTable.irk_count--;
-                    break;
-                }
-            }
-        } else {
-            /* Include the address into the whitelist */
-            whitelist.pp_addrs[whitelist.addr_count] = &whitelistAddresses[i];
-            whitelist.addr_count++;
-        }
-    }
-
-    return BLE_ERROR_NONE;
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 #endif
 
 #if  (NRF_SD_BLE_API_VERSION >= 3)
-   
+
 /**
  * Function for preparing settings of the whitelist feature and the identity-resolving feature (privacy) for the SoftDevice.
  *
@@ -1044,96 +976,17 @@ ble_error_t nRF5xGap::generateStackWhitelist(ble_gap_whitelist_t &whitelist)
  * are passed to the identities list (intended to be passed to the Softdevice).
  *
  * @param[out] gapAdrHelper Reference to the struct for storing settings.
- */ 
+ */
 
 ble_error_t nRF5xGap::getStackWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHelper)
-{   
-    pm_peer_id_t peer_id;
-    
-    ret_code_t ret;
-
-    pm_peer_data_bonding_t bond_data;
-    
-    uint8_t irk_found[YOTTA_CFG_WHITELIST_MAX_SIZE];
-    
-    memset(irk_found, 0x00, sizeof(irk_found));
-    
-      
-    gapAdrHelper.identities_cnt = 0;
-    
-    
-    peer_id = pm_next_peer_id_get(PM_PEER_ID_INVALID);
-    
-    nRF5xSecurityManager& securityManager = (nRF5xSecurityManager&) nRF5xn::Instance(0).getSecurityManager();
-
-    /**
-     * Build identities list:
-     * For every private resolvable address in the bond table check if
-     * there is maching address in th provided whitelist.
-     */
-    while (peer_id != PM_PEER_ID_INVALID)
-    {
-        memset(&bond_data, 0x00, sizeof(bond_data));
-        
-        // Read peer data from flash.
-		ret = pm_peer_data_bonding_load(peer_id, &bond_data);
-                                 
-                                 
-        if ((ret == NRF_ERROR_NOT_FOUND) || (ret == NRF_ERROR_INVALID_PARAM))
-        {
-            // Peer data could not be found in flash or peer ID is not valid.
-            return BLE_ERROR_UNSPECIFIED;
-        }
-                                 
-        if ( bond_data.peer_ble_id.id_addr_info.addr_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE)
-        {        
-            for (uint8_t i = 0; i < whitelistAddressesSize; ++i)
-            {
-                if (!irk_found[i])
-                {
-                    if (whitelistAddresses[i].addr_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE)
-                    {
-                        
-                        //ble_gap_irk_t *p_dfg = &bond_data.peer_ble_id.id_info;
-                        if (securityManager.matchAddressAndIrk(&whitelistAddresses[i], &bond_data.peer_ble_id.id_info))
-                        {                        
-                            // Copy data to the buffer.
-                            memcpy(&gapAdrHelper.identities[i], &bond_data.peer_ble_id, sizeof(ble_gap_id_key_t));
-                            gapAdrHelper.identities_cnt++;
-
-                            irk_found[i] = 1; // don't look at this address again
-                        }
-                    }
-                }
-            }
-        }
-        
-        // get next peer  id
-        peer_id = pm_next_peer_id_get(peer_id);
-    }
-    
-    gapAdrHelper.addrs_cnt = 0;
-    
-    /**
-     * Build whitelist from the rest of addresses (explicit addresses)
-     */
-    for (uint8_t i = 0; i < whitelistAddressesSize; ++i)
-    {
-        if (!irk_found[i])
-        {
-            memcpy(&gapAdrHelper.addrs[i], &whitelistAddresses[i], sizeof(ble_gap_addr_t));
-            gapAdrHelper.addrs[i].addr_id_peer = 0;
-            gapAdrHelper.addrs_cnt++;
-        }
-    }
-        
-    return BLE_ERROR_NONE;
+{
+    BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t nRF5xGap::applyWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHelper)
 {
     uint32_t retc;
-    
+
     if (gapAdrHelper.identities_cnt == 0) {
         retc = sd_ble_gap_device_identities_set(NULL, NULL, 0);
     } else {
@@ -1146,7 +999,7 @@ ble_error_t nRF5xGap::applyWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHe
 
         retc = sd_ble_gap_device_identities_set(pp_identities, NULL /* Don't use local IRKs*/,gapAdrHelper.identities_cnt);
     }
-    
+
     if (retc == NRF_SUCCESS) {
         if (gapAdrHelper.addrs_cnt == 0) {
             retc = sd_ble_gap_whitelist_set(NULL, 0);
@@ -1161,7 +1014,7 @@ ble_error_t nRF5xGap::applyWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHe
             retc = sd_ble_gap_whitelist_set(pp_addrs, gapAdrHelper.addrs_cnt);
         }
     }
-    
+
     switch(retc) {
         case NRF_SUCCESS:
             return BLE_ERROR_NONE;
@@ -1175,7 +1028,7 @@ ble_error_t nRF5xGap::applyWhiteIdentityList(GapWhiteAndIdentityList_t &gapAdrHe
         case NRF_ERROR_DATA_SIZE:
         case BLE_ERROR_GAP_DEVICE_IDENTITIES_DUPLICATE: //The device identity list contains multiple entries with the same identity address.
             return BLE_ERROR_INVALID_PARAM;
-            
+
         default:
             return BLE_ERROR_UNSPECIFIED;
     }
@@ -1187,7 +1040,7 @@ ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack()
     uint32_t                  err;
 
     err = getStackWhiteIdentityList(whiteAndIdentityList);
-        
+
     if (err != BLE_ERROR_NONE) {
         return (ble_error_t)err;
     }
@@ -1195,3 +1048,58 @@ ble_error_t nRF5xGap::updateWhiteAndIdentityListInStack()
     return applyWhiteIdentityList(whiteAndIdentityList);
 }
 #endif
+
+void nRF5xGap::set_connection_event_handler(
+    ConnectionEventMonitor::EventHandler* connection_event_handler
+) {
+    _connection_event_handler = connection_event_handler;
+}
+
+void nRF5xGap::processConnectionEvent(
+    Handle_t handle,
+    Role_t role,
+    BLEProtocol::AddressType_t peerAddrType,
+    const BLEProtocol::AddressBytes_t peerAddr,
+    BLEProtocol::AddressType_t ownAddrType,
+    const BLEProtocol::AddressBytes_t ownAddr,
+    const ConnectionParams_t *connectionParams
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_connected(
+            handle,
+            role,
+            peerAddrType,
+            peerAddr,
+            ownAddrType,
+            ownAddr,
+            connectionParams
+        );
+    }
+
+    ::Gap::processConnectionEvent(
+        handle,
+        role,
+        peerAddrType,
+        peerAddr,
+        ownAddrType,
+        ownAddr,
+        connectionParams
+   );
+}
+
+void nRF5xGap::processDisconnectionEvent(
+    Handle_t handle,
+    DisconnectionReason_t reason
+) {
+    if (_connection_event_handler) {
+        _connection_event_handler->on_disconnected(
+            handle,
+            reason
+        );
+    }
+
+    ::Gap::processDisconnectionEvent(
+        handle,
+        reason
+    );
+}
