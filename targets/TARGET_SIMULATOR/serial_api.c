@@ -27,6 +27,8 @@
 #include "mbed_error.h"
 #include "gpio_api.h"
 
+#if defined(DEVICE_SERIAL)
+
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
@@ -90,3 +92,4 @@ void serial_break_clear(serial_t *obj) {
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
 }
 
+#endif
