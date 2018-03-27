@@ -139,7 +139,7 @@ void sleep_usticker_test()
  * low power ticker interrupt can wake-up target from sleep. */
 void deepsleep_lpticker_test()
 {
-    const ticker_data_t * ticker = get_us_ticker_data();
+    const ticker_data_t * ticker = get_lp_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
