@@ -20,14 +20,6 @@
 				<Linker>
 					<Add option='-Wl,-Map,&quot;bin/Debug/{{project_name}}.map&quot;' />
 				</Linker>
-				{% if ncs36510addfib -%}
-				<ExtraCommands>
-					<Add after="arm-none-eabi-objcopy -O ihex -R .fib -R .trim bin/Debug/{{project_name}}.elf bin/Debug/{{project_name}}.hex" />
-					<Add after="mbed-os/tools/export/codeblocks/ncs36510addfib.py bin/Debug/{{project_name}}.hex bin/Debug/{{project_name}}.fib" />
-					<Add after="arm-none-eabi-objcopy --update-section .fib=bin/Debug/{{project_name}}.fib bin/Debug/{{project_name}}.elf" />
-					<Add after="arm-none-eabi-objcopy -O ihex bin/Debug/{{project_name}}.elf bin/Debug/{{project_name}}.hex" />
-				</ExtraCommands>
-				{% endif -%}
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/{{project_name}}.elf" prefix_auto="1" extension_auto="0" />
@@ -38,14 +30,6 @@
 				<Linker>
 					<Add option='-Wl,-Map,&quot;bin/Release/{{project_name}}.map&quot;' />
 				</Linker>
-				{% if ncs36510addfib -%}
-				<ExtraCommands>
-					<Add after="arm-none-eabi-objcopy -O ihex -R .fib -R .trim bin/Release/{{project_name}}.elf bin/Release/{{project_name}}.hex" />
-					<Add after="mbed-os/tools/export/codeblocks/ncs36510addfib.py bin/Release/{{project_name}}.hex bin/Release/{{project_name}}.fib" />
-					<Add after="arm-none-eabi-objcopy --update-section .fib=bin/Release/{{project_name}}.fib bin/Release/{{project_name}}.elf" />
-					<Add after="arm-none-eabi-objcopy -O ihex bin/Release/{{project_name}}.elf bin/Release/{{project_name}}.hex" />
-				</ExtraCommands>
-				{% endif -%}
 			</Target>
 		</Build>
 		<Compiler>

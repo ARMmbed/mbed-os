@@ -147,13 +147,13 @@ void fClockInit()
     for(Timer = 0; Timer < 10; Timer++);
 
     /** - Enable calibration */
-    //CLOCKREG->CCR.BITS.CAL32M = True;
+    CLOCKREG->CCR.BITS.CAL32M = True;
 
     /** - Wait calibration to be completed */
-    //while(CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
+    while(CLOCKREG->CSR.BITS.CAL32MDONE == False); /* If you stuck here, issue with internal 32M calibration */
 
     /** - Check calibration status */
-    //while(CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
+    while(CLOCKREG->CSR.BITS.CAL32MFAIL == True); /* If you stuck here, issue with internal 32M calibration */
 
     /** - Power down internal 32MHz osc */
     PMUREG->CONTROL.BITS.INT32M = 1;
