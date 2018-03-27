@@ -73,6 +73,8 @@
 #include "drivers/MbedCRC.h"
 
 // mbed Internal components
+#include "drivers/ResetReason.h"
+#include "drivers/Watchdog.h"
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "drivers/Timeout.h"
