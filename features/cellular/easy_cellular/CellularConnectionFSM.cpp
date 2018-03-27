@@ -75,8 +75,10 @@ CellularConnectionFSM::~CellularConnectionFSM()
 void CellularConnectionFSM::stop()
 {
     tr_info("CellularConnectionUtil::stop");
-    _cellularDevice->close_power();
-    _cellularDevice->close_network();
+    if (_cellularDevice) {
+        _cellularDevice->close_power();
+        _cellularDevice->close_network();
+    }
     if (_queue_thread) {
         _queue_thread->terminate();
         delete _queue_thread;
