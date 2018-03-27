@@ -458,7 +458,7 @@ private:
     void set_3gpp_error(int err, DeviceErrorType error_type);
 
     bool check_cmd_send();
-    ssize_t write(const void *data, size_t len);
+    size_t write(const void *data, size_t len);
 
     /** Copy content of one char buffer to another buffer and sets NULL terminator
      *

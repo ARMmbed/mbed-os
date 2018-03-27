@@ -1,9 +1,5 @@
 {
     "config": {
-        "network-interface":{
-            "help": "Options are ETHERNET,CELLULAR",
-            "value": "CELLULAR"
-        },
         "cellular_sim_pin": {
             "help": "PIN code",
             "value": "\"1234\""

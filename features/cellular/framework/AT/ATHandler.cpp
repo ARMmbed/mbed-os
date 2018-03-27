@@ -1001,9 +1001,7 @@ void ATHandler::cmd_start(const char* cmd)
         } 
     } 
 
-    tr_debug("AT> %s", cmd);
-
-
+    at_debug("AT cmd %s (err %d)\n", cmd, _last_err);
 
     if (_last_err != NSAPI_ERROR_OK) {
         return;
@@ -1016,7 +1014,7 @@ void ATHandler::cmd_start(const char* cmd)
 
 void ATHandler::write_int(int32_t param)
 {
-    tr_debug("write_int: %d", param);
+    at_debug("AT int %d\n", param);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
@@ -1033,7 +1031,7 @@ void ATHandler::write_int(int32_t param)
 
 void ATHandler::write_string(const char* param, bool useQuotations)
 {
-    tr_debug("write_string: %s, %d", param, useQuotations);
+    at_debug("AT str %s (with quotes %d)\n", param, useQuotations);
     // do common checks before sending subparameter
     if (check_cmd_send() == false) {
         return;
@@ -1054,6 +1052,7 @@ void ATHandler::write_string(const char* param, bool useQuotations)
 
 void ATHandler::cmd_stop()
 {
+    at_debug("AT stop %s (err %d)\n", _output_delimiter, _last_err);
     if (_last_err != NSAPI_ERROR_OK) {
         return;
     }
@@ -1063,28 +1062,33 @@ void ATHandler::cmd_stop()
 
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
+    at_debug("AT write bytes %d (err %d)\n", len, _last_err);
+    
     if (_last_err != NSAPI_ERROR_OK) {
         return 0;
     }
 
-    ssize_t write_len = write(data, len);
-    return write_len < 0 ? 0 : (size_t)write_len;
+    return write(data, len);
 }
 
-ssize_t ATHandler::write(const void *data, size_t len)
+size_t ATHandler::write(const void *data, size_t len)
 {
     pollfh fhs;
     fhs.fh = _fileHandle;
     fhs.events = POLLOUT;
-    ssize_t write_len = -1;
-
-    int count = poll(&fhs, 1, _at_timeout);
-    if (count > 0 && (fhs.revents & POLLOUT)) {
-        write_len = _fileHandle->write(data, len);
-    }
-
-    if (write_len < 0 || (size_t)write_len != len) {
-        set_error(NSAPI_ERROR_DEVICE_ERROR);
+    size_t write_len = 0;
+    for (; write_len < len; ) {
+        int count = poll(&fhs, 1, _at_timeout);
+        if (count <= 0 || !(fhs.revents & POLLOUT)) {
+            set_error(NSAPI_ERROR_DEVICE_ERROR);
+            return 0;
+        }
+        ssize_t ret = _fileHandle->write((uint8_t*)data + write_len, len - write_len);
+        if (ret < 0) {
+            set_error(NSAPI_ERROR_DEVICE_ERROR);
+            return 0;
+        }
+        write_len += (size_t)ret;
     }
 
     return write_len;

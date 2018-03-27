@@ -213,7 +213,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(180, "default_auto");
+    GREENTEA_SETUP(10*60, "default_auto"); // network registration may take up to 180 seconds, DNS query a couple of minutes, etc.
     return verbose_test_setup_handler(number_of_cases);
 }
 
