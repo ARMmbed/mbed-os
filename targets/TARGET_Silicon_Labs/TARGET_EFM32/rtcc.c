@@ -22,7 +22,7 @@
  ******************************************************************************/
 
 #include "device.h"
-#if DEVICE_RTC || DEVICE_LPTIMER
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 /* Use RTCC on devices that have it */
 #if defined(RTCC_PRESENT)
@@ -111,7 +111,9 @@ void lp_ticker_init()
 {
     if (!lptick_inited) {
         rtc_init();
+        core_util_critical_section_enter();
         lptick_offset = RTCC_CounterGet();
+        core_util_critical_section_exit();
         RTCC_CCChConf_TypeDef lp_chan_init = RTCC_CH_INIT_COMPARE_DEFAULT;
         lp_chan_init.compBase = rtccCompBasePreCnt;
         lp_chan_init.compMask = 0;
