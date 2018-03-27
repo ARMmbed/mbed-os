@@ -5010,6 +5010,7 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "FLASH",
+            "WATCHDOG",
             "ITM"
         ],
         "forced_reset_timeout": 2,
@@ -5085,7 +5086,8 @@
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
             "USTICKER",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "device_name": "EFM32LG990F256",
@@ -5162,7 +5164,8 @@
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
             "USTICKER",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5235,7 +5238,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5308,7 +5312,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
-            "USTICKER"
+            "USTICKER",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5383,7 +5388,8 @@
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
             "USTICKER",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5481,7 +5487,8 @@
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
             "USTICKER",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5550,7 +5557,8 @@
             "SPI_ASYNCH",
             "STDIO_MESSAGES",
             "USTICKER",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
@@ -5627,7 +5635,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 2,
         "config": {
@@ -5714,7 +5723,8 @@
             "STDIO_MESSAGES",
             "USTICKER",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "forced_reset_timeout": 5,
         "config": {
