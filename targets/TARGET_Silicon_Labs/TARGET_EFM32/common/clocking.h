@@ -106,12 +106,12 @@
 #endif
 
 /* Adjust this to change speed of RTC and LP ticker ticks */
-#define RTC_CLOCKDIV        cmuClkDiv_8
+#define RTC_CLOCKDIV        cmuClkDiv_1
 /* Adjust this to match RTC_CLOCKDIV as integer value */
-#define RTC_CLOCKDIV_INT    8U
+#define RTC_CLOCKDIV_INT    1U
 /* Adjust this to match RTC_CLOCKDIV as shift for 1 second worth of ticks.
  * E.g. with 32768 Hz crystal and CLOCKDIV of 8, 1 second is 4096 ticks.
  * 4096 equals 1 << 12, so RTC_FREQ_SHIFT needs to be 12. */
-#define RTC_FREQ_SHIFT      12U
+#define RTC_FREQ_SHIFT      15U
 
 #endif
