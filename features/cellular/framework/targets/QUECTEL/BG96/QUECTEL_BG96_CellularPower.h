@@ -27,7 +27,6 @@ class QUECTEL_BG96_CellularPower : public AT_CellularPower
 {
 public:
     QUECTEL_BG96_CellularPower(ATHandler &atHandler);
-    virtual ~QUECTEL_BG96_CellularPower();
 
 public: //from CellularPower
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);

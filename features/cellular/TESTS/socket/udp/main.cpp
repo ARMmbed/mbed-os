@@ -68,7 +68,7 @@ public:
 			sigio(NULL);
 		}
 	}
-	~EchoSocket() {
+	virtual ~EchoSocket() {
 		TEST_ASSERT(close() == NSAPI_ERROR_OK);
 		delete _data;
 	}
