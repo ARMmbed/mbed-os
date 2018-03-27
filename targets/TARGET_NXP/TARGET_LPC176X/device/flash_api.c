@@ -115,20 +115,28 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     const uint32_t copySize = 1024; // should be 256|512|1024|4096
     uint8_t *alignedData, *source;
 
-    // always malloc outside critical section
-    alignedData = malloc(size);
-    if (alignedData == 0) {
-        return (1);
+    alignedData = 0;
+    source = (uint8_t *)data;
+
+    // check word boundary
+    if (((uint32_t)data % 4) != 0) {
+        // always malloc outside critical section
+        alignedData = malloc(copySize);
+        if (alignedData == 0) {
+            return (1);
+        }
     }
 
     n = GetSecNum(address); // Get Sector Number
 
-    memcpy(alignedData, data, size);
-    source = alignedData;
-
     core_util_critical_section_enter();
 
     while (size) {
+        if (((uint32_t)data % 4) != 0) {
+            memcpy(alignedData, source, copySize);
+            source = alignedData;
+        }
+
         /*
         Prepare_Sector_for_Write command must be exected before
         Copy_RAM_to_Flash command.
