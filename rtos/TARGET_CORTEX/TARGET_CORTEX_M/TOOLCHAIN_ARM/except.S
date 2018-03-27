@@ -144,13 +144,18 @@ Fault_Handler_Continue2
                 MRS      R2,MSP                   ; Get MSP           
                 STR      R2,[R1]
                 ADDS     R1,#4
-                LDR      R3,=mbed_fault_handler     ; Load address of mbedFaultHandler
+                MOV      R2,LR                    ; Get current LR(EXC_RETURN)           
+                STR      R2,[R1]
+                ADDS     R1,#4
+                MRS      R2,CONTROL               ; Get CONTROL Reg
+                STR      R2,[R1]
+                LDR      R3,=mbed_fault_handler   ; Load address of mbedFaultHandler
                 MOV      R0,R12
                 LDR      R1,=mbed_fault_context
                 LDR      R2,=osRtxInfo
                 BLX      R3
 #endif                    
-                B        .                         ; Just in case we come back here                
+                B        .                        ; Just in case we come back here                
                 ENDP
                     
 #endif

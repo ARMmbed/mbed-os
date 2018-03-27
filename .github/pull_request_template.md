@@ -11,11 +11,17 @@
 
 <!-- 
     Required
-    Please tick one of the following types 
+    Please tick only one of the following types. Do not tick more or change the layout.
+
+    [X] Fix
+    [ ] Refactor
+    [ ] New target
+    [ ] Feature
+    [ ] Breaking change
 -->
 
-- [ ] Fix
-- [ ] Refactor
-- [ ] New target
-- [ ] Feature
-- [ ] Breaking change
+[ ] Fix  
+[ ] Refactor  
+[ ] New target  
+[ ] Feature  
+[ ] Breaking change

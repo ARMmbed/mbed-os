@@ -21,6 +21,10 @@
 #include "pinmap.h"
 #include "hal_ssi.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 extern u32 SystemGetCpuClk(VOID);
 extern VOID HAL_GPIO_PullCtrl(u32 pin, u32 mode);
 

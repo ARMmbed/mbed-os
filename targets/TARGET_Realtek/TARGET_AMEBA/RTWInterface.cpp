@@ -86,7 +86,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
 }
 
 RTWInterface::RTWInterface(bool debug)
-    : _dhcp(true), _ip_address(), _netmask(), _gateway()
+    : _dhcp(true), _ssid(), _pass(), _ip_address(), _netmask(), _gateway()
 {
     emac_interface_t *emac;
     int ret;
@@ -135,7 +135,7 @@ nsapi_error_t RTWInterface::set_dhcp(bool dhcp)
  */
 nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
-    if(!ssid) {
+    if(!ssid || (strlen(ssid) == 0)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -149,6 +149,9 @@ nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, 
             }
             break;
         case NSAPI_SECURITY_NONE:
+            if(pass && strlen(pass) > 0) {
+                return NSAPI_ERROR_PARAMETER;
+            }
             break;
         default:
             return NSAPI_ERROR_PARAMETER;
@@ -166,7 +169,8 @@ nsapi_error_t RTWInterface::connect()
     int ret;
     rtw_security_t sec;
 
-    if (!_ssid || (!_pass && _security != NSAPI_SECURITY_NONE)) {
+    if (!_ssid || (strlen(_ssid) == 0) ||
+       (!_pass && _security != NSAPI_SECURITY_NONE)) {
         printf("Invalid credentials\r\n");
         return NSAPI_ERROR_PARAMETER;
     }
@@ -185,11 +189,6 @@ nsapi_error_t RTWInterface::connect()
             break;
         default:
             return NSAPI_ERROR_PARAMETER;
-    }
-
-    if(_channel > 0 && _channel < 14){
-        uint8_t pscan_config = PSCAN_ENABLE;
-        wifi_set_pscan_chan(&_channel, &pscan_config, 1);
     }
 
     ret = wifi_connect(_ssid, sec, _pass, strlen(_ssid), strlen(_pass), 0, (void *)NULL);
@@ -229,7 +228,10 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 
 nsapi_error_t RTWInterface::set_channel(uint8_t channel)
 {
-    _channel = channel;
+    // Not supported for STA mode wifi driver
+    if (channel != 0)
+        return NSAPI_ERROR_UNSUPPORTED;
+
     return NSAPI_ERROR_OK;
 }
 
@@ -244,8 +246,14 @@ int8_t RTWInterface::get_rssi()
 nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
                             nsapi_security_t security, uint8_t channel)
 {
-    set_credentials(ssid, pass, security);
-    set_channel(channel);
+    nsapi_error_t ret;
+
+    ret = set_credentials(ssid, pass, security);
+    if(ret != NSAPI_ERROR_OK) return ret;
+
+    ret = set_channel(channel);
+    if(ret != NSAPI_ERROR_OK) return ret;
+
     return connect();
 }
 

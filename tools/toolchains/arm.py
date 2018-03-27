@@ -14,11 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists, relpath
-from os import makedirs, write, curdir
+from os.path import join, dirname, splitext, basename, exists, relpath, isfile
+from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
+from shutil import rmtree
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -196,7 +200,7 @@ class ARM(mbedToolchain):
         Side Effects:
         This method MAY write a new scatter file to disk
         """
-        with open(scatter_file, "rb") as input:
+        with open(scatter_file, "r") as input:
             lines = input.readlines()
             if (lines[0].startswith(self.SHEBANG) or
                 not lines[0].startswith("#!")):
@@ -206,7 +210,7 @@ class ARM(mbedToolchain):
                 self.SHEBANG += " -I %s" % relpath(dirname(scatter_file),
                                                    base_path)
                 if self.need_update(new_scatter, [scatter_file]):
-                    with open(new_scatter, "wb") as out:
+                    with open(new_scatter, "w") as out:
                         out.write(self.SHEBANG)
                         out.write("\n")
                         out.write("".join(lines[1:]))
@@ -251,6 +255,14 @@ class ARM(mbedToolchain):
         bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
+
+        # remove target binary file/path
+        if exists(bin):
+            if isfile(bin):
+                remove(bin)
+            else:
+                rmtree(bin)
+
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 

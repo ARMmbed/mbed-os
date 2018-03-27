@@ -657,11 +657,11 @@ bool LoRaPHY::verify(verification_params_t* verify, phy_attributes_t phy_attribu
             if (phy_params.dl_dwell_time_setting == 0) {
                 return val_in_range(verify->datarate,
                                     phy_params.min_rx_datarate,
-                                    phy_params.min_rx_datarate);
+                                    phy_params.max_rx_datarate);
             } else {
                 return val_in_range(verify->datarate,
                                     phy_params.dwell_limit_datarate,
-                                    phy_params.min_rx_datarate );
+                                    phy_params.max_rx_datarate);
             }
         }
         case PHY_DEF_TX_POWER:

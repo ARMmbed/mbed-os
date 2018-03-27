@@ -29,9 +29,9 @@
 #include "CellularLog.h"
 #include "mbed_wait_api.h"
 
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
 #include "APN_db.h"
-#endif //MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif //USE_APN_LOOKUP
 
 namespace mbed {
 
@@ -59,9 +59,9 @@ EasyCellularConnection::EasyCellularConnection(bool debug) :
                 NSAPI_ERROR_OK)
 {
     tr_info("EasyCellularConnection()");
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
     _credentials_set = false;
-#endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif // #if USE_APN_LOOKUP
     modem_debug_on(debug);
 }
 
@@ -102,11 +102,11 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
         CellularNetwork * network = _cellularConnectionFSM.get_network();
         if (network) {
             _credentials_err = network->set_credentials(apn, uname, pwd);
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
             if (_credentials_err == NSAPI_ERROR_OK) {
                 _credentials_set = true;
             }
-#endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif // #if USE_APN_LOOKUP
         } else {
             tr_error("NO Network...");
         }
@@ -163,7 +163,7 @@ nsapi_error_t EasyCellularConnection::connect()
     if (err) {
         return err;
     }
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
     if (!_credentials_set) {
         _target_state = CellularConnectionFSM::STATE_SIM_PIN;
         err = _cellularConnectionFSM.continue_to_state(_target_state);
@@ -193,7 +193,7 @@ nsapi_error_t EasyCellularConnection::connect()
             return err;
         }
     }
-#endif // MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif // USE_APN_LOOKUP
 
     _target_state = CellularConnectionFSM::STATE_CONNECTED;
     err = _cellularConnectionFSM.continue_to_state(_target_state);
@@ -212,9 +212,9 @@ nsapi_error_t EasyCellularConnection::disconnect()
 {
     _credentials_err = NSAPI_ERROR_OK;
     _is_connected = false;
-#if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#if USE_APN_LOOKUP
     _credentials_set = false;
-#endif // #if MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#endif // #if USE_APN_LOOKUP
     if (!_cellularConnectionFSM.get_network()) {
         return NSAPI_ERROR_NO_CONNECTION;
     }

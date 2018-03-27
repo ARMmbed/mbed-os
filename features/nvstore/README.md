@@ -33,7 +33,7 @@ Each item is kept in an entry containing a header and data, where the header hol
 ### Enabling NVStore and configuring it for your board
 NVStore is enabled by default for all devices with the internal flash driver (have "FLASH" in the device_has attribute).
 One can disable it by setting its "enabled" attribute to false.
-Unless specifically configured by the user, NVStore selects the last two flash sectors as its areas, with the mininum size of 4KBs,
+Unless specifically configured by the user, NVStore selects the last two flash sectors as its areas, with the minimum size of 4KBs,
 meaning that if the sectors are smaller, few continuous ones will be used for each area.
 The user can override this by setting the addresses and sizes of both areas in` mbed_lib.json` on a per board basis.
 In this case, all following four attributes need to be set:

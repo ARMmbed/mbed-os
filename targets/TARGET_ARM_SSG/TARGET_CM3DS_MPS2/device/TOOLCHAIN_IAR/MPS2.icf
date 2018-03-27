@@ -1,8 +1,5 @@
 /*
- * MPS2 CMSIS Library
- */
-/*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -19,26 +16,49 @@
  * limitations under the License.
  */
 
-/* The RAM region doesn't start at the beginning of the RAM address
- * space to create space for the vector table copied over to the RAM by mbed.
- * The space left is a bit bigger than is necessary based on the number of
- * interrupt handlers.
+/*
+ * WARNING: these symbols are the same as the defines in ../memory_zones.h but
+ * can not be included here. Please make sure that the two definitions match.
  */
-/*###ICF### Section handled by ICF editor, don't touch! ****/
-/*-Editor annotation file-*/
-/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
-/*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x00000000;
-/*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__    = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__      = 0x0003FFFF;
-define symbol __ICFEDIT_region_RAM_start__    = 0x20000140;
-define symbol __ICFEDIT_region_RAM_end__      = 0x2001FFFF;
-/*-Sizes-*/
+/* Code memory zones */
+define symbol FLASH_START       = 0x00000000;
+define symbol FLASH_SIZE        = 0x00040000; /* 256 KiB */
+define symbol ZBT_SSRAM1_START  = 0x00400000;
+define symbol ZBT_SSRAM1_SIZE   = 0x00400000; /* 4 MiB */
+
+/* Data memory zones */
+define symbol SRAM0_START       = 0x20000000;
+define symbol SRAM0_SIZE        = 0x00008000; /* 32 KiB */
+define symbol SRAM1_START       = 0x20008000;
+define symbol SRAM1_SIZE        = 0x00008000; /* 32 KiB */
+define symbol SRAM2_START       = 0x20010000;
+define symbol SRAM2_SIZE        = 0x00008000; /* 32 KiB */
+define symbol SRAM3_START       = 0x20018000;
+define symbol SRAM3_SIZE        = 0x00008000; /* 32 KiB */
+define symbol ZBT_SSRAM23_START = 0x20400000;
+define symbol ZBT_SSRAM23_SIZE  = 0x00400000; /* 4 MiB */
+
+/* NVIC vector numbers and size. */
+define symbol NVIC_NUM_VECTORS        = 16 + 57;
+define symbol NVIC_VECTORS_SIZE       = NVIC_NUM_VECTORS * 4;
+
+/* Specials */
+define symbol __ICFEDIT_intvec_start__ = FLASH_START;
+
+/* Memory Regions */
+define symbol __ICFEDIT_region_ROM_start__    = ZBT_SSRAM1_START;
+define symbol __ICFEDIT_region_ROM_end__      = ZBT_SSRAM1_START + ZBT_SSRAM1_SIZE - 1;
+/*
+ * At execution, RAM is set to be in ZBT SSRAM2 and 3, just after the vector
+ * table previously moved from Flash.
+ */
+define symbol __ICFEDIT_region_RAM_start__    = ZBT_SSRAM23_START + NVIC_VECTORS_SIZE;
+define symbol __ICFEDIT_region_RAM_end__      = ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE;
+
+/* Sizes */
 /* Heap and Stack size */
-define symbol __ICFEDIT_size_heap__   = 0x4000;
+define symbol __ICFEDIT_size_heap__   = 0xF000;
 define symbol __ICFEDIT_size_cstack__ = 0x1000;
-/**** End of ICF editor section. ###ICF###*/
 
 define memory mem with size = 4G;
 define region ROM_region      = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];

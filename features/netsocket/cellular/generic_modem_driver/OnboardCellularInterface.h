@@ -32,12 +32,15 @@ typedef mbed::EasyCellularConnection OnboardCellularInterface;
  *  could be derived from different implementation classes.
  *  Portable applications should only rely on it being a CellularBase.
  */
+
 class OnboardCellularInterface : public UARTCellularInterface {
 
 public:
 
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     OnboardCellularInterface(bool debug = false);
 
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual ~OnboardCellularInterface();
 
 protected:
@@ -46,6 +49,7 @@ protected:
      *  modem_init() is equivalent to plugging in the device, for example, attaching power and serial port.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual void modem_init();
 
     /** Sets the modem in unplugged state
@@ -54,6 +58,7 @@ protected:
      *  and serial port. This puts the modem in lowest power state.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual void modem_deinit();
 
     /** Powers up the modem
@@ -62,6 +67,7 @@ protected:
      *  The driver may repeat this if the modem is not responsive to AT commands.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual void modem_power_up();
 
     /** Powers down the modem
@@ -69,6 +75,7 @@ protected:
      *  modem_power_down() is equivalent to turning off the modem by button press.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual void modem_power_down();
 };
 

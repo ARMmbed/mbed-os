@@ -25,11 +25,11 @@ namespace mbed {
 
 /**
  * Inheriting from this class autogeneration of copy construction and copy
- * assignement operations.
+ * assignment operations.
  *
  * Classes which are not value type should inherit privately from this class
- * to avoid generation of invalid copy constructor or copy assignement operator
- * which can lead to unoticeable programming errors.
+ * to avoid generation of invalid copy constructor or copy assignment operator
+ * which can lead to unnoticeable programming errors.
  *
  * As an example consider the following signature:
  *
@@ -50,7 +50,7 @@ namespace mbed {
  * @endcode
  *
  * There is a bug in this function, it returns a temporary value which will be
- * byte copied into foo then destroyed. Unfortunately, internaly the Foo class
+ * byte copied into foo then destroyed. Unfortunately, internally the Foo class
  * manage a pointer to a Resource object. This pointer will be released when the
  * temporary is destroyed and foo will manage a pointer to an already released
  * Resource.
@@ -71,9 +71,9 @@ namespace mbed {
  * Foo* m = make_foo();
  * @endcode
  *
- *   - Copy constructor and copy assignement operator has to be made private
+ *   - Copy constructor and copy assignment operator has to be made private
  *     in the Foo class. It prevents unwanted copy of Foo objects. This can be
- *     done by declaring copy constructor and copy assignement in the private
+ *     done by declaring copy constructor and copy assignment in the private
  *     section of the Foo class.
  *
  * @code
@@ -92,7 +92,7 @@ namespace mbed {
  *
  * Another solution is to inherit privately from the NonCopyable class.
  * It reduces the boiler plate needed to avoid copy operations but more
- * importantly it clarifies the programer intent and the object semantic.
+ * importantly it clarifies the programmer intent and the object semantic.
  *
  * class Foo : private NonCopyable<Foo> {
  * public:
@@ -121,7 +121,7 @@ namespace mbed {
  * };
  *
  * // empty base optimization cannot be applied here because A from C and A from
- * // B shall have a different address. In that case, with the alignement
+ * // B shall have a different address. In that case, with the alignment
  * // sizeof(C) == 2* sizeof(int)
  * @endcode
  *
@@ -150,11 +150,11 @@ template<typename T>
 class NonCopyable {
 protected:
     /**
-     * Disalow construction of NonCopyable objects from outside of its hierarchy.
+     * Disallow construction of NonCopyable objects from outside of its hierarchy.
      */
     NonCopyable() { }
     /**
-     * Disalow destruction of NonCopyable objects from outside of its hierarchy.
+     * Disallow destruction of NonCopyable objects from outside of its hierarchy.
      */
     ~NonCopyable() { }
 
@@ -199,7 +199,7 @@ private:
     NonCopyable(const NonCopyable&);
 
     /**
-     * Declare copy assignement operator as private, any attempt to copy assign
+     * Declare copy assignment operator as private, any attempt to copy assign
      * a NonCopyable will fail at compile time.
      */
     NonCopyable& operator=(const NonCopyable&);

@@ -232,7 +232,7 @@ public:
                     }
                 }
 
-                // Verify recieved data
+                // Verify received data
                 while (rx_count < size) {
                     int rd = sock.recv(buffer, buffer_size);
                     TEST_ASSERT(rd > 0 || rd == NSAPI_ERROR_WOULD_BLOCK);

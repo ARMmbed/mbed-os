@@ -330,7 +330,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     profile = {'c': [], 'cxx': [], 'common': [], 'asm': [], 'ld': []}
     for contents in build_profile or []:
         for key in profile:
-            profile[key].extend(contents[toolchain_name][key])
+            profile[key].extend(contents[toolchain_name].get(key, []))
 
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=profile)

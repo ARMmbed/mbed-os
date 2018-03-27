@@ -14,6 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
 
 from os.path import splitext, basename, join
 import shutil
@@ -420,10 +422,10 @@ class Sw4STM32(GNUARMEclipse):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
 
-        print ('\nCreate a System Workbench for STM32 managed project')
-        print ('Project name: {0}'.format(self.project_name))
-        print ('Target:       {0}'.format(self.toolchain.target.name))
-        print ('Toolchain:    {0}'.format(self.TOOLCHAIN) + '\n')
+        print('\nCreate a System Workbench for STM32 managed project')
+        print('Project name: {0}'.format(self.project_name))
+        print('Target:       {0}'.format(self.toolchain.target.name))
+        print('Toolchain:    {0}'.format(self.TOOLCHAIN) + '\n')
 
         self.resources.win_to_unix()
 
@@ -444,19 +446,18 @@ class Sw4STM32(GNUARMEclipse):
         self.c_defines = [s.replace('"', '&quot;')
                           for s in self.toolchain.get_symbols()]
         self.cpp_defines = self.c_defines
-        print 'Symbols: {0}'.format(len(self.c_defines))
 
         self.include_path = []
         for s in self.resources.inc_dirs:
             self.include_path.append("../" + self.filter_dot(s))
-        print ('Include folders: {0}'.format(len(self.include_path)))
+        print('Include folders: {0}'.format(len(self.include_path)))
 
         self.compute_exclusions()
 
-        print ('Exclude folders: {0}'.format(len(self.excluded_folders)))
+        print('Exclude folders: {0}'.format(len(self.excluded_folders)))
 
         ld_script = self.filter_dot(self.resources.linker_script)
-        print ('Linker script:   {0}'.format(ld_script))
+        print('Linker script:   {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
@@ -473,9 +474,6 @@ class Sw4STM32(GNUARMEclipse):
             opts['id'] = id
             opts['name'] = opts['id'].capitalize()
 
-            # TODO: Add prints to log or console in verbose mode.
-            #print ('\nBuild configuration: {0}'.format(opts['name']))
-
             profile = profiles[id]
 
             # A small hack, do not bother with src_path again,
@@ -488,13 +486,6 @@ class Sw4STM32(GNUARMEclipse):
             toolchain.build_dir = self.toolchain.build_dir
 
             flags = self.toolchain_flags(toolchain)
-
-            # TODO: Add prints to log or console in verbose mode.
-            # print 'Common flags:', ' '.join(flags['common_flags'])
-            # print 'C++ flags:', ' '.join(flags['cxx_flags'])
-            # print 'C flags:', ' '.join(flags['c_flags'])
-            # print 'ASM flags:', ' '.join(flags['asm_flags'])
-            # print 'Linker flags:', ' '.join(flags['ld_flags'])
 
             # Most GNU ARM Eclipse options have a parent,
             # either debug or release.

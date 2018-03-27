@@ -376,13 +376,27 @@
 #endif
 #endif
 
+// Macro containing the filename part of the value of __FILE__. Defined as
+// string literal.
+#ifndef MBED_FILENAME
+#if defined(__CC_ARM)
+#define MBED_FILENAME __MODULE__
+#elif defined(__GNUC__)
+#define MBED_FILENAME (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
+#elif defined(__ICCARM__)
+#define MBED_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define MBED_FILENAME __FILE__
+#endif
+#endif // #ifndef MBED_FILENAME
+
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)
 #include <rt_sys.h>
 #endif
 
 #ifndef FILEHANDLE
-typedef int FILEHANDLE;
+    typedef int FILEHANDLE;
 #endif
 
 // Backwards compatibility
