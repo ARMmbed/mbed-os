@@ -564,7 +564,7 @@ def get_set_interface_test(dev, log):
     control_data_test(dev, [64, 256], log)
 
     # Control IN SET_INTERFACE
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
+    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
                                       CTRL_RECIPIENT_INTERFACE)
     request = REQUEST_SET_INTERFACE
     value = 1                                   # Alternative interface setting index
@@ -592,7 +592,7 @@ def get_set_interface_test(dev, log):
         raise_unconditionally(lineno(), "GET_INTERFACE failed")
 
     # Control IN SET_INTERFACE restore interfejs settings
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
+    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
                                       CTRL_RECIPIENT_INTERFACE)
     request = REQUEST_SET_INTERFACE
     value = 0                                   # Interface setting index
