@@ -75,6 +75,23 @@ typedef void (*ticker_irq_handler_type)(const ticker_data_t *const);
  */
 ticker_irq_handler_type set_lp_ticker_irq_handler(ticker_irq_handler_type ticker_irq_handler);
 
+/**
+ * Wrapper around lp_ticker_set_interrupt to prevent blocking
+ *
+ * Problems this function is solving:
+ * 1. Interrupt may not fire if set earlier than LOWPOWERTIMER_DELAY_TICKS low power clock cycles
+ * 2. Setting the interrupt back-to-back will block
+ *
+ * This wrapper function prevents lp_ticker_set_interrupt from being called
+ * back-to-back and blocking while the first write is in progress. This function
+ * avoids that problem by scheduling a timeout event if the lp ticker is in the
+ * middle of a write operation.
+ *
+ * @param timestamp Time to call ticker irq
+ * @note this is a utility function and it's not required part of HAL implementation
+ */
+void lp_ticker_set_interrupt_wrapper(timestamp_t timestamp);
+
 /** Get low power ticker's data
  *
  * @return The low power ticker data
