@@ -95,21 +95,24 @@ uint32_t OS_Tick_GetInterval (void) {
 
 static void default_idle_hook(void)
 {
-    uint32_t elapsed_ticks = 0;
+    uint32_t ticks_to_sleep = osKernelSuspend();
+    os_timer->suspend(ticks_to_sleep);
 
-    core_util_critical_section_enter();
-    uint32_t ticks_to_sleep = svcRtxKernelSuspend();
-    if (ticks_to_sleep) {
-        os_timer->schedule_tick(ticks_to_sleep);
+    bool event_pending = false;
+    while (!os_timer->suspend_time_passed() && !event_pending) {
 
-        sleep();
+        core_util_critical_section_enter();
+        if (osRtxInfo.kernel.pendSV) {
+            event_pending = true;
+        } else {
+            sleep();
+        }
+        core_util_critical_section_exit();
 
-        os_timer->cancel_tick();
-        // calculate how long we slept
-        elapsed_ticks = os_timer->update_tick();
+        // Ensure interrupts get a chance to fire
+        __ISB();
     }
-    svcRtxKernelResume(elapsed_ticks);
-    core_util_critical_section_exit();
+    osKernelResume(os_timer->resume());
 }
 
 #elif defined(FEATURE_UVISOR)
