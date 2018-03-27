@@ -17,7 +17,7 @@
 #error [NOT_SUPPORTED] Tickless mode not supported for this target.
 #endif
 
-#if !DEVICE_LOWPOWERTIMER
+#if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Current SysTimer implementation requires lp ticker support.
 #endif
 
@@ -280,7 +280,7 @@ void test_sleep(void)
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /** Test wake up from deepsleep
  *
  * Given a SysTimer with a tick scheduled in the future
@@ -334,7 +334,7 @@ Case cases[] = {
     Case("Handler called once", test_handler_called_once),
 #if DEVICE_SLEEP
     Case("Wake up from sleep", test_sleep),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     Case("Wake up from deep sleep", test_deepsleep),
 #endif
 #endif
