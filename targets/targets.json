@@ -2033,7 +2033,7 @@
         "core": "Cortex-M3",
         "default_toolchain": "ARM",
         "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT"],
         "release_versions": ["5"],
         "device_name": "STM32L151CBxxA",
