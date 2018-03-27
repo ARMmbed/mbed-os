@@ -34,9 +34,9 @@ public: // CellularDevice
     virtual CellularPower *open_power(FileHandle *fh);
 };
 
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.")
 class UBLOX_LISA_U : public UBLOX_PPP
 {
-    MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.");
 };
 
 } // namespace mbed
