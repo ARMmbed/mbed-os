@@ -29,80 +29,42 @@
 #include "em_timer.h"
 #include "clocking.h"
 
-/**
- * Timer functions for microsecond ticker.
- * mbed expects a 32-bit timer. Since the EFM32 only has 16-bit timers,
- * the upper 16 bits are implemented in software.
- */
+#define TICKER_FREQUENCY ((REFERENCE_FREQUENCY > 24000000) ? REFERENCE_FREQUENCY / 16 : REFERENCE_FREQUENCY / 8)
 
-static uint8_t us_ticker_inited = 0;            // Is ticker initialized yet
-
-static volatile uint32_t ticker_cnt = 0;        // Internal overflow count, used to extend internal 16-bit counter to (MHz * 32-bit)
-static volatile uint32_t ticker_int_cnt = 0;    // Amount of overflows until user interrupt
-static volatile uint32_t ticker_freq_khz = 0;   // Frequency of timer in MHz
-static volatile uint32_t ticker_top_ms = 0;     // Amount of ms corresponding to the top value of the timer
-static volatile uint32_t soft_timer_top = 0;    // When to wrap the software counter
-
-void us_ticker_irq_handler_internal(void)
+const ticker_info_t* us_ticker_get_info(void)
 {
-    /* Handle timer overflow */
-    if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
-        ticker_cnt++;
-
-        /* Wrap ticker_cnt when we've gone over 32-bit us value */
-        if (ticker_cnt >= soft_timer_top) {
-            ticker_cnt = 0;
-        }
-
-        TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_OF);
-    }
-
-    /* Check for user interrupt expiration */
-    if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_CC0) {
-        if (ticker_int_cnt > 0) {
-            ticker_int_cnt--;
-            TIMER_IntClear(US_TICKER_TIMER, TIMER_IF_CC0);
-        } else {
-            us_ticker_irq_handler();
-        }
-    }
+    static const ticker_info_t info = {
+        TICKER_FREQUENCY,
+        16
+    };
+    return &info;
 }
+
+static bool us_ticker_inited = false;            // Is ticker initialized yet
 
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
+        /* calling init again should cancel current interrupt */
+        us_ticker_disable_interrupt();
         return;
     }
-    us_ticker_inited = 1;
+    us_ticker_inited = true;
 
     /* Enable clock for TIMERs */
     CMU_ClockEnable(US_TICKER_TIMER_CLOCK, true);
 
+    if (REFERENCE_FREQUENCY > 24000000) {
+        US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (4 << _TIMER_CTRL_PRESC_SHIFT);
+    } else {
+        US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (3 << _TIMER_CTRL_PRESC_SHIFT);
+    }
+
     /* Clear TIMER counter value */
     TIMER_CounterSet(US_TICKER_TIMER, 0);
 
-    /* Get frequency of clock in kHz for scaling ticks to microseconds */
-    ticker_freq_khz = (REFERENCE_FREQUENCY / 1000);
-    MBED_ASSERT(ticker_freq_khz > 0);
-
-    /*
-     * Calculate maximum prescaler that gives at least 1 MHz frequency, giving us 1us resolution.
-     * Limit prescaling to maximum prescaler value, which is 10 (DIV1024).
-     */
-    uint32_t prescaler = 0;
-    while((ticker_freq_khz >= 2000) && prescaler <= 10) {
-        ticker_freq_khz = ticker_freq_khz >> 1;
-        prescaler++;
-    }
-
-    /* Set prescaler */
-    US_TICKER_TIMER->CTRL = (US_TICKER_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (prescaler << _TIMER_CTRL_PRESC_SHIFT);
-
-    /* calculate top value.*/
-    ticker_top_ms = (uint32_t) 0x10000 / ticker_freq_khz;
-
-    /* calculate software timer overflow */
-    soft_timer_top = ((0xFFFFFFFFUL / 1000UL) / ticker_top_ms) + 1;
+    /* Start TIMER */
+    TIMER_Enable(US_TICKER_TIMER, true);
 
     /* Select Compare Channel parameters */
     TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
@@ -112,98 +74,47 @@ void us_ticker_init(void)
     TIMER_InitCC(US_TICKER_TIMER, 0, &timerCCInit);
 
     /* Enable interrupt vector in NVIC */
-    TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_OF);
-    NVIC_SetVector(US_TICKER_TIMER_IRQ, (uint32_t) us_ticker_irq_handler_internal);
+    TIMER_IntClear(US_TICKER_TIMER, TIMER_IEN_CC0);
+    NVIC_SetVector(US_TICKER_TIMER_IRQ, (uint32_t) us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQ);
+}
 
-    /* Set top value */
-    TIMER_TopSet(US_TICKER_TIMER, (ticker_top_ms * ticker_freq_khz) - 1);
+void us_ticker_free(void)
+{
+    if (us_ticker_inited) {
+        us_ticker_disable_interrupt();
+        NVIC_DisableIRQ(US_TICKER_TIMER_IRQ);
 
-    /* Start TIMER */
-    TIMER_Enable(US_TICKER_TIMER, true);
+        TIMER_Enable(US_TICKER_TIMER, false);
+
+        CMU_ClockEnable(US_TICKER_TIMER_CLOCK, false);
+
+        us_ticker_inited = false;
+    }
 }
 
 uint32_t us_ticker_read()
 {
-    uint32_t countH_old, countH;
-    uint32_t countL;
-
     if (!us_ticker_inited) {
         us_ticker_init();
     }
 
-    /* Avoid jumping in time by reading high bits twice */
-    do {
-        countH_old = ticker_cnt;
-        if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
-            countH_old++;
-        }
-        countL = US_TICKER_TIMER->CNT;
-        countH = ticker_cnt;
-        if (TIMER_IntGet(US_TICKER_TIMER) & TIMER_IF_OF) {
-            countH++;
-        }
-    } while (countH_old != countH);
-
-    /* Timer count value needs to be div'ed by the frequency to get to 1MHz ticks.
-     * For the software-extended part, the amount of us in one overflow is constant.
-     */
-    return ((countL * 1000UL) / ticker_freq_khz) + (countH * ticker_top_ms * 1000);
+    return US_TICKER_TIMER->CNT;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t goal = timestamp;
-    uint32_t trigger;
-
     TIMER_IntDisable(US_TICKER_TIMER, TIMER_IEN_CC0);
 
-    /* convert us delta value back to timer ticks */
-    trigger = us_ticker_read();
-    if (trigger < goal) {
-        goal -= trigger;
-    } else {
-        goal = (0xFFFFFFFFUL - (trigger - goal));
-    }
-    trigger = US_TICKER_TIMER->CNT;
-
-    /* Catch "Going back in time" */
-    if(goal < 10 ||
-       goal >= 0xFFFFFF00UL) {
-        TIMER_IntClear(US_TICKER_TIMER, TIMER_IFC_CC0);
-        TIMER_CompareSet(US_TICKER_TIMER, 0, (US_TICKER_TIMER->CNT + 3 >= US_TICKER_TIMER->TOP ? 3 : US_TICKER_TIMER->CNT + 3));
-        TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_CC0);
-        return;
-    }
-
-    uint32_t timer_top = TIMER_TopGet(US_TICKER_TIMER);
-    uint32_t top_us = 1000 * ticker_top_ms;
-
-    /* Amount of times we expect to overflow: us offset / us period of timer */
-    ticker_int_cnt = goal / top_us;
-
-    /* Leftover microseconds need to be converted to timer timebase */
-    trigger += (((goal % top_us) * ticker_freq_khz) / 1000);
-
-    /* Cap compare value to timer top */
-    if (trigger >= timer_top) {
-        trigger -= timer_top;
-    }
-
-    /* Set compare channel 0 to (current position + lower 16 bits of target).
-     * When lower 16 bits match, run complete cycles with ticker_int_rem as trigger value
-     * for ticker_int_cnt times. */
     TIMER_IntClear(US_TICKER_TIMER, TIMER_IEN_CC0);
 
-    TIMER_CompareSet(US_TICKER_TIMER, 0, trigger);
+    TIMER_CompareSet(US_TICKER_TIMER, 0, timestamp);
 
     TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_CC0);
 }
 
 void us_ticker_fire_interrupt(void)
 {
-    ticker_int_cnt = 0;
-    TIMER_IntSet(US_TICKER_TIMER, TIMER_IF_CC0);
     NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQ);
 }
 
