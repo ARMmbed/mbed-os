@@ -187,7 +187,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     const unsigned int us_ticks_before_sleep = us_ticker_read();
 
-    const timestamp_t wakeup_time = lp_ticker_read() + us_to_ticks(200000, lp_ticker_freq);
+    const timestamp_t wakeup_time = lp_ticker_read() + us_to_ticks(20000, lp_ticker_freq);
     lp_ticker_set_interrupt(wakeup_time);
 
     sleep();
@@ -197,7 +197,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     /* High freqency ticker should be disabled in deep-sleep mode. We expect that time difference between
      * ticker reads before and after the sleep represents only code execution time between calls.
-     * Since we went to sleep for about 200 ms check if time counted by high frequency timer does not
+     * Since we went to sleep for about 20 ms check if time counted by high frequency timer does not
      * exceed 1 ms.
      */
     const unsigned int us_ticks_diff = (us_ticks_before_sleep <= us_ticks_after_sleep) ? (us_ticks_after_sleep - us_ticks_before_sleep) : (us_ticker_mask - us_ticks_before_sleep + us_ticks_after_sleep + 1);
