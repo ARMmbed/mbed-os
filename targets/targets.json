@@ -2222,7 +2222,8 @@
             "SERIAL_ASYNCH",
             "FLASH",
             "TRNG",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["2", "5"],
