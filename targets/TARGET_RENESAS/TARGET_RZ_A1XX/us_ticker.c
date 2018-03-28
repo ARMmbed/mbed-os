@@ -13,139 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stddef.h>
 #include "us_ticker_api.h"
-#include "PeripheralNames.h"
-#include "iodefine.h"
-#include "cmsis.h"
+#include "mbed_drv_cfg.h"
 
-#include "RZ_A1_Init.h"
-#include "vfp_neon_push_pop.h"
-#include "mbed_critical.h"
+#define SHIFT_NUM      5  /* P0/32 */
 
-#define US_TICKER_TIMER_IRQn (OSTMI1TINT_IRQn)
-#define CPG_STBCR5_BIT_MSTP50   (0x01u) /* OSTM1 */
+static int us_ticker_inited = 0;
 
-#define US_TICKER_CLOCK_US_DEV (1000000)
-
-int us_ticker_inited = 0;
-static double count_clock = 0;
-static uint32_t last_read = 0;
-static uint32_t wrap_arround = 0;
-static uint64_t ticker_us_last64 = 0;
-static uint64_t set_cmp_val64 = 0;
-static uint64_t timestamp64 = 0;
-
-void us_ticker_interrupt(void) {
-    us_ticker_irq_handler();
-}
-
-void us_ticker_init(void) {
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-
-    /* set Counter Clock(us) */
-    if (false == RZ_A1_IsClockMode0()) {
-        count_clock = ((double)CM1_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
-    } else {
-        count_clock = ((double)CM0_RENESAS_RZ_A1_P0_CLK / (double)US_TICKER_CLOCK_US_DEV);
-    }
+void us_ticker_init(void)
+{
+    GIC_DisableIRQ(OSTMI1TINT_IRQn);
+    GIC_ClearPendingIRQ(OSTMI1TINT_IRQn);
 
     /* Power Control for Peripherals      */
     CPGSTBCR5 &= ~(CPG_STBCR5_BIT_MSTP50); /* enable OSTM1 clock */
+
+    if (us_ticker_inited) return;
+    us_ticker_inited = 1;
 
     // timer settings
     OSTM1TT   = 0x01;    /* Stop the counter and clears the OSTM1TE bit.     */
     OSTM1CTL  = 0x02;    /* Free running timer mode. Interrupt disabled when star counter  */
 
-    OSTM1TS   = 0x1;    /* Start the counter and sets the OSTM0TE bit.     */
+    OSTM1TS   = 0x1;     /* Start the counter and sets the OSTM0TE bit.     */
 
     // INTC settings
-    InterruptHandlerRegister(US_TICKER_TIMER_IRQn, (void (*)(uint32_t))us_ticker_interrupt);
-    GIC_SetPriority(US_TICKER_TIMER_IRQn, 5);
-    GIC_SetConfiguration(US_TICKER_TIMER_IRQn, 3);
-    GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
+    InterruptHandlerRegister(OSTMI1TINT_IRQn, (void (*)(uint32_t))us_ticker_irq_handler);
+    GIC_SetPriority(OSTMI1TINT_IRQn, 5);
+    GIC_SetConfiguration(OSTMI1TINT_IRQn, 3);
 }
 
-static uint64_t ticker_read_counter64(void) {
-    uint32_t cnt_val;
-    uint64_t cnt_val64;
+void us_ticker_free(void)
+{
+    GIC_DisableIRQ(OSTMI1TINT_IRQn);
+    GIC_ClearPendingIRQ(OSTMI1TINT_IRQn);
 
-    if (!us_ticker_inited)
-        us_ticker_init();
-
-    /* read counter */
-    cnt_val = OSTM1CNT;
-    if (last_read > cnt_val) {
-        wrap_arround++;
-    }
-    last_read = cnt_val;
-    cnt_val64 = ((uint64_t)wrap_arround << 32) + cnt_val;
-
-    return cnt_val64;
+    /* Power Control for Peripherals      */
+    CPGSTBCR5 |= (CPG_STBCR5_BIT_MSTP50); /* disable OSTM1 clock */
 }
 
-static void us_ticker_read_last(void) {
-    uint64_t cnt_val64;
-
-    cnt_val64        = ticker_read_counter64();
-
-    ticker_us_last64 = (cnt_val64 / count_clock);
+uint32_t us_ticker_read()
+{
+    return (uint32_t)(OSTM1CNT >> SHIFT_NUM);
 }
 
-uint32_t us_ticker_read() {
-    core_util_critical_section_enter();
-
-    __vfp_neon_push();
-    us_ticker_read_last();
-    __vfp_neon_pop();
-
-    core_util_critical_section_exit();
-
-    /* clock to us */
-    return (uint32_t)ticker_us_last64;
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
+    OSTM1CMP = (uint32_t)(timestamp << SHIFT_NUM);
+    GIC_EnableIRQ(OSTMI1TINT_IRQn);
 }
 
-static void us_ticker_calc_compare_match(void) {
-    set_cmp_val64  = timestamp64 * count_clock;
+void us_ticker_fire_interrupt(void)
+{
+    GIC_SetPendingIRQ(OSTMI1TINT_IRQn);
+    GIC_EnableIRQ(OSTMI1TINT_IRQn);
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) {
-    // set match value
-    volatile uint32_t set_cmp_val;
-    uint64_t count_val_64;
-
-    /* calc compare mach timestamp */
-    timestamp64 = (ticker_us_last64 & 0xFFFFFFFF00000000) + timestamp;
-    if (timestamp < (ticker_us_last64 & 0x00000000FFFFFFFF)) {
-        /* This event is wrap arround */
-        timestamp64 += 0x100000000;
-    }
-
-    /* calc compare mach timestamp */
-    __vfp_neon_push();
-    us_ticker_calc_compare_match();
-    __vfp_neon_pop();
-
-    set_cmp_val    = (uint32_t)(set_cmp_val64 & 0x00000000FFFFFFFF);
-    count_val_64   = ticker_read_counter64();
-    if (set_cmp_val64 <= (count_val_64 + 500)) {
-        GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
-        GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
-        return;
-    }
-    OSTM1CMP = set_cmp_val;
-    GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
+void us_ticker_disable_interrupt(void)
+{
+    GIC_DisableIRQ(OSTMI1TINT_IRQn);
 }
 
-void us_ticker_fire_interrupt(void) {
-    GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
+void us_ticker_clear_interrupt(void)
+{
+    GIC_ClearPendingIRQ(OSTMI1TINT_IRQn);
 }
 
-void us_ticker_disable_interrupt(void) {
-    GIC_DisableIRQ(US_TICKER_TIMER_IRQn);
+const ticker_info_t* us_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        (uint32_t)((float)RENESAS_RZ_A1_P0_CLK / (float)(1 << SHIFT_NUM) + 0.5f),
+        (32 - SHIFT_NUM)
+    };
+    return &info;
 }
 
-void us_ticker_clear_interrupt(void) {
-    GIC_ClearPendingIRQ(US_TICKER_TIMER_IRQn);
-}
