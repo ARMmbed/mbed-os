@@ -178,7 +178,7 @@ class Uvision(Exporter):
         template = ["--no_vla", "--cpp", "--c99"]
         # Flag is invalid if set in template
         # Optimizations are also set in the template
-        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x)
         flags['c_flags'] = [flag.replace('"','\\"') for flag in c_flags if not invalid_flag(flag)]
         flags['c_flags'] = " ".join(flags['c_flags'])
         flags['ld_flags'] = " ".join(flags['ld_flags'])
@@ -215,7 +215,8 @@ class Uvision(Exporter):
             # UVFile tuples defined above
             'project_files': sorted(list(self.format_src(srcs).items()),
                                     key=lambda tuple: tuple[0].lower()),
-            'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
+            'include_paths': ';'.join(self.filter_dot(d) for d in
+                                      self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
         sct_file = self.resources.linker_script

@@ -417,21 +417,6 @@ class GNUARMEclipse(Exporter):
 
     # -------------------------------------------------------------------------
 
-    @staticmethod
-    def filter_dot(str):
-        """
-        Remove the './' prefix, if present.
-        This function assumes that resources.win_to_unix()
-        replaced all windows backslashes with slashes.
-        """
-        if str == None:
-            return None
-        if str[:2] == './':
-            return str[2:]
-        return str
-
-    # -------------------------------------------------------------------------
-
     def dump_tree(self, nodes, depth=0):
         for k in nodes.keys():
             node = nodes[k]
