@@ -427,6 +427,28 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
 #endif
 }
 
+/* Applications are expected to use fdopen()
+ * not this function directly. This code had to live here because FILE and FileHandle
+ * processes are all linked together here.
+ */
+std::FILE *fdopen(FileHandle *fh, const char *mode)
+{
+    // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
+    char buf[1 + sizeof(fh)]; /* :(pointer) */
+    MBED_STATIC_ASSERT(sizeof(buf) == 5, "Pointers should be 4 bytes.");
+    buf[0] = ':';
+    memcpy(buf + 1, &fh, sizeof(fh));
+
+    std::FILE *stream = std::fopen(buf, mode);
+    /* newlib-nano doesn't appear to ever call _isatty itself, so
+     * happily fully buffers an interactive stream. Deal with that here.
+     */
+    if (stream && fh->isatty()) {
+        mbed_set_unbuffered_stream(stream);
+    }
+    return stream;
+}
+
 int mbed_getc(std::FILE *_file){
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
     /*This is only valid for unbuffered streams*/

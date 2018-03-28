@@ -22,16 +22,7 @@ namespace mbed {
 Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     // No lock needed in constructor
     /* open ourselves */
-#ifdef TARGET_SIMULATOR
-    if (name == 0) {
-        _file = stdout;
-    }
-    else {
-        _file = fopen(name, "w+");
-    }
-#else
     _file = fdopen(this, "w+");
-#endif
     // fdopen() will make us buffered because Stream::isatty()
     // wrongly returns zero which is not being changed for
     // backward compatibility
@@ -50,7 +41,11 @@ Stream::~Stream() {
 int Stream::putc(int c) {
     lock();
     fflush(_file);
+#if defined(TARGET_SIMULATOR)
+    int ret = _putc(c);
+#else
     int ret = std::fputc(c, _file);
+#endif
     unlock();
     return ret;
 }
@@ -137,8 +132,17 @@ int Stream::printf(const char* format, ...) {
     lock();
     std::va_list arg;
     va_start(arg, format);
+#if defined(TARGET_SIMULATOR)
+    char buffer[4096] = { 0 };
+    int r = vsprintf(buffer, format, arg);
+    for (int ix = 0; ix < r; ix++) {
+        _putc(buffer[ix]);
+    }
+    fflush(_file);
+#else
     fflush(_file);
     int r = vfprintf(_file, format, arg);
+#endif
     va_end(arg);
     unlock();
     return r;
