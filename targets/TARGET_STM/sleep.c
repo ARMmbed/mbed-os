@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,14 @@
 #if DEVICE_SLEEP
 
 #include "sleep_api.h"
-#include "rtc_api_hal.h"
+#include "us_ticker_api.h"
+#include "hal_tick.h"
+#include "mbed_critical.h"
+#include "mbed_error.h"
 
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
+extern void rtc_synchronize(void);
 
 /*  Wait loop - assuming tick is 1 us */
 static void wait_loop(uint32_t timeout)

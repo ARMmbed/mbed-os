@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2017, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,24 @@
 
 #if DEVICE_LPTICKER
 
-#include "rtc_api_hal.h"
-
+/***********************************************************************/
+/* lpticker_lptim config is 1 in json config file                      */
+/* LPTICKER is based on LPTIM feature from ST drivers. RTC is not used */
 #if MBED_CONF_TARGET_LPTICKER_LPTIM
+
+#include "lp_ticker_api.h"
+#include "mbed_error.h"
 
 LPTIM_HandleTypeDef LptimHandle;
 
 const ticker_info_t* lp_ticker_get_info()
 {
     static const ticker_info_t info = {
-        RTC_CLOCK,
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+        LSE_VALUE,
+#else
+        LSI_VALUE,
+#endif
         16
     };
     return &info;
@@ -224,8 +232,14 @@ void lp_ticker_clear_interrupt(void)
     NVIC_ClearPendingIRQ(LPTIM1_IRQn);
 }
 
+
+
+/*****************************************************************/
+/* lpticker_lptim config is 0 or not defined in json config file */
+/* LPTICKER is based on RTC wake up feature from ST drivers      */
 #else /* MBED_CONF_TARGET_LPTICKER_LPTIM */
 
+#include "rtc_api_hal.h"
 void lp_ticker_init(void)
 {
     rtc_init();
