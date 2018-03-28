@@ -4,7 +4,16 @@
  
 StackSize = 0x800;
 
-#ifdef __DOMAIN_NS
+/* Requirements for NSC location
+ *
+ * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
+ * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
+ * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
+ */
+#define NSC_REGION_BASE     0x0003D000
+#define NSC_REGION_SIZE     0x00001000
+ 
+#if defined(__DOMAIN_NS) && __DOMAIN_NS
 
 MEMORY
 {
@@ -17,10 +26,10 @@ MEMORY
 
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x0003F000 - 0x00000400
-  NSC_FLASH (rx)        : ORIGIN = 0x0003F000, LENGTH = 0x00040000 - 0x0003F000
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00006000 - 0x00000000
+  VECTORS (rx)          : ORIGIN = 0x00000000,      LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = 0x00000400,      LENGTH = NSC_REGION_BASE - 0x00000400
+  NSC_FLASH (rx)        : ORIGIN = NSC_REGION_BASE, LENGTH = NSC_REGION_SIZE
+  RAM_INTERN (rwx)      : ORIGIN = 0x20000000,      LENGTH = 0x00006000 - 0x00000000
 }
 
 #endif
@@ -125,7 +134,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-#ifndef __DOMAIN_NS
+#if (! defined(__DOMAIN_NS)) || (! __DOMAIN_NS)
     /* Veneer$$CMSE : */
     .gnu.sgstubs :
     {
