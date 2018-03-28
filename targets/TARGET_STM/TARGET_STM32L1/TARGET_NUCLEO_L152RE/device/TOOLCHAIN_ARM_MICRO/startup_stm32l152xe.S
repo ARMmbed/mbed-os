@@ -1,4 +1,4 @@
-;/******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
+;********************* (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32l152xe.s
 ;* Author             : MCD Application Team
 ;* Version            : 21-April-2017
