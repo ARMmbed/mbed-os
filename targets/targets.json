@@ -2774,7 +2774,7 @@
         "core": "Cortex-A9",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["RENESAS", "RZ_A1XX"],
-        "device_has": ["USTICKER", "ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "device_has": ["SLEEP", "USTICKER", "ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "program_cycle_s": 2,
         "overrides": {
