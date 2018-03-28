@@ -268,7 +268,6 @@ const char *EasyCellularConnection::get_gateway()
 void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _status_cb = status_cb;
-    _cellularConnectionFSM.attach(status_cb);
 }
 
 void EasyCellularConnection::modem_debug_on(bool on)
