@@ -41,7 +41,7 @@
 #include "CellularLog.h"
 
 #define NETWORK_TIMEOUT (180*1000)
-#define SOCKET_TIMEOUT (5*1000)
+#define SOCKET_TIMEOUT (30*1000)
 #define SOCKET_COUNT_MAX 4
 
 #define ECHO_SERVER_NAME "echo.mbedcloudtesting.com"
