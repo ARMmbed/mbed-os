@@ -1,57 +1,91 @@
 #! armcc -E
 
-#ifdef __DOMAIN_NS
-LR_IROM1 0x10040000 {
-  ER_IROM1 0x10040000 {  ; load address = execution address
-   *(RESET, +First)
-   *(InRoot$$Sections)
-   .ANY (+RO)
-  }
-    
-  ARM_LIB_STACK 0x30006000 EMPTY 0x800 {
-  }
-  
-  ER_IRAMVEC 0x30006800 EMPTY (4*(16 + 102)) {  ; Reserve for vectors
-  }
-  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
-   .ANY (+RW +ZI)
-  }
-  
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x30006000 + 0x12000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
-  }
+/* Requirements for NSC location
+ *
+ * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
+ * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
+ * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
+ */
+#define NSC_REGION_BASE     0x0003D000
+#define NSC_REGION_SIZE     0x00001000
+
+#if defined(__DOMAIN_NS) && __DOMAIN_NS
+
+LR_IROM1    0x10040000                                  ; load address = execution address
+{                               
+    ER_IROM1    +0
+    {
+        *(RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    ARM_LIB_STACK   0x30006000  EMPTY   0x800
+    {
+    }
+
+    ER_IRAMVEC  0x30006800  EMPTY   (4*(16 + 102))      ; Reserve for vectors
+    {
+    }
+
+    RW_IRAM1    AlignExpr(+0, 16)                       ; 16 byte-aligned
+    {  
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x30006000 + 0x12000 - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    {
+    }
 }
 
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)    ; 512/2 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30018000)   ; 72 KB SRAM for non-secure, 24 KB for secure 
+; Total 512 KB APROM: 256 KB for secure + NSC + reserved, 256 KB for non-secure
+ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)
+
+; Total 96 KB SRAM: 24 KB for secure, 72 KB for non-secure
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30018000)
 
 #else
 
-LR_IROM1 0x00000000 {
-  ER_IROM1 0x00000000 {  ; load address = execution address
-   *(RESET, +First)
-   *(InRoot$$Sections)
-   .ANY (+RO)
-  }
-    
-  ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
-  }
-  
-  ER_IRAMVEC 0x20000800 EMPTY (4*(16 + 102)) {  ; Reserve for vectors
-  }
-  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
-   .ANY (+RW +ZI)
-  }
-  
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x6000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
-  }
-}
-LR_IROM2 0x3F000
+LR_IROM1 0x00000000
 {
-    NSC_ROM +0 0x1000
+    ER_IROM1    +0                                      ; load address = execution address
+    {
+        *(RESET, +First)
+        *(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    ARM_LIB_STACK   0x20000000  EMPTY   0x800
+    {
+    }
+
+    ER_IRAMVEC  0x20000800  EMPTY   (4*(16 + 102))      ; Reserve for vectors
+    {
+    }
+
+    RW_IRAM1    AlignExpr(+0, 16)                       ; 16 byte-aligned
+    {  
+        .ANY (+RW +ZI)
+    }
+
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x20000000 + 0x6000 - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    {
+    }
+}
+
+LR_IROM2 NSC_REGION_BASE
+{
+    NSC_ROM +0  NSC_REGION_SIZE  
     {
         *(Veneer$$CMSE)
     }
 }
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x00040000)    ; 512/2 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20006000)   ; 24 KB SRAM for secure, 72 KB for non-secure
+
+; Total 512 KB APROM: 256 KB for secure + NSC + reserved, 256 KB for non-secure
+ScatterAssert(LoadLimit(LR_IROM1) <= NSC_REGION_BASE)
+ScatterAssert(LoadLimit(LR_IROM2) <= (NSC_REGION_BASE + NSC_REGION_SIZE))
+
+; Total 96 KB SRAM: 24 KB for secure, 72 KB for non-secure
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20006000)
+
 #endif
