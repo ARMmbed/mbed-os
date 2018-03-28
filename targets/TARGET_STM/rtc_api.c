@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2017, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 
 #include "rtc_api_hal.h"
 #include "mbed_mktime.h"
+#include "mbed_error.h"
 
 static RTC_HandleTypeDef RtcHandle;
 

@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
 *******************************************************************************
-* Copyright (c) 2017, STMicroelectronics
+* Copyright (c) 2018, STMicroelectronics
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,8 @@
 #ifndef MBED_RTC_API_HAL_H
 #define MBED_RTC_API_HAL_H
 
-#include <stdint.h>
 #include "rtc_api.h"
-#include "ticker_api.h"
 #include "lp_ticker_api.h"
-#include "us_ticker_api.h"
-#include "hal_tick.h"
-#include "mbed_critical.h"
-#include "mbed_error.h"
-#include "mbed_debug.h"
 
 #ifdef __cplusplus
 extern "C" {
