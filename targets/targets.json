@@ -7274,6 +7274,7 @@
             "SPI",
             "TRNG",
             "SPISLAVE",
+            "WATCHDOG",
             "802_15_4_PHY",
             "MPU"
         ],
