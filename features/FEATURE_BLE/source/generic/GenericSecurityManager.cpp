@@ -313,17 +313,27 @@ ble_error_t GenericSecurityManager::enableSigning(
     }
 
     cb->signing_requested = enabled;
-    cb->signing_override_default = false;
+    cb->signing_override_default = true;
 
     if (cb->encrypted) {
         return BLE_ERROR_INVALID_STATE;
     }
-    if (!cb->csrk_stored && cb->signing_requested) {
-        init_signing();
-        if (cb->is_master) {
-            return requestPairing(connection);
+
+    if (cb->signing_requested) {
+        if (cb->csrk_stored) {
+            /* used the stored ones when available */
+            _db.get_entry_peer_csrk(
+                mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+                cb->db_entry
+            );
         } else {
-            return slave_security_request(connection);
+            /* crate keys if needed and exchange them */
+            init_signing();
+            if (cb->is_master) {
+               return requestPairing(connection);
+            } else {
+               return slave_security_request(connection);
+            }
         }
     }
 
@@ -729,6 +739,18 @@ void GenericSecurityManager::set_ltk_cb(
     }
 }
 
+void GenericSecurityManager::set_peer_csrk_cb(
+    pal::SecurityDb::entry_handle_t db_entry,
+    const csrk_t *csrk
+) {
+    ControlBlock_t *cb = get_control_block(db_entry);
+    if (!cb) {
+        return;
+    }
+
+    _pal.set_peer_csrk(cb->connection, *csrk);
+}
+
 void GenericSecurityManager::return_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk
@@ -807,6 +829,17 @@ void GenericSecurityManager::on_connected(
 
     if (dist_flags) {
         *static_cast<pal::SecurityDistributionFlags_t*>(cb) = *dist_flags;
+    }
+
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested
+                         : _default_key_distribution.get_signing();
+
+    if (signing && cb->csrk_stored) {
+        _db.get_entry_peer_csrk(
+            mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+            cb->db_entry
+        );
     }
 }
 

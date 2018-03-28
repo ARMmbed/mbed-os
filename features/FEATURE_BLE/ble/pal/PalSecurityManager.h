@@ -865,6 +865,18 @@ public:
         const csrk_t &csrk
     ) = 0;
 
+    /**
+     * Set the peer CSRK for particular connection.
+     *
+     * @param[in] connection connection handle
+     * @param[in] csrk signing key
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t set_peer_csrk(
+        connection_handle_t connection,
+        const csrk_t &csrk
+    ) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
