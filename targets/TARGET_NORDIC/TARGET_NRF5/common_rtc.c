@@ -76,7 +76,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
 {
     rtc_ovf_event_check();
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, LP_TICKER_EVENT) ||
         lp_ticker_interrupt_fire) {
 
@@ -111,7 +111,7 @@ void RTC1_IRQHandler(void);
 void common_rtc_init(void)
 {
     if (m_common_rtc_enabled) {
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
         nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 #endif
@@ -136,7 +136,7 @@ void common_rtc_init(void)
 #if defined(TARGET_MCU_NRF51822)
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
 #endif
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
 #endif
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
@@ -150,7 +150,7 @@ void common_rtc_init(void)
 #if defined(TARGET_MCU_NRF51822)
         | OS_TICK_INT_MASK
 #endif
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         | LP_TICKER_INT_MASK
 #endif
      );
@@ -161,7 +161,7 @@ void common_rtc_init(void)
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
 
     /* Disable LP ticker interrupt for now. */
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 #endif
 
