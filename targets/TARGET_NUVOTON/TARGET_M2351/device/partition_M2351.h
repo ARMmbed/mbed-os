@@ -387,11 +387,11 @@ __STATIC_INLINE void SCU_Setup(void)
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START3     0x3f000
+#define SAU_INIT_START3     0x3D000
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END3       0x3ffff
+#define SAU_INIT_END3       0x3DFFF
 /*
 //     <o>Region is
 //         <0=>Non-Secure
