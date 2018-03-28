@@ -82,7 +82,8 @@ static uint16_t rtc_hex16_to_dec(uint16_t hex_val);
  * [out]
  * None.
  */
-void rtc_init(void) {
+void rtc_init(void)
+{
     volatile uint8_t dummy_read;
 
     CPG.STBCR6 &= ~(CPG_STBCR6_BIT_MSTP60);
@@ -109,31 +110,12 @@ void rtc_init(void) {
     dummy_read = RTC.RCR2;
     dummy_read = RTC.RCR2;
 
-    RTC.RCR2 = RCR2_VAL_RESET; // RESET = 1
+    RTC.RCR2 = RCR2_VAL_START; // SRART = 1
 
     // Dummy read
     dummy_read = RTC.RCR2;
     dummy_read = RTC.RCR2;
 
-    // Set timer and alarm. Default value :01-01-1970 00:00:00
-    RTC.RSECCNT = 0;
-    RTC.RMINCNT = 0;
-    RTC.RHRCNT  = 0;
-    RTC.RWKCNT  = 0;
-    RTC.RDAYCNT = 1;
-    RTC.RMONCNT = 1;
-    RTC.RYRCNT  = 0x1970;
-    RTC.RSECAR  = 0;
-    RTC.RMINAR  = 0;
-    RTC.RHRAR   = 0;
-    RTC.RWKAR   = 0;
-    RTC.RDAYAR  = 1;
-    RTC.RMONAR  = 1;
-    RTC.RYRAR   = 0x1970;
-
-    // Dummy read
-    dummy_read = RTC.RYRCNT;
-    dummy_read = RTC.RYRCNT;
     (void)dummy_read;
 
 }
@@ -141,52 +123,14 @@ void rtc_init(void) {
 
 /*
  * Release the RTC based on a time structure.
+ * @note This function does not stop the RTC from counting 
  * [in]
  * None.
  * [out]
  * None.
  */
-void rtc_free(void) {
-    volatile uint8_t dummy_read;
-
-    // Set control register
-    RTC.RCR2 = RCR2_VAL_ALLSTOP;
-    RTC.RCR1 = RCR1_VAL_OFF;
-    RTC.RCR3 = RCR3_VAL;
-    RTC.RCR5 = RCR5_VAL;
-    RTC.RFRH = RFRH_VAL_MAX;
-    RTC.RFRL = RFRL_VAL_MAX;
-
-    // Dummy read
-    dummy_read = RTC.RCR2;
-    dummy_read = RTC.RCR2;
-    RTC.RCR2 = RCR2_VAL_RESET; // RESET = 1
-
-    // Dummy read
-    dummy_read = RTC.RCR2;
-    dummy_read = RTC.RCR2;
-
-    // Set timer and alarm. Default value :01-01-1970 00:00:00
-    RTC.RSECCNT = 0;
-    RTC.RMINCNT = 0;
-    RTC.RHRCNT  = 0;
-    RTC.RWKCNT  = 0;
-    RTC.RDAYCNT = 1;
-    RTC.RMONCNT = 1;
-    RTC.RYRCNT  = 0x1970;
-    RTC.RSECAR  = 0;
-    RTC.RMINAR  = 0;
-    RTC.RHRAR   = 0;
-    RTC.RWKAR   = 0;
-    RTC.RDAYAR  = 1;
-    RTC.RMONAR  = 1;
-    RTC.RYRAR   = 0x1970;
-
-    // Dummy read
-    dummy_read = RTC.RYRCNT;
-    dummy_read = RTC.RYRCNT;
-    (void)dummy_read;
-
+void rtc_free(void)
+{
 }
 
 
@@ -198,7 +142,8 @@ void rtc_free(void) {
  * [out]
  * 0:Disabled, 1:Enabled.
  */
-int rtc_isenabled(void) {
+int rtc_isenabled(void)
+{
     int ret_val = 0;
 
     if ((RTC.RCR1 & RCR1_VAL_ON) != 0) { // RTC ON ?
@@ -216,7 +161,8 @@ int rtc_isenabled(void) {
  * [out]
  * UNIX timestamp value.
  */
-time_t rtc_read(void) {
+time_t rtc_read(void)
+{
 
     struct tm timeinfo;
     int    err = 0;
@@ -267,7 +213,8 @@ time_t rtc_read(void) {
  * 0:Success
  * 1:Error
  */
-static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val) {
+static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val)
+{
     int err = 0;
     uint8_t ret_val;
 
@@ -301,7 +248,8 @@ static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val) {
  * 0:Success
  * 1:Error
  */
-static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
+static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val)
+{
     int err = 0;
     uint16_t ret_val;
 
@@ -336,7 +284,8 @@ static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
  * [out]
  * None.
  */
-void rtc_write(time_t t) {
+void rtc_write(time_t t)
+{
 
     struct tm timeinfo;
     if (_rtc_localtime(t, &timeinfo, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
@@ -377,7 +326,8 @@ void rtc_write(time_t t) {
  * [out]
  * decimal value:From 0x00 to 0x99.
  */
-static uint8_t rtc_hex8_to_dec(uint8_t hex_val) {
+static uint8_t rtc_hex8_to_dec(uint8_t hex_val)
+{
     uint32_t calc_data;
 
     calc_data  = hex_val / 10 * 0x10;
@@ -397,7 +347,8 @@ static uint8_t rtc_hex8_to_dec(uint8_t hex_val) {
  * [out]
  * decimal value:From 0x0000 to 0x9999.
  */
-static uint16_t rtc_hex16_to_dec(uint16_t hex_val) {
+static uint16_t rtc_hex16_to_dec(uint16_t hex_val)
+{
     uint32_t calc_data;
     calc_data  =   hex_val / 1000       * 0x1000;
     calc_data += ((hex_val / 100) % 10) * 0x100;
