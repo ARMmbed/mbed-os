@@ -51,6 +51,16 @@ void lp_ticker_deepsleep_test(void);
  * Then ticker does not glitch backwards due to an incorrectly implemented ripple counter driver.
  */
 void lp_ticker_glitch_test(void);
+
+/** Test whether two calls to set interrupt can be performed one after another successfully
+ *
+ * Given ticker is available
+ * When ticker is enabled
+ *     and interrupt is set to 0
+ *     and interrupt is set again to some time in the future
+ * Then ticker fires when the counter reaches value set in second call
+ */
+void lp_ticker_consecutive_set_interrupt(void);
 /**@}*/
 
 #ifdef __cplusplus

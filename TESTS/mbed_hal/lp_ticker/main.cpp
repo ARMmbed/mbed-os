@@ -104,6 +104,26 @@ void lp_ticker_glitch_test()
     }
 }
 
+void lp_ticker_consecutive_set_interrupt(void)
+{
+    intFlag = 0;
+
+    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+
+    set_lp_ticker_irq_handler(ticker_event_handler_stub);
+
+    lp_ticker_init();
+
+    const uint32_t tick_count = lp_ticker_read();
+
+    lp_ticker_set_interrupt(0);
+    lp_ticker_set_interrupt(tick_count + TICKER_INT_VAL);
+
+    wait_ms((TICKER_INT_VAL*1000/p_ticker_info->frequency) + 1); //Ticks to ms + 1
+
+    TEST_ASSERT_EQUAL(1, intFlag);
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(20, "default_auto");
@@ -113,7 +133,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("lp ticker info test", lp_ticker_info_test),
     Case("lp ticker sleep test", lp_ticker_deepsleep_test),
-    Case("lp ticker glitch test", lp_ticker_glitch_test)
+    Case("lp ticker glitch test", lp_ticker_glitch_test),
+    Case("lp consecutive set interrupt", lp_ticker_consecutive_set_interrupt)
 };
 
 Specification specification(test_setup, cases);
