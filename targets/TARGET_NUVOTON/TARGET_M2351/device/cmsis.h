@@ -20,6 +20,12 @@
 #include "M2351.h"
 #include "m2351_stddriver_sup.h"
 #include "cmsis_nvic.h"
+#include "partition_M2351.h"
+
+/* Check relevant macro has been defined */
+#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
+#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+#endif
 
 // Support linker-generated symbol as start of relocated vector table.
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
@@ -32,7 +38,7 @@ extern uint32_t __start_vector_table__;
 
 /* TZ_START_NS: Start address of non-secure application */
 #ifndef TZ_START_NS
-#define TZ_START_NS (0x10040000U)
+#define TZ_START_NS (NS_OFFSET + NU_TZ_SECURE_FLASH_SIZE)
 #endif
 
 #endif
