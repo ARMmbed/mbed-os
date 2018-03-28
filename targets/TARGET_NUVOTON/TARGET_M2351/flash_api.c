@@ -94,10 +94,10 @@ static const flash_target_config_t flash_target_config = {
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
     .flash_start = 0x0,
-#if SAU_INIT_REGION1
-    .flash_size = (SAU_INIT_START1 & ~NS_OFFSET) - 0x0,
+#if defined(FMC_SECURE_ROM_SIZE)
+    .flash_size = FMC_SECURE_ROM_SIZE,
 #else
-    .flash_size = 0x80000                                   // 512 KB
+    .flash_size = 0x80000,                                  // 512 KB
 #endif
     .sectors = sectors_info,
     .sector_info_count = sizeof(sectors_info) / sizeof(sector_info_t)
@@ -105,7 +105,7 @@ static const flash_target_config_t flash_target_config = {
 
 /* Non-secure flash */
 static const sector_info_t sectors_info_ns[] = {
-    {SAU_INIT_START1, 0x800},                               // (start, sector size)
+    {(NS_OFFSET + FMC_SECURE_ROM_SIZE), 0x800},                               // (start, sector size)
 };
 
 /* Non-secure flash */
@@ -113,9 +113,9 @@ static const flash_target_config_t flash_target_config_ns = {
     .page_size  = 4,                                        // 4 bytes
                                                             // Here page_size is program unit, which is different
                                                             // than FMC definition.
-    .flash_start = SAU_INIT_START1,
-#if SAU_INIT_REGION1
-    .flash_size = SAU_INIT_END1 - SAU_INIT_START1 + 1,
+    .flash_start = NS_OFFSET + FMC_SECURE_ROM_SIZE,
+#if defined(FMC_SECURE_ROM_SIZE)
+    .flash_size = 0x80000 - FMC_SECURE_ROM_SIZE,
 #else
     .flash_size = 0,
 #endif
