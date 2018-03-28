@@ -21,7 +21,9 @@ from argparse import ArgumentParser
 import time
 import sys
 import inspect
-from threading import Thread
+from threading import Thread, Event, Timer
+import array
+import random
 
 import usb.core
 from usb.util import build_request_type
@@ -33,7 +35,7 @@ from usb.util import (DESC_TYPE_DEVICE, DESC_TYPE_CONFIG, DESC_TYPE_STRING,
                       DESC_TYPE_INTERFACE, DESC_TYPE_ENDPOINT)
 
 import struct
-from collections import namedtuple
+
 
 def get_interface(dev, interface, alternate=0):
     intf = None
@@ -102,6 +104,12 @@ interface_descriptor_parser = struct.Struct('BBBBBHB')
 interface_descriptor_keys = ['bLength', 'bDescriptorType', 'bEndpointAddress',
                              'bmAttributes', 'wMaxPacketSize', 'bInterval']
 
+ENDPOINT_TYPE_NAMES = {
+    usb.ENDPOINT_TYPE_BULK: 'BULK',
+    usb.ENDPOINT_TYPE_CONTROL: 'CONTROL',
+    usb.ENDPOINT_TYPE_INTERRUPT: 'INTERRUPT',
+    usb.ENDPOINT_TYPE_ISOCHRONOUS: 'ISOCHRONOUS'}
+
 class PyusbBasicTest(BaseHostTest):
 
     def _callback_control_basic_test(self, key, value, timestamp):
@@ -162,7 +170,6 @@ class PyusbBasicTest(BaseHostTest):
         except (RuntimeError) as exc:
             self.report_error(exc)
 
-
     def _callback_device_reset_test(self, key, value, timestamp):
         self.log("Received serial %s" % (value))
 
@@ -217,6 +224,71 @@ class PyusbBasicTest(BaseHostTest):
         except (RuntimeError) as exc:
             self.report_error(exc)
 
+    def _callback_ep_test_data_correctness(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_data_correctness(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
+    def _callback_ep_test_halt(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_halt(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
+    def _callback_ep_test_parallel_transfers(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_parallel_transfers(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
+    def _callback_ep_test_parallel_transfers_ctrl(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_parallel_transfers_ctrl(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
+    def _callback_ep_test_abort(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_abort(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
     def _callback_reset_support(self, key, value, timestamp):
         status = "false" if sys.platform == "darwin" else "true"
         self.log("Reset supported: %s" % status)
@@ -266,6 +338,12 @@ class PyusbBasicTest(BaseHostTest):
         self.register_callback('device_soft_reconnection_test', self._callback_device_soft_reconnection_test)
         self.register_callback('device_suspend_resume_test', self._callback_device_suspend_resume_test)
         self.register_callback('repeated_construction_destruction_test', self._callback_repeated_construction_destruction_test)
+
+        self.register_callback('ep_test_data_correctness', self._callback_ep_test_data_correctness)
+        self.register_callback('ep_test_halt', self._callback_ep_test_halt)
+        self.register_callback('ep_test_parallel_transfers', self._callback_ep_test_parallel_transfers)
+        self.register_callback('ep_test_parallel_transfers_ctrl', self._callback_ep_test_parallel_transfers_ctrl)
+        self.register_callback('ep_test_abort', self._callback_ep_test_abort)
 
         self.register_callback('reset_support', self._callback_reset_support)
 
@@ -835,6 +913,350 @@ def control_stress_test(dev, log):
         data = bytearray(8)                 # Dummy data
         dev.ctrl_transfer(request_type, request, value, index, data, 5000)
         count += 1
+
+
+def find_ep_pair(intf, endpoint_type):
+    ep_out = usb.util.find_descriptor(
+        intf, custom_match=lambda e:
+        usb.util.endpoint_type(e.bmAttributes) == endpoint_type and
+        usb.util.endpoint_direction(e.bEndpointAddress) == usb.ENDPOINT_OUT)
+    ep_in = usb.util.find_descriptor(
+        intf, custom_match=lambda e:
+        usb.util.endpoint_type(e.bmAttributes) == endpoint_type and
+        usb.util.endpoint_direction(e.bEndpointAddress) == usb.ENDPOINT_IN)
+    if not all((ep_out, ep_in)):
+        raise_unconditionally(lineno(), 'Unable to find {} endpoint pair.'
+                              .format(ENDPOINT_TYPE_NAMES[endpoint_type]))
+    raise_if_different(ep_out.wMaxPacketSize, ep_in.wMaxPacketSize, lineno(),
+                       'wMaxPacketSize not equal for OUT and IN {} endpoints.'
+                       .format(ENDPOINT_TYPE_NAMES[endpoint_type]))
+    return ep_out, ep_in
+
+
+def loopback_ep_test(ep_out, ep_in, payload_size):
+    payload_out = array.array('B', (random.randint(0x00, 0xff) for _ in range(payload_size)))
+    ep_out.write(payload_out)
+    payload_in = ep_in.read(ep_in.wMaxPacketSize)
+    raise_if_different(payload_out, payload_in, lineno(), 'Payloads mismatch.')
+
+
+def random_size_loopback_ep_test(ep_out, ep_in, failure, error, seconds, log, min_payload_size=1):
+    end_ts = time.time() + seconds
+    while time.time() < end_ts and not failure.is_set() and not error.is_set():
+        payload_size = random.randint(min_payload_size, ep_out.wMaxPacketSize)
+        try:
+            loopback_ep_test(ep_out, ep_in, payload_size)
+        except RuntimeError as err:
+            log(err)
+            failure.set()
+            return
+        except usb.USBError as err:
+            log(USB_ERROR_FMT.format(err, ep_out, ep_in, payload_size))
+            error.set()
+            return
+        time.sleep(0.01)
+
+
+def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
+    MIN_HALT_DELAY = 0.01
+    MAX_HALT_DELAY = 0.1
+    delay = random.uniform(MIN_HALT_DELAY, MAX_HALT_DELAY)
+    ctrl_kwargs = {
+        'bmRequestType': build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD, CTRL_RECIPIENT_ENDPOINT),
+        'bRequest': REQUEST_SET_FEATURE,
+        'wValue': FEATURE_ENDPOINT_HALT,
+        'wIndex': ep_to_halt.bEndpointAddress}
+    ctrl_error = Event()
+
+    def timer_handler():
+        try:
+            dev.ctrl_transfer(**ctrl_kwargs)
+        except Exception as err:
+            log('Endpoint {:#04x} halt failed ({}).'.format(ctrl_kwargs['wIndex'], err))
+            ctrl_error.set()
+
+    delayed_halt = Timer(delay, timer_handler)
+    delayed_halt.start()
+    end_ts = time.time() + 1.5 * delay
+    try:
+        while time.time() < end_ts and not ctrl_error.is_set():
+            loopback_ep_test(ep_out, ep_in, ep_out.wMaxPacketSize)
+    except usb.core.USBError as err:
+        if err.errno not in (32, 110):
+            raise_unconditionally(lineno(), 'Unexpected error ({!r}).'.format(err))
+        if ctrl_error.is_set():
+            raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x} failed'
+                                  .format(ep_to_halt))
+    else:
+        raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x}'
+                              ' during transmission did not raise USBError.'
+                              .format(ep_to_halt))
+
+
+USB_ERROR_FMT = str('Got {0!r} while testing endpoints '
+                    '{1.bEndpointAddress:#04x}({1.wMaxPacketSize:02}) and '
+                    '{2.bEndpointAddress:#04x}({2.wMaxPacketSize:02}) with a random payload of {3} B.')
+
+
+def ep_test_data_correctness(dev, log, verbose=False):
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+        intf.set_altsetting()
+
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+        interrupt_out, interrupt_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_INTERRUPT)
+        iso_out, iso_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_ISOCHRONOUS)
+
+        if verbose:
+            log('\tbulk_out      {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_out))
+            log('\tbulk_in       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_in))
+            log('\tinterrupt_out {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_out))
+            log('\tinterrupt_in  {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_in))
+            log('\tiso_out       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_out))
+            log('\tiso_in        {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_in))
+
+        if verbose:
+            log('Testing OUT/IN data correctness for bulk endpoint pair.')
+        for payload_size in range(1, bulk_out.wMaxPacketSize + 1):
+            try:
+                loopback_ep_test(bulk_out, bulk_in, payload_size)
+            except usb.USBError as err:
+                raise_unconditionally(lineno(), USB_ERROR_FMT.format(err, bulk_out, bulk_in, payload_size))
+
+        if verbose:
+            log('Testing OUT/IN data correctness for interrupt endpoint pair.')
+        for payload_size in range(interrupt_out.wMaxPacketSize + 1):
+            try:
+                loopback_ep_test(interrupt_out, interrupt_in, payload_size)
+            except usb.USBError as err:
+                raise_unconditionally(lineno(), USB_ERROR_FMT.format(err, interrupt_out, interrupt_in, payload_size))
+
+#         if verbose:
+#             log('Testing OUT/IN data correctness for isochronous endnpoint pair.')
+#         payload_size = 128 # range(1, iso_out.wMaxPacketSize + 1):
+#         try:
+#             loopback_ep_test(iso_out, iso_in, payload_size)
+#         except usb.USBError as err:
+#             log(err)
+#             raise_unconditionally(lineno(), USB_ERROR_FMT.format(err, iso_out, iso_in, payload_size))
+
+
+def ep_test_halt(dev, log, verbose=False):
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+        intf.set_altsetting()
+
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+        interrupt_out, interrupt_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_INTERRUPT)
+        iso_out, iso_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_ISOCHRONOUS)
+
+        if verbose:
+            log('\tbulk_out      {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_out))
+            log('\tbulk_in       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_in))
+            log('\tinterrupt_out {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_out))
+            log('\tinterrupt_in  {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_in))
+            log('\tiso_out       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_out))
+            log('\tiso_in        {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_in))
+
+        if verbose:
+            log('Testing endpoint halt at a random point of bulk transmission.')
+        end_ts = time.time() + 1.0
+        while time.time() < end_ts:
+            halt_ep_test(dev, bulk_out, bulk_in, bulk_out, log)
+            bulk_out.clear_halt()
+            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+            halt_ep_test(dev, bulk_out, bulk_in, bulk_in, log)
+            bulk_in.clear_halt()
+            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+
+        if verbose:
+            log('Testing endpoint halt at a random point of interrupt transmission.')
+        end_ts = time.time() + 1.0
+        while time.time() < end_ts:
+            halt_ep_test(dev, interrupt_out, interrupt_in, interrupt_out, log)
+            interrupt_out.clear_halt()
+            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+            halt_ep_test(dev, interrupt_out, interrupt_in, interrupt_in, log)
+            interrupt_out.clear_halt()
+            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+
+
+def ep_test_parallel_transfers(dev, log, verbose=False):
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+        intf.set_altsetting()
+
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+        interrupt_out, interrupt_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_INTERRUPT)
+        iso_out, iso_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_ISOCHRONOUS)
+
+        if verbose:
+            log('\tbulk_out      {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_out))
+            log('\tbulk_in       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_in))
+            log('\tinterrupt_out {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_out))
+            log('\tinterrupt_in  {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_in))
+            log('\tiso_out       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_out))
+            log('\tiso_in        {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_in))
+
+        if verbose:
+            log('Testing simultaneous transfers through bulk and interrupt endpoint pairs.')
+        test_error = Event()
+        test_failure = Event()
+        test_kwargs_bulk_ep = {
+            'ep_out': bulk_out,
+            'ep_in': bulk_in,
+            'failure': test_failure,
+            'error': test_error,
+            'seconds': 1.0,
+            'log': log}
+        test_kwargs_interrupt_ep = {
+            'ep_out': interrupt_out,
+            'ep_in': interrupt_in,
+            'failure': test_failure,
+            'error': test_error,
+            'seconds': 1.0,
+            'log': log}
+        ep_test_threads = []
+        for kwargs in (test_kwargs_bulk_ep, test_kwargs_interrupt_ep):
+            ep_test_threads.append(Thread(target=random_size_loopback_ep_test, kwargs=kwargs))
+        for t in ep_test_threads:
+            t.start()
+        for t in ep_test_threads:
+            t.join()
+        if test_failure.is_set():
+            raise_unconditionally(lineno(), 'Payload mismatch')
+        if test_error.is_set():
+            raise_unconditionally(lineno(), 'USBError')
+
+
+def ep_test_parallel_transfers_ctrl(dev, log, verbose=False):
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+        intf.set_altsetting()
+
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+        interrupt_out, interrupt_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_INTERRUPT)
+        iso_out, iso_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_ISOCHRONOUS)
+
+        if verbose:
+            log('\tbulk_out      {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_out))
+            log('\tbulk_in       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_in))
+            log('\tinterrupt_out {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_out))
+            log('\tinterrupt_in  {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_in))
+            log('\tiso_out       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_out))
+            log('\tiso_in        {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(iso_in))
+
+        if verbose:
+            log('Testing parallel data transfers through bulk, interrupt & control endpoint pairs.')
+        test_error = Event()
+        test_failure = Event()
+        test_kwargs_bulk_ep = {
+            'ep_out': bulk_out,
+            'ep_in': bulk_in,
+            'failure': test_failure,
+            'error': test_error,
+            'seconds': 1.0,
+            'log': log}
+        test_kwargs_interrupt_ep = {
+            'ep_out': interrupt_out,
+            'ep_in': interrupt_in,
+            'failure': test_failure,
+            'error': test_error,
+            'seconds': 1.0,
+            'log': log}
+        ep_test_threads = []
+        for kwargs in (test_kwargs_bulk_ep, test_kwargs_interrupt_ep):
+            ep_test_threads.append(Thread(target=random_size_loopback_ep_test, kwargs=kwargs))
+        for t in ep_test_threads:
+            t.start()
+        while any(t.is_alive() for t in ep_test_threads):
+            control_stress_test(dev, log)
+            control_sizes_test(dev, log)
+        for t in ep_test_threads:
+            t.join()
+        if test_failure.is_set():
+            raise_unconditionally(lineno(), 'Payload mismatch')
+        if test_error.is_set():
+            raise_unconditionally(lineno(), 'USBError')
+
+
+def ep_test_abort(dev, log, verbose=False):
+    NUM_PACKETS_UNTIL_ABORT = 2
+    NUM_PACKETS_AFTER_ABORT = 8
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+        intf.set_altsetting()
+
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+        interrupt_out, interrupt_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_INTERRUPT)
+
+        if verbose:
+            log('\tbulk_out      {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_out))
+            log('\tbulk_in       {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(bulk_in))
+            log('\tinterrupt_out {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_out))
+            log('\tinterrupt_in  {0.bEndpointAddress:#04x}, {0.wMaxPacketSize:02} B'.format(interrupt_in))
+
+        if verbose:
+            log('Testing aborting an in progress transfer for IN endpoints.')
+        for ep_in in (bulk_in, interrupt_in):
+            payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_in.wMaxPacketSize
+            payload_in = ep_in.read(payload_size)
+            if verbose:
+                log('The size of data successfully received from endpoint {0.bEndpointAddress:#04x}: {1} B.'
+                    .format(ep_in, len(payload_in)))
+            too_little = bool(len(payload_in) < (NUM_PACKETS_UNTIL_ABORT * ep_in.wMaxPacketSize))
+            too_much = bool(len(payload_in) >= payload_size)
+            if too_little or too_much:
+                raise_unconditionally(
+                    lineno(), 'Invalid size of data successfully received from endpoint '
+                    '{0.bEndpointAddress:#04x} before aborting the transfer. '
+                    'Value {1} B out of range [{2}, {3}).'
+                    .format(ep_in, len(payload_in),
+                            NUM_PACKETS_UNTIL_ABORT * ep_in.wMaxPacketSize, payload_size))
+
+        if verbose:
+            log('Testing aborting an in progress transfer for OUT endpoints.')
+        for ep_out in (bulk_out, interrupt_out):
+            payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_out.wMaxPacketSize
+            payload_out = array.array('B', (0x01 for _ in range(payload_size)))
+            num_bytes_written = ep_out.write(payload_out)
+            if verbose:
+                log('The size of data successfully sent to endpoint {0.bEndpointAddress:#04x}: {1} B.'
+                    .format(ep_out, num_bytes_written))
+            too_little = bool(num_bytes_written < (NUM_PACKETS_UNTIL_ABORT * ep_out.wMaxPacketSize))
+            too_much = bool(num_bytes_written >= payload_size)
+            if too_little or too_much:
+                raise_unconditionally(
+                    lineno(), 'Invalid size of data successfully sent to endpoint '
+                    '{0.bEndpointAddress:#04x} before aborting the transfer. '
+                    'Value {1} B out of range [{2}, {3}).'
+                    .format(ep_out, num_bytes_written,
+                            NUM_PACKETS_UNTIL_ABORT * ep_out.wMaxPacketSize, payload_size))
 
 
 def device_reset_test(log):
