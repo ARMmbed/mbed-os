@@ -99,7 +99,6 @@ void lp_ticker_isr(const ticker_data_t *const ticker_data)
  * high frequency ticker interrupt can wake-up target from sleep. */
 void sleep_usticker_test()
 {
-    Timeout timeout;
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
