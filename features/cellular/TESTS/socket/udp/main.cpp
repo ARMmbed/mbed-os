@@ -42,7 +42,6 @@
 
 #define NETWORK_TIMEOUT (180*1000)
 #define SOCKET_TIMEOUT (30*1000)
-#define SOCKET_COUNT_MAX 4
 
 #define ECHO_SERVER_NAME "echo.mbedcloudtesting.com"
 #define ECHO_SERVER_UDP_PORT 7
@@ -56,21 +55,22 @@ static SocketAddress echo_server_addr;
 
 class EchoSocket : public UDPSocket {
 public:
-	template <typename S>
-	EchoSocket(int async, S *stack, int size) : UDPSocket(stack), _data(0), _async_flag(async) {
-		_size = size;
-		if (_async_flag) {
-			set_blocking(false);
-			sigio(callback(this, &EchoSocket::async_callback));
-		} else {
-			set_blocking(true);
-			set_timeout(SOCKET_TIMEOUT);
-			sigio(NULL);
-		}
+	EchoSocket(int size) : UDPSocket(), _async_flag(0), _data(0), _size(size) {
 	}
 	virtual ~EchoSocket() {
-		TEST_ASSERT(close() == NSAPI_ERROR_OK);
 		delete _data;
+	}
+	void set_async(int async) {
+	    _async_flag = async;
+        if (_async_flag) {
+            set_blocking(false);
+            sigio(callback(this, &EchoSocket::async_callback));
+        } else {
+            set_blocking(true);
+            set_timeout(SOCKET_TIMEOUT);
+            sigio(NULL);
+        }
+
 	}
 	void test_sendto(const char *const hostname = NULL) {
 		_data = new uint8_t[_size];
@@ -139,61 +139,32 @@ static void udp_network_stack()
 
 static void udp_gethostbyname()
 {
-	TEST_ASSERT(cellular.get_network()->gethostbyname(ECHO_SERVER_NAME, &echo_server_addr) == 0);
+    TEST_ASSERT(cellular.get_network()->gethostbyname(ECHO_SERVER_NAME, &echo_server_addr) == 0);
+    tr_info("HOST: %s", echo_server_addr.get_ip_address());
 	echo_server_addr.set_port(7);
-
-	EchoSocket echo_socket_blocking(0, cellular.get_network(), 4);
-	echo_socket_blocking.test_sendto(ECHO_SERVER_NAME);
-	echo_socket_blocking.test_recvfrom();
-
-	EchoSocket echo_socket_async(0x1, cellular.get_network(), 4);
-	echo_socket_async.test_sendto(ECHO_SERVER_NAME);
-	echo_socket_async.test_recvfrom();
-}
-
-static void socket_send_receive(bool async)
-{
-	// smallest possible packet size
-	EchoSocket echo_socket_1(async?0x1:0, cellular.get_network(), 1);
-	echo_socket_1.test_sendto();
-	echo_socket_1.test_recvfrom();
-
-	// UDP shall support at least 512 byte packets
-	EchoSocket echo_socket_2(async?0x1:0, cellular.get_network(), 512);
-	echo_socket_2.test_sendto();
-	echo_socket_2.test_recvfrom();
+	wait(1);
 }
 
 static void udp_socket_send_receive()
 {
-	socket_send_receive(false); // blocking
-	socket_send_receive(true); // async
+    EchoSocket echo_socket(4);
+    TEST_ASSERT(echo_socket.open(cellular.get_network()) == NSAPI_ERROR_OK);
+    echo_socket.set_async(0);
+    echo_socket.test_sendto();
+    echo_socket.test_recvfrom();
+    TEST_ASSERT(echo_socket.close() == NSAPI_ERROR_OK);
+    wait(1);
 }
 
-static void socket_multiple_simultaneous(bool async)
+static void udp_socket_send_receive_async()
 {
-	EchoSocket *echo_sockets[SOCKET_COUNT_MAX];
-	for (int i=0; i<SOCKET_COUNT_MAX; i++) {
-		// every second socket is blocking/async, data packets are multiple of 4 bytes
-		echo_sockets[i] = new EchoSocket((async)?(1<<i):0, cellular.get_network(), (i + 1) * 4);
-		echo_sockets[i]->test_sendto();
-	}
-
-	// reading shall also work in different order than sending
-	for (int i=1; i<SOCKET_COUNT_MAX; i++) {
-		echo_sockets[i]->test_recvfrom();
-	}
-	echo_sockets[0]->test_recvfrom();
-
-	for (int i=0; i<SOCKET_COUNT_MAX; i++) {
-		delete echo_sockets[i];
-	}
-}
-
-static void udp_socket_multiple_simultaneous()
-{
-	socket_multiple_simultaneous(false); // blocking
-	socket_multiple_simultaneous(true); // async
+    EchoSocket echo_socket(4);
+    TEST_ASSERT(echo_socket.open(cellular.get_network()) == NSAPI_ERROR_OK);
+    echo_socket.set_async(1);
+    echo_socket.test_sendto();
+    echo_socket.test_recvfrom();
+    TEST_ASSERT(echo_socket.close() == NSAPI_ERROR_OK);
+    wait(1);
 }
 
 using namespace utest::v1;
@@ -208,7 +179,8 @@ static Case cases[] = {
 	Case("UDP network stack", udp_network_stack, greentea_failure_handler),
 	Case("UDP gethostbyname", udp_gethostbyname, greentea_failure_handler),
 	Case("UDP socket send/receive", udp_socket_send_receive, greentea_failure_handler),
-	Case("UDP socket multiple simultaneous", udp_socket_multiple_simultaneous, greentea_failure_handler),
+	Case("UDP socket send/receive async", udp_socket_send_receive_async, greentea_failure_handler),
+	//Case("UDP socket multiple simultaneous", udp_socket_multiple_simultaneous, greentea_failure_handler),
 };
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)

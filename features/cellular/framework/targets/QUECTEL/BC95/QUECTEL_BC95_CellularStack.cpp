@@ -17,6 +17,7 @@
 
 #include "QUECTEL_BC95_CellularStack.h"
 #include "CellularUtil.h"
+#include "CellularLog.h"
 
 using namespace mbed;
 using namespace mbed_cellular_util;
@@ -78,12 +79,14 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_close_impl(int sock_id)
     _at.resp_start();
     _at.resp_stop();
 
+    tr_info("Close socket: %d error: %d", sock_id, _at.get_last_error());
+
     return _at.get_last_error();
 }
 
 nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int sock_id;
+    int sock_id = -1;
     bool socketOpenWorking = false;
 
     if (socket->proto == NSAPI_UDP) {
@@ -117,6 +120,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     }
 
     if (!socketOpenWorking) {
+        tr_error("Socket create failed!");
         return NSAPI_ERROR_NO_SOCKET;
     }
 
@@ -124,9 +128,12 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
     for (int i = 0; i < BC95_SOCKET_MAX; i++) {
         CellularSocket *sock = _socket[i];
         if (sock && sock->created && sock->id == sock_id) {
+            tr_error("Duplicate socket index: %d created:%d, sock_id: %d", i, sock->created, sock_id);
             return NSAPI_ERROR_NO_SOCKET;
         }
     }
+
+    tr_info("Socket create id: %d", sock_id);
 
     socket->id = sock_id;
     socket->created = true;
@@ -139,15 +146,16 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 {
     int sent_len = 0;
 
-    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2];
+    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2+1];
     int hexlen = char_str_to_hex_str((const char*)data, size, hexstr);
-
+    // NULL terminated for write_string
+    hexstr[hexlen] = 0;
     _at.cmd_start("AT+NSOST=");
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
     _at.write_int(size);
-    _at.write_bytes((uint8_t*)hexstr, hexlen);
+    _at.write_string(hexstr, false);
     _at.cmd_stop();
     _at.resp_start();
     // skip socket id
