@@ -22,6 +22,7 @@
 #include "utest/utest.h"
 
 #include "USBTester.h"
+#include "USBEndpointTester.h"
 #include "usb_phy_api.h"
 
 // TODO
@@ -43,6 +44,9 @@
 
 
 using namespace utest::v1;
+
+// Print callback counters for endpoint tests
+#define EP_DBG 0
 
 static USBPhy *get_phy()
 {
@@ -196,6 +200,154 @@ void control_stress_test()
     }
 }
 
+void ep_test_data_correctness()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, false);
+        greentea_send_kv("ep_test_data_correctness", serial.get_serial_desc_string());
+        // Wait for host before terminating
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
+
+void ep_test_halt()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, false);
+        greentea_send_kv("ep_test_halt", serial.get_serial_desc_string());
+        // Wait for host before terminating
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
+
+void ep_test_parallel_transfers()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, false);
+        greentea_send_kv("ep_test_parallel_transfers", serial.get_serial_desc_string());
+        // Wait for host before terminating
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
+
+void ep_test_parallel_transfers_ctrl()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, false);
+        greentea_send_kv("ep_test_parallel_transfers_ctrl", serial.get_serial_desc_string());
+        // Wait for host before terminating
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
+
+void ep_test_abort()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        greentea_send_kv("ep_test_abort", serial.get_serial_desc_string());
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
 
 /** Test USB implementation against repeated reset
 
@@ -409,12 +561,17 @@ Case cases[] = {
 #if SUSPEND_RESUME_TEST_SUPPORTED
     Case("usb device suspend/resume test", device_suspend_resume_test),
 #endif
-    Case("usb repeated construction destruction test", repeated_construction_destruction_test)
+    Case("usb repeated construction destruction test", repeated_construction_destruction_test),
+    Case("endpoint test data correctness", ep_test_data_correctness),
+    Case("endpoint test halt", ep_test_halt),
+    Case("endpoint test parallel transfers", ep_test_parallel_transfers),
+    Case("endpoint test parallel transfers ctrl", ep_test_parallel_transfers_ctrl),
+    Case("endpoint test abort", ep_test_abort)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(120, "pyusb_basic");
+    GREENTEA_SETUP(180, "pyusb_basic");
     return greentea_test_setup_handler(number_of_cases);
 }
 
