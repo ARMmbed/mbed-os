@@ -1,8 +1,21 @@
 /*
  * Nuvoton M2351 GCC linker script file
  */
- 
+
 StackSize = 0x800;
+
+#include "partition_M2351_sub.h"
+
+/* Check relevant macros have been defined */
+#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
+#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
+#error("NU_TZ_SECURE_SRAM_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_NSC_REGION_SIZE))
+#error("NU_TZ_NSC_REGION_SIZE not defined")
+#endif
 
 /* Requirements for NSC location
  *
@@ -10,26 +23,41 @@ StackSize = 0x800;
  * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
  * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
  */
-#define NSC_REGION_BASE     0x0003D000
-#define NSC_REGION_SIZE     0x00001000
- 
+#define NU_TZ_NSC_REGION_BASE       (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE)
+
 #if defined(__DOMAIN_NS) && __DOMAIN_NS
+
+#if (! defined(MBED_APP_START))
+#define MBED_APP_START              (0x10000000 + NU_TZ_SECURE_FLASH_SIZE)
+#endif
+
+#if (! defined(MBED_APP_SIZE))
+#define MBED_APP_SIZE               (0x80000 - NU_TZ_SECURE_FLASH_SIZE)
+#endif
 
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x10040000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x10040400, LENGTH = 0x00040000 - 0x00000400
-  RAM_INTERN (rwx)      : ORIGIN = 0x30006000, LENGTH = 0x00018000 - 0x00006000
+  VECTORS (rx)          : ORIGIN = MBED_APP_START,                      LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,              LENGTH = MBED_APP_SIZE - 0x400
+  RAM_INTERN (rwx)      : ORIGIN = 0x30000000 + NU_TZ_SECURE_SRAM_SIZE, LENGTH = 0x00018000 - NU_TZ_SECURE_SRAM_SIZE
 }
 
 #else
 
+#if (! defined(MBED_APP_START))
+#define MBED_APP_START              0
+#endif
+
+#if (! defined(MBED_APP_SIZE))
+#define MBED_APP_SIZE               NU_TZ_SECURE_FLASH_SIZE
+#endif
+
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x00000000,      LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400,      LENGTH = NSC_REGION_BASE - 0x00000400
-  NSC_FLASH (rx)        : ORIGIN = NSC_REGION_BASE, LENGTH = NSC_REGION_SIZE
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000,      LENGTH = 0x00006000 - 0x00000000
+  VECTORS (rx)          : ORIGIN = MBED_APP_START,          LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = NU_TZ_NSC_REGION_BASE - MBED_APP_START - 0x400
+  NSC_FLASH (rx)        : ORIGIN = NU_TZ_NSC_REGION_BASE,   LENGTH = NU_TZ_NSC_REGION_SIZE
+  RAM_INTERN (rwx)      : ORIGIN = 0x20000000,              LENGTH = NU_TZ_SECURE_SRAM_SIZE
 }
 
 #endif
@@ -141,7 +169,10 @@ SECTIONS
        __sgstubs_start = .;
         *(.gnu.sgstubs.*)
        __sgstubs_end = .;    
-    } > NSC_FLASH 
+    } > NSC_FLASH
+
+    /* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000. */
+    ASSERT(__sgstubs_start >= 0x4000, "By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.")
 #endif
     .ARM.extab :
     {
