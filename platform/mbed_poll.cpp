@@ -16,6 +16,7 @@
 #include "mbed_poll.h"
 #include "FileHandle.h"
 #include "Timer.h"
+#include "LowPowerTimer.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
 #endif
