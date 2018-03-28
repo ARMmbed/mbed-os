@@ -138,7 +138,7 @@ int Stream::printf(const char* format, ...) {
     for (int ix = 0; ix < r; ix++) {
         _putc(buffer[ix]);
     }
-    fflush(_file);
+    _flush();
 #else
     fflush(_file);
     int r = vfprintf(_file, format, arg);

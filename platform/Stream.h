@@ -69,6 +69,7 @@ protected:
 
     virtual int _putc(int c) = 0;
     virtual int _getc() = 0;
+    virtual void _flush() = 0;
 
     std::FILE *_file;
 
