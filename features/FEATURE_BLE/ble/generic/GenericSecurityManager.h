@@ -313,9 +313,20 @@ private:
      * Returns the CSRK for the connection. Called by the security db.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] entryKeys security entry containing keys.
+     * @param[in] csrk connection signature resolving key.
      */
     void return_csrk_cb(
+        pal::SecurityDb::entry_handle_t connection,
+        const csrk_t *csrk
+    );
+
+    /**
+     * Set the peer CSRK for the connection. Called by the security db.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] csrk connection signature resolving key.
+     */
+    void set_peer_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
         const csrk_t *csrk
     );

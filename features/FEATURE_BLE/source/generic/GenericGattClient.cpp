@@ -21,6 +21,8 @@
 #include <ble/DiscoveredCharacteristic.h>
 #include "ble/generic/GenericGattClient.h"
 #include "ble/blecommon.h"
+#include "ble/BLEInstanceBase.h"
+#include "ble/generic/GenericSecurityManager.h"
 #include <algorithm>
 
 using ble::pal::AttServerMessage;
@@ -1062,6 +1064,11 @@ ble_error_t GenericGattClient::read(
 	return err;
 }
 
+#define PREPARE_WRITE_HEADER_LENGTH 5
+#define WRITE_HEADER_LENGTH 3
+#define CMAC_LENGTH 8
+#define MAC_COUNTER_LENGTH 4
+
 ble_error_t GenericGattClient::write(
 	GattClient::WriteOp_t cmd,
 	Gap::Handle_t connection_handle,
@@ -1077,7 +1084,7 @@ ble_error_t GenericGattClient::write(
 	uint16_t mtu = get_mtu(connection_handle);
 
 	if (cmd == GattClient::GATT_OP_WRITE_CMD) {
-		if (length > (uint16_t)(mtu - 3)) {
+		if (length > (uint16_t)(mtu - WRITE_HEADER_LENGTH)) {
 			return BLE_ERROR_PARAM_OUT_OF_RANGE;
 		}
 		return _pal_client->write_without_response(
@@ -1085,10 +1092,20 @@ ble_error_t GenericGattClient::write(
 			attribute_handle,
 			make_const_ArrayView(value, length)
 		);
+	} else if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+
+        if (length > (uint16_t)(mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        }
+        return _pal_client->signed_write_without_response(
+            connection_handle,
+            attribute_handle,
+            make_const_ArrayView(value, length)
+        );
 	} else {
 		uint8_t* data = NULL;
 
-		if (length > (uint16_t)(mtu - 3)) {
+		if (length > (uint16_t)(mtu - WRITE_HEADER_LENGTH)) {
 			data = (uint8_t*) malloc(length);
 			if (data == NULL) {
 				return BLE_ERROR_NO_MEM;
@@ -1115,7 +1132,7 @@ ble_error_t GenericGattClient::write(
 			err = _pal_client->queue_prepare_write(
 				connection_handle,
 				attribute_handle,
-				make_const_ArrayView(value, mtu - 5),
+				make_const_ArrayView(value, mtu - PREPARE_WRITE_HEADER_LENGTH),
 				/* offset */ 0
 			);
 		} else {
