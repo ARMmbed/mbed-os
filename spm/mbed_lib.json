@@ -4,7 +4,7 @@
         "enable" : {
             "help": "Enable Secure Partition Manager",
             "macro_name": "ENABLE_SPM",
-            "value": 1
+            "value": 0
         },
         "ipc_max_num_of_channels": {
             "help": "Maximum number of active channels",
@@ -12,59 +12,41 @@
         }
     },
     "target_overrides": {
-        "KL25Z": {
-            "enable": 0
-        },
-        "KL46Z": {
-            "enable": 0
-        },
-        "MAXWSNENV": {
-            "enable": 0
-        },
-        "NRF51_DK": {
-            "enable": 0
-        },
-        "NRF51_DONGLE": {
-            "enable": 0
-        },
-        "NUCLEO_F070RB": {
-            "enable": 0
-        },
-        "NUCLEO_F072RB": {
-            "enable": 0
-        },
-        "NUCLEO_F103RB": {
-            "enable": 0
-        },
-        "NUMAKER_PFM_M453": {
-            "enable": 0
-        },
-        "NUMAKER_PFM_NANO130": {
-            "enable": 0
-        },
-        "SARA_NBIOT_EVK": {
-            "enable": 0
-        },
-        "TMPM066": {
-            "enable": 0
-        },
-        "TY51822R3": {
-            "enable": 0
+        "K64F": {
+            "enable": 1
         },
         "NRF52_DK": {
-            "enable": 0
+            "enable": 1
         },
-        "ARCH_PRO": {
-            "enable": 0
+        "NUCLEO_F401RE": {
+            "enable": 1
+        },
+        "NUCLEO_F429ZI": {
+            "enable": 1
         },
         "K22F": {
-            "enable": 0
+            "enable": 1
         },
-        "NCS36510": {
-            "enable": 0
+        "NUCLEO_F746ZG": {
+            "enable": 1
         },
-        "EV_COG_AD3029LZ": {
-            "enable": 0
+        "EV_COG_AD4050LZ": {
+            "enable": 1
+        },
+        "K82F": {
+            "enable": 1
+        },
+        "KW24D": {
+            "enable": 1
+        },
+        "LPC546XX": {
+            "enable": 1
+        },
+        "MAX32630FTHR": {
+            "enable": 1
+        },
+        "NUCLEO_F412ZG": {
+            "enable": 1
         }
     }
 }
