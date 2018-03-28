@@ -45,12 +45,12 @@ static const uint32_t deepsleep_mode_delta_us = (10000 + 125 + 5);
 
 unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
 {
-    return (unsigned int)((unsigned long long)ticks * US_PER_S / freq);
+    return (unsigned int) ((unsigned long long) ticks * US_PER_S / freq);
 }
 
 unsigned int us_to_ticks(unsigned int us, unsigned int freq)
 {
-    return (unsigned int)((unsigned long long)us * freq / US_PER_S);
+    return (unsigned int) ((unsigned long long) us * freq / US_PER_S);
 }
 
 unsigned int overflow_protect(unsigned int timestamp, unsigned int ticker_width)
@@ -67,15 +67,14 @@ bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, uns
     const unsigned int lower_bound = ((expected - delta_ticks) & counter_mask);
     const unsigned int upper_bound = ((expected + delta_ticks) & counter_mask);
 
-    if(lower_bound < upper_bound) {
+    if (lower_bound < upper_bound) {
         if (actual >= lower_bound && actual <= upper_bound) {
             return true;
         } else {
             return false;
         }
     } else {
-        if ((actual >= lower_bound && actual <= counter_mask) ||
-            (actual >= 0 && actual <= upper_bound)) {
+        if ((actual >= lower_bound && actual <= counter_mask) || (actual >= 0 && actual <= upper_bound)) {
             return true;
         } else {
             return false;
@@ -83,7 +82,7 @@ bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, uns
     }
 }
 
-void us_ticker_isr(const ticker_data_t *const ticker_data)
+void us_ticker_isr(const ticker_data_t * const ticker_data)
 {
     us_ticker_clear_interrupt();
 }
@@ -103,7 +102,7 @@ void sleep_usticker_test()
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
-    const ticker_irq_handler_type  us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
+    const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
@@ -142,7 +141,7 @@ void deepsleep_lpticker_test()
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
-    const ticker_irq_handler_type  lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
+    const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
 
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
@@ -229,16 +228,17 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     return greentea_test_setup_handler(number_of_cases);
 }
 
-Case cases[] = {
-    Case("sleep - source of wake-up - us ticker", sleep_usticker_test, greentea_failure_handler),
+Case cases[] =
+        { Case("sleep - source of wake-up - us ticker", sleep_usticker_test, greentea_failure_handler),
 #if DEVICE_LOWPOWERTIMER
-    Case("deep-sleep - source of wake-up - lp ticker",deepsleep_lpticker_test, greentea_failure_handler),
-    Case("deep-sleep - high-speed clocks are turned off",deepsleep_high_speed_clocks_turned_off_test, greentea_failure_handler),
+        Case("deep-sleep - source of wake-up - lp ticker",deepsleep_lpticker_test, greentea_failure_handler),
+        Case("deep-sleep - high-speed clocks are turned off",deepsleep_high_speed_clocks_turned_off_test, greentea_failure_handler),
 #endif
-};
+        };
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }
