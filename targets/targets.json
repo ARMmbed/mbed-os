@@ -7124,7 +7124,8 @@
             "SPISLAVE",
             "WATCHDOG",
             "802_15_4_PHY",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"]
     },
