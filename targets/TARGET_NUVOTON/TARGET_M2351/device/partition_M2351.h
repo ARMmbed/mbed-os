@@ -11,6 +11,42 @@
 #ifndef PARTITION_M2351
 #define PARTITION_M2351
 
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+
+#include "partition_M2351_sub.h"
+
+extern int Image$$NSC_ROM$$Base;
+
+#define NU_TZ_NSC_REGION_BASE   ((uint32_t) &Image$$NSC_ROM$$Base)
+
+#elif defined(__ICCARM__)
+
+#error ("TODO: Support IAR")
+
+#elif defined(__GNUC__)
+
+#include "partition_M2351_sub.h"
+
+extern int __sgstubs_start;
+
+#define NU_TZ_NSC_REGION_BASE   ((uint32_t) &__sgstubs_start)
+
+#endif
+
+/* Check relevant macros have been defined */
+#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
+#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
+#error("NU_TZ_SECURE_SRAM_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_NSC_REGION_BASE))
+#error("NU_TZ_NSC_REGION_BASE not defined")
+#endif
+#if (! defined(NU_TZ_NSC_REGION_SIZE))
+#error("NU_TZ_NSC_REGION_SIZE not defined")
+#endif
+
 /*
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 */
@@ -35,7 +71,7 @@
 //                                         <0x16000=> 88KB
 //                                         <0x18000=> 96KB
 */
-#define SCU_SECURE_SRAM_SIZE      0x6000
+#define SCU_SECURE_SRAM_SIZE      NU_TZ_SECURE_SRAM_SIZE
 #define NON_SECURE_SRAM_BASE    (0x30000000 + SCU_SECURE_SRAM_SIZE)
 
 
@@ -50,7 +86,7 @@
 //     <o>Secure Flash ROM Size <0x800-0x7FFFF:0x800>
 */
 
-#define FMC_SECURE_ROM_SIZE      0x40000
+#define FMC_SECURE_ROM_SIZE      NU_TZ_SECURE_FLASH_SIZE
 
 #define FMC_NON_SECURE_BASE     (0x10000000 + FMC_SECURE_ROM_SIZE)
 
@@ -387,11 +423,11 @@ __STATIC_INLINE void SCU_Setup(void)
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START3     0x3D000
+#define SAU_INIT_START3     NU_TZ_NSC_REGION_BASE
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END3       0x3DFFF
+#define SAU_INIT_END3       (NU_TZ_NSC_REGION_BASE + NU_TZ_NSC_REGION_SIZE - 1)
 /*
 //     <o>Region is
 //         <0=>Non-Secure

@@ -1,18 +1,39 @@
 #! armcc -E
 
+#include "partition_M2351_sub.h"
+
+/* Check relevant macros have been defined */
+#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
+#error("NU_TZ_SECURE_FLASH_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
+#error("NU_TZ_SECURE_SRAM_SIZE not defined")
+#endif
+#if (! defined(NU_TZ_NSC_REGION_SIZE))
+#error("NU_TZ_NSC_REGION_SIZE not defined")
+#endif
+
 /* Requirements for NSC location
  *
  * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
  * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
  * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
  */
-#define NSC_REGION_BASE     0x0003D000
-#define NSC_REGION_SIZE     0x00001000
+#define NU_TZ_NSC_REGION_BASE       (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE)
 
 #if defined(__DOMAIN_NS) && __DOMAIN_NS
 
-LR_IROM1    0x10040000                                  ; load address = execution address
-{                               
+#if (! defined(MBED_APP_START))
+#define MBED_APP_START              (0x10000000 + NU_TZ_SECURE_FLASH_SIZE)
+#endif
+
+#if (! defined(MBED_APP_SIZE))
+#define MBED_APP_SIZE               (0x80000 - NU_TZ_SECURE_FLASH_SIZE)
+#endif
+
+LR_IROM1    MBED_APP_START
+{
+    /* load address = execution address */
     ER_IROM1    +0
     {
         *(RESET, +First)
@@ -20,35 +41,43 @@ LR_IROM1    0x10040000                                  ; load address = executi
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   0x30006000  EMPTY   0x800
+    ARM_LIB_STACK   0x30000000 + NU_TZ_SECURE_SRAM_SIZE     EMPTY   0x800
     {
     }
 
-    ER_IRAMVEC  0x30006800  EMPTY   (4*(16 + 102))      ; Reserve for vectors
+    /* Reserve for vectors */
+    ER_IRAMVEC  0x30000800 + NU_TZ_SECURE_SRAM_SIZE         EMPTY   (4*(16 + 102))
     {
     }
 
-    RW_IRAM1    AlignExpr(+0, 16)                       ; 16 byte-aligned
-    {  
+    /* 16 byte-aligned */
+    RW_IRAM1    AlignExpr(+0, 16)
+    {
         .ANY (+RW +ZI)
     }
 
-    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x30006000 + 0x12000 - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x30018000 - AlignExpr(ImageLimit(RW_IRAM1), 16))
     {
     }
 }
 
-; Total 512 KB APROM: 256 KB for secure + NSC + reserved, 256 KB for non-secure
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)
-
-; Total 96 KB SRAM: 24 KB for secure, 72 KB for non-secure
+ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))
 ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30018000)
 
 #else
 
-LR_IROM1 0x00000000
+#if (! defined(MBED_APP_START))
+#define MBED_APP_START              0
+#endif
+
+#if (! defined(MBED_APP_SIZE))
+#define MBED_APP_SIZE               NU_TZ_SECURE_FLASH_SIZE
+#endif
+
+LR_IROM1 MBED_APP_START
 {
-    ER_IROM1    +0                                      ; load address = execution address
+    /* load address = execution address */
+    ER_IROM1    +0
     {
         *(RESET, +First)
         *(InRoot$$Sections)
@@ -59,33 +88,34 @@ LR_IROM1 0x00000000
     {
     }
 
-    ER_IRAMVEC  0x20000800  EMPTY   (4*(16 + 102))      ; Reserve for vectors
+    /* Reserve for vectors */
+    ER_IRAMVEC  0x20000800  EMPTY   (4*(16 + 102))
     {
     }
 
-    RW_IRAM1    AlignExpr(+0, 16)                       ; 16 byte-aligned
-    {  
+    /* 16 byte-aligned */
+    RW_IRAM1    AlignExpr(+0, 16)
+    {
         .ANY (+RW +ZI)
     }
 
-    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x20000000 + 0x6000 - AlignExpr(ImageLimit(RW_IRAM1), 16))
+    ARM_LIB_HEAP    AlignExpr(+0, 16) EMPTY (0x20000000 + NU_TZ_SECURE_SRAM_SIZE - AlignExpr(ImageLimit(RW_IRAM1), 16))
     {
     }
 }
 
-LR_IROM2 NSC_REGION_BASE
+LR_IROM2 NU_TZ_NSC_REGION_BASE
 {
-    NSC_ROM +0  NSC_REGION_SIZE  
+    NSC_ROM +0  NU_TZ_NSC_REGION_SIZE  
     {
         *(Veneer$$CMSE)
     }
 }
 
-; Total 512 KB APROM: 256 KB for secure + NSC + reserved, 256 KB for non-secure
-ScatterAssert(LoadLimit(LR_IROM1) <= NSC_REGION_BASE)
-ScatterAssert(LoadLimit(LR_IROM2) <= (NSC_REGION_BASE + NSC_REGION_SIZE))
-
-; Total 96 KB SRAM: 24 KB for secure, 72 KB for non-secure
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20006000)
+ScatterAssert(LoadLimit(LR_IROM1) <= NU_TZ_NSC_REGION_BASE)
+ScatterAssert(LoadLimit(LR_IROM2) <= (NU_TZ_NSC_REGION_BASE + NU_TZ_NSC_REGION_SIZE))
+/* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000 */
+ScatterAssert(LoadBase(LR_IROM2) >= 0x4000)
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= (0x20000000 + NU_TZ_SECURE_SRAM_SIZE))
 
 #endif
