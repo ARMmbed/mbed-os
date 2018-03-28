@@ -570,9 +570,12 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
 
     tr_info("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
-    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && ptr == CellularNetwork::RegisteredHomeNetwork && _state == STATE_REGISTERING_NETWORK) {
-        _queue.cancel(_eventID);
-        continue_from_state(STATE_ATTACHING_NETWORK);
+    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
+        // expect packet data so only these states are valid
+        if (ptr == CellularNetwork::RegisteredHomeNetwork && CellularNetwork::RegisteredRoaming) {
+            _queue.cancel(_eventID);
+            continue_from_state(STATE_ATTACHING_NETWORK);
+        }
     }
 
     if (_event_status_cb) {
