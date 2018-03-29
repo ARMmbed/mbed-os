@@ -29,6 +29,7 @@
 #define TIMEOUT_POWER_ON     (1*1000)
 #define TIMEOUT_SIM_PIN      (1*1000)
 #define TIMEOUT_NETWORK      (10*1000)
+#define TIMEOUT_CONNECT      (60*1000)
 #define TIMEOUT_REGISTRATION (180*1000)
 
 // maximum time when retrying network register, attach and connect in seconds ( 20minutes )
@@ -441,7 +442,7 @@ void CellularConnectionFSM::state_registering()
 
 void CellularConnectionFSM::state_attaching()
 {
-    _cellularDevice->set_timeout(TIMEOUT_NETWORK);
+    _cellularDevice->set_timeout(TIMEOUT_CONNECT);
     CellularNetwork::AttachStatus attach_status;
     if (get_attach_network(attach_status)) {
         if (attach_status == CellularNetwork::Attached) {
@@ -457,9 +458,11 @@ void CellularConnectionFSM::state_attaching()
 
 void CellularConnectionFSM::state_connect_to_network()
 {
-    _cellularDevice->set_timeout(TIMEOUT_NETWORK);
-    tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_NETWORK);
+    _cellularDevice->set_timeout(TIMEOUT_CONNECT);
+    tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_CONNECT);
     if (_network->connect() == NSAPI_ERROR_OK) {
+        _cellularDevice->set_timeout(TIMEOUT_NETWORK);
+        tr_debug("Connected to cellular network, set at timeout (timeout %d ms)", TIMEOUT_NETWORK);
         // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTED;
     } else {
