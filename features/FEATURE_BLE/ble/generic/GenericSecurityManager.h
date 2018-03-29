@@ -445,6 +445,8 @@ private:
         uint8_t oob_mitm_protection:1;
         uint8_t oob_present:1;
         uint8_t legacy_pairing_oob_request_pending:1;
+
+        uint8_t mic_failures:2;
     };
 
     pal::SecurityManager &_pal;
@@ -516,7 +518,7 @@ public:
 
     /** @copydoc ble::pal::SecurityManager::on_invalid_mic
      */
-    virtual void on_invalid_mic(
+    virtual void on_signature_verification_failure(
         connection_handle_t connection
     );
 
