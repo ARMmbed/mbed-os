@@ -140,14 +140,10 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
      * use when roles are changed */
     if (_master_sends_keys) {
         initiator_distribution = _default_key_distribution;
-    }
-
-    /* override default if requested */
-    if (cb->signing_override_default) {
-        initiator_distribution.set_signing(cb->signing_requested);
-    } else {
-        /* because _master_sends_keys might be false so we need to set this */
-        initiator_distribution.set_signing(_default_key_distribution.get_signing());
+        /* override default if requested */
+        if (cb->signing_override_default) {
+            initiator_distribution.set_signing(cb->signing_requested);
+        }
     }
 
     KeyDistribution responder_distribution(_default_key_distribution);
@@ -312,14 +308,10 @@ ble_error_t GenericSecurityManager::enableSigning(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    cb->signing_requested = enabled;
     cb->signing_override_default = true;
 
-    if (cb->encrypted) {
-        return BLE_ERROR_INVALID_STATE;
-    }
-
-    if (cb->signing_requested) {
+    if (enabled && !cb->signing_requested && !_default_key_distribution.get_signing()) {
+        cb->signing_requested = true;
         if (cb->csrk_stored) {
             /* used the stored ones when available */
             _db.get_entry_peer_csrk(
@@ -335,6 +327,8 @@ ble_error_t GenericSecurityManager::enableSigning(
                return slave_security_request(connection);
             }
         }
+    } else {
+        cb->signing_requested = enabled;
     }
 
     return BLE_ERROR_NONE;
