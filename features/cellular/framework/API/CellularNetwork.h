@@ -225,7 +225,7 @@ public:
 
     /** Get the current network registering mode
      *
-     *  @param      on successful return contains the current network registering mode
+     *  @param mode on successful return contains the current network registering mode
      *  @return     zero on success
      */
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
