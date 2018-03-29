@@ -311,6 +311,13 @@ struct byte_array_t {
     }
 
     /**
+     * Subscript operator to access data content
+     */
+    uint8_t operator[](uint8_t i) const {
+        return _value[i];
+    }
+
+    /**
      * Return the pointer to the buffer holding data.
      */
     const uint8_t* data() const {
