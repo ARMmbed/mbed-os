@@ -281,12 +281,12 @@ public:
         ) = 0;
 
         /**
-         * Indicate that the MIC verification has failed. This could
+         * Indicate that signed data was rejected due to verification failure. This could
          * be due to an invalid CSRK key.
          *
          * @param[in] connection connection handle
          */
-        virtual void on_invalid_mic(
+        virtual void on_signature_verification_failure(
             connection_handle_t connection
         ) = 0;
 

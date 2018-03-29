@@ -942,9 +942,21 @@ void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection
     (void)connection;
 }
 
-void GenericSecurityManager::on_invalid_mic(connection_handle_t connection) {
-    (void)connection;
-    /* TODO: count and re-pair when threshold reached */
+void GenericSecurityManager::on_signature_verification_failure(connection_handle_t connection) {
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    cb->mic_failures++;
+    if (cb->mic_failures == 3) {
+        cb->mic_failures = 0;
+        if (cb->is_master) {
+           requestPairing(connection);
+        } else {
+           slave_security_request(connection);
+        }
+    }
 }
 
 void GenericSecurityManager::on_slave_security_request(
@@ -1263,7 +1275,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     attempt_oob(false),
     oob_mitm_protection(false),
     oob_present(false),
-    legacy_pairing_oob_request_pending(false) { }
+    legacy_pairing_oob_request_pending(false),
+    mic_failures(0) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {
