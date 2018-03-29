@@ -65,13 +65,13 @@
  * }
  * @endcode
  *
- *
+ * @deprecated The error API is deprecated. Replaced by MBED_ERR / MBED_CRIT.
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-MBED_DEPRECATED_SINCE("mbed-os-5.8", "The error API is deprecated. "
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "The error API is deprecated. "
                       "Use MBED_ERR / MBED_CRIT instead.")
 void error(const char* format, ...);
 

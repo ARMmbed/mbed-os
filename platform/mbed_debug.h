@@ -38,8 +38,9 @@ extern "C" {
 /** Output a debug message
  *
  * @param format printf-style format string, followed by variables
+ *  @deprecated The debug API is deprecated. Replaced by MBED_TRACE.
  */
-MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug API is deprecated. "
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "The debug API is deprecated. "
                       "Use MBED_TRACE instead.")
 static inline void debug(const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
@@ -61,8 +62,9 @@ static inline void debug(const char *format, ...) {
  *
  * @param condition output only if condition is true (!= 0)
  * @param format printf-style format string, followed by variables
+ * @deprecated The debug_if API is deprecated. Replaced by MBED_TRACE_IF.
  */
-MBED_DEPRECATED_SINCE("mbed-os-5.8", "The debug_if API is deprecated. "
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "The debug_if API is deprecated. "
                       "Use MBED_TRACE_IF instead.")
 static inline void debug_if(int condition, const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
