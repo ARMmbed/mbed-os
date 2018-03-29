@@ -43,8 +43,8 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 
 namespace rtos {
 
-void Thread::constructor(osPriority priority,
-        uint32_t stack_size, unsigned char *stack_mem, const char *name, uint32_t tz_module) {
+void Thread::constructor(uint32_t tz_module, osPriority priority,
+        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
 
     const uintptr_t unaligned_mem = reinterpret_cast<uintptr_t>(stack_mem);
     const uintptr_t aligned_mem = ALIGN_UP(unaligned_mem, 8);
@@ -63,9 +63,14 @@ void Thread::constructor(osPriority priority,
     _attr.tz_module = tz_module;
 }
 
+void Thread::constructor(osPriority priority,
+        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+    constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
+}
+
 void Thread::constructor(Callback<void()> task,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name, uint32_t tz_module) {
-    constructor(priority, stack_size, stack_mem, name, tz_module);
+        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+    constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
 
     switch (start(task)) {
         case osErrorResource:

@@ -75,9 +75,11 @@ namespace rtos {
  */
 
 /* This flag can be used to change the default access of all threads in non-secure mode.
-   TZ_DEFAULT_ACCESS set to 1, means all non-secure threads have access to call secure functions. */
-#ifndef TZ_DEFAULT_ACCESS
-#define TZ_DEFAULT_ACCESS 0
+   MBED_TZ_DEFAULT_ACCESS set to 1, means all non-secure threads have access to call secure functions.
+   MBED_TZ_DEFAULT_ACCESS is target specific define, should be set in targets.json file for Cortex-M23/M33 devices.
+*/
+#ifndef MBED_TZ_DEFAULT_ACCESS
+#define MBED_TZ_DEFAULT_ACCESS 0
 #endif
 
 class Thread : private mbed::NonCopyable<Thread> {
@@ -87,16 +89,33 @@ public:
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
       @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
-      @param   tz_module      trustzone thread identifier (osThreadAttr_t::tz_module) (default: TZ_DEFAULT_ACCESS)
 
+      @note Default value of tz_module will be MBED_TZ_DEFAULT_ACCESS
       @note You cannot call this function from ISR context.
     */
 
     Thread(osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL, const char *name=NULL, uint32_t tz_module=TZ_DEFAULT_ACCESS) {
-        constructor(priority, stack_size, stack_mem, name, tz_module);
+           unsigned char *stack_mem=NULL, const char *name=NULL) {
+        constructor(priority, stack_size, stack_mem, name);
     }
+
+    /** Allocate a new thread without starting execution
+      @param   tz_module      trustzone thread identifier (osThreadAttr_t::tz_module)
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
+      @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
+      @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
+
+      @note You cannot call this function from ISR context.
+    */
+
+    Thread(uint32_t tz_module, osPriority priority=osPriorityNormal,
+           uint32_t stack_size=OS_STACK_SIZE,
+           unsigned char *stack_mem=NULL, const char *name=NULL) {
+        constructor(tz_module, priority, stack_size, stack_mem, name);
+    }
+
 
     /** Create a new thread, and start it executing the specified function.
       @param   task           function to be executed by this thread.
@@ -436,12 +455,17 @@ private:
     void constructor(osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
-                     const char *name=NULL, uint32_t tz_module=TZ_DEFAULT_ACCESS);
+                     const char *name=NULL);
     void constructor(mbed::Callback<void()> task,
                      osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
-                     const char *name=NULL, uint32_t tz_module=TZ_DEFAULT_ACCESS);
+                     const char *name=NULL);
+    void constructor(uint32_t tz_module,
+                     osPriority priority=osPriorityNormal,
+                     uint32_t stack_size=OS_STACK_SIZE,
+                     unsigned char *stack_mem=NULL,
+                     const char *name=NULL);
     static void _thunk(void * thread_ptr);
 
     mbed::Callback<void()>     _task;
