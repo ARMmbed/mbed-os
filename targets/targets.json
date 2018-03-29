@@ -2052,6 +2052,7 @@
         "device_has_remove": ["RTC", "SLEEP"],
         "features": ["LWIP"],
         "device_name": "STM32F439ZI",
+		"public": false,
         "bootloader_supported": true
     },
     "UBLOX_EVK_ODIN_W2": {
