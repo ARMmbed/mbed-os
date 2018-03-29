@@ -15,16 +15,10 @@
         "K64F": {
             "enable": 1
         },
-        "NRF52_DK": {
-            "enable": 1
-        },
         "NUCLEO_F401RE": {
             "enable": 1
         },
         "NUCLEO_F429ZI": {
-            "enable": 1
-        },
-        "K22F": {
             "enable": 1
         },
         "NUCLEO_F746ZG": {
@@ -34,9 +28,6 @@
             "enable": 1
         },
         "K82F": {
-            "enable": 1
-        },
-        "KW24D": {
             "enable": 1
         },
         "LPC546XX": {
