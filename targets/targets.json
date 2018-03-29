@@ -601,7 +601,7 @@
         "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0201"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "TRNG", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "TRNG", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4"
     },
@@ -2884,7 +2884,7 @@
         "macros": ["__SYSTEM_HFX=96000000", "TARGET=MAX32630", "TARGET_REV=0x4132", "BLE_HCI_UART", "OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["USTICKER", "ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "STDIO_MESSAGES"],
 		"features": ["BLE"],
         "release_versions": ["2", "5"]
     },
