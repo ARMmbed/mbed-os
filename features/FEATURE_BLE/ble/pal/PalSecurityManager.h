@@ -281,6 +281,16 @@ public:
         ) = 0;
 
         /**
+         * Indicate that the MIC verification has failed. This could
+         * be due to an invalid CSRK key.
+         *
+         * @param[in] connection connection handle
+         */
+        virtual void on_invalid_mic(
+            connection_handle_t connection
+        ) = 0;
+
+        /**
          * Ask the stack to evaluate the security request received from the slave.
          * This might result in the stack enabling encryption, or pairing/re-pairing.
          *

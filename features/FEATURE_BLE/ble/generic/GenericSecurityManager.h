@@ -514,6 +514,12 @@ public:
         connection_handle_t connection
     );
 
+    /** @copydoc ble::pal::SecurityManager::on_invalid_mic
+     */
+    virtual void on_invalid_mic(
+        connection_handle_t connection
+    );
+
     /** @copydoc ble::pal::SecurityManager::on_slave_security_request
      */
     virtual void on_slave_security_request(
