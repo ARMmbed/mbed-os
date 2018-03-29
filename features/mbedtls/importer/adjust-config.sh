@@ -66,7 +66,8 @@ add_code                                                                        
     "#endif\n"                                                                        \
     "\n"                                                                              \
     "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n" \
-    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)\n"                                    \
+    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && \\\\\n"                            \
+    "    !defined(MBEDTLS_ENTROPY_NV_SEED)\n"                                         \
     "#error \"No entropy source was found at build time, so TLS \" \\\\\n"            \
     "    \"functionality is not available\"\n"                                        \
     "#endif\n"
