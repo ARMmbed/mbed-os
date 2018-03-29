@@ -289,7 +289,7 @@ typedef enum {
     PB13          = SPI_SCK,
     PB14          = USER_BUTTON,
     GP1           = PC_15,
- //Todo
+
 //AIN0
 //AIN1
 //AIN2
@@ -302,7 +302,7 @@ typedef enum {
     GP6           = PA_4, //RESET for LCD
     GP7           = PB_12, //CS for LCD
     GP8           = PC_0,
- //Todo
+
 //TX2 = WL_GPIO1
 //RX2 = WL_GPIO2
 
