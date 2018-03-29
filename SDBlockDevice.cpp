@@ -142,13 +142,13 @@
 #include "mbed_debug.h"
 #include <errno.h>
 
-/* Required version: 5.6.1 and above */
-#if defined(MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
-#if (MBED_VERSION < MBED_ENCODE_VERSION(5,6,1))
-#error "Incompatible mbed-os version detected! Required 5.6.1 and above"
+/* Required version: 5.8.0 and above */
+#if defined(    MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
+#if (MBED_VERSION < MBED_ENCODE_VERSION(5,8,0))
+#error "Incompatible mbed-os version detected! Required 5.8.0 and above"
 #endif
 #else
-#warning "mbed-os version 5.6.1 or above required"
+#warning "mbed-os version 5.8.0 or above required"
 #endif
 
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
@@ -164,12 +164,12 @@
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
 #define SD_CMD_TRACE                             0      /*!< 1 - Enable SD command tracing */
 
-#define SD_BLOCK_DEVICE_ERROR_WOULD_BLOCK        -5001	/*!< operation would block */
-#define SD_BLOCK_DEVICE_ERROR_UNSUPPORTED        -5002	/*!< unsupported operation */
-#define SD_BLOCK_DEVICE_ERROR_PARAMETER          -5003	/*!< invalid parameter */
-#define SD_BLOCK_DEVICE_ERROR_NO_INIT            -5004	/*!< uninitialized */
-#define SD_BLOCK_DEVICE_ERROR_NO_DEVICE          -5005	/*!< device is missing or not connected */
-#define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006	/*!< write protected */
+#define SD_BLOCK_DEVICE_ERROR_WOULD_BLOCK        -5001  /*!< operation would block */
+#define SD_BLOCK_DEVICE_ERROR_UNSUPPORTED        -5002  /*!< unsupported operation */
+#define SD_BLOCK_DEVICE_ERROR_PARAMETER          -5003  /*!< invalid parameter */
+#define SD_BLOCK_DEVICE_ERROR_NO_INIT            -5004  /*!< uninitialized */
+#define SD_BLOCK_DEVICE_ERROR_NO_DEVICE          -5005  /*!< device is missing or not connected */
+#define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006  /*!< write protected */
 #define SD_BLOCK_DEVICE_ERROR_UNUSABLE           -5007  /*!< unusable card */
 #define SD_BLOCK_DEVICE_ERROR_NO_RESPONSE        -5008  /*!< No response from device */
 #define SD_BLOCK_DEVICE_ERROR_CRC                -5009  /*!< CRC error */
@@ -178,7 +178,6 @@
 
 #define BLOCK_SIZE_HC                            512    /*!< Block size supported for SD card is 512 bytes  */
 #define WRITE_BL_PARTIAL                         0      /*!< Partial block write - Not supported */
-#define CRC_SUPPORT                              0      /*!< CRC - Not supported */
 #define SPI_CMD(x) (0x40 | (x & 0x3f))
 
 /* R1 Response Format */
@@ -244,8 +243,9 @@
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz)
-    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
+    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0), 
+      _crc_on(crc_on), _crc16(0, 0, false, false)
 {
     _cs = 1;
     _card_type = SDCARD_NONE;
@@ -287,6 +287,11 @@ int SDBlockDevice::_initialise_card()
     status = _cmd8();
     if (BD_ERROR_OK != status && SD_BLOCK_DEVICE_ERROR_UNSUPPORTED != status) {
         return status;
+    }
+
+    if (_crc_on) {
+        // Enable CRC
+        status = _cmd(CMD59_CRC_ON_OFF, _crc_on);
     }
 
     // Read OCR - CMD58 Response contains OCR register
@@ -341,9 +346,10 @@ int SDBlockDevice::_initialise_card()
         debug_if(SD_DBG, "Card Initialized: Version 1.x Card\n");
     }
 
-    // Disable CRC
-    status = _cmd(CMD59_CRC_ON_OFF, 0);
-
+    if (!_crc_on) {
+        // Disable CRC
+        status = _cmd(CMD59_CRC_ON_OFF, _crc_on);
+    }
     return status;
 }
 
@@ -351,6 +357,7 @@ int SDBlockDevice::_initialise_card()
 int SDBlockDevice::init()
 {
     lock();
+
     int err = _initialise_card();
     _is_initialized = (err == BD_ERROR_OK);
     if (!_is_initialized) {
@@ -609,6 +616,7 @@ int SDBlockDevice::_freq(void)
 uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
     uint8_t response;
     char cmdPacket[PACKET_SIZE];
+    uint32_t crc;
 
     // Prepare the command packet
     cmdPacket[0] = SPI_CMD(cmd);
@@ -616,18 +624,24 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
     cmdPacket[2] = (arg >> 16);
     cmdPacket[3] = (arg >> 8);
     cmdPacket[4] = (arg >> 0);
-    // CMD0 is executed in SD mode, hence should have correct CRC
-    // CMD8 CRC verification is always enabled
-    switch(cmd) {
-        case CMD0_GO_IDLE_STATE:
-            cmdPacket[5] = 0x95;
-            break;
-        case CMD8_SEND_IF_COND:
-            cmdPacket[5] = 0x87;
-            break;
-        default:
-            cmdPacket[5] = 0xFF;    // Make sure bit 0-End bit is high
-            break;
+
+    if (_crc_on) {
+        _crc7.compute((void *)cmdPacket, 5, &crc);
+        cmdPacket[5] = (char)(crc | 0x01);
+    } else {
+        // CMD0 is executed in SD mode, hence should have correct CRC
+        // CMD8 CRC verification is always enabled
+        switch(cmd) {
+            case CMD0_GO_IDLE_STATE:
+                cmdPacket[5] = 0x95;
+                break;
+            case CMD8_SEND_IF_COND:
+                cmdPacket[5] = 0x87;
+                break;
+            default:
+                cmdPacket[5] = 0xFF;    // Make sure bit 0-End bit is high
+                break;
+        }
     }
 
     // send a command
@@ -823,6 +837,18 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length) {
     crc = (_spi.write(SPI_FILL_CHAR) << 8);
     crc |= _spi.write(SPI_FILL_CHAR);
 
+    if (_crc_on) {
+        uint32_t crc_result;
+        // Compute and verify checksum
+        _crc16.compute((void *)buffer, length, &crc_result);
+        if ((uint16_t)crc_result != crc) {
+            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%x result of computation 0x%x\n",
+                        crc, crc_result);
+            _deselect();
+            return SD_BLOCK_DEVICE_ERROR_CRC;
+        }
+    }
+
     _deselect();
     return 0;
 }
@@ -844,11 +870,23 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     crc = (_spi.write(SPI_FILL_CHAR) << 8);
     crc |= _spi.write(SPI_FILL_CHAR);
 
+    if (_crc_on) {
+        uint32_t crc_result;
+        // Compute and verify checksum
+        _crc16.compute((void *)buffer, length, &crc_result);
+        if ((uint16_t)crc_result != crc) {
+            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%x result of computation 0x%x\n",
+                        crc, crc_result);
+            return SD_BLOCK_DEVICE_ERROR_CRC;
+        }
+    }
+
     return 0;
 }
 
 uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t length) {
-    uint16_t crc = 0xFFFF;
+    
+    uint32_t crc = (~0);
     uint8_t response = 0xFF;
 
     // indicate start of block
@@ -857,9 +895,15 @@ uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t len
     // write the data
     _spi.write((char*)buffer, length, NULL, 0);
 
+    if (_crc_on) {
+        // Compute CRC
+        _crc16.compute((void *)buffer, length, &crc);
+    }
+
     // write the checksum CRC16
     _spi.write(crc >> 8);
     _spi.write(crc);
+
 
     // check the response token
     response = _spi.write(SPI_FILL_CHAR);

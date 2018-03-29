@@ -86,6 +86,7 @@ The following versions of the mbed-os and sd-driver repositories are known to wo
 - {mbed-os, sd-driver} = {mbed-os-5.5.1, sd-driver-0.1.0-mbed-os-5.5.1}.
 - {mbed-os, sd-driver} = {mbed-os-5.5.4, sd-driver-0.1.1-mbed-os-5.5.4}.
 - {mbed-os, sd-driver} = {mbed-os-5.6.1, sd-driver-0.1.2-mbed-os-5.6.1}.
+- {mbed-os, sd-driver} = {mbed-os-5.8.0, sd-driver-0.1.3-mbed-os-5.8.0}.
 
 To find the latest compatible versions, use the following command to see the messages attached to the tags
 in the sd-driver repository:
@@ -97,7 +98,7 @@ in the sd-driver repository:
     sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
     sd-driver-0.1.1-mbed-os-5.5.4 Version compatible with mbed-os-5.5.4
     sd-driver-0.1.2-mbed-os-5.6.1  Version compatible with mbed-os-5.6.1
-
+    sd-driver-0.1.3-mbed-os-5.8.0  Version compatible with mbed-os-5.8.0
 
 ### Known Issues With This Document
 

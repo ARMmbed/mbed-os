@@ -45,7 +45,7 @@ class SDBlockDevice : public BlockDevice {
 public:
     /** Lifetime of an SD card
      */
-    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz=1000000);
+    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz=1000000, bool crc_on=0);
     virtual ~SDBlockDevice();
 
     /** Initialize a block device
@@ -225,6 +225,10 @@ private:
     bd_size_t _erase_size;
     bool _is_initialized;
     bool _dbg;
+    bool _crc_on;
+
+    MbedCRC<POLY_7BIT_SD, 7> _crc7;
+    MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
 };
 
 #endif  /* DEVICE_SPI */
