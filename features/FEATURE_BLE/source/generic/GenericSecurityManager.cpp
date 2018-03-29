@@ -912,9 +912,9 @@ void GenericSecurityManager::on_signature_verification_failure(connection_handle
         return;
     }
 
-    cb->mic_failures++;
-    if (cb->mic_failures == 3) {
-        cb->mic_failures = 0;
+    cb->csrk_failures++;
+    if (cb->csrk_failures == 3) {
+        cb->csrk_failures = 0;
         if (cb->is_master) {
            requestPairing(connection);
         } else {
@@ -1238,7 +1238,7 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     oob_mitm_protection(false),
     oob_present(false),
     legacy_pairing_oob_request_pending(false),
-    mic_failures(0) { }
+    csrk_failures(0) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {
