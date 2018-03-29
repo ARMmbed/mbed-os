@@ -76,6 +76,11 @@ struct nRF5xSecurityManager::pairing_control_block_t {
     ble_gap_id_key_t peer_id_key;
     ble_gap_sign_info_t peer_sign_key;
     ble_gap_lesc_p256_pk_t peer_pk;
+
+    // flag required to help DHKey computation/process; should be removed with
+    // later versions of the softdevice
+    uint8_t own_oob:1;
+    uint8_t peer_oob:1;
 };
 
 nRF5xSecurityManager::nRF5xSecurityManager()
@@ -90,7 +95,7 @@ nRF5xSecurityManager::nRF5xSecurityManager()
 
 nRF5xSecurityManager::~nRF5xSecurityManager()
 {
-
+    terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -99,19 +104,27 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 
 ble_error_t nRF5xSecurityManager::initialize()
 {
-    // FIXME: generate and set public and private keys
-    return BLE_ERROR_NONE;
+    if (_crypto.generate_keys(X, Y, secret)) {
+        return BLE_ERROR_NONE;
+    }
+
+    return BLE_ERROR_INTERNAL_STACK_FAILURE;
 }
 
 ble_error_t nRF5xSecurityManager::terminate()
 {
+    release_all_pairing_cb();
     return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::reset()
 {
-    // FIXME: reset public and private keys
-    return BLE_ERROR_NONE;
+    ble_error_t err = terminate();
+    if (err) {
+        return err;
+    }
+
+    return initialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -162,6 +175,7 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 )  {
+    printf("nRF5xSecurityManager::send_pairing_request\r\n");
     // allocate the control block required for the procedure completion
     pairing_control_block_t* pairing_cb = allocate_pairing_cb(connection);
     if (!pairing_cb) {
@@ -172,6 +186,10 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
     // override signing parameter
     initiator_dist.set_signing(false);
     responder_dist.set_signing(false);
+
+    // override link parameter
+    initiator_dist.set_link(false);
+    responder_dist.set_link(false);
 
     ble_gap_sec_params_t security_params = make_security_params(
         oob_data_flag,
@@ -209,6 +227,10 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
     initiator_dist.set_signing(false);
     responder_dist.set_signing(false);
 
+    // override link parameter
+    initiator_dist.set_link(false);
+    responder_dist.set_link(false);
+
     ble_gap_sec_params_t security_params = make_security_params(
         oob_data_flag,
         authentication_requirements,
@@ -239,7 +261,7 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
 ble_error_t nRF5xSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
 ) {
-    // this is the default path except when a key is expected to be enterred by
+    // this is the default path except when a key is expected to be entered by
     // the user.
     uint32_t err = sd_ble_gap_sec_params_reply(
         connection,
@@ -272,9 +294,7 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
 ble_error_t nRF5xSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
-    // NRF5x platforms support secure connections
-    // FIXME: set to true once the ECC library is included
-    enabled = false;
+    enabled = true;
     return BLE_ERROR_NONE;
 }
 
@@ -399,7 +419,7 @@ ble_error_t nRF5xSecurityManager::encrypt_data(
     const byte_array_t<16> &key,
     encryption_block_t &data
 ) {
-    // FIXME: With signing ?
+    // FIXME: Implement in LescCrypto ?
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -446,8 +466,8 @@ ble_error_t nRF5xSecurityManager::set_ltk(
     uint32_t err = sd_ble_gap_sec_info_reply(
         connection,
         &enc_info,
-        NULL,
-        NULL // Not supported
+        /* id info */ NULL,
+        /* sign info */ NULL // Not supported
     );
 
     return convert_sd_error(err);
@@ -520,11 +540,47 @@ ble_error_t nRF5xSecurityManager::set_display_passkey(passkey_num_t passkey)
 ble_error_t nRF5xSecurityManager::passkey_request_reply(
     connection_handle_t connection, const passkey_num_t passkey
 ) {
+    pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
+    if (!pairing_cb) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
     PasskeyAscii pkasc(passkey);
     uint32_t err = sd_ble_gap_auth_key_reply(
         connection,
         BLE_GAP_AUTH_KEY_TYPE_PASSKEY,
         pkasc.value()
+    );
+
+    return convert_sd_error(err);
+}
+
+ble_error_t nRF5xSecurityManager::secure_connections_oob_request_reply(
+    connection_handle_t connection,
+    const oob_lesc_value_t &local_random,
+    const oob_lesc_value_t &peer_random,
+    const oob_confirm_t &peer_confirm
+) {
+    pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
+    if (!pairing_cb) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    ble_gap_lesc_oob_data_t oob_own;
+    ble_gap_lesc_oob_data_t oob_peer;
+
+    // is own address important ?
+    memcpy(oob_own.r, local_random.data(), local_random.size());
+    // FIXME: What to do with local confirm ???
+
+    // is peer address important ?
+    memcpy(oob_peer.r, peer_random.data(), peer_random.size());
+    memcpy(oob_peer.c, peer_confirm.data(), peer_confirm.size());
+
+    uint32_t err = sd_ble_gap_lesc_oob_data_set(
+        connection,
+        pairing_cb->own_oob ? &oob_own : NULL,
+        pairing_cb->peer_oob ? &oob_peer : NULL
     );
 
     return convert_sd_error(err);
@@ -546,11 +602,17 @@ ble_error_t nRF5xSecurityManager::legacy_pairing_oob_request_reply(
 ble_error_t nRF5xSecurityManager::confirmation_entered(
     connection_handle_t connection, bool confirmation
 ) {
+    pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
+    if (!pairing_cb) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
     uint32_t err = sd_ble_gap_auth_key_reply(
         connection,
         confirmation ? BLE_GAP_AUTH_KEY_TYPE_PASSKEY : BLE_GAP_AUTH_KEY_TYPE_NONE,
         NULL
     );
+
     return convert_sd_error(err);
 }
 
@@ -568,25 +630,26 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
 ble_error_t nRF5xSecurityManager::generate_secure_connections_oob(
     connection_handle_t connection
 ) {
-    // FIXME: made with external library; requires SDK v13
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
+    ble_gap_lesc_p256_pk_t own_secret;
+    ble_gap_lesc_oob_data_t oob_data;
 
+    memcpy(own_secret.pk, secret.buffer(), secret.size());
 
-ble_error_t nRF5xSecurityManager::secure_connections_oob_received(
-    const address_t &address,
-    const oob_lesc_value_t &random,
-    const oob_confirm_t &confirm
-) {
-    // FIXME: store locally
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
+    uint32_t err = sd_ble_gap_lesc_oob_data_get(
+        connection,
+        &own_secret,
+        &oob_data
+    );
 
-bool nRF5xSecurityManager::is_secure_connections_oob_present(
-    const address_t &address
-) {
-    // FIXME: lookup local store
-    return false;
+    if (!err) {
+        get_event_handler()->on_secure_connections_oob_generated(
+            connection,
+            oob_data.r,
+            oob_data.c
+        );
+    }
+
+    return convert_sd_error(err);
 }
 
 nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
@@ -653,18 +716,15 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                     );
                 }
             } else {
-                AuthenticationMask authentication_requirements(
-                    params.bond,
-                    params.mitm,
-                    params.lesc,
-                    params.keypress
-                );
-
-
                 handler->on_pairing_request(
                     connection,
                     params.oob,
-                    authentication_requirements,
+                    AuthenticationMask(
+                        params.bond,
+                        params.mitm,
+                        params.lesc,
+                        params.keypress
+                    ),
                     initiator_dist,
                     responder_dist
                 );
@@ -695,7 +755,11 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                     PasskeyAscii::to_num(req.passkey)
                 );
             } else {
-                // FIXME handle this case for secure pairing
+                handler->on_passkey_display(
+                    connection,
+                    PasskeyAscii::to_num(req.passkey)
+                );
+                handler->on_confirmation_request(connection);
             }
 
             return true;
@@ -708,6 +772,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             );
             return true;
         }
+
         case BLE_GAP_EVT_AUTH_KEY_REQUEST: {
             uint8_t key_type = gap_evt.params.auth_key_request.key_type;
 
@@ -727,9 +792,32 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             return true;
         }
 
-        case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
-            // FIXME: Add with LESC support
+        case BLE_GAP_EVT_LESC_DHKEY_REQUEST: {
+            const ble_gap_evt_lesc_dhkey_request_t& dhkey_request =
+                gap_evt.params.lesc_dhkey_request;
+
+            size_t key_size = public_key_coord_t::size();
+            public_key_coord_t peer_X(dhkey_request.p_pk_peer->pk, key_size);
+            public_key_coord_t peer_Y(dhkey_request.p_pk_peer->pk + key_size, key_size);
+            public_key_coord_t sh_secret;
+            ble_gap_lesc_dhkey_t shared_secret;
+
+            _crypto.generate_shared_secret(
+                peer_X,
+                peer_Y,
+                self.secret,
+                sh_secret
+            );
+
+            memcpy(shared_secret.key, sh_secret.data(), sh_secret.size());
+            sd_ble_gap_lesc_dhkey_reply(connection, &shared_secret);
+
+            if (dhkey_request.oobd_req) {
+                handler->on_secure_connections_oob_request(connection);
+            }
+
             return true;
+        }
 
         case BLE_GAP_EVT_AUTH_STATUS: {
             const ble_gap_evt_auth_status_t& status = gap_evt.params.auth_status;
@@ -954,13 +1042,13 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
             own_dist->get_encryption() ? &pairing_cb.own_enc_key : NULL,
             own_dist->get_identity() ? &pairing_cb.own_id_key : NULL,
             own_dist->get_signing() ? &pairing_cb.own_sign_key : NULL,
-            own_dist->get_link() ? &pairing_cb.own_pk : NULL
+            &pairing_cb.own_pk
         },
         /* keys_peer */ {
             peer_dist->get_encryption() ? &pairing_cb.peer_enc_key : NULL,
             peer_dist->get_identity() ? &pairing_cb.peer_id_key : NULL,
             peer_dist->get_signing() ? &pairing_cb.peer_sign_key : NULL,
-            peer_dist->get_link() ? &pairing_cb.peer_pk : NULL
+            &pairing_cb.peer_pk
         }
     };
 
@@ -968,6 +1056,10 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     if (keyset.keys_own.p_sign_key) {
         memcpy(keyset.keys_own.p_sign_key->csrk, _csrk.data(), _csrk.size());
     }
+
+    // copy public keys used
+    memcpy(pairing_cb.own_pk.pk, X.data(), X.size());
+    memcpy(pairing_cb.own_pk.pk + X.size(), Y.data(), Y.size());
 
     return keyset;
 }
@@ -1014,6 +1106,13 @@ nRF5xSecurityManager::get_pairing_cb(connection_handle_t connection)
     }
 
     return NULL;
+}
+
+void nRF5xSecurityManager::release_all_pairing_cb()
+{
+    while(_control_blocks) {
+        release_pairing_cb(_control_blocks);
+    }
 }
 
 } // nordic
