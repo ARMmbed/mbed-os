@@ -1090,6 +1090,7 @@ ble_error_t GenericGattClient::write(
         return _pal_client->write_without_response(
             connection_handle,
             attribute_handle,
+            make_const_ArrayView(value, length)
         );
     } else if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
         /*TODO check encryption status */
