@@ -211,6 +211,22 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
     return _erase_size;
 }
 
+bd_size_t ChainingBlockDevice::get_erase_size(bd_addr_t addr) const
+{
+    bd_addr_t bd_start_addr = 0;
+    for (size_t i = 0; i < _bd_count; i++) {
+        bd_size_t bdsize = _bds[i]->size();
+        if (addr < (bd_start_addr + bdsize)) {
+            return _bds[i]->get_erase_size(addr - bd_start_addr);
+        }
+        bd_start_addr += bdsize;
+    }
+
+    // Getting here implies an illegal address
+    MBED_ASSERT(0);
+    return 0; // satisfy compiler
+}
+
 int ChainingBlockDevice::get_erase_value() const
 {
     return _erase_value;
