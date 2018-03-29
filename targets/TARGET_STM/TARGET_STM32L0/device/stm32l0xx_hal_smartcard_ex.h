@@ -2,9 +2,7 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
-  * @brief   Header file of SMARTCARD HAL module.
+  * @brief   Header file of SMARTCARD HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,91 +48,95 @@
   * @{
   */
 
-/** @defgroup SMARTCARDEx SMARTCARDEx
-  * @{
-  */ 
-
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
-/** @defgroup SMARTCARDEx_Exported_Macros SMARTCARDEx Exported Macros
+/** @addtogroup SMARTCARDEx
   * @{
   */
-/** @brief  Reports the SMARTCARD clock source.
-  * @param  __HANDLE__: specifies the USART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
-  * @retval the USART clocking source, written in __CLOCKSOURCE__.
+
+/* Exported types ------------------------------------------------------------*/  
+/* Exported constants --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/  
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup SMARTCARDEx_Private_Macros SMARTCARD Extended Private Macros
+  * @{
+  */
+  
+/** @brief  Report the SMARTCARD clock source.
+  * @param  __HANDLE__: specifies the SMARTCARD Handle.
+  * @param  __CLOCKSOURCE__: output variable.
+  * @retval the SMARTCARD clocking source, written in __CLOCKSOURCE__.
   */
 #if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
-#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
-  do {                                                             \
-    if((__HANDLE__)->Instance == USART2)                      \
-    {                                                              \
-       switch(__HAL_RCC_GET_USART2_SOURCE())                       \
-       {                                                           \
-        case RCC_USART2CLKSOURCE_PCLK1:                            \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK1;         \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_HSI:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;           \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_SYSCLK:                           \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;        \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_LSE:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;           \
-          break;                                                   \
-        default:                                                   \
-          break;                                                   \
-       }                                                           \
-    }                                                              \
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)   \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART2)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                   \
+       {                                                       \
+        case RCC_USART2CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK1;     \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;       \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;    \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;       \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_UNDEFINED; \
+          break;                                               \
+       }                                                       \
+    }                                                          \
   } while(0)
 
 #else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
-#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
-  do {                                                             \
-    if((__HANDLE__)->Instance == USART1)                           \
-    {                                                              \
-       switch(__HAL_RCC_GET_USART1_SOURCE())                       \
-       {                                                           \
-        case RCC_USART1CLKSOURCE_PCLK2:                            \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK2;         \
-          break;                                                   \
-        case RCC_USART1CLKSOURCE_HSI:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;           \
-          break;                                                   \
-        case RCC_USART1CLKSOURCE_SYSCLK:                           \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;        \
-          break;                                                   \
-        case RCC_USART1CLKSOURCE_LSE:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;           \
-          break;                                                   \
-        default:                                                   \
-          break;                                                   \
-       }                                                           \
-    }                                                              \
-    else if((__HANDLE__)->Instance == USART2)                      \
-    {                                                              \
-       switch(__HAL_RCC_GET_USART2_SOURCE())                       \
-       {                                                           \
-        case RCC_USART2CLKSOURCE_PCLK1:                            \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK1;         \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_HSI:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;           \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_SYSCLK:                           \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;        \
-          break;                                                   \
-        case RCC_USART2CLKSOURCE_LSE:                              \
-          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;           \
-          break;                                                   \
-        default:                                                   \
-          break;                                                   \
-       }                                                           \
-    }                                                              \
+#define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)   \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART1)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                   \
+       {                                                       \
+        case RCC_USART1CLKSOURCE_PCLK2:                        \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK2;     \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;       \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;    \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;       \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_UNDEFINED; \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART2)                  \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                   \
+       {                                                       \
+        case RCC_USART2CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_PCLK1;     \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_HSI;       \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_SYSCLK;    \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_LSE;       \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = SMARTCARD_CLOCKSOURCE_UNDEFINED; \
+          break;                                               \
+       }                                                       \
+    }                                                          \
   } while(0)
 #endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
@@ -143,27 +145,22 @@
   */
 
 /* Exported functions --------------------------------------------------------*/
-/** @defgroup SMARTCARDEx_Exported_Functions SMARTCARDEx Exported Functions
+/** @addtogroup SMARTCARDEx_Exported_Functions
   * @{
   */
-/* Initialization/de-initialization functions  ********************************/
-/** @defgroup SMARTCARDEx_Exported_Functions_Group1 Extended Peripheral Control functions
- *  @{
- */
 
 /* Initialization and de-initialization functions  ****************************/
-/* IO operation functions *****************************************************/
+/* IO operation methods *******************************************************/
+
+/** @addtogroup SMARTCARDEx_Exported_Functions_Group1
+  * @{
+  */
+
 /* Peripheral Control functions ***********************************************/
-void HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hsc, uint8_t BlockLength);
-void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsc, uint32_t TimeOutValue);
-HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsc);
-HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsc);
-
-/* Peripheral State and Error functions ***************************************/
-
-/**
-  * @}
-  */ 
+void              HAL_SMARTCARDEx_BlockLength_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint8_t BlockLength);
+void              HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint32_t TimeOutValue);
+HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
+HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard);
 
 /**
   * @}
@@ -176,6 +173,11 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
 /**
   * @}
   */
+
+/**
+  * @}
+  */
+
 #ifdef __cplusplus
 }
 #endif
