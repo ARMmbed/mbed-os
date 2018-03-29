@@ -105,6 +105,7 @@ public:
      *  @returns
      *    0 on success,
      *   -1 on error.
+     *  @deprecated Replaced by `DirHandle::close'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::close")
     virtual int closedir() { return close(); };
@@ -116,6 +117,7 @@ public:
      *  A pointer to a dirent structure representing the
      *  directory entry at the current position, or NULL on reaching
      *  end of directory or error.
+     * @deprecated Replaced by `DirHandle::read'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::read")
     virtual struct dirent *readdir()
@@ -125,6 +127,7 @@ public:
     }
 
     /** Resets the position to the beginning of the directory.
+     * @deprecated Replaced by `DirHandle::rewind'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::rewind")
     virtual void rewinddir() { rewind(); }
@@ -134,6 +137,7 @@ public:
      * @returns
      *   the current position,
      *  -1 on error.
+     * @deprecated Replaced by `DirHandle::tell'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::tell")
     virtual off_t telldir() { return tell(); }
@@ -141,6 +145,7 @@ public:
     /** Sets the position of the DirHandle.
      *
      *  @param location The location to seek to. Must be a value returned by telldir.
+     *  @deprecated Replaced by `DirHandle::seek'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::seek")
     virtual void seekdir(off_t location) { seek(location); }
