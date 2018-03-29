@@ -1102,7 +1102,6 @@ lorawan_status_t LoRaMac::schedule_tx(void)
 {
     lorawan_time_t dutyCycleTimeOff = 0;
     channel_selection_params_t nextChan;
-    lorawan_status_t status = LORAWAN_STATUS_PARAMETER_INVALID;
 
     if (_params.sys_params.max_duty_cycle == 255) {
         return LORAWAN_STATUS_DEVICE_OFF;
@@ -1121,9 +1120,10 @@ lorawan_status_t LoRaMac::schedule_tx(void)
     nextChan.joined = _is_nwk_joined;
     nextChan.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
-    status = _lora_phy.set_next_channel(&nextChan, &_params.channel,
-                                        &dutyCycleTimeOff,
-                                        &_params.timers.aggregated_timeoff);
+    lorawan_status_t status = _lora_phy.set_next_channel(&nextChan,
+                                                         &_params.channel,
+                                                         &dutyCycleTimeOff,
+                                                         &_params.timers.aggregated_timeoff);
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:
         case LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND:
