@@ -89,7 +89,15 @@ void log_buffer_data(LOG_DATA_TYPE_ *str) {
 }
 
 void log_disable_time_capture(void) {
+    core_util_critical_section_enter();
     time_enable = false;
+    core_util_critical_section_exit();
+}
+
+void log_enable_time_capture(void) {
+    core_util_critical_section_enter();
+    time_enable = true;
+    core_util_critical_section_exit();
 }
 
 #if defined (MBED_ID_BASED_TRACING)

@@ -116,6 +116,7 @@ void log_reset(void);
 uint32_t log_get_bytes_lost(void);
 void log_buffer_data(char *str);
 void log_disable_time_capture(void);
+void log_enable_time_capture(void);
 
 #if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
 #define mbed_log_array
