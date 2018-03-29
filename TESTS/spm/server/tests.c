@@ -128,7 +128,7 @@ PSA_TEST_SERVER(identity_during_call)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -161,7 +161,7 @@ PSA_TEST_SERVER(identity_during_close)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -204,7 +204,7 @@ PSA_TEST_SERVER(get_msg_twice)  //NO OUTPUT
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg1);
@@ -234,7 +234,9 @@ PSA_TEST_SERVER(msg_size_assertion)
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
-    char buff[11] = {0};
+
+    char *buff = malloc(sizeof(char) * 11);
+    memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -243,16 +245,18 @@ PSA_TEST_SERVER(msg_size_assertion)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
     if (msg.type != PSA_IPC_MSG_TYPE_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
+    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+        read_size += psa_read(msg.handle, i, buff + read_size, msg.size[i]);
+    }
 
-    read_size = psa_read(msg.handle, 0, buff, sizeof(buff));
-    if ((msg.size != 11)  ||
+    if (((msg.size[0] + msg.size[1] + msg.size[2]) != 11)  ||
         (read_size != 11) ||
         (strncmp(buff, "abcdfghijkn", 11) != 0)) {
         *status_ptr = PSA_GENERIC_ERROR;
@@ -261,6 +265,7 @@ PSA_TEST_SERVER(msg_size_assertion)
     }
 
     psa_end(msg.handle, test_status);
+    free(buff);
     disconnect_status = proccess_disconnect_request();
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;
@@ -301,7 +306,7 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -309,9 +314,7 @@ PSA_TEST_SERVER(read_at_outofboud_offset)
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    read_offset += msg.size;
-
-    size_t read_size = psa_read(msg.handle, read_offset, &buff, sizeof(buff));
+    size_t read_size = psa_read(msg.handle, 1, &buff, sizeof(buff));
     if ((0 != read_size) || (52 != buff)){
         *status_ptr = PSA_GENERIC_ERROR;
     } else {
@@ -332,7 +335,8 @@ PSA_TEST_SERVER(msg_read_truncation)
     psa_msg_t msg = {0};
     uint32_t signals = 0;
     size_t read_size = 0;
-    char buff[11] = {0};
+    char *buff = malloc(sizeof(char) * 11);
+    memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -341,7 +345,7 @@ PSA_TEST_SERVER(msg_read_truncation)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
@@ -349,11 +353,11 @@ PSA_TEST_SERVER(msg_read_truncation)
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    read_size = psa_read(msg.handle, 5, buff, sizeof(buff));
-    if ((6 != read_size) ||
-        (msg.size != 11) ||
+    read_size = psa_read(msg.handle, 1, buff, 11);
+    if ((msg.size[1] != read_size) ||
+        ((msg.size[0] + msg.size[1] + msg.size[2]) != 11) ||
         (buff[6] != 0)   ||
-        (strncmp(buff, "ghijkn", 6) != 0)) {
+        (strncmp(buff, "fghijk", 6) != 0)) {
         *status_ptr = PSA_GENERIC_ERROR;
     } else {
         *status_ptr = PSA_SUCCESS;
@@ -361,6 +365,7 @@ PSA_TEST_SERVER(msg_read_truncation)
 
     psa_end(msg.handle, test_status);
     disconnect_status = proccess_disconnect_request();
+    free(buff);
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;
 }
@@ -399,7 +404,7 @@ PSA_TEST_SERVER(rhandle_factorial)
             connect_count++;
             break;
         case PSA_IPC_MSG_TYPE_CALL:
-            if (msg.size > 0) {
+            if (msg.size[0] + msg.size[1] + msg.size[2] > 0) {
                 SPM_PANIC("SF_FACTORIAL SF should not get any params\n");
             }
 
@@ -423,7 +428,7 @@ PSA_TEST_SERVER(rhandle_factorial)
             }
 
             if (asserted_ptr != msg.rhandle){
-                SPM_PANIC("rhandle value chnaged between calls\n");
+                SPM_PANIC("rhandle value changed between calls\n");
             }
 
             free(msg.rhandle);
@@ -459,10 +464,10 @@ PSA_TEST_SERVER(cross_partition_call)
     psa_error_t test_status = PSA_SUCCESS;
     psa_error_t disconnect_status = PSA_SUCCESS;
     psa_error_t partition_call_status = PSA_SUCCESS;
-    uint32_t data_offset = 0;
     uint32_t data_read = 0;
-    char buff[60] = {0};
+    char *buff = malloc(sizeof(char) * 60);
     uint32_t str_len = 0;
+    memset(buff, 0, 60);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
@@ -471,36 +476,31 @@ PSA_TEST_SERVER(cross_partition_call)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
-    if (msg.size == 0) {
+    if ((msg.size[0] + msg.size[1] + msg.size[2]) == 0) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    data_offset = psa_read(msg.handle, 0, &str_len, sizeof(str_len));
-    data_read = psa_read(msg.handle, data_offset, buff, str_len);
+    str_len = msg.size[0];
+    data_read = psa_read(msg.handle, 0, buff, str_len);
     if (data_read != 21) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    data_read += psa_read(msg.handle, data_offset, buff + str_len, str_len);
-    if (data_read != 42) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
+    memcpy(buff + str_len, buff, str_len);
+    data_read *= 2;
 
-    iovec_t data[] = {
-        { &data_read, sizeof(data_read) },
-        { buff, data_read }
-    };
+    iovec_t data = { buff, data_read };
     psa_handle_t conn_handle = psa_connect(SF_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_GENERIC_ERROR;
     }
 
     if (partition_call_status == PSA_SUCCESS) {
-        partition_call_status = psa_call(conn_handle, data, sizeof(data) / sizeof(data[0]), buff, sizeof(buff));
+        partition_call_status = psa_call(conn_handle, &data, 1, buff, 60);
     }
 
     if (partition_call_status == PSA_SUCCESS) {
@@ -514,6 +514,7 @@ PSA_TEST_SERVER(cross_partition_call)
     }
 
     psa_end(msg.handle, partition_call_status);
+    free(buff);
     disconnect_status = proccess_disconnect_request();
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
     return test_status;
@@ -536,11 +537,11 @@ PSA_TEST_SERVER(doorbell_test)
 
     signals = psa_wait_any(PSA_WAIT_BLOCK);
     if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+        test_status = PSA_GENERIC_ERROR;
     }
 
     psa_get(TEST_MSK, &msg);
-    if ((msg.size != 0) || (msg.response_size != 0)) {
+    if (((msg.size[0] + msg.size[1] + msg.size[2]) != 0) || (msg.response_size != 0)) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 

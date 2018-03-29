@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+#if !ENABLE_SPM
+    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#endif
+
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
@@ -22,10 +26,12 @@
 #include "server_tests.h"
 using namespace utest::v1;
 
-#define TEST_SF_MINOR 12
+#define TEST_SF_MINOR   12
+#define OUT_BUFFER_SIZE 60
 
 psa_handle_t control_handle = 0;
 char test_str[] = "abcdefghijklmnopqrstuvwxyz";
+char cross_part_buf[] = "Hello and welcome SPM";
 
 
 PSA_TEST_CLIENT(wait_timeout)
@@ -165,26 +171,20 @@ PSA_TEST_CLIENT(rhandle_factorial)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 }
 
-#define IN_BUFFER_SIZE        30
-#define OUT_BUFFER_SIZE       60
-
 PSA_TEST_CLIENT(cross_partition_call)
 {
     psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    size_t in_len = strlen(cross_part_buf);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
-    char msg_buf[IN_BUFFER_SIZE] = "Hello and welcome SPM";
-    size_t in_len = 21;
+    iovec_t iovec = { cross_part_buf, in_len };
+    uint8_t *response_buf = (uint8_t*)malloc(sizeof(uint8_t) * OUT_BUFFER_SIZE);
+    memset(response_buf, 0, OUT_BUFFER_SIZE);
 
-    iovec_t iovec[] = {
-        { &in_len, sizeof(in_len) },
-        { msg_buf, in_len }
-    };
-    uint8_t response_buf[OUT_BUFFER_SIZE] = {0};
-
-    psa_error_t status = psa_call(test_handle, iovec, sizeof(iovec) / sizeof(iovec[0]), response_buf, OUT_BUFFER_SIZE);
+    psa_error_t status = psa_call(test_handle, &iovec, 1, response_buf, OUT_BUFFER_SIZE);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL_STRING_LEN("MPS emoclew dna olleHMPS emoclew dna olleH", response_buf, in_len*2);
+    free(response_buf);
 
     status = psa_close(test_handle);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
@@ -211,7 +211,7 @@ utest::v1::status_t spm_setup(const size_t number_of_cases) {
     }
 
 #ifndef NO_GREENTEA
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
 #endif
     return greentea_test_setup_handler(number_of_cases);
 }

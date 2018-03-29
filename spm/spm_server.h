@@ -95,12 +95,12 @@ void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle);
  *       The copy is truncated if the requested range extends beyond the end of the payload.@n
  *       In such a case, the remaining space in @a buffer is not modified.
  * @param[in]  msg_handle Handle for the client's message.
- * @param[in]  offset     Offset in bytes within the client's message payload to start reading from.
- * @param[out] buffer     Buffer to copy the requested data to.
- * @param[in]  len        Number of bytes to read from the client's message payload.
+ * @param[in]  iovec_idx  IOvec index to be read.
+ * @param[out] buf        Buffer to copy the requested data to.
+ * @param[in]  num_bytes  Number of bytes to read from the client's message payload.
  * @return Number of bytes copied or 0 if offset is greater than the size attribute of psa_msg.
  */
-size_t psa_read(psa_handle_t msg_handle, size_t offset, void *buffer, size_t len);
+size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t num_bytes);
 
 /**
  * Write a response payload of @a bytes bytes starting at position @a offset in the client's response buffer.

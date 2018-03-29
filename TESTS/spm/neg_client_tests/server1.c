@@ -12,20 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <stdbool.h>
+#include <string.h>
 #include "spm_server.h"
 #include "spm_panic.h"
 #include "psa_part1_partition.h"
 
-#define MSG_BUF_SIZE MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
+#define msg_buff_SIZE 128
+char msg_buff[msg_buff_SIZE];
 
 void server_main1(void *ptr)
 {
     uint32_t signals = 0;
-    char msg_buf[MSG_BUF_SIZE] = {0};
-
-    /* coverity[INFINITE_LOOP] */
+    memset(msg_buff, 0, sizeof(msg_buff));
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (signals & PART1_SF1_MSK) {
@@ -36,12 +36,14 @@ void server_main1(void *ptr)
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
+                    memset(msg_buff, 0, msg_buff_SIZE);
                     uint32_t bytes_read = 0;
-                    if (msg.size > 0) {
-                        bytes_read = psa_read(msg.handle, 0, msg_buf, msg.size);
+                    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+                        bytes_read = psa_read(msg.handle, i, msg_buff + bytes_read, msg.size[i]);
                     }
+
                     if (msg.response_size > 0) {
-                        psa_write(msg.handle, 0, msg_buf, bytes_read);
+                        psa_write(msg.handle, 0, msg_buff, bytes_read);
                     }
                     break;
                 }

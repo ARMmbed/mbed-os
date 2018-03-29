@@ -1,13 +1,43 @@
 {
     "name": "spm",
     "config": {
+        "enable" : {
+            "help": "Enable Secure Partition Manager",
+            "macro_name": "ENABLE_SPM",
+            "value": 0
+        },
         "ipc_max_num_of_channels": {
             "help": "Maximum number of active channels",
             "value": 10
+        }
+    },
+    "target_overrides": {
+        "K64F": {
+            "enable": 1
         },
-        "client_data_tx_buf_size_limit": {
-            "help": "Size limit in bytes of the client's data passed in a single call",
-            "value": 128
+        "NUCLEO_F401RE": {
+            "enable": 1
+        },
+        "NUCLEO_F429ZI": {
+            "enable": 1
+        },
+        "NUCLEO_F746ZG": {
+            "enable": 1
+        },
+        "EV_COG_AD4050LZ": {
+            "enable": 1
+        },
+        "K82F": {
+            "enable": 1
+        },
+        "LPC546XX": {
+            "enable": 1
+        },
+        "MAX32630FTHR": {
+            "enable": 1
+        },
+        "NUCLEO_F412ZG": {
+            "enable": 1
         }
     }
 }

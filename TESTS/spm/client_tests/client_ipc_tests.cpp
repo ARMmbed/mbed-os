@@ -13,6 +13,11 @@
  * limitations under the License.
  */
 
+#if !ENABLE_SPM
+    #error [NOT_SUPPORTED] SPM is not supported on this platform
+#endif
+
+
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
@@ -22,16 +27,16 @@
 using namespace utest::v1;
 
 #define MINOR_VER               0
-#define CLIENT_RSP_BUF_SIZE     MBED_CONF_SPM_CLIENT_DATA_TX_BUF_SIZE_LIMIT
+#define CLIENT_RSP_BUF_SIZE     128
 #define OFFSET_POS              1
 
 
 typedef struct th_struct {
     psa_handle_t handle;
-    iovec *iovec_temp;
+    iovec_t *iovec_temp;
     uint8_t *expected;
     uint8_t expected_size;
-} th_struct;
+} th_struct_t;
 
 /* ------------------------------------- Functions ----------------------------------- */
 
@@ -48,7 +53,7 @@ static psa_handle_t client_ipc_tests_connect(uint32_t sfid, uint32_t minor_versi
 
 static void client_ipc_tests_call(
         psa_handle_t handle,
-        iovec *iovec_temp,
+        iovec_t *iovec_temp,
         size_t tx_len,
         size_t rx_len,
         uint8_t *expected,
@@ -56,7 +61,8 @@ static void client_ipc_tests_call(
         )
 {
     error_t status = PSA_SUCCESS;
-    uint8_t response_buf[CLIENT_RSP_BUF_SIZE] = {0};
+    uint8_t *response_buf = (uint8_t*)malloc(CLIENT_RSP_BUF_SIZE * sizeof(uint8_t));
+    memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
 
     status = psa_call( handle,
                         (tx_len ? iovec_temp : NULL),
@@ -68,7 +74,7 @@ static void client_ipc_tests_call(
     if (expected) {
         TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, response_buf, expected_size);
     }
-
+    free(response_buf);
     TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
 }
 
@@ -78,56 +84,6 @@ static void client_ipc_tests_close(psa_handle_t handle)
     status = psa_close(handle);
 
     TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
-}
-
-//Testing client all iovec fill first mem chunk
-void fill_first_mem_chunk()
-{
-    psa_handle_t handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t expect_size = 2;
-    uint8_t off = 2;
-
-    uint8_t meta_iovec[2] = {expect_size, off};
-    uint8_t buff1[] = {1};
-    uint8_t buff2[] = {2};
-    uint8_t expected_buff[] = {1, 2};
-
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
-
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
-
-    client_ipc_tests_close(handle);
-}
-
-//Testing client one iovec fill all mem chunks
-void one_iovec_fill_all_mem_chunk()
-{
-    psa_handle_t handle = 0;
-
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t expect_size = CLIENT_RSP_BUF_SIZE;
-    uint8_t off = 0;
-
-    uint8_t test = 8;
-    uint8_t meta_iovec_and_data[CLIENT_RSP_BUF_SIZE - 1] = {expect_size, off, test};
-    uint8_t expected_buff[CLIENT_RSP_BUF_SIZE - 1] = {expect_size, off, test};
-
-    meta_iovec_and_data[CLIENT_RSP_BUF_SIZE - 2] = test;
-    expected_buff[CLIENT_RSP_BUF_SIZE - 2] = test;
-
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec_and_data, sizeof(meta_iovec_and_data)},
-                                           {NULL, 0},
-                                           {NULL, 0}};
-
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
-
-    client_ipc_tests_close(handle);
 }
 
 //Testing iovec 0 sent as NULL
@@ -144,11 +100,11 @@ void iovec_0_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {1, 2, 3, 4, 5};
 
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{NULL, 0},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{NULL, 0},
                                            {meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -167,11 +123,11 @@ void iovec_1_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {NULL, 0},
                                            {buff1, sizeof(buff1)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -190,11 +146,11 @@ void iovec_2_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {NULL, 0}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -211,11 +167,11 @@ void rx_buff_null()
     uint8_t meta_iovec[2] = {expect_size, off};
     uint8_t buff1[] = {1, 2, 3, 4, 5}, buff2[] = {6};
 
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, 0, NULL, 0);
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, 0, NULL, 0);
 
     client_ipc_tests_close(handle);
 }
@@ -258,30 +214,30 @@ void multiple_call()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff[] = {1, 2};
 
-    iovec iovec_temp[PSA_MAX_IOVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    iovec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     meta_iovec[1] = 3;              //off
     iovec_temp[0].iov_base = meta_iovec;
     expected_buff[0] = 2;
     expected_buff[1] = 3;
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     meta_iovec[1] = 4;              //off
     iovec_temp[0].iov_base = meta_iovec;
     expected_buff[0] = 3;
     expected_buff[1] = 4;
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
 
-static void set_struct(th_struct *thr_attr, psa_handle_t handle, iovec *iovec_temp, uint8_t *expect, uint8_t expected_size)
+static void set_struct(th_struct_t *thr_attr, psa_handle_t handle, iovec_t *iovec_temp, uint8_t *expect, uint8_t expected_size)
 {
     thr_attr->handle = handle;
     thr_attr->iovec_temp = iovec_temp;
@@ -289,7 +245,7 @@ static void set_struct(th_struct *thr_attr, psa_handle_t handle, iovec *iovec_te
     thr_attr->expected_size = expected_size;
 }
 
-static void call_diff_handle(th_struct *thr_attr)
+static void call_diff_handle(th_struct_t *thr_attr)
 {
     psa_handle_t handle = 0;
 
@@ -297,7 +253,7 @@ static void call_diff_handle(th_struct *thr_attr)
 
     client_ipc_tests_call(handle,
                           thr_attr->iovec_temp,
-                          PSA_MAX_IOVEC_LEN,
+                          PSA_MAX_INVEC_LEN,
                           CLIENT_RSP_BUF_SIZE,
                           thr_attr->expected,
                           thr_attr->expected_size);
@@ -311,7 +267,7 @@ static void call_diff_handle(th_struct *thr_attr)
 void multi_thread_diff_handles()
 {
     Thread T1, T2, T3;
-    th_struct thr_attr[] = {{0}, {0}, {0}};
+    th_struct_t thr_attr[] = {{0}, {0}, {0}};
 
     uint8_t meta_iovec_1[] = { 2,            //expect_size
                                2             //off
@@ -320,12 +276,12 @@ void multi_thread_diff_handles()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff_1[] = {1, 2};
 
-    iovec iovec_temp_1[PSA_MAX_IOVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
+    iovec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[0], 0, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
-    osStatus err = T1.start(callback(call_diff_handle, (th_struct *)&thr_attr[0]));
+    osStatus err = T1.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[0]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -335,11 +291,11 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_2[] = {2, 3};
 
-    iovec iovec_temp_2[PSA_MAX_IOVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
+    iovec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[1], 0, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
-    err = T2.start(callback(call_diff_handle, (th_struct *)&thr_attr[1]));
+    err = T2.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[1]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -349,12 +305,12 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_3[] = {3, 4};
 
-    iovec iovec_temp_3[PSA_MAX_IOVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
+    iovec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[2], 0, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
-    err = T3.start(callback(call_diff_handle, (th_struct *)&thr_attr[2]));
+    err = T3.start(callback(call_diff_handle, (th_struct_t *)&thr_attr[2]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -374,11 +330,11 @@ void multi_thread_diff_handles()
 
 }
 
-static void call_same_handle(th_struct *thr_attr)
+static void call_same_handle(th_struct_t *thr_attr)
 {
     client_ipc_tests_call(thr_attr->handle,
                           thr_attr->iovec_temp,
-                          PSA_MAX_IOVEC_LEN,
+                          PSA_MAX_INVEC_LEN,
                           CLIENT_RSP_BUF_SIZE,
                           thr_attr->expected,
                           thr_attr->expected_size);
@@ -389,7 +345,7 @@ static void call_same_handle(th_struct *thr_attr)
 void multi_thread_same_handle()
 {
     Thread T1, T2, T3;
-    th_struct thr_attr[] = {{0}, {0}, {0}};
+    th_struct_t thr_attr[] = {{0}, {0}, {0}};
 
     psa_handle_t handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
 
@@ -400,12 +356,12 @@ void multi_thread_same_handle()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff_1[] = {1, 2};
 
-    iovec iovec_temp_1[PSA_MAX_IOVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
+    iovec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
     set_struct(&thr_attr[0], handle, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
-    osStatus err = T1.start(callback(call_same_handle, (th_struct *)&thr_attr[0]));
+    osStatus err = T1.start(callback(call_same_handle, (th_struct_t *)&thr_attr[0]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -415,11 +371,11 @@ void multi_thread_same_handle()
                              };
     uint8_t expected_buff_2[] = {2, 3};
 
-    iovec iovec_temp_2[PSA_MAX_IOVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
+    iovec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
                                             {buff1, sizeof(buff1)},
                                             {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[1], handle, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
-    err = T2.start(callback(call_same_handle, (th_struct *)&thr_attr[1]));
+    err = T2.start(callback(call_same_handle, (th_struct_t *)&thr_attr[1]));
     if (err) {
        TEST_FAIL_MESSAGE("creating thread failed!");
     }
@@ -429,7 +385,7 @@ void multi_thread_same_handle()
                              };
     uint8_t expected_buff_3[] = {3, 4};
 
-    iovec iovec_temp_3[PSA_MAX_IOVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
+    iovec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
                                             {buff1, sizeof(buff1)},
                                             {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[2], handle, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
@@ -478,8 +434,6 @@ void exceed_num_of_max_channels()
 
  // Test cases
 Case cases[] = {
-    Case("Testing client all iovec fill first mem chunk", fill_first_mem_chunk),
-    Case("Testing client one iovec fill all mem chunks", one_iovec_fill_all_mem_chunk),
     Case("Testing client iovec_0_NULL", iovec_0_NULL),
     Case("Testing client iovec_1_NULL", iovec_1_NULL),
     Case("Testing client iovec_2_NULL", iovec_2_NULL),
@@ -496,7 +450,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     // Setup Greentea using a reasonable timeout in seconds
 #ifndef NO_GREENTEA
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
 #endif
     return verbose_test_setup_handler(number_of_cases);
 }

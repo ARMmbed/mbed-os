@@ -19,12 +19,12 @@
 #include "spm_panic.h"
 #include "psa_part2_partition.h"
 
+static psa_msg_t msg = {0};
+
 void part2_main(void *ptr)
 {
     uint32_t signals = 0;
-    psa_msg_t msg = {0};
     size_t len = 0;
-    uint32_t data_offset = 0;
     char *str = NULL;
 
     while (1) {
@@ -37,16 +37,16 @@ void part2_main(void *ptr)
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CALL:
                 {
-                    if (msg.size == 0) {
+                    if ((msg.size[0] + msg.size[1] + msg.size[2]) == 0) {
                         SPM_PANIC("got a zero message size to REVERSE SF\n");
                     }
 
-                    data_offset = psa_read(msg.handle, 0, &len, sizeof(len));
+                    len = msg.size[0];
                     str = (char*)malloc(sizeof(char) * len);
                     if (NULL == str) {
                         SPM_PANIC("memory allocation failure\n");
                     }
-                    psa_read(msg.handle, data_offset, str, len);
+                    psa_read(msg.handle, 0, str, len);
                     for(size_t i = 0; i < len / 2; i ++) {
                         char a = str[i];
                         str[i] = str[len - i - 1];
