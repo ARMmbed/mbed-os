@@ -387,7 +387,10 @@ static void thread_test_worker()
     uint16_t key;
     NVStore &nvstore = NVStore::get_instance();
 
-    for (;;) {
+    uint64_t start = Kernel::get_ms_count();
+
+    while ((Kernel::get_ms_count() - start) > (thr_test_num_secs * 1000)) {
+
         key = rand() % thr_test_data->max_keys;
         is_set = rand() % 10;
 
@@ -442,10 +445,8 @@ static void nvstore_multi_thread_test()
         threads[i]->start(callback(thread_test_worker));
     }
 
-    wait_ms(thr_test_num_secs * 1000);
-
     for (i = 0; i < num_threads; i++) {
-        threads[i]->terminate();
+        threads[i]->join();
         delete threads[i];
     }
 
