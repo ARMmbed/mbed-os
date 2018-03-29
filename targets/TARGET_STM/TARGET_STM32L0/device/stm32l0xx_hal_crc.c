@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   CRC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -228,13 +226,16 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   
   /* Reset CRC calculation unit */
   __HAL_CRC_DR_RESET(hcrc);
+  
+  /* Reset IDR register content */
+  CLEAR_BIT(hcrc->Instance->IDR, CRC_IDR_IDR) ;
 
   /* DeInit the low level hardware */
   HAL_CRC_MspDeInit(hcrc);
 
   /* Change CRC peripheral state */
   hcrc->State = HAL_CRC_STATE_RESET;
- 
+
   /* Process unlocked */
   __HAL_UNLOCK(hcrc);
 

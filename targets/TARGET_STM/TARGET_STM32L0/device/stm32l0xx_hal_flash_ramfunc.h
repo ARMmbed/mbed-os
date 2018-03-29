@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ramfunc.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of FLASH RAMFUNC driver.
   ******************************************************************************
   * @attention
@@ -50,13 +48,16 @@
   * @{
   */
 
-/** @defgroup FLASH_RAMFUNC FLASH Ram Function
+/** @addtogroup FLASH_RAMFUNC
   * @{
   */ 
 
+/* Exported types ------------------------------------------------------------*/ 
+
+
 /* Exported functions --------------------------------------------------------*/
 
-/** @defgroup FLASH_RAMFUNC_Exported_Functions FLASH Ram Exported Functions
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions
   * @{
   */
 
@@ -66,41 +67,45 @@
   *         file.
   */
   
-/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 FLASH RAM peripheral features functions
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group1
   * @{
   */
-__RAM_FUNC  HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
-__RAM_FUNC  HAL_FLASHEx_EnableRunPowerDown(void);
-__RAM_FUNC  HAL_FLASHEx_DisableRunPowerDown(void);
-__RAM_FUNC  HAL_FLASHRAM_GetError(uint32_t * error);
+
+__RAM_FUNC HAL_FLASHEx_EnableRunPowerDown(void);
+__RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void);
+
 /**
   * @}
   */ 
 
-#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group2 FLASH RAM programming and erasing operation functions
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group2
   * @{
   */
+
+#if defined(FLASH_PECR_PARALLBANK)
+
 __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_Address2);
 __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuffer1, uint32_t Address2, uint32_t* pBuffer2);
+
+#endif /* FLASH_PECR_PARALLBANK */
+
+__RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
+
 /**
   * @}
   */ 
-#endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
 
-/**
-  * @}
-  */
-
-/* Define the private group ***********************************/
-/**************************************************************/
-/** @defgroup FLASH_RAMFUNC_Private FLASH Ram Private
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group3
   * @{
   */
+__RAM_FUNC  HAL_FLASHEx_GetError(uint32_t *Error);
 /**
   * @}
-  */
-/**************************************************************/
+  */ 
+
+/**
+  * @}
+  */ 
 
 /**
   * @}
@@ -117,4 +122,3 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
 #endif /* __STM32L0xx_FLASH_RAMFUNC_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
