@@ -185,7 +185,7 @@ static void btle_handler(ble_evt_t *p_ble_evt)
     nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
     nRF5xGap             &gap             = (nRF5xGap &) ble.getGap();
     nRF5xGattServer      &gattServer      = (nRF5xGattServer &) ble.getGattServer();
-    nRF5xSecurityManager &securityManager = (nRF5xSecurityManager &) ble.getSecurityManager();
+    nRF5xSecurityManager &securityManager = nRF5xSecurityManager::get_security_manager();
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
