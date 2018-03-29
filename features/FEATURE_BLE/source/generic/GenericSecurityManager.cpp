@@ -742,7 +742,10 @@ void GenericSecurityManager::set_peer_csrk_cb(
         return;
     }
 
-    _pal.set_peer_csrk(cb->connection, *csrk);
+    _pal.set_peer_csrk(
+        cb->connection,
+        *csrk,
+        cb->csrk_mitm_protected);
 }
 
 void GenericSecurityManager::return_csrk_cb(
