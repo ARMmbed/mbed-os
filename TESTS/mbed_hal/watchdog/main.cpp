@@ -55,15 +55,6 @@ void test_max_timeout_is_valid()
     TEST_ASSERT(hal_watchdog_get_platform_features().max_timeout > 1UL);
 }
 
-void test_restart_is_possible()
-{
-    watchdog_features_t features = hal_watchdog_get_platform_features();
-    if (!features.disable_watchdog) {
-        TEST_IGNORE_MESSAGE("Disabling watchdog not supported for this platform");
-        return;
-    }
-    TEST_ASSERT(features.update_config);
-}
 
 void test_stop()
 {
@@ -82,27 +73,6 @@ void test_stop()
     wait_ms(WDG_TIMEOUT_MS + TIMEOUT_DELTA_MS);
 
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_stop());
-}
-
-void test_update_config()
-{
-    watchdog_features_t features = hal_watchdog_get_platform_features();
-    if (!features.update_config) {
-        TEST_IGNORE_MESSAGE("Updating watchdog config not supported for this platform");
-        return;
-    }
-
-    watchdog_config_t config = WDG_CONFIG_DEFAULT;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
-
-    config.timeout_ms = features.max_timeout - 2 * WORST_TIMEOUT_RESOLUTION_MS;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
-
-    config.timeout_ms = features.max_timeout;
-    TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
-    TEST_ASSERT_UINT32_WITHIN(WORST_TIMEOUT_RESOLUTION_MS, config.timeout_ms, hal_watchdog_get_reload_value());
 }
 
 utest::v1::status_t case_setup_sync_on_reset(const Case * const source, const size_t index_of_case)
@@ -193,13 +163,7 @@ int testsuite_setup_sync_on_reset(const size_t number_of_cases)
 
 Case cases[] = {
     Case("Platform feature max_timeout is valid", test_max_timeout_is_valid),
-    Case("Stopped watchdog can be started again", test_restart_is_possible),
     Case("Watchdog can be stopped", test_stop),
-
-    Case("Update config with multiple init calls",
-        (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-        test_update_config,
-        (utest::v1::case_teardown_handler_t) case_teardown_wdg_stop_or_reset),
 
     // Do not set watchdog timeout shorter than 500 ms as it may cause the
     // host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog

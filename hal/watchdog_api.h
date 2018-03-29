@@ -67,10 +67,6 @@ typedef struct
    */
   uint32_t max_timeout;
   /**
-   * Watchdog configuration can be updated after the watchdog has been started
-   */
-  bool update_config;
-  /**
    * Watchdog can be stopped after it is started without a reset
    */
   bool disable_watchdog;
