@@ -30,7 +30,8 @@ from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
 
-from ..utils import json_file_to_dict, intelhex_offset, integer
+from ..utils import (json_file_to_dict, intelhex_offset, integer,
+                     NotSupportedException)
 from ..arm_pack_manager import Cache
 from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
                        get_resolution_order, Target)
@@ -1028,6 +1029,11 @@ class Config(object):
 
             prev_features = features
         self.validate_config()
+
+        if  (hasattr(self.target, "release_versions") and
+             "5" not in self.target.release_versions and
+             "rtos" in self.lib_config_data):
+            raise NotSupportedException("Target does not support mbed OS 5")
 
         return resources
 
