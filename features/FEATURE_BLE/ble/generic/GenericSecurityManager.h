@@ -455,7 +455,7 @@ private:
         uint8_t oob_present:1;
         uint8_t legacy_pairing_oob_request_pending:1;
 
-        uint8_t mic_failures:2;
+        uint8_t csrk_failures:2;
     };
 
     pal::SecurityManager &_pal;
