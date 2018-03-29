@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#include "mbed_assert.h"
 
-#if defined(TARGET_TMPM066)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
+typedef struct {
+    PinName pin;
+    uint32_t mask;
+    GPIO_Port port;
+} gpio_t;
+
+static inline int gpio_is_connected(const gpio_t *obj)
+{
+    return (obj->pin != (PinName)NC);
+}
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
-
-#if defined(TARGET_TMPM46B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H

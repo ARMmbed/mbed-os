@@ -3957,5 +3957,18 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
+    },
+    "TMPM46B": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM46B__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SPI", "I2C", "STDIO_MESSAGES", "TRNG", "FLASH", "SLEEP"],
+        "device_name": "TMPM46BF10FG",
+        "detect_code": ["7013"],
+        "release_versions": ["5"],
+        "bootloader_supported": true
     }
 }
