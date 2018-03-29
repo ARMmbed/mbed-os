@@ -912,13 +912,19 @@ void GenericSecurityManager::on_signature_verification_failure(connection_handle
         return;
     }
 
-    cb->csrk_failures++;
-    if (cb->csrk_failures == 3) {
-        cb->csrk_failures = 0;
-        if (cb->is_master) {
-           requestPairing(connection);
-        } else {
-           slave_security_request(connection);
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested
+                         : _default_key_distribution.get_signing();
+
+    if (signing) {
+        cb->csrk_failures++;
+        if (cb->csrk_failures == 3) {
+            cb->csrk_failures = 0;
+            if (cb->is_master) {
+               requestPairing(connection);
+            } else {
+               slave_security_request(connection);
+            }
         }
     }
 }
