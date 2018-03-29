@@ -945,6 +945,11 @@ void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection
     (void)connection;
 }
 
+void GenericSecurityManager::on_invalid_mic(connection_handle_t connection) {
+    (void)connection;
+    /* TODO: count and re-pair when threshold reached */
+}
+
 void GenericSecurityManager::on_slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
