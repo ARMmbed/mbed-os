@@ -40,8 +40,13 @@ static const size_t basic_func_max_data_size = 128;
 static const int thr_test_num_buffs = 5;
 static const int thr_test_num_secs = 5;
 static const int thr_test_max_data_size = 32;
-static const int thr_test_stack_size = 768;
 static const int thr_test_num_threads = 3;
+
+#ifdef TARGET_NRF52
+static const int thr_test_stack_size = 1024;
+#else
+static const int thr_test_stack_size = 768;
+#endif
 
 typedef struct {
     uint8_t *buffs[max_test_keys][thr_test_num_buffs];
