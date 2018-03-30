@@ -1104,7 +1104,8 @@ void serial_free(serial_t *obj)
 
     int instance = uart_object->instance;
 
-    if (nordic_nrf5_uart_state[instance].usage_counter > 1) {
+    /* Only consider disabling UARTE if number of users is not zero. */
+    if (nordic_nrf5_uart_state[instance].usage_counter > 0) {
 
         /* Decrement usage counter for this instance. */
         nordic_nrf5_uart_state[instance].usage_counter--;
