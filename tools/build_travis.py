@@ -33,8 +33,9 @@ build_list = [
     {
     "STM":
         (
-        { "target": "B96B_F446VE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "B96B_F446VE",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "MTB_RAK811",        "toolchains": "GCC_ARM"},
         { "target": "NUCLEO_L152RE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F030R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },

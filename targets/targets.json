@@ -1525,7 +1525,7 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
-	"MTB_ADV_WISE_1510": {
+    "MTB_ADV_WISE_1510": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -2020,6 +2020,17 @@
         "device_has_add": ["ANALOGOUT", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L151CC",
+        "bootloader_supported": true
+    },
+    "MTB_RAK811": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CBxxA",
         "bootloader_supported": true
     },
     "MOTE_L152RC": {
@@ -2758,7 +2769,7 @@
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-		"features": ["BLE"],
+        "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
     "EFM32": {
