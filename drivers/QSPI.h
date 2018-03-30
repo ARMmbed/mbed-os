@@ -76,8 +76,11 @@ public:
      *  @param io3 4th IO pin used for sending/receiving data during data phase of a transaction
      *  @param sclk QSPI Clock pin
      *  @param ssel QSPI chip select pin
+     *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
+     *         default value = 0
+     *
      */
-    QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel=NC);
+    QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel=NC, int mode=0);
 
     /** Configure the data transmission format
      *
@@ -88,7 +91,6 @@ public:
      *  @param alt_size Size in bits used by alt phase(Valid values are 8,16,24,32)
      *  @param data_width Bus width used by data phase(Valid values are 1,2,4)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
-     *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
      *
      */
     qspi_status_t configure_format(qspi_bus_width_t inst_width, 
@@ -97,8 +99,7 @@ public:
                    qspi_bus_width_t alt_width, 
                    qspi_alt_size_t alt_size,   
                    qspi_bus_width_t data_width,
-                   int dummy_cycles,
-                   int mode);
+                   int dummy_cycles);
 
     /** Set the qspi bus clock frequency
      *

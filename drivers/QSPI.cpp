@@ -25,7 +25,7 @@ namespace mbed {
 QSPI* QSPI::_owner = NULL;
 SingletonPtr<PlatformMutex> QSPI::_mutex;
 
-QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel) : _qspi() 
+QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, int mode) : _qspi() 
 {
     _qspi_io0 = io0;
     _qspi_io1 = io1;
@@ -39,7 +39,7 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _alt_width = QSPI_CFG_BUS_SINGLE;
     _alt_size = QSPI_CFG_ALT_SIZE_8;
     _data_width = QSPI_CFG_BUS_SINGLE;
-    _mode = 0;
+    _mode = mode;
     _hz = ONE_MHZ;
     _initialized = false;
 
@@ -47,12 +47,9 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _initialize();
 }
 
-qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width, qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width, int dummy_cycles, int mode ) 
+qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width, qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width, int dummy_cycles)
 {
     qspi_status_t ret_status = QSPI_STATUS_OK;
-
-    if (mode != 0 && mode != 1)
-        return QSPI_STATUS_INVALID_PARAMETER;
 
     lock();
     _inst_width = inst_width;
@@ -61,12 +58,7 @@ qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width
     _alt_width = alt_width;
     _alt_size = alt_size;
     _data_width = data_width;
-    _mode = mode;
 
-    //Re-init the device, as the mode might have changed
-    if ( !_initialize() ) {
-        ret_status = QSPI_STATUS_ERROR;
-    }
     unlock();
 
     return ret_status;
@@ -223,6 +215,9 @@ void QSPI::unlock()
 // Note: Private helper function to initialize qspi HAL
 bool QSPI::_initialize() 
 {
+    if (_mode != 0 && _mode != 1)
+        return QSPI_STATUS_INVALID_PARAMETER;
+
     qspi_status_t ret = qspi_init(&_qspi, _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs, _hz, _mode );
     if (QSPI_STATUS_OK == ret) {
         _initialized = true;
