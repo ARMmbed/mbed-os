@@ -89,6 +89,12 @@
             "SPI_CLK":  "PC_10",
             "SPI_CS":   "PA_15"
         },
+         "NUCLEO_F767ZI": {
+            "SPI_MOSI": "PC_12",
+            "SPI_MISO": "PC_11",
+            "SPI_CLK":  "PC_10",
+            "SPI_CS":   "PA_15"
+        },
         "NUCLEO_L031K6": {
              "SPI_MOSI": "SPI_MOSI",
              "SPI_MISO": "SPI_MISO",
