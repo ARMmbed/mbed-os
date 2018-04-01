@@ -49,6 +49,7 @@ from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
 from .spm import process_manifest_files
 
+
 RELEASE_VERSIONS = ['2', '5']
 
 def prep_report(report, target_name, toolchain_name, id_name):
