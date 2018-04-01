@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Analog Devices, Inc.
+ * Copyright (c) 2010-2018 Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -206,7 +206,10 @@ static void event_timer()
         adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmr2Config);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     } else {
-        us_ticker_irq_handler();
+        tmr2Config.nLoad        = 65535u;
+        tmr2Config.nAsyncLoad   = 65535u;
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmr2Config);
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     }
 }
 
@@ -231,7 +234,11 @@ static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
 
     if (largecnt < 65536u) {
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
-        event_timer();
+        if (largecnt) {
+            event_timer();
+        } else {
+            us_ticker_irq_handler();
+        }
     }
 }
 
@@ -328,6 +335,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      *
      */
     calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
     event_timer();                            // uses largecnt to initiate timer interrupts
 }
 
@@ -339,7 +347,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
  */
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(TMR2_EVT_IRQn);
+    largecnt = 1;                              // set a minimal interval so interrupt fire immediately
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_1;   // TMR2 at 26MHz/1
+    event_timer();                             // enable the timer and interrupt
 }
 
 
