@@ -164,7 +164,7 @@ __STATIC_INLINE void FMC_NSBA_Setup(void)
 //   <o.17>  CRC       <0=> Secure <1=> Non-Secure
 //   <o.18>  CRPT   <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET1_VAL      0xFFFBFFFF
+#define SCU_INIT_PNSSET1_VAL      0xFFFFFFFF
 /*
     PNSSET2
 */
@@ -718,7 +718,7 @@ __STATIC_INLINE void SCU_Setup(void)
 
 //
 */
-#define NVIC_INIT_ITNS2_VAL      0xFFFFFF7F
+#define NVIC_INIT_ITNS2_VAL      0xFFFFFFFF
 
 
 /*
