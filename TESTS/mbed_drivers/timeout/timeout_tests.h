@@ -199,6 +199,9 @@ void test_no_wait(void)
     Semaphore sem(0, 1);
     T timeout;
     timeout.attach_callback(mbed::callback(sem_callback, &sem), 0ULL);
+#if defined(TARGET_RTL8195A)
+    wait_us(62);
+#endif
 
     int32_t sem_slots = sem.wait(0);
     TEST_ASSERT_EQUAL(1, sem_slots);
