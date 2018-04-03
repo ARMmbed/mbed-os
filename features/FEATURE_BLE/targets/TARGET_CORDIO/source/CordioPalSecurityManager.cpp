@@ -272,6 +272,15 @@ ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
     return BLE_ERROR_NONE;
 }
 
+ble_error_t CordioSecurityManager::set_peer_csrk(
+    connection_handle_t connection,
+    const csrk_t &csrk,
+    bool authenticated
+) {
+    /* TODO implement */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Global parameters
 //

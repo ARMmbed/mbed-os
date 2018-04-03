@@ -322,9 +322,20 @@ private:
      * Returns the CSRK for the connection. Called by the security db.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] entryKeys security entry containing keys.
+     * @param[in] csrk connection signature resolving key.
      */
     void return_csrk_cb(
+        pal::SecurityDb::entry_handle_t connection,
+        const csrk_t *csrk
+    );
+
+    /**
+     * Set the peer CSRK for the connection. Called by the security db.
+     *
+     * @param[in] connectionHandle Handle to identify the connection.
+     * @param[in] csrk connection signature resolving key.
+     */
+    void set_peer_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
         const csrk_t *csrk
     );
@@ -443,6 +454,8 @@ private:
         uint8_t oob_mitm_protection:1;
         uint8_t oob_present:1;
         uint8_t legacy_pairing_oob_request_pending:1;
+
+        uint8_t csrk_failures:2;
     };
 
     pal::SecurityManager &_pal;
@@ -510,6 +523,12 @@ public:
     /** @copydoc ble::pal::SecurityManager::on_valid_mic_timeout
      */
     virtual void on_valid_mic_timeout(
+        connection_handle_t connection
+    );
+
+    /** @copydoc ble::pal::SecurityManager::on_signature_verification_failure
+     */
+    virtual void on_signature_verification_failure(
         connection_handle_t connection
     );
 

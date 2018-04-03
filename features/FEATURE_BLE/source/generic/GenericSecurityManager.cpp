@@ -140,14 +140,10 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
      * use when roles are changed */
     if (_master_sends_keys) {
         initiator_distribution = _default_key_distribution;
-    }
-
-    /* override default if requested */
-    if (cb->signing_override_default) {
-        initiator_distribution.set_signing(cb->signing_requested);
-    } else {
-        /* because _master_sends_keys might be false so we need to set this */
-        initiator_distribution.set_signing(_default_key_distribution.get_signing());
+        /* override default if requested */
+        if (cb->signing_override_default) {
+            initiator_distribution.set_signing(cb->signing_requested);
+        }
     }
 
     KeyDistribution responder_distribution(_default_key_distribution);
@@ -312,19 +308,27 @@ ble_error_t GenericSecurityManager::enableSigning(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    cb->signing_requested = enabled;
-    cb->signing_override_default = false;
+    cb->signing_override_default = true;
 
-    if (cb->encrypted) {
-        return BLE_ERROR_INVALID_STATE;
-    }
-    if (!cb->csrk_stored && cb->signing_requested) {
-        init_signing();
-        if (cb->is_master) {
-            return requestPairing(connection);
+    if (enabled && !cb->signing_requested && !_default_key_distribution.get_signing()) {
+        cb->signing_requested = true;
+        if (cb->csrk_stored) {
+            /* used the stored ones when available */
+            _db.get_entry_peer_csrk(
+                mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+                cb->db_entry
+            );
         } else {
-            return slave_security_request(connection);
+            /* create keys if needed and exchange them */
+            init_signing();
+            if (cb->is_master) {
+               return requestPairing(connection);
+            } else {
+               return slave_security_request(connection);
+            }
         }
+    } else {
+        cb->signing_requested = enabled;
     }
 
     return BLE_ERROR_NONE;
@@ -729,6 +733,22 @@ void GenericSecurityManager::set_ltk_cb(
     }
 }
 
+void GenericSecurityManager::set_peer_csrk_cb(
+    pal::SecurityDb::entry_handle_t db_entry,
+    const csrk_t *csrk
+) {
+    ControlBlock_t *cb = get_control_block(db_entry);
+    if (!cb) {
+        return;
+    }
+
+    _pal.set_peer_csrk(
+        cb->connection,
+        *csrk,
+        cb->csrk_mitm_protected
+    );
+}
+
 void GenericSecurityManager::return_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk
@@ -807,6 +827,17 @@ void GenericSecurityManager::on_connected(
 
     if (dist_flags) {
         *static_cast<pal::SecurityDistributionFlags_t*>(cb) = *dist_flags;
+    }
+
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
+
+    if (signing && cb->csrk_stored) {
+        _db.get_entry_peer_csrk(
+            mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+            cb->db_entry
+        );
     }
 }
 
@@ -910,6 +941,31 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 
 void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
     (void)connection;
+}
+
+void GenericSecurityManager::on_signature_verification_failure(
+    connection_handle_t connection
+) {
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
+
+    if (signing) {
+        cb->csrk_failures++;
+        if (cb->csrk_failures == 3) {
+            cb->csrk_failures = 0;
+            if (cb->is_master) {
+                requestPairing(connection);
+            } else {
+                slave_security_request(connection);
+            }
+        }
+    }
 }
 
 void GenericSecurityManager::on_slave_security_request(
@@ -1228,7 +1284,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     attempt_oob(false),
     oob_mitm_protection(false),
     oob_present(false),
-    legacy_pairing_oob_request_pending(false) { }
+    legacy_pairing_oob_request_pending(false),
+    csrk_failures(0) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {

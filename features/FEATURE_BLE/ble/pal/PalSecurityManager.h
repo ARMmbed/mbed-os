@@ -281,6 +281,16 @@ public:
         ) = 0;
 
         /**
+         * Indicate that signed data was rejected due to verification failure. This could
+         * be due to an invalid CSRK key.
+         *
+         * @param[in] connection connection handle
+         */
+        virtual void on_signature_verification_failure(
+            connection_handle_t connection
+        ) = 0;
+
+        /**
          * Ask the stack to evaluate the security request received from the slave.
          * This might result in the stack enabling encryption, or pairing/re-pairing.
          *
@@ -863,6 +873,19 @@ public:
      */
     virtual ble_error_t set_csrk(
         const csrk_t &csrk
+    ) = 0;
+
+    /**
+     * Set the peer CSRK for particular connection.
+     *
+     * @param[in] connection connection handle
+     * @param[in] csrk signing key
+     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t set_peer_csrk(
+        connection_handle_t connection,
+        const csrk_t &csrk,
+        bool authenticated
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
