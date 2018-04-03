@@ -740,7 +740,9 @@ public:
      * also generate Secure Connections OOB data on top of legacy pairing OOB data. This can be used
      * to generate such data before any connections take place.
      *
-     * @param[in] address The local address you will use in the connection using this OOB data.
+     * @param[in] address The local address you will use in the connection using this OOB data. This
+     *                    address will be returned along with the rest of the OOB data when generation
+     *                    is complete. Using an invalid address is illegal.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t generateOOB(const ble::address_t *address) {
