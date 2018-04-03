@@ -3333,56 +3333,56 @@ typedef struct
 #define GPIO_LCKR_LCKK                       GPIO_LCKR_LCKK_Msk
 
 /****************** Bit definition for GPIO_AFRL register  ********************/
-#define GPIO_AFRL_AFRL0_Pos                  (0U)
-#define GPIO_AFRL_AFRL0_Msk                  (0xFU << GPIO_AFRL_AFRL0_Pos)     /*!< 0x0000000F */
-#define GPIO_AFRL_AFRL0                      GPIO_AFRL_AFRL0_Msk
-#define GPIO_AFRL_AFRL1_Pos                  (4U)
-#define GPIO_AFRL_AFRL1_Msk                  (0xFU << GPIO_AFRL_AFRL1_Pos)     /*!< 0x000000F0 */
-#define GPIO_AFRL_AFRL1                      GPIO_AFRL_AFRL1_Msk
-#define GPIO_AFRL_AFRL2_Pos                  (8U)
-#define GPIO_AFRL_AFRL2_Msk                  (0xFU << GPIO_AFRL_AFRL2_Pos)     /*!< 0x00000F00 */
-#define GPIO_AFRL_AFRL2                      GPIO_AFRL_AFRL2_Msk
-#define GPIO_AFRL_AFRL3_Pos                  (12U)
-#define GPIO_AFRL_AFRL3_Msk                  (0xFU << GPIO_AFRL_AFRL3_Pos)     /*!< 0x0000F000 */
-#define GPIO_AFRL_AFRL3                      GPIO_AFRL_AFRL3_Msk
-#define GPIO_AFRL_AFRL4_Pos                  (16U)
-#define GPIO_AFRL_AFRL4_Msk                  (0xFU << GPIO_AFRL_AFRL4_Pos)     /*!< 0x000F0000 */
-#define GPIO_AFRL_AFRL4                      GPIO_AFRL_AFRL4_Msk
-#define GPIO_AFRL_AFRL5_Pos                  (20U)
-#define GPIO_AFRL_AFRL5_Msk                  (0xFU << GPIO_AFRL_AFRL5_Pos)     /*!< 0x00F00000 */
-#define GPIO_AFRL_AFRL5                      GPIO_AFRL_AFRL5_Msk
-#define GPIO_AFRL_AFRL6_Pos                  (24U)
-#define GPIO_AFRL_AFRL6_Msk                  (0xFU << GPIO_AFRL_AFRL6_Pos)     /*!< 0x0F000000 */
-#define GPIO_AFRL_AFRL6                      GPIO_AFRL_AFRL6_Msk
-#define GPIO_AFRL_AFRL7_Pos                  (28U)
-#define GPIO_AFRL_AFRL7_Msk                  (0xFU << GPIO_AFRL_AFRL7_Pos)     /*!< 0xF0000000 */
-#define GPIO_AFRL_AFRL7                      GPIO_AFRL_AFRL7_Msk
+#define GPIO_AFRL_AFSEL0_Pos                  (0U)                              
+#define GPIO_AFRL_AFSEL0_Msk                  (0xFU << GPIO_AFRL_AFSEL0_Pos)     /*!< 0x0000000F */
+#define GPIO_AFRL_AFSEL0                      GPIO_AFRL_AFSEL0_Msk               
+#define GPIO_AFRL_AFSEL1_Pos                  (4U)                              
+#define GPIO_AFRL_AFSEL1_Msk                  (0xFU << GPIO_AFRL_AFSEL1_Pos)     /*!< 0x000000F0 */
+#define GPIO_AFRL_AFSEL1                      GPIO_AFRL_AFSEL1_Msk               
+#define GPIO_AFRL_AFSEL2_Pos                  (8U)                              
+#define GPIO_AFRL_AFSEL2_Msk                  (0xFU << GPIO_AFRL_AFSEL2_Pos)     /*!< 0x00000F00 */
+#define GPIO_AFRL_AFSEL2                      GPIO_AFRL_AFSEL2_Msk               
+#define GPIO_AFRL_AFSEL3_Pos                  (12U)                             
+#define GPIO_AFRL_AFSEL3_Msk                  (0xFU << GPIO_AFRL_AFSEL3_Pos)     /*!< 0x0000F000 */
+#define GPIO_AFRL_AFSEL3                      GPIO_AFRL_AFSEL3_Msk               
+#define GPIO_AFRL_AFSEL4_Pos                  (16U)                             
+#define GPIO_AFRL_AFSEL4_Msk                  (0xFU << GPIO_AFRL_AFSEL4_Pos)     /*!< 0x000F0000 */
+#define GPIO_AFRL_AFSEL4                      GPIO_AFRL_AFSEL4_Msk               
+#define GPIO_AFRL_AFSEL5_Pos                  (20U)                             
+#define GPIO_AFRL_AFSEL5_Msk                  (0xFU << GPIO_AFRL_AFSEL5_Pos)     /*!< 0x00F00000 */
+#define GPIO_AFRL_AFSEL5                      GPIO_AFRL_AFSEL5_Msk               
+#define GPIO_AFRL_AFSEL6_Pos                  (24U)                             
+#define GPIO_AFRL_AFSEL6_Msk                  (0xFU << GPIO_AFRL_AFSEL6_Pos)     /*!< 0x0F000000 */
+#define GPIO_AFRL_AFSEL6                      GPIO_AFRL_AFSEL6_Msk               
+#define GPIO_AFRL_AFSEL7_Pos                  (28U)                             
+#define GPIO_AFRL_AFSEL7_Msk                  (0xFU << GPIO_AFRL_AFSEL7_Pos)     /*!< 0xF0000000 */
+#define GPIO_AFRL_AFSEL7                      GPIO_AFRL_AFSEL7_Msk               
 
 /****************** Bit definition for GPIO_AFRH register  ********************/
-#define GPIO_AFRH_AFRH0_Pos                  (0U)
-#define GPIO_AFRH_AFRH0_Msk                  (0xFU << GPIO_AFRH_AFRH0_Pos)     /*!< 0x0000000F */
-#define GPIO_AFRH_AFRH0                      GPIO_AFRH_AFRH0_Msk
-#define GPIO_AFRH_AFRH1_Pos                  (4U)
-#define GPIO_AFRH_AFRH1_Msk                  (0xFU << GPIO_AFRH_AFRH1_Pos)     /*!< 0x000000F0 */
-#define GPIO_AFRH_AFRH1                      GPIO_AFRH_AFRH1_Msk
-#define GPIO_AFRH_AFRH2_Pos                  (8U)
-#define GPIO_AFRH_AFRH2_Msk                  (0xFU << GPIO_AFRH_AFRH2_Pos)     /*!< 0x00000F00 */
-#define GPIO_AFRH_AFRH2                      GPIO_AFRH_AFRH2_Msk
-#define GPIO_AFRH_AFRH3_Pos                  (12U)
-#define GPIO_AFRH_AFRH3_Msk                  (0xFU << GPIO_AFRH_AFRH3_Pos)     /*!< 0x0000F000 */
-#define GPIO_AFRH_AFRH3                      GPIO_AFRH_AFRH3_Msk
-#define GPIO_AFRH_AFRH4_Pos                  (16U)
-#define GPIO_AFRH_AFRH4_Msk                  (0xFU << GPIO_AFRH_AFRH4_Pos)     /*!< 0x000F0000 */
-#define GPIO_AFRH_AFRH4                      GPIO_AFRH_AFRH4_Msk
-#define GPIO_AFRH_AFRH5_Pos                  (20U)
-#define GPIO_AFRH_AFRH5_Msk                  (0xFU << GPIO_AFRH_AFRH5_Pos)     /*!< 0x00F00000 */
-#define GPIO_AFRH_AFRH5                      GPIO_AFRH_AFRH5_Msk
-#define GPIO_AFRH_AFRH6_Pos                  (24U)
-#define GPIO_AFRH_AFRH6_Msk                  (0xFU << GPIO_AFRH_AFRH6_Pos)     /*!< 0x0F000000 */
-#define GPIO_AFRH_AFRH6                      GPIO_AFRH_AFRH6_Msk
-#define GPIO_AFRH_AFRH7_Pos                  (28U)
-#define GPIO_AFRH_AFRH7_Msk                  (0xFU << GPIO_AFRH_AFRH7_Pos)     /*!< 0xF0000000 */
-#define GPIO_AFRH_AFRH7                      GPIO_AFRH_AFRH7_Msk
+#define GPIO_AFRH_AFSEL8_Pos                  (0U)                              
+#define GPIO_AFRH_AFSEL8_Msk                  (0xFU << GPIO_AFRH_AFSEL8_Pos)     /*!< 0x0000000F */
+#define GPIO_AFRH_AFSEL8                      GPIO_AFRH_AFSEL8_Msk               
+#define GPIO_AFRH_AFSEL9_Pos                  (4U)                              
+#define GPIO_AFRH_AFSEL9_Msk                  (0xFU << GPIO_AFRH_AFSEL9_Pos)     /*!< 0x000000F0 */
+#define GPIO_AFRH_AFSEL9                      GPIO_AFRH_AFSEL9_Msk               
+#define GPIO_AFRH_AFSEL10_Pos                  (8U)                              
+#define GPIO_AFRH_AFSEL10_Msk                  (0xFU << GPIO_AFRH_AFSEL10_Pos)     /*!< 0x00000F00 */
+#define GPIO_AFRH_AFSEL10                      GPIO_AFRH_AFSEL10_Msk               
+#define GPIO_AFRH_AFSEL11_Pos                  (12U)                             
+#define GPIO_AFRH_AFSEL11_Msk                  (0xFU << GPIO_AFRH_AFSEL11_Pos)     /*!< 0x0000F000 */
+#define GPIO_AFRH_AFSEL11                      GPIO_AFRH_AFSEL11_Msk               
+#define GPIO_AFRH_AFSEL12_Pos                  (16U)                             
+#define GPIO_AFRH_AFSEL12_Msk                  (0xFU << GPIO_AFRH_AFSEL12_Pos)     /*!< 0x000F0000 */
+#define GPIO_AFRH_AFSEL12                      GPIO_AFRH_AFSEL12_Msk               
+#define GPIO_AFRH_AFSEL13_Pos                  (20U)                             
+#define GPIO_AFRH_AFSEL13_Msk                  (0xFU << GPIO_AFRH_AFSEL13_Pos)     /*!< 0x00F00000 */
+#define GPIO_AFRH_AFSEL13                      GPIO_AFRH_AFSEL13_Msk               
+#define GPIO_AFRH_AFSEL14_Pos                  (24U)                             
+#define GPIO_AFRH_AFSEL14_Msk                  (0xFU << GPIO_AFRH_AFSEL14_Pos)     /*!< 0x0F000000 */
+#define GPIO_AFRH_AFSEL14                      GPIO_AFRH_AFSEL14_Msk               
+#define GPIO_AFRH_AFSEL15_Pos                  (28U)                             
+#define GPIO_AFRH_AFSEL15_Msk                  (0xFU << GPIO_AFRH_AFSEL15_Pos)     /*!< 0xF0000000 */
+#define GPIO_AFRH_AFSEL15                      GPIO_AFRH_AFSEL15_Msk               
 
 /******************************************************************************/
 /*                                                                            */
