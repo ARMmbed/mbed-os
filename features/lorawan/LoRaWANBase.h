@@ -342,7 +342,7 @@ public:
      *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
      *                          or other negative error code if request failed.
      */
-    virtual lorawan_status_t set_device_class(const device_class_t device_class) = 0;
+    virtual lorawan_status_t set_device_class(device_class_t device_class) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */

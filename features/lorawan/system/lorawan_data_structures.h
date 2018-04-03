@@ -1744,7 +1744,7 @@ typedef struct {
 
 typedef struct {
     /*!
-     * Compiliance test request
+     * Compliance test request
      */
     mcps_type_t type;
 

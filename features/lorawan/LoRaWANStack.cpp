@@ -131,29 +131,29 @@ lorawan_status_t LoRaWANStack::connect()
     lorawan_connect_t connection_params;
 
     //TODO: LoRaWANStack don't need to know these values, move to LoRaMac (or below)
-#if (1 == MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION)
-    static uint8_t dev_eui[] = MBED_CONF_LORA_DEVICE_EUI;
-    static uint8_t app_eui[] = MBED_CONF_LORA_APPLICATION_EUI;
-    static uint8_t app_key[] = MBED_CONF_LORA_APPLICATION_KEY;
+#if MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION
+    const static uint8_t dev_eui[] = MBED_CONF_LORA_DEVICE_EUI;
+    const static uint8_t app_eui[] = MBED_CONF_LORA_APPLICATION_EUI;
+    const static uint8_t app_key[] = MBED_CONF_LORA_APPLICATION_KEY;
 
     connection_params.connect_type = LORAWAN_CONNECTION_OTAA;
-    connection_params.connection_u.otaa.app_eui = app_eui;
-    connection_params.connection_u.otaa.dev_eui = dev_eui;
-    connection_params.connection_u.otaa.app_key = app_key;
+    connection_params.connection_u.otaa.app_eui = const_cast<uint8_t *>(app_eui);
+    connection_params.connection_u.otaa.dev_eui = const_cast<uint8_t *>(dev_eui);
+    connection_params.connection_u.otaa.app_key = const_cast<uint8_t *>(app_key);
     connection_params.connection_u.otaa.nb_trials = MBED_CONF_LORA_NB_TRIALS;
 
     return join_request_by_otaa(connection_params);
 #else
-    static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
-    static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
-    static uint32_t dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
-    static uint32_t nwk_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
+    const static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
+    const static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
+    const static uint32_t dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
+    const static uint32_t nwk_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
 
     connection_params.connect_type = LORAWAN_CONNECTION_ABP;
-    connection_params.connection_u.abp.nwk_id = nwk_id;
-    connection_params.connection_u.abp.dev_addr = dev_addr;
-    connection_params.connection_u.abp.nwk_skey = nwk_skey;
-    connection_params.connection_u.abp.app_skey = app_skey;
+    connection_params.connection_u.abp.nwk_id = const_cast<uint8_t *>(nwk_id);
+    connection_params.connection_u.abp.dev_addr = const_cast<uint8_t *>(dev_addr);
+    connection_params.connection_u.abp.nwk_skey = const_cast<uint8_t *>(nwk_skey);
+    connection_params.connection_u.abp.app_skey = const_cast<uint8_t *>(app_skey);
 
     return activation_by_personalization(connection_params);
 #endif

@@ -651,19 +651,20 @@ bool LoRaPHY::verify_rx_datarate(uint8_t datarate)
 
 bool LoRaPHY::verify_tx_datarate(uint8_t datarate, bool use_default)
 {
-    if (is_datarate_supported(datarate)) {
-        if (use_default) {
-            return val_in_range(datarate, phy_params.default_datarate,
-                                phy_params.default_max_datarate);
-        } else if (phy_params.ul_dwell_time_setting == 0) {
-            return val_in_range(datarate, phy_params.min_tx_datarate,
-                                phy_params.max_tx_datarate);
-        } else {
-            return val_in_range(datarate, phy_params.dwell_limit_datarate,
-                                phy_params.max_tx_datarate);
-        }
+    if (!is_datarate_supported(datarate)) {
+        return false;
     }
-    return false;
+
+    if (use_default) {
+        return val_in_range(datarate, phy_params.default_datarate,
+                            phy_params.default_max_datarate);
+    } else if (phy_params.ul_dwell_time_setting == 0) {
+        return val_in_range(datarate, phy_params.min_tx_datarate,
+                            phy_params.max_tx_datarate);
+    } else {
+        return val_in_range(datarate, phy_params.dwell_limit_datarate,
+                            phy_params.max_tx_datarate);
+    }
 }
 
 bool LoRaPHY::verify_tx_power(uint8_t tx_power)
