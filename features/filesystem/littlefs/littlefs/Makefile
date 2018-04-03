@@ -23,6 +23,9 @@ override CFLAGS += -m$(WORD)
 endif
 override CFLAGS += -I.
 override CFLAGS += -std=c99 -Wall -pedantic
+ifdef COVERAGE
+override CFLAGS += -fprofile-arcs -ftest-coverage
+endif
 
 
 all: $(TARGET)

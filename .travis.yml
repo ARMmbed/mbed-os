@@ -101,6 +101,7 @@ matrix:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
         - pip install -r requirements.txt
+        - pip install cpp-coveralls
         # Print versions we use
         - arm-none-eabi-gcc --version
         - gcc --version
@@ -114,7 +115,9 @@ matrix:
         - rm -r rtos features/cellular features/netsocket features/frameworks BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
-        - make -C $EVENTS/equeue test
+        - make -C $EVENTS/equeue test COVERAGE=1
+        # Clean objects which are compiled with gcov
+        - make -C $EVENTS/equeue clean
         # Run profiling tests
         - make -C $EVENTS/equeue prof | tee prof
       after_success:
@@ -132,6 +135,8 @@ matrix:
           then
               STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
           fi
+        # Coverage for events
+        - coveralls --exclude tests --gcov-options '\-lp'  
         - bash -c "$STATUS" success "$STATUSM"
 
     - env:
@@ -141,6 +146,7 @@ matrix:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
         - pip install -r requirements.txt
+        - pip install cpp-coveralls
         - git clone https://github.com/armmbed/spiflash-driver.git
         # Print versions
         - arm-none-eabi-gcc --version
@@ -166,7 +172,9 @@ matrix:
         - sed -n '/``` c++/,/```/{/```/d;p;}' $LITTLEFS/README.md > main.cpp
         - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
         # Run local littlefs tests
-        - make -C$LITTLEFS/littlefs test QUIET=1
+        - make -C$LITTLEFS/littlefs test QUIET=1 COVERAGE=1
+        # Clean objects which are compiled with gcov
+        - make -C$LITTLEFS/littlefs clean
         # Run local littlefs tests with set of variations
         - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=64  -DLFS_PROG_SIZE=64"
         - make -C$LITTLEFS/littlefs test QUIET=1 CFLAGS+="-DLFS_READ_SIZE=1   -DLFS_PROG_SIZE=1"
@@ -204,4 +212,5 @@ matrix:
           then
               STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
           fi
+        - coveralls --gcov-options '\-lp'
         - bash -c "$STATUS" success "$STATUSM"
