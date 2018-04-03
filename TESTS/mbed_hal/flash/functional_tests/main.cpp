@@ -279,7 +279,7 @@ Case cases[] = {
     Case("Flash - erase sector", flash_erase_sector_test),
     Case("Flash - program page", flash_program_page_test),
     Case("Flash - buffer alignment test", flash_buffer_alignment_test),
-#ifndef MCU_NRF52
+#ifndef TARGET_NORDIC
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
 #endif
 };
