@@ -1032,6 +1032,8 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
 
     if (cb->peer_address == _oob_peer_address) {
         _pal.secure_connections_oob_request_reply(connection, _oob_local_random, _oob_peer_random, _oob_peer_confirm);
+        /* do not re-use peer OOB */
+        set_all_zeros(_oob_peer_address);
     } else {
         _pal.cancel_pairing(connection, pairing_failure_t::OOB_NOT_AVAILABLE);
     }
@@ -1048,6 +1050,11 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
 
         set_mitm_performed(connection);
         _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
+
+        /* do not re-use peer OOB */
+        if (cb->peer_address == _oob_temporary_key_creator_address) {
+            set_all_zeros(_oob_temporary_key_creator_address);
+        }
 
     } else if (!cb->legacy_pairing_oob_request_pending) {
 
