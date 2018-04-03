@@ -300,9 +300,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::generate_secure_connections_oob
      */
-    virtual ble_error_t generate_secure_connections_oob(
-        connection_handle_t connection
-    );
+    virtual ble_error_t generate_secure_connections_oob();
 
     // singleton of the ARM Cordio Security Manager
     static CordioSecurityManager &get_security_manager();

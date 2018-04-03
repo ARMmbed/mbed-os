@@ -736,14 +736,47 @@ public:
     //
 
     /**
+     * Generate OOB data with the given address. If Secure Connections is supported this will
+     * also generate Secure Connections OOB data on top of legacy pairing OOB data. This can be used
+     * to generate such data before the connection takes place.
+     *
+     * In this model the OOB exchange takes place before the devices connect. Devices should establish
+     * communication over another channel and exchange the OOB data. The address provided will be used
+     * by the peer to associate the received data with the address of the device it will then connect
+     * to over BLE.
+     *
+     * @param[in] address The local address you will use in the connection using this OOB data. This
+     *                    address will be returned along with the rest of the OOB data when generation
+     *                    is complete. Using an invalid address is illegal.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t generateOOB(const ble::address_t *address) {
+        /* Avoid compiler warnings about unused variables */
+        (void) address;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
      * Enable OOB data usage during paring. If Secure Connections is supported enabling useOOB will
-     * generate Secure Connections OOB data through oobGenerated().
+     * generate Secure Connections OOB data through oobGenerated() on top of legacy pairing OOB data.
+     *
+     * You do not have to call this function to return received OOB data. Use legacyPairingOobReceived
+     * or oobReceived to hand it in. This will allow the stack to use it if possible. You only need to
+     * call this function to attempt legacy OOB data exchange after pairing start and to inform
+     * the stack OOB data does not provide MITM protection (by default it is set to provide this).
+     *
+     * In this model the OOB exchange takes places after the devices have connected but possibly
+     * prior to pairing. For secure connections pairing must not be started until after the OOB
+     * data has been sent and/or received. The address in the OOB data generated will match
+     * the original address used to establish the connection and will be used by the peer to
+     * identify which connection the OOB data belongs to.
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] useOOB If set to true, authenticate using OOB data.
      * @param[in] OOBProvidesMITM If set to true keys exchanged during pairing using OOB data
-     *                            will provide MITM protection. This indicates that the form
-     *                            of exchange used by the OOB data itself provides MITM protection.
+     *                            will provide Man-in-the-Middle protection. This indicates that
+     *                            the form of exchange used by the OOB data itself provides MITM
+     *                            protection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setOOBDataUsage(ble::connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {

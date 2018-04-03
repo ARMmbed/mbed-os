@@ -407,17 +407,12 @@ ble_error_t CordioSecurityManager::send_keypress_notification(
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::generate_secure_connections_oob(
-    connection_handle_t connection
-) {
-    // Note: this is not tie to a connection; only one oob value is present in
-    // the pal.
 
+ble_error_t CordioSecurityManager::generate_secure_connections_oob() {
     uint8_t oobLocalRandom[SMP_RAND_LEN];
     SecRand(oobLocalRandom, SMP_RAND_LEN);
     DmSecCalcOobReq(oobLocalRandom, _public_key_x);
-
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::secure_connections_oob_request_reply(
@@ -641,7 +636,6 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
         case DM_SEC_CALC_OOB_IND: {
             dmSecOobCalcIndEvt_t* evt = (dmSecOobCalcIndEvt_t*) msg;
             handler->on_secure_connections_oob_generated(
-                evt->hdr.param,
                 evt->random,
                 evt->confirm
             );
