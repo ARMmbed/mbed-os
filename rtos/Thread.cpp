@@ -20,9 +20,11 @@
  * SOFTWARE.
  */
 #include "rtos/Thread.h"
+#include "rtos/ThisThread.h"
 
 #include "mbed.h"
 #include "rtos/rtos_idle.h"
+#include "rtos/rtos_handlers.h"
 #include "mbed_assert.h"
 
 #define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
@@ -32,14 +34,6 @@ MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
 #define ALIGN_DOWN(pos, align) ((pos) - ((pos) % (align)))
 MBED_STATIC_ASSERT(ALIGN_DOWN(7, 8) == 0, "ALIGN_DOWN macro error");
 MBED_STATIC_ASSERT(ALIGN_DOWN(8, 8) == 8, "ALIGN_DOWN macro error");
-
-static void (*terminate_hook)(osThreadId_t id) = 0;
-extern "C" void thread_terminate_hook(osThreadId_t id)
-{
-    if (terminate_hook != (void (*)(osThreadId_t))NULL) {
-        terminate_hook(id);
-    }
-}
 
 namespace rtos {
 
@@ -195,6 +189,13 @@ osPriority Thread::get_priority()
     return ret;
 }
 
+uint32_t Thread::flags_set(uint32_t flags)
+{
+    flags = osThreadFlagsSet(_tid, flags);
+    MBED_ASSERT(!(flags & osFlagsError));
+    return flags;
+}
+
 int32_t Thread::signal_set(int32_t flags)
 {
     return osThreadFlagsSet(_tid, flags);
@@ -338,6 +339,11 @@ const char *Thread::get_name()
     return _attr.name;
 }
 
+osThreadId_t Thread::get_id() const
+{
+    return _tid;
+}
+
 int32_t Thread::signal_clr(int32_t flags)
 {
     return osThreadFlagsClear(flags);
@@ -379,37 +385,14 @@ osEvent Thread::signal_wait(int32_t signals, uint32_t millisec)
 
 osStatus Thread::wait(uint32_t millisec)
 {
-    return osDelay(millisec);
+    ThisThread::sleep_for(millisec);
+    return osOK;
 }
 
 osStatus Thread::wait_until(uint64_t millisec)
 {
-    // CMSIS-RTOS 2.1.0 and 2.1.1 differ in the time type, which we determine
-    // by looking at the return type of osKernelGetTickCount. We assume
-    // our header at least matches the implementation, so we don't try looking
-    // at the run-time version report. (There's no compile-time version report)
-    if (sizeof osKernelGetTickCount() == sizeof(uint64_t)) {
-        // CMSIS-RTOS 2.1.0 has a 64-bit API. The corresponding RTX 5.2.0 can't
-        // delay more than 0xfffffffe ticks, but there's no limit stated for
-        // the generic API.
-        return osDelayUntil(millisec);
-    } else {
-        // 64-bit time doesn't wrap (for half a billion years, at last)
-        uint64_t now = Kernel::get_ms_count();
-        // Report being late on entry
-        if (now >= millisec) {
-            return osErrorParameter;
-        }
-        // We're about to make a 32-bit delay call, so have at least this limit
-        if (millisec - now > 0xFFFFFFFF) {
-            return osErrorParameter;
-        }
-        // And this may have its own internal limit - we'll find out.
-        // We hope/assume there's no problem with passing
-        // osWaitForever = 0xFFFFFFFF - that value is only specified to have
-        // special meaning for osSomethingWait calls.
-        return osDelay(millisec - now);
-    }
+    ThisThread::sleep_until(millisec);
+    return osOK;
 }
 
 osStatus Thread::yield()
@@ -429,7 +412,7 @@ void Thread::attach_idle_hook(void (*fptr)(void))
 
 void Thread::attach_terminate_hook(void (*fptr)(osThreadId_t id))
 {
-    terminate_hook = fptr;
+    rtos_attach_thread_terminate_hook(fptr);
 }
 
 Thread::~Thread()
