@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.4.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.1) 
+**Closed issues:**
+ - IOTCLT-2539 Block wise messaging call-backs not working logically
+
+ Improve TCP+TLS transport layer to allow send larger messages without blockwising.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.4.0...v4.4.1)
+
 ## [v4.4.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.0) 
 **New feature:**
 - Make sn_coap_protocol_send_rst as public needed for CoAP ping sending
