@@ -1,7 +1,7 @@
 """
 mbed SDK
 Copyright (c) 2014-2017 ARM Limited
-Copyright (c) 2018 Code::Blocks
+Copyright (c) 2018 ON Semiconductor
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class CodeBlocks(GccArm):
             if f == "-include":
                 next_is_include = True
                 continue
-            if f == 'c':
+            if f == '-c':
                 continue
             if next_is_include:
                 f = '-include ' + f
@@ -71,24 +71,24 @@ class CodeBlocks(GccArm):
                 debug_flags.append(f)
             else:
                 comp_flags.append(f)
-        comp_flags = list(set(comp_flags))
+        comp_flags = sorted(list(set(comp_flags)))
         inc_dirs = [self.filter_dot(s) for s in self.resources.inc_dirs];
         inc_dirs = [x for x in inc_dirs if (x is not None and
                                             x != '' and x != '.' and
                                             not x.startswith('bin') and
                                             not x.startswith('obj'))];
 
-        c_sources = [self.filter_dot(s) for s in self.resources.c_sources]
+        c_sources = sorted([self.filter_dot(s) for s in self.resources.c_sources])
 
         ctx = {
             'project_name': self.project_name,
             'debug_flags': debug_flags,
             'comp_flags': comp_flags,
             'ld_flags': self.flags['ld_flags'],
-            'headers': list(set([self.filter_dot(s) for s in self.resources.headers])),
+            'headers': sorted(list(set([self.filter_dot(s) for s in self.resources.headers]))),
             'c_sources': c_sources,
-            's_sources': [self.filter_dot(s) for s in self.resources.s_sources],
-            'cpp_sources': [self.filter_dot(s) for s in self.resources.cpp_sources],
+            's_sources': sorted([self.filter_dot(s) for s in self.resources.s_sources]),
+            'cpp_sources': sorted([self.filter_dot(s) for s in self.resources.cpp_sources]),
             'include_paths': inc_dirs,
             'linker_script': self.filter_dot(self.resources.linker_script),
             'libraries': self.resources.libraries,
