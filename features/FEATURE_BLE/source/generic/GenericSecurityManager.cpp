@@ -319,7 +319,7 @@ ble_error_t GenericSecurityManager::enableSigning(
                 cb->db_entry
             );
         } else {
-            /* crate keys if needed and exchange them */
+            /* create keys if needed and exchange them */
             init_signing();
             if (cb->is_master) {
                return requestPairing(connection);
@@ -745,7 +745,8 @@ void GenericSecurityManager::set_peer_csrk_cb(
     _pal.set_peer_csrk(
         cb->connection,
         *csrk,
-        cb->csrk_mitm_protected);
+        cb->csrk_mitm_protected
+    );
 }
 
 void GenericSecurityManager::return_csrk_cb(
@@ -829,8 +830,8 @@ void GenericSecurityManager::on_connected(
     }
 
     const bool signing = cb->signing_override_default ?
-                         cb->signing_requested
-                         : _default_key_distribution.get_signing();
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
 
     if (signing && cb->csrk_stored) {
         _db.get_entry_peer_csrk(
@@ -951,8 +952,8 @@ void GenericSecurityManager::on_signature_verification_failure(
     }
 
     const bool signing = cb->signing_override_default ?
-                         cb->signing_requested
-                         : _default_key_distribution.get_signing();
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
 
     if (signing) {
         cb->csrk_failures++;

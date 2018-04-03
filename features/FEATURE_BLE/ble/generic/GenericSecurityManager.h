@@ -526,7 +526,7 @@ public:
         connection_handle_t connection
     );
 
-    /** @copydoc ble::pal::SecurityManager::on_invalid_mic
+    /** @copydoc ble::pal::SecurityManager::on_signature_verification_failure
      */
     virtual void on_signature_verification_failure(
         connection_handle_t connection
