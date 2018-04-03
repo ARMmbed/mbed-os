@@ -261,6 +261,27 @@ private:
     uint8_t ascii[PASSKEY_LEN];
 };
 
+/**
+ * Returns true if every byte is equal to zero
+ */
+template <class byte_array_class>
+bool is_all_zeros(byte_array_class &byte_array) {
+    for (size_t i = 0; i < byte_array.size(); i++) {
+        if (byte_array[i] != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Zero out all bytes
+ */
+template <class byte_array_class>
+void set_all_zeros(byte_array_class &byte_array) {
+    memset(&byte_array[0], 0x00, byte_array.size());
+}
+
 template <size_t array_size>
 struct byte_array_t {
     /**
@@ -322,25 +343,6 @@ struct byte_array_t {
      */
     uint8_t* buffer() {
         return _value;
-    }
-
-    /**
-     * Returns true if every byte is equal to zero
-     */
-    bool is_all_zeros() {
-        for (size_t i = 0; i < array_size; i++) {
-            if (_value[i] != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Zero out all bytes
-     */
-    void set_all_zeros() {
-        memset(_value, 0x00, array_size);
     }
 
     /**
