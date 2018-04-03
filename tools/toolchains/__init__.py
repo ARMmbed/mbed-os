@@ -731,12 +731,13 @@ class mbedToolchain:
     # A helper function for both scan_resources and _add_dir. _add_file adds one file
     # (*file_path*) to the resources object based on the file type.
     def _add_file(self, file_path, resources, base_path, exclude_paths=None):
-        resources.file_basepath[file_path] = base_path
 
-        if self.is_ignored(relpath(file_path, base_path)):
+        if  (self.is_ignored(relpath(file_path, base_path)) or
+             basename(file_path).startswith(".")):
             resources.ignore_dir(relpath(file_path, base_path))
             return
 
+        resources.file_basepath[file_path] = base_path
         _, ext = splitext(file_path)
         ext = ext.lower()
 
