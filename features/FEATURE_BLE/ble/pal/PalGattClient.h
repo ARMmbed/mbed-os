@@ -467,22 +467,6 @@ public:
     ) = 0;
 
     /**
-     * Set the signing counter associated with the peer. This counter will be used
-     * to verify the signed messages coming from that peer.
-     *
-     * @note see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H Section 2.4.5
-     *
-     * @param connection_handle The handle of the connection for the peer.
-     * @param sign_counter Counter used to verify incoming signed messages.
-     *
-     * @return BLE_ERROR_NONE or an appropriate error.
-     */
-    virtual ble_error_t set_peer_signing_counter(
-        connection_handle_t connection_handle,
-        uint32_t sign_counter
-    ) = 0;
-
-    /**
      * Send a write request to the server.
      *
      * The server should respond with a WriteResponse in case of success or an

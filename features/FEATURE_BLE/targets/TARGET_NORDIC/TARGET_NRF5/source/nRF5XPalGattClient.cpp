@@ -316,14 +316,6 @@ ble_error_t nRF5XGattClient::signed_write_without_response(
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5XGattClient::set_peer_signing_counter(
-    connection_handle_t connection_handle,
-    uint32_t sign_counter
-) {
-    /* TODO: implement*/
-    return BLE_ERROR_NOT_IMPLEMENTED;
-}
-
 ble_error_t nRF5XGattClient::write_attribute(
     connection_handle_t connection_handle,
     attribute_handle_t attribute_handle,
