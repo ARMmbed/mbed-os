@@ -311,14 +311,14 @@ struct byte_array_t {
     /**
      * Subscript operator to access data content
      */
-    uint8_t& operator[](uint8_t i) {
+    uint8_t& operator[](size_t i) {
         return _value[i];
     }
 
     /**
      * Subscript operator to access data content
      */
-    uint8_t operator[](uint8_t i) const {
+    uint8_t operator[](size_t i) const {
         return _value[i];
     }
 
