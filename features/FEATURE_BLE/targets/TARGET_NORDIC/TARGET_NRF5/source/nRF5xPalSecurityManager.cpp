@@ -179,7 +179,6 @@ ble_error_t nRF5xSecurityManager::send_pairing_request(
     KeyDistribution initiator_dist,
     KeyDistribution responder_dist
 )  {
-    printf("nRF5xSecurityManager::send_pairing_request\r\n");
     // allocate the control block required for the procedure completion
     pairing_control_block_t* pairing_cb = allocate_pairing_cb(connection);
     if (!pairing_cb) {
