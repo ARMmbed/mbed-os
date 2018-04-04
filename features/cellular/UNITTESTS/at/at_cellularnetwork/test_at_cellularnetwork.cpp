@@ -195,8 +195,8 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_access_technology()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::operator_t::RAT_UNKNOWN));
-    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::operator_t::RAT_GSM_COMPACT));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_UNKNOWN));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_GSM_COMPACT));
 }
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_scan_plmn()

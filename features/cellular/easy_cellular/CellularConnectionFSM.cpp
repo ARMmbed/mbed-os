@@ -43,7 +43,7 @@ namespace mbed
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
         _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _eventID(0)
+        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -528,8 +528,8 @@ void CellularConnectionFSM::event()
         if (_event_timeout == -1) {
             _event_timeout = 0;
         }
-        _eventID = _queue.call_in(_event_timeout*1000, callback(this, &CellularConnectionFSM::event));
-        if (!_eventID) {
+        _event_id = _queue.call_in(_event_timeout*1000, callback(this, &CellularConnectionFSM::event));
+        if (!_event_id) {
             report_failure("Cellular event failure!");
             return;
         }
@@ -576,7 +576,7 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
     if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
         // expect packet data so only these states are valid
         if (ptr == CellularNetwork::RegisteredHomeNetwork && CellularNetwork::RegisteredRoaming) {
-            _queue.cancel(_eventID);
+            _queue.cancel(_event_id);
             continue_from_state(STATE_ATTACHING_NETWORK);
         }
     }
@@ -591,7 +591,7 @@ void CellularConnectionFSM::ready_urc_cb()
     tr_debug("Device ready URC func called");
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
         tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
-        _queue.cancel(_eventID);
+        _queue.cancel(_event_id);
         if (device_ready()) {
             continue_from_state(STATE_SIM_PIN);
         }

@@ -29,7 +29,7 @@ static uint8_t filehandle_stub_table_pos = 0;
 class FileHandle_stub : public FileHandle
 {
 public:
-    size_t size_value;
+    ssize_t size_value;
 
     FileHandle_stub() {size_value = 0;}
 
@@ -47,9 +47,11 @@ public:
     }
 
     virtual ssize_t write(const void *buffer, size_t size){
-        if( size_value ) {
+        if (size_value > 0) {
             size_value--;
             return size;
+        } else if (size_value < 0) {
+            return -1;
         }
         return 0;
     }
