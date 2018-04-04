@@ -18,6 +18,7 @@
 
 #include "CordioPalSecurityManager.h"
 #include "dm_api.h"
+#include "att_api.h"
 #include "smp_api.h"
 #include "wsf_os.h"
 
@@ -278,8 +279,10 @@ ble_error_t CordioSecurityManager::set_peer_csrk(
     bool authenticated,
     uint32_t sign_counter
 ) {
-    /* TODO implement */
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    AttsSetCsrk(connection, const_cast<uint8_t*>(csrk.data()));
+    AttsSetSignCounter(connection, sign_counter);
+
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
