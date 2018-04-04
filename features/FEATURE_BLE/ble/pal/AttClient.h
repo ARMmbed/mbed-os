@@ -485,6 +485,7 @@ struct AttClient {
      * request to.
      * @param attribute_handle Handle of the attribute to write.
      * @param value Value to write. It can't be longer than (mtu - 15).
+     * @param sign_counter Signed write counter to use for this command.
      *
      * @note the authentication signature to send with this request is
      * computed by the implementation following the rules defined in BLUETOOTH
@@ -498,7 +499,8 @@ struct AttClient {
     virtual ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t>& value,
+        uint32_t sign_counter
     ) = 0;
 
     /**

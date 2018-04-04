@@ -300,7 +300,8 @@ ble_error_t nRF5XGattClient::write_without_response(
 ble_error_t nRF5XGattClient::signed_write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value
+    const ArrayView<const uint8_t>& value,
+    uint32_t sign_counter
 ) {
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_SIGN_WRITE_CMD,
@@ -313,6 +314,14 @@ ble_error_t nRF5XGattClient::signed_write_without_response(
 
     uint32_t err = sd_ble_gattc_write(connection_handle, &write_params);
     return convert_sd_error(err);
+}
+
+ble_error_t nRF5XGattClient::set_peer_signing_counter(
+    connection_handle_t connection_handle,
+    uint32_t sign_counter
+) {
+    /* TODO: implement*/
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t nRF5XGattClient::write_attribute(

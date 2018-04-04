@@ -251,6 +251,10 @@ public:
         _oob_local_random[0] = 1;
     }
 
+    uint32_t get_next_sign_counter() {
+        return _local_sign_counter++;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Helper functions
     //
@@ -326,7 +330,8 @@ private:
      */
     void return_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t *csrk,
+        uint32_t sign_counter
     );
 
     /**
@@ -337,7 +342,8 @@ private:
      */
     void set_peer_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
-        const csrk_t *csrk
+        const csrk_t *csrk,
+        uint32_t sign_counter
     );
 
     /**
@@ -471,6 +477,8 @@ private:
     address_t _oob_temporary_key_creator_address; /**< device which generated and sent the TK */
     oob_tk_t _oob_temporary_key; /**< used for legacy pairing */
 
+    uint32_t _local_sign_counter;
+
     pal::AuthenticationMask _default_authentication;
     pal::KeyDistribution _default_key_distribution;
 
@@ -526,9 +534,16 @@ public:
         connection_handle_t connection
     );
 
-    /** @copydoc ble::pal::SecurityManager::on_signature_verification_failure
+    /** @copydoc ble::pal::SecurityManager::on_signed_write_received
      */
-    virtual void on_signature_verification_failure(
+    virtual void on_signed_write_received(
+        connection_handle_t connection,
+        uint32_t sign_coutner
+    );
+
+    /** @copydoc ble::pal::SecurityManager::on_signed_write_verification_failure
+     */
+    virtual void on_signed_write_verification_failure(
         connection_handle_t connection
     );
 

@@ -1097,10 +1097,13 @@ ble_error_t GenericGattClient::write(
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
+        GenericSecurityManager* sm = (GenericSecurityManager*)(&createBLEInstance()->getSecurityManager());
+        const uint32_t sign_counter = sm->get_next_sign_counter();
         return _pal_client->signed_write_without_response(
             connection_handle,
             attribute_handle,
-            make_const_ArrayView(value, length)
+            make_const_ArrayView(value, length),
+            sign_counter
         );
     } else {
         uint8_t* data = NULL;

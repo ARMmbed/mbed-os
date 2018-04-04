@@ -153,7 +153,16 @@ public:
     virtual ble_error_t signed_write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t>& value,
+        uint32_t sign_counter
+    );
+
+    /**
+     * see pal::GattClient::set_peer_signing_counter .
+     */
+    virtual ble_error_t set_peer_signing_counter(
+        connection_handle_t connection_handle,
+        uint32_t sign_counter
     );
 
     /**

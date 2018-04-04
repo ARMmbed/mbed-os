@@ -281,12 +281,23 @@ public:
         ) = 0;
 
         /**
+         * Set new signed write peer counter.
+         *
+         * @param[in] connection connection handle
+         * @param[in] sign_coutner counter received from peer
+         */
+        virtual void on_signed_write_received(
+            connection_handle_t connection,
+            uint32_t sign_coutner
+        ) = 0;
+
+        /**
          * Indicate that signed data was rejected due to verification failure. This could
          * be due to an invalid CSRK key.
          *
          * @param[in] connection connection handle
          */
-        virtual void on_signature_verification_failure(
+        virtual void on_signed_write_verification_failure(
             connection_handle_t connection
         ) = 0;
 
@@ -885,7 +896,8 @@ public:
     virtual ble_error_t set_peer_csrk(
         connection_handle_t connection,
         const csrk_t &csrk,
-        bool authenticated
+        bool authenticated,
+        uint32_t sign_counter
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////

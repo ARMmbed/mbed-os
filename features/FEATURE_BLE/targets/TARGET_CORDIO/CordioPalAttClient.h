@@ -211,12 +211,13 @@ public:
     virtual ble_error_t signed_write_command(
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t>& value,
+        uint32_t sign_counter
     ) {
         AttcSignedWriteCmd(
             connection_handle,
             attribute_handle,
-            /* sign counter from flash or AttsGetSignCounter() ? */ 0,
+            sign_counter,
             value.size(),
             const_cast<uint8_t*>(value.data())
         );

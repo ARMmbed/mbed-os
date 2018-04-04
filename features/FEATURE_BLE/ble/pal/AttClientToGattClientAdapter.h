@@ -221,13 +221,26 @@ public:
     virtual ble_error_t signed_write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value
+        const ArrayView<const uint8_t>& value,
+        uint32_t sign_counter
     ) {
         return _client.signed_write_command(
             connection_handle,
             characteristic_value_handle,
-            value
+            value,
+            sign_counter
         );
+    }
+
+    /**
+     * @see ble::pal::GattClient::set_peer_signing_counter
+     */
+    virtual ble_error_t set_peer_signing_counter(
+        connection_handle_t connection_handle,
+        uint32_t sign_counter
+    ) {
+        /* TODO: implement*/
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**

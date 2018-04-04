@@ -245,7 +245,8 @@ public:
     virtual ble_error_t set_peer_csrk(
         connection_handle_t connection,
         const csrk_t &csrk,
-        bool authenticated
+        bool authenticated,
+        uint32_t sign_counter
     );
 
     ////////////////////////////////////////////////////////////////////////////
