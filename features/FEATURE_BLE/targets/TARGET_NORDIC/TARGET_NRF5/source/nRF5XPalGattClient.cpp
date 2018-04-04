@@ -300,8 +300,7 @@ ble_error_t nRF5XGattClient::write_without_response(
 ble_error_t nRF5XGattClient::signed_write_without_response(
     connection_handle_t connection_handle,
     attribute_handle_t characteristic_value_handle,
-    const ArrayView<const uint8_t>& value,
-    uint32_t sign_counter
+    const ArrayView<const uint8_t>& value
 ) {
     ble_gattc_write_params_t write_params = {
         BLE_GATT_OP_SIGN_WRITE_CMD,

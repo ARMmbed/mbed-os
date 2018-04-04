@@ -71,6 +71,7 @@ ble_error_t GenericSecurityManager::init(
     }
 
     _connection_monitor.set_connection_event_handler(this);
+    _signing_monitor.set_signing_event_handler(this);
     _pal.set_event_handler(this);
 
     return BLE_ERROR_NONE;
@@ -640,7 +641,8 @@ ble_error_t GenericSecurityManager::oobReceived(
 
 ble_error_t GenericSecurityManager::init_signing() {
     const csrk_t *pcsrk = _db.get_local_csrk();
-    _local_sign_counter = _db.get_local_sign_counter();
+    uint32_t local_sign_counter = _db.get_local_sign_counter();
+
     if (!pcsrk) {
         csrk_t csrk;
 
@@ -651,9 +653,10 @@ ble_error_t GenericSecurityManager::init_signing() {
 
         pcsrk = &csrk;
         _db.set_local_csrk(csrk);
-        _db.set_local_sign_counter(_local_sign_counter);
+        _db.set_local_sign_counter(local_sign_counter);
     }
-    return _pal.set_csrk(*pcsrk);
+
+    return _pal.set_csrk(*pcsrk, local_sign_counter);
 }
 
 ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
@@ -947,6 +950,7 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
     (void)connection;
 }
+
 void GenericSecurityManager::on_signed_write_received(
     connection_handle_t connection,
     uint32_t sign_counter
@@ -981,6 +985,10 @@ void GenericSecurityManager::on_signed_write_verification_failure(
             }
         }
     }
+}
+
+void GenericSecurityManager::on_signed_write() {
+    _db.set_local_sign_counter(_db.get_local_sign_counter() + 1);
 }
 
 void GenericSecurityManager::on_slave_security_request(

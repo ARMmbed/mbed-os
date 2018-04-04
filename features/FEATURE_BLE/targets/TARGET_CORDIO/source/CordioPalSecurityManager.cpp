@@ -31,6 +31,7 @@ CordioSecurityManager::CordioSecurityManager() :
     ::ble::pal::SecurityManager(),
     _use_default_passkey(false),
     _default_passkey(0),
+    _local_sign_counter(0),
     _lesc_keys_generated(false),
     _public_key_x()
 {
@@ -267,8 +268,11 @@ ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
-{
+ble_error_t CordioSecurityManager::set_csrk(
+    const csrk_t& csrk,
+    uint32_t sign_counter
+) {
+    _local_sign_counter = sign_counter;
     DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
     return BLE_ERROR_NONE;
 }

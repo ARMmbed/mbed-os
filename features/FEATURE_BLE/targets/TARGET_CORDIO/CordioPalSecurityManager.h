@@ -237,7 +237,10 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t &csrk);
+    virtual ble_error_t set_csrk(
+        const csrk_t &csrk,
+        uint32_t sign_counter
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::set_peer_csrk
@@ -321,6 +324,7 @@ public:
 private:
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
+    uint32_t _local_sign_counter;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
 };

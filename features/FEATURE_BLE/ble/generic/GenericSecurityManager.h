@@ -22,6 +22,7 @@
 #include "ble/pal/SecurityDb.h"
 #include "platform/Callback.h"
 #include "ble/pal/ConnectionEventMonitor.h"
+#include "ble/pal/SigningEventMonitor.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
 
@@ -32,7 +33,8 @@ typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
 class GenericSecurityManager : public SecurityManager,
                                public pal::SecurityManager::EventHandler,
-                               public pal::ConnectionEventMonitor::EventHandler {
+                               public pal::ConnectionEventMonitor::EventHandler,
+                               public pal::SigningEventMonitor::EventHandler {
 public:
     typedef ble::pal::SecurityDistributionFlags_t SecurityDistributionFlags_t;
     typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
@@ -234,10 +236,12 @@ public:
     GenericSecurityManager(
         pal::SecurityManager &palImpl,
         pal::SecurityDb &dbImpl,
-        pal::ConnectionEventMonitor &connMonitorImpl
+        pal::ConnectionEventMonitor &connMonitorImpl,
+        pal::SigningEventMonitor &signingMonitorImpl
     ) : _pal(palImpl),
         _db(dbImpl),
         _connection_monitor(connMonitorImpl),
+        _signing_monitor(signingMonitorImpl),
         _default_authentication(0),
         _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -467,6 +471,7 @@ private:
     pal::SecurityManager &_pal;
     pal::SecurityDb &_db;
     pal::ConnectionEventMonitor &_connection_monitor;
+    pal::SigningEventMonitor &_signing_monitor;
 
     /* OOB data */
     address_t _oob_local_address;
@@ -546,6 +551,10 @@ public:
     virtual void on_signed_write_verification_failure(
         connection_handle_t connection
     );
+
+    /** @copydoc ble::pal::SecurityManager::on_signed_write
+     */
+    virtual void on_signed_write();
 
     /** @copydoc ble::pal::SecurityManager::on_slave_security_request
      */

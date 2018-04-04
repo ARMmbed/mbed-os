@@ -936,6 +936,7 @@ struct GenericGattClient::DescriptorDiscoveryControlBlock : public ProcedureCont
 GenericGattClient::GenericGattClient(pal::GattClient* pal_client) :
 	_pal_client(pal_client),
 	_termination_callback(),
+	_signing_event_handler(NULL),
 	 control_blocks(NULL),
 	_is_reseting(false) {
 	_pal_client->when_server_message_received(
@@ -1097,14 +1098,15 @@ ble_error_t GenericGattClient::write(
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
-        GenericSecurityManager* sm = (GenericSecurityManager*)(&createBLEInstance()->getSecurityManager());
-        const uint32_t sign_counter = sm->get_next_sign_counter();
-        return _pal_client->signed_write_without_response(
+        ble_error_t status = _pal_client->signed_write_without_response(
             connection_handle,
             attribute_handle,
-            make_const_ArrayView(value, length),
-            sign_counter
+            make_const_ArrayView(value, length)
         );
+        if (_signing_event_handler && (status == BLE_ERROR_NONE)) {
+            _signing_event_handler->on_signed_write();
+        }
+        return status;
     } else {
         uint8_t* data = NULL;
 
@@ -1255,6 +1257,12 @@ ble_error_t GenericGattClient::reset(void) {
 	_is_reseting = false;
 
 	return BLE_ERROR_NONE;
+}
+
+void GenericGattClient::set_signing_event_handler(
+    EventHandler *signing_event_handler
+) {
+    _signing_event_handler = signing_event_handler;
 }
 
 void GenericGattClient::on_termination(Gap::Handle_t connection_handle) {

@@ -281,27 +281,6 @@ public:
         ) = 0;
 
         /**
-         * Set new signed write peer counter.
-         *
-         * @param[in] connection connection handle
-         * @param[in] sign_coutner counter received from peer
-         */
-        virtual void on_signed_write_received(
-            connection_handle_t connection,
-            uint32_t sign_coutner
-        ) = 0;
-
-        /**
-         * Indicate that signed data was rejected due to verification failure. This could
-         * be due to an invalid CSRK key.
-         *
-         * @param[in] connection connection handle
-         */
-        virtual void on_signed_write_verification_failure(
-            connection_handle_t connection
-        ) = 0;
-
-        /**
          * Ask the stack to evaluate the security request received from the slave.
          * This might result in the stack enabling encryption, or pairing/re-pairing.
          *
@@ -879,11 +858,13 @@ public:
     /**
      * Set the local CSRK.
      *
-     * @param[in] csrk signing key
+     * @param[in] csrk local signing key
+     * @param[in] sign_counter local signing counter
      * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_csrk(
-        const csrk_t &csrk
+        const csrk_t &csrk,
+        uint32_t sign_counter
     ) = 0;
 
     /**
@@ -891,6 +872,8 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] csrk signing key
+     * @param[in] authenticated is the CSRK authenticated
+     * @param[in] sign_counter signing counter
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_peer_csrk(

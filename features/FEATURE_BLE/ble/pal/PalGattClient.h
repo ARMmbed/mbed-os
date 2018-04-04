@@ -455,15 +455,13 @@ public:
      * @param connection_handle The handle of the connection to send this request to.
      * @param attribute_handle Handle of the attribute to write.
      * @param value The value to write.
-     * @param sign_counter Signed write counter to use for this command.
      *
      * @return BLE_ERROR_NONE or an appropriate error.
      */
     virtual ble_error_t signed_write_without_response(
         connection_handle_t connection_handle,
         attribute_handle_t characteristic_value_handle,
-        const ArrayView<const uint8_t>& value,
-        uint32_t sign_counter
+        const ArrayView<const uint8_t>& value
     ) = 0;
 
     /**
