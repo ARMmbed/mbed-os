@@ -264,6 +264,11 @@ private:
 template <size_t array_size>
 struct byte_array_t {
     /**
+     * Size of the array; accessible at compile time.
+     */
+    static const size_t size_ = array_size;
+
+    /**
      * Default to all zeroes
      */
     byte_array_t() {
