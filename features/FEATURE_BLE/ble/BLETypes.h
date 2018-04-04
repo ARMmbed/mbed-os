@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ble/SafeEnum.h"
+#include "ble/ArrayView.h"
 
 /**
  * @addtogroup ble
@@ -354,6 +355,32 @@ struct byte_array_t {
 protected:
     uint8_t _value[array_size];
 };
+
+/**
+ * Construct a fixed size ArrayView from a byte_array_t.
+ *
+ * @param src byte_array_t to create a view from.
+ *
+ * @return An ArrayView to @p src.
+ */
+template<size_t Size>
+ArrayView<uint8_t, Size> make_ArrayView(byte_array_t<Size>& src)
+{
+    return ArrayView<uint8_t, Size>(src.data(), src.size());
+}
+
+/**
+ * Construct a fixed size ArrayView from a const byte_array_t.
+ *
+ * @param src byte_array_t to create a view from.
+ *
+ * @return An ArrayView to @p src.
+ */
+template<size_t Size>
+ArrayView<const uint8_t, Size> make_const_ArrayView(const byte_array_t<Size>& src)
+{
+    return ArrayView<const uint8_t, Size>(src.data(), src.size());
+}
 
 /** 128 bit keys used by paired devices */
 typedef byte_array_t<16> irk_t;
