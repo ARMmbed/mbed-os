@@ -357,7 +357,7 @@ ble_error_t CordioSecurityManager::cancel_pairing(
 
 ble_error_t CordioSecurityManager::get_random_data(byte_array_t<8> &random_data)
 {
-    SecRand(random_data.buffer(), random_data.size());
+    SecRand(random_data.data(), random_data.size());
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 

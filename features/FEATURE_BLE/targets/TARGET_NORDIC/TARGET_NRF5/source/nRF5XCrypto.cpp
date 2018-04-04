@@ -131,7 +131,7 @@ bool CryptoToolbox::generate_shared_secret(
 
 void CryptoToolbox::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src) {
     ble::public_key_coord_t src_be = src.data();
-    swap_endian(src_be.buffer(), src_be.size());
+    swap_endian(src_be.data(), src_be.size());
     mbedtls_mpi_read_binary(&dest, src_be.data(), src_be.size());
 }
 

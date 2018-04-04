@@ -521,7 +521,7 @@ ble_error_t nRF5xSecurityManager::set_csrk(const csrk_t& csrk)
 ble_error_t nRF5xSecurityManager::get_random_data(byte_array_t<8> &random_data)
 {
     uint32_t err = sd_rand_application_vector_get(
-        random_data.buffer(), random_data.size()
+        random_data.data(), random_data.size()
     );
     return convert_sd_error(err);
 }
@@ -636,7 +636,7 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob(
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
-    memcpy(own_secret.pk, secret.buffer(), secret.size());
+    memcpy(own_secret.pk, secret.data(), secret.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_get(
         connection,

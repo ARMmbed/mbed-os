@@ -337,14 +337,6 @@ struct byte_array_t {
         return _value;
     }
 
-
-    /**
-     * Return the pointer to the buffer holding data.
-     */
-    uint8_t* buffer() {
-        return _value;
-    }
-
     /**
      * Size in byte of a data.
      */

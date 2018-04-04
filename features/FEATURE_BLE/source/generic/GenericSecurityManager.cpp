@@ -520,7 +520,7 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->oob_mitm_protection = OOBProvidesMITM;
 
     _oob_temporary_key_creator_address = cb->local_address;
-    get_random_data(_oob_temporary_key.buffer(), 16);
+    get_random_data(_oob_temporary_key.data(), 16);
 
     eventHandler->legacyPairingOobGenerated(
         &_oob_temporary_key_creator_address,
@@ -608,7 +608,7 @@ ble_error_t GenericSecurityManager::init_signing() {
     if (!pcsrk) {
         csrk_t csrk;
 
-        ble_error_t ret = get_random_data(csrk.buffer(), csrk.size());
+        ble_error_t ret = get_random_data(csrk.data(), csrk.size());
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
@@ -630,7 +630,7 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
-        memcpy(buffer, random_data.buffer(), copy_size);
+        memcpy(buffer, random_data.data(), copy_size);
         size -= copy_size;
         buffer += copy_size;
     }
