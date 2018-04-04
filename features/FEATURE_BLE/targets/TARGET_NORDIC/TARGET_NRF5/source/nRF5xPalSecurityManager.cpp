@@ -105,9 +105,9 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 ble_error_t nRF5xSecurityManager::initialize()
 {
     if (_crypto.generate_keys(
-        make_ArrayView(X.buffer(), X.size()),
-        make_ArrayView(Y.buffer(), Y.size()),
-        make_ArrayView(secret.buffer(), secret.size())
+        make_ArrayView(X),
+        make_ArrayView(Y),
+        make_ArrayView(secret)
     )) {
         return BLE_ERROR_NONE;
     }
@@ -800,13 +800,13 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             const ble_gap_evt_lesc_dhkey_request_t& dhkey_request =
                 gap_evt.params.lesc_dhkey_request;
 
-            size_t key_size = public_key_coord_t::size();
+            static const size_t key_size = public_key_coord_t::size_;
             ble_gap_lesc_dhkey_t shared_secret;
 
             _crypto.generate_shared_secret(
-                make_const_ArrayView(dhkey_request.p_pk_peer->pk, key_size),
-                make_const_ArrayView(dhkey_request.p_pk_peer->pk + key_size, key_size),
-                make_const_ArrayView(secret.data(), secret.size()),
+                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk),
+                make_const_ArrayView<key_size>(dhkey_request.p_pk_peer->pk + key_size),
+                make_const_ArrayView(secret),
                 shared_secret.key
             );
 

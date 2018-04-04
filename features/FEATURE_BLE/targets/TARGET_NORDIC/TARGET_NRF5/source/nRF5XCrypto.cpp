@@ -1,3 +1,19 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2018-2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <algorithm>
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -27,7 +43,7 @@ namespace pal {
 namespace vendor {
 namespace nordic {
 
-LescCrypto::LescCrypto() : _initialized(false) {
+CryptoToolbox::CryptoToolbox() : _initialized(false) {
     mbedtls_entropy_init(&_entropy_context);
     mbedtls_ecp_group_init(&_group);
     int err = mbedtls_ecp_group_load(
@@ -37,20 +53,16 @@ LescCrypto::LescCrypto() : _initialized(false) {
     _initialized = err ? false : true;
 }
 
-LescCrypto::~LescCrypto() {
+CryptoToolbox::~CryptoToolbox() {
     mbedtls_ecp_group_free(&_group);
     mbedtls_entropy_free(&_entropy_context);
 }
 
-bool LescCrypto::generate_keys(
-    ArrayView<uint8_t> X,
-    ArrayView<uint8_t> Y,
-    ArrayView<uint8_t> secret
+bool CryptoToolbox::generate_keys(
+    ArrayView<uint8_t, lesc_key_size_> X,
+    ArrayView<uint8_t, lesc_key_size_> Y,
+    ArrayView<uint8_t, lesc_key_size_> secret
 ) {
-    MBED_ASSERT(X.size() == public_key_coord_t::size());
-    MBED_ASSERT(Y.size() == public_key_coord_t::size());
-    MBED_ASSERT(secret.size() == public_key_coord_t::size());
-
     mbedtls_mpi secret_key;
     mbedtls_ecp_point public_keys;
 
@@ -77,17 +89,12 @@ bool LescCrypto::generate_keys(
     return err ? false : true;
 }
 
-bool LescCrypto::generate_shared_secret(
-    const ArrayView<const uint8_t>& peer_X,
-    const ArrayView<const uint8_t>& peer_Y,
-    const ArrayView<const uint8_t>& own_secret,
-    ArrayView<uint8_t> shared_secret
+bool CryptoToolbox::generate_shared_secret(
+    const ArrayView<const uint8_t, lesc_key_size_>& peer_X,
+    const ArrayView<const uint8_t, lesc_key_size_>& peer_Y,
+    const ArrayView<const uint8_t, lesc_key_size_>& own_secret,
+    ArrayView<uint8_t, lesc_key_size_> shared_secret
 ) {
-    MBED_ASSERT(peer_X.size() == public_key_coord_t::size());
-    MBED_ASSERT(peer_Y.size() == public_key_coord_t::size());
-    MBED_ASSERT(own_secret.size() == public_key_coord_t::size());
-    MBED_ASSERT(shared_secret.size() == dhkey_t::size());
-
     mbedtls_mpi result;
     mbedtls_mpi secret_key;
     mbedtls_ecp_point public_keys;
@@ -122,18 +129,18 @@ bool LescCrypto::generate_shared_secret(
 }
 
 
-void LescCrypto::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t>& src) {
+void CryptoToolbox::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src) {
     ble::public_key_coord_t src_be = src.data();
     swap_endian(src_be.buffer(), src_be.size());
     mbedtls_mpi_read_binary(&dest, src_be.data(), src_be.size());
 }
 
-void LescCrypto::store_mpi(ArrayView<uint8_t>& dest, const mbedtls_mpi& src) {
+void CryptoToolbox::store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src) {
     mbedtls_mpi_write_binary(&src, dest.data(), dest.size());
     swap_endian(dest.data(), dest.size());
 }
 
-void LescCrypto::swap_endian(uint8_t* buf, size_t len) {
+void CryptoToolbox::swap_endian(uint8_t* buf, size_t len) {
     for(size_t low = 0, high = (len - 1); high > low; --high, ++low) {
         std::swap(buf[low], buf[high]);
     }

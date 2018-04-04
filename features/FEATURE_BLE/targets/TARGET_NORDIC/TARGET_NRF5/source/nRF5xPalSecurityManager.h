@@ -337,7 +337,7 @@ private:
     void release_all_pairing_cb();
 
     pairing_control_block_t* _control_blocks;
-    LescCrypto _crypto;
+    CryptoToolbox _crypto;
     ble::public_key_coord_t X;
     ble::public_key_coord_t Y;
     ble::public_key_coord_t secret;
