@@ -289,6 +289,13 @@ def get_mbed_official_release(version):
 
     return mbed_official_release
 
+ARM_COMPILERS = ("ARM", "ARMC6", "uARM")
+def target_supports_toolchain(target, toolchain_name):
+    if toolchain_name in ARM_COMPILERS:
+        return any(tc in target.supported_toolchains for tc in ARM_COMPILERS)
+    else:
+        return toolchain_name in target.supported_toolchains
+
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
@@ -322,6 +329,11 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
     target = config.target
+    if not target_supports_toolchain(target, toolchain_name):
+        raise NotSupportedException(
+            "Target {} is not supported by toolchain {}".format(
+                target.name, toolchain_name))
+
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
