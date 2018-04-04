@@ -77,12 +77,8 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
 }
 
 lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
-                                             const loramac_mib_req_confirm_t* mib_confirm)
+                                              const channel_params_t* channel_list)
 {
-    if (mib_confirm == NULL) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
     uint8_t max_num_channels;
     uint16_t *channel_mask;
     uint8_t count = 0;
@@ -103,12 +99,12 @@ lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
 
         // otherwise add them to the channel_plan struct
         plan.channels[count].id = i;
-        plan.channels[count].ch_param.frequency = mib_confirm->param.channel_list[i].frequency;
-        plan.channels[count].ch_param.dr_range.value = mib_confirm->param.channel_list[i].dr_range.value;
-        plan.channels[count].ch_param.dr_range.fields.min = mib_confirm->param.channel_list[i].dr_range.fields.min;
-        plan.channels[count].ch_param.dr_range.fields.max = mib_confirm->param.channel_list[i].dr_range.fields.max;
-        plan.channels[count].ch_param.band = mib_confirm->param.channel_list[i].band;
-        plan.channels[count].ch_param.rx1_frequency = mib_confirm->param.channel_list[i].rx1_frequency;
+        plan.channels[count].ch_param.frequency = channel_list[i].frequency;
+        plan.channels[count].ch_param.dr_range.value = channel_list[i].dr_range.value;
+        plan.channels[count].ch_param.dr_range.fields.min = channel_list[i].dr_range.fields.min;
+        plan.channels[count].ch_param.dr_range.fields.max = channel_list[i].dr_range.fields.max;
+        plan.channels[count].ch_param.band = channel_list[i].band;
+        plan.channels[count].ch_param.rx1_frequency = channel_list[i].rx1_frequency;
         count++;
     }
 

@@ -210,7 +210,7 @@ static const channel_params_t IN865_LC3 = { 865985000, 0, { ( ( DR_5 << 4 ) | DR
 /*!
  * Data rates table definition
  */
-static const uint8_t datarates_IN865[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
+static const uint8_t datarates_IN865[]  = { 12, 11, 10,  9,  8,  7,  0, 50 };
 
 /*!
  * Bandwidths table definition in Hz

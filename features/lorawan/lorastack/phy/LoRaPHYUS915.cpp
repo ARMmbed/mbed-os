@@ -602,9 +602,9 @@ int8_t LoRaPHYUS915::get_alternate_DR(uint8_t nb_trials)
     return datarate;
 }
 
-bool LoRaPHYUS915::set_next_channel(channel_selection_params_t* params,
-                                    uint8_t* channel, lorawan_time_t* time,
-                                    lorawan_time_t* aggregate_timeOff)
+lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* params,
+                                                uint8_t* channel, lorawan_time_t* time,
+                                                lorawan_time_t* aggregate_timeOff)
 {
     uint8_t nb_enabled_channels = 0;
     uint8_t delay_tx = 0;
@@ -649,19 +649,19 @@ bool LoRaPHYUS915::set_next_channel(channel_selection_params_t* params,
         disable_channel(current_channel_mask, *channel, US915_MAX_NB_CHANNELS - 8);
 
         *time = 0;
-        return true;
+        return LORAWAN_STATUS_OK;
 
     } else {
 
         if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = next_tx_delay;
-            return true;
+            return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
         }
 
         // Datarate not supported by any channel
         *time = 0;
-        return false;
+        return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
