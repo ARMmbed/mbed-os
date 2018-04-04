@@ -104,7 +104,11 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 
 ble_error_t nRF5xSecurityManager::initialize()
 {
-    if (_crypto.generate_keys(X, Y, secret)) {
+    if (_crypto.generate_keys(
+        make_ArrayView(X.buffer(), X.size()),
+        make_ArrayView(Y.buffer(), Y.size()),
+        make_ArrayView(secret.buffer(), secret.size())
+    )) {
         return BLE_ERROR_NONE;
     }
 
@@ -797,19 +801,15 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                 gap_evt.params.lesc_dhkey_request;
 
             size_t key_size = public_key_coord_t::size();
-            public_key_coord_t peer_X(dhkey_request.p_pk_peer->pk, key_size);
-            public_key_coord_t peer_Y(dhkey_request.p_pk_peer->pk + key_size, key_size);
-            public_key_coord_t sh_secret;
             ble_gap_lesc_dhkey_t shared_secret;
 
             _crypto.generate_shared_secret(
-                peer_X,
-                peer_Y,
-                self.secret,
-                sh_secret
+                make_const_ArrayView(dhkey_request.p_pk_peer->pk, key_size),
+                make_const_ArrayView(dhkey_request.p_pk_peer->pk + key_size, key_size),
+                make_const_ArrayView(secret.data(), secret.size()),
+                shared_secret.key
             );
 
-            memcpy(shared_secret.key, sh_secret.data(), sh_secret.size());
             sd_ble_gap_lesc_dhkey_reply(connection, &shared_secret);
 
             if (dhkey_request.oobd_req) {

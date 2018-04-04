@@ -22,6 +22,7 @@
 #include "platform/CriticalSectionLock.h"
 #include "ble/BLETypes.h"
 #include "cmsis.h"
+#include "ble/ArrayView.h"
 
 namespace ble {
 namespace pal {
@@ -36,25 +37,25 @@ public:
     ~LescCrypto();
 
     bool generate_keys(
-        ble::public_key_coord_t& X,
-        ble::public_key_coord_t& Y,
-        ble::public_key_coord_t& secret
+        ArrayView<uint8_t> X,
+        ArrayView<uint8_t> Y,
+        ArrayView<uint8_t> secret
     );
 
     bool generate_shared_secret(
-        const ble::public_key_coord_t& peer_X,
-        const ble::public_key_coord_t& peer_Y,
-        const ble::public_key_coord_t& own_secret,
-        ble::public_key_coord_t& shared_secret
+        const ArrayView<const uint8_t>& peer_X,
+        const ArrayView<const uint8_t>& peer_Y,
+        const ArrayView<const uint8_t>& own_secret,
+        ArrayView<uint8_t> shared_secret
     );
 
 private:
 
-    void load_mpi(mbedtls_mpi& dest, const ble::public_key_coord_t& src);
+    void load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t>& src);
 
-    void store_mpi(ble::public_key_coord_t& dest, const mbedtls_mpi& src);
+    void store_mpi(ArrayView<uint8_t>& dest, const mbedtls_mpi& src);
 
-    void swap_endian(ble::public_key_coord_t& to_swap);
+    void swap_endian(ArrayView<uint8_t>& to_swap);
 
     void swap_endian(uint8_t* buf, size_t len);
 

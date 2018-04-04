@@ -20,6 +20,7 @@
 #include "ble/BLETypes.h"
 #include "cmsis.h"
 #include "nRF5xCrypto.h"
+#include "platform/mbed_assert.h"
 
 namespace ble {
 namespace pal {
@@ -42,10 +43,14 @@ LescCrypto::~LescCrypto() {
 }
 
 bool LescCrypto::generate_keys(
-    ble::public_key_coord_t& X,
-    ble::public_key_coord_t& Y,
-    ble::public_key_coord_t& secret
+    ArrayView<uint8_t> X,
+    ArrayView<uint8_t> Y,
+    ArrayView<uint8_t> secret
 ) {
+    MBED_ASSERT(X.size() == public_key_coord_t::size());
+    MBED_ASSERT(Y.size() == public_key_coord_t::size());
+    MBED_ASSERT(secret.size() == public_key_coord_t::size());
+
     mbedtls_mpi secret_key;
     mbedtls_ecp_point public_keys;
 
@@ -73,11 +78,16 @@ bool LescCrypto::generate_keys(
 }
 
 bool LescCrypto::generate_shared_secret(
-    const ble::public_key_coord_t& peer_X,
-    const ble::public_key_coord_t& peer_Y,
-    const ble::public_key_coord_t& own_secret,
-    ble::public_key_coord_t& shared_secret
+    const ArrayView<const uint8_t>& peer_X,
+    const ArrayView<const uint8_t>& peer_Y,
+    const ArrayView<const uint8_t>& own_secret,
+    ArrayView<uint8_t> shared_secret
 ) {
+    MBED_ASSERT(peer_X.size() == public_key_coord_t::size());
+    MBED_ASSERT(peer_Y.size() == public_key_coord_t::size());
+    MBED_ASSERT(own_secret.size() == public_key_coord_t::size());
+    MBED_ASSERT(shared_secret.size() == dhkey_t::size());
+
     mbedtls_mpi result;
     mbedtls_mpi secret_key;
     mbedtls_ecp_point public_keys;
@@ -112,19 +122,15 @@ bool LescCrypto::generate_shared_secret(
 }
 
 
-void LescCrypto::load_mpi(mbedtls_mpi& dest, const ble::public_key_coord_t& src) {
-    ble::public_key_coord_t src_be = src;
-    swap_endian(src_be);
-    mbedtls_mpi_read_binary(&dest, src_be.buffer(), src_be.size());
+void LescCrypto::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t>& src) {
+    ble::public_key_coord_t src_be = src.data();
+    swap_endian(src_be.buffer(), src_be.size());
+    mbedtls_mpi_read_binary(&dest, src_be.data(), src_be.size());
 }
 
-void LescCrypto::store_mpi(ble::public_key_coord_t& dest, const mbedtls_mpi& src) {
-    mbedtls_mpi_write_binary(&src, dest.buffer(), dest.size());
-    swap_endian(dest);
-}
-
-void LescCrypto::swap_endian(ble::public_key_coord_t& to_swap) {
-    swap_endian(to_swap.buffer(), to_swap.size());
+void LescCrypto::store_mpi(ArrayView<uint8_t>& dest, const mbedtls_mpi& src) {
+    mbedtls_mpi_write_binary(&src, dest.data(), dest.size());
+    swap_endian(dest.data(), dest.size());
 }
 
 void LescCrypto::swap_endian(uint8_t* buf, size_t len) {
