@@ -17,50 +17,70 @@
 #ifndef NRF5X_CRYPTO_
 #define NRF5X_CRYPTO_
 
-#include <algorithm>
+#include <stdint.h>
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
-#include <stdio.h>
-#include <string.h>
-
 
 #include "mbedtls/platform.h"
-#include "mbedtls/ecdh.h"
-#include "mbedtls/memory_buffer_alloc.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ecp.h"
 
 #include "platform/NonCopyable.h"
-#include "platform/CriticalSectionLock.h"
 #include "ble/BLETypes.h"
-#include "cmsis.h"
-#include "ble/ArrayView.h"
 
 namespace ble {
 namespace pal {
 namespace vendor {
 namespace nordic {
 
+/**
+ * Toolbox of cryptographic functions used in BLE.
+ */
 class CryptoToolbox : mbed::NonCopyable<CryptoToolbox> {
 
 public:
+    /**
+     * Size of the Key used in lesc crypto operations.
+     */
     static const ptrdiff_t lesc_key_size_ = public_key_coord_t::size_;
 
-
+    /**
+     * Create a new CryptoToolbox.
+     */
     CryptoToolbox();
 
+    /**
+     * Destroy a CryptoTioolbox object.
+     */
     ~CryptoToolbox();
 
+    /**
+     * Generate lesc public and private keys.
+     * @param[out] X The component X of the public key.
+     * @param[out] Y The component Y of the public key.
+     * @param[out] secret The secret key.
+     * @return true if the shared secret has been successfully generated and
+     * false otherwise.
+     */
     bool generate_keys(
         ArrayView<uint8_t, lesc_key_size_> X,
         ArrayView<uint8_t, lesc_key_size_> Y,
         ArrayView<uint8_t, lesc_key_size_> secret
     );
 
+    /**
+     * Generate a shared secret from a peer public key and a local secret key.
+     * @param[in] peer_X The component X of the peer public key.
+     * @param[in] peer_Y The component Y of the peer public key.
+     * @param[in] own_secret The local secret key.
+     * @param[out] shared_secret The shared secret generated.
+     * @return true if the shared secret has been successfully generated and
+     * false otherwise.
+     */
     bool generate_shared_secret(
         const ArrayView<const uint8_t, lesc_key_size_>& peer_X,
         const ArrayView<const uint8_t, lesc_key_size_>& peer_Y,
@@ -69,7 +89,6 @@ public:
     );
 
 private:
-
     void load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src);
 
     void store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src);
