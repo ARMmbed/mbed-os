@@ -233,17 +233,6 @@ public:
     }
 
     /**
-     * @see ble::pal::GattClient::set_peer_signing_counter
-     */
-    virtual ble_error_t set_peer_signing_counter(
-        connection_handle_t connection_handle,
-        uint32_t sign_counter
-    ) {
-        /* TODO: implement*/
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
      * @see ble::pal::GattClient::write_attribute
      */
     virtual ble_error_t write_attribute(
