@@ -72,15 +72,15 @@ namespace rtos {
  * Memory considerations: The thread control structures will be created on current thread's stack, both for the mbed OS
  * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
  * Additionally the stack memory for this thread will be allocated on the heap, if it wasn't supplied to the constructor.
+ *
+ * @note
+ * MBED_TZ_DEFAULT_ACCESS (default:0) flag can be used to change the default access of all user threads in non-secure mode.
+ * MBED_TZ_DEFAULT_ACCESS set to 1, means all non-secure user threads have access to call secure functions.
+ * MBED_TZ_DEFAULT_ACCESS set to 0, means none of the non-secure user thread have access to call secure functions,
+ * to give access to particular thread used overloaded constructor with `tz_module` as argument during thread creation.
+ *
+ * MBED_TZ_DEFAULT_ACCESS is target specific define, should be set in targets.json file for Cortex-M23/M33 devices.
  */
-
-/* This flag can be used to change the default access of all threads in non-secure mode.
-   MBED_TZ_DEFAULT_ACCESS set to 1, means all non-secure threads have access to call secure functions.
-   MBED_TZ_DEFAULT_ACCESS is target specific define, should be set in targets.json file for Cortex-M23/M33 devices.
-*/
-#ifndef MBED_TZ_DEFAULT_ACCESS
-#define MBED_TZ_DEFAULT_ACCESS 0
-#endif
 
 class Thread : private mbed::NonCopyable<Thread> {
 public:
@@ -102,6 +102,9 @@ public:
 
     /** Allocate a new thread without starting execution
       @param   tz_module      trustzone thread identifier (osThreadAttr_t::tz_module)
+                              Context of RTOS threads in non-secure state must be saved when calling secure functions.
+                              tz_module ID is used to allocate context memory for threads, and it can be safely set to zero for
+                              threads not using secure calls at all. See "TrustZone RTOS Context Management" for more details.
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).

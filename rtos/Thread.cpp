@@ -43,6 +43,10 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 
 namespace rtos {
 
+#ifndef MBED_TZ_DEFAULT_ACCESS
+#define MBED_TZ_DEFAULT_ACCESS   0
+#endif
+
 void Thread::constructor(uint32_t tz_module, osPriority priority,
         uint32_t stack_size, unsigned char *stack_mem, const char *name) {
 
