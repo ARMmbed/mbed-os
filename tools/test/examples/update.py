@@ -304,7 +304,7 @@ def prepare_branch(src, dst):
         cmd = "git checkout " + str(dst)
         run_cmd(cmd, exit_on_failure=True)
    
-def upgrade_example(github, example, tag, ref, user, src, dst, template):
+def upgrade_example(github, example, tag, ref, user, src, dst, template, use_ssh):
     """ Upgrade all versions of mbed-os.lib found in the specified example repo
     
     Description:
@@ -329,6 +329,7 @@ def upgrade_example(github, example, tag, ref, user, src, dst, template):
     user - GitHub user name 
     src - branch to create the dst branch from
     dst - branch to update
+    use_ssh - use ssh instead of https
     
     returns True if the upgrade was successful, False otherwise
     """
@@ -346,7 +347,8 @@ def upgrade_example(github, example, tag, ref, user, src, dst, template):
 
     cwd = os.getcwd()
 
-    update_repo = "https://github.com/" + user + '/' + example['name'] 
+    update_repo = "git@github.com:" if use_ssh else "https://github.com/"
+    update_repo += user + '/' + example['name']
     userlog.debug("Update repository: %s", update_repo)
 
     # Clone the example repo
@@ -480,6 +482,8 @@ if __name__ == '__main__':
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-c', '--config_file', help="Path to the configuration file (default is 'examples.json')", default='examples.json')
     parser.add_argument('-T', '--github_token', help="GitHub token for secure access")
+
+    parser.add_argument('-S', '--use_ssh', help="Updates examples using ssh instead of https urls")
     
     exclusive = parser.add_mutually_exclusive_group(required=True)
     exclusive.add_argument('-f', '--fork', help="Update a fork", action='store_true')
@@ -542,7 +546,7 @@ if __name__ == '__main__':
         # Determine if this example should be updated and if so update any found 
         # mbed-os.lib files. 
         
-        result = upgrade_example(github, example, tag, ref, user, src, dst, template)
+        result = upgrade_example(github, example, tag, ref, user, src, dst, template, args.use_ssh)
             
         if result:
             successes += [example['name']]
