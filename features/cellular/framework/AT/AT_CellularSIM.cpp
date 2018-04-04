@@ -22,7 +22,7 @@ using namespace mbed;
 
 const int MAX_SIM_RESPONSE_LENGTH = 16;
 
-AT_CellularSIM::AT_CellularSIM(ATHandler &at) : AT_CellularBase(at)
+AT_CellularSIM::AT_CellularSIM(ATHandler &at) : AT_CellularBase(at), _state(SimStateNotChecked)
 {
 }
 
@@ -56,8 +56,38 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
         state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
     }
     _at.resp_stop();
-    return _at.unlock_return_error();
+    _state = state;
+    nsapi_error_t error = _at.get_last_error();
+    _at.unlock();
+    trace_sim_errors();    
+    return error;
 }
+
+
+CellularSIM::SimState AT_CellularSIM::trace_sim_errors(void)
+{
+    switch (_state) {
+        case SimStatePinNeeded:
+            tr_error("SIM PIN required");
+            break;
+        case SimStatePukNeeded:
+            tr_error("SIM PUK required");
+            break;
+        case SimStateUnknown:
+            tr_error("SIM state unknown");
+            break;
+        case SimStateNotChecked:
+            tr_error("SIM status has not been checked");
+            break;
+        default:
+            tr_info("SIM is ready");
+            break;
+    }
+
+    return _state;
+}
+
+
 
 nsapi_error_t AT_CellularSIM::set_pin(const char *sim_pin)
 {
