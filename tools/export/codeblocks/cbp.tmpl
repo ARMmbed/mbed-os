@@ -45,8 +45,12 @@
 			<Add option="{{f}}" />
 			{%  endfor -%}
 			<Add option="-T {{linker_script}}" />
+			<Add option="-Wl,--start-group {{sys_libs|join(" ")}} {{libraries|join(" ")}} -Wl,--end-group" />
+			{%  for f in sys_libs -%}
+			<Add option="{{f}}" />
+			{%  endfor -%}
 			{%  for f in libraries -%}
-			<Add library="{{f}}" />
+			<Add option="{{f}}" />
 			{%  endfor -%}
 		</Linker>
 		{%  for f in headers -%}

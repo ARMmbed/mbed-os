@@ -51,6 +51,16 @@ class CodeBlocks(GccArm):
             return str_in[2:]
         return str_in
 
+    @staticmethod
+    def prepare_lib(libname):
+        if "lib" == libname[:3]:
+            libname = libname[3:-2]
+        return "-l" + libname
+
+    @staticmethod
+    def prepare_sys_lib(libname):
+        return "-l" + libname
+
     def generate(self):
         self.resources.win_to_unix()
 
@@ -79,6 +89,10 @@ class CodeBlocks(GccArm):
                                             not x.startswith('obj'))];
 
         c_sources = sorted([self.filter_dot(s) for s in self.resources.c_sources])
+        libraries = [self.prepare_lib(basename(lib)) for lib
+                     in self.resources.libraries]
+        sys_libs = [self.prepare_sys_lib(lib) for lib
+                    in self.toolchain.sys_libs]
 
         ctx = {
             'project_name': self.project_name,
@@ -91,7 +105,8 @@ class CodeBlocks(GccArm):
             'cpp_sources': sorted([self.filter_dot(s) for s in self.resources.cpp_sources]),
             'include_paths': inc_dirs,
             'linker_script': self.filter_dot(self.resources.linker_script),
-            'libraries': self.resources.libraries,
+            'libraries': libraries,
+            'sys_libs': sys_libs,
             'openocdboard': ''
             }
 
