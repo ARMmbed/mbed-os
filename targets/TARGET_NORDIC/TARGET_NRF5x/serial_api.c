@@ -67,13 +67,6 @@
  */
 
 /**
- * Legacy hardware flow control setting. Enables flow control for STDOUT.
- */
-#ifndef MBED_CONF_NORDIC_UART_HWFC
-#define MBED_CONF_NORDIC_UART_HWFC 0
-#endif
-
-/**
  * Idle timeout between characters before DMA buffer is flushed.
  */
 #ifndef MBED_CONF_NORDIC_UART_TIMEOUT_US
@@ -1056,23 +1049,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /* Set default parity and baud rate. */
     uart_object->parity = NRF_UART_PARITY_EXCLUDED;
     uart_object->baudrate = NRF_UART_BAUDRATE_9600;
-
-    /**
-     * If the provided pins match STDOUT and the default flow control is enabled,
-     * enable flow control using STDOUT's flow control pins.
-     */
-    if (MBED_CONF_NORDIC_UART_HWFC && (tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)) {
-
-        uart_object->cts = CTS_PIN_NUMBER;
-        uart_object->rts = RTS_PIN_NUMBER;
-        uart_object->hwfc = NRF_UART_HWFC_ENABLED;
-
-    } else {
-
-        uart_object->cts = NRF_UART_PSEL_DISCONNECTED;
-        uart_object->rts = NRF_UART_PSEL_DISCONNECTED;
-        uart_object->hwfc = NRF_UART_HWFC_DISABLED;
-    }
+    uart_object->cts = NRF_UART_PSEL_DISCONNECTED;
+    uart_object->rts = NRF_UART_PSEL_DISCONNECTED;
+    uart_object->hwfc = NRF_UART_HWFC_DISABLED;
 
     /* The STDIO object is stored in this file. Set the flag once initialized. */
     if (obj == &stdio_uart) {

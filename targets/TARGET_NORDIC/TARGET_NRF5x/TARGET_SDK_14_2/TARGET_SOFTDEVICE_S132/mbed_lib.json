@@ -1,13 +1,11 @@
 {
     "name": "softdevice",
     "config": {
-        "comment": {
-            "help": "S132, BLE_STACK_SUPPORT_REQD: These macros are currently defined in target.json but should be moved here.",
-            "value": null
-        }
     },    
     "macros": [
         "SOFTDEVICE_PRESENT=1",
+        "S132", 
+        "BLE_STACK_SUPPORT_REQD",           
         "NRF_SDH_CLOCK_LF_SRC=1",
         "NRF_SDH_CLOCK_LF_RC_CTIV=0",
         "NRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0",

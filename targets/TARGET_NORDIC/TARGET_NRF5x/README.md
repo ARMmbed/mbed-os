@@ -1,3 +1,52 @@
+# Nordic NRF52
+
+## Adding New Targets Based On Nordic NRF52832 And NRF52840 MCUs
+
+First, create a new entry in `mbed-os/targets/targets.json` using the template below:
+
+```json
+{
+    "target_name": {
+        "inherits": [""],
+        "release_versions": ["5"],
+        "device_name": ""
+    },    
+}
+```
+
+Where `target_name` is the name of the new target, `inherits` can be either `MCU_NRF52832` or `MCU_NRF52840`, and `device_name` is the ID specifying actual RAM and flash size, for example, `nRF52832_xxAA` and `nRF52840_xxAA`. The `release_version` specifies that the target is compatible with Mbed OS 5. 
+
+This entry enables the new target in the Mbed OS build system.
+
+Next, add optional target specific configuration in `mbed-os/targets/TARGET_NORDIC/TARGET_NRF5x/mbed_lib.json`. 
+
+```json
+{
+    "target_overrides": {
+        "target_name": {
+            "target.macros_add": [
+                "optional macros"
+            ],
+            "optional configuration"
+        }
+    }
+}
+```
+
+The optional configuration includes specifying errata fixes specific for the MCU release used on the target, configuring the low-frequency clock source, and configuring the UART behavior. See targets `NRF52_DK` and `NRF52840_DK` for examples.
+
+### LF Clock Configuration
+
+LF clock source configuration is used for MCU startup initialization and the BLE SoftDevice LF clock configuration (if BLE libraries is used). Advanced configurations are used only for the BLE SoftDevice LF clock configuration.
+
+Default clock source is XTAL oscillator. There are three options that can be configured as the clock source:
+    - NRF_LF_SRC_XTAL  
+    - NRF_LF_SRC_RC  
+    - NRF_LF_SRC_SYNTH  
+
+Set `lf_clock_src` to what is most suitable for the target. This value can later be overridden by the user application if necessary. 
+
+
 ## Mbed HAL Implementation Details
 
 ### SPI and I2C

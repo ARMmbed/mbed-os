@@ -2442,10 +2442,7 @@
     "RBLAB_BLENANO2": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
-        "overrides": {"uart_hwfc": 0},
         "device_name": "nRF52832_xxAA"
     },
     "NRF51822_Y5_MBUG": {
@@ -3498,6 +3495,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": [
+            "BOARD_PCA10040", 
             "NRF52",
             "TARGET_NRF52832",
             "CMSIS_VECTAB_VIRTUAL",
@@ -3505,12 +3503,27 @@
             "MBED_TICKLESS"
         ],
         "device_has": [
-            "ITM",
-            "TRNG",
+            "ANALOGIN", 
             "FLASH",
-            "TRNG",
-            "STCLK_OFF_DURING_SLEEP"
-        ],
+            "I2C", 
+            "I2C_ASYNCH", 
+            "INTERRUPTIN", 
+            "ITM",
+            "LOWPOWERTIMER", 
+            "PORTIN", 
+            "PORTINOUT", 
+            "PORTOUT", 
+            "PWMOUT", 
+            "RTC", 
+            "SERIAL", 
+            "SERIAL_ASYNCH", 
+            "SERIAL_FC", 
+            "SLEEP", 
+            "SPI", 
+            "SPI_ASYNCH", 
+            "STCLK_OFF_DURING_SLEEP",
+            "TRNG"
+        ],        
         "extra_labels": [
             "NORDIC",
             "NRF5x",
@@ -3519,117 +3532,67 @@
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132"
         ],
+        "config": {
+            "lf_clock_src": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC",
+                "help": "Select Low Frequency clock source. Options: NRF_LF_SRC_XTAL, NRF_LF_SRC_SYNTH, and NRF_LF_SRC_RC",
+                "value": "NRF_LF_SRC_XTAL"
+            },
+            "lf_clock_rc_calib_timer_interval": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL",
+                "value": 16
+            },
+            "lf_clock_rc_calib_mode_config": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG",
+                "value": 0
+            }
+        },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
-        "bootloader_supported": true,
-        "config": {
-            "lf_clock_src": {
-                "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            },
-            "uart_hwfc": {
-                "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
-                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
-            }
-        }
+        "bootloader_supported": true
     },
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
-        "overrides": {"uart_hwfc": 0},
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVK_NINA_B1": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_UBLOX_NINA_B1": {
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "extra_labels_add": ["MTB_UBLOX_NINA_B1"],
         "release_versions": ["5"],
-        "device_name": "nRF52832_xxAA",
-        "bootloader_supported": true,
-        "overrides": {
-                "uart_hwfc": 0
-        },
-        "config": {
-            "usb_tx": {
-                "help": "Value p6",
-                "value": "p6"
-            },
-            "usb_rx": {
-                "help": "Value p5",
-                "value": "p5"
-            }
-        }
+        "device_name": "nRF52832_xxAA"
     },
     "MTB_LAIRD_BL652": {
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "extra_labels_add": ["MTB_LAIRD_BL652"],
         "release_versions": ["5"],
-        "device_name": "nRF52832_xxAA",
-        "bootloader_supported": true,
-        "config": {
-            "usb_tx": {
-                "help": "Value SIO_06",
-                "value": "SIO_6"
-            },
-            "usb_rx": {
-                "help": "Value SIO_08",
-                "value": "SIO_8"
-            }
-        },
-        "overrides": {
-            "lf_clock_src": "NRF_LF_SRC_RC",
-            "uart_hwfc": 0
-        }
+        "device_name": "nRF52832_xxAA"
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
-        "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
-        "config": {
-            "lf_clock_rc_calib_timer_interval": {
-                "value": 16,
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL"
-            },
-            "lf_clock_rc_calib_mode_config": {
-                "value": 0,
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG"
-            }
-        },
         "device_name": "nRF52832_xxAA"
     },
     "MCU_NRF52840": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": [
+            "BOARD_PCA10056", 
             "NRF52840_XXAA",
             "TARGET_NRF52840",
             "CMSIS_VECTAB_VIRTUAL",
@@ -3637,10 +3600,26 @@
             "MBED_TICKLESS"
         ],
         "device_has": [
-            "ITM",
+            "ANALOGIN", 
             "FLASH",
-            "TRNG",
-            "STCLK_OFF_DURING_SLEEP"
+            "I2C", 
+            "I2C_ASYNCH", 
+            "INTERRUPTIN", 
+            "ITM",
+            "LOWPOWERTIMER", 
+            "PORTIN", 
+            "PORTINOUT", 
+            "PORTOUT", 
+            "PWMOUT", 
+            "RTC", 
+            "SERIAL", 
+            "SERIAL_ASYNCH", 
+            "SERIAL_FC", 
+            "SLEEP", 
+            "SPI", 
+            "SPI_ASYNCH", 
+            "STCLK_OFF_DURING_SLEEP",
+            "TRNG"
         ],
         "extra_labels": [
             "NORDIC",
@@ -3650,33 +3629,34 @@
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S140"
         ],
+        "config": {
+            "lf_clock_src": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC",
+                "help": "Select Low Frequency clock source. Options: NRF_LF_SRC_XTAL, NRF_LF_SRC_SYNTH, and NRF_LF_SRC_RC",
+                "value": "NRF_LF_SRC_XTAL"
+            },
+            "lf_clock_rc_calib_timer_interval": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL",
+                "value": 16
+            },
+            "lf_clock_rc_calib_mode_config": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG",
+                "value": 0
+            }
+        },
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
-        "bootloader_supported": true,
-        "config": {
-            "lf_clock_src": {
-                "value": "NRF_LF_SRC_XTAL",
-                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
-            },
-            "uart_hwfc": {
-                "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
-                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
-            }
-        }
+        "bootloader_supported": true
     },
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
-        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE"],
         "release_versions": ["5"],
-        "device_name": "nRF52840_xxAA",
-        "bootloader_supported": true
+        "device_name": "nRF52840_xxAA"
     },
     "BLUEPILL_F103C8": {
         "inherits": ["FAMILY_STM32"],
@@ -3941,8 +3921,6 @@
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "macros_add": ["BOARD_PCA10040", "BOARD_VBLUNO52", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
