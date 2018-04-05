@@ -1,5 +1,6 @@
 {
     "first_base_target": {
+        "supported_toolchains": ["GCC_ARM"],
         "extra_labels": [],
         "default_lib": "std",
         "core": "Cortex-M0",
@@ -21,6 +22,7 @@
         }
     },
     "second_base_target": {
+        "supported_toolchains": ["GCC_ARM"],
         "config": {
             "base2_1": "v_base2_1_b2",
             "base2_2": "v_base2_2_b2"
