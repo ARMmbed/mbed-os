@@ -2615,14 +2615,6 @@
         "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
         "release_versions": ["2"]
     },
-    "ARM_MPS2_M1": {
-        "inherits": ["ARM_MPS2_Target"],
-        "core": "Cortex-M1",
-        "supported_toolchains": ["ARM"],
-        "extra_labels": ["ARM_SSG", "MPS2", "MPS2_M1"],
-        "macros": ["CMSDK_CM1"],
-        "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"]
-    },
     "ARM_MPS2_M3": {
         "inherits": ["ARM_MPS2_Target"],
         "core": "Cortex-M3",
