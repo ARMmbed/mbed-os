@@ -1276,8 +1276,8 @@
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "STM_EMAC"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "USE_FULL_LL_DRIVER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "SAI"],
         "detect_code": ["0796"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],

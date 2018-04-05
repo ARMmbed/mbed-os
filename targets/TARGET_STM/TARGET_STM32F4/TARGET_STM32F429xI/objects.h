@@ -58,6 +58,8 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
+#define SAI_DEFAULT_SAMPLE_RATE (8000)
+
 #include "common_objects.h"
 
 #ifdef __cplusplus
