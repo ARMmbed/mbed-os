@@ -87,6 +87,12 @@ bd_size_t HeapBlockDevice::get_erase_size(bd_addr_t addr) const
     return _erase_size;
 }
 
+int HeapBlockDevice::get_erase_value() const
+{
+    MBED_ASSERT(_blocks != NULL);
+    return 0;
+}
+
 bd_size_t HeapBlockDevice::size() const
 {
     MBED_ASSERT(_blocks != NULL);
