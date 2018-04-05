@@ -8,7 +8,8 @@
         "DEVICE_SPI": 1,
         "FSFAT_SDCARD_INSTALLED": 1,
         "CMD_TIMEOUT": 5000,
-        "CMD0_IDLE_STATE_RETRIES" : 5
+        "CMD0_IDLE_STATE_RETRIES": 5,
+        "SD_INIT_FREQUENCY": 100000
     },
     "target_overrides": {
         "DISCO_F051R8": {
