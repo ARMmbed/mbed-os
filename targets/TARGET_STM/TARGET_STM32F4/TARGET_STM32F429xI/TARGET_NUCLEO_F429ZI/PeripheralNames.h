@@ -92,6 +92,15 @@ typedef enum {
     CAN_2 = (int)CAN2_BASE
 } CANName;
 
+typedef enum SAIName_e {
+    SAI_1_A = 0,
+    SAI_1_B = 1,
+    I2S_2 = 2,
+    I2S_2_ext = 3,
+    I2S_3 = 4,
+    I2S_3_ext = 5,
+} SAIName;
+
 #ifdef __cplusplus
 }
 #endif
