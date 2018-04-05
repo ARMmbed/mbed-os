@@ -159,6 +159,11 @@
 #define MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES     5      /*!< Number of retries for sending CMDO */
 #endif
 
+#ifndef MBED_CONF_SD_INIT_FREQUENCY
+#define MBED_CONF_SD_INIT_FREQUENCY              100000 /*!< Initialization frequency Range (100KHz-400KHz) */
+#endif
+
+
 #define SD_COMMAND_TIMEOUT                       MBED_CONF_SD_CMD_TIMEOUT
 #define SD_CMD0_GO_IDLE_STATE_RETRIES            MBED_CONF_SD_CMD0_IDLE_STATE_RETRIES
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
@@ -251,7 +256,9 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
-    _init_sck = 100000;
+    MBED_STATIC_ASSERT(((MBED_CONF_SD_INIT_FREQUENCY >= 100000) && (MBED_CONF_SD_INIT_FREQUENCY <= 400000)),
+                       "Initialization frequency should be between 100KHz to 400KHz");
+    _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 
     // Only HC block size is supported.
