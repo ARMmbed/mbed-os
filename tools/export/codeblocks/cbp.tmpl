@@ -27,6 +27,12 @@
 				<Option type="1" />
 				<Option compiler="arm-elf-gcc" />
 				<Option use_console_runner="0" />
+				<Compiler>
+                                        <Add option="-DNDEBUG" />
+					{%  for f in release_flags -%}
+					<Add option="{{f}}" />
+					{%  endfor -%}
+				</Compiler>
 				<Linker>
 					<Add option='-Wl,-Map,&quot;bin/Release/{{project_name}}.map&quot;' />
 				</Linker>

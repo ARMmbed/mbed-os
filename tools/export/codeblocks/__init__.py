@@ -66,6 +66,7 @@ class CodeBlocks(GccArm):
 
         comp_flags = []
         debug_flags = []
+        release_flags = [ '-Os', '-g1' ]
         next_is_include = False
         for f in self.flags['c_flags'] + self.flags['cxx_flags'] + self.flags['common_flags']:
             f = f.strip()
@@ -97,6 +98,7 @@ class CodeBlocks(GccArm):
         ctx = {
             'project_name': self.project_name,
             'debug_flags': debug_flags,
+            'release_flags': release_flags,
             'comp_flags': comp_flags,
             'ld_flags': self.flags['ld_flags'],
             'headers': sorted(list(set([self.filter_dot(s) for s in self.resources.headers]))),
