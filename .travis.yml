@@ -205,3 +205,9 @@ matrix:
               STATUSM="$STATUSM ($(python -c "print '%+.2f' % (100*($CURR-$PREV)/$PREV.0)")%)"
           fi
         - bash -c "$STATUS" success "$STATUSM"
+
+    - env:
+        - NAME=gitattributestest
+      script:
+        # Check that no changes after clone. This check that .gitattributes is used right way.
+        - git diff --exit-code
