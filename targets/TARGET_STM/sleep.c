@@ -50,7 +50,8 @@ static void wait_loop(uint32_t timeout)
 // On L4 platforms we've seen unstable PLL CLK configuraiton
 // when DEEP SLEEP exits just few µs after being entered
 // So we need to force MSI usage before setting clocks again
-static void ForceClockOutofDeepSleep(void) {
+static void ForceClockOutofDeepSleep(void)
+{
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     uint32_t pFLatency = 0;
