@@ -18,8 +18,8 @@ limitations under the License.
 import copy
 import stat
 import os
-from os.path import splitext, basename, dirname, abspath
-from os import remove
+from os.path import splitext, basename, dirname, abspath, isdir
+from os import remove, mkdir
 from shutil import rmtree, copyfile
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter
@@ -134,6 +134,11 @@ class CodeBlocks(GccArm):
             ctx['openocdboard'] = openocd_board[self.target]
 
         self.gen_file('codeblocks/cbp.tmpl', ctx, "%s.%s" % (self.project_name, 'cbp'))
+        for f in [ 'obj', 'bin' ]:
+            if not isdir(f):
+                mkdir(f)
+            self.gen_file_nonoverwrite('codeblocks/mbedignore.tmpl',
+                                       ctx, f + '/.mbedignore')
 
         # finally, generate the project file
         super(CodeBlocks, self).generate()
