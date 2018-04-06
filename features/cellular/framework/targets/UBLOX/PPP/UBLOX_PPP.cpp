@@ -15,35 +15,33 @@
  * limitations under the License.
  */
 
-#include "UBLOX_LISA_U_CellularPower.h"
-
-#include "onboard_modem_api.h"
+#include "UBLOX_PPP.h"
+#include "UBLOX_PPP_CellularNetwork.h"
+#include "UBLOX_PPP_CellularPower.h"
 
 using namespace mbed;
+using namespace events;
 
-UBLOX_LISA_U_CellularPower::UBLOX_LISA_U_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
+UBLOX_PPP::UBLOX_PPP(EventQueue &queue) : AT_CellularDevice(queue)
 {
-
 }
 
-UBLOX_LISA_U_CellularPower::~UBLOX_LISA_U_CellularPower()
+UBLOX_PPP::~UBLOX_PPP()
 {
-
 }
 
-nsapi_error_t UBLOX_LISA_U_CellularPower::on()
+CellularNetwork *UBLOX_PPP::open_network(FileHandle *fh)
 {
-#if MODEM_ON_BOARD
-    ::onboard_modem_init();
-    ::onboard_modem_power_up();
-#endif
-    return NSAPI_ERROR_OK;
+    if (!_network) {
+        _network = new UBLOX_PPP_CellularNetwork(*get_at_handler(fh));
+    }
+    return _network;
 }
 
-nsapi_error_t UBLOX_LISA_U_CellularPower::off()
+CellularPower *UBLOX_PPP::open_power(FileHandle *fh)
 {
-#if MODEM_ON_BOARD
-    ::onboard_modem_power_down();
-#endif
-    return NSAPI_ERROR_OK;
+    if (!_power) {
+        _power = new UBLOX_PPP_CellularPower(*get_at_handler(fh));
+    }
+    return _power;
 }

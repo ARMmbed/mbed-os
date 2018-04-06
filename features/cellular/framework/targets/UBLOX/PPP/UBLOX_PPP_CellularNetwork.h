@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_LISA_U_CELLULAR_NETWORK_H_
-#define UBLOX_LISA_U_CELLULAR_NETWORK_H_
+#ifndef UBLOX_PPP_CELLULAR_NETWORK_H_
+#define UBLOX_PPP_CELLULAR_NETWORK_H_
 
 #include "AT_CellularNetwork.h"
 
 namespace mbed {
 
-class UBLOX_LISA_U_CellularNetwork : public AT_CellularNetwork
+class UBLOX_PPP_CellularNetwork : public AT_CellularNetwork
 {
 public:
-    UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler);
-    virtual ~UBLOX_LISA_U_CellularNetwork();
+    UBLOX_PPP_CellularNetwork(ATHandler &atHandler);
+    virtual ~UBLOX_PPP_CellularNetwork();
 
 protected:
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
@@ -36,6 +36,11 @@ protected:
     virtual nsapi_error_t set_access_technology_impl(operator_t::RadioAccessTechnology opRat);
 };
 
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP_CellularNetwork instead of UBLOX_LISA_U_CellularNetwork.")
+class UBLOX_LISA_U_CellularNetwork : public UBLOX_PPP_CellularNetwork
+{
+};
+
 } // namespace mbed
 
-#endif // UBLOX_LISA_U_CELLULAR_NETWORK_H_
+#endif // UBLOX_PPP_CELLULAR_NETWORK_H_

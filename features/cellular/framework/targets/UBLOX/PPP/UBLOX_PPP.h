@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_LISA_U_H_
-#define UBLOX_LISA_U_H_
+#ifndef UBLOX_PPP_H_
+#define UBLOX_PPP_H_
 
 #include "AT_CellularDevice.h"
 
 namespace mbed {
 
-class UBLOX_LISA_U : public AT_CellularDevice
+class UBLOX_PPP : public AT_CellularDevice
 {
 
 public:
-    UBLOX_LISA_U(events::EventQueue &queue);
-    virtual ~UBLOX_LISA_U();
+    UBLOX_PPP(events::EventQueue &queue);
+    virtual ~UBLOX_PPP();
 
 public: // CellularDevice
     virtual CellularNetwork *open_network(FileHandle *fh);
     virtual CellularPower *open_power(FileHandle *fh);
 };
 
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.")
+class UBLOX_LISA_U : public UBLOX_PPP
+{
+};
+
 } // namespace mbed
 
-#endif // UBLOX_LISA_U_H_
+#endif // UBLOX_PPP_H_

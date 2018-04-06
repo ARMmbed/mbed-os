@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-#ifndef UBLOX_LISA_U_CELLULARPOWER_H_
-#define UBLOX_LISA_U_CELLULARPOWER_H_
+#ifndef UBLOX_PPP_CELLULARPOWER_H_
+#define UBLOX_PPP_CELLULARPOWER_H_
 
 #include "AT_CellularPower.h"
 
 namespace mbed {
 
-class UBLOX_LISA_U_CellularPower : public AT_CellularPower
+class UBLOX_PPP_CellularPower : public AT_CellularPower
 {
 public:
-    UBLOX_LISA_U_CellularPower(ATHandler &atHandler);
-    virtual ~UBLOX_LISA_U_CellularPower();
+    UBLOX_PPP_CellularPower(ATHandler &atHandler);
+    virtual ~UBLOX_PPP_CellularPower();
 
 public: //from CellularPower
 
@@ -35,6 +35,11 @@ public: //from CellularPower
     virtual nsapi_error_t off();
 };
 
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP_CellularPower instead of UBLOX_LISA_U_CellularPower.")
+class UBLOX_LISA_U_CellularPower  : public UBLOX_PPP_CellularPower
+{
+};
+
 } // namespace mbed
 
-#endif // UBLOX_LISA_U_CELLULARPOWER_H_
+#endif // UBLOX_PPP_CELLULARPOWER_H_

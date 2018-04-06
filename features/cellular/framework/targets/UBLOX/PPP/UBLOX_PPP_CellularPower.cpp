@@ -15,30 +15,35 @@
  * limitations under the License.
  */
 
-#include "UBLOX_LISA_U_CellularNetwork.h"
+#include "UBLOX_PPP_CellularPower.h"
+
+#include "onboard_modem_api.h"
 
 using namespace mbed;
 
-UBLOX_LISA_U_CellularNetwork::UBLOX_LISA_U_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+UBLOX_PPP_CellularPower::UBLOX_PPP_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
 {
+
 }
 
-UBLOX_LISA_U_CellularNetwork::~UBLOX_LISA_U_CellularNetwork()
+UBLOX_PPP_CellularPower::~UBLOX_PPP_CellularPower()
 {
+
 }
 
-bool UBLOX_LISA_U_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
+nsapi_error_t UBLOX_PPP_CellularPower::on()
 {
-    return requested_stack == IPV4_STACK ? true : false;
+#if MODEM_ON_BOARD
+    ::onboard_modem_init();
+    ::onboard_modem_power_up();
+#endif
+    return NSAPI_ERROR_OK;
 }
 
-bool UBLOX_LISA_U_CellularNetwork::has_registration(RegistrationType reg_type)
+nsapi_error_t UBLOX_PPP_CellularPower::off()
 {
-    return (reg_type == C_REG || reg_type == C_GREG);
-}
-
-nsapi_error_t UBLOX_LISA_U_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opRat)
-{
-    _op_act = operator_t::RAT_UNKNOWN;
-    return NSAPI_ERROR_UNSUPPORTED;
+#if MODEM_ON_BOARD
+    ::onboard_modem_power_down();
+#endif
+    return NSAPI_ERROR_OK;
 }
