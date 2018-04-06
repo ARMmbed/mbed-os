@@ -964,8 +964,8 @@ void LoRaMac::on_rx_window1_timer_event(void)
     _lora_phy.rx_config(&_params.rx_window1_config,
                         (int8_t*) &_mcps_indication.rx_datarate);
 
-    rx_window_setup(_params.rx_window1_config.is_rx_continuous,
-                    _params.sys_params.max_rx_win_time);
+    _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
+                              _params.sys_params.max_rx_win_time);
 }
 
 void LoRaMac::on_rx_window2_timer_event(void)
@@ -978,18 +978,17 @@ void LoRaMac::on_rx_window2_timer_event(void)
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
     _params.rx_window2_config.rx_slot = RX_SLOT_WIN_2;
 
+    _params.rx_window2_config.is_rx_continuous = true;
+
     if (_device_class != CLASS_C) {
         _params.rx_window2_config.is_rx_continuous = false;
-    } else {
-        // Setup continuous listening for class c
-        _params.rx_window2_config.is_rx_continuous = true;
     }
 
     if (_lora_phy.rx_config(&_params.rx_window2_config,
                             (int8_t*) &_mcps_indication.rx_datarate) == true) {
 
-        rx_window_setup(_params.rx_window2_config.is_rx_continuous,
-                        _params.sys_params.max_rx_win_time);
+        _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
+                                  _params.sys_params.max_rx_win_time);
 
         _params.rx_slot = RX_SLOT_WIN_2;
     }
@@ -1035,11 +1034,6 @@ void LoRaMac::on_ack_timeout_timer_event(void)
     if (_device_class == CLASS_C) {
         _params.flags.bits.mac_done = 1;
     }
-}
-
-void LoRaMac::rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time)
-{
-    _lora_phy.setup_rx_window(rx_continuous, max_rx_window_time);
 }
 
 bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,

@@ -453,11 +453,6 @@ private:
     void on_ack_timeout_timer_event(void);
 
     /**
-     * Initializes and opens the reception window
-     */
-    void rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time);
-
-    /**
      * Validates if the payload fits into the frame, taking the datarate
      * into account.
      *

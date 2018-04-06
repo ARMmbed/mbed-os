@@ -150,8 +150,8 @@ lorawan_status_t LoRaWANStack::connect()
     const static uint32_t nwk_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
 
     connection_params.connect_type = LORAWAN_CONNECTION_ABP;
-    connection_params.connection_u.abp.nwk_id = const_cast<uint8_t *>(nwk_id);
-    connection_params.connection_u.abp.dev_addr = const_cast<uint8_t *>(dev_addr);
+    connection_params.connection_u.abp.nwk_id = nwk_id;
+    connection_params.connection_u.abp.dev_addr = dev_addr;
     connection_params.connection_u.abp.nwk_skey = const_cast<uint8_t *>(nwk_skey);
     connection_params.connection_u.abp.app_skey = const_cast<uint8_t *>(app_skey);
 
@@ -640,61 +640,63 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
     }
 #endif
 
-    if (mcps_indication->is_data_recvd == true) {
-        switch (mcps_indication->port) {
-            case 224: {
+    if (!mcps_indication->is_data_recvd) {
+        return;
+    }
+
+    switch (mcps_indication->port) {
+        case 224: {
 #if defined(LORAWAN_COMPLIANCE_TEST)
-                tr_debug("Compliance test command received.");
-                compliance_test_handler(mcps_indication);
+            tr_debug("Compliance test command received.");
+            compliance_test_handler(mcps_indication);
 #else
-                tr_info("Compliance test disabled.");
+            tr_info("Compliance test disabled.");
 #endif
-                break;
-            }
-            default: {
-                if (is_port_valid(mcps_indication->port) == true ||
-                        mcps_indication->type == MCPS_PROPRIETARY) {
+            break;
+        }
+        default: {
+            if (is_port_valid(mcps_indication->port) == true ||
+                    mcps_indication->type == MCPS_PROPRIETARY) {
 
-                    // Valid message arrived.
-                    _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
-                    _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
-                    _rx_msg.msg.mcps_indication.port = mcps_indication->port;
-                    _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
+                // Valid message arrived.
+                _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
+                _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
+                _rx_msg.msg.mcps_indication.port = mcps_indication->port;
+                _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
 
-                    // Notify application about received frame..
-                    tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
-                    _rx_msg.receive_ready = true;
+                // Notify application about received frame..
+                tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
+                _rx_msg.receive_ready = true;
 
-                    if (_callbacks.events) {
-                        const int ret = _queue->call(_callbacks.events, RX_DONE);
-                        MBED_ASSERT(ret != 0);
-                        (void)ret;
-                    }
-
-                    //TODO: below if clauses can be combined,
-                    //      because those are calling same function with same parameters
-
-                    // If fPending bit is set we try to generate an empty packet
-                    // with CONFIRMED flag set. We always set a CONFIRMED flag so
-                    // that we could retry a certain number of times if the uplink
-                    // failed for some reason
-                    if (_loramac.get_device_class() != CLASS_C && mcps_indication->fpending_status) {
-                        handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
-                    }
-
-                    // Class C and node received a confirmed message so we need to
-                    // send an empty packet to acknowledge the message.
-                    // This scenario is unspecified by LoRaWAN 1.0.2 specification,
-                    // but version 1.1.0 says that network SHALL not send any new
-                    // confirmed messages until ack has been sent
-                    if (_loramac.get_device_class() == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
-                        handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
-                    }
-                } else {
-                    // Invalid port, ports 0, 224 and 225-255 are reserved.
+                if (_callbacks.events) {
+                    const int ret = _queue->call(_callbacks.events, RX_DONE);
+                    MBED_ASSERT(ret != 0);
+                    (void)ret;
                 }
-                break;
+
+                //TODO: below if clauses can be combined,
+                //      because those are calling same function with same parameters
+
+                // If fPending bit is set we try to generate an empty packet
+                // with CONFIRMED flag set. We always set a CONFIRMED flag so
+                // that we could retry a certain number of times if the uplink
+                // failed for some reason
+                if (_loramac.get_device_class() != CLASS_C && mcps_indication->fpending_status) {
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
+                }
+
+                // Class C and node received a confirmed message so we need to
+                // send an empty packet to acknowledge the message.
+                // This scenario is unspecified by LoRaWAN 1.0.2 specification,
+                // but version 1.1.0 says that network SHALL not send any new
+                // confirmed messages until ack has been sent
+                if (_loramac.get_device_class() == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
+                }
+            } else {
+                // Invalid port, ports 0, 224 and 225-255 are reserved.
             }
+            break;
         }
     }
 }
