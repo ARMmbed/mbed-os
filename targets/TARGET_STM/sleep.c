@@ -35,6 +35,18 @@
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
 
+/*  Wait loop - assuming tick is 1 us */
+static void wait_loop(uint32_t timeout)
+{
+    uint32_t t1, t2, elapsed = 0;
+    t1 = us_ticker_read();
+    do {
+        t2 = us_ticker_read();
+        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t)t2 + 0xFFFFFFFF - t1 + 1);
+    } while (elapsed < timeout);
+    return;
+}
+
 // On L4 platforms we've seen unstable PLL CLK configuraiton
 // when DEEP SLEEP exits just few µs after being entered
 // So we need to force MSI usage before setting clocks again
@@ -173,6 +185,12 @@ void hal_deepsleep(void)
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
+
+    /*  Wait for clock to be stabilized.
+     *  TO DO: a better way of doing this, would be to rely on
+     *  HW Flag. At least this ensures proper operation out of
+     *  deep sleep */
+    wait_loop(500);
 
     TIM_HandleTypeDef TimMasterHandle;
     TimMasterHandle.Instance = TIM_MST;
