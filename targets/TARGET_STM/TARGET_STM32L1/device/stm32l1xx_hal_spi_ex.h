@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_spi_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
-  * @brief   Header file of SPI HAL module.
+  * @brief   Header file of SPI HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -33,74 +31,78 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_SPI_EX_H
 #define __STM32L1xx_HAL_SPI_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l1xx_hal_def.h"  
+#include "stm32l1xx_hal_def.h"
 
 /** @addtogroup STM32L1xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup SPI
+/** @addtogroup SPIEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
-
 /* Exported constants --------------------------------------------------------*/
-
-/** @defgroup SPI_Exported_Constants SPI Exported Constants
+/** @defgroup SPIEx_Exported_Constants SPIEx Exported Constants
   * @{
-  */ 
+  */
 #if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 /** @defgroup SPI_TI_mode SPI TI mode
   * @{
   */
-#define SPI_TIMODE_DISABLE             ((uint32_t)0x00000000)
+#define SPI_TIMODE_DISABLE             (0x00000000U)
 #define SPI_TIMODE_ENABLE              SPI_CR2_FRF
 
 #define IS_SPI_TIMODE(MODE) (((MODE) == SPI_TIMODE_DISABLE) || \
                              ((MODE) == SPI_TIMODE_ENABLE))
+/**
+  * @}
+  */
 #else
 /** @defgroup SPI_TI_mode SPI TI mode disable
-  * @brief  SPI TI Mode not supported for Category 1 and 2 
+  * @brief  SPI TI Mode not supported for Category 1 and 2
   * @{
   */
-#define SPI_TIMODE_DISABLE             ((uint32_t)0x00000000)
+#define SPI_TIMODE_DISABLE             (0x00000000U)
 
 #define IS_SPI_TIMODE(MODE) ((MODE) == SPI_TIMODE_DISABLE)
-
+/**
+  * @}
+  */
 #endif
-/**
-  * @}
-  */
-  
+/* Exported macros -----------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 /**
   * @}
   */
 
-
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
+/**
+  * @}
+  */
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32L1xx_HAL_SPI_H */
+#endif /* __STM32L1xx_HAL_SPI_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

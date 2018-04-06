@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   GPIO HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -105,7 +103,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -151,15 +149,15 @@
 /** @addtogroup GPIO_Private_Constants
   * @{
   */
-#define GPIO_MODE             ((uint32_t)0x00000003)
-#define EXTI_MODE             ((uint32_t)0x10000000)
-#define GPIO_MODE_IT          ((uint32_t)0x00010000)
-#define GPIO_MODE_EVT         ((uint32_t)0x00020000)
-#define RISING_EDGE           ((uint32_t)0x00100000)
-#define FALLING_EDGE          ((uint32_t)0x00200000)
-#define GPIO_OUTPUT_TYPE      ((uint32_t)0x00000010)
+#define GPIO_MODE             (0x00000003U)
+#define EXTI_MODE             (0x10000000U)
+#define GPIO_MODE_IT          (0x00010000U)
+#define GPIO_MODE_EVT         (0x00020000U)
+#define RISING_EDGE           (0x00100000U)
+#define FALLING_EDGE          (0x00200000U)
+#define GPIO_OUTPUT_TYPE      (0x00000010U)
 
-#define GPIO_NUMBER           ((uint32_t)16)
+#define GPIO_NUMBER           (16U)
  
 /**
   * @}
@@ -209,7 +207,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   while (((GPIO_Init->Pin) >> position) != 0)
   {
     /* Get current io position */
-    iocurrent = (GPIO_Init->Pin) & ((uint32_t)1 << position);
+    iocurrent = (GPIO_Init->Pin) & (1U << position);
     
     if(iocurrent)
     {
@@ -224,8 +222,8 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         /* Configure Alternate function mapped with the current IO */ 
         /* Identify AFRL or AFRH register based on IO position*/
         temp = GPIOx->AFR[position >> 3];
-        CLEAR_BIT(temp, (uint32_t)0xF << ((uint32_t)(position & (uint32_t)0x07) * 4)) ;      
-        SET_BIT(temp, (uint32_t)(GPIO_Init->Alternate) << (((uint32_t)position & (uint32_t)0x07) * 4));       
+        CLEAR_BIT(temp, 0xFU << ((uint32_t)(position & 0x07U) * 4)) ;      
+        SET_BIT(temp, (uint32_t)(GPIO_Init->Alternate) << (((uint32_t)position & 0x07U) * 4));       
         GPIOx->AFR[position >> 3] = temp;
       }
 
@@ -268,7 +266,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         __HAL_RCC_SYSCFG_CLK_ENABLE();
         
         temp = SYSCFG->EXTICR[position >> 2];
-        CLEAR_BIT(temp, ((uint32_t)0x0F) << (4 * (position & 0x03)));
+        CLEAR_BIT(temp, (0x0FU) << (4 * (position & 0x03)));
         SET_BIT(temp, (GPIO_GET_INDEX(GPIOx)) << (4 * (position & 0x03)));
         SYSCFG->EXTICR[position >> 2] = temp;
                   
@@ -333,7 +331,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   while ((GPIO_Pin >> position) != 0)
   {
     /* Get current io position */
-    iocurrent = (GPIO_Pin) & ((uint32_t)1 << position);
+    iocurrent = (GPIO_Pin) & (1U << position);
 
     if (iocurrent)
     {
@@ -342,7 +340,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
       CLEAR_BIT(GPIOx->MODER, GPIO_MODER_MODER0 << (position * 2)); 
   
       /* Configure the default Alternate Function in current IO */ 
-      CLEAR_BIT(GPIOx->AFR[position >> 3], (uint32_t)0xF << ((uint32_t)(position & (uint32_t)0x07) * 4)) ;
+      CLEAR_BIT(GPIOx->AFR[position >> 3], 0xFU << ((uint32_t)(position & 0x07U) * 4)) ;
   
       /* Configure the default value for IO Speed */
       CLEAR_BIT(GPIOx->OSPEEDR, GPIO_OSPEEDER_OSPEEDR0 << (position * 2));
@@ -357,10 +355,10 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
       /* Clear the External Interrupt or Event for the current IO */
       
       tmp = SYSCFG->EXTICR[position >> 2];
-      tmp &= (((uint32_t)0x0F) << (4 * (position & 0x03)));
+      tmp &= ((0x0FU) << (4 * (position & 0x03)));
       if(tmp == (GPIO_GET_INDEX(GPIOx) << (4 * (position & 0x03))))
       {
-        tmp = ((uint32_t)0x0F) << (4 * (position & 0x03));
+        tmp = (0x0FU) << (4 * (position & 0x03));
         CLEAR_BIT(SYSCFG->EXTICR[position >> 2], tmp);
         
         /* Clear EXTI line configuration */

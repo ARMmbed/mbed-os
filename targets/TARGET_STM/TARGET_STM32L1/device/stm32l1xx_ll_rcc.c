@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_rcc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   RCC LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -124,7 +122,7 @@ ErrorStatus LL_RCC_DeInit(void)
 
   /* Reset HSEBYP bit */
   LL_RCC_HSE_DisableBypass();
- 
+
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);
 
