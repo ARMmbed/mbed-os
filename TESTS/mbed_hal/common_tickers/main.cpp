@@ -47,6 +47,7 @@ using namespace utest::v1;
 
 volatile int intFlag = 0;
 const ticker_interface_t* intf;
+ticker_irq_handler_type prev_irq_handler;
 unsigned int ticker_overflow_delta;
 
 /* Auxiliary function to count ticker ticks elapsed during execution of N cycles of empty while loop.
@@ -444,11 +445,21 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 
     intf->init();
 
-    set_us_ticker_irq_handler(ticker_event_handler_stub);
+    prev_irq_handler = set_us_ticker_irq_handler(ticker_event_handler_stub);
 
     ticker_overflow_delta = US_TICKER_OVERFLOW_DELTA;
 
     return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t us_ticker_teardown(const Case * const source, const size_t passed, const size_t failed,
+        const failure_t reason)
+{
+    set_us_ticker_irq_handler(prev_irq_handler);
+
+    prev_irq_handler = NULL;
+
+    return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 #if DEVICE_LPTICKER
@@ -458,11 +469,21 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
 
     intf->init();
 
-    set_lp_ticker_irq_handler(ticker_event_handler_stub);
+    prev_irq_handler = set_lp_ticker_irq_handler(ticker_event_handler_stub);
 
     ticker_overflow_delta = LP_TICKER_OVERFLOW_DELTA;
 
     return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t lp_ticker_teardown(const Case * const source, const size_t passed, const size_t failed,
+        const failure_t reason)
+{
+    set_lp_ticker_irq_handler(prev_irq_handler);
+
+    prev_irq_handler = NULL;
+
+    return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 #endif
 
@@ -473,25 +494,25 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Microsecond ticker init is safe to call repeatedly", us_ticker_setup, ticker_init_test),
-    Case("Microsecond ticker info test", us_ticker_setup, ticker_info_test),
-    Case("Microsecond ticker interrupt test", us_ticker_setup, ticker_interrupt_test),
-    Case("Microsecond ticker past interrupt test", us_ticker_setup, ticker_past_test),
-    Case("Microsecond ticker reschedule test", us_ticker_setup, ticker_repeat_reschedule_test),
-    Case("Microsecond ticker fire interrupt", us_ticker_setup, ticker_fire_now_test),
-    Case("Microsecond ticker overflow test", us_ticker_setup, ticker_overflow_test),
-    Case("Microsecond ticker increment test", us_ticker_setup, ticker_increment_test),
-    Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test),
+    Case("Microsecond ticker init is safe to call repeatedly", us_ticker_setup, ticker_init_test, us_ticker_teardown),
+    Case("Microsecond ticker info test", us_ticker_setup, ticker_info_test, us_ticker_teardown),
+    Case("Microsecond ticker interrupt test", us_ticker_setup, ticker_interrupt_test, us_ticker_teardown),
+    Case("Microsecond ticker past interrupt test", us_ticker_setup, ticker_past_test, us_ticker_teardown),
+    Case("Microsecond ticker reschedule test", us_ticker_setup, ticker_repeat_reschedule_test, us_ticker_teardown),
+    Case("Microsecond ticker fire interrupt", us_ticker_setup, ticker_fire_now_test, us_ticker_teardown),
+    Case("Microsecond ticker overflow test", us_ticker_setup, ticker_overflow_test, us_ticker_teardown),
+    Case("Microsecond ticker increment test", us_ticker_setup, ticker_increment_test, us_ticker_teardown),
+    Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test, us_ticker_teardown),
 #if DEVICE_LPTICKER
-    Case("lp ticker init is safe to call repeatedly", lp_ticker_setup, ticker_init_test),
-    Case("lp ticker info test", lp_ticker_setup, ticker_info_test),
-    Case("lp ticker interrupt test", lp_ticker_setup, ticker_interrupt_test),
-    Case("lp ticker past interrupt test", lp_ticker_setup, ticker_past_test),
-    Case("lp ticker reschedule test", lp_ticker_setup, ticker_repeat_reschedule_test),
-    Case("lp ticker fire interrupt", lp_ticker_setup, ticker_fire_now_test),
-    Case("lp ticker overflow test", lp_ticker_setup, ticker_overflow_test),
-    Case("lp ticker increment test", lp_ticker_setup, ticker_increment_test),
-    Case("lp ticker speed test", lp_ticker_setup, ticker_speed_test),
+    Case("lp ticker init is safe to call repeatedly", lp_ticker_setup, ticker_init_test, lp_ticker_teardown),
+    Case("lp ticker info test", lp_ticker_setup, ticker_info_test, lp_ticker_teardown),
+    Case("lp ticker interrupt test", lp_ticker_setup, ticker_interrupt_test, lp_ticker_teardown),
+    Case("lp ticker past interrupt test", lp_ticker_setup, ticker_past_test, lp_ticker_teardown),
+    Case("lp ticker reschedule test", lp_ticker_setup, ticker_repeat_reschedule_test, lp_ticker_teardown),
+    Case("lp ticker fire interrupt", lp_ticker_setup, ticker_fire_now_test, lp_ticker_teardown),
+    Case("lp ticker overflow test", lp_ticker_setup, ticker_overflow_test, lp_ticker_teardown),
+    Case("lp ticker increment test", lp_ticker_setup, ticker_increment_test, lp_ticker_teardown),
+    Case("lp ticker speed test", lp_ticker_setup, ticker_speed_test, lp_ticker_teardown),
 #endif
 };
 
