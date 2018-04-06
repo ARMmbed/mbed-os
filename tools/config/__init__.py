@@ -490,8 +490,7 @@ class Config(object):
             try:
                 cfg = json_file_to_dict(config_file)
             except ValueError as exc:
-                sys.stderr.write(str(exc) + "\n")
-                continue
+                raise ConfigException(str(exc))
 
             # Validate the format of the JSON file based on the schema_lib.json
             schema_root = os.path.dirname(os.path.abspath(__file__))
