@@ -24,13 +24,6 @@ namespace mbed {
 
 /* Default values for different types of polynomials
 */
-template <uint32_t polynomial, uint8_t width>
-MbedCRC<polynomial, width>::MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder):
-        _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data), _reflect_remainder(reflect_remainder), _crc_table(NULL)
-{
-    mbed_crc_ctor();
-}
-
 template<>
 MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder):
         _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data), _reflect_remainder(reflect_remainder),

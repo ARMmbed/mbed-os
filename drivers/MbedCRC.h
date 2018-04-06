@@ -124,7 +124,12 @@ public:
      *             polynomials with different intial/final/reflect values
      *
      */
-    MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder);
+    MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
+                    _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data),
+                    _reflect_remainder(reflect_remainder), _crc_table(NULL)
+    {
+        mbed_crc_ctor();
+    }
     MbedCRC();
     virtual ~MbedCRC()
     {
