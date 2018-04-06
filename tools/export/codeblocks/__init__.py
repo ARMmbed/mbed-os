@@ -94,6 +94,11 @@ class CodeBlocks(GccArm):
                      in self.resources.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
+        ncs36510fib = (hasattr(self.toolchain.target, 'post_binary_hook') and
+                       self.toolchain.target.post_binary_hook['function'] == 'NCS36510TargetCode.ncs36510_addfib')
+        if ncs36510fib:
+            c_sources.append('ncs36510fib.c')
+            c_sources.append('ncs36510trim.c')
 
         ctx = {
             'project_name': self.project_name,
@@ -109,6 +114,7 @@ class CodeBlocks(GccArm):
             'linker_script': self.filter_dot(self.resources.linker_script),
             'libraries': libraries,
             'sys_libs': sys_libs,
+            'ncs36510addfib': ncs36510fib,
             'openocdboard': ''
             }
 
@@ -140,6 +146,25 @@ class CodeBlocks(GccArm):
             self.gen_file_nonoverwrite('codeblocks/mbedignore.tmpl',
                                        ctx, f + '/.mbedignore')
 
+        if ncs36510fib:
+            genaddfiles = [ 'ncs36510fib.c', 'ncs36510trim.c' ]
+            for f in genaddfiles:
+                copyfile(os.path.join(dirname(abspath(__file__)), f),
+                         self.gen_file_dest(f))
+            ignorefiles = genaddfiles
+            try:
+                with open(self.gen_file_dest('.mbedignore'), 'r') as f:
+                    l = set(map(lambda x: x.strip(), f.readlines()))
+                    ignorefiles = [x for x in genaddfiles if x not in l]
+            except IOError as e:
+                pass
+            except:
+                raise
+            if ignorefiles:
+                with open(self.gen_file_dest('.mbedignore'), 'a') as f:
+                    for fi in ignorefiles:
+                        f.write("%s\n" % fi)                
+
         # finally, generate the project file
         super(CodeBlocks, self).generate()
 
@@ -147,7 +172,7 @@ class CodeBlocks(GccArm):
     def clean(project_name):
         for ext in ['cbp', 'depend', 'layout']:
             remove("%s.%s" % (project_name, ext))
-        for f in ['openocd.log']:
+        for f in ['openocd.log', 'ncs36510fib.c', 'ncs36510trim.c']:
             remove(f)
         for d in ['bin', 'obj']:
             rmtree(d, ignore_errors=True)
