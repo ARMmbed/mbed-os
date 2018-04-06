@@ -715,7 +715,7 @@ void LoRaPHY::apply_cf_list(const uint8_t* payload, uint8_t size)
     // should override this function in the implementation of that particular
     // PHY.
     for (uint8_t i = 0, channel_id = phy_params.default_channel_cnt;
-         channel_id < phy_params.max_channel_cnt; i+=phy_params.default_channel_cnt, channel_id++) {
+         channel_id < phy_params.max_channel_cnt; i+=3, channel_id++) {
         if (channel_id < (phy_params.cflist_channel_cnt + phy_params.default_channel_cnt)) {
             // Channel frequency
             new_channel.frequency = (uint32_t) payload[i];
