@@ -20,11 +20,7 @@
 #include "UARTSerial.h"
 #include "platform/mbed_poll.h"
 
-#if MBED_CONF_RTOS_PRESENT
-#include "rtos/Thread.h"
-#else
 #include "platform/mbed_wait_api.h"
-#endif
 
 namespace mbed {
 
