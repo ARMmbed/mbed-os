@@ -20,11 +20,7 @@
 #include "UARTSerial.h"
 #include "platform/mbed_poll.h"
 
-#if MBED_CONF_RTOS_PRESENT
-#include "rtos/Thread.h"
-#else
 #include "platform/mbed_wait_api.h"
-#endif
 
 namespace mbed {
 
@@ -330,11 +326,7 @@ void UARTSerial::wait_ms(uint32_t millisec)
     /* wait_ms implementation for RTOS spins until exact microseconds - we
      * want to just sleep until next tick.
      */
-#if MBED_CONF_RTOS_PRESENT
-    rtos::Thread::wait(millisec);
-#else
     ::wait_ms(millisec);
-#endif
 }
 } //namespace mbed
 
