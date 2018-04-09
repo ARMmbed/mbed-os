@@ -69,8 +69,6 @@ void ticker_frequency_test()
     const uint32_t ticker_bits = intf->get_info()->bits;
     const uint32_t ticker_max = (1 << ticker_bits) - 1;
 
-    overflowCounter = 0;
-
     intf->init();
 
     /* Detect overflow for tickers with lower counters width. */
@@ -83,6 +81,8 @@ void ticker_frequency_test()
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
+
+    overflowCounter = 0;
 
     const uint32_t begin_ticks = intf->read();
 
