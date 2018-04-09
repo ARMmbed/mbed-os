@@ -74,6 +74,8 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_attach(AttachStatus &status);
 
+    virtual nsapi_error_t detach();
+
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
         CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
 

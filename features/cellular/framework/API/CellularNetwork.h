@@ -284,6 +284,12 @@ public:
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
 
+    /** Request detach from a network.
+     *
+     *  @return        zero on success
+     */
+    virtual nsapi_error_t detach() = 0;
+
     /** Get APN rate control.
      *
      *  @remark optional params are not updated if not received from network, so use good defaults
