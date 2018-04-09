@@ -85,12 +85,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual ::Gap& getGap();
+    virtual generic::GenericGap& getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const ::Gap& getGap() const;
+    virtual const generic::GenericGap& getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -105,7 +105,7 @@ public:
     /**
      * @see BLEInstanceBase::getGattClient
      */
-    virtual ::GattClient &getGattClient();
+    virtual generic::GenericGattClient &getGattClient();
 
     /**
      * @see BLEInstanceBase::getSecurityManager

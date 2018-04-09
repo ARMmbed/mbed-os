@@ -164,19 +164,12 @@ const char* BLE::getVersion()
     return version;
 }
 
-::Gap& BLE::getGap()
+generic::GenericGap& BLE::getGap()
 {
-    typedef ::Gap& return_type;
-    const BLE* self = this;
-    return const_cast<return_type>(self->getGap());
+    return const_cast<generic::GenericGap&>(getGap());
 }
 
-const ::Gap& BLE::getGap() const
-{
-    return getGenericGap();
-};
-
-const generic::GenericGap& BLE::getGenericGap() const
+const generic::GenericGap& BLE::getGap() const
 {
     static pal::vendor::cordio::Gap& cordio_pal_gap =
         pal::vendor::cordio::Gap::get_gap();
@@ -187,7 +180,7 @@ const generic::GenericGap& BLE::getGenericGap() const
         cordio_gap_service
     );
     return gap;
-}
+};
 
 GattServer& BLE::getGattServer()
 {
@@ -199,7 +192,7 @@ const GattServer& BLE::getGattServer() const
     return cordio::GattServer::getInstance();
 }
 
-::GattClient& BLE::getGattClient()
+generic::GenericGattClient& BLE::getGattClient()
 {
     static pal::AttClientToGattClientAdapter pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
@@ -211,8 +204,7 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    const BLE* self = this;
-    return const_cast<SecurityManager&>(self->getSecurityManager());
+    return const_cast<SecurityManager&>(getSecurityManager());
 }
 
 const SecurityManager& BLE::getSecurityManager() const
@@ -225,8 +217,8 @@ const SecurityManager& BLE::getSecurityManager() const
     static generic::GenericSecurityManager m_instance(
         m_pal,
         m_db,
-        const_cast<generic::GenericGap&>(getGenericGap()),
-        static_cast<generic::GenericGattClient&>(self->getGattClient())
+        self->getGap(),
+        self->getGattClient()
     );
 
     return m_instance;
