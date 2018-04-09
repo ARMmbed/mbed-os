@@ -70,20 +70,6 @@
       "minor_policy": "relaxed"
     },
     {
-      "sfid": "PART2_WRITE_OFFSET_BIGGER_MAX",
-      "signal": "PART2_WRITE_OFFSET_BIGGER_MAX_MSK",
-      "non_secure_clients": true,
-      "minor_version": 5,
-      "minor_policy": "relaxed"
-    },
-    {
-      "sfid": "PART2_WRITE_OFFSET_BIGGER_RX_SIZE",
-      "signal": "PART2_WRITE_OFFSET_BIGGER_RX_SIZE_MSK",
-      "non_secure_clients": true,
-      "minor_version": 5,
-      "minor_policy": "relaxed"
-    },
-    {
       "sfid": "PART2_WRITE_RX_BUFF_NULL",
       "signal": "PART2_WRITE_RX_BUFF_NULL_MSK",
       "non_secure_clients": true,
@@ -156,6 +142,34 @@
     {
       "sfid": "PART2_SET_RHANDLE_NULL_HANDLE",
       "signal": "PART2_SET_RHANDLE_NULL_HANDLE_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_READ_WRAPAROUND",
+      "signal": "PART2_READ_WRAPAROUND_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_READ_EXCESE_INVEC",
+      "signal": "PART2_READ_EXCESE_INVEC_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_WRAPAROUND",
+      "signal": "PART2_WRITE_WRAPAROUND_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "sfid": "PART2_WRITE_EXCESE_OUTVEC",
+      "signal": "PART2_WRITE_EXCESE_OUTVEC_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "relaxed"

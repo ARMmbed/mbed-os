@@ -37,11 +37,11 @@ void part2_main(void *ptr)
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CALL:
                 {
-                    if ((msg.size[0] + msg.size[1] + msg.size[2]) == 0) {
+                    if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
                         SPM_PANIC("got a zero message size to REVERSE SF\n");
                     }
 
-                    len = msg.size[0];
+                    len = msg.in_size[0];
                     str = (char*)malloc(sizeof(char) * len);
                     if (NULL == str) {
                         SPM_PANIC("memory allocation failure\n");

@@ -72,15 +72,15 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
 
 /**
  * Call a connected Secure Function.@n
- * The caller must provide an array of ::iovec_t structures as the input payload.
+ * The caller must provide an array of ::psa_invec_t structures as the input payload.
  *
  * TODO: Need to align again when API definitions are updated in spec
  *
  * @param[in]  handle   Handle for the connection.
- * @param[in]  tx_iovec Array of ::iovec_t structures.
- * @param[in]  tx_len   Number of ::iovec_t structures in tx_iovec. (Must be greater than 0 and less than 4)
- * @param[out] rx_buf  Receive buffer for optional Secure function response.
- * @param[in]  rx_len  Length in bytes of rx_buf.
+ * @param[in]  in_vec   Array of ::psa_invec_t structures.
+ * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most PSA_MAX_INVEC_LEN)
+ * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Secure function response.
+ * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most PSA_MAX_OUTVEC_LEN)
  * @return Positive numbers with an application-specific return code or negative numbers on error:@n
  *         @a PSA_INVALID_MEM if the specified buffers in tx_iovec or rx_buf contain an invalid memory address
  *                            (pointing to non-existent memory or lack of permission for this memory).
@@ -90,10 +90,10 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
  */
 psa_error_t psa_call(
     psa_handle_t handle,
-    const iovec_t *tx_iovec,
-    size_t tx_len,
-    void *rx_buf,
-    size_t rx_len
+    const psa_invec_t *in_vec,
+    size_t in_len,
+    const psa_outvec_t *out_vec,
+    size_t out_len
     );
 
 /**
