@@ -185,6 +185,10 @@ typedef struct lorawan_connect {
  * RX_TIMEOUT,          - Not yet mapped
  * RX_ERROR             - A general RX error
  * JOIN_FAILURE         - When all Joining retries are exhausted
+ * UPLINK_REQUIRED      - Stack indicates application that some uplink needed
+ * AUTOMATIC_UPLINK_ERROR - Stack tried automatically send uplink but some error occurred.
+ *                          Application should initiate uplink as soon as possible.
+ *
  */
 typedef enum lora_events {
     CONNECTED=0,
@@ -198,6 +202,8 @@ typedef enum lora_events {
     RX_TIMEOUT,
     RX_ERROR,
     JOIN_FAILURE,
+    UPLINK_REQUIRED,
+    AUTOMATIC_UPLINK_ERROR,
 } lorawan_event_t;
 
 /**
