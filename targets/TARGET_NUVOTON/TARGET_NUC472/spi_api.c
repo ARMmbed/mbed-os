@@ -416,11 +416,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
          * To fix it, we don't enable SPI TX/RX threshold interrupts but keep SPI vector handler set to be called
          * in PDMA TX/RX transfer done interrupt handlers (spi_dma_handler_tx/spi_dma_handler_rx).
          */
-#if 0
-        spi_enable_vector_interrupt(obj, handler, 1);
-#else
         NVIC_SetVector(modinit->irq_n, handler);
-#endif
+
         /* Order to enable PDMA TX/RX functions
          *
          * H/W spec: In SPI Master mode with full duplex transfer, if both TX and RX PDMA functions are
@@ -431,17 +428,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
          *
          * With the above conflicts, we enable PDMA TX/RX functions simultaneously.
          */
-#if 0
-        SPI_TRIGGER_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
-        SPI_TRIGGER_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
-#else
         spi_base->PDMACTL |= (SPI_PDMACTL_TXPDMAEN_Msk | SPI_PDMACTL_RXPDMAEN_Msk);
-#endif
 
         /* Don't enable SPI TX/RX threshold interrupts as commented above */
-#if 0
-        spi_master_enable_interrupt(obj, 1);
-#endif
     }
 }
 

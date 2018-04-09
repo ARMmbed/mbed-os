@@ -187,11 +187,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
      *       At initial time, asynchronous transfer is not on-going and so vector must
      *       be cleared to zero for correct judgement. */
     /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
-#if 0
-    NVIC_SetVector(modinit->irq_n, 0);
-#else
     obj->spi.hdlr_async = 0;
-#endif
 #endif
 
     // Mark this module to be inited.
@@ -479,12 +475,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
          *
          * With the above conflicts, we enable PDMA TX/RX functions simultaneously.
          */
-#if 0
-        SPI_TRIGGER_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
-        SPI_TRIGGER_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
-#else
         spi_base->DMA |= (SPI_DMA_TX_DMA_EN_Msk | SPI_DMA_RX_DMA_EN_Msk);
-#endif
+
         PDMA_Trigger(obj->spi.dma_chn_id_rx);
         PDMA_Trigger(obj->spi.dma_chn_id_tx);
     }
@@ -558,13 +550,8 @@ uint8_t spi_active(spi_t *obj)
 
     /* Vector will be cleared when asynchronous transfer is finished or aborted.
        Use it to judge if asynchronous transfer is on-going. */
-    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
-#if 0
-    uint32_t vec = NVIC_GetVector(modinit->irq_n);
-    return vec ? 1 : 0;
-#else    
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */ 
     return obj->spi.hdlr_async ? 1 : 0;
-#endif
 }
 
 void SPI0_IRQHandler(void)
@@ -619,17 +606,11 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
         var->obj = obj;
         obj->spi.hdlr_async = handler;
         /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
-#if 0
-        NVIC_SetVector(modinit->irq_n, (uint32_t) var->vec);
-#endif
         NVIC_EnableIRQ(modinit->irq_n);
     }
     else {
         NVIC_DisableIRQ(modinit->irq_n);
         /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
-#if 0
-        NVIC_SetVector(modinit->irq_n, 0);
-#endif
         var->obj = NULL;
         obj->spi.hdlr_async = 0;
     }
