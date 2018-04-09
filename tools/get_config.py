@@ -74,7 +74,8 @@ if __name__ == '__main__':
         print("Macros")
         print("------")
         for m in Config.config_macros_to_macros(macros):
-            print(m)
+            if any(m.startswith(s) for s in options.prefix):
+                print(m)
 
     except KeyboardInterrupt as e:
         print("\n[CTRL+c] exit")
