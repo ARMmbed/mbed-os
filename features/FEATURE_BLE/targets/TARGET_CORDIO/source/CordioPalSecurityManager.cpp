@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
+#include "CordioBLE.h"
 #include "dm_api.h"
 #include "att_api.h"
 #include "smp_api.h"
@@ -31,7 +32,6 @@ CordioSecurityManager::CordioSecurityManager() :
     ::ble::pal::SecurityManager(),
     _use_default_passkey(false),
     _default_passkey(0),
-    _local_sign_counter(0),
     _lesc_keys_generated(false),
     _public_key_x()
 {
@@ -272,7 +272,7 @@ ble_error_t CordioSecurityManager::set_csrk(
     const csrk_t& csrk,
     sign_count_t sign_counter
 ) {
-    _local_sign_counter = sign_counter;
+    CordioAttClient::get_client().set_sign_counter(sign_counter);
     DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
     return BLE_ERROR_NONE;
 }

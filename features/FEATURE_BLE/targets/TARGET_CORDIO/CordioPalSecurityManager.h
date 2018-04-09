@@ -324,7 +324,6 @@ public:
 private:
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
-    sign_count_t _local_sign_counter;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
 };

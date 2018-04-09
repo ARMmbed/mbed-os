@@ -216,11 +216,24 @@ public:
         AttcSignedWriteCmd(
             connection_handle,
             attribute_handle,
-            /*TODO: get sign counter from cordio sm */0,
+            _local_sign_counter,
             value.size(),
             const_cast<uint8_t*>(value.data())
         );
+        _local_sign_counter++;
         return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Initialises the counter used to sign messages. Counter will be incremented every
+     * time a message is signed.
+     *
+     * @param sign_counter initialise the signing counter to this value
+     */
+    virtual void set_sign_counter(
+        sign_count_t sign_counter
+    ) {
+        _local_sign_counter = sign_counter;
     }
 
     /**
@@ -612,6 +625,8 @@ private:
             );
         }
     };
+private:
+    sign_count_t _local_sign_counter;
 };
 
 } // cordio
