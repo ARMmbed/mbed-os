@@ -255,10 +255,6 @@ public:
         _oob_local_random[0] = 1;
     }
 
-    sign_count_t get_next_sign_counter() {
-        return _local_sign_counter++;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     // Helper functions
     //
@@ -481,8 +477,6 @@ private:
     oob_lesc_value_t _oob_local_random;
     address_t _oob_temporary_key_creator_address; /**< device which generated and sent the TK */
     oob_tk_t _oob_temporary_key; /**< used for legacy pairing */
-
-    sign_count_t _local_sign_counter;
 
     pal::AuthenticationMask _default_authentication;
     pal::KeyDistribution _default_key_distribution;
