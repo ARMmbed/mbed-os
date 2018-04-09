@@ -1421,12 +1421,12 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 {
     if (params) {
         if (is_otaa) {
-//            if ((params->connection_u.otaa.dev_eui == NULL) ||
-//                (params->connection_u.otaa.app_eui == NULL) ||
-//                (params->connection_u.otaa.app_key == NULL) ||
-//                (params->connection_u.otaa.nb_trials == 0)) {
-//                return LORAWAN_STATUS_PARAMETER_INVALID;
-//            }
+            if ((params->connection_u.otaa.dev_eui == NULL) ||
+                (params->connection_u.otaa.app_eui == NULL) ||
+                (params->connection_u.otaa.app_key == NULL) ||
+                (params->connection_u.otaa.nb_trials == 0)) {
+                return LORAWAN_STATUS_PARAMETER_INVALID;
+            }
             _params.keys.dev_eui = params->connection_u.otaa.dev_eui;
             _params.keys.app_eui = params->connection_u.otaa.app_eui;
             _params.keys.app_key = params->connection_u.otaa.app_key;
