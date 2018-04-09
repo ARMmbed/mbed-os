@@ -59,7 +59,7 @@ if __name__ == '__main__':
         params, macros, features = get_config(options.source_dir, target, toolchain)
         if not params and not macros:
             print("No configuration data available.")
-            _exit(0)
+            sys.exit(0)
         if params:
             print("Configuration parameters")
             print("------------------------")
