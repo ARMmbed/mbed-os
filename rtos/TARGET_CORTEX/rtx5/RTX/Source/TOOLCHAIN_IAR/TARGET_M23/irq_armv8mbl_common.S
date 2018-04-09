@@ -218,8 +218,9 @@ Sys_ContextSave
                 BL       TZ_StoreContext_S      ; Store secure context
                 MOV      LR,R7                  ; Set EXC_RETURN
                 POP      {R1,R2,R3,R7}          ; Restore registers
-                LSLS     R7,R7,#25              ; Check domain of interrupted thread
-                BMI      Sys_ContextSave1       ; Branch if secure
+                MOV      R0,LR                  ; Get EXC_RETURN
+                LSLS     R0,R0,#25              ; Check domain of interrupted thread
+                BPL      Sys_ContextSave1       ; Branch if not secure
                 MRS      R0,PSP                 ; Get PSP
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
                 B        Sys_ContextSave2

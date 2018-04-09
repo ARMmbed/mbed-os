@@ -317,6 +317,7 @@ typedef struct pana_session_t {
     bool session_ready:1;
     bool key_warp:1;
     bool user_server:1;
+    bool packet_delivered:1;
     /* Define Relay usage */
     uint8_t address_status;
     uint8_t session_relay_address[16];

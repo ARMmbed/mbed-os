@@ -47,7 +47,6 @@
 /* * * * LOCAL FUNCTION PROTOTYPES * * * */
 /* * * * * * * * * * * * * * * * * * * * */
 
-static void                  sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param);
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT/* If Message duplication detection is not used at all, this part of code will not be compiled */
 static void                  sn_coap_protocol_linked_list_duplication_info_store(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, uint16_t msg_id, void *param);
 static coap_duplication_info_s *sn_coap_protocol_linked_list_duplication_info_search(struct coap_s *handle, sn_nsdl_addr_s *scr_addr_ptr, uint16_t msg_id);
@@ -254,6 +253,27 @@ int8_t sn_coap_protocol_set_block_size(struct coap_s *handle, uint16_t block_siz
 #endif
     return -1;
 
+}
+
+void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
+{
+    (void) handle;
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    if (handle == NULL) {
+        return;
+    }
+
+    /* Loop all stored Blockwise messages in Linked list */
+    ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
+        if (removed_blocwise_msg_ptr->coap_msg_ptr) {
+            handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
+            removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
+            sn_coap_parser_release_allocated_coap_msg_mem(handle, removed_blocwise_msg_ptr->coap_msg_ptr);
+            removed_blocwise_msg_ptr->coap_msg_ptr = 0;
+        }
+        sn_coap_protocol_linked_list_blockwise_msg_remove(handle, removed_blocwise_msg_ptr);
+    }
+#endif
 }
 
 int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t message_count)
@@ -646,6 +666,8 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
 
             /* Check if there is no room to store message for duplication detection purposes */
             if (stored_duplication_msgs_count >= handle->sn_coap_duplication_buffer_size) {
+                tr_debug("sn_coap_protocol_parse - duplicate list full, dropping oldest");
+
                 /* Get oldest stored duplication message */
                 coap_duplication_info_s *stored_duplication_info_ptr = ns_list_get_first(&handle->linked_list_duplication_msgs);
 
@@ -1007,7 +1029,7 @@ uint32_t sn_coap_calculate_new_resend_time(const uint32_t current_time, const ui
 
 #endif /* ENABLE_RESENDINGS */
 
-static void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param)
+void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param)
 {
     uint8_t packet_ptr[4];
 
@@ -1552,9 +1574,26 @@ static uint16_t sn_coap_count_linked_list_size(const coap_send_msg_list_t *linke
 #endif
 
 #if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+void sn_coap_protocol_remove_sent_blockwise_message(struct coap_s *handle, uint16_t message_id)
+{
+    if (!handle) {
+        return;
+    }
+
+    ns_list_foreach_safe(coap_blockwise_msg_s, tmp, &handle->linked_list_blockwise_sent_msgs) {
+        if (tmp->coap == handle && tmp->coap_msg_ptr && tmp->coap_msg_ptr->msg_id == message_id) {
+            handle->sn_coap_protocol_free(tmp->coap_msg_ptr->payload_ptr);
+            sn_coap_parser_release_allocated_coap_msg_mem(tmp->coap, tmp->coap_msg_ptr);
+            ns_list_remove(&handle->linked_list_blockwise_sent_msgs, tmp);
+            handle->sn_coap_protocol_free(tmp);
+            break;
+        }
+    }
+}
+
 void sn_coap_protocol_block_remove(struct coap_s *handle, sn_nsdl_addr_s *source_address, uint16_t payload_length, void *payload)
 {
-    if(!handle || !source_address || !payload){
+    if (!handle || !source_address || !payload) {
         return;
     }
 

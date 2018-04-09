@@ -38,50 +38,36 @@ volatile uint32_t multi_counter;
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 
-Ticker *volatile ticker1;
-Ticker *volatile ticker2;
 Timer gtimer;
-
 volatile int ticker_count = 0;
-volatile bool print_tick = false;
 
-void ticker_callback_1_switch_to_2(void);
-void ticker_callback_2_switch_to_1(void);
-
-void increment_ticker_counter(void)
-{
-    ++callback_trigger_count;
-}
 
 void switch_led1_state(void)
 {
-    led1 = !led1;
+    // blink 3 times per second
+    if((callback_trigger_count % 333) == 0) {
+        led1 = !led1;
+    }
 }
 
 void switch_led2_state(void)
 {
-    led2 = !led2;
+    // blink 3 times per second
+    // make led2 blink at the same callback_trigger_count value as led1
+    if(((callback_trigger_count - 1) % 333) == 0) {
+        led2 = !led2;
+    }
 }
 
-void ticker_callback_1_switch_to_2(void)
+void ticker_callback_1(void)
 {
     ++callback_trigger_count;
-    // If ticker is NULL then it is being or has been deleted
-    if (ticker1) {
-        ticker1->detach();
-        ticker1->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
-    }
     switch_led1_state();
 }
 
-void ticker_callback_2_switch_to_1(void)
+void ticker_callback_2(void)
 {
     ++callback_trigger_count;
-    // If ticker is NULL then it is being or has been deleted
-    if (ticker2) {
-        ticker2->detach();
-        ticker2->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
-    }
     switch_led2_state();
 }
 
@@ -106,9 +92,8 @@ void increment_multi_counter(void)
 
 /* Tests is to measure the accuracy of Ticker over a period of time
  *
- * 1) DUT would start to update callback_trigger_count every milli sec, in 2x callback we use 2 tickers
- *    to update the count alternatively.
- * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
+ * 1) DUT would start to update callback_trigger_count every milli sec
+ * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count.
  * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
  * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
  * 5) Finally host send the results back to device pass/fail based on tolerance.
@@ -119,9 +104,14 @@ void test_case_1x_ticker()
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
+    Ticker ticker;
+
+    led1 = 1;
+    led2 = 1;
+    callback_trigger_count = 0;
 
     greentea_send_kv("timing_drift_check_start", 0);
-    ticker1->attach_us(&increment_ticker_counter, ONE_MILLI_SEC);
+    ticker.attach_us(&ticker_callback_1, ONE_MILLI_SEC);
 
     // wait for 1st signal from host
     do {
@@ -140,18 +130,32 @@ void test_case_1x_ticker()
     TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
 }
 
-void test_case_2x_callbacks()
+/* Tests is to measure the accuracy of Ticker over a period of time
+ *
+ * 1) DUT would start to update callback_trigger_count every milli sec, we use 2 tickers
+ *    to update the count alternatively.
+ * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
+ * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
+ * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
+ * 5) Finally host send the results back to device pass/fail based on tolerance.
+ * 6) More details on tests can be found in timing_drift_auto.py
+ */
+void test_case_2x_ticker()
 {
     char _key[11] = { };
     char _value[128] = { };
     int expected_key =  1;
+    Ticker ticker1, ticker2;
 
     led1 = 0;
-    led2 = 0;
+    led2 = 1;
     callback_trigger_count = 0;
 
+    ticker1.attach_us(ticker_callback_1, 2 * ONE_MILLI_SEC);
+    // delay second ticker to have a pair of tickers tick every one millisecond
+    wait_us(ONE_MILLI_SEC);
     greentea_send_kv("timing_drift_check_start", 0);
-    ticker1->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+    ticker2.attach_us(ticker_callback_2, 2 * ONE_MILLI_SEC);
 
     // wait for 1st signal from host
     do {
@@ -303,39 +307,6 @@ void test_attach_us_time(void)
 }
 
 
-utest::v1::status_t one_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
-{
-    ticker1 = new Ticker();
-    return greentea_case_setup_handler(source, index_of_case);
-}
-
-utest::v1::status_t two_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
-{
-    ticker1 = new Ticker();
-    ticker2 = new Ticker();
-    return utest::v1::greentea_case_setup_handler(source, index_of_case);
-}
-
-utest::v1::status_t one_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const utest::v1::failure_t reason)
-{
-    Ticker *temp1 = ticker1;
-    ticker1 = NULL;
-    delete temp1;
-    return utest::v1::greentea_case_teardown_handler(source, passed, failed, reason);
-}
-
-utest::v1::status_t two_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const utest::v1::failure_t reason)
-{
-    Ticker *temp1 = ticker1;
-    Ticker *temp2 = ticker2;
-    ticker1 = NULL;
-    ticker2 = NULL;
-    delete temp1;
-    delete temp2;
-    return utest::v1::greentea_case_teardown_handler(source, passed, failed, reason);
-}
-
-
 // Test cases
 Case cases[] = {
     Case("Test attach for 0.01s and time measure", test_attach_time<10000>),
@@ -347,8 +318,8 @@ Case cases[] = {
     Case("Test detach", test_detach),
     Case("Test multi call and time measure", test_multi_call_time),
     Case("Test multi ticker", test_multi_ticker),
-    Case("Test timers: 1x ticker", one_ticker_case_setup_handler_t,test_case_1x_ticker, one_ticker_case_teardown_handler_t),
-    Case("Test timers: 2x callbacks", two_ticker_case_setup_handler_t,test_case_2x_callbacks, two_ticker_case_teardown_handler_t)
+    Case("Test timers: 1x ticker", test_case_1x_ticker),
+    Case("Test timers: 2x ticker", test_case_2x_ticker)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

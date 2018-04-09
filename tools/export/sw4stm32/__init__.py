@@ -14,12 +14,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
 
 from os.path import splitext, basename, join
+import shutil
 from tools.utils import mkdir
 from tools.export.gnuarmeclipse import GNUARMEclipse
 from tools.export.gnuarmeclipse import UID
 from tools.build_api import prepare_toolchain
+from tools.targets import TARGET_MAP
 from sys import flags, platform
 
 # Global random number generator instance.
@@ -98,6 +102,11 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'DISCO-L072CZ-LRWAN1',
             'mcuId': 'STM32L072CZTx'
+        },
+        'MTB_MURATA_ABZ':
+        {
+            'name': 'MTB-MURATA-ABZ',
+            'mcuId': 'STM32L0x2xZ'
         },
         'DISCO_L475VG_IOT01A':
         {
@@ -249,6 +258,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L432KC',
             'mcuId': 'STM32L432KCUx'
         },
+        'MTB_ADV_WISE_1510':
+        {
+            'name': 'MTB-ADV-WISE-1510',
+            'mcuId': 'STM32L443xC'
+        },
         'NUCLEO_L476RG':
         {
             'name': 'NUCLEO-L476RG',
@@ -263,7 +277,7 @@ class Sw4STM32(GNUARMEclipse):
         {
             'name': 'NUCLEO-L496ZG',
             'mcuId': 'STM32L496ZGTx'
-        },        
+        },
         'NUCLEO_L496ZG_P':
         {
             'name': 'NUCLEO-L496ZG',
@@ -271,7 +285,14 @@ class Sw4STM32(GNUARMEclipse):
         },
     }
 
-    TARGETS = BOARDS.keys()
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        target_supported = bool(set(target.resolution_order_names)
+                                .intersection(set(cls.BOARDS.keys())))
+        toolchain_supported = cls.TOOLCHAIN in target.supported_toolchains
+        return target_supported and toolchain_supported
 
     def __gen_dir(self, dir_name):
         """
@@ -401,10 +422,10 @@ class Sw4STM32(GNUARMEclipse):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
 
-        print ('\nCreate a System Workbench for STM32 managed project')
-        print ('Project name: {0}'.format(self.project_name))
-        print ('Target:       {0}'.format(self.toolchain.target.name))
-        print ('Toolchain:    {0}'.format(self.TOOLCHAIN) + '\n')
+        print('\nCreate a System Workbench for STM32 managed project')
+        print('Project name: {0}'.format(self.project_name))
+        print('Target:       {0}'.format(self.toolchain.target.name))
+        print('Toolchain:    {0}'.format(self.TOOLCHAIN) + '\n')
 
         self.resources.win_to_unix()
 
@@ -425,19 +446,18 @@ class Sw4STM32(GNUARMEclipse):
         self.c_defines = [s.replace('"', '&quot;')
                           for s in self.toolchain.get_symbols()]
         self.cpp_defines = self.c_defines
-        print 'Symbols: {0}'.format(len(self.c_defines))
 
         self.include_path = []
         for s in self.resources.inc_dirs:
             self.include_path.append("../" + self.filter_dot(s))
-        print ('Include folders: {0}'.format(len(self.include_path)))
+        print('Include folders: {0}'.format(len(self.include_path)))
 
         self.compute_exclusions()
 
-        print ('Exclude folders: {0}'.format(len(self.excluded_folders)))
+        print('Exclude folders: {0}'.format(len(self.excluded_folders)))
 
         ld_script = self.filter_dot(self.resources.linker_script)
-        print ('Linker script:   {0}'.format(ld_script))
+        print('Linker script:   {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
@@ -454,9 +474,6 @@ class Sw4STM32(GNUARMEclipse):
             opts['id'] = id
             opts['name'] = opts['id'].capitalize()
 
-            # TODO: Add prints to log or console in verbose mode.
-            #print ('\nBuild configuration: {0}'.format(opts['name']))
-
             profile = profiles[id]
 
             # A small hack, do not bother with src_path again,
@@ -469,13 +486,6 @@ class Sw4STM32(GNUARMEclipse):
             toolchain.build_dir = self.toolchain.build_dir
 
             flags = self.toolchain_flags(toolchain)
-
-            # TODO: Add prints to log or console in verbose mode.
-            # print 'Common flags:', ' '.join(flags['common_flags'])
-            # print 'C++ flags:', ' '.join(flags['cxx_flags'])
-            # print 'C flags:', ' '.join(flags['c_flags'])
-            # print 'ASM flags:', ' '.join(flags['asm_flags'])
-            # print 'Linker flags:', ' '.join(flags['ld_flags'])
 
             # Most GNU ARM Eclipse options have a parent,
             # either debug or release.
@@ -539,3 +549,7 @@ class Sw4STM32(GNUARMEclipse):
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('sw4stm32/launch.tmpl', ctx, self.project_name +
                       ' ' + options['debug']['name'] + '.launch')
+
+    @staticmethod
+    def clean(_):
+        shutil.rmtree(".settings")

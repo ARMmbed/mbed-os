@@ -172,7 +172,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {
@@ -590,7 +590,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {
@@ -1008,7 +1008,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {
@@ -1426,7 +1426,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {
@@ -1844,7 +1844,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {
@@ -2262,7 +2262,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      */
     void cancel() const {

@@ -65,7 +65,7 @@ float analogin_read(analogin_t *obj)
     float result;
 
     // Start conversion with no input scaling and no input buffer bypass
-    ADC_StartConvert(obj->channel, 0, 0);
+    ADC_StartConvert(obj->channel, 1, 0);
 
     if (ADC_GetData(&tmp) == E_OVERFLOW) {
         result = FLOAT_FULL_SCALE;
@@ -83,7 +83,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     uint16_t result;
 
     // Start conversion with no input scaling and no input buffer bypass
-    ADC_StartConvert(obj->channel, 0, 0);
+    ADC_StartConvert(obj->channel, 1, 0);
 
     if (ADC_GetData(&tmp) == E_OVERFLOW) {
         result = INT_FULL_SCALE;

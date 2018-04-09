@@ -18,29 +18,40 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : wdt_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef WDT_IODEFINE_H
 #define WDT_IODEFINE_H
-
-struct st_wdt
-{                                                          /* WDT              */
-    volatile uint16_t WTCSR;                                  /*  WTCSR           */
-    volatile uint16_t WTCNT;                                  /*  WTCNT           */
-    volatile uint16_t WRCSR;                                  /*  WRCSR           */
-};
-
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
+/* ->SEC M1.10.1 : Not magic number */
 
 #define WDT     (*(struct st_wdt     *)0xFCFE0000uL) /* WDT */
 
 
-#define WDTWTCSR WDT.WTCSR
-#define WDTWTCNT WDT.WTCNT
-#define WDTWRCSR WDT.WRCSR
+#define WDTWTCSR (WDT.WTCSR)
+#define WDTWTCNT (WDT.WTCNT)
+#define WDTWRCSR (WDT.WRCSR)
+
+
+typedef struct st_wdt
+{
+                                                           /* WDT              */
+    volatile uint16_t WTCSR;                                  /*  WTCSR           */
+    volatile uint16_t WTCNT;                                  /*  WTCNT           */
+    volatile uint16_t WRCSR;                                  /*  WRCSR           */
+} r_io_wdt_t;
+
+
+/* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

@@ -15,14 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from tools.paths import *
-from tools.data.support import *
+from tools.data.support import DEFAULT_SUPPORT, CORTEX_ARM_SUPPORT
 from argparse import ArgumentTypeError
-from utils import columnate
-
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
+from tools.utils import columnate
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
@@ -916,9 +911,7 @@ def test_known(string):
         raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
 
 def test_name_known(string):
-    if string not in TEST_MAP.keys() and \
-       (getattr(ps, "test_alias", None) is None or \
-        ps.test_alias.get(string, "") not in TEST_MAP.keys()):
+    if string not in TEST_MAP.keys():
         raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(string, columnate([t['id'] for t in TESTS])))
 
     return TEST_MAP[string].n

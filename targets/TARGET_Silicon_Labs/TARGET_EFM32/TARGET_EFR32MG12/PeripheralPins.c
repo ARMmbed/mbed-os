@@ -26,6 +26,7 @@
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
 const PinMap PinMap_ADC[] = {
+#ifdef ADC0_BASE
     {PA0,  ADC_0, adcPosSelAPORT3XCH8},
     {PA1,  ADC_0, adcPosSelAPORT4XCH9},
     {PA2,  ADC_0, adcPosSelAPORT3XCH10},
@@ -61,11 +62,13 @@ const PinMap PinMap_ADC[] = {
     {PF5,  ADC_0, adcPosSelAPORT2XCH21},
     {PF6,  ADC_0, adcPosSelAPORT1XCH22},
     {PF7,  ADC_0, adcPosSelAPORT2XCH23},
+#endif
     {NC ,  NC   , NC}
 };
 
 /************I2C SCL***********/
 const PinMap PinMap_I2C_SCL[] = {
+#ifdef I2C0_BASE
     /* I2C0 */
     {PA1,  I2C_0,  0},
     {PA2,  I2C_0,  1},
@@ -99,7 +102,9 @@ const PinMap PinMap_I2C_SCL[] = {
     {PF6,  I2C_0, 29},
     {PF7,  I2C_0, 30},
     {PA0,  I2C_0, 31},
-
+#endif
+#ifdef I2C1_BASE
+    /* I2C1 */
     {PA7, I2C_1, 0},
     {PA8, I2C_1, 1},
     {PA9, I2C_1, 2},
@@ -130,12 +135,13 @@ const PinMap PinMap_I2C_SCL[] = {
     {PK1, I2C_1, 29},
     {PK2, I2C_1, 30},
     {PA6, I2C_1, 31},
-
+#endif
     {NC  , NC   , NC}
 };
 
 /************I2C SDA***********/
 const PinMap PinMap_I2C_SDA[] = {
+#ifdef I2C0_BASE
     /* I2C0 */
     {PA0,  I2C_0,  0},
     {PA1,  I2C_0,  1},
@@ -169,7 +175,9 @@ const PinMap PinMap_I2C_SDA[] = {
     {PF5,  I2C_0, 29},
     {PF6,  I2C_0, 30},
     {PF7,  I2C_0, 31},
-
+#endif
+#ifdef I2C1_BASE
+    /* I2C1 */
     {PA6, I2C_1, 0},
     {PA7, I2C_1, 1},
     {PA8, I2C_1, 2},
@@ -200,7 +208,7 @@ const PinMap PinMap_I2C_SDA[] = {
     {PK0, I2C_1, 29},
     {PK1, I2C_1, 30},
     {PK2, I2C_1, 31},
-
+#endif
     /* Not connected */
 
     {NC  , NC   , NC}
@@ -208,45 +216,56 @@ const PinMap PinMap_I2C_SDA[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
+#if defined(TIMER_ROUTE_CC0PEN) || defined(TIMER_ROUTEPEN_CC0PEN)
+    /* PWM0 */
     {PA0,  PWM_CH0,  0},
-    {PA1,  PWM_CH1,  0},
-    {PA2,  PWM_CH2,  0},
-    {PA3,  PWM_CH3,  0},
-    {PA4,  PWM_CH2,  2},
-    {PA5,  PWM_CH3,  2},
-    {PB11, PWM_CH1,  5},
-    {PB12, PWM_CH2,  5},
-    {PB13, PWM_CH3,  5},
     {PB14, PWM_CH0,  9},
     {PB15, PWM_CH0, 10},
     {PC6,  PWM_CH0, 11},
+    {PD10, PWM_CH0, 18},
+    {PD14, PWM_CH0, 22},
+    {PF0,  PWM_CH0, 24},
+    {PF4,  PWM_CH0, 28},
+#endif
+#if defined(TIMER_ROUTE_CC1PEN) || defined(TIMER_ROUTEPEN_CC1PEN)
+    /* PWM1 */
+    {PA1,  PWM_CH1,  0},
+    {PB11, PWM_CH1,  5},
     {PC7,  PWM_CH1, 11},
+    {PD11, PWM_CH1, 18},
+    {PD15, PWM_CH1, 22},
+    {PF1,  PWM_CH1, 24},
+    {PF5,  PWM_CH1, 28},
+#endif
+#if defined(TIMER_ROUTE_CC2PEN) || defined(TIMER_ROUTEPEN_CC2PEN)
+    /* PWM2 */
+    {PA2,  PWM_CH2,  0},
+    {PA4,  PWM_CH2,  2},
+    {PB12, PWM_CH2,  5},
     {PC8,  PWM_CH2, 11},
-    {PC9,  PWM_CH3, 11},
     {PC10, PWM_CH2, 13},
+    {PD12, PWM_CH2, 18},
+    {PF2,  PWM_CH2, 24},
+    {PF6,  PWM_CH2, 28},
+#endif
+#if defined(TIMER_ROUTE_CC3PEN) || defined(TIMER_ROUTEPEN_CC3PEN)
+    /* PWM3 */
+    {PA3,  PWM_CH3,  0},
+    {PA5,  PWM_CH3,  2},
+    {PB13, PWM_CH3,  5},
+    {PC9,  PWM_CH3, 11},
     {PC11, PWM_CH3, 13},
     {PD9,  PWM_CH3, 14},
-    {PD10, PWM_CH0, 18},
-    {PD11, PWM_CH1, 18},
-    {PD12, PWM_CH2, 18},
     {PD13, PWM_CH3, 18},
-    {PD14, PWM_CH0, 22},
-    {PD15, PWM_CH1, 22},
-    {PF0,  PWM_CH0, 24},
-    {PF1,  PWM_CH1, 24},
-    {PF2,  PWM_CH2, 24},
     {PF3,  PWM_CH3, 24},
-    {PF4,  PWM_CH0, 28},
-    {PF5,  PWM_CH1, 28},
-    {PF6,  PWM_CH2, 28},
     {PF7,  PWM_CH3, 28},
-
+#endif
     {NC  , NC     , NC}
 };
 
 /*************SPI**************/
 const PinMap PinMap_SPI_MOSI[] = {
-
+#ifdef USART0_BASE
     /* USART0 */
     {PA0,  SPI_0,  0},
     {PA1,  SPI_0,  1},
@@ -266,7 +285,8 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PD13, SPI_0, 21},
     {PD14, SPI_0, 22},
     {PD15, SPI_0, 23},
-
+#endif
+#ifdef USART1_BASE
     /* USART1 */
     {PC6,  SPI_1, 11},
     {PC7,  SPI_1, 12},
@@ -282,7 +302,8 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PF5,  SPI_1, 29},
     {PF6,  SPI_1, 30},
     {PF7,  SPI_1, 31},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA6,  SPI_2, 1},
     {PA7,  SPI_2, 2},
@@ -308,7 +329,8 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PK0,  SPI_2, 29},
     {PK1,  SPI_2, 30},
     {PK2,  SPI_2, 31},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, SPI_3, 16},
     {PJ15, SPI_3, 17},
@@ -318,12 +340,12 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PC3,  SPI_3, 21},
     {PC4,  SPI_3, 22},
     {PC5,  SPI_3, 23},
-
+#endif
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_MISO[] = {
-
+#ifdef USART0_BASE
     /* USART0 */
     {PA0,  SPI_0, 31},
     {PA1,  SPI_0,  0},
@@ -343,7 +365,8 @@ const PinMap PinMap_SPI_MISO[] = {
     {PD13, SPI_0, 20},
     {PD14, SPI_0, 21},
     {PD15, SPI_0, 22},
-
+#endif
+#ifdef USART1_BASE
     /* USART1 */
     {PC6,  SPI_1, 10},
     {PC7,  SPI_1, 11},
@@ -360,7 +383,8 @@ const PinMap PinMap_SPI_MISO[] = {
     {PF6,  SPI_1, 29},
     {PF7,  SPI_1, 30},
     {PA0,  SPI_1, 31},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA6,  SPI_2, 0},
     {PA7,  SPI_2, 1},
@@ -386,7 +410,8 @@ const PinMap PinMap_SPI_MISO[] = {
     {PK0,  SPI_2, 28},
     {PK1,  SPI_2, 29},
     {PK2,  SPI_2, 30},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, SPI_3, 15},
     {PJ15, SPI_3, 16},
@@ -396,12 +421,12 @@ const PinMap PinMap_SPI_MISO[] = {
     {PC3,  SPI_3, 20},
     {PC4,  SPI_3, 21},
     {PC5,  SPI_3, 22},
-
+#endif
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CLK[] = {
-
+#ifdef USART0_BASE
     /* USART0 */
     {PA0,  SPI_0, 30},
     {PA1,  SPI_0, 31},
@@ -421,7 +446,8 @@ const PinMap PinMap_SPI_CLK[] = {
     {PD13, SPI_0, 19},
     {PD14, SPI_0, 20},
     {PD15, SPI_0, 21},
-
+#endif
+#ifdef USART1_BASE
     /* USART1 */
     {PC6,  SPI_1,  9},
     {PC7,  SPI_1, 10},
@@ -439,7 +465,8 @@ const PinMap PinMap_SPI_CLK[] = {
     {PF7,  SPI_1, 29},
     {PA0,  SPI_1, 30},
     {PA1,  SPI_1, 31},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA7,  SPI_2, 0},
     {PA8,  SPI_2, 1},
@@ -465,7 +492,8 @@ const PinMap PinMap_SPI_CLK[] = {
     {PK1,  SPI_2, 28},
     {PK2,  SPI_2, 29},
     {PA6,  SPI_2, 31},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, SPI_3, 14},
     {PJ15, SPI_3, 15},
@@ -475,12 +503,12 @@ const PinMap PinMap_SPI_CLK[] = {
     {PC3,  SPI_3, 19},
     {PC4,  SPI_3, 20},
     {PC5,  SPI_3, 21},
-
+#endif
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_SPI_CS[] = {
-
+#ifdef USART0_BASE
     /* USART0 */
     {PA0,  SPI_0,  29},
     {PA1,  SPI_0,  30},
@@ -500,7 +528,8 @@ const PinMap PinMap_SPI_CS[] = {
     {PD13, SPI_0, 18},
     {PD14, SPI_0, 19},
     {PD15, SPI_0, 20},
-
+#endif
+#ifdef USART1_BASE
     /* USART1 */
     {PC6,  SPI_1,  8},
     {PC7,  SPI_1,  9},
@@ -516,7 +545,8 @@ const PinMap PinMap_SPI_CS[] = {
     {PF5,  SPI_1, 26},
     {PF6,  SPI_1, 27},
     {PF7,  SPI_1, 28},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA8,  SPI_2, 0},
     {PA9,  SPI_2, 1},
@@ -542,7 +572,8 @@ const PinMap PinMap_SPI_CS[] = {
     {PK2,  SPI_2, 28},
     {PA6,  SPI_2, 30},
     {PA7,  SPI_2, 31},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, SPI_3, 13},
     {PJ15, SPI_3, 14},
@@ -552,12 +583,14 @@ const PinMap PinMap_SPI_CS[] = {
     {PC3,  SPI_3, 18},
     {PC4,  SPI_3, 19},
     {PC5,  SPI_3, 20},
-
+#endif
     {NC  , NC   , NC}
 };
 
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
+#ifdef USART0_BASE
+    /* USART0 */
     {PA0,  USART_0,  0},
     {PA1,  USART_0,  1},
     {PA2,  USART_0,  2},
@@ -569,6 +602,9 @@ const PinMap PinMap_UART_TX[] = {
     {PB13, USART_0,  8},
     {PB14, USART_0,  9},
     {PB15, USART_0, 10},
+#endif
+#ifdef LEUART0_BASE
+    /* LEUART0 */
     {PD9,  LEUART_0, 17},
     {PD10, LEUART_0, 18},
     {PD11, LEUART_0, 19},
@@ -576,7 +612,9 @@ const PinMap PinMap_UART_TX[] = {
     {PD13, LEUART_0, 21},
     {PD14, LEUART_0, 22},
     {PD15, LEUART_0, 23},
-
+#endif
+#ifdef USART1_BASE
+    /* USART1 */
     {PC6,  USART_1, 11},
     {PC7,  USART_1, 12},
     {PC8,  USART_1, 13},
@@ -591,7 +629,8 @@ const PinMap PinMap_UART_TX[] = {
     {PF5,  USART_1, 29},
     {PF6,  USART_1, 30},
     {PF7,  USART_1, 31},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA6,  USART_2, 1},
     {PA7,  USART_2, 2},
@@ -617,7 +656,8 @@ const PinMap PinMap_UART_TX[] = {
     {PK0,  USART_2, 29},
     {PK1,  USART_2, 30},
     {PK2,  USART_2, 31},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, USART_3, 16},
     {PJ15, USART_3, 17},
@@ -627,11 +667,13 @@ const PinMap PinMap_UART_TX[] = {
     {PC3,  USART_3, 21},
     {PC4,  USART_3, 22},
     {PC5,  USART_3, 23},
-
+#endif
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
+#ifdef USART0_BASE
+    /* USART0 */
     {PA0,  USART_0, 31},
     {PA1,  USART_0,  0},
     {PA2,  USART_0,  1},
@@ -643,6 +685,9 @@ const PinMap PinMap_UART_RX[] = {
     {PB13, USART_0,  7},
     {PB14, USART_0,  8},
     {PB15, USART_0,  9},
+#endif
+#ifdef LEUART0_BASE
+    /* LEUART0 */
     {PD9,  LEUART_0, 16},
     {PD10, LEUART_0, 17},
     {PD11, LEUART_0, 18},
@@ -650,7 +695,9 @@ const PinMap PinMap_UART_RX[] = {
     {PD13, LEUART_0, 20},
     {PD14, LEUART_0, 21},
     {PD15, LEUART_0, 22},
-
+#endif
+#ifdef USART1_BASE
+    /* USART1 */
     {PC6,  USART_1, 10},
     {PC7,  USART_1, 11},
     {PC8,  USART_1, 12},
@@ -665,7 +712,8 @@ const PinMap PinMap_UART_RX[] = {
     {PF5,  USART_1, 28},
     {PF6,  USART_1, 29},
     {PF7,  USART_1, 30},
-
+#endif
+#ifdef USART2_BASE
     /* USART2 */
     {PA6,  USART_2, 0},
     {PA7,  USART_2, 1},
@@ -691,7 +739,8 @@ const PinMap PinMap_UART_RX[] = {
     {PK0,  USART_2, 28},
     {PK1,  USART_2, 29},
     {PK2,  USART_2, 30},
-
+#endif
+#ifdef USART3_BASE
     /* USART3 */
     {PJ14, USART_3, 15},
     {PJ15, USART_3, 16},
@@ -701,6 +750,6 @@ const PinMap PinMap_UART_RX[] = {
     {PC3,  USART_3, 20},
     {PC4,  USART_3, 21},
     {PC5,  USART_3, 22},
-
+#endif
     {NC  , NC   , NC}
 };

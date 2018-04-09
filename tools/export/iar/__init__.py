@@ -1,3 +1,6 @@
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import os
 from os.path import sep, join, exists
 from collections import namedtuple
@@ -139,6 +142,17 @@ class IAR(Exporter):
         self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
 
     @staticmethod
+    def clean(project_name):
+        os.remove(project_name + ".ewp")
+        os.remove(project_name + ".ewd")
+        os.remove(project_name + ".eww")
+        # legacy output file location
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
+
+    @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build IAR project """
         # > IarBuild [project_path] -build [project_name]
@@ -170,7 +184,7 @@ class IAR(Exporter):
         else:
             out_string += "FAILURE"
 
-        print out_string
+        print(out_string)
 
         if log_name:
             # Write the output to the log file
@@ -179,14 +193,7 @@ class IAR(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(project_name + ".ewp")
-            os.remove(project_name + ".ewd")
-            os.remove(project_name + ".eww")
-            # legacy output file location
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            IAR.clean(project_name)
 
         if ret_code !=0:
             # Seems like something went wrong.

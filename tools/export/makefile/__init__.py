@@ -14,6 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
 from os import remove
@@ -121,6 +124,10 @@ class Makefile(Exporter):
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.format_flags())
+        # Add the virtual path the the include option in the ASM flags
+        for index, flag in enumerate(ctx['asm_flags']):
+            if flag.startswith('-I'):
+                ctx['asm_flags'][index] = "-I" + ctx['vpath'][0] + "/" + ctx['asm_flags'][index][2:]
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -140,13 +147,22 @@ class Makefile(Exporter):
     def format_flags(self):
         """Format toolchain flags for Makefile"""
         flags = {}
-        for k, v in self.flags.iteritems():
+        for k, v in self.flags.items():
             if k in ['asm_flags', 'c_flags', 'cxx_flags']:
                 flags[k] = map(lambda x: x.replace('"', '\\"'), v)
             else:
                 flags[k] = v
 
         return flags
+
+    @staticmethod
+    def clean(_):
+        remove("Makefile")
+        # legacy .build directory cleaned if exists
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -169,7 +185,7 @@ class Makefile(Exporter):
         else:
             out_string += "FAILURE"
 
-        print out_string
+        print(out_string)
 
         if log_name:
             # Write the output to the log file
@@ -178,13 +194,8 @@ class Makefile(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            remove("Makefile")
             remove(log_name)
-            # legacy .build directory cleaned if exists
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            Makefile.clean(project_name)
 
         if ret_code != 0:
             # Seems like something went wrong.
@@ -228,9 +239,10 @@ class Arm(Makefile):
 
     def generate(self):
         if self.resources.linker_script:
+            sct_file = self.resources.linker_script
             new_script = self.toolchain.correct_scatter_shebang(
-                self.resources.linker_script)
-            if new_script is not self.resources.linker_script:
+                sct_file, join(self.resources.file_basepath[sct_file], "BUILD"))
+            if new_script is not sct_file:
                 self.resources.linker_script = new_script
                 self.generated_files.append(new_script)
         return super(Arm, self).generate()

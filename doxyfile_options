@@ -847,7 +847,8 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/FEATURE_COMMON_PAL/* \
                          */features/FEATURE_LWIP/* \
                          */features/FEATURE_UVISOR/* \
-                         */features/nanostack/* \
+                         */features/nanostack/FEATURE_NANOSTACK/sal-stack-nanostack/* \
+                         */features/nanostack/FEATURE_NANOSTACK/coap-service/* \
                          */ble/generic/* \
                          */ble/pal/*
 
@@ -2070,6 +2071,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_I2CSLAVE         \
                          DEVICE_I2C_ASYNCH       \
                          DEVICE_INTERRUPTIN      \
+                         DEVICE_ITM              \
                          DEVICE_LOWPOWERTIMER    \
                          DEVICE_PORTIN           \
                          DEVICE_PORTINOUT        \

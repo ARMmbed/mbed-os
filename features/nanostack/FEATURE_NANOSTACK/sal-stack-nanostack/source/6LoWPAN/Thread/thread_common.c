@@ -245,7 +245,8 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
         }
         mac_helper_link_frame_counter_read(cur->id, &fast_data.mac_frame_counter);
         fast_data.mle_frame_counter=mle_service_security_get_frame_counter(cur->id);
-        thread_nvm_store_fast_data_store(&fast_data);
+        thread_nvm_store_fast_data_write(&fast_data);
+        thread_joiner_application_configuration_nvm_save(cur->id);
         mac_pairwise_key_flush_list(cur->id);
         thread_discovery_reset(cur->id);
         thread_bootstrap_stop(cur);
@@ -981,6 +982,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
     thread_border_router_seconds_timer(cur->id, ticks);
     thread_bbr_seconds_timer(cur->id, ticks);
     thread_lowpower_timer(cur, ticks);
+    thread_nvm_store_seconds_timer(ticks);
 
     if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_ACTIVE) {
         nwk_bootsrap_state_update(ARM_NWK_BOOTSTRAP_READY, cur);
@@ -1658,7 +1660,6 @@ bool thread_pending_operational_dataset_process(protocol_interface_info_entry_t 
         tr_error("pending set creation failed");
         return false;
     }
-
     tr_debug("updating pending dataset");
     thread_joiner_application_pending_config_timestamp_set(cur->id,mle_pending_timestamp);
     thread_joiner_application_pending_config_enable(cur->id,delay_timer);
@@ -1836,36 +1837,27 @@ static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failure
         return;
     }
 
-    if (thread_i_am_router(cur)) {
-       if (thread_addr_is_child(mac_helper_mac16_address_get(cur), neighbor->short_adr)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-               return;
-           }
+    if (accumulated_failures >= THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
+        thread_reset_neighbour_info(cur, neighbor);
+    }
+}
 
-           tr_debug("Free the Child node, mac16=%d", neighbor->short_adr);
-           thread_bootstrap_reset_child_info(cur, neighbor);
+/* Called when MLE link to neighbour lost, or ETX callback says link is bad */
+void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *neighbour)
+{
+    thread_parent_info_t *thread_endnode_parent = thread_info(cur)->thread_endnode_parent;
 
-           protocol_6lowpan_release_short_link_address_from_neighcache(cur, neighbor->short_adr);
-           protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbor->mac64);
-           mac_helper_devicetable_remove(cur->mac_api, neighbor->attribute_index);
-       } else if (thread_is_router_addr(neighbor->short_adr)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_ROUTER_TRANSMISSIONS) {
-               return;
-           }
+    if (!thread_i_am_router(cur) && thread_endnode_parent && thread_endnode_parent->shortAddress == neighbour->short_adr) {
+        tr_warn("End device lost Parent!\n");
+        if(cur->nwk_bootstrap_state != ER_CHILD_ID_REQ) {
+            thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+        }
+    }
 
-           tr_debug("Set link quality to neighbor router to zero...");
-           thread_routing_force_link_margin(cur, neighbor->short_adr, 0);
-       }
-   } else { // We are a Child
-       if (thread_check_is_this_my_parent(cur, neighbor)) {
-           if (accumulated_failures < THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-               return;
-           }
-
-           tr_debug("Consider the parent gone...");
-           thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
-       }
-   }
+    thread_routing_remove_link(cur, neighbour->short_adr);
+    thread_router_bootstrap_reset_child_info(cur, neighbour);
+    protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbour->mac64);
+    mac_helper_devicetable_remove(cur->mac_api, neighbour->attribute_index);
 }
 
 uint8_t thread_get_router_count_from_route_tlv(mle_tlv_info_t *routeTlv)
@@ -1928,14 +1920,17 @@ void thread_mcast_group_change(struct protocol_interface_info_entry *interface, 
     }
 }
 
-void thread_old_partition_data_purge(thread_info_t *thread_info)
+void thread_old_partition_data_purge(protocol_interface_info_entry_t *cur)
 {
     /* Partition has been changed. Wipe out data related to old partition */
-    thread_management_client_pending_coap_request_kill(thread_info->interface_id);
+    thread_management_client_pending_coap_request_kill(cur->id);
 
-    /* Reset/init previous routing information */
-    thread_routing_reset(&thread_info->routing);
-    thread_routing_init(&thread_info->routing);
+    /* Reset previous routing information */
+    thread_routing_reset(&cur->thread_info->routing);
+
+    /* Flush address cache */
+    ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
+
 }
 
 #endif

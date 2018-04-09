@@ -26,6 +26,8 @@
 #include "fhss.h"
 #include "fhss_beacon.h"
 #include "fhss_statistics.h"
+#include "fhss_mac_interface.h"
+#include "platform/arm_hal_interrupt.h"
 
 #include <string.h> // memset
 
@@ -121,15 +123,16 @@ static void fhss_beacon_tasklet_func(arm_event_s* event)
     // Update Beacon info lifetimes
     else if(event->event_type == FHSS_UPDATE_SYNCH_INFO_STORAGE)
     {
-        fhss_update_beacon_info_lifetimes(fhss_structure, fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api));
+        fhss_update_beacon_info_lifetimes(fhss_structure, fhss_read_timestamp_cb(fhss_structure->fhss_api));
     }
 }
 
 void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t* dest)
 {
     fhss_synchronization_beacon_payload_s temp_payload;
-
+    platform_enter_critical();
     fhss_beacon_update_payload(fhss_structure, &temp_payload);
+    platform_exit_critical();
     fhss_beacon_encode_raw(dest, &temp_payload);
 }
 

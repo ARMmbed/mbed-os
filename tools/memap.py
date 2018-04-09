@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Memory Map File Analyser for ARM mbed"""
+from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
@@ -9,14 +10,12 @@ from os.path import basename, dirname, join, relpath, commonprefix
 import re
 import csv
 import json
-import math
 from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
-from tools.arm_pack_manager import Cache
 
-from utils import argparse_filestring_type, \
-    argparse_lowercase_hyphen_type, argparse_uppercase_type
+from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                    argparse_uppercase_type)
 
 
 class _Parser(object):
@@ -132,7 +131,7 @@ class _GccParser(_Parser):
                 return join('[lib]', test_re_obj_name.group(2),
                             test_re_obj_name.group(3))
             else:
-                print "Unknown object name found in GCC map file: %s" % line
+                print("Unknown object name found in GCC map file: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -217,7 +216,7 @@ class _ArmccParser(_Parser):
             if is_obj:
                 return join('[lib]', basename(is_obj.group(1)), is_obj.group(3))
             else:
-                print "Malformed input found when parsing ARMCC map: %s" % line
+                print("Malformed input found when parsing ARMCC map: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -246,8 +245,8 @@ class _ArmccParser(_Parser):
                 elif test_re.group(3) == 'Code':
                     section = '.text'
                 else:
-                    print "Malformed input found when parsing armcc map: %s, %r" %\
-                          (line, test_re.groups())
+                    print("Malformed input found when parsing armcc map: %s, %r"
+                          % (line, test_re.groups()))
 
                     return ["", 0, ""]
 
@@ -352,7 +351,7 @@ class _IarParser(_Parser):
             elif test_re.group(2) == 'inited':
                 section = '.data'
             else:
-                print "Malformed input found when parsing IAR map: %s" % line
+                print("Malformed input found when parsing IAR map: %s" % line)
                 return ["", 0, ""]
 
             # lookup object in dictionary and return module name
@@ -407,7 +406,7 @@ class _IarParser(_Parser):
                 if (not arg.startswith("-")) and arg.endswith(".o"):
                     self.cmd_modules[basename(arg)] = arg
 
-        common_prefix = dirname(commonprefix(self.cmd_modules.values()))
+        common_prefix = dirname(commonprefix(list(self.cmd_modules.values())))
         self.cmd_modules = {s: relpath(f, common_prefix)
                             for s, f in self.cmd_modules.items()}
 
@@ -508,7 +507,7 @@ class MemapParser(object):
 
     export_formats = ["json", "csv-ci", "table"]
 
-    def generate_output(self, export_format, depth, file_output=None, *args):
+    def generate_output(self, export_format, depth, file_output=None):
         """ Generates summary of memory map data
 
         Positional arguments:
@@ -524,18 +523,17 @@ class MemapParser(object):
         self.compute_report()
         try:
             if file_output:
-                file_desc = open(file_output, 'wb')
+                file_desc = open(file_output, 'w')
             else:
                 file_desc = stdout
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
-                   'table': self.generate_table,
-                   'bars': self.generate_bars}[export_format]
-        output = to_call(file_desc, *args)
+                   'table': self.generate_table}[export_format]
+        output = to_call(file_desc)
 
         if file_desc is not stdout:
             file_desc.close()
@@ -558,24 +556,24 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        csv_writer = csv.writer(file_desc, delimiter=',',
-                                quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(file_desc, delimiter=',',
+                            quoting=csv.QUOTE_MINIMAL)
 
-        csv_module_section = []
-        csv_sizes = []
+        module_section = []
+        sizes = []
         for i in sorted(self.short_modules):
             for k in self.print_sections:
-                csv_module_section += [i+k]
-                csv_sizes += [self.short_modules[i][k]]
+                module_section.append((i + k))
+                sizes += [self.short_modules[i][k]]
 
-        csv_module_section += ['static_ram']
-        csv_sizes += [self.mem_summary['static_ram']]
+        module_section.append('static_ram')
+        sizes.append(self.mem_summary['static_ram'])
 
-        csv_module_section += ['total_flash']
-        csv_sizes += [self.mem_summary['total_flash']]
+        module_section.append('total_flash')
+        sizes.append(self.mem_summary['total_flash'])
 
-        csv_writer.writerow(csv_module_section)
-        csv_writer.writerow(csv_sizes)
+        writer.writerow(module_section)
+        writer.writerow(sizes)
         return None
 
     def generate_table(self, file_desc):
@@ -618,71 +616,6 @@ class MemapParser(object):
                         str(self.mem_summary['total_flash'])
 
         return output
-
-    def generate_bars(self, file_desc, device_name=None):
-        """ Generates nice looking bars that represent the memory consumption
-
-        Returns: string containing nice looking bars
-        """
-
-        # TODO add tty detection, and width detection probably
-        WIDTH = 72
-        try:
-            # NOTE this only works on linux
-            import sys, fcntl, termios, struct
-            height, width, _, _ = struct.unpack('HHHH',
-                fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ,
-                    struct.pack('HHHH', 0, 0, 0, 0)))
-            WIDTH = min(width, WIDTH)
-        except Exception:
-            pass
-
-        text = self.subtotal['.text']
-        data = self.subtotal['.data']
-        bss = self.subtotal['.bss']
-        rom_used = self.mem_summary['total_flash']
-        ram_used = self.mem_summary['static_ram']
-
-        # No device_name = no cmsis-pack = we don't know the memory layout
-        if device_name is not None:
-            try:
-                cache = Cache(False, False)
-                cmsis_part = cache.index[device_name]
-                rom_avail = int(cmsis_part['memory']['IROM1']['size'], 0)
-                ram_avail = int(cmsis_part['memory']['IRAM1']['size'], 0)
-            except KeyError:
-                # If we don't have the expected regions, fall back to no device_name
-                device_name = None
-
-        PREFIXES = ['', 'K', 'M', 'G', 'T', 'P', 'E']
-        def unit(n, u='B', p=3):
-            if n == 0:
-                return '0' + u
-
-            scale = math.floor(math.log(n, 1024))
-            return '{1:.{0}g}{2}{3}'.format(p, n/(1024**scale), PREFIXES[int(scale)], u)
-
-        usage = "Text {} Data {} BSS {}".format(unit(text), unit(data), unit(bss))
-        avail = "ROM {} RAM {}".format(unit(rom_used), unit(ram_used))
-        output = ["{0} {1:>{2}}".format(usage, avail,
-            abs(WIDTH-len(usage)-1) if device_name is not None else 0)]
-
-        if device_name is not None:
-            for region, avail, uses in [
-                    ('ROM', rom_avail, [('|', text), ('|', data)]),
-                    ('RAM', ram_avail, [('|', bss), ('|', data)])]:
-                barwidth = WIDTH-17 - len(region)
-
-                used = sum(use for c, use in uses)
-                bars = [(c, (barwidth*use) // avail) for c, use in uses]
-                bars.append((' ', barwidth - sum(width for c, width in bars)))
-                bars = ''.join(c*width for c, width in bars)
-
-                output.append("{0} [{2:<{1}}] {3:>13}".format(
-                    region, barwidth, bars,
-                    "{}/{}".format(unit(used), unit(avail))))
-
-        return '\n'.join(output)
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "GCC_CR", "IAR"]
 
@@ -736,7 +669,7 @@ class MemapParser(object):
             return True
 
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
 def main():
@@ -803,7 +736,7 @@ def main():
         returned_string = memap.generate_output(args.export, depth)
 
     if args.export == 'table' and returned_string:
-        print returned_string
+        print(returned_string)
 
     exit(0)
 

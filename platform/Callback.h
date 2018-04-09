@@ -565,7 +565,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)();
@@ -1140,7 +1140,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)(A0);
@@ -1716,7 +1716,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)(A0, A1);
@@ -2293,7 +2293,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)(A0, A1, A2);
@@ -2871,7 +2871,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)(A0, A1, A2, A3);
@@ -3450,7 +3450,7 @@ public:
 private:
     // Stored as pointer to function and pointer to optional object
     // Function pointer is stored as union of possible function types
-    // to garuntee proper size and alignment
+    // to guarantee proper size and alignment
     struct _class;
     union {
         void (*_staticfunc)(A0, A1, A2, A3, A4);

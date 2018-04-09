@@ -1,4 +1,7 @@
 {
+    "STM32L443RC": {
+        "OGChipSelectEditMenu": "STM32L443RC\tST STM32L443RC"
+    },
     "STM32L496ZG": {
         "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
     },
@@ -77,10 +80,13 @@
     "MKW41Z512xxx4": {
         "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
     },
+    "MIMXRT1052xxx6A": {
+        "OGChipSelectEditMenu": "MIMXRT1052xxx6A\tNXP MIMXRT1052xxx6A"
+    },
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
     },
-    "LPC54618J512ET180": {
+    "LPC54628J512ET180": {
         "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
     "STM32F072RB": {

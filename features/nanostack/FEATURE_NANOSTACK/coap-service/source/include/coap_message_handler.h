@@ -26,6 +26,10 @@
 /* Default value for CoAP duplicate message buffer (0 = disabled) */
 #define DUPLICATE_MESSAGE_BUFFER_SIZE 0
 
+/* Default values for CoAP resendings */
+#define COAP_RESENDING_COUNT 3
+#define COAP_RESENDING_INTERVAL 10
+
 /**
  * \brief Service message response receive callback.
  *
@@ -51,7 +55,7 @@ typedef struct coap_transaction {
     uint8_t remote_address[16];
     uint8_t local_address[16];
     uint8_t token[8];
-    uint32_t create_time;
+    uint32_t valid_until;
     uint8_t *data_ptr;
     coap_message_handler_response_recv *resp_cb;
     uint16_t remote_port;

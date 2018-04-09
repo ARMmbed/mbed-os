@@ -135,7 +135,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     lptmr_schedule = 0;
     now_us = lp_ticker_read();
-    delta_us = timestamp > now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
 
     /* Checking if LPTRM can handle this sleep */
     delta_ticks = USEC_TO_COUNT(delta_us, CLOCK_GetFreq(kCLOCK_Er32kClk));

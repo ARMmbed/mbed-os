@@ -11,4 +11,5 @@ mbed-host-tests>=1.1.2
 mbed-greentea>=0.2.24
 beautifulsoup4>=4
 fuzzywuzzy>=0.11
-jsonschema>=2.6.0
+pyelftools>=0.24
+jsonschema>=2.6

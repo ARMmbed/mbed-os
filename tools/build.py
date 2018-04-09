@@ -17,6 +17,8 @@ limitations under the License.
 
 LIBRARIES BUILD
 """
+from __future__ import print_function, division, absolute_import
+
 import sys
 from time import time
 from os.path import join, abspath, dirname
@@ -130,7 +132,7 @@ if __name__ == '__main__':
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
-        print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+        print(mcu_toolchain_matrix(platform_filter=options.general_filter_regex))
         exit(0)
 
 
@@ -184,7 +186,7 @@ if __name__ == '__main__':
             tt_id = "%s::%s" % (toolchain, target)
             if toolchain not in TARGET_MAP[target].supported_toolchains:
                 # Log this later
-                print "%s skipped: toolchain not supported" % tt_id
+                print("%s skipped: toolchain not supported" % tt_id)
                 skipped.append(tt_id)
             else:
                 try:
@@ -224,26 +226,24 @@ if __name__ == '__main__':
                         successes.append(tt_id)
                     else:
                         skipped.append(tt_id)
-                except Exception, e:
+                except Exception as e:
                     if options.verbose:
                         import traceback
                         traceback.print_exc(file=sys.stdout)
                         sys.exit(1)
                     failures.append(tt_id)
-                    print e
+                    print(e)
 
 
     # Write summary of the builds
-    print
-    print "Completed in: (%.2f)s" % (time() - start)
-    print
+    print("\nCompleted in: (%.2f)s\n" % (time() - start))
 
     for report, report_name in [(successes, "Build successes:"),
                                 (skipped, "Build skipped:"),
                                 (failures, "Build failures:"),
                                ]:
         if report:
-            print print_build_results(report, report_name),
+            print(print_build_results(report, report_name))
 
     if failures:
         sys.exit(1)

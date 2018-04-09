@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "rtos/Mutex.h"
+#include "rtos/Kernel.h"
 
 #include <string.h>
 #include "mbed_error.h"
@@ -58,11 +59,30 @@ osStatus Mutex::lock(uint32_t millisec) {
 }
 
 bool Mutex::trylock() {
-    if (osMutexAcquire(_id, 0) == osOK) {
-        _count++;
+    return trylock_for(0);
+}
+
+bool Mutex::trylock_for(uint32_t millisec) {
+    osStatus status = lock(millisec);
+    if (status == osOK) {
         return true;
+    }
+
+    MBED_ASSERT(status == osErrorTimeout || status == osErrorResource);
+
+    return false;
+}
+
+bool Mutex::trylock_until(uint64_t millisec) {
+    uint64_t now = Kernel::get_ms_count();
+
+    if (now >= millisec) {
+        return trylock();
+    } else if (millisec - now >= osWaitForever) {
+        // API permits early return
+        return trylock_for(osWaitForever - 1);
     } else {
-        return false;
+        return trylock_for(millisec - now);
     }
 }
 

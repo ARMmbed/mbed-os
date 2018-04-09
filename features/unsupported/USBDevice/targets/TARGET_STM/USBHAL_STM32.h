@@ -20,6 +20,7 @@
 
 #if defined(TARGET_NUCLEO_F207ZG) || \
     defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_STEVAL_3DP001V1) || \
     defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
     defined(TARGET_NUCLEO_F413ZH) || \

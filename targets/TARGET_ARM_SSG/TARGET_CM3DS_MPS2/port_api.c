@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,86 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stddef.h>
 #include "port_api.h"
-#include "pinmap.h"
-#include "gpio_api.h"
-
-#define MAX_GPIO_PINS  16
+#include "objects.h"
+#include "mbed_error.h"
 
 PinName port_pin(PortName port, int pin_n)
 {
-    if (pin_n < 0 || pin_n > MAX_GPIO_PINS) {
-        error("Invalid GPIO pin number %d", pin_n);
+    if (pin_n < 0 || pin_n >= PINS_PER_GPIO ||
+        ((port == Port3) && (pin_n >= GPIO3_PIN_NUMBER))) {
+        return NC;
     }
 
-    return (PinName)((port << PORT_SHIFT) | pin_n);
+    return (PINS_PER_GPIO * port + pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    uint32_t i;
-    CMSDK_GPIO_TypeDef *port_reg;
+    struct arm_gpio_dev_t *gpio_dev;
+    uint32_t flags = ARM_GPIO_PIN_ENABLE;
 
     switch (port) {
-        case Port0:
-            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO0_BASE);
-            break;
-        case Port1:
-            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO1_BASE);
-            break;
-        case Port2:
-            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO2_BASE);
-            break;
-        case Port3:
-            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO3_BASE);
-            break;
+#ifdef ARM_GPIO0
+    case Port0:
+        gpio_dev = &ARM_GPIO0_DEV;
+        break;
+#endif /* ARM_GPIO0 */
+#ifdef ARM_GPIO1
+    case Port1:
+        gpio_dev = &ARM_GPIO1_DEV;
+        break;
+#endif /* ARM_GPIO1 */
+#ifdef ARM_GPIO2
+    case Port2:
+        gpio_dev = &ARM_GPIO2_DEV;
+        break;
+#endif /* ARM_GPIO2 */
+#ifdef ARM_GPIO3
+    case Port3:
+        gpio_dev = &ARM_GPIO3_DEV;
+        break;
+#endif /* ARM_GPIO3 */
+    default:
+        error("Port%d is not enabled", port);
+        return;
     }
 
-    obj->port       = port;
-    obj->mask       = mask;
-    obj->reg_in     = &port_reg->DATAOUT;
-    obj->reg_dir    = &port_reg->OUTENABLESET;
-    obj->reg_dirclr = &port_reg->OUTENABLECLR;
+    arm_gpio_init(gpio_dev);
+    obj->gpio_dev = gpio_dev;
 
-    /* The function is set per pin: reuse gpio logic */
-    for (i=0; i < MAX_GPIO_PINS; i++) {
-        if (obj->mask & (1<<i)) {
-            gpio_set(port_pin(obj->port, i));
-        }
+    arm_gpio_set_port_mask(gpio_dev, mask);
+
+    switch (dir) {
+    case PIN_INPUT:
+        flags |= ARM_GPIO_INPUT;
+        break;
+    case PIN_OUTPUT:
+        flags |= ARM_GPIO_OUTPUT;
+        break;
+    /* default: not added to force to cover all enumeration cases */
     }
 
-    port_dir(obj, dir);
+    (void)arm_gpio_config(gpio_dev, ARM_GPIO_ACCESS_PORT, ARG_NOT_USED, flags);
 }
 
 void port_mode(port_t *obj, PinMode mode)
 {
-    uint32_t i;
-    /* The mode is set per pin: reuse pinmap logic */
-    for (i=0; i < MAX_GPIO_PINS; i++) {
-        if (obj->mask & (1 << i)) {
-            pin_mode(port_pin(obj->port, i), mode);
-        }
-    }
+    /* PinMode is not supported */
 }
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    switch (dir) {
-        case PIN_INPUT:
-            *obj->reg_dir &= ~obj->mask;
-            break;
-        case PIN_OUTPUT:
-            *obj->reg_dir |= obj->mask;
-            break;
-    }
+    uint32_t flags = (dir == PIN_OUTPUT) ? ARM_GPIO_OUTPUT : ARM_GPIO_INPUT;
+    (void)arm_gpio_config(obj->gpio_dev, ARM_GPIO_ACCESS_PORT, ARG_NOT_USED,
+                          flags);
 }
 
 void port_write(port_t *obj, int value)
 {
-    *obj->reg_in = value;
+    (void)arm_gpio_write(obj->gpio_dev, ARM_GPIO_ACCESS_PORT, ARG_NOT_USED,
+                         (uint32_t)value);
 }
 
 int port_read(port_t *obj)
 {
-    return (*obj->reg_in);
+    return (int)arm_gpio_read(obj->gpio_dev, ARM_GPIO_ACCESS_PORT,
+                              ARG_NOT_USED);
 }

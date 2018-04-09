@@ -78,13 +78,6 @@ typedef struct thread_network_dynamic_data_store {
     thread_leader_info_t *leader_private_data;
     thread_parent_info_t *thread_endnode_parent;
     thread_attach_state_e thread_attached_state;
-    void *pending_configuration;
-    uint64_t pending_timestamp;
-    uint32_t mle_frame_counter;
-    uint32_t mac_frame_counter;
-    uint32_t network_sequence_counter;
-    uint8_t  mleid[8];
-    uint8_t  mac[8];
     uint16_t shortAddress;
     thread_sync_child_info_t children[THREAD_MAX_CHILD_COUNT];
 } thread_network_dynamic_data_store_t;
@@ -110,11 +103,6 @@ thread_network_dynamic_data_entry_t *thread_network_synch_create(int8_t interfac
         newEntry->networ_dynamic_data_parameters.shortAddress = 0xfffe;
         newEntry->networ_dynamic_data_parameters.leader_private_data = NULL;
         newEntry->networ_dynamic_data_parameters.thread_endnode_parent = NULL;
-        newEntry->networ_dynamic_data_parameters.pending_configuration = NULL;
-        newEntry->networ_dynamic_data_parameters.pending_timestamp = 0;
-        newEntry->networ_dynamic_data_parameters.mac_frame_counter = 0;
-        newEntry->networ_dynamic_data_parameters.mle_frame_counter = 0;
-        newEntry->networ_dynamic_data_parameters.network_sequence_counter = 0;
         for (int i = 0; i < THREAD_MAX_CHILD_COUNT; ++i) {
             memset(&newEntry->networ_dynamic_data_parameters.children[i], 0, sizeof(thread_sync_child_info_t));
         }
@@ -162,6 +150,7 @@ int thread_network_synch_data_free(int8_t interface_id)
 {
     return thread_network_synch_delete(interface_id);
 }
+
 /*
  * Dynamic network data storage.
  */
@@ -287,144 +276,5 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
             }
         }
     }
-}
-
-
-
-/*Pending configuration storage*/
-void thread_dynamic_storage_pending_configuration_store(int8_t interface_id, void *data, uint16_t size)
-{
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
-    if (!storeEntry) {
-        storeEntry = thread_network_synch_create(interface_id);
-    }
-    if (!storeEntry) {
-        return;
-    }
-
-    tr_info("saved pending configuration to store");
-    ns_dyn_mem_free(storeEntry->networ_dynamic_data_parameters.pending_configuration);
-    storeEntry->networ_dynamic_data_parameters.pending_configuration = NULL;
-    if (!data || !size) {
-        return;
-    }
-
-    storeEntry->networ_dynamic_data_parameters.pending_configuration = ns_dyn_mem_alloc(size);
-    if (!storeEntry->networ_dynamic_data_parameters.pending_configuration) {
-        return;
-    }
-    memcpy(storeEntry->networ_dynamic_data_parameters.pending_configuration, data,size);
-
-}
-
-bool thread_dynamic_storage_pending_configuration_exists(int8_t interface_id)
-{
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
-    if (!storeEntry || !storeEntry->networ_dynamic_data_parameters.pending_configuration) {
-        tr_debug("no pending config found in store");
-        return false;
-    }
-    return true;
-}
-void thread_dynamic_storage_pending_configuration_read(int8_t interface_id, void *data, uint16_t size)
-{
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
-    if (!storeEntry || !storeEntry->networ_dynamic_data_parameters.pending_configuration) {
-        tr_debug("no pending config found in store");
-        return;
-    }
-    memcpy(data,storeEntry->networ_dynamic_data_parameters.pending_configuration, size);
-    return;
-}
-
-int thread_pending_data_delete(int8_t interfaceId)
-{
-    thread_network_dynamic_data_entry_t *newEntry = thread_network_synch_find(interfaceId);
-    if (newEntry) {
-      //Free
-        newEntry->networ_dynamic_data_parameters.pending_configuration = NULL;
-        newEntry->networ_dynamic_data_parameters.pending_timestamp = 0;
-        return 0;
-    }
-    return -1;
-}
-
-void thread_dynamic_storage_device_configuration_read(int8_t interface_id, uint8_t *mac_ptr, uint8_t *mleid_ptr)
-{
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
-    if (!storeEntry) {
-        tr_error("no device configuration in store");
-        return;
-    }
-    memcpy(mac_ptr,storeEntry->networ_dynamic_data_parameters.mac, 8);
-    memcpy(mleid_ptr,storeEntry->networ_dynamic_data_parameters.mleid, 8);
-    return;
-}
-
-void thread_dynamic_storage_device_configuration_store(int8_t interface_id, uint8_t *mac_ptr, uint8_t *mleid_ptr)
-{
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
-    if (!storeEntry) {
-        storeEntry = thread_network_synch_create(interface_id);
-    }
-    if (!storeEntry) {
-        return;
-    }
-    tr_debug("store device configuration");
-    memcpy(storeEntry->networ_dynamic_data_parameters.mac, mac_ptr, 8);
-    memcpy(storeEntry->networ_dynamic_data_parameters.mleid,mleid_ptr, 8);
-    return;
-}
-
-static uint8_t loaded = false;
-static uint8_t mac[8] = {0};
-static uint16_t short_addr = 0xffff;
-
-void thread_nvm_store_link_info_file_read()
-{
-    if (!memcmp(mac,ADDR_UNSPECIFIED,8) && short_addr == 0xffff) {
-        return;
-    }
-    // File exists at bootup
-    loaded = true;
-}
-bool thread_nvm_store_link_info_get(uint8_t *parent_mac64, uint16_t *my_short_address)
-{
-    if (!memcmp(mac,ADDR_UNSPECIFIED,8) && short_addr == 0xffff) {
-        return false;
-    }
-    if (!loaded) {
-        return false;
-    }
-    if (parent_mac64) {
-        memcpy(parent_mac64,mac,8);
-    }
-    if (my_short_address) {
-        *my_short_address = short_addr;
-    }
-
-    // File was found and values read
-    return true;
-}
-
-void thread_nvm_store_link_info_clear()
-{
-    memset(mac,0,8);
-    short_addr = 0xffff;
-    loaded = false;
-    // synchronised settings were used and now are deleted
-    // it is only allowed to use synch settings during the first boot
-}
-
-void thread_nvm_store_link_info_file_write(protocol_interface_info_entry_t *cur)
-{
-    if(cur->thread_info->thread_endnode_parent) {
-        memcpy(mac,cur->thread_info->thread_endnode_parent->mac64,8);
-    } else {
-        memset(mac,0,8);
-    }
-    short_addr = mac_helper_mac16_address_get(cur);
-    // Settings are changed, but values should not be saved yet only after certain
-    // grace period. But the values are not returned in get.
 }
 #endif

@@ -190,13 +190,13 @@ int lfs_emubd_erase(const struct lfs_config *cfg, lfs_block_t block) {
     }
 
     if (!err && S_ISREG(st.st_mode) && (S_IWUSR & st.st_mode)) {
-        int err = unlink(emu->path);
+        err = unlink(emu->path);
         if (err) {
             return -errno;
         }
     }
 
-    if (errno == ENOENT || (S_ISREG(st.st_mode) && (S_IWUSR & st.st_mode))) {
+    if (err || (S_ISREG(st.st_mode) && (S_IWUSR & st.st_mode))) {
         FILE *f = fopen(emu->path, "w");
         if (!f) {
             return -errno;

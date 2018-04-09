@@ -34,6 +34,7 @@
 #include "DHCPv6_Server/DHCPv6_server_service.h"
 #include "common_functions.h"
 #include "NWK_INTERFACE/Include/protocol.h"
+#include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "Common_Protocols/icmpv6.h"
 #include "dhcp_service_api.h"
 
@@ -105,13 +106,16 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
             // coverity[returned_null] for ignoring protocol_stack_interface_info_get_by_id NULL return
             DHCPV6_server_service_remove_GUA_from_neighcache(protocol_stack_interface_info_get_by_id(serverBase->interfaceId), nonTemporalAddress.requestedAddress);
         }
+        if (thread_bbr_nd_entry_add(serverBase->interfaceId,dhcp_allocated_address->nonTemporalAddress, nonTemporalAddress.validLifeTime, serverBase->guaPrefix, NULL) == -1) {
+            // No nanostack BBR present we will put entry for application implemented BBR
+            ipv6_route_t *route = ipv6_route_add_with_info(dhcp_allocated_address->nonTemporalAddress, 128, serverBase->interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST,serverBase->guaPrefix,0, nonTemporalAddress.validLifeTime, 0);
+            if (!route) {
+                address_allocated = false;
+                libdhcpv6_address_rm_from_allocated_list(serverBase,dhcp_allocated_address->nonTemporalAddress);
+            }
 
-        ipv6_route_t *route = ipv6_route_add_with_info(dhcp_allocated_address->nonTemporalAddress, 128, serverBase->interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST,serverBase->guaPrefix,0, nonTemporalAddress.validLifeTime, 0);
-        if (!route) {
-            address_allocated = false;
-            libdhcpv6_address_rm_from_allocated_list(serverBase,dhcp_allocated_address->nonTemporalAddress);
+
         }
-
     }
 
     response->responseLength = libdhcpv6_address_reply_message_len(replyPacket->clientDUID.linkType, replyPacket->serverDUID.linkType, 0, replyPacket->rapidCommit, address_allocated);

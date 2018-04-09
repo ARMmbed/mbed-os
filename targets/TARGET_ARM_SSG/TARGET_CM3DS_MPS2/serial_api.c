@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,174 +20,138 @@
 #include <stdlib.h>
 
 #include "serial_api.h"
-#include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "gpio_api.h"
+#include "platform_devices.h"
 
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
 
+#define STDIO_UART_NOT_INITED 0
+#define STDIO_UART_INITED     1
+#define UART_NUMBER           5
+
+struct uart_irq_t {
+    uart_irq_handler handler;
+    uint32_t id;
+};
+
 static const PinMap PinMap_UART_TX[] = {
-    {MCC_TX  , UART_0, 0},
-    {USBTX   , UART_1, 0},
-    {SH0_TX  , UART_2, ALTERNATE_FUNC},
-    {SH1_TX  , UART_3, ALTERNATE_FUNC},
-    {XB_TX   , UART_4, ALTERNATE_FUNC},
-    {NC      , NC    , 0}
+    {MCC_TX, UART_0, 0},
+    {USBTX,  UART_1, 0},
+    {SH0_TX, UART_2, ALTERNATE_FUNC},
+    {SH1_TX, UART_3, ALTERNATE_FUNC},
+    {XB_TX,  UART_4, ALTERNATE_FUNC},
+    {NC,     NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {MCC_RX  , UART_0, 0},
-    {USBRX   , UART_1, 0},
-    {SH0_RX  , UART_2, ALTERNATE_FUNC},
-    {SH1_RX  , UART_3, ALTERNATE_FUNC},
-    {XB_RX   , UART_4, ALTERNATE_FUNC},
-    {NC      , NC    , 0}
+    {MCC_RX, UART_0, 0},
+    {USBRX,  UART_1, 0},
+    {SH0_RX, UART_2, ALTERNATE_FUNC},
+    {SH1_RX, UART_3, ALTERNATE_FUNC},
+    {XB_RX,  UART_4, ALTERNATE_FUNC},
+    {NC,     NC,     0}
 };
 
-#define UART_NUM    5
+/* Handlers registered */
+static struct uart_irq_t uart_irq[UART_NUMBER];
 
-static uart_irq_handler irq_handler;
-
-int stdio_uart_inited = 0;
+/* Global variables needed for mbed */
+int stdio_uart_inited = STDIO_UART_NOT_INITED;
 serial_t stdio_uart;
 
-struct serial_global_data_s {
-    uint32_t serial_irq_id;
-    gpio_t sw_rts, sw_cts;
-    uint8_t count, rx_irq_set_flow, rx_irq_set_api;
-};
+/*
+ * Fill the serial_obj structure with good elements.
+ */
+static uint32_t fill_serial_object(struct serial_s *serial_obj, PinName tx,
+                                   PinName rx)
+{
+    UARTName uart_peripheral;
 
-static struct serial_global_data_s uart_data[UART_NUM];
+    if (serial_obj == NULL) {
+        error("serial_s structure is NULL");
+        return 1;
+    }
+
+    uart_peripheral = pinmap_merge(pinmap_peripheral(tx, PinMap_UART_TX),
+                                   pinmap_peripheral(rx, PinMap_UART_RX));
+
+    switch (uart_peripheral) {
+#ifdef ARM_UART0
+    case UART_0:
+        serial_obj->uart = &ARM_UART0_DEV;
+        serial_obj->index = UART_0;
+        serial_obj->irq_number = UART0_IRQn;
+        /* Fill stdio_uart global variable with these settings */
+        memcpy(&stdio_uart, serial_obj, sizeof(struct serial_s));
+        stdio_uart_inited = STDIO_UART_INITED;
+        return 0;
+#endif /* ARM_UART0 */
+#ifdef ARM_UART1
+    case UART_1:
+        serial_obj->uart = &ARM_UART1_DEV;
+        serial_obj->index = UART_1;
+        serial_obj->irq_number = UART1_IRQn;
+        return 0;
+#endif /* ARM_UART1 */
+#ifdef ARM_UART2
+    case UART_2:
+        serial_obj->uart = &ARM_UART2_DEV;
+        serial_obj->index = UART_2;
+        serial_obj->irq_number = UART2_IRQn;
+        return 0;
+#endif /* ARM_UART2 */
+#ifdef ARM_UART3
+    case UART_3:
+        serial_obj->uart = &ARM_UART3_DEV;
+        serial_obj->index = UART_3;
+        serial_obj->irq_number = UART3_IRQn;
+        return 0;
+#endif /* ARM_UART3 */
+#ifdef ARM_UART4
+    case UART_4:
+        serial_obj->uart = &ARM_UART4_DEV;
+        serial_obj->index = UART_4;
+        serial_obj->irq_number = UART4_IRQn;
+        return 0;
+#endif /* ARM_UART4 */
+    default:
+        error("can not assign a valid UART peripheral to TX and RX pins given");
+        return 1;
+    }
+}
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
-    uint32_t uart_ctrl = 0;
-
-    /* Determine the UART to use */
-    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
-    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
-    UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
-
-    if ((int)uart == NC) {
-        error("Serial pinout mapping failed");
+    if (fill_serial_object(obj, tx, rx) != 0) {
         return;
     }
 
-    obj->uart = (CMSDK_UART_TypeDef *)uart;
-
-    if (tx != NC) {
-        uart_ctrl = 0x01;   /* TX enable */
-    }
-    if (rx != NC) {
-        uart_ctrl |= 0x02;  /* RX enable */
-    }
-
-    switch (uart) {
-        case UART_0:
-            CMSDK_UART0->CTRL = uart_ctrl;
-            obj->index = 0;
-            break;
-        case UART_1:
-            CMSDK_UART1->CTRL = uart_ctrl;
-            obj->index = 1;
-            break;
-        case UART_2:
-            CMSDK_UART2->CTRL = 0;
-            obj->index = 2;
-            pin_function(tx, ALTERNATE_FUNC);
-            pin_function(rx, ALTERNATE_FUNC);
-            CMSDK_UART2->CTRL = uart_ctrl;
-            break;
-        case UART_3:
-            CMSDK_UART3->CTRL = 0;
-            obj->index = 3;
-            pin_function(tx, ALTERNATE_FUNC);
-            pin_function(rx, ALTERNATE_FUNC);
-            CMSDK_UART3->CTRL = uart_ctrl;
-            break;
-        case UART_4:
-            CMSDK_UART4->CTRL = 0;
-            obj->index = 4;
-            pin_function(tx, ALTERNATE_FUNC);
-            pin_function(rx, ALTERNATE_FUNC);
-            CMSDK_UART4->CTRL = uart_ctrl;
-            break;
-    }
-
-    /* Set default baud rate and format */
-    serial_baud(obj, 9600);
+    (void)arm_uart_init(obj->uart, SystemCoreClock);
 
     /*
-     *  The CMSDK APB UART doesn't have support for flow control.
-     *  Ref. DDI0479C_cortex_m_system_design_kit_r1p0_trm.pdf
+     * If tx and rx pins are not linked to a GPIO (like for UART0),
+     * pin_function will have no effect.
      */
-    uart_data[obj->index].sw_rts.pin = NC;
-    uart_data[obj->index].sw_cts.pin = NC;
-
-    if (uart == STDIO_UART) {
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
-    }
-
-    /* Clear UART */
-    serial_clear(obj);
+    pin_function(tx, pinmap_function(tx, PinMap_UART_TX));
+    pin_function(rx, pinmap_function(rx, PinMap_UART_RX));
 }
 
 void serial_free(serial_t *obj)
 {
-      uart_data[obj->index].serial_irq_id = 0;
+    uart_irq[obj->index].id = 0;
+    uart_irq[obj->index].handler = 0;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
 {
-    /*
-     * The MPS2 has a simple divider to control the baud rate.
-     * The formula is:
-     * Baudrate = PCLK / BAUDDIV  where  PCLK = SystemCoreClock and
-     *                                   BAUDDIV is the desire baudrate
-     *
-     * So, if the desired baud rate is 9600 the calculation will be:
-     * Baudrate = SystemCoreClock / 9600;
-     */
-
-    /* Check to see if minimum baud value entered */
-    int baudrate_div = 0;
-
-    if (baudrate == 0) {
-        error("Invalid baudrate value");
-        return;
+    if (arm_uart_set_baudrate(obj->uart, (uint32_t)baudrate) !=
+        ARM_UART_ERR_NONE) {
+        error("Invalid baudrate value or uart not initialized");
     }
-
-    baudrate_div = SystemCoreClock / baudrate;
-
-    if (baudrate >= 16) {
-        switch ((int)obj->uart) {
-            case UART_0:
-                CMSDK_UART0->BAUDDIV = baudrate_div;
-                break;
-            case UART_1:
-                CMSDK_UART1->BAUDDIV = baudrate_div;
-                break;
-            case UART_2:
-                CMSDK_UART2->BAUDDIV = baudrate_div;
-                break;
-            case UART_3:
-                CMSDK_UART3->BAUDDIV = baudrate_div;
-                break;
-            case UART_4:
-                CMSDK_UART4->BAUDDIV = baudrate_div;
-                break;
-            default:
-                error("Invalid uart object");
-                break;
-        }
-    } else {
-        error("Invalid baudrate value");
-    }
-
 }
 
 void serial_format(serial_t *obj, int data_bits,
@@ -204,138 +168,160 @@ void serial_format(serial_t *obj, int data_bits,
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
-static inline void uart_irq(uint32_t intstatus, uint32_t index,
-                            CMSDK_UART_TypeDef *puart)
+#ifdef ARM_UART0
+void UART0_IRQHandler()
 {
-    SerialIrq irq_type;
-
-    switch (intstatus) {
-        case 1:
-            irq_type = TxIrq;
+    enum arm_uart_irq_t irq = arm_uart_get_interrupt_status(&ARM_UART0_DEV);
+    arm_uart_clear_interrupt(&ARM_UART0_DEV, irq);
+    if(uart_irq[UART_0].handler) {
+        switch(irq) {
+        case ARM_UART_IRQ_RX:
+            uart_irq[UART_0].handler(uart_irq[UART_0].id, RxIrq);
             break;
-        case 2:
-            irq_type = RxIrq;
+        case ARM_UART_IRQ_TX:
+            uart_irq[UART_0].handler(uart_irq[UART_0].id, TxIrq);
             break;
+        case ARM_UART_IRQ_COMBINED:
+            uart_irq[UART_0].handler(uart_irq[UART_0].id, RxIrq);
+            uart_irq[UART_0].handler(uart_irq[UART_0].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_NONE:
         default:
-            return;
-    }
-
-    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) {
-        gpio_write(&uart_data[index].sw_rts, 1);
-        /* Disable interrupt if it wasn't enabled by the application */
-        if (!uart_data[index].rx_irq_set_api) {
-            /* Disable Rx interrupt */
-            puart->CTRL &= ~(CMSDK_UART_CTRL_RXIRQEN_Msk);
+            break;
         }
     }
+}
+#endif /* ARM_UART0 */
 
-    if (uart_data[index].serial_irq_id != 0) {
-        if ((irq_type != RxIrq) || (uart_data[index].rx_irq_set_api)) {
-            irq_handler(uart_data[index].serial_irq_id, irq_type);
+#ifdef ARM_UART1
+void UART1_IRQHandler()
+{
+    enum arm_uart_irq_t irq = arm_uart_get_interrupt_status(&ARM_UART1_DEV);
+    arm_uart_clear_interrupt(&ARM_UART1_DEV, irq);
+    if(uart_irq[UART_1].handler) {
+        switch(irq) {
+        case ARM_UART_IRQ_RX:
+            uart_irq[UART_1].handler(uart_irq[UART_1].id, RxIrq);
+            break;
+        case ARM_UART_IRQ_TX:
+            uart_irq[UART_1].handler(uart_irq[UART_1].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_COMBINED:
+            uart_irq[UART_1].handler(uart_irq[UART_1].id, RxIrq);
+            uart_irq[UART_1].handler(uart_irq[UART_1].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_NONE:
+        default:
+            break;
         }
     }
+}
+#endif /* ARM_UART1 */
 
-    if (irq_type == TxIrq) {
-        /* Clear the TX interrupt Flag */
-        puart->INTCLEAR |= 0x01;
-    } else {
-        /* Clear the Rx interupt Flag */
-        puart->INTCLEAR |= 0x02;
+#ifdef ARM_UART2
+void UART2_IRQHandler()
+{
+    enum arm_uart_irq_t irq = arm_uart_get_interrupt_status(&ARM_UART2_DEV);
+    arm_uart_clear_interrupt(&ARM_UART2_DEV, irq);
+    if(uart_irq[UART_2].handler) {
+        switch(irq) {
+        case ARM_UART_IRQ_RX:
+            uart_irq[UART_2].handler(uart_irq[UART_2].id, RxIrq);
+            break;
+        case ARM_UART_IRQ_TX:
+            uart_irq[UART_2].handler(uart_irq[UART_2].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_COMBINED:
+            uart_irq[UART_2].handler(uart_irq[UART_2].id, RxIrq);
+            uart_irq[UART_2].handler(uart_irq[UART_2].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_NONE:
+        default:
+            break;
+        }
     }
 }
+#endif /* ARM_UART2 */
 
-void uart0_irq()
+#ifdef ARM_UART3
+void UART3_IRQHandler()
 {
-    uart_irq(CMSDK_UART0->INTSTATUS & 0x3, 0, (CMSDK_UART_TypeDef*)CMSDK_UART0);
+    enum arm_uart_irq_t irq = arm_uart_get_interrupt_status(&ARM_UART3_DEV);
+    arm_uart_clear_interrupt(&ARM_UART3_DEV, irq);
+    if(uart_irq[UART_3].handler) {
+        switch(irq) {
+        case ARM_UART_IRQ_RX:
+            uart_irq[UART_3].handler(uart_irq[UART_3].id, RxIrq);
+            break;
+        case ARM_UART_IRQ_TX:
+            uart_irq[UART_3].handler(uart_irq[UART_3].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_COMBINED:
+            uart_irq[UART_3].handler(uart_irq[UART_3].id, RxIrq);
+            uart_irq[UART_3].handler(uart_irq[UART_3].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_NONE:
+        default:
+            break;
+        }
+    }
 }
+#endif /* ARM_UART3 */
 
-void uart1_irq()
+#ifdef ARM_UART4
+void UART4_IRQHandler()
 {
-    uart_irq(CMSDK_UART1->INTSTATUS & 0x3, 1, (CMSDK_UART_TypeDef*)CMSDK_UART1);
+    enum arm_uart_irq_t irq = arm_uart_get_interrupt_status(&ARM_UART4_DEV);
+    arm_uart_clear_interrupt(&ARM_UART4_DEV, irq);
+    if(uart_irq[UART_4].handler) {
+        switch(irq) {
+        case ARM_UART_IRQ_RX:
+            uart_irq[UART_4].handler(uart_irq[UART_4].id, RxIrq);
+            break;
+        case ARM_UART_IRQ_TX:
+            uart_irq[UART_4].handler(uart_irq[UART_4].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_COMBINED:
+            uart_irq[UART_4].handler(uart_irq[UART_4].id, RxIrq);
+            uart_irq[UART_4].handler(uart_irq[UART_4].id, TxIrq);
+            break;
+        case ARM_UART_IRQ_NONE:
+        default:
+            break;
+        }
+    }
 }
-
-void uart2_irq()
-{
-    uart_irq(CMSDK_UART2->INTSTATUS & 0x3, 2, (CMSDK_UART_TypeDef*)CMSDK_UART2);
-}
-
-void uart3_irq() {
-    uart_irq(CMSDK_UART3->INTSTATUS & 0x3, 3, (CMSDK_UART_TypeDef*)CMSDK_UART3);
-}
-
-void uart4_irq() {
-    uart_irq(CMSDK_UART4->INTSTATUS & 0x3, 4, (CMSDK_UART_TypeDef*)CMSDK_UART4);
-}
+#endif /* ARM_UART4 */
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
-    irq_handler = handler;
-    uart_data[obj->index].serial_irq_id = id;
-}
-
-static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable)
-{
-
-    IRQn_Type irq_n = (IRQn_Type)0;
-    uint32_t vector = 0;
-
-    switch ((int)obj->uart) {
-        case UART_0:
-            irq_n = UART0_IRQn;
-            vector = (uint32_t)&uart0_irq;
-            break;
-        case UART_1:
-            irq_n = UART1_IRQn;
-            vector = (uint32_t)&uart1_irq;
-            break;
-        case UART_2:
-            irq_n = UART2_IRQn;
-            vector  = (uint32_t)&uart2_irq;
-            break;
-        case UART_3:
-            irq_n = UART3_IRQn;
-            vector  = (uint32_t)&uart3_irq;
-            break;
-        case UART_4:
-            irq_n = UART4_IRQn;
-            vector  = (uint32_t)&uart4_irq;
-            break;
-    }
-
-    if (enable) {
-        if (irq == TxIrq) {
-            /* Set TX interrupt enable in CTRL REG */
-            obj->uart->CTRL |= CMSDK_UART_CTRL_TXIRQEN_Msk;
-        }  else {
-            /* Set Rx interrupt on in CTRL REG */
-            obj->uart->CTRL |= CMSDK_UART_CTRL_RXIRQEN_Msk;
-        }
-        NVIC_SetVector(irq_n, vector);
-        NVIC_EnableIRQ(irq_n);
-    } else if ((irq == TxIrq) ||
-               (uart_data[obj->index].rx_irq_set_api
-                + uart_data[obj->index].rx_irq_set_flow == 0)) {
-         /* Disable IRQ */
-        int all_disabled = 0;
-        SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
-
-        obj->uart->CTRL &= ~(1 << (irq + 2));
-
-        all_disabled = (obj->uart->CTRL & (1 << (other_irq + 2))) == 0;
-
-        if (all_disabled) {
-            NVIC_DisableIRQ(irq_n);
-        }
-    }
+    uart_irq[obj->index].handler = handler;
+    uart_irq[obj->index].id = id;
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-    if (RxIrq == irq) {
-        uart_data[obj->index].rx_irq_set_api = enable;
+    switch (irq) {
+    case RxIrq:
+        if (enable) {
+            NVIC_EnableIRQ(obj->irq_number);
+            (void)arm_uart_irq_rx_enable(obj->uart);
+        } else {
+            arm_uart_irq_rx_disable(obj->uart);
+            NVIC_DisableIRQ(obj->irq_number);
+        }
+        break;
+    case TxIrq:
+        if (enable) {
+            NVIC_EnableIRQ(obj->irq_number);
+            (void)arm_uart_irq_tx_enable(obj->uart);
+        } else {
+            arm_uart_irq_tx_disable(obj->uart);
+            NVIC_DisableIRQ(obj->irq_number);
+        }
+        break;
     }
-
-    serial_irq_set_internal(obj, irq, enable);
+    /* default: not added to force to cover all enumeration cases */
 }
 
 /******************************************************************************
@@ -343,34 +329,33 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
  ******************************************************************************/
 int serial_getc(serial_t *obj)
 {
-    while (serial_readable(obj) == 0) {
-        /* NOP */
-    }
+    uint8_t byte = 0;
 
-    return obj->uart->DATA;
+    while (!serial_readable(obj)){};
+    (void)arm_uart_read(obj->uart, &byte);
+
+    return (int)byte;
 }
 
 void serial_putc(serial_t *obj, int c)
 {
-    while (serial_writable(obj)) {
-        /* NOP */
-    }
-    obj->uart->DATA = c;
+    while (!serial_writable(obj)){};
+    (void)arm_uart_write(obj->uart, (int)c);
 }
 
 int serial_readable(serial_t *obj)
 {
-    return obj->uart->STATE & 0x2;
+    return arm_uart_rx_ready(obj->uart);
 }
 
 int serial_writable(serial_t *obj)
 {
-    return obj->uart->STATE & 0x1;
+    return arm_uart_tx_ready(obj->uart);
 }
 
 void serial_clear(serial_t *obj)
 {
-    obj->uart->DATA = 0x00;
+    (void)arm_uart_write(obj->uart, 0x00);
 }
 
 void serial_pinout_tx(PinName tx)
@@ -395,7 +380,8 @@ void serial_break_clear(serial_t *obj)
      */
     error("serial_break_clear function not supported");
 }
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow,
+                                PinName txflow)
 {
     /*
      *  The CMSDK APB UART doesn't have support for flow control.

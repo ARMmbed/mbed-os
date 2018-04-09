@@ -28,10 +28,25 @@
 #include "mbed_rtos_storage.h"
 
 #include "platform/NonCopyable.h"
+#include "platform/ScopedLock.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
+
+class Mutex;
+/** Typedef for the mutex lock
+ *
+ * Usage:
+ * @code
+ * void foo(Mutex &m) {
+ *     ScopedMutexLock lock(m);
+ *     // Mutex lock protects code in this block
+ * }
+ * @endcode
+ */
+typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
+
 /**
  * \defgroup rtos_Mutex Mutex class
  * @{
@@ -44,7 +59,7 @@ namespace rtos {
  ISR handler, consider using @a Semaphore.
 
  @note
- Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
+ Memory considerations: The mutex control structures will be created on current thread's stack, both for the Mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex : private mbed::NonCopyable<Mutex> {
@@ -78,10 +93,35 @@ public:
 
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.
+      @note equivalent to trylock_for(0)
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
      */
     bool trylock();
+
+    /** Try to lock the mutex for a specified time
+      @param   millisec  timeout value or 0 in case of no time-out.
+      @return true if the mutex was acquired, false otherwise.
+      @note the underlying RTOS may have a limit to the maximum wait time
+            due to internal 32-bit computations, but this is guaranteed to work if the
+            wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+            the lock attempt will time out earlier than specified.
+
+      @note You cannot call this function from ISR context.
+     */
+    bool trylock_for(uint32_t millisec);
+
+    /** Try to lock the mutex until specified time
+      @param   millisec  absolute timeout time, referenced to Kernel::get_ms_count()
+      @return true if the mutex was acquired, false otherwise.
+      @note the underlying RTOS may have a limit to the maximum wait time
+            due to internal 32-bit computations, but this is guaranteed to work if the
+            wait is <= 0x7fffffff milliseconds (~24 days). If the limit is exceeded,
+            the lock attempt will time out earlier than specified.
+
+      @note You cannot call this function from ISR context.
+     */
+    bool trylock_until(uint64_t millisec);
 
     /** Unlock the mutex that has previously been locked by the same thread
       @return status code that indicates the execution status of the function:
@@ -90,7 +130,7 @@ public:
               @a osErrorResource the mutex was not locked or the current thread wasn't the owner.
               @a osErrorISR this function cannot be called from the interrupt service routine.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
      */
     osStatus unlock();
 

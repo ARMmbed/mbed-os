@@ -1,14 +1,18 @@
 """ The CLI entry point for exporting projects from the mbed tools to any of the
 supported IDEs or project structures.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import sys
-from os.path import join, abspath, dirname, exists, basename
+from os.path import (join, abspath, dirname, exists, basename, normpath,
+                     realpath, relpath, basename)
+from os import remove
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from argparse import ArgumentParser
-from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES, MBED_TARGETS_PATH
 from tools.settings import BUILD_DIR
@@ -46,7 +50,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
             project_name = TESTS[program]
         else:
             project_name = basename(normpath(realpath(source_dir[0])))
-        src_paths = source_dir
+        src_paths = {relpath(path, project_dir): [path] for path in source_dir}
         lib_paths = None
     else:
         test = Test(program)
@@ -103,12 +107,11 @@ def main():
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = EXPORTERS.keys()
+    toolchainlist = list(EXPORTERS.keys())
     toolchainlist.sort()
 
     parser.add_argument("-m", "--mcu",
                         metavar="MCU",
-                        type=str.upper,
                         help="generate project for the given MCU ({})".format(
                             ', '.join(targetnames)))
 
@@ -161,6 +164,12 @@ def main():
                         default=False,
                         help="writes tools/export/README.md")
 
+    parser.add_argument("--build",
+                        type=argparse_filestring_type,
+                        dest="build_dir",
+                        default=None,
+                        help="Directory for the exported project files")
+
     parser.add_argument("--source",
                         action="append",
                         type=argparse_filestring_type,
@@ -191,7 +200,7 @@ def main():
 
     # Print available tests in order and exit
     if options.list_tests is True:
-        print '\n'.join([str(test) for test in  sorted(TEST_MAP.values())])
+        print('\n'.join([str(test) for test in  sorted(TEST_MAP.values())]))
         sys.exit()
 
     # Only prints matrix of supported IDEs
@@ -199,7 +208,7 @@ def main():
         if options.supported_ides == "matrix":
             print_large_string(mcu_ide_matrix())
         elif options.supported_ides == "ides":
-            print mcu_ide_list()
+            print(mcu_ide_list())
         exit(0)
 
     # Only prints matrix of supported IDEs
@@ -212,16 +221,16 @@ def main():
                 readme.write("\n")
                 readme.write(html)
         except IOError as exc:
-            print "I/O error({0}): {1}".format(exc.errno, exc.strerror)
+            print("I/O error({0}): {1}".format(exc.errno, exc.strerror))
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print("Unexpected error:", sys.exc_info()[0])
             raise
         exit(0)
 
     if options.update_packs:
         from tools.arm_pack_manager import Cache
         cache = Cache(True, True)
-        cache.cache_descriptors()
+        cache.cache_everything()
 
     # Target
     if not options.mcu:
@@ -246,14 +255,24 @@ def main():
         args_error(parser, "%s not supported by %s"%(mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
-        rmtree(BUILD_DIR)
+        for cls in EXPORTERS.values():
+            try:
+                cls.clean(basename(abspath(options.source_dir[0])))
+            except (NotImplementedError, IOError, OSError):
+                pass
+        for f in list(EXPORTERS.values())[0].CLEAN_FILES:
+            try:
+                remove(f)
+            except (IOError, OSError):
+                pass
     try:
         export(mcu, options.ide, build=options.build,
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
-               build_profile=profile, app_config=options.app_config)
+               build_profile=profile, app_config=options.app_config,
+               export_path=options.build_dir)
     except NotSupportedException as exc:
-        print "[ERROR] %s" % str(exc)
+        print("[ERROR] %s" % str(exc))
 
 if __name__ == "__main__":
     main()

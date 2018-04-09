@@ -163,6 +163,9 @@ THREAD_ROUTING_FN bool thread_is_router_addr(uint16_t addr)
 /* Return true if b is a child of a */
 THREAD_ROUTING_FN bool thread_addr_is_child(uint16_t a, uint16_t b)
 {
+    if (thread_is_router_addr(b)) {
+        return false;
+    }
     return thread_router_addr_from_addr(b) == a;
 }
 

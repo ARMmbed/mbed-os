@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ extern "C" {
 #endif
 
 typedef enum {
-    UART_0 = (int)CMSDK_UART0_BASE, /* MCC UART */
-    UART_1 = (int)CMSDK_UART1_BASE, /* MPS2+ UART */
-    UART_2 = (int)CMSDK_UART2_BASE, /* Shield 0 UART */
-    UART_3 = (int)CMSDK_UART3_BASE, /* Shield 1 UART */
-    UART_4 = (int)CMSDK_UART4_BASE  /* Shield BT UART */
+    UART_0 = 0, /* MCC UART */
+    UART_1,     /* MPS2+ UART */
+    UART_2,     /* Shield 0 UART */
+    UART_3,     /* Shield 1 UART */
+    UART_4      /* Shield BT UART */
 } UARTName;
 
 typedef enum {
@@ -53,11 +53,12 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    SPI_0 = (int)MPS2_SSP0_BASE,
-    SPI_1 = (int)MPS2_SSP1_BASE,
-    SPI_2 = (int)MPS2_SSP2_BASE,
-    SPI_3 = (int)MPS2_SSP3_BASE,
-    SPI_4 = (int)MPS2_SSP4_BASE
+    SPI_0 = 0,
+    SPI_1,
+    SPI_2,
+    SPI_3,
+    SPI_4,
+    SPI_NC = (SPI_4 + 1)
 } SPIName;
 
 typedef enum {

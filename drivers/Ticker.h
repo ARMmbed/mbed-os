@@ -20,7 +20,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "hal/lp_ticker_api.h"
 #include "platform/mbed_critical.h"
 
@@ -71,7 +71,6 @@ public:
 
     // When low power ticker is in use, then do not disable deep-sleep.
     Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)  {
-        data->interface->init();
 #if DEVICE_LOWPOWERTIMER
         _lock_deepsleep = (data != get_lp_ticker_data());
 #endif

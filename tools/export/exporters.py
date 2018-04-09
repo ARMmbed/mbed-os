@@ -2,7 +2,7 @@
 import os
 from abc import abstractmethod, ABCMeta
 import logging
-from os.path import join, dirname, relpath, basename, realpath, normpath
+from os.path import join, dirname, relpath, basename, realpath, normpath, exists
 from itertools import groupby
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
@@ -50,6 +50,7 @@ class Exporter(object):
     NAME = None
     TARGETS = set()
     TOOLCHAIN = None
+    CLEAN_FILES = ("GettingStarted.html",)
 
 
     def __init__(self, target, export_dir, project_name, toolchain,
@@ -104,7 +105,7 @@ class Exporter(object):
         """
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.iteritems()}
+                 in self.toolchain.flags.items()}
         asm_defines = self.toolchain.get_compile_options(
             self.toolchain.get_symbols(for_asm=True),
             filter(None, self.resources.inc_dirs),
@@ -130,7 +131,34 @@ class Exporter(object):
             source_files.extend(getattr(self.resources, key))
         return list(set([os.path.dirname(src) for src in source_files]))
 
+    def gen_file_dest(self, target_file):
+        """Generate the project file location in an exported project"""
+        return join(self.export_dir, target_file)
+
     def gen_file(self, template_file, data, target_file, **kwargs):
+        """Generates a project file from a template using jinja"""
+        target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
+        target_path = self.gen_file_dest(target_file)
+        logging.debug("Generating: %s", target_path)
+        open(target_path, "w").write(target_text)
+        self.generated_files += [target_path]
+
+    def gen_file_nonoverwrite(self, template_file, data, target_file, **kwargs):
+        """Generates a project file from a template using jinja"""
+        target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
+        target_path = self.gen_file_dest(target_file)
+        if exists(target_path):
+            with open(target_path) as fdin:
+                old_text = fdin.read()
+            if target_text not in old_text:
+                with open(target_path, "a") as fdout:
+                    fdout.write(target_text)
+        else:
+            logging.debug("Generating: %s", target_path)
+            open(target_path, "w").write(target_text)
+        self.generated_files += [target_path]
+
+    def _gen_file_inner(self, template_file, data, target_file, **kwargs):
         """Generates a project file from a template using jinja"""
         jinja_loader = FileSystemLoader(
             os.path.dirname(os.path.abspath(__file__)))
@@ -139,6 +167,7 @@ class Exporter(object):
 
         template = jinja_environment.get_template(template_file)
         target_text = template.render(data)
+        return target_text
 
         target_path = join(self.export_dir, target_file)
         logging.debug("Generating: %s", target_path)
@@ -189,12 +218,28 @@ class Exporter(object):
 
         Returns -1 on failure and 0 on success
         """
-        raise NotImplemented("Implement in derived Exporter class.")
+        raise NotImplementedError("Implement in derived Exporter class.")
+
+    @staticmethod
+    def clean(project_name):
+        """Clean a previously exported project
+        This method is assumed to be executed at the same level as exporter
+        project files and project source code.
+        See uvision/__init__.py, iar/__init__.py, and makefile/__init__.py for
+        example implemenation.
+
+        Positional Arguments:
+        project_name - the name of the project to build; often required by
+        exporter's build command.
+
+        Returns nothing. May raise exceptions
+        """
+        raise NotImplementedError("Implement in derived Exporter class.")
 
     @abstractmethod
     def generate(self):
         """Generate an IDE/tool specific project file"""
-        raise NotImplemented("Implement a generate function in Exporter child class")
+        raise NotImplementedError("Implement a generate function in Exporter child class")
 
     @classmethod
     def is_target_supported(cls, target_name):
@@ -213,6 +258,20 @@ class Exporter(object):
     @classmethod
     def all_supported_targets(cls):
         return [t for t in TARGET_MAP.keys() if cls.is_target_supported(t)]
+
+    @staticmethod
+    def filter_dot(str):
+        """
+        Remove the './' or '.\\' prefix, if present.
+        """
+        if str == None:
+            return None
+        if str[:2] == './':
+            return str[2:]
+        if str[:2] == '.\\':
+            return str[2:]
+        return str
+
 
 
 def apply_supported_whitelist(compiler, whitelist, target):

@@ -38,10 +38,13 @@ serial_t stdio_uart;
 extern UART_HandleTypeDef uart_handlers[];
 extern uint32_t serial_irq_ids[];
 
+// Utility functions
+HAL_StatusTypeDef init_uart(serial_t *obj);
+int8_t get_uart_index(UARTName uart_name);
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
-    int IndexNumber = 0;
     uint8_t stdio_config = 0;
 
     // Determine the UART to use (UART_1, UART_2, ...)
@@ -61,15 +64,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         }
     }
 
-    // Enable USART clock
+    // Reset and enable clock
 #if defined(USART1_BASE)
     if (obj_s->uart == UART_1) {
         __HAL_RCC_USART1_FORCE_RESET();
         __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined (USART2_BASE)
@@ -77,9 +78,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART3_BASE)
@@ -87,9 +86,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART3_FORCE_RESET();
         __HAL_RCC_USART3_RELEASE_RESET();
         __HAL_RCC_USART3_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART4_BASE)
@@ -97,9 +94,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART4_FORCE_RESET();
         __HAL_RCC_UART4_RELEASE_RESET();
         __HAL_RCC_UART4_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART4_BASE)
@@ -107,9 +102,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART4_FORCE_RESET();
         __HAL_RCC_USART4_RELEASE_RESET();
         __HAL_RCC_USART4_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART5_BASE)
@@ -117,9 +110,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART5_FORCE_RESET();
         __HAL_RCC_UART5_RELEASE_RESET();
         __HAL_RCC_UART5_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART5_BASE)
@@ -127,9 +118,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART5_FORCE_RESET();
         __HAL_RCC_USART5_RELEASE_RESET();
         __HAL_RCC_USART5_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART6_BASE)
@@ -137,9 +126,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART6_FORCE_RESET();
         __HAL_RCC_USART6_RELEASE_RESET();
         __HAL_RCC_USART6_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART7_BASE)
@@ -147,9 +134,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART7_FORCE_RESET();
         __HAL_RCC_UART7_RELEASE_RESET();
         __HAL_RCC_UART7_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART7_BASE)
@@ -157,9 +142,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART7_FORCE_RESET();
         __HAL_RCC_USART7_RELEASE_RESET();
         __HAL_RCC_USART7_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART8_BASE)
@@ -167,9 +150,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART8_FORCE_RESET();
         __HAL_RCC_UART8_RELEASE_RESET();
         __HAL_RCC_UART8_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(USART8_BASE)
@@ -177,9 +158,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART8_FORCE_RESET();
         __HAL_RCC_USART8_RELEASE_RESET();
         __HAL_RCC_USART8_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART9_BASE)
@@ -187,9 +166,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART9_FORCE_RESET();
         __HAL_RCC_UART9_RELEASE_RESET();
         __HAL_RCC_UART9_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
 
 #if defined(UART10_BASE)
@@ -197,21 +174,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_UART10_FORCE_RESET();
         __HAL_RCC_UART10_RELEASE_RESET();
         __HAL_RCC_UART10_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
-
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
         __HAL_RCC_LPUART1_FORCE_RESET();
         __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
-        obj_s->index = IndexNumber;
     }
-    IndexNumber++;
 #endif
+
+    // Assign serial object index
+    obj_s->index = get_uart_index(obj_s->uart);
+    MBED_ASSERT(obj_s->index >= 0);
 
     // Configure UART pins
     pinmap_pinout(tx, PinMap_UART_TX);
@@ -393,66 +369,32 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *obj_s = SERIAL_S(obj);
 
     obj_s->baudrate = baudrate;
-    if (init_uart(obj) != HAL_OK) {
-
 #if defined(LPUART1_BASE)
         /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
-        if (obj_s->uart == LPUART_1) {
-            /* Try to change LPUART clock source */
-            RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-            if (baudrate == 9600) {
-                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
-                    return;
-                }
-            }
-            else {
-                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
-                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-                if (init_uart(obj) == HAL_OK){
-                    return;
-                }
-            }
+    if (obj_s->uart == LPUART_1) {
+        /* If baudrate is lower than 9600 try to change to LSE */
+        RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+        if (baudrate <= 9600 && __HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+        } else {
+            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
         }
+        if (init_uart(obj) == HAL_OK) {
+                return;
+        }
+        /* Change LPUART clock source and try again */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+        PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+    }
 #endif /* LPUART1_BASE */
-
+    if (init_uart(obj) != HAL_OK) {
         debug("Cannot initialize UART with baud rate %u\n", baudrate);
     }
-}
-
-HAL_StatusTypeDef init_uart(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    huart->Instance = (USART_TypeDef *)(obj_s->uart);
-
-    huart->Init.BaudRate     = obj_s->baudrate;
-    huart->Init.WordLength   = obj_s->databits;
-    huart->Init.StopBits     = obj_s->stopbits;
-    huart->Init.Parity       = obj_s->parity;
-#if DEVICE_SERIAL_FC
-    huart->Init.HwFlowCtl    = obj_s->hw_flow_ctl;
-#else
-    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-#endif
-    huart->Init.OverSampling = UART_OVERSAMPLING_16;
-    huart->TxXferCount       = 0;
-    huart->TxXferSize        = 0;
-    huart->RxXferCount       = 0;
-    huart->RxXferSize        = 0;
-
-    if (obj_s->pin_rx == NC) {
-        huart->Init.Mode = UART_MODE_TX;
-    } else if (obj_s->pin_tx == NC) {
-        huart->Init.Mode = UART_MODE_RX;
-    } else {
-        huart->Init.Mode = UART_MODE_TX_RX;
-    }
-
-    return HAL_UART_Init(huart);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -548,6 +490,166 @@ void serial_pinout_tx(PinName tx)
 void serial_break_clear(serial_t *obj)
 {
     (void)obj;
+}
+
+/******************************************************************************
+ * UTILITY FUNCTIONS
+ ******************************************************************************/
+
+HAL_StatusTypeDef init_uart(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
+    huart->Instance = (USART_TypeDef *)(obj_s->uart);
+
+    huart->Init.BaudRate     = obj_s->baudrate;
+    huart->Init.WordLength   = obj_s->databits;
+    huart->Init.StopBits     = obj_s->stopbits;
+    huart->Init.Parity       = obj_s->parity;
+#if DEVICE_SERIAL_FC
+    huart->Init.HwFlowCtl    = obj_s->hw_flow_ctl;
+#else
+    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+#endif
+    huart->Init.OverSampling = UART_OVERSAMPLING_16;
+    huart->TxXferCount       = 0;
+    huart->TxXferSize        = 0;
+    huart->RxXferCount       = 0;
+    huart->RxXferSize        = 0;
+
+    if (obj_s->pin_rx == NC) {
+        huart->Init.Mode = UART_MODE_TX;
+    } else if (obj_s->pin_tx == NC) {
+        huart->Init.Mode = UART_MODE_RX;
+    } else {
+        huart->Init.Mode = UART_MODE_TX_RX;
+    }
+
+#if defined(LPUART1_BASE)
+    if (huart->Instance == LPUART1) {
+        if (obj_s->baudrate <= 9600) {
+            HAL_UARTEx_EnableClockStopMode(huart);
+            HAL_UARTEx_EnableStopMode(huart);
+        } else {
+            HAL_UARTEx_DisableClockStopMode(huart);
+            HAL_UARTEx_DisableStopMode(huart);
+        }
+    }
+#endif
+
+    return HAL_UART_Init(huart);
+}
+
+int8_t get_uart_index(UARTName uart_name)
+{
+    uint8_t index = 0;
+
+#if defined(USART1_BASE)
+    if (uart_name == UART_1) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART2_BASE)
+    if (uart_name == UART_2) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART3_BASE)
+    if (uart_name == UART_3) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART4_BASE)
+    if (uart_name == UART_4) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART4_BASE)
+    if (uart_name == UART_4) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART5_BASE)
+    if (uart_name == UART_5) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART5_BASE)
+    if (uart_name == UART_5) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART6_BASE)
+    if (uart_name == UART_6) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART7_BASE)
+    if (uart_name == UART_7) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART7_BASE)
+    if (uart_name == UART_7) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART8_BASE)
+    if (uart_name == UART_8) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(USART8_BASE)
+    if (uart_name == UART_8) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART9_BASE)
+    if (uart_name == UART_9) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(UART10_BASE)
+    if (uart_name == UART_10) {
+        return index;
+    }
+    index++;
+#endif
+
+#if defined(LPUART1_BASE)
+    if (uart_name == LPUART_1) {
+        return index;
+    }
+    index++;
+#endif
+
+    return -1;
 }
 
 #endif /* DEVICE_SERIAL */
