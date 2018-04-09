@@ -41,9 +41,9 @@ const ticker_interface_t* intf;
 
 static volatile unsigned int overflowCounter;
 
-unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
+uint32_t ticks_to_us(uint32_t ticks, uint32_t freq)
 {
-    return (unsigned int)((unsigned long long)ticks * US_PER_S / freq);
+    return (uint32_t)((uint64_t)ticks * US_PER_S / freq);
 }
 
 void ticker_event_handler_stub(const ticker_data_t * const ticker)
@@ -65,9 +65,9 @@ void ticker_frequency_test()
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
-    const unsigned int ticker_freq = intf->get_info()->frequency;
-    const unsigned int ticker_bits = intf->get_info()->bits;
-    const unsigned int ticker_max = (1 << ticker_bits) - 1;
+    const uint32_t ticker_freq = intf->get_info()->frequency;
+    const uint32_t ticker_bits = intf->get_info()->bits;
+    const uint32_t ticker_max = (1 << ticker_bits) - 1;
 
     overflowCounter = 0;
 
@@ -84,7 +84,7 @@ void ticker_frequency_test()
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
 
-    const unsigned int begin_ticks = intf->read();
+    const uint32_t begin_ticks = intf->read();
 
     /* Assume that there was no overflow at this point - we are just after init. */
     greentea_send_kv(_key, ticks_to_us(begin_ticks, ticker_freq));
@@ -92,7 +92,7 @@ void ticker_frequency_test()
     /* Wait for 2nd signal from host. */
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    const unsigned int end_ticks = intf->read();
+    const uint32_t end_ticks = intf->read();
 
     greentea_send_kv(_key, ticks_to_us(end_ticks + overflowCounter * ticker_max, ticker_freq));
 
