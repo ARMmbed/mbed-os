@@ -34,7 +34,9 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-#define QSPI_FLASH_SIZE_DEFAULT 0x800000
+/* Max amount of flash size is 4Gbytes */
+/* hence 2^(31+1), then FLASH_SIZE_DEFAULT = 31<<20 */
+#define QSPI_FLASH_SIZE_DEFAULT 0x1F00000
 
 void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st_command) 
 {
