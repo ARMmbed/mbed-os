@@ -379,6 +379,9 @@ typedef byte_array_t<32> public_key_coord_t;
 /** Diffie-Hellman key */
 typedef byte_array_t<32> dhkey_t;
 
+/* counter for signed data writes done by GattClient */
+typedef uint32_t sign_count_t;
+
 /**
  * MAC address data type.
  */

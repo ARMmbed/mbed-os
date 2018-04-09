@@ -270,7 +270,7 @@ ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
 
 ble_error_t CordioSecurityManager::set_csrk(
     const csrk_t& csrk,
-    uint32_t sign_counter
+    sign_count_t sign_counter
 ) {
     _local_sign_counter = sign_counter;
     DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
@@ -281,7 +281,7 @@ ble_error_t CordioSecurityManager::set_peer_csrk(
     connection_handle_t connection,
     const csrk_t &csrk,
     bool authenticated,
-    uint32_t sign_counter
+    sign_count_t sign_counter
 ) {
     AttsSetCsrk(connection, const_cast<uint8_t*>(csrk.data()));
     AttsSetSignCounter(connection, sign_counter);

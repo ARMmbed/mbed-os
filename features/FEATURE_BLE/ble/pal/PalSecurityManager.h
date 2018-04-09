@@ -864,7 +864,7 @@ public:
      */
     virtual ble_error_t set_csrk(
         const csrk_t &csrk,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) = 0;
 
     /**
@@ -880,7 +880,7 @@ public:
         connection_handle_t connection,
         const csrk_t &csrk,
         bool authenticated,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) = 0;
 
     ////////////////////////////////////////////////////////////////////////////

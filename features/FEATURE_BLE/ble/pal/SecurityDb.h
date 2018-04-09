@@ -278,7 +278,7 @@ public:
      */
     virtual void set_entry_peer_sign_counter(
         entry_handle_t db_entry,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) = 0;
 
     /* local csrk */
@@ -295,7 +295,7 @@ public:
      *
      * @return signing counter
      */
-    virtual uint32_t get_local_sign_counter() = 0;
+    virtual sign_count_t get_local_sign_counter() = 0;
 
     /**
      * Update local signing key.
@@ -312,7 +312,7 @@ public:
      * @param[in] sign_counter new signing counter value
      */
     virtual void set_local_sign_counter(
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) = 0;
 
     /* list management */

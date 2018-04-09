@@ -255,7 +255,7 @@ public:
         _oob_local_random[0] = 1;
     }
 
-    uint32_t get_next_sign_counter() {
+    sign_count_t get_next_sign_counter() {
         return _local_sign_counter++;
     }
 
@@ -335,7 +335,7 @@ private:
     void return_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
         const csrk_t *csrk,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     );
 
     /**
@@ -347,7 +347,7 @@ private:
     void set_peer_csrk_cb(
         pal::SecurityDb::entry_handle_t connection,
         const csrk_t *csrk,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     );
 
     /**
@@ -482,7 +482,7 @@ private:
     address_t _oob_temporary_key_creator_address; /**< device which generated and sent the TK */
     oob_tk_t _oob_temporary_key; /**< used for legacy pairing */
 
-    uint32_t _local_sign_counter;
+    sign_count_t _local_sign_counter;
 
     pal::AuthenticationMask _default_authentication;
     pal::KeyDistribution _default_key_distribution;

@@ -38,7 +38,7 @@ private:
         SecurityEntryKeys_t local_keys;
         SecurityEntryIdentity_t peer_identity;
         csrk_t csrk;
-        uint32_t sign_counter;
+        sign_count_t sign_counter;
         state_t state;
     };
     static const size_t MAX_ENTRIES = 5;
@@ -152,7 +152,7 @@ public:
         entry_handle_t entry_handle
     ) {
         csrk_t csrk;
-        uint32_t sign_counter = 0;
+        sign_count_t sign_counter = 0;
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             csrk = entry->csrk;
@@ -235,7 +235,7 @@ public:
 
     virtual void set_entry_peer_sign_counter(
         entry_handle_t entry_handle,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) {
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
@@ -254,12 +254,12 @@ public:
         _local_csrk = csrk;
     }
 
-    virtual uint32_t get_local_sign_counter() {
+    virtual sign_count_t get_local_sign_counter() {
         return _local_sign_counter;
     }
 
     virtual void set_local_sign_counter(
-        uint32_t sign_counter
+        sign_count_t sign_counter
     ) {
         _local_sign_counter = sign_counter;
     }
@@ -368,7 +368,7 @@ private:
     entry_t _entries[MAX_ENTRIES];
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
-    uint32_t _local_sign_counter;
+    sign_count_t _local_sign_counter;
 };
 
 } /* namespace pal */

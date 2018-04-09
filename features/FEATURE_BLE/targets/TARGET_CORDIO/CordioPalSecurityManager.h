@@ -239,7 +239,7 @@ public:
      */
     virtual ble_error_t set_csrk(
         const csrk_t &csrk,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     );
 
     /**
@@ -249,7 +249,7 @@ public:
         connection_handle_t connection,
         const csrk_t &csrk,
         bool authenticated,
-        uint32_t sign_counter
+        sign_count_t sign_counter
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -324,7 +324,7 @@ public:
 private:
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
-    uint32_t _local_sign_counter;
+    sign_count_t _local_sign_counter;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
 };

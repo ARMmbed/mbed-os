@@ -641,7 +641,7 @@ ble_error_t GenericSecurityManager::oobReceived(
 
 ble_error_t GenericSecurityManager::init_signing() {
     const csrk_t *pcsrk = _db.get_local_csrk();
-    uint32_t local_sign_counter = _db.get_local_sign_counter();
+    sign_count_t local_sign_counter = _db.get_local_sign_counter();
 
     if (!pcsrk) {
         csrk_t csrk;
@@ -741,7 +741,7 @@ void GenericSecurityManager::set_ltk_cb(
 void GenericSecurityManager::set_peer_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk,
-    uint32_t sign_counter
+    sign_count_t sign_counter
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -759,7 +759,7 @@ void GenericSecurityManager::set_peer_csrk_cb(
 void GenericSecurityManager::return_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk,
-    uint32_t sign_counter
+    sign_count_t sign_counter
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -953,7 +953,7 @@ void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection
 
 void GenericSecurityManager::on_signed_write_received(
     connection_handle_t connection,
-    uint32_t sign_counter
+    sign_count_t sign_counter
 ) {
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
