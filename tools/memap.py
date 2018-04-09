@@ -6,13 +6,16 @@ from __future__ import print_function, division, absolute_import
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
 from os import sep
-from os.path import basename, dirname, join, relpath, commonprefix
+from os.path import (basename, dirname, join, relpath, abspath, commonprefix,
+                     splitext)
 import re
 import csv
 import json
 from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
+from jinja2 import FileSystemLoader, StrictUndefined
+from jinja2.environment import Environment
 
 from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
                     argparse_uppercase_type)
@@ -477,6 +480,9 @@ class MemapParser(object):
         # Flash no associated with a module
         self.misc_flash_mem = 0
 
+        # Name of the toolchain, for better headings
+        self.tc_name = None
+
     def reduce_depth(self, depth):
         """
         populates the short_modules attribute with a truncated module list
@@ -505,7 +511,7 @@ class MemapParser(object):
                     self.short_modules[new_name].setdefault(section_idx, 0)
                     self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
 
-    export_formats = ["json", "csv-ci", "table"]
+    export_formats = ["json", "csv-ci", "html", "table"]
 
     def generate_output(self, export_format, depth, file_output=None):
         """ Generates summary of memory map data
@@ -531,6 +537,7 @@ class MemapParser(object):
             return False
 
         to_call = {'json': self.generate_json,
+                   'html': self.generate_html,
                    'csv-ci': self.generate_csv,
                    'table': self.generate_table}[export_format]
         output = to_call(file_desc)
@@ -539,6 +546,75 @@ class MemapParser(object):
             file_desc.close()
 
         return output
+
+    @staticmethod
+    def _move_up_tree(tree, next_module):
+        tree.setdefault("children", [])
+        for child in tree["children"]:
+            if child["name"] == next_module:
+                return child
+        else:
+            new_module = {"name": next_module}
+            tree["children"].append(new_module)
+            return new_module
+
+    def generate_html(self, file_desc):
+        """Generate a json file from a memory map for D3
+
+        Positional arguments:
+        file_desc - the file to write out the final report to
+        """
+        tree_text = {"name": ".text"}
+        tree_bss = {"name": ".bss"}
+        tree_data = {"name": ".data"}
+        for name, dct in self.modules.items():
+            if ".text" not in dct:
+                continue
+            cur_text = tree_text
+            cur_bss = tree_bss
+            cur_data = tree_data
+            modules = name.split(sep)
+            while True:
+                cur_text.setdefault("value", 0)
+                cur_data.setdefault("value", 0)
+                cur_bss.setdefault("value", 0)
+                try:
+                    cur_text["value"] += dct['.text']
+                except KeyError:
+                    pass
+                try:
+                    cur_bss["value"] += dct['.bss']
+                except KeyError:
+                    pass
+                try:
+                    cur_data["value"] += dct['.data']
+                except KeyError:
+                    pass
+                if not modules:
+                    break
+                next_module = modules.pop(0)
+                cur_text = self._move_up_tree(cur_text, next_module)
+                cur_data = self._move_up_tree(cur_data, next_module)
+                cur_bss = self._move_up_tree(cur_bss, next_module)
+
+        jinja_loader = FileSystemLoader(dirname(abspath(__file__)))
+        jinja_environment = Environment(loader=jinja_loader,
+                                        undefined=StrictUndefined)
+
+        template = jinja_environment.get_template("memap_flamegraph.html")
+        name, _ = splitext(basename(file_desc.name))
+        if name.endswith("_map"):
+            name = name[:-4]
+        if self.tc_name:
+            name = "%s %s" % (name, self.tc_name)
+        data = {
+            "name": name,
+            "text": json.dumps(tree_text),
+            "data": json.dumps(tree_data),
+            "bss": json.dumps(tree_bss),
+        }
+        file_desc.write(template.render(data))
+        return None
 
     def generate_json(self, file_desc):
         """Generate a json file from a memory map
@@ -655,6 +731,7 @@ class MemapParser(object):
         mapfile - the file name of the memory map file
         toolchain - the toolchain used to create the file
         """
+        self.tc_name = toolchain.title()
         if toolchain in ("ARM", "ARM_STD", "ARM_MICRO", "ARMC6"):
             parser = _ArmccParser()
         elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
