@@ -18,8 +18,7 @@ limitations under the License.
 """
 from __future__ import print_function
 import sys
-from os.path import isdir, abspath, dirname, join
-from os import _exit
+from os.path import abspath, dirname, join
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -31,10 +30,6 @@ from tools.options import extract_mcus
 from tools.build_api import get_config
 from tools.config import Config
 from tools.utils import argparse_filestring_type
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
 
 if __name__ == '__main__':
     # Parse Options
