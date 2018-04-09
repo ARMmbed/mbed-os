@@ -32,9 +32,12 @@
 
 /*
  * Only use features that do not require an entropy source when
- * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.
+ * this is not available in Mbed OS. For more information on
+ * Mbed TLS entropy options please refer to entropy.h
  */
-#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)
+#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && \
+    !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
+    !defined(MBEDTLS_ENTROPY_NV_SEED)
 #include "mbedtls/config-no-entropy.h"
 
 #if defined(MBEDTLS_USER_CONFIG_FILE)
@@ -2853,7 +2856,9 @@
 
 #include "check_config.h"
 
-#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
+#endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT &&
+        * !MBEDTLS_TEST_NULL_ENTROPY &&
+        * !MBEDTLS_ENTROPY_NV_SEED */
 
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 #warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \
@@ -2861,7 +2866,8 @@
 #endif
 
 #if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \
-    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
+    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && \
+    !defined(MBEDTLS_ENTROPY_NV_SEED)
 #error "No entropy source was found at build time, so TLS " \
     "functionality is not available"
 #endif

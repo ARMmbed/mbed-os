@@ -21,6 +21,10 @@
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
+#if defined(MBED_CONF_FILESYSTEM_PRESENT)
+#define MBEDTLS_FS_IO
+#endif
+
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
