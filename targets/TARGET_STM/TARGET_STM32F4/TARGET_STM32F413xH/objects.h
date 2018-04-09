@@ -44,6 +44,10 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
+struct qspi_s {
+    QSPI_HandleTypeDef handle;
+};
+
 #include "common_objects.h"
 
 #ifdef __cplusplus
