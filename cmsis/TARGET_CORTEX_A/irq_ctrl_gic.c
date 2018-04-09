@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     irq_ctrl_gic.c
  * @brief    Interrupt controller handling implementation for GIC
- * @version  V1.0.0
- * @date     30. June 2017
+ * @version  V1.0.1
+ * @date     9. April 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2017 ARM Limited. All rights reserved.
@@ -37,7 +37,7 @@
 #endif
 
 static IRQHandler_t IRQTable[IRQ_GIC_LINE_COUNT] = { 0U };
-static uint32_t   IRQ_ID0;
+static uint32_t     IRQ_ID0;
 
 /// Initialize interrupt controller.
 __WEAK int32_t IRQ_Initialize (void) {
@@ -69,6 +69,9 @@ __WEAK int32_t IRQ_SetHandler (IRQn_ID_t irqn, IRQHandler_t handler) {
 /// Get the registered interrupt handler.
 __WEAK IRQHandler_t IRQ_GetHandler (IRQn_ID_t irqn) {
   IRQHandler_t h;
+
+  // Ignore CPUID field (software generated interrupts)
+  irqn &= 0x3FFU;
 
   if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
     h = IRQTable[irqn];
@@ -271,9 +274,12 @@ __WEAK IRQn_ID_t IRQ_GetActiveFIQ (void) {
 /// Signal end of interrupt processing.
 __WEAK int32_t IRQ_EndOfInterrupt (IRQn_ID_t irqn) {
   int32_t status;
+  IRQn_Type irq = (IRQn_Type)irqn;
+
+  irqn &= 0x3FFU;
 
   if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
-    GIC_EndInterrupt ((IRQn_Type)irqn);
+    GIC_EndInterrupt (irq);
 
     if (irqn == 0) {
       IRQ_ID0 = 0U;

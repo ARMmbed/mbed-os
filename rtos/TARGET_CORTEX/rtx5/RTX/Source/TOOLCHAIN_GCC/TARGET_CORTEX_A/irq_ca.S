@@ -218,22 +218,35 @@ IRQ_End:
                 LDR     R0, =SVC_Active
                 LDRB    R0, [R0]                    // Load SVC_Active flag
                 CMP     R0, #0
-                BNE     IRQ_SwitchCheck             // Skip post processing when SVC active
+                BNE     IRQ_Exit                    // SVC active, exit from IRQ handler
 
                 // RTX IRQ post processing check
+                LDR     R4, =IRQ_PendSV             // Load address of IRQ_PendSV flag
+                LDRB    R0, [R4]                    // Load PendSV flag
+                CMP     R0, #1                      // Compare PendSV value
+                BNE     IRQ_SwitchCheck             // Skip post processing if not pending
+
                 PUSH    {R5, R6}                    // Save user R5 and R6
-                MOV     R6, #0
-                LDR     R5, =IRQ_PendSV             // Load address of IRQ_PendSV flag
+                // Disable OS Tick
+                LDR     R5, =osRtxInfo              // Load address of osRtxInfo
+                LDR     R5, [R5, #I_TICK_IRQN_OFS]  // Load OS Tick irqn
+                MOV     R0, R5                      // Set it as function parameter
+                BLX     IRQ_Disable                 // Disable OS Tick interrupt
+                MOV     R6, #0                      // Set PendSV clear value
                 B       IRQ_PendCheck
 IRQ_PendExec:
-                STRB    R6, [R5]                    // Clear PendSV flag
+                STRB    R6, [R4]                    // Clear PendSV flag
                 CPSIE   i                           // Re-enable interrupts
                 BLX     osRtxPendSV_Handler         // Post process pending objects
                 CPSID   i                           // Disable interrupts
 IRQ_PendCheck:
-                LDRB    R0, [R5]                    // Load PendSV flag
+                LDRB    R0, [R4]                    // Load PendSV flag
                 CMP     R0, #1                      // Compare PendSV value
                 BEQ     IRQ_PendExec                // Branch to IRQ_PendExec if PendSV is set
+
+                // Re-enable OS Tick
+                MOV     R0, R5                      // Restore irqn as function parameter
+                BLX     IRQ_Enable                  // Enable OS Tick interrupt
                 POP     {R5, R6}                    // Restore user R5 and R6
 
 IRQ_SwitchCheck:
