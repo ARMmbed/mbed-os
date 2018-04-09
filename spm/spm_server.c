@@ -157,10 +157,13 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
     msg->type = active_msg->type;
     msg->handle = curr_partition->msg_handle;
     msg->rhandle = active_msg->channel->rhandle;
-    msg->response_size = active_msg->out_vec[0].iov_len;
 
     for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
-        msg->size[i] = active_msg->in_vec[i].iov_len;
+        msg->in_size[i] = active_msg->in_vec[i].len;
+    }
+
+    for (size_t i = 0; i < PSA_MAX_OUTVEC_LEN; i++) {
+        msg->out_size[i] = active_msg->out_vec[i].len;
     }
 }
 
@@ -182,25 +185,33 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t n
 
     PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
 
-    iovec_t *active_iovec = &active_msg->in_vec[iovec_idx];
+    psa_invec_t *active_iovec = &active_msg->in_vec[iovec_idx];
 
-    if (num_bytes > active_iovec->iov_len) {
-        num_bytes = active_iovec->iov_len;
+    if (num_bytes > active_iovec->len) {
+        num_bytes = active_iovec->len;
     }
 
     if (num_bytes > 0) {
-        memcpy(buf, active_iovec->iov_base, num_bytes);
-        active_iovec->iov_base = (void *)((uint8_t*)active_iovec->iov_base + num_bytes);
-        active_iovec->iov_len -= num_bytes;
+        memcpy(buf, active_iovec->base, num_bytes);
+        active_iovec->base = (void *)((uint8_t*)active_iovec->base + num_bytes);
+        active_iovec->len -= num_bytes;
     }
 
     return num_bytes;
 }
 
-void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_t bytes)
+void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer, size_t num_bytes)
 {
-    if (!is_buffer_accessible(buffer, bytes)) {
+    if (0 == num_bytes) {
+        return;
+    }
+
+    if (!is_buffer_accessible(buffer, num_bytes)) {
         SPM_PANIC("buffer is inaccessible\n");
+    }
+
+    if (outvec_idx >= PSA_MAX_OUTVEC_LEN) {
+        SPM_PANIC("Invalid outvec_idx %d \n", outvec_idx);
     }
 
     active_msg_t *active_msg = NULL;
@@ -211,29 +222,20 @@ void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_
 
     PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
 
-    iovec_t *active_iovec = &active_msg->out_vec[0];
+    psa_outvec_t *active_iovec = &active_msg->out_vec[outvec_idx];
 
-    if (NULL == active_iovec->iov_base) {
-        SPM_PANIC("active_msg->out_vec[0].iov_base is NULL!\n");
-    }
-    if (offset > UINT32_MAX - bytes) {
-        SPM_PANIC(
-            "Integer overflow (offset=%lu, bytes=%lu)!\n",
-            offset,
-            bytes
-            );
-    }
-    if ((offset + bytes) > active_iovec->iov_len) {
-        SPM_PANIC(
-            "Buffer overflow of client's response buffer"
-            " (offset=%lu, bytes=%lu,  active_msg->out_vec[0].iov_len=%lu)!\n",
-            offset,
-            bytes,
-            active_iovec->iov_len
-            );
+    if (num_bytes > active_iovec->len) {
+        SPM_PANIC("Invalid write operation (Requested %d, Avialable %d)\n", num_bytes, active_iovec->len);
     }
 
-    memcpy((uint8_t *)(active_iovec->iov_base) + offset, buffer, bytes);
+    if (!is_buffer_accessible(active_iovec->base, num_bytes)) {
+        SPM_PANIC("Output vector is inaccessible\n");
+    }
+
+    memcpy((uint8_t *)(active_iovec->base), buffer, num_bytes);
+    active_iovec->base = (void *)((uint8_t *)active_iovec->base + num_bytes);
+    active_iovec->len -= num_bytes;
+
     return;
 }
 
