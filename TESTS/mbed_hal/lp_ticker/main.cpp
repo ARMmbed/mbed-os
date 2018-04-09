@@ -69,7 +69,7 @@ void lp_ticker_deepsleep_test()
     lp_ticker_init();
 
     /* Wait for green tea UART transmission before entering deep-sleep mode. */
-    wait_cycles(40000);
+    wait_cycles(400000);
 
     const uint32_t tick_count = lp_ticker_read();
 
