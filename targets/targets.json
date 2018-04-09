@@ -1128,6 +1128,23 @@
             }
         }
     },
+    "MTB_USI_WM_BN_BM_22": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F412xG", "STM32F412ZG"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32F412ZG",
+        "bootloader_supported": true,
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        }
+    },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
