@@ -108,12 +108,12 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t n
  * @note If the caller writes data beyond the client's response buffer size
  *       (@a response_size attribute of the psa_msg structure returned from psa_get()) a fatal error occurs.
  *
- * @param[in] msg_handle Handle for the client's message.
- * @param[in] offset     Offset in bytes within the client's response buffer to start writing to.
- * @param[in] buffer     Buffer with the data to write.
- * @param[in] bytes      Number of bytes to write.
+ * @param[in] msg_handle  Handle for the client's message.
+ * @param[in] outvec_idx  IOvec index to be written to.
+ * @param[in] buffer      Buffer with the data to write.
+ * @param[in] num_bytes   Number of bytes to write.
  */
-void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_t bytes);
+void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer, size_t num_bytes);
 
 /**
  * Complete handling of specific message and unblocks the client.
