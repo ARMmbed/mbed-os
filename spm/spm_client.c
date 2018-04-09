@@ -306,3 +306,14 @@ psa_error_t psa_close(psa_handle_t handle)
 
     return PSA_SUCCESS;
 }
+
+uint32_t psa_version(uint32_t sfid)
+{
+    uint32_t version = PSA_VERSION_NONE;
+    secure_func_t *sec_func = sec_func_get(sfid);
+
+    if (sec_func) {
+        version = sec_func->min_version;
+    }
+    return version;
+}

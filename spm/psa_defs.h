@@ -49,6 +49,7 @@ extern "C" {
 
 #define PSA_MINOR_VERSION_POLICY_RELAXED (0UL) /**< Don't perform minor version check during psa_connect().*/
 #define PSA_MINOR_VERSION_POLICY_STRICT (1UL) /**< Force minor version check during psa_connect().*/
+#define PSA_VERSION_NONE UINT32_MAX /**<  Specify that SFID is not present when quering. */
 
 #define PSA_SEC_FUNC_SEM_MAX_COUNT (1UL) /**< Maximum number of available tokens for a Secure Function semaphore.*/
 #define PSA_SEC_FUNC_SEM_INITIAL_COUNT (0UL) /**< Initial number of available tokens for a Secure Function semaphore.*/
@@ -60,7 +61,6 @@ extern "C" {
 
 /* Error codes */
 #define PSA_INVALID_PARAMETERS        (-1L)
-#define PSA_INVALID_MEM               (-2L)
 #define PSA_CONNECTION_REFUSED_PERM   (-3L)
 #define PSA_CONNECTION_REFUSED_BUSY   (-4L)
 #define PSA_GENERIC_ERROR             (-5L)

@@ -41,8 +41,8 @@ extern "C" {
  * Return the signals that have been asserted.@n
  *
  * @param[in] timeout timeout value:@n
- *            @a PSA_WAIT_BLOCK block the caller until any signal is asserted.@n
- *            @a PSA_WAIT_POLL Returns immediately.
+ *            @a ::PSA_WAIT_BLOCK block the caller until any signal is asserted.@n
+ *            @a ::PSA_WAIT_POLL Returns immediately.
  * @return 32-bit value of asserted signals.
  */
 uint32_t psa_wait_any(uint32_t timeout);
@@ -54,8 +54,8 @@ uint32_t psa_wait_any(uint32_t timeout);
  *
  * @param[in] interrupt_mask mask of signals.
  * @param[in] timeout timeout value:@n
- *            @a PSA_WAIT_BLOCK block the caller until one of the requested signals is asserted.@n
- *            @a PSA_WAIT_POLL Returns immediately.
+ *            @a ::PSA_WAIT_BLOCK block the caller until one of the requested signals is asserted.@n
+ *            @a ::PSA_WAIT_POLL Returns immediately.
  * @return 32-bit value of asserted signals.
  */
 uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
@@ -91,7 +91,7 @@ void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle);
  * payload into the Secure Partition buffer @a buffer.@n
  *
  * @note Callers should know how much data is available to read based on the@n
- *       @a size attribute of the psa_msg structure returned from psa_get().@n
+ *       @a size attribute of the psa_msg structure returned from ::psa_get().@n
  *       The copy is truncated if the requested range extends beyond the end of the payload.@n
  *       In such a case, the remaining space in @a buffer is not modified.
  * @param[in]  msg_handle Handle for the client's message.
@@ -106,7 +106,7 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t iovec_idx, void *buf, size_t n
  * Write a response payload of @a bytes bytes starting at position @a offset in the client's response buffer.
  *
  * @note If the caller writes data beyond the client's response buffer size
- *       (@a response_size attribute of the psa_msg structure returned from psa_get()) a fatal error occurs.
+ *       (@a response_size attribute of the psa_msg structure returned from ::psa_get() ) a fatal error occurs.
  *
  * @param[in] msg_handle Handle for the client's message.
  * @param[in] offset     Offset in bytes within the client's response buffer to start writing to.
@@ -118,11 +118,12 @@ void psa_write(psa_handle_t msg_handle, size_t offset, const void *buffer, size_
 /**
  * Complete handling of specific message and unblocks the client.
  *
- * A return code must be specified, which will be sent to the client.@n
- * Negative return code represent errors, Positive integers are application-specific.
+ * A return code will be sent to the client. It will be returned as return value from ::psa_call() or ::psa_connect() or ::psa_close() .@n
+ * A negative return code represents an error; return codes with positive integers are application-specific errors.
+ * A zero return code means, that message was handled successfully.
  *
  * @param[in] msg_handle Handle for the client's message.
- * @param[in] retval Return code to the client.
+ * @param[in] retval Return code for the client.
  */
 void psa_end(psa_handle_t msg_handle, psa_error_t retval);
 
