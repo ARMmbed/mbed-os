@@ -74,6 +74,7 @@ public:
      *  @param queue            Event queue used to transfer sigio events to this thread
      *  @param timeout          Timeout when reading for AT response
      *  @param output_delimiter delimiter used when parsing at responses, "\r" should be used as output_delimiter
+     *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay = 0);
     ~ATHandler();
