@@ -26,6 +26,10 @@
 #error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
 #endif
 
+#ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
+#error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
+#endif
+
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
@@ -55,13 +59,13 @@ static SocketAddress echo_server_addr;
 
 class EchoSocket : public UDPSocket {
 public:
-	EchoSocket(int size) : UDPSocket(), _async_flag(0), _data(0), _size(size) {
-	}
-	virtual ~EchoSocket() {
-		delete _data;
-	}
-	void set_async(int async) {
-	    _async_flag = async;
+  EchoSocket(int size) : UDPSocket(), _async_flag(0), _data(0), _size(size) {
+  }
+  virtual ~EchoSocket() {
+    delete _data;
+  }
+  void set_async(int async) {
+      _async_flag = async;
         if (_async_flag) {
             set_blocking(false);
             sigio(callback(this, &EchoSocket::async_callback));
