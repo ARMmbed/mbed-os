@@ -167,12 +167,13 @@
   * @{
   */
 #define SPI_TIMEOUT_VALUE  10U
-#define SPI_DEFAULT_TIMEOUT 100U
+#define SPI_DEFAULT_TIMEOUT 100U // MBED commit 64a037cc
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
+// MBED commit 64a037cc
 static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, uint32_t Flag, uint32_t State, uint32_t Timeout, uint32_t Tickstart);
 static void SPI_TxISR_8BIT(struct __SPI_HandleTypeDef *hspi);
 static void SPI_TxISR_16BIT(struct __SPI_HandleTypeDef *hspi);
@@ -1026,6 +1027,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, u
     hspi->State        = HAL_SPI_STATE_BUSY_TX;
     hspi->ErrorCode    = HAL_SPI_ERROR_NONE;
 
+    // MBED commit 64a037cc
     /* Set the function for IT treatment */
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT )
     {
@@ -1109,6 +1111,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
     hspi->State        = HAL_SPI_STATE_BUSY_RX;
     hspi->ErrorCode    = HAL_SPI_ERROR_NONE;
 
+    // MBED commit 64a037cc
     /* Set the function for IT treatment */
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT )
     {
@@ -1216,6 +1219,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
     hspi->RxXferSize   = Size;
     hspi->RxXferCount  = Size;
 
+    // MBED commit 64a037cc
     /* Set the function for IT treatment */
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT )
     {
@@ -1861,6 +1865,8 @@ uint32_t HAL_SPI_GetError(SPI_HandleTypeDef *hspi)
     * @{
     */
 
+// MBED commit 64a037cc
+
 /**
   * @brief DMA SPI transmit process complete callback 
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
@@ -2210,6 +2216,7 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
   * @}
   */
 
+// MBED commit 64a037cc
 /**
   * @brief  Rx 8-bit handler for Transmit and Receive in Interrupt mode.
   * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains

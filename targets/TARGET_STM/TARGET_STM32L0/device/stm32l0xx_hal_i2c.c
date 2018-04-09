@@ -348,10 +348,6 @@ static HAL_StatusTypeDef I2C_IsAcknowledgeFailed(I2C_HandleTypeDef *hi2c, uint32
 static HAL_StatusTypeDef I2C_Enable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t InterruptRequest);
 static HAL_StatusTypeDef I2C_Disable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t InterruptRequest);
 
-/* Private functions to centralize the enable/disable of Interrupts */
-static HAL_StatusTypeDef I2C_Enable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t InterruptRequest);
-static HAL_StatusTypeDef I2C_Disable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t InterruptRequest);
-
 /* Private functions to flush TXDR register */
 static void I2C_Flush_TXDR(I2C_HandleTypeDef *hi2c);
 
@@ -2159,10 +2155,6 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddre
     hi2c->ErrorCode   = HAL_I2C_ERROR_NONE;
 
     /* Prepare transfer parameters */
-    hi2c->Mode        = HAL_I2C_MODE_MEM;
-    hi2c->ErrorCode   = HAL_I2C_ERROR_NONE;
-
-    /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
     hi2c->XferOptions = I2C_NO_OPTION_FRAME;
@@ -2600,7 +2592,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE));
+    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE)); // MBED commit 23926a2418
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If size > MAX_NBYTE_SIZE, use reload mode */
@@ -2615,12 +2607,13 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
       xfermode = hi2c->XferOptions;
     }
 
+    // MBED commit 23926a2418
     /* If transfer direction not change, do not generate Restart Condition */
     /* Mean Previous state is same as current state */
-    if (hi2c->PreviousState == I2C_STATE_MASTER_BUSY_TX)
-    {
-      xferrequest = I2C_NO_STARTSTOP;
-    }
+    //if (hi2c->PreviousState == I2C_STATE_MASTER_BUSY_TX)
+    //{
+    //  xferrequest = I2C_NO_STARTSTOP;
+    //}
 
     /* Send Slave Address and set NBYTES to write */
     I2C_TransferConfig(hi2c, DevAddress, hi2c->XferSize, xfermode, xferrequest);
@@ -2673,7 +2666,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
     /* Prepare transfer parameters */
     hi2c->pBuffPtr    = pData;
     hi2c->XferCount   = Size;
-    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE));
+    hi2c->XferOptions = (XferOptions & (~I2C_RELOAD_MODE)); // MBED commit 23926a2418
     hi2c->XferISR     = I2C_Master_ISR_IT;
 
     /* If hi2c->XferCount > MAX_NBYTE_SIZE, use reload mode */
@@ -2688,12 +2681,13 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
       xfermode = hi2c->XferOptions;
     }
 
+    // MBED commit 23926a2418
     /* If transfer direction not change, do not generate Restart Condition */
     /* Mean Previous state is same as current state */
-    if (hi2c->PreviousState == I2C_STATE_MASTER_BUSY_RX)
-    {
-      xferrequest = I2C_NO_STARTSTOP;
-    }
+    //if (hi2c->PreviousState == I2C_STATE_MASTER_BUSY_RX)
+    //{
+    //  xferrequest = I2C_NO_STARTSTOP;
+    //}
 
     /* Send Slave Address and set NBYTES to read */
     I2C_TransferConfig(hi2c, DevAddress, hi2c->XferSize, xfermode, xferrequest);
@@ -2983,13 +2977,6 @@ void HAL_I2C_EV_IRQHandler(I2C_HandleTypeDef *hi2c)
 
   /* I2C events treatment -------------------------------------*/
   if (hi2c->XferISR != NULL)
-  {
-    hi2c->XferISR(hi2c, itflags, itsources);
-  uint32_t itflags   = READ_REG(hi2c->Instance->ISR);
-  uint32_t itsources = READ_REG(hi2c->Instance->CR1);
-
-  /* I2C events treatment -------------------------------------*/
-  if(hi2c->XferISR != NULL)
   {
     hi2c->XferISR(hi2c, itflags, itsources);
   }
@@ -3580,11 +3567,6 @@ static HAL_StatusTypeDef I2C_Master_ISR_DMA(struct __I2C_HandleTypeDef *hi2c, ui
     }
   }
   else if(((ITFlags & I2C_FLAG_STOPF) != RESET) && ((ITSources & I2C_IT_STOPI) != RESET))
-  {
-    /* Call I2C Master complete process */
-    I2C_ITMasterCplt(hi2c, ITFlags);
-  }
-  else if (((ITFlags & I2C_FLAG_STOPF) != RESET) && ((ITSources & I2C_IT_STOPI) != RESET))
   {
     /* Call I2C Master complete process */
     I2C_ITMasterCplt(hi2c, ITFlags);
@@ -4786,79 +4768,6 @@ static HAL_StatusTypeDef I2C_Enable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t Interr
     }
   }
 
-  /* Enable interrupts only at the end */
-  /* to avoid the risk of I2C interrupt handle execution before */
-  /* all interrupts requested done */
-  __HAL_I2C_ENABLE_IT(hi2c, tmpisr);
-
-  return HAL_OK;
-}
-
-/**
-  * @brief  Manage the disabling of Interrupts.
-  * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
-  *                the configuration information for the specified I2C.
-  * @param  InterruptRequest Value of @ref I2C_Interrupt_configuration_definition.
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef I2C_Enable_IRQ(I2C_HandleTypeDef *hi2c, uint16_t InterruptRequest)
-{
-  uint32_t tmpisr = 0U;
-
-  if((hi2c->XferISR == I2C_Master_ISR_DMA) || \
-     (hi2c->XferISR == I2C_Slave_ISR_DMA))
-  {
-    if((InterruptRequest & I2C_XFER_LISTEN_IT) == I2C_XFER_LISTEN_IT)
-    {
-      /* Enable ERR, STOP, NACK and ADDR interrupts */
-      tmpisr |= I2C_IT_ADDRI | I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_ERRI;
-    }
-
-    if((InterruptRequest & I2C_XFER_ERROR_IT) == I2C_XFER_ERROR_IT)
-    {
-      /* Enable ERR and NACK interrupts */
-      tmpisr |= I2C_IT_ERRI | I2C_IT_NACKI;
-    }
-
-    if((InterruptRequest & I2C_XFER_CPLT_IT) == I2C_XFER_CPLT_IT)
-    {
-      /* Enable STOP interrupts */
-      tmpisr |= I2C_IT_STOPI;
-    }
-    
-    if((InterruptRequest & I2C_XFER_RELOAD_IT) == I2C_XFER_RELOAD_IT)
-    {
-      /* Enable TC interrupts */
-      tmpisr |= I2C_IT_TCI;
-    }
-  }
-  else
-  {
-    if((InterruptRequest & I2C_XFER_LISTEN_IT) == I2C_XFER_LISTEN_IT)
-    {
-      /* Enable ERR, STOP, NACK, and ADDR interrupts */
-      tmpisr |= I2C_IT_ADDRI | I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_ERRI;
-    }
-
-    if((InterruptRequest & I2C_XFER_TX_IT) == I2C_XFER_TX_IT)
-    {
-      /* Enable ERR, TC, STOP, NACK and RXI interrupts */
-      tmpisr |= I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_TXI;
-    }
-
-    if((InterruptRequest & I2C_XFER_RX_IT) == I2C_XFER_RX_IT)
-    {
-      /* Enable ERR, TC, STOP, NACK and TXI interrupts */
-      tmpisr |= I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_RXI;
-    }
-
-    if((InterruptRequest & I2C_XFER_CPLT_IT) == I2C_XFER_CPLT_IT)
-    {
-      /* Enable STOP interrupts */
-      tmpisr |= I2C_IT_STOPI;
-    }
-  }
-  
   /* Enable interrupts only at the end */
   /* to avoid the risk of I2C interrupt handle execution before */
   /* all interrupts requested done */
