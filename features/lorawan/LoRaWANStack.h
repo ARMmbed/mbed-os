@@ -35,11 +35,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorawan/system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
 
-/**
- * A mask for the network ID.
- */
-#define LORAWAN_NETWORK_ID_MASK                          ( uint32_t )0xFE000000
-
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
 private:
     /** End-device states.
@@ -422,31 +417,10 @@ private:
      */
     lorawan_status_t set_application_port(uint8_t port);
 
-    /** End device OTAA join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Over The Air Activation (OTAA) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
+    /**
+     * Handles connection internally
      */
-    lorawan_status_t join_request_by_otaa(const lorawan_connect_t &params);
-
-    /** End device ABP join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Activation By Personalization (ABP) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
-     */
-    lorawan_status_t activation_by_personalization(const lorawan_connect_t &params);
+    lorawan_status_t handle_connect(bool is_otaa);
 
 private:
 
