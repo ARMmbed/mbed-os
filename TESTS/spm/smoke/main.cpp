@@ -32,7 +32,6 @@ using namespace utest::v1;
 
 #define CLIENT_MINOR_VERSION            0
 #define CLIENT_RSP_BUF_SIZE             20
-#define SERVER_WRITE_OFFSET             5
 
 #define CLIENT_TX_MSG                   "Hello and welcome SPM"
 #define CLIENT_EXPECTED_RESPONSE        "Response1"
@@ -47,7 +46,7 @@ void example_main(void)
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
 
-    iovec iovec[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec[PSA_MAX_INVEC_LEN] = {
         { msg_buf, 6 },
         { msg_buf + 6, 12 },
         { msg_buf + 18, 4 }
@@ -55,16 +54,11 @@ void example_main(void)
 
     uint8_t *response_buf = (uint8_t*)malloc(sizeof(uint8_t) * CLIENT_RSP_BUF_SIZE);
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
+    psa_outvec_t outvec = {response_buf, CLIENT_RSP_BUF_SIZE};
 
-    psa_error_t status = psa_call(
-        conn_handle,
-        iovec,
-        3,
-        response_buf,
-        CLIENT_RSP_BUF_SIZE
-        );
+    psa_error_t status = psa_call(conn_handle, iovec, 3, &outvec, 1);
     TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_call() failed");
-    TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf + SERVER_WRITE_OFFSET);
+    TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf);
 
     free(response_buf);
     status = psa_close(conn_handle);

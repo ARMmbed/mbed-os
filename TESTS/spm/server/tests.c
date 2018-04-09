@@ -253,10 +253,10 @@ PSA_TEST_SERVER(msg_size_assertion)
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
     for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
-        read_size += psa_read(msg.handle, i, buff + read_size, msg.size[i]);
+        read_size += psa_read(msg.handle, i, buff + read_size, msg.in_size[i]);
     }
 
-    if (((msg.size[0] + msg.size[1] + msg.size[2]) != 11)  ||
+    if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 11)  ||
         (read_size != 11) ||
         (strncmp(buff, "abcdfghijkn", 11) != 0)) {
         *status_ptr = PSA_GENERIC_ERROR;
@@ -354,8 +354,8 @@ PSA_TEST_SERVER(msg_read_truncation)
     }
 
     read_size = psa_read(msg.handle, 1, buff, 11);
-    if ((msg.size[1] != read_size) ||
-        ((msg.size[0] + msg.size[1] + msg.size[2]) != 11) ||
+    if ((msg.in_size[1] != read_size) ||
+        ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 11) ||
         (buff[6] != 0)   ||
         (strncmp(buff, "fghijk", 6) != 0)) {
         *status_ptr = PSA_GENERIC_ERROR;
@@ -404,7 +404,7 @@ PSA_TEST_SERVER(rhandle_factorial)
             connect_count++;
             break;
         case PSA_IPC_MSG_TYPE_CALL:
-            if (msg.size[0] + msg.size[1] + msg.size[2] > 0) {
+            if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 0) {
                 SPM_PANIC("SF_FACTORIAL SF should not get any params\n");
             }
 
@@ -480,11 +480,11 @@ PSA_TEST_SERVER(cross_partition_call)
     }
 
     psa_get(TEST_MSK, &msg);
-    if ((msg.size[0] + msg.size[1] + msg.size[2]) == 0) {
+    if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 
-    str_len = msg.size[0];
+    str_len = msg.in_size[0];
     data_read = psa_read(msg.handle, 0, buff, str_len);
     if (data_read != 21) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
@@ -493,14 +493,16 @@ PSA_TEST_SERVER(cross_partition_call)
     memcpy(buff + str_len, buff, str_len);
     data_read *= 2;
 
-    iovec_t data = { buff, data_read };
+    psa_invec_t data = { buff, data_read };
+
+    psa_outvec_t resp = { buff, data_read };
     psa_handle_t conn_handle = psa_connect(SF_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_GENERIC_ERROR;
     }
 
     if (partition_call_status == PSA_SUCCESS) {
-        partition_call_status = psa_call(conn_handle, &data, 1, buff, 60);
+        partition_call_status = psa_call(conn_handle, &data, 1, &resp, 1);
     }
 
     if (partition_call_status == PSA_SUCCESS) {
@@ -541,7 +543,7 @@ PSA_TEST_SERVER(doorbell_test)
     }
 
     psa_get(TEST_MSK, &msg);
-    if (((msg.size[0] + msg.size[1] + msg.size[2]) != 0) || (msg.response_size != 0)) {
+    if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 0) || (msg.out_size[0] != 0)) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
     }
 

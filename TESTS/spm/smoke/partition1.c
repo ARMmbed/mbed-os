@@ -12,7 +12,6 @@
 
 #define SERVER_READ_MSG_BUF_SIZE        30
 #define SERVER_RSP_BUF_SIZE             20
-#define WRITE_OFFSET                    5
 #define ACTUAL_MSG_SIZE                 22
 
 // ---------------------------------- Global Variables -------------------------------
@@ -46,8 +45,8 @@ void part1_main(void *ptr)
             case PSA_IPC_MSG_TYPE_CALL:
             {
 
-                MBED_ASSERT((msg.size[0] + msg.size[1] + msg.size[2]) == ACTUAL_MSG_SIZE);
-                MBED_ASSERT(msg.response_size == SERVER_RSP_BUF_SIZE);
+                MBED_ASSERT((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == ACTUAL_MSG_SIZE);
+                MBED_ASSERT(msg.out_size[0] == SERVER_RSP_BUF_SIZE);
                 uint32_t bytes_read = 0;
                 char *read_msg_buf = malloc(sizeof(char) * SERVER_READ_MSG_BUF_SIZE);
                 memset(read_msg_buf, 0, SERVER_READ_MSG_BUF_SIZE);
@@ -55,18 +54,18 @@ void part1_main(void *ptr)
 
                 for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
 
-                    bytes_read += psa_read(msg.handle, i, read_ptr, msg.size[i]);
+                    bytes_read += psa_read(msg.handle, i, read_ptr, msg.in_size[i]);
                     read_ptr = read_msg_buf + bytes_read;
                 }
 
-                MBED_ASSERT(bytes_read == (msg.size[0] + msg.size[1] + msg.size[2]));
+                MBED_ASSERT(bytes_read == (msg.in_size[0] + msg.in_size[1] + msg.in_size[2]));
 
                 int cmp_res = strcmp(SERVER_EXPECTED_READ_MSG, read_msg_buf);
                 if(cmp_res != 0) {
                     error("psa_read() - Bad reading!!");
                 }
 
-                psa_write(msg.handle, WRITE_OFFSET, WRITE_MSG_BUF, strlen(WRITE_MSG_BUF) + 1);
+                psa_write(msg.handle, 0, WRITE_MSG_BUF, strlen(WRITE_MSG_BUF) + 1);
                 free(read_msg_buf);
                 read_msg_buf = NULL;
                 read_ptr = NULL;
@@ -77,7 +76,9 @@ void part1_main(void *ptr)
             case PSA_IPC_MSG_TYPE_CONNECT:
             case PSA_IPC_MSG_TYPE_DISCONNECT:
             {
-                MBED_ASSERT(msg.response_size == 0);
+                MBED_ASSERT(msg.out_size[0] == 0);
+                MBED_ASSERT(msg.out_size[1] == 0);
+                MBED_ASSERT(msg.out_size[2] == 0);
                 break;
             }
         }

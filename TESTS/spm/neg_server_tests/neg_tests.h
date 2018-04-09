@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #define PSA_NEG_TEST_NAME(test_name) psa_neg_test_ ## test_name
 
 #define PSA_NEG_TEST(test_name)       \
@@ -24,7 +24,7 @@ void PSA_NEG_TEST_NAME(test_name)()   \
     status = T1.start(test_name);     \
     TEST_ASSERT_TRUE(status == osOK); \
     test_sem.wait(osWaitForever);     \
-    TEST_ASSERT_TRUE(error_thrown);    \
+    TEST_ASSERT_TRUE(error_thrown);   \
                                       \
     status = T1.terminate();          \
     TEST_ASSERT_TRUE(status == osOK); \

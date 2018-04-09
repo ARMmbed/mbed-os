@@ -63,8 +63,8 @@ typedef struct spm {
  */
 typedef struct active_msg {
     ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
-    iovec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
-    iovec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
+    psa_invec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
+    psa_outvec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
     psa_error_t rc; /* Return code to be filled by the Secure Function.*/
     SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } active_msg_t;
