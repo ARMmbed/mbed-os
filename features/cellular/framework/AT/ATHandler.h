@@ -75,7 +75,7 @@ public:
      *  @param timeout          Timeout when reading for AT response
      *  @param output_delimiter delimiter used when parsing at responses, "\r" should be used as output_delimiter
      */
-    ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter);
+    ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay = 0);
     ~ATHandler();
 
     /** Return used file handle.
@@ -195,6 +195,9 @@ private:
     bool _response_terminated;
     uint32_t _at_timeout;
     uint32_t _previous_at_timeout;
+
+    uint16_t _at_send_delay;
+    uint64_t _last_response_stop;
 
     bool _fh_sigio_set;
 
