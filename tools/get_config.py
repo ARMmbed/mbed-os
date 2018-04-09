@@ -34,12 +34,16 @@ from tools.utils import argparse_filestring_type
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type, required=True,
-                        default=[], help="The source (input) directory", action="append")
-    parser.add_argument("--prefix", dest="prefix", action="append",
-                      default=[], help="Restrict listing to parameters that have this prefix")
-    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
-                      default=False, help="Verbose diagnostic output")
+    parser.add_argument(
+        "--source", dest="source_dir", type=argparse_filestring_type,
+        required=True, default=[], help="The source (input) directory",
+        action="append")
+    parser.add_argument(
+        "--prefix", dest="prefix", action="append", default=[],
+        help="Restrict listing to parameters that have this prefix")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", dest="verbose", default=False,
+        help="Verbose diagnostic output")
 
     options = parser.parse_args()
 
@@ -56,7 +60,8 @@ if __name__ == '__main__':
     options.prefix = options.prefix or [""]
 
     try:
-        params, macros, features = get_config(options.source_dir, target, toolchain)
+        params, macros, features = get_config(
+            options.source_dir, target, toolchain)
         if not params and not macros:
             print("No configuration data available.")
             sys.exit(0)
