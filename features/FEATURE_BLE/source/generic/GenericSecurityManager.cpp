@@ -643,7 +643,7 @@ ble_error_t GenericSecurityManager::init_signing() {
     if (!pcsrk) {
         csrk_t csrk;
 
-        ble_error_t ret = get_random_data(csrk.buffer(), csrk.size());
+        ble_error_t ret = get_random_data(csrk.data(), csrk.size());
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
@@ -665,7 +665,7 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
         if (ret != BLE_ERROR_NONE) {
             return ret;
         }
-        memcpy(buffer, random_data.buffer(), copy_size);
+        memcpy(buffer, random_data.data(), copy_size);
         size -= copy_size;
         buffer += copy_size;
     }

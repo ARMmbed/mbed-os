@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "ble/SafeEnum.h"
+#include "ble/ArrayView.h"
 
 /**
  * @addtogroup ble
@@ -285,6 +286,11 @@ void set_all_zeros(byte_array_class &byte_array) {
 template <size_t array_size>
 struct byte_array_t {
     /**
+     * Size of the array; accessible at compile time.
+     */
+    static const size_t size_ = array_size;
+
+    /**
      * Default to all zeroes
      */
     byte_array_t() {
@@ -327,7 +333,14 @@ struct byte_array_t {
     /**
      * Subscript operator to access data content
      */
-    uint8_t& operator[](uint8_t i) {
+    uint8_t& operator[](size_t i) {
+        return _value[i];
+    }
+
+    /**
+     * Subscript operator to access data content
+     */
+    uint8_t operator[](size_t i) const {
         return _value[i];
     }
 
@@ -341,7 +354,7 @@ struct byte_array_t {
     /**
      * Return the pointer to the buffer holding data.
      */
-    uint8_t* buffer() {
+    uint8_t* data() {
         return _value;
     }
 
@@ -355,6 +368,32 @@ struct byte_array_t {
 protected:
     uint8_t _value[array_size];
 };
+
+/**
+ * Construct a fixed size ArrayView from a byte_array_t.
+ *
+ * @param src byte_array_t to create a view from.
+ *
+ * @return An ArrayView to @p src.
+ */
+template<size_t Size>
+ArrayView<uint8_t, Size> make_ArrayView(byte_array_t<Size>& src)
+{
+    return ArrayView<uint8_t, Size>(src.data(), src.size());
+}
+
+/**
+ * Construct a fixed size ArrayView from a const byte_array_t.
+ *
+ * @param src byte_array_t to create a view from.
+ *
+ * @return An ArrayView to @p src.
+ */
+template<size_t Size>
+ArrayView<const uint8_t, Size> make_const_ArrayView(const byte_array_t<Size>& src)
+{
+    return ArrayView<const uint8_t, Size>(src.data(), src.size());
+}
 
 /** 128 bit keys used by paired devices */
 typedef byte_array_t<16> irk_t;

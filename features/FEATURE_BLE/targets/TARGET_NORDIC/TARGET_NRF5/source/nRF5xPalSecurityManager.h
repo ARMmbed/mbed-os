@@ -20,6 +20,7 @@
 #include "ble/BLETypes.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "nrf_ble.h"
+#include "nRF5xCrypto.h"
 
 namespace ble {
 namespace pal {
@@ -265,6 +266,16 @@ public:
     );
 
     /**
+     * @see ::ble::pal::SecurityManager::secure_connections_oob_request_reply
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
+    );
+
+    /**
      * @see ::ble::pal::SecurityManager::legacy_pairing_oob_request_reply
      */
     virtual ble_error_t legacy_pairing_oob_request_reply(
@@ -291,22 +302,6 @@ public:
      */
     virtual ble_error_t generate_secure_connections_oob(
         connection_handle_t connection
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::secure_connections_oob_received
-     */
-    virtual ble_error_t secure_connections_oob_received(
-        const address_t &address,
-        const oob_lesc_value_t &random,
-        const oob_confirm_t &confirm
-    );
-
-    /**
-     * @see ::ble::pal::SecurityManager::is_secure_connections_oob_present
-     */
-    virtual bool is_secure_connections_oob_present(
-        const address_t &address
     );
 
     // singleton of nordic Security Manager
@@ -339,8 +334,13 @@ private:
     pairing_control_block_t* allocate_pairing_cb(connection_handle_t connection);
     void release_pairing_cb(pairing_control_block_t* pairing_cb);
     pairing_control_block_t* get_pairing_cb(connection_handle_t connection);
+    void release_all_pairing_cb();
 
     pairing_control_block_t* _control_blocks;
+    CryptoToolbox _crypto;
+    ble::public_key_coord_t X;
+    ble::public_key_coord_t Y;
+    ble::public_key_coord_t secret;
 };
 
 } // nordic
