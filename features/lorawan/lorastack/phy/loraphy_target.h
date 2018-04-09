@@ -60,8 +60,6 @@
  #elif MBED_CONF_LORA_PHY    == US915_HYBRID
   #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
   #define LoRaPHY_region LoRaPHYUS915Hybrid
- #else
-  #error "Unsupported region, check your configuration."
  #endif //MBED_CONF_LORA_PHY == VALUE
 #else
  #error "Must set LoRa PHY layer parameters."

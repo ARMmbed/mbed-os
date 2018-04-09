@@ -370,14 +370,14 @@ public:
      *
      * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    lorawan_status_t prepare_join(const lorawan_connect_t *params, bool is_otaa = true);
+    lorawan_status_t prepare_join(const lorawan_connect_t *params, bool is_otaa);
 
     /**
      * @brief join Joins the network.
      * @param is_otaa True if joining is to be done using OTAA, false for ABP.
      * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    lorawan_status_t join(bool is_otaa = true);
+    lorawan_status_t join(bool is_otaa);
 
 private:
     /**
