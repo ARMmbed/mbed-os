@@ -140,14 +140,10 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
      * use when roles are changed */
     if (_master_sends_keys) {
         initiator_distribution = _default_key_distribution;
-    }
-
-    /* override default if requested */
-    if (cb->signing_override_default) {
-        initiator_distribution.set_signing(cb->signing_requested);
-    } else {
-        /* because _master_sends_keys might be false so we need to set this */
-        initiator_distribution.set_signing(_default_key_distribution.get_signing());
+        /* override default if requested */
+        if (cb->signing_override_default) {
+            initiator_distribution.set_signing(cb->signing_requested);
+        }
     }
 
     KeyDistribution responder_distribution(_default_key_distribution);
@@ -312,19 +308,27 @@ ble_error_t GenericSecurityManager::enableSigning(
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    cb->signing_requested = enabled;
-    cb->signing_override_default = false;
+    cb->signing_override_default = true;
 
-    if (cb->encrypted) {
-        return BLE_ERROR_INVALID_STATE;
-    }
-    if (!cb->csrk_stored && cb->signing_requested) {
-        init_signing();
-        if (cb->is_master) {
-            return requestPairing(connection);
+    if (enabled && !cb->signing_requested && !_default_key_distribution.get_signing()) {
+        cb->signing_requested = true;
+        if (cb->csrk_stored) {
+            /* used the stored ones when available */
+            _db.get_entry_peer_csrk(
+                mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+                cb->db_entry
+            );
         } else {
-            return slave_security_request(connection);
+            /* create keys if needed and exchange them */
+            init_signing();
+            if (cb->is_master) {
+               return requestPairing(connection);
+            } else {
+               return slave_security_request(connection);
+            }
         }
+    } else {
+        cb->signing_requested = enabled;
     }
 
     return BLE_ERROR_NONE;
@@ -506,6 +510,43 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
 // MITM
 //
 
+ble_error_t GenericSecurityManager::generateOOB(
+    const address_t *address
+) {
+    /* legacy pairing */
+    ble_error_t status = get_random_data(_oob_temporary_key.buffer(), 16);
+
+    if (status == BLE_ERROR_NONE) {
+        _oob_temporary_key_creator_address = *address;
+
+        eventHandler->legacyPairingOobGenerated(
+            &_oob_temporary_key_creator_address,
+            &_oob_temporary_key
+        );
+    } else {
+        return status;
+    }
+
+    /* Secure connections. Avoid generating if we're already waiting for it.
+     * If a local random is set to 0 it means we're already calculating. */
+    if (!is_all_zeros(_oob_local_random)) {
+        status = _pal.generate_secure_connections_oob();
+
+        if (status == BLE_ERROR_NONE) {
+            _oob_local_address = *address;
+            /* this will be updated when calculation completes,
+             * a value of all zeros is an invalid random value */
+            set_all_zeros(_oob_local_random);
+        } else if (status != BLE_ERROR_NOT_IMPLEMENTED) {
+            return status;
+        }
+    } else {
+        return BLE_STACK_BUSY;
+    }
+
+    return BLE_ERROR_NONE;
+}
+
 ble_error_t GenericSecurityManager::setOOBDataUsage(
     connection_handle_t connection,
     bool useOOB,
@@ -519,17 +560,11 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     cb->attempt_oob = useOOB;
     cb->oob_mitm_protection = OOBProvidesMITM;
 
-    _oob_temporary_key_creator_address = cb->local_address;
-    get_random_data(_oob_temporary_key.data(), 16);
-
-    eventHandler->legacyPairingOobGenerated(
-        &_oob_temporary_key_creator_address,
-        &_oob_temporary_key
-    );
-
-    _pal.generate_secure_connections_oob(connection);
-
-    return BLE_ERROR_NONE;
+    if (useOOB) {
+        return generateOOB(&cb->local_address);
+    } else {
+        return BLE_ERROR_NONE;
+    }
 }
 
 ble_error_t GenericSecurityManager::confirmationEntered(
@@ -698,6 +733,22 @@ void GenericSecurityManager::set_ltk_cb(
     }
 }
 
+void GenericSecurityManager::set_peer_csrk_cb(
+    pal::SecurityDb::entry_handle_t db_entry,
+    const csrk_t *csrk
+) {
+    ControlBlock_t *cb = get_control_block(db_entry);
+    if (!cb) {
+        return;
+    }
+
+    _pal.set_peer_csrk(
+        cb->connection,
+        *csrk,
+        cb->csrk_mitm_protected
+    );
+}
+
 void GenericSecurityManager::return_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk
@@ -720,13 +771,18 @@ void GenericSecurityManager::update_oob_presence(connection_handle_t connection)
         return;
     }
 
-    /* only update the oob state if we support secure connections,
-     * otherwise follow the user set preference for providing legacy
-     * pairing oob data */
-    cb->oob_present = cb->attempt_oob;
-
+    /* if we support secure connection we only care about secure connections oob data */
     if (_default_authentication.get_secure_connections()) {
         cb->oob_present = (cb->peer_address == _oob_peer_address);
+    } else {
+        /* otherwise for legacy pairing we first set the oob based on set preference */
+        cb->oob_present = cb->attempt_oob;
+
+        /* and also turn it on if we have oob data for legacy pairing */
+        if (cb->peer_address == _oob_temporary_key_creator_address
+            || cb->local_address == _oob_temporary_key_creator_address) {
+            cb->oob_present = true;
+        }
     }
 }
 
@@ -771,6 +827,17 @@ void GenericSecurityManager::on_connected(
 
     if (dist_flags) {
         *static_cast<pal::SecurityDistributionFlags_t*>(cb) = *dist_flags;
+    }
+
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
+
+    if (signing && cb->csrk_stored) {
+        _db.get_entry_peer_csrk(
+            mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
+            cb->db_entry
+        );
     }
 }
 
@@ -874,6 +941,31 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
 
 void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection) {
     (void)connection;
+}
+
+void GenericSecurityManager::on_signature_verification_failure(
+    connection_handle_t connection
+) {
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+
+    const bool signing = cb->signing_override_default ?
+                         cb->signing_requested :
+                         _default_key_distribution.get_signing();
+
+    if (signing) {
+        cb->csrk_failures++;
+        if (cb->csrk_failures == 3) {
+            cb->csrk_failures = 0;
+            if (cb->is_master) {
+                requestPairing(connection);
+            } else {
+                slave_security_request(connection);
+            }
+        }
+    }
 }
 
 void GenericSecurityManager::on_slave_security_request(
@@ -996,6 +1088,8 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
 
     if (cb->peer_address == _oob_peer_address) {
         _pal.secure_connections_oob_request_reply(connection, _oob_local_random, _oob_peer_random, _oob_peer_confirm);
+        /* do not re-use peer OOB */
+        set_all_zeros(_oob_peer_address);
     } else {
         _pal.cancel_pairing(connection, pairing_failure_t::OOB_NOT_AVAILABLE);
     }
@@ -1013,6 +1107,11 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
         set_mitm_performed(connection);
         _pal.legacy_pairing_oob_request_reply(connection, _oob_temporary_key);
 
+        /* do not re-use peer OOB */
+        if (cb->peer_address == _oob_temporary_key_creator_address) {
+            set_all_zeros(_oob_temporary_key_creator_address);
+        }
+
     } else if (!cb->legacy_pairing_oob_request_pending) {
 
         cb->legacy_pairing_oob_request_pending = true;
@@ -1022,15 +1121,10 @@ void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t c
 }
 
 void GenericSecurityManager::on_secure_connections_oob_generated(
-    connection_handle_t connection,
     const oob_lesc_value_t &random,
     const oob_confirm_t &confirm
 ) {
-    ControlBlock_t *cb = get_control_block(connection);
-    if (!cb) {
-        return;
-    }
-    eventHandler->oobGenerated(&cb->local_address, &random, &confirm);
+    eventHandler->oobGenerated(&_oob_local_address, &random, &confirm);
     _oob_local_random = random;
 }
 
@@ -1190,7 +1284,8 @@ GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
     attempt_oob(false),
     oob_mitm_protection(false),
     oob_present(false),
-    legacy_pairing_oob_request_pending(false) { }
+    legacy_pairing_oob_request_pending(false),
+    csrk_failures(0) { }
 
 void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
 {
