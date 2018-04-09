@@ -15,46 +15,41 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include "unity.h"
+#include "spm_panic.h"
 #include "spm_server.h"
+#include "spm_client.h"
 #include "spm_panic.h"
 #include "psa_part1_partition.h"
+#include "psa_client_common.h"
 
-#define msg_buff_SIZE 128
-char msg_buff[msg_buff_SIZE];
+#define MINOR_VER 5
 
 void server_main1(void *ptr)
 {
+    psa_msg_t msg = {0};
     uint32_t signals = 0;
-    memset(msg_buff, 0, sizeof(msg_buff));
+
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (signals & PART1_SF1_MSK) {
-            psa_msg_t msg = {0};
-            psa_get(PART1_SF1_MSK, &msg);
+        if (signals & PART1_CALL_NON_EXISTS_EXTERN_SFID_MSK) {
+            psa_get(PART1_CALL_NON_EXISTS_EXTERN_SFID_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
+                    psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    memset(msg_buff, 0, msg_buff_SIZE);
-                    uint32_t bytes_read = 0;
-                    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
-                        bytes_read = psa_read(msg.handle, i, msg_buff + bytes_read, msg.in_size[i]);
-                    }
-
-                    if (msg.out_size[0] > 0) {
-                        psa_write(msg.handle, 0, msg_buff, bytes_read);
-                    }
-                    break;
-                }
-                case PSA_IPC_MSG_TYPE_DISCONNECT: {
+                    psa_connect(PART2_CALL_INSIDE_PARTITION, MINOR_VER);
+                    TEST_FAIL_MESSAGE("server_call_sfid_without_extern_sfid negative test failed");
                     break;
                 }
                 default: {
-                    SPM_ASSERT(false);
+                    TEST_FAIL_MESSAGE("server_call_sfid_without_extern_sfid msg type failure");
                 }
             }
-            psa_end(msg.handle, PSA_SUCCESS);
+        } else {
+            SPM_ASSERT(false);
         }
     }
 }

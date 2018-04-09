@@ -50,7 +50,7 @@ void part1_main(void *ptr)
         psa_get(CONTROL_MSK, &msg);
         switch (msg.type) {
         case PSA_IPC_MSG_TYPE_CALL:
-            if (msg.size[0] == 0) {
+            if (msg.in_size[0] == 0) {
                 SPM_PANIC("got a zero message size to CONTROL SF\n");
             }
 

@@ -41,8 +41,8 @@ extern "C" {
 
 #define PSA_NULL_HANDLE ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
 
-#define PSA_MAX_INVEC_LEN (3UL) /**< Maximum number of iovec_t structures allowed for psa_call().*/
-#define PSA_MAX_OUTVEC_LEN (1UL) /**< Maximum number of iovec_t structures allowed for psa_write().*/
+#define PSA_MAX_INVEC_LEN (3UL) /**< Maximum number of psa_invec_t structures allowed for psa_call().*/
+#define PSA_MAX_OUTVEC_LEN (3UL) /**< Maximum number of psa_outvec_t structures allowed for psa_write().*/
 
 #define PSA_WAIT_POLL (0UL) /**< Returns immediately even if none of the requested signals is asserted.*/
 #define PSA_WAIT_BLOCK UINT32_MAX /**< Block the caller until one of the requested signals is asserted.*/
@@ -95,20 +95,28 @@ typedef psa_error_t error_t;
  * Structure containing the PSA IPC message sent from a client partition to a secure function.
  */
 typedef struct psa_msg {
-    uint32_t type;                    /**< The message type, one of ::spm_msg_type.*/
-    psa_handle_t handle;              /**< Handle for the internal message structure.*/
-    void *rhandle;                    /**< Reverse handle.*/
-    size_t size[PSA_MAX_INVEC_LEN];   /**< Size in bytes of the message payload.*/
-    size_t response_size;             /**< Size in bytes of expected response data.*/
+    uint32_t type;                       /**< The message type, one of ::spm_msg_type.*/
+    psa_handle_t handle;                 /**< Handle for the internal message structure.*/
+    void *rhandle;                       /**< Reverse handle.*/
+    size_t in_size[PSA_MAX_INVEC_LEN];   /**< Array of sizes in bytes of the message payloads.*/
+    size_t out_size[PSA_MAX_OUTVEC_LEN]; /**< Array of sizes in bytes of the response buffers.*/
 } psa_msg_t;
 
 /**
- * Structure which describes a scatter-gather IO buffer.
+ * Structure which describes a scatter-gather input buffer.
  */
-typedef struct iovec {
-    void *iov_base;   /**< Starting address of the buffer.*/
-    size_t iov_len;   /**< Length in bytes of the buffer.*/
-} iovec_t;
+typedef struct psa_invec {
+    const void *base;   /**< Starting address of the buffer.*/
+    size_t len;         /**< Length in bytes of the buffer.*/
+} psa_invec_t;
+
+/**
+ * Structure which describes a scatter-gather output buffer.
+ */
+typedef struct psa_outvec {
+    void *base;      /**< Starting address of the buffer.*/
+    size_t len;      /**< Length in bytes of the buffer.*/
+} psa_outvec_t;
 
 #ifdef __cplusplus
 }

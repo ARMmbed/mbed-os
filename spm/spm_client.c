@@ -170,35 +170,49 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
 
 psa_error_t psa_call(
     psa_handle_t handle,
-    const iovec_t *tx_iovec,
-    size_t tx_len,
-    void *rx_buf,
-    size_t rx_len
+    const psa_invec_t *in_vec,
+    size_t in_len,
+    const psa_outvec_t *out_vec,
+    size_t out_len
     )
 {
-    if (tx_len != 0) {
-        if (!is_buffer_accessible(tx_iovec, tx_len * sizeof(iovec_t))) {
-            SPM_PANIC("tx_iovec is inaccessible\n");
+    if (in_len != 0) {
+        if (in_len > PSA_MAX_INVEC_LEN) {
+            SPM_PANIC("in_len (%d) is bigger than allowed (%d)\n", in_len, PSA_MAX_INVEC_LEN);
         }
 
-        if (tx_len > PSA_MAX_INVEC_LEN) {
-            SPM_PANIC("tx_len (%d) is bigger than allowed (%d)\n", tx_len, PSA_MAX_INVEC_LEN);
+        if (!is_buffer_accessible(in_vec, in_len * sizeof(psa_invec_t))) {
+            SPM_PANIC("in_vec is inaccessible\n");
         }
 
-        for (uint32_t i = 0; i < tx_len; ++i) {
-            if (tx_iovec[i].iov_len == 0) {
+        for (uint32_t i = 0; i < in_len; ++i) {
+            if (in_vec[i].len == 0) {
                 continue;
             }
 
-            if (!is_buffer_accessible(tx_iovec[i].iov_base, tx_iovec[i].iov_len)) {
-                SPM_PANIC("tx_iovec[%d] is inaccessible\n", i);
+            if (!is_buffer_accessible(in_vec[i].base, in_vec[i].len)) {
+                SPM_PANIC("in_vec[%d] is inaccessible\n", i);
             }
         }
     }
 
-    if (rx_len != 0) {
-        if (!is_buffer_accessible(rx_buf, rx_len)) {
-            SPM_PANIC("rx_buf is inaccessible\n");
+    if (out_len != 0) {
+        if (out_len > PSA_MAX_OUTVEC_LEN) {
+            SPM_PANIC("out_len (%d) is bigger than allowed (%d)\n", out_len, PSA_MAX_OUTVEC_LEN);
+        }
+
+        if (!is_buffer_accessible(out_vec, out_len * sizeof(psa_outvec_t))) {
+            SPM_PANIC("out_vec is inaccessible\n");
+        }
+
+        for (uint32_t i = 0; i < out_len; ++i) {
+            if (out_vec[i].len == 0) {
+                continue;
+            }
+
+            if (!is_buffer_accessible(out_vec[i].base, out_vec[i].len)) {
+                SPM_PANIC("out_vec[%d] is inaccessible\n", i);
+            }
         }
     }
 
@@ -218,14 +232,14 @@ psa_error_t psa_call(
     memset(active_msg, 0, sizeof(active_msg_t));
     active_msg->channel = channel;
 
-    if (rx_len != 0) {
-        active_msg->out_vec[0].iov_base = rx_buf;
-        active_msg->out_vec[0].iov_len = rx_len;
+    for (size_t i = 0; i < in_len; i++) {
+        // Copy the entire struct.
+        active_msg->in_vec[i] = in_vec[i];
     }
 
-    for (size_t i = 0; i < tx_len; i++) {
+    for (size_t i = 0; i < out_len; i++) {
         // Copy the entire struct.
-        active_msg->in_vec[i] = tx_iovec[i];
+        active_msg->out_vec[i] = out_vec[i];
     }
 
     active_msg->type = PSA_IPC_MSG_TYPE_CALL;
