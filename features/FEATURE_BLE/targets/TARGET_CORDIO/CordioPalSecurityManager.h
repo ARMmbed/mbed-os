@@ -237,7 +237,10 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t &csrk);
+    virtual ble_error_t set_csrk(
+        const csrk_t &csrk,
+        sign_count_t sign_counter
+    );
 
     /**
      * @see ::ble::pal::SecurityManager::set_peer_csrk
@@ -245,7 +248,8 @@ public:
     virtual ble_error_t set_peer_csrk(
         connection_handle_t connection,
         const csrk_t &csrk,
-        bool authenticated
+        bool authenticated,
+        sign_count_t sign_counter
     );
 
     ////////////////////////////////////////////////////////////////////////////

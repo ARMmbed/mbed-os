@@ -17,7 +17,9 @@
 #include <string.h>
 
 #include "CordioPalSecurityManager.h"
+#include "CordioBLE.h"
 #include "dm_api.h"
+#include "att_api.h"
 #include "smp_api.h"
 #include "wsf_os.h"
 
@@ -266,8 +268,11 @@ ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
-{
+ble_error_t CordioSecurityManager::set_csrk(
+    const csrk_t& csrk,
+    sign_count_t sign_counter
+) {
+    CordioAttClient::get_client().set_sign_counter(sign_counter);
     DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
     return BLE_ERROR_NONE;
 }
@@ -275,10 +280,13 @@ ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
 ble_error_t CordioSecurityManager::set_peer_csrk(
     connection_handle_t connection,
     const csrk_t &csrk,
-    bool authenticated
+    bool authenticated,
+    sign_count_t sign_counter
 ) {
-    /* TODO implement */
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    AttsSetCsrk(connection, const_cast<uint8_t*>(csrk.data()));
+    AttsSetSignCounter(connection, sign_counter);
+
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

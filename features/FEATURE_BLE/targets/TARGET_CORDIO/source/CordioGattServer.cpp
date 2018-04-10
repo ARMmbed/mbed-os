@@ -585,6 +585,12 @@ uint8_t GattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t o
             writeOp = GattWriteCallbackParams::OP_WRITE_CMD;
             break;
         case ATT_PDU_SIGNED_WRITE_CMD:
+            if (getInstance()._signing_event_handler) {
+                getInstance()._signing_event_handler->on_signed_write_received(
+                    connId,
+                    AttsGetSignCounter(connId)
+                );
+            }
             writeOp = GattWriteCallbackParams::OP_SIGN_WRITE_CMD;
             break;
         case ATT_PDU_PREP_WRITE_REQ:
@@ -813,7 +819,7 @@ void* GattServer::alloc_block(size_t block_size) {
 }
 
 GattServer::GattServer() :
-    ::GattServer(), cccSet(), cccValues(), cccHandles(), cccCnt(0),
+    ::GattServer(), _signing_event_handler(NULL), cccSet(), cccValues(), cccHandles(), cccCnt(0),
     generic_access_service(), generic_attribute_service(),
     registered_service(NULL), allocated_blocks(NULL),
     currentHandle(0)

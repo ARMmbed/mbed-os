@@ -101,7 +101,7 @@ public:
 
     typedef mbed::Callback<void(entry_handle_t, const SecurityEntryKeys_t*)>
         SecurityEntryKeysDbCb_t;
-    typedef mbed::Callback<void(entry_handle_t, const csrk_t*)>
+    typedef mbed::Callback<void(entry_handle_t, const csrk_t*, uint32_t sign_counter)>
         SecurityEntryCsrkDbCb_t;
     typedef mbed::Callback<void(::Gap::Whitelist_t*)>
         WhitelistDbCb_t;
@@ -270,6 +270,17 @@ public:
         const csrk_t &csrk
     ) = 0;
 
+    /**
+     * Update peer signing counter.
+     *
+     * @param[in] db_entry handle of the entry being updated.
+     * @param[in] sign_counter new signing counter value
+     */
+    virtual void set_entry_peer_sign_counter(
+        entry_handle_t db_entry,
+        sign_count_t sign_counter
+    ) = 0;
+
     /* local csrk */
 
     /**
@@ -280,11 +291,29 @@ public:
     virtual const csrk_t* get_local_csrk() = 0;
 
     /**
+     * Return local signing counter.
+     *
+     * @return signing counter
+     */
+    virtual sign_count_t get_local_sign_counter() = 0;
+
+    /**
      * Update local signing key.
      *
      * @param[in] csrk new CSRK value
      */
-    virtual void set_local_csrk(const csrk_t &csrk) = 0;
+    virtual void set_local_csrk(
+        const csrk_t &csrk
+    ) = 0;
+
+    /**
+     * Update local signing counter.
+     *
+     * @param[in] sign_counter new signing counter value
+     */
+    virtual void set_local_sign_counter(
+        sign_count_t sign_counter
+    ) = 0;
 
     /* list management */
 

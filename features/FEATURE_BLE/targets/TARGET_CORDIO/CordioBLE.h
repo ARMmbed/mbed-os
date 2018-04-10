@@ -85,12 +85,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual ::Gap& getGap();
+    virtual generic::GenericGap& getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const ::Gap& getGap() const;
+    virtual const generic::GenericGap& getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -105,7 +105,7 @@ public:
     /**
      * @see BLEInstanceBase::getGattClient
      */
-    virtual ::GattClient &getGattClient();
+    virtual generic::GenericGattClient &getGattClient();
 
     /**
      * @see BLEInstanceBase::getSecurityManager
@@ -154,6 +154,17 @@ private:
 
     ::BLE::InstanceID_t instanceID;
     mutable pal::SimpleEventQueue _event_queue;
+
+    class SigningEventMonitorProxy : public pal::SigningEventMonitor {
+    public:
+        SigningEventMonitorProxy(BLE &ble) : _ble(ble) { }
+        virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *handler) {
+            _ble.getGattClient().set_signing_event_handler(handler);
+            _ble.getGattServer().set_signing_event_handler(handler);
+        }
+    private:
+        BLE &_ble;
+    };
 };
 
 } // namespace cordio

@@ -32,12 +32,13 @@ private:
     };
 
     struct entry_t {
-        entry_t() : state(ENTRY_FREE) { };
+        entry_t() : sign_counter(0), state(ENTRY_FREE) { };
         SecurityDistributionFlags_t flags;
         SecurityEntryKeys_t peer_keys;
         SecurityEntryKeys_t local_keys;
         SecurityEntryIdentity_t peer_identity;
         csrk_t csrk;
+        sign_count_t sign_counter;
         state_t state;
     };
     static const size_t MAX_ENTRIES = 5;
@@ -151,11 +152,13 @@ public:
         entry_handle_t entry_handle
     ) {
         csrk_t csrk;
+        sign_count_t sign_counter = 0;
         entry_t *entry = as_entry(entry_handle);
         if (entry) {
             csrk = entry->csrk;
+            sign_counter = entry->sign_counter;
         }
-        cb(entry_handle, &csrk);
+        cb(entry_handle, &csrk, sign_counter);
     }
 
     virtual void get_entry_peer_keys(
@@ -230,6 +233,17 @@ public:
         }
     }
 
+    virtual void set_entry_peer_sign_counter(
+        entry_handle_t entry_handle,
+        sign_count_t sign_counter
+    ) {
+        entry_t *entry = as_entry(entry_handle);
+        if (entry) {
+            entry->state = ENTRY_WRITTEN;
+            entry->sign_counter = sign_counter;
+        }
+    }
+
     /* local csrk */
 
     virtual const csrk_t* get_local_csrk() {
@@ -238,6 +252,16 @@ public:
 
     virtual void set_local_csrk(const csrk_t &csrk) {
         _local_csrk = csrk;
+    }
+
+    virtual sign_count_t get_local_sign_counter() {
+        return _local_sign_counter;
+    }
+
+    virtual void set_local_sign_counter(
+        sign_count_t sign_counter
+    ) {
+        _local_sign_counter = sign_counter;
     }
 
     /* list management */
@@ -344,6 +368,7 @@ private:
     entry_t _entries[MAX_ENTRIES];
     SecurityEntryIdentity_t _local_identity;
     csrk_t _local_csrk;
+    sign_count_t _local_sign_counter;
 };
 
 } /* namespace pal */

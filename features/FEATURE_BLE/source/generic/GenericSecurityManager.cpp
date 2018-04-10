@@ -71,6 +71,7 @@ ble_error_t GenericSecurityManager::init(
     }
 
     _connection_monitor.set_connection_event_handler(this);
+    _signing_monitor.set_signing_event_handler(this);
     _pal.set_event_handler(this);
 
     return BLE_ERROR_NONE;
@@ -640,6 +641,8 @@ ble_error_t GenericSecurityManager::oobReceived(
 
 ble_error_t GenericSecurityManager::init_signing() {
     const csrk_t *pcsrk = _db.get_local_csrk();
+    sign_count_t local_sign_counter = _db.get_local_sign_counter();
+
     if (!pcsrk) {
         csrk_t csrk;
 
@@ -650,8 +653,10 @@ ble_error_t GenericSecurityManager::init_signing() {
 
         pcsrk = &csrk;
         _db.set_local_csrk(csrk);
+        _db.set_local_sign_counter(local_sign_counter);
     }
-    return _pal.set_csrk(*pcsrk);
+
+    return _pal.set_csrk(*pcsrk, local_sign_counter);
 }
 
 ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size) {
@@ -735,7 +740,8 @@ void GenericSecurityManager::set_ltk_cb(
 
 void GenericSecurityManager::set_peer_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
-    const csrk_t *csrk
+    const csrk_t *csrk,
+    sign_count_t sign_counter
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -745,13 +751,15 @@ void GenericSecurityManager::set_peer_csrk_cb(
     _pal.set_peer_csrk(
         cb->connection,
         *csrk,
-        cb->csrk_mitm_protected
+        cb->csrk_mitm_protected,
+        sign_counter
     );
 }
 
 void GenericSecurityManager::return_csrk_cb(
     pal::SecurityDb::entry_handle_t db_entry,
-    const csrk_t *csrk
+    const csrk_t *csrk,
+    sign_count_t sign_counter
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
@@ -943,7 +951,18 @@ void GenericSecurityManager::on_valid_mic_timeout(connection_handle_t connection
     (void)connection;
 }
 
-void GenericSecurityManager::on_signature_verification_failure(
+void GenericSecurityManager::on_signed_write_received(
+    connection_handle_t connection,
+    sign_count_t sign_counter
+) {
+    ControlBlock_t *cb = get_control_block(connection);
+    if (!cb) {
+        return;
+    }
+    _db.set_entry_peer_sign_counter(cb->db_entry, sign_counter);
+}
+
+void GenericSecurityManager::on_signed_write_verification_failure(
     connection_handle_t connection
 ) {
     ControlBlock_t *cb = get_control_block(connection);
@@ -966,6 +985,10 @@ void GenericSecurityManager::on_signature_verification_failure(
             }
         }
     }
+}
+
+void GenericSecurityManager::on_signed_write() {
+    _db.set_local_sign_counter(_db.get_local_sign_counter() + 1);
 }
 
 void GenericSecurityManager::on_slave_security_request(
