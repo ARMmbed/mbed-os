@@ -697,6 +697,7 @@ static void test_legacy_insert_event_multiple_overflow()
     interface_stub.timestamp = 
         last_timestamp_to_insert + 
         ((ref_event_timestamp - last_timestamp_to_insert) / 2);
+    ticker_irq_handler(&ticker_stub);
 
     for (size_t i = 0; i < MBED_ARRAY_SIZE(events); ++i) { 
         ticker_insert_event(
