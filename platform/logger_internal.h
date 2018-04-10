@@ -37,18 +37,17 @@ extern "C" {
 #define MBED_CONF_MAX_LOG_STR_SIZE     128
 #endif
 
-#ifndef MBED_CONF_LOG_MAX_BUFFER_SIZE
-#define MBED_CONF_LOG_MAX_BUFFER_SIZE  1024
+#ifndef MBED_CONF_EXTERNAL_BUFFER_SIZE
+#define MBED_CONF_EXTERNAL_BUFFER_SIZE  1024
 #endif
 
 #if defined (MBED_ID_BASED_TRACING)
 #define LOG_DATA_TYPE_                 uint32_t
-#define LOG_SINGLE_STR_SIZE_           4
 #else
 #define LOG_DATA_TYPE_                 char
-#define LOG_SINGLE_STR_SIZE_           MBED_CONF_MAX_LOG_STR_SIZE
 #endif
 
+#define LOG_SINGLE_STR_SIZE_     MBED_CONF_MAX_LOG_STR_SIZE
 #if defined(__ARMCC_VERSION)
 #define LOG_FILE_NAME_           __MODULE__
 #else
@@ -105,6 +104,8 @@ extern "C" {
 #define MBED_LOG_VSTR_2(fmt1, ap)                     log_buffer_string_vdata(fmt1, ap)
 #define MBED_LOG_VSTR_1(ll, mod, fmt, ap)             MBED_LOG_VSTR_2("[" ll "][" mod "]: " fmt, ap)
 
+// Internal functions to support logging functionality
+// Can be used have wrapper logging library, subject to change as they are internal and not API's
 void log_buffer_id_data(uint32_t argCount, ...);
 void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
 void log_buffer_string_vdata(const char *format, va_list args);
@@ -113,20 +114,19 @@ void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 
 
 // Functions added to test the logging feature
 void log_reset(void);
-uint32_t log_get_bytes_lost(void);
 void log_buffer_data(char *str);
 void log_disable_time_capture(void);
 void log_enable_time_capture(void);
 
 #if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
-#define mbed_log_array
-#define mbed_log_ipv6
-#define mbed_log_ipv6_prefix
-#define mbed_log_helper_lock
-#define mbed_log_helper_unlock
-#define mbed_log_helper_unlock_all
-#define mbed_log_valid_helper_data
-#define mbed_log_get_helper_data
+#define mbed_log_array(...)              ((const char *) 0)
+#define mbed_log_ipv6(...)               ((const char *) 0)
+#define mbed_log_ipv6_prefix(...)        ((const char *) 0)
+#define mbed_log_helper_lock(...)        ((void) 0)
+#define mbed_log_helper_unlock(...)      ((void) 0) 
+#define mbed_log_helper_unlock_all(...)  ((void) 0)
+#define mbed_log_valid_helper_data(...)  ((void) 0)
+#define mbed_log_get_helper_data(...)    ((const char *) 0)
 #else
 // Helper functions : Note helper functions are not ISR safe.
 char* mbed_log_array(const uint8_t* buf, uint32_t len);

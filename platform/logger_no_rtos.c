@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-// In case of no rtos or zero buffer logging flag enabled, prints from ISR mode will be discarded
-#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT) || defined(NDEBUG)
+// In case of no rtos, prints from ISR mode will be discarded
+#if !defined(MBED_CONF_RTOS_PRESENT) || defined(NDEBUG)
 
 #include "platform/mbed_logger.h"
 #include "platform/mbed_interface.h"
@@ -31,11 +31,6 @@ void mbed_logging_start(void)
 
 void log_reset(void)
 {
-}
-
-uint32_t log_get_bytes_lost(void)
-{
-    return 0;
 }
 
 #if defined (MBED_ID_BASED_TRACING)
@@ -60,9 +55,6 @@ void log_buffer_id_data(uint32_t argCount, ...)
 void log_buffer_string_data(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
-    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        return;
-    }
     va_list args;
     va_start(args, format);
     log_buffer_string_vdata(format, args);

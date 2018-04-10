@@ -28,7 +28,6 @@
 #include <stdarg.h>
 #endif
 #include "mbed_toolchain.h"
-#include "platform/logger.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,11 +45,7 @@ static inline void debug(const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
     va_start(args, format);
-#if defined (MBED_ID_BASED_TRACING)
     vfprintf(stderr, format, args);
-#else
-    log_buffer_string_vdata(format, args);
-#endif
     va_end(args);
 #endif
 }
@@ -71,11 +66,7 @@ static inline void debug_if(int condition, const char *format, ...) {
     if (condition) {
         va_list args;
         va_start(args, format);
-#if defined (MBED_ID_BASED_TRACING)
         vfprintf(stderr, format, args);
-#else
-        log_buffer_string_vdata(format, args);
-#endif
         va_end(args);
     }
 #endif

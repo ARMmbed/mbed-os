@@ -22,7 +22,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
 #include "platform/mbed_critical.h"
-#include "platform/logger.h"
+#include "platform/logger_internal.h"
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
 #include "mbed-client-libservice/ip6string.h"
 #include "mbed-client-libservice/common_functions.h"
@@ -59,7 +59,7 @@ char* mbed_log_ipv6(const uint8_t* addr_ptr)
     ip6tos(addr_ptr, log_helper_data);
     log_data_valid = true;
 
-#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT)
+#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
 #endif
 #endif
@@ -82,7 +82,7 @@ char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len)
     ip6_prefix_tos(prefix, prefix_len, log_helper_data);
     log_data_valid = true;
 
-#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT)
+#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
 #endif
 #endif
@@ -122,24 +122,27 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len)
     }
     log_data_valid = true;
 
-#if defined(MBED_CONF_ZERO_BUFFER_LOGGING) || !defined(MBED_CONF_RTOS_PRESENT)
+#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
 #endif
     return send_null;
 }
 
-void mbed_log_helper_lock(void) {
+void mbed_log_helper_lock(void)
+{
     log_helper_lock->lock();
     log_mutex_count++;
 }
 
-void mbed_log_helper_unlock(void) {
+void mbed_log_helper_unlock(void)
+{
     log_mutex_count--;
     log_data_valid = false;
     log_helper_lock->unlock();
 }
 
-void mbed_log_helper_unlock_all(void) {
+void mbed_log_helper_unlock_all(void)
+{
     int count = log_mutex_count;
     log_mutex_count = 0;
     log_data_valid = false;
@@ -148,11 +151,13 @@ void mbed_log_helper_unlock_all(void) {
     } while (--count > 0);
 }
 
-int mbed_log_valid_helper_data(void) {
+int mbed_log_valid_helper_data(void)
+{
     return log_data_valid;
 }
 
-char* mbed_log_get_helper_data(void) {
+char* mbed_log_get_helper_data(void)
+{
     return log_helper_data;
 }
 

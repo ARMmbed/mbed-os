@@ -19,7 +19,6 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_interface.h"
-#include "platform/logger.h"
 
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
@@ -38,11 +37,7 @@ WEAK void error(const char* format, ...) {
 #ifndef NDEBUG
     va_list arg;
     va_start(arg, format);
-#if defined (MBED_ID_BASED_TRACING)
     mbed_error_vfprintf(format, arg);
-#else
-    log_buffer_string_vdata(format, arg);
-#endif
     va_end(arg);
 #endif
     exit(1);

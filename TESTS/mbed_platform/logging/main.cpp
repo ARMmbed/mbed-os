@@ -25,12 +25,12 @@ using utest::v1::Case;
 #warning "Helper functions will not be tested, as MBED_CONF_MBED_TRACE_FEA_IPV6/MBED_CONF_MBED_TRACE_ENABLE is not set"
 #endif
 
-LOG_DATA_TYPE_ buf[MBED_CONF_LOG_MAX_BUFFER_SIZE];
+LOG_DATA_TYPE_ buf[MBED_CONF_EXTERNAL_BUFFER_SIZE];
 
 static void test_log_reset()
 {
     log_reset();
-    memset(buf, 0x0, MBED_CONF_LOG_MAX_BUFFER_SIZE);
+    memset(buf, 0x0, MBED_CONF_EXTERNAL_BUFFER_SIZE);
     log_buffer_data(buf);
     log_disable_time_capture();
     return;
@@ -41,12 +41,12 @@ static void test_log_levels()
     test_log_reset();
     MBED_ERR("TEST", "Error performing XYZ operation, errno = %d", -10);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[ERR ][TEST]: Error performing XYZ operation, errno = -10\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[ERR ][TEST]: Error performing XYZ operation, errno = -10", buf);
 
     test_log_reset();
     MBED_WARN("TEST", "This is warning message");
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: This is warning message\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: This is warning message", buf);
     
     test_log_reset();
     MBED_DBG_IF("TEST", false, "This should not be printed");
@@ -56,12 +56,12 @@ static void test_log_levels()
     test_log_reset();
     MBED_DBG_IF("TEST", (1 == 1), "Cool 1 is 1");
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: Cool 1 is 1\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: Cool 1 is 1", buf);
     
     test_log_reset();
     MBED_DBG("TEST", "%s %s %d", "Hello World!", "Count is:", 20);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: Hello World! Count is: 20\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: Hello World! Count is: 20", buf);
 
     test_log_reset();
     MBED_INFO_IF("TEST", (1 == 0) , "Really ???");
@@ -71,12 +71,12 @@ static void test_log_levels()
     test_log_reset();
     MBED_INFO_IF("TEST", (1 != 0), "Correct %s", "Always");
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Correct Always\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Correct Always", buf);
     
     test_log_reset();
     MBED_INFO("TEST", "Again here!! Entry is: %d Exit is: %d", 120, 121);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Again here!! Entry is: 120 Exit is: 121\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Again here!! Entry is: 120 Exit is: 121", buf);
     
     test_log_reset();
     MBED_TRACE_IF("TEST", 0 , "No trace");
@@ -100,27 +100,27 @@ static void test_gen_log_api()
     test_log_reset();
     MBED_LOG(2, "GENx", "Error performing XYZ operation, errno = %d", -10);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[ERR ][GENx]: Error performing XYZ operation, errno = -10\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[ERR ][GENx]: Error performing XYZ operation, errno = -10", buf);
 
     test_log_reset();
     MBED_LOG(4, "GENx", "This is warning message");
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[WARN][GENx]: This is warning message\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[WARN][GENx]: This is warning message", buf);
     
     test_log_reset();
     MBED_LOG(10, "GENx", "%s %s %d", "Hello World!", "Count is:", 20);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[DBG ][GENx]: Hello World! Count is: 20\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[DBG ][GENx]: Hello World! Count is: 20", buf);
    
     test_log_reset();
     MBED_LOG(8, "GENx", "Again here!! Entry is: %d Exit is: %d", 120, 121);
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[INFO][GENx]: Again here!! Entry is: 120 Exit is: 121\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][GENx]: Again here!! Entry is: 120 Exit is: 121", buf);
     
     test_log_reset();
     MBED_LOG(20, "GENx", "MBED_LOG prints all levels");
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[TRAC][GENx]: MBED_LOG prints all levels\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[TRAC][GENx]: MBED_LOG prints all levels", buf);
     return;
 }
 
@@ -136,29 +136,29 @@ static void test_log_helper_arrays()
     wait_us(1000);
     TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: 88:88:88:88:88:88:88:88:88:88:88:88:88:"
                              "88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:"
-                             "88:88:88:88:88:88:88:88:88:88:88:*\n", buf);
+                             "88:88:88:88:88:88:88:88:88:88:88:*", buf);
 
     longStr[0] = 0x23;
     longStr[1] = 0x45;
     test_log_reset();
     MBED_INFO("TEST", "%s", mbed_trace_array(longStr, 2));
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: 23:45\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: 23:45", buf);
     
     test_log_reset();
     MBED_DBG("TEST", "%s", mbed_trace_array(longStr, 0));
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[DBG ][TEST]: ", buf);
     
     test_log_reset();
     MBED_WARN("Testing", "%s", mbed_trace_array(NULL, 0));
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[WARN][Test]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[WARN][Test]: ", buf);
     
     test_log_reset();
     MBED_ERR("TEST", "%s", mbed_trace_array(NULL, 2));
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[ERR ][TEST]: <null>\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[ERR ][TEST]: <null>", buf);
     return;
 }
 
@@ -171,36 +171,36 @@ static void test_log_helper_ipv6()
     MBED_INFO("IPv6", "%s", mbed_trace_ipv6_prefix(prefix, prefix_len));
     wait_us(1000);
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: 146e:a00::/64\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: 146e:a00::/64", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ", buf);
 #endif
     
     test_log_reset();
     MBED_INFO("IPv6", "%s", mbed_trace_ipv6_prefix(NULL, 0));
     wait_us(1000);
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ::/0\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ::/0", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ", buf);
 #endif
     
     test_log_reset();
     MBED_INFO("IPv6", "%s", mbed_trace_ipv6_prefix(NULL, 1));
     wait_us(1000);
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: <err>\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: <err>", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ", buf);
 #endif
 
     test_log_reset();
     MBED_INFO("IPv6", "%s", mbed_trace_ipv6_prefix(prefix, 200));
     wait_us(1000);
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: <err>\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: <err>", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ", buf);
 #endif
 
     uint8_t arr[] = { 0x20, 0x01, 0xd, 0xb8, 0,0,0,0,0,1,0,0,0,0,0,1 };
@@ -208,16 +208,16 @@ static void test_log_helper_ipv6()
     MBED_INFO("IPv6", "%s", mbed_trace_ipv6(arr));
     wait_us(1000);
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: 2001:db8::1:0:0:1\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: 2001:db8::1:0:0:1", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: \n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]:", buf);
 #endif
     return;
 }
 
 void LogCallback(void)
 {
-    MBED_WARN("LOG", "Data lost: %d", log_get_bytes_lost());
+    MBED_WARN("LOG", "Inside ISR");
 }
 
 static void test_log_isr() 
@@ -226,7 +226,7 @@ static void test_log_isr()
     test_log_reset();
     t1.attach_us(LogCallback, 100000);
     wait_us(101000);
-    TEST_ASSERT_EQUAL_STRING("[WARN][LOG ]: Data lost: 0\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[WARN][LOG ]: Inside ISR", buf);
     return;
 }
 
@@ -244,10 +244,10 @@ static void test_log_interleave()
         MBED_INFO_IF("TEST", (0 != (count%2)), "Odd");
     }
     wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Odd\n"
-                             "[DBG ][TEST]: Even\n" 
-                             "[WARN][LOG ]: Data lost: 0\n"
-                             "[INFO][TEST]: Odd\n", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][TEST]: Odd"
+                             "[DBG ][TEST]: Even" 
+                             "[WARN][LOG ]: Inside ISR"
+                             "[INFO][TEST]: Odd", buf);
     return;
 }
 

@@ -16,9 +16,9 @@
  
 /**
  * \file mbed_trace_internal.h
- * Trace interface for MbedOS applications.
+ * Trace interface for Mbed OS applications.
  * This file provide simple but flexible way to handle software traces.
- * Trace library are abstract layer, which use stdout (printf) by default,
+ * Trace library is abstract layer, which use stdout (printf) by default,
  * but outputs can be easily redirect to custom function, for example to
  * store traces to memory or other interfaces.
  *

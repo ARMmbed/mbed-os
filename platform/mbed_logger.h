@@ -62,7 +62,7 @@
 #define MBED_LOGGER_H
 
 #include <stdint.h>
-#include "platform/logger.h"
+#include "platform/logger_internal.h"
 
 #ifdef __cplusplus
 extern "C" {

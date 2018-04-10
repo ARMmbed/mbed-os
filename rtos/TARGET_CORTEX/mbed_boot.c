@@ -196,22 +196,6 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
-#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
-osThreadAttr_t _log_thread_attr;
-#ifndef MBED_CONF_APP_LOG_STACK_SIZE
-#define MBED_CONF_APP_LOG_STACK_SIZE    768
-#endif
-
-#ifndef MBED_CONF_LOG_THREAD_PRIORITY
-#define MBED_CONF_LOG_THREAD_PRIORITY   osPriorityNormal
-#endif
-
-MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
-mbed_rtos_storage_thread_t _log_obj;
-void log_print_data(void);
-static osThreadId_t _log_thread_id = NULL;
-#endif
-
 /*
  * Sanity check values
  */
@@ -346,32 +330,6 @@ void mbed_start_main(void)
     osKernelStart();
 }
  
-extern void log_terminate_thread(void);
-void log_terminate_thread(void)
-{
-    if ( NULL != _log_thread_id) {
-        osThreadTerminate(_log_thread_id);
-    }
-}
-
-void mbed_logging_start(void)
-{
-#ifndef MBED_CONF_ZERO_BUFFER_LOGGING
-    // Create an additional logging thread
-    _log_thread_attr.stack_mem = _log_stack;
-    _log_thread_attr.stack_size = sizeof(_log_stack);
-    _log_thread_attr.cb_size = sizeof(_log_obj);
-    _log_thread_attr.cb_mem = &_log_obj;
-    _log_thread_attr.priority = MBED_CONF_LOG_THREAD_PRIORITY;
-    _log_thread_attr.name = "logging_thread";
-    _log_thread_id = osThreadNew((osThreadFunc_t)log_print_data, NULL, &_log_thread_attr);
-
-    if ((void *)_log_thread_id == NULL) {
-        error("Logging thread not created");
-    }
-#endif
-}
-
 /******************** Toolchain specific code ********************/
 
 #if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
