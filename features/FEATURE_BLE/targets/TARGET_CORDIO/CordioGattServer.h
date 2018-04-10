@@ -20,6 +20,7 @@
 #include <stddef.h>
 #include "ble/blecommon.h"
 #include "ble/GattServer.h"
+#include "ble/pal/SigningEventMonitor.h"
 #include "ble/Gap.h"
 #include "wsf_types.h"
 #include "att_api.h"
@@ -34,7 +35,8 @@ namespace cordio {
 /**
  * Cordio implementation of ::GattServer
  */
-class GattServer : public ::GattServer
+class GattServer : public ::GattServer,
+                   public pal::SigningEventMonitor
 {
 public:
     /**
@@ -147,6 +149,15 @@ public:
      */
     virtual ble_error_t reset(void);
 
+    /**
+     * @see pal::SigningEventMonitor::set_signing_event_handler
+     */
+    virtual void set_signing_event_handler(
+        pal::SigningEventMonitor::EventHandler *signing_event_handler
+    ) {
+        _signing_event_handler = signing_event_handler;
+    }
+
 private:
     static void cccCback(attsCccEvt_t *pEvt);
     static void attCback(attEvt_t *pEvt);
@@ -171,6 +182,8 @@ private:
         attsGroup_t *attGroup;
         internal_service_t *next;
     };
+
+    pal::SigningEventMonitor::EventHandler *_signing_event_handler;
 
     attsCccSet_t cccSet[MAX_CCC_CNT];
     uint16_t cccValues[MAX_CCC_CNT];

@@ -209,16 +209,29 @@ SecurityManager& BLE::getSecurityManager()
 
 const SecurityManager& BLE::getSecurityManager() const
 {
+    class SigningEventMonitorProxy : public pal::SigningEventMonitor {
+    public:
+        SigningEventMonitorProxy(BLE &ble) : _ble(ble) { }
+        virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *handler) {
+            _ble.getGattClient().set_signing_event_handler(handler);
+            _ble.getGattServer().set_signing_event_handler(handler);
+        }
+    private:
+        BLE &_ble;
+    };
+
     static pal::MemorySecurityDb m_db;
     pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
 
-    BLE *self = const_cast<BLE*>(this);
+    BLE &self = const_cast<BLE&>(*this);
+
+    static SigningEventMonitorProxy signing_event_monitor(self);
 
     static generic::GenericSecurityManager m_instance(
         m_pal,
         m_db,
-        self->getGap(),
-        self->getGattClient()
+        self.getGap(),
+        signing_event_monitor
     );
 
     return m_instance;
