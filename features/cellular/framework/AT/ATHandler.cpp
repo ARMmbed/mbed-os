@@ -24,6 +24,7 @@
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
 #endif
+#include "Kernel.h"
 
 using namespace mbed;
 using namespace events;
@@ -58,7 +59,7 @@ static const uint8_t map_3gpp_errors[][2] =  {
     { 146, 46 }, { 178, 65 }, { 179, 66 }, { 180, 48 }, { 181, 83 }, { 171, 49 },
 };
 
-ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter) :
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
     _fileHandle(fh),
     _queue(queue),
@@ -68,6 +69,8 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _oobs(NULL),
     _at_timeout(timeout),
     _previous_at_timeout(timeout),
+    _at_send_delay(send_delay),
+    _last_response_stop(0),
     _fh_sigio_set(false),
     _processing(false),
     _ref_count(1),
@@ -893,6 +896,8 @@ void ATHandler::resp_stop()
     set_tag(&_resp_stop, OK);
     // Reset info resp prefix
     memset(_info_resp_prefix, 0, sizeof(_info_resp_prefix));
+
+    _last_response_stop = rtos::Kernel::get_ms_count();
 }
 
 void ATHandler::information_response_stop()
@@ -936,7 +941,20 @@ const char* ATHandler::mem_str(const char* dest, size_t dest_len, const char* sr
 
 void ATHandler::cmd_start(const char* cmd)
 {
+
+    if (_at_send_delay) {
+        uint64_t current_time = rtos::Kernel::get_ms_count();
+        uint64_t time_difference = current_time - _last_response_stop;
+
+        if (time_difference < (uint64_t)_at_send_delay) {
+            wait_ms((uint64_t)_at_send_delay - time_difference);
+            tr_debug("AT wait %llu %llu", current_time, _last_response_stop);
+        } 
+    } 
+
     tr_debug("AT> %s", cmd);
+
+
 
     if (_last_err != NSAPI_ERROR_OK) {
         return;
