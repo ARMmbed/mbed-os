@@ -154,6 +154,17 @@ private:
 
     ::BLE::InstanceID_t instanceID;
     mutable pal::SimpleEventQueue _event_queue;
+
+    class SigningEventMonitorProxy : public pal::SigningEventMonitor {
+    public:
+        SigningEventMonitorProxy(BLE &ble) : _ble(ble) { }
+        virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *handler) {
+            _ble.getGattClient().set_signing_event_handler(handler);
+            _ble.getGattServer().set_signing_event_handler(handler);
+        }
+    private:
+        BLE &_ble;
+    };
 };
 
 } // namespace cordio
