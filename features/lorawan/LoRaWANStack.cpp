@@ -27,7 +27,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdlib.h>
 #include "platform/Callback.h"
 #include "events/EventQueue.h"
-#include "lorawan/LoRaWANStack.h"
+
+#include "LoRaWANStack.h"
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"

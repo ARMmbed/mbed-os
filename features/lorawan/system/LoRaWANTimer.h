@@ -22,8 +22,9 @@ SPDX-License-Identifier: BSD-3-Clause
 #define MBED_LORAWAN_SYS_TIMER_H__
 
 #include <stdint.h>
-#include "lorawan/system/lorawan_data_structures.h"
 #include "events/EventQueue.h"
+
+#include "lorawan_data_structures.h"
 
 class LoRaWANTimeHandler
 {

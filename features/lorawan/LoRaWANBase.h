@@ -19,7 +19,7 @@
 #ifndef LORAWAN_BASE_H_
 #define LORAWAN_BASE_H_
 
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/lorawan_data_structures.h"
 #include "events/EventQueue.h"
 
 class LoRaWANBase {

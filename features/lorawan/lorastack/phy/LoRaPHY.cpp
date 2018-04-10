@@ -26,7 +26,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include "lorawan/lorastack/phy/LoRaPHY.h"
+
+#include "LoRaPHY.h"
 
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000

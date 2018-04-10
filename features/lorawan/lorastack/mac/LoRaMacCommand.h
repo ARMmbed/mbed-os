@@ -41,8 +41,8 @@
 #define __LORAMACCOMMAND_H__
 
 #include <stdint.h>
-#include "lorawan/system/lorawan_data_structures.h"
-#include "lorawan/lorastack/phy/LoRaPHY.h"
+#include "system/lorawan_data_structures.h"
+#include "lorastack/phy/LoRaPHY.h"
 
 /*!
  * Maximum MAC commands buffer size

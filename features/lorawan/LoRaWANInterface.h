@@ -19,9 +19,9 @@
 #define LORAWANINTERFACE_H_
 
 #include "platform/Callback.h"
-#include "lorawan/LoRaWANStack.h"
-#include "lorawan/LoRaRadio.h"
-#include "lorawan/LoRaWANBase.h"
+#include "LoRaWANStack.h"
+#include "LoRaRadio.h"
+#include "LoRaWANBase.h"
 
 class LoRaWANInterface: public LoRaWANBase {
 
