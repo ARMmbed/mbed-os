@@ -1,27 +1,41 @@
 /**
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
- ___ _____ _   ___ _  _____ ___  ___  ___ ___
-/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-embedded.connectivity.solutions===============
-
-Description: LoRaWAN stack layer that controls both MAC and PHY underneath
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
-
-
-Copyright (c) 2017, Arm Limited and affiliates.
-
-SPDX-License-Identifier: BSD-3-Clause
-*/
+ * \file      LoRaWANStack.h
+ *
+ * \brief     LoRaWAN stack layer implementation
+ *
+ * \copyright Revised BSD License, see LICENSE.TXT file include in the project
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013 Semtech
+ *
+ *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
+ *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+ *              \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+ *              |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+ *              embedded.connectivity.solutions===============
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Daniel Jaeckle ( STACKFORCE )
+ *
+ * \defgroup  LoRaWAN stack layer that controls MAC layer underneath
+ *
+ * License: Revised BSD License, see LICENSE.TXT file include in the project
+ *
+ * Copyright (c) 2017, Arm Limited and affiliates.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef LORAWANSTACK_H_
 #define LORAWANSTACK_H_
@@ -34,11 +48,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorastack/mac/LoRaMac.h"
 #include "lorawan/system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
-
-/**
- * A mask for the network ID.
- */
-#define LORAWAN_NETWORK_ID_MASK                          ( uint32_t )0xFE000000
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
 private:
@@ -422,31 +431,10 @@ private:
      */
     lorawan_status_t set_application_port(uint8_t port);
 
-    /** End device OTAA join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Over The Air Activation (OTAA) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
+    /**
+     * Handles connection internally
      */
-    lorawan_status_t join_request_by_otaa(const lorawan_connect_t &params);
-
-    /** End device ABP join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Activation By Personalization (ABP) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
-     */
-    lorawan_status_t activation_by_personalization(const lorawan_connect_t &params);
+    lorawan_status_t handle_connect(bool is_otaa);
 
 private:
 

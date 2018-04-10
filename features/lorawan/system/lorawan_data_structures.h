@@ -1277,7 +1277,12 @@ typedef struct lorawan_session {
      */
     bool active;
 
-    lorawan_connect_t connection;
+    /*!
+     * Select the connection type, either LORAWAN_CONNECTION_OTAA
+     * or LORAWAN_CONNECTION_ABP.
+     */
+    uint8_t connect_type;
+
     /**
      * LoRaWAN uplink counter
      */

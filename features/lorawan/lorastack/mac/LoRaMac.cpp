@@ -76,6 +76,11 @@ using namespace events;
  */
 #define DOWN_LINK                                   1
 
+/**
+ * A mask for the network ID.
+ */
+#define LORAWAN_NETWORK_ID_MASK                     ( uint32_t )0xFE000000
+
 
 LoRaMac::LoRaMac()
     : _lora_phy(_lora_time), mac_commands(), _is_nwk_joined(false)
@@ -964,8 +969,8 @@ void LoRaMac::on_rx_window1_timer_event(void)
     _lora_phy.rx_config(&_params.rx_window1_config,
                         (int8_t*) &_mcps_indication.rx_datarate);
 
-    rx_window_setup(_params.rx_window1_config.is_rx_continuous,
-                    _params.sys_params.max_rx_win_time);
+    _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
+                              _params.sys_params.max_rx_win_time);
 }
 
 void LoRaMac::on_rx_window2_timer_event(void)
@@ -978,18 +983,17 @@ void LoRaMac::on_rx_window2_timer_event(void)
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
     _params.rx_window2_config.rx_slot = RX_SLOT_WIN_2;
 
+    _params.rx_window2_config.is_rx_continuous = true;
+
     if (_device_class != CLASS_C) {
         _params.rx_window2_config.is_rx_continuous = false;
-    } else {
-        // Setup continuous listening for class c
-        _params.rx_window2_config.is_rx_continuous = true;
     }
 
     if (_lora_phy.rx_config(&_params.rx_window2_config,
                             (int8_t*) &_mcps_indication.rx_datarate) == true) {
 
-        rx_window_setup(_params.rx_window2_config.is_rx_continuous,
-                        _params.sys_params.max_rx_win_time);
+        _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
+                                  _params.sys_params.max_rx_win_time);
 
         _params.rx_slot = RX_SLOT_WIN_2;
     }
@@ -1035,11 +1039,6 @@ void LoRaMac::on_ack_timeout_timer_event(void)
     if (_device_class == CLASS_C) {
         _params.flags.bits.mac_done = 1;
     }
-}
-
-void LoRaMac::rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time)
-{
-    _lora_phy.setup_rx_window(rx_continuous, max_rx_window_time);
 }
 
 bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,
@@ -1418,8 +1417,85 @@ void LoRaMac::setup_link_check_request()
     mac_commands.add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
 }
 
-lorawan_status_t LoRaMac::join_by_otaa(const lorawan_connect_otaa_t& otaa_join)
+lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_otaa)
 {
+    if (params) {
+        if (is_otaa) {
+            if ((params->connection_u.otaa.dev_eui == NULL) ||
+                (params->connection_u.otaa.app_eui == NULL) ||
+                (params->connection_u.otaa.app_key == NULL) ||
+                (params->connection_u.otaa.nb_trials == 0)) {
+                return LORAWAN_STATUS_PARAMETER_INVALID;
+            }
+            _params.keys.dev_eui = params->connection_u.otaa.dev_eui;
+            _params.keys.app_eui = params->connection_u.otaa.app_eui;
+            _params.keys.app_key = params->connection_u.otaa.app_key;
+            _params.max_join_request_trials = params->connection_u.otaa.nb_trials;
+
+            if (!_lora_phy.verify_nb_join_trials(params->connection_u.otaa.nb_trials)) {
+                // Value not supported, get default
+                _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
+            }
+            // Reset variable JoinRequestTrials
+            _params.join_request_trial_counter = 0;
+
+            reset_mac_parameters();
+
+            _params.sys_params.channel_data_rate =
+                    _lora_phy.get_alternate_DR(_params.join_request_trial_counter + 1);
+        } else {
+            _params.net_id = params->connection_u.abp.nwk_id;
+            _params.dev_addr = params->connection_u.abp.dev_addr;
+
+            memcpy(_params.keys.nwk_skey, params->connection_u.abp.nwk_skey,
+                   sizeof(_params.keys.nwk_skey));
+
+            memcpy(_params.keys.app_skey, params->connection_u.abp.app_skey,
+                   sizeof(_params.keys.app_skey));
+        }
+    } else {
+#if MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION
+    const static uint8_t dev_eui[] = MBED_CONF_LORA_DEVICE_EUI;
+    const static uint8_t app_eui[] = MBED_CONF_LORA_APPLICATION_EUI;
+    const static uint8_t app_key[] = MBED_CONF_LORA_APPLICATION_KEY;
+
+    _params.keys.app_eui = const_cast<uint8_t *>(app_eui);
+    _params.keys.dev_eui = const_cast<uint8_t *>(dev_eui);
+    _params.keys.app_key = const_cast<uint8_t *>(app_key);
+    _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
+
+    // Reset variable JoinRequestTrials
+    _params.join_request_trial_counter = 0;
+
+    reset_mac_parameters();
+
+    _params.sys_params.channel_data_rate =
+            _lora_phy.get_alternate_DR(_params.join_request_trial_counter + 1);
+
+#else
+    const static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
+    const static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
+
+    _params.net_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
+    _params.dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
+
+    memcpy(_params.keys.nwk_skey, nwk_skey,
+           sizeof(_params.keys.nwk_skey));
+
+    memcpy(_params.keys.app_skey, app_skey,
+           sizeof(_params.keys.app_skey));
+#endif
+    }
+    return LORAWAN_STATUS_OK;
+}
+
+lorawan_status_t LoRaMac::join(bool is_otaa)
+{
+    if (!is_otaa) {
+        set_nwk_joined(true);
+        return LORAWAN_STATUS_OK;
+    }
+
     if (LORAMAC_IDLE != _params.mac_state) {
         return LORAWAN_STATUS_BUSY;
     }
@@ -1429,51 +1505,10 @@ lorawan_status_t LoRaMac::join_by_otaa(const lorawan_connect_otaa_t& otaa_join)
     _mlme_confirmation.req_type = MLME_JOIN;
     _params.flags.bits.mlme_req = 1;
 
-//    if ((_params.mac_state & LORAMAC_TX_DELAYED) == LORAMAC_TX_DELAYED) {
-//        return LORAWAN_STATUS_BUSY;
-//    }
-
-    if ((otaa_join.dev_eui == NULL) ||
-        (otaa_join.app_eui == NULL) ||
-        (otaa_join.app_key == NULL) ||
-        (otaa_join.nb_trials == 0)) {
-        return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-    _params.keys.dev_eui = otaa_join.dev_eui;
-    _params.keys.app_eui = otaa_join.app_eui;
-    _params.keys.app_key = otaa_join.app_key;
-    _params.max_join_request_trials = otaa_join.nb_trials;
-
-    if (!_lora_phy.verify_nb_join_trials(otaa_join.nb_trials)) {
-        // Value not supported, get default
-        _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
-    }
-    // Reset variable JoinRequestTrials
-    _params.join_request_trial_counter = 0;
-
-    reset_mac_parameters();
-
-    _params.sys_params.channel_data_rate =
-            _lora_phy.get_alternate_DR(_params.join_request_trial_counter + 1);
-
     loramac_mhdr_t machdr;
     machdr.value = 0;
     machdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
     return send(&machdr, 0, NULL, 0);
-}
-
-void LoRaMac::join_by_abp(const lorawan_connect_abp_t& abp_join)
-{
-    _params.net_id = abp_join.nwk_id;
-    _params.dev_addr = abp_join.dev_addr;
-
-    memcpy(_params.keys.nwk_skey, abp_join.nwk_skey,
-           sizeof(_params.keys.nwk_skey));
-
-    memcpy(_params.keys.app_skey, abp_join.app_skey,
-           sizeof(_params.keys.app_skey));
-
-    set_nwk_joined(true);
 }
 
 static void memcpy_convert_endianess(uint8_t *dst, const uint8_t *src,

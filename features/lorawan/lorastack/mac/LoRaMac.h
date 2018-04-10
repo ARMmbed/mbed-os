@@ -364,18 +364,20 @@ public:
     void setup_link_check_request();
 
     /**
-     * @brief join_by_otaa Sends OTAA join message
-     * @param otaa_join Joining parameters
+     * @brief prepare_join prepares arguments to be ready for join() call.
+     * @param params Join parameters to use, if NULL, the default will be used.
+     * @param is_otaa True if joining is to be done using OTAA, false for ABP.
      *
      * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    lorawan_status_t join_by_otaa(const lorawan_connect_otaa_t& otaa_join);
+    lorawan_status_t prepare_join(const lorawan_connect_t *params, bool is_otaa);
 
     /**
-     * @brief join_by_abp Sets up ABP connectivity parameters.
-     * @param abp_join Connectivity parameters.
+     * @brief join Joins the network.
+     * @param is_otaa True if joining is to be done using OTAA, false for ABP.
+     * @return LORAWAN_STATUS_OK or a negative error code on failure.
      */
-    void join_by_abp(const lorawan_connect_abp_t& abp_join);
+    lorawan_status_t join(bool is_otaa);
 
 private:
     /**
@@ -451,11 +453,6 @@ private:
      * Function executed on AckTimeout timer event
      */
     void on_ack_timeout_timer_event(void);
-
-    /**
-     * Initializes and opens the reception window
-     */
-    void rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time);
 
     /**
      * Validates if the payload fits into the frame, taking the datarate
