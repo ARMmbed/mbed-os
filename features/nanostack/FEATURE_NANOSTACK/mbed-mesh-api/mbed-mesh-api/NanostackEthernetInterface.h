@@ -20,6 +20,10 @@
 #include "MeshInterfaceNanostack.h"
 #include "NanostackEthernetPhy.h"
 
+/** Ethernet interface for Nanostack.
+ *
+ * Configure Nanostack to use Ethernet connectivity.
+ */
 class NanostackEthernetInterface : public MeshInterfaceNanostack {
 public:
 

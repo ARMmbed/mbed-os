@@ -30,7 +30,7 @@
 #include "CordioPalGenericAccessService.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/generic/GenericSecurityManager.h"
-#include "ble/pal/MemorySecurityDB.h"
+#include "ble/pal/MemorySecurityDb.h"
 #include "ble/pal/SimpleEventQueue.h"
 
 namespace ble {

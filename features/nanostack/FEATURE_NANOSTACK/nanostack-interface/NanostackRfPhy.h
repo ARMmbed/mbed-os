@@ -20,6 +20,7 @@
 
 #include "NanostackPhy.h"
 
+/** Radio PHY driver class for Nanostack */
 class NanostackRfPhy : public NanostackPhy {
 public:
 

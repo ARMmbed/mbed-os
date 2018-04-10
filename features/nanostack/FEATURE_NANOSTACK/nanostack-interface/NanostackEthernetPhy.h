@@ -20,6 +20,7 @@
 
 #include "NanostackPhy.h"
 
+/** Ethernet PHY driver class for Nanostack */
 class NanostackEthernetPhy : public NanostackPhy {
 };
 

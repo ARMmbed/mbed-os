@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rtc_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of RTC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -121,7 +119,7 @@ typedef struct
   uint32_t DayLightSaving;  /*!< Specifies RTC_DayLightSaveOperation: the value of hour adjustment. 
                                  This parameter can be a value of @ref RTC_DayLightSaving_Definitions */
   
-  uint32_t StoreOperation;  /*!< Specifies RTC_StoreOperation value to be written in the BCK bit 
+  uint32_t StoreOperation;  /*!< Specifies RTC_StoreOperation value to be written in the BKP bit 
                                  in CR register to store the operation.
                                  This parameter can be a value of @ref RTC_StoreOperation_Definitions */
 }RTC_TimeTypeDef; 
@@ -165,8 +163,8 @@ typedef struct
   */  
 #define RTC_TR_RESERVED_MASK    (0x007F7F7FU)
 #define RTC_DR_RESERVED_MASK    (0x00FFFF3FU) 
-#define RTC_INIT_MASK           ((uint32_t)0xFFFFFFFFU)  
-#define RTC_RSF_MASK            ((uint32_t)0xFFFFFF5FU)
+#define RTC_INIT_MASK           (0xFFFFFFFFU)  
+#define RTC_RSF_MASK            (0xFFFFFF5FU)
 
 #if defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)   
 #define RTC_FLAGS_MASK          ((uint32_t)(RTC_FLAG_ALRAWF | RTC_FLAG_ALRBWF | RTC_FLAG_WUTWF | \
@@ -192,9 +190,9 @@ typedef struct
   * @{
   */ 
 #if defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)   
-#define IS_RTC_SYNCH_PREDIV(PREDIV)    ((PREDIV) <= (uint32_t)0x7FFF)
+#define IS_RTC_SYNCH_PREDIV(PREDIV)    ((PREDIV) <= 0x7FFFU)
 #elif defined(STM32L100xB) || defined (STM32L151xB) || defined (STM32L152xB)
-#define IS_RTC_SYNCH_PREDIV(PREDIV)    ((PREDIV) <= (uint32_t)0x1FFF)
+#define IS_RTC_SYNCH_PREDIV(PREDIV)    ((PREDIV) <= 0x1FFFU)
 #endif /* STM32L100xBA || STM32L151xBA || STM32L152xBA || STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 /**
   * @}
