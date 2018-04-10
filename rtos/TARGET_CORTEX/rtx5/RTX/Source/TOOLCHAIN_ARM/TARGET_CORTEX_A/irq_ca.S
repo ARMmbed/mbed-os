@@ -178,6 +178,11 @@ IRQ_Handler\
                 CPS     #MODE_SVC                   ; Change to SVC mode
                 PUSH    {R0-R3, R12, LR}            ; Save APCS corruptible registers
 
+                LDR     R3, =IRQ_NestLevel
+                LDR     R2, [R3]
+                ADD     R2, R2, #1                  ; Increment IRQ nesting level
+                STR     R2, [R3]
+
                 MOV     R3, SP                      ; Move SP into R3
                 AND     R3, R3, #4                  ; Get stack adjustment to ensure 8-byte alignment
                 SUB     SP, SP, R3                  ; Adjust stack
@@ -185,11 +190,6 @@ IRQ_Handler\
 
                 BLX     IRQ_GetActiveIRQ            ; Retrieve interrupt ID into R0
                 MOV     R4, R0                      ; Move interrupt ID to R4
-
-                LDR     R1, =IRQ_NestLevel
-                LDR     R3, [R1]                    ; Load IRQ nest level and increment it
-                ADD     R3, R3, #1
-                STR     R3, [R1]
 
                 BLX     IRQ_GetHandler              ; Retrieve interrupt handler address for current ID
                 CMP     R0, #0                      ; Check if handler address is 0
@@ -203,11 +203,10 @@ IRQ_End
                 MOV     R0, R4                      ; Move interrupt ID to R0
                 BLX     IRQ_EndOfInterrupt          ; Signal end of interrupt
 
-                LDR     R2, =IRQ_NestLevel
-                LDR     R1, [R2]                    ; Load IRQ nest level and
-                SUBS    R1, R1, #1                  ; decrement it
-                STR     R1, [R2]
-                BNE     IRQ_Exit                    ; Not zero, exit from IRQ handler
+                LDR     R3, =IRQ_NestLevel
+                LDR     R2, [R3]                    ; Load IRQ nest level
+                CMP     R2, #1
+                BNE     IRQ_Exit                    ; Nesting interrupts, exit from IRQ handler
 
                 LDR     R0, =SVC_Active
                 LDRB    R0, [R0]                    ; Load SVC_Active flag
@@ -252,11 +251,22 @@ IRQ_SwitchCheck
 
                 POP     {R3, R4}                    ; Restore stack adjustment(R3) and user data(R4)
                 ADD     SP, SP, R3                  ; Unadjust stack
+
+                LDR     R3, =IRQ_NestLevel
+                LDR     R2, [R3]
+                SUBS    R2, R2, #1                  ; Decrement IRQ nesting level
+                STR     R2, [R3]
+
                 B       osRtxContextSwitch
 
 IRQ_Exit
                 POP     {R3, R4}                    ; Restore stack adjustment(R3) and user data(R4)
                 ADD     SP, SP, R3                  ; Unadjust stack
+
+                LDR     R3, =IRQ_NestLevel
+                LDR     R2, [R3]
+                SUBS    R2, R2, #1                  ; Decrement IRQ nesting level
+                STR     R2, [R3]
 
                 POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
                 RFEFD   SP!                         ; Return from IRQ handler
