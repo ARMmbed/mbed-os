@@ -24,6 +24,8 @@
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
+#if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT)
+
 /* NOTE: There's inconsistency in cryptography related naming, Crpt or Crypto. For example, cryptography IRQ
  *       handler could be CRPT_IRQHandler or CRYPTO_IRQHandler. To override default cryptography IRQ handler, see
  *       device/startup_{CHIP}.c for its name or call NVIC_SetVector regardless of its name. */
@@ -327,3 +329,5 @@ void CRPT_IRQHandler()
         ECC_CLR_INT_FLAG(CRYPTO_MODBASE());
     }
 }
+
+#endif /* #if DEVICE_TRNG || defined(MBEDTLS_CONFIG_HW_SUPPORT) */
