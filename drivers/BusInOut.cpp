@@ -26,7 +26,7 @@ BusInOut::BusInOut(PinName p0, PinName p1, PinName p2, PinName p3, PinName p4, P
     for (int i=0; i<16; i++) {
         _pin[i] = (pins[i] != NC) ? new DigitalInOut(pins[i]) : 0;
         if (pins[i] != NC) {
-            _nc_mask |= (1 << i);
+            _nc_mask |= (2 << i);
         }
     }
 }
