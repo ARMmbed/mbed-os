@@ -44,7 +44,9 @@ private:
     Semaphore _sem;
     virtual void handler()
     {
-        increment_tick();
+        core_util_critical_section_enter();
+        _increment_tick();
+        core_util_critical_section_exit();
         _sem.release();
     }
 
@@ -79,26 +81,29 @@ void test_created_with_zero_tick_count(void)
 /** Test tick count is updated correctly
  *
  * Given a SysTimer
- * When @a update_tick method is called immediately after creation
+ * When the @a suspend and @a resume methods are called immediately after creation
  * Then the tick count is not updated
- * When @a update_tick is called again after a delay
+ * When @a suspend and @a resume methods are called again after a delay
  * Then the tick count is updated
  *     and the number of ticks incremented is equal TEST_TICKS - 1
- * When @a update_tick is called again without a delay
+ * When @a suspend and @a resume methods are called again without a delay
  * Then the tick count is not updated
  */
 void test_update_tick(void)
 {
     SysTimerTest st;
-    TEST_ASSERT_EQUAL_UINT32(0, st.update_tick());
+    st.suspend(TEST_TICKS * 2);
+    TEST_ASSERT_EQUAL_UINT32(0, st.resume());
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
     us_timestamp_t test_ticks_elapsed_ts = st.get_time() + DELAY_US;
 
+    st.suspend(TEST_TICKS * 2);
     while (st.get_time() <= test_ticks_elapsed_ts) {}
-    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.update_tick());
+    TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.resume());
     TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.get_tick());
 
-    TEST_ASSERT_EQUAL_UINT32(0, st.update_tick());
+    st.suspend(TEST_TICKS * 2);
+    TEST_ASSERT_EQUAL_UINT32(0, st.resume());
     TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.get_tick());
 }
 
