@@ -2040,7 +2040,7 @@
         },
         "detect_code": ["0820"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
