@@ -220,7 +220,7 @@ public:
     virtual int16_t send(uint8_t port, const uint8_t* data,
                          uint16_t length, int flags) = 0;
 
-    /** Receives a message from the Network Server.
+    /** Receives a message from the Network Server on a specific port.
      *
      * @param port              The application port number. Port numbers 0 and 224
      *                          are reserved, whereas port numbers from 1 to 223
@@ -259,8 +259,31 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length,
-                            int flags) = 0;
+    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length, int flags) = 0;
+
+    /** Receives a message from the Network Server from any port.
+     *
+     * @param data              A pointer to buffer where the received data will be
+     *                          stored.
+     *
+     * @param length            The size of data in bytes
+     *
+     * @param port              Return the number of port to which message was received.
+     *
+     * @param flags             Return flags to determine what type of message was received.
+     *                          MSG_UNCONFIRMED_FLAG = 0x01
+     *                          MSG_CONFIRMED_FLAG = 0x02
+     *                          MSG_MULTICAST_FLAG = 0x04
+     *                          MSG_PROPRIETARY_FLAG = 0x08
+     *
+     * @return                  It could be one of these:
+     *                             i)   0 if there is nothing else to read.
+     *                             ii)  Number of bytes written to user buffer.
+     *                             iii) LORAWAN_STATUS_WOULD_BLOCK if there is
+     *                                  nothing available to read at the moment.
+     *                             iv)  A negative error code on failure.
+     */
+    virtual int16_t receive(uint8_t* data, uint16_t length, uint8_t& port, int& flags) = 0;
 
     /** Add application callbacks to the stack.
      *
