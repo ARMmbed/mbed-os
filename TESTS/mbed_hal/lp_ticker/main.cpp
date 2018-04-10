@@ -29,8 +29,36 @@ using namespace utest::v1;
 
 volatile int intFlag = 0;
 
-#define TICKER_INT_VAL 5000
-#define TICKER_DELTA 50
+#define TICKER_GLITCH_TEST_TICKS 1000
+
+#define TICKER_INT_VAL 500
+#define TICKER_DELTA 10
+
+#define LP_TICKER_OV_LIMIT 4000
+
+/* Since according to the ticker requirements min acceptable counter size is
+ * - 12 bits for low power timer - max count = 4095,
+ * then all test cases must be executed in this time windows.
+ * HAL ticker layer handles counter overflow and it is not handled in the target
+ * ticker drivers. Ensure we have enough time to execute test case without overflow.
+ */
+void overflow_protect()
+{
+    uint32_t time_window;
+
+    time_window = LP_TICKER_OV_LIMIT;
+
+    const uint32_t ticks_now = lp_ticker_read();
+    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+
+    const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
+
+    if ((max_count - ticks_now) > time_window) {
+        return;
+    }
+
+    while (lp_ticker_read() > ticks_now);
+}
 
 void ticker_event_handler_stub(const ticker_data_t * const ticker)
 {
@@ -71,6 +99,8 @@ void lp_ticker_deepsleep_test()
     /* Wait for green tea UART transmission before entering deep-sleep mode. */
     wait_cycles(400000);
 
+    overflow_protect();
+
     const uint32_t tick_count = lp_ticker_read();
 
     /* Set interrupt. Interrupt should be fired when tick count is equal to:
@@ -91,13 +121,12 @@ void lp_ticker_glitch_test()
 {
     lp_ticker_init();
 
-    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+    overflow_protect();
 
     uint32_t last = lp_ticker_read();
     const uint32_t start = last;
 
-    /* Set test time to 2 sec. */
-    while (last < (start + p_ticker_info->frequency * 2)) {
+    while (last < (start + TICKER_GLITCH_TEST_TICKS)) {
         const uint32_t cur = lp_ticker_read();
         TEST_ASSERT(cur >= last);
         last = cur;
