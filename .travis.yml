@@ -105,7 +105,16 @@ matrix:
         popd;
       - astyle --version
       script:
-        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle.out;
+        # only changed files to be checked for astyle
+        - COMMIT_RANGE=${TRAVIS_COMMIT_RANGE/.../..}
+        - if [! git diff --quiet "$COMMIT_RANGE" -- ]
+          then
+              COMMIT_CONTENT=`git diff-tree --no-commit-id --name-only -r $TRAVIS_COMMIT`
+          else
+              COMMIT_CONTENT=`git diff --name-only $COMMIT_RANGE`
+          fi
+        - echo $COMMIT_CONTENT
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | $COMMIT_CONTENT | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle.out;
           if [ $(cat astyle.out | grep Formatted | wc -l) -ne 0 ]; then
             git --no-pager diff;
             echo "Please fix style issues as shown above";
