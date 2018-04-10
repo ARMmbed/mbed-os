@@ -172,9 +172,7 @@
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif
-#if DEVICE_CRYPTOCELL
-#include "sns_silib.h"
-#endif
+
 /* Heap limits - only used if set */
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
@@ -332,16 +330,6 @@ void mbed_start_main(void)
     osKernelStart();
 }
 
-#if DEVICE_CRYPTOCELL
-#if defined(TOOLCHAIN_GCC)
-CRYS_RND_State_t   rndState = {0};
-CRYS_RND_WorkBuff_t  rndWorkBuff = {0};
-#else
-CRYS_RND_State_t   rndState;
-CRYS_RND_WorkBuff_t  rndWorkBuff;
-#endif
-#endif
-
 /******************** Toolchain specific code ********************/
 
 #if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
@@ -430,11 +418,6 @@ void __rt_entry (void) {
     /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
-#if DEVICE_CRYPTOCELL
-    if (SaSi_LibInit(&rndState,&rndWorkBuff)) {
-        mbed_die();
-    }
 #endif
     mbed_sdk_init();
     _platform_post_stackheap_init();
@@ -580,11 +563,6 @@ void software_init_hook(void)
     /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
-#if DEVICE_CRYPTOCELL
-    if (SaSi_LibInit(&rndState,&rndWorkBuff)) {
-        mbed_die();
-    }
 #endif
     mbed_sdk_init();
     osKernelInitialize();
