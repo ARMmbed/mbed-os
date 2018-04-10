@@ -1964,7 +1964,7 @@
         },
         "detect_code": ["0815"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["LPTICKER", "ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG",
         "overrides": {
