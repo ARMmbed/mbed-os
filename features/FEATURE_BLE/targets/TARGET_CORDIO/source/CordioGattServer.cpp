@@ -819,7 +819,7 @@ void* GattServer::alloc_block(size_t block_size) {
 }
 
 GattServer::GattServer() :
-    ::GattServer(), cccSet(), cccValues(), cccHandles(), cccCnt(0),
+    ::GattServer(), _signing_event_handler(NULL), cccSet(), cccValues(), cccHandles(), cccCnt(0),
     generic_access_service(), generic_attribute_service(),
     registered_service(NULL), allocated_blocks(NULL),
     currentHandle(0)
