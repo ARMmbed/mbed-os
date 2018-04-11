@@ -1121,6 +1121,14 @@ __STATIC_INLINE void LL_SPI_TransmitData8(SPI_TypeDef *SPIx, uint8_t TxData)
   *((__IO uint8_t *)&SPIx->DR) = TxData;
 }
 
+#if __GNUC__
+#    define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#    define MAY_ALIAS
+#endif
+
+typedef __IO uint16_t MAY_ALIAS uint16_io_t;
+
 /**
   * @brief  Write 16-Bits in the data register
   * @rmtoll DR           DR            LL_SPI_TransmitData16
@@ -1130,7 +1138,7 @@ __STATIC_INLINE void LL_SPI_TransmitData8(SPI_TypeDef *SPIx, uint8_t TxData)
   */
 __STATIC_INLINE void LL_SPI_TransmitData16(SPI_TypeDef *SPIx, uint16_t TxData)
 {
-  *((__IO uint16_t *)&SPIx->DR) = TxData;
+  *((uint16_io_t*)&SPIx->DR) = TxData;
 }
 
 /**
