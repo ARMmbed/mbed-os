@@ -263,15 +263,22 @@ LoRaPHYAU915::LoRaPHYAU915(LoRaWANTimeHandler &lora_time)
     // transmission on the same channel
     copy_channel_mask(current_channel_mask, channel_mask, AU915_CHANNEL_MASK_SIZE);
 
-    // set bands for EU868 spectrum
+    // set default channels
+    phy_params.channels.channel_list = channels;
+    phy_params.channels.channel_list_size = AU915_MAX_NB_CHANNELS;
+    phy_params.channels.mask = channel_mask;
+    phy_params.channels.default_mask = default_channel_mask;
+    phy_params.channels.mask_size = AU915_CHANNEL_MASK_SIZE;
+
+    // set bands for AU915 spectrum
     phy_params.bands.table = (void *) bands;
     phy_params.bands.size = AU915_MAX_NB_BANDS;
 
-    // set bandwidths available in EU868 spectrum
+    // set bandwidths available in AU915 spectrum
     phy_params.bandwidths.table = (void *) bandwidths_AU915;
     phy_params.bandwidths.size = 16;
 
-    // set data rates available in EU868 spectrum
+    // set data rates available in AU915 spectrum
     phy_params.datarates.table = (void *) datarates_AU915;
     phy_params.datarates.size = 16;
 
