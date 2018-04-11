@@ -145,7 +145,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 
   // MBED: added
   if(hpcd->State == HAL_PCD_STATE_RESET)
-  {  
+  {
     /* Allocate lock resource and initialize it */
     hpcd->Lock = HAL_UNLOCKED;
 	for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
@@ -1298,50 +1298,56 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd)
   */
 static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t epnum)
 {
-  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
-  USB_OTG_EPTypeDef *ep;
-  int32_t len = 0;
-  uint32_t len32b;
-  uint32_t fifoemptymsk = 0;
+    USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+    USB_OTG_EPTypeDef *ep;
+    uint32_t len;
+    uint32_t len32b;
+    uint32_t fifoemptymsk = 0U;
 
-  ep = &hpcd->IN_ep[epnum];
-  len = ep->xfer_len - ep->xfer_count;
+    ep = &hpcd->IN_ep[epnum];
 
-  if (len > ep->maxpacket)
-  {
-    len = ep->maxpacket;
-  }
-
-
-  len32b = (len + 3) / 4;
-
-  while  ( (USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) > len32b &&
-          ep->xfer_count < ep->xfer_len &&
-            ep->xfer_len != 0)
-  {
-    /* Write the FIFO */
-    len = ep->xfer_len - ep->xfer_count;
-
-    if (len > ep->maxpacket)
+    if (ep->xfer_len >= ep->xfer_count)
     {
-      len = ep->maxpacket;
+        len = ep->xfer_len - ep->xfer_count;
+
+        if (len > ep->maxpacket)
+        {
+            len = ep->maxpacket;
+        }
+
+        len32b = (len + 3U) / 4U;
+
+        while  (((USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV) > len32b) &&
+                (ep->xfer_count < ep->xfer_len) &&
+                (ep->xfer_len != 0U))
+        {
+            /* Write the FIFO */
+            if (ep->xfer_len >= ep->xfer_count)
+            {
+                len = ep->xfer_len - ep->xfer_count;
+
+                if (len > ep->maxpacket)
+                {
+                    len = ep->maxpacket;
+                }
+                len32b = (len + 3U) / 4U;
+
+                USB_WritePacket(USBx, ep->xfer_buff, epnum, len, hpcd->Init.dma_enable); 
+
+                ep->xfer_buff  += len;
+                ep->xfer_count += len;
+            }
+        }
     }
-    len32b = (len + 3) / 4;
+    else
+    {
+        fifoemptymsk = 0x1U << epnum;
+        /* MBED */
+        atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK, fifoemptymsk);
+        /* MBED */
+    }
 
-    USB_WritePacket(USBx, ep->xfer_buff, epnum, len, hpcd->Init.dma_enable);
-
-    ep->xfer_buff  += len;
-    ep->xfer_count += len;
-  }
-
-  if(len <= 0)
-  {
-    fifoemptymsk = 0x1 << epnum;
-    atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK,  fifoemptymsk); // MBED: changed
-
-  }
-
-  return HAL_OK;
+    return HAL_OK;  
 }
 
 /**
