@@ -442,6 +442,24 @@ struct address_t : public byte_array_t<6> {
     }
 };
 
+/**
+ * Type that describes a random device address type.
+ */
+struct random_address_type_t : SafeEnum<random_address_type_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        STATIC, /**< Random static device address. */
+        NON_RESOLVABLE_PRIVATE, /**< Random non resolvable private address. */
+        RESOLVABLE_PRIVATE /**< Random resolvable private address. */
+    };
+
+    /**
+     * Construct a new instance of random_address_type_t.
+     */
+    random_address_type_t(type value) :
+        SafeEnum<random_address_type_t, uint8_t>(value) { }
+};
+
 } // namespace ble
 
 /**
