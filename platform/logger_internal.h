@@ -104,12 +104,86 @@ extern "C" {
 #define MBED_LOG_VSTR_2(fmt1, ap)                     log_str_vdata(fmt1, ap)
 #define MBED_LOG_VSTR_1(ll, mod, fmt, ap)             MBED_LOG_VSTR_2("[" ll "][" mod "]: " fmt, ap)
 
-// Internal functions to support logging functionality
-// Can be used have wrapper logging library, subject to change as they are internal and not API's
+/*  Internal function for assertion
+ *
+ *  This should be used to log assert information, application will termiate post logging
+ *
+ *  @param format    printf like format
+ *  @param ...       variable arguments related to format
+ *  @note: Application will terminate after printing assert log.
+ */
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+
+/*  Internal binary data logging function.
+ *
+ *  This should be used to log binary data.
+ *
+ *  @param argCount  Count of following variable arguments
+ *  @param args      variable arguments (uint32_t)
+ *  @note Only uint32_t type variable arguments accepted.
+ */
 void log_id_data(uint32_t argCount, ...);
+
+/*  Internal string data logging function
+ *
+ *  This should be used to log string data.
+ *
+ *  @param format    printf like format
+ *  @param ...       variable arguments related to format
+ */
 void log_str_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+
+/*  Internal string data logging function
+ *
+ *  This should be used to log string data like vprintf.
+ *
+ *  @param format    vprintf like format
+ *  @param args      variable arguments
+ */
 void log_str_vdata(const char *format, va_list args);
+
+/*  Logging lock
+ *
+ *  Thread safety is achieved using mutex lock/unlock, lock is applied in each log call.
+ *  If external library needs to synchronize with mbed logging, set the locking functions
+ *  in `mbed_log_set_mutex_wait` and `mbed_log_set_mutex_release`
+ */
+void mbed_log_lock(void);
+
+/*  Logging unlock
+ *
+ *  Thread safety is achieved using mutex lock/unlock, lock is applied in each log call.
+ *  If external library needs to synchronize with mbed logging, set the locking functions
+ *  in `mbed_log_set_mutex_wait` and `mbed_log_set_mutex_release`
+ */
+void mbed_log_unlock(void);
+
+/*  Logging unlock all
+ *
+ *  Few helper functions passed as argument in Logging API's need additional lock
+ *  which should be released only when entire format string is passed. Unlock all
+ *  does unlocking of all locks using a counter.
+ */
+void mbed_log_unlock_all(void);
+
+typedef void (*mbed_log_mutex_fptr)(void);
+/*  Logging Custom lock
+ *
+ *  Function pointer to application lock can be used instead of mbed logging libraries
+ *  default lock
+ *
+ *  @param  mutex_wait_f  Function pointer to mutex wait function
+ */
+void mbed_log_set_mutex_wait(mbed_log_mutex_fptr mutex_wait_f);
+
+/*  Logging Custom Unlock
+ *
+ *  Function pointer to application unlock can be used instead of mbed logging libraries
+ *  default unlock/release
+ *
+ *  @param  mutex_release_f  Function pointer to mutex release function
+ */
+void mbed_log_set_mutex_release(mbed_log_mutex_fptr mutex_release_f);
 
 #if defined(NDEBUG) || !defined(MBED_CONF_RTOS_PRESENT)
 #define log_reset(...)                   ((void) 0)
@@ -117,30 +191,76 @@ void log_str_vdata(const char *format, va_list args);
 #define log_disable_time_capture(...)    ((void) 0)
 #define log_enable_time_capture(...)     ((void) 0)
 #else
-// Functions added to test the logging feature
+
+/*  Reset to default state in logging
+ *
+ *  Resets start pointer of external buffer (if used), does not clear buffer.
+ *  Enables time capture info
+ */
 void log_reset(void);
+
+/*  Enables logging in external buffer
+ *
+ *  If valid buffer pointer is provided, all log data will be dumped to
+ *  buffer and not UART. Application should allocate buffer equivalent to
+ *  `MBED_CONF_EXTERNAL_BUFFER_SIZE` size. Data will be over-written when
+ *  full.
+ *
+ *  @param str - Buffer pointer
+ */
 void log_buffer_data(char *str);
+
+/*  Disables time logging for each log call
+ *
+ *  Time information will not be captured for logs
+ */
 void log_disable_time_capture(void);
+
+/*  Enables time logging for each log call
+ *
+ *  Time information will be captured for logs
+ */
 void log_enable_time_capture(void);
+
 #endif
 
 #if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
 #define mbed_log_array(...)              ((const char *) 0)
 #define mbed_log_ipv6(...)               ((const char *) 0)
 #define mbed_log_ipv6_prefix(...)        ((const char *) 0)
-#define mbed_log_helper_lock(...)        ((void) 0)
-#define mbed_log_helper_unlock(...)      ((void) 0)
-#define mbed_log_helper_unlock_all(...)  ((void) 0)
 #else
-// Helper functions : Note helper functions are not ISR safe.
-char* mbed_log_array(const uint8_t* buf, uint32_t len);
-char* mbed_log_ipv6(const uint8_t* addr_ptr);
-char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
 
-typedef void (*mbed_log_mutex_fptr)(void);
-void mbed_log_helper_lock(void);
-void mbed_log_helper_unlock(void);
-void mbed_log_helper_unlock_all(void);
+/*  Helper to log array info
+ *
+ *  Helper function to convert hex array to string. If array as string does
+ *  not fit in allocated buffer, '*' will be appended to end of string.
+ *
+ *  @param  buf  array pointer
+ *  @param  len  buffer length
+ *  @note  Will not print buffer info, if used in ISR
+ */
+char* mbed_log_array(const uint8_t* buf, uint32_t len);
+
+/*  Helper to log ipv6 info
+ *
+ *  Helper function to convert ipv6 table to human readable string.
+ *
+ *  @param  add_ptr  IPv6 Address pointer
+ *  @return  pointer to converted string
+ *  @note  Will not print buffer info, if used in ISR
+ */
+char* mbed_log_ipv6(const uint8_t* addr_ptr);
+
+/*  Helper to log ipv6 prefix
+ *
+ *  Helper function to convert ipv6 table to human readable string.
+ *
+ *  @param  add_ptr  IPv6 Address pointer
+ *  @param  prefix_len  prefix length
+ *  @return  pointer to converted string
+ *  @note  Will not print buffer info, if used in ISR
+ */
+char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
 #endif
 
 #ifdef __cplusplus

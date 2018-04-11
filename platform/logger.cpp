@@ -60,21 +60,21 @@ static void log_update_buf(const char *data, uint32_t size)
 // over-written and last valid ISR data will be printed.
 static void log_isr_id_data()
 {
-    mbed_log_helper_lock();
+    mbed_log_lock();
     uint32_t count = 0;
     while(log_count_--) {
         fprintf(stderr, "0x%x ", log_isr_str_[count++]);
     }
-    mbed_log_helper_unlock();
+    mbed_log_unlock();
 }
 #else
 // Note: ISR data is lossy, and with too many interrupts it might be
 // over-written and last valid ISR data will be printed.
 static void log_isr_queue()
 {
-    mbed_log_helper_lock();
+    mbed_log_lock();
     fputs(log_isr_str_, stderr);
-    mbed_log_helper_unlock();
+    mbed_log_unlock();
 }
 
 static void log_str_isr_data(const char *format, va_list args)
@@ -96,7 +96,7 @@ static void log_str_isr_data(const char *format, va_list args)
 
 static void log_str_usr_data(const char *format, va_list args)
 {
-    mbed_log_helper_lock();
+    mbed_log_lock();
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ << 1];
     uint32_t size = (LOG_SINGLE_STR_SIZE_ << 1);
 
@@ -112,7 +112,7 @@ static void log_str_usr_data(const char *format, va_list args)
     } else {
         fputs(one_line, stderr);
     }
-    mbed_log_helper_unlock_all();
+    mbed_log_unlock_all();
 }
 #endif
 #ifdef __cplusplus
@@ -183,7 +183,7 @@ void log_id_data(uint32_t argCount, ...)
         in_isr = true;
         buf = log_isr_str_;
     } else {
-        mbed_log_helper_lock();
+        mbed_log_lock();
         core_util_critical_section_enter();
         buf = log_id_buf_;
         in_isr = false;
@@ -221,7 +221,7 @@ void log_id_data(uint32_t argCount, ...)
             while(count--) {
                 fprintf(stderr, "0x%x ", buf[i++]);
             }
-            mbed_log_helper_unlock();
+            mbed_log_unlock();
         }
     }
 }

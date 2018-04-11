@@ -83,10 +83,8 @@
 #define mbed_trace_array(buf, len)                  mbed_log_array(buf, len)
 #define mbed_trace_ipv6(addr_ptr)                   mbed_log_ipv6(addr_ptr)
 #define mbed_trace_ipv6_prefix(prefix, prefix_len)  mbed_log_ipv6_prefix(prefix, prefix_len)
-
-void mbed_trace_mutex_wait_function_set(void (*mutex_wait_f)(void));
-void mbed_trace_mutex_release_function_set(void (*mutex_release_f)(void));
-
+#define mbed_trace_mutex_wait_function_set(wait)    mbed_log_set_mutex_wait(wait)
+#define mbed_trace_mutex_release_function_set(release) mbed_log_set_mutex_release(release)
 #endif
 
 // Not supported
