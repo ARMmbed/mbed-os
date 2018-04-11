@@ -1128,7 +1128,7 @@
             }
         }
     },
-    "MTB_USI_WM_BN_BM_22": {
+    "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F412xG", "STM32F412ZG"],
@@ -1143,6 +1143,16 @@
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
+        }
+    },
+    "MTB_USI_WM_BN_BM_22": {
+        "inherits": ["USI_WM_BN_BM_22"]
+    },
+    "MTB_ADV_WISE_1530": {
+        "inherits": ["USI_WM_BN_BM_22"],
+        "overrides": {
+            "stdio_uart_tx": "PB_10",
+            "stdio_uart_rx": "PC_11"
         }
     },
     "DISCO_F413ZH": {
