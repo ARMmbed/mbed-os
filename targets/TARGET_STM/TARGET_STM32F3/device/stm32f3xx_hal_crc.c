@@ -454,6 +454,15 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc)
   * @{
   */
 
+#if __GNUC__
+#    define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#    define MAY_ALIAS
+#endif
+
+typedef __IO uint8_t  MAY_ALIAS uint8_io_t;
+typedef __IO uint16_t MAY_ALIAS uint16_io_t;
+
 /**             
   * @brief  Enter 8-bit input data to the CRC calculator.
   *         Specific data handling to optimize processing time.  
@@ -478,16 +487,16 @@ static uint32_t CRC_Handle_8(CRC_HandleTypeDef *hcrc, uint8_t pBuffer[], uint32_
    {
      if  (BufferLength%4U == 1U)
      {
-       *(uint8_t volatile*) (&hcrc->Instance->DR) = pBuffer[4*i];
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4*i];
      }
      if  (BufferLength%4U == 2U)
      {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4*i]<<8) | (uint32_t)pBuffer[4*i+1];
+       *(uint16_io_t*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4*i]<<8) | (uint32_t)pBuffer[4*i+1];
      }
      if  (BufferLength%4U == 3U)
      {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4*i]<<8) | (uint32_t)pBuffer[4*i+1];
-       *(uint8_t volatile*) (&hcrc->Instance->DR) = pBuffer[4*i+2];       
+       *(uint16_io_t*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4*i]<<8) | (uint32_t)pBuffer[4*i+1];
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4*i+2];
      }
    }
   
@@ -518,7 +527,7 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
   }
   if ((BufferLength%2U) != 0U)
   {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = pBuffer[2*i]; 
+       *(uint16_io_t*) (&hcrc->Instance->DR) = pBuffer[2*i];
   }
    
   /* Return the CRC computed value */ 
