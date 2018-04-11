@@ -27,7 +27,7 @@ using namespace mbed;
 
 #if defined (MBED_ID_BASED_TRACING)
 static LOG_DATA_TYPE_ log_id_buf_[LOG_SINGLE_STR_SIZE_];
-static uint32_t log_count = 0;
+static uint32_t log_count_ = 0;
 #endif
 
 // Globals related to ISR logging
@@ -56,30 +56,28 @@ static void log_update_buf(const char *data, uint32_t size)
 }
 
 #if defined (MBED_ID_BASED_TRACING)
-
 // Note: ISR data is lossy, and with too many interrupts it might be
 // over-written and last valid ISR data will be printed.
 static void log_isr_id_data()
 {
     mbed_log_helper_lock();
     uint32_t count = 0;
-    while(log_count--) {
+    while(log_count_--) {
         fprintf(stderr, "0x%x ", log_isr_str_[count++]);
     }
     mbed_log_helper_unlock();
 }
-
 #else
 // Note: ISR data is lossy, and with too many interrupts it might be
 // over-written and last valid ISR data will be printed.
-static void log_isr_data()
+static void log_isr_queue()
 {
     mbed_log_helper_lock();
-    puts(log_isr_str_);
+    fputs(log_isr_str_, stderr);
     mbed_log_helper_unlock();
 }
 
-static void log_buffer_string_isr_data(const char *format, va_list args)
+static void log_str_isr_data(const char *format, va_list args)
 {
     core_util_critical_section_enter();
     volatile uint64_t time = ticker_read_us(log_ticker_);
@@ -91,40 +89,32 @@ static void log_buffer_string_isr_data(const char *format, va_list args)
     if (NULL != extern_buf_) {
         log_update_buf(log_isr_str_, strlen(log_isr_str_));
     } else {
-        log_isr_equeue_->call(log_isr_data);
+        log_isr_equeue_->call(log_isr_queue);
     }
     core_util_critical_section_exit();
 }
 
-static void log_buffer_string_usr_data(const char *format, va_list args)
+static void log_str_usr_data(const char *format, va_list args)
 {
     mbed_log_helper_lock();
-    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
+    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ << 1];
+    uint32_t size = (LOG_SINGLE_STR_SIZE_ << 1);
 
     volatile uint64_t time = ticker_read_us(log_ticker_);
     uint32_t count = 0;
     if (time_enable_) {
-        count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+        count = snprintf(one_line, size, "[%-8lld]", time);
     }
-    vsnprintf(one_line+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
-    char *str = mbed_log_get_helper_data();
+    vsnprintf(one_line+count, (size-count), format, args);
 
     if (NULL != extern_buf_) {
         log_update_buf(one_line, strlen(one_line));
     } else {
         fputs(one_line, stderr);
     }
-    if (mbed_log_valid_helper_data()) {
-        if (NULL != extern_buf_) {
-            log_update_buf(str, strlen(str));
-        } else {
-            fputs(str, stderr);
-        }
-    }
     mbed_log_helper_unlock_all();
 }
 #endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -184,7 +174,7 @@ void log_enable_time_capture(void)
 
 #if defined (MBED_ID_BASED_TRACING)
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
-void log_buffer_id_data(uint32_t argCount, ...)
+void log_id_data(uint32_t argCount, ...)
 {
     bool in_isr = false;
     LOG_DATA_TYPE_ *buf;
@@ -237,20 +227,20 @@ void log_buffer_id_data(uint32_t argCount, ...)
 }
 
 #else // String based implementation
-void log_buffer_string_data(const char *format, ...)
+void log_str_data(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
-    log_buffer_string_vdata(format, args);
+    log_str_vdata(format, args);
     va_end(args);
 }
 
-void log_buffer_string_vdata(const char *format, va_list args)
+void log_str_vdata(const char *format, va_list args)
 {
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        log_buffer_string_isr_data(format, args);
+        log_str_isr_data(format, args);
     } else {
-        log_buffer_string_usr_data(format, args);
+        log_str_usr_data(format, args);
     }
 }
 #endif

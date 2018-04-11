@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
  * \file mbed_trace_internal.h
  * Trace interface for Mbed OS applications.
@@ -27,7 +27,7 @@
  *      #include "mbed.h"
  *      #define TRACE_GROUP  "main"
  *
- *      int main(void){ 
+ *      int main(void){
  *          tr_debug("this is debug msg");
  *          tr_info("this is info msg");
  *          tr_warn("this is warning msg");
@@ -38,7 +38,7 @@
  *
  * @{
  */
- 
+
 #ifndef MBED_TRACE_INTERNAL_H
 #define MBED_TRACE_INTERNAL_H
 
@@ -49,14 +49,14 @@
 
 #define tr_error(...)                           MBED_ERR(TRACE_GROUP, ##__VA_ARGS__)
 #define tr_err(...)                             MBED_ERR(TRACE_GROUP, ##__VA_ARGS__)
-            
+
 #define tr_warning(...)                         MBED_WARN(TRACE_GROUP, ##__VA_ARGS__)
 #define tr_warn(...)                            MBED_WARN(TRACE_GROUP, ##__VA_ARGS__)
-            
+
 #define tr_debug(...)                           MBED_DBG(TRACE_GROUP, ##__VA_ARGS__)
-            
+
 #define tr_info(...)                            MBED_INFO(TRACE_GROUP, ##__VA_ARGS__)
-            
+
 #define tr_cmdline(...)                         MBED_LOG(TRACE_LEVEL_CMD, TRACE_GROUP, ##__VA_ARGS__)
 
 
@@ -89,7 +89,7 @@ void mbed_trace_mutex_release_function_set(void (*mutex_release_f)(void));
 
 #endif
 
-// Not supported 
+// Not supported
 #define mbed_trace_init(...)                        ((int) 0)
 #define mbed_trace_free(...)                        ((void) 0)
 #define mbed_trace_buffer_sizes(...)                ((void) 0)
@@ -105,5 +105,5 @@ void mbed_trace_mutex_release_function_set(void (*mutex_release_f)(void));
 #define mbed_trace_include_filters_get(...)         ((const char *) 0)
 #define mbed_trace_last(...)                        ((const char *) 0)
 
-#endif 
+#endif
 #endif

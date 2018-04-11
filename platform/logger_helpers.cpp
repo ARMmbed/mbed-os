@@ -33,7 +33,6 @@
 static SingletonPtr<PlatformMutex> log_helper_lock;
 static uint32_t log_mutex_count = 0;
 static char log_helper_data[LOG_SINGLE_HELPER_STR_SIZE_];
-static bool log_data_valid = false;
 static char send_null[] = "";
 static char send_null_str[] = "<null>";
 static char send_err_str[] = "<err>";
@@ -43,7 +42,6 @@ mbed_log_mutex_fptr mbed_log_mutex_release_fptr;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 char* mbed_log_ipv6(const uint8_t* addr_ptr)
 {
@@ -56,16 +54,12 @@ char* mbed_log_ipv6(const uint8_t* addr_ptr)
     if (addr_ptr == NULL) {
         return send_null_str;
     }
-
     log_helper_data[0] = 0;
     ip6tos(addr_ptr, log_helper_data);
-    log_data_valid = true;
-
-#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
-#endif
-#endif
+#else
     return send_null;
+#endif
 }
 
 char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len)
@@ -79,15 +73,11 @@ char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len)
     if ((prefix_len != 0 && prefix == NULL) || prefix_len > 128) {
         return send_err_str;
     }
-
     ip6_prefix_tos(prefix, prefix_len, log_helper_data);
-    log_data_valid = true;
-
-#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
-#endif
-#endif
+#else
     return send_null;
+#endif
 }
 
 char* mbed_log_array(const uint8_t* buf, uint32_t len)
@@ -118,12 +108,7 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len)
             break;
         }
     }
-    log_data_valid = true;
-
-#ifndef MBED_CONF_RTOS_PRESENT
     return log_helper_data;
-#endif
-    return send_null;
 }
 
 void mbed_log_helper_lock(void)
@@ -139,7 +124,6 @@ void mbed_log_helper_lock(void)
 void mbed_log_helper_unlock(void)
 {
     log_mutex_count--;
-    log_data_valid = false;
     if (mbed_log_mutex_release_fptr) {
         (*mbed_log_mutex_release_fptr)();
     } else {
@@ -151,7 +135,6 @@ void mbed_log_helper_unlock_all(void)
 {
     int count = log_mutex_count;
     log_mutex_count = 0;
-    log_data_valid = false;
     do {
         if (mbed_log_mutex_release_fptr) {
             (*mbed_log_mutex_release_fptr)();
@@ -159,16 +142,6 @@ void mbed_log_helper_unlock_all(void)
             log_helper_lock->unlock();
         }
     } while (--count > 0);
-}
-
-int mbed_log_valid_helper_data(void)
-{
-    return log_data_valid;
-}
-
-char* mbed_log_get_helper_data(void)
-{
-    return log_helper_data;
 }
 
 void mbed_trace_mutex_wait_function_set(mbed_log_mutex_fptr mutex_wait_f)

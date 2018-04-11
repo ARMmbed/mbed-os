@@ -42,18 +42,18 @@ extern "C" {
 #endif
 
 #if defined (MBED_ID_BASED_TRACING)
-#define LOG_DATA_TYPE_                 uint32_t
+#define LOG_DATA_TYPE_   uint32_t
 #else
-#define LOG_DATA_TYPE_                 char
+#define LOG_DATA_TYPE_   char
 #endif
 
-#define LOG_SINGLE_STR_SIZE_     MBED_CONF_MAX_LOG_STR_SIZE
 #if defined(__ARMCC_VERSION)
 #define LOG_FILE_NAME_           __MODULE__
 #else
 #define LOG_FILE_NAME_           __BASE_FILE__
 #endif
 
+#define LOG_SINGLE_STR_SIZE_     MBED_CONF_MAX_LOG_STR_SIZE
 // Log-Level Strings
 #define LOG_GEN_                 "GEN "
 #define LOG_ERR_CRITICAL_        "CRT "
@@ -78,7 +78,7 @@ extern "C" {
 #define TRACE_ID_(x,y,z)        (SET_MODULE(x) | SET_COUNTER(y) | SET_LINE_NUM(z))
 
 // Macros to log ID based data
-#define MBED_LOG_ID_4(...)                            log_buffer_id_data(__VA_ARGS__)
+#define MBED_LOG_ID_4(...)                            log_id_data(__VA_ARGS__)
 // Data dumped in special section is : Unique ID, format string length and format string
 #if 0
 #define MBED_LOG_ID_3(counter, id, args, fmt, ...)    ({volatile static const __attribute__((section(".keep.log_data"))) char str##counter[] = fmt; \
@@ -94,39 +94,43 @@ extern "C" {
 #define MBED_LOG_ID_1(mod, fmt, ll, f, l, c, ...)     MBED_LOG_ID_2(c, TRACE_ID_(mod,c,l), "[" mod "][" f "][" MBED_STRINGIFY(l) "]: " fmt, ##__VA_ARGS__)
 
 // Macros to log string data
-#define MBED_LOG_STR(...)                             log_buffer_string_data(__VA_ARGS__)
+#define MBED_LOG_STR(...)                             log_str_data(__VA_ARGS__)
 #define MBED_LOG_STR_1(mod, fmt, ll, ...)             MBED_LOG_STR("[%-4.4s][%-4.4s]: " fmt, ll, mod, ##__VA_ARGS__)
 
 // Assert string
 #define MBED_LOG_ASSERT(...)                          log_assert(__VA_ARGS__)
 #define MBED_LOG_ASSERT_1(mod, fmt, ll, f, l, ...)    MBED_LOG_ASSERT("[%-4.4s][%-4.4s][%-15s][%5d]: " fmt, ll, mod, f, l, ##__VA_ARGS__)
 
-#define MBED_LOG_VSTR_2(fmt1, ap)                     log_buffer_string_vdata(fmt1, ap)
+#define MBED_LOG_VSTR_2(fmt1, ap)                     log_str_vdata(fmt1, ap)
 #define MBED_LOG_VSTR_1(ll, mod, fmt, ap)             MBED_LOG_VSTR_2("[" ll "][" mod "]: " fmt, ap)
 
 // Internal functions to support logging functionality
 // Can be used have wrapper logging library, subject to change as they are internal and not API's
-void log_buffer_id_data(uint32_t argCount, ...);
-void log_buffer_string_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
-void log_buffer_string_vdata(const char *format, va_list args);
-void log_buffer_string_vdata_critical(const char *format, va_list args, uint8_t lossy);
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+void log_id_data(uint32_t argCount, ...);
+void log_str_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+void log_str_vdata(const char *format, va_list args);
 
+#if defined(NDEBUG) || !defined(MBED_CONF_RTOS_PRESENT)
+#define log_reset(...)                   ((void) 0)
+#define log_buffer_data(...)             ((void) 0)
+#define log_disable_time_capture(...)    ((void) 0)
+#define log_enable_time_capture(...)     ((void) 0)
+#else
 // Functions added to test the logging feature
 void log_reset(void);
 void log_buffer_data(char *str);
 void log_disable_time_capture(void);
 void log_enable_time_capture(void);
+#endif
 
 #if defined(NDEBUG) || defined(MBED_ID_BASED_TRACING)
 #define mbed_log_array(...)              ((const char *) 0)
 #define mbed_log_ipv6(...)               ((const char *) 0)
 #define mbed_log_ipv6_prefix(...)        ((const char *) 0)
 #define mbed_log_helper_lock(...)        ((void) 0)
-#define mbed_log_helper_unlock(...)      ((void) 0) 
+#define mbed_log_helper_unlock(...)      ((void) 0)
 #define mbed_log_helper_unlock_all(...)  ((void) 0)
-#define mbed_log_valid_helper_data(...)  ((void) 0)
-#define mbed_log_get_helper_data(...)    ((const char *) 0)
 #else
 // Helper functions : Note helper functions are not ISR safe.
 char* mbed_log_array(const uint8_t* buf, uint32_t len);
@@ -137,8 +141,6 @@ typedef void (*mbed_log_mutex_fptr)(void);
 void mbed_log_helper_lock(void);
 void mbed_log_helper_unlock(void);
 void mbed_log_helper_unlock_all(void);
-int mbed_log_valid_helper_data(void);
-char* mbed_log_get_helper_data(void);
 #endif
 
 #ifdef __cplusplus

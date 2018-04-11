@@ -80,7 +80,7 @@ extern "C" {
 #define LOG_LEVEL_TRACE          0x20
 
 #ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL            LOG_LEVEL_DEBUG
+#define MBED_CONF_MAX_LOG_LEVEL  LOG_LEVEL_DEBUG
 #endif
 
 /** Critical level log
@@ -280,9 +280,9 @@ extern "C" {
  * @param ...  variable arguments related to fmt
  */
 #if MBED_ID_BASED_TRACING
-#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_ID_1(mod, fmt, GET_LOG_STRING(ll), LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
+#define MBED_LOG(ll, mod, fmt, ...)      MBED_LOG_ID_1(mod, fmt, GET_LOG_STRING(ll), LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
-#define MBED_LOG(ll, mod, fmt, ...)              MBED_LOG_STR_1(mod, fmt, GET_LOG_STRING(ll), ##__VA_ARGS__)
+#define MBED_LOG(ll, mod, fmt, ...)      MBED_LOG_STR_1(mod, fmt, GET_LOG_STRING(ll), ##__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus
