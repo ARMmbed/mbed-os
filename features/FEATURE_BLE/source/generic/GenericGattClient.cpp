@@ -1084,6 +1084,18 @@ ble_error_t GenericGattClient::write(
 
     uint16_t mtu = get_mtu(connection_handle);
 
+    /* if link is encrypted signed writes should be normal writes */
+    if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+        ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
+        SecurityManager &sm = createBLEInstance()->getSecurityManager();
+        ble_error_t status = sm.getLinkEncryption(connection_handle, &encryption);
+        if (status == BLE_ERROR_NONE
+            || encryption == ble::link_encryption_t::ENCRYPTED
+            || encryption == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
+            cmd = GattClient::GATT_OP_WRITE_CMD;
+        }
+    }
+
     if (cmd == GattClient::GATT_OP_WRITE_CMD) {
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
@@ -1094,7 +1106,6 @@ ble_error_t GenericGattClient::write(
             make_const_ArrayView(value, length)
         );
     } else if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
-        /*TODO check encryption status */
         if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
