@@ -50,7 +50,7 @@ UART_HandleTypeDef uart_handlers[UART_NUM];
 static uart_irq_handler irq_handler;
 
 // Defined in serial_api.c
-inline int8_t get_uart_index(UARTName uart_name);
+extern int8_t get_uart_index(UARTName uart_name);
 
 /******************************************************************************
  * INTERRUPTS HANDLING
