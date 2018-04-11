@@ -149,6 +149,12 @@
              "SPI_MISO": "PC7",
              "SPI_CLK": "PC8",
              "SPI_CS": "PC9"
+        },
+        "LPC1768": {
+            "SPI_MOSI": "p5",
+            "SPI_MISO": "p6",
+            "SPI_CLK": "p7",
+            "SPI_CS": "p8"
         }
     }
 }
