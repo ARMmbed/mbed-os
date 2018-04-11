@@ -14,8 +14,15 @@ from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
 
-from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
-                    argparse_uppercase_type)
+# Be sure that the tools directory is in the search path
+# import sys.path.insert
+import sys
+from os.path import abspath
+ROOT = abspath(join(dirname(__file__), ".."))
+sys.path.insert(0, ROOT)
+
+from tools.utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                         argparse_uppercase_type)
 
 
 class _Parser(object):
@@ -78,10 +85,11 @@ class _Parser(object):
 
 
 class _GccParser(_Parser):
-    RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o)$')
-    RE_LIBRARY_OBJECT = re.compile(r'^.+' + sep + r'lib((.+\.a)\((.+\.o)\))$')
+    RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o(bj)?)$')
+    RE_LIBRARY_OBJECT = re.compile(r'^.+(\\|/)lib((.+\.a)\((.+\.o(bj)?)\))$')
     RE_STD_SECTION = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
     RE_FILL_SECTION = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     ALL_SECTIONS = _Parser.SECTIONS + _Parser.OTHER_SECTIONS + \
                    _Parser.MISC_FLASH_SECTIONS + ('unknown', 'OUTPUT')
@@ -185,12 +193,12 @@ class _GccParser(_Parser):
                 self.module_add(object_name, object_size, current_section)
 
         common_prefix = dirname(commonprefix([
-            o for o in self.modules.keys() if (o.endswith(".o") and not o.startswith("[lib]"))]))
+            o for o in self.modules.keys() if (o.endswith(self.OBJECT_EXTENSIONS) and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
             if name.startswith("[lib]"):
                 new_modules[name] = stats
-            elif name.endswith(".o"):
+            elif name.endswith(self.OBJECT_EXTENSIONS):
                 new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
@@ -200,7 +208,8 @@ class _GccParser(_Parser):
 class _ArmccParser(_Parser):
     RE = re.compile(
         r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
-    RE_OBJECT = re.compile(r'(.+\.(l|ar))\((.+\.o)\)')
+    RE_OBJECT = re.compile(r'(.+\.(l|ar))\((.+\.o(bj)?)\)')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     def parse_object_name(self, line):
         """ Parse object file
@@ -208,7 +217,7 @@ class _ArmccParser(_Parser):
         Positional arguments:
         line - the line containing the object or library
         """
-        if line.endswith(".o"):
+        if line.endswith(self.OBJECT_EXTENSIONS):
             return line
 
         else:
@@ -276,12 +285,12 @@ class _ArmccParser(_Parser):
                 self.module_add(*self.parse_section(line))
 
         common_prefix = dirname(commonprefix([
-            o for o in self.modules.keys() if (o.endswith(".o") and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
+            o for o in self.modules.keys() if (o.endswith(self.OBJECT_EXTENSIONS) and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
             if name == "anon$$obj.o" or name.startswith("[lib]"):
                 new_modules[name] = stats
-            elif name.endswith(".o"):
+            elif name.endswith(self.OBJECT_EXTENSIONS):
                 new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
@@ -293,9 +302,10 @@ class _IarParser(_Parser):
         r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
         r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
 
-    RE_CMDLINE_FILE = re.compile(r'^#\s+(.+\.o)')
+    RE_CMDLINE_FILE = re.compile(r'^#\s+(.+\.o(bj)?)')
     RE_LIBRARY = re.compile(r'^(.+\.a)\:.+$')
-    RE_OBJECT_LIBRARY = re.compile(r'^\s+(.+\.o)\s.*')
+    RE_OBJECT_LIBRARY = re.compile(r'^\s+(.+\.o(bj)?)\s.*')
+    OBJECT_EXTENSIONS = (".o", ".obj")
 
     def __init__(self):
         _Parser.__init__(self)
@@ -309,7 +319,7 @@ class _IarParser(_Parser):
         Positional arguments:
         line - the line containing the object or library
         """
-        if object_name.endswith(".o"):
+        if object_name.endswith(self.OBJECT_EXTENSIONS):
             try:
                 return self.cmd_modules[object_name]
             except KeyError:
@@ -403,7 +413,7 @@ class _IarParser(_Parser):
                 break
             for arg in line.split(" "):
                 arg = arg.rstrip(" \n")
-                if (not arg.startswith("-")) and arg.endswith(".o"):
+                if (not arg.startswith("-")) and arg.endswith(self.OBJECT_EXTENSIONS):
                     self.cmd_modules[basename(arg)] = arg
 
         common_prefix = dirname(commonprefix(list(self.cmd_modules.values())))
