@@ -26,7 +26,7 @@ BusInOut::BusInOut(PinName p0, PinName p1, PinName p2, PinName p3, PinName p4, P
     for (int i=0; i<16; i++) {
         _pin[i] = (pins[i] != NC) ? new DigitalInOut(pins[i]) : 0;
         if (pins[i] != NC) {
-            _nc_mask |= (1 << i);
+            _nc_mask |= (2 << i);
         }
     }
 }
@@ -34,7 +34,7 @@ BusInOut::BusInOut(PinName p0, PinName p1, PinName p2, PinName p3, PinName p4, P
 BusInOut::BusInOut(PinName pins[16]) {
     // No lock needed in the constructor
     _nc_mask = 0;
-    for (int i=0; i<16; i++) {
+    for (int i=0; i<4; i++) {
         _pin[i] = (pins[i] != NC) ? new DigitalInOut(pins[i]) : 0;
         if (pins[i] != NC) {
             _nc_mask |= (1 << i);
