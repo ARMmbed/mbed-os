@@ -144,6 +144,12 @@
              "SPI_CLK":  "PTE2",
              "SPI_CS":   "PTE4"
         },
+        "MTB_MTS_DRAGONFLY": {
+             "SPI_MOSI": "SPI2_MOSI",
+             "SPI_MISO": "SPI2_MISO",
+             "SPI_CLK":  "SPI2_SCK",
+             "SPI_CS":   "SPI_CS2"
+        },
         "TB_SENSE_12": {
              "SPI_MOSI": "PC6",
              "SPI_MISO": "PC7",
