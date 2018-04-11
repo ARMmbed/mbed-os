@@ -515,7 +515,7 @@ ble_error_t GenericSecurityManager::generateOOB(
     const address_t *address
 ) {
     /* legacy pairing */
-    ble_error_t status = get_random_data(_oob_temporary_key.buffer(), 16);
+    ble_error_t status = get_random_data(_oob_temporary_key.data(), 16);
 
     if (status == BLE_ERROR_NONE) {
         _oob_temporary_key_creator_address = *address;
