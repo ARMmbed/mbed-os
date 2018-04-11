@@ -77,10 +77,16 @@
 #define mbed_trace_array(buf, len)                  "Not supported"
 #define mbed_trace_ipv6(addr_ptr)                   "Not supported"
 #define mbed_trace_ipv6_prefix(prefix, prefix_len)  "Not supported"
+#define mbed_trace_mutex_wait_function_set(...)     ((void) 0)
+#define mbed_trace_mutex_release_function_set(...)  ((void) 0)
 #else
 #define mbed_trace_array(buf, len)                  mbed_log_array(buf, len)
 #define mbed_trace_ipv6(addr_ptr)                   mbed_log_ipv6(addr_ptr)
 #define mbed_trace_ipv6_prefix(prefix, prefix_len)  mbed_log_ipv6_prefix(prefix, prefix_len)
+
+void mbed_trace_mutex_wait_function_set(void (*mutex_wait_f)(void));
+void mbed_trace_mutex_release_function_set(void (*mutex_release_f)(void));
+
 #endif
 
 // Not supported 
@@ -93,8 +99,6 @@
 #define mbed_trace_suffix_function_set(...)         ((void) 0)
 #define mbed_trace_print_function_set(...)          ((void) 0)
 #define mbed_trace_cmdprint_function_set(...)       ((void) 0)
-#define mbed_trace_mutex_wait_function_set(...)     ((void) 0)
-#define mbed_trace_mutex_release_function_set(...)  ((void) 0)
 #define mbed_trace_exclude_filters_set(...)         ((void) 0)
 #define mbed_trace_exclude_filters_get(...)         ((const char *) 0)
 #define mbed_trace_include_filters_set(...)         ((void) 0)

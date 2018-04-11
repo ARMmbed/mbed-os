@@ -34,7 +34,7 @@ extern "C" {
 #include "platform/mbed_preprocessor.h"
 
 #ifndef MBED_CONF_MAX_LOG_STR_SIZE
-#define MBED_CONF_MAX_LOG_STR_SIZE     128
+#define MBED_CONF_MAX_LOG_STR_SIZE      128
 #endif
 
 #ifndef MBED_CONF_EXTERNAL_BUFFER_SIZE
@@ -133,6 +133,7 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len);
 char* mbed_log_ipv6(const uint8_t* addr_ptr);
 char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
 
+typedef void (*mbed_log_mutex_fptr)(void);
 void mbed_log_helper_lock(void);
 void mbed_log_helper_unlock(void);
 void mbed_log_helper_unlock_all(void);
