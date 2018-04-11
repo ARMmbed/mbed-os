@@ -125,7 +125,7 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
         return BLE_ERROR_ALREADY_INITIALIZED;
     }
 
-    instanceID   = instanceID;
+    this->instanceID = instanceID;
 
     /* ToDo: Clear memory contents, reset the SD, etc. */
     if (btle_init() != ERROR_NONE) {
@@ -209,11 +209,17 @@ SecurityManager& nRF5xn::getSecurityManager()
 const SecurityManager& nRF5xn::getSecurityManager() const
 {
     static ble::pal::MemorySecurityDb m_db;
-    ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal = ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
+    ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal =
+        ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
+    static struct : ble::pal::SigningEventMonitor {
+        virtual void set_signing_event_handler(EventHandler *signing_event_handler) { }
+    } dummy_signing_event_monitor;
+
     static ble::generic::GenericSecurityManager m_instance(
         m_pal,
         m_db,
-        const_cast<nRF5xGap&>(getGap())
+        const_cast<nRF5xGap&>(getGap()),
+        dummy_signing_event_monitor
     );
 
     return m_instance;

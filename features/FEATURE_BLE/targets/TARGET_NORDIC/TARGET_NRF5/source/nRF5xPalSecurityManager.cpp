@@ -85,6 +85,7 @@ struct nRF5xSecurityManager::pairing_control_block_t {
 
 nRF5xSecurityManager::nRF5xSecurityManager()
     : ::ble::pal::SecurityManager(),
+    _sign_counter(),
     _io_capability(io_capability_t::NO_INPUT_NO_OUTPUT),
     _min_encryption_key_size(7),
     _max_encryption_key_size(16),
@@ -508,10 +509,22 @@ ble_error_t nRF5xSecurityManager::set_irk(const irk_t& irk)
     return convert_sd_error(err);
 }
 
-ble_error_t nRF5xSecurityManager::set_csrk(const csrk_t& csrk)
-{
+ble_error_t nRF5xSecurityManager::set_csrk(
+    const csrk_t& csrk,
+    sign_count_t sign_counter
+) {
     _csrk = csrk;
+    _sign_counter = sign_counter;
     return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF5xSecurityManager::set_peer_csrk(
+    connection_handle_t connection,
+    const csrk_t &csrk,
+    bool authenticated,
+    sign_count_t sign_counter
+) {
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -630,23 +643,21 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
 }
 
 
-ble_error_t nRF5xSecurityManager::generate_secure_connections_oob(
-    connection_handle_t connection
-) {
+ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
+{
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
     memcpy(own_secret.pk, secret.data(), secret.size());
 
     uint32_t err = sd_ble_gap_lesc_oob_data_get(
-        connection,
+        BLE_CONN_HANDLE_INVALID,
         &own_secret,
         &oob_data
     );
 
     if (!err) {
         get_event_handler()->on_secure_connections_oob_generated(
-            connection,
             oob_data.r,
             oob_data.c
         );

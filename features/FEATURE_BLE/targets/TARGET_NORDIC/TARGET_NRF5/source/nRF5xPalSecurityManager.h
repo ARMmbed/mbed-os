@@ -237,7 +237,18 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::set_csrk
      */
-    virtual ble_error_t set_csrk(const csrk_t &csrk);
+    virtual ble_error_t set_csrk(const csrk_t &csrk, sign_count_t sign_counter);
+
+    /**
+     * @see ::ble::pal::SecurityManager::set_peer_csrk
+     */
+    virtual ble_error_t set_peer_csrk(
+        connection_handle_t connection,
+        const csrk_t &csrk,
+        bool authenticated,
+        sign_count_t sign_counter
+    );
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -300,9 +311,7 @@ public:
     /**
      * @see ::ble::pal::SecurityManager::generate_secure_connections_oob
      */
-    virtual ble_error_t generate_secure_connections_oob(
-        connection_handle_t connection
-    );
+    virtual ble_error_t generate_secure_connections_oob();
 
     // singleton of nordic Security Manager
     static nRF5xSecurityManager& get_security_manager();
@@ -312,6 +321,7 @@ public:
 
 private:
     csrk_t _csrk;
+    sign_count_t _sign_counter;
     io_capability_t _io_capability;
     uint8_t _min_encryption_key_size;
     uint8_t _max_encryption_key_size;
