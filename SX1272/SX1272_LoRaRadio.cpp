@@ -61,7 +61,8 @@ SPDX-License-Identifier: BSD-3-Clause
 
 
 enum RadioVariant {
-    SX1272MB2XAS = 0,
+    SX1272UNDEFINED = 0,
+    SX1272MB2XAS,
     SX1272MB1DCS
 };
 
@@ -1369,15 +1370,13 @@ void SX1272_LoRaRadio::default_antenna_switch_ctrls()
  */
 uint8_t SX1272_LoRaRadio::get_pa_conf_reg()
 {
-
-#if defined(TARGET_MTS_MDOT_F411RE) || defined(TARGET_XDOT_L151CC) || defined(TARGET_MTB_MTS_XDOT)
-    return RF_PACONFIG_PASELECT_PABOOST;
-#endif
-    if (radio_variant == SX1272MB1DCS) {
+    if (radio_variant == SX1272UNDEFINED) {
         return RF_PACONFIG_PASELECT_PABOOST;
+    } else if (radio_variant == SX1272MB1DCS) {
+        return RF_PACONFIG_PASELECT_PABOOST;
+    } else {
+        return RF_PACONFIG_PASELECT_RFO;
     }
-
-    return RF_PACONFIG_PASELECT_RFO;
 }
 
 /**
@@ -1488,15 +1487,19 @@ void SX1272_LoRaRadio::setup_registers()
  */
 void SX1272_LoRaRadio::set_sx1272_variant_type()
 {
-    _ant_switch.input();
-    wait_ms(1);
-    if (_ant_switch == 1) {
-        radio_variant = SX1272MB1DCS;
+    if (_rf_ctrls.ant_switch != NC){
+        _ant_switch.input();
+        wait_ms(1);
+        if (_ant_switch == 1) {
+            radio_variant = SX1272MB1DCS;
+        } else {
+            radio_variant = SX1272MB2XAS;
+        }
+        _ant_switch.output();
+        wait_ms(1);
     } else {
-        radio_variant = SX1272MB2XAS;
+        radio_variant = SX1272UNDEFINED;
     }
-    _ant_switch.output();
-    wait_ms(1);
 }
 
 /**

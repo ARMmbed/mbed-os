@@ -390,9 +390,6 @@ private:
     // Access protection
     PlatformMutex mutex;
 
-    // Murata board
-    bool is_murata;
-
     // helper functions
     void setup_registers();
     void default_antenna_switch_ctrls();

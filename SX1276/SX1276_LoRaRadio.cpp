@@ -146,7 +146,8 @@ static const fsk_bw_t fsk_bandwidths[] =
 static const radio_registers_t radio_reg_init[] = RADIO_INIT_REGISTERS_VALUE;
 
 enum RadioVariant {
-    SX1276MB1LAS = 0,
+    SX1276UNDEFINED = 0,
+    SX1276MB1LAS,
     SX1276MB1MAS
 };
 
@@ -206,13 +207,6 @@ SX1276_LoRaRadio::SX1276_LoRaRadio(PinName spi_mosi,
 
     _radio_events = NULL;
 
-    // Detect Murata based on pin configuration
-    if (pwr_amp_ctl != NC && txctl != NC && rxctl != NC && tcxo != NC) {
-        is_murata = true;
-    } else {
-        is_murata = false;
-    }
-
     if (tcxo != NC) {
         _tcxo = 1;
     }
@@ -259,10 +253,8 @@ void SX1276_LoRaRadio::init_radio(radio_events_t *events)
     // Reset the radio transceiver
     radio_reset();
 
-    if (!is_murata) {
-        // Setup radio variant type
-        set_sx1276_variant_type();
-    }
+    // Setup radio variant type
+    set_sx1276_variant_type();
 
     // setup SPI frequency
     // default is 8MHz although, configurable through
@@ -1356,15 +1348,19 @@ void SX1276_LoRaRadio::set_modem(uint8_t modem )
  */
 void SX1276_LoRaRadio::set_sx1276_variant_type()
 {
-    _ant_switch.input();
-    wait_ms(1);
-    if (_ant_switch == 1) {
-        radio_variant = SX1276MB1LAS;
+    if (_rf_ctrls.ant_switch != NC) {
+        _ant_switch.input();
+        wait_ms(1);
+        if (_ant_switch == 1) {
+            radio_variant = SX1276MB1LAS;
+        } else {
+            radio_variant = SX1276MB1MAS;
+        }
+        _ant_switch.output();
+        wait_ms(1);
     } else {
-        radio_variant = SX1276MB1MAS;
+        radio_variant = SX1276UNDEFINED;
     }
-    _ant_switch.output();
-    wait_ms(1);
 }
 
 /**
@@ -1472,11 +1468,10 @@ uint8_t SX1276_LoRaRadio::get_fsk_bw_reg_val(uint32_t bandwidth)
 
 uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
 {
-#if TARGET_MTB_ADV_WISE_1510
-    return RF_PACONFIG_PASELECT_PABOOST;
-#else
-    if (channel > RF_MID_BAND_THRESH) {
-        if (radio_variant == SX1276MB1LAS || is_murata) {
+    if (radio_variant == SX1276UNDEFINED) {
+        return RF_PACONFIG_PASELECT_PABOOST;
+    } else if (channel > RF_MID_BAND_THRESH) {
+        if (radio_variant == SX1276MB1LAS) {
             return RF_PACONFIG_PASELECT_PABOOST;
         } else {
             return RF_PACONFIG_PASELECT_RFO;
@@ -1484,7 +1479,6 @@ uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
     } else {
         return RF_PACONFIG_PASELECT_RFO;
     }
-#endif
 }
 
 /**
@@ -1719,8 +1713,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
             if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC) {
                 // module is in transmit mode and tx/rx submodule control
                 // pins are connected
-                if (is_murata)
-                {
+                if (_rf_ctrls.pwr_amp_ctl != NC) {
                     if (read_register(REG_PACONFIG) & RF_PACONFIG_PASELECT_PABOOST) {
                         _pwr_amp_ctl = 1;
                         _txctl = 0;
@@ -1728,8 +1721,7 @@ void SX1276_LoRaRadio::set_antenna_switch(uint8_t mode)
                         _pwr_amp_ctl = 0;
                         _txctl = 1;
                     }
-                } else
-                {
+                } else {
                     _txctl = 1;
                 }
                 _rxctl = 0;
