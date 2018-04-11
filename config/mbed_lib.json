@@ -120,6 +120,12 @@
             "SPI_MISO": "D12",
             "SPI_CLK": "D13"
         },
+        "MTB_UBLOX_ODIN_W2": {
+            "SPI_CS": "PG_4",
+            "SPI_MOSI": "PE_14",
+            "SPI_MISO": "PE_13",
+            "SPI_CLK": "PE_12"
+       },
         "RZ_A1H": {
              "SPI_MOSI": "P8_5",
              "SPI_MISO": "P8_6",
