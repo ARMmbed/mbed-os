@@ -99,8 +99,8 @@ void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_
 }
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int modem_connect_id;
     int request_connect_id = socket->id;
+    int modem_connect_id = !request_connect_id;
     int remote_port = 0;
     int err = -1;
 
