@@ -42,10 +42,6 @@ static bool time_enable_ = true;
 static LOG_DATA_TYPE_ *extern_buf_ = NULL;
 static uint32_t xbuf_count_ = 0;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static void log_update_buf(const char *data, uint32_t size)
 {
     if ((NULL == extern_buf_) || (NULL == data) || (0 == size)) {
@@ -57,6 +53,86 @@ static void log_update_buf(const char *data, uint32_t size)
         extern_buf_[xbuf_count_++] = data[count++];
         xbuf_count_ %= MBED_CONF_EXTERNAL_BUFFER_SIZE;
     }
+}
+
+#if defined (MBED_ID_BASED_TRACING)
+
+// Note: ISR data is lossy, and with too many interrupts it might be
+// over-written and last valid ISR data will be printed.
+static void log_isr_id_data()
+{
+    mbed_log_helper_lock();
+    uint32_t count = 0;
+    while(log_count--) {
+        fprintf(stderr, "0x%x ", log_isr_str_[count++]);
+    }
+    mbed_log_helper_unlock();
+}
+
+#else
+// Note: ISR data is lossy, and with too many interrupts it might be
+// over-written and last valid ISR data will be printed.
+static void log_isr_data()
+{
+    mbed_log_helper_lock();
+    puts(log_isr_str_);
+    mbed_log_helper_unlock();
+}
+
+static void log_buffer_string_isr_data(const char *format, va_list args)
+{
+    core_util_critical_section_enter();
+    volatile uint64_t time = ticker_read_us(log_ticker_);
+    uint32_t count = 0;
+    if (time_enable_) {
+        count = snprintf(log_isr_str_, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+    }
+    vsnprintf(log_isr_str_+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
+    if (NULL != extern_buf_) {
+        log_update_buf(log_isr_str_, strlen(log_isr_str_));
+    } else {
+        log_isr_equeue_->call(log_isr_data);
+    }
+    core_util_critical_section_exit();
+}
+
+static void log_buffer_string_usr_data(const char *format, va_list args)
+{
+    mbed_log_helper_lock();
+    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
+
+    volatile uint64_t time = ticker_read_us(log_ticker_);
+    uint32_t count = 0;
+    if (time_enable_) {
+        count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+    }
+    vsnprintf(one_line+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
+    char *str = mbed_log_get_helper_data();
+
+    if (NULL != extern_buf_) {
+        log_update_buf(one_line, strlen(one_line));
+    } else {
+        fputs(one_line, stderr);
+    }
+    if (mbed_log_valid_helper_data()) {
+        if (NULL != extern_buf_) {
+            log_update_buf(str, strlen(str));
+        } else {
+            fputs(str, stderr);
+        }
+    }
+    mbed_log_helper_unlock_all();
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void mbed_logging_start(void)
+{
+    log_isr_equeue_ = mbed_highprio_event_queue();
+    MBED_ASSERT(log_isr_equeue_ != NULL);
 }
 
 void log_assert(const char *format, ...)
@@ -71,7 +147,7 @@ void log_assert(const char *format, ...)
     va_list args;
     va_start(args, format);
     if (time_enable_) {
-        mbed_error_printf("\n[%-8lld]", time);
+        mbed_error_printf("[%-8lld]", time);
     }
     mbed_error_vfprintf(format, args);
     va_end(args);
@@ -106,26 +182,7 @@ void log_enable_time_capture(void)
     core_util_critical_section_exit();
 }
 
-void mbed_logging_start(void)
-{
-    log_isr_equeue_ = mbed_highprio_event_queue();
-    MBED_ASSERT(log_isr_equeue_ != NULL);
-}
-
 #if defined (MBED_ID_BASED_TRACING)
-
-// Note: ISR data is lossy, and with too many interrupts it might be
-// over-written and last valid ISR data will be printed.
-static void log_isr_id_data()
-{
-    mbed_log_helper_lock();
-    uint32_t count = 0;
-    while(log_count--) {
-        fprintf(stderr, "0x%x ", log_isr_str_[count++]);
-    }
-    mbed_log_helper_unlock();
-}
-
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
 void log_buffer_id_data(uint32_t argCount, ...)
 {
@@ -180,60 +237,6 @@ void log_buffer_id_data(uint32_t argCount, ...)
 }
 
 #else // String based implementation
-// Note: ISR data is lossy, and with too many interrupts it might be
-// over-written and last valid ISR data will be printed.
-static void log_isr_data()
-{
-    mbed_log_helper_lock();
-    puts(log_isr_str_);
-    mbed_log_helper_unlock();
-}
-
-static void log_buffer_string_isr_data(const char *format, va_list args)
-{
-    core_util_critical_section_enter();
-    volatile uint64_t time = ticker_read_us(log_ticker_);
-    uint32_t count = 0;
-    if (time_enable_) {
-        count = snprintf(log_isr_str_, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
-    }
-    vsnprintf(log_isr_str_+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
-    if (NULL != extern_buf_) {
-        log_update_buf(log_isr_str_, strlen(log_isr_str_));
-    } else {
-        log_isr_equeue_->call(log_isr_data);
-    }
-    core_util_critical_section_exit();
-}
-
-static void log_buffer_string_usr_data(const char *format, va_list args)
-{
-    mbed_log_helper_lock();
-    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
-
-    volatile uint64_t time = ticker_read_us(log_ticker_);
-    uint32_t count = 0;
-    if (time_enable_) {
-        count = snprintf(one_line, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
-    }
-    vsnprintf(one_line+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
-    char *str = mbed_log_get_helper_data();
-
-    if (NULL != extern_buf_) {
-        log_update_buf(one_line, strlen(one_line));
-    } else {
-        fputs(one_line, stderr);
-    }
-    if (mbed_log_valid_helper_data()) {
-        if (NULL != extern_buf_) {
-            log_update_buf(str, strlen(str));
-        } else {
-            fputs(str, stderr);
-        }
-    }
-    mbed_log_helper_unlock_all();
-}
-
 void log_buffer_string_data(const char *format, ...)
 {
     va_list args;
@@ -250,7 +253,6 @@ void log_buffer_string_vdata(const char *format, va_list args)
         log_buffer_string_usr_data(format, args);
     }
 }
-
 #endif
 
 #ifdef __cplusplus
