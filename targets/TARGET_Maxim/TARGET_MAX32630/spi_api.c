@@ -201,7 +201,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
             req.rx_data = (uint8_t *)(rx_buffer + tx_length);
             req.len = rx_length - tx_length;
             SPIM_Trans(obj->spi, &req);
-    }
+        }
     } else {
         req.tx_data = (uint8_t *)tx_buffer;
         req.rx_data = (rx_length > 0) ? (uint8_t *)rx_buffer : NULL;
