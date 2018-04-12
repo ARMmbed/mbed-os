@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.4.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.2) 
+**Closed issues:**
+ - IOTCLT-2469 CoAP UDP retransmission does not work for blocks after first one for requests (Eg. registration POST)
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.4.1...v4.4.2)
+
 ## [v4.4.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.1) 
 **Closed issues:**
  - IOTCLT-2539 Block wise messaging call-backs not working logically

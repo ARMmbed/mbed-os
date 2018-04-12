@@ -1732,7 +1732,16 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                     }
 
                     sn_coap_builder_2(dst_ack_packet_data_ptr, src_coap_blockwise_ack_msg_ptr, handle->sn_coap_block_data_size);
+
                     handle->sn_coap_tx_callback(dst_ack_packet_data_ptr, dst_packed_data_needed_mem, src_addr_ptr, param);
+
+#if ENABLE_RESENDINGS
+                    uint32_t resend_time = sn_coap_calculate_new_resend_time(handle->system_time, handle->sn_coap_resending_intervall, 0);
+                    sn_coap_protocol_linked_list_send_msg_store(handle, src_addr_ptr,
+                            dst_packed_data_needed_mem,
+                            dst_ack_packet_data_ptr,
+                            resend_time, param);
+#endif
 
                     handle->sn_coap_protocol_free(dst_ack_packet_data_ptr);
                     dst_ack_packet_data_ptr = 0;
@@ -2053,13 +2062,13 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                     handle->sn_coap_tx_callback(dst_ack_packet_data_ptr,
                                                 dst_packed_data_needed_mem, src_addr_ptr, param);
 
-    #if ENABLE_RESENDINGS
+#if ENABLE_RESENDINGS
                     uint32_t resend_time = sn_coap_calculate_new_resend_time(handle->system_time, handle->sn_coap_resending_intervall, 0);
                     sn_coap_protocol_linked_list_send_msg_store(handle, src_addr_ptr,
                             dst_packed_data_needed_mem,
                             dst_ack_packet_data_ptr,
                             resend_time, param);
-    #endif
+#endif
                     handle->sn_coap_protocol_free(dst_ack_packet_data_ptr);
                     dst_ack_packet_data_ptr = 0;
                 }
