@@ -32,6 +32,7 @@
  */
 
 #include "mbed_assert.h"
+#include "mbed_critical.h"
 #include "spi_api.h"        // mbed HAL
 #include "spim_regs.h"      // bare metal
 #include "spim.h"           // Maxim CMSIS driver
