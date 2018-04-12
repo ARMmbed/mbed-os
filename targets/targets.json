@@ -1859,7 +1859,7 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
             "lowpowertimer_lptim": {
