@@ -42,7 +42,7 @@ device_err_t ATHandler_stub::device_err_value;
 Callback<void()> ATHandler_stub::callback = NULL;
 uint8_t ATHandler_stub::resp_info_true_counter = false;
 
-ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter) :
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
     _fileHandle(fh),
     _queue(queue)
