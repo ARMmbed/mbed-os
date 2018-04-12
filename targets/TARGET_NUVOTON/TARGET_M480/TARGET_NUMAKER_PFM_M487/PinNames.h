@@ -84,34 +84,34 @@ typedef enum {
     A0 = PB_6,
     A1 = PB_7,
     A2 = PB_8,
-    A3 = PB_3,
-    A4 = PB_4,
-    A5 = PB_5,
+    A3 = PB_9,
+    A4 = PB_0,
+    A5 = PB_1,
 
-    D0 = PH_9,
-    D1 = PH_8,
-    D2 = PB_9,
-    D3 = PF_11,
-    D4 = PG_4,
-    D5 = PC_11,
-    D6 = PC_12,
-    D7 = PC_13,
+    D0 = PB_2,
+    D1 = PB_3,
+    D2 = PC_9,
+    D3 = PC_10,
+    D4 = PC_11,
+    D5 = PC_12,
+    D6 = PE_4,
+    D7 = PE_5,
     D8 = PA_5,
     D9 = PA_4,
     D10 = PA_3,
     D11 = PA_0,
     D12 = PA_1,
     D13 = PA_2,
-    D14 = PG_3,
-    D15 = PG_2,
+    D14 = PG_1,
+    D15 = PG_0,
 
     I2C_SCL = D15,
     I2C_SDA = D14,
     
     // Note: board-specific
     // UART naming
-    USBTX = PD_3,
-    USBRX = PD_2,
+    USBTX = PB_13,
+    USBRX = PB_12,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
     SERIAL_TX = USBTX,
@@ -125,8 +125,8 @@ typedef enum {
     LED3 = LED_GREEN,
     LED4 = LED1,    // No real LED. Just for passing ATS.
     // Button naming
-    SW2 = PC_10,
-    SW3 = PC_9,
+    SW2 = PG_15,
+    SW3 = PF_11,
     
 } PinName;
 

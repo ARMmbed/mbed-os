@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_tim.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   TIM LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -248,7 +246,7 @@ void LL_TIM_StructInit(LL_TIM_InitTypeDef *TIM_InitStruct)
   /* Set the default configuration */
   TIM_InitStruct->Prescaler         = (uint16_t)0x0000U;
   TIM_InitStruct->CounterMode       = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct->Autoreload        = (uint32_t)0xFFFFFFFFU;
+  TIM_InitStruct->Autoreload        = 0xFFFFFFFFU;
   TIM_InitStruct->ClockDivision     = LL_TIM_CLOCKDIVISION_DIV1;
 }
 
@@ -309,7 +307,7 @@ void LL_TIM_OC_StructInit(LL_TIM_OC_InitTypeDef *TIM_OC_InitStruct)
   /* Set the default configuration */
   TIM_OC_InitStruct->OCMode       = LL_TIM_OCMODE_FROZEN;
   TIM_OC_InitStruct->OCState      = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct->CompareValue = (uint32_t)0x00000000U;
+  TIM_OC_InitStruct->CompareValue = 0x00000000U;
   TIM_OC_InitStruct->OCPolarity   = LL_TIM_OCPOLARITY_HIGH;
 }
 
@@ -486,7 +484,6 @@ ErrorStatus LL_TIM_ENCODER_Init(TIM_TypeDef *TIMx, LL_TIM_ENCODER_InitTypeDef *T
 
   return SUCCESS;
 }
-
 
 /**
   * @}

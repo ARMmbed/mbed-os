@@ -18,35 +18,44 @@
 
 #include <stdint.h>
 
-// Target flash algorithm structure
+/** Target flash algorithm structure
+ */
 typedef struct {
-    const uint32_t init;
-    const uint32_t uninit;
-    const uint32_t erase_sector;
-    const uint32_t program_page;
-    const uint32_t static_base;
-    uint32_t *algo_blob;
+    const uint32_t init; /**< Init function address */
+    const uint32_t uninit; /**< Uninit function address */
+    const uint32_t erase_sector; /**< Erase sector function address */
+    const uint32_t program_page; /**< Program page function address */
+    const uint32_t static_base; /**< Static base address */
+    uint32_t *algo_blob; /**< Pointer to flash algo binary blob */
 } flash_algo_t;
 
+/** Sector information structure
+ */
 typedef struct {
-    const uint32_t start;
-    const uint32_t size;
+    const uint32_t start; /**< Sector start address */
+    const uint32_t size; /**< Sector size */
 } sector_info_t;
 
+/** Flash configuration structure
+ */
 typedef struct {
-    const uint32_t page_size;
-    const uint32_t flash_start;
-    const uint32_t flash_size;
-    const sector_info_t *sectors;
-    const uint32_t sector_info_count;
+    const uint32_t page_size; /**< The minimum program page size that can be written */
+    const uint32_t flash_start; /**< Start address of the flash <0, flash_size) */
+    const uint32_t flash_size; /**<  Flash size. The size is accumulative sum of all sector sizes */
+    const sector_info_t *sectors; /**<  List of sectors - sector can vary in sizes */
+    const uint32_t sector_info_count; /**< Number of sectors */
 } flash_target_config_t;
 
-// Target flash configuration
+/** Target flash configuration
+ */
 struct flash_s {
     const flash_target_config_t *target_config;
     const flash_algo_t *flash_algo;
 };
 
+/** Flash algo argument structure
+ *  Contains all registers that should be preserved
+ */
 typedef struct {
     uint32_t r0;
     uint32_t r1;

@@ -1531,7 +1531,7 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
-	"MTB_ADV_WISE_1510": {
+    "MTB_ADV_WISE_1510": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -2026,6 +2026,17 @@
         "device_has_add": ["ANALOGOUT", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L151CC",
+        "bootloader_supported": true
+    },
+    "MTB_RAK811": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels_add": ["STM32L1", "STM32L151xBA", "STM32L151CBA"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "device_has_add": ["ANALOGOUT"],
+        "release_versions": ["5"],
+        "device_name": "STM32L151CBxxA",
         "bootloader_supported": true
     },
     "MOTE_L152RC": {
@@ -2764,13 +2775,13 @@
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-		"features": ["BLE"],
+        "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
     "EFM32": {
         "inherits": ["Target"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
-        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS"],
         "public": false
     },
     "EFM32GG990F1024": {
@@ -3963,5 +3974,18 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
+    },
+    "TMPM46B": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM46B__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SPI", "I2C", "STDIO_MESSAGES", "TRNG", "FLASH", "SLEEP"],
+        "device_name": "TMPM46BF10FG",
+        "detect_code": ["7013"],
+        "release_versions": ["5"],
+        "bootloader_supported": true
     }
 }

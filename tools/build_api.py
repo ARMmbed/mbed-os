@@ -486,11 +486,6 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
 
-    if  (hasattr(toolchain.target, "release_versions") and
-            "5" not in toolchain.target.release_versions and
-            "rtos" in toolchain.config.lib_config_data):
-            raise NotSupportedException("Target does not support mbed OS 5")
-
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,

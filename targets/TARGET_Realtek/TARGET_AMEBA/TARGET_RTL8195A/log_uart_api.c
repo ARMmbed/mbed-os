@@ -210,13 +210,13 @@ void log_uart_irq_handler(log_uart_t *obj, loguart_irq_handler handler, uint32_t
 
     pUartAdapter = &(obj->log_hal_uart);
     pUartAdapter->api_irq_handler = handler;
-    pUartAdapter->api_irq_id = id;    
+    pUartAdapter->api_irq_id = id;
 }
 
 void log_uart_irq_set(log_uart_t *obj, LOG_UART_INT_ID irq, uint32_t enable) 
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter;
-    u8 int_en=0;
+    u8 int_en = 0;
 
     pUartAdapter = &(obj->log_hal_uart);
 
@@ -241,7 +241,7 @@ void log_uart_irq_set(log_uart_t *obj, LOG_UART_INT_ID irq, uint32_t enable)
         DBG_UART_WARN("log_uart_irq_set: Unknown Irq Id\n");
         return;
     }
-        
+
     if (enable) {
         pUartAdapter->IntEnReg |= int_en;
     } else {

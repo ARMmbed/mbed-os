@@ -47,6 +47,9 @@ static int ticker_inited = 0;
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
+/* NOTE: When system clock is higher than timer clock, we need to add 3 engine clock
+ *       (recommended by designer) delay to wait for above timer control to take effect. */
+
 void lp_ticker_init(void)
 {
     if (ticker_inited) {
@@ -63,27 +66,38 @@ void lp_ticker_init(void)
     // Enable IP clock
     CLK_EnableModuleClock(TIMER_MODINIT.clkidx);
 
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+
     // Configure clock
-    uint32_t clk_timer = TIMER_GetModuleClock((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    uint32_t clk_timer = TIMER_GetModuleClock(timer_base);
     uint32_t prescale_timer = clk_timer / NU_TMRCLK_PER_SEC - 1;
     MBED_ASSERT((prescale_timer != (uint32_t) -1) && prescale_timer <= 127);
     MBED_ASSERT((clk_timer % NU_TMRCLK_PER_SEC) == 0);
     uint32_t cmp_timer = TMR_CMP_MAX;
     MBED_ASSERT(cmp_timer >= TMR_CMP_MIN && cmp_timer <= TMR_CMP_MAX);
     // Continuous mode
-    ((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname))->CTL = TIMER_CONTINUOUS_MODE | prescale_timer | TIMER_CTL_CNTDATEN_Msk;
-    ((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname))->CMP = cmp_timer;
+    timer_base->CTL = TIMER_CONTINUOUS_MODE | prescale_timer | TIMER_CTL_CNTDATEN_Msk;
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    timer_base->CMP = cmp_timer;
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     // Set vector
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_EnableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    /* NOTE: When engine is clocked by low power clock source (LXT/LIRC), we need to wait for 3 engine clocks. */
+    TIMER_EnableInt(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-    TIMER_Start((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+
+    TIMER_EnableWakeup(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    TIMER_Start(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* Wait for timer to start counting and raise active flag */
+    while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
 }
 
 timestamp_t lp_ticker_read()
@@ -92,7 +106,7 @@ timestamp_t lp_ticker_read()
         lp_ticker_init();
     }
 
-    TIMER_T * timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
 
     return  (TIMER_GetCounter(timer_base) / NU_TMRCLK_PER_TICK);
 }
@@ -107,27 +121,27 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
      * This behavior is not what we want. To fix it, we could configure new CMP value
      * without stopping counting first.
      */
-    TIMER_T * timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
 
     /* NOTE: Because H/W timer requests min compare value, our implementation would have alarm delay of 
      *       (TMR_CMP_MIN - interval_clk) clocks when interval_clk is between [1, TMR_CMP_MIN). */
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
-    timer_base->CMP = cmp_timer;
 
-    /* NOTE: When engine is clocked by low power clock source (LXT/LIRC), we need to wait for 3 engine clocks. */
+    timer_base->CMP = cmp_timer;
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-    TIMER_Start(timer_base);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
     TIMER_DisableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
 void lp_ticker_fire_interrupt(void)
@@ -149,8 +163,11 @@ const ticker_info_t* lp_ticker_get_info()
 static void tmr1_vec(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
     TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
     // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
     lp_ticker_irq_handler();
 }

@@ -248,6 +248,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L073RZ',
             'mcuId': 'STM32L073RZTx'
         },
+        'MTB_RAK811':
+        {
+            'name': 'MTB-RAK-811',
+            'mcuId': 'STM32L151CBUxA'
+        },
         'NUCLEO_L152RE':
         {
             'name': 'NUCLEO-L152RE',

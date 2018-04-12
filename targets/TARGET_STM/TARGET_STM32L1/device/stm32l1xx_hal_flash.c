@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -140,7 +138,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -239,10 +237,10 @@ extern void    FLASH_PageErase(uint32_t PageAddress);
   *         Call the HAL_FLASH_Lock() to disable the flash memory access
   *         (recommended to protect the FLASH memory against possible unwanted operation).
   *
-  * @param  TypeProgram:  Indicate the way to program at a specified address.
+  * @param  TypeProgram   Indicate the way to program at a specified address.
   *                       This parameter can be a value of @ref FLASH_Type_Program
-  * @param  Address:      Specifies the address to be programmed.
-  * @param  Data:         Specifies the data to be programmed
+  * @param  Address       Specifie the address to be programmed.
+  * @param  Data          Specifie the data to be programmed
   * 
   * @retval HAL_StatusTypeDef HAL Status
   */
@@ -281,10 +279,10 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
 /**
   * @brief   Program word at a specified address  with interrupt enabled.
   *
-  * @param  TypeProgram: Indicate the way to program at a specified address.
+  * @param  TypeProgram  Indicate the way to program at a specified address.
   *                      This parameter can be a value of @ref FLASH_Type_Program
-  * @param  Address:     Specifies the address to be programmed.
-  * @param  Data:        Specifies the data to be programmed
+  * @param  Address      Specifie the address to be programmed.
+  * @param  Data         Specifie the data to be programmed
   * 
   * @retval HAL_StatusTypeDef HAL Status
   */
@@ -321,7 +319,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
   */
 void HAL_FLASH_IRQHandler(void)
 {
-  uint32_t addresstmp = 0;
+  uint32_t addresstmp = 0U;
   
   /* Check FLASH operation error flags */
   if( __HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR)     || 
@@ -371,7 +369,7 @@ void HAL_FLASH_IRQHandler(void)
         pFlash.NbPagesToErase--;
 
         /* Check if there are still pages to erase */
-        if(pFlash.NbPagesToErase != 0)
+        if(pFlash.NbPagesToErase != 0U)
         {
           addresstmp = pFlash.Page;
           /*Indicate user which sector has been erased */
@@ -630,7 +628,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   { 
     if (Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+      if((Timeout == 0U) || ((HAL_GetTick()-tickstart) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -670,7 +668,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   */
 static void FLASH_SetErrorCode(void)
 {
-  uint32_t flags = 0;
+  uint32_t flags = 0U;
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR))
   {

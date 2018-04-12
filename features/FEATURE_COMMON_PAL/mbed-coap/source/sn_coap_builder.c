@@ -341,7 +341,9 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_
             }
         }
 #if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
-        if ((src_coap_msg_ptr->payload_len > blockwise_payload_size) && (blockwise_payload_size > 0)) {
+        if ((src_coap_msg_ptr->payload_len > SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE) &&
+            (src_coap_msg_ptr->payload_len > blockwise_payload_size) &&
+            (blockwise_payload_size > 0)) {
             returned_byte_count += blockwise_payload_size;
         } else {
             returned_byte_count += src_coap_msg_ptr->payload_len;

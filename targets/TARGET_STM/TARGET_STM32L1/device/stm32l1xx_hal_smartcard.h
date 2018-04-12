@@ -2,14 +2,12 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   This file contains all the functions prototypes for the SMARTCARD 
   *          firmware library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -170,12 +168,12 @@ typedef struct
 /** @defgroup SMARTCARD_Error_Codes SMARTCARD Error Codes
   * @{
   */
-#define HAL_SMARTCARD_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define HAL_SMARTCARD_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define HAL_SMARTCARD_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define HAL_SMARTCARD_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define HAL_SMARTCARD_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define HAL_SMARTCARD_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error  */
+#define HAL_SMARTCARD_ERROR_NONE      (0x00U)    /*!< No error            */
+#define HAL_SMARTCARD_ERROR_PE        (0x01U)    /*!< Parity error        */
+#define HAL_SMARTCARD_ERROR_NE        (0x02U)    /*!< Noise error         */
+#define HAL_SMARTCARD_ERROR_FE        (0x04U)    /*!< frame error         */
+#define HAL_SMARTCARD_ERROR_ORE       (0x08U)    /*!< Overrun error       */
+#define HAL_SMARTCARD_ERROR_DMA       (0x10U)    /*!< DMA transfer error  */
 
 /**
   * @}
@@ -222,7 +220,7 @@ typedef struct
 /** @defgroup SMARTCARD_Clock_Polarity  SMARTCARD Clock Polarity
   * @{
   */
-#define SMARTCARD_POLARITY_LOW                   ((uint32_t)0x00000000)
+#define SMARTCARD_POLARITY_LOW                   (0x00000000U)
 #define SMARTCARD_POLARITY_HIGH                  ((uint32_t)USART_CR2_CPOL)
 /**
   * @}
@@ -231,7 +229,7 @@ typedef struct
 /** @defgroup SMARTCARD_Clock_Phase SMARTCARD Clock Phase
   * @{
   */
-#define SMARTCARD_PHASE_1EDGE                    ((uint32_t)0x00000000)
+#define SMARTCARD_PHASE_1EDGE                    (0x00000000U)
 #define SMARTCARD_PHASE_2EDGE                    ((uint32_t)USART_CR2_CPHA)
 /**
   * @}
@@ -240,7 +238,7 @@ typedef struct
 /** @defgroup SMARTCARD_Last_Bit  SMARTCARD Last Bit
   * @{
   */
-#define SMARTCARD_LASTBIT_DISABLE                ((uint32_t)0x00000000)
+#define SMARTCARD_LASTBIT_DISABLE                (0x00000000U)
 #define SMARTCARD_LASTBIT_ENABLE                 ((uint32_t)USART_CR2_LBCL)
 /**
   * @}
@@ -249,7 +247,7 @@ typedef struct
 /** @defgroup SMARTCARD_OneBit_Sampling SMARTCARD One Bit Sampling Method
   * @{
   */
-#define SMARTCARD_ONE_BIT_SAMPLE_DISABLE    ((uint32_t)0x00000000)
+#define SMARTCARD_ONE_BIT_SAMPLE_DISABLE    (0x00000000U)
 #define SMARTCARD_ONE_BIT_SAMPLE_ENABLE     ((uint32_t)USART_CR3_ONEBIT)
 /**
   * @}
@@ -259,7 +257,7 @@ typedef struct
   * @{
   */
 #define SMARTCARD_NACK_ENABLE                     ((uint32_t)USART_CR3_NACK)
-#define SMARTCARD_NACK_DISABLE                    ((uint32_t)0x00000000)
+#define SMARTCARD_NACK_DISABLE                    (0x00000000U)
 /**
   * @}
   */
@@ -278,37 +276,37 @@ typedef struct
 /** @defgroup SMARTCARD_Prescaler SMARTCARD Prescaler
   * @{
   */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV2         ((uint32_t)0x00000001)          /*!< SYSCLK divided by 2 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV4         ((uint32_t)0x00000002)          /*!< SYSCLK divided by 4 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV6         ((uint32_t)0x00000003)          /*!< SYSCLK divided by 6 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV8         ((uint32_t)0x00000004)          /*!< SYSCLK divided by 8 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV10        ((uint32_t)0x00000005)          /*!< SYSCLK divided by 10 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV12        ((uint32_t)0x00000006)          /*!< SYSCLK divided by 12 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV14        ((uint32_t)0x00000007)          /*!< SYSCLK divided by 14 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV16        ((uint32_t)0x00000008)          /*!< SYSCLK divided by 16 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV18        ((uint32_t)0x00000009)          /*!< SYSCLK divided by 18 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV20        ((uint32_t)0x0000000A)          /*!< SYSCLK divided by 20 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV22        ((uint32_t)0x0000000B)          /*!< SYSCLK divided by 22 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV24        ((uint32_t)0x0000000C)          /*!< SYSCLK divided by 24 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV26        ((uint32_t)0x0000000D)          /*!< SYSCLK divided by 26 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV28        ((uint32_t)0x0000000E)          /*!< SYSCLK divided by 28 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV30        ((uint32_t)0x0000000F)          /*!< SYSCLK divided by 30 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV32        ((uint32_t)0x00000010)          /*!< SYSCLK divided by 32 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV34        ((uint32_t)0x00000011)          /*!< SYSCLK divided by 34 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV36        ((uint32_t)0x00000012)          /*!< SYSCLK divided by 36 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV38        ((uint32_t)0x00000013)          /*!< SYSCLK divided by 38 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV40        ((uint32_t)0x00000014)          /*!< SYSCLK divided by 40 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV42        ((uint32_t)0x00000015)          /*!< SYSCLK divided by 42 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV44        ((uint32_t)0x00000016)          /*!< SYSCLK divided by 44 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV46        ((uint32_t)0x00000017)          /*!< SYSCLK divided by 46 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV48        ((uint32_t)0x00000018)          /*!< SYSCLK divided by 48 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV50        ((uint32_t)0x00000019)          /*!< SYSCLK divided by 50 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV52        ((uint32_t)0x0000001A)          /*!< SYSCLK divided by 52 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV54        ((uint32_t)0x0000001B)          /*!< SYSCLK divided by 54 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV56        ((uint32_t)0x0000001C)          /*!< SYSCLK divided by 56 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV58        ((uint32_t)0x0000001D)          /*!< SYSCLK divided by 58 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV60        ((uint32_t)0x0000001E)          /*!< SYSCLK divided by 60 */
-#define SMARTCARD_PRESCALER_SYSCLK_DIV62        ((uint32_t)0x0000001F)          /*!< SYSCLK divided by 62 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV2         (0x00000001U)          /*!< SYSCLK divided by 2 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV4         (0x00000002U)          /*!< SYSCLK divided by 4 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV6         (0x00000003U)          /*!< SYSCLK divided by 6 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV8         (0x00000004U)          /*!< SYSCLK divided by 8 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV10        (0x00000005U)          /*!< SYSCLK divided by 10 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV12        (0x00000006U)          /*!< SYSCLK divided by 12 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV14        (0x00000007U)          /*!< SYSCLK divided by 14 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV16        (0x00000008U)          /*!< SYSCLK divided by 16 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV18        (0x00000009U)          /*!< SYSCLK divided by 18 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV20        (0x0000000AU)          /*!< SYSCLK divided by 20 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV22        (0x0000000BU)          /*!< SYSCLK divided by 22 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV24        (0x0000000CU)          /*!< SYSCLK divided by 24 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV26        (0x0000000DU)          /*!< SYSCLK divided by 26 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV28        (0x0000000EU)          /*!< SYSCLK divided by 28 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV30        (0x0000000FU)          /*!< SYSCLK divided by 30 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV32        (0x00000010U)          /*!< SYSCLK divided by 32 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV34        (0x00000011U)          /*!< SYSCLK divided by 34 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV36        (0x00000012U)          /*!< SYSCLK divided by 36 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV38        (0x00000013U)          /*!< SYSCLK divided by 38 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV40        (0x00000014U)          /*!< SYSCLK divided by 40 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV42        (0x00000015U)          /*!< SYSCLK divided by 42 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV44        (0x00000016U)          /*!< SYSCLK divided by 44 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV46        (0x00000017U)          /*!< SYSCLK divided by 46 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV48        (0x00000018U)          /*!< SYSCLK divided by 48 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV50        (0x00000019U)          /*!< SYSCLK divided by 50 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV52        (0x0000001AU)          /*!< SYSCLK divided by 52 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV54        (0x0000001BU)          /*!< SYSCLK divided by 54 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV56        (0x0000001CU)          /*!< SYSCLK divided by 56 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV58        (0x0000001DU)          /*!< SYSCLK divided by 58 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV60        (0x0000001EU)          /*!< SYSCLK divided by 60 */
+#define SMARTCARD_PRESCALER_SYSCLK_DIV62        (0x0000001FU)          /*!< SYSCLK divided by 62 */
 /**
   * @}
   */
@@ -594,8 +592,8 @@ do{                                                        \
 #define IS_SMARTCARD_PARITY(PARITY)         (((PARITY) == SMARTCARD_PARITY_EVEN) || \
                                              ((PARITY) == SMARTCARD_PARITY_ODD))
 
-#define IS_SMARTCARD_MODE(MODE)             ((((MODE) & (~((uint32_t)SMARTCARD_MODE_TX_RX))) == 0x00) && \
-                                             ((MODE) != (uint32_t)0x00000000))
+#define IS_SMARTCARD_MODE(MODE)             ((((MODE) & (~((uint32_t)SMARTCARD_MODE_TX_RX))) == 0x00U) && \
+                                             ((MODE) != 0x00000000U))
 
 #define IS_SMARTCARD_POLARITY(CPOL)         (((CPOL) == SMARTCARD_POLARITY_LOW) || ((CPOL) == SMARTCARD_POLARITY_HIGH))
 
