@@ -294,6 +294,9 @@ public:
      */
     enum DeprecatedAddressType_t {
         ADDR_TYPE_PUBLIC = BLEProtocol::AddressType::PUBLIC,
+        ADDR_TYPE_RANDOM = BLEProtocol::AddressType::RANDOM,
+        ADDR_TYPE_PUBLIC_IDENTITY = BLEProtocol::AddressType::PUBLIC_IDENTITY,
+        ADDR_TYPE_RANDOM_STATIC_IDENTITY = BLEProtocol::AddressType::RANDOM_STATIC_IDENTITY,
         ADDR_TYPE_RANDOM_STATIC = BLEProtocol::AddressType::RANDOM_STATIC,
         ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE = BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE,
         ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE = BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE
@@ -353,6 +356,12 @@ public:
      * disconnection reason to be transmitted to the peer.
      */
     enum DisconnectionReason_t {
+
+        /**
+         * GAP or GATT failed to authenticate the peer.
+         */
+        AUTHENTICATION_FAILURE = 0x05,
+
         /**
          * The connection timed out.
          *
@@ -497,6 +506,11 @@ public:
     typedef ble::connection_handle_t Handle_t;
 
     /**
+     * Enumeration of random address types.
+     */
+    typedef ble::random_address_type_t RandomAddressType_t;
+
+    /**
      * Parameters of a BLE connection.
      */
     typedef struct {
@@ -610,7 +624,10 @@ public:
         const uint8_t *advertisingData;
 
         /**
-         * Type of the address received
+         * Type of the address received.
+         *
+         * @note This value should be used in the connect function to establish
+         * a connection with the peer that has sent this advertisement packet.
          */
         AddressType_t addressType;
     };
@@ -668,6 +685,20 @@ public:
         const ConnectionParams_t   *connectionParams;
 
         /**
+         * Resolvable address used by the peer.
+         *
+         * @note All bytes of the address are set to 0 if not applicable
+         */
+        BLEProtocol::AddressBytes_t peerResolvableAddr;
+
+        /**
+         * resolvable address of the local device.
+         *
+         * @note All bytes of the address are set to 0 if not applicable
+         */
+        BLEProtocol::AddressBytes_t localResolvableAddr;
+
+        /**
          * Construct an instance of ConnectionCallbackParams_t.
          *
          * @param[in] handleIn Value to assign to handle.
@@ -677,6 +708,8 @@ public:
          * @param[in] ownAddrTypeIn Value to assign to ownAddrType.
          * @param[in] ownAddrIn Value to assign to ownAddr.
          * @param[in] connectionParamsIn Value to assign to connectionParams.
+         * @param[in] peerResolvableAddrIn Value to assign to peerResolvableAddr.
+         * @param[in] localResolvableAddrIn Value to assign to localResolvableAddr.
          *
          * @note Constructor is not meant to be called by user code.
          * The BLE API vendor code generates ConnectionCallbackParams_t.
@@ -688,17 +721,28 @@ public:
             const uint8_t *peerAddrIn,
             BLEProtocol::AddressType_t ownAddrTypeIn,
             const uint8_t *ownAddrIn,
-            const ConnectionParams_t *connectionParamsIn
+            const ConnectionParams_t *connectionParamsIn,
+            const uint8_t *peerResolvableAddrIn = NULL,
+            const uint8_t *localResolvableAddrIn = NULL
         ) : handle(handleIn),
             role(roleIn),
             peerAddrType(peerAddrTypeIn),
             peerAddr(),
             ownAddrType(ownAddrTypeIn),
             ownAddr(),
-            connectionParams(connectionParamsIn)
+            connectionParams(connectionParamsIn),
+            peerResolvableAddr(),
+            localResolvableAddr()
         {
             memcpy(peerAddr, peerAddrIn, ADDR_LEN);
             memcpy(ownAddr, ownAddrIn, ADDR_LEN);
+            if (peerResolvableAddrIn) {
+                memcpy(peerResolvableAddr, peerResolvableAddrIn, ADDR_LEN);
+            }
+
+            if (localResolvableAddrIn) {
+                memcpy(localResolvableAddr, localResolvableAddrIn, ADDR_LEN);
+            }
         }
     };
 
@@ -734,6 +778,108 @@ public:
         ) : handle(handleIn),
             reason(reasonIn)
         {}
+    };
+
+    /**
+     * Privacy Configuration of the peripheral role.
+     *
+     * @note This configuration also applies to the broadcaster role configuration.
+     */
+    struct PeripheralPrivacyConfiguration_t {
+        /**
+         * Indicates if non resolvable random address should be used when the
+         * peripheral advertises non connectable packets.
+         *
+         * Resolvable random address continues to be used for connectable packets.
+         */
+        bool use_non_resolvable_random_address;
+
+        /**
+         * Resolution strategy for initiator resolvable addresses when a
+         * connection request is received.
+         */
+        enum ResolutionStrategy {
+            /**
+             * Do not resolve the address of the initiator and accept the
+             * connection request.
+             */
+            DO_NOT_RESOLVE,
+
+            /**
+             * If a bond is present in the secure database and the address
+             * resolution fail then reject the connection request with the error
+             * code AUTHENTICATION_FAILLURE.
+             */
+            REJECT_NON_RESOLVED_ADDRESS,
+
+            /**
+             * Perform the pairing procedure if the initiator resolvable
+             * address failed the resolution process.
+             */
+            PERFORM_PAIRING_PROCEDURE,
+
+            /**
+             * Perform the authentication procedure if the initiator resolvable
+             * address failed the resolution process.
+             */
+            PERFORM_AUTHENTICATION_PROCEDURE
+        };
+
+        /**
+         * Connection strategy to use when a connection request contains a
+         * private resolvable address.
+         */
+        ResolutionStrategy resolution_strategy;
+    };
+
+    /**
+     * Privacy Configuration of the central role.
+     *
+     * @note This configuration is also used when the local device operates as
+     * an observer.
+     */
+    struct CentralPrivacyConfiguration_t {
+        /**
+         * Indicates if non resolvable random address should be used when the
+         * central or observer sends scan request packets.
+         *
+         * Resolvable random address continue to be used for connection requests.
+         */
+        bool use_non_resolvable_random_address;
+
+
+        /**
+         * Resolution strategy of resolvable addresses received in advertising
+         * packets.
+         */
+        enum ResolutionStrategy {
+            /**
+             * Do not resolve the address received in advertising packets.
+             */
+            DO_NOT_RESOLVE,
+
+            /**
+             * Resolve the resolvable addresses in the advertising packet and
+             * forward advertising packet to the application independently of
+             * the address resolution procedure result.
+             */
+            RESOLVE_AND_FORWARD,
+
+            /**
+             * Filter out packets containing a resolvable that cannot be resolved
+             * by this device.
+             *
+             * @note Filtering is applied if the local device contains at least
+             * one bond.
+             */
+            RESOLVE_AND_FILTER
+        };
+
+        /**
+         * Resolution strategy applied to advertising packets received by the
+         * local device.
+         */
+        ResolutionStrategy resolution_strategy;
     };
 
     /**
@@ -844,8 +990,29 @@ public:
      * @note Some implementation may refuse to set a new PUBLIC address.
      * @note Random static address set does not change.
      *
+     * @deprecated Starting with mbed-os-5.9.0 this function is deprecated and
+     * address management is delegated to implementation. Implementations may or
+     * may not continue to support this function. Compliance with the Bluetooth
+     * specification and unification of behaviour between implementations are
+     * the key reasons behind this change:
+     *   - Many implementations do not allow changing of the public address.
+     *   Therefore programs relying on this function are not portable across BLE
+     *   implementations.
+     *   - The Bluetooth specification forbid replacement of the random static
+     *   address; this address can be set once and only once: at startup.
+     *   Depending on the underlying implementation the random address may or
+     *   may not have been set automatically at startup; therefore update of the
+     *   Random Static address after ble initialisation may be a fault. As a
+     *   result calls to this function were not portable.
+     *   Furthermore replacement of the random static address silently
+     *   invalidates the bond stored in the secure database.
+
      * @return BLE_ERROR_NONE on success.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.9.0",
+        "Non portable API, use enablePrivacy to enable use of private addresses"
+    )
     virtual ble_error_t setAddress(
         BLEProtocol::AddressType_t type,
         const BLEProtocol::AddressBytes_t address
@@ -865,6 +1032,9 @@ public:
      * @param[out] typeP Type of the current address set.
      * @param[out] address Value of the current address.
      *
+     * @note If privacy is enabled the device address may be unavailable to
+     * application code.
+     *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t getAddress(
@@ -879,6 +1049,22 @@ public:
            is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+
+    /**
+     * Return the type of a random address.
+     *
+     * @param[in] address The random address to retrieve the type from. The
+     * address must be ordered in little endian.
+     *
+     * @param[out] addressType Type of the address to fill.
+     *
+     * @return BLE_ERROR_NONE in case of success or BLE_ERROR_INVALID_PARAM if
+     * the address in input was not identifiable as a random address.
+     */
+    static ble_error_t getRandomAddressType(
+        BLEProtocol::AddressBytes_t address,
+        RandomAddressType_t* addressType
+    );
 
     /**
      * Get the minimum advertising interval in milliseconds, which can be used
@@ -1955,6 +2141,97 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * Enable or disable privacy mode of the local device.
+     *
+     * When privacy is enabled, the system use private addresses while it scans,
+     * advertises or initiate a connection. The device private address is
+     * renewed every 15 minutes.
+     *
+     * @par Configuration
+     *
+     * The privacy feature can be configured with the help of the functions
+     * setPeripheralPrivacyConfiguration and setCentralPrivacyConfiguration
+     * which respectively set the privacy configuration of the peripheral and
+     * central role.
+     *
+     * @par Default configuration of peripheral role
+     *
+     * By default private resolvable addresses are used for all procedures;
+     * including advertisement of non connectable packets. Connection request
+     * from an unknown initiator with a private resolvable address triggers the
+     * pairing procedure.
+     *
+     * @par Default configuration of central role
+     *
+     * By default private resolvable addresses are used for all procedures;
+     * including active scanning. Addresses present in advertisement packet are
+     * resolved and advertisement packets are forwarded to the application
+     * even if the advertiser private address is unknown.
+     *
+     * @param enable[in] Should be set to true to enable the privacy mode and
+     * false to disable it.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t enablePrivacy(bool enable) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Set the privacy configuration used by the peripheral role.
+     *
+     * @param[in] configuration The configuration to set.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    ) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Get the privacy configuration used by the peripheral role.
+     *
+     * @param[out] configuration The variable filled with the current
+     * configuration.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    ) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Set the privacy configuration used by the central role.
+     *
+     * @param[in] configuration The configuration to set.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    ) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Get the privacy configuration used by the central role.
+     *
+     * @param[out] configuration The variable filled with the current
+     * configuration.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    ) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
 private:
     /**
      * Set the advertising data and scan response in the vendor subsytem.
@@ -2285,6 +2562,8 @@ public:
      * connection.
      * @param[in] ownAddr Address this device uses for this connection.
      * @param[in] connectionParams Parameters of the connection.
+     * @param[in] peerResolvableAddr Resolvable address used by the peer.
+     * @param[in] localResolvableAddr resolvable address used by the local device.
      */
     void processConnectionEvent(
         Handle_t handle,
@@ -2293,7 +2572,9 @@ public:
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t ownAddrType,
         const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams
+        const ConnectionParams_t *connectionParams,
+        const uint8_t *peerResolvableAddr = NULL,
+        const uint8_t *localResolvableAddr = NULL
     ) {
         /* Update Gap state */
         state.advertising = 0;
@@ -2307,7 +2588,9 @@ public:
             peerAddr,
             ownAddrType,
             ownAddr,
-            connectionParams
+            connectionParams,
+            peerResolvableAddr,
+            localResolvableAddr
         );
 
         connectionCallChain.call(&callbackParams);
@@ -2357,7 +2640,7 @@ public:
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
         const uint8_t *advertisingData,
-        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
+        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM
     ) {
        // FIXME: remove default parameter for addressType when ST shield is merged;
        // this has been added to mitigate the lack of dependency management in
