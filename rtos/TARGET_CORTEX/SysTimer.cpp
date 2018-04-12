@@ -50,6 +50,12 @@ SysTimer::SysTimer() :
     _suspended = false;
 }
 
+SysTimer::SysTimer(const ticker_data_t *data) :
+        TimerEvent(data), _start_time(0), _tick(0)
+{
+    _start_time = ticker_read_us(_ticker_data);
+}
+
 void SysTimer::setup_irq()
 {
 #if (defined(NO_SYSTICK))

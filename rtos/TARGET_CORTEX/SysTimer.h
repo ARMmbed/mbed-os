@@ -49,6 +49,7 @@ class SysTimer: private mbed::TimerEvent, private mbed::NonCopyable<SysTimer> {
 public:
 
     SysTimer();
+    SysTimer(const ticker_data_t *data);
     virtual ~SysTimer();
 
     /**

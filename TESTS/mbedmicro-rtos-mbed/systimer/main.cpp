@@ -25,6 +25,7 @@
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
+#include "ticker_api.h"
 
 extern "C" {
 #include "rtx_lib.h"
@@ -56,6 +57,11 @@ public:
     {
     }
 
+    SysTimerTest(const ticker_data_t *data) :
+            SysTimer(data), _sem(0, 1)
+    {
+    }
+
     virtual ~SysTimerTest()
     {
     }
@@ -65,6 +71,65 @@ public:
         return _sem.wait(millisec);
     }
 };
+
+timestamp_t mock_ticker_timestamp;
+
+void mock_ticker_init()
+{
+}
+
+uint32_t mock_ticker_read()
+{
+    return mock_ticker_timestamp;
+}
+
+void mock_ticker_disable_interrupt()
+{
+}
+
+void mock_ticker_clear_interrupt()
+{
+}
+
+void mock_ticker_set_interrupt(timestamp_t timestamp)
+{
+}
+
+void mock_ticker_fire_interrupt()
+{
+}
+
+const ticker_info_t *mock_ticker_get_info()
+{
+    static const ticker_info_t mock_ticker_info = {
+        .frequency = 1000000,
+        .bits = 32
+    };
+    return &mock_ticker_info;
+}
+
+ticker_interface_t mock_ticker_interface = {
+    .init = mock_ticker_init,
+    .read = mock_ticker_read,
+    .disable_interrupt = mock_ticker_disable_interrupt,
+    .clear_interrupt = mock_ticker_clear_interrupt,
+    .set_interrupt = mock_ticker_set_interrupt,
+    .fire_interrupt = mock_ticker_fire_interrupt,
+    .get_info = mock_ticker_get_info,
+};
+
+ticker_event_queue_t mock_ticker_event_queue;
+
+const ticker_data_t mock_ticker_data = {
+    .interface = &mock_ticker_interface,
+    .queue = &mock_ticker_event_queue
+};
+
+void mock_ticker_reset()
+{
+    mock_ticker_timestamp = 0;
+    mock_ticker_event_queue = {0};
+}
 
 /** Test tick count is zero upon creation
  *
@@ -91,14 +156,14 @@ void test_created_with_zero_tick_count(void)
  */
 void test_update_tick(void)
 {
-    SysTimerTest st;
+    mock_ticker_reset();
+    SysTimerTest st(&mock_ticker_data);
     st.suspend(TEST_TICKS * 2);
     TEST_ASSERT_EQUAL_UINT32(0, st.resume());
     TEST_ASSERT_EQUAL_UINT32(0, st.get_tick());
-    us_timestamp_t test_ticks_elapsed_ts = st.get_time() + DELAY_US;
 
     st.suspend(TEST_TICKS * 2);
-    while (st.get_time() <= test_ticks_elapsed_ts) {}
+    mock_ticker_timestamp = DELAY_US;
     TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.resume());
     TEST_ASSERT_EQUAL_UINT32(TEST_TICKS - 1, st.get_tick());
 
@@ -115,12 +180,13 @@ void test_update_tick(void)
  */
 void test_get_time(void)
 {
-    SysTimerTest st;
+    mock_ticker_reset();
+    SysTimerTest st(&mock_ticker_data);
     us_timestamp_t t1 = st.get_time();
 
-    wait_us(DELAY_US);
+    mock_ticker_timestamp = DELAY_US;
     us_timestamp_t t2 = st.get_time();
-    TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, t2 - t1);
+    TEST_ASSERT_EQUAL_UINT64(DELAY_US, t2 - t1);
 }
 
 /** Test cancel_tick
