@@ -12,15 +12,26 @@
 
 static Timer timer;
 static Timeout timeout;
+
+// If critical sections are implemented using mutexes, timers must be called in thread context, and
+// we use the high-priority event queue for this.
+// If critical sections disable interrupts, we can call timers directly from interrupt. Avoiding the
+// event queue can save ~1600B of RAM if the rest of the system is not using the event queue either.
+// Caveats of this tunable are listed on arm_hal_interrupt.c.
+#if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
 static EventQueue *equeue;
+#endif
+
 static uint32_t due;
 static void (*arm_hal_callback)(void);
 
 // Called once at boot
 void platform_timer_enable(void)
 {
+#if !MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
     equeue = mbed_highprio_event_queue();
     MBED_ASSERT(equeue != NULL);
+#endif
 }
 
 // Actually cancels a timer, not the opposite of enable
@@ -38,7 +49,14 @@ void platform_timer_set_cb(void (*new_fp)(void))
 static void timer_callback(void)
 {
     due = 0;
+
+#if MBED_CONF_NANOSTACK_HAL_CRITICAL_SECTION_USABLE_FROM_INTERRUPT
+    // Callback is interrupt safe so it can be called directly without
+    // bouncing via event queue thread.
+    arm_hal_callback();
+#else
     equeue->call(arm_hal_callback);
+#endif
 }
 
 // This is called from inside platform_enter_critical - IRQs can't happen
