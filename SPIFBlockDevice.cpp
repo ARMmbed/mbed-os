@@ -333,3 +333,8 @@ bd_size_t SPIFBlockDevice::size() const
 {
     return _size;
 }
+
+int SPIFBlockDevice::get_erase_value() const
+{
+    return 0xFF;
+}
