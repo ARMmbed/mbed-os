@@ -11,7 +11,8 @@
 
 <!-- 
     Required
-    Please tick only one of the following types. Do not tick more or change the layout.
+    Please add only one X to one of the following types. Do not fill multiple types (split the pull request otherwise) or
+    change the layout.
 
     [X] Fix
     [ ] Refactor
