@@ -2186,7 +2186,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t setPeripheralPrivacyConfiguration(
-        const PeripheralPrivacyConfiguration_t &configuration
+        const PeripheralPrivacyConfiguration_t *configuration
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2200,7 +2200,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t getPeripheralPrivacyConfiguration(
-        PeripheralPrivacyConfiguration_t &configuration
+        PeripheralPrivacyConfiguration_t *configuration
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2213,7 +2213,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t setCentralPrivacyConfiguration(
-        const CentralPrivacyConfiguration_t &configuration
+        const CentralPrivacyConfiguration_t *configuration
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -2227,7 +2227,7 @@ public:
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
     virtual ble_error_t getCentralPrivacyConfiguration(
-        CentralPrivacyConfiguration_t &configuration
+        CentralPrivacyConfiguration_t *configuration
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
