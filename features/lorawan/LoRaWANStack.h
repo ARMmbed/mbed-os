@@ -44,9 +44,10 @@
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
-#include "lorawan/system/LoRaWANTimer.h"
+
 #include "lorastack/mac/LoRaMac.h"
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/LoRaWANTimer.h"
+#include "system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {

@@ -34,7 +34,6 @@
 
 #include "LoRaPHY.h"
 
-
 /*!
  * LoRaMac maximum number of channels
  */

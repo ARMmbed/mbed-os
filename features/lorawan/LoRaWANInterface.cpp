@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-#include "lorawan/LoRaWANInterface.h"
+#include "LoRaWANInterface.h"
 
 using namespace events;
 

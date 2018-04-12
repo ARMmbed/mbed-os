@@ -25,11 +25,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "lorastack/mac/LoRaMacCrypto.h"
-#include "lorawan/system/lorawan_data_structures.h"
 
 #include "mbedtls/aes.h"
 #include "mbedtls/cmac.h"
+
+#include "LoRaMacCrypto.h"
+#include "system/lorawan_data_structures.h"
+
 
 #if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
 
