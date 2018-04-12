@@ -16,6 +16,7 @@
 #include "mbed_poll.h"
 #include "FileHandle.h"
 #include "Timer.h"
+#include "LowPowerTimer.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
 #endif
@@ -34,7 +35,11 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
      * interested in. In future, his spinning behaviour will be replaced with
      * condition variables.
      */
+#if MBED_CONF_PLATFORM_POLL_USE_LOWPOWER_TIMER
+    LowPowerTimer timer;
+#else
     Timer timer;
+#endif
     if (timeout > 0) {
         timer.start();
     }
