@@ -293,6 +293,7 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
     _mcps_indication.is_ack_recvd = false;
     _mcps_indication.dl_frame_counter = 0;
     _mcps_indication.type = MCPS_UNCONFIRMED;
+    _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_OK;
 
     if (_device_class != CLASS_C) {
         _lora_phy.put_radio_to_sleep();
@@ -1102,7 +1103,6 @@ lorawan_status_t LoRaMac::schedule_tx(void)
 {
     lorawan_time_t dutyCycleTimeOff = 0;
     channel_selection_params_t nextChan;
-    lorawan_status_t status = LORAWAN_STATUS_PARAMETER_INVALID;
 
     if (_params.sys_params.max_duty_cycle == 255) {
         return LORAWAN_STATUS_DEVICE_OFF;
@@ -1121,9 +1121,10 @@ lorawan_status_t LoRaMac::schedule_tx(void)
     nextChan.joined = _is_nwk_joined;
     nextChan.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
-    status = _lora_phy.set_next_channel(&nextChan, &_params.channel,
-                                        &dutyCycleTimeOff,
-                                        &_params.timers.aggregated_timeoff);
+    lorawan_status_t status = _lora_phy.set_next_channel(&nextChan,
+                                                         &_params.channel,
+                                                         &dutyCycleTimeOff,
+                                                         &_params.timers.aggregated_timeoff);
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:
         case LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND:
