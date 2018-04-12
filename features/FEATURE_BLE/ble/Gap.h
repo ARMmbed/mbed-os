@@ -360,7 +360,7 @@ public:
         /**
          * GAP or GATT failed to authenticate the peer.
          */
-        AUTHENTICATION_FAILLURE = 0x05,
+        AUTHENTICATION_FAILURE = 0x05,
 
         /**
          * The connection timed out.
@@ -783,19 +783,19 @@ public:
     /**
      * Privacy Configuration of the peripheral role.
      *
-     * @note This configuration also apply to the broadcaster role configuration.
+     * @note This configuration also applies to the broadcaster role configuration.
      */
     struct PeripheralPrivacyConfiguration_t {
         /**
          * Indicates if non resolvable random address should be used when the
-         * peripheral advertise non connectable packets.
+         * peripheral advertises non connectable packets.
          *
-         * Resolvable random address continue to be used for connectable packets.
+         * Resolvable random address continues to be used for connectable packets.
          */
         bool use_non_resolvable_random_address;
 
         /**
-         * Resolution strategy of initiator resolvable addresses when a
+         * Resolution strategy for initiator resolvable addresses when a
          * connection request is received.
          */
         enum ResolutionStrategy {
@@ -835,7 +835,8 @@ public:
     /**
      * Privacy Configuration of the central role.
      *
-     * @note This configuration encompass the observer role configuration.
+     * @note This configuration is also used when the local device operates as
+     * an observer.
      */
     struct CentralPrivacyConfiguration_t {
         /**
@@ -994,9 +995,9 @@ public:
      * may not continue to support this function. Compliance with the Bluetooth
      * specification and unification of behaviour between implementations are
      * the key reasons behind this change:
-     *   - Many implementations does not allow replacement of the public
-     *   address. Therefore programs relying on this function are not portable
-     *   across BLE implementations.
+     *   - Many implementations do not allow changing of the public address.
+     *   Therefore programs relying on this function are not portable across BLE
+     *   implementations.
      *   - The Bluetooth specification forbid replacement of the random static
      *   address; this address can be set once and only once: at startup.
      *   Depending on the underlying implementation the random address may or
@@ -1052,7 +1053,7 @@ public:
     /**
      * Return the type of a random address.
      *
-     * @param[in] address The random address to retrieve the type from. The #
+     * @param[in] address The random address to retrieve the type from. The
      * address must be ordered in little endian.
      *
      * @param[out] addressType Type of the address to fill.
@@ -1062,7 +1063,7 @@ public:
      */
     static ble_error_t getRandomAddressType(
         BLEProtocol::AddressBytes_t address,
-        RandomAddressType_t& addressType
+        RandomAddressType_t* addressType
     );
 
     /**
@@ -2156,20 +2157,20 @@ public:
      *
      * @par Default configuration of peripheral role
      *
-     * By default private resolvable address are used for all procedures;
+     * By default private resolvable addresses are used for all procedures;
      * including advertisement of non connectable packets. Connection request
      * from an unknown initiator with a private resolvable address triggers the
      * pairing procedure.
      *
      * @par Default configuration of central role
      *
-     * By default private resolvable address are used for all procedures;
-     * including active scanning. Address present in advertisement packet are
+     * By default private resolvable addresses are used for all procedures;
+     * including active scanning. Addresses present in advertisement packet are
      * resolved and advertisement packets are forwarded to the application
      * even if the advertiser private address is unknown.
      *
-     * @param enable[in] Should be set to true to enable the privacy mode and false
-     * to disable it.
+     * @param enable[in] Should be set to true to enable the privacy mode and
+     * false to disable it.
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
      */
