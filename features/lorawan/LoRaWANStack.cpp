@@ -387,8 +387,35 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
     return (status == LORAWAN_STATUS_OK) ? len : (int16_t) status;
 }
 
-int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
-                                uint16_t length, uint8_t flags)
+int convert_to_msg_flag(const mcps_type_t type)
+{
+    int msg_flag = MSG_UNCONFIRMED_FLAG;
+    switch (type) {
+        case MCPS_UNCONFIRMED:
+            msg_flag = MSG_UNCONFIRMED_FLAG;
+            break;
+
+        case MCPS_CONFIRMED:
+            msg_flag = MSG_CONFIRMED_FLAG;
+            break;
+
+        case MCPS_MULTICAST:
+            msg_flag = MSG_MULTICAST_FLAG;
+            break;
+
+        case MCPS_PROPRIETARY:
+            msg_flag = MSG_PROPRIETARY_FLAG;
+            break;
+
+        default:
+            tr_error("Unknown message type!");
+            MBED_ASSERT(0);
+    }
+
+    return msg_flag;
+}
+
+int16_t LoRaWANStack::handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params)
 {
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
@@ -409,36 +436,28 @@ int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    uint8_t *base_ptr = _rx_msg.msg.mcps_indication.buffer;
+    int received_flags = convert_to_msg_flag(_rx_msg.msg.mcps_indication.type);
+    if (validate_params) {
+        // Check received message port and flags match with the ones requested by user
+        received_flags &= MSG_FLAG_MASK;
+
+        if (_rx_msg.msg.mcps_indication.port != port || !(flags & received_flags)) {
+            return LORAWAN_STATUS_WOULD_BLOCK;
+        }
+    }
+
+    // Report values back to user
+    port = _rx_msg.msg.mcps_indication.port;
+    flags = received_flags;
+
+    const uint8_t *base_ptr = _rx_msg.msg.mcps_indication.buffer;
     uint16_t base_size = _rx_msg.msg.mcps_indication.buffer_size;
     bool read_complete = false;
-
-    if (_rx_msg.msg.mcps_indication.port != port) {
-        // Nothing yet received for this particular port
-        return LORAWAN_STATUS_WOULD_BLOCK;
-    }
-
-    // check if message received is a Confirmed message and user subscribed to it or not
-    if (_rx_msg.msg.mcps_indication.type == MCPS_CONFIRMED
-            && ((flags & MSG_FLAG_MASK) == MSG_CONFIRMED_FLAG
-                    || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_MULTICAST
-                    || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_PROPRIETARY)) {
-
-        tr_debug("RX - Confirmed Message, flags=%d", flags);
-    }
-
-    // check if message received is a Unconfirmed message and user subscribed to it or not
-    if (_rx_msg.msg.mcps_indication.type == MCPS_UNCONFIRMED
-            && ((flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_FLAG
-                    || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_MULTICAST
-                    || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_PROPRIETARY)) {
-        tr_debug("RX - Unconfirmed Message - flags=%d", flags);
-    }
 
     // check the length of received message whether we can fit into user
     // buffer completely or not
     if (_rx_msg.msg.mcps_indication.buffer_size > length &&
-            _rx_msg.prev_read_size == 0) {
+        _rx_msg.prev_read_size == 0) {
         // we can't fit into user buffer. Invoke counter measures
         _rx_msg.pending_size = _rx_msg.msg.mcps_indication.buffer_size - length;
         base_size = length;
@@ -614,12 +633,12 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
         default: {
             if (is_port_valid(mcps_indication->port) == true ||
                     mcps_indication->type == MCPS_PROPRIETARY) {
-
                 // Valid message arrived.
                 _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
                 _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
                 _rx_msg.msg.mcps_indication.port = mcps_indication->port;
                 _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
+                _rx_msg.msg.mcps_indication.type = mcps_indication->type;
 
                 // Notify application about received frame..
                 tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);

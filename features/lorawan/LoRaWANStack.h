@@ -300,15 +300,18 @@ public:
 
     /** Receives a message from the Network Server.
      *
+     * @param data              A pointer to buffer where the received data will be
+     *                          stored.
+     *
+     * @param length            The size of data in bytes
+     *
      * @param port              The application port number. Port numbers 0 and 224
      *                          are reserved, whereas port numbers from 1 to 223
      *                          (0x01 to 0xDF) are valid port numbers.
      *                          Anything out of this range is illegal.
      *
-     * @param data              A pointer to buffer where the received data will be
-     *                          stored.
-     *
-     * @param length            The size of data in bytes
+     *                          In return will contain the number of port to which
+     *                          message was received.
      *
      * @param flags             A flag is used to determine what type of
      *                          message is being received, for example:
@@ -330,6 +333,13 @@ public:
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.
      *
+     *                          In return will contain the flags to determine what kind
+     *                          of message was received.
+     *
+     * @param validate_params   If set to true, the given port and flags values will be checked
+     *                          against the values received with the message. If values do not
+     *                          match, LORAWAN_STATUS_WOULD_BLOCK will be returned.
+     *
      * @return                  It could be one of these:
      *                             i)   0 if there is nothing else to read.
      *                             ii)  Number of bytes written to user buffer.
@@ -337,8 +347,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    int16_t handle_rx(const uint8_t port, uint8_t* data,
-                      uint16_t length, uint8_t flags);
+    int16_t handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params);
 
     /** Send Link Check Request MAC command.
      *

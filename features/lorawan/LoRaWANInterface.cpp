@@ -107,17 +107,19 @@ lorawan_status_t LoRaWANInterface::remove_channel_plan()
     return stk_obj().drop_channel_list();
 }
 
-int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
-                               uint16_t length, int flags)
+int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data, uint16_t length, int flags)
 {
     return stk_obj().handle_tx(port, data, length, flags);
-
 }
 
-int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
-                                  int flags)
+int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length, int flags)
 {
-    return stk_obj().handle_rx(port, data, length, flags);
+    return stk_obj().handle_rx(data, length, port, flags, true);
+}
+
+int16_t LoRaWANInterface::receive(uint8_t* data, uint16_t length, uint8_t& port, int& flags)
+{
+    return stk_obj().handle_rx(data, length, port, flags, false);
 }
 
 lorawan_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
