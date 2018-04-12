@@ -29,7 +29,8 @@
 #include "Callback.h"
 #include "EventQueue.h"
 
-namespace mbed {
+namespace mbed
+{
 
 class FileHandle;
 
@@ -106,11 +107,20 @@ public:
     nsapi_error_t unlock_return_error();
 
     /** Set the urc callback for urc. If urc is found when parsing AT responses, then call if called.
+     *  If urc is already set then it's not set twice.
+     *
+     *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
+     *  @param callback Callback, which is called if urc is found in AT response
+     *  @return NSAPI_ERROR_OK or NSAPI_ERROR_NO_MEMORY if no memory
+     */
+    nsapi_error_t set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+
+    /** Remove urc handler from linked list of urc's
      *
      *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
      *  @param callback Callback, which is called if urc is found in AT response
      */
-    void set_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    void remove_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 
     ATHandler *_nextATHandler; // linked list
 
@@ -184,16 +194,14 @@ private:
     device_err_t  _last_at_err;
     uint16_t _oob_string_max_length;
     char *_output_delimiter;
-    uint8_t _output_delimiter_length;
 
     struct oob_t {
-        bool matching_to_received;
         const char *prefix;
+        int prefix_len;
         mbed::Callback<void()> cb;
         oob_t *next;
     };
     oob_t *_oobs;
-    bool _response_terminated;
     uint32_t _at_timeout;
     uint32_t _previous_at_timeout;
 
@@ -205,7 +213,7 @@ private:
     bool _processing;
     int32_t _ref_count;
 
-        //*************************************
+    //*************************************
 public:
 
     /** Starts the command writing by clearing the last error and writing the given command.
@@ -450,7 +458,7 @@ private:
     void set_3gpp_error(int err, DeviceErrorType error_type);
 
     bool check_cmd_send();
-    ssize_t write(const void *data, size_t len);
+    size_t write(const void *data, size_t len);
 
     /** Copy content of one char buffer to another buffer and sets NULL terminator
      *
@@ -471,6 +479,9 @@ private:
      * @return pointer to first occurrence of src in dest
      */
     const char* mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len);
+
+    // check is urc is already added
+    bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 };
 
 } // namespace mbed

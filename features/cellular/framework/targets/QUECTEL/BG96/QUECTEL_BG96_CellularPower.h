@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,28 +15,24 @@
  * limitations under the License.
  */
 
-#ifndef TELIT_HE910_CELLULAR_NETWORK_H_
-#define TELIT_HE910_CELLULAR_NETWORK_H_
+#ifndef QUECTEL_BG96_CELLULAR_POWER_H_
+#define QUECTEL_BG96_CELLULAR_POWER_H_
 
-#include "AT_CellularNetwork.h"
+#include "AT_CellularPower.h"
 
-namespace mbed {
+namespace mbed
+{
 
-class TELIT_HE910_CellularNetwork : public AT_CellularNetwork
+class QUECTEL_BG96_CellularPower : public AT_CellularPower
 {
 public:
-    TELIT_HE910_CellularNetwork(ATHandler &atHandler);
-    virtual ~TELIT_HE910_CellularNetwork();
+    QUECTEL_BG96_CellularPower(ATHandler &atHandler);
 
-protected:
-
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
-
-    virtual bool has_registration(RegistrationType rat);
-
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
+public: //from CellularPower
+    virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
+    virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);
 };
 
 } // namespace mbed
 
-#endif // TELIT_HE910_CELLULAR_NETWORK_H_
+#endif // QUECTEL_BG96_CELLULAR_POWER_H_

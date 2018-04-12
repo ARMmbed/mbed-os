@@ -99,7 +99,7 @@ void QUECTEL_BG96_CellularStack::handle_open_socket_response(int &modem_connect_
 }
 nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *socket)
 {
-    int modem_connect_id;
+    int modem_connect_id = -1;
     int request_connect_id = socket->id;
     int remote_port = 0;
     int err = -1;
@@ -246,7 +246,9 @@ nsapi_size_or_error_t QUECTEL_BG96_CellularStack::socket_recvfrom_impl(CellularS
     recv_len = _at.read_int();
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
-    _at.read_bytes((uint8_t*)buffer, recv_len);
+    if (recv_len > 0) {
+        _at.read_bytes((uint8_t*)buffer, recv_len);
+    }
     _at.resp_stop();
 
     if (!recv_len || (_at.get_last_error() != NSAPI_ERROR_OK)) {

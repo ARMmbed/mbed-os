@@ -68,7 +68,7 @@ const char * AT_CellularStack::get_ip_address()
 
         // in case stack type is not IPV4 only, try to look also for IPV6 address
         if (_stack_type != IPV4_STACK) {
-            len = _at.read_string(_ip, PDP_IPV6_SIZE-1);
+            (void)_at.read_string(_ip, PDP_IPV6_SIZE-1);
         }
     }
 
@@ -92,6 +92,7 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
     if (!_socket) {
         _socket = new CellularSocket*[max_socket_count];
         if (!_socket) {
+            tr_error("No memory to open socket!");
             return NSAPI_ERROR_NO_SOCKET;
         }
         _socket_count = max_socket_count;
@@ -109,9 +110,11 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
     }
 
     if (index == -1) {
+        tr_error("No socket found!");
         return NSAPI_ERROR_NO_SOCKET;
     }
 
+    tr_info("Socket open index: %d", index);
     // create local socket structure, socket on modem is created when app calls sendto/recvfrom
     _socket[index] = new CellularSocket;
     CellularSocket *psock;
@@ -135,30 +138,34 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
         return err;
     }
     int sock_id = socket->id;
+    bool sock_created = socket->created;
     int max_socket_count = get_max_socket_count();
 
     int index = -1;
     for (int i = 0; i < max_socket_count; i++) {
-        if (_socket[i] && _socket[i]->id == sock_id) {
+        if (_socket[i] == socket) {
             index = i;
             break;
         }
     }
 
+    tr_info("Close socket index: %d id: %d created: %d", index, sock_id, socket->created);
+
     if (index == -1) {
+        tr_error("No socket found to be closed");
         return err;
     }
+
     _socket[index] = NULL;
+    delete socket;
     err = NSAPI_ERROR_OK;
 
+    // Close the socket on the modem if it was created
     _at.lock();
-
-    err = socket_close_impl(sock_id);
-
+    if (sock_created) {
+        err = socket_close_impl(sock_id);
+    }
     _at.unlock();
-
-    delete socket;
-    socket = NULL;
 
     return err;
 }

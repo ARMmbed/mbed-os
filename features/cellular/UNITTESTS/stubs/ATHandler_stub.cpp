@@ -79,9 +79,10 @@ void ATHandler::set_file_handle(FileHandle *fh)
 {
 }
 
-void ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
+nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     ATHandler_stub::callback = cb;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t ATHandler::get_last_error() const

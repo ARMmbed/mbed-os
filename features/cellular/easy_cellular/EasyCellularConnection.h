@@ -16,7 +16,6 @@
  */
 
 #ifndef EASY_CELLULAR_CONNECTION_H
-
 #define EASY_CELLULAR_CONNECTION_H
 
 #include "CellularConnectionFSM.h"
@@ -118,6 +117,10 @@ public:
 
     /** Register callback for status reporting
      *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
      *  @param status_cb The callback for status changes
      */
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
@@ -142,6 +145,7 @@ private:
      *  @return true to continue state machine
      */
     bool cellular_status(int state, int next_state);
+    void network_callback(nsapi_event_t ev, intptr_t ptr);
     nsapi_error_t init();
     nsapi_error_t check_connect();
 
@@ -156,6 +160,7 @@ private:
     rtos::Semaphore _cellularSemaphore;
     CellularConnectionFSM _cellularConnectionFSM;
     nsapi_error_t _credentials_err;
+    Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
 
 } // namespace

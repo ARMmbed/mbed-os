@@ -287,7 +287,7 @@ void Test_ATHandler::test_ATHandler_cmd_start()
     ATHandler at(&fh1, que, 0, ",");
     mbed_poll_stub::revents_value = POLLOUT;
     mbed_poll_stub::int_value = 1;
-    fh1.size_value = 1;
+    fh1.size_value = 3;
     at.cmd_start("s");
     mbed_poll_stub::revents_value = POLLIN;
     mbed_poll_stub::int_value = 0;
@@ -303,12 +303,13 @@ void Test_ATHandler::test_ATHandler_write_int()
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    fh1.size_value = -1;
     at.write_int(4);
 
     at.clear_error();
     mbed_poll_stub::revents_value = POLLOUT;
     mbed_poll_stub::int_value = 1;
-    fh1.size_value = 1;
+    fh1.size_value = 6;
     at.write_int(4);
 
     at.write_int(2147483647);
@@ -331,7 +332,7 @@ void Test_ATHandler::test_ATHandler_write_string()
     at.clear_error();
     mbed_poll_stub::revents_value = POLLOUT;
     mbed_poll_stub::int_value = 1;
-    fh1.size_value = 1;
+    fh1.size_value = -1;
     at.cmd_start("s");
     at.write_string("help", true);
     CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
@@ -339,7 +340,7 @@ void Test_ATHandler::test_ATHandler_write_string()
     at.clear_error();
     mbed_poll_stub::revents_value = POLLOUT;
     mbed_poll_stub::int_value = 1;
-    fh1.size_value = 3;
+    fh1.size_value = -1;
     at.write_string("help", true);
     CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 
@@ -357,6 +358,7 @@ void Test_ATHandler::test_ATHandler_cmd_stop()
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    fh1.size_value = -1;
     at.cmd_stop();
 
     at.write_string("help", true);
@@ -371,6 +373,7 @@ void Test_ATHandler::test_ATHandler_write_bytes()
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    fh1.size_value = -1;
     uint8_t data[] = "data";
     at.write_bytes(data, 4);
 

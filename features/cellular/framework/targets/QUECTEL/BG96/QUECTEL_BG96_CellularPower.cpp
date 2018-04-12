@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +15,22 @@
  * limitations under the License.
  */
 
-#ifndef QUECTEL_BG96_H_
-#define QUECTEL_BG96_H_
+#include "QUECTEL_BG96_CellularPower.h"
 
-#include "AT_CellularDevice.h"
+#define DEVICE_READY_URC "CPIN:"
 
-namespace mbed
+using namespace mbed;
+
+QUECTEL_BG96_CellularPower::QUECTEL_BG96_CellularPower(ATHandler &atHandler) : AT_CellularPower(atHandler)
 {
+}
 
-class QUECTEL_BG96 : public AT_CellularDevice
+nsapi_error_t QUECTEL_BG96_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
 {
-public:
+    return _at.set_urc_handler(DEVICE_READY_URC, callback);
+}
 
-    QUECTEL_BG96(events::EventQueue &queue);
-    virtual ~QUECTEL_BG96();
-
-public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
-
-public: // NetworkInterface
-    void handle_urc(FileHandle *fh);
-};
-} // namespace mbed
-#endif // QUECTEL_BG96_H_
+void QUECTEL_BG96_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
+{
+    _at.remove_urc_handler(DEVICE_READY_URC, callback);
+}

@@ -116,16 +116,7 @@ public:
         CHAP
     };
 
-    // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
-    struct operator_t {
-        enum Status {
-            Unknown,
-            Available,
-            Current,
-            Forbiden
-        };
-
-        enum RadioAccessTechnology {
+    enum RadioAccessTechnology {
             RAT_GSM,
             RAT_GSM_COMPACT,
             RAT_UTRAN,
@@ -139,6 +130,14 @@ public:
             RAT_UNKNOWN
         };
 
+    // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
+    struct operator_t {
+        enum Status {
+            Unknown,
+            Available,
+            Current,
+            Forbiden
+        };
 
         Status op_status;
         char op_long[MAX_OPERATOR_NAME_LONG+1];
@@ -200,12 +199,47 @@ public:
     };
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
+    /* Network registering mode */
+    enum NWRegisteringMode {
+        NWModeAutomatic = 0,    // automatic registering
+        NWModeManual,           // manual registering with plmn
+        NWModeDeRegister,       // deregister from network
+        NWModeSetOnly,          // set only <format> (for read command +COPS?), do not attempt registration/deregistration
+        NWModeManualAutomatic   // if manual fails, fallback to automatic
+    };
+
+
+    /** Does all the needed initializations that can fail
+     *
+     *  @remark         must be called immediately after constructor.
+     *  @return         zero on success
+     */
+    virtual nsapi_error_t init() = 0;
+
     /** Request registering to network.
      *
      *  @param plmn     format is in numeric format or 0 for automatic network registration
      *  @return         zero on success
      */
     virtual nsapi_error_t set_registration(const char *plmn = 0) = 0;
+
+    /** Get the current network registering mode
+     *
+     *  @param mode on successful return contains the current network registering mode
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
+
+    /** Activate/deactivate listening of network events for the given RegistrationType.
+     *  This should be called after network class is created and ready to receive AT commands.
+     *  After successful call network class starts to get information about network changes like
+     *  registration statue, access technology, cell id...
+     *
+     *  @param type RegistrationType to set urc on/off
+     *  @param on   Controls are urc' active or not
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
     /** Gets the network registration status.
      *
@@ -270,10 +304,17 @@ public:
 
     /** Sets radio access technology.
      *
-     *  @param op_rat Radio access technology
-     *  @return       zero on success
+     *  @param rat  Radio access technology
+     *  @return     zero on success
      */
-    virtual nsapi_error_t set_access_technology(operator_t::RadioAccessTechnology op_rat) = 0;
+    virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
+
+    /** Get current radio access technology.
+     *
+     *  @param rat  Radio access technology
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat) = 0;
 
     /** Scans for operators module can reach.
      *
@@ -316,6 +357,13 @@ public:
      */
     virtual nsapi_error_t connect(const char *apn,
                                   const char *username = 0, const char *password = 0) = 0;
+
+    /** Finds the correct PDP context and activates it. If correct PDP context is not found, one is created.
+     *  Given APN (or not given) and stack type (IPv4/IPv6/dual) are influencing when finding the PDP context.
+     *
+     *  @return zero on success
+     */
+    virtual nsapi_error_t activate_context() = 0;
 
     /**
      * Set the pdn type to be used
