@@ -130,6 +130,17 @@ public:
      */
     virtual bd_size_t get_erase_size() const;
 
+    /** Get the value of storage when erased
+     *
+     *  If get_erase_value returns a non-negative byte value, the underlying
+     *  storage is set to that value when erased, and storage containing
+     *  that value can be programmed without another erase.
+     *
+     *  @return         The value of storage when erased, or -1 if you can't
+     *                  rely on the value of erased storage
+     */
+    virtual int get_erase_value() const;
+
     /** Get the total size of the underlying device
      *
      *  @return         Size of the underlying device in bytes
