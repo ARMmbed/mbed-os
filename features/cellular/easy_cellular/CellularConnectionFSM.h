@@ -59,6 +59,7 @@ public:
         STATE_SIM_PIN,
         STATE_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
+        STATE_ACTIVATING_PDP_CONTEXT,
         STATE_CONNECTING_NETWORK,
         STATE_CONNECTED
     };
@@ -120,10 +121,10 @@ public:
     CellularSIM* get_sim();
 
     /** Change cellular connection to the target state
-     *  @param state to continue
+     *  @param state to continue. Default is to connect.
      *  @return see nsapi_error_t, 0 on success
      */
-    nsapi_error_t continue_to_state(CellularState state);
+    nsapi_error_t continue_to_state(CellularState state = STATE_CONNECTED);
 
     /** Set cellular device SIM PIN code
      *  @param sim_pin PIN code
@@ -157,6 +158,7 @@ private:
     void state_sim_pin();
     void state_registering();
     void state_attaching();
+    void state_activating_pdp_context();
     void state_connect_to_network();
     void state_connected();
     void enter_to_state(CellularState state);

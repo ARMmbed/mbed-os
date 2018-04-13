@@ -79,6 +79,10 @@ void CellularConnectionFSM::stop()
     if (_cellularDevice) {
         _cellularDevice->close_power();
         _cellularDevice->close_network();
+        _cellularDevice->close_sim();
+        _power = NULL;
+        _network = NULL;
+        _sim = NULL;
     }
     if (_queue_thread) {
         _queue_thread->terminate();
@@ -289,7 +293,7 @@ void CellularConnectionFSM::report_failure(const char* msg)
 
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connecting network", "Connected"};
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
     return strings[state];
 }
 
@@ -446,11 +450,23 @@ void CellularConnectionFSM::state_attaching()
     CellularNetwork::AttachStatus attach_status;
     if (get_attach_network(attach_status)) {
         if (attach_status == CellularNetwork::Attached) {
-            enter_to_state(STATE_CONNECTING_NETWORK);
+            enter_to_state(STATE_ACTIVATING_PDP_CONTEXT);
         } else {
             set_attach_network();
             retry_state_or_fail();
         }
+    } else {
+        retry_state_or_fail();
+    }
+}
+
+void CellularConnectionFSM::state_activating_pdp_context()
+{
+    _cellularDevice->set_timeout(TIMEOUT_CONNECT);
+    tr_info("Activate PDP Context (timeout %d ms)", TIMEOUT_CONNECT);
+    if (_network->activate_context() == NSAPI_ERROR_OK) {
+        // when using modems stack connect is synchronous
+        _next_state = STATE_CONNECTING_NETWORK;
     } else {
         retry_state_or_fail();
     }
@@ -500,6 +516,9 @@ void CellularConnectionFSM::event()
             break;
         case STATE_ATTACHING_NETWORK:
             state_attaching();
+            break;
+        case STATE_ACTIVATING_PDP_CONTEXT:
+            state_activating_pdp_context();
             break;
         case STATE_CONNECTING_NETWORK:
             state_connect_to_network();
