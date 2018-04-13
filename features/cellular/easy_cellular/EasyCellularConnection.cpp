@@ -280,6 +280,11 @@ void EasyCellularConnection::modem_debug_on(bool on)
     }
 }
 
+void EasyCellularConnection::set_plmn(const char* plmn)
+{
+    _cellularConnectionFSM.set_plmn(plmn);
+}
+
 NetworkStack *EasyCellularConnection::get_stack()
 {
     return _cellularConnectionFSM.get_stack();

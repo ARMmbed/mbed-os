@@ -43,7 +43,7 @@ namespace mbed
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
         _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0)
+        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0), _plmn(0)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -146,6 +146,11 @@ void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
     _sim_pin[sizeof(_sim_pin)-1] = '\0';
 }
 
+void CellularConnectionFSM::set_plmn(const char* plmn)
+{
+    _plmn = plmn;
+}
+
 bool CellularConnectionFSM::open_sim()
 {
     CellularSIM::SimState state = CellularSIM::SimStateUnknown;
@@ -175,11 +180,10 @@ bool CellularConnectionFSM::open_sim()
     return state == CellularSIM::SimStateReady;
 }
 
-bool CellularConnectionFSM::set_network_registration(char *plmn)
+bool CellularConnectionFSM::set_network_registration()
 {
-    nsapi_error_t error = _network->set_registration(plmn);
-    if (error != NSAPI_ERROR_OK) {
-        tr_error("Set network registration mode failing (%d)", error);
+    if (_network->set_registration(_plmn) != NSAPI_ERROR_OK) {
+        tr_error("Failed to set network registration.");
         return false;
     }
     return true;
@@ -279,8 +283,12 @@ void CellularConnectionFSM::report_failure(const char* msg)
 
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
+#if MBED_CONF_MBED_TRACE_ENABLE
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connecting network", "Connected"};
     return strings[state];
+#else
+    return NULL;
+#endif // #if MBED_CONF_MBED_TRACE_ENABLE
 }
 
 nsapi_error_t CellularConnectionFSM::is_automatic_registering(bool& auto_reg)
@@ -416,15 +424,26 @@ void CellularConnectionFSM::state_registering()
 {
     _cellularDevice->set_timeout(TIMEOUT_NETWORK);
     if (is_registered()) {
-        // we are already registered, go to attach
-        enter_to_state(STATE_ATTACHING_NETWORK);
-    } else {
-        bool auto_reg = false;
-        nsapi_error_t err = is_automatic_registering(auto_reg);
-        if (err == NSAPI_ERROR_OK && !auto_reg) { // when we support plmn add this :  || plmn
-            // automatic registering is not on, set registration and retry
+        if (_plmn && _retry_count == 0) {
+            // we don't know which network we are registered, try to register to specific network
             _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
             set_network_registration();
+            retry_state_or_fail();
+        } else {
+            // we are already registered, go to attach
+            enter_to_state(STATE_ATTACHING_NETWORK);
+        }
+    } else {
+        if (_plmn) {
+            set_network_registration();
+        } else {
+            bool auto_reg = false;
+            nsapi_error_t err = is_automatic_registering(auto_reg);
+            if (err == NSAPI_ERROR_OK && !auto_reg) {
+                // automatic registering is not on, set registration and retry
+                _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
+                set_network_registration();
+            }
         }
         retry_state_or_fail();
     }

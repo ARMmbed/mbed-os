@@ -656,7 +656,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         tr_debug("Automatic network registration");
         _at.cmd_start("AT+COPS?");
         _at.cmd_stop();
-        _at.resp_start("AT+COPS:");
+        _at.resp_start("+COPS:");
         int mode = _at.read_int();
         _at.resp_stop();
         if (mode != 0) {

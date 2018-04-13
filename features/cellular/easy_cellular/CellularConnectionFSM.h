@@ -139,12 +139,24 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
+    /** Sets the operator plmn which is used when registering to a network specified by plmn. If plmn is not set then automatic
+     *  registering is used when registering to a cellular network.
+     *
+     *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
+     */
+    void set_plmn(const char* plmn);
+
+    /** returns readable format of the given state. Used for printing states while debugging.
+     *
+     *  @param state state which is returned in string format
+     *  @return      string format of the given state
+     */
     const char* get_state_string(CellularState state);
 private:
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
-    bool set_network_registration(char *plmn = 0);
+    bool set_network_registration();
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
     bool is_registered();
@@ -198,6 +210,7 @@ private:
     events::EventQueue _at_queue;
     char _st_string[20];
     int _event_id;
+    const char* _plmn;
 };
 
 } // namespace
