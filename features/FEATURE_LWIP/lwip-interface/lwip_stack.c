@@ -1135,7 +1135,7 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (!ip_addr_isany(&ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
+    if (!ip_addr_isany_val(ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
