@@ -113,6 +113,9 @@
     "STM32F303RE": {
         "OGChipSelectEditMenu": "STM32F303xE\tST STM32F303xE"
     },
+    "STM32L151CC": {
+        "OGChipSelectEditMenu": "STM32L151CC\tST STM32L151CC"
+    },
     "STM32L152RE": {
         "OGChipSelectEditMenu": "STM32L152xE\tST STM32L152xE"
     },
