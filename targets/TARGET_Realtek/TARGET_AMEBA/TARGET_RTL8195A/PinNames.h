@@ -169,7 +169,7 @@ typedef enum {
     DA_1  = (PORT_U<<4|1),
 
     // Not connected
-    NC = (uint32_t)0xFFFFFFFF,
+    NC = (int)0xFFFFFFFF,
 
     // Generic signals namings
     /* LED1~4 are defined as alias of GPIO pins, they are not the LEDs on board*/
