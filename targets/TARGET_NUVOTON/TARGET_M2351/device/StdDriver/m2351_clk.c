@@ -114,7 +114,7 @@ void CLK_Idle(void)
   */
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetHXTFreq(void)
 {
     uint32_t u32Freq = 0UL;
@@ -142,7 +142,7 @@ uint32_t CLK_GetHXTFreq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetLXTFreq(void)
 {
     uint32_t u32Freq = 0UL;
@@ -169,7 +169,7 @@ uint32_t CLK_GetLXTFreq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetHCLKFreq(void)
 {
     SystemCoreClockUpdate();
@@ -186,7 +186,7 @@ uint32_t CLK_GetHCLKFreq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetPCLK0Freq(void)
 {
     SystemCoreClockUpdate();
@@ -203,7 +203,7 @@ uint32_t CLK_GetPCLK0Freq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetPCLK1Freq(void)
 {
     SystemCoreClockUpdate();
@@ -220,7 +220,7 @@ uint32_t CLK_GetPCLK1Freq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetCPUFreq(void)
 {
     uint32_t u32Freq, u32HclkSrc, u32HclkDiv;
@@ -1080,7 +1080,7 @@ void CLK_EnableSPDWKPin(uint32_t u32Port, uint32_t u32Pin, uint32_t u32TriggerTy
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetPLLClockFreq(void)
 {
     uint32_t u32PllFreq = 0UL, u32PllReg;
@@ -1169,7 +1169,7 @@ uint32_t CLK_GetPLLClockFreq(void)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
 {
     uint32_t u32tmpVal = 0UL, u32tmpAddr = 0UL;
@@ -1229,7 +1229,7 @@ uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
 
 //__NONSECURE_ENTRY_WEAK
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
 {
     uint32_t u32tmpVal = 0UL, u32tmpAddr = 0UL;

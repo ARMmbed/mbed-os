@@ -26,7 +26,7 @@
  */
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void pin_function(PinName pin, int data)
 {
     MBED_ASSERT(pin != (PinName)NC);

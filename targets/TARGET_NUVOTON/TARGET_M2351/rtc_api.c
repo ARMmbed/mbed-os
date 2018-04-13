@@ -38,15 +38,15 @@
 /* As of ARM Compiler 6.9, we meet some NSC functions are missing in secure gateway
  * import library (cmse_lib.o) in secure build. Per test, we could get around it by
  * adding declaration for NSC functions. */
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_init(void);
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_free(void);
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 int rtc_isenabled(void);
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 time_t rtc_read(void);
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_write(time_t t);
 
 /* Micro seconds per second */
@@ -111,7 +111,7 @@ static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC
 
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_init(void)
 {
     if (rtc_isenabled()) {
@@ -124,13 +124,13 @@ void rtc_init(void)
     rtc_write(0);
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_free(void)
 {
     // N/A
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 int rtc_isenabled(void)
 {
     // NOTE: To access (RTC) registers, clock must be enabled first.
@@ -145,7 +145,7 @@ int rtc_isenabled(void)
     return !! (rtc_base->INIT & RTC_INIT_ACTIVE_Msk);
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 time_t rtc_read(void)
 {
     /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
@@ -186,7 +186,7 @@ time_t rtc_read(void)
     return t_present;
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void rtc_write(time_t t)
 {
     if (! rtc_isenabled()) {

@@ -133,7 +133,7 @@ static const nu_modidx_ns_t modidx_ns_tab[] = {
  */
 static bool check_mod_ns(int modclass, uint32_t modidx);
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void SYS_ResetModule_S(uint32_t u32ModuleIndex)
 {
     /* Guard access to secure module from non-secure domain */
@@ -145,7 +145,7 @@ void SYS_ResetModule_S(uint32_t u32ModuleIndex)
     SYS_ResetModule(u32ModuleIndex);
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv)
 {
     /* Guard access to secure module from non-secure domain */
@@ -157,7 +157,7 @@ void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t 
     CLK_SetModuleClock(u32ModuleIndex, u32ClkSrc, u32ClkDiv);
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
 {
     /* Guard access to secure module from non-secure domain */
@@ -169,7 +169,7 @@ void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex)
     CLK_EnableModuleClock(u32ModuleIndex);
 }
 
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
 {
     /* Guard access to secure module from non-secure domain */
