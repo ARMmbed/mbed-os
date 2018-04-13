@@ -748,12 +748,12 @@ int8_t sec_suite_remove(sec_suite_t *cur) {
         return -1;
     }
 
-    if (cur->pana_session.pana_heap) {
-        ns_dyn_mem_free(cur->pana_session.pana_heap);
-        cur->pana_session.pana_heap = NULL;
-    }
+    pana_free_dynamic_ram(cur);
 
     sec_suite_tls_free(cur, true);
+#ifdef ECC
+    sec_ecc_state_free(cur);
+#endif
     ns_list_remove(&sec_suite_list, cur);
     ns_dyn_mem_free(cur);
     return 0;

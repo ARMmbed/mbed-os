@@ -253,13 +253,14 @@ void test_input_exceeds_capacity_push_2_pop_1_complex_type()
     }
 }
 
-/* Test circular buffer - test pop(), empty(), full(), size() after CircularBuffer creation.
+/* Test circular buffer - test pop(), peek(), empty(), full(), size() after CircularBuffer creation.
  *
  * Given is a circular buffer.
  * When circular buffer is created.
  * Then circular buffer is empty:
  * - empty() returns true,
  * - pop() function returns false,
+ * - peek() function returns false,
  * - full() function returns false,
  * - size() function returns 0,
  *
@@ -271,6 +272,7 @@ void test_pop_empty_full_size_after_creation()
 
     TEST_ASSERT_TRUE(cb.empty());
     TEST_ASSERT_FALSE(cb.pop(data));
+    TEST_ASSERT_FALSE(cb.peek(data));
     TEST_ASSERT_FALSE(cb.full());
     TEST_ASSERT_EQUAL(0, cb.size());
 }
@@ -411,6 +413,35 @@ void test_counter_type_buffer_size()
     TEST_ASSERT_EQUAL(100, data);
 }
 
+/* Test circular buffer - peek should not update buffer data.
+ *
+ * When circular buffer peek operation is performed along with
+ * push and pop, it should not update the buffer data elements.
+ * Elements read using pop/peek operation should match.
+ *
+ */
+void test_peek_no_pop()
+{
+    CircularBuffer<int, 3, unsigned char> cb;
+    int data = 0;
+    int peek_data = 0;
+
+    for (uint32_t i = 0; i < 3; i++) {
+        data = (0xAA + i);
+        cb.push(data);
+        cb.peek(peek_data);
+        TEST_ASSERT_EQUAL(i + 1, cb.size());
+    }
+
+    for (uint32_t i = 0; i < 3; i++) {
+        TEST_ASSERT_TRUE(cb.peek(peek_data));
+        TEST_ASSERT_EQUAL(0xAA + i, peek_data);
+        TEST_ASSERT_TRUE(cb.pop(data));
+        TEST_ASSERT_EQUAL(0xAA + i, data);
+        TEST_ASSERT_EQUAL(3 - i - 1, cb.size());
+    }
+}
+
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
@@ -446,13 +477,15 @@ Case cases[] = {
 
     Case("reset() clears the buffer.", test_reset<uint32_t, 5>, greentea_failure_handler),
 
-    Case("Test pop(), empty(), full(), size() after CircularBuffer creation.",
+    Case("Test pop(), peek(), empty(), full(), size() after CircularBuffer creation.",
          test_pop_empty_full_size_after_creation, greentea_failure_handler),
 
     Case("Test CounterType/BufferSize boarder case.", test_counter_type_buffer_size, greentea_failure_handler),
 
     Case("Input exceeds capacity(5) push 2, pop 1 - complex type.",
          test_input_exceeds_capacity_push_2_pop_1_complex_type<5, unsigned short>, greentea_failure_handler),
+
+    Case("peek() return data without popping the element.", test_peek_no_pop, greentea_failure_handler),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

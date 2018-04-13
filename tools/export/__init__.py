@@ -30,7 +30,7 @@ from ..toolchains import Resources
 from ..targets import TARGET_NAMES
 from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
-               cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb)
+               cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb, cces, codeblocks)
 
 EXPORTERS = {
     u'uvision5': uvision.Uvision,
@@ -60,7 +60,9 @@ EXPORTERS = {
     u'vscode_gcc_arm' : vscode.VSCodeGcc,
     u'vscode_iar' : vscode.VSCodeIAR,
     u'vscode_armc5' : vscode.VSCodeArmc5,
-    u'cmake_gcc_arm': cmake.GccArm
+    u'cmake_gcc_arm': cmake.GccArm,
+    u'cces' : cces.CCES,
+    u'codeblocks': codeblocks.CodeBlocks
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -314,13 +316,11 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         name = basename(normpath(abspath(src_paths[0])))
 
     # Call unified scan_resources
-    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs, collect_ignores=True)
+    resource_dict = {loc: sum((toolchain.scan_resources(p, collect_ignores=True)
+                               for p in path),
+                              Resources())
                      for loc, path in src_paths.items()}
     resources = Resources()
-    toolchain.build_dir = export_path
-    config_header = toolchain.get_config_header()
-    resources.headers.append(config_header)
-    resources.file_basepath[config_header] = dirname(config_header)
 
     if zip_proj:
         subtract_basepath(resources, ".")
@@ -331,6 +331,13 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     else:
         for _, res in resource_dict.items():
             resources.add(res)
+
+    toolchain.build_dir = export_path
+    toolchain.config.load_resources(resources)
+    toolchain.set_config_data(toolchain.config.get_config_data())
+    config_header = toolchain.get_config_header()
+    resources.headers.append(config_header)
+    resources.file_basepath[config_header] = dirname(config_header)
 
     # Change linker script if specified
     if linker_script is not None:

@@ -586,7 +586,7 @@ static int fhss_update_synch_monitor(fhss_structure_t *fhss_structure, const fhs
     /* If superframe changed during synchronization but remaining time to next superframe is high, it is likely that
      * superframe change is not valid anymore. Don't use this Beacon for syncronization monitoring.
      */
-    if (!(super_frame_changed && ((configuration->fhss_superframe_length - remaining_time_own) < CLOSE_TO_SUPERFRAME_LENGTH))) {
+    if ((configuration->fhss_superframe_length - remaining_time_own) > CLOSE_TO_SUPERFRAME_LENGTH) {
         remaining_time_own += (int32_t) configuration->fhss_superframe_length * super_frame_changed;
 
         int32_t prev_synch_fix = (time_to_next_superframe - remaining_time_own);
@@ -1001,6 +1001,7 @@ int fhss_add_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id, uint
         beacon_info = fhss_create_beacon_info(fhss_structure);
     }
     if (!beacon_info) {
+        tr_error("Beacon data not allocated");
         return -2;
     }
     fhss_write_beacon_info(beacon_info, pan_id, source_address, timestamp, synch_info);

@@ -68,7 +68,7 @@
 #include "6LoWPAN/MAC/mac_data_poll.h"
 #include "mlme.h"
 
-#ifdef HAVE_THREAD_ROUTER
+#ifdef HAVE_THREAD
 
 typedef struct scan_query {
     int8_t coap_service_id;
@@ -857,6 +857,7 @@ static int thread_management_server_panid_query_cb(int8_t service_id, uint8_t so
     this->scan_ptr->timer = eventOS_timeout_ms(thread_panid_scan_timeout_cb, 500, this);// Delay for the confirm response message
     if (!this->scan_ptr->timer) {
         ns_dyn_mem_free(this->scan_ptr);
+        this->scan_ptr = NULL;
         response_code = COAP_MSG_CODE_RESPONSE_INTERNAL_SERVER_ERROR;
         goto error_exit;
     }
@@ -875,7 +876,6 @@ static int thread_management_server_panid_query_cb(int8_t service_id, uint8_t so
     }
     return -1;
 error_exit:
-    this->scan_ptr = NULL;
     if (request_ptr->msg_type == COAP_MSG_TYPE_CONFIRMABLE ){
         coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, NULL, 0);
         return 0;
@@ -1134,6 +1134,7 @@ int thread_management_server_init(int8_t interface_id)
     this->announce_ptr = NULL;
     this->external_commissioner_port = THREAD_COMMISSIONING_PORT;
 
+#ifdef HAVE_THREAD_ROUTER
     if (thread_border_router_init(this->interface_id) != 0) {
         ns_dyn_mem_free(this);
         return -5;
@@ -1143,19 +1144,20 @@ int thread_management_server_init(int8_t interface_id)
         ns_dyn_mem_free(this);
         return -5;
     }
-
+#endif
     this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
     if (this->coap_service_id < 0) {
         tr_warn("Thread management init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
-
+#ifdef HAVE_THREAD_ROUTER
     if (thread_leader_service_init(interface_id, this->coap_service_id) != 0) {
         tr_warn("Thread leader service init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
+#endif
     thread_extension_init(interface_id, this->coap_service_id);
 
     // All thread devices
@@ -1556,7 +1558,7 @@ int thread_management_server_tmf_get_request_handler(int8_t interface_id, int8_t
     return ret_val;
 }
 
-#else // HAVE_THREAD_ROUTER
+#else // HAVE_THREAD
 
 int thread_management_server_init(int8_t interface_id)
 {
@@ -1571,7 +1573,7 @@ void thread_management_server_delete(int8_t interface_id)
 
 int thread_management_server_joiner_router_init(int8_t interface_id)
 {
-	(void)interface_id;
+    (void)interface_id;
     return 0;
 }
 
@@ -1601,4 +1603,4 @@ int thread_management_server_tmf_get_request_handler(int8_t interface_id, int8_t
     (void)request_ptr;
     return -1;
 }
-#endif //HAVE_THREAD_ROUTER
+#endif //HAVE_THREAD

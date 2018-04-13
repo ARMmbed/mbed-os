@@ -55,6 +55,15 @@
 #undef COAP_DISABLE_OBS_FEATURE
 
 /**
+ * \def SN_COAP_DISABLE_RESENDINGS
+ *
+ * \brief Disables resending feature. Resending feature should not be needed
+ * when using CoAP with TCP transport for example. By default resendings are
+ * enabled. Set to 1 to disable.
+ */
+#undef SN_COAP_DISABLE_RESENDINGS          /* 0 */ // < Default re-sending are not disabled. Set to 1 to disable re-sendings
+
+/**
  * \def SN_COAP_RESENDING_QUEUE_SIZE_MSGS
  *
  * \brief Sets the number of messages stored
@@ -82,6 +91,21 @@
  * By default, maximum size is UINT16_MAX, 65535 bytes.
  */
 #undef SN_COAP_MAX_INCOMING_MESSAGE_SIZE    /* UINT16_MAX */
+
+/**
+ * \def SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE
+ * \brief Sets the maximum payload size allowed before blockwising the message.
+ * This option should only be used when using TCP and TLS as transport
+ * with known maximum fragment size. This optimizes the number of messages
+ * if it is possible to send larger than 1kB messages without blockwise transfer.
+ * If payload length is larger than SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE
+ * it will be sent using blockwise transfer.
+ * By default, this feature is disabled, 0 disables the feature, set to positive
+ * value larger than SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE to enable.
+ * Note that value should be less than transport layer maximum fragment size.
+ * Note that value has no effect if blockwise transfer is disabled.
+ */
+#undef SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE        /* 0 */
 
 #ifdef MBED_CLIENT_USER_CONFIG_FILE
 #include MBED_CLIENT_USER_CONFIG_FILE

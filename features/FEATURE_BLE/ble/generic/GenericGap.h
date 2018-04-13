@@ -25,14 +25,15 @@
 #include "ble/pal/PalGap.h"
 #include "ble/pal/GapEvents.h"
 #include "ble/pal/GapTypes.h"
+#include "ble/BLETypes.h"
 #include "ble/pal/GenericAccessService.h"
 #include "ble/pal/EventQueue.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 
 #include "drivers/Timeout.h"
 
 namespace ble {
 namespace generic {
-
 /**
  * Generic implementation of the Gap class.
  * It requires a pal::Gap and a pal::GenericAccessService injected at
@@ -40,7 +41,8 @@ namespace generic {
  *
  * @attention: Not part of the public interface of BLE API.
  */
-class GenericGap : public ::Gap {
+class GenericGap : public ::Gap,
+                   public pal::ConnectionEventMonitor {
 
 public:
     /**
@@ -249,7 +251,33 @@ public:
      */
     virtual ble_error_t reset(void);
 
+    /**
+     * @copydoc ::Gap::processConnectionEvent
+     */
+    void processConnectionEvent(
+        Handle_t handle,
+        Role_t role,
+        BLEProtocol::AddressType_t peerAddrType,
+        const BLEProtocol::AddressBytes_t peerAddr,
+        BLEProtocol::AddressType_t ownAddrType,
+        const BLEProtocol::AddressBytes_t ownAddr,
+        const ConnectionParams_t *connectionParams
+    );
+
+    /**
+     * @copydoc ::Gap::processDisconnectionEvent
+     */
+    void processDisconnectionEvent(
+        Handle_t handle,
+        DisconnectionReason_t reason
+    );
+
 private:
+    /** @note Implements ConnectionEventMonitor.
+     *  @copydoc ConnectionEventMonitor::set_connection_event_handler
+     */
+    void set_connection_event_handler(pal::ConnectionEventMonitor::EventHandler *_connection_event_handler);
+
     void on_scan_timeout();
 
     void process_scan_timeout();
@@ -282,12 +310,14 @@ private:
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
     BLEProtocol::AddressType_t _address_type;
+    ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
     mutable Whitelist_t _whitelist;
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
+    pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
 };
 
 }

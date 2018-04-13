@@ -16,7 +16,7 @@
 #include "drivers/SerialBase.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 
 #if DEVICE_SERIAL
 

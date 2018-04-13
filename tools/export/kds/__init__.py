@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import splitext, basename
+from os import remove
 
 from tools.export.exporters import Exporter, deprecated_exporter
 
@@ -47,3 +48,7 @@ class KDS(Exporter):
         self.gen_file('kds/%s_project.tmpl' % self.target.lower(), ctx, '.project')
         self.gen_file('kds/%s_cproject.tmpl' % self.target.lower(), ctx, '.cproject')
         self.gen_file('kds/launch.tmpl', ctx, '%s.launch' % self.project_name)
+
+    @staticmethod
+    def clean(project_name):
+        remove('%s.launch' % project_name)

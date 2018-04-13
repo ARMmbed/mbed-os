@@ -51,6 +51,7 @@
 	#include <stdint.h>
 	#include "diag.h"
 	#define strsep(str, delim)      	_strsep(str, delim)
+	#define _memset(dst, val, sz)		memset(dst, val, sz)
 #else
 	#include <stdio.h>
 	#include <stdlib.h>

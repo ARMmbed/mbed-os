@@ -17,7 +17,7 @@
 #define MBED_DEEPSLEEPLOCK_H
 
 #include <limits.h>
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {

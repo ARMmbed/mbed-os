@@ -18,6 +18,10 @@
 #include "objects.h"
 #include "pinmap.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #if DEVICE_PWMOUT
 
 #ifdef CONFIG_PWM_EN

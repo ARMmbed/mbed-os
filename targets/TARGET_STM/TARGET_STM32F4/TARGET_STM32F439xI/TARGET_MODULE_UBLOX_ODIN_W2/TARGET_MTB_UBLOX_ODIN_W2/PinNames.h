@@ -148,16 +148,14 @@ typedef enum {
     //P_TP11,         // BOOT0
 
     // Internal
-    LED1       = PD_9,
-    LED2       = PA_12,
-    LED3       = PD_8,
-    LED4       = PA_11,
-    LED5       = PC_2,
-    LED6       = PA_3,
-    LED7       = PF_6,
     LED_RED    = PE_0,
     LED_GREEN  = PB_6,
     LED_BLUE   = PB_8,
+
+    LED1       = LED_RED,
+    LED2       = LED_GREEN,
+    LED3       = LED_BLUE,
+
     SW1        = PF_2,
     SW2        = PG_4,
 
@@ -185,7 +183,7 @@ typedef enum {
 #elif MBED_CONF_TARGET_USB_TX
     STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
 #else
-    STDIO_UART_TX = PA_11,
+    STDIO_UART_TX = PA_9,
 #endif
 
 #ifdef MBED_CONF_TARGET_STDIO_UART_RX
@@ -193,7 +191,7 @@ typedef enum {
 #elif MBED_CONF_TARGET_USB_RX
     STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
 #else
-    STDIO_UART_RX = PA_13,
+    STDIO_UART_RX = PA_10,
 #endif
 
     // DAPLink
@@ -208,8 +206,8 @@ typedef enum {
     TGT_SWDIO      = SWDIO,
     TGT_SWCLK      = SWCLK,
     TGT_RESET      = NTRST,
-    TG_TX          = USBTX,
-    TG_RX          = USBRX,
+    TGT_TX          = USBTX,
+    TGT_RX          = USBRX,
     TX1            = P_A15,
     RX1            = P_A14,
     SDA1           = P_C18,

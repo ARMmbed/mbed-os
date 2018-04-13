@@ -54,3 +54,9 @@ void rtc_setup_oscillator(RTC_Type *base)
     RTC->CR |= RTC_CR_OSCE_MASK;
 }
 #endif
+
+// Set the UART clock source
+void serial_clock_init(void)
+{
+    CLOCK_SetLpuartClock(2U);
+}

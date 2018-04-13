@@ -42,6 +42,37 @@
 
 const uint8_t EAP_ANYMOUS[9] = {'a', 'n', 'o', 'n', 'y', 'm', 'o', 'u', 's'};
 
+static bool force_frag_last_retry = false;
+
+static bool force_frag_start_fail = false;
+
+static bool force_frag_timeout = false;
+
+static void eap_seq_back_to_accept(sec_suite_t *suite)
+{
+    if (suite->pana_session.eap_id_seq == 0) {
+        suite->pana_session.eap_id_seq = 0xff;
+    } else {
+        suite->pana_session.eap_id_seq--;
+    }
+}
+
+void pana_eap_fragmetation_start_filter(bool state)
+{
+    tr_debug("Set start state %u", state);
+    force_frag_start_fail = state;
+}
+
+void pana_eap_fragmetation_force_timeout(bool state)
+{
+    force_frag_timeout = state;
+}
+
+void pana_eap_fragmetation_force_retry(bool state)
+{
+    force_frag_last_retry = state;
+}
+
 static buffer_t *eap_common_headroom_get_to_buffer(buffer_t *buf, uint16_t header_size)
 {
     if ((buf = buffer_headroom(buf, header_size)) == 0) {
@@ -145,7 +176,7 @@ bool pana_eap_frag_re_tx(sec_suite_t *suite)
             buffer_data_length_set(f_buf, suite->pana_session.last_assy_size);
             goto success_push;
         }
-    } else if (suite->pana_session.eap_frag_buf) {
+    } else if (suite->pana_session.eap_frag_buf || suite->pana_session.packet_delivered) {
         f_buf = buffer_get(127);
         if (f_buf) {
 
@@ -241,9 +272,10 @@ buffer_t *eap_down(buffer_t *buf, sec_suite_t *suite)
 
 buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
 {
+    eap_header_t header;
     uint8_t *ptr = buffer_data_pointer(buf);
     uint16_t payload_length = buffer_data_length(buf);
-    eap_header_t header;
+    uint8_t response_counter = suite->retry_counter;
     if (!eap_header_parse(ptr, payload_length, &header)) {
         return buffer_free(buf);
     }
@@ -337,17 +369,27 @@ buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
                         if (suite->pana_session.eap_assy_buf) {
                             tr_debug("Free Frag Buf");
                             buffer_free(suite->pana_session.eap_assy_buf);
-                            suite->pana_session.eap_assy_buf  = 0;
+                            suite->pana_session.eap_assy_buf  = NULL;
                         }
                         suite->pana_session.assy_length = 0;
                         suite->pana_session.assy_off_set = 0;
                         suite->pana_session.last_assy_size = 0;
+                        suite->pana_session.packet_delivered = true;
+                        suite->retry_counter = 0;
                     }
                 }
             }
 
             if ((eap_tls_header.eap_tls_flags & EAP_TLS_MORE_FRAGMENTS) == 0) {
                 if (suite->pana_session.frag_length) {
+                    if (force_frag_last_retry || force_frag_timeout) {
+                        force_frag_last_retry = false;
+                        if (header.eap_code == EAP_RESPONSE) {
+                            suite->retry_counter = response_counter;
+                        }
+                        eap_seq_back_to_accept(suite);
+                        return buffer_free(buf);
+                    }
                     buffer_t *t_buf = suite->pana_session.eap_frag_buf;
 
                     uint16_t check_len = suite->pana_session.frag_off_set;
@@ -462,8 +504,14 @@ buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
                 //Check did we have a already action
                 if (suite->pana_session.frag_length == 0) {
 
-                    buffer_t *f_buf = buffer_get(eap_tls_header.tls_length);
-                    tr_debug("First Fragment");
+                    buffer_t *f_buf = NULL;
+                    if (force_frag_start_fail) {
+                        tr_debug("Force to drop fragment");
+                        force_frag_start_fail = false;
+                    } else {
+                        tr_debug("First Fragment");
+                        f_buf = buffer_get(eap_tls_header.tls_length);
+                    }
                     if (f_buf) {
                         buffer_data_length_set(f_buf, eap_tls_header.tls_length);
                         memcpy(buffer_data_pointer(f_buf), eap_tls_header.data_ptr, eap_tls_header.tls_frame_length);
@@ -532,4 +580,20 @@ buffer_t *eap_up(buffer_t *buf, sec_suite_t *suite)
             return buffer_free(buf);
     }
 }
+#else
+void pana_eap_fragmetation_start_filter(bool state)
+{
+    (void) state;
+}
+
+void pana_eap_fragmetation_force_timeout(bool state)
+{
+    (void) state;
+}
+
+void pana_eap_fragmetation_force_retry(bool state)
+{
+    (void) state;
+}
+
 #endif

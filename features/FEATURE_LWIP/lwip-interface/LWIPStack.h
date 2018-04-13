@@ -64,6 +64,29 @@ public:
          */
         virtual nsapi_error_t bringdown();
 
+        /** Register callback for status reporting
+         *
+         *  The specified status callback function will be called on status changes
+         *  on the network. The parameters on the callback are the event type and
+         *  event-type dependent reason parameter.
+         *
+         *  @param status_cb The callback for status changes
+         */
+        virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+        /** Get the connection status
+         *
+         *  @return         The connection status according to ConnectionStatusType
+         */
+        virtual nsapi_connection_status_t get_connection_status() const;
+
+        /** Set blocking behaviour for bringup
+         *
+         * Controls whether bringup blocks or returns immediately.
+         *  @param blocking true if bringup is blocking
+         */
+        virtual void set_blocking(bool blocking);
+
         /** Return MAC address of the network interface
          *
          * @return              MAC address as "V:W:X:Y:Z"
@@ -100,6 +123,7 @@ public:
 
         Interface();
 
+        nsapi_error_t set_dhcp();
         static void netif_link_irq(struct netif *netif);
         static void netif_status_irq(struct netif *netif);
 
@@ -142,9 +166,12 @@ public:
     #define HAS_BOTH_ADDR 4
     #endif
         char has_addr_state;
-        bool connected;
+        nsapi_connection_status_t connected;
         bool dhcp_started;
+        bool dhcp_has_to_be_set;
+        bool blocking;
         bool ppp;
+        mbed::Callback<void(nsapi_event_t, intptr_t)> client_callback;
         struct netif netif;
         LWIPMemoryManager *memory_manager;
     };

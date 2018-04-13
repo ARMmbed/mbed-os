@@ -19,6 +19,7 @@ limitations under the License.
 TEST BUILD & RUN
 """
 from __future__ import print_function
+from builtins import str
 import sys
 import json
 from time import sleep
@@ -117,7 +118,7 @@ if __name__ == '__main__':
         "--stats-depth",
         type=int,
         dest="stats_depth",
-        default=None,
+        default=2,
         help="Depth level for static memory report")
 
     # Local run

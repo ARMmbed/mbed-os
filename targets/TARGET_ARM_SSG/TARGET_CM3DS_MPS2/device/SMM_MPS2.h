@@ -1,6 +1,6 @@
 /* MPS2 CMSIS Library
  *
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,154 +152,6 @@ typedef struct                   //
                                  //                          [3:0] : Application note IP revision number
 } MPS2_SCC_TypeDef;
 
-
-/******************************************************************************/
-/*                        SSP Peripheral declaration                          */
-/******************************************************************************/
-
-typedef struct                   // Document DDI0194G_ssp_pl022_r1p3_trm.pdf
-{
-  __IO uint32_t CR0;             // Offset: 0x000 (R/W)  Control register 0
-                                 //                        [31:16] : Reserved
-                                 //                         [15:8] : Serial clock rate
-                                 //                            [7] : SSPCLKOUT phase,    applicable to Motorola SPI frame format only
-                                 //                            [6] : SSPCLKOUT polarity, applicable to Motorola SPI frame format only
-                                 //                          [5:4] : Frame format
-                                 //                          [3:0] : Data Size Select
-  __IO uint32_t CR1;             // Offset: 0x004 (R/W)  Control register 1
-                                 //                         [31:4] : Reserved
-                                 //                            [3] : Slave-mode output disable
-                                 //                            [2] : Master or slave mode select
-                                 //                            [1] : Synchronous serial port enable
-                                 //                            [0] : Loop back mode
-  __IO uint32_t DR;              // Offset: 0x008 (R/W)  Data register
-                                 //                        [31:16] : Reserved
-                                 //                         [15:0] : Transmit/Receive FIFO
-  __I  uint32_t SR;              // Offset: 0x00C (R/ )  Status register
-                                 //                         [31:5] : Reserved
-                                 //                            [4] : PrimeCell SSP busy flag
-                                 //                            [3] : Receive FIFO full
-                                 //                            [2] : Receive FIFO not empty
-                                 //                            [1] : Transmit FIFO not full
-                                 //                            [0] : Transmit FIFO empty
-  __IO uint32_t CPSR;            // Offset: 0x010 (R/W)  Clock prescale register
-                                 //                         [31:8] : Reserved
-                                 //                          [8:0] : Clock prescale divisor
-  __IO uint32_t IMSC;            // Offset: 0x014 (R/W)  Interrupt mask set or clear register
-                                 //                         [31:4] : Reserved
-                                 //                            [3] : Transmit FIFO interrupt mask
-                                 //                            [2] : Receive FIFO interrupt mask
-                                 //                            [1] : Receive timeout interrupt mask
-                                 //                            [0] : Receive overrun interrupt mask
-  __I  uint32_t RIS;             // Offset: 0x018 (R/ )  Raw interrupt status register
-                                 //                         [31:4] : Reserved
-                                 //                            [3] : raw interrupt state, prior to masking, of the SSPTXINTR interrupt
-                                 //                            [2] : raw interrupt state, prior to masking, of the SSPRXINTR interrupt
-                                 //                            [1] : raw interrupt state, prior to masking, of the SSPRTINTR interrupt
-                                 //                            [0] : raw interrupt state, prior to masking, of the SSPRORINTR interrupt
-  __I  uint32_t MIS;             // Offset: 0x01C (R/ )  Masked interrupt status register
-                                 //                         [31:4] : Reserved
-                                 //                            [3] : transmit FIFO masked interrupt state, after masking, of the SSPTXINTR interrupt
-                                 //                            [2] : receive FIFO masked interrupt state, after masking, of the SSPRXINTR interrupt
-                                 //                            [1] : receive timeout masked interrupt state, after masking, of the SSPRTINTR interrupt
-                                 //                            [0] : receive over run masked interrupt status, after masking, of the SSPRORINTR interrupt
-  __O  uint32_t ICR;             // Offset: 0x020 ( /W)  Interrupt clear register
-                                 //                         [31:2] : Reserved
-                                 //                            [1] : Clears the SSPRTINTR interrupt
-                                 //                            [0] : Clears the SSPRORINTR interrupt
-  __IO uint32_t DMACR;           // Offset: 0x024 (R/W)  DMA control register
-                                 //                         [31:2] : Reserved
-                                 //                            [1] : Transmit DMA Enable
-                                 //                            [0] : Receive DMA Enable
-} MPS2_SSP_TypeDef;
-
-
-// SSP_CR0 Control register 0
-#define SSP_CR0_DSS_Pos         0           // Data Size Select
-#define SSP_CR0_DSS_Msk         (0xF<<SSP_CR0_DSS_Pos)
-#define SSP_CR0_FRF_Pos         4           // Frame Format Select
-#define SSP_CR0_FRF_Msk         (3UL<<SSP_CR0_FRM_Pos)
-#define SSP_CR0_SPO_Pos         6           // SSPCLKOUT polarity
-#define SSP_CR0_SPO_Msk         (1UL<<SSP_CR0_SPO_Pos)
-#define SSP_CR0_SPH_Pos         7           // SSPCLKOUT phase
-#define SSP_CR0_SPH_Msk         (1UL<<SSP_CR0_SPH_Pos)
-#define SSP_CR0_SCR_Pos         8           // Serial Clock Rate (divide)
-#define SSP_CR0_SCR_Msk         (0xFF<<SSP_CR0_SCR_Pos)
-
-#define SSP_CR0_SCR_DFLT        0x0300      // Serial Clock Rate (divide), default set at 3
-#define SSP_CR0_FRF_MOT         0x0000      // Frame format, Motorola
-#define SSP_CR0_DSS_8           0x0007      // Data packet size, 8bits
-#define SSP_CR0_DSS_16          0x000F      // Data packet size, 16bits
-
-// SSP_CR1 Control register 1
-#define SSP_CR1_LBM_Pos         0           // Loop Back Mode
-#define SSP_CR1_LBM_Msk         (1UL<<SSP_CR1_LBM_Pos)
-#define SSP_CR1_SSE_Pos         1           // Serial port enable
-#define SSP_CR1_SSE_Msk         (1UL<<SSP_CR1_SSE_Pos)
-#define SSP_CR1_MS_Pos          2           // Master or Slave mode
-#define SSP_CR1_MS_Msk          (1UL<<SSP_CR1_MS_Pos)
-#define SSP_CR1_SOD_Pos         3           // Slave Output mode Disable
-#define SSP_CR1_SOD_Msk         (1UL<<SSP_CR1_SOD_Pos)
-
-// SSP_SR Status register
-#define SSP_SR_TFE_Pos          0           // Transmit FIFO empty
-#define SSP_SR_TFE_Msk          (1UL<<SSP_SR_TFE_Pos)
-#define SSP_SR_TNF_Pos          1           // Transmit FIFO not full
-#define SSP_SR_TNF_Msk          (1UL<<SSP_SR_TNF_Pos)
-#define SSP_SR_RNE_Pos          2           // Receive  FIFO not empty
-#define SSP_SR_RNE_Msk          (1UL<<SSP_SR_RNE_Pos)
-#define SSP_SR_RFF_Pos          3           // Receive  FIFO full
-#define SSP_SR_RFF_Msk          (1UL<<SSP_SR_RFF_Pos)
-#define SSP_SR_BSY_Pos          4           // Busy
-#define SSP_SR_BSY_Msk          (1UL<<SSP_SR_BSY_Pos)
-
-// SSP_CPSR Clock prescale register
-#define SSP_CPSR_CPD_Pos        0           // Clock prescale divisor
-#define SSP_CPSR_CPD_Msk        (0xFF<<SSP_CPSR_CDP_Pos)
-
-#define SSP_CPSR_DFLT           0x0008      // Clock prescale (use with SCR), default set at 8
-
-// SSPIMSC Interrupt mask set and clear register
-#define SSP_IMSC_RORIM_Pos         0           // Receive overrun not Masked
-#define SSP_IMSC_RORIM_Msk         (1UL<<SSP_IMSC_RORIM_Pos)
-#define SSP_IMSC_RTIM_Pos          1           // Receive timeout not Masked
-#define SSP_IMSC_RTIM_Msk          (1UL<<SSP_IMSC_RTIM_Pos)
-#define SSP_IMSC_RXIM_Pos          2           // Receive  FIFO not Masked
-#define SSP_IMSC_RXIM_Msk          (1UL<<SSP_IMSC_RXIM_Pos)
-#define SSP_IMSC_TXIM_Pos          3           // Transmit FIFO not Masked
-#define SSP_IMSC_TXIM_Msk          (1UL<<SSP_IMSC_TXIM_Pos)
-
-// SSPRIS Raw interrupt status register
-#define SSP_RIS_RORRIS_Pos         0           // Raw Overrun  interrupt flag
-#define SSP_RIS_RORRIS_Msk         (1UL<<SSP_RIS_RORRIS_Pos)
-#define SSP_RIS_RTRIS_Pos          1           // Raw Timemout interrupt flag
-#define SSP_RIS_RTRIS_Msk          (1UL<<SSP_RIS_RTRIS_Pos)
-#define SSP_RIS_RXRIS_Pos          2           // Raw Receive  interrupt flag
-#define SSP_RIS_RXRIS_Msk          (1UL<<SSP_RIS_RXRIS_Pos)
-#define SSP_RIS_TXRIS_Pos          3           // Raw Transmit interrupt flag
-#define SSP_RIS_TXRIS_Msk          (1UL<<SSP_RIS_TXRIS_Pos)
-
-// SSPMIS Masked interrupt status register
-#define SSP_MIS_RORMIS_Pos         0           // Masked Overrun  interrupt flag
-#define SSP_MIS_RORMIS_Msk         (1UL<<SSP_MIS_RORMIS_Pos)
-#define SSP_MIS_RTMIS_Pos          1           // Masked Timemout interrupt flag
-#define SSP_MIS_RTMIS_Msk          (1UL<<SSP_MIS_RTMIS_Pos)
-#define SSP_MIS_RXMIS_Pos          2           // Masked Receive  interrupt flag
-#define SSP_MIS_RXMIS_Msk          (1UL<<SSP_MIS_RXMIS_Pos)
-#define SSP_MIS_TXMIS_Pos          3           // Masked Transmit interrupt flag
-#define SSP_MIS_TXMIS_Msk          (1UL<<SSP_MIS_TXMIS_Pos)
-
-// SSPICR Interrupt clear register
-#define SSP_ICR_RORIC_Pos           0           // Clears Overrun  interrupt flag
-#define SSP_ICR_RORIC_Msk           (1UL<<SSP_ICR_RORIC_Pos)
-#define SSP_ICR_RTIC_Pos            1           // Clears Timemout interrupt flag
-#define SSP_ICR_RTIC_Msk            (1UL<<SSP_ICR_RTIC_Pos)
-
-// SSPDMACR DMA control register
-#define SSP_DMACR_RXDMAE_Pos        0           // Enable Receive  FIFO DMA
-#define SSP_DMACR_RXDMAE_Msk        (1UL<<SSP_DMACR_RXDMAE_Pos)
-#define SSP_DMACR_TXDMAE_Pos        1           // Enable Transmit FIFO DMA
-#define SSP_DMACR_TXDMAE_Msk        (1UL<<SSP_DMACR_TXDMAE_Pos)
 
 /******************************************************************************/
 /*               Audio and Touch Screen (I2C) Peripheral declaration          */
@@ -577,11 +429,6 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 #define MPS2_AAIC_I2S           ((MPS2_I2S_TypeDef    *) MPS2_AAIC_I2S_BASE )
 #define MPS2_FPGAIO             ((MPS2_FPGAIO_TypeDef *) MPS2_FPGAIO_BASE )
 #define MPS2_SCC                ((MPS2_SCC_TypeDef    *) MPS2_SCC_BASE )
-#define MPS2_SSP0               ((MPS2_SSP_TypeDef    *) MPS2_SSP0_BASE )
-#define MPS2_SSP1               ((MPS2_SSP_TypeDef    *) MPS2_SSP1_BASE )
-#define MPS2_SSP2               ((MPS2_SSP_TypeDef    *) MPS2_SSP2_BASE )
-#define MPS2_SSP3               ((MPS2_SSP_TypeDef    *) MPS2_SSP3_BASE )
-#define MPS2_SSP4               ((MPS2_SSP_TypeDef    *) MPS2_SSP4_BASE )
 
 /******************************************************************************/
 /*                     General Function Definitions                           */

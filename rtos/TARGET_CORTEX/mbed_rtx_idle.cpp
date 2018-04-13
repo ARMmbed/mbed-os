@@ -21,7 +21,7 @@
  */
 
 #include "rtos/rtos_idle.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #include "TimerEvent.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
@@ -36,113 +36,18 @@ using namespace mbed;
 
 #ifdef MBED_TICKLESS
 
-#if (defined(NO_SYSTICK))
-/**
- * Return an IRQ number that can be used in the absence of SysTick
- *
- * @return Free IRQ number that can be used
- */
-extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
-#endif
+#include "rtos/TARGET_CORTEX/SysTimer.h"
 
-class RtosTimer : private TimerEvent {
-public:
-    RtosTimer(): TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0) {
-        _start_time = ticker_read_us(_ticker_data);
-#if (defined(NO_SYSTICK))
-        NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
-        NVIC_SetPriority(mbed_get_m0_tick_irqn(), 0xFF); /* RTOS requires lowest priority */
-        NVIC_EnableIRQ(mbed_get_m0_tick_irqn());
-#else
-        // Ensure SysTick has the correct priority as it is still used
-        // to trigger software interrupts on each tick. The period does
-        // not matter since it will never start counting.
-        OS_Tick_Setup(osRtxConfig.tick_freq, OS_TICK_HANDLER);
-#endif
-    };
-
-    /**
-     * Schedule an os tick to fire
-     *
-     * @param delta Tick to fire at relative to current tick
-     */
-    void schedule_tick(uint32_t delta=1) {
-        insert_absolute(_start_time + (_tick + delta) * 1000000 /  OS_TICK_FREQ);
-    }
-
-
-    /**
-     * Prevent any scheduled ticks from triggering
-     */
-    void cancel_tick() {
-        remove();
-    }
-
-    /**
-     * Get the current tick count
-     *
-     * @return The number of ticks since boot. This should match RTX's tick count
-     */
-    uint32_t get_tick() {
-        return _tick & 0xFFFFFFFF;
-    }
-
-    /**
-     * Update the internal tick count
-     *
-     * @return The number of ticks incremented
-     */
-    uint32_t update_tick() {
-        uint64_t new_tick = ticker_read_us(_ticker_data) * OS_TICK_FREQ / 1000000;
-        if (new_tick > _tick) {
-            // Don't update to the current tick. Instead, update to the
-            // previous tick and let the SysTick handler increment it
-            // to the current value. This allows scheduling restart
-            // successfully after the OS is resumed.
-            new_tick--;
-        }
-        uint32_t elapsed_ticks = new_tick - _tick;
-        _tick = new_tick;
-        return elapsed_ticks;
-    }
-
-    /**
-     * Get the time
-     *
-     * @return Current time in microseconds
-     */
-    us_timestamp_t get_time() {
-        return ticker_read_us(_ticker_data);
-    }
-
-    ~RtosTimer() {
-
-    };
-
-protected:
-
-    void handler() {
-#if (defined(NO_SYSTICK))
-        NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
-#else
-        SCB->ICSR = SCB_ICSR_PENDSTSET_Msk;
-#endif
-        _tick++;
-    }
-
-    us_timestamp_t _start_time;
-    uint64_t _tick;
-};
-
-static RtosTimer *os_timer;
-static uint64_t os_timer_data[sizeof(RtosTimer) / 8];
+static rtos::internal::SysTimer *os_timer;
+static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
 
 /// Enable System Timer.
 int32_t OS_Tick_Enable (void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
-        os_timer = new (os_timer_data) RtosTimer();
+        os_timer = new (os_timer_data) rtos::internal::SysTimer();
+        os_timer->setup_irq();
     }
 
     // set to fire interrupt on next tick

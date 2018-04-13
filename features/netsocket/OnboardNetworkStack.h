@@ -72,6 +72,29 @@ public:
          */
         virtual nsapi_error_t bringdown() = 0;
 
+        /** Register callback for status reporting
+         *
+         *  The specified status callback function will be called on status changes
+         *  on the network. The parameters on the callback are the event type and
+         *  event-type dependent reason parameter.
+         *
+         *  @param status_cb The callback for status changes
+         */
+        virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
+
+        /** Get the connection status
+         *
+         *  @return         The connection status according to ConnectionStatusType
+         */
+        virtual nsapi_connection_status_t get_connection_status() const = 0;
+
+        /** Set blocking behaviour for bringup
+         *
+         * Controls whether bringup blocks or returns immediately.
+         *  @param blocking true if bringup is blocking
+         */
+        virtual void set_blocking(bool blocking) = 0;
+
         /** Return MAC address of the network interface
          *
          * @return              MAC address as "V:W:X:Y:Z"

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   CORTEX HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -23,29 +21,8 @@
     This section provide functions allowing to configure the NVIC interrupts (IRQ).
     The Cortex-M3 exceptions are managed by CMSIS functions.
    
-    (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping()
-        function according to the following table.
+    (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping() function
 
-     The table below gives the allowed values of the pre-emption priority and subpriority according
-     to the Priority Grouping configuration performed by HAL_NVIC_SetPriorityGrouping() function.
-       ==========================================================================================================================
-         NVIC_PriorityGroup   | NVIC_IRQChannelPreemptionPriority | NVIC_IRQChannelSubPriority  |       Description
-       ==========================================================================================================================
-        NVIC_PRIORITYGROUP_0  |                0                  |            0-15             | 0 bits for pre-emption priority
-                              |                                   |                             | 4 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------
-        NVIC_PRIORITYGROUP_1  |                0-1                |            0-7              | 1 bits for pre-emption priority
-                              |                                   |                             | 3 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------    
-        NVIC_PRIORITYGROUP_2  |                0-3                |            0-3              | 2 bits for pre-emption priority
-                              |                                   |                             | 2 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------    
-        NVIC_PRIORITYGROUP_3  |                0-7                |            0-1              | 3 bits for pre-emption priority
-                              |                                   |                             | 1 bits for subpriority
-       --------------------------------------------------------------------------------------------------------------------------    
-        NVIC_PRIORITYGROUP_4  |                0-15               |            0                | 4 bits for pre-emption priority
-                              |                                   |                             | 0 bits for subpriority                       
-       ==========================================================================================================================
      (#)  Configure the priority of the selected IRQ Channels using HAL_NVIC_SetPriority() 
 
      (#)  Enable the selected IRQ Channels using HAL_NVIC_EnableIRQ() 
@@ -93,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -119,6 +96,30 @@
   *
   ******************************************************************************
   */
+
+/*
+  Additional Tables: CORTEX_NVIC_Priority_Table
+     The table below gives the allowed values of the pre-emption priority and subpriority according
+     to the Priority Grouping configuration performed by HAL_NVIC_SetPriorityGrouping() function.
+       ==========================================================================================================================
+         NVIC_PriorityGroup   | NVIC_IRQChannelPreemptionPriority | NVIC_IRQChannelSubPriority  |       Description
+       ==========================================================================================================================
+        NVIC_PRIORITYGROUP_0  |                0                  |            0-15             | 0 bits for pre-emption priority
+                              |                                   |                             | 4 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------
+        NVIC_PRIORITYGROUP_1  |                0-1                |            0-7              | 1 bits for pre-emption priority
+                              |                                   |                             | 3 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------    
+        NVIC_PRIORITYGROUP_2  |                0-3                |            0-3              | 2 bits for pre-emption priority
+                              |                                   |                             | 2 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------    
+        NVIC_PRIORITYGROUP_3  |                0-7                |            0-1              | 3 bits for pre-emption priority
+                              |                                   |                             | 1 bits for subpriority
+       --------------------------------------------------------------------------------------------------------------------------    
+        NVIC_PRIORITYGROUP_4  |                0-15               |            0                | 4 bits for pre-emption priority
+                              |                                   |                             | 0 bits for subpriority                       
+       ==========================================================================================================================
+*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
@@ -292,6 +293,40 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   */
 
 #if (__MPU_PRESENT == 1)
+/**
+  * @brief  Enable the MPU.
+  * @param  MPU_Control: Specifies the control mode of the MPU during hard fault, 
+  *          NMI, FAULTMASK and privileged accessto the default memory 
+  *          This parameter can be one of the following values:
+  *            @arg MPU_HFNMI_PRIVDEF_NONE
+  *            @arg MPU_HARDFAULT_NMI
+  *            @arg MPU_PRIVILEGED_DEFAULT
+  *            @arg MPU_HFNMI_PRIVDEF
+  * @retval None
+  */
+void HAL_MPU_Enable(uint32_t MPU_Control)
+{
+  /* Enable the MPU */
+  MPU->CTRL = (MPU_Control | MPU_CTRL_ENABLE_Msk);
+
+  /* Ensure MPU setting take effects */
+  __DSB();
+  __ISB();
+}
+
+/**
+  * @brief  Disable the MPU.
+  * @retval None
+  */
+void HAL_MPU_Disable(void)
+{
+  /* Make sure outstanding transfers are done */
+  __DMB();
+
+  /* Disable the MPU and clear the control register*/
+  MPU->CTRL  = 0;
+}
+
 /**
   * @brief  Initializes and configures the Region and the memory to be protected.
   * @param  MPU_Init: Pointer to a MPU_Region_InitTypeDef structure that contains

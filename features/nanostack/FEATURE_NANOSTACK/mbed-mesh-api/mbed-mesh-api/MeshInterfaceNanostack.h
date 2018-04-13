@@ -29,12 +29,15 @@ public:
     virtual char *get_mac_address(char *buf, nsapi_size_t buflen);
     virtual char *get_netmask(char *buf, nsapi_size_t buflen);
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    virtual nsapi_connection_status_t get_connection_status() const;
+    virtual void set_blocking(bool blocking);
 
     void get_mac_address(uint8_t *buf) const { interface_phy.get_mac_address(buf); }
 
     /**
      * \brief Callback from C-layer
-     * \param state state of the network
+     * \param status state of the network
      * */
     void network_handler(mesh_connection_status_t status);
 
@@ -50,6 +53,10 @@ protected:
     int8_t interface_id;
     int8_t _device_id;
     Semaphore connect_semaphore;
+
+    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    nsapi_connection_status_t _connect_status;
+    bool _blocking;
 };
 
 class Nanostack::MeshInterface : public Nanostack::Interface {
@@ -70,6 +77,34 @@ public:
     /return     MAC address of the interface
     */
     virtual const char *get_mac_address();
+
+    /** Register callback for status reporting
+     *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
+
+    /** Get the interface ID
+    /return     Interface identifier
+    */
+    int8_t get_interface_id() const { return _interface->get_interface_id(); }
 
 protected:
     InterfaceNanostack();

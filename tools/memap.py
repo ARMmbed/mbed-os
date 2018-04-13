@@ -10,11 +10,9 @@ from os.path import basename, dirname, join, relpath, commonprefix
 import re
 import csv
 import json
-import math
 from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
-from tools.arm_pack_manager import Cache
 
 from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
                     argparse_uppercase_type)
@@ -509,7 +507,7 @@ class MemapParser(object):
 
     export_formats = ["json", "csv-ci", "table"]
 
-    def generate_output(self, export_format, depth, file_output=None, *args):
+    def generate_output(self, export_format, depth, file_output=None):
         """ Generates summary of memory map data
 
         Positional arguments:
@@ -534,9 +532,8 @@ class MemapParser(object):
 
         to_call = {'json': self.generate_json,
                    'csv-ci': self.generate_csv,
-                   'table': self.generate_table,
-                   'bars': self.generate_bars}[export_format]
-        output = to_call(file_desc, *args)
+                   'table': self.generate_table}[export_format]
+        output = to_call(file_desc)
 
         if file_desc is not stdout:
             file_desc.close()
@@ -619,71 +616,6 @@ class MemapParser(object):
                         str(self.mem_summary['total_flash'])
 
         return output
-
-    def generate_bars(self, file_desc, device_name=None):
-        """ Generates nice looking bars that represent the memory consumption
-
-        Returns: string containing nice looking bars
-        """
-
-        # TODO add tty detection, and width detection probably
-        WIDTH = 72
-        try:
-            # NOTE this only works on linux
-            import sys, fcntl, termios, struct
-            height, width, _, _ = struct.unpack('HHHH',
-                fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ,
-                    struct.pack('HHHH', 0, 0, 0, 0)))
-            WIDTH = min(width, WIDTH)
-        except Exception:
-            pass
-
-        text = self.subtotal['.text']
-        data = self.subtotal['.data']
-        bss = self.subtotal['.bss']
-        rom_used = self.mem_summary['total_flash']
-        ram_used = self.mem_summary['static_ram']
-
-        # No device_name = no cmsis-pack = we don't know the memory layout
-        if device_name is not None:
-            try:
-                cache = Cache(False, False)
-                cmsis_part = cache.index[device_name]
-                rom_avail = int(cmsis_part['memory']['IROM1']['size'], 0)
-                ram_avail = int(cmsis_part['memory']['IRAM1']['size'], 0)
-            except KeyError:
-                # If we don't have the expected regions, fall back to no device_name
-                device_name = None
-
-        PREFIXES = ['', 'K', 'M', 'G', 'T', 'P', 'E']
-        def unit(n, u='B', p=3):
-            if n == 0:
-                return '0' + u
-
-            scale = math.floor(math.log(n, 1024))
-            return '{1:.{0}g}{2}{3}'.format(p, n/(1024**scale), PREFIXES[int(scale)], u)
-
-        usage = "Text {} Data {} BSS {}".format(unit(text), unit(data), unit(bss))
-        avail = "ROM {} RAM {}".format(unit(rom_used), unit(ram_used))
-        output = ["{0} {1:>{2}}".format(usage, avail,
-            abs(WIDTH-len(usage)-1) if device_name is not None else 0)]
-
-        if device_name is not None:
-            for region, avail, uses in [
-                    ('ROM', rom_avail, [('|', text), ('|', data)]),
-                    ('RAM', ram_avail, [('|', bss), ('|', data)])]:
-                barwidth = WIDTH-17 - len(region)
-
-                used = sum(use for c, use in uses)
-                bars = [(c, (barwidth*use) // avail) for c, use in uses]
-                bars.append((' ', barwidth - sum(width for c, width in bars)))
-                bars = ''.join(c*width for c, width in bars)
-
-                output.append("{0} [{2:<{1}}] {3:>13}".format(
-                    region, barwidth, bars,
-                    "{}/{}".format(unit(used), unit(avail))))
-
-        return '\n'.join(output)
 
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "GCC_CR", "IAR"]
 

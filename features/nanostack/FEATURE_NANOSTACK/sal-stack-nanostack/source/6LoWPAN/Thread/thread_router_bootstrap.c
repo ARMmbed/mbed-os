@@ -100,7 +100,7 @@ static void thread_bootstrap_client_router_id_release_cb(int8_t interface_id, in
 static int thread_router_synch_accept_request_build(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint16_t shortAddress, uint8_t *challenge, uint8_t chalLen, uint8_t *tlvReq, uint8_t tlvReqLen);
 static int thread_router_accept_to_endevice(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint8_t *challenge, uint8_t chalLen);
 static int thread_router_accept_request_build(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint16_t shortAddress, uint8_t *challenge, uint8_t chalLen, uint8_t type, bool rssi_tlv, uint8_t rssi);
-static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv);
+static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp);
 static int mle_build_and_send_data_response_msg(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t *data_ptr, uint16_t data_len, mle_tlv_info_t *request_tlv, uint8_t mode);
 static int thread_attach_parent_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, uint8_t *challenge, uint16_t chalLen, uint8_t linkMargin, uint8_t scanMask, uint8_t mode);
 static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *cur, uint8_t *dstAddress,thread_pending_child_id_req_t *child_req,mle_neigh_table_entry_t *neigh_info);
@@ -399,21 +399,22 @@ static void thread_router_synch_receive_cb(int8_t interface_id, mle_message_t *m
                 if (thread_leader_service_thread_partitition_restart(interface_id, &routing)) {
                     return;
                 }
-                tr_info("Router synch success as Leader of network");
+                thread_network_data_request_send(cur, mle_msg->packet_src_address, false);
+                // force leader to learn active/pending sets from data response
+                cur->thread_info->leader_synced = true;
+                // Prevent the Leader to learn network data from data response
+                cur->thread_info->networkDataRequested = false;
+                tr_info("Router synch OK as Leader");
             } else {
-               // Remove possibly registered network data from leader
-               thread_management_client_network_data_unregister(cur->id, address16);
-
                // Decrement data version and request network data to be updated
                cur->thread_info->thread_leader_data->dataVersion--;
                cur->thread_info->thread_leader_data->stableDataVersion--;
                thread_network_data_request_send(cur, mle_msg->packet_src_address, true);
-               tr_info("Router synch success as Router");
+               tr_info("Router synch OK as Router");
             }
 
             thread_router_bootstrap_route_tlv_push(cur, routing.dataPtr, routing.tlvLen , linkMargin, entry_temp);
             thread_bootstrap_attached_ready(cur);
-
         }
 
         break;
@@ -680,16 +681,39 @@ static uint8_t *thread_tlv_add(protocol_interface_info_entry_t *cur, uint8_t *pt
     return ptr;
 }
 
-static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv)
+static int thread_child_update_response(protocol_interface_info_entry_t *cur, uint8_t *dst_address, uint8_t mode, uint16_t short_address, uint32_t timeout, mle_tlv_info_t *addressRegisterTlv,mle_tlv_info_t *tlvReq, mle_tlv_info_t *challengeTlv, uint64_t active_timestamp, uint64_t pending_timestamp)
 {
     uint16_t i;
     uint16_t len = 64;
     uint32_t keySequence;
+    bool add_active_configuration = false;
+    bool add_pending_configuration = false;
+    uint64_t own_pending_timestamp = 0;
     uint8_t *ptr;
     if (!thread_info(cur)) {
         return -1;
     }
+    link_configuration_s *link_configuration;
+    link_configuration = thread_joiner_application_get_config(cur->id);
 
+    if (!link_configuration) {
+        return -1;
+    }
+
+    len += 10; // active timestamp tlv size
+    len += thread_pending_timestamp_tlv_size(cur);
+
+    if (!active_timestamp || active_timestamp != link_configuration->timestamp) {
+        len += thread_active_operational_dataset_size(cur);
+        add_active_configuration = true;
+    }
+    own_pending_timestamp = thread_joiner_application_pending_config_timestamp_get(cur->id);
+    // if pending config is not in sync from requested device
+    if (!pending_timestamp ||
+            (own_pending_timestamp && own_pending_timestamp != pending_timestamp)) {
+        len += thread_pending_operational_dataset_size(cur);
+        add_pending_configuration = true;
+    }
     if (tlvReq && tlvReq->tlvLen) {
         mle_tlv_ignore(tlvReq->dataPtr, tlvReq->tlvLen, MLE_TYPE_LL_FRAME_COUNTER);
         len += thread_tlv_len(cur, tlvReq->dataPtr, tlvReq->tlvLen, mode);
@@ -742,6 +766,16 @@ static int thread_child_update_response(protocol_interface_info_entry_t *cur, ui
         if (mle_tlv_requested(tlvReq->dataPtr, tlvReq->tlvLen, MLE_TYPE_ADDRESS16)) {
             ptr = mle_tlv_write_short_address(ptr, short_address);
         }
+        if (mle_tlv_requested(tlvReq->dataPtr, tlvReq->tlvLen, MLE_TYPE_NETWORK_DATA)) {
+            ptr = thread_active_timestamp_write(cur,ptr);
+            ptr = thread_pending_timestamp_write(cur,ptr);
+            if (add_active_configuration) {
+                ptr = thread_active_operational_dataset_write(cur, ptr);
+            }
+            if (add_pending_configuration) {
+                ptr = thread_pending_operational_dataset_write(cur, ptr);
+            }
+        }
     }
 
     if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
@@ -777,13 +811,14 @@ static int mle_build_and_send_data_response_msg(protocol_interface_info_entry_t 
 
     length += thread_pending_timestamp_tlv_size(cur);
 
-
     if (!active_timestamp_present_in_request || active_timestamp != link_configuration->timestamp) {
         length += thread_active_operational_dataset_size(cur);
         add_active_configuration = true;
     }
     own_pending_timestamp = thread_joiner_application_pending_config_timestamp_get(cur->id);
-    if (!pending_timestamp_present_in_request || (own_pending_timestamp && own_pending_timestamp != pending_timestamp)) {
+    // if pending config is not in sync from requested device
+    if (!pending_timestamp_present_in_request ||
+            (own_pending_timestamp && own_pending_timestamp != pending_timestamp)) {
         length += thread_pending_operational_dataset_size(cur);
         add_pending_configuration = true;
     }
@@ -912,21 +947,45 @@ static int thread_attach_parent_response_build(protocol_interface_info_entry_t *
     return 0;
 }
 
+int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *child)
+{
+    /* Cleanup occurs for /any/ link we lose to something that looks like a child address,
+     * not just links that are /now/ our children.
+     * Due to REED/partition transitions the address may not look like a current child address;
+     * we could be holding a child entry for future repromotion to router with same ID.
+     */
+    if (thread_is_router_addr(child->short_adr) || child->short_adr >= 0xfffe) {
+        return -1;
+    }
+    tr_debug("Child free %x", child->short_adr);
+    thread_dynamic_storage_child_info_clear(cur->id, child);
+
+    /* As we are losing a link to a child address, we can assume that if we have an IP neighbour cache
+     * mapping to that address, it is no longer valid. We must have been their parent, and they must be
+     * finding a new parent, and hence a new 16-bit address. (Losing a link to a router address would not
+     * invalidate our IP->16-bit mapping.)
+     */
+    protocol_6lowpan_release_short_link_address_from_neighcache(cur, child->short_adr);
+
+    // If Child's RLOC16 appears in the Network Data send the RLOC16 to the Leader
+    if (thread_network_data_services_registered(&cur->thread_info->networkDataStorage, child->short_adr)) {
+        tr_debug("Remove references to Child's RLOC16 from the Network Data");
+        thread_management_client_network_data_unregister(cur->id, child->short_adr);
+    }
+
+    // Clear all (sleepy) child registrations to multicast groups
+    thread_child_mcast_entries_remove(cur, child->mac64);
+
+    return 0;
+}
+
 void thread_router_bootstrap_child_information_clear(protocol_interface_info_entry_t *cur)
 {
+    /* make sure that the child info (from previous partition if any)
+        is cleared if no router address is got from leader */
+
     if (!cur->thread_info) {
         return;
-    }
-
-    if (cur->thread_info->routerShortAddress == 0xfffe) {
-        return;
-    }
-
-    // Remove registered entries in IP neighbour cache
-    ns_list_foreach_safe(ipv6_neighbour_t, neighbour, &cur->ipv6_neighbour_cache.list) {
-        if (neighbour->type == IP_NEIGHBOUR_REGISTERED) {
-            ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, neighbour);
-        }
     }
 
     // Remove mle neighbour entries for children in previous partition
@@ -935,11 +994,29 @@ void thread_router_bootstrap_child_information_clear(protocol_interface_info_ent
         return;
     }
     ns_list_foreach_safe(mle_neigh_table_entry_t, table_entry, entry_list) {
-        if (!thread_is_router_addr(table_entry->short_adr) && thread_router_addr_from_addr(table_entry->short_adr) == cur->thread_info->routerShortAddress) {
+        if (table_entry->short_adr < 0xfffe && !thread_is_router_addr(table_entry->short_adr)) {
             mle_class_remove_entry(cur->id, table_entry);
         }
     }
+}
+static void thread_router_bootstrap_invalid_child_information_clear(protocol_interface_info_entry_t *cur, uint16_t router_rloc)
+{
 
+    tr_debug("Thread Short address changed old: %x new: %x", cur->thread_info->routerShortAddress, router_rloc);
+
+    mle_neigh_table_list_t *entry_list = mle_class_active_list_get(cur->id);
+    if (!entry_list) {
+        return;
+    }
+
+    // scrub neighbours with child addresses that are not ours
+    ns_list_foreach_safe(mle_neigh_table_entry_t, table_entry, entry_list) {
+        if (table_entry->short_adr < 0xfffe &&
+                !thread_is_router_addr(table_entry->short_adr) &&
+                thread_router_addr_from_addr(table_entry->short_adr) != router_rloc) {
+            mle_class_remove_entry(cur->id, table_entry);
+        }
+    }
 }
 
 static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t status, uint16_t router_rloc, const uint8_t router_mask_ptr[9])
@@ -976,10 +1053,14 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
         parent_router_id = cur->thread_info->thread_endnode_parent->router_id;
     }
 
+    thread_router_bootstrap_invalid_child_information_clear(cur,router_rloc);
+
+    // Release network data from old address
+    cur->thread_info->localServerDataBase.release_old_address = true;
+
     //ADD New ML16
     // This should be used thread_bootstrap_update_ml16_address(cur, router_rloc);
     thread_clean_old_16_bit_address_based_addresses(cur);
-
     mac_helper_mac16_address_set(cur, router_rloc);
     cur->thread_info->routerShortAddress = router_rloc;
     memcpy(ml16, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 8);
@@ -992,16 +1073,6 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
     if (!def_address) {
         return;
     }
-
-    tr_info("Thread Short address changed old: %x new: %x", cur->thread_info->routerShortAddress, router_rloc);
-    /*the default routerShortAddress if nothing is requested is 0xfffe so eliminate this case
-        Also make sure that the child info (from previous partition if any)
-        is cleared if the router address requested is not what is got from leader */
-    if (cur->thread_info->routerShortAddress != router_rloc) {
-        thread_router_bootstrap_child_information_clear(cur);
-    }
-    // Release network data from old address
-    cur->thread_info->localServerDataBase.release_old_address = true;
 
     //  /* XXX Is short_src_adr ever reset? Is it undefined if info not in msg? */
     tr_debug("Route seq %d Router mask: %s", routeId, trace_array(router_mask_ptr, 8));
@@ -1194,7 +1265,7 @@ static bool thread_child_id_request(protocol_interface_info_entry_t *cur, mle_ne
         }
 
         //allocate child address if current is router, 0xffff or not our child
-        if (!thread_addr_is_equal_or_child(mac_helper_mac16_address_get(cur), entry_temp->short_adr)) {
+        if (!thread_addr_is_child(mac_helper_mac16_address_get(cur), entry_temp->short_adr)) {
             entry_temp->short_adr = thread_router_bootstrap_child_address_generate(cur);
         }
 
@@ -1824,6 +1895,8 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                     uint8_t mode;
                     uint8_t status;
                     uint32_t timeout = 0;
+                    uint64_t active_timestamp = 0;
+                    uint64_t pending_timestamp = 0;
                     mle_tlv_info_t addressRegisterTlv = {0};
                     mle_tlv_info_t challengeTlv = {0};
                     mle_tlv_info_t tlv_req = {0};
@@ -1857,6 +1930,8 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
 
                     addressRegisterTlv.tlvType = MLE_TYPE_UNASSIGNED;
                     mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &addressRegisterTlv);
+                    mle_tlv_read_64_bit_tlv(MLE_TYPE_ACTIVE_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &active_timestamp);
+                    mle_tlv_read_64_bit_tlv(MLE_TYPE_PENDING_TIMESTAMP, mle_msg->data_ptr, mle_msg->data_length, &pending_timestamp);
 
                     mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &tlv_req);
 
@@ -1879,7 +1954,7 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
 
                     tr_debug("Keep-Alive -->Respond Child");
                     //Response
-                    thread_child_update_response(cur, mle_msg->packet_src_address, mode, entry_temp->short_adr, timeout, &addressRegisterTlv, &tlv_req, &challengeTlv);
+                    thread_child_update_response(cur, mle_msg->packet_src_address, mode, entry_temp->short_adr, timeout, &addressRegisterTlv, &tlv_req, &challengeTlv, active_timestamp, pending_timestamp);
 
                 }
                 break;
@@ -2119,6 +2194,7 @@ void thread_router_bootstrap_child_id_reject(protocol_interface_info_entry_t *cu
 
 void thread_router_bootstrap_active_router_attach(protocol_interface_info_entry_t *cur)
 {
+    uint8_t *parent_mac_addr = NULL;
     arm_nwk_6lowpan_thread_test_print_routing_database(cur->id);
     uint16_t address16 = mac_helper_mac16_address_get(cur);
     cur->thread_info->thread_attached_state = THREAD_STATE_CONNECTED_ROUTER;
@@ -2136,7 +2212,10 @@ void thread_router_bootstrap_active_router_attach(protocol_interface_info_entry_
     thread_bootstrap_network_prefixes_process(cur);
     thread_nd_service_activate(cur->id);
     thread_router_bootstrap_mle_advertise(cur);
-    thread_nvm_store_link_info_file_write(cur);
+    if (cur->thread_info->thread_endnode_parent) {
+        parent_mac_addr = cur->thread_info->thread_endnode_parent->mac64;
+    }
+    thread_nvm_store_link_info_write(parent_mac_addr, mac_helper_mac16_address_get(cur));
 }
 
 static int thread_validate_own_routeid_from_new_mask(const uint8_t *master_router_id_mask, uint8_t router_id)
@@ -2267,6 +2346,7 @@ static void thread_reed_advertisements_cb(void* arg)
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED &&
             cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER){
         thread_reed_advertise(cur);
+        thread_router_bootstrap_child_information_clear(cur);
         cur->thread_info->routerSelectParameters.reedAdvertisementTimeout = eventOS_timeout_ms(thread_reed_advertisements_cb, thread_reed_timeout_calculate(&cur->thread_info->routerSelectParameters) * 1000, cur);
     }
 }

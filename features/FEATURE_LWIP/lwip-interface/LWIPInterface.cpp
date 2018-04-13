@@ -128,14 +128,43 @@ void LWIP::add_dns_addr(struct netif *lwip_netif)
 #endif
 }
 
+nsapi_error_t LWIP::Interface::set_dhcp()
+{
+    netif_set_up(&netif);
+
+#if LWIP_DHCP
+    if (dhcp_has_to_be_set) {
+        err_t err = dhcp_start(&netif);
+        dhcp_has_to_be_set = false;
+        if (err) {
+            connected = NSAPI_STATUS_DISCONNECTED;
+            if (client_callback) {
+                client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+            }
+            return NSAPI_ERROR_DHCP_FAILURE;
+        }
+        dhcp_started = true;
+    }
+#endif
+
+    return NSAPI_ERROR_OK;
+}
+
 void LWIP::Interface::netif_link_irq(struct netif *netif)
 {
     LWIP::Interface *interface = static_cast<LWIP::Interface *>(netif->state);
 
     if (netif_is_link_up(&interface->netif)) {
-        osSemaphoreRelease(interface->linked);
+        nsapi_error_t dhcp_status = interface->set_dhcp();
+
+        if (interface->blocking && dhcp_status == NSAPI_ERROR_OK) {
+            osSemaphoreRelease(interface->linked);
+        } else if (dhcp_status != NSAPI_ERROR_OK) {
+            netif_set_down(&interface->netif);
+        }
     } else {
         osSemaphoreRelease(interface->unlinked);
+        netif_set_down(&interface->netif);
     }
 }
 
@@ -144,23 +173,62 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
     LWIP::Interface *interface = static_cast<LWIP::Interface *>(netif->state);
 
     if (netif_is_up(&interface->netif)) {
+        bool dns_addr_has_to_be_added = false;
         if (!(interface->has_addr_state & HAS_ANY_ADDR) && LWIP::get_ip_addr(true, netif)) {
-            osSemaphoreRelease(interface->has_any_addr);
+            if (interface->blocking) {
+                osSemaphoreRelease(interface->has_any_addr);
+            }
             interface->has_addr_state |= HAS_ANY_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #if PREF_ADDR_TIMEOUT
         if (!(interface->has_addr_state & HAS_PREF_ADDR) && LWIP::get_ip_addr(false, netif)) {
-            osSemaphoreRelease(interface->has_pref_addr);
+            if (interface->blocking) {
+                osSemaphoreRelease(interface->has_pref_addr);
+            }
             interface->has_addr_state |= HAS_PREF_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #endif
 #if BOTH_ADDR_TIMEOUT
         if (!(interface->has_addr_state & HAS_BOTH_ADDR) && LWIP::get_ipv4_addr(netif) && LWIP::get_ipv6_addr(netif)) {
-            osSemaphoreRelease(interface->has_both_addr);
+            if (interface->blocking) {
+                osSemaphoreRelease(interface->has_both_addr);
+            }
             interface->has_addr_state |= HAS_BOTH_ADDR;
+            dns_addr_has_to_be_added = true;
         }
 #endif
+       if (dns_addr_has_to_be_added && !interface->blocking) {
+            add_dns_addr(&interface->netif);
+        }
+
+
+        if (interface->has_addr_state & HAS_ANY_ADDR) {
+            interface->connected = NSAPI_STATUS_GLOBAL_UP;
+        }
+    } else {
+        interface->connected = NSAPI_STATUS_DISCONNECTED;
     }
+
+    if (interface->client_callback) {
+        interface->client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, interface->connected);
+    }
+}
+
+void LWIP::Interface::set_blocking(bool block)
+{
+    blocking = block;
+}
+
+void LWIP::Interface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    client_callback = status_cb;
+}
+
+nsapi_connection_status_t LWIP::Interface::get_connection_status() const
+{
+    return connected;
 }
 
 #if LWIP_IPV6
@@ -231,7 +299,8 @@ char *LWIP::Interface::get_gateway(char *buf, nsapi_size_t buflen)
 
 LWIP::Interface::Interface() :
         hw(NULL), has_addr_state(0),
-        connected(false), dhcp_started(false), ppp(false)
+        connected(NSAPI_STATUS_DISCONNECTED),
+        dhcp_started(false), dhcp_has_to_be_set(false), blocking(true), ppp(false)
 {
     memset(&netif, 0, sizeof netif);
 
@@ -350,12 +419,23 @@ nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, LWIP::Interfac
 #endif //LWIP_PPP
 }
 
+
 nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
 {
     // Check if we've already connected
-    if (connected) {
-        return NSAPI_ERROR_PARAMETER;
+    if (connected == NSAPI_STATUS_GLOBAL_UP) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    } else if (connected == NSAPI_STATUS_CONNECTING) {
+        return NSAPI_ERROR_ALREADY;
     }
+
+    connected = NSAPI_STATUS_CONNECTING;
+
+#if LWIP_DHCP
+    if (stack != IPV6_STACK && dhcp) {
+        dhcp_has_to_be_set = true;
+    }
+#endif
 
 #if LWIP_IPV6
     if (stack != IPV4_STACK) {
@@ -403,38 +483,43 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 #endif
 
+    if (client_callback) {
+        client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
+
     if (ppp) {
        err_t err = ppp_lwip_connect(hw);
        if (err) {
-           return err_remap(err);
+           connected = NSAPI_STATUS_DISCONNECTED;
+           if (client_callback) {
+               client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+           }
+          return err_remap(err);
        }
     }
 
     if (!netif_is_link_up(&netif)) {
-        if (osSemaphoreAcquire(linked, 15000) != osOK) {
-            if (ppp) {
-                (void) ppp_lwip_disconnect(hw);
+        if (blocking) {
+            if (osSemaphoreAcquire(linked, 15000) != osOK) {
+                if (ppp) {
+                    (void) ppp_lwip_disconnect();
+                }
+                return NSAPI_ERROR_NO_CONNECTION;
             }
-            return NSAPI_ERROR_NO_CONNECTION;
+        }
+    } else {
+        nsapi_error_t ret = set_dhcp();
+        if (ret != NSAPI_ERROR_OK) {
+            return ret;
         }
     }
 
-    if (!ppp) {
-        netif_set_up(&netif);
+    if (!blocking) {
+        // Done enough - as addresses are acquired, there will be
+        // connected callbacks.
+        // XXX shouldn't this be NSAPI_ERROR_IN_PROGRESS if in CONNECTING state?
+        return NSAPI_ERROR_OK;
     }
-
-#if LWIP_DHCP
-    if (stack != IPV6_STACK) {
-        // Connect to the network
-        if (dhcp) {
-            err_t err = dhcp_start(&netif);
-            if (err) {
-                return NSAPI_ERROR_DHCP_FAILURE;
-            }
-            dhcp_started = true;
-        }
-    }
-#endif
 
     // If doesn't have address
     if (!LWIP::get_ip_addr(true, &netif)) {
@@ -445,7 +530,6 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
             return NSAPI_ERROR_DHCP_FAILURE;
         }
     }
-    connected = true;
 
 #if PREF_ADDR_TIMEOUT
     if (stack != IPV4_STACK && stack != IPV6_STACK) {
@@ -468,13 +552,13 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
 
     add_dns_addr(&netif);
 
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t LWIP::Interface::bringdown()
 {
     // Check if we've connected
-    if (!connected) {
+    if (connected == NSAPI_STATUS_DISCONNECTED) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -484,6 +568,7 @@ nsapi_error_t LWIP::Interface::bringdown()
         dhcp_release(&netif);
         dhcp_stop(&netif);
         dhcp_started = false;
+        dhcp_has_to_be_set = false;
     }
 #endif
 
@@ -528,6 +613,6 @@ nsapi_error_t LWIP::Interface::bringdown()
 #endif
     has_addr_state = 0;
 
-    connected = false;
+    connected = NSAPI_STATUS_DISCONNECTED;
     return 0;
 }

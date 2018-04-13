@@ -71,7 +71,8 @@ int mbed_interface_powerdown(void) {
     }
 }
 
-// for backward compatibility
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function shouldn't be used in new code."
+    "For system reset funcionality use system_reset()")
 void mbed_reset(void) {
     mbed_interface_reset();
 }

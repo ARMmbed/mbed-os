@@ -144,7 +144,7 @@ bool core_util_in_critical_section(void);
  * always succeeds if the current value is expected, as per the pseudocode
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  */
-bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
+bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -201,7 +201,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
  * always succeeds if the current value is expected, as per the pseudocode
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  */
-bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue);
+bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -258,7 +258,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  * }
  */
-bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue);
+bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -315,7 +315,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
  * always succeeds if the current value is expected, as per the pseudocode
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  */
-bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue);
+bool core_util_atomic_cas_ptr(void * volatile *ptr, void **expectedCurrentValue, void *desiredValue);
 
 /**
  * Atomic increment.
@@ -323,7 +323,7 @@ bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *des
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta);
+uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic increment.
@@ -331,7 +331,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta);
+uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta);
 
 /**
  * Atomic increment.
@@ -339,7 +339,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta);
+uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta);
 
 /**
  * Atomic increment.
@@ -350,7 +350,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta);
  * @note The type of the pointer argument is not taken into account
  *       and the pointer is incremented by bytes.
  */
-void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
+void *core_util_atomic_incr_ptr(void * volatile *valuePtr, ptrdiff_t delta);
 
 /**
  * Atomic decrement.
@@ -358,7 +358,7 @@ void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta);
+uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic decrement.
@@ -366,7 +366,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta);
+uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta);
 
 /**
  * Atomic decrement.
@@ -374,7 +374,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta);
+uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta);
 
 /**
  * Atomic decrement.
@@ -385,7 +385,7 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta);
  * @note The type of the pointer argument is not taken into account
  *       and the pointer is decremented by bytes
  */
-void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta);
+void *core_util_atomic_decr_ptr(void * volatile *valuePtr, ptrdiff_t delta);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -2451,7 +2451,7 @@ uint8_t *thread_network_data_service_set_write(thread_network_data_cache_entry_t
         tlvLength = thread_nd_service_based_on_list_entry_size(cur, true);
         if (tlvLength) {
             ptr = thread_nd_service_header_write(ptr, cur, tlvLength);
-            tr_debug("Service: sid:%d e:%d data:%s",cur->S_id, cur->S_enterprise_number, trace_array(cur->S_service_data, cur->S_service_data_length));
+            tr_debug("Service: sid:%d e:%"PRIu32" data:%s",cur->S_id, cur->S_enterprise_number, trace_array(cur->S_service_data, cur->S_service_data_length));
             ptr = thread_nd_service_server_list_write(&cur->server_list, ptr, true);
         }
     }

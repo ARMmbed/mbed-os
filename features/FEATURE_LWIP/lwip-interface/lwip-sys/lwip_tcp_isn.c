@@ -178,9 +178,11 @@ lwip_hook_tcp_isn(const void *local_ip_ptr, u16_t local_port,
   /* The secret and padding are already filled in. */
 
   /* Generate the hash, using MD5. */
+  lwip_md5_init(&ctx);
   lwip_md5_starts(&ctx);
   lwip_md5_update(&ctx, input, sizeof(input));
   lwip_md5_finish(&ctx, output);
+  lwip_md5_free(&ctx);
 
   /* Arbitrarily take the first 32 bits from the generated hash. */
   MEMCPY(&isn, output, sizeof(isn));

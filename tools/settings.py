@@ -54,6 +54,9 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+# Print compiler warnings and errors as link format
+PRINT_COMPILER_OUTPUT_AS_LINK = False
+
 CLI_COLOR_MAP = {
     "warning": "yellow",
     "error"  : "red"
@@ -74,7 +77,7 @@ except ImportError:
 # User Settings (env vars)
 ##############################################################################
 _ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH',
-              'ARMC6_PATH']
+              'ARMC6_PATH', 'PRINT_COMPILER_OUTPUT_AS_LINK']
 
 for _n in _ENV_PATHS:
     if getenv('MBED_'+_n):

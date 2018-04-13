@@ -2,7 +2,7 @@
 #define THE_ANSWER 42
 
 // Tests for static asserts in different contexts
-// multiple asserts are used to garuntee no conflicts occur in generated labels
+// multiple asserts are used to guarantee no conflicts occur in generated labels
 
 // Test for static asserts in global context
 MBED_STATIC_ASSERT(sizeof(int) >= sizeof(char),

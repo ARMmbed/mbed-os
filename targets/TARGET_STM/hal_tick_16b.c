@@ -105,7 +105,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimMasterHandle.Init.ClockDivision = 0;
     TimMasterHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
-#if !defined(TARGET_STM32L0)
+#if !defined(TARGET_STM32L0) && !defined(TARGET_STM32L1)
     TimMasterHandle.Init.RepetitionCounter = 0;
 #endif
 #ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
