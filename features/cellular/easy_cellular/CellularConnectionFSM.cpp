@@ -152,6 +152,18 @@ bool CellularConnectionFSM::open_sim()
         return false;
     }
 
+    if (state == CellularSIM::SimStatePinNeeded) {
+        if (strlen(_sim_pin)) {
+            tr_info("SIM pin required, entering pin: %s", _sim_pin);
+            nsapi_error_t err = _sim->set_pin(_sim_pin);
+            if (err) {
+                tr_error("SIM pin set failed with: %d, bailing out...", err);
+            } 
+        } else {
+            tr_warn("PIN required but No SIM pin provided.");
+        }
+    }
+
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, state);
     }
