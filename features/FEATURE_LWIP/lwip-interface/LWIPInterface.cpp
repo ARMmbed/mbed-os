@@ -502,7 +502,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
         if (blocking) {
             if (osSemaphoreAcquire(linked, 15000) != osOK) {
                 if (ppp) {
-                    (void) ppp_lwip_disconnect();
+                    (void) ppp_lwip_disconnect(hw);
                 }
                 return NSAPI_ERROR_NO_CONNECTION;
             }
