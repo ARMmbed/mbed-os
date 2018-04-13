@@ -650,7 +650,7 @@ nsapi_size_or_error_t NanostackInterface::socket_recvfrom(void *handle, SocketAd
 out:
     if (address) {
         tr_debug("socket_recvfrom(socket=%p) sock_id=%d, ret=%i, addr=[%s]:%i", socket, socket->socket_id, ret,
-                 trace_ipv6((uint8_t *)address->get_ip_bytes()), address->get_port());
+                 trace_ipv6(address->get_ip_bytes()), address->get_port());
     } else {
         tr_debug("socket_recv(socket=%p) sock_id=%d, ret=%i", socket, socket->socket_id, ret);
     }

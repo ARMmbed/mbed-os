@@ -33,64 +33,57 @@
 static SingletonPtr<PlatformMutex> log_helper_lock;
 static uint32_t log_mutex_count = 0;
 static char log_helper_data[LOG_SINGLE_HELPER_STR_SIZE_];
-static char send_null[] = "";
-static char send_null_str[] = "<null>";
-static char send_err_str[] = "<err>";
-mbed_log_mutex_fptr mbed_log_mutex_wait_fptr;
-mbed_log_mutex_fptr mbed_log_mutex_release_fptr;
+static mbed_log_mutex_fptr mbed_log_mutex_wait_fptr;
+static mbed_log_mutex_fptr mbed_log_mutex_release_fptr;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-char* mbed_log_ipv6(const uint8_t* addr_ptr)
+extern "C" char* mbed_log_ipv6(const void *addr_ptr)
 {
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        return send_null;
+        return "";
     }
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
     MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 41, "Not enough room for ipv6 string, max 41");
     mbed_log_lock();
     if (addr_ptr == NULL) {
-        return send_null_str;
+        return "<null>";
     }
     log_helper_data[0] = 0;
     ip6tos(addr_ptr, log_helper_data);
     return log_helper_data;
 #else
-    return send_null;
+    return "";
 #endif
 }
 
-char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len)
+extern "C" char* mbed_log_ipv6_prefix(const uint8_t *prefix, uint32_t prefix_len)
 {
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        return send_null;
+        return "";
     }
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
     MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 44, "Not enough room for ipv6+prefix string, max 44");
     mbed_log_lock();
     if ((prefix_len != 0 && prefix == NULL) || prefix_len > 128) {
-        return send_err_str;
+        return "<err>";
     }
     ip6_prefix_tos(prefix, prefix_len, log_helper_data);
     return log_helper_data;
 #else
-    return send_null;
+    return "";
 #endif
 }
 
-char* mbed_log_array(const uint8_t* buf, uint32_t len)
+extern "C" char* mbed_log_array(const uint8_t *buf, uint32_t len)
 {
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        return send_null;
+        return "";
     }
     mbed_log_lock();
     if (0 == len) {
-        return send_null;
+        return "";
     }
     if (NULL == buf) {
-        return send_null_str;
+        return "<null>";
     }
 
     char* str = log_helper_data;
@@ -111,7 +104,7 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len)
     return log_helper_data;
 }
 
-void mbed_log_lock(void)
+extern "C" void mbed_log_lock(void)
 {
     if (mbed_log_mutex_wait_fptr) {
         (*mbed_log_mutex_wait_fptr)();
@@ -121,7 +114,7 @@ void mbed_log_lock(void)
     log_mutex_count++;
 }
 
-void mbed_log_unlock(void)
+extern "C" void mbed_log_unlock(void)
 {
     log_mutex_count--;
     if (mbed_log_mutex_release_fptr) {
@@ -131,7 +124,7 @@ void mbed_log_unlock(void)
     }
 }
 
-void mbed_log_unlock_all(void)
+extern "C" void mbed_log_unlock_all(void)
 {
     int count = log_mutex_count;
     log_mutex_count = 0;
@@ -144,18 +137,14 @@ void mbed_log_unlock_all(void)
     } while (--count > 0);
 }
 
-void mbed_log_set_mutex_wait(mbed_log_mutex_fptr mutex_wait_f)
+extern "C" void mbed_log_set_mutex_wait(mbed_log_mutex_fptr mutex_wait_f)
 {
     mbed_log_mutex_wait_fptr = mutex_wait_f;
 }
 
-void mbed_log_set_mutex_release(mbed_log_mutex_fptr mutex_release_f)
+extern "C" void mbed_log_set_mutex_release(mbed_log_mutex_fptr mutex_release_f)
 {
     mbed_log_mutex_release_fptr = mutex_release_f;
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

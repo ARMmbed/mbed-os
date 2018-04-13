@@ -42,9 +42,9 @@ static bool time_enable_ = true;
 static LOG_DATA_TYPE_ *extern_buf_ = NULL;
 static uint32_t xbuf_count_ = 0;
 
-static void log_update_buf(const char *data, uint32_t size)
+static void log_update_buf(const char *data, int32_t size)
 {
-    if ((NULL == extern_buf_) || (NULL == data) || (0 == size)) {
+    if ((NULL == extern_buf_) || (NULL == data) || (size <= 0)) {
         return;
     }
     uint32_t count = 0;
@@ -81,13 +81,13 @@ static void log_str_isr_data(const char *format, va_list args)
 {
     core_util_critical_section_enter();
     volatile uint64_t time = ticker_read_us(log_ticker_);
-    uint32_t count = 0;
+    int32_t count = 0;
     if (time_enable_) {
         count = snprintf(log_isr_str_, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
     }
-    vsnprintf(log_isr_str_+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
+    count = vsnprintf(log_isr_str_+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
     if (NULL != extern_buf_) {
-        log_update_buf(log_isr_str_, strlen(log_isr_str_));
+        log_update_buf(log_isr_str_, count);
     } else {
         log_isr_equeue_->call(log_isr_queue);
     }
@@ -101,39 +101,31 @@ static void log_str_usr_data(const char *format, va_list args)
     uint32_t size = (LOG_SINGLE_STR_SIZE_ << 1);
 
     volatile uint64_t time = ticker_read_us(log_ticker_);
-    uint32_t count = 0;
+    int32_t count = 0;
     if (time_enable_) {
         count = snprintf(one_line, size, "[%-8lld]", time);
     }
-    vsnprintf(one_line+count, (size-count), format, args);
-
+    count = vsnprintf(one_line+count, (size-count), format, args);
     if (NULL != extern_buf_) {
-        log_update_buf(one_line, strlen(one_line));
+        log_update_buf(one_line, count);
     } else {
         fputs(one_line, stderr);
     }
     mbed_log_unlock_all();
 }
 #endif
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-void mbed_logging_start(void)
+extern "C" void mbed_logging_start(void)
 {
-    log_isr_equeue_ = mbed_highprio_event_queue();
+    log_isr_equeue_ = mbed_event_queue();
     MBED_ASSERT(log_isr_equeue_ != NULL);
 }
 
-void log_assert(const char *format, ...)
+extern "C" void log_assert(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES
-    volatile uint64_t time = ticker_read_us(log_ticker_);
-#define ASSERT_BUF_LENGTH   10
-    char data[ASSERT_BUF_LENGTH];
-    memset((void *)data, 0, ASSERT_BUF_LENGTH);
-
     core_util_critical_section_enter();
+    volatile uint64_t time = ticker_read_us(log_ticker_);
     va_list args;
     va_start(args, format);
     if (time_enable_) {
@@ -145,7 +137,7 @@ void log_assert(const char *format, ...)
 #endif
 }
 
-void log_reset(void)
+extern "C" void log_reset(void)
 {
     core_util_critical_section_enter();
     time_enable_ = true;
@@ -153,19 +145,19 @@ void log_reset(void)
     core_util_critical_section_exit();
 }
 
-void log_buffer_data(LOG_DATA_TYPE_ *str)
+extern "C" void log_buffer_data(LOG_DATA_TYPE_ *str)
 {
     extern_buf_ = str;
 }
 
-void log_disable_time_capture(void)
+extern "C" void log_disable_time_capture(void)
 {
     core_util_critical_section_enter();
     time_enable_ = false;
     core_util_critical_section_exit();
 }
 
-void log_enable_time_capture(void)
+extern "C" void log_enable_time_capture(void)
 {
     core_util_critical_section_enter();
     time_enable_ = true;
@@ -174,7 +166,7 @@ void log_enable_time_capture(void)
 
 #if defined (MBED_ID_BASED_TRACING)
 // uint32_t time | uint32 (ID) | uint32 args ... | uint32_t checksum | 0
-void log_id_data(uint32_t argCount, ...)
+extern "C" void log_id_data(uint32_t argCount, ...)
 {
     bool in_isr = false;
     LOG_DATA_TYPE_ *buf;
@@ -227,7 +219,7 @@ void log_id_data(uint32_t argCount, ...)
 }
 
 #else // String based implementation
-void log_str_data(const char *format, ...)
+extern "C" void log_str_data(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -235,17 +227,13 @@ void log_str_data(const char *format, ...)
     va_end(args);
 }
 
-void log_str_vdata(const char *format, va_list args)
+extern "C" void log_str_vdata(const char *format, va_list args)
 {
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
         log_str_isr_data(format, args);
     } else {
         log_str_usr_data(format, args);
     }
-}
-#endif
-
-#ifdef __cplusplus
 }
 #endif
 

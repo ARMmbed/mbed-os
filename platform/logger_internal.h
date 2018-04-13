@@ -239,7 +239,7 @@ void log_enable_time_capture(void);
  *  @param  len  buffer length
  *  @note  Will not print buffer info, if used in ISR
  */
-char* mbed_log_array(const uint8_t* buf, uint32_t len);
+char* mbed_log_array(const uint8_t *buf, uint32_t len);
 
 /*  Helper to log ipv6 info
  *
@@ -249,7 +249,7 @@ char* mbed_log_array(const uint8_t* buf, uint32_t len);
  *  @return  pointer to converted string
  *  @note  Will not print buffer info, if used in ISR
  */
-char* mbed_log_ipv6(const uint8_t* addr_ptr);
+char* mbed_log_ipv6(const void *addr_ptr);
 
 /*  Helper to log ipv6 prefix
  *
@@ -260,7 +260,7 @@ char* mbed_log_ipv6(const uint8_t* addr_ptr);
  *  @return  pointer to converted string
  *  @note  Will not print buffer info, if used in ISR
  */
-char* mbed_log_ipv6_prefix(const uint8_t* prefix, uint32_t prefix_len);
+char* mbed_log_ipv6_prefix(const uint8_t *prefix, uint32_t prefix_len);
 #endif
 
 #ifdef __cplusplus
