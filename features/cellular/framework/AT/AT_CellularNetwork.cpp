@@ -259,6 +259,8 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     // If new PDP context was created and failed to activate, delete it
     if (err != NSAPI_ERROR_OK && _new_context_set) {
         delete_current_context();
+    } else if (err == NSAPI_ERROR_OK) {
+        _is_context_active = true;
     }
 
     _at.unlock();
