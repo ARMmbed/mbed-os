@@ -28,7 +28,7 @@
 /**
  * Enter idle mode, in which just CPU is halted.
  */
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void hal_sleep(void)
 {
     SYS_UnlockReg();
@@ -39,7 +39,7 @@ void hal_sleep(void)
 /**
  * Enter power-down mode, in which HXT/HIRC are halted.
  */
-__attribute__((cmse_nonsecure_entry))
+__NONSECURE_ENTRY
 void hal_deepsleep(void)
 {
     SYS_UnlockReg();
