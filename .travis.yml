@@ -105,18 +105,21 @@ matrix:
         popd;
       - astyle --version
       script:
-        # only changed files to be checked for astyle
-        - git diff --name-only $TRAVIS_BRANCH | grep '.*\.\(h\|c\|hpp\|cpp\)' | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle.out;
-          if [ $(cat astyle.out | grep Formatted | wc -l) -ne 0 ]; then
+        # only changed files this time
+        - git diff --name-only $TRAVIS_BRANCH | grep '.*\.\(h\|c\|hpp\|cpp\)' | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-files-changed.out;
+          if [ $(cat astyle-files-changed.out | grep Formatted | wc -l) -ne 0 ]; then
             git --no-pager diff;
             echo "Please fix style issues as shown above";
           else
             echo "Coding style check OK";
           fi
       after_success:
+        # run astyle for all files on the branch
+        - git checkout -- .
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
         # update status if we succeeded, compare with master if possible
         - |
-          CURR=$(cat astyle.out | grep Formatted | wc -l)
+          CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
           PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
