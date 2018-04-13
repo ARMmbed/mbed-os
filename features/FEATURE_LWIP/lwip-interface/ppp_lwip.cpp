@@ -356,7 +356,7 @@ nsapi_error_t nsapi_ppp_error_code()
 
 nsapi_error_t nsapi_ppp_set_blocking(bool blocking)
 {
-    mbed_lwip_set_blocking(blocking);
+    my_interface->set_blocking(blocking);
     return NSAPI_ERROR_OK;
 }
 
