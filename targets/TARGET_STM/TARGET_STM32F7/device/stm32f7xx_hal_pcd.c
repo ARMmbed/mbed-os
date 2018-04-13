@@ -1301,15 +1301,13 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   USB_OTG_EPTypeDef *ep;
   uint32_t len;
-  int32_t ilen;
   uint32_t len32b;
   uint32_t fifoemptymsk = 0;
 
   ep = &hpcd->IN_ep[epnum];
-  ilen = ep->xfer_len - ep->xfer_count;
-  len = ilen;
+  len = ep->xfer_len - ep->xfer_count;
 
-  if ((ilen > 0) && (len > ep->maxpacket))
+  if (((int32_t)len > 0) && (len > ep->maxpacket))
   {
     len = ep->maxpacket;
   }
@@ -1322,10 +1320,9 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
             ep->xfer_len != 0)
   {
     /* Write the FIFO */
-    ilen = ep->xfer_len - ep->xfer_count;
-    len = ilen;
+    len = ep->xfer_len - ep->xfer_count;
 
-    if ((ilen > 0) && (len > ep->maxpacket))
+    if (((int32_t)len > 0) && (len > ep->maxpacket))
     {
       len = ep->maxpacket;
     }
@@ -1337,7 +1334,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     ep->xfer_count += len;
   }
 
-  if(ilen <= 0)
+  if ((int32_t)len <= 0)
   {
     fifoemptymsk = 0x1 << epnum;
     atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK,  fifoemptymsk); // MBED: changed
