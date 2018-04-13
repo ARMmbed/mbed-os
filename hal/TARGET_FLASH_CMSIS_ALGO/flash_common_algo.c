@@ -18,6 +18,12 @@
 #include "flash_data.h"
 #include "mbed_critical.h"
 
+#ifndef __DOMAIN_NS
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#include <arm_cmse.h>
+#endif
+
 #define MBED_FLASH_ALGO_ERASE   1UL
 #define MBED_FLASH_ALGO_PROGRAM 2UL
 
@@ -82,20 +88,38 @@ static int32_t flash_algo_uninit(flash_t *obj, uint32_t address, uint32_t functi
     return ((flash_algo_jump_t)(((uint32_t)&jump_to_flash_algo) | 1))(&arguments);
 }
 
-
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 int32_t flash_init(flash_t *obj)
 {
     flash_set_target_config(obj);
     return 0;
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 int32_t flash_free(flash_t *obj)
 {
     return 0;
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        // Confine non-secure access to non-secure flash
+        if ((address < obj->target_config_ns->flash_start) ||
+            (address >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+            return MBED_FLASH_INVALID_SIZE;
+        }
+    }
+#endif
+
     core_util_critical_section_enter();
     flash_algo_init(obj, address, MBED_FLASH_ALGO_ERASE);
 
@@ -114,9 +138,28 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     return ret ? -1 : 0;
 }
 
-
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        // Confine non-secure access to non-secure flash
+        uint32_t address_end = address + size - 1;
+
+        if ((address < obj->target_config_ns->flash_start) ||
+            (address >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+            return MBED_FLASH_INVALID_SIZE;
+        }
+
+        if ((address_end < obj->target_config_ns->flash_start) ||
+            (address_end >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+            return MBED_FLASH_INVALID_SIZE;
+        }
+    }
+#endif
+
     core_util_critical_section_enter();
     flash_algo_init(obj, address, MBED_FLASH_ALGO_PROGRAM);
 
@@ -135,9 +178,29 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     return ret ? -1 : 0;
 }
 
-
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        const sector_info_t *sectors = obj->target_config_ns->sectors;
+
+        if (address >= obj->target_config_ns->flash_start + obj->target_config_ns->flash_size) {
+            return MBED_FLASH_INVALID_SIZE;
+        }
+
+        int sector_index = obj->target_config_ns->sector_info_count - 1;
+        for (; sector_index >= 0; sector_index--) {
+            if (address >= sectors[sector_index].start) {
+                return sectors[sector_index].size;
+            }
+        }
+        return MBED_FLASH_INVALID_SIZE;
+    }
+#endif
+
     const sector_info_t *sectors = obj->target_config->sectors;
 
     if (address >= obj->target_config->flash_start + obj->target_config->flash_size) {
@@ -153,17 +216,46 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     return MBED_FLASH_INVALID_SIZE;
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 uint32_t flash_get_page_size(const flash_t *obj)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        return obj->target_config_ns->page_size;
+    }
+#endif
+
     return obj->target_config->page_size;
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 uint32_t flash_get_start_address(const flash_t *obj)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        return obj->target_config_ns->flash_start;
+    }
+#endif
+
     return obj->target_config->flash_start;
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
+#endif
 uint32_t flash_get_size(const flash_t *obj)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    if (cmse_nonsecure_caller()) {
+        return obj->target_config_ns->flash_size;
+    }
+#endif
+
     return obj->target_config->flash_size;
 }
+
+#endif  // #ifndef __DOMAIN_NS
