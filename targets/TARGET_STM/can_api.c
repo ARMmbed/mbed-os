@@ -86,16 +86,16 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
 
     /*  Use default values for rist init */
     obj->CanHandle.Instance = (CAN_TypeDef *)can;
-    obj->CanHandle.Init.TTCM = DISABLE;
-    obj->CanHandle.Init.ABOM = DISABLE;
-    obj->CanHandle.Init.AWUM = DISABLE;
-    obj->CanHandle.Init.NART = DISABLE;
-    obj->CanHandle.Init.RFLM = DISABLE;
-    obj->CanHandle.Init.TXFP = DISABLE;
+    obj->CanHandle.Init.TimeTriggeredMode    = DISABLE;
+    obj->CanHandle.Init.AutoBusOff           = DISABLE;
+    obj->CanHandle.Init.AutoWakeUp           = DISABLE;
+    obj->CanHandle.Init.AutoRetransmission   = DISABLE;
+    obj->CanHandle.Init.ReceiveFifoLocked    = DISABLE;
+    obj->CanHandle.Init.TransmitFifoPriority = DISABLE;
     obj->CanHandle.Init.Mode = CAN_MODE_NORMAL;
-    obj->CanHandle.Init.SJW = CAN_SJW_1TQ;
-    obj->CanHandle.Init.BS1 = CAN_BS1_6TQ;
-    obj->CanHandle.Init.BS2 = CAN_BS2_8TQ;
+    obj->CanHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
+    obj->CanHandle.Init.TimeSeg1 = CAN_BS1_6TQ;
+    obj->CanHandle.Init.TimeSeg2 = CAN_BS2_8TQ;
     obj->CanHandle.Init.Prescaler = 2;
 
     /*  Store frequency to be restored in case of reset */
@@ -124,8 +124,8 @@ void can_irq_free(can_t *obj)
 {
     CAN_TypeDef *can = obj->CanHandle.Instance;
 
-    can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
-                  CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
+    can->IER &= ~(CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_TX_MAILBOX_EMPTY | \
+                  CAN_IT_ERROR | CAN_IT_ERROR_PASSIVE | CAN_IT_BUSOFF);
     can_irq_ids[obj->index] = 0;
 }
 
@@ -267,7 +267,7 @@ int can_frequency(can_t *obj, int f)
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
 {
-    uint32_t  transmitmailbox = CAN_TXSTATUS_NOMAILBOX;
+    uint32_t  transmitmailbox;
     CAN_TypeDef *can = obj->CanHandle.Instance;
 
     /* Select one empty transmit mailbox */
@@ -343,10 +343,10 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
     msg->data[7] = (uint8_t)0xFF & (can->sFIFOMailBox[handle].RDHR >> 24);
 
     /* Release the FIFO */
-    if (handle == CAN_FIFO0) {
+    if (handle == CAN_RX_FIFO0) {
         /* Release FIFO0 */
         can->RF0R |= CAN_RF0R_RFOM0;
-    } else { /* FIFONumber == CAN_FIFO1 */
+    } else { /* FIFONumber == CAN_RX_FIFO1 */
         /* Release FIFO1 */
         can->RF1R |= CAN_RF1R_RFOM1;
     }
@@ -458,8 +458,8 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
 
     // filter for CANAny format cannot be configured for STM32
     if ((format == CANStandard) || (format == CANExtended)) {
-        CAN_FilterConfTypeDef  sFilterConfig;
-        sFilterConfig.FilterNumber = handle;
+        CAN_FilterTypeDef  sFilterConfig;
+        sFilterConfig.FilterBank = handle;
         sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
         sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
 
@@ -477,7 +477,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
 
         sFilterConfig.FilterFIFOAssignment = 0;
         sFilterConfig.FilterActivation = ENABLE;
-        sFilterConfig.BankNumber = 14 + handle;
+        sFilterConfig.SlaveStartFilterBank = 14 + handle;
 
         HAL_CAN_ConfigFilter(&obj->CanHandle, &sFilterConfig);
         retval = handle;
@@ -491,10 +491,10 @@ static void can_irq(CANName name, int id)
     CAN_HandleTypeDef CanHandle;
     CanHandle.Instance = (CAN_TypeDef *)name;
 
-    if (__HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_TME)) {
-        tmp1 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_0);
-        tmp2 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_1);
-        tmp3 = __HAL_CAN_TRANSMIT_STATUS(&CanHandle, CAN_TXMAILBOX_2);
+    if (__HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_TX_MAILBOX_EMPTY)) {
+        tmp1 = HAL_CAN_IsTxMessagePending(&CanHandle, 0);
+        tmp2 = HAL_CAN_IsTxMessagePending(&CanHandle, 1);
+        tmp3 = HAL_CAN_IsTxMessagePending(&CanHandle, 2);
         if (tmp1) {
             __HAL_CAN_CLEAR_FLAG(&CanHandle, CAN_FLAG_RQCP0);
         }
@@ -509,29 +509,29 @@ static void can_irq(CANName name, int id)
         }
     }
 
-    tmp1 = __HAL_CAN_MSG_PENDING(&CanHandle, CAN_FIFO0);
-    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_FMP0);
+    tmp1 = HAL_CAN_GetRxFifoFillLevel(&CanHandle, CAN_RX_FIFO0);
+    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING);
 
     if ((tmp1 != 0) && tmp2) {
         irq_handler(can_irq_ids[id], IRQ_RX);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_EPV);
-    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_EPV);
-    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
+    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERROR_PASSIVE);
+    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERROR);
 
     if (tmp1 && tmp2 && tmp3) {
         irq_handler(can_irq_ids[id], IRQ_PASSIVE);
     }
 
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_BOF);
-    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_BOF);
-    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
+    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_BUSOFF);
+    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERROR);
     if (tmp1 && tmp2 && tmp3) {
         irq_handler(can_irq_ids[id], IRQ_BUS);
     }
 
-    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR);
+    tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERROR);
     if (tmp1 && tmp2 && tmp3) {
         irq_handler(can_irq_ids[id], IRQ_ERROR);
     }
@@ -608,27 +608,27 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     if ((CANName) can == CAN_1) {
         switch (type) {
             case IRQ_RX:
-                ier = CAN_IT_FMP0;
+                ier = CAN_IT_RX_FIFO0_MSG_PENDING;
                 irq_n = CAN1_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_RX_VECT;
                 break;
             case IRQ_TX:
-                ier = CAN_IT_TME;
+                ier = CAN_IT_TX_MAILBOX_EMPTY;
                 irq_n = CAN1_IRQ_TX_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_TX_VECT;
                 break;
             case IRQ_ERROR:
-                ier = CAN_IT_ERR;
+                ier = CAN_IT_ERROR;
                 irq_n = CAN1_IRQ_ERROR_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_ERROR_VECT;
                 break;
             case IRQ_PASSIVE:
-                ier = CAN_IT_EPV;
+                ier = CAN_IT_ERROR_PASSIVE;
                 irq_n = CAN1_IRQ_PASSIVE_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_PASSIVE_VECT;
                 break;
             case IRQ_BUS:
-                ier = CAN_IT_BOF;
+                ier = CAN_IT_BUSOFF;
                 irq_n = CAN1_IRQ_BUS_IRQN;
                 vector = (uint32_t)&CAN1_IRQ_BUS_VECT;
                 break;
@@ -640,27 +640,27 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     else if ((CANName) can == CAN_2) {
         switch (type) {
             case IRQ_RX:
-                ier = CAN_IT_FMP0;
+                ier = CAN_IT_RX_FIFO0_MSG_PENDING;
                 irq_n = CAN2_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_RX_VECT;
                 break;
             case IRQ_TX:
-                ier = CAN_IT_TME;
+                ier = CAN_IT_TX_MAILBOX_EMPTY;
                 irq_n = CAN2_IRQ_TX_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_TX_VECT;
                 break;
             case IRQ_ERROR:
-                ier = CAN_IT_ERR;
+                ier = CAN_IT_ERROR;
                 irq_n = CAN2_IRQ_ERROR_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_ERROR_VECT;
                 break;
             case IRQ_PASSIVE:
-                ier = CAN_IT_EPV;
+                ier = CAN_IT_ERROR_PASSIVE;
                 irq_n = CAN2_IRQ_PASSIVE_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_PASSIVE_VECT;
                 break;
             case IRQ_BUS:
-                ier = CAN_IT_BOF;
+                ier = CAN_IT_BUSOFF;
                 irq_n = CAN2_IRQ_BUS_IRQN;
                 vector = (uint32_t)&CAN2_IRQ_BUS_VECT;
                 break;
@@ -673,27 +673,27 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
     else if ((CANName) can == CAN_3) {
         switch (type) {
             case IRQ_RX:
-                ier = CAN_IT_FMP0;
+                ier = CAN_IT_RX_FIFO0_MSG_PENDING;
                 irq_n = CAN3_IRQ_RX_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_RX_VECT;
                 break;
             case IRQ_TX:
-                ier = CAN_IT_TME;
+                ier = CAN_IT_TX_MAILBOX_EMPTY;
                 irq_n = CAN3_IRQ_TX_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_TX_VECT;
                 break;
             case IRQ_ERROR:
-                ier = CAN_IT_ERR;
+                ier = CAN_IT_ERROR;
                 irq_n = CAN3_IRQ_ERROR_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_ERROR_VECT;
                 break;
             case IRQ_PASSIVE:
-                ier = CAN_IT_EPV;
+                ier = CAN_IT_ERROR_PASSIVE;
                 irq_n = CAN3_IRQ_PASSIVE_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_PASSIVE_VECT;
                 break;
             case IRQ_BUS:
-                ier = CAN_IT_BOF;
+                ier = CAN_IT_BUSOFF;
                 irq_n = CAN3_IRQ_BUS_IRQN;
                 vector = (uint32_t)&CAN3_IRQ_BUS_VECT;
                 break;
