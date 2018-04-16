@@ -52,7 +52,7 @@ sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
         // we only support 1 format so far
         return SAI_RESULT_CONFIG_UNSUPPORTED;
     }
-    if ((init->mclk_source != SAI_CLOCK_SOURCE_Internal) || (init->input_mclk_frequency != 0)) {
+    if ((init->mclk_source != SAI_CLOCK_SOURCE_INTERNAL) || (init->input_mclk_frequency != 0)) {
         return SAI_RESULT_CONFIG_UNSUPPORTED;
     }
     uint32_t mclk_freq = CLOCK_GetFreq(kCLOCK_CoreSysClk);
