@@ -24,13 +24,13 @@ ble_error_t Gap::getRandomAddressType(
     // (Vol 6 - Part B)
     switch (address[5] >> 6) {
         case 0x03:
-            type = RandomAddressType_t::STATIC;
+            *type = RandomAddressType_t::STATIC;
             return BLE_ERROR_NONE;
         case 0x00:
-            type = RandomAddressType_t::NON_RESOLVABLE_PRIVATE;
+            *type = RandomAddressType_t::NON_RESOLVABLE_PRIVATE;
             return BLE_ERROR_NONE;
         case 0x02:
-            type = RandomAddressType_t::RESOLVABLE_PRIVATE;
+            *type = RandomAddressType_t::RESOLVABLE_PRIVATE;
             return BLE_ERROR_NONE;
         default:
             return BLE_ERROR_INVALID_PARAM;
