@@ -17,6 +17,7 @@
 #include "flash_api.h"
 #include "flash_data.h"
 #include "mbed_critical.h"
+#include "mbed_toolchain.h"
 
 #ifndef __DOMAIN_NS
 
@@ -88,26 +89,20 @@ static int32_t flash_algo_uninit(flash_t *obj, uint32_t address, uint32_t functi
     return ((flash_algo_jump_t)(((uint32_t)&jump_to_flash_algo) | 1))(&arguments);
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 int32_t flash_init(flash_t *obj)
 {
     flash_set_target_config(obj);
     return 0;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 int32_t flash_free(flash_t *obj)
 {
     return 0;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -138,9 +133,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     return ret ? -1 : 0;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -178,9 +171,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     return ret ? -1 : 0;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -216,9 +207,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     return MBED_FLASH_INVALID_SIZE;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 uint32_t flash_get_page_size(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -230,9 +219,7 @@ uint32_t flash_get_page_size(const flash_t *obj)
     return obj->target_config->page_size;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 uint32_t flash_get_start_address(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -244,9 +231,7 @@ uint32_t flash_get_start_address(const flash_t *obj)
     return obj->target_config->flash_start;
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
-#endif
+MBED_NONSECURE_ENTRY
 uint32_t flash_get_size(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
