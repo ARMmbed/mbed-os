@@ -44,17 +44,17 @@ extern "C" {
  * - a device/block can be reinitialized via `sai_init()` after being `sai_free()`d.
  *
  * if the device is a *receiver* :
- * - `sai_xfer()` returns false if the `sai_t` object is NULL ;
- * - `sai_xfer()` returns false if there's no sample in the FiFo ;
- * - `sai_xfer()` if `psample` is NULL : it pops 1 sample from the FiFo and returns true ;
- * - `sai_xfer()` if `psample` is not NULL : it pops 1 sample from the FiFo, stores it to the address
+ * - `sai_transfer()` returns false if the `sai_t` object is NULL ;
+ * - `sai_transfer()` returns false if there's no sample in the FiFo ;
+ * - `sai_transfer()` if `psample` is NULL : it pops 1 sample from the FiFo and returns true ;
+ * - `sai_transfer()` if `psample` is not NULL : it pops 1 sample from the FiFo, stores it to the address
  *   pointed by `psample`,  and returns true.
  *
  * if the device is a *transmitter* :
- * - `sai_xfer()` returns false if the `sai_t` object is NULL ;
- * - `sai_xfer()` returns false if the fifo is full and `*psample` could not be pushed ;
- * - `sai_xfer()` if `psample` is NULL : it pushes one '0' sample to the FiFo and returns true ;
- * - `sai_xfer()` if `psample` is not NULL : it pushes the pointed sample to the FiFo and returns true.
+ * - `sai_transfer()` returns false if the `sai_t` object is NULL ;
+ * - `sai_transfer()` returns false if the fifo is full and `*psample` could not be pushed ;
+ * - `sai_transfer()` if `psample` is NULL : it pushes one '0' sample to the FiFo and returns true ;
+ * - `sai_transfer()` if `psample` is not NULL : it pushes the pointed sample to the FiFo and returns true.
  *
  * # Undefined behaviours
  * - Calling any function other than `sai_init()` before the initialization of the SAI ;
@@ -177,7 +177,7 @@ sai_result_t sai_init(sai_t *obj, sai_init_t *init);
  * - on reception : will read a sample from the fifo to the nether.
  * - on transmission : will send a '0'.
  */
-bool sai_xfer(sai_t *obj, uint32_t *psample);
+bool sai_transfer(sai_t *obj, uint32_t *psample);
 
 /**
  * Releases & de-initialize the referenced peripherals.

@@ -84,12 +84,12 @@ sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
 }
 
 /** Transfer a sample and return the sample received meanwhile. */
-bool sai_xfer(sai_t *obj, uint32_t *sample) {
+bool sai_transfer(sai_t *obj, uint32_t *sample) {
     if (obj == NULL) {
         return false;
     }
 
-    return sai_vtable[obj->base->type]->xfer(obj, sample);
+    return sai_vtable[obj->base->type]->transfer(obj, sample);
 }
 
 /** Releases & de-initialize the referenced peripherals. */

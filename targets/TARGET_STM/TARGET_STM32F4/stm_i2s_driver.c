@@ -23,12 +23,12 @@
 #include "PeripheralPins.h"
 
 static sai_result_t stm_i2s_init(sai_t *obj, sai_init_t *init);
-static bool stm_i2s_xfer(sai_t *obj, uint32_t *sample);
+static bool stm_i2s_transfer(sai_t *obj, uint32_t *sample);
 static void stm_i2s_free(sai_t *obj);
 
 const stm_sai_api_t stm_i2s_vtable = {
     .init = stm_i2s_init,
-    .xfer = stm_i2s_xfer,
+    .transfer = stm_i2s_transfer,
     .free = stm_i2s_free
 };
 
@@ -113,7 +113,7 @@ static sai_result_t stm_i2s_init(sai_t *obj, sai_init_t *init) {
     return SAI_RESULT_OK;
 }
 
-static bool stm_i2s_xfer(sai_t *obj, uint32_t *psample) {
+static bool stm_i2s_transfer(sai_t *obj, uint32_t *psample) {
     bool ret = false;
     if (obj->is_receiver) {
         if (LL_I2S_IsActiveFlag_FRE(obj->base->u.spi) && !LL_I2S_IsActiveFlag_CHSIDE(obj->base->u.spi)) {
