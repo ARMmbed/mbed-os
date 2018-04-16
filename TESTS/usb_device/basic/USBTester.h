@@ -55,8 +55,15 @@ public:
     void clear_resume_count() { resume_count = 0; }
 
 private:
+
+    enum { NONE = -1 };
     const char *get_desc_string(const uint8_t *desc);
     virtual void suspend(bool suspended);
+    void remove_endpoints();
+    bool set_configuration(uint16_t configuration);
+    bool set_interface(uint16_t configuration, uint16_t interface, uint16_t alternate);
+    int16_t interface_set;
+    int16_t configuration_set;
 
 protected:
 
@@ -107,7 +114,7 @@ protected:
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate);
     virtual void epbulk_out_callback(usb_ep_t endpoint);
     virtual void epint_out_callback(usb_ep_t endpoint);
-    virtual void callback_reset() { ++reset_count; }
+    virtual void callback_reset();
     uint8_t ctrl_buf[2048];
 
 };
