@@ -123,21 +123,18 @@ static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t
 }
 #endif
 
-MBED_NONSECURE_ENTRY
-int32_t flash_init(flash_t *obj)
+MBED_NONSECURE_ENTRY int32_t flash_init(flash_t *obj)
 {
     flash_set_target_config(obj);
     return 0;
 }
 
-MBED_NONSECURE_ENTRY
-int32_t flash_free(flash_t *obj)
+MBED_NONSECURE_ENTRY int32_t flash_free(flash_t *obj)
 {
     return 0;
 }
 
-MBED_NONSECURE_ENTRY
-int32_t flash_erase_sector(flash_t *obj, uint32_t address)
+MBED_NONSECURE_ENTRY int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
@@ -166,8 +163,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     return ret ? -1 : 0;
 }
 
-MBED_NONSECURE_ENTRY
-int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
+MBED_NONSECURE_ENTRY int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
@@ -196,8 +192,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     return ret ? -1 : 0;
 }
 
-MBED_NONSECURE_ENTRY
-uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
+MBED_NONSECURE_ENTRY uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
@@ -232,8 +227,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     return MBED_FLASH_INVALID_SIZE;
 }
 
-MBED_NONSECURE_ENTRY
-uint32_t flash_get_page_size(const flash_t *obj)
+MBED_NONSECURE_ENTRY uint32_t flash_get_page_size(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
@@ -244,8 +238,7 @@ uint32_t flash_get_page_size(const flash_t *obj)
     return obj->target_config->page_size;
 }
 
-MBED_NONSECURE_ENTRY
-uint32_t flash_get_start_address(const flash_t *obj)
+MBED_NONSECURE_ENTRY uint32_t flash_get_start_address(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
@@ -256,8 +249,7 @@ uint32_t flash_get_start_address(const flash_t *obj)
     return obj->target_config->flash_start;
 }
 
-MBED_NONSECURE_ENTRY
-uint32_t flash_get_size(const flash_t *obj)
+MBED_NONSECURE_ENTRY uint32_t flash_get_size(const flash_t *obj)
 {
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
