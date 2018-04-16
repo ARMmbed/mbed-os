@@ -21,7 +21,7 @@
 #if defined (DEVICE_PWMOUT) || defined(DOXYGEN_ONLY)
 #include "hal/pwmout_api.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 
 namespace mbed {
 /** \addtogroup drivers */

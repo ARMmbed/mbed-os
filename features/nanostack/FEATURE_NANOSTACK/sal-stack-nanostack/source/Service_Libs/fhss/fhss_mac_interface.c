@@ -22,6 +22,7 @@
 #include "Service_Libs/fhss/fhss.h"
 #include "Service_Libs/fhss/fhss_channel.h"
 #include "Service_Libs/fhss/fhss_beacon.h"
+#include "platform/arm_hal_interrupt.h"
 #include "randLIB.h"
 #include "ns_trace.h"
 
@@ -124,10 +125,12 @@ void fhss_receive_frame_cb(const fhss_api_t *api, uint16_t pan_id, uint8_t *sour
             if (!fhss_compare_with_synch_parent_address(fhss_structure, source_address)) {
                 // Synch parent address needs to be updated in case parent has changed
                 fhss_update_synch_parent_address(fhss_structure);
+                platform_enter_critical();
                 // Calculate time since the Beacon was received
                 uint32_t elapsed_time = api->read_timestamp(api) - timestamp;
                 // Synchronize to given PAN
                 fhss_beacon_received(fhss_structure, synch_info, elapsed_time);
+                platform_exit_critical();
             }
         }
     } else if (FHSS_SYNCH_REQUEST_FRAME == frame_type) {
@@ -201,14 +204,17 @@ void fhss_synch_state_set_cb(const fhss_api_t *api, fhss_states fhss_state, uint
 
     // State is already set
     if (fhss_structure->fhss_state == fhss_state) {
+        tr_debug("Synch same state %u", fhss_state);
         return;
     }
 
     if (fhss_state == FHSS_UNSYNCHRONIZED) {
+        tr_debug("FHSS down");
         fhss_down(fhss_structure);
     } else {
         // Do not synchronize to current pan
         if (fhss_structure->synch_panid == pan_id) {
+            tr_debug("Synch same panid %u", pan_id);
             return;
         }
         uint32_t datarate = fhss_structure->callbacks.read_datarate(api);
@@ -220,16 +226,20 @@ void fhss_synch_state_set_cb(const fhss_api_t *api, fhss_states fhss_state, uint
         fhss_beacon_info_t *beacon_info = fhss_get_beacon_info(fhss_structure, pan_id);
         if (beacon_info) {
             memcpy(fhss_structure->synch_parent, beacon_info->source_address, 8);
+            platform_enter_critical();
             // Calculate time since the Beacon was received
             uint32_t elapsed_time = api->read_timestamp(api) - beacon_info->timestamp;
             // Synchronize to given PAN
             fhss_beacon_received(fhss_structure, beacon_info->synch_info, elapsed_time);
+            platform_exit_critical();
             // Delete stored Beacon infos
             fhss_flush_beacon_info_storage(fhss_structure);
             fhss_structure->synch_panid = pan_id;
         } else if (fhss_is_synch_root(fhss_structure) == true) {
             // Synch root will start new network
             fhss_start_timer(fhss_structure, fhss_structure->synch_configuration.fhss_superframe_length, fhss_superframe_handler);
+        } else {
+            tr_error("Synch info not find");
         }
     }
     fhss_structure->fhss_state = fhss_state;

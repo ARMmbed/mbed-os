@@ -273,11 +273,11 @@ def create_daplink(image_bin, ram1_bin, ram2_bin):
 # ----------------------------
 def rtl8195a_elf2bin(t_self, image_elf, image_bin):
 
-    image_name = os.path.splitext(image_elf)[0]
-    image_map = image_name + '.map'
+    image_name = list(os.path.splitext(image_elf))[:-1]
+    image_map = ".".join(image_name + ['map'])
 
     ram1_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1.bin")
-    ram2_bin = image_name + '-payload.bin'
+    ram2_bin = ".".join(image_name) + '-payload.bin'
 
     entry = find_symbol(t_self.name, image_map, "PLAT_Start")
     segment = parse_load_segment(t_self.name, image_elf)

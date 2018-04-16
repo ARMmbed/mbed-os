@@ -1,0 +1,48 @@
+#!/bin/bash
+echo
+echo Build Cellular unit tests
+echo
+
+#replace by empty string if no branch coverage is needed
+#branch_cov="--rc lcov_branch_coverage=1"
+branch_cov=""
+#branch_data="--rc branch-coverage=1"
+branch_data="--no-branch-coverage"
+
+# Remember to add new test folder to Makefile
+make clean >/dev/null 2>&1
+make all
+
+echo
+echo Create results
+echo
+mkdir results
+
+find ./ -name '*.xml' | xargs cp -t ./results/
+
+echo
+echo Create coverage document
+echo
+mkdir coverages
+cd coverages
+
+lcov -q -d ../. -c -o app.info $branch_cov
+lcov -q -r app.info "/test*" -o app.info $branch_cov
+lcov -q -r app.info "/usr*" -o app.info $branch_cov
+lcov -q -r app.info "/UNITTESTS/common*" -o app.info $branch_cov
+lcov -q -r app.info "/UNITTESTS/*" -o app.info $branch_cov
+lcov -q -r app.info "/UNITTESTS/stubs*" -o app.info $branch_cov
+lcov -q -r app.info "/UNITTESTS/target_h*" -o app.info $branch_cov
+lcov -q -r app.info "/mbed-client*" -o app.info $branch_cov
+lcov -q -r app.info "/mbed-os/events*" -o app.info $branch_cov
+lcov -q -r app.info "/mbed-os/features/netsocket*" -o app.info $branch_cov
+lcov -q -r app.info "/mbed-os/platform*" -o app.info $branch_cov
+genhtml $branch_data app.info
+cd ..
+echo
+echo
+echo
+echo Have a nice bug hunt!
+echo
+echo
+echo

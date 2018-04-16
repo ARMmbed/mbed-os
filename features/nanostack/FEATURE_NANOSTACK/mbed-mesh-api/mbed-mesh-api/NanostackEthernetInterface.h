@@ -37,6 +37,10 @@ protected:
     NanostackEthernetPhy &get_phy() const { return static_cast<NanostackEthernetPhy &>(Interface::get_phy()); }
 };
 
+/** Ethernet interface for Nanostack.
+ *
+ * Configure Nanostack to use Ethernet connectivity.
+ */
 class NanostackEthernetInterface : public InterfaceNanostack, public EthInterface, private mbed::NonCopyable<NanostackEthernetInterface> {
 public:
     NanostackEthernetInterface() { }

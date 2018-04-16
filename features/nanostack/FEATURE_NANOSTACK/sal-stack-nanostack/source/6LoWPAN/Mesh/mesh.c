@@ -243,6 +243,7 @@ intercept:
     memcpy(buf->dst_sa.address + 2, route.address, route.addr_len);
 
     /* Set src MAC address from our interface */
+    buf->src_sa.addr_type = ADDR_NONE;
     if (!mac_helper_write_our_addr(cur, &buf->src_sa)) {
         goto drop;
     }

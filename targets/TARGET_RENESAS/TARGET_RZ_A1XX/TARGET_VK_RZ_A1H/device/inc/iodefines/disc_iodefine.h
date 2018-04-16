@@ -18,20 +18,67 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : disc_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef DISC_IODEFINE_H
 #define DISC_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_disc
-{                                                          /* DISC             */
+#define DISC0   (*(struct st_disc    *)0xFCFFA800uL) /* DISC0 */
+#define DISC1   (*(struct st_disc    *)0xFCFFB000uL) /* DISC1 */
+
+
+/* Start of channel array defines of DISC */
+
+/* Channel array defines of DISC */
+/*(Sample) value = DISC[ channel ]->DOCMCR; */
+#define DISC_COUNT  (2)
+#define DISC_ADDRESS_LIST \
+{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
+    &DISC0, &DISC1 \
+}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
+
+/* End of channel array defines of DISC */
+
+
+#define DISC0DOCMCR (DISC0.DOCMCR)
+#define DISC0DOCMSTR (DISC0.DOCMSTR)
+#define DISC0DOCMCLSTR (DISC0.DOCMCLSTR)
+#define DISC0DOCMIENR (DISC0.DOCMIENR)
+#define DISC0DOCMPMR (DISC0.DOCMPMR)
+#define DISC0DOCMECRCR (DISC0.DOCMECRCR)
+#define DISC0DOCMCCRCR (DISC0.DOCMCCRCR)
+#define DISC0DOCMSPXR (DISC0.DOCMSPXR)
+#define DISC0DOCMSPYR (DISC0.DOCMSPYR)
+#define DISC0DOCMSZXR (DISC0.DOCMSZXR)
+#define DISC0DOCMSZYR (DISC0.DOCMSZYR)
+#define DISC0DOCMCRCIR (DISC0.DOCMCRCIR)
+#define DISC1DOCMCR (DISC1.DOCMCR)
+#define DISC1DOCMSTR (DISC1.DOCMSTR)
+#define DISC1DOCMCLSTR (DISC1.DOCMCLSTR)
+#define DISC1DOCMIENR (DISC1.DOCMIENR)
+#define DISC1DOCMPMR (DISC1.DOCMPMR)
+#define DISC1DOCMECRCR (DISC1.DOCMECRCR)
+#define DISC1DOCMCCRCR (DISC1.DOCMCCRCR)
+#define DISC1DOCMSPXR (DISC1.DOCMSPXR)
+#define DISC1DOCMSPYR (DISC1.DOCMSPYR)
+#define DISC1DOCMSZXR (DISC1.DOCMSZXR)
+#define DISC1DOCMSZYR (DISC1.DOCMSZYR)
+#define DISC1DOCMCRCIR (DISC1.DOCMCRCIR)
+
+
+typedef struct st_disc
+{
+                                                           /* DISC             */
     volatile uint32_t  DOCMCR;                                 /*  DOCMCR          */
     volatile uint32_t  DOCMSTR;                                /*  DOCMSTR         */
     volatile uint32_t  DOCMCLSTR;                              /*  DOCMCLSTR       */
@@ -45,49 +92,21 @@ struct st_disc
     volatile uint32_t  DOCMSZXR;                               /*  DOCMSZXR        */
     volatile uint32_t  DOCMSZYR;                               /*  DOCMSZYR        */
     volatile uint32_t  DOCMCRCIR;                              /*  DOCMCRCIR       */
-};
+} r_io_disc_t;
 
 
-#define DISC0   (*(struct st_disc    *)0xFCFFA800uL) /* DISC0 */
-#define DISC1   (*(struct st_disc    *)0xFCFFB000uL) /* DISC1 */
+/* Channel array defines of DISC (2)*/
+#ifdef  DECLARE_DISC_CHANNELS
+volatile struct st_disc*  DISC[ DISC_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    DISC_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+#endif  /* DECLARE_DISC_CHANNELS */
+/* End of channel array defines of DISC (2)*/
 
 
-/* Start of channnel array defines of DISC */
-
-/* Channnel array defines of DISC */
-/*(Sample) value = DISC[ channel ]->DOCMCR; */
-#define DISC_COUNT  2
-#define DISC_ADDRESS_LIST \
-{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
-    &DISC0, &DISC1 \
-}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
-
-/* End of channnel array defines of DISC */
-
-
-#define DISC0DOCMCR DISC0.DOCMCR
-#define DISC0DOCMSTR DISC0.DOCMSTR
-#define DISC0DOCMCLSTR DISC0.DOCMCLSTR
-#define DISC0DOCMIENR DISC0.DOCMIENR
-#define DISC0DOCMPMR DISC0.DOCMPMR
-#define DISC0DOCMECRCR DISC0.DOCMECRCR
-#define DISC0DOCMCCRCR DISC0.DOCMCCRCR
-#define DISC0DOCMSPXR DISC0.DOCMSPXR
-#define DISC0DOCMSPYR DISC0.DOCMSPYR
-#define DISC0DOCMSZXR DISC0.DOCMSZXR
-#define DISC0DOCMSZYR DISC0.DOCMSZYR
-#define DISC0DOCMCRCIR DISC0.DOCMCRCIR
-#define DISC1DOCMCR DISC1.DOCMCR
-#define DISC1DOCMSTR DISC1.DOCMSTR
-#define DISC1DOCMCLSTR DISC1.DOCMCLSTR
-#define DISC1DOCMIENR DISC1.DOCMIENR
-#define DISC1DOCMPMR DISC1.DOCMPMR
-#define DISC1DOCMECRCR DISC1.DOCMECRCR
-#define DISC1DOCMCCRCR DISC1.DOCMCCRCR
-#define DISC1DOCMSPXR DISC1.DOCMSPXR
-#define DISC1DOCMSPYR DISC1.DOCMSPYR
-#define DISC1DOCMSZXR DISC1.DOCMSZXR
-#define DISC1DOCMSZYR DISC1.DOCMSZYR
-#define DISC1DOCMCRCIR DISC1.DOCMCRCIR
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

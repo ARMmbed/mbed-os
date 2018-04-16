@@ -84,18 +84,6 @@ enum system_reset_cause {
  */
 
 /**
- * \brief Reset the MCU.
- *
- * Resets the MCU and all associated peripherals and registers, except RTC, all 32KHz sources,
- * WDT (if ALWAYSON is set) and GCLK (if WRTLOCK is set).
- *
- */
-static inline void system_reset(void)
-{
-    NVIC_SystemReset();
-}
-
-/**
  * \brief Return the reset cause.
  *
  * Retrieves the cause of the last system reset.

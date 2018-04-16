@@ -17,8 +17,14 @@
 #include "EMACInterface.h"
 
 /* Interface implementation */
-EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack)
-    : _emac(emac), _stack(stack), _interface(NULL), _dhcp(true), _mac_address(), _ip_address(), _netmask(), _gateway()
+EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
+    _emac(emac),
+    _stack(stack),
+    _interface(NULL),
+    _dhcp(true), 
+    _ip_address(), 
+    _netmask(), 
+    _gateway()
 {
 }
 
@@ -102,4 +108,21 @@ const char *EMACInterface::get_gateway()
 NetworkStack *EMACInterface::get_stack()
 {
     return &_stack;
+}
+
+void EMACInterface::attach(
+    Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+    _interface->attach(status_cb);
+}
+
+nsapi_connection_status_t EMACInterface::get_connection_status() const
+{
+    return _interface->get_connection_status();
+}
+
+nsapi_error_t EMACInterface::set_blocking(bool blocking)
+{
+    _interface->set_blocking(blocking);
+    return NSAPI_ERROR_OK;
 }

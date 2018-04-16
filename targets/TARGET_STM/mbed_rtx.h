@@ -19,7 +19,21 @@
 
 #ifndef INITIAL_SP
 
-#if (defined(TARGET_STM32F051R8) ||\
+#if (defined(TARGET_STM32L475VG) ||\
+     defined(TARGET_STM32L476RG) ||\
+     defined(TARGET_STM32L476JG) ||\
+     defined(TARGET_STM32L476VG) ||\
+     defined(TARGET_STM32L486RG))
+/* only GCC_ARM and IAR toolchains have the stack on SRAM2 */
+#if (((defined(__GNUC__) && !defined(__CC_ARM)) ||\
+       defined(__IAR_SYSTEMS_ICC__ )) &&\
+       defined(TWO_RAM_REGIONS))
+#define INITIAL_SP              (0x10008000UL)
+#else
+#define INITIAL_SP              (0x20018000UL)
+#endif /* toolchains */
+
+#elif (defined(TARGET_STM32F051R8) ||\
      defined(TARGET_STM32F100RB) ||\
      defined(TARGET_STM32L031K6) ||\
      defined(TARGET_STM32L053C8) ||\
@@ -45,6 +59,7 @@
 
 #elif (defined(TARGET_STM32F091RC) ||\
        defined(TARGET_STM32F410RB) ||\
+       defined(TARGET_STM32L151CBA)||\
        defined(TARGET_STM32L151CC) ||\
        defined(TARGET_STM32L151RC) ||\
        defined(TARGET_STM32L152RC))
@@ -69,11 +84,7 @@
 #define INITIAL_SP              (0x20014000UL)
 
 #elif (defined(TARGET_STM32F401RE) ||\
-       defined(TARGET_STM32L475VG) ||\
-       defined(TARGET_STM32L476RG) ||\
-       defined(TARGET_STM32L476JG) ||\
-       defined(TARGET_STM32L476VG) ||\
-       defined(TARGET_STM32L486RG))
+       defined(TARGET_STM32F401VE))
 #define INITIAL_SP              (0x20018000UL)
 
 #elif (defined(TARGET_STM32F207ZG) ||\
@@ -98,6 +109,7 @@
        defined(TARGET_STM32F746NG) ||\
        defined(TARGET_STM32F746ZG) ||\
        defined(TARGET_STM32F756ZG) ||\
+       defined(TARGET_STM32L496AG) ||\
        defined(TARGET_STM32L496ZG))
 #define INITIAL_SP              (0x20050000UL)
 
@@ -110,5 +122,15 @@
 #endif
 
 #endif // INITIAL_SP
+#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && defined(TWO_RAM_REGIONS))
+    extern uint32_t               __StackLimit[];
+    extern uint32_t               __StackTop[];
+    extern uint32_t               __end__[];
+    extern uint32_t               __HeapLimit[];
+    #define HEAP_START            ((unsigned char*)__end__)
+    #define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
+    #define ISR_STACK_START       ((unsigned char*)__StackLimit)
+    #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
+#endif
 
 #endif  // MBED_MBED_RTX_H

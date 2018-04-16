@@ -14,6 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import re
 import shutil
 from os import remove, getcwd, chdir, mkdir
@@ -113,6 +116,15 @@ class CMake(Exporter):
             pass
 
     @staticmethod
+    def clean(_):
+        remove("CMakeLists.txt")
+        # legacy .build directory cleaned if exists
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
+
+    @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build Make project """
 
@@ -153,7 +165,7 @@ class CMake(Exporter):
         else:
             out_string += "FAILURE"
 
-        print out_string
+        print(out_string)
 
         if log_name:
             # Write the output to the log file
@@ -162,13 +174,8 @@ class CMake(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            remove("CMakeLists.txt")
             remove(log_name)
-            # legacy .build directory cleaned if exists
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            CMake.clean(project_name)
 
         if ret_code != 0:
             # Seems like something went wrong.

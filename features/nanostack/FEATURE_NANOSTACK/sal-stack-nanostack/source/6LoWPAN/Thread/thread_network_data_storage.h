@@ -185,8 +185,8 @@ typedef struct thread_network_local_data_cache_entry_s {
     thread_network_data_service_list_t service_list;
     uint16_t registered_rloc16;/*!< Address used for latest registration */
     bool release_old_address:1;/*!< true if release of old address is needed */
-    bool publish_active:1;
-    bool publish_pending:1;
+    bool publish_active:1;/*!< true when publish is active */
+    bool publish_pending:1;/*!< true when publish attempt made during active publish */
 } thread_network_local_data_cache_entry_t;
 
 /**

@@ -170,19 +170,6 @@ void rpl_downward_convert_dodag_preferences_to_dao_path_control(rpl_dodag_t *dod
     }
 }
 
-static uint_fast8_t rpl_downward_path_control_to_preference(uint8_t pc)
-{
-    if (pc >= 0x40) {
-        return 1;
-    } else if (pc >= 0x10) {
-        return 2;
-    } else if (pc >= 0x04) {
-        return 3;
-    } else {
-        return 4;
-    }
-}
-
 static void rpl_downward_target_refresh(rpl_dao_target_t *target)
 {
     target->need_seq_inc = true;
@@ -826,6 +813,19 @@ void rpl_instance_send_dao_no_path(rpl_instance_t *instance, rpl_dao_target_t *t
 #endif
 
 #ifdef HAVE_RPL_ROOT
+static uint_fast8_t rpl_downward_path_control_to_preference(uint8_t pc)
+{
+    if (pc >= 0x40) {
+        return 1;
+    } else if (pc >= 0x10) {
+        return 2;
+    } else if (pc >= 0x04) {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
 static rpl_dao_root_transit_t *rpl_downward_add_root_transit(rpl_dao_target_t *target, const uint8_t parent[16], uint8_t path_control)
 {
     //rpl_dao_root_transit_t *old_first = ns_list_get_first(&target->info.root.transits);

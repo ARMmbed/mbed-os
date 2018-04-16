@@ -35,6 +35,101 @@
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
 
+/*  Wait loop - assuming tick is 1 us */
+static void wait_loop(uint32_t timeout)
+{
+    uint32_t t1, t2, elapsed = 0;
+    t1 = us_ticker_read();
+    do {
+        t2 = us_ticker_read();
+        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t)t2 + 0xFFFFFFFF - t1 + 1);
+    } while (elapsed < timeout);
+    return;
+}
+
+// On L4 platforms we've seen unstable PLL CLK configuraiton
+// when DEEP SLEEP exits just few µs after being entered
+// So we need to force MSI usage before setting clocks again
+static void ForceClockOutofDeepSleep(void)
+{
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    uint32_t pFLatency = 0;
+
+    /* Enable Power Control clock */
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+#ifdef PWR_FLAG_VOS
+    /* Poll VOSF bit of in PWR_CSR. Wait until it is reset to 0 */
+    //while (__HAL_PWR_GET_FLAG(PWR_FLAG_VOS) != RESET) {};
+#endif
+
+    /* Get the Oscillators configuration according to the internal RCC registers */
+    HAL_RCC_GetOscConfig(&RCC_OscInitStruct);
+
+#if (TARGET_STM32L4 || TARGET_STM32L1) /* MSI used for L4 */
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+    RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_4; // Intermediate freq, 1MHz range
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("clock issue\r\n");
+    }
+
+    /* Get the Clocks configuration according to the internal RCC registers */
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
+
+    // Select HSI ss system clock source as a first step
+#ifdef RCC_CLOCKTYPE_PCLK2
+    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK 
+                            | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+#else
+    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK 
+                            | RCC_CLOCKTYPE_PCLK1);
+#endif
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_MSI;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency) != HAL_OK) {
+        error("clock issue\r\n");
+    }
+#else  /* HSI used on others */
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = 16;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("clock issue");
+    }
+
+    /* Get the Clocks configuration according to the internal RCC registers */
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &pFLatency);
+
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
+#ifdef RCC_CLOCKTYPE_PCLK2
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                            |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+#else
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                            |RCC_CLOCKTYPE_PCLK1);
+#endif
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, pFLatency) != HAL_OK) {
+        error("clock issue");
+    }
+#endif // TARGET_STM32L4
+}
+
 void hal_sleep(void)
 {
     // Disable IRQs
@@ -83,15 +178,20 @@ void hal_deepsleep(void)
 #else /* TARGET_STM32L4 */
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
+    // Verify Clock Out of Deep Sleep
+    ForceClockOutofDeepSleep();
 
     // Restart HAL tick
     HAL_ResumeTick();
 
-    // Enable IRQs
-    core_util_critical_section_exit();
-
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
+
+    /*  Wait for clock to be stabilized.
+     *  TO DO: a better way of doing this, would be to rely on
+     *  HW Flag. At least this ensures proper operation out of
+     *  deep sleep */
+    wait_loop(500);
 
     TIM_HandleTypeDef TimMasterHandle;
     TimMasterHandle.Instance = TIM_MST;
@@ -107,6 +207,8 @@ void hal_deepsleep(void)
         rtc_synchronize();
     }
 #endif
+    // Enable IRQs
+   core_util_critical_section_exit();
 }
 
 #endif

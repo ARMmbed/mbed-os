@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_dac.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   DAC LL module driver
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -40,7 +38,7 @@
 #include "stm32l1xx_ll_dac.h"
 #include "stm32l1xx_ll_bus.h"
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
   #include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0U)

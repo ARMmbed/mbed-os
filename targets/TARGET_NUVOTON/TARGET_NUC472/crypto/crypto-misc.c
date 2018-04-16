@@ -37,6 +37,10 @@ static uint16_t crypto_init_counter = 0U;
 static bool crypto_submodule_acquire(uint16_t *submodule_avail);
 static void crypto_submodule_release(uint16_t *submodule_avail);
 
+/* Crypto done flags */
+#define CRYPTO_DONE_OK              BIT0    /* Done with OK */
+#define CRYPTO_DONE_ERR             BIT1    /* Done with error */
+
 /* Track if PRNG H/W operation is done */
 static volatile uint16_t crypto_prng_done;
 /* Track if AES H/W operation is done */
@@ -96,7 +100,7 @@ void crypto_uninit(void)
 /* Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n)
 {
-    volatile unsigned char *p = (unsigned char*) v;
+    volatile unsigned char *p = (volatile unsigned char*) v;
     while (n--) {
         *p++ = 0;
     }
@@ -236,20 +240,36 @@ static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
     /* Ensure while loop above and subsequent code are not reordered */
     __DSB();
 
-    return true;
+    if ((*submodule_done & CRYPTO_DONE_OK)) {
+        /* Done with OK */
+        return true;
+    } else if ((*submodule_done & CRYPTO_DONE_ERR)) {
+        /* Done with error */
+        return false;
+    }
+
+    return false;
 }
 
 /* Crypto interrupt handler */
 void CRYPTO_IRQHandler()
 {
-    if (PRNG_GET_INT_FLAG()) {
-        crypto_prng_done = 1;
+    uint32_t intsts;
+    
+    if ((intsts = PRNG_GET_INT_FLAG()) != 0) {
+        /* Done with OK */
+        crypto_prng_done |= CRYPTO_DONE_OK;
+        /* Clear interrupt flag */
         PRNG_CLR_INT_FLAG();
-    }  else if (AES_GET_INT_FLAG()) {
-        crypto_aes_done = 1;
+    }  else if ((intsts = AES_GET_INT_FLAG()) != 0) {
+        /* Done with OK */
+        crypto_aes_done |= CRYPTO_DONE_OK;
+        /* Clear interrupt flag */
         AES_CLR_INT_FLAG();
-    } else if (TDES_GET_INT_FLAG()) {
-        crypto_des_done = 1;
+    } else if ((intsts = TDES_GET_INT_FLAG()) != 0) {
+        /* Done with OK */
+        crypto_des_done |= CRYPTO_DONE_OK;
+        /* Clear interrupt flag */
         TDES_CLR_INT_FLAG();
     }
 }

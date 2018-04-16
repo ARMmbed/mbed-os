@@ -86,6 +86,12 @@ nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
                                                   const char *netmask, const char *gw,
                                                   nsapi_ip_stack_t stack)
 {
+    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
+        return NSAPI_ERROR_ALREADY;
+    }
+
     if (stack == IPV4_STACK) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
@@ -117,10 +123,16 @@ nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
     // -routers will create new network and get local connectivity
     // -end devices will get connectivity once attached to existing network
     // -devices without network settings gets connectivity once commissioned and attached to network
-    int32_t count = connect_semaphore.wait(osWaitForever);
+    _connect_status = NSAPI_STATUS_CONNECTING;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
+    if (_blocking) {
+        int32_t count = connect_semaphore.wait(osWaitForever);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 }

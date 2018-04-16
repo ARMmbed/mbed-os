@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,7 +55,7 @@
 /** @addtogroup FLASH_Private_Constants
   * @{
   */
-#define FLASH_TIMEOUT_VALUE   ((uint32_t)50000U) /* 50 s */
+#define FLASH_TIMEOUT_VALUE      (50000U) /* 50 s */
 /**
   * @}
   */
@@ -66,7 +64,7 @@
   * @{
   */
 
-#define IS_FLASH_TYPEPROGRAM(_VALUE_)   (((_VALUE_) == FLASH_TYPEPROGRAM_WORD))
+#define IS_FLASH_TYPEPROGRAM(_VALUE_)   ((_VALUE_) == FLASH_TYPEPROGRAM_WORD)
 
 #define IS_FLASH_LATENCY(__LATENCY__) (((__LATENCY__) == FLASH_LATENCY_0) || \
                                        ((__LATENCY__) == FLASH_LATENCY_1))
@@ -85,9 +83,9 @@
   */
 typedef enum 
 {
-  FLASH_PROC_NONE              = 0, 
-  FLASH_PROC_PAGEERASE         = 1,
-  FLASH_PROC_PROGRAM           = 2,
+  FLASH_PROC_NONE              = 0U, 
+  FLASH_PROC_PAGEERASE         = 1U,
+  FLASH_PROC_PROGRAM           = 2U,
 } FLASH_ProcedureTypeDef;
 
 /** 
@@ -139,8 +137,10 @@ typedef struct
   * @{
   */ 
 
-#define FLASH_SIZE                (uint32_t)(*((uint16_t *)FLASHSIZE_BASE) * 1024U)
-#define FLASH_PAGE_SIZE           ((uint32_t)256U)  /*!< FLASH Page Size in bytes */
+#ifndef FLASH_SIZE // MBED
+#define FLASH_SIZE                (uint32_t)((*((uint32_t *)FLASHSIZE_BASE)&0xFFFFU) * 1024U)
+#endif // MBED
+#define FLASH_PAGE_SIZE           (256U)  /*!< FLASH Page Size in bytes */
 
 /**
   * @}
@@ -149,7 +149,7 @@ typedef struct
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */ 
-#define FLASH_TYPEPROGRAM_WORD       ((uint32_t)0x02U)  /*!<Program a word (32-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAM_WORD       (0x02U)  /*!<Program a word (32-bit) at a specified address.*/
 
 /**
   * @}
@@ -158,7 +158,7 @@ typedef struct
 /** @defgroup FLASH_Latency FLASH Latency
   * @{
   */ 
-#define FLASH_LATENCY_0            ((uint32_t)0x00000000U)    /*!< FLASH Zero Latency cycle */
+#define FLASH_LATENCY_0            (0x00000000U)    /*!< FLASH Zero Latency cycle */
 #define FLASH_LATENCY_1            FLASH_ACR_LATENCY         /*!< FLASH One Latency cycle */
 
 /**
@@ -168,7 +168,7 @@ typedef struct
 /** @defgroup FLASH_Interrupts FLASH Interrupts 
   * @{
   */
-   
+
 #define FLASH_IT_EOP               FLASH_PECR_EOPIE  /*!< End of programming interrupt source */
 #define FLASH_IT_ERR               FLASH_PECR_ERRIE  /*!< Error interrupt source */
 /**
@@ -204,21 +204,21 @@ typedef struct
   * @{
   */ 
 
-#define FLASH_PDKEY1               ((uint32_t)0x04152637U) /*!< Flash power down key1 */
-#define FLASH_PDKEY2               ((uint32_t)0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
+#define FLASH_PDKEY1               (0x04152637U) /*!< Flash power down key1 */
+#define FLASH_PDKEY2               (0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
                                                               to unlock the RUN_PD bit in FLASH_ACR */
 
-#define FLASH_PEKEY1               ((uint32_t)0x89ABCDEFU) /*!< Flash program erase key1 */
-#define FLASH_PEKEY2               ((uint32_t)0x02030405U) /*!< Flash program erase key: used with FLASH_PEKEY2
+#define FLASH_PEKEY1               (0x89ABCDEFU) /*!< Flash program erase key1 */
+#define FLASH_PEKEY2               (0x02030405U) /*!< Flash program erase key: used with FLASH_PEKEY2
                                                                to unlock the write access to the FLASH_PECR register and
                                                                data EEPROM */
 
-#define FLASH_PRGKEY1              ((uint32_t)0x8C9DAEBFU) /*!< Flash program memory key1 */
-#define FLASH_PRGKEY2              ((uint32_t)0x13141516U) /*!< Flash program memory key2: used with FLASH_PRGKEY2
+#define FLASH_PRGKEY1              (0x8C9DAEBFU) /*!< Flash program memory key1 */
+#define FLASH_PRGKEY2              (0x13141516U) /*!< Flash program memory key2: used with FLASH_PRGKEY2
                                                                to unlock the program memory */
 
-#define FLASH_OPTKEY1              ((uint32_t)0xFBEAD9C8U) /*!< Flash option key1 */
-#define FLASH_OPTKEY2              ((uint32_t)0x24252627U) /*!< Flash option key2: used with FLASH_OPTKEY1 to
+#define FLASH_OPTKEY1              (0xFBEAD9C8U) /*!< Flash option key1 */
+#define FLASH_OPTKEY2              (0x24252627U) /*!< Flash option key2: used with FLASH_OPTKEY1 to
                                                               unlock the write access to the option byte block */
 /**
   * @}
@@ -305,8 +305,6 @@ typedef struct
   * @param  __FLAG__ specifies the FLASH flags to clear.
   *          This parameter can be any combination of the following values:
   *            @arg @ref FLASH_FLAG_EOP         FLASH End of Operation flag 
-  *            @arg @ref FLASH_FLAG_ENDHV       FLASH End of High Voltage flag
-  *            @arg @ref FLASH_FLAG_READY       FLASH Ready flag after low power mode
   *            @arg @ref FLASH_FLAG_PGAERR      FLASH Programming Alignment error flag
   *            @arg @ref FLASH_FLAG_SIZERR      FLASH Size error flag
   *            @arg @ref FLASH_FLAG_OPTVERR     FLASH Option validity error error flag

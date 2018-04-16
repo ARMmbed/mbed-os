@@ -1,0 +1,32 @@
+#--- Inputs ----#
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPPUTEST_USE_MEM_LEAK_DETECTION = N
+CPP_PLATFORM = gcc
+INCLUDE_DIRS =\
+  .\
+  ../../stubs\
+  ../../target_h\
+  ../../..\
+  ../../../../../features \
+  ../../../../../features/netsocket \
+  ../../../../.. \
+  ../../../../../rtos \
+  ../../../../../rtos/TARGET_CORTEX \
+  ../../../../../platform \
+  ../../../../../hal \
+  ../../../../../events \
+  ../../../../../events/equeue \
+  ../../../../../drivers \
+  ../../../framework\
+  ../../../framework/common\
+  ../../../framework/AT\
+  ../../../framework/API\
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w -D__INLINE=__inline
+CPPUTEST_CFLAGS += -std=gnu99
+

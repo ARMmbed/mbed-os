@@ -18,20 +18,56 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : adc_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef ADC_IODEFINE_H
 #define ADC_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_adc
-{                                                          /* ADC              */
+#define ADC     (*(struct st_adc     *)0xE8005800uL) /* ADC */
+
+
+#define ADCADDRA (ADC.ADDRA)
+#define ADCADDRB (ADC.ADDRB)
+#define ADCADDRC (ADC.ADDRC)
+#define ADCADDRD (ADC.ADDRD)
+#define ADCADDRE (ADC.ADDRE)
+#define ADCADDRF (ADC.ADDRF)
+#define ADCADDRG (ADC.ADDRG)
+#define ADCADDRH (ADC.ADDRH)
+#define ADCADCMPHA (ADC.ADCMPHA)
+#define ADCADCMPLA (ADC.ADCMPLA)
+#define ADCADCMPHB (ADC.ADCMPHB)
+#define ADCADCMPLB (ADC.ADCMPLB)
+#define ADCADCMPHC (ADC.ADCMPHC)
+#define ADCADCMPLC (ADC.ADCMPLC)
+#define ADCADCMPHD (ADC.ADCMPHD)
+#define ADCADCMPLD (ADC.ADCMPLD)
+#define ADCADCMPHE (ADC.ADCMPHE)
+#define ADCADCMPLE (ADC.ADCMPLE)
+#define ADCADCMPHF (ADC.ADCMPHF)
+#define ADCADCMPLF (ADC.ADCMPLF)
+#define ADCADCMPHG (ADC.ADCMPHG)
+#define ADCADCMPLG (ADC.ADCMPLG)
+#define ADCADCMPHH (ADC.ADCMPHH)
+#define ADCADCMPLH (ADC.ADCMPLH)
+#define ADCADCSR (ADC.ADCSR)
+#define ADCADCMPER (ADC.ADCMPER)
+#define ADCADCMPSR (ADC.ADCMPSR)
+
+
+typedef struct st_adc
+{
+                                                           /* ADC              */
     volatile uint16_t ADDRA;                                  /*  ADDRA           */
     volatile uint16_t ADDRB;                                  /*  ADDRB           */
     volatile uint16_t ADDRC;                                  /*  ADDRC           */
@@ -61,38 +97,11 @@ struct st_adc
     volatile uint16_t ADCSR;                                  /*  ADCSR           */
     volatile uint16_t ADCMPER;                                /*  ADCMPER         */
     volatile uint16_t ADCMPSR;                                /*  ADCMPSR         */
-};
+} r_io_adc_t;
 
 
-#define ADC     (*(struct st_adc     *)0xE8005800uL) /* ADC */
-
-
-#define ADCADDRA ADC.ADDRA
-#define ADCADDRB ADC.ADDRB
-#define ADCADDRC ADC.ADDRC
-#define ADCADDRD ADC.ADDRD
-#define ADCADDRE ADC.ADDRE
-#define ADCADDRF ADC.ADDRF
-#define ADCADDRG ADC.ADDRG
-#define ADCADDRH ADC.ADDRH
-#define ADCADCMPHA ADC.ADCMPHA
-#define ADCADCMPLA ADC.ADCMPLA
-#define ADCADCMPHB ADC.ADCMPHB
-#define ADCADCMPLB ADC.ADCMPLB
-#define ADCADCMPHC ADC.ADCMPHC
-#define ADCADCMPLC ADC.ADCMPLC
-#define ADCADCMPHD ADC.ADCMPHD
-#define ADCADCMPLD ADC.ADCMPLD
-#define ADCADCMPHE ADC.ADCMPHE
-#define ADCADCMPLE ADC.ADCMPLE
-#define ADCADCMPHF ADC.ADCMPHF
-#define ADCADCMPLF ADC.ADCMPLF
-#define ADCADCMPHG ADC.ADCMPHG
-#define ADCADCMPLG ADC.ADCMPLG
-#define ADCADCMPHH ADC.ADCMPHH
-#define ADCADCMPLH ADC.ADCMPLH
-#define ADCADCSR ADC.ADCSR
-#define ADCADCMPER ADC.ADCMPER
-#define ADCADCMPSR ADC.ADCMPSR
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

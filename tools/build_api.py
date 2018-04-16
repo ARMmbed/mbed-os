@@ -20,6 +20,9 @@ import re
 import tempfile
 import datetime
 import uuid
+import struct
+import zlib
+import hashlib
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
@@ -33,7 +36,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset)
+                    intelhex_offset, integer)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -327,7 +330,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     profile = {'c': [], 'cxx': [], 'common': [], 'asm': [], 'ld': []}
     for contents in build_profile or []:
         for key in profile:
-            profile[key].extend(contents[toolchain_name][key])
+            profile[key].extend(contents[toolchain_name].get(key, []))
 
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=profile)
@@ -339,8 +342,68 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     return toolchain
 
+def _printihex(ihex):
+    import pprint
+    pprint.PrettyPrinter().pprint(ihex.todict())
+
+def _real_region_size(region):
+    try:
+        part = intelhex_offset(region.filename, offset=region.start)
+        return (part.maxaddr() - part.minaddr()) + 1
+    except AttributeError:
+        return region.size
+
+
+def _fill_header(region_list, current_region):
+    """Fill an application header region
+
+    This is done it three steps:
+     * Fill the whole region with zeros
+     * Fill const, timestamp and size entries with their data
+     * Fill the digests using this header as the header region
+    """
+    region_dict = {r.name: r for r in region_list}
+    header = IntelHex()
+    header.puts(current_region.start, b'\x00' * current_region.size)
+    start = current_region.start
+    for member in current_region.filename:
+        _, type, subtype, data = member
+        member_size = Config.header_member_size(member)
+        if type == "const":
+            fmt = {
+                "8le": ">B", "16le": "<H", "32le": "<L", "64le": "<Q",
+                "8be": "<B", "16be": ">H", "32be": ">L", "64be": ">Q"
+            }[subtype]
+            header.puts(start, struct.pack(fmt, integer(data, 0)))
+        elif type == "timestamp":
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
+            header.puts(start, struct.pack(fmt, time()))
+        elif type == "size":
+            fmt = {"32le": "<L", "64le": "<Q",
+                   "32be": ">L", "64be": ">Q"}[subtype]
+            size = sum(_real_region_size(region_dict[r]) for r in data)
+            header.puts(start, struct.pack(fmt, size))
+        elif type  == "digest":
+            if data == "header":
+                ih = header[:start]
+            else:
+                ih = intelhex_offset(region_dict[data].filename, offset=region_dict[data].start)
+            if subtype.startswith("CRCITT32"):
+                fmt = {"CRCITT32be": ">l", "CRCITT32le": "<l"}[subtype]
+                header.puts(start, struct.pack(fmt, zlib.crc32(ih.tobinarray())))
+            elif subtype.startswith("SHA"):
+                if subtype == "SHA256":
+                    hash = hashlib.sha256()
+                elif subtype == "SHA512":
+                    hash = hashlib.sha512()
+                hash.update(ih.tobinarray())
+                header.puts(start, hash.digest())
+        start += Config.header_member_size(member)
+    return header
+
 def merge_region_list(region_list, destination, padding=b'\xFF'):
-    """Merege the region_list into a single image
+    """Merge the region_list into a single image
 
     Positional Arguments:
     region_list - list of regions, which should contain filenames
@@ -355,6 +418,11 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     for region in region_list:
         if region.active and not region.filename:
             raise ToolException("Active region has no contents: No file found.")
+        if isinstance(region.filename, list):
+            header_basename, _ = splitext(destination)
+            header_filename = header_basename + "_header.hex"
+            _fill_header(region_list, region).tofile(header_filename, format='hex')
+            region = region._replace(filename=header_filename)
         if region.filename:
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
@@ -417,11 +485,6 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
-
-    if  (hasattr(toolchain.target, "release_versions") and
-            "5" not in toolchain.target.release_versions and
-            "rtos" in toolchain.config.lib_config_data):
-            raise NotSupportedException("Target does not support mbed OS 5")
 
     return resources
 
@@ -528,24 +591,19 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''
         if memap_instance:
-            real_stats_depth = stats_depth if stats_depth is None else 2
-            memap_table = memap_instance.generate_output('table', real_stats_depth)
+            # Write output to stdout in text (pretty table) format
+            memap_table = memap_instance.generate_output('table', stats_depth)
+
             if not silent:
-                if not stats_depth:
-                    memap_bars = memap_instance.generate_output('bars',
-                            real_stats_depth, None,
-                            getattr(toolchain.target, 'device_name', None))
-                    print(memap_bars)
-                else:
-                    print(memap_table)
+                print(memap_table)
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
-            memap_instance.generate_output('json', real_stats_depth, map_out)
+            memap_instance.generate_output('json', stats_depth, map_out)
 
             # Write output to file in CSV format for the CI
             map_csv = join(build_path, name + "_map.csv")
-            memap_instance.generate_output('csv-ci', real_stats_depth, map_csv)
+            memap_instance.generate_output('csv-ci', stats_depth, map_csv)
 
         resources.detect_duplicates(toolchain)
 

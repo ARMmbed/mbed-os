@@ -35,6 +35,7 @@
 #include "mbed_assert.h"
 
 #include "CordioPalAttClient.h"
+#include "CordioPalSecurityManager.h"
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
@@ -172,6 +173,11 @@ const char* BLE::getVersion()
 
 const ::Gap& BLE::getGap() const
 {
+    return getGenericGap();
+};
+
+const generic::GenericGap& BLE::getGenericGap() const
+{
     static pal::vendor::cordio::Gap& cordio_pal_gap =
         pal::vendor::cordio::Gap::get_gap();
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
@@ -181,7 +187,7 @@ const ::Gap& BLE::getGap() const
         cordio_gap_service
     );
     return gap;
-};
+}
 
 GattServer& BLE::getGattServer()
 {
@@ -205,12 +211,21 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    return cordio::SecurityManager::getInstance();
+    const BLE* self = this;
+    return const_cast<SecurityManager&>(self->getSecurityManager());
 }
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    return cordio::SecurityManager::getInstance();
+    static pal::MemorySecurityDb m_db;
+    pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
+    static generic::GenericSecurityManager m_instance(
+        m_pal,
+        m_db,
+        const_cast<generic::GenericGap&>(getGenericGap())
+    );
+
+    return m_instance;
 }
 
 void BLE::waitForEvent()
@@ -238,6 +253,10 @@ void BLE::processEvents()
  void BLE::stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg)
  {
     if (msg == NULL) {
+        return;
+    }
+
+    if (ble::pal::vendor::cordio::CordioSecurityManager::get_security_manager().sm_handler(msg)) {
         return;
     }
 
@@ -311,11 +330,10 @@ void BLE::stack_setup()
     SecInit();
 
     // Note: enable once security is supported
-#if 0
+    SecRandInit();
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -329,10 +347,8 @@ void BLE::stack_setup()
     DmSecInit();
 
     // Note: enable once security is supported
-#if 0
     DmSecLescInit();
     DmPrivInit();
-#endif
     DmHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
@@ -349,10 +365,14 @@ void BLE::stack_setup()
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+    SmprInit();
     SmprScInit();
     SmpiInit();
+    SmpiScInit();
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
+
+    HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);

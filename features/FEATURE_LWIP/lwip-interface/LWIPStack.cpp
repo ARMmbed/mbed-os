@@ -252,7 +252,7 @@ nsapi_error_t LWIP::add_dns_server(const SocketAddress &address)
 nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     // check if network is connected
-//    if (!stack-> ->emac->connected) {
+//    if (lwip_connected == NSAPI_STATUS_DISCONNECTED) {
 //        return NSAPI_ERROR_NO_CONNECTION;
 //    }
 
@@ -298,9 +298,9 @@ nsapi_error_t LWIP::socket_bind(nsapi_socket_t handle, const SocketAddress &addr
 
     if (
 #if LWIP_TCP
-        (s->conn->type == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
+        (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
 #endif
-        (s->conn->type == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
+        (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -319,6 +319,7 @@ nsapi_error_t LWIP::socket_bind(nsapi_socket_t handle, const SocketAddress &addr
 
 nsapi_error_t LWIP::socket_listen(nsapi_socket_t handle, int backlog)
 {
+#if LWIP_TCP
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)handle;
 
     if (s->conn->pcb.tcp->local_port == 0) {
@@ -327,6 +328,9 @@ nsapi_error_t LWIP::socket_listen(nsapi_socket_t handle, int backlog)
 
     err_t err = netconn_listen_with_backlog(s->conn, backlog);
     return err_remap(err);
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 nsapi_error_t LWIP::socket_connect(nsapi_socket_t handle, const SocketAddress &address)
@@ -348,6 +352,7 @@ nsapi_error_t LWIP::socket_connect(nsapi_socket_t handle, const SocketAddress &a
 
 nsapi_error_t LWIP::socket_accept(nsapi_socket_t server, nsapi_socket_t *handle, SocketAddress *address)
 {
+#if LWIP_TCP
     struct mbed_lwip_socket *s = (struct mbed_lwip_socket *)server;
     struct mbed_lwip_socket *ns = arena_alloc();
     if (!ns) {
@@ -381,6 +386,9 @@ nsapi_error_t LWIP::socket_accept(nsapi_socket_t server, nsapi_socket_t *handle,
     netconn_set_nonblocking(ns->conn, true);
 
     return 0;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 nsapi_size_or_error_t LWIP::socket_send(nsapi_socket_t handle, const void *data, nsapi_size_t size)
@@ -494,7 +502,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
     switch (optname) {
 #if LWIP_TCP
         case NSAPI_KEEPALIVE:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -502,7 +510,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
             return 0;
 
         case NSAPI_KEEPIDLE:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -510,7 +518,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
             return 0;
 
         case NSAPI_KEEPINTVL:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 

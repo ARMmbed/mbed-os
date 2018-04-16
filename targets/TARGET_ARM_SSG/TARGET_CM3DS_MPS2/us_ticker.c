@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2015 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,125 +14,98 @@
  * limitations under the License.
  */
 
-/* This file is derivative of us_ticker.c from BEETLE */
+/**
+ * Elapsed time measure and interval timer in micro-secundum,
+ * servicing \ref us_ticker_api.h, using CMSDK Timer0 \ref CMSDK_TIMER0_DEV.
+ */
 
-#include <stddef.h>
-#include "cmsis.h"
+#include "cmsdk_ticker.h"
 #include "us_ticker_api.h"
-#include "PeripheralNames.h"
+#include "platform_devices.h"
 
-#define TIMER_MAX_VALUE  0
-
-/* Private data */
-struct us_ticker_drv_data_t {
-    uint32_t inited;          /* us ticker initialized */
-    uint32_t overflow_delta;  /* us ticker overflow */
-    uint32_t overflow_limit;  /* us ticker overflow limit */
-};
-
-static struct us_ticker_drv_data_t us_ticker_drv_data = {
-    .inited = 0,
-    .overflow_delta = 0,
-    .overflow_limit = 0
-};
-
-
-void __us_ticker_irq_handler(void)
+/**
+ * \brief Convert clocks to us
+ *
+ * \param[in] tick Number of clocks
+ *
+ * \return Number of usec, relative to the timer frequency,
+ *         that a given ammount of ticks equates to.
+ */
+static uint32_t convert_tick_to_us(uint32_t tick)
 {
-    Timer_ClearInterrupt(TIMER1);
-    /*
-     * For each overflow event adds the timer max represented value to
-     * the delta. This allows the us_ticker to keep track of the elapsed
-     * time:
-     * elapsed_time = (num_overflow * overflow_limit) + current_time
-     */
-    us_ticker_drv_data.overflow_delta += us_ticker_drv_data.overflow_limit;
+    return (tick / (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
 }
+
+/**
+ * \brief Convert us to clock ticks
+ *
+ * \param[in] us Time to convert to clock ticks
+ *
+ * \return Number of clock ticks relative to the timer frequency,
+ *         that a given period of usec equates to.
+ */
+static uint32_t convert_us_to_tick(uint32_t us)
+{
+    return (us * (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
+}
+
+static const struct tick_cfg_t cfg =
+{
+    .timer_driver = &CMSDK_TIMER0_DEV,
+    .irq_n = TIMER0_IRQn,
+    .interval_callback = &us_ticker_irq_handler,
+    .convert_tick_to_time = &convert_tick_to_us,
+    .convert_time_to_tick = &convert_us_to_tick
+};
+
+static struct tick_data_t data =
+{
+    .is_initialized = false,
+    .cumulated_time = 0,
+    .max_interval_time = 0,
+    .reload_time = 0,
+    .interval_callback_enabled = false,
+    .previous_cumulated_time = 0,
+    .previous_elapsed = 0
+};
+
+static struct tick_drv_data_t timer_data =
+{
+    .cfg = &cfg,
+    .data = &data
+};
 
 void us_ticker_init(void)
 {
-    uint32_t us_ticker_irqn0 = 0;
-    uint32_t us_ticker_irqn1 = 0;
-
-    if (us_ticker_drv_data.inited) {
-        return;
-    }
-
-    us_ticker_drv_data.inited = 1;
-
-    /* Initialize Timer 0 */
-    Timer_Initialize(TIMER0, TIMER_MAX_VALUE);
-    /* Enable Timer 0 */
-    Timer_Enable(TIMER0);
-
-    /* Initialize Timer 1 */
-    Timer_Initialize(TIMER1, TIMER_MAX_VALUE);
-    /* Enable Timer 1 */
-    Timer_Enable(TIMER1);
-
-    /* Timer 0 get IRQn */
-    us_ticker_irqn0 = Timer_GetIRQn(TIMER0);
-    NVIC_SetVector((IRQn_Type)us_ticker_irqn0, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ((IRQn_Type)us_ticker_irqn0);
-
-    /* Timer 1 get IRQn */
-    us_ticker_irqn1 = Timer_GetIRQn(TIMER1);
-    NVIC_SetVector((IRQn_Type)us_ticker_irqn1, (uint32_t)__us_ticker_irq_handler);
-    NVIC_EnableIRQ((IRQn_Type)us_ticker_irqn1);
-
-    /* Timer set interrupt on TIMER1 */
-    Timer_SetInterrupt(TIMER1, TIMER_DEFAULT_RELOAD);
-
-    /*
-     * Set us_ticker Overflow limit. The us_ticker overflow limit is required
-     * to calculated the return value of the us_ticker read function in us
-     * on 32bit.
-     * A 32bit us value cannot be represented directly in the Timer Load
-     * register if it is greater than (0xFFFFFFFF ticks)/TIMER_DIVIDER_US.
-     */
-    us_ticker_drv_data.overflow_limit = Timer_GetReloadValue(TIMER1);
+    cmsdk_ticker_init(&timer_data);
 }
 
 uint32_t us_ticker_read()
 {
-    uint32_t return_value = 0;
-
-    if (!us_ticker_drv_data.inited) {
-        us_ticker_init();
-    }
-
-    return_value = us_ticker_drv_data.overflow_delta + Timer_Read(TIMER1);
-
-    return return_value;
+    return cmsdk_ticker_read(&timer_data);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta = 0;
-
-    if (!us_ticker_drv_data.inited) {
-        us_ticker_init();
-    }
-
-    delta = timestamp - us_ticker_read();
-
-    /* If the event was not in the past enable interrupt */
-    Timer_SetInterrupt(TIMER0, delta);
-
-}
-
-void us_ticker_fire_interrupt(void)
-{
-    uint32_t us_ticker_irqn1 = Timer_GetIRQn(TIMER1);
-    NVIC_SetPendingIRQ((IRQn_Type)us_ticker_irqn1);
+    cmsdk_ticker_set_interrupt(&timer_data, timestamp);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    Timer_DisableInterrupt(TIMER0);
+    cmsdk_ticker_disable_interrupt(&timer_data);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    Timer_ClearInterrupt(TIMER0);
+    cmsdk_ticker_clear_interrupt(&timer_data);
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    cmsdk_ticker_fire_interrupt(&timer_data);
+}
+
+void TIMER0_IRQHandler(void)
+{
+    cmsdk_ticker_irq_handler(&timer_data);
 }

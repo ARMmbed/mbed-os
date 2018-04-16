@@ -17,7 +17,7 @@
  *
  * -----------------------------------------------------------------------------
  *
- * $Revision:   V5.1.0
+ * $Revision:   V5.2.0
  *
  * Project:     CMSIS-RTOS RTX
  * Title:       RTX Configuration definitions
@@ -181,6 +181,14 @@
 #define OS_IDLE_THREAD_STACK_SIZE   200
 #endif
  
+//   <o>Idle Thread TrustZone Module Identifier
+//   <i> Defines TrustZone Thread Context Management Identifier.
+//   <i> Applies only to cores with TrustZone technology.
+//   <i> Default: 0 (not used)
+#ifndef OS_IDLE_THREAD_TZ_MOD_ID
+#define OS_IDLE_THREAD_TZ_MOD_ID    0
+#endif
+ 
 //   <q>Stack overrun checking
 //   <i> Enable stack overrun checks at thread switch.
 //   <i> Enabling this option increases slightly the execution time of a thread switch.
@@ -240,6 +248,14 @@
 //   <i> Default: 200
 #ifndef OS_TIMER_THREAD_STACK_SIZE
 #define OS_TIMER_THREAD_STACK_SIZE  200
+#endif
+ 
+//   <o>Timer Thread TrustZone Module Identifier
+//   <i> Defines TrustZone Thread Context Management Identifier.
+//   <i> Applies only to cores with TrustZone technology.
+//   <i> Default: 0 (not used)
+#ifndef OS_TIMER_THREAD_TZ_MOD_ID
+#define OS_TIMER_THREAD_TZ_MOD_ID   0
 #endif
  
 //   <o>Timer Callback Queue entries <0-256>

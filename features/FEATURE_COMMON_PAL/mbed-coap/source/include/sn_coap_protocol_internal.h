@@ -39,7 +39,11 @@ struct sn_coap_hdr_;
 /* * * * * * * * * * * */
 
 /* * For Message resending * */
+#ifdef SN_COAP_DISABLE_RESENDINGS
+#define ENABLE_RESENDINGS                               0 /* Disable resendings */
+#else
 #define ENABLE_RESENDINGS                               1   /**< Enable / Disable resending from library in building */
+#endif
 
 #define SN_COAP_RESENDING_MAX_COUNT                     3   /**< Default number of re-sendings  */
 
@@ -111,6 +115,10 @@ struct sn_coap_hdr_;
 
 #ifndef SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE          0  /**< Must be 2^x and x is at least 4. Suitable values: 0, 16, 32, 64, 128, 256, 512 and 1024 */
+#endif
+
+#ifndef SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE
+#define SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE       0
 #endif
 
 #ifdef MBED_CONF_MBED_CLIENT_SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED

@@ -24,7 +24,7 @@ public:
     }
 
     virtual address_t get_device_address() {
-        return address_t(HciGetBdAddr(), true);
+        return address_t(HciGetBdAddr());
     }
 
     virtual address_t get_random_address() {

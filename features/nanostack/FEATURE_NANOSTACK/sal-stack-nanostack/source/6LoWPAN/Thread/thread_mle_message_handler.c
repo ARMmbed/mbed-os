@@ -42,8 +42,10 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
+#include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_host_bootstrap.h"
+#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/MAC/mac_helper.h"
@@ -237,6 +239,29 @@ static bool thread_router_leader_data_process(protocol_interface_info_entry_t *c
     return true;
 }
 
+static bool thread_reed_partitions_merge(protocol_interface_info_entry_t *cur, uint16_t shortAddress, thread_leader_data_t heard_partition_leader_data)
+{
+    if (thread_is_router_addr(shortAddress)) {
+        return false;
+    }
+    if (thread_extension_version_check(thread_info(cur)->version)) {
+        // lower weighting heard
+        if (thread_info(cur)->thread_leader_data->weighting > heard_partition_leader_data.weighting) {
+            return false;
+        }
+        // lower/same partition id heard
+        if (thread_info(cur)->thread_leader_data->weighting == heard_partition_leader_data.weighting &&
+                thread_info(cur)->thread_leader_data->partitionId >= heard_partition_leader_data.partitionId ) {
+            return false;
+        }
+    } else if (thread_info(cur)->thread_leader_data->partitionId >= heard_partition_leader_data.partitionId){
+        return false;
+    }
+    // can merge to a higher weighting/partition id
+    thread_bootstrap_connection_error(cur->id, CON_ERROR_PARTITION_MERGE, NULL);
+    return true;
+}
+
 static bool thread_router_advertiment_tlv_analyze(uint8_t *ptr, uint16_t data_length, thread_leader_data_t *leaderData, uint16_t *shortAddress, mle_tlv_info_t *routeTlv)
 {
     //Read Leader Data and verify connectivity
@@ -323,9 +348,10 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
         //processing for non routers
         if (thread_check_is_this_my_parent(cur, entry_temp)) {
             //advertisement from parent
-            if (thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) {
-                //parent changed partition - reset own routing information
-                thread_old_partition_data_purge(cur->thread_info);
+            if ((thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) ||
+                (thread_info(cur)->thread_leader_data->weighting != leaderData.weighting)) {
+                //parent changed partition/weight - reset own routing information
+                thread_old_partition_data_purge(cur);
             }
             //check if network data needs to be requested
             if (!thread_bootstrap_request_network_data(cur, &leaderData, shortAddress)) {
@@ -333,7 +359,6 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
                 thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
                 return;
             }
-
         }
     }
 
@@ -345,7 +370,8 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
         if (!thread_attach_active_router(cur)) {
             // REED and FED
             if (!entry_temp && thread_bootstrap_link_create_check(cur, shortAddress) && thread_bootstrap_link_create_allowed(cur, shortAddress, mle_msg->packet_src_address)) {
-                if (thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId) {
+                if ((thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId) &&
+                        (thread_info(cur)->thread_leader_data->weighting == leaderData.weighting)) {
                     // Create link to new neighbor no other processing allowed
                     thread_link_request_start(cur, mle_msg->packet_src_address);
                     return;
@@ -354,6 +380,10 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
                     // better partition found or new network data learn started
                     return;
                 }
+            }
+            // process REED advertisement from higher partition
+            if (thread_reed_partitions_merge(cur, shortAddress, leaderData)) {
+                return;
             }
         } else {
             //Router
@@ -547,7 +577,7 @@ static void thread_parse_data_response(protocol_interface_info_entry_t *cur, mle
     if (thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) {
         thread_info(cur)->thread_leader_data->leaderRouterId = leaderData.leaderRouterId;
         thread_info(cur)->thread_leader_data->partitionId = leaderData.partitionId;
-        thread_old_partition_data_purge(cur->thread_info);
+        thread_old_partition_data_purge(cur);
         accept_new_data = true;
     }
 
@@ -592,6 +622,12 @@ static void thread_parse_data_response(protocol_interface_info_entry_t *cur, mle
         } else {
             tr_debug("SET NWK data Request state");
         }
+    }
+
+    // leader has finished synching network data after reset/restart
+    if (cur->thread_info->leader_synced) {
+        cur->thread_info->leader_synced = false;
+        thread_leader_service_network_data_changed(cur, true, true);
     }
 }
 static int thread_host_child_update_response_send(protocol_interface_info_entry_t *cur, uint8_t *dst_address, mle_tlv_info_t *challengeTlv, mle_tlv_info_t *requestTlv)
@@ -680,7 +716,7 @@ static void thread_host_child_update_request_process(protocol_interface_info_ent
     if (thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) {
         thread_info(cur)->thread_leader_data->leaderRouterId = leaderData.leaderRouterId;
         thread_info(cur)->thread_leader_data->partitionId = leaderData.partitionId;
-        thread_old_partition_data_purge(cur->thread_info);
+        thread_old_partition_data_purge(cur);
     }
     //Check Network Data TLV
     if (mle_tlv_read_tlv(MLE_TYPE_NETWORK_DATA, mle_msg->data_ptr, mle_msg->data_length, &networkDataTlv)) {

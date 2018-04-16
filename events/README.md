@@ -113,7 +113,7 @@ queue.dispatch();
 
 // Events can also pass arguments to the underlying callback when both
 // initially constructed and posted.
-Event<void(int, int)> event(&queue, printf, "recieved %d and %d\n");
+Event<void(int, int)> event(&queue, printf, "received %d and %d\n");
 
 // Events can be posted multiple times and enqueue gracefully until
 // the dispatch function is called.
