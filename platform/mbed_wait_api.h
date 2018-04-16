@@ -53,18 +53,27 @@ extern "C" {
  *  the accuracy of single precision floating point).
  *
  *  @param s number of seconds to wait
+ * 
+ *  @note
+ *    This func will lock the deep sleep, if you want device entry deep sleep mode, please use Thread::wait()
  */
 void wait(float s);
 
 /** Waits a number of milliseconds.
  *
  *  @param ms the whole number of milliseconds to wait
+ * 
+ *  @note
+ *    This func will lock the deep sleep, if you want device entry deep sleep mode, please use Thread::wait()
  */
 void wait_ms(int ms);
 
 /** Waits a number of microseconds.
  *
  *  @param us the whole number of microseconds to wait
+ * 
+ *  @note
+ *    This func will lock the deep sleep.
  */
 void wait_us(int us);
 
