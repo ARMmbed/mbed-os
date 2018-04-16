@@ -262,6 +262,7 @@ extern "C" void log_str_data(const char *format, ...)
 
 extern "C" void log_str_vdata(const char *format, va_list args)
 {
+    MBED_STATIC_ASSERT(LOG_SINGLE_STR_SIZE_ >= 32, "String size too small, min 32 bytes");
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
         log_str_isr_data(format, args);
     } else {

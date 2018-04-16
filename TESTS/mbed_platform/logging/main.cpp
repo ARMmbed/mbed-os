@@ -126,17 +126,7 @@ static void test_gen_log_api()
 
 static void test_log_helper_arrays()
 {
-    static uint8_t longStr[100];
-    for(int i = 0; i < 100; i++)
-    {
-        longStr[i] = 0x88;
-    }
-    test_log_reset();
-    MBED_WARN("TEST", "%s", mbed_trace_array(longStr, 100));
-    wait_us(1000);
-    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: 88:88:88:88:88:88:88:88:88:88:88:88:88:"
-                             "88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:"
-                             "88:88:88:88:88:88:88:88:88:88:88:*", buf);
+    static uint8_t longStr[5];
 
     longStr[0] = 0x23;
     longStr[1] = 0x45;
@@ -251,6 +241,42 @@ static void test_log_interleave()
     return;
 }
 
+static void test_log_overflow()
+{
+    static uint8_t longStr[100];
+    for(int i = 0; i < 100; i++)
+    {
+        longStr[i] = 0x88;
+    }
+
+    test_log_reset();
+    MBED_WARN("TEST", "%s", mbed_trace_array(longStr, 100));
+    wait_us(1000);
+    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: 88:88:88:88:88:88:88:88:88:88:88:88:88:"
+                             "88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:"
+                             "88:88:88:88:88:88:88:88:88:88:88:*", buf);
+
+    test_log_reset();
+    MBED_WARN("TEST", "01:02:03:04:05:06:07:08:09:10:11:12:13:14:15:16:17:18:19:20:21:22:23:24:25:26:27:28:29:30:"
+                      "31:32:33:34:35:36:37:38:39:40:41:42:43:44:45:46:47:48:49:50:51:52:53:54:55:56:57:58:59:60:"
+                      "61:62:63:64:65:66:67:68:69:70:71:72:73:74:75:76:77:78:79:80:81:82:83:84:85:86:87:88:89:90:");
+    wait_us(1000);
+    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: 01:02:03:04:05:06:07:08:09:10:11:12:13:14:15:16:17:18:19:20:21:22:23:24:25:26:27:28:29:30:"
+                             "31:32:33:34:35:36:37:38:39:40:41:42:43:44:45:46:47:48:49:50:51:52:53:54:55:56:57:58:59:60:"
+                             "61:62:63:64:65:66:67:68:69:70:71:72:73:74:75:76:77:78:79:80*\n", buf);
+
+    test_log_reset();
+    MBED_WARN("TEST", "01:02:03:04:05:06:07:08:09:10:11:12:13:14:15:16:17:18:19:20:21:22:23:24:25:26:27:28:29:30:"
+                      "31:32:33:34:35:36:37:38:39:40:41:42:43:44:45:46:47:48:49:50:51:52:53:54:55:56:57:58:59:60: %s", 
+                      mbed_trace_array(longStr, 100));
+    wait_us(1000);
+    TEST_ASSERT_EQUAL_STRING("[WARN][TEST]: 01:02:03:04:05:06:07:08:09:10:11:12:13:14:15:16:17:18:19:20:21:22:23:24:25:26:27:28:29:30:"
+                             "31:32:33:34:35:36:37:38:39:40:41:42:43:44:45:46:47:48:49:50:51:52:53:54:55:56:57:58:59:60: "
+                             "88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:88:8*\n", buf);
+
+    return;
+}
+
 // Test cases
 Case cases[] = {
     Case("Test all log levels", test_log_levels),
@@ -259,7 +285,7 @@ Case cases[] = {
     Case("Test helper ipv6 functions", test_log_helper_ipv6),
     Case("Test log in ISR context", test_log_isr),
     Case("Test log interleave test", test_log_interleave),
-    
+    Case("Test overflow test", test_log_overflow)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
