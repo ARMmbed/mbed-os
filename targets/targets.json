@@ -50,6 +50,7 @@
         "inherits": ["LPCTarget"],
         "core": "Cortex-M0",
         "extra_labels": ["NXP", "LPC11XX_11CXX", "LPC11CXX"],
+        "OUTPUT_EXT": "hex",
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
