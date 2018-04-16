@@ -133,7 +133,7 @@ bool CellularConnectionFSM::power_on()
         tr_warn("Cellular start failed. Power off/on.");
         err = _power->off();
         if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
-            tr_error("Cellular power down failed!");
+            tr_error("Cellular power down failing after failed power up attempt!");
         }
         return false;
     }
@@ -156,31 +156,16 @@ bool CellularConnectionFSM::open_sim()
         return false;
     }
 
-    switch (state) {
-        case CellularSIM::SimStateReady:
-            tr_info("SIM Ready");
-            break;
-        case CellularSIM::SimStatePinNeeded: {
-            if (strlen(_sim_pin)) {
-                tr_info("SIM pin required, entering pin: %s", _sim_pin);
-                nsapi_error_t err = _sim->set_pin(_sim_pin);
-                if (err) {
-                    tr_error("SIM pin set failed with: %d, bailing out...", err);
-                }
-            } else {
-                tr_warn("PIN required but No SIM pin provided.");
-            }
+    if (state == CellularSIM::SimStatePinNeeded) {
+        if (strlen(_sim_pin)) {
+            tr_info("SIM pin required, entering pin: %s", _sim_pin);
+            nsapi_error_t err = _sim->set_pin(_sim_pin);
+            if (err) {
+                tr_error("SIM pin set failed with: %d, bailing out...", err);
+            } 
+        } else {
+            tr_warn("PIN required but No SIM pin provided.");
         }
-            break;
-        case CellularSIM::SimStatePukNeeded:
-            tr_info("SIM PUK code needed...");
-            break;
-        case CellularSIM::SimStateUnknown:
-            tr_info("SIM, unknown state...");
-            break;
-        default:
-            MBED_ASSERT(1);
-            break;
     }
 
     if (_event_status_cb) {
@@ -192,8 +177,9 @@ bool CellularConnectionFSM::open_sim()
 
 bool CellularConnectionFSM::set_network_registration(char *plmn)
 {
-    if (_network->set_registration(plmn) != NSAPI_ERROR_OK) {
-        tr_error("Failed to set network registration.");
+    nsapi_error_t error = _network->set_registration(plmn);
+    if (error != NSAPI_ERROR_OK) {
+        tr_error("Set network registration mode failing (%d)", error);
         return false;
     }
     return true;

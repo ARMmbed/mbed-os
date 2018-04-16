@@ -56,8 +56,27 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
         state = SimStateUnknown; // SIM may not be ready yet or +CPIN may be unsupported command
     }
     _at.resp_stop();
-    return _at.unlock_return_error();
+    nsapi_error_t error = _at.get_last_error();
+    _at.unlock();
+#if MBED_CONF_MBED_TRACE_ENABLE
+    switch (state) {
+        case SimStatePinNeeded:
+            tr_error("SIM PIN required");
+            break;
+        case SimStatePukNeeded:
+            tr_error("SIM PUK required");
+            break;
+        case SimStateUnknown:
+            tr_error("SIM state unknown");
+            break;
+        default:
+            tr_info("SIM is ready");
+            break;
+    }
+#endif
+    return error;
 }
+
 
 nsapi_error_t AT_CellularSIM::set_pin(const char *sim_pin)
 {

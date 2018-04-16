@@ -85,6 +85,7 @@ void AT_CellularNetwork::free_credentials()
 
 void AT_CellularNetwork::urc_no_carrier()
 {
+    tr_error("Data call failed: no carrier");
     _connect_status = NSAPI_STATUS_DISCONNECTED;
     if (_connection_status_cb) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
@@ -97,6 +98,22 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
     int lac = -1, cell_id = -1, act = -1;
 
     read_reg_params(type, reg_status, lac, cell_id, act);
+
+#if MBED_CONF_MBED_TRACE_ENABLE
+    switch (reg_status) {
+        case NotRegistered:
+            tr_error("not registered");
+            break;
+        case RegistrationDenied:
+            tr_error("registration denied");
+            break;
+        case Unknown:
+            tr_error("registration status unknown");
+            break;
+        default:
+            break;
+    }
+#endif
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
         tr_debug("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);
@@ -216,7 +233,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = set_context_to_be_activated();
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
-        tr_error("Failed to activate network context!");
+        tr_error("Failed to activate network context! (%d)", err);
 
         _connect_status = NSAPI_STATUS_DISCONNECTED;
         if (_connection_status_cb) {
@@ -229,7 +246,8 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     // do check for stack to validate that we have support for stack
     _stack = get_stack();
     if (!_stack) {
-        return err;
+        tr_error("No cellular stack!");
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     _is_context_active = false;
@@ -246,7 +264,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     _at.resp_stop();
 
     if (!_is_context_active) {
-        tr_info("Activate PDP context");
+        tr_info("Activate PDP context %d",_cid);
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
         _at.cmd_stop();
@@ -794,11 +812,11 @@ nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
 
 NetworkStack *AT_CellularNetwork::get_stack()
 {
-    // use lwIP/PPP if modem does not have IP stack
 #if NSAPI_PPP_AVAILABLE
-    _stack = nsapi_ppp_get_stack();
-#else
-    _stack = NULL;
+    // use lwIP/PPP if modem does not have IP stack
+    if (!_stack) {
+        _stack = nsapi_ppp_get_stack();
+    }
 #endif
     return _stack;
 }
