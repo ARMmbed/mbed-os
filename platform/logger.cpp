@@ -92,12 +92,23 @@ static void log_str_isr_data(const char *format, va_list args)
     int32_t count = 0;
     if (time_enable_) {
         count = snprintf(log_isr_str_, LOG_SINGLE_STR_SIZE_, "[%-8lld]", time);
+        if (count < 0 || count > LOG_SINGLE_STR_SIZE_) {
+            count = 0;
+        }
     }
     count = vsnprintf(log_isr_str_+count, (LOG_SINGLE_STR_SIZE_-count), format, args);
+    if (count > LOG_SINGLE_STR_SIZE_) {
+        log_isr_str_[LOG_SINGLE_STR_SIZE_-3] = '*';
+        log_isr_str_[LOG_SINGLE_STR_SIZE_-2] = '\n';
+        log_isr_str_[LOG_SINGLE_STR_SIZE_-1] = '\0';
+        count = LOG_SINGLE_STR_SIZE_;
+    }
     if (NULL != extern_buf_) {
         log_update_buf(log_isr_str_, count);
     } else {
-        log_isr_equeue_->call(log_isr_queue);
+        if (count > 0) {
+            log_isr_equeue_->call(log_isr_queue);
+        }
     }
     core_util_critical_section_exit();
 }
@@ -106,18 +117,29 @@ static void log_str_usr_data(const char *format, va_list args)
 {
     mbed_log_lock();
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ << 1];
-    uint32_t size = (LOG_SINGLE_STR_SIZE_ << 1);
+    int32_t size = (LOG_SINGLE_STR_SIZE_ << 1);
 
     volatile uint64_t time = ticker_read_us(log_ticker_);
     int32_t count = 0;
     if (time_enable_) {
         count = snprintf(one_line, size, "[%-8lld]", time);
+        if (count < 0 || count > size) {
+            count = 0;
+        }
     }
     count = vsnprintf(one_line+count, (size-count), format, args);
+    if (count > size) {
+        one_line[size-3] = '*';
+        one_line[size-2] = '\n';
+        one_line[size-1] = '\0';
+        count = size;
+    }
     if (NULL != extern_buf_) {
         log_update_buf(one_line, count);
     } else {
-        fputs(one_line, stderr);
+        if (count > 0) {
+            fputs(one_line, stderr);
+        }
     }
     mbed_log_unlock_all();
 }
