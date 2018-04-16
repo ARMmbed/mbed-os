@@ -33,7 +33,8 @@ const stm_sai_api_t stm_i2s_vtable = {
 };
 
 static sai_result_t stm_i2s_init(sai_t *obj, sai_init_t *init) {
-    if (memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) {
+    if ((memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) &&
+        (memcmp(&(init->format), &sai_mode_i2s16, sizeof(sai_format_t)) != 0)) {
         // we only support 1 format so far
         return SAI_RESULT_CONFIG_UNSUPPORTED;
     }
