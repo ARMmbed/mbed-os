@@ -166,7 +166,8 @@ const char* BLE::getVersion()
 
 generic::GenericGap& BLE::getGap()
 {
-    return const_cast<generic::GenericGap&>(getGap());
+    const BLE &const_self = const_cast<const BLE&>(*this);
+    return const_cast<generic::GenericGap&>(const_self.getGap());
 }
 
 const generic::GenericGap& BLE::getGap() const
@@ -204,7 +205,8 @@ generic::GenericGattClient& BLE::getGattClient()
 
 SecurityManager& BLE::getSecurityManager()
 {
-    return const_cast<SecurityManager&>(getSecurityManager());
+    const BLE &const_self = const_cast<const BLE&>(*this);
+    return const_cast<SecurityManager&>(const_self.getSecurityManager());
 }
 
 const SecurityManager& BLE::getSecurityManager() const
