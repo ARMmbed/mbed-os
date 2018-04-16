@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef MBED_PERIPHERALPINS_H
 #define MBED_PERIPHERALPINS_H
 
@@ -46,5 +46,14 @@ extern const PinMap PinMap_SPI_SSEL[];
 
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
+
+/************I2S***************/
+extern const PinMap PinMap_SAI_MCLK[];
+extern const PinMap PinMap_SAI_TXSD[];
+extern const PinMap PinMap_SAI_TXBCLK[];
+extern const PinMap PinMap_SAI_TXWCLK[];
+extern const PinMap PinMap_SAI_RXSD[];
+extern const PinMap PinMap_SAI_RXBCLK[];
+extern const PinMap PinMap_SAI_RXWCLK[];
 
 #endif

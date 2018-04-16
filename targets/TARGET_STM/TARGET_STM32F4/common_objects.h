@@ -30,6 +30,7 @@
 #ifndef MBED_COMMON_OBJECTS_H
 #define MBED_COMMON_OBJECTS_H
 
+#include <stdbool.h>
 #include "cmsis.h"
 #include "PortNames.h"
 #include "PeripheralNames.h"
@@ -138,6 +139,16 @@ struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
     int hz;
+};
+#endif
+
+#if DEVICE_SAI
+typedef struct sai_base_s sai_base_t;
+
+struct sai_s {
+    const sai_base_t  *base;
+    bool              is_receiver;
+    PinName           sd;
 };
 #endif
 
