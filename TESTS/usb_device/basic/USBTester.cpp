@@ -67,11 +67,11 @@ USBTester::~USBTester()
 
 const char *USBTester::get_desc_string(const uint8_t *desc)
 {
-    static char ret_string[128] = {};
+    static char ret_string[128] = { };
     const uint8_t desc_size = desc[0] - 2;
     const uint8_t *desc_str = &desc[2];
     uint32_t j = 0;
-    for(uint32_t i = 0; i < desc_size; i+=2, j++) {
+    for (uint32_t i = 0; i < desc_size; i += 2, j++) {
         ret_string[j] = desc_str[i];
     }
     ret_string[j] = '\0';
@@ -80,7 +80,7 @@ const char *USBTester::get_desc_string(const uint8_t *desc)
 
 void USBTester::suspend(bool suspended)
 {
-    if(suspended) {
+    if (suspended) {
         ++suspend_count;
     } else {
         ++resume_count;
@@ -146,7 +146,7 @@ void USBTester::callback_request(const setup_packet_t *setup)
             case VENDOR_TEST_CTRL_OUT:
                 result = Receive;
                 data = ctrl_buf;
-                size = setup->wValue < 8 ? setup->wValue  : 8;
+                size = setup->wValue < 8 ? setup->wValue : 8;
                 break;
             case VENDOR_TEST_CTRL_NONE:
                 result = Success;
@@ -176,8 +176,6 @@ void USBTester::callback_request(const setup_packet_t *setup)
     } else {
         complete_request(result, data, size);
     }
-
-
 }
 
 void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool aborted)
