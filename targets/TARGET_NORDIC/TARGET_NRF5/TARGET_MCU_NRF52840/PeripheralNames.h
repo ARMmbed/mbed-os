@@ -46,11 +46,11 @@ extern "C" {
 #endif
 
 #ifndef STDIO_UART_TX
-#define STDIO_UART_TX     TX_PIN_NUMBER
+#define STDIO_UART_TX     USBTX
 #endif
 
 #ifndef STDIO_UART_RX
-#define STDIO_UART_RX     RX_PIN_NUMBER
+#define STDIO_UART_RX     USBRX
 #endif
 
 #define STDIO_UART        UART_0
