@@ -122,7 +122,7 @@ void lp_ticker_set_interrupt_wrapper(timestamp_t timestamp)
         }
     }
 
-    if (pending) {
+    if (pending || timeout_pending) {
         next = timestamp;
         last_request = current;
         if (!timeout_pending) {
