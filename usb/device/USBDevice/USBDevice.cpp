@@ -76,22 +76,25 @@ bool USBDevice::_request_get_descriptor()
             }
             break;
         case CONFIGURATION_DESCRIPTOR:
-            if (configuration_desc() != NULL) {
-                if ((configuration_desc()[0] == CONFIGURATION_DESCRIPTOR_LENGTH) \
-                        && (configuration_desc()[1] == CONFIGURATION_DESCRIPTOR)) {
+        {
+            const uint8_t idx = DESCRIPTOR_INDEX(_transfer.setup.wValue);
+            if (configuration_desc(idx) != NULL) {
+                if ((configuration_desc(idx)[0] == CONFIGURATION_DESCRIPTOR_LENGTH) \
+                        && (configuration_desc(idx)[1] == CONFIGURATION_DESCRIPTOR)) {
 #ifdef DEBUG
                     printf("conf descr request\r\n");
 #endif
                     /* Get wTotalLength */
-                    _transfer.remaining = configuration_desc()[2] \
-                                         | (configuration_desc()[3] << 8);
+                    _transfer.remaining = configuration_desc(idx)[2] \
+                                         | (configuration_desc(idx)[3] << 8);
 
-                    _transfer.ptr = (uint8_t *)configuration_desc();
+                    _transfer.ptr = (uint8_t *)configuration_desc(idx);
                     _transfer.direction = Send;
                     success = true;
                 }
             }
             break;
+        }
         case STRING_DESCRIPTOR:
 #ifdef DEBUG
             printf("str descriptor\r\n");
@@ -1126,24 +1129,24 @@ void USBDevice::endpoint_unstall(usb_ep_t endpoint)
     unlock();
 }
 
-uint8_t *USBDevice::find_descriptor(uint8_t descriptorType)
+uint8_t *USBDevice::find_descriptor(uint8_t descriptorType, uint8_t index)
 {
     /* Find a descriptor within the list of descriptors */
     /* following a configuration descriptor. */
     uint16_t wTotalLength;
     uint8_t *ptr;
 
-    if (configuration_desc() == NULL) {
+    if (configuration_desc(index) == NULL) {
         return NULL;
     }
 
     /* Check this is a configuration descriptor */
-    if ((configuration_desc()[0] != CONFIGURATION_DESCRIPTOR_LENGTH) \
-            || (configuration_desc()[1] != CONFIGURATION_DESCRIPTOR)) {
+    if ((configuration_desc(index)[0] != CONFIGURATION_DESCRIPTOR_LENGTH) \
+            || (configuration_desc(index)[1] != CONFIGURATION_DESCRIPTOR)) {
         return NULL;
     }
 
-    wTotalLength = configuration_desc()[2] | (configuration_desc()[3] << 8);
+    wTotalLength = configuration_desc(index)[2] | (configuration_desc(index)[3] << 8);
 
     /* Check there are some more descriptors to follow */
     if (wTotalLength <= (CONFIGURATION_DESCRIPTOR_LENGTH + 2))
@@ -1153,7 +1156,7 @@ uint8_t *USBDevice::find_descriptor(uint8_t descriptorType)
     }
 
     /* Start at first descriptor after the configuration descriptor */
-    ptr = &(((uint8_t *)configuration_desc())[CONFIGURATION_DESCRIPTOR_LENGTH]);
+    ptr = &(((uint8_t *)configuration_desc(index))[CONFIGURATION_DESCRIPTOR_LENGTH]);
 
     do {
         if (ptr[1] /* bDescriptorType */ == descriptorType) {
@@ -1163,7 +1166,7 @@ uint8_t *USBDevice::find_descriptor(uint8_t descriptorType)
 
         /* Skip to next descriptor */
         ptr += ptr[0]; /* bLength */
-    } while (ptr < (configuration_desc() + wTotalLength));
+    } while (ptr < (configuration_desc(index) + wTotalLength));
 
     /* Reached end of the descriptors - not found */
     return NULL;
