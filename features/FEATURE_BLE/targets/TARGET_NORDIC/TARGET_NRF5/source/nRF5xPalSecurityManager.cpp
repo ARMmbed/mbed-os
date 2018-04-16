@@ -200,12 +200,12 @@ ble_error_t nRF5xSecurityManager::clear_resolving_list()
     return BLE_ERROR_NONE;
 }
 
-void nRF5xSecurityManager::get_resolving_list(
-    size_t& count,
-    const resolving_list_entry_t*& entries
-) {
-    count = resolving_list_entry_count;
-    entries = resolving_list;
+ArrayView<nRF5xSecurityManager::resolving_list_entry_t>
+nRF5xSecurityManager::get_resolving_list() {
+    return ArrayView<nRF5xSecurityManager::resolving_list_entry_t>(
+        resolving_list,
+        resolving_list_entry_count
+    );
 }
 
 bool nRF5xSecurityManager::resolve_address(
