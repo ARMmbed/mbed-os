@@ -32,13 +32,23 @@
 
 static I2S_Type *const sai_addrs[] = I2S_BASE_PTRS;
 
+bool sai_receiver_initialized = false;
+bool sai_transmitter_initialized = false;
+
 sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
     int32_t base = NC;
     int32_t tx = NC;
     int32_t rx = NC;
 
-    MBED_ASSERT(init != NULL);
-    if (memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) {
+    if ((obj == NULL) || !sai_check_sanity(init)) {
+        return SAI_RESULT_INVALID_PARAM;
+    }
+    if ((init->is_receiver && sai_receiver_initialized) ||
+        (!init->is_receiver && sai_transmitter_initialized)) {
+        return SAI_RESULT_ALREADY_INITIALIZED;
+    }
+    if ((memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) &&
+        (memcmp(&(init->format), &sai_mode_i2s16, sizeof(sai_format_t)) != 0)) {
         // we only support 1 format so far
         return SAI_RESULT_CONFIG_UNSUPPORTED;
     }
@@ -129,14 +139,20 @@ sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
 
     if (obj->is_receiver) {
         SAI_RxSetFormat(obj->base, &format, mclk_freq, format.masterClockHz);
+        sai_receiver_initialized = true;
     } else {
         SAI_TxSetFormat(obj->base, &format, mclk_freq, format.masterClockHz);
+        sai_transmitter_initialized = true;
     }
 
     return SAI_RESULT_OK;
 }
 
 bool sai_xfer(sai_t *obj, uint32_t *sample) {
+    if (obj == NULL) {
+        return false;
+    }
+
     bool ret = false;
     if (obj->is_receiver) {
         if (sample != NULL) {
@@ -173,10 +189,16 @@ bool sai_xfer(sai_t *obj, uint32_t *sample) {
 
 /** Releases & de-initialize the referenced peripherals. */
 void sai_free(sai_t *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
     if (obj->is_receiver) {
         SAI_RxEnable(obj->base, false);
+        sai_receiver_initialized = false;
     } else {
         SAI_TxEnable(obj->base, false);
+        sai_transmitter_initialized = false;
     }
     // Should it also unclock the periph ?
 }

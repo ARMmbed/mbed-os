@@ -32,7 +32,8 @@ const stm_sai_api_t stm_sai_vtable = {
 
 static sai_result_t stm_sai_init(sai_t *obj, sai_init_t *init) {
     uint32_t tmpreg = 0;
-    if (memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) {
+    if ((memcmp(&(init->format), &sai_mode_i2s16w32, sizeof(sai_format_t)) != 0) &&
+        (memcmp(&(init->format), &sai_mode_i2s16, sizeof(sai_format_t)) != 0)) {
         // we only support 1 format so far
         return SAI_RESULT_CONFIG_UNSUPPORTED;
     }
@@ -119,8 +120,8 @@ static sai_result_t stm_sai_init(sai_t *obj, sai_init_t *init) {
     /*
         sample rate * frame length
      */
-    uint32_t data_size = 16; // possible values : 8, 10, 16, 20, 24, 32
-    uint32_t slot_size = 32; // 0, 16, 32. 0 means = datasize
+    uint32_t data_size = init->format.data_length; // possible values : 8, 10, 16, 20, 24, 32
+    uint32_t slot_size = init->format.word_length; // 0, 16, 32. 0 means = datasize
     uint32_t slot_count = 2;
 
     /* compute hirez div times 2^n to keep some precision yet having fast results
