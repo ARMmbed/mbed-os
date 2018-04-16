@@ -208,11 +208,8 @@ nRF5xSecurityManager::get_resolving_list() {
     );
 }
 
-bool nRF5xSecurityManager::resolve_address(
-    const address_t& resolvable_address,
-    advertising_peer_address_type_t& resolved_address_type,
-    address_t& resolved_address
-) {
+const nRF5xSecurityManager::resolving_list_entry_t*
+nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
     typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
 
     for (size_t i = 0; i < resolving_list_entry_count; ++i) {
@@ -233,13 +230,13 @@ bool nRF5xSecurityManager::resolve_address(
         // parameter. If they are equal then the IRK of the entry has been used
         // to generate the resolvable address.
         if (memcmp(hash_generated.data(), resolvable_address.data(), CryptoToolbox::hash_size_) == 0) {
-            resolved_address_type = entry.peer_identity_address_type;
-            resolved_address = entry.peer_identity_address;
-            return true;
+            return &entry;
         }
     }
-    return false;
+    return NULL;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Pairing

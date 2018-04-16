@@ -109,14 +109,11 @@ public:
      * Try to resolve a private resolvable address.
      *
      * @param resolvable_address The address to resolve.
-     * @param resolved_address_type The type of the identity address resolved.
-     * @param resolved_address The identity address resolved.
-     * @return True if the address has been resolved and false otherwise.
+     *
+     * @return Pointer to the entry found if any.
      */
-    bool resolve_address(
-        const address_t& resolvable_address,
-        advertising_peer_address_type_t& resolved_address_type,
-        address_t& resolved_address
+    const resolving_list_entry_t*  resolve_address(
+        const address_t& resolvable_address
     );
 
 
