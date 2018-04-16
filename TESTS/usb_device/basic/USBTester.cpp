@@ -52,7 +52,7 @@ USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_r
     MBED_ASSERT(resolver.valid());
     queue = mbed_highprio_event_queue();
 
-    configuration_desc();
+    configuration_desc(0);
 
     init();
     USBDevice::connect(connect_blocking);
@@ -321,7 +321,7 @@ const uint8_t *USBTester::string_iproduct_desc()
 
 #define CONFIG1_DESC_SIZE (9+9+7+7+7+7 + 9+7+7+7+7)
 
-const uint8_t *USBTester::configuration_desc()
+const uint8_t *USBTester::configuration_desc(uint8_t index)
 {
     static const uint8_t config_descriptor[] = {
         // configuration descriptor
@@ -434,7 +434,11 @@ const uint8_t *USBTester::configuration_desc()
         1                           // bInterval
 
     };
-    return config_descriptor;
+    if (index == 0) {
+        return config_descriptor;
+    } else {
+        return NULL;
+    }
 }
 
 

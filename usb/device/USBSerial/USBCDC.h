@@ -124,9 +124,10 @@ protected:
     /*
     * Get configuration descriptor
     *
+    * @param index descriptor index
     * @returns pointer to the configuration descriptor
     */
-    virtual const uint8_t *configuration_desc();
+    virtual const uint8_t *configuration_desc(uint8_t index);
 
     /*
     * Called by USBCallback_requestCompleted when CDC line coding is changed
