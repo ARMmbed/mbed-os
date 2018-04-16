@@ -405,9 +405,18 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   return temp;
 }
 
-/**             
+#if __GNUC__
+#    define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#    define MAY_ALIAS
+#endif
+
+typedef __IO uint8_t  MAY_ALIAS uint8_io_t;
+typedef __IO uint16_t MAY_ALIAS uint16_io_t;
+
+/**
   * @brief  Enter 8-bit input data to the CRC calculator.
-  *         Specific data handling to optimize processing time.  
+  *         Specific data handling to optimize processing time.
   * @param  hcrc CRC handle
   * @param  pBuffer pointer to the input data buffer
   * @param  BufferLength input data buffer length
@@ -429,16 +438,16 @@ static uint32_t CRC_Handle_8(CRC_HandleTypeDef *hcrc, uint8_t pBuffer[], uint32_
    {
      if(BufferLength%4 == 1)
      {
-       *(__IO uint8_t*) (&hcrc->Instance->DR) = pBuffer[4*i];
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4*i];
      }
      if(BufferLength%4 == 2)
      {
-       *(__IO uint16_t*) (&hcrc->Instance->DR) = (uint16_t)((uint16_t)((uint16_t)(pBuffer[4*i])<<8) | (uint16_t)(pBuffer[4*i+1]));
+       *(uint16_io_t*) (&hcrc->Instance->DR) = (uint16_t)((uint16_t)((uint16_t)(pBuffer[4*i])<<8) | (uint16_t)(pBuffer[4*i+1]));
      }
      if(BufferLength%4 == 3)
      {
-       *(__IO uint16_t*) (&hcrc->Instance->DR) = (uint16_t)((uint16_t)((uint16_t)(pBuffer[4*i])<<8) | (uint16_t)(pBuffer[4*i+1]));
-       *(__IO uint8_t*) (&hcrc->Instance->DR) = pBuffer[4*i+2];       
+       *(uint16_io_t*) (&hcrc->Instance->DR) = (uint16_t)((uint16_t)((uint16_t)(pBuffer[4*i])<<8) | (uint16_t)(pBuffer[4*i+1]));
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4*i+2];
      }
    }
   
@@ -467,7 +476,7 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
   }
   if((BufferLength%2) != 0)
   {
-     *(__IO uint16_t*) (&hcrc->Instance->DR) = pBuffer[2*i]; 
+     *(uint16_io_t*) (&hcrc->Instance->DR) = pBuffer[2*i];
   }
    
   /* Return the CRC computed value */ 
