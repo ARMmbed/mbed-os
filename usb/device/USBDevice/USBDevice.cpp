@@ -62,6 +62,7 @@ bool USBDevice::_request_get_descriptor()
 #endif
     switch (DESCRIPTOR_TYPE(_transfer.setup.wValue)) {
         case DEVICE_DESCRIPTOR:
+        {
             if (device_desc() != NULL) {
                 if ((device_desc()[0] == DEVICE_DESCRIPTOR_LENGTH) \
                         && (device_desc()[1] == DEVICE_DESCRIPTOR)) {
@@ -75,6 +76,7 @@ bool USBDevice::_request_get_descriptor()
                 }
             }
             break;
+        }
         case CONFIGURATION_DESCRIPTOR:
         {
             const uint8_t idx = DESCRIPTOR_INDEX(_transfer.setup.wValue);
@@ -96,6 +98,7 @@ bool USBDevice::_request_get_descriptor()
             break;
         }
         case STRING_DESCRIPTOR:
+        {
 #ifdef DEBUG
             printf("str descriptor\r\n");
 #endif
@@ -156,21 +159,29 @@ bool USBDevice::_request_get_descriptor()
                     break;
             }
             break;
+        }
         case INTERFACE_DESCRIPTOR:
+        {
 #ifdef DEBUG
             printf("interface descr\r\n");
 #endif
+            break;
+        }
         case ENDPOINT_DESCRIPTOR:
+        {
 #ifdef DEBUG
             printf("endpoint descr\r\n");
 #endif
             /* TODO: Support is optional, not implemented here */
             break;
+        }
         default:
+        {
 #ifdef DEBUG
             printf("ERROR\r\n");
 #endif
             break;
+        }
     }
 
     return success;
@@ -406,7 +417,6 @@ void USBDevice::_complete_set_configuration()
         _phy->ep0_stall();
         return;
     }
-
 }
 
 bool USBDevice::_request_get_configuration()
