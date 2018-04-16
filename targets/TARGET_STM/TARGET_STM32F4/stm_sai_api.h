@@ -26,7 +26,7 @@
 
 typedef struct stm_sai_api_s {
     sai_result_t    (*init)(sai_t *obj, sai_init_t *init);
-    bool            (*xfer)(sai_t *obj, uint32_t *sample);
+    bool            (*transfer)(sai_t *obj, uint32_t *sample);
     void            (*free)(sai_t *obj);
 } stm_sai_api_t;
 

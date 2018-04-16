@@ -21,12 +21,12 @@
 #include "PeripheralPins.h"
 
 static sai_result_t stm_sai_init(sai_t *obj, sai_init_t *init);
-static bool stm_sai_xfer(sai_t *obj, uint32_t *sample);
+static bool stm_sai_transfer(sai_t *obj, uint32_t *sample);
 static void stm_sai_free(sai_t *obj);
 
 const stm_sai_api_t stm_sai_vtable = {
     .init = stm_sai_init,
-    .xfer = stm_sai_xfer,
+    .transfer = stm_sai_transfer,
     .free = stm_sai_free
 };
 
@@ -202,7 +202,7 @@ static sai_result_t stm_sai_init(sai_t *obj, sai_init_t *init) {
     return SAI_RESULT_OK;
 }
 
-static bool stm_sai_xfer(sai_t *obj, uint32_t *psample) {
+static bool stm_sai_transfer(sai_t *obj, uint32_t *psample) {
     bool ret = false;
     uint32_t sr = obj->base->u.sai_block->SR;
     uint32_t fifo_level = (sr & SAI_xSR_FLVL) >> SAI_xSR_FLVL_Pos;

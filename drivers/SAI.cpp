@@ -45,7 +45,7 @@ SAI::SAI(PinName mclk, PinName bclk, PinName wclk, PinName sd,
 
 bool SAI::xfer(uint32_t *value) {
     lock();
-    bool ret = sai_xfer(&_sai, value);
+    bool ret = sai_transfer(&_sai, value);
     unlock();
     return ret;
 }
