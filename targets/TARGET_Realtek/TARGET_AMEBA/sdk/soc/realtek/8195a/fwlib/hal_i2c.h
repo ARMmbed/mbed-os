@@ -324,10 +324,9 @@ typedef uint32_t I2C_ERR_TYPE;
 typedef uint32_t *PI2C_ERR_TYPE;
 
 // I2C Time Out type
-enum _I2C_TIMEOUT_TYPE_ {
-    I2C_TIMEOOUT_DISABLE    =   0x00,           
-    I2C_TIMEOOUT_ENDLESS    =   0xFFFFFFFF,
-};
+#define I2C_TIMEOOUT_DISABLE    0x00
+#define I2C_TIMEOOUT_ENDLESS    0xFFFFFFFF
+
 typedef uint32_t I2C_TIMEOUT_TYPE;
 typedef uint32_t *PI2C_TIMEOUT_TYPE;
 
