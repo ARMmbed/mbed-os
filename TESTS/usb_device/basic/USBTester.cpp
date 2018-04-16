@@ -37,8 +37,9 @@
 #define MIN_EP_SIZE 8
 
 
-USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking): USBDevice(vendor_id, product_id, product_release),
-                        reset_count(0), suspend_count(0), resume_count(0)
+USBTester::USBTester(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking):
+                        USBDevice(vendor_id, product_id, product_release), reset_count(0), suspend_count(0),
+                        resume_count(0), interface_set(NONE), configuration_set(NONE)
 {
 
     EndpointResolver resolver(endpoint_table());
@@ -86,6 +87,16 @@ void USBTester::suspend(bool suspended)
     }
 }
 
+void USBTester::remove_endpoints()
+{
+    if(configuration_set == 1) {
+        endpoint_remove(int_in);
+        endpoint_remove(int_out);
+        endpoint_remove(bulk_in);
+        endpoint_remove(bulk_out);
+    }
+}
+
 const char *USBTester::get_serial_desc_string()
 {
     return get_desc_string(string_iserial_desc());
@@ -105,8 +116,16 @@ const char *USBTester::get_iproduct_desc_string()
 
 void USBTester::callback_state_change(DeviceState new_state)
 {
-    // Nothing to do
-};
+    if (new_state != Configured) {
+        configuration_set = NONE;
+        interface_set = NONE;
+    }
+}
+
+void USBTester::callback_reset()
+{
+    ++reset_count;
+}
 
 void USBTester::callback_request(const setup_packet_t *setup)
 {
@@ -196,57 +215,61 @@ void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool abo
 // configuration is not supported.
 void USBTester::callback_set_configuration(uint8_t configuration)
 {
-    if (configuration != DEFAULT_CONFIGURATION) {
+    if (configuration == DEFAULT_CONFIGURATION) {
+        complete_set_configuration(set_configuration(configuration));
+    } else {
         complete_set_configuration(false);
-        return;
     }
+}
 
-    // Configure endpoints > 0
-    endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
-    endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
-    read_start(int_out, int_buf, sizeof(int_buf));
-    endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
-    endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
-    read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
-
-    complete_set_configuration(true);
+bool USBTester::set_configuration(uint16_t configuration)
+{
+    if(set_interface(configuration, 0, 0)) {
+        configuration_set = configuration;
+        return true;
+    }
+    return false;
 }
 
 void USBTester::callback_set_interface(uint16_t interface, uint8_t alternate)
 {
-    if (interface == 0 && alternate == 0) {
-        endpoint_remove(int_in);
-        endpoint_remove(int_out);
-        endpoint_remove(bulk_in);
-        endpoint_remove(bulk_out);
+    bool success = set_interface(configuration_set, interface, alternate);
+    complete_set_interface(success);
+}
 
-        endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
-        endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
-        read_start(int_out, int_buf, sizeof(int_buf));
-        endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
-        endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
-        read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
+bool USBTester::set_interface(uint16_t configuration, uint16_t interface, uint16_t alternate)
+{
+    bool success = false;
 
-        complete_set_interface(true);
-        return;
+    if (configuration == 1) {
+        if (interface == 0 && alternate == 0) {
+            remove_endpoints();
+
+            endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
+            endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
+            read_start(int_out, int_buf, sizeof(int_buf));
+            endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
+            endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
+            read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
+
+            interface_set = interface;
+            success = true;
+        }
+        if (interface == 0 && alternate == 1) {
+            remove_endpoints();
+
+            endpoint_add(int_in, MIN_EP_SIZE, USB_EP_TYPE_INT);
+            endpoint_add(int_out, MIN_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
+            read_start(int_out, int_buf, sizeof(int_buf));
+            endpoint_add(bulk_in, MIN_EP_SIZE, USB_EP_TYPE_BULK);
+            endpoint_add(bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
+            read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
+
+            interface_set = interface;
+            success = true;
+        }
     }
-    if (interface == 0 && alternate == 1) {
-        endpoint_remove(int_in);
-        endpoint_remove(int_out);
-        endpoint_remove(bulk_in);
-        endpoint_remove(bulk_out);
-
-        endpoint_add(int_in, MIN_EP_SIZE, USB_EP_TYPE_INT);
-        endpoint_add(int_out, MIN_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
-        read_start(int_out, int_buf, sizeof(int_buf));
-        endpoint_add(bulk_in, MIN_EP_SIZE, USB_EP_TYPE_BULK);
-        endpoint_add(bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
-        read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
-
-        complete_set_interface(true);
-        return;
-    }
-    complete_set_interface(false);
+    return success;
 }
 
 const uint8_t *USBTester::device_desc()
