@@ -80,17 +80,17 @@ static I2C_HandleTypeDef* i2c_handles[I2C_NUM];
 */
 #define FLAG_TIMEOUT ((int)0x1000)
 
-/* Instead of using wait_us() which can cause issues in some cases.
-   This function assumes the tick is 1 us.
-*/
+/* This function assumes the tick is 1 us */
 static void wait_loop_us(uint32_t timeout)
 {
     uint32_t t1, t2, elapsed = 0;
-    t1 = us_ticker_read();
-    do {
-        t2 = us_ticker_read();
-        elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t)t2 + 0xFFFFFFFF - t1 + 1);
-    } while (elapsed < timeout);
+    if (timeout > 0) {
+        t1 = us_ticker_read();
+        do {
+            t2 = us_ticker_read();
+            elapsed = t2 - t1;
+        } while (elapsed < timeout);
+    }
 }
 
 /* GENERIC INIT and HELPERS FUNCTIONS */
