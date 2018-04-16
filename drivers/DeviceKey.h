@@ -20,6 +20,8 @@
 #include "stdint.h"
 #include "platform/NonCopyable.h"
 
+#if (NVSTORE_ENABLED)
+
 namespace mbed {
 /** \addtogroup drivers */
 
@@ -44,8 +46,7 @@ enum DeviceKeyStatus {
 
 /** Use this singleton if you need to derive a new key from the device root of trust.
  *
- *
- * @endcode
+ * @note Synchronization level: Thread safe
  * @ingroup drivers
  */
 
@@ -69,7 +70,7 @@ public:
         return instance;
     }
 
-    virtual ~DeviceKey();
+    ~DeviceKey();
 
     /** Derive a new key based on the salt string. key type can be with values 16 bytes and 32 bytes
      * @param isalt input buffer used to create the new key. Same input will generate always the same key
@@ -79,7 +80,7 @@ public:
      * @param ikey_type type of the required key. Type must be 16 bytes or 32 bytes.
      * @return 0 on success, negative error code on failure
      */
-    int device_key_derived_key(const unsigned char *isalt, size_t isalt_size, unsigned char *output, uint16_t ikey_type);
+    int generate_derived_key(const unsigned char *isalt, size_t isalt_size, unsigned char *output, uint16_t ikey_type);
 
     /** Set a device key into the NVStore. In case TRNG support is missing, Call this method
      *  before calling device_key_derived_key. This method should be called only once!
@@ -101,7 +102,7 @@ private:
      * @param output buffer for the CMAC result.
      * @return 0 on success, negative error code on failure
      */
-    int calc_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size, unsigned char *output);
+    int calculate_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size, unsigned char *output);
 
     /** Read a device key from the NVStore
      * @param output buffer for the returned key.
@@ -145,4 +146,5 @@ private:
 
 }
 
+#endif //NVSTORE_ENABLED
 #endif

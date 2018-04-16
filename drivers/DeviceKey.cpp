@@ -24,6 +24,8 @@
 #error [NOT_SUPPORTED] MBEDTLS_CMAC_C needs to be enabled for this driver
 #else
 
+#if NVSTORE_ENABLED
+
 namespace mbed {
 
 DeviceKey::DeviceKey()
@@ -36,8 +38,8 @@ DeviceKey::~DeviceKey()
     return;
 }
 
-int DeviceKey::device_key_derived_key(const unsigned char *salt, size_t isalt_size, unsigned char *output,
-                                      uint16_t ikey_type)
+int DeviceKey::generate_derived_key(const unsigned char *salt, size_t isalt_size, unsigned char *output,
+                                    uint16_t ikey_type)
 {
     uint32_t key_buff[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
     size_t actual_size = DEVICE_KEY_32BYTE;
@@ -135,8 +137,8 @@ int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
 }
 
 // Calculate CMAC functions - wrapper for mbedtls start/update and finish
-int DeviceKey::calc_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size,
-                         unsigned char *output)
+int DeviceKey::calculate_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size,
+                              unsigned char *output)
 {
     int ret;
     mbedtls_cipher_context_t ctx;
@@ -183,14 +185,14 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
     unsigned char *double_size_salt = NULL;
 
     if (DEVICE_KEY_16BYTE == ikey_type) {
-        ret = calc_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
+        ret = calculate_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
         if (DEVICEKEY_SUCCESS != ret) {
             goto finish;
         }
     }
 
     if (DEVICE_KEY_32BYTE == ikey_type) {
-        ret = this->calc_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
+        ret = this->calculate_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
         if (DEVICEKEY_SUCCESS != ret) {
             goto finish;
         }
@@ -200,7 +202,7 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
         memcpy(double_size_salt, isalt, isalt_size);
         memcpy(double_size_salt + isalt_size, isalt, isalt_size);
 
-        ret = this->calc_cmac(double_size_salt, isalt_size * 2, ikey_buff, ikey_size, output + 16);
+        ret = this->calculate_cmac(double_size_salt, isalt_size * 2, ikey_buff, ikey_size, output + 16);
     }
 
 finish:
@@ -247,6 +249,7 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
 
 } // namespace mbed
 
+#endif //NVSTORE_ENABLED
 #endif
 
 

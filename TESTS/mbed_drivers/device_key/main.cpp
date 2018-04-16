@@ -20,6 +20,10 @@
 #include "greentea-client/test_env.h"
 #include "nvstore.h"
 
+#if !NVSTORE_ENABLED
+#error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
+#endif
+
 using namespace utest::v1;
 
 #define MSG_VALUE_DUMMY "0"
@@ -34,8 +38,8 @@ using namespace utest::v1;
 #define MSG_KEY_DEVICE_TEST_STEP4 "check_consistency_step4"
 #define MSG_KEY_DEVICE_TEST_SUITE_ENDED "Test suite ended"
 
-void device_key_derived_key_consistency_16_byte_key_reset_test(char *key);
-void device_key_derived_key_consistency_32_byte_key_reset_test(char *key);
+void generate_derived_key_consistency_16_byte_key_reset_test(char *key);
+void generate_derived_key_consistency_32_byte_key_reset_test(char *key);
 
 /*
  * Injection of a dummy key when there is no TRNG
@@ -55,7 +59,7 @@ int inject_dummy_rot_key()
 #endif
 }
 
-void device_key_derived_key_reset_test()
+void generate_derived_key_reset_test()
 {
     greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
 
@@ -67,12 +71,12 @@ void device_key_derived_key_reset_test()
     greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP1) == 0 || strcmp(key, MSG_KEY_DEVICE_TEST_STEP2) == 0) {
-        device_key_derived_key_consistency_16_byte_key_reset_test(key);
-        return device_key_derived_key_reset_test();
+        generate_derived_key_consistency_16_byte_key_reset_test(key);
+        return generate_derived_key_reset_test();
     }
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP3) == 0 || strcmp(key, MSG_KEY_DEVICE_TEST_STEP4) == 0) {
-        return device_key_derived_key_consistency_32_byte_key_reset_test(key);
+        return generate_derived_key_consistency_32_byte_key_reset_test(key);
     }
 
     TEST_ASSERT_MESSAGE(false, key); //Indicates error!!!
@@ -81,7 +85,7 @@ void device_key_derived_key_reset_test()
 /*
  * Test the consistency of derived 16 byte key result after device reset.
  */
-void device_key_derived_key_consistency_16_byte_key_reset_test(char *key)
+void generate_derived_key_consistency_16_byte_key_reset_test(char *key)
 {
     unsigned char output1[DEVICE_KEY_16BYTE];
     unsigned char output2[DEVICE_KEY_16BYTE];
@@ -104,7 +108,7 @@ void device_key_derived_key_consistency_16_byte_key_reset_test(char *key)
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
-        ret = devkey.device_key_derived_key(salt, salt_size, output1, key_type);
+        ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
         TEST_ASSERT_FALSE(is_empty);
@@ -125,7 +129,7 @@ void device_key_derived_key_consistency_16_byte_key_reset_test(char *key)
 
         for (int i = 0; i < 100; i++) {
             memset(output2, 0, sizeof(output2));
-            ret = devkey.device_key_derived_key(salt, salt_size, output2, key_type);
+            ret = devkey.generate_derived_key(salt, salt_size, output2, key_type);
             TEST_ASSERT_EQUAL_INT32(0, ret);
             TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_16BYTE);
         }
@@ -142,7 +146,7 @@ void device_key_derived_key_consistency_16_byte_key_reset_test(char *key)
 /*
  * Test the consistency of derived 32 byte key result after device reset.
  */
-void device_key_derived_key_consistency_32_byte_key_reset_test(char *key)
+void generate_derived_key_consistency_32_byte_key_reset_test(char *key)
 {
     unsigned char output1[DEVICE_KEY_32BYTE];
     unsigned char output2[DEVICE_KEY_32BYTE];
@@ -165,7 +169,7 @@ void device_key_derived_key_consistency_32_byte_key_reset_test(char *key)
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
-        ret = devkey.device_key_derived_key(salt, salt_size, output1, key_type);
+        ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
         TEST_ASSERT_FALSE(is_empty);
@@ -186,7 +190,7 @@ void device_key_derived_key_consistency_32_byte_key_reset_test(char *key)
 
         for (int i = 0; i < 100; i++) {
             memset(output2, 0, sizeof(output2));
-            ret = devkey.device_key_derived_key(salt, salt_size, output2, key_type);
+            ret = devkey.generate_derived_key(salt, salt_size, output2, key_type);
             TEST_ASSERT_EQUAL_INT32(0, ret);
             TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_32BYTE);
         }
@@ -299,7 +303,7 @@ void device_inject_root_of_trust_several_times_test()
 /*
  * Test the consistency of derived 16 byte key result.
  */
-void device_key_derived_key_consistency_16_byte_key_test()
+void generate_derived_key_consistency_16_byte_key_test()
 {
     unsigned char output1[DEVICE_KEY_16BYTE];
     unsigned char output2[DEVICE_KEY_16BYTE];
@@ -317,14 +321,14 @@ void device_key_derived_key_consistency_16_byte_key_test()
 
     size_t salt_size = sizeof(salt);
     memset(output1, 0, sizeof(output1));
-    ret = devkey.device_key_derived_key(salt, salt_size, output1, key_type);
+    ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
     TEST_ASSERT_FALSE(is_empty);
 
     for (int i = 0; i < 100; i++) {
         memset(output2, 0, sizeof(output2));
-        ret = devkey.device_key_derived_key(salt, salt_size, output2, key_type);
+        ret = devkey.generate_derived_key(salt, salt_size, output2, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_16BYTE);
     }
@@ -333,7 +337,7 @@ void device_key_derived_key_consistency_16_byte_key_test()
 /*
  * Test the consistency of derived 32 byte key result.
  */
-void device_key_derived_key_consistency_32_byte_key_test()
+void generate_derived_key_consistency_32_byte_key_test()
 {
     unsigned char output1[DEVICE_KEY_32BYTE];
     unsigned char output2[DEVICE_KEY_32BYTE];
@@ -351,14 +355,14 @@ void device_key_derived_key_consistency_32_byte_key_test()
 
     size_t salt_size = sizeof(salt);
     memset(output1, 0, sizeof(output1));
-    ret = devkey.device_key_derived_key(salt, salt_size, output1, key_type);
+    ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
     TEST_ASSERT_FALSE(is_empty);
 
     for (int i = 0; i < 100; i++) {
         memset(output2, 0, sizeof(output2));
-        ret = devkey.device_key_derived_key(salt, salt_size, output2, key_type);
+        ret = devkey.generate_derived_key(salt, salt_size, output2, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         TEST_ASSERT_EQUAL_UINT8_ARRAY(output1, output2, DEVICE_KEY_32BYTE);
     }
@@ -367,7 +371,7 @@ void device_key_derived_key_consistency_32_byte_key_test()
 /*
  * Test request for 16 byte key is returning a correct key size.
  */
-void device_key_derived_key_key_type_16_test()
+void generate_derived_key_key_type_16_test()
 {
     unsigned char output[DEVICE_KEY_16BYTE * 2];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
@@ -387,7 +391,7 @@ void device_key_derived_key_key_type_16_test()
     memcpy(output + DEVICE_KEY_16BYTE - sizeof(expectedString), expectedString, sizeof(expectedString));
     memcpy(output + DEVICE_KEY_16BYTE + 1, expectedString, sizeof(expectedString));
 
-    ret = devkey.device_key_derived_key(salt, salt_size, output, key_type);
+    ret = devkey.generate_derived_key(salt, salt_size, output, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     //Test that we didn't override the buffer after the 16 byte size
     TEST_ASSERT_EQUAL_UINT8_ARRAY(output + DEVICE_KEY_16BYTE + 1, expectedString, sizeof(expectedString));
@@ -398,7 +402,7 @@ void device_key_derived_key_key_type_16_test()
 /*
  * Test request for 32 byte key is returning a correct key size.
  */
-void device_key_derived_key_key_type_32_test()
+void generate_derived_key_key_type_32_test()
 {
     unsigned char output[DEVICE_KEY_32BYTE * 2];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
@@ -418,7 +422,7 @@ void device_key_derived_key_key_type_32_test()
     memcpy(output + DEVICE_KEY_32BYTE - sizeof(expectedString), expectedString, sizeof(expectedString));
     memcpy(output + DEVICE_KEY_32BYTE + 1, expectedString, sizeof(expectedString));
 
-    ret = devkey.device_key_derived_key(salt, salt_size, output, key_type);
+    ret = devkey.generate_derived_key(salt, salt_size, output, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     //Test that we didn't override the buffer after the 32 byte size
     TEST_ASSERT_EQUAL_UINT8_ARRAY(output + DEVICE_KEY_32BYTE + 1, expectedString, sizeof(expectedString));
@@ -429,7 +433,7 @@ void device_key_derived_key_key_type_32_test()
 /*
  * Test request for unknown key size returns an error
  */
-void device_key_derived_key_wrong_key_type_test()
+void generate_derived_key_wrong_key_type_test()
 {
     unsigned char output[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
@@ -445,7 +449,7 @@ void device_key_derived_key_wrong_key_type_test()
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
     memset(output, 0, DEVICE_KEY_32BYTE);
-    ret = devkey.device_key_derived_key(salt, salt_size, output, 12);//96 bit key type is not supported
+    ret = devkey.generate_derived_key(salt, salt_size, output, 12);//96 bit key type is not supported
     TEST_ASSERT_EQUAL_INT32(DEVICEKEY_INVALID_KEY_TYPE, ret);
 
 }
@@ -458,16 +462,16 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 //Currently there can be only one test that contains reset and it has to be the first test!
 Case cases[] = {
-    Case("Device Key - derived key reset",                   device_key_derived_key_reset_test,                   greentea_failure_handler),
-    Case("Device Key - inject value wrong size",             device_inject_root_of_trust_wrong_size_test,         greentea_failure_handler),
-    Case("Device Key - inject value 16 byte size",           device_inject_root_of_trust_16_byte_size_test,       greentea_failure_handler),
-    Case("Device Key - inject value 32 byte size",           device_inject_root_of_trust_32_byte_size_test,       greentea_failure_handler),
-    Case("Device Key - inject value several times",          device_inject_root_of_trust_several_times_test,      greentea_failure_handler),
-    Case("Device Key - derived key consistency 16 byte key", device_key_derived_key_consistency_16_byte_key_test, greentea_failure_handler),
-    Case("Device Key - derived key consistency 32 byte key", device_key_derived_key_consistency_32_byte_key_test, greentea_failure_handler),
-    Case("Device Key - derived key key type 16",             device_key_derived_key_key_type_16_test,             greentea_failure_handler),
-    Case("Device Key - derived key key type 32",             device_key_derived_key_key_type_32_test,             greentea_failure_handler),
-    Case("Device Key - derived key wrong key type",          device_key_derived_key_wrong_key_type_test,          greentea_failure_handler)
+    Case("Device Key - derived key reset",                   generate_derived_key_reset_test,                   greentea_failure_handler),
+    Case("Device Key - inject value wrong size",             device_inject_root_of_trust_wrong_size_test,       greentea_failure_handler),
+    Case("Device Key - inject value 16 byte size",           device_inject_root_of_trust_16_byte_size_test,     greentea_failure_handler),
+    Case("Device Key - inject value 32 byte size",           device_inject_root_of_trust_32_byte_size_test,     greentea_failure_handler),
+    Case("Device Key - inject value several times",          device_inject_root_of_trust_several_times_test,    greentea_failure_handler),
+    Case("Device Key - derived key consistency 16 byte key", generate_derived_key_consistency_16_byte_key_test, greentea_failure_handler),
+    Case("Device Key - derived key consistency 32 byte key", generate_derived_key_consistency_32_byte_key_test, greentea_failure_handler),
+    Case("Device Key - derived key key type 16",             generate_derived_key_key_type_16_test,             greentea_failure_handler),
+    Case("Device Key - derived key key type 32",             generate_derived_key_key_type_32_test,             greentea_failure_handler),
+    Case("Device Key - derived key wrong key type",          generate_derived_key_wrong_key_type_test,          greentea_failure_handler)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
