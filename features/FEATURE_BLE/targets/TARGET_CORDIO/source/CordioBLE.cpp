@@ -166,21 +166,20 @@ const char* BLE::getVersion()
 
 generic::GenericGap& BLE::getGap()
 {
-    const BLE &const_self = const_cast<const BLE&>(*this);
-    return const_cast<generic::GenericGap&>(const_self.getGap());
+    static pal::vendor::cordio::GenericAccessService cordio_gap_service;
+    static ble::generic::GenericGap gap(
+        _event_queue,
+        pal::vendor::cordio::Gap::get_gap(),
+        cordio_gap_service
+    );
+
+    return gap;
 }
 
 const generic::GenericGap& BLE::getGap() const
 {
-    static pal::vendor::cordio::Gap& cordio_pal_gap =
-        pal::vendor::cordio::Gap::get_gap();
-    static pal::vendor::cordio::GenericAccessService cordio_gap_service;
-    static ble::generic::GenericGap gap(
-        _event_queue,
-        cordio_pal_gap,
-        cordio_gap_service
-    );
-    return gap;
+    BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const generic::GenericGap&>(self.getGap());
 };
 
 GattServer& BLE::getGattServer()
@@ -205,27 +204,22 @@ generic::GenericGattClient& BLE::getGattClient()
 
 SecurityManager& BLE::getSecurityManager()
 {
-    const BLE &const_self = const_cast<const BLE&>(*this);
-    return const_cast<SecurityManager&>(const_self.getSecurityManager());
-}
-
-const SecurityManager& BLE::getSecurityManager() const
-{
     static pal::MemorySecurityDb m_db;
-    pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
-
-    BLE &self = const_cast<BLE&>(*this);
-
-    static SigningEventMonitorProxy signing_event_monitor(self);
-
+    static SigningEventMonitorProxy signing_event_monitor(*this);
     static generic::GenericSecurityManager m_instance(
-        m_pal,
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
         m_db,
-        self.getGap(),
+        getGap(),
         signing_event_monitor
     );
 
     return m_instance;
+}
+
+const SecurityManager& BLE::getSecurityManager() const
+{
+    const BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
 
 void BLE::waitForEvent()
