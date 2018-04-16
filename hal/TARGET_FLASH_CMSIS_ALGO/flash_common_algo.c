@@ -89,6 +89,40 @@ static int32_t flash_algo_uninit(flash_t *obj, uint32_t address, uint32_t functi
     return ((flash_algo_jump_t)(((uint32_t)&jump_to_flash_algo) | 1))(&arguments);
 }
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+/* Check if address range [start_addr, end_addr] is in non-secure flash
+ *
+ *  @param obj          The flash object
+ *  @param start_addr   Start address to check
+ *  @param end_addr     End address to check. Could be the same as start_addr to just check start_addr
+ *                      for e.g. flash_erase_sector.
+ *  @return             0 for success, -1 for error
+ */ 
+static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t end_addr)
+{
+    /* Check if end address wraps around */
+    if (end_addr < start_addr) {
+        return -1;
+    }
+
+    /* Check if start address is in non-secure flash */
+    if ((start_addr < obj->target_config_ns->flash_start) ||
+        (start_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+        return -1;
+    }
+
+    /* Check if end address is in non-secure flash */
+    if (end_addr != start_addr) {
+        if ((end_addr < obj->target_config_ns->flash_start) ||
+            (end_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+#endif
+
 MBED_NONSECURE_ENTRY
 int32_t flash_init(flash_t *obj)
 {
@@ -108,9 +142,8 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
         // Confine non-secure access to non-secure flash
-        if ((address < obj->target_config_ns->flash_start) ||
-            (address >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
-            return MBED_FLASH_INVALID_SIZE;
+        if (flash_check_nonsecure(obj, address, address)) {
+            return -1;
         }
     }
 #endif
@@ -139,16 +172,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     if (cmse_nonsecure_caller()) {
         // Confine non-secure access to non-secure flash
-        uint32_t address_end = address + size - 1;
-
-        if ((address < obj->target_config_ns->flash_start) ||
-            (address >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
-            return MBED_FLASH_INVALID_SIZE;
-        }
-
-        if ((address_end < obj->target_config_ns->flash_start) ||
-            (address_end >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
-            return MBED_FLASH_INVALID_SIZE;
+        if (flash_check_nonsecure(obj, address, address + size - 1)) {
+            return -1;
         }
     }
 #endif
