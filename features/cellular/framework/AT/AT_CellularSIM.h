@@ -45,11 +45,6 @@ public:
     virtual nsapi_error_t get_sim_state(SimState &state);
 
     virtual nsapi_error_t get_imsi(char* imsi);
-
-    virtual SimState trace_sim_errors(void);
-
-private:
-    SimState _state;
 };
 
 } // namespace mbed

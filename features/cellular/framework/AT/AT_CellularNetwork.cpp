@@ -98,7 +98,8 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
     int lac = -1, cell_id = -1, act = -1;
 
     read_reg_params(type, reg_status, lac, cell_id, act);
-    
+
+#if MBED_CONF_MBED_TRACE_ENABLE
     switch (reg_status) {
         case NotRegistered:
             tr_error("not registered");
@@ -112,6 +113,7 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
         default:
             break;
     }
+#endif
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
         tr_debug("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);

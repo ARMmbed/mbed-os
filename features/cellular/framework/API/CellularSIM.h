@@ -46,8 +46,7 @@ public:
         SimStateReady = 0,
         SimStatePinNeeded,
         SimStatePukNeeded,
-        SimStateUnknown,
-        SimStateNotChecked
+        SimStateUnknown
     };
 
     /** Open the SIM card by setting the pin code for SIM.
