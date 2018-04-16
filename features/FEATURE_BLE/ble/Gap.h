@@ -887,6 +887,12 @@ public:
      */
     static const uint16_t UNIT_1_25_MS  = 1250;
 
+    static const PeripheralPrivacyConfiguration_t
+        default_peripheral_privacy_configuration;
+
+    static const CentralPrivacyConfiguration_t
+        default_central_privacy_configuration;
+
     /**
      * Convert milliseconds into 1.25ms units.
      *
