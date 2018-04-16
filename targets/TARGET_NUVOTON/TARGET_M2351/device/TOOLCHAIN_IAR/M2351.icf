@@ -1,33 +1,70 @@
+include partition_M2351_sub
+
 /*###ICF### Section handled by ICF editor, don't touch! ****/
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 
 if (isdefinedsymbol(__DOMAIN_NS)) {
-/*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x10040000;
-/*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__ = 0x10040000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x10080000 - 1;
-define symbol __ICFEDIT_region_IRAM_start__ = 0x30006000;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x30018000 - 1;
+
+    if (! isdefinedsymbol(MBED_APP_START)) {
+        define symbol MBED_APP_START                = 0x10000000 + NU_TZ_SECURE_FLASH_SIZE;
+    }
+
+    if (! isdefinedsymbol(MBED_APP_SIZE)) {
+        define symbol MBED_APP_SIZE                 = 0x80000 - NU_TZ_SECURE_FLASH_SIZE;
+    }
+
+
+    /*-Specials-*/
+    define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
+    /*-Memory Regions-*/
+    define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
+    define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = 0x30000000 + NU_TZ_SECURE_SRAM_SIZE;
+    define symbol __ICFEDIT_region_IRAM_end__       = 0x30018000 - 1;
+    
+    /*-Sizes-*/
+    define symbol __ICFEDIT_size_cstack__           = 0x800;
+    define symbol __ICFEDIT_size_heap__             = 0x4000;
+
 } else {
-/*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x00000000;
-/*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x0003F000 - 1;
-define symbol __ICFEDIT_region_NSCROM_start__ = 0x0003F000;
-define symbol __ICFEDIT_region_NSCROM_end__   = 0x00040000 - 1;
-define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x20006000 - 1;
+
+    if (! isdefinedsymbol(MBED_APP_START)) {
+        define symbol MBED_APP_START = 0;
+    }
+
+    if (! isdefinedsymbol(MBED_APP_SIZE)) {
+        define symbol MBED_APP_SIZE                 = NU_TZ_SECURE_FLASH_SIZE;
+    }
+    
+    /* Requirements for NSC location
+     *
+     * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
+     * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
+     * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
+     */
+    define exported symbol NU_TZ_NSC_REGION_BASE    = MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE;
+
+    /*-Specials-*/
+    define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
+    /*-Memory Regions-*/
+    define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
+    define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
+    define symbol __ICFEDIT_region_NSCROM_start__   = NU_TZ_NSC_REGION_BASE;
+    define symbol __ICFEDIT_region_NSCROM_end__     = NU_TZ_NSC_REGION_BASE + NU_TZ_NSC_REGION_SIZE - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = 0x20000000;
+    define symbol __ICFEDIT_region_IRAM_end__       = 0x20000000 + NU_TZ_SECURE_SRAM_SIZE - 1;
+
+    export symbol __NU_TZ_SECURE_FLASH_SIZE__       = NU_TZ_SECURE_FLASH_SIZE;
+    export symbol __NU_TZ_SECURE_SRAM_SIZE__        = NU_TZ_SECURE_SRAM_SIZE;
+    export symbol __NU_TZ_NSC_REGION_BASE__         = NU_TZ_NSC_REGION_BASE;
+    export symbol __NU_TZ_NSC_REGION_SIZE__         = NU_TZ_NSC_REGION_SIZE;
+
+    /*-Sizes-*/
+    define symbol __ICFEDIT_size_cstack__ = 0x800;
+    define symbol __ICFEDIT_size_heap__   = 0x1000;
 }
-/*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x800;
-if (isdefinedsymbol(__DOMAIN_NS)) {
-define symbol __ICFEDIT_size_heap__   = 0x4000;
-} else {
-define symbol __ICFEDIT_size_heap__   = 0x1000;
-}
+
 /**** End of ICF editor section. ###ICF###*/
 
 
@@ -47,8 +84,8 @@ do not initialize  { section .noinit };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
-if (!isdefinedsymbol(__DOMAIN_NS)) {
-place at address mem:__ICFEDIT_region_NSCROM_start__ { readonly section Veneer$$CMSE };
+if (! isdefinedsymbol(__DOMAIN_NS)) {
+    place at address mem:__ICFEDIT_region_NSCROM_start__ { readonly section Veneer$$CMSE };
 }
 place at start of IRAM_region   { block CSTACK };
 place in IRAM_region   { block IRAMVEC };

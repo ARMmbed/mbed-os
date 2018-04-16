@@ -21,7 +21,15 @@ extern int Image$$NSC_ROM$$Base;
 
 #elif defined(__ICCARM__)
 
-#error ("TODO: Support IAR")
+extern int __NU_TZ_SECURE_FLASH_SIZE__;
+extern int __NU_TZ_SECURE_SRAM_SIZE__;
+extern int __NU_TZ_NSC_REGION_BASE__;
+extern int __NU_TZ_NSC_REGION_SIZE__;
+
+#define NU_TZ_SECURE_FLASH_SIZE     ((uint32_t) &__NU_TZ_SECURE_FLASH_SIZE__)
+#define NU_TZ_SECURE_SRAM_SIZE      ((uint32_t) &__NU_TZ_SECURE_SRAM_SIZE__)
+#define NU_TZ_NSC_REGION_BASE       ((uint32_t) &__NU_TZ_NSC_REGION_BASE__)
+#define NU_TZ_NSC_REGION_SIZE       ((uint32_t) &__NU_TZ_NSC_REGION_SIZE__)
 
 #elif defined(__GNUC__)
 
