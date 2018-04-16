@@ -55,26 +55,56 @@ static const sai_base_t sai_bases[] = {
     }
 };
 
+#define SAI_COUNT   (sizeof(sai_bases)/sizeof(sai_base_t))
+
+static bool sai_initialized[SAI_COUNT] = {false};
+
 sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
-    MBED_ASSERT((init != NULL) && (obj != NULL));
+    if ((obj == NULL) || !sai_check_sanity(init)) {
+        return SAI_RESULT_INVALID_PARAM;
+    }
         
     SAIName base = (SAIName)pinmap_peripheral(init->sd, PinMap_SAI_SD);
     MBED_ASSERT(base != (SAIName)NC);
     
+    if (sai_initialized[base]) {
+        return SAI_RESULT_ALREADY_INITIALIZED;
+    }
+
     obj->base = &sai_bases[base];
     obj->is_receiver = init->is_receiver;
     obj->sd = init->sd;
-    return sai_vtable[obj->base->type]->init(obj, init);
+
+    sai_result_t res = sai_vtable[obj->base->type]->init(obj, init);
+    if (res == SAI_RESULT_OK) {
+        sai_initialized[base] = true;
+    }
+
+    return res;
 }
 
 /** Transfer a sample and return the sample received meanwhile. */
 bool sai_xfer(sai_t *obj, uint32_t *sample) {
+    if (obj == NULL) {
+        return false;
+    }
+
     return sai_vtable[obj->base->type]->xfer(obj, sample);
 }
 
 /** Releases & de-initialize the referenced peripherals. */
 void sai_free(sai_t *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
     sai_vtable[obj->base->type]->free(obj);
+    for (uint32_t i = 0; i < SAI_COUNT; i ++) {
+        if (obj->base == &sai_bases[i]) {
+            sai_initialized[i] = false;
+            break;
+        }
+    }
 }
 
 #endif // DEVICE_SAI
