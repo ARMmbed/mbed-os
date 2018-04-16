@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2016,2018 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,33 +36,24 @@
 #include "rtc.h"
 #include "lp.h"
 
-#define PRESCALE_VAL    RTC_PRESCALE_DIV_2_0    // Set the divider for the 4kHz clock
-#define SHIFT_AMT       (RTC_PRESCALE_DIV_2_12 - PRESCALE_VAL)
+// LOG2 for 32-bit powers of 2
+#define LOG2_1(n) (((n) >= (1 <<  1)) ? 1 : 0)
+#define LOG2_2(n) (((n) >= (1 <<  2)) ? ( 2 + (LOG2_1((n) >>  2))) : LOG2_1(n))
+#define LOG2_4(n) (((n) >= (1 <<  4)) ? ( 4 + (LOG2_2((n) >>  4))) : LOG2_2(n))
+#define LOG2_8(n) (((n) >= (1 <<  8)) ? ( 8 + (LOG2_4((n) >>  8))) : LOG2_4(n))
+#define LOG2(n)   (((n) >= (1 << 16)) ? (16 + (LOG2_8((n) >> 16))) : LOG2_8(n))
 
-#define WINDOW          1000
+#define LP_TIMER_FREQ_HZ  4096
+#define LP_TIMER_PRESCALE RTC_PRESCALE_DIV_2_0
+#define LP_TIMER_RATE_HZ  (LP_TIMER_FREQ_HZ >> LP_TIMER_PRESCALE)
+#define LP_TIMER_WIDTH    32
 
-static int rtc_inited = 0;
-static volatile uint32_t overflow_cnt = 0;
-
-static uint64_t rtc_read64(void);
-
-//******************************************************************************
-static void overflow_handler(void)
-{
-    overflow_cnt++;
-    RTC_ClearFlags(MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS);
-}
+static volatile int rtc_inited = 0;
+static volatile int lp_ticker_inited = 0;
 
 //******************************************************************************
-void rtc_init(void)
+static void init_rtc(void)
 {
-    if (rtc_inited) {
-        return;
-    }
-    rtc_inited = 1;
-
-    overflow_cnt = 0;
-
     /* Enable power for RTC for all LPx states */
     MXC_PWRSEQ->reg0 |= (MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN |
                          MXC_F_PWRSEQ_REG0_PWR_RTCEN_SLP);
@@ -70,21 +61,12 @@ void rtc_init(void)
     /* Enable clock to synchronizers */
     CLKMAN_SetClkScale(CLKMAN_CLK_SYNC, CLKMAN_SCALE_DIV_1);
 
-    // Prepare interrupt handlers
-    NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
-    NVIC_EnableIRQ(RTC0_IRQn);
-    NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
-    NVIC_EnableIRQ(RTC3_IRQn);
-
-    // Enable wakeup on RTC rollover
-    LP_ConfigRTCWakeUp(0, 0, 0, 1);
-
     /* RTC registers are only reset on a power cycle. Do not reconfigure the RTC
      * if it is already running.
      */
     if (!RTC_IsActive()) {
-        rtc_cfg_t cfg = {0};
-        cfg.prescaler = PRESCALE_VAL;
+        rtc_cfg_t cfg = { 0 };
+        cfg.prescaler = LP_TIMER_PRESCALE;
         cfg.snoozeMode = RTC_SNOOZE_DISABLE;
 
         int retval = RTC_Init(&cfg);
@@ -96,163 +78,128 @@ void rtc_init(void)
 }
 
 //******************************************************************************
-void lp_ticker_init(void)
+static void overflow_handler(void)
 {
-    rtc_init();
+    MXC_RTCTMR->comp[1] += ((UINT32_MAX >> LOG2(LP_TIMER_RATE_HZ)) + 1);
+    RTC_ClearFlags(MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS);
+}
+
+//******************************************************************************
+void rtc_init(void)
+{
+    if (rtc_inited) {
+        return;
+    }
+
+    NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
+    NVIC_EnableIRQ(RTC3_IRQn);
+    // Enable wakeup on RTC overflow
+    LP_ConfigRTCWakeUp(lp_ticker_inited, 0, 0, 1);
+    init_rtc();
+    rtc_inited = 1;
 }
 
 //******************************************************************************
 void rtc_free(void)
 {
-    if (RTC_IsActive()) {
-        // Clear and disable RTC
-        MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_CLEAR;
-        RTC_Stop();
+    if (rtc_inited) {
+        rtc_inited = 0;
+        if (lp_ticker_inited) {
+            RTC_DisableINT(MXC_F_RTC_FLAGS_OVERFLOW);
+        } else {
+            MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_CLEAR;
+            RTC_Stop();
+        }
     }
 }
 
 //******************************************************************************
 int rtc_isenabled(void)
 {
-    return RTC_IsActive();
-}
-
-//******************************************************************************
-time_t rtc_read(void)
-{
-    uint32_t ovf_cnt_1, ovf_cnt_2, timer_cnt;
-    uint32_t ovf1, ovf2;
-
-    // Make sure RTC is setup before trying to read
-    if (!rtc_inited) {
-        rtc_init();
-    }
-
-    // Ensure coherency between overflow_cnt and timer
-    do {
-        ovf_cnt_1 = overflow_cnt;
-        ovf1 = RTC_GetFlags() & MXC_F_RTC_FLAGS_OVERFLOW;
-        timer_cnt = RTC_GetCount();
-        ovf2 = RTC_GetFlags() & MXC_F_RTC_FLAGS_OVERFLOW;
-        ovf_cnt_2 = overflow_cnt;
-    } while ((ovf_cnt_1 != ovf_cnt_2) || (ovf1 != ovf2));
-
-    // Account for an unserviced interrupt
-    if (ovf1) {
-        ovf_cnt_1++;
-    }
-
-    return (timer_cnt >> SHIFT_AMT) + (ovf_cnt_1 << (32 - SHIFT_AMT));
-}
-
-//******************************************************************************
-static uint64_t rtc_read64(void)
-{
-    uint32_t ovf_cnt_1, ovf_cnt_2, timer_cnt;
-    uint32_t ovf1, ovf2;
-    uint64_t current_us;
-
-    // Make sure RTC is setup before trying to read
-    if (!rtc_inited) {
-        rtc_init();
-    }
-
-    // Ensure coherency between overflow_cnt and timer
-    do {
-        ovf_cnt_1 = overflow_cnt;
-        ovf1 = RTC_GetFlags() & MXC_F_RTC_FLAGS_OVERFLOW;
-        timer_cnt = RTC_GetCount();
-        ovf2 = RTC_GetFlags() & MXC_F_RTC_FLAGS_OVERFLOW;
-        ovf_cnt_2 = overflow_cnt;
-    } while ((ovf_cnt_1 != ovf_cnt_2) || (ovf1 != ovf2));
-
-    // Account for an unserviced interrupt
-    if (ovf1) {
-        ovf_cnt_1++;
-    }
-
-    current_us = (((uint64_t)timer_cnt * 1000000) >> SHIFT_AMT) + (((uint64_t)ovf_cnt_1 * 1000000) << (32 - SHIFT_AMT));
-
-    return current_us;
+    return rtc_inited;
 }
 
 //******************************************************************************
 void rtc_write(time_t t)
 {
-    // Make sure RTC is setup before accessing
     if (!rtc_inited) {
         rtc_init();
     }
 
-    RTC_Stop();
-    RTC_SetCount(t << SHIFT_AMT);
-    overflow_cnt = t >> (32 - SHIFT_AMT);
-    RTC_Start();
-}
-
-//******************************************************************************
-void lp_ticker_set_interrupt(timestamp_t timestamp)
-{
-    uint32_t comp_value;
-    uint64_t curr_ts64;
-    uint64_t ts64;
-
-    // Note: interrupts are disabled before this function is called.
-
-    // Disable the alarm while it is prepared
-    RTC_DisableINT(MXC_F_RTC_INTEN_COMP0);
-
-    curr_ts64 = rtc_read64();
-    ts64 = (uint64_t)timestamp | (curr_ts64 & 0xFFFFFFFF00000000ULL);
-
-    // If this event is older than a recent window, it must be in the future
-    if ((ts64 < (curr_ts64 - WINDOW)) && ((curr_ts64 - WINDOW) < curr_ts64)) {
-        ts64 += 0x100000000ULL;
-    }
-
-    uint32_t timer = RTC_GetCount();
-    if (ts64 <= curr_ts64) {
-        // This event has already occurred. Set the alarm to expire immediately.
-        comp_value = timer + 1;
-    } else {
-        comp_value = (ts64 << SHIFT_AMT) / 1000000;
-    }
-
-    // Ensure that the compare value is far enough in the future to guarantee the interrupt occurs.
-    if ((comp_value < (timer + 2)) && (comp_value > (timer - 10))) {
-        comp_value = timer + 2;
-    }
-
-    MXC_RTCTMR->comp[0] = comp_value;
-    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
-    RTC_EnableINT(MXC_F_RTC_INTEN_COMP0);
-
-    // Enable wakeup from RTC
-    LP_ConfigRTCWakeUp(1, 0, 0, 1);
+    MXC_RTCTMR->comp[1] = t - (MXC_RTCTMR->timer >> LOG2(LP_TIMER_RATE_HZ));
 
     // Wait for pending transactions
     while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
+//******************************************************************************
+time_t rtc_read(void)
+{
+    if (!rtc_inited) {
+        rtc_init();
+    }
+
+    return (MXC_RTCTMR->timer >> LOG2(LP_TIMER_RATE_HZ)) + MXC_RTCTMR->comp[1];
+}
+
+//******************************************************************************
+void lp_ticker_init(void)
+{
+    if (lp_ticker_inited) {
+        return;
+    }
+
+    NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
+    NVIC_EnableIRQ(RTC0_IRQn);
+    init_rtc();
+    lp_ticker_inited = 1;
+}
+
+//******************************************************************************
+uint32_t lp_ticker_read(void)
+{
+    return MXC_RTCTMR->timer;
+}
+
+//******************************************************************************
+void lp_ticker_set_interrupt(timestamp_t timestamp)
+{
+    MXC_RTCTMR->comp[0] = timestamp;
+    MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
+    MXC_RTCTMR->inten |= MXC_F_RTC_INTEN_COMP0;
+
+    // Enable wakeup from RTC compare 0
+    LP_ConfigRTCWakeUp(1, 0, 0, rtc_inited);
+
+    // Wait for pending transactions
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
+}
+
+//******************************************************************************
+void lp_ticker_disable_interrupt(void)
+{
+    RTC_DisableINT(MXC_F_RTC_INTEN_COMP0);
+}
+
+//******************************************************************************
+void lp_ticker_clear_interrupt(void)
+{
+    RTC_ClearFlags(MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS);
+}
+
+//******************************************************************************
 void lp_ticker_fire_interrupt(void)
 {
     NVIC_SetPendingIRQ(RTC0_IRQn);
 }
 
 //******************************************************************************
-inline void lp_ticker_disable_interrupt(void)
+const ticker_info_t *lp_ticker_get_info(void)
 {
-    RTC_DisableINT(MXC_F_RTC_INTEN_COMP0);
-}
+    static const ticker_info_t info = {
+        LP_TIMER_RATE_HZ,
+        LP_TIMER_WIDTH
+    };
 
-//******************************************************************************
-inline void lp_ticker_clear_interrupt(void)
-{
-    RTC_ClearFlags(MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS);
-}
-
-//******************************************************************************
-inline uint32_t lp_ticker_read(void)
-{
-    return rtc_read64();
+    return &info;
 }
