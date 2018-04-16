@@ -17,6 +17,7 @@
 #include "mbed_printf_implementation.h"
 
 #include <stdbool.h>
+#include <limits.h>
 
 /***************************/
 /* MBED                    */
@@ -126,9 +127,9 @@ typedef enum {
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
-static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, void* value);
+static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, const void* value);
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character);
-static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string);
+static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string);
 
 /**
  * @brief      Print signed integer.
@@ -140,8 +141,9 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value)
 {
-    /* only continue if buffer can fit at least 1 characters */
-    if ((size_t)(*result + 1) <= length)
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
+    if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         MBED_UNSIGNED_STORAGE new_value = 0;
 
@@ -183,8 +185,9 @@ static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value)
 {
-    /* only continue if buffer can fit at least 1 characters */
-    if ((size_t)(*result + 1) <= length)
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
+    if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* treat 0 as a corner case */
         if (value == 0)
@@ -218,7 +221,7 @@ static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, 
             }
 
             /* write scratch pad to buffer or output */
-            for ( ; ((size_t)*result < length) && (index > 0); index--)
+            for ( ; (*result <= INT_MAX- 1) && ((size_t)*result < length) && (index > 0); index--)
             {
                 if (buffer)
                 {
@@ -247,8 +250,9 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
 {
     bool print_leading_zero = false;
 
-    /* only continue each loop if buffer can fit at least 2 characters */
-    for (int index = 7; (((size_t)(*result + 2) <= length)) && (index >= 0); index--)
+    /* only continue each loop if buffer can fit at least 2 characters
+       and if 'result' doesn't overflow */
+    for (int index = 7; (*result >= 0) && (*result <= INT_MAX - 2) && ((size_t)*result + 2 <= length) && (index >= 0); index--)
     {
         /* get most significant byte */
         uint8_t output = value >> (8 * index);
@@ -290,10 +294,12 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
  * @param      result  The current output location.
  * @param[in]  value   The pointer to be printed.
  */
-static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, void* value)
+static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, const void* value)
 {
-    /* only continue if buffer can fit '0x' and twice the size of a void* */
-    if ((*result + 2 + 2 * sizeof(void*)) <= length)
+    /* only continue if buffer can fit '0x' and twice the size of a void*
+       and if 'result' doesn't overflow */
+    size_t needed = 2 + 2 * sizeof(void*);
+    if ((*result >= 0) && ((size_t)*result <= INT_MAX - needed) && ((size_t)*result + needed <= length))
     {
         /* write leading 0x */
         if (buffer)
@@ -325,8 +331,9 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
  */
 static void mbed_minimal_formatted_string_double(char* buffer, size_t length, int* result, double value)
 {
-    /* only continue if buffer can fit at least 1 characters */
-    if ((size_t)(*result + 1) <= length)
+    /* only continue if buffer can fit at least 1 character and if
+       'result' doesn't overflow */
+    if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* get integer part */
         MBED_SIGNED_STORAGE integer = value;
@@ -384,8 +391,9 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
  */
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character)
 {
-    /* only continue if the buffer can fit 1 character */
-    if ((size_t)(*result + 1) <= length)
+    /* only continue if the buffer can fit 1 character and if
+       'result' doesn't overflow */
+    if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* write character */
         if (buffer)
@@ -422,10 +430,11 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
  * @param      result  The current output location.
  * @param[in]  value   The string to be printed.
  */
-static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string)
+static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, const char* string)
 {
-    /* only continue if the buffer can fit at least 1 character */
-    if ((size_t)(*result + 1) <= length)
+    /* only continue if the buffer can fit at least 1 character and if
+       'result' doesn't overflow */
+    if ((*result >= 0) && (*result <= INT_MAX - 1) && ((size_t)*result + 1 <= length))
     {
         /* count characters in string */
         size_t remaining = length - *result;
@@ -440,6 +449,11 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
         /* copy string to buffer */
         if (buffer)
         {
+            /* ensure that the value of "result" doesn't overflow */
+            if (string_length + *result > INT_MAX)
+            {
+                string_length = (size_t)INT_MAX - *result;
+            }
             for (size_t index = 0; index < string_length; index++)
             {
                 buffer[*result + index] = string[index];
@@ -476,277 +490,277 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
 
     int result = 0;
 
-    /* if writing to buffer, reserve space for NULL termination */
-    if (buffer)
+    /* ensure that function wasn't called with an empty buffer, or with or with
+       a buffer size that is larger than the maximum 'int' value, or with
+       a NULL format specifier */
+    if (format && length > 0 && length <= INT_MAX)
     {
-        length--;
-    }
-
-    /* parse string */
-    for (size_t index = 0; format[index] != '\0'; index++)
-    {
-        /* format specifier begin */
-        if (format[index] == '%')
+        /* parse string */
+        for (size_t index = 0; format[index] != '\0'; index++)
         {
-            size_t next_index = index + 1;
-
-            /* while there is room in buffer and format string is not empty */
-            while ((next_index < length) && (format[next_index] != '\0') &&
-                    /* skip all flags and precision modifiers */
-                    (((format[next_index] >= '0') && (format[next_index] <= '9')) ||
-                     (format[next_index] == '-') ||
-                     (format[next_index] == '+') ||
-                     (format[next_index] == '#') ||
-                     (format[next_index] == '.')))
+            /* format specifier begin */
+            if (format[index] == '%')
             {
-                /* skip to next character */
-                next_index++;
-            }
+                size_t next_index = index + 1;
 
-            /* look for length modifier, default to NONE */
-            length_t length_modifier = LENGTH_NONE;
-
-            /* look for two character length modifier */
-            if (format[next_index + 1] != '\0')
-            {
-                if ((format[next_index] == 'h') && (format[next_index + 1] == 'h'))
+                /* while format string is not empty */
+                while ((format[next_index] != '\0') &&
+                        /* skip all flags and precision modifiers */
+                        (((format[next_index] >= '0') && (format[next_index] <= '9')) ||
+                         (format[next_index] == '-') ||
+                         (format[next_index] == '+') ||
+                         (format[next_index] == '#') ||
+                         (format[next_index] == '.')))
                 {
-                    length_modifier = LENGTH_HH;
-                }
-                else if ((format[next_index] == 'l') && (format[next_index + 1] == 'l'))
-                {
-                    length_modifier = LENGTH_LL;
-                }
-
-                /* increment next_index if length modifier was found */
-                if (length_modifier != LENGTH_NONE)
-                {
-                    next_index += 2;
-                }
-            }
-
-            /* look for one character length modifier if two character search failed */
-            if ((length_modifier == LENGTH_NONE) && (format[next_index] != '\0'))
-            {
-                if (format[next_index] == 'h')
-                {
-                    length_modifier = LENGTH_H;
-                }
-                else if (format[next_index] == 'l')
-                {
-                    length_modifier = LENGTH_L;
-                }
-                else if (format[next_index] == 'j')
-                {
-                    length_modifier = LENGTH_J;
-                }
-                else if (format[next_index] == 'z')
-                {
-                    length_modifier = LENGTH_Z;
-                }
-                else if (format[next_index] == 't')
-                {
-                    length_modifier = LENGTH_T;
-                }
-                else if (format[next_index] == 'L')
-                {
-                    length_modifier = LENGTH_CAPITAL_L;
-                }
-
-                /* increment next_index if length modifier was found */
-                if (length_modifier != LENGTH_NONE)
-                {
+                    /* skip to next character */
                     next_index++;
                 }
-            }
 
-            /* read out character - this is a supported format character, '\0', or a not suported character */
-            char next = format[next_index];
+                /* look for length modifier, default to NONE */
+                length_t length_modifier = LENGTH_NONE;
 
-            /* signed integer */
-            if ((next == 'd') || (next == 'i'))
-            {
-                MBED_SIGNED_STORAGE value = 0;
-
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
-                /* if 64 bit is enabled and the integer types are larger than the native type */
-                if (((length_modifier == LENGTH_LL)   && (sizeof(long long int) > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
-                    ((length_modifier == LENGTH_L)    && (sizeof(long int)      > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
-                    ((length_modifier == LENGTH_NONE) && (sizeof(int)           > sizeof(MBED_SIGNED_NATIVE_TYPE))))
+                /* look for two character length modifier */
+                if (format[next_index + 1] != '\0')
                 {
-                    /* use 64 bit storage type for readout */
-                    value = va_arg(arguments, MBED_SIGNED_STORAGE);
+                    if ((format[next_index] == 'h') && (format[next_index + 1] == 'h'))
+                    {
+                        length_modifier = LENGTH_HH;
+                    }
+                    else if ((format[next_index] == 'l') && (format[next_index + 1] == 'l'))
+                    {
+                        length_modifier = LENGTH_LL;
+                    }
+
+                    /* increment next_index if length modifier was found */
+                    if (length_modifier != LENGTH_NONE)
+                    {
+                        next_index += 2;
+                    }
+                }
+
+                /* look for one character length modifier if two character search failed */
+                if ((length_modifier == LENGTH_NONE) && (format[next_index] != '\0'))
+                {
+                    if (format[next_index] == 'h')
+                    {
+                        length_modifier = LENGTH_H;
+                    }
+                    else if (format[next_index] == 'l')
+                    {
+                        length_modifier = LENGTH_L;
+                    }
+                    else if (format[next_index] == 'j')
+                    {
+                        length_modifier = LENGTH_J;
+                    }
+                    else if (format[next_index] == 'z')
+                    {
+                        length_modifier = LENGTH_Z;
+                    }
+                    else if (format[next_index] == 't')
+                    {
+                        length_modifier = LENGTH_T;
+                    }
+                    else if (format[next_index] == 'L')
+                    {
+                        length_modifier = LENGTH_CAPITAL_L;
+                    }
+
+                    /* increment next_index if length modifier was found */
+                    if (length_modifier != LENGTH_NONE)
+                    {
+                        next_index++;
+                    }
+                }
+
+                /* read out character - this is a supported format character, '\0', or a not suported character */
+                char next = format[next_index];
+
+                /* signed integer */
+                if ((next == 'd') || (next == 'i'))
+                {
+                    MBED_SIGNED_STORAGE value = 0;
+
+    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+                    /* if 64 bit is enabled and the integer types are larger than the native type */
+                    if (((length_modifier == LENGTH_LL)   && (sizeof(long long int) > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
+                        ((length_modifier == LENGTH_L)    && (sizeof(long int)      > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
+                        ((length_modifier == LENGTH_NONE) && (sizeof(int)           > sizeof(MBED_SIGNED_NATIVE_TYPE))))
+                    {
+                        /* use 64 bit storage type for readout */
+                        value = va_arg(arguments, MBED_SIGNED_STORAGE);
+                    }
+                    else
+    #endif
+                    {
+                        /* use native storage type (which can be 32 or 64 bit) */
+                        value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
+                    }
+
+                    /* constrict value based on lenght modifier */
+                    switch (length_modifier)
+                    {
+                        case LENGTH_NONE:
+                            value = (int) value;
+                            break;
+                        case LENGTH_HH:
+                            value = (signed char) value;
+                            break;
+                        case LENGTH_H:
+                            value = (short int) value;
+                            break;
+                        case LENGTH_L:
+                            value = (long int) value;
+                            break;
+                        case LENGTH_LL:
+                            value = (long long int) value;
+                            break;
+                        case LENGTH_J:
+                            value = (intmax_t) value;
+                            break;
+                        case LENGTH_T:
+                            value = (ptrdiff_t) value;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    index = next_index;
+
+                    mbed_minimal_formatted_string_signed(buffer, length, &result, value);
+                }
+                /* unsigned integer */
+                else if ((next == 'u') || (next == 'x') || (next == 'X'))
+                {
+                    MBED_UNSIGNED_STORAGE value = 0;
+
+    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+                    /* if 64 bit is enabled and the integer types are larger than the native type */
+                    if (((length_modifier == LENGTH_LL)   && (sizeof(unsigned long long int) > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
+                        ((length_modifier == LENGTH_L)    && (sizeof(unsigned long int)      > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
+                        ((length_modifier == LENGTH_NONE) && (sizeof(unsigned int)           > sizeof(MBED_UNSIGNED_NATIVE_TYPE))))
+                    {
+                        /* use 64 bit storage type for readout */
+                        value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
+                    }
+                    else
+    #endif
+                    {
+                        /* use native storage type (which can be 32 or 64 bit) */
+                        value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
+                    }
+
+                    /* constrict value based on lenght modifier */
+                    switch (length_modifier)
+                    {
+                        case LENGTH_NONE:
+                            value = (unsigned int) value;
+                            break;
+                        case LENGTH_HH:
+                            value = (unsigned char) value;
+                            break;
+                        case LENGTH_H:
+                            value = (unsigned short int) value;
+                            break;
+                        case LENGTH_L:
+                            value = (unsigned long int) value;
+                            break;
+                        case LENGTH_LL:
+                            value = (unsigned long long int) value;
+                            break;
+                        case LENGTH_J:
+                            value = (uintmax_t) value;
+                            break;
+                        case LENGTH_Z:
+                            value = (size_t) value;
+                            break;
+                        case LENGTH_T:
+                            value = (ptrdiff_t) value;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    index = next_index;
+
+                    /* write unsigned or hexadecimal */
+                    if (next == 'u')
+                    {
+                        mbed_minimal_formatted_string_unsigned(buffer, length, &result, value);
+                    }
+                    else
+                    {
+                        mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value);
+                    }
+                }
+    #if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+                /* treat all floating points the same */
+                else if ((next == 'f') || (next == 'F') || (next == 'g') || (next == 'G'))
+                {
+                    double value = va_arg(arguments, double);
+                    index = next_index;
+
+                    mbed_minimal_formatted_string_double(buffer, length, &result, value);
+                }
+    #endif
+                /* character */
+                else if (next == 'c')
+                {
+                    char value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
+                    index = next_index;
+
+                    mbed_minimal_formatted_string_character(buffer, length, &result, value);
+                }
+                /* string */
+                else if (next == 's')
+                {
+                    char* value = va_arg(arguments, char*);
+                    index = next_index;
+
+                    mbed_minimal_formatted_string_string(buffer, length, &result, value);
+                }
+                /* pointer */
+                else if (next == 'p')
+                {
+                    void* value = va_arg(arguments, void*);
+                    index = next_index;
+
+                    mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value);
                 }
                 else
-#endif
                 {
-                    /* use native storage type (which can be 32 or 64 bit) */
-                    value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
+                    /* write all characters between format beginning and unrecognied modifier */
+                    while (index < next_index)
+                    {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
+                        index++;
+                    }
+
+                    /* if this is not the end of the string, write unrecognized modifier */
+                    if (next != '\0')
+                    {
+                        mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
+                    }
+                    else
+                    {
+                        /* break out of for loop */
+                        break;
+                    }
                 }
-
-                /* constrict value based on lenght modifier */
-                switch (length_modifier)
-                {
-                    case LENGTH_NONE:
-                        value = (int) value;
-                        break;
-                    case LENGTH_HH:
-                        value = (signed char) value;
-                        break;
-                    case LENGTH_H:
-                        value = (short int) value;
-                        break;
-                    case LENGTH_L:
-                        value = (long int) value;
-                        break;
-                    case LENGTH_LL:
-                        value = (long long int) value;
-                        break;
-                    case LENGTH_J:
-                        value = (intmax_t) value;
-                        break;
-                    case LENGTH_T:
-                        value = (ptrdiff_t) value;
-                        break;
-                    default:
-                        break;
-                }
-
-                index = next_index;
-
-                mbed_minimal_formatted_string_signed(buffer, length, &result, value);
-            }
-            /* unsigned integer */
-            else if ((next == 'u') || (next == 'x') || (next == 'X'))
-            {
-                MBED_UNSIGNED_STORAGE value = 0;
-
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
-                /* if 64 bit is enabled and the integer types are larger than the native type */
-                if (((length_modifier == LENGTH_LL)   && (sizeof(unsigned long long int) > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
-                    ((length_modifier == LENGTH_L)    && (sizeof(unsigned long int)      > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
-                    ((length_modifier == LENGTH_NONE) && (sizeof(unsigned int)           > sizeof(MBED_UNSIGNED_NATIVE_TYPE))))
-                {
-                    /* use 64 bit storage type for readout */
-                    value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
-                }
-                else
-#endif
-                {
-                    /* use native storage type (which can be 32 or 64 bit) */
-                    value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
-                }
-
-                /* constrict value based on lenght modifier */
-                switch (length_modifier)
-                {
-                    case LENGTH_NONE:
-                        value = (unsigned int) value;
-                        break;
-                    case LENGTH_HH:
-                        value = (unsigned char) value;
-                        break;
-                    case LENGTH_H:
-                        value = (unsigned short int) value;
-                        break;
-                    case LENGTH_L:
-                        value = (unsigned long int) value;
-                        break;
-                    case LENGTH_LL:
-                        value = (unsigned long long int) value;
-                        break;
-                    case LENGTH_J:
-                        value = (uintmax_t) value;
-                        break;
-                    case LENGTH_Z:
-                        value = (size_t) value;
-                        break;
-                    case LENGTH_T:
-                        value = (ptrdiff_t) value;
-                        break;
-                    default:
-                        break;
-                }
-
-                index = next_index;
-
-                /* write unsigned or hexadecimal */
-                if (next == 'u')
-                {
-                    mbed_minimal_formatted_string_unsigned(buffer, length, &result, value);
-                }
-                else
-                {
-                    mbed_minimal_formatted_string_hexadecimal(buffer, length, &result, value);
-                }
-            }
-#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
-            /* treat all floating points the same */
-            else if ((next == 'f') || (next == 'F') || (next == 'g') || (next == 'G'))
-            {
-                double value = va_arg(arguments, double);
-                index = next_index;
-
-                mbed_minimal_formatted_string_double(buffer, length, &result, value);
-            }
-#endif
-            /* character */
-            else if (next == 'c')
-            {
-                char value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
-                index = next_index;
-
-                mbed_minimal_formatted_string_character(buffer, length, &result, value);
-            }
-            /* string */
-            else if (next == 's')
-            {
-                char* value = va_arg(arguments, char*);
-                index = next_index;
-
-                mbed_minimal_formatted_string_string(buffer, length, &result, value);
-            }
-            /* pointer */
-            else if (next == 'p')
-            {
-                void* value = va_arg(arguments, void*);
-                index = next_index;
-
-                mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value);
             }
             else
+            /* not a format specifier */
             {
-                /* write all characters between format beginning and unrecognied modifier */
-                while (index < next_index)
-                {
-                    mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
-                    index++;
-                }
-
-                /* if this is not the end of the string, write unrecognized modifier */
-                if (next != '\0')
-                {
-                    mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
-                }
-                else
-                {
-                    /* break out of for loop */
-                    break;
-                }
+                /* write normal character */
+                mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
             }
         }
-        else
-        /* not a format specifier */
-        {
-            /* write normal character */
-            mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
-        }
-    }
 
-    /* if writing to buffer, NULL terminate string in reserved space*/
-    if (buffer)
-    {
-        buffer[result] = '\0';
+        /* if writing to buffer, NULL terminate string in reserved space*/
+        if (buffer && ((size_t)result < length))
+        {
+            buffer[result] = '\0';
+        }
     }
 
     return result;
