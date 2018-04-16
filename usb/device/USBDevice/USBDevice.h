@@ -264,9 +264,10 @@ public:
     /*
     * Get configuration descriptor
     *
+    * @param index descriptor index
     * @returns pointer to the configuration descriptor
     */
-    virtual const uint8_t *configuration_desc()
+    virtual const uint8_t *configuration_desc(uint8_t index)
     {
         return NULL;
     };
@@ -465,9 +466,10 @@ protected:
      * Find a descriptor type inside the configuration descriptor
      *
      * @param descriptor_type Type of descriptor to find
+     * @param index Configuration descriptor index ( 0 if only one configuration present )
      * @return A descriptor of the given type or NULL if none were found
      */
-    uint8_t *find_descriptor(uint8_t descriptor_type);
+    uint8_t *find_descriptor(uint8_t descriptor_type, uint8_t index = 0);
 
     /**
      * Get the endpoint table of this device

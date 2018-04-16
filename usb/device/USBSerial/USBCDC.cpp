@@ -535,7 +535,7 @@ const uint8_t *USBCDC::string_iproduct_desc()
 
 #define CONFIG1_DESC_SIZE (9+8+9+5+5+4+5+7+9+7+7)
 
-const uint8_t *USBCDC::configuration_desc()
+const uint8_t *USBCDC::configuration_desc(uint8_t index)
 {
     uint8_t config_descriptor_temp[] = {
         // configuration descriptor
@@ -635,7 +635,11 @@ const uint8_t *USBCDC::configuration_desc()
         0                           // bInterval
     };
 
-    MBED_ASSERT(sizeof(config_descriptor_temp) == sizeof(_config_descriptor));
-    memcpy(_config_descriptor, config_descriptor_temp, sizeof(_config_descriptor));
-    return _config_descriptor;
+    if (index == 0) {
+        MBED_ASSERT(sizeof(config_descriptor_temp) == sizeof(_config_descriptor));
+        memcpy(_config_descriptor, config_descriptor_temp, sizeof(_config_descriptor));
+        return _config_descriptor;
+    } else {
+        return NULL;
+    }
 }

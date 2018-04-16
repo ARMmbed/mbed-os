@@ -91,9 +91,10 @@ protected:
     /*
     * Get configuration descriptor
     *
+    * @param index descriptor index
     * @returns pointer to the configuration descriptor
     */
-    virtual const uint8_t *configuration_desc();
+    virtual const uint8_t *configuration_desc(uint8_t index);
 
 protected:
     uint8_t bulk_in;
