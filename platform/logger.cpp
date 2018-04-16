@@ -32,6 +32,7 @@ static uint32_t log_count_ = 0;
 
 // Globals related to ISR logging
 static LOG_DATA_TYPE_ log_isr_str_[LOG_SINGLE_STR_SIZE_];
+static bool log_isr_buf_busy = false;
 static EventQueue *log_isr_equeue_;
 
 // Globals related to time printing
@@ -61,10 +62,12 @@ static void log_update_buf(const char *data, int32_t size)
 static void log_isr_id_data()
 {
     mbed_log_lock();
+    log_isr_buf_busy = true;
     uint32_t count = 0;
     while(log_count_--) {
         fprintf(stderr, "0x%x ", log_isr_str_[count++]);
     }
+    log_isr_buf_busy = false;
     mbed_log_unlock();
 }
 #else
@@ -73,12 +76,17 @@ static void log_isr_id_data()
 static void log_isr_queue()
 {
     mbed_log_lock();
+    log_isr_buf_busy = true;
     fputs(log_isr_str_, stderr);
+    log_isr_buf_busy = false;
     mbed_log_unlock();
 }
 
 static void log_str_isr_data(const char *format, va_list args)
 {
+    if (true == log_isr_buf_busy) {
+        return;
+    }
     core_util_critical_section_enter();
     volatile uint64_t time = ticker_read_us(log_ticker_);
     int32_t count = 0;
@@ -171,6 +179,9 @@ extern "C" void log_id_data(uint32_t argCount, ...)
     bool in_isr = false;
     LOG_DATA_TYPE_ *buf;
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        if (true == log_isr_buf_busy) {
+            return;
+        }
         core_util_critical_section_enter();
         in_isr = true;
         buf = log_isr_str_;
