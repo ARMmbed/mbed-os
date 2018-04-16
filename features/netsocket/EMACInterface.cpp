@@ -20,6 +20,7 @@
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _emac(emac),
     _stack(stack),
+    _interface(NULL),
     _dhcp(true), 
     _ip_address(), 
     _netmask(), 
