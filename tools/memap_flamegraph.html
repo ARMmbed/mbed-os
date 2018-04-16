@@ -50,13 +50,10 @@
       <div class="header clearfix">
         <h3 class="text-muted">{{name}} Memory Details</h3>
       </div>
-      <div id="chart-text">
+      <div id="chart-rom">
       </div>
       <hr/>
-      <div id="chart-data">
-      </div>
-      <hr/>
-      <div id="chart-bss">
+      <div id="chart-ram">
       </div>
       <hr/>
       <div id="details"></div>
@@ -83,34 +80,23 @@
       .direction("s")
       .offset([8, 0])
       .attr('class', 'd3-flame-graph-tip')
-      .html(function(d) { return "module: " + d.data.name + ", size in bytes: " + d.data.value; });
-    var flameGraph_text = d3.flameGraph()
+      .html(function(d) { return "module: " + d.data.name + ", bytes: " + d.data.value; });
+    var flameGraph_rom = d3.flameGraph()
       .transitionDuration(250)
       .transitionEase(d3.easeCubic)
       .sort(true)
-      .title("Code (ROM)")
       .tooltip(tip);
-    var flameGraph_data = d3.flameGraph()
+    var flameGraph_ram = d3.flameGraph()
       .transitionDuration(250)
       .transitionEase(d3.easeCubic)
       .sort(true)
-      .title("Non-zero initialized data (ROM + RAM)")
       .tooltip(tip);
-    var flameGraph_bss = d3.flameGraph()
-      .transitionDuration(250)
-      .transitionEase(d3.easeCubic)
-      .sort(true)
-      .title("Zero initialized data (RAM)")
-      .tooltip(tip);
-    var text_elem = d3.select("#chart-text");
-    flameGraph_text.width(text_elem.node().getBoundingClientRect().width);
-    text_elem.datum({{text}}).call(flameGraph_text);
-    var data_elem = d3.select("#chart-data");
-    flameGraph_data.width(data_elem.node().getBoundingClientRect().width);
-    data_elem.datum({{data}}).call(flameGraph_data);
-    var bss_elem = d3.select("#chart-bss");
-    flameGraph_bss.width(bss_elem.node().getBoundingClientRect().width);
-    bss_elem.datum({{bss}}).call(flameGraph_bss);
+    var rom_elem = d3.select("#chart-rom");
+    flameGraph_rom.width(rom_elem.node().getBoundingClientRect().width);
+    rom_elem.datum({{rom}}).call(flameGraph_rom);
+    var ram_elem = d3.select("#chart-ram");
+    flameGraph_ram.width(ram_elem.node().getBoundingClientRect().width);
+    ram_elem.datum({{ram}}).call(flameGraph_ram);
     </script>
   </body>
 </html>

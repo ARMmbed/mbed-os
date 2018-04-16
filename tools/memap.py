@@ -595,6 +595,17 @@ class MemapParser(object):
                 cur_data = self._move_up_tree(cur_data, next_module)
                 cur_bss = self._move_up_tree(cur_bss, next_module)
 
+        tree_rom = {
+            "name": "ROM",
+            "value": tree_text["value"] + tree_data["value"],
+            "children": [tree_text, tree_data]
+        }
+        tree_ram = {
+            "name": "RAM",
+            "value": tree_bss["value"] + tree_data["value"],
+            "children": [tree_bss, tree_data]
+        }
+
         jinja_loader = FileSystemLoader(dirname(abspath(__file__)))
         jinja_environment = Environment(loader=jinja_loader,
                                         undefined=StrictUndefined)
@@ -607,9 +618,8 @@ class MemapParser(object):
             name = "%s %s" % (name, self.tc_name)
         data = {
             "name": name,
-            "text": json.dumps(tree_text),
-            "data": json.dumps(tree_data),
-            "bss": json.dumps(tree_bss),
+            "rom": json.dumps(tree_rom),
+            "ram": json.dumps(tree_ram),
         }
         file_desc.write(template.render(data))
         return None
