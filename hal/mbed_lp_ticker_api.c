@@ -26,7 +26,11 @@ static const ticker_interface_t lp_interface = {
     .read = lp_ticker_read,
     .disable_interrupt = lp_ticker_disable_interrupt,
     .clear_interrupt = lp_ticker_clear_interrupt,
+#if defined(LOWPOWERTIMER_DELAY_TICKS) && (LOWPOWERTIMER_DELAY_TICKS > 0)
+    .set_interrupt = lp_ticker_set_interrupt_wrapper,
+#else
     .set_interrupt = lp_ticker_set_interrupt,
+#endif
     .fire_interrupt = lp_ticker_fire_interrupt,
     .get_info = lp_ticker_get_info,
 };
