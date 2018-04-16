@@ -111,9 +111,9 @@ typedef struct sai_format_s {
 
 /** Defines input mclk source */
 typedef enum sai_clock_source_e {
-  SAI_CLOCK_SOURCE_Internal,
-  SAI_CLOCK_SOURCE_External,
-  SAI_CLOCK_SOURCE_Sibling
+  SAI_CLOCK_SOURCE_INTERNAL,
+  SAI_CLOCK_SOURCE_EXTERNAL,
+  SAI_CLOCK_SOURCE_SIBLING
 } sai_clock_source_t;
 
 /** Init structure */
