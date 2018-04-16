@@ -554,7 +554,7 @@ class MemapParser(object):
             if child["name"] == next_module:
                 return child
         else:
-            new_module = {"name": next_module}
+            new_module = {"name": next_module, "value": 0}
             tree["children"].append(new_module)
             return new_module
 
@@ -564,18 +564,15 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        tree_text = {"name": ".text"}
-        tree_bss = {"name": ".bss"}
-        tree_data = {"name": ".data"}
+        tree_text = {"name": ".text", "value": 0}
+        tree_bss = {"name": ".bss", "value": 0}
+        tree_data = {"name": ".data", "value": 0}
         for name, dct in self.modules.items():
             cur_text = tree_text
             cur_bss = tree_bss
             cur_data = tree_data
             modules = name.split(sep)
             while True:
-                cur_text.setdefault("value", 0)
-                cur_data.setdefault("value", 0)
-                cur_bss.setdefault("value", 0)
                 try:
                     cur_text["value"] += dct['.text']
                 except KeyError:
