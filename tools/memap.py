@@ -568,8 +568,6 @@ class MemapParser(object):
         tree_bss = {"name": ".bss"}
         tree_data = {"name": ".data"}
         for name, dct in self.modules.items():
-            if ".text" not in dct:
-                continue
             cur_text = tree_text
             cur_bss = tree_bss
             cur_data = tree_data
