@@ -17,6 +17,7 @@
 #ifndef PAL_MEMORY_SECURITY_DB_H_
 #define PAL_MEMORY_SECURITY_DB_H_
 
+#include "ble/Gap.h"
 #include "SecurityDB.h"
 
 namespace ble {
@@ -173,6 +174,19 @@ public:
         }
         cb(entry_handle, key);
     }
+
+    virtual void get_entry_identity(
+        SecurityEntryIdentityDbCb_t cb,
+        entry_handle_t entry_handle
+    ) {
+        entry_t *entry = as_entry(entry_handle);
+        if (entry && entry->flags.irk_stored) {
+            cb(entry_handle, &entry->peer_identity);
+        } else {
+            cb(entry_handle, NULL);
+        }
+    }
+
 
     /* set */
 
