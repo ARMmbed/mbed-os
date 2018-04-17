@@ -25,27 +25,60 @@ void hal_sleep(void)
     SMC_SetPowerModeWait(SMC);
 }
 
+static void PreEnterStopModes(void)
+{
+    flash_prefetch_speculation_status_t speculationStatus =
+    {
+        kFLASH_prefetchSpeculationOptionDisable, /* Disable instruction speculation.*/
+        kFLASH_prefetchSpeculationOptionDisable, /* Disable data speculation.*/
+    };
+
+    __ISB();
+
+    /*
+     * Before enter stop modes, the flash cache prefetch should be disabled.
+     * Otherwise the prefetch might be interrupted by stop, then the data and
+     * and instruction from flash are wrong.
+     */
+    FLASH_PflashSetPrefetchSpeculation(&speculationStatus);
+}
+
+static void PostExitStopModes(void)
+{
+    flash_prefetch_speculation_status_t speculationStatus =
+    {
+        kFLASH_prefetchSpeculationOptionEnable, /* Enable instruction speculation.*/
+        kFLASH_prefetchSpeculationOptionEnable, /* Enable data speculation.*/
+    };
+
+    FLASH_PflashSetPrefetchSpeculation(&speculationStatus);
+
+    __ISB();
+}
+
 void hal_deepsleep(void)
 {
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
-#if defined(kMCG_ModePEE)
+#if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)
     mcg_mode_t mode = CLOCK_GetMode();
-#endif
-#endif
+#endif // FSL_FEATURE_MCG_HAS_PLL
+#endif // FSL_FEATURE_SOC_MCG_COUNT
 
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
+    PreEnterStopModes();
     SMC_SetPowerModeVlps(SMC);
+    PostExitStopModes();
 
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
+#if (defined(FSL_FEATURE_MCG_HAS_PLL) && FSL_FEATURE_MCG_HAS_PLL)
     /*
      * If enter stop modes when MCG in PEE mode, then after wakeup, the MCG is in PBE mode,
      * need to enter PEE mode manually.
      */
-#if defined(kMCG_ModePEE)
     if (mode == kMCG_ModePEE) {
         BOARD_BootClockRUN();
     }
-#endif
-#endif
+#endif // FSL_FEATURE_MCG_HAS_PLL
+#endif // FSL_FEATURE_SOC_MCG_COUNT
 }
