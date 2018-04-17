@@ -128,7 +128,7 @@ const ticker_data_t mock_ticker_data = {
 void mock_ticker_reset()
 {
     mock_ticker_timestamp = 0;
-    mock_ticker_event_queue = {0};
+    memset(&mock_ticker_event_queue, 0, sizeof mock_ticker_event_queue);
 }
 
 /** Test tick count is zero upon creation
