@@ -39,7 +39,8 @@ struct SecurityDistributionFlags_t {
         csrk_mitm_protected(false),
         ltk_stored(false),
         ltk_mitm_protected(false),
-        secure_connections_paired(false) {
+        secure_connections_paired(false),
+        irk_stored(false) {
     }
 
     /** peer address */
@@ -60,6 +61,8 @@ struct SecurityDistributionFlags_t {
     uint8_t ltk_mitm_protected:1;
     /** the current pairing was done using Secure Connections */
     uint8_t secure_connections_paired:1;
+    /** the security entry has been distributed and stored */
+    uint8_t irk_stored:1;
 };
 
 /** Long Term Key and data used to identify it */
