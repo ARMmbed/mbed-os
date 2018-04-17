@@ -25,7 +25,7 @@ typedef mbed::EasyCellularConnection OnboardCellularInterface;
 
 /** OnboardCellularInterface class
  *
- *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+ *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
  *
  *  This interface serves as the controller/driver for an
  *  onboard modem implementing onboard_modem_api.h.
@@ -40,13 +40,13 @@ class OnboardCellularInterface : public UARTCellularInterface {
 public:
 
     /** Constructor
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     OnboardCellularInterface(bool debug = false);
 
     /** Destructor
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual ~OnboardCellularInterface();
@@ -54,7 +54,7 @@ public:
 protected:
     /** Sets the modem up for powering on
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      *
      *  modem_init() is equivalent to plugging in the device, for example, attaching power and serial port.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
@@ -64,7 +64,7 @@ protected:
 
     /** Sets the modem in unplugged state
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      *
      *  modem_deinit() will be equivalent to pulling the plug off of the device, in other words, detaching power
      *  and serial port. This puts the modem in lowest power state.
@@ -75,7 +75,7 @@ protected:
 
     /** Powers up the modem
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      *
      *  modem_power_up() is equivalent to pressing the soft power button.
      *  The driver may repeat this if the modem is not responsive to AT commands.
@@ -86,7 +86,7 @@ protected:
 
     /** Powers down the modem
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularPower.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularPower.h instead.
      *
      *  modem_power_down() is equivalent to turning off the modem by button press.
      *  Uses onboard_modem_api.h where the target provides the implementation of onboard_modem_api.
