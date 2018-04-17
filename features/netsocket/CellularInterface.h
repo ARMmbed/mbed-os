@@ -21,7 +21,7 @@
 
 /** CellularInterface class
  *
- *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
+ *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
  *
  *  Common interface that is shared between ethernet hardware
  *  @addtogroup netsocket
@@ -36,7 +36,7 @@ public:
 
     /** Set the cellular network APN and credentials
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
      *
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for the APN
@@ -49,7 +49,7 @@ public:
 
     /** Start the interface
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
      *
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for your APN
@@ -62,7 +62,7 @@ public:
 
     /** Start the interface
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
      *
      *  Attempts to connect to a cellular network based on supplied credentials
      *
@@ -73,7 +73,7 @@ public:
 
     /** Stop the interface
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/framework/API/CellularNetwork.h instead.
      *
      *  @return         0 on success, negative error code on failure
      */
