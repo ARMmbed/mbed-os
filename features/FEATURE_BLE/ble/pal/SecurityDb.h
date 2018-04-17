@@ -81,6 +81,8 @@ struct SecurityEntryIdentity_t {
     address_t identity_address;
     /** Identity Resolving Key */
     irk_t irk;
+    /** true if peer identity address is public, false if it's static random */
+    uint8_t identity_address_is_public:1;
 };
 
 /**
