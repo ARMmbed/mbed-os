@@ -28,17 +28,15 @@
  *******************************************************************************
  */
 
+#if DEVICE_I2C
 
 #include "mbed_assert.h"
 #include "i2c_api.h"
-#include "platform/mbed_wait_api.h"
-
-#if DEVICE_I2C
-
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "i2c_device.h" // family specific defines
+#include "hal/us_ticker_api.h"
 
 #ifndef DEBUG_STDIO
 #   define DEBUG_STDIO 0
@@ -61,23 +59,39 @@
 #define I2C_NUM (5)
 static I2C_HandleTypeDef* i2c_handles[I2C_NUM];
 
-/* Timeout values are based on core clock and I2C clock.
-   The BYTE_TIMEOUT is computed as twice the number of cycles it would
+/* Timeout value based on Core and I2C clocks */
+#define BYTE_TIMEOUT (SystemCoreClock / obj_s->hz)
+
+/* The BYTE_TIMEOUT_20 is computed as twice the number of cycles it would
    take to send 10 bits over I2C. Most Flags should take less than that.
    This is for immediate FLAG or ACK check.
 */
-#define BYTE_TIMEOUT ((SystemCoreClock / obj_s->hz) * 2 * 10)
-/* Timeout values based on I2C clock.
-   The BYTE_TIMEOUT_US is computed as 3x the time in us it would
+#define BYTE_TIMEOUT_20 (BYTE_TIMEOUT * 2 * 10)
+
+/* The BYTE_TIMEOUT_30 is computed as 3x the time in us it would
    take to send 10 bits over I2C. Most Flags should take less than that.
    This is for complete transfers check.
 */
-#define BYTE_TIMEOUT_US   ((SystemCoreClock / obj_s->hz) * 3 * 10)
+#define BYTE_TIMEOUT_30 (BYTE_TIMEOUT * 3 * 10)
+
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
    not remain stuck if the I2C communication is corrupted. 
 */
 #define FLAG_TIMEOUT ((int)0x1000)
+
+/* This function assumes the tick is 1 us */
+static void wait_loop_us(uint32_t timeout)
+{
+    uint32_t t1, t2, elapsed = 0;
+    if (timeout > 0) {
+        t1 = us_ticker_read();
+        do {
+            t2 = us_ticker_read();
+            elapsed = t2 - t1;
+        } while (elapsed < timeout);
+    }
+}
 
 /* GENERIC INIT and HELPERS FUNCTIONS */
 
@@ -204,7 +218,7 @@ void i2c_hw_reset(i2c_t *obj) {
     handle->Instance = (I2C_TypeDef *)(obj_s->i2c);
 
     // wait before reset
-    timeout = BYTE_TIMEOUT;
+    timeout = BYTE_TIMEOUT_20;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 #if defined I2C1_BASE
     if (obj_s->i2c == I2C_1) {
@@ -352,7 +366,7 @@ void i2c_frequency(i2c_t *obj, int hz)
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     // wait before init
-    timeout = BYTE_TIMEOUT;
+    timeout = BYTE_TIMEOUT_20;
     while ((__HAL_I2C_GET_FLAG(handle, I2C_FLAG_BUSY)) && (--timeout != 0));
 
 #ifdef I2C_IP_VERSION_V1
@@ -751,10 +765,10 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     ret = HAL_I2C_Master_Sequential_Receive_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
+        timeout = BYTE_TIMEOUT_30 * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
+            wait_loop_us(1);
         }
 
         i2c_ev_err_disable(obj);
@@ -802,10 +816,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     ret = HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t *) data, length, obj_s->XferOperation); 
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
+        timeout = BYTE_TIMEOUT_30 * (length + 1);
         /*  transfer started : wait completion or timeout */
         while(!(obj_s->event & I2C_EVENT_ALL) && (--timeout != 0)) {
-            wait_us(1);
+            wait_loop_us(1);
         }
 
         i2c_ev_err_disable(obj);
@@ -984,9 +998,9 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     ret = HAL_I2C_Slave_Sequential_Receive_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
+        timeout = BYTE_TIMEOUT_30 * (length + 1);
         while(obj_s->pending_slave_rx_maxter_tx && (--timeout != 0)) {
-            wait_us(1);
+            wait_loop_us(1);
         }
 
          if(timeout != 0) {
@@ -1009,9 +1023,9 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     ret = HAL_I2C_Slave_Sequential_Transmit_IT(handle, (uint8_t *) data, length, I2C_NEXT_FRAME);
 
     if(ret == HAL_OK) {
-        timeout = BYTE_TIMEOUT_US * (length + 1);
+        timeout = BYTE_TIMEOUT_30 * (length + 1);
         while(obj_s->pending_slave_tx_master_rx && (--timeout != 0)) {
-            wait_us(1);
+            wait_loop_us(1);
         }
 
          if(timeout != 0) {
