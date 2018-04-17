@@ -2077,8 +2077,9 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     commons = []
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
-                                  silent=True, app_config=app_config)
+    toolchain = prepare_toolchain(
+        [base_dir], base_dir, target_name, toolchain_name, silent=True,
+        app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = scan_resources([base_dir], toolchain)
