@@ -282,7 +282,7 @@ void test_tcp_packet_pressure_parallel()
     printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address());
 
 #if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
-    tcp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
+    net->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 #else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
     char recv_key[] = "host_port";

@@ -70,7 +70,9 @@ void test_udp_echo() {
     sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
 #if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
-    SocketAddress udp_addr(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
+    SocketAddress udp_addr;
+    net->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
+    udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 #else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
     char recv_key[] = "host_port";
     char ipbuf[60] = {0};

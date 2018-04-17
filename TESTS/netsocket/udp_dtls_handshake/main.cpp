@@ -91,7 +91,6 @@ void test_udp_dtls_handshake() {
     printf("]\r\n");
 
     UDPSocket sock;
-    SocketAddress udp_addr(ipbuf, port);
     sock.set_timeout(MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT);
 
     for (int attempt = 0; attempt < MBED_CFG_UDP_DTLS_HANDSHAKE_RETRIES; attempt++) {
@@ -102,7 +101,8 @@ void test_udp_dtls_handshake() {
             buffer[i] = udp_dtls_handshake_pattern[i] >> 4;
         }
 
-        err = sock.sendto(udp_addr, buffer, udp_dtls_handshake_count);
+        err = sock.sendto(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT,
+                          buffer, udp_dtls_handshake_count);
         printf("UDP: tx -> %d\r\n", err);
         TEST_ASSERT_EQUAL(udp_dtls_handshake_count, err);
 

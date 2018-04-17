@@ -194,7 +194,7 @@ void test_udp_echo_parallel()
         printf("UDP client IP Address is %s\n", net->get_ip_address());
 
 #if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
-        udp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
+        net->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
         udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 #else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
         char recv_key[] = "host_port";

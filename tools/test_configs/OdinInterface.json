@@ -13,7 +13,7 @@
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
-            "value" : "\"195.34.89.241\""
+            "value" : "\"dragon.u-blox.com\""
         },
         "echo-server-port" : {
             "help" : "Port of echo server",
