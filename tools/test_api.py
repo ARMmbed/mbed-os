@@ -2113,11 +2113,13 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
                 # Also find any COMMON paths, we'll add these later once we find all the base tests
                 if 'COMMON' in relative_path_parts:
                     if relative_path_parts[0] != 'COMMON':
-                        def predicate(base_pred, group_pred, (name, base, group, case)):
+                        def predicate(base_pred, group_pred, name_base_group_case):
+                            (name, base, group, case) = name_base_group_case
                             return base == base_pred and group == group_pred
                         commons.append((functools.partial(predicate, walk_base_dir, relative_path_parts[0]), d))
                     else:
-                        def predicate(base_pred, (name, base, group, case)):
+                        def predicate(base_pred, name_base_group_case):
+                            (name, base, group, case) = name_base_group_case
                             return base == base_pred
                         commons.append((functools.partial(predicate, walk_base_dir), d))
 
