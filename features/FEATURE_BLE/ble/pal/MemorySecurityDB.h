@@ -49,8 +49,9 @@ private:
     }
 
 public:
-    MemorySecurityDb() { };
-    virtual ~MemorySecurityDb() { };
+    MemorySecurityDb() : _local_sign_counter(0) { }
+
+    virtual ~MemorySecurityDb() { }
 
     virtual const SecurityDistributionFlags_t* get_distribution_flags(
         entry_handle_t entry_handle
