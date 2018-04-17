@@ -864,6 +864,26 @@ void GenericSecurityManager::on_disconnected(
     _db.sync();
 }
 
+void GenericSecurityManager::on_security_entry_retrieved(
+    pal::SecurityDb::entry_handle_t entry,
+    const pal::SecurityEntryIdentity_t* identity
+) {
+    if (!identity) {
+        return;
+    }
+
+    typedef advertising_peer_address_type_t address_type_t;
+
+    _pal.add_device_to_resolving_list(
+        identity->identity_address_is_public ?
+            address_type_t::PUBLIC_ADDRESS :
+            address_type_t::RANDOM_ADDRESS,
+        identity->identity_address,
+        identity->irk
+    );
+}
+
+
 /* Implements ble::pal::SecurityManagerEventHandler */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -935,6 +955,10 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
     if (cb) {
         // set the distribution flags in the db
         _db.set_distribution_flags(cb->db_entry, *cb);
+        _db.get_entry_identity(
+            mbed::callback(this, &GenericSecurityManager::on_security_entry_retrieved),
+            cb->db_entry
+        );
     }
 
     eventHandler->pairingResult(

@@ -400,21 +400,13 @@ private:
     );
 
     /**
-     * Inform the security manager of a new connection.
-     *
-     * @param[in] params information about the new connection.
+     * Callback invoked by the secure DB when an identity entry has been
+     * retrieved.
+     * @param identity
      */
-    void connection_callback(
-        const Gap::ConnectionCallbackParams_t* params
-    );
-
-    /**
-     * Inform the security manager that a connection ended.
-     *
-     * @param[in] params handle and reason of the disconnection.
-     */
-    void disconnection_callback(
-        const Gap::DisconnectionCallbackParams_t* params
+    void on_security_entry_retrieved(
+        pal::SecurityDb::entry_handle_t entry,
+        const pal::SecurityEntryIdentity_t* identity
     );
 
 private:
