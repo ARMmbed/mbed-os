@@ -105,6 +105,8 @@ public:
         SecurityEntryKeysDbCb_t;
     typedef mbed::Callback<void(entry_handle_t, const csrk_t*, uint32_t sign_counter)>
         SecurityEntryCsrkDbCb_t;
+    typedef mbed::Callback<void(entry_handle_t, const SecurityEntryIdentity_t*)>
+        SecurityEntryIdentityDbCb_t;
     typedef mbed::Callback<void(::Gap::Whitelist_t*)>
         WhitelistDbCb_t;
 
@@ -259,6 +261,17 @@ public:
         entry_handle_t db_entry,
         bool address_is_public,
         const address_t &peer_address
+    ) = 0;
+
+    /**
+     * Retrieve stored identity address and IRK.
+     *
+     * @param[in] cb callback that will receive the SecurityEntryIdentity_t struct
+     * @param[in] db_entry handle of the entry being queried.
+     */
+    virtual void get_entry_identity(
+        SecurityEntryIdentityDbCb_t cb,
+        entry_handle_t db_entry
     ) = 0;
 
     /**
