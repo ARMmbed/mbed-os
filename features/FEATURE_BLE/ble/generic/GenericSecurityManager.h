@@ -25,6 +25,7 @@
 #include "ble/pal/SigningEventMonitor.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
+#include "ble/ArrayView.h"
 
 namespace ble {
 namespace generic {
@@ -402,11 +403,22 @@ private:
     /**
      * Callback invoked by the secure DB when an identity entry has been
      * retrieved.
-     * @param identity
+     * @param entry Handle of the entry.
+     * @param identity The identity associated with the entry; may be NULL.
      */
     void on_security_entry_retrieved(
         pal::SecurityDb::entry_handle_t entry,
         const pal::SecurityEntryIdentity_t* identity
+    );
+
+    /**
+     * Callback invoked by the secure DB when the identity list has been
+     * retrieved.
+     * @param identity
+     */
+    void on_identity_list_retrieved(
+        ble::ArrayView<pal::SecurityEntryIdentity_t*>&,
+        size_t count
     );
 
 private:
