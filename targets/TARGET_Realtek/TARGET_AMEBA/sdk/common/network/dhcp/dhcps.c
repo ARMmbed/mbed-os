@@ -155,9 +155,10 @@ static uint8_t check_client_request_ip(ip_addr_t *client_req_ip, uint8_t *hwaddr
 	if(i == DHCP_POOL_END+1)
 		ip_addr4 = 0;
 
-Exit:
 	return ip_addr4;
 }
+
+#if debug_dhcps
 static void dump_client_table()
 {
 #if 0
@@ -175,6 +176,7 @@ static void dump_client_table()
 	printf("\r\n");
 #endif	
 }
+#endif
 #endif //CONFIG_DHCPS_KEPT_CLIENT_INFO
 #endif
 
