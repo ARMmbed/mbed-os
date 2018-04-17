@@ -41,7 +41,10 @@ static const osThreadAttr_t event_thread_attr = {
 };
 #endif
 
+#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
 static osThreadId_t event_thread_id;
+#endif
+
 static mbed_rtos_storage_mutex_t event_mutex;
 static const osMutexAttr_t event_mutex_attr = {
   .name = "nanostack_event_mutex",
