@@ -107,6 +107,8 @@ public:
         SecurityEntryCsrkDbCb_t;
     typedef mbed::Callback<void(entry_handle_t, const SecurityEntryIdentity_t*)>
         SecurityEntryIdentityDbCb_t;
+    typedef mbed::Callback<void(ArrayView<SecurityEntryIdentity_t*>&, size_t count)>
+        IdentitylistDbCb_t;
     typedef mbed::Callback<void(::Gap::Whitelist_t*)>
         WhitelistDbCb_t;
 
@@ -272,6 +274,20 @@ public:
     virtual void get_entry_identity(
         SecurityEntryIdentityDbCb_t cb,
         entry_handle_t db_entry
+    ) = 0;
+
+    /**
+     * Asynchronously return the identity list stored in NVM through a callback.
+     * Function takes ownership of the memory. The identity list and the
+     * ownership will be returned in the callback.
+     *
+     * @param[in] cb callback that will receive the whitelist
+     * @param[in] identity_list preallocated identity_list that will be filled
+     * in.
+     */
+    virtual void get_identity_list(
+        IdentitylistDbCb_t cb,
+        ArrayView<SecurityEntryIdentity_t*>& identity_list
     ) = 0;
 
     /**

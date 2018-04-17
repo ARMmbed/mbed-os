@@ -187,6 +187,22 @@ public:
         }
     }
 
+    virtual void get_identity_list(
+        IdentitylistDbCb_t cb,
+        ArrayView<SecurityEntryIdentity_t*>& entries
+    ) {
+        size_t count = 0;
+        for (size_t i = 0; i < MAX_ENTRIES && count < entries.size(); ++i) {
+            entry_t& e = _entries[i];
+
+            if (e.state == ENTRY_WRITTEN && e.flags.irk_stored) {
+                entries[count] = &e.peer_identity;
+                ++count;
+            }
+        }
+
+        cb(entries, count);
+    }
 
     /* set */
 
