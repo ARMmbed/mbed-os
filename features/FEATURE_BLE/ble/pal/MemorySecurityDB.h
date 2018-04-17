@@ -274,14 +274,46 @@ public:
         const address_t &peer_address
     ) {
         const bool peer_address_public =
-            (peer_address_type == BLEProtocol::AddressType::PUBLIC);
+            (peer_address_type == BLEProtocol::AddressType::PUBLIC) ||
+            (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY);
 
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            if (_entries[i].state == ENTRY_FREE) {
+            entry_t& e = _entries[i];
+
+            if (e.state == ENTRY_FREE) {
                 continue;
-            } else if (peer_address == _entries[i].peer_identity.identity_address
-                && _entries[i].flags.peer_address_is_public == peer_address_public) {
-                return &_entries[i];
+            } else {
+                if (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY &&
+                    e.flags.irk_stored == false
+                ) {
+                    continue;
+                }
+
+                // lookup for the identity address then the connection address.
+                if (e.flags.irk_stored &&
+                    e.peer_identity.identity_address == peer_address &&
+                    e.peer_identity.identity_address_is_public == peer_address_public
+                ) {
+                    return &e;
+                // lookup for connection address used during bonding
+                } else if (e.flags.peer_address == peer_address &&
+                           e.flags.peer_address_is_public == peer_address_public
+                ) {
+                    return &e;
+                }
+            }
+        }
+
+        // determine if the address in input is private or not.
+        bool is_private_address = false;
+        if (peer_address_type == BLEProtocol::AddressType::RANDOM) {
+            ::Gap::RandomAddressType_t random_type(::Gap::RandomAddressType_t::STATIC);
+            ble_error_t err = ::Gap::getRandomAddressType(peer_address.data(), &random_type);
+            if (err) {
+                return NULL;
+            }
+            if (random_type != ::Gap::RandomAddressType_t::STATIC) {
+                is_private_address = true;
             }
         }
 
@@ -289,8 +321,14 @@ public:
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_entries[i].state == ENTRY_FREE) {
                 _entries[i] = entry_t();
-                _entries[i].flags.peer_address = peer_address;
-                _entries[i].flags.peer_address_is_public = peer_address_public;
+                // do not store private addresses in the flags; just store public
+                // or random static address so it can be reused latter.
+                if (is_private_address == false) {
+                    _entries[i].flags.peer_address = peer_address;
+                    _entries[i].flags.peer_address_is_public = peer_address_public;
+                } else {
+                    _entries[i].flags.peer_address = address_t();
+                }
                 _entries[i].state = ENTRY_RESERVED;
                 return &_entries[i];
             }
