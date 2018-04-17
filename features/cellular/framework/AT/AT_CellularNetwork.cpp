@@ -899,6 +899,12 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     while (_at.info_elem('(')) {
 
         op = operators.add_new();
+        if (!op) {
+            tr_warn("Could not allocate new operator");
+            _at.resp_stop();
+            opsCount = idx;
+            return _at.unlock_return_error();
+        }
 
         op->op_status = (operator_t::Status)_at.read_int();
         _at.read_string(op->op_long, sizeof(op->op_long));
@@ -920,7 +926,6 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     _at.resp_stop();
 
     opsCount = idx;
-
     return _at.unlock_return_error();
 }
 
@@ -1172,5 +1177,29 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
 
     _at.resp_stop();
 
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_names)
+{
+    _at.lock();
+
+    _at.cmd_start("AT+COPN?");
+    _at.cmd_stop();
+
+    _at.resp_start("+COPN:");
+    operator_names_t *names = NULL;
+    while (_at.info_resp()) {
+        names = op_names.add_new();
+        if (!names) {
+            tr_warn("Could not allocate new operator_names_t");
+            _at.resp_stop();
+            return _at.unlock_return_error();
+        }
+        _at.read_string(names->numeric, sizeof(names->numeric));
+        _at.read_string(names->alpha, sizeof(names->alpha));
+    }
+
+    _at.resp_stop();
     return _at.unlock_return_error();
 }
