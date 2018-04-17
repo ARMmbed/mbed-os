@@ -11,7 +11,13 @@
         "detect_code": [],
         "public": false,
         "default_lib": "std",
-        "bootloader_supported": false
+        "bootloader_supported": false,
+        "config": {
+            "console-uart-flow-control": {
+                "help": "Console hardware flow control. Options: null, RTS, CTS, RTSCTS.",
+                "value": null
+            }
+        }
     },
     "CM4_UARM": {
         "inherits": ["Target"],
