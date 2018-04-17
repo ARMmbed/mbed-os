@@ -112,29 +112,28 @@ void device_reset_test()
     if (strcmp(_value, "false") != 0) {
 
         USBTester serial(vendor_id, product_id, product_release, true);
-
-        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         serial.clear_reset_count();
-        // Wait for host before terminating
+        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         while(serial.get_reset_count() == 0);
+        // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
         while(!serial.configured());
 
-        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         serial.clear_reset_count();
-        // Wait for host before terminating
+        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         while(serial.get_reset_count() == 0);
+        // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
         while(!serial.configured());
 
-        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         serial.clear_reset_count();
-        // Wait for host before terminating
+        greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         while(serial.get_reset_count() == 0);
+        // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
 
