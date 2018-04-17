@@ -23,7 +23,7 @@
 
 /** UARTCellularInterface class
  *
- *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+ *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
  *
  *  This interface serves as the controller/driver for Cellular
  *  modems attached via a UART (tested with UBLOX_C027 and MTS_DRAGONFLY_F411RE).
@@ -38,7 +38,7 @@ public:
 
     /** Constructor
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     UARTCellularInterface(PinName tx, PinName rx, PinName dcd = NC, PinName rts = NC, PinName cts = NC, PinName ri = NC,
@@ -48,7 +48,7 @@ public:
 
     /** Destructor
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     virtual ~UARTCellularInterface();
@@ -61,7 +61,7 @@ private:
 protected:
     /** Enable or disable hang-up detection
      *
-     *  @deprecated This API will be deprecated mbed-os-5.9, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  When in PPP data pump mode, it is helpful if the FileHandle will signal hang-up via
      *  POLLHUP, e.g., if the DCD line is deasserted on a UART. During command mode, this
