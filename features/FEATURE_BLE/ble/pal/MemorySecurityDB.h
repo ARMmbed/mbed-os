@@ -221,6 +221,7 @@ public:
         if (entry) {
             entry->state = ENTRY_WRITTEN;
             entry->peer_identity.identity_address = peer_address;
+            entry->peer_identity.identity_address_is_public = address_is_public;
         }
     }
 
