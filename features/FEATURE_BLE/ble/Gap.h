@@ -1068,7 +1068,7 @@ public:
      * the address in input was not identifiable as a random address.
      */
     static ble_error_t getRandomAddressType(
-        BLEProtocol::AddressBytes_t address,
+        const BLEProtocol::AddressBytes_t address,
         RandomAddressType_t* addressType
     );
 

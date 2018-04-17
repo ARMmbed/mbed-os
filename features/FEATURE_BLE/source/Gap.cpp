@@ -17,7 +17,7 @@
 #include "ble/Gap.h"
 
 ble_error_t Gap::getRandomAddressType(
-    BLEProtocol::AddressBytes_t address,
+    const BLEProtocol::AddressBytes_t address,
     RandomAddressType_t* type
 ) {
     // see section Device address in Bluetooth Link Layer specification
