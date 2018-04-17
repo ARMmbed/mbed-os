@@ -167,7 +167,7 @@ bool CellularConnectionFSM::open_sim()
             nsapi_error_t err = _sim->set_pin(_sim_pin);
             if (err) {
                 tr_error("SIM pin set failed with: %d, bailing out...", err);
-            } 
+            }
         } else {
             tr_warn("PIN required but No SIM pin provided.");
         }
@@ -284,7 +284,7 @@ void CellularConnectionFSM::report_failure(const char* msg)
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Connecting network", "Connected"};
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
     return strings[state];
 #else
     return NULL;
