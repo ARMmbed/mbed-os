@@ -213,12 +213,12 @@ typedef enum {
 
     PH_0  = 0x70,
     PH_1  = 0x71,
-    
+
     PI_0  = 0x80,
     PI_1  = 0x81,
     PI_2  = 0x82,
     PI_3  = 0x83,
-    
+
 
     // ADC internal channels
     ADC_TEMP = 0xF0,
@@ -281,15 +281,15 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
-    
-    SAI_A_MCLK  = PC_6,
-    SAI_A_SD    = PB_15,
-    SAI_A_BCLK  = PB_13, // open JP7
-    SAI_A_WCLK  = PB_12,
-    SAI_B_MCLK  = PE_2,
-    SAI_B_SD    = PE_6,
-    SAI_B_BCLK  = PE_5,
-    SAI_B_WCLK  = PE_4,
+
+    SAI_B_MCLK  = PC_6,
+    SAI_B_SD    = PB_15,
+    SAI_B_BCLK  = PB_13, // open JP7
+    SAI_B_WCLK  = PB_12,
+    SAI_A_MCLK  = PE_2,
+    SAI_A_SD    = PE_6,
+    SAI_A_BCLK  = PE_5,
+    SAI_A_WCLK  = PE_4,
 
 /**** USB pins ****/
     USB_OTG_FS_DM = PA_11,
