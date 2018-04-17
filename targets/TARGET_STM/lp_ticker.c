@@ -179,7 +179,12 @@ static void LPTIM1_IRQHandler(void)
 uint32_t lp_ticker_read(void)
 {
     uint32_t lp_time = LPTIM1->CNT;
-    return lp_time;     
+    /* Reading the LPTIM_CNT register may return unreliable values.
+    It is necessary to perform two consecutive read accesses and verify that the two returned values are identical */
+    while (lp_time != LPTIM1->CNT) {
+        lp_time = LPTIM1->CNT;
+    }
+    return lp_time;
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
