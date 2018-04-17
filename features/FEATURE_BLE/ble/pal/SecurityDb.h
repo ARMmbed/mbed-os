@@ -35,7 +35,6 @@ struct SecurityDistributionFlags_t {
         peer_address(),
         encryption_key_size(0),
         peer_address_is_public(false),
-        local_address_is_public(false),
         csrk_stored(false),
         csrk_mitm_protected(false),
         ltk_stored(false),
@@ -50,8 +49,6 @@ struct SecurityDistributionFlags_t {
     uint8_t encryption_key_size;
     /** true if peer address is public, false if it's static random */
     uint8_t peer_address_is_public:1;
-    /** true if local address is public, false if it's static random */
-    uint8_t local_address_is_public:1;
 
     /** CSRK (Connection Signature Resolving Key) has been distributed and stored */
     uint8_t csrk_stored:1;
