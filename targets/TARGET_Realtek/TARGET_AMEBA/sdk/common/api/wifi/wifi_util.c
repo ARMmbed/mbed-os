@@ -784,7 +784,8 @@ int wext_get_scan(const char *ifname, char *buf, __u16 buf_len)
 int wext_private_command_with_retval(const char *ifname, char *cmd, char *ret_buf, int ret_len)
 {
     struct iwreq iwr;
-    int ret = 0, buf_size;
+    int ret = 0;
+    size_t buf_size;
     char *buf;
 
     buf_size = 128;
@@ -817,7 +818,8 @@ int wext_private_command_with_retval(const char *ifname, char *cmd, char *ret_bu
 int wext_private_command(const char *ifname, char *cmd, int show_msg)
 {
     struct iwreq iwr;
-    int ret = 0, buf_size;
+    int ret = 0;
+    size_t buf_size;
     char *buf;
 
     u8 cmdname[17] = {0}; // IFNAMSIZ+1
