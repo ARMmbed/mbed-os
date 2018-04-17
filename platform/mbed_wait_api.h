@@ -55,7 +55,9 @@ extern "C" {
  *  @param s number of seconds to wait
  * 
  *  @note
- *    This func will lock deep sleep. If you want device entry deep sleep mode, please use Thread::wait()
+ *    This func always spin to get an exact number of microseconds, potentially 
+ *    impacting power(like can't deep sleep) and multi-thread performance. 
+ *    You can avoided by Thread::wait().
  */
 void wait(float s);
 
@@ -64,7 +66,9 @@ void wait(float s);
  *  @param ms the whole number of milliseconds to wait
  * 
  *  @note
- *    This func will lock deep sleep. If you want device entry deep sleep mode, please use Thread::wait()
+ *    This func always spin to get an exact number of microseconds, potentially 
+ *    impacting power(like can't deep sleep) and multi-thread performance. 
+ *    You can avoided by Thread::wait().
  */
 void wait_ms(int ms);
 
@@ -73,7 +77,8 @@ void wait_ms(int ms);
  *  @param us the whole number of microseconds to wait
  * 
  *  @note
- *    This func will lock deep sleep.
+ *    This func always spin to get an exact number of microseconds, potentially 
+ *    impacting power(like can't deep sleep) and multi-thread performance. 
  */
 void wait_us(int us);
 
