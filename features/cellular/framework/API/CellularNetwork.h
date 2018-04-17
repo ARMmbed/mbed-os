@@ -272,9 +272,11 @@ public:
 
     /** Request attach to network.
      *
+     *  @deprecated Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.
      *  @param timeout milliseconds to wait for attach response
      *  @return        zero on success
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
     virtual nsapi_error_t set_attach(int timeout = 10*1000) = 0;
 
     /** Request attach status from network.
@@ -283,6 +285,12 @@ public:
      *  @return       zero on success
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
+
+    /** Request detach from a network.
+     *
+     *  @return        zero on success
+     */
+    virtual nsapi_error_t detach() = 0;
 
     /** Get APN rate control.
      *

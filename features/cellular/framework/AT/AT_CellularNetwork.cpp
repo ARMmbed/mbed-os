@@ -753,7 +753,7 @@ bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
     return true;
 }
 
-nsapi_error_t AT_CellularNetwork::set_attach(int timeout)
+nsapi_error_t AT_CellularNetwork::set_attach(int /*timeout*/)
 {
     _at.lock();
 
@@ -785,6 +785,19 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
         int attach_status = _at.read_int();
         status = (attach_status == 1) ? Attached : Detached;
     }
+    _at.resp_stop();
+
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::detach()
+{
+    _at.lock();
+
+    tr_debug("Network detach");
+    _at.cmd_start("AT+CGATT=0");
+    _at.cmd_stop();
+    _at.resp_start();
     _at.resp_stop();
 
     return _at.unlock_return_error();
