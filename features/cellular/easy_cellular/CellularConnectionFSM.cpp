@@ -338,10 +338,9 @@ bool CellularConnectionFSM::is_registered_to_plmn()
                     if (strcmp(_plmn, op_names->numeric)) {
                         names_list.delete_all();
                         return true;
-                    } else {
-                        names_list.delete_all();
-                        return false;
                     }
+                    names_list.delete_all();
+                    return false;
                 }
             }
         }

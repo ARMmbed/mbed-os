@@ -902,8 +902,10 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
         if (!op) {
             tr_warn("Could not allocate new operator");
             _at.resp_stop();
-            opsCount = idx;
-            return _at.unlock_return_error();
+            _at.unlock();
+            operators.delete_all();
+            opsCount = 0;
+            return NSAPI_ERROR_NO_MEMORY;
         }
 
         op->op_status = (operator_t::Status)_at.read_int();
@@ -1037,8 +1039,9 @@ nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params
         params = params_list.add_new();
         if (!params) {
             tr_warn("Could not allocate new pdpcontext_params_t");
-            params_list.delete_all();
             _at.resp_stop();
+            _at.unlock();
+            params_list.delete_all();
             free(temp);
             free(ipv6_and_subnetmask);
             return NSAPI_ERROR_NO_MEMORY;
@@ -1194,7 +1197,9 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
         if (!names) {
             tr_warn("Could not allocate new operator_names_t");
             _at.resp_stop();
-            return _at.unlock_return_error();
+            _at.unlock();
+            op_names.delete_all();
+            return NSAPI_ERROR_NO_MEMORY;
         }
         _at.read_string(names->numeric, sizeof(names->numeric));
         _at.read_string(names->alpha, sizeof(names->alpha));
