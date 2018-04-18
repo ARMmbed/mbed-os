@@ -30,6 +30,10 @@ extern "C" {
 typedef struct gpio_s {
     struct arm_gpio_dev_t *gpio_dev;
     struct arm_mps2_io_dev_t *mps2_io_dev;
+    void (*arm_mps2_io_write)(struct arm_mps2_io_dev_t* dev,
+                            enum arm_mps2_io_access_t access,
+                            uint8_t pin_num,
+                            uint32_t value);
     uint32_t pin_number;
     PinDirection direction;
 } gpio_t;
