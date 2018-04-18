@@ -55,9 +55,9 @@ extern "C" {
  *  @param s number of seconds to wait
  * 
  *  @note
- *    This func always spin to get an exact number of microseconds, potentially 
- *    impacting power(like can't deep sleep) and multi-thread performance. 
- *    You can avoided by Thread::wait().
+ *    This function always spins to get the exact number of microseconds, 
+ *    which potentially affects power (such as preventing deep sleep) and multithread performance. 
+ *    You can avoid it by using Thread::wait().
  */
 void wait(float s);
 
@@ -66,9 +66,9 @@ void wait(float s);
  *  @param ms the whole number of milliseconds to wait
  * 
  *  @note
- *    This func always spin to get an exact number of microseconds, potentially 
- *    impacting power(like can't deep sleep) and multi-thread performance. 
- *    You can avoided by Thread::wait().
+ *    This function always spins to get the exact number of microseconds, 
+ *    which potentially affects power (such as preventing deep sleep) and multithread performance. 
+ *    You can avoid it by using Thread::wait().
  */
 void wait_ms(int ms);
 
@@ -77,8 +77,8 @@ void wait_ms(int ms);
  *  @param us the whole number of microseconds to wait
  * 
  *  @note
- *    This func always spin to get an exact number of microseconds, potentially 
- *    impacting power(like can't deep sleep) and multi-thread performance. 
+ *    This function always spins to get the exact number of microseconds, 
+ *    which potentially affects power (such as preventing deep sleep) and multithread performance.
  */
 void wait_us(int us);
 
