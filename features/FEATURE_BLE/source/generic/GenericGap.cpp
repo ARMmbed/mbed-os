@@ -314,7 +314,9 @@ static bool is_whitelist_valid(const Gap::Whitelist_t& whitelist)
 
     for (size_t i = 0; i < whitelist.size; ++i) {
         const BLEProtocol::Address_t& address = whitelist.addresses[i];
-        if (address.type > BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE) {
+        if (address.type != BLEProtocol::AddressType::PUBLIC &&
+            address.type != BLEProtocol::AddressType::RANDOM
+        ) {
             return false;
         }
 
@@ -354,8 +356,8 @@ static pal::whitelist_address_type_t to_device_address_type(
     BLEProtocol::AddressType_t address_type
 ) {
         return (address_type == BLEProtocol::AddressType::PUBLIC) ?
-        pal::whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
-        pal::whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
+            pal::whitelist_address_type_t::PUBLIC_DEVICE_ADDRESS :
+            pal::whitelist_address_type_t::RANDOM_DEVICE_ADDRESS;
 }
 
 /*
@@ -411,6 +413,7 @@ ble_error_t GenericGap::setAddress(
             _address_type = type;
             return BLE_ERROR_NONE;
 
+        case BLEProtocol::AddressType::RANDOM:
         case BLEProtocol::AddressType::RANDOM_STATIC: {
             if (is_random_static_address(address) == false) {
                 return BLE_ERROR_INVALID_PARAM;
@@ -423,22 +426,13 @@ ble_error_t GenericGap::setAddress(
                 return err;
             }
 
-            _address_type = type;
+            _address_type = BLEProtocol::AddressType::RANDOM;
             _address = ble::address_t(address);
             return BLE_ERROR_NONE;
         }
 
-        case BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE:
-            // TODO: Fix with the privacy/security rework
-            return BLE_ERROR_NOT_IMPLEMENTED;
-
-        case BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE:
-            // TODO: add process to set the random private non resolvable
-            // address (privacy/security work)
-            return BLE_ERROR_NOT_IMPLEMENTED;
-
         default:
-            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+            return BLE_ERROR_INVALID_PARAM;
     }
 }
 
@@ -448,10 +442,18 @@ ble_error_t GenericGap::getAddress(
 ) {
     *type = _address_type;
     ble::address_t address_value;
-    if (_address_type == BLEProtocol::AddressType::PUBLIC) {
-        address_value = _pal_gap.get_device_address();
-    } else {
-        address_value = _pal_gap.get_random_address();
+
+    switch (_address_type) {
+        case BLEProtocol::AddressType::PUBLIC:
+            address_value = _pal_gap.get_device_address();
+            break;
+
+        case BLEProtocol::AddressType::RANDOM:
+            address_value = _pal_gap.get_random_address();
+            break;
+
+        default:
+            return BLE_ERROR_INVALID_PARAM;
     }
 
     memcpy(address, address_value.data(), address_value.size());
@@ -528,7 +530,7 @@ ble_error_t GenericGap::connect(
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
         ble::address_t(peerAddr),
-        (pal::own_address_type_t::type) _address_type,
+        get_own_address_type(),
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
         connectionParams->slaveLatency,
@@ -1135,14 +1137,9 @@ pal::own_address_type_t GenericGap::get_own_address_type()
     switch (_address_type) {
         case BLEProtocol::AddressType::PUBLIC:
             return pal::own_address_type_t::PUBLIC_ADDRESS;
-        case BLEProtocol::AddressType::RANDOM_STATIC:
-        case BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE:
-            return pal::own_address_type_t::RANDOM_ADDRESS;
-        case BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE:
-            return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK;
         default:
-            // not reachable
-            return pal::own_address_type_t::PUBLIC_ADDRESS;
+            return pal::own_address_type_t::RANDOM_ADDRESS;
+        // FIXME: Handle case when privacy is used.
     }
 }
 
