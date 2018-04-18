@@ -47,11 +47,17 @@ typedef struct {
 } flash_target_config_t;
 
 /** Target flash configuration
+ *  For targets not supporting TrustZone, its flash_set_target_config must define target_config.
+ *  For targets supporting TrustZone, it has the following requirements:
+ *  -# Flash IAP H/W can only configure to secure. It can access both secure/non-secure flash.
+ *  -# Flash IAP port is for secure build only. It exports secure functions for non-secure build.
+ *  -# In Flash IAP port, flash_set_target_config must define both target_config/target_config_ns for secure/non-secure flash respectively.
+ *  -# Non-secure application can access its non-secure flash only through secure flash IAP functions. It cannot access secure flash.
  */
 struct flash_s {
-    const flash_target_config_t *target_config;
+    const flash_target_config_t *target_config; /**< Normal/secure flash configuration structure for targets not supporting/supporting TrustZone */
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
-    const flash_target_config_t *target_config_ns;
+    const flash_target_config_t *target_config_ns; /**< Non-secure flash configuration structure for targets supporting TrustZone */
 #endif
     const flash_algo_t *flash_algo;
 };
