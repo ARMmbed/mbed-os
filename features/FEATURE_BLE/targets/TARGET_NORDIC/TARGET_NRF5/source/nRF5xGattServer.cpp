@@ -292,12 +292,12 @@ ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute:
                 Everything executed properly
 */
 /**************************************************************************/
-ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly, bool forceIndicate)
 {
-    return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly);
+    return write(BLE_CONN_HANDLE_INVALID, attributeHandle, buffer, len, localOnly, forceIndicate);
 }
 
-ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
+ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly, bool forceIndicate)
 {
     ble_error_t returnValue = BLE_ERROR_NONE;
 
@@ -318,12 +318,13 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     int characteristicIndex = resolveValueHandleToCharIndex(attributeHandle);
     if ((characteristicIndex != -1) &&
         (p_characteristics[characteristicIndex]->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY))) {
+
         /* HVX update for the characteristic value */
         ble_gatts_hvx_params_t hvx_params;
 
         hvx_params.handle = attributeHandle;
         hvx_params.type   =
-            (p_characteristics[characteristicIndex]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) ? BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
+            (p_characteristics[characteristicIndex]->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) && !forceIndicate ? BLE_GATT_HVX_NOTIFICATION : BLE_GATT_HVX_INDICATION;
         hvx_params.offset = 0;
         hvx_params.p_data = const_cast<uint8_t *>(buffer);
         hvx_params.p_len  = &len;
