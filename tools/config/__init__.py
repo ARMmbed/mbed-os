@@ -864,14 +864,13 @@ class Config(object):
 
         Arguments: None
         """
-        all_params, macros = {}, {}
+        macros = {}
         for lib_name, lib_data in self.lib_config_data.items():
-            all_params.update(self._process_config_and_overrides(lib_data, target_data,
-                                                                 lib_name,
-                                                                 "library"))
+            self._process_config_and_overrides(
+                lib_data, target_data, lib_name, "library")
             _process_macros(lib_data.get("macros", []), macros, lib_name,
                             "library")
-        return all_params, macros
+        return target_data, macros
 
     def get_app_config_data(self, params, macros):
         """ Read and interpret the configuration data defined by the target. The
