@@ -70,6 +70,11 @@ struct analogin_s {
     uint16_t ctrl_register;  /* Control bits with the channel identifier */
 };
 
+/* This structure is not used by the HAL implementation. */
+struct flash_s {
+    uint8_t not_used;
+};
+
 /* This TRNG structure is not used by the HAL implementation. */
 struct trng_s {
     uint8_t not_used;
