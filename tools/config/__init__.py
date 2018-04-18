@@ -903,7 +903,7 @@ class Config(object):
         all_params = self.get_target_config_data()
         lib_params, macros = self.get_lib_config_data(all_params)
         self.get_app_config_data(lib_params, macros)
-        return all_params, macros
+        return lib_params, macros
 
     @staticmethod
     def _check_required_parameters(params):
