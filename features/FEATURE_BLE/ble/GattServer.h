@@ -286,13 +286,13 @@ public:
      *
      * @param[in] attributeHandle Handle of the attribute to write.
      * @param[in] value A pointer to a buffer holding the new value.
-     * @param[in] size Size in bytes of the new value (in bytes).
+     * @param[in] size Size of the new value (in bytes).
      * @param[in] localOnly If this flag is false and the attribute handle
      * written is a characteristic value, then the server sends an update
      * containing the new value to all clients that have subscribed to the
      * characteristic's notifications or indications. Otherwise, the update does
      * not generate a single server initiated event.
-     * @param[in] forceIndicate Forces an indication to be sent instead of a notifiaction
+     * @param[in] forceIndicate Forces an indication to be sent instead of a notification
      * in case both notification and indication properties are
      * enabled for the characteristic. Enabling this when the
      * indication property is not set is invalid.
@@ -322,15 +322,20 @@ public:
     /**
      * Update the value of an attribute present in the local GATT server.
      *
+     * The connection handle parameter allows application code to direct
+     * notification or indication resulting from the update to a specific client.
+     *
+     * @param[in] connectionHandle Connection handle.
      * @param[in] attributeHandle Handle of the attribute to write.
      * @param[in] value A pointer to a buffer holding the new value.
-     * @param[in] size Size in bytes of the new value (in bytes).
+     * @param[in] size Size of the new value (in bytes).
      * @param[in] localOnly If this flag is false and the attribute handle
      * written is a characteristic value, then the server sends an update
-     * containing the new value to all clients that have subscribed to the
-     * characteristic's notifications or indications. Otherwise, the update does
-     * not generate a single server initiated event.
-     * @param[in] forceIndicate Forces an indication to be sent instead of a notifiaction
+     * containing the new value to the client identified by the parameter
+     * @p connectionHandle if it is subscribed to the characteristic's
+     * notifications or indications. Otherwise, the update does not generate a
+     * single server initiated event.
+     * @param[in] forceIndicate Forces an indication to be sent instead of a notification
      * in case both notification and indication properties are
      * enabled for the characteristic. Enabling this when the
      * indication property is not set is invalid.
