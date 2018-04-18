@@ -112,7 +112,11 @@ extern "C" {
  *  @param ...       variable arguments related to format
  *  @note: Application will terminate after printing assert log.
  */
+#if defined(__GNUC__) || defined(__CC_ARM)
 void log_assert(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+#else
+void log_assert(const char *format, ...);
+#endif
 
 /*  Internal binary data logging function.
  *
@@ -131,7 +135,11 @@ void log_id_data(uint32_t argCount, ...);
  *  @param format    printf like format
  *  @param ...       variable arguments related to format
  */
+#if defined(__GNUC__) || defined(__CC_ARM)
 void log_str_data(const char *format, ...) __attribute__ ((__format__(__printf__, 1, 2)));
+#else
+void log_str_data(const char *format, ...);
+#endif
 
 /*  Internal string data logging function
  *
