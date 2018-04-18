@@ -50,6 +50,8 @@
 
 #include "LoRaMacChannelPlan.h"
 #include "LoRaMacCommand.h"
+#include "LoRaMacCrypto.h"
+
 
 class LoRaMac {
 
@@ -541,6 +543,11 @@ private:
      * Channel planning subsystem
      */
     LoRaMacChannelPlan channel_plan;
+
+    /**
+     * Crypto handling subsystem
+     */
+    LoRaMacCrypto _lora_crypto;
 
     /**
      * Central MAC layer data storage

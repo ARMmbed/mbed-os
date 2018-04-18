@@ -1244,11 +1244,13 @@ typedef struct {
 
     /*!
      * AES encryption/decryption cipher network session key
+     * NOTE! LoRaMac determines the length of the key based on sizeof this variable
      */
     uint8_t nwk_skey[16];
 
     /*!
      * AES encryption/decryption cipher application session key
+     * NOTE! LoRaMac determines the length of the key based on sizeof this variable
      */
     uint8_t app_skey[16];
 
