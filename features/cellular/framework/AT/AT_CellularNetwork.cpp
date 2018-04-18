@@ -744,7 +744,8 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
 nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
 {
-    return _cell_id;
+    cell_id = _cell_id;
+    return NSAPI_ERROR_OK;
 }
 
 bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
