@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f3xx_ll_utils.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-December-2016
   * @brief   Header file of UTILS LL module.
   @verbatim
   ==============================================================================
@@ -117,7 +115,7 @@ typedef struct
 
                           This feature can be modified afterwards using unitary function
                           @ref LL_RCC_PLL_ConfigDomain_SYS(). */
- 
+
 #if defined(RCC_PLLSRC_PREDIV1_SUPPORT)
   uint32_t PLLDiv;   /*!< Division factor for PLL VCO output clock.
                           This parameter can be a value of @ref RCC_LL_EC_PREDIV_DIV 
@@ -175,7 +173,6 @@ typedef struct
 /**
   * @}
   */
-
 
 /**
   * @}
