@@ -6,12 +6,13 @@
 #include "ns_types.h"
 
 #include "mbed.h"
+#include "platform/SingletonPtr.h"
 #include "platform/arm_hal_timer.h"
 #include "platform/arm_hal_interrupt.h"
 #include <mbed_assert.h>
 
-static Timer timer;
-static Timeout timeout;
+static SingletonPtr<Timer> timer;
+static SingletonPtr<Timeout> timeout;
 
 // If critical sections are implemented using mutexes, timers must be called in thread context, and
 // we use the high-priority event queue for this.
@@ -32,12 +33,15 @@ void platform_timer_enable(void)
     equeue = mbed_highprio_event_queue();
     MBED_ASSERT(equeue != NULL);
 #endif
+    // Prime the SingletonPtrs - can't construct from IRQ/critical section
+    timer.get();
+    timeout.get();
 }
 
 // Actually cancels a timer, not the opposite of enable
 void platform_timer_disable(void)
 {
-    timeout.detach();
+    timeout->detach();
 }
 
 // Not called while running, fortunately
@@ -62,15 +66,15 @@ static void timer_callback(void)
 // This is called from inside platform_enter_critical - IRQs can't happen
 void platform_timer_start(uint16_t slots)
 {
-    timer.reset();
+    timer->reset();
     due = slots * UINT32_C(50);
-    timeout.attach_us(timer_callback, due);
+    timeout->attach_us(timer_callback, due);
 }
 
 // This is called from inside platform_enter_critical - IRQs can't happen
 uint16_t platform_timer_get_remaining_slots(void)
 {
-    uint32_t elapsed = timer.read_us();
+    uint32_t elapsed = timer->read_us();
     if (elapsed < due) {
         return (uint16_t) ((due - elapsed) / 50);
     } else {
