@@ -58,6 +58,7 @@ public:
         STATE_DEVICE_READY,
         STATE_SIM_PIN,
         STATE_REGISTERING_NETWORK,
+        STATE_MANUAL_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
         STATE_ACTIVATING_PDP_CONTEXT,
         STATE_CONNECTING_NETWORK,
@@ -139,12 +140,24 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
+    /** Sets the operator plmn which is used when registering to a network specified by plmn. If plmn is not set then automatic
+     *  registering is used when registering to a cellular network. Does not start any operations.
+     *
+     *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
+     */
+    void set_plmn(const char* plmn);
+
+    /** returns readable format of the given state. Used for printing states while debugging.
+     *
+     *  @param state state which is returned in string format
+     *  @return      string format of the given state
+     */
     const char* get_state_string(CellularState state);
 private:
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
-    bool set_network_registration(char *plmn = 0);
+    bool set_network_registration();
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
     bool is_registered();
@@ -157,6 +170,7 @@ private:
     void state_device_ready();
     void state_sim_pin();
     void state_registering();
+    void state_manual_registering_network();
     void state_attaching();
     void state_activating_pdp_context();
     void state_connect_to_network();
@@ -165,6 +179,7 @@ private:
     void retry_state_or_fail();
     void network_callback(nsapi_event_t ev, intptr_t ptr);
     nsapi_error_t continue_from_state(CellularState state);
+    bool is_registered_to_plmn();
 
 private:
     friend class EasyCellularConnection;
@@ -198,6 +213,9 @@ private:
     events::EventQueue _at_queue;
     char _st_string[20];
     int _event_id;
+    const char* _plmn;
+    bool _command_success;
+    bool _plmn_network_found;
 };
 
 } // namespace

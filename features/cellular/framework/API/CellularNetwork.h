@@ -199,6 +199,18 @@ public:
     };
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
+    struct operator_names_t {
+        char numeric[MAX_OPERATOR_NAME_SHORT+1];
+        char alpha[MAX_OPERATOR_NAME_LONG+1];
+        operator_names_t* next;
+        operator_names_t() {
+            numeric[0] = '\0';
+            alpha[0] = '\0';
+            next = NULL;
+        }
+    };
+    typedef CellularList<operator_names_t> operator_names_list;
+
     /* Network registering mode */
     enum NWRegisteringMode {
         NWModeAutomatic = 0,    // automatic registering
@@ -460,6 +472,12 @@ public:
      */
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
 
+    /** Read operator names
+     *
+     *  @param op_names     on successful return will contain linked list of operator names.
+     *  @return             zero on success
+     */
+    virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
 };
 
 } // namespace mbed

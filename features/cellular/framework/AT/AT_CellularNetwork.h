@@ -141,6 +141,7 @@ protected:
      */
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat);
 
+    virtual nsapi_error_t get_operator_names(operator_names_list &op_names);
 private:
     //  "NO CARRIER" urc
     void urc_no_carrier();

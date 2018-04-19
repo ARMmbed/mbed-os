@@ -656,7 +656,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         tr_debug("Automatic network registration");
         _at.cmd_start("AT+COPS?");
         _at.cmd_stop();
-        _at.resp_start("AT+COPS:");
+        _at.resp_start("+COPS:");
         int mode = _at.read_int();
         _at.resp_stop();
         if (mode != 0) {
@@ -912,6 +912,14 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     while (_at.info_elem('(')) {
 
         op = operators.add_new();
+        if (!op) {
+            tr_warn("Could not allocate new operator");
+            _at.resp_stop();
+            _at.unlock();
+            operators.delete_all();
+            opsCount = 0;
+            return NSAPI_ERROR_NO_MEMORY;
+        }
 
         op->op_status = (operator_t::Status)_at.read_int();
         _at.read_string(op->op_long, sizeof(op->op_long));
@@ -933,7 +941,6 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     _at.resp_stop();
 
     opsCount = idx;
-
     return _at.unlock_return_error();
 }
 
@@ -1045,8 +1052,9 @@ nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params
         params = params_list.add_new();
         if (!params) {
             tr_warn("Could not allocate new pdpcontext_params_t");
-            params_list.delete_all();
             _at.resp_stop();
+            _at.unlock();
+            params_list.delete_all();
             free(temp);
             free(ipv6_and_subnetmask);
             return NSAPI_ERROR_NO_MEMORY;
@@ -1185,5 +1193,31 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
 
     _at.resp_stop();
 
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_names)
+{
+    _at.lock();
+
+    _at.cmd_start("AT+COPN?");
+    _at.cmd_stop();
+
+    _at.resp_start("+COPN:");
+    operator_names_t *names = NULL;
+    while (_at.info_resp()) {
+        names = op_names.add_new();
+        if (!names) {
+            tr_warn("Could not allocate new operator_names_t");
+            _at.resp_stop();
+            _at.unlock();
+            op_names.delete_all();
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        _at.read_string(names->numeric, sizeof(names->numeric));
+        _at.read_string(names->alpha, sizeof(names->alpha));
+    }
+
+    _at.resp_stop();
     return _at.unlock_return_error();
 }
