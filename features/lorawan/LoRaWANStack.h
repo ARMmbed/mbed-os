@@ -291,12 +291,15 @@ public:
      * @param null_allowed      Internal use only. Needed for sending empty packet
      *                          having CONFIRMED bit on.
      *
+     * @param allow_port_0      Internal use only. Needed for flushing MAC commands.
+     *
      * @return                  The number of bytes sent, or
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
     int16_t handle_tx(uint8_t port, const uint8_t* data,
-                      uint16_t length, uint8_t flags, bool null_allowed = false);
+                      uint16_t length, uint8_t flags,
+                      bool null_allowed = false, bool allow_port_0 = false);
 
     /** Receives a message from the Network Server.
      *
@@ -399,7 +402,7 @@ private:
     /**
      * Checks if the user provided port is valid or not
      */
-    bool is_port_valid(uint8_t port);
+    bool is_port_valid(uint8_t port, bool allow_port_0 = false);
 
     /**
      * State machine for stack controller layer.
@@ -439,12 +442,27 @@ private:
     /**
      * Sets up user application port
      */
-    lorawan_status_t set_application_port(uint8_t port);
+    lorawan_status_t set_application_port(uint8_t port, bool allow_port_0 = false);
 
     /**
      * Handles connection internally
      */
     lorawan_status_t handle_connect(bool is_otaa);
+
+
+    /** Send event to application.
+     *
+     * @param  event            The event to be sent.
+     */
+    void send_event_to_application(const lorawan_event_t event) const;
+
+    /** Send empty uplink message to network.
+     *
+     * Sends an empty confirmed message to gateway.
+     *
+     * @param  port            The event to be sent.
+     */
+    void send_automatic_uplink_message(const uint8_t port);
 
 private:
 
