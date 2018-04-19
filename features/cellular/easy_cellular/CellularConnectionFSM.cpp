@@ -76,14 +76,7 @@ CellularConnectionFSM::~CellularConnectionFSM()
 void CellularConnectionFSM::stop()
 {
     tr_info("CellularConnectionUtil::stop");
-    if (_cellularDevice) {
-        _cellularDevice->close_power();
-        _cellularDevice->close_network();
-        _cellularDevice->close_sim();
-        _power = NULL;
-        _network = NULL;
-        _sim = NULL;
-    }
+
     if (_queue_thread) {
         _queue_thread->terminate();
         delete _queue_thread;
@@ -162,7 +155,7 @@ bool CellularConnectionFSM::open_sim()
             nsapi_error_t err = _sim->set_pin(_sim_pin);
             if (err) {
                 tr_error("SIM pin set failed with: %d, bailing out...", err);
-            } 
+            }
         } else {
             tr_warn("PIN required but No SIM pin provided.");
         }
