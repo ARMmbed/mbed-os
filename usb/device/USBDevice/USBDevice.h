@@ -176,6 +176,11 @@ public:
     void endpoint_remove(usb_ep_t endpoint);
 
     /**
+    * Remove all non-zero endpoints
+    */
+    void endpoint_remove_all();
+
+    /**
     * Stall an endpoint
     *
     * @param endpoint Endpoint to stall

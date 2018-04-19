@@ -36,6 +36,7 @@
 /* Endpoint macros */
 #define EP_INDEXABLE(endpoint)  (EP_VALID(endpoint) && !EP_CONTROL(endpoint))
 #define EP_TO_INDEX(endpoint)   ((((endpoint & 0xf) << 1) | (endpoint & 0x80 ? 1 : 0)) - 2)
+#define INDEX_TO_EP(index)      ((usb_ep_t)((((index) >> 1) | (index & 1 ? 0x80 : 0)) + 1))
 #define EP_VALID(endpoint)      (((endpoint) & ~0x8F) == 0)
 #define EP_CONTROL(endpoint)    (((endpoint) & 0xF) == 0)
 #define EP_RX(endpoint)         ((endpoint) & 0x80)
@@ -1097,6 +1098,20 @@ void USBDevice::endpoint_remove(usb_ep_t endpoint)
     info->max_packet_size = 0;
 
     _phy->endpoint_remove(endpoint);
+
+    unlock();
+}
+
+void USBDevice::endpoint_remove_all()
+{
+    lock();
+
+    for (uint32_t i = 0; i < sizeof(_endpoint_info) / sizeof(_endpoint_info[0]); i++) {
+        endpoint_info_t *info = _endpoint_info + i;
+        if (info->flags & ENDPOINT_ENABLED) {
+            endpoint_remove(INDEX_TO_EP(i));
+        }
+    }
 
     unlock();
 }
