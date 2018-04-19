@@ -3,7 +3,7 @@
 <!-- 
     Required
     Add here detailed changes summary, testing results, dependencies 
-    Good example: https://os.mbed.com/docs/latest/reference/guidelines.html#workflow (Pull request template)
+    Good example: https://os.mbed.com/docs/latest/reference/workflow.html (Pull request template)
 -->
 
 
