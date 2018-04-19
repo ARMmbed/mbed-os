@@ -25,9 +25,11 @@
 #include "rtos/Thread.h"
 #endif
 #include "Kernel.h"
+#include "CellularUtil.h"
 
 using namespace mbed;
 using namespace events;
+using namespace mbed_cellular_util;
 
 //#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
 #include "CellularLog.h"
@@ -509,6 +511,67 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     // Do we need _stop_found set after reading by size -> is _stop_tag_by_len needed or not?
     return len;
+}
+
+ssize_t ATHandler::read_hex_string(char *buf, size_t size)
+{
+    tr_debug("%s", __func__);
+    at_debug("\n----------read_hex_string buff:----------\n");
+    for (size_t i = _recv_pos; i < _recv_len; i++) {
+        at_debug("%c", _recv_buff[i]);
+    }
+    at_debug("\n----------read_hex_string end----------\n");
+
+    if (_last_err || !_stop_tag || _stop_tag->found) {
+        return -1;
+    }
+
+    size_t match_pos = 0, str_len = 0;
+    size_t upper = 0, lower = 0;
+    size_t hex_size = size*2;
+
+    uint8_t *pbuf = (uint8_t*)buf;
+
+    consume_char('\"');
+
+    for (size_t hex_len = 0; hex_len < (hex_size + match_pos); hex_len++) {
+        char c = get_char();
+        if (c == -1) {
+            pbuf[str_len] = '\0';
+            set_error(NSAPI_ERROR_DEVICE_ERROR);
+            return -1;
+        } else if (c == _delimiter) {
+            pbuf[str_len] = '\0';
+            break;
+        } else if (c == '\"') {
+            match_pos = 0;
+            if (str_len > 0) {
+                str_len--;
+            }
+            continue;
+        } else if (_stop_tag->len && c == _stop_tag->tag[match_pos]) {
+            match_pos++;
+            if (match_pos == _stop_tag->len) {
+                _stop_tag->found = true;
+                // remove tag from string if it was matched
+                str_len -= (_stop_tag->len - 1);
+                pbuf[str_len] = '\0';
+                break;
+            }
+        } else if (match_pos) {
+            match_pos = 0;
+        }
+
+        if (hex_len % 2 == 0) {
+            upper = hex_str_to_int(&c, 1);
+        } else {
+            lower = hex_str_to_int(&c, 1);
+            pbuf[str_len] = ((upper<<4) & 0xF0) | (lower & 0x0F);
+            str_len++;
+        }
+    }
+
+    return str_len;
 }
 
 int32_t ATHandler::read_int()
