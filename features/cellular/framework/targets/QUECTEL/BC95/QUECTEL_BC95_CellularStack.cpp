@@ -154,7 +154,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
-    _at.write_int(size);
+    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
     _at.write_string(hexstr, false);
     _at.cmd_stop();
     _at.resp_start();
@@ -181,7 +181,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
-    _at.write_int(size);
+    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
     _at.cmd_stop();
     _at.resp_start();
     // receiving socket id
