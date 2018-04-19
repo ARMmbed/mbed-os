@@ -10,9 +10,9 @@
     [ ] Bug 
 -->
 
-[ ] Question  
-[ ] Enhancement  
-[ ] Bug  
+- [ ] Question
+- [ ] Enhancement
+- [ ] Bug
 
 <!-- 
     Required
