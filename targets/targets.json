@@ -1079,7 +1079,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER", "HSE_VALUE=25000000"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LPTICKER"],
         "overrides": {"lse_available": 0},
         "release_versions": ["2", "5"],
         "device_name": "STM32F401VE"
@@ -2839,7 +2839,7 @@
         "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32620","TARGET_REV=0x4332","OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32620C"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
     },
     "MAX32625_BASE": {
@@ -3239,7 +3239,7 @@
     },
     "EFR32MG1_BRD4150": {
         "inherits": ["EFR32MG1P132F256GM48"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3978,13 +3978,13 @@
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
-            "lowpowertimer_lptim": {
-                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LOWPOWERTIMER, or 0 to use RTC wakeup timer",
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
             }
         },
         "detect_code": ["0822"],
-        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LPTICKER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496AG"
     },
