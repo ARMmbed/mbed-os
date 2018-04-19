@@ -31,7 +31,6 @@ public:
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
     virtual nsapi_connection_status_t get_connection_status() const;
-    virtual void set_blocking(bool blocking);
 
     void get_mac_address(uint8_t *buf) const { interface_phy.get_mac_address(buf); }
 
@@ -115,6 +114,8 @@ protected:
 
     char ip_addr_str[40];
     char mac_addr_str[24];
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    bool _blocking;
 };
 
 class MeshInterfaceNanostack : public InterfaceNanostack, public MeshInterface, private mbed::NonCopyable<MeshInterfaceNanostack> {

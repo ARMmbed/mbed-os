@@ -13,7 +13,8 @@ class Nanostack::LoWPANNDInterface : public Nanostack::MeshInterface
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = IPV6_STACK);
+                                  nsapi_ip_stack_t stack = IPV6_STACK,
+                                  bool blocking = true);
     virtual nsapi_error_t bringdown();
     virtual char *get_gateway(char *buf, nsapi_size_t buflen);
 
@@ -33,15 +34,16 @@ int LoWPANNDInterface::connect()
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
+        _interface->attach(_connection_status_cb);
     }
 
-    return _interface->bringup(false, NULL, NULL, NULL);
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
 
 }
 
 nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
                                                     const char *netmask, const char *gw,
-                                                    nsapi_ip_stack_t stack)
+                                                    nsapi_ip_stack_t stack, bool blocking)
 {
     nanostack_lock();
 
@@ -49,6 +51,8 @@ nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+
+    _blocking = blocking;
 
     // After the RF is up, we can seed the random from it.
     randLIB_seed_random();
@@ -68,11 +72,13 @@ nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
     // Release mutex before blocking
     nanostack_unlock();
 
-    // wait connection for ever
-    int32_t count = connect_semaphore.wait(osWaitForever);
+    if (blocking) {
+        // wait connection for ever
+        int32_t count = connect_semaphore.wait(osWaitForever);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 

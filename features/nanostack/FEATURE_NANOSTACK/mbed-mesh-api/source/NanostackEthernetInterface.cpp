@@ -58,13 +58,14 @@ nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
 
 nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
                       const char *netmask, const char *gw,
-                      nsapi_ip_stack_t stack)
+                      nsapi_ip_stack_t stack, bool blocking)
 {
     if (stack == IPV4_STACK) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
     nanostack_lock();
+    _blocking = blocking;
     if (interface_id < 0) {
         enet_tasklet_init();
         __mesh_handler_set_callback(this);
@@ -86,10 +87,12 @@ nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    int32_t count = connect_semaphore.wait(30000);
+    if (blocking) {
+        int32_t count = connect_semaphore.wait(30000);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 }
@@ -99,7 +102,7 @@ int NanostackEthernetInterface::connect()
     if (!_interface) {
         return NSAPI_ERROR_PARAMETER;
     }
-    return _interface->bringup(false, NULL, NULL, NULL);
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
 }
 
 nsapi_error_t Nanostack::EthernetInterface::bringdown()

@@ -12,7 +12,8 @@ class Nanostack::ThreadInterface : public Nanostack::MeshInterface
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = IPV6_STACK);
+                                  nsapi_ip_stack_t stack = IPV6_STACK,
+                                  bool blocking = true);
     virtual nsapi_error_t bringdown();
     friend Nanostack;
     friend class ::ThreadInterface;
@@ -77,14 +78,15 @@ int ThreadInterface::connect()
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
+        _interface->attach(_connection_status_cb);
     }
 
-    return _interface->bringup(false, NULL, NULL, NULL);
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
 }
 
 nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
                                                   const char *netmask, const char *gw,
-                                                  nsapi_ip_stack_t stack)
+                                                  nsapi_ip_stack_t stack, bool blocking)
 {
     if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
@@ -100,6 +102,8 @@ nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     nanostack_lock();
+
+    _blocking = blocking;
 
     // After the RF is up, we can seed the random from it.
     randLIB_seed_random();

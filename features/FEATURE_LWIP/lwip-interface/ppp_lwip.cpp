@@ -57,6 +57,7 @@ static FileHandle *my_stream;
 static LWIP::Interface *my_interface;
 static ppp_pcb *my_ppp_pcb;
 static bool ppp_active = false;
+static bool blocking_connect = true;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
@@ -356,7 +357,7 @@ nsapi_error_t nsapi_ppp_error_code()
 
 nsapi_error_t nsapi_ppp_set_blocking(bool blocking)
 {
-    my_interface->set_blocking(blocking);
+    blocking_connect = blocking;
     return NSAPI_ERROR_OK;
 }
 
@@ -384,7 +385,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
 
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
-    retcode = my_interface->bringup(false, NULL, NULL, NULL, stack);
+    retcode = my_interface->bringup(false, NULL, NULL, NULL, stack, blocking_connect);
 
     if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
         return connect_error_code;

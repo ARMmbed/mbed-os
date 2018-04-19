@@ -216,11 +216,6 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
     }
 }
 
-void LWIP::Interface::set_blocking(bool block)
-{
-    blocking = block;
-}
-
 void LWIP::Interface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     client_callback = status_cb;
@@ -420,7 +415,7 @@ nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, LWIP::Interfac
 }
 
 
-nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
+nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack, bool block)
 {
     // Check if we've already connected
     if (connected == NSAPI_STATUS_GLOBAL_UP) {
@@ -430,6 +425,7 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
     }
 
     connected = NSAPI_STATUS_CONNECTING;
+    blocking = block;
 
 #if LWIP_DHCP
     if (stack != IPV6_STACK && dhcp) {

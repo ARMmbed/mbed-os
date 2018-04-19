@@ -69,11 +69,6 @@ void Nanostack::Interface::attach(
     _connection_status_cb = status_cb;
 }
 
-void Nanostack::Interface::set_blocking(bool blocking)
-{
-    _blocking = blocking;
-}
-
 Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy), interface_id(-1), _device_id(-1),
       _connect_status(NSAPI_STATUS_DISCONNECTED), _blocking(true)
 {
@@ -83,7 +78,7 @@ Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy), interfa
 
 InterfaceNanostack::InterfaceNanostack()
     : _interface(NULL),
-      ip_addr_str(), mac_addr_str()
+      ip_addr_str(), mac_addr_str(), _blocking(true)
 {
     // Nothing to do
 }
@@ -167,17 +162,24 @@ const char *InterfaceNanostack::get_mac_address()
 
 nsapi_connection_status_t InterfaceNanostack::get_connection_status() const
 {
-    return _interface->get_connection_status();
+    if (_interface) {
+        return _interface->get_connection_status();
+    } else {
+        return NSAPI_STATUS_DISCONNECTED;
+    }
 }
 
 void InterfaceNanostack::attach(
     mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
-    _interface->attach(status_cb);
+    _connection_status_cb = status_cb;
+    if (_interface) {
+        _interface->attach(status_cb);
+    }
 }
 
 nsapi_error_t InterfaceNanostack::set_blocking(bool blocking)
 {
-    _interface->set_blocking(blocking);
+    _blocking = blocking;
     return NSAPI_ERROR_OK;
 }

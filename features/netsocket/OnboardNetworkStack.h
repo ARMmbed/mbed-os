@@ -58,11 +58,13 @@ public:
          * @param    netmask    Net mask to be used for the interface as "W:X:Y:Z" or NULL
          * @param    gw         Gateway address to be used for the interface as "W:X:Y:Z" or NULL
          * @param    stack      Allow manual selection of IPv4 and/or IPv6.
+         * @param    blocking   Specify whether bringup blocks for connection completion.
          * @return              NSAPI_ERROR_OK on success, or error code
          */
         virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                               const char *netmask, const char *gw,
-                              nsapi_ip_stack_t stack = DEFAULT_STACK) = 0;
+                              nsapi_ip_stack_t stack = DEFAULT_STACK,
+                              bool blocking = true) = 0;
 
         /** Disconnect interface from the network
          *
@@ -87,13 +89,6 @@ public:
          *  @return         The connection status according to ConnectionStatusType
          */
         virtual nsapi_connection_status_t get_connection_status() const = 0;
-
-        /** Set blocking behaviour for bringup
-         *
-         * Controls whether bringup blocks or returns immediately.
-         *  @param blocking true if bringup is blocking
-         */
-        virtual void set_blocking(bool blocking) = 0;
 
         /** Return MAC address of the network interface
          *

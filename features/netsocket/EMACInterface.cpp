@@ -21,9 +21,10 @@ EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
     _emac(emac),
     _stack(stack),
     _interface(NULL),
-    _dhcp(true), 
-    _ip_address(), 
-    _netmask(), 
+    _dhcp(true),
+    _blocking(true),
+    _ip_address(),
+    _netmask(),
     _gateway()
 {
 }
@@ -56,13 +57,15 @@ nsapi_error_t EMACInterface::connect()
             _interface = NULL;
             return err;
         }
+        _interface->attach(_connection_status_cb);
     }
 
     return _interface->bringup(_dhcp,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0,
-            DEFAULT_STACK);
+            DEFAULT_STACK,
+            _blocking);
 }
 
 nsapi_error_t EMACInterface::disconnect()
@@ -113,16 +116,23 @@ NetworkStack *EMACInterface::get_stack()
 void EMACInterface::attach(
     Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
-    _interface->attach(status_cb);
+    _connection_status_cb = status_cb;
+    if (_interface) {
+        _interface->attach(status_cb);
+    }
 }
 
 nsapi_connection_status_t EMACInterface::get_connection_status() const
 {
-    return _interface->get_connection_status();
+    if (_interface) {
+        return _interface->get_connection_status();
+    } else {
+        return NSAPI_STATUS_DISCONNECTED;
+    }
 }
 
 nsapi_error_t EMACInterface::set_blocking(bool blocking)
 {
-    _interface->set_blocking(blocking);
+    _blocking = blocking;
     return NSAPI_ERROR_OK;
 }

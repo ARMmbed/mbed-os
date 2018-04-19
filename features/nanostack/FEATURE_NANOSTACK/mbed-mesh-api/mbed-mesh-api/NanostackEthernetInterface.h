@@ -25,7 +25,8 @@ class Nanostack::EthernetInterface : public Nanostack::Interface {
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
-                                  nsapi_ip_stack_t stack = DEFAULT_STACK);
+                                  nsapi_ip_stack_t stack = DEFAULT_STACK,
+                                  bool blocking = true);
     virtual nsapi_error_t bringdown();
 
 private:
