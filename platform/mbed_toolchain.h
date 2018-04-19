@@ -412,6 +412,27 @@
 #define EXTERN extern
 #endif
 
+/** MBED_NONSECURE_ENTRY
+ *  Declare a function that can be called from non-secure world or secure world
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  MBED_NONSECURE_ENTRY void foo() {
+ *
+ *  }
+ *  @endcode
+ */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3L)
+#if defined (__ICCARM__)
+#define MBED_NONSECURE_ENTRY       __cmse_nonsecure_entry
+#else
+#define MBED_NONSECURE_ENTRY       __attribute__((cmse_nonsecure_entry))
+#endif
+#else
+#define MBED_NONSECURE_ENTRY
+#endif
+
 #endif
 
 /** @}*/
