@@ -154,11 +154,6 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   {  
     /* Allocate lock resource and initialize it */
     hpcd->Lock = HAL_UNLOCKED;
-
-    // MBED patch
-    for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
-    hpcd->EPLock[i].Lock = HAL_UNLOCKED;
-
     /* Init the low level hardware : GPIO, CLOCK, NVIC... */
     HAL_PCD_MspInit(hpcd);
   }
