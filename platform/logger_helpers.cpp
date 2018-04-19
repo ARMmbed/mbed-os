@@ -18,6 +18,7 @@
 #if !defined(NDEBUG) && !defined(MBED_ID_BASED_TRACING)
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "platform/mbed_assert.h"
 #include "platform/PlatformMutex.h"
 #include "platform/SingletonPtr.h"
@@ -28,13 +29,27 @@
 #include "mbed-client-libservice/common_functions.h"
 #endif
 
-#define LOG_SINGLE_HELPER_STR_SIZE_     LOG_SINGLE_STR_SIZE_
-
 static SingletonPtr<PlatformMutex> log_helper_lock;
 static uint32_t log_mutex_count = 0;
-static char log_helper_data[LOG_SINGLE_HELPER_STR_SIZE_];
+static char *log_helper_data;
 static mbed_log_mutex_fptr mbed_log_mutex_wait_fptr;
 static mbed_log_mutex_fptr mbed_log_mutex_release_fptr;
+
+static void log_helper_init(void)
+{
+    if (NULL == log_helper_data) {
+       log_helper_data = (char*)malloc(LOG_SINGLE_HELPER_STR_SIZE_);
+       MBED_ASSERT(log_helper_data != NULL);
+    }
+}
+
+extern "C" void log_helper_deinit(void)
+{
+    if (NULL != log_helper_data) {
+        free(log_helper_data);
+        log_helper_data = NULL;
+    }
+}
 
 extern "C" char* mbed_log_ipv6(const void *addr_ptr)
 {
@@ -47,6 +62,7 @@ extern "C" char* mbed_log_ipv6(const void *addr_ptr)
     if (addr_ptr == NULL) {
         return "<null>";
     }
+    log_helper_init();
     log_helper_data[0] = 0;
     ip6tos(addr_ptr, log_helper_data);
     return log_helper_data;
@@ -66,6 +82,7 @@ extern "C" char* mbed_log_ipv6_prefix(const uint8_t *prefix, uint32_t prefix_len
     if ((prefix_len != 0 && prefix == NULL) || prefix_len > 128) {
         return "<err>";
     }
+    log_helper_init();
     ip6_prefix_tos(prefix, prefix_len, log_helper_data);
     return log_helper_data;
 #else
@@ -85,7 +102,7 @@ extern "C" char* mbed_log_array(const uint8_t *buf, uint32_t len)
     if (NULL == buf) {
         return "<null>";
     }
-
+    log_helper_init();
     char* str = log_helper_data;
     uint32_t retVal = snprintf(str, LOG_SINGLE_HELPER_STR_SIZE_, "%02x", *buf++);
     uint32_t count = retVal;

@@ -196,6 +196,20 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
+/** Logging thread stack size can be configured by application, default it is 512 bytes */
+#ifndef MBED_CONF_APP_LOG_STACK_SIZE
+#define MBED_CONF_APP_LOG_STACK_SIZE    512
+#endif
+
+/** Logging thread priority can be configured by application, default it is osPriorityNormal1 */
+#ifndef MBED_CONF_LOG_THREAD_PRIORITY
+#define MBED_CONF_LOG_THREAD_PRIORITY   osPriorityNormal
+#endif
+
+osThreadAttr_t _log_thread_attr;
+MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
+mbed_rtos_storage_thread_t _log_obj;
+void print_buf_data(void);
 /*
  * Sanity check values
  */
@@ -305,6 +319,22 @@ static void mbed_cpy_nvic(void)
  */
 WEAK void mbed_main(void) {
 
+}
+
+void mbed_logging_start(void)
+{    
+    // Create an additional logging thread
+    _log_thread_attr.stack_mem = _log_stack;
+    _log_thread_attr.stack_size = sizeof(_log_stack);
+    _log_thread_attr.cb_size = sizeof(_log_obj);
+    _log_thread_attr.cb_mem = &_log_obj;
+    _log_thread_attr.priority = MBED_CONF_LOG_THREAD_PRIORITY;
+    _log_thread_attr.name = "logging_thread";
+    osThreadId_t result = osThreadNew((osThreadFunc_t)print_buf_data, NULL, &_log_thread_attr);
+
+    if ((void *)result == NULL) {
+        error("Logging thread not created");
+    }
 }
 
 /* This function can be implemented by the target to perform higher level target initialization, before the mbed OS or

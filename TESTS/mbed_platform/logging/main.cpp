@@ -25,15 +25,23 @@ using utest::v1::Case;
 #warning "Helper functions will not be tested, as MBED_CONF_MBED_TRACE_FEA_IPV6/MBED_CONF_MBED_TRACE_ENABLE is not set"
 #endif
 
-LOG_DATA_TYPE_ buf[MBED_CONF_EXTERNAL_BUFFER_SIZE];
+LOG_DATA_TYPE_ *buf = NULL;
 
 static void test_log_reset()
 {
     log_reset();
-    memset(buf, 0x0, MBED_CONF_EXTERNAL_BUFFER_SIZE);
+    if (NULL == buf) {
+        buf = new LOG_DATA_TYPE_[MBED_CONF_MAX_BUFFER_SIZE];
+    }
+    memset(buf, 0x0, MBED_CONF_MAX_BUFFER_SIZE);
     log_buffer_data(buf);
     log_disable_time_capture();
     return;
+}
+
+static void test_log_clean()
+{
+    delete[] buf;
 }
 
 static void test_log_levels()
@@ -200,7 +208,7 @@ static void test_log_helper_ipv6()
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
     TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: 2001:db8::1:0:0:1", buf);
 #else
-    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]:", buf);
+    TEST_ASSERT_EQUAL_STRING("[INFO][IPv6]: ", buf);
 #endif
     return;
 }
@@ -285,7 +293,8 @@ Case cases[] = {
     Case("Test helper ipv6 functions", test_log_helper_ipv6),
     Case("Test log in ISR context", test_log_isr),
     Case("Test log interleave test", test_log_interleave),
-    Case("Test overflow test", test_log_overflow)
+    Case("Test overflow test", test_log_overflow),
+    Case("Cleanup buffers", test_log_clean)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
