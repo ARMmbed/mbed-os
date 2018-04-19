@@ -1,48 +1,27 @@
-Note: This is just a template, so feel free to use/remove the unnecessary things
+### Issue request type
 
+<!-- 
+    Required
+    Please add only one X to one of the following types. Do not fill multiple types (split the pull request otherwise) or
+    change the layout.
+
+    [X] Question
+    [ ] Enhancement 
+    [ ] Bug 
+-->
+
+[ ] Question  
+[ ] Enhancement  
+[ ] Bug  
+
+<!-- 
+    Required
+    Add detailed description of what is being reported
+    Good example: https://os.mbed.com/docs/latest/reference/workflow.html
+    Things to consider sharing:
+    - What target does this relate to?
+    - What toolchain is being used?
+    - What is the SHA of Mbed OS (git log -n1 --oneline)?
+    - Steps to reproduce (Did you publish code or a test case that exhibits the problem)
+-->
 ### Description
-- Type: Bug | Enhancement | Question
-- Related issue: `#abc`
-- Priority: Blocker | Major | Minor
-
----------------------------------------------------------------
-## Bug
-
-**Target**
-K64F|??
-
-**Toolchain:**
-GCC_ARM|ARM|IAR
-
-**Toolchain version:**
-
-**mbed-cli version:** 
-(`mbed --version`)
-
-**mbed-os sha:**
-(`git log -n1 --oneline`)
-
-**DAPLink version:**
-
-**Expected behavior**
-
-**Actual behavior**
-
-**Steps to reproduce**
-
-----------------------------------------------------------------
-## Enhancement
-
-**Reason to enhance or problem with existing solution**
-
-**Suggested enhancement**
-
-**Pros**
-
-**Cons**
-
------------------------------------------------------------------
-
-## Question
-
-**How to?**
