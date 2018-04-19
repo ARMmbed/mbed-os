@@ -82,7 +82,7 @@ public:
 			_data[i] = (uint8_t)rand();
 		}
 		// clear pending events
-		while ((EchoSocket::eventFlags.wait_any(_async_flag, SOCKET_TIMEOUT) & (osFlagsError | _async_flag)) == _async_flag);
+		TEST_ASSERT(!(EchoSocket::eventFlags.clear(_async_flag) & osFlagsError));
 		if (hostname) {
 			TEST_ASSERT(sendto(hostname, ECHO_SERVER_UDP_PORT, _data, _size) == _size);
 		} else {
