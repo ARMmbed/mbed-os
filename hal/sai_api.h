@@ -78,7 +78,7 @@ extern "C" {
  *
  * @{
  */
- 
+
 /**
  * \defgroup hal_sai_tests sai hal tests
  * The sai HAL tests ensure driver conformance to defined behaviour.
@@ -187,8 +187,7 @@ void sai_free(sai_t *obj);
  * Checks init parameter sanity.
  * @param init      A config to be sanity checked.
  * @return  True if the init is sane.
- * @note It does not guaranty that this configuration will be supported by the
- *       device.
+ * @note This does not verify that the device actually supports this configuration.
  */
 bool sai_check_sanity(sai_init_t *init);
 
