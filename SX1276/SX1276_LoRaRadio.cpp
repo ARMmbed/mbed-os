@@ -48,8 +48,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #define XTAL_FREQ                                   32000000
 #define FREQ_STEP                                   61.03515625
 
-#define RX_BUFFER_SIZE                              256
-
 /*!
  * Constant values need to compute the RSSI value
  */
@@ -72,7 +70,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8_t   modem;
+    uint8_t     modem;
     uint8_t     addr;
     uint8_t     value;
 } radio_registers_t;
@@ -156,8 +154,6 @@ enum RadioVariant {
 #else
 #define SPI_FREQUENCY    8000000
 #endif
-
-static uint8_t radio_variant;
 
 /**
  * Constructor

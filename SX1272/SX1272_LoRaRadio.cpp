@@ -80,7 +80,7 @@ typedef struct
  */
 typedef struct
 {
-    modem_type   modem;
+    modem_type  modem;
     uint8_t     addr;
     uint8_t     value;
 } radio_registers_t;
@@ -159,12 +159,6 @@ const fsk_bw_t fsk_bandwidths[] =
  */
 static const radio_registers_t radio_reg_init[] = RADIO_INIT_REGISTERS_VALUE;
 
-static uint8_t radio_variant;
-
-/**
- * Flag used to set the RF switch control pins in low power mode when the radio is not active.
- */
-static bool radio_is_active = false;
 
 /**
  * Constructor
@@ -215,6 +209,8 @@ SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi,
     if (tcxo != NC) {
         _tcxo = 1;
     }
+
+    radio_is_active = false;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     irq_thread.start(mbed::callback(this, &SX1272_LoRaRadio::rf_irq_task));

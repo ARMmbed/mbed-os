@@ -375,6 +375,13 @@ private:
     // Access protection
     PlatformMutex mutex;
 
+    uint8_t radio_variant;
+
+    /**
+     * Flag used to set the RF switch control pins in low power mode when the radio is not active.
+     */
+    bool radio_is_active;
+
     // helper functions
     void setup_registers();
     void default_antenna_switch_ctrls();

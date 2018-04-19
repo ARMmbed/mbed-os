@@ -390,6 +390,8 @@ private:
     // Access protection
     PlatformMutex mutex;
 
+    uint8_t radio_variant;
+
     // helper functions
     void setup_registers();
     void default_antenna_switch_ctrls();
