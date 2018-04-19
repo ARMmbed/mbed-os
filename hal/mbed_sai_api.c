@@ -92,8 +92,9 @@ const sai_format_t sai_mode_pcm16s = {
 };
 
 
-bool sai_check_sanity(sai_init_t *init) {
-    return  (init != NULL) && 
+bool sai_check_sanity(sai_init_t *init)
+{
+    return  (init != NULL) &&
             (init->sample_rate != 0) &&
             (init->format.ws_length <= init->format.word_length) &&
             (init->format.bit_shift <= (init->format.word_length - init->format.data_length)) &&
