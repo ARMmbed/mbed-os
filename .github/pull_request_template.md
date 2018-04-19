@@ -21,8 +21,8 @@
     [ ] Breaking change
 -->
 
-[ ] Fix  
-[ ] Refactor  
-[ ] New target  
-[ ] Feature  
-[ ] Breaking change
+- [ ] Fix
+- [ ] Refactor
+- [ ] New target
+- [ ] Feature
+- [ ] Breaking change
