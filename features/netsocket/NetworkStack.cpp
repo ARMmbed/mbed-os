@@ -49,9 +49,39 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return nsapi_dns_query(this, name, address, version);
 }
 
+nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, void *data, nsapi_version_t version)
+{
+    SocketAddress address;
+
+    // check for simple ip addresses
+    if (address.set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address.get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        return NSAPI_ERROR_OK;
+    }
+
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
+    }
+
+    return nsapi_dns_query_async(this, name, callback, data, version);
+}
+
 nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
 {
     return nsapi_dns_add_server(address);
+}
+
+nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)

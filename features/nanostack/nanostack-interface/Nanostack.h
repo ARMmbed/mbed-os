@@ -23,6 +23,7 @@
 #include "NanostackMemoryManager.h"
 #include "MeshInterface.h"
 #include "mesh_interface_types.h"
+#include "eventOS_event.h"
 
 struct ns_address;
 
@@ -43,7 +44,30 @@ public:
     /* Local variant with stronger typing and manual address specification */
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr = NULL);
 
+    /** Call a callback
+     *
+     *  Call a callback from the network stack context. If returns error
+     *  callback will not be called.
+     *
+     *  @param func     Callback to be called
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t call(mbed::Callback<void()> func);
+
+    /** Call a callback after a delay
+     *
+     *  Call a callback from the network stack context after a delay. If
+     *  returns error callback will not be called.
+     *
+     *  @param delay    Delay in milliseconds
+     *  @param func     Callback to be called
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+
 protected:
+
+    Nanostack();
 
     /** Get the local IP address
      *
@@ -242,9 +266,15 @@ protected:
     virtual nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 
 private:
+    struct nanostack_callback {
+        mbed::Callback<void()> callback;
+    };
+
     nsapi_size_or_error_t do_sendto(void *handle, const struct ns_address *address, const void *data, nsapi_size_t size);
+    static void call_event_tasklet_main(arm_event_s *event);
     char text_ip_address[40];
     NanostackMemoryManager memory_manager;
+    int8_t call_event_tasklet;
 };
 
 nsapi_error_t map_mesh_error(mesh_error_t err);

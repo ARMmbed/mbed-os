@@ -25,6 +25,7 @@
 #include "ns_address.h"
 #include "nsdynmemLIB.h"
 #include "eventOS_scheduler.h"
+#include "eventOS_event_timer.h"
 #include "randLIB.h"
 #include "ip6string.h"
 
@@ -57,6 +58,7 @@ enum socket_mode_t {
     SOCKET_MODE_LISTENING,  // Socket is listening for connections
 };
 
+#define CALL_EVENT   0x12
 
 class NanostackSocket {
 public:
@@ -442,6 +444,65 @@ void NanostackSocket::event_connection_reset(socket_callback_t *sock_cb)
     MBED_ASSERT((SOCKET_MODE_STREAM == mode) ||
                 (SOCKET_MODE_CONNECTING == mode));
     close();
+}
+
+Nanostack::Nanostack()
+    : call_event_tasklet(-1)
+{
+
+}
+
+void Nanostack::call_event_tasklet_main(arm_event_s *event)
+{
+    if (event->event_id == CALL_EVENT) {
+        nanostack_callback *cb = static_cast<nanostack_callback *>(event->data_ptr);
+        cb->callback();
+        delete cb;
+    }
+}
+
+nsapi_error_t Nanostack::call(mbed::Callback<void()> func)
+{
+    return call_in(0, func);
+}
+
+nsapi_error_t Nanostack::call_in(int delay, mbed::Callback<void()> func)
+{
+    if (call_event_tasklet < 0) {
+        call_event_tasklet = eventOS_event_handler_create(&call_event_tasklet_main, 0);
+        if (call_event_tasklet < 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    nanostack_callback *cb = new nanostack_callback;
+    if (!cb) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    cb->callback = func;
+
+    arm_event_s event;
+
+    event.sender =  call_event_tasklet,
+    event.event_id = CALL_EVENT,
+    event.receiver = call_event_tasklet,
+    event.data_ptr = cb;
+    event.event_type = APPLICATION_EVENT;
+    event.priority = ARM_LIB_LOW_PRIORITY_EVENT;
+
+    if (delay) {
+        uint32_t ticks = eventOS_event_timer_ms_to_ticks(delay);
+        if (!eventOS_event_send_in(&event, ticks)) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    } else {
+        if (eventOS_event_send(&event) < 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    return NSAPI_ERROR_OK;
 }
 
 const char * Nanostack::get_ip_address()

@@ -198,29 +198,44 @@ public:
      */
     nsapi_error_t _add_ppp_interface(void *pcb, bool default_if, LWIP::Interface **interface_out);
 
-    /** Translates a hostname to an IP address with specific version
+    /** Get a domain name server from a list of servers to query
      *
-     *  The hostname may be either a domain name or an IP address. If the
-     *  hostname is an IP address, no network transactions will be performed.
+     *  Returns a DNS server address for a index. If returns error no more
+     *  DNS servers to read.
      *
-     *  If no stack-specific DNS resolution is provided, the hostname
-     *  will be resolve using a UDP socket on the stack.
-     *
-     *  @param host     Hostname to resolve
-     *  @param address  Destination for the host SocketAddress
-     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
-     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t gethostbyname(const char *host,
-            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
-
-    /** Add a domain name server to list of servers to query
-     *
+     *  @param index    Index of the DNS server, starts from zero
      *  @param address  Destination for the host address
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+    virtual nsapi_error_t get_dns_server(int index, SocketAddress *address);
+
+    /** Call a callback
+     *
+     *  Call a callback from the network stack context. If returns error
+     *  callback will not be called.
+     *
+     *  @param func     Callback to be called
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t call(mbed::Callback<void()> func);
+
+    /** Call a callback after a delay
+     *
+     *  Call a callback from the network stack context after a delay. If
+     *  returns error callback will not be called.
+     *
+     *  @param delay    Delay in milliseconds
+     *  @param func     Callback to be called
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+
+    /** Get the local IP address
+     *
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
+     */
+    virtual const char *get_ip_address();
 
 protected:
     LWIP();
@@ -439,6 +454,11 @@ private:
         uint32_t         multicast_memberships_registry;
     };
 
+    struct lwip_callback {
+        unsigned int delay;
+        mbed::Callback<void()> callback;
+    };
+
     static nsapi_error_t err_remap(err_t err);
     static bool is_local_addr(const ip_addr_t *ip_addr);
     static const ip_addr_t *get_ip_addr(bool any_addr, const struct netif *netif);
@@ -475,9 +495,14 @@ private:
     static void socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len);
 
     static void tcpip_init_irq(void *handle);
+    static void tcpip_thread_callback(void *ptr);
+
+    char ip_address[40];
     rtos::Semaphore tcpip_inited;
     Interface *default_interface;
     LWIPMemoryManager memory_manager;
+    osThreadId tcpip_thread_id;
+    rtos::Mutex adaptation;
 };
 
 #endif /* LWIPSTACK_H_ */

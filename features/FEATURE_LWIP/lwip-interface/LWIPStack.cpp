@@ -33,6 +33,7 @@
 #include "lwip/dns.h"
 #include "lwip/udp.h"
 #include "lwip/lwip_errno.h"
+#include "lwip-sys/arch/sys_arch.h"
 
 #include "LWIPStack.h"
 
@@ -47,9 +48,9 @@ void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
         return;
     }
 
-    sys_prot_t prot = sys_arch_protect();
-
     LWIP &lwip = LWIP::get_instance();
+
+    lwip.adaptation.lock();
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {
         if (lwip.arena[i].in_use
@@ -59,7 +60,7 @@ void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
         }
     }
 
-    sys_arch_unprotect(prot);
+    lwip.adaptation.unlock();
 }
 
 #if !LWIP_IPV4 || !LWIP_IPV6
@@ -149,6 +150,7 @@ void LWIP::tcpip_init_irq(void *eh)
 {
     LWIP *lwip = static_cast<LWIP *>(eh);
     lwip->tcpip_inited.release();
+    sys_tcpip_thread_set();
 }
 
 /* LWIP network stack implementation */
@@ -173,80 +175,84 @@ LWIP::LWIP()
     arena_init();
 }
 
-nsapi_error_t LWIP::gethostbyname(const char *host, SocketAddress *address, nsapi_version_t version)
+nsapi_error_t LWIP::get_dns_server(int index, SocketAddress *address)
 {
-    ip_addr_t lwip_addr;
+    int dns_entries = 0;
 
-#if LWIP_IPV4 && LWIP_IPV6
-    u8_t addr_type;
-    if (version == NSAPI_UNSPEC) {
-        const ip_addr_t *ip_addr = NULL;
-        if (default_interface) {
-            ip_addr = get_ip_addr(true, &default_interface->netif);
-        }
-        // Prefer IPv6
-        if (IP_IS_V6(ip_addr)) {
-            // If IPv4 is available use it as backup
-            if (get_ipv4_addr(&default_interface->netif)) {
-                addr_type = NETCONN_DNS_IPV6_IPV4;
-            } else {
-                addr_type = NETCONN_DNS_IPV6;
+    for (int i = 0; i < DNS_MAX_SERVERS; i++) {
+        const ip_addr_t *ip_addr = dns_getserver(i);
+        if (!ip_addr_isany(ip_addr)) {
+            if (index == dns_entries) {
+                nsapi_addr_t addr;
+                convert_lwip_addr_to_mbed(&addr, ip_addr);
+                address->set_addr(addr);
+                return NSAPI_ERROR_OK;
             }
-        // Prefer IPv4
-        } else {
-            // If IPv6 is available use it as backup
-            if (get_ipv6_addr(&default_interface->netif)) {
-                addr_type = NETCONN_DNS_IPV4_IPV6;
-            } else {
-                addr_type = NETCONN_DNS_IPV4;
-            }
+            dns_entries++;
         }
-    } else if (version == NSAPI_IPv4) {
-        addr_type = NETCONN_DNS_IPV4;
-    } else if (version == NSAPI_IPv6) {
-        addr_type = NETCONN_DNS_IPV6;
-    } else {
-        return NSAPI_ERROR_DNS_FAILURE;
     }
-    err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
-#elif LWIP_IPV4
-     if (version != NSAPI_IPv4 && version != NSAPI_UNSPEC) {
-        return NSAPI_ERROR_DNS_FAILURE;
-    }
-    err_t err = netconn_gethostbyname(host, &lwip_addr);
-#elif LWIP_IPV6
-    if (version != NSAPI_IPv6 && version != NSAPI_UNSPEC) {
-        return NSAPI_ERROR_DNS_FAILURE;
-    }
-    err_t err = netconn_gethostbyname(host, &lwip_addr);
-#endif
-
-    if (err != ERR_OK) {
-        return NSAPI_ERROR_DNS_FAILURE;
-    }
-
-    nsapi_addr_t addr;
-    convert_lwip_addr_to_mbed(&addr, &lwip_addr);
-    address->set_addr(addr);
-
-    return 0;
+    return NSAPI_ERROR_NO_ADDRESS;
 }
 
-nsapi_error_t LWIP::add_dns_server(const SocketAddress &address)
+void LWIP::tcpip_thread_callback(void *ptr)
 {
-    // Shift all dns servers down to give precedence to new server
-    for (int i = DNS_MAX_SERVERS-1; i > 0; i--) {
-        dns_setserver(i, dns_getserver(i-1));
+    lwip_callback *cb = static_cast<lwip_callback *>(ptr);
+
+    if (cb->delay) {
+        sys_timeout(cb->delay, LWIP::tcpip_thread_callback, ptr);
+        cb->delay = 0;
+    } else {
+        cb->callback();
+        delete cb;
+    }
+}
+
+nsapi_error_t LWIP::call(mbed::Callback<void()> func)
+{
+    return call_in(0, func);
+}
+
+nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
+{
+    lwip_callback *cb = new lwip_callback;
+    if (!cb) {
+        return NSAPI_ERROR_NO_MEMORY;
     }
 
-    nsapi_addr_t addr = address.get_addr();
-    ip_addr_t ip_addr;
-    if (!convert_mbed_addr_to_lwip(&ip_addr, &addr)) {
-        return NSAPI_ERROR_PARAMETER;
+    cb->delay = delay;
+    cb->callback = func;
+
+    if (tcpip_callback_with_block(LWIP::tcpip_thread_callback, cb, 1) != ERR_OK) {
+        return NSAPI_ERROR_NO_MEMORY;
     }
 
-    dns_setserver(0, &ip_addr);
-    return 0;
+    return NSAPI_ERROR_OK;
+}
+
+const char *LWIP::get_ip_address()
+{
+    if (!default_interface) {
+        return NULL;
+    }
+
+    const ip_addr_t *addr = get_ip_addr(true, &default_interface->netif);
+
+    if (!addr) {
+        return NULL;
+    }
+#if LWIP_IPV6
+    if (IP_IS_V6(addr)) {
+        return ip6addr_ntoa_r(ip_2_ip6(addr), ip_address, sizeof(ip_address));
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(addr)) {
+        return ip4addr_ntoa_r(ip_2_ip4(addr), ip_address, sizeof(ip_address));
+    }
+#endif
+#if LWIP_IPV6 && LWIP_IPV4
+    return NULL;
+#endif
 }
 
 nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
@@ -439,6 +445,7 @@ nsapi_size_or_error_t LWIP::socket_sendto(nsapi_socket_t handle, const SocketAdd
     }
 
     struct netbuf *buf = netbuf_new();
+
     err_t err = netbuf_ref(buf, data, (u16_t)size);
     if (err != ERR_OK) {
         netbuf_free(buf);
@@ -588,7 +595,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
                 member_pair_index = next_free_multicast_member(s, 0);
 
-                sys_prot_t prot = sys_arch_protect();
+                adaptation.lock();
 
                 #if LWIP_IPV4
                 if (IP_IS_V4(&if_addr)) {
@@ -601,7 +608,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 }
                 #endif
 
-                sys_arch_unprotect(prot);
+                adaptation.unlock();
 
                 if (igmp_err == ERR_OK) {
                     set_multicast_member_registry_bit(s, member_pair_index);
@@ -616,7 +623,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 clear_multicast_member_registry_bit(s, member_pair_index);
                 s->multicast_memberships_count--;
 
-                sys_prot_t prot = sys_arch_protect();
+                adaptation.lock();
 
                 #if LWIP_IPV4
                 if (IP_IS_V4(&if_addr)) {
@@ -629,7 +636,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 }
                 #endif
 
-                sys_arch_unprotect(prot);
+                adaptation.unlock();
             }
 
             return err_remap(igmp_err);

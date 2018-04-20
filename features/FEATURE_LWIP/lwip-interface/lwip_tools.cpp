@@ -157,19 +157,22 @@ void LWIP::arena_init(void)
 
 struct LWIP::mbed_lwip_socket *LWIP::arena_alloc()
 {
-    sys_prot_t prot = sys_arch_protect();
+    LWIP &lwip = LWIP::get_instance();
+
+    lwip.adaptation.lock();
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {
         if (!arena[i].in_use) {
             struct mbed_lwip_socket *s = &arena[i];
             memset(s, 0, sizeof(*s));
             s->in_use = true;
-            sys_arch_unprotect(prot);
+            lwip.adaptation.unlock();
             return s;
         }
     }
 
-    sys_arch_unprotect(prot);
+    lwip.adaptation.unlock();
+
     return 0;
 }
 
