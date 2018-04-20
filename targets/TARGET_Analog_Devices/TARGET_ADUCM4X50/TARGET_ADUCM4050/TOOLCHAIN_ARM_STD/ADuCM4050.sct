@@ -1,9 +1,10 @@
+#! armcc -E
 ;******************************************************************************
 ;  File: ADuCM4050.sct
 ;  Scatter loading file for Analog Devices ADuCM4050 processor
 ;
 ;  Copyright (c) 2011 - 2014 ARM LIMITED
-;  Copyright (c) 2016 - 2017 Analog Devices, Inc.
+;  Copyright (c) 2016 - 2018 Analog Devices, Inc.
 ;
 ;  All rights reserved.
 ;  Redistribution and use in source and binary forms, with or without
@@ -29,14 +30,28 @@
 ;  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;  POSSIBILITY OF SUCH DAMAGE.
 ;******************************************************************************
-LR_IROM1 0x00000000 0x0007F000 {
-    FLASH0   0x00000000 0x00000800 {
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x7F000
+#endif
+
+#define ADUCM_SECTOR_SIZE 0x800
+
+#define ADUCM_VECTOR_SIZE 0x1A0
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE {
+    FLASH0 MBED_APP_START ADUCM_VECTOR_SIZE {
         *(.vectors, +First)
-        *(.checksum)
     }
 
-    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16) 0x0007E800 {
-        ; load address = execution address
+    FLASH1 (MBED_APP_START + ADUCM_VECTOR_SIZE) (ADUCM_SECTOR_SIZE - ADUCM_VECTOR_SIZE) {
+        *(.checksum, +Last)
+    }
+
+    ER_IROM1 (MBED_APP_START + ADUCM_SECTOR_SIZE) (MBED_APP_SIZE - ADUCM_SECTOR_SIZE) {
         *(InRoot$$Sections)
         *(+RO)
     }
