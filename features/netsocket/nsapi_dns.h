@@ -80,6 +80,19 @@ nsapi_error_t nsapi_dns_query(NetworkStack *stack, const char *host,
  *
  *  @param stack    Network stack as target for DNS query
  *  @param host     Hostname to resolve
+ *  @param callback Callback that is called for result*
+ *  @param data     Caller defined data returned in callback
+ *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
+ *  @return         0 on success, negative error code on failure
+ *                  NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
+ */
+nsapi_error_t nsapi_dns_query_async(NetworkStack *stack, const char *host,
+        NetworkStack::hostbyname_cb_t callback, void *data, nsapi_version_t version = NSAPI_IPv4);
+
+/** Query a domain name server for an IP address of a given hostname (asynchronous)
+ *
+ *  @param stack    Network stack as target for DNS query
+ *  @param host     Hostname to resolve
  *  @param addr     Destination for the host address
  *  @param version  IP version to resolve (defaults to NSAPI_IPv4)
  *  @return         0 on success, negative error code on failure
@@ -117,6 +130,20 @@ nsapi_error_t nsapi_dns_query(S *stack, const char *host,
 nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *host,
         SocketAddress *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
 
+/** Query a domain name server for an IP address of a given hostname (asynchronous)
+ *
+ *  @param stack      Network stack as target for DNS query
+ *  @param host       Hostname to resolve
+ *  @param callback   Callback that is called for result
+ *  @param data       Caller defined data returned in callback
+ *  @param addr_count Number of addresses allocated in the array
+ *  @param version    IP version to resolve (defaults to NSAPI_IPv4)
+ *  @return           0 on success, negative error code on failure
+ *                    NSAPI_ERROR_DNS_FAILURE indicates the host could not be found
+ */
+nsapi_size_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const char *host,
+        NetworkStack::hostbyname_cb_t callback, void *data, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
+
 /** Query a domain name server for multiple IP address of a given hostname
  *
  *  @param stack      Network stack as target for DNS query
@@ -129,6 +156,7 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const char *
  */
 extern "C" nsapi_size_or_error_t nsapi_dns_query_multiple(nsapi_stack_t *stack, const char *host,
         nsapi_addr_t *addr, nsapi_size_t addr_count, nsapi_version_t version = NSAPI_IPv4);
+
 
 /** Query a domain name server for multiple IP address of a given hostname
  *

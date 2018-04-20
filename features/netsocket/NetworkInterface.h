@@ -127,6 +127,38 @@ public:
     virtual nsapi_error_t gethostbyname(const char *host,
             SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
+    /** Hostname translation callback (asynchronous)
+     *
+     *  Callback will be called after DNS resolution completes or a failure
+     *  occurs.
+     *
+     *  @param status  0 on success, negative error code on failure
+     *  @param address On success, destination for the host SocketAddress
+     *  @param data    Caller defined data
+     */
+    typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address, void *data)> hostbyname_cb_t;
+
+    /** Translates a hostname to an IP address (asynchronous)
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  If no stack-specific DNS resolution is provided, the hostname
+     *  will be resolve using a UDP socket on the stack.
+     *
+     *  Call is non-blocking. Result of the DNS operation is returned by the callback.
+     *  If this function returns failure, callback will not be called.
+     *
+     *  @param host     Hostname to resolve
+     *  @param callback Callback that is called for result
+     *  @param data     Caller defined data returned in callback
+     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+     *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, void *data,
+            nsapi_version_t version = NSAPI_UNSPEC);
+
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Destination for the host address

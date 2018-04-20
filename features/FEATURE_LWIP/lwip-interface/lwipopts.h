@@ -213,6 +213,8 @@
 #endif
 
 #define LWIP_DNS                    1
+// Only DNS address storage is enabled
+#define LWIP_FULL_DNS               0
 #define LWIP_SOCKET                 0
 
 #define SO_REUSE                    1

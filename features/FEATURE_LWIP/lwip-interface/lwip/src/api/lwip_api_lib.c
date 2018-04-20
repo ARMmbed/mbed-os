@@ -102,11 +102,18 @@ netconn_apimsg(tcpip_callback_fn fn, struct api_msg *apimsg)
   apimsg->op_completed_sem = LWIP_NETCONN_THREAD_SEM_GET();
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
-  err = tcpip_send_msg_wait_sem(fn, apimsg, LWIP_API_MSG_SEM(apimsg));
-  if (err == ERR_OK) {
-    return apimsg->err;
+  if (sys_tcpip_thread_check()) {
+      fn(apimsg);
+      return ERR_OK;
+  } else {
+      err = tcpip_send_msg_wait_sem(fn, apimsg, LWIP_API_MSG_SEM(apimsg));
+
+      if (err == ERR_OK) {
+        return apimsg->err;
+      }
+
+      return err;
   }
-  return err;
 }
 
 /**
