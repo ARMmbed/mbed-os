@@ -434,6 +434,9 @@ public:
      *                          or other negative error code if request failed.
      */
     virtual lorawan_status_t set_device_class(const device_class_t device_class);
+
+private:
+    LoRaWANStack _lw_stack;
 };
 
 #endif /* LORAWANINTERFACE_H_ */

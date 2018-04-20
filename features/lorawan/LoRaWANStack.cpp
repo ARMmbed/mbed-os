@@ -103,19 +103,9 @@ LoRaWANStack::LoRaWANStack()
      LoRaMacPrimitives.mlme_indication  = callback(this, &LoRaWANStack::mlme_indication_handler);
 }
 
-LoRaWANStack::~LoRaWANStack()
-{
-}
-
 /*****************************************************************************
  * Public member functions                                                   *
  ****************************************************************************/
-LoRaWANStack& LoRaWANStack::get_lorawan_stack()
-{
-    static LoRaWANStack _lw_stack;
-    return _lw_stack;
-}
-
 void LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
 {
     _loramac.bind_radio_driver(radio);
