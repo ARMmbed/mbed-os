@@ -414,10 +414,14 @@ private:
     /**
      * Callback invoked by the secure DB when the identity list has been
      * retrieved.
-     * @param identity
+     *
+     * @param identity View to the array passed to the secure DB. It contains
+     * identity entries retrieved.
+     *
+     * @param count Number of identities entries retrieved.
      */
     void on_identity_list_retrieved(
-        ble::ArrayView<pal::SecurityEntryIdentity_t*>&,
+        ble::ArrayView<pal::SecurityEntryIdentity_t*>& identity_list,
         size_t count
     );
 
