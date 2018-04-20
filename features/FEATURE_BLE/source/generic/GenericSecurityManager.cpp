@@ -392,9 +392,8 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
         /* ignore if the link is already at required state*/
 
     } else if (encryption == link_encryption_t::NOT_ENCRYPTED) {
-
-        /* ignore if we are requesting an open link on an already encrypted link */
-
+        // Fail as it is not permitted to turn down encryption
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
         /* only change if we're not already encrypted with mitm */
