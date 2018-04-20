@@ -76,14 +76,14 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
         // lock deep sleep only the first time
         if (!_irq[type]) {
             sleep_manager_lock_deep_sleep();
-        } 
+        }
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         // unlock deep sleep only the first time
         if (_irq[type]) {
             sleep_manager_unlock_deep_sleep();
-        } 
+        }
         _irq[type] = NULL;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
@@ -107,6 +107,10 @@ int SerialBase::_base_putc(int c) {
     // Mutex is already held
     serial_putc(&_serial, c);
     return c;
+}
+
+void SerialBase::_base_flush() {
+    // no-op, no flushing required when talking to Serial
 }
 
 void SerialBase::send_break() {

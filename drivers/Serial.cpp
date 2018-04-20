@@ -36,6 +36,10 @@ int Serial::_putc(int c) {
     return _base_putc(c);
 }
 
+void Serial::_flush() {
+    _base_flush();
+}
+
 void Serial::lock() {
     _mutex.lock();
 }

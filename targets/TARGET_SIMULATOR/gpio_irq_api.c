@@ -44,7 +44,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 void gpio_irq_free(gpio_irq_t *obj) {
     EM_ASM_({
         MbedJSHal.gpio.irq_free($0);
-    }, obj->pin);
+    }, obj->pin, obj->id);
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) {

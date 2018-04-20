@@ -102,6 +102,7 @@ public:
 protected:
     virtual int _getc();
     virtual int _putc(int c);
+    virtual void _flush();
     virtual void lock();
     virtual void unlock();
 
