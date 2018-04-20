@@ -6,7 +6,7 @@
  * @date:    $Date: $
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2017 Analog Devices, Inc.
+Copyright (c) 2010-2018 Analog Devices, Inc.
 
 All rights reserved.
 
