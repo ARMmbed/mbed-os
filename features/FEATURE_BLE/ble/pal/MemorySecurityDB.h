@@ -238,7 +238,7 @@ public:
         if (entry) {
             entry->state = ENTRY_WRITTEN;
             entry->peer_identity.irk = irk;
-            entry->flags.irk_stored;
+            entry->flags.irk_stored = true;
         }
     }
 
