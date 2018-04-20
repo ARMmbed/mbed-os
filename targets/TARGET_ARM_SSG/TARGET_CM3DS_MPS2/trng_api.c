@@ -18,8 +18,6 @@
 #include "tztrng.h"
 
 #define BITS_PER_BYTE 8
-/* Base address of the TRNG peripheral */
-#define TRNG_BASE     0x4000F000
 
 void trng_init(trng_t *obj)
 {

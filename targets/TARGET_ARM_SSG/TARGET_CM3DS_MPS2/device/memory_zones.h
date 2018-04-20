@@ -12,7 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ */
+
+/*
  * This file contains the information of memory zones for code and data on
  * CM3DS.
  * It is used in startup code and linker scripts of supported compilers (ARM and

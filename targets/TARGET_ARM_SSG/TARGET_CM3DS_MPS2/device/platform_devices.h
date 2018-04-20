@@ -17,6 +17,7 @@
 #ifndef __ARM_LTD_PLATFORM_DEVICES_H__
 #define __ARM_LTD_PLATFORM_DEVICES_H__
 
+/* ======= Configures the peripheral set ======= */
 #include "device_cfg.h"
 
 /* ======= Includes generic driver headers ======= */

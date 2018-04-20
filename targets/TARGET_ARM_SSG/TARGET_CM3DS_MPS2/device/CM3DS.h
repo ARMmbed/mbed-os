@@ -14,12 +14,21 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * This file is derivative of CMSIS V5.00 ARMCM3.h
  */
 
-#ifndef CMSDK_CM3DS_H
-#define CMSDK_CM3DS_H
+/*
+ * This file is derivative of CMSIS V5.00 ARMCM3.h
+ *
+ * This file has merged with the former SMM_MPS2.h file, derivative from the
+ * MPS2 Selftest implementation.
+ * MPS2 Selftest: https://silver.arm.com/browse/VEI10 ->
+ *     \ISCM-1-0\AN491\software\Selftest\v2m_mps2\SMM_MPS2.h
+ *
+ * It includes code implementation file for the LAN Ethernet interface.
+ */
+
+#ifndef CM3DS_H
+#define CM3DS_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -40,7 +49,7 @@ typedef enum IRQn
   PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
   SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
-/* ----------------------  CMSDK_CM3 Specific Interrupt Numbers  ------------------ */
+/* ----------------------  CM3DS Specific Interrupt Numbers  ---------------------- */
   UART0_IRQn                    = 0,       /* UART 0 RX and TX Combined Interrupt   */
   Spare_IRQn                    = 1,       /* Undefined                             */
   UART1_IRQn                    = 2,       /* UART 1 RX and TX Combined Interrupt   */
@@ -105,7 +114,7 @@ typedef enum IRQn
 /* ================================================================================ */
 
 /* --------  Configuration of the Cortex-M3 Processor and Core Peripherals  ------- */
-#define __CM3DS_REV                 0x0201U   /* Core revision r2p1 */
+#define __CM3DS_REV               0x0201U   /* Core revision r2p1 */
 #define __MPU_PRESENT             1         /* MPU present or not */
 #define __VTOR_PRESENT            1         /* VTOR present or not */
 #define __NVIC_PRIO_BITS          3         /* Number of Bits used for Priority Levels */
@@ -122,7 +131,7 @@ typedef enum IRQn
 /* -------------------  Start of section using anonymous unions  ------------------ */
 #if defined ( __CC_ARM   )
   #pragma push
-#pragma anon_unions
+  #pragma anon_unions
 #elif defined(__ICCARM__)
   #pragma language=extended
 #elif defined(__GNUC__)
@@ -221,53 +230,6 @@ typedef struct
 #define CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Pos   2
 #define CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Msk   (0x00001ul << CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Pos) /* CMSDK_SYSCON RSTINFO: LOCKUPRESET Mask */
 
-/*------------------- WATCHDOG ----------------------------------------------*/
-typedef struct
-{
-
-  __IO    uint32_t  LOAD;                   /* Offset: 0x000 (R/W) Watchdog Load Register */
-  __I     uint32_t  VALUE;                  /* Offset: 0x004 (R/ ) Watchdog Value Register */
-  __IO    uint32_t  CTRL;                   /* Offset: 0x008 (R/W) Watchdog Control Register */
-  __O     uint32_t  INTCLR;                 /* Offset: 0x00C ( /W) Watchdog Clear Interrupt Register */
-  __I     uint32_t  RAWINTSTAT;             /* Offset: 0x010 (R/ ) Watchdog Raw Interrupt Status Register */
-  __I     uint32_t  MASKINTSTAT;            /* Offset: 0x014 (R/ ) Watchdog Interrupt Status Register */
-        uint32_t  RESERVED0[762];
-  __IO    uint32_t  LOCK;                   /* Offset: 0xC00 (R/W) Watchdog Lock Register */
-        uint32_t  RESERVED1[191];
-  __IO    uint32_t  ITCR;                   /* Offset: 0xF00 (R/W) Watchdog Integration Test Control Register */
-  __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
-}CMSDK_WATCHDOG_TypeDef;
-
-#define CMSDK_WATCHDOG_LOAD_Pos               0                                              /* CMSDK_WATCHDOG LOAD: LOAD Position */
-#define CMSDK_WATCHDOG_LOAD_Msk              (0xFFFFFFFFul << CMSDK_WATCHDOG_LOAD_Pos)       /* CMSDK_WATCHDOG LOAD: LOAD Mask */
-
-#define CMSDK_WATCHDOG_VALUE_Pos              0                                              /* CMSDK_WATCHDOG VALUE: VALUE Position */
-#define CMSDK_WATCHDOG_VALUE_Msk             (0xFFFFFFFFul << CMSDK_WATCHDOG_VALUE_Pos)      /* CMSDK_WATCHDOG VALUE: VALUE Mask */
-
-#define CMSDK_WATCHDOG_CTRL_RESEN_Pos         1                                              /* CMSDK_WATCHDOG CTRL_RESEN: Enable Reset Output Position */
-#define CMSDK_WATCHDOG_CTRL_RESEN_Msk        (0x1ul << CMSDK_WATCHDOG_CTRL_RESEN_Pos)        /* CMSDK_WATCHDOG CTRL_RESEN: Enable Reset Output Mask */
-
-#define CMSDK_WATCHDOG_CTRL_INTEN_Pos         0                                              /* CMSDK_WATCHDOG CTRL_INTEN: Int Enable Position */
-#define CMSDK_WATCHDOG_CTRL_INTEN_Msk        (0x1ul << CMSDK_WATCHDOG_CTRL_INTEN_Pos)        /* CMSDK_WATCHDOG CTRL_INTEN: Int Enable Mask */
-
-#define CMSDK_WATCHDOG_INTCLR_Pos             0                                              /* CMSDK_WATCHDOG INTCLR: Int Clear Position */
-#define CMSDK_WATCHDOG_INTCLR_Msk            (0x1ul << CMSDK_WATCHDOG_INTCLR_Pos)            /* CMSDK_WATCHDOG INTCLR: Int Clear Mask */
-
-#define CMSDK_WATCHDOG_RAWINTSTAT_Pos         0                                              /* CMSDK_WATCHDOG RAWINTSTAT: Raw Int Status Position */
-#define CMSDK_WATCHDOG_RAWINTSTAT_Msk        (0x1ul << CMSDK_WATCHDOG_RAWINTSTAT_Pos)        /* CMSDK_WATCHDOG RAWINTSTAT: Raw Int Status Mask */
-
-#define CMSDK_WATCHDOG_MASKINTSTAT_Pos        0                                              /* CMSDK_WATCHDOG MASKINTSTAT: Mask Int Status Position */
-#define CMSDK_WATCHDOG_MASKINTSTAT_Msk       (0x1ul << CMSDK_WATCHDOG_MASKINTSTAT_Pos)       /* CMSDK_WATCHDOG MASKINTSTAT: Mask Int Status Mask */
-
-#define CMSDK_WATCHDOG_LOCK_Pos               0                                              /* CMSDK_WATCHDOG LOCK: LOCK Position */
-#define CMSDK_WATCHDOG_LOCK_Msk              (0x1ul << CMSDK_WATCHDOG_LOCK_Pos)              /* CMSDK_WATCHDOG LOCK: LOCK Mask */
-
-#define CMSDK_WATCHDOG_INTEGTESTEN_Pos        0                                              /* CMSDK_WATCHDOG INTEGTESTEN: Integration Test Enable Position */
-#define CMSDK_WATCHDOG_INTEGTESTEN_Msk       (0x1ul << CMSDK_WATCHDOG_INTEGTESTEN_Pos)       /* CMSDK_WATCHDOG INTEGTESTEN: Integration Test Enable Mask */
-
-#define CMSDK_WATCHDOG_INTEGTESTOUTSET_Pos    1                                              /* CMSDK_WATCHDOG INTEGTESTOUTSET: Integration Test Output Set Position */
-#define CMSDK_WATCHDOG_INTEGTESTOUTSET_Msk   (0x1ul << CMSDK_WATCHDOG_INTEGTESTOUTSET_Pos)   /* CMSDK_WATCHDOG INTEGTESTOUTSET: Integration Test Output Set Mask */
-
 /*------------------------- Real Time Clock(RTC) ----------------------------------------------*/
 typedef struct
 {
@@ -283,6 +245,93 @@ typedef struct
 
 #define CMSDK_RTC_ENABLE_Pos                  0                                /* CMSDK_RTC Enable: Real Time Clock Enable Position */
 #define CMSDK_RTC_ENABLE_Msk                  (0x1ul << CMSDK_RTC_ENABLE_Pos)  /* CMSDK_RTC Enable: Real Time Clock Enable Mask */
+
+/******************************************************************************/
+/*               Audio and Touch Screen (I2C) Peripheral declaration          */
+/******************************************************************************/
+
+typedef struct
+{
+  union {
+  __O   uint32_t  CONTROLS;     // Offset: 0x000 CONTROL Set Register     ( /W)
+  __I   uint32_t  CONTROL;      // Offset: 0x000 CONTROL Status Register  (R/ )
+  };
+  __O    uint32_t  CONTROLC;    // Offset: 0x004 CONTROL Clear Register    ( /W)
+} MPS2_I2C_TypeDef;
+
+/******************************************************************************/
+/*                       SMSC9220 Register Definitions                        */
+/******************************************************************************/
+
+typedef struct                   // SMSC LAN9220
+{
+__I   uint32_t  RX_DATA_PORT;          //   Receive FIFO Ports (offset 0x0)
+      uint32_t  RESERVED1[0x7];
+__O   uint32_t  TX_DATA_PORT;          //   Transmit FIFO Ports (offset 0x20)
+      uint32_t  RESERVED2[0x7];
+
+__I   uint32_t  RX_STAT_PORT;          //   Receive FIFO status port (offset 0x40)
+__I   uint32_t  RX_STAT_PEEK;          //   Receive FIFO status peek (offset 0x44)
+__I   uint32_t  TX_STAT_PORT;          //   Transmit FIFO status port (offset 0x48)
+__I   uint32_t  TX_STAT_PEEK;          //   Transmit FIFO status peek (offset 0x4C)
+
+__I   uint32_t  ID_REV;                //   Chip ID and Revision (offset 0x50)
+__IO  uint32_t  IRQ_CFG;               //   Main Interrupt Configuration (offset 0x54)
+__IO  uint32_t  INT_STS;               //   Interrupt Status (offset 0x58)
+__IO  uint32_t  INT_EN;                //   Interrupt Enable Register (offset 0x5C)
+      uint32_t  RESERVED3;             //   Reserved for future use (offset 0x60)
+__I   uint32_t  BYTE_TEST;             //   Read-only byte order testing register 87654321h (offset 0x64)
+__IO  uint32_t  FIFO_INT;              //   FIFO Level Interrupts (offset 0x68)
+__IO  uint32_t  RX_CFG;                //   Receive Configuration (offset 0x6C)
+__IO  uint32_t  TX_CFG;                //   Transmit Configuration (offset 0x70)
+__IO  uint32_t  HW_CFG;                //   Hardware Configuration (offset 0x74)
+__IO  uint32_t  RX_DP_CTL;             //   RX Datapath Control (offset 0x78)
+__I   uint32_t  RX_FIFO_INF;           //   Receive FIFO Information (offset 0x7C)
+__I   uint32_t  TX_FIFO_INF;           //   Transmit FIFO Information (offset 0x80)
+__IO  uint32_t  PMT_CTRL;              //   Power Management Control (offset 0x84)
+__IO  uint32_t  GPIO_CFG;              //   General Purpose IO Configuration (offset 0x88)
+__IO  uint32_t  GPT_CFG;               //   General Purpose Timer Configuration (offset 0x8C)
+__I   uint32_t  GPT_CNT;               //   General Purpose Timer Count (offset 0x90)
+      uint32_t  RESERVED4;             //   Reserved for future use (offset 0x94)
+__IO  uint32_t  ENDIAN;                //   WORD SWAP Register (offset 0x98)
+__I   uint32_t  FREE_RUN;              //   Free Run Counter (offset 0x9C)
+__I   uint32_t  RX_DROP;               //   RX Dropped Frames Counter (offset 0xA0)
+__IO  uint32_t  MAC_CSR_CMD;           //   MAC CSR Synchronizer Command (offset 0xA4)
+__IO  uint32_t  MAC_CSR_DATA;          //   MAC CSR Synchronizer Data (offset 0xA8)
+__IO  uint32_t  AFC_CFG;               //   Automatic Flow Control Configuration (offset 0xAC)
+__IO  uint32_t  E2P_CMD;               //   EEPROM Command (offset 0xB0)
+__IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
+
+} SMSC9220_TypeDef;
+
+// SMSC9220 MAC Registers       Indices
+#define SMSC9220_MAC_CR         0x1
+#define SMSC9220_MAC_ADDRH      0x2
+#define SMSC9220_MAC_ADDRL      0x3
+#define SMSC9220_MAC_HASHH      0x4
+#define SMSC9220_MAC_HASHL      0x5
+#define SMSC9220_MAC_MII_ACC    0x6
+#define SMSC9220_MAC_MII_DATA   0x7
+#define SMSC9220_MAC_FLOW       0x8
+#define SMSC9220_MAC_VLAN1      0x9
+#define SMSC9220_MAC_VLAN2      0xA
+#define SMSC9220_MAC_WUFF       0xB
+#define SMSC9220_MAC_WUCSR      0xC
+
+// SMSC9220 PHY Registers       Indices
+#define SMSC9220_PHY_BCONTROL   0x0
+#define SMSC9220_PHY_BSTATUS    0x1
+#define SMSC9220_PHY_ID1        0x2
+#define SMSC9220_PHY_ID2        0x3
+#define SMSC9220_PHY_ANEG_ADV   0x4
+#define SMSC9220_PHY_ANEG_LPA   0x5
+#define SMSC9220_PHY_ANEG_EXP   0x6
+#define SMSC9220_PHY_MCONTROL   0x17
+#define SMSC9220_PHY_MSTATUS    0x18
+#define SMSC9220_PHY_CSINDICATE 0x27
+#define SMSC9220_PHY_INTSRC     0x29
+#define SMSC9220_PHY_INTMASK    0x30
+#define SMSC9220_PHY_CS         0x31
 
 /* --------------------  End of section using anonymous unions  ------------------- */
 #if defined ( __CC_ARM   )
@@ -303,50 +352,52 @@ typedef struct
 /* ================              Peripheral memory map             ================ */
 /* ================================================================================ */
 
-/* Peripheral and SRAM base address                                                 */
-#define CMSDK_FLASH_BASE        (0x00000000UL)
-#define CMSDK_SRAM_BASE         (0x20000000UL)
-#define CMSDK_PERIPH_BASE       (0x40000000UL)
-
-#define CMSDK_RAM_BASE          (0x20000000UL)
-#define CMSDK_APB_BASE          (0x40000000UL)
-#define CMSDK_AHB_BASE          (0x40010000UL)
-
-/* APB peripherals */
-#define CMSDK_TIMER0_BASE       (CMSDK_APB_BASE + 0x0000UL)
-#define CMSDK_TIMER1_BASE       (CMSDK_APB_BASE + 0x1000UL)
-#define CMSDK_DUALTIMER_BASE    (CMSDK_APB_BASE + 0x2000UL)
-#define CMSDK_DUALTIMER_1_BASE  (CMSDK_DUALTIMER_BASE)
-#define CMSDK_DUALTIMER_2_BASE  (CMSDK_DUALTIMER_BASE + 0x20UL)
-#define CMSDK_UART0_BASE        (CMSDK_APB_BASE + 0x4000UL)
-#define CMSDK_UART1_BASE        (CMSDK_APB_BASE + 0x5000UL)
-#define CMSDK_UART2_BASE        (0x4002C000UL)
-#define CMSDK_UART3_BASE        (0x4002D000UL)
-#define CMSDK_UART4_BASE        (0x4002E000UL)
-#define CMSDK_RTC_BASE          (CMSDK_APB_BASE + 0x6000UL)
-#define CMSDK_WATCHDOG_BASE     (CMSDK_APB_BASE + 0x8000UL)
-
-/* AHB peripherals */
-#define CMSDK_GPIO0_BASE        (CMSDK_AHB_BASE + 0x0000UL)
-#define CMSDK_GPIO1_BASE        (CMSDK_AHB_BASE + 0x1000UL)
-#define CMSDK_GPIO2_BASE        (CMSDK_AHB_BASE + 0x2000UL)
-#define CMSDK_GPIO3_BASE        (CMSDK_AHB_BASE + 0x3000UL)
-#define CMSDK_GPIO4_BASE        (0x40030000UL)
-#define CMSDK_GPIO5_BASE        (0x40031000UL)
-#define CMSDK_SYSCTRL_BASE      (CMSDK_AHB_BASE + 0xF000UL)
-
-
+#define CMSDK_TIMER0_BASE       0x40000000UL
+#define CMSDK_TIMER1_BASE       0x40001000UL
+#define CMSDK_DUALTIMER_BASE    0x40002000UL
+#define CMSDK_DUALTIMER_1_BASE  0x40002000UL
+#define CMSDK_DUALTIMER_2_BASE  0x40002020UL
+#define CMSDK_UART0_BASE        0x40004000UL
+#define CMSDK_UART1_BASE        0x40005000UL
+#define CMSDK_RTC_BASE          0x40006000UL
+#define CMSDK_WATCHDOG_BASE     0x40008000UL
+#define TRNG_BASE               0x4000F000UL
+#define CMSDK_GPIO0_BASE        0x40010000UL
+#define CMSDK_GPIO1_BASE        0x40011000UL
+#define CMSDK_GPIO2_BASE        0x40012000UL
+#define CMSDK_GPIO3_BASE        0x40013000UL
+#define CMSDK_SYSCTRL_BASE      0x4001F000UL
+#define MPS2_SSP0_BASE          0x40020000UL /* User SSP Base Address */
+#define MPS2_SSP1_BASE          0x40021000UL /* CLCD SSP Base Address */
+#define MPS2_TSC_I2C_BASE       0x40022000UL /* Touch Screen I2C Base Address */
+#define MPS2_AAIC_I2C_BASE      0x40023000UL /* Audio Interface I2C Base Address */
+#define MPS2_AAIC_I2S_BASE      0x40024000UL /* Audio Interface I2S Base Address */
+#define MPS2_SSP2_BASE          0x40025000UL /* ADC SSP Base Address */
+#define MPS2_SSP3_BASE          0x40026000UL /* Shield 0 SSP Base Address */
+#define MPS2_SSP4_BASE          0x40027000UL /* Shield 1 SSP Base Address */
+#define MPS2_FPGAIO_BASE        0x40028000UL /* FPGAIO Base Address */
+#define MPS2_SHIELD0_I2C_BASE   0x40029000UL /* I2C shield 0 Base Address */
+#define MPS2_SHIELD1_I2C_BASE   0x4002A000UL /* I2C shield 1 Base Address */
+#define CMSDK_UART2_BASE        0x4002C000UL
+#define CMSDK_UART3_BASE        0x4002D000UL
+#define CMSDK_UART4_BASE        0x4002E000UL
+#define MPS2_SCC_BASE           0x4002F000UL /* SCC Base Address */
+#define CMSDK_GPIO4_BASE        0x40030000UL
+#define CMSDK_GPIO5_BASE        0x40031000UL
+#define SMSC9220_BASE           0x40200000UL /* Ethernet SMSC9220 Base Address */
+#define MPS2_VGA_TEXT_BUFFER    0x41000000UL /* VGA Text Buffer Address */
+#define MPS2_VGA_BUFFER         0x41100000UL /* VGA Buffer Base Address */
 
 /* ================================================================================ */
 /* ================             Peripheral declaration             ================ */
 /* ================================================================================ */
 
 #define CMSDK_RTC               ((CMSDK_RTC_TypeDef    *) CMSDK_RTC_BASE )
-#define CMSDK_WATCHDOG          ((CMSDK_WATCHDOG_TypeDef  *) CMSDK_WATCHDOG_BASE )
 #define CMSDK_SYSCON            ((CMSDK_SYSCON_TypeDef *) CMSDK_SYSCTRL_BASE )
+#define SMSC9220                ((SMSC9220_TypeDef    *) SMSC9220_BASE )
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* CMSDK_CM3DS_H */
+#endif  /* CM3DS_H */
