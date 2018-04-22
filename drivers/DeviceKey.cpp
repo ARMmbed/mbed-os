@@ -19,6 +19,7 @@
 #include "mbedtls/cmac.h"
 #include "nvstore.h"
 #include "trng_api.h"
+#include "mbed_wait_api.h"
 
 #if !defined(MBEDTLS_CMAC_C)
 #error [NOT_SUPPORTED] MBEDTLS_CMAC_C needs to be enabled for this driver
@@ -27,6 +28,14 @@
 #if NVSTORE_ENABLED
 
 namespace mbed {
+
+static void buffer_zeroize(void *v, size_t n)
+{
+    volatile unsigned char *p = (volatile unsigned char *)v;
+    while ( n-- ) {
+        *p++ = 0;
+    }
+}
 
 DeviceKey::DeviceKey()
 {
@@ -171,7 +180,7 @@ int DeviceKey::calculate_cmac(const unsigned char *input, size_t isize, uint32_t
         goto finish;
     }
 
-    return DEVICEKEY_SUCCESS;
+    ret =  DEVICEKEY_SUCCESS;
 
 finish:
     mbedtls_cipher_free( &ctx );
@@ -207,6 +216,7 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
 finish:
     if (double_size_salt != NULL) {
+        buffer_zeroize(double_size_salt, isalt_size);
         delete[] double_size_salt;
     }
 
@@ -221,27 +231,49 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
 {
 #if defined(DEVICE_TRNG)
     size_t in_size;
+    size_t ongoing_size;
+    size_t final_size;
     trng_t trng_obj;
+    int ret = DEVICEKEY_SUCCESS;
+    unsigned char *pBuffer = (unsigned char *)output;
 
     memset(output, 0, size);
 
     if (DEVICE_KEY_16BYTE > size) {
         return DEVICEKEY_BUFFER_TO_SMALL;
     } else if (DEVICE_KEY_16BYTE <= size && DEVICE_KEY_32BYTE > size) {
-        in_size = DEVICE_KEY_16BYTE;
+        size = DEVICE_KEY_16BYTE;
     } else {
-        in_size = DEVICE_KEY_32BYTE;
+        size = DEVICE_KEY_32BYTE;
     }
 
     trng_init(&trng_obj);
 
-    int ret = trng_get_bytes(&trng_obj, (unsigned char *)output, in_size, &size);
-    if (DEVICEKEY_SUCCESS != ret || in_size != size) {
-        return DEVICEKEY_TRNG_ERROR;
+    final_size = 0;
+    in_size = size;
+    while (true) {
+        ongoing_size = 0;
+        ret = trng_get_bytes(&trng_obj, (unsigned char *)pBuffer, in_size, &ongoing_size);
+        final_size += ongoing_size;
+        if (DEVICEKEY_SUCCESS != ret) {
+            ret = DEVICEKEY_TRNG_ERROR;
+            goto finish;
+        }
+        if (DEVICEKEY_SUCCESS == ret && final_size == size) {
+            break;
+        }
+        wait_ms(5);
+        pBuffer += ongoing_size;
+        in_size -= ongoing_size;
     }
 
+    ret = DEVICEKEY_SUCCESS;
+
+finish:
     trng_free(&trng_obj);
-    return DEVICEKEY_SUCCESS;
+    size = final_size;
+    return ret;
+
 #else
     return DEVICEKEY_NO_KEY_INJECTED;
 #endif
