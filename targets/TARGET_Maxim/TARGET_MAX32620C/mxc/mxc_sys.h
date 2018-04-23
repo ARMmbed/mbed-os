@@ -125,7 +125,7 @@ uint32_t SYS_CPU_GetFreq(void);
  * @returns     E_NO_ERROR if everything is successful
  */
 int SYS_ADC_Init(void);
-  
+
 /**
  * @brief       System level initialization for AES module.
  * @returns     E_NO_ERROR if everything is successful
@@ -240,13 +240,13 @@ int SYS_SPIX_Init(const sys_cfg_spix_t *sys_cfg, uint32_t baud);
  * @brief System level shutdown for SPIX module
  * @returns         E_NO_ERROR if everything is successful
  */
-int SYS_SPIX_Shutdown();
+int SYS_SPIX_Shutdown(void);
 
 /**
  * @brief Get the frequency of the SPIX module source clock
  * @returns         frequency in Hz
  */
-uint32_t SYS_SPIX_GetFreq();
+uint32_t SYS_SPIX_GetFreq(void);
 
 /**
  * @brief System level initialization for SPIS module.
@@ -259,13 +259,13 @@ int SYS_SPIS_Init(const sys_cfg_spix_t *sys_cfg);
  * @brief System level shutdown for SPIS module
  * @returns         E_NO_ERROR if everything is successful
  */
-int SYS_SPIS_Shutdown();
+int SYS_SPIS_Shutdown(void);
 
 /**
  * @brief Get the frequency of the SPIS module source clock
  * @returns         frequency in Hz
  */
-uint32_t SYS_SPIS_GetFreq();
+uint32_t SYS_SPIS_GetFreq(void);
 
 /**
  * @brief System level initialization for OWM module.
@@ -436,7 +436,7 @@ uint32_t SYS_SRAM_GetSize(void);
  * @returns size of Flash in bytes
  */
 uint32_t SYS_FLASH_GetSize(void);
-  
+
 #ifdef __cplusplus
 }
 #endif
