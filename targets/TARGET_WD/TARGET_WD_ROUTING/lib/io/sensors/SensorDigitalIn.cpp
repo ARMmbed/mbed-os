@@ -8,7 +8,7 @@ ___________________INCLUDES____________________________
 ___________________DEFINES_____________________________
 ******************************************************/
 #define DEFAULT_PULSE_DURATION_FILTER_SIZE		9
-#define PULSE_DURATION_RESET_TIMEOUT_FACTOR		3
+#define PULSE_DURATION_RESET_TIMEOUT_FACTOR		5
 #define SAMPLING_BUFFER_FILTER_SIZE				3
 #define SAMPLING_INTERVAL_MS					15
 
@@ -58,7 +58,7 @@ void SensorDigitalIn::onEdge() {
 	this->_pulseDurationBuffer->add(durationUs);
 	this->_pulseDurationTimer->reset();
 	timestamp_t resetTimeout = durationUs * PULSE_DURATION_RESET_TIMEOUT_FACTOR;
-	if (resetTimeout < 10000000) resetTimeout = 10000000;	// limit to 10 sec min.
+	if (resetTimeout < 10000000) resetTimeout = 15000000;	// limit to 10 sec min.
 	if (resetTimeout > 60000000) resetTimeout = 60000000;	// limit to 60 sec max.
 	this->_pulseDurationResetTimout->reset(resetTimeout);
 
