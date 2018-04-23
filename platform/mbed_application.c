@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include "device.h"
 #include "platform/mbed_application.h"
+#include "platform/mbed_toolchain.h"
 
 #if MBED_APPLICATION_SUPPORT
 
@@ -25,7 +26,7 @@ static void powerdown_nvic(void);
 static void powerdown_scb(uint32_t vtor);
 static void start_new_application(void *sp, void *pc);
 
-void mbed_start_application(uintptr_t address)
+MBED_WEAK void mbed_start_application(uintptr_t address)
 {
     void *sp;
     void *pc;
