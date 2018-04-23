@@ -565,6 +565,7 @@ void USBPhyHw::process()
 
         Data1 = 0x55555555;
         USB0->CTL |=  USB_CTL_ODDRST_MASK;
+        USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
 
         USB0->ISTAT   =  0xFF;  // clear all interrupt status flags
         USB0->ERRSTAT =  0xFF;  // clear all error flags
