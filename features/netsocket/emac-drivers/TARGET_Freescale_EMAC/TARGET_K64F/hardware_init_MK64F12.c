@@ -29,18 +29,45 @@
  */
 
 #include "fsl_port.h"
+#include "fsl_sysmpu.h"
+
+/* Initialize the region 1, master 0, 1, 2, 3 -  core access rights supervisior r/w/x , user r/w/x. */
+sysmpu_rwxrights_master_access_control_t right =
+{
+    kSYSMPU_SupervisorEqualToUsermode,
+    kSYSMPU_UserReadWriteExecute,
+#if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
+    false,
+#endif /* FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER */
+};
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
-void k64f_init_eth_hardware(void)
+void kinetis_init_eth_hardware(void)
 {
     port_pin_config_t configENET = {0};
+    sysmpu_region_config_t regConfig;
+    sysmpu_config_t config;
 
-#ifndef FEATURE_UVISOR
-    /* Disable MPU only when uVisor is not around. */
-    MPU->CESR &= ~MPU_CESR_VLD_MASK;
-#endif/*FEATURE_UVISOR*/
+    memset(&regConfig, 0, sizeof(sysmpu_region_config_t));
+    memset(&config, 0, sizeof(sysmpu_config_t));
+
+    regConfig.regionNum = 1;
+    regConfig.startAddress = 0U;
+    regConfig.endAddress = 0xFFFFFFFFU;
+    regConfig.accessRights1[0] = right;
+    regConfig.accessRights1[1] = right;
+    regConfig.accessRights1[2] = right;
+    regConfig.accessRights1[3] = right;
+
+#if FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER
+    regConfig.processIdentifier = 1U;
+    regConfig.processIdMask = 0U;
+#endif
+
+    config.regionConfig = regConfig;
+    SYSMPU_Init(SYSMPU, &config);
 
     CLOCK_EnableClock(kCLOCK_PortC);
     CLOCK_EnableClock(kCLOCK_PortB);
