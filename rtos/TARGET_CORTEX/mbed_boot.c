@@ -196,7 +196,7 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
-#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
+#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING) && !defined(NDEBUG)
 /** Logging thread stack size can be configured by application, default it is 512 bytes */
 #ifndef MBED_CONF_APP_LOG_STACK_SIZE
 #define MBED_CONF_APP_LOG_STACK_SIZE    512
@@ -323,6 +323,7 @@ WEAK void mbed_main(void) {
 
 }
 
+#if !defined(NDEBUG)
 void log_init(void);
 void mbed_logging_start(void)
 {
@@ -342,6 +343,7 @@ void mbed_logging_start(void)
     }
 #endif
 }
+#endif
 
 /* This function can be implemented by the target to perform higher level target initialization, before the mbed OS or
  * RTX is started.
