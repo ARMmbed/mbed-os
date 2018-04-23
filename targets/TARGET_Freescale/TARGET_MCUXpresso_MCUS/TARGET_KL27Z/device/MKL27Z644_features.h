@@ -647,6 +647,8 @@
     #define FSL_FEATURE_FLASH_PFLASH_BLOCK_DATA_PATH_WIDTH (4)
     /* @brief P-Flash block swap feature. */
     #define FSL_FEATURE_FLASH_HAS_PFLASH_BLOCK_SWAP (0)
+    /* @brief P-Flash protection region count. */
+    #define FSL_FEATURE_FLASH_PFLASH_PROTECTION_REGION_COUNT (32)
     /* @brief Has FlexNVM memory. */
     #define FSL_FEATURE_FLASH_HAS_FLEX_NVM (0)
     /* @brief FlexNVM start address. (Valid only if FlexNVM is available.) */
