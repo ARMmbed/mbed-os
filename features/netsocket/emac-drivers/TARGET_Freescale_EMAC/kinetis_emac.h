@@ -2,18 +2,18 @@
  * Copyright (c) 2017 ARM Limited. All rights reserved.
  */
 
-#ifndef K64F_EMAC_H_
-#define K64F_EMAC_H_
+#ifndef KINETIS_EMAC_H_
+#define KINETIS_EMAC_H_
 
 #include "EMAC.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
-class K64F_EMAC : public EMAC {
+class Kinetis_EMAC : public EMAC {
 public:
-    K64F_EMAC();
+    Kinetis_EMAC();
 
-    static K64F_EMAC &get_instance();
+    static Kinetis_EMAC &get_instance();
 
     /**
      * Return maximum transmission unit
@@ -164,7 +164,7 @@ private:
         phy_duplex_t duplex;
     };
     PHY_STATE prev_state;
-    uint8_t hwaddr[K64F_HWADDR_SIZE];
+    uint8_t hwaddr[KINETIS_HWADDR_SIZE];
 };
 
-#endif /* K64F_EMAC_H_ */
+#endif /* KINETIS_EMAC_H_ */
