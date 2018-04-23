@@ -196,6 +196,7 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
+#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
 /** Logging thread stack size can be configured by application, default it is 512 bytes */
 #ifndef MBED_CONF_APP_LOG_STACK_SIZE
 #define MBED_CONF_APP_LOG_STACK_SIZE    512
@@ -210,6 +211,7 @@ osThreadAttr_t _log_thread_attr;
 MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
 mbed_rtos_storage_thread_t _log_obj;
 void print_buf_data(void);
+#endif
 /*
  * Sanity check values
  */
@@ -323,7 +325,8 @@ WEAK void mbed_main(void) {
 
 void log_init(void);
 void mbed_logging_start(void)
-{    
+{
+#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
     log_init();
     // Create an additional logging thread
     _log_thread_attr.stack_mem = _log_stack;
@@ -337,6 +340,7 @@ void mbed_logging_start(void)
     if ((void *)result == NULL) {
         error("Logging thread not created");
     }
+#endif
 }
 
 /* This function can be implemented by the target to perform higher level target initialization, before the mbed OS or
