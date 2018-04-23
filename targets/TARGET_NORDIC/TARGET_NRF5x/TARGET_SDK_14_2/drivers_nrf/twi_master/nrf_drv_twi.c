@@ -558,12 +558,10 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
     p_cb->bytes_transferred = 0;
     p_cb->error             = false;
 
-    // In case TWI is suspended resume its operation.
-    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
-    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTTX);
-
-    (void)twi_send_byte(p_twi, p_data, length, &p_cb->bytes_transferred, no_stop);
-
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
     if (p_cb->handler)
     {
         p_cb->int_mask = NRF_TWI_INT_STOPPED_MASK   |
@@ -572,7 +570,18 @@ static ret_code_t twi_tx_start_transfer(twi_control_block_t * p_cb,
                         NRF_TWI_INT_RXDREADY_MASK;
         nrf_twi_int_enable(p_twi, p_cb->int_mask);
     }
-    else
+
+    // In case TWI is suspended resume its operation.
+    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
+    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTTX);
+
+    (void)twi_send_byte(p_twi, p_data, length, &p_cb->bytes_transferred, no_stop);
+
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
+    if (p_cb->handler == NULL)
     {
         while ((hw_timeout > 0) &&
                twi_transfer(p_twi,
@@ -632,10 +641,11 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
     {
         nrf_twi_shorts_set(p_twi, NRF_TWI_SHORT_BB_SUSPEND_MASK);
     }
-    // In case TWI is suspended resume its operation.
-    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
-    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTRX);
 
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
     if (p_cb->handler)
     {
         p_cb->int_mask = NRF_TWI_INT_STOPPED_MASK   |
@@ -644,7 +654,16 @@ static ret_code_t twi_rx_start_transfer(twi_control_block_t * p_cb,
                         NRF_TWI_INT_RXDREADY_MASK;
         nrf_twi_int_enable(p_twi, p_cb->int_mask);
     }
-    else
+
+    // In case TWI is suspended resume its operation.
+    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_RESUME);
+    nrf_twi_task_trigger(p_twi, NRF_TWI_TASK_STARTRX);
+
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
+    if (p_cb->handler == NULL)
     {
         while ((hw_timeout > 0) &&
                twi_transfer(p_twi,
