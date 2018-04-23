@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -78,6 +76,7 @@
 /** @defgroup PWREx_Exported_Functions PWREx Exported Functions
  * @{
  */
+uint32_t HAL_PWREx_GetVoltageRange(void);
 void HAL_PWREx_EnableFastWakeUp(void);
 void HAL_PWREx_DisableFastWakeUp(void);
 void HAL_PWREx_EnableUltraLowPower(void);

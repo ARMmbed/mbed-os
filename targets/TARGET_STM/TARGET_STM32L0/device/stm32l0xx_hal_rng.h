@@ -3,8 +3,6 @@
   * @file    stm32l0xx_hal_rng.h
 
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention

@@ -2,12 +2,10 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
-  * @brief   Header file of USART HAL Extension module.
+  * @brief   Header file of USART HAL Extended module.
   ******************************************************************************
   * @attention
-  *                               
+  *
   * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +30,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -49,7 +47,8 @@
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
-/** @defgroup USARTEx USARTEx
+
+/** @addtogroup USARTEx
   * @{
   */
 
@@ -59,65 +58,39 @@
   * @{
   */
   
-/** @defgroup USARTEx_Word_Length Word length definition
+/** @defgroup USARTEx_Word_Length USARTEx Word Length
   * @{
   */
-#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
-#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
-#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
-#define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WORDLENGTH_7B) || \
-                                      ((LENGTH) == USART_WORDLENGTH_8B) || \
-                                      ((LENGTH) == USART_WORDLENGTH_9B))                                 
+#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)   /*!< 7-bit long USART frame */ 
+#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000U)    /*!< 8-bit long USART frame */ 
+#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)   /*!< 9-bit long USART frame */ 
 /**
   * @}
-  */  
-  
-/**
-  * @}
-  */  
-/* Exported macro ------------------------------------------------------------*/
+  */
 
-/** @defgroup USARTEx_Extended_Exported_Macros USARTEx Exported Macros
+/**
+  * @}
+  */
+
+/* Exported functions --------------------------------------------------------*/
+
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup USARTEx_Private_Macros USARTEx Private Macros
   * @{
   */
 
-/** @brief  Reports the USART clock source.
-  * @param  __HANDLE__: specifies the USART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+/** @brief  Report the USART clock source.
+  * @param  __HANDLE__: specifies the USART Handle.
+  * @param  __CLOCKSOURCE__: output variable.
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
-#if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
-#define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
-  do {                                                         \
-    if((__HANDLE__)->Instance == USART2)                       \
-    {                                                          \
-       switch(__HAL_RCC_GET_USART2_SOURCE())                   \
-       {                                                       \
-        case RCC_USART2CLKSOURCE_PCLK1:                        \
-          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
-          break;                                               \
-        case RCC_USART2CLKSOURCE_HSI:                          \
-          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
-          break;                                               \
-        case RCC_USART2CLKSOURCE_SYSCLK:                       \
-          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
-          break;                                               \
-        case RCC_USART2CLKSOURCE_LSE:                          \
-          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
-          break;                                               \
-        default:                                               \
-          break;                                               \
-       }                                                       \
-    }                                                          \
-  } while(0)
-
-#else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
+#if defined (STM32L051xx) || defined (STM32L052xx) || defined (STM32L053xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx)
 
 #define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                         \
     if((__HANDLE__)->Instance == USART1)                       \
     {                                                          \
-       switch(__HAL_RCC_GET_USART1_SOURCE())                       \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                   \
        {                                                       \
         case RCC_USART1CLKSOURCE_PCLK2:                        \
           (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK2;         \
@@ -132,6 +105,7 @@
           (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
           break;                                               \
         default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
           break;                                               \
        }                                                       \
     }                                                          \
@@ -152,22 +126,107 @@
           (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
           break;                                               \
         default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
           break;                                               \
        }                                                       \
     }                                                          \
   } while(0)
-#endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
-/** @brief  Reports the USART mask to apply to retrieve the received data
+#elif defined(STM32L071xx) || defined (STM32L081xx) || defined(STM32L072xx) || defined (STM32L082xx) || defined(STM32L073xx) || defined (STM32L083xx)
+
+#define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART1)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART1_SOURCE())                   \
+       {                                                       \
+        case RCC_USART1CLKSOURCE_PCLK2:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK2;         \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART1CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART2)                  \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                   \
+       {                                                       \
+        case RCC_USART2CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART4)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+    else if((__HANDLE__)->Instance == USART5)                  \
+    {                                                          \
+      (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;             \
+    }                                                          \
+  } while(0)
+
+#else
+
+#define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
+  do {                                                         \
+    if((__HANDLE__)->Instance == USART2)                       \
+    {                                                          \
+       switch(__HAL_RCC_GET_USART2_SOURCE())                   \
+       {                                                       \
+        case RCC_USART2CLKSOURCE_PCLK1:                        \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_PCLK1;         \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_HSI:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_HSI;           \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_SYSCLK:                       \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_SYSCLK;        \
+          break;                                               \
+        case RCC_USART2CLKSOURCE_LSE:                          \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_LSE;           \
+          break;                                               \
+        default:                                               \
+          (__CLOCKSOURCE__) = USART_CLOCKSOURCE_UNDEFINED;     \
+          break;                                               \
+       }                                                       \
+    }                                                          \
+  } while(0)
+
+#endif
+
+/** @brief  Compute the USART mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
-  *         If PCE = 1, the parity bit is not included in the data extracted
+  * @note   If PCE = 1, the parity bit is not included in the data extracted
   *         by the reception API().
   *         This masking operation is not carried out in the case of
-  *         DMA transfers.    
-  * @param  __HANDLE__: specifies the USART Handle
-  * @retval mask to apply to USART RDR register value.
-  */  
-#define USART_MASK_COMPUTATION(__HANDLE__)                      \
+  *         DMA transfers.
+  * @param  __HANDLE__: specifies the USART Handle.
+  * @retval None, the mask to apply to USART RDR register is stored in (__HANDLE__)->Mask field.
+  */
+#define USART_MASK_COMPUTATION(__HANDLE__)                            \
   do {                                                                \
   if ((__HANDLE__)->Init.WordLength == USART_WORDLENGTH_9B)           \
   {                                                                   \
@@ -204,25 +263,30 @@
   }                                                                   \
 } while(0)
 
+
+/**
+  * @brief Ensure that USART frame length is valid.
+  * @param __LENGTH__: USART frame length. 
+  * @retval SET (__LENGTH__ is valid) or RESET (__LENGTH__ is invalid)
+  */
+#define IS_USART_WORD_LENGTH(__LENGTH__) (((__LENGTH__) == USART_WORDLENGTH_7B) || \
+                                          ((__LENGTH__) == USART_WORDLENGTH_8B) || \
+                                          ((__LENGTH__) == USART_WORDLENGTH_9B))
+
 /**
   * @}
-  */   
+  */
 
 /* Exported functions --------------------------------------------------------*/
-/* Initialization/de-initialization methods  **********************************/
-/* IO operation methods *******************************************************/
-/* Peripheral Control methods  ************************************************/
-/* Peripheral State methods  **************************************************/
-
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 #ifdef __cplusplus
 }
 #endif

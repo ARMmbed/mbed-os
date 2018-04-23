@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention

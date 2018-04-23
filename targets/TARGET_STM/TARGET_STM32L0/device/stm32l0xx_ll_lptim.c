@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_lptim.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   LPTIM LL module driver.
   ******************************************************************************
   * @attention
@@ -114,7 +112,7 @@ ErrorStatus LL_LPTIM_DeInit(LPTIM_TypeDef* LPTIMx)
     LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_LPTIM1);
     LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_LPTIM1);  
   } 
-#if defined(LPTIM2)  
+#if defined(LPTIM2)
   else if (LPTIMx == LPTIM2)
   { 
     LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_LPTIM2);
