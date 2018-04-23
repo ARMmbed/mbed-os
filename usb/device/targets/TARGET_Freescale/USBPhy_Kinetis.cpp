@@ -203,6 +203,10 @@ void USBPhyHw::disconnect()
     USB0->CTL &= ~USB_CTL_USBENSOFEN_MASK;
     // Pull up disable
     USB0->CONTROL &= ~USB_CONTROL_DPPULLUPNONOTG_MASK;
+
+    while (USB0->ISTAT) {
+        USB0->ISTAT = 0xFF;
+    }
 }
 
 void USBPhyHw::configure()
