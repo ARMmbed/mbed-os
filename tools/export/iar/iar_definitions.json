@@ -273,5 +273,10 @@
     },
     "ADuCM4050": {
         "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
+    },
+    "TMPM46BF10FG":{
+        "OGChipSelectEditMenu": "TMPM46BF10FG\tToshiba TMPM46BF10FG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
     }
 }
