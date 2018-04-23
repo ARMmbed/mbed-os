@@ -156,8 +156,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     spi_inst->event = 0;
 #endif
 
-    /* Configuration has changed, set flag to force update. */
-    spi_inst->update = true;
+    /* Configure peripheral. This is called on each init to ensure all pins are set correctly
+     * according to the SPI mode before calling CS for the first time.
+     */
+    spi_configure_driver_instance(obj);
 
     /* Configure GPIO pin if chip select has been set. */
     if (ssel != NC) {
@@ -223,19 +225,31 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     struct spi_s *spi_inst = obj;
 #endif
 
+    nrf_drv_spi_mode_t new_mode = NRF_DRV_SPI_MODE_0;
+
     /* Convert Mbed HAL mode to Nordic mode. */
     if(mode == 0) {
-        spi_inst->config.mode = NRF_DRV_SPI_MODE_0;
+        new_mode = NRF_DRV_SPI_MODE_0;
     } else if(mode == 1) {
-        spi_inst->config.mode = NRF_DRV_SPI_MODE_1;
+        new_mode = NRF_DRV_SPI_MODE_1;
     } else if(mode == 2) {
-        spi_inst->config.mode = NRF_DRV_SPI_MODE_2;
+        new_mode = NRF_DRV_SPI_MODE_2;
     } else if(mode == 3) {
-        spi_inst->config.mode = NRF_DRV_SPI_MODE_3;
+        new_mode = NRF_DRV_SPI_MODE_3;
     }
 
-    /* Configuration has changed, set flag to force application. */
-    spi_inst->update = true;
+    /* Check if configuration has changed. */
+    if (spi_inst->config.mode != new_mode) {
+        spi_inst->config.mode = new_mode;
+
+        /* Set flag to force update. */
+        spi_inst->update = true;
+    }
+
+    /* Configure peripheral if necessary. Must be called on each format to ensure the pins are set
+     * correctly according to the SPI mode.
+     */
+    spi_configure_driver_instance(obj);
 }
 
 /** Set the SPI baud rate
@@ -253,25 +267,32 @@ void spi_frequency(spi_t *obj, int hz)
     struct spi_s *spi_inst = obj;
 #endif
 
+    nrf_drv_spi_frequency_t new_frequency = NRF_DRV_SPI_FREQ_1M;
+
     /* Convert frequency to Nordic enum type. */
     if (hz < 250000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_125K;
+        new_frequency = NRF_DRV_SPI_FREQ_125K;
     } else if (hz < 500000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_250K;
+        new_frequency = NRF_DRV_SPI_FREQ_250K;
     } else if (hz < 1000000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_500K;
+        new_frequency = NRF_DRV_SPI_FREQ_500K;
     } else if (hz < 2000000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_1M;
+        new_frequency = NRF_DRV_SPI_FREQ_1M;
     } else if (hz < 4000000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_2M;
+        new_frequency = NRF_DRV_SPI_FREQ_2M;
     } else if (hz < 8000000) {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_4M;
+        new_frequency = NRF_DRV_SPI_FREQ_4M;
     } else {
-        spi_inst->config.frequency = NRF_DRV_SPI_FREQ_8M;
+        new_frequency = NRF_DRV_SPI_FREQ_8M;
     }
 
-    /* Configuration has changed, set flag to force application. */
-    spi_inst->update = true;
+    /* Check if configuration has changed. */
+    if (spi_inst->config.frequency != new_frequency) {
+        spi_inst->config.frequency = new_frequency;
+
+        /* Set flag to force update. */
+        spi_inst->update = true;
+    }
 }
 
 /** Write a byte out in master mode and receive a value
@@ -290,17 +311,17 @@ int spi_master_write(spi_t *obj, int value)
 
     int instance = spi_inst->instance;
 
-    /* Manually clear chip select pin if defined. */
-    if (spi_inst->cs != NC) {
-        nrf_gpio_pin_clear(spi_inst->cs);
-    }
-
     /* Local variables used in transfer. */
     const uint8_t tx_buff = (uint8_t) value;
     uint8_t rx_buff;
 
     /* Configure peripheral if necessary. */
     spi_configure_driver_instance(obj);
+
+    /* Manually clear chip select pin if defined. */
+    if (spi_inst->cs != NC) {
+        nrf_gpio_pin_clear(spi_inst->cs);
+    }
 
     /* Transfer 1 byte. */
     nrf_drv_spi_transfer(&nordic_nrf5_spi_instance[instance], &tx_buff, 1, &rx_buff, 1);
