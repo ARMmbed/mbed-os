@@ -145,11 +145,6 @@ int i2c_byte_read(i2c_t *obj, int last)
         if (I2CM_WriteTxFifo(i2cm, fifo, MXC_S_I2CM_TRANS_TAG_RXDATA_NACK) != E_NO_ERROR) {
             goto byte_read_err;
         }
-
-        // Send the stop condition
-        if (I2CM_WriteTxFifo(i2cm, fifo, MXC_S_I2CM_TRANS_TAG_STOP) != E_NO_ERROR) {
-            goto byte_read_err;
-        }
     } else {
         if (I2CM_WriteTxFifo(i2cm, fifo, MXC_S_I2CM_TRANS_TAG_RXDATA_COUNT) != E_NO_ERROR) {
             goto byte_read_err;
