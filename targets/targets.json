@@ -729,7 +729,7 @@
         "public": false,
         "extra_labels": ["STM"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "LPTICKER_DELAY_TICKS=3"],
         "config": {
             "lse_available": {
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
