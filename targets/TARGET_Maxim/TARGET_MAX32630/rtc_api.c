@@ -35,6 +35,7 @@
 #include "lp_ticker_api.h"
 #include "rtc.h"
 #include "lp.h"
+#include <string.h>
 
 // LOG2 for 32-bit powers of 2
 #define LOG2_1(n) (((n) >= (1 <<  1)) ? 1 : 0)
@@ -65,7 +66,8 @@ static void init_rtc(void)
      * if it is already running.
      */
     if (!RTC_IsActive()) {
-        rtc_cfg_t cfg = {0};
+        rtc_cfg_t cfg;
+        memset(&cfg, 0, sizeof(rtc_cfg_t));
         cfg.prescaler = LP_TIMER_PRESCALE;
         cfg.snoozeMode = RTC_SNOOZE_DISABLE;
 
