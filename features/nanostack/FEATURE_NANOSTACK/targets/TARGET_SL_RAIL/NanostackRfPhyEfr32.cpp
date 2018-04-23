@@ -46,6 +46,13 @@
 #define RF_QUEUE_SIZE  8
 #endif
 
+/* 802.15.4 maximum size of a single packet including PHY byte is 128 bytes */
+#define MAC_PACKET_MAX_LENGTH   128
+/* Offsets of prepended data in packet buffer */
+#define MAC_PACKET_OFFSET_RSSI  0
+#define MAC_PACKET_OFFSET_LQI   1
+/* This driver prepends RSSI and LQI */
+#define MAC_PACKET_INFO_LENGTH  2
 
 /* RFThreadSignal used to signal from interrupts to the adaptor thread */
 enum RFThreadSignal {
@@ -68,12 +75,12 @@ enum RFThreadSignal {
 /*  Adaptor thread definitions */
 static void rf_thread_loop(const void *arg);
 static osThreadDef(rf_thread_loop, osPriorityRealtime, RF_THREAD_STACK_SIZE);
-static osThreadId rf_thread_id;
+static osThreadId rf_thread_id = 0;
 
 /* Queue for passing messages from interrupt to adaptor thread */
-static volatile void* rx_queue[8];
-static volatile size_t rx_queue_head;
-static volatile size_t rx_queue_tail;
+static volatile uint8_t rx_queue[RF_QUEUE_SIZE][MAC_PACKET_MAX_LENGTH + MAC_PACKET_INFO_LENGTH];
+static volatile size_t rx_queue_head = 0;
+static volatile size_t rx_queue_tail = 0;
 
 /* Silicon Labs headers */
 extern "C" {
@@ -123,7 +130,7 @@ static const RAIL_CsmaConfig_t csma_config = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_
 #error "Not a valid target."
 #endif
 
-#ifdef MBED_CONF_SL_RAIL_HAS_SUBGIG
+#if MBED_CONF_SL_RAIL_HAS_SUBGIG
 static RAIL_ChannelConfigEntryAttr_t entry_868;
 static RAIL_ChannelConfigEntryAttr_t entry_915;
 static const RAIL_ChannelConfigEntry_t entry[] = {
@@ -151,7 +158,7 @@ static const RAIL_ChannelConfigEntry_t entry[] = {
 #endif
 
 #if MBED_CONF_SL_RAIL_BAND == 868
-#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
+#if !MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -161,7 +168,7 @@ static const RAIL_ChannelConfig_t channels = {
   1
 };
 #elif MBED_CONF_SL_RAIL_BAND == 915
-#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
+#if !MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -187,7 +194,7 @@ static const RAIL_TxPowerConfig_t paInit2p4 = {
   };
 #endif
 
-#if defined (MBED_CONF_SL_RAIL_HAS_SUBGIG)
+#if MBED_CONF_SL_RAIL_HAS_SUBGIG
     // Set up the PA for sub-GHz operation
 static const RAIL_TxPowerConfig_t paInitSubGhz = {
     .mode = RAIL_TX_POWER_MODE_SUBGIG,
@@ -210,9 +217,9 @@ static const RAIL_StateTiming_t timings = {
 static const RAIL_IEEE802154_Config_t config = {
     .addresses = NULL,
     .ackConfig = {
-            .enable = true,
-            .ackTimeout = 1200,
-            .rxTransitions = {
+        .enable = true,
+        .ackTimeout = 1200,
+        .rxTransitions = {
             .success = RAIL_RF_STATE_RX,
             .error = RAIL_RF_STATE_RX // ignored
         },
@@ -270,16 +277,13 @@ static void rf_thread_loop(const void *arg)
         if (event.value.signals & SL_RX_DONE) {
             while(rx_queue_tail != rx_queue_head) {
                 uint8_t* packet = (uint8_t*) rx_queue[rx_queue_tail];
-                SL_DEBUG_PRINT("rPKT %d\n", packet[2] - 2);
+                SL_DEBUG_PRINT("rPKT %d\n", packet[MAC_PACKET_INFO_LENGTH] - 2);
                 device_driver.phy_rx_cb(
-                        &packet[3], /* Data payload for Nanostack starts at FCS */
-                        packet[2] - 2, /* Payload length is part of frame, but need to subtract CRC bytes */
-                        packet[1], /* LQI in second byte */
-                        packet[0], /* RSSI in first byte */
+                        &packet[MAC_PACKET_INFO_LENGTH + 1], /* Data payload for Nanostack starts at FCS */
+                        packet[MAC_PACKET_INFO_LENGTH] - 2, /* Payload length is part of frame, but need to subtract CRC bytes */
+                        packet[MAC_PACKET_OFFSET_LQI], /* LQI in second byte */
+                        packet[MAC_PACKET_OFFSET_RSSI], /* RSSI in first byte */
                         rf_radio_driver_id);
-
-                free(packet);
-                rx_queue[rx_queue_tail] = NULL;
                 rx_queue_tail = (rx_queue_tail + 1) % RF_QUEUE_SIZE;
             }
 
@@ -887,6 +891,12 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
     if (railHandle != gRailHandle)
         return;
 
+#ifdef MBED_CONF_RTOS_PRESENT
+    if(rf_thread_id == 0) {
+        return;
+    }
+#endif
+
     size_t index = 0;
     do {
         if (events & 1ull) {
@@ -956,43 +966,20 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
 
                     /* Only process the packet if it had a correct CRC */
                     if(rxPacketInfo.packetStatus == RAIL_RX_PACKET_READY_SUCCESS) {
-                        /* Get RSSI and LQI information about this packet */
-                        RAIL_RxPacketDetails_t rxPacketDetails;
-                        rxPacketDetails.timeReceived.timePosition = RAIL_PACKET_TIME_DEFAULT;
-                        rxPacketDetails.timeReceived.totalPacketBytes = 0;
-                        RAIL_GetRxPacketDetails(gRailHandle, rxHandle, &rxPacketDetails);
+                        uint8_t header[4];
+                        RAIL_PeekRxPacket(gRailHandle, rxHandle, header, 4, 0);
 
-                        /* Allocate a contiguous buffer for this packet's payload */
-                        uint8_t* packetBuffer = (uint8_t*) malloc(rxPacketInfo.packetBytes + 2);
-                        if(packetBuffer == NULL) {
-                            SL_DEBUG_PRINT("Out of memory\n");
-                            break;
-                        }
-
-                        /* First two bytes are RSSI and LQI, respecitvely */
-                        packetBuffer[0] = (uint8_t)rxPacketDetails.rssi;
-                        packetBuffer[1] = (uint8_t)rxPacketDetails.lqi;
-
-                        /* Copy packet payload from circular FIFO into contiguous memory */
-                        memcpy(&packetBuffer[2], rxPacketInfo.firstPortionData, rxPacketInfo.firstPortionBytes);
-                        if (rxPacketInfo.firstPortionBytes < rxPacketInfo.packetBytes) {
-                            memcpy(&packetBuffer[2+rxPacketInfo.firstPortionBytes],
-                                   rxPacketInfo.lastPortionData,
-                                   rxPacketInfo.packetBytes - rxPacketInfo.firstPortionBytes);
-                        }
-
-                        /* Release RAIL resources early */
-                        RAIL_ReleaseRxPacket(gRailHandle, rxHandle);
-
-                        /* If this is an ACK, deal with it */
-                        if( packetBuffer[2] == 5                         &&
-                            packetBuffer[2+3] == (current_tx_sequence)     &&
+                        /* If this is an ACK, deal with it early */
+                        if( (header[0] == 5) &&
+                            (header[3] == current_tx_sequence)  &&
                             waiting_for_ack) {
                             /* Tell the radio to not ACK an ACK */
                             RAIL_CancelAutoAck(gRailHandle);
                             waiting_for_ack = false;
                             /* Save the pending bit */
-                            last_ack_pending_bit = (packetBuffer[2+1] & (1 << 4)) != 0;
+                            last_ack_pending_bit = (header[1] & (1 << 4)) != 0;
+                            /* Release packet */
+                            RAIL_ReleaseRxPacket(gRailHandle, rxHandle);
                             /* Tell the stack we got an ACK */
 #ifdef MBED_CONF_RTOS_PRESENT
                             osSignalSet(rf_thread_id, SL_ACK_RECV | (last_ack_pending_bit ? SL_ACK_PEND : 0));
@@ -1004,8 +991,37 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
                                                           1,
                                                           1);
 #endif
-                            free(packetBuffer);
                         } else {
+                            /* Get RSSI and LQI information about this packet */
+                            RAIL_RxPacketDetails_t rxPacketDetails;
+                            rxPacketDetails.timeReceived.timePosition = RAIL_PACKET_TIME_DEFAULT;
+                            rxPacketDetails.timeReceived.totalPacketBytes = 0;
+                            RAIL_GetRxPacketDetails(gRailHandle, rxHandle, &rxPacketDetails);
+
+#ifdef MBED_CONF_RTOS_PRESENT
+                            /* Drop this packet if we're out of space */
+                            if (((rx_queue_head + 1) % RF_QUEUE_SIZE) == rx_queue_tail) {
+                                osSignalSet(rf_thread_id, SL_QUEUE_FULL);
+                                RAIL_ReleaseRxPacket(gRailHandle, rxHandle);
+                                break;
+                            }
+
+                            /* Copy into queue */
+                            uint8_t* packetBuffer = (uint8_t*)rx_queue[rx_queue_head];
+#else
+                            /* Packet going temporarily onto stack for bare-metal apps */
+                            uint8_t packetBuffer[MAC_PACKET_MAX_LENGTH + MAC_PACKET_INFO_LENGTH];
+#endif
+                            /* First two bytes are RSSI and LQI, respecitvely */
+                            packetBuffer[MAC_PACKET_OFFSET_RSSI] = (uint8_t)rxPacketDetails.rssi;
+                            packetBuffer[MAC_PACKET_OFFSET_LQI] = (uint8_t)rxPacketDetails.lqi;
+
+                            /* Copy packet payload from circular FIFO into contiguous memory */
+                            RAIL_CopyRxPacket(&packetBuffer[MAC_PACKET_INFO_LENGTH], &rxPacketInfo);
+
+                            /* Release RAIL resources early */
+                            RAIL_ReleaseRxPacket(gRailHandle, rxHandle);
+
                             /* Figure out whether we want to not ACK this packet */
 
                             /*
@@ -1015,27 +1031,20 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
                             *   [1] => b[0:2] frame type, b[3] = security enabled, b[4] = frame pending, b[5] = ACKreq, b[6] = intrapan
                             *   [2] => b[2:3] destmode, b[4:5] version, b[6:7] srcmode
                             */
-                            if( (packetBuffer[2+1] & (1 << 5)) == 0 ) {
+                            if( (packetBuffer[MAC_PACKET_INFO_LENGTH + 1] & (1 << 5)) == 0 ) {
                                 /* Cancel the ACK if the sender did not request one */
                                 RAIL_CancelAutoAck(gRailHandle);
                             }
 #ifdef MBED_CONF_RTOS_PRESENT
-                            if (((rx_queue_head + 1) % RF_QUEUE_SIZE) != rx_queue_tail) {
-                                rx_queue[rx_queue_head] = (void*)packetBuffer;
-                                rx_queue_head = (rx_queue_head + 1) % RF_QUEUE_SIZE;
-                                osSignalSet(rf_thread_id, SL_RX_DONE);
-                            } else {
-                                free(packetBuffer);
-                                osSignalSet(rf_thread_id, SL_QUEUE_FULL);
-                            }
+                            rx_queue_head = (rx_queue_head + 1) % RF_QUEUE_SIZE;
+                            osSignalSet(rf_thread_id, SL_RX_DONE);
 #else
-                            SL_DEBUG_PRINT("rPKT %d\n", rxPacket[2] - 2);
-                            device_driver.phy_rx_cb(&rxPacket[3], /* Data payload for Nanostack starts at FCS */
-                                                    rxPacket[2] - 2, /* Payload length is part of frame, but need to subtract CRC bytes */
-                                                    rxPacket[1], /* LQI in second byte */
-                                                    rxPacket[0], /* RSSI in first byte */
+                            SL_DEBUG_PRINT("rPKT %d\n", packetBuffer[MAC_PACKET_INFO_LENGTH] - 2);
+                            device_driver.phy_rx_cb(&packetBuffer[MAC_PACKET_INFO_LENGTH + 1], /* Data payload for Nanostack starts at FCS */
+                                                    packetBuffer[MAC_PACKET_INFO_LENGTH] - 2, /* Payload length is part of frame, but need to subtract CRC bytes */
+                                                    packetBuffer[MAC_PACKET_OFFSET_LQI], /* LQI in second byte */
+                                                    packetBuffer[MAC_PACKET_OFFSET_RSSI], /* RSSI in first byte */
                                                     rf_radio_driver_id);
-                            free(packetBuffer);
 #endif
                         }
                     }

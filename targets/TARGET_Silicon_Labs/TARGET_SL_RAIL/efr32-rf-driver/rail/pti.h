@@ -2,7 +2,7 @@
  * @file pti.h
  * @brief This header file contains information for working with the packet
  * trace APIs.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ * @copyright Copyright 2015 Silicon Laboratories, Inc. www.silabs.com
  ******************************************************************************/
 
 #ifndef __RADIO_PTI_H
