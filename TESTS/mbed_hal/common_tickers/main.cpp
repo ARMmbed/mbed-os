@@ -40,7 +40,7 @@
 
 #define NUM_OF_CYCLES 100000
 
-#define US_TICKER_OV_LIMIT 20000
+#define US_TICKER_OV_LIMIT 35000
 #define LP_TICKER_OV_LIMIT 4000
 
 using namespace utest::v1;
