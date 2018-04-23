@@ -81,6 +81,11 @@ const char * AT_CellularStack::get_ip_address()
     return _ip;
 }
 
+nsapi_error_t AT_CellularStack::socket_stack_init()
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     if (!is_protocol_supported(proto) || !handle) {
@@ -90,6 +95,10 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
     int max_socket_count = get_max_socket_count();
 
     if (!_socket) {
+        if (socket_stack_init() != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_NO_SOCKET;
+        }
+
         _socket = new CellularSocket*[max_socket_count];
         if (!_socket) {
             tr_error("No memory to open socket!");
