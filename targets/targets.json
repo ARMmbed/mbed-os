@@ -630,7 +630,8 @@
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM4050",
         "detect_code": ["0603"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "bootloader_supported": true
     },
     "EV_COG_AD3029LZ": {
         "inherits": ["Target"],
@@ -641,7 +642,8 @@
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM3029",
         "detect_code": ["0602"],
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "bootloader_supported": true
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],

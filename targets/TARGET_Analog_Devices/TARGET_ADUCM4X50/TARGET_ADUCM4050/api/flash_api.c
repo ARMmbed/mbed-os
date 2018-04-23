@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Analog Devices, Inc.
+ * Copyright (c) 2010-2018 Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -66,7 +66,7 @@ static const flash_algo_t flash_algo_config = {
     .erase_sector = 0x00000057,
     .program_page = 0x0000007F,
     .static_base  = 0x0000013C,
-    .algo_blob    = FLASH_ALGO
+    .algo_blob    = (uint32_t *)FLASH_ALGO
 };
 
 static const sector_info_t sectors_info[] = {
