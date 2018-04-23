@@ -20,7 +20,7 @@
 #include "greentea-client/test_env.h"
 #include "mbed.h"
 #include "cmsis.h"
-#if defined(TARGET_NRF5) || defined(TARGET_NRF5x) // for all NRF5x targets
+#if defined(TARGET_NRF5x) // for all NRF5x targets
 #include "nrf_nvic.h" // for __NRF_NVIC_APP_IRQS_0 / __NRF_NVIC_APP_IRQS_1
 #endif
 
@@ -30,11 +30,11 @@ bool test_are_interrupts_enabled(void)
 {
     // NRF5x targets don't disable interrupts when in critical section, instead they mask application interrupts this is due to BLE stack
     // (BLE to be operational requires some interrupts to be always enabled)
-#ifdef TARGET_NRF52
-	// check if APP interrupts are masked for NRF52_DK board
+#if defined(TARGET_NRF52)
+	// check if APP interrupts are masked for NRF52 boards
 	return (((NVIC->ISER[0] & __NRF_NVIC_APP_IRQS_0) != 0) || ((NVIC->ISER[1] & __NRF_NVIC_APP_IRQS_1) != 0));
-#elif TARGET_NRF5
-	// check if APP interrupts are masked for other NRF5 boards
+#elif defined(TARGET_NRF51)
+	// check if APP interrupts are masked for other NRF51 boards
 	return ((NVIC->ISER[0] & __NRF_NVIC_APP_IRQS_0) != 0);
 #else
 #if defined(__CORTEX_A9)
