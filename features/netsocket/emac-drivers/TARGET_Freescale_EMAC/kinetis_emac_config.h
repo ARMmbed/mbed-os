@@ -27,8 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef K64F_EMAC_CONFIG_H__
-#define K64F_EMAC_CONFIG_H__
+#ifndef KINETIS_EMAC_CONFIG_H__
+#define KINETIS_EMAC_CONFIG_H__
 
 #include "fsl_enet.h"
 
@@ -37,12 +37,12 @@
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 
-#define K64F_HWADDR_SIZE              (6)
+#define KINETIS_HWADDR_SIZE           (6)
 
-#define K64_ETH_MTU_SIZE              1500
-#define K64_ETH_IF_NAME               "en"
+#define KINETIS_ETH_MTU_SIZE          1500
+#define KINETIS_ETH_IF_NAME           "en"
 
 #define THREAD_STACKSIZE              512
 
-#endif // #define K64F_EMAC_CONFIG_H__
+#endif // #define KINETIS_EMAC_CONFIG_H__
 
