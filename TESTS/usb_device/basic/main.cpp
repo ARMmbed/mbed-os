@@ -23,6 +23,12 @@
 
 #include "USBTester.h"
 
+// If disconnect() + connect() occur too fast the reset event will be dropped.
+// At a minimum there should be a 200us delay between disconnect and connect.
+// To be on the safe side I would recommend a 1ms delay, so the host controller
+// has an entire USB frame to detect the disconnect.
+#define MIN_DISCONNECT_TIME_US  1000
+
 #if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #endif
@@ -166,11 +172,7 @@ void device_soft_reconnection_test()
 
         for(int i = 0; i < reconnect_try_count; i++) {
             serial.disconnect();
-            // If disconnect() + connect() occur too fast the reset event will be dropped.
-            // At a minimum there should be a 200us delay between disconnect and connect.
-            // To be on the safe side I would recommend a 1ms delay, so the host controller
-            // has an entire USB frame to detect the disconnect.
-            wait_ms(1);
+            wait_us(MIN_DISCONNECT_TIME_US);
             serial.connect();
             greentea_send_kv("device_soft_reconnection_test", serial.get_serial_desc_string());
             // Wait for host before terminating
@@ -179,13 +181,13 @@ void device_soft_reconnection_test()
         }
 
         serial.disconnect();
-        wait_ms(1);
+        wait_us(MIN_DISCONNECT_TIME_US);
         serial.connect();
         serial.disconnect();
-        wait_ms(1);
+        wait_us(MIN_DISCONNECT_TIME_US);
         serial.connect();
         serial.disconnect();
-        wait_ms(1);
+        wait_us(MIN_DISCONNECT_TIME_US);
         serial.connect();
         greentea_send_kv("device_soft_reconnection_test", serial.get_serial_desc_string());
         // Wait for host before terminating
@@ -228,50 +230,44 @@ void repeated_construction_destruction_test()
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
     }
 
-    wait_ms(1);
+    wait_us(MIN_DISCONNECT_TIME_US);
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
     }
 
-    wait_ms(1);
+    wait_us(MIN_DISCONNECT_TIME_US);
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
     }
 
-    wait_ms(1);
+    wait_us(MIN_DISCONNECT_TIME_US);
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
         greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
     }
 
-    wait_ms(1);
+    wait_us(MIN_DISCONNECT_TIME_US);
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
         greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         TEST_ASSERT_EQUAL_STRING("pass", _key);
     }
 
-    wait_ms(1);
+    wait_us(MIN_DISCONNECT_TIME_US);
     {
         USBTester serial(vendor_id, product_id, product_release, true);
         TEST_ASSERT_EQUAL(true, serial.configured());
-        wait_ms(1);
         greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
