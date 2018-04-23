@@ -29,7 +29,7 @@ using namespace rtos;
 using namespace mbed;
 
 // Globals related to ISR logging
-static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> log_buffer_;
+static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer_;
 
 // Globals related to time printing
 static const ticker_data_t *const log_ticker_ = get_us_ticker_data();
@@ -50,6 +50,11 @@ static void log_update_buf(const char *data, int32_t size)
         extern_buf_[xbuf_count_++] = data[count++];
         xbuf_count_ %= LOG_BUF_SIZE_;
     }
+}
+
+extern "C" void log_init()
+{
+    log_buffer_ = new CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_>;
 }
 
 extern "C" void log_assert(const char *format, ...)
@@ -103,8 +108,8 @@ extern "C" void print_buf_data(void)
 {
     LOG_DATA_TYPE_ data;
     while (1) {
-        while (!log_buffer_.empty()) {
-            log_buffer_.pop(data);
+        while (!log_buffer_->empty()) {
+            log_buffer_->pop(data);
             fprintf(stderr, "0x%x ", data);
         }
         Thread::wait(1);
@@ -149,7 +154,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
         log_update_buf(buf, count);
     } else {
         // Check buf size, if we have space for full line then only push
-        if ( (LOG_BUF_SIZE_ - log_buffer_.size()) < count) {
+        if ( (LOG_BUF_SIZE_ - log_buffer_->size()) < count) {
             core_util_critical_section_exit();
             if (false == in_isr) {
                 mbed_log_unlock();
@@ -158,7 +163,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
         }
         int32_t bytes_written = 0;
         while (count--) {
-            log_buffer_.push(buf[bytes_written++]);
+            log_buffer_->push(buf[bytes_written++]);
         }
         core_util_critical_section_exit();
         if (false == in_isr) {
@@ -195,12 +200,12 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
         if (true == in_isr) {
             count += 1;
             // Check buf size, if we have space for full line then only push
-            if ( (LOG_BUF_SIZE_ - log_buffer_.size()) < count) {
+            if ( (LOG_BUF_SIZE_ - log_buffer_->size()) < count) {
                 return;
             }
             int32_t bytes_written = 0;
             while (count--) {
-                log_buffer_.push(one_line[bytes_written++]);
+                log_buffer_->push(one_line[bytes_written++]);
             }
         } else {
             fputs(one_line, stderr);
@@ -215,9 +220,9 @@ extern "C" void print_buf_data(void)
     int32_t count = 0;
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
     while (1) {
-        while (!log_buffer_.empty()) {
+        while (!log_buffer_->empty()) {
             mbed_log_lock();
-            log_buffer_.pop(one_line[count]);
+            log_buffer_->pop(one_line[count]);
             if ('\0' == one_line[count]) {
                 fputs(one_line, stderr);
                 count = 0;

@@ -443,6 +443,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0200"],
+        "macros": ["MBED_CONF_MAX_BUFFER_SIZE=128"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MKL25Z128xxx4"
@@ -846,7 +847,7 @@
             }
         },
         "detect_code": ["0755"],
-        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_CONF_MAX_BUFFER_SIZE=128"],
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F070RB"
@@ -864,7 +865,7 @@
             }
         },
         "detect_code": ["0730"],
-        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_CONF_MAX_BUFFER_SIZE=128"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F072RB"
@@ -3812,7 +3813,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED"],
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_CONF_MAX_BUFFER_SIZE=128"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"

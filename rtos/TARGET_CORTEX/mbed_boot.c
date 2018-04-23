@@ -321,8 +321,10 @@ WEAK void mbed_main(void) {
 
 }
 
+void log_init(void);
 void mbed_logging_start(void)
 {    
+    log_init();
     // Create an additional logging thread
     _log_thread_attr.stack_mem = _log_stack;
     _log_thread_attr.stack_size = sizeof(_log_stack);
