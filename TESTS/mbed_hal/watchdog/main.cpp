@@ -22,6 +22,7 @@
 #include "unity/unity.h"
 #include "hal/watchdog_api.h"
 #include "watchdog_api_tests.h"
+#include "mbed.h"
 
 /* This is platform specific and depends on the watchdog timer implementation,
  * e.g. STM32F4 uses 32kHz internal RC oscillator to clock the IWDG, so
@@ -31,6 +32,10 @@
 #define WORST_TIMEOUT_RESOLUTION_MS 8UL
 
 #define TIMEOUT_DELTA_MS (WORST_TIMEOUT_RESOLUTION_MS)
+
+// Do not set watchdog timeout shorter than 50 ms as it may cause the
+// host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
+// performs reset during test suite teardown.
 #define WDG_TIMEOUT_MS 500UL
 
 #define MSG_VALUE_DUMMY "0"
@@ -49,6 +54,18 @@ using utest::v1::Specification;
 using utest::v1::Harness;
 
 const watchdog_config_t WDG_CONFIG_DEFAULT = { .timeout_ms = WDG_TIMEOUT_MS };
+
+Thread wdg_kicking_thread;
+Semaphore kick_wdg_during_test_teardown(0, 1);
+
+void wdg_kicking_thread_fun()
+{
+    kick_wdg_during_test_teardown.wait();
+    while (true){
+        hal_watchdog_kick();
+        wait_ms(20);
+    }
+}
 
 void test_max_timeout_is_valid()
 {
@@ -114,6 +131,8 @@ utest::v1::status_t case_setup_sync_on_reset(const Case * const source, const si
 utest::v1::status_t case_teardown_sync_on_reset(const Case * const source, const size_t passed, const size_t failed,
         const utest::v1::failure_t failure)
 {
+    // Unlock kicking the watchdog during teardown.
+    kick_wdg_during_test_teardown.release();
     utest::v1::status_t status = utest::v1::greentea_case_teardown_handler(source, passed, failed, failure);
     if (failed) {
         /* Return immediately and skip the device reset, if the test case failed.
@@ -187,6 +206,10 @@ int testsuite_setup_sync_on_reset(const size_t number_of_cases)
         return utest::v1::STATUS_ABORT;
     }
 
+    // The thread is started here, but feeding the watchdog will start
+    // when the semaphore is released during a test case teardown.
+    wdg_kicking_thread.start(mbed::callback(wdg_kicking_thread_fun));
+
     utest_printf("Starting with test case index %i of all %i defined test cases.\n", CASE_INDEX_START, number_of_cases);
     return CASE_INDEX_START;
 }
@@ -201,9 +224,6 @@ Case cases[] = {
         test_update_config,
         (utest::v1::case_teardown_handler_t) case_teardown_wdg_stop_or_reset),
 
-    // Do not set watchdog timeout shorter than 500 ms as it may cause the
-    // host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
-    // performs reset during test suite teardown.
     Case("Init, 500 ms", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
         test_init<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
     Case("Init, max_timeout", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
