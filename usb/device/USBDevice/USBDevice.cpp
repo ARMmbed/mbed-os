@@ -1063,8 +1063,8 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
     MBED_ASSERT(!(info->flags & ENDPOINT_ENABLED));
     MBED_ASSERT(max_packet_size <= 1024);
 
-    bool ret = false;
-    if (_phy->endpoint_add(endpoint, max_packet_size, type)) {
+    bool ret = _phy->endpoint_add(endpoint, max_packet_size, type);
+    if (ret) {
         info->callback = callback;
         info->flags |= ENDPOINT_ENABLED;
         info->pending = 0;
@@ -1366,7 +1366,7 @@ bool USBDevice::read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size
 
     unlock();
 
-    return true;
+    return ret;
 }
 
 uint32_t USBDevice::read_finish(usb_ep_t endpoint)
