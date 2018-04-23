@@ -350,16 +350,27 @@ public:
      */
     bool consume_to_stop_tag();
 
-    /**  Sets _debug_on flag.
-     *
-     *  @param enable value to be set for _debug_on flag
-     */
-    void enable_debug(bool enable);
-
     /** Return the last 3GPP error code.
      *  @return last 3GPP error code
      */
     int get_3gpp_error();
+
+public: // just for debugging
+    /**
+     * AT debugging, when enabled will print all data read and written,
+     * non-printable chars are printed as "[%02x]".
+     *
+     * AT debug can be enabled at compile time using MBED_CONF_CELLULAR_DEBUG_AT flag or at runtime
+     * calling set_debug(). Note that MBED_CONF_MBED_TRACE_ENABLE must also be enabled.
+     *
+     *  @param debug_on Enable/disable debugging
+     */
+    void set_debug(bool debug_on);
+
+    /**
+     * Check that AT is responsive for debugging purposes.
+     */
+    void sync();
 
 private:
 
