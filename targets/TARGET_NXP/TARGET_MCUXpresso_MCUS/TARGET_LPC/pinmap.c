@@ -29,6 +29,9 @@ void pin_function(PinName pin, int function)
     CLOCK_EnableClock(gpio_clocks[port_number]);
     CLOCK_EnableClock(kCLOCK_Iocon);
 
+    /* Set the DIGIMODE bit */
+    IOCON->PIO[port_number][pin_number] |= IOCON_PIO_DIGIMODE_MASK;
+
     reg = IOCON->PIO[port_number][pin_number];
     reg = (reg & ~0x7) | (function & 0x7);
     IOCON->PIO[port_number][pin_number] = reg;
