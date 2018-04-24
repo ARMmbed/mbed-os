@@ -137,8 +137,7 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
     toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
                                   app_config=app_config)
 
-    # Scan src_path for config files
-    scan_resources(src_paths, toolchain)
+    res = Resources().scan_with_toolchain(src_paths, toolchain, exclude=False)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
@@ -676,10 +675,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = scan_resources(src_paths, toolchain,
-                                   dependencies_paths=dependencies_paths,
-                                   inc_dirs=inc_dirs)
-
+        resources = Resources().scan_with_toolchain(
+            src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib

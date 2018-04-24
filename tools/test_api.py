@@ -65,8 +65,8 @@ from tools.build_api import prep_properties
 from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
-from tools.build_api import scan_resources
 from tools.build_api import get_config
+from tools.resources import Resources
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
@@ -2082,12 +2082,9 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     # List of common folders: (predicate function, path) tuple
     commons = []
 
-    # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
-                                  app_config=app_config)
-
     # Scan the directory for paths to probe for 'TESTS' folders
-    base_resources = scan_resources([base_dir], toolchain)
+    base_resources = Resources()
+    base_resources.add_directory(base_dir, None)
 
     dirs = base_resources.inc_dirs
     for directory in dirs:
@@ -2096,7 +2093,8 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
         # If the directory contains a subdirectory called 'TESTS', scan it for test cases
         if 'TESTS' in subdirs:
             walk_base_dir = join(directory, 'TESTS')
-            test_resources = toolchain.scan_resources(walk_base_dir, base_path=base_dir)
+            test_resources = Resources()
+            test_resources.add_directory(walk_base_dir, base_dir)
 
             # Loop through all subdirectories
             for d in test_resources.inc_dirs:
