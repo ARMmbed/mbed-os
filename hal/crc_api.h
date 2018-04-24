@@ -5,6 +5,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/** CRC Polynomial value
+ *
+ * Different polynomial values supported
+ */
+typedef enum crc_polynomial {
+    POLY_OTHER       = 0,
+    POLY_8BIT_CCITT  = 0x07,       // x8+x2+x+1
+    POLY_7BIT_SD     = 0x9,        // x7+x3+1;
+    POLY_16BIT_CCITT = 0x1021,     // x16+x12+x5+1
+    POLY_16BIT_IBM   = 0x8005,     // x16+x15+x2+1
+    POLY_32BIT_ANSI  = 0x04C11DB7, // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
+} crc_polynomial_t;
+
 #ifdef DEVICE_CRC
 
 #ifdef __cplusplus
