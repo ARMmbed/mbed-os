@@ -160,9 +160,9 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
  * @param obj QSPI object
  * @param command QSPI command
  * @param tx_data TX buffer
- * @param tx_length TX buffer length in bytes
+ * @param tx_size TX buffer length in bytes
  * @param rx_data RX buffer
- * @param rx_length RX buffer length in bytes
+ * @param rx_size RX buffer length in bytes
  * @return QSPI_STATUS_OK if the data has been succesfully sent
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
