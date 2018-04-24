@@ -138,6 +138,47 @@
 #define SASI_ASSERT_CONCAT(a, b) SASI_ASSERT_CONCAT_(a, b)
 #define SASI_PAL_COMPILER_ASSERT(cond, message) \
 	enum { SASI_ASSERT_CONCAT(assert_line_, __LINE__) = 1/(!!(cond)) }
+#elif defined(__ICCARM__)
+
+/************************ Defines ******************************/
+
+/*! Associate a symbol with a link section. */
+#define SASI_PAL_COMPILER_SECTION(sectionName)  __attribute__((section(sectionName)))
+
+/*! Mark symbol as used, i.e., prevent garbage collector from dropping it. */
+#define SASI_PAL_COMPILER_KEEP_SYMBOL __attribute__((used))
+
+
+#define STRING_PRAGMA(x) _Pragma(#x)
+/*! Make given data item aligned (alignment in bytes).  Not implemented */
+/*  Used in crys_rsa_types.h. This is telling the compiler about buffer alignment. */
+/*  IAR treats alignment a bit different. Nonetheless, this is used only for RSA, which was not ported yet. */
+#define SASI_PAL_COMPILER_ALIGN(n)
+
+/*! Mark function that never returns. Not implemented. */
+/*  Not used anywhere, and probably located due to legacy reasons.*/
+#define SASI_PAL_COMPILER_FUNC_NEVER_RETURNS
+
+/* Prevent function from being inlined */
+#define SASI_PAL_COMPILER_FUNC_DONT_INLINE STRING_PRAGMA(optimize = no_inline)
+
+/*! Given data type may cast (alias) another data type pointer. */
+/* (this is used for "superclass" struct casting). Not implemented */
+/* Used in crys_rsa_local.h. for some compilers it translates to __may_alias__. */
+/* For IAR, there is probably no need for this attribute, as the typedef  */
+/* is equivalent. Nonetheless, this is RSA code, which was not yet ported to Mbed TLS.*/
+#define SASI_PAL_COMPILER_TYPE_MAY_ALIAS 
+
+/*! Get sizeof for a structure type member. */
+#define SASI_PAL_COMPILER_SIZEOF_STRUCT_MEMBER(type_name, member_name) \
+	sizeof(((type_name *)0)->member_name)
+
+/*! Assertion. */
+#define SASI_ASSERT_CONCAT_(a, b) a##b
+#define SASI_ASSERT_CONCAT(a, b) SASI_ASSERT_CONCAT_(a, b)
+
+#define SASI_PAL_COMPILER_ASSERT(cond, message) \
+	enum { SASI_ASSERT_CONCAT(assert_line_, __LINE__) = 1/(!!(cond)) }
 #else
 #error Unsupported compiler.
 #endif
