@@ -62,7 +62,10 @@ extern "C" {
  *
  * # other requirements
  * A target must also define these elements to allow tests to be run.
- * - `#define SAI_DEFAULT_SAMPLE_RATE (xxxxxU)` ;
+ * - SAI_DEFAULT_SAMPLE_RATE :
+ *   This is used by CI tests to validate that the device behaves as expected. As this parameter
+ *   is higly device dependant, Partners need to set this value to an appropriate rate that can be
+ *   supported by the target.
  * - Pins for 2 SAI/I²S interface including MCLK, BCLK, WCLK and SD named respectively
  *   - SAI_A_MCLK, SAI_A_BCLK, SAI_A_WCLK and SAI_A_SD ;
  *   - SAI_B_MCLK, SAI_B_BCLK, SAI_B_WCLK and SAI_B_SD.
