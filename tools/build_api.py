@@ -42,7 +42,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import scan_resources
+from .resources import Resources
 from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
@@ -517,8 +517,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
-        print(resources)
+        resources = Resources().scan_with_toolchain(src_paths, toolchain, inc_dirs)
 
         # Change linker script if specified
         if linker_script is not None:

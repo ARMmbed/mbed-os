@@ -129,7 +129,7 @@ class LazyDict(object):
         self.lazy = new_lazy
         self.eager = {}
 
-class Resources:
+class Resources(object):
     def __init__(self, base_path=None, collect_ignores=False):
         self.base_path = base_path
         self.collect_ignores = collect_ignores
@@ -414,7 +414,6 @@ class Resources:
         """
         if base_path is None:
             base_path = path
-        print("%s %s %s" % (path, base_path, exclude_paths))
         for root, dirs, files in walk(path, followlinks=True):
             # Check if folder contains .mbedignore
             if ".mbedignore" in files:
@@ -448,7 +447,6 @@ class Resources:
                     self.is_ignored(join(relpath(root, base_path), d,"")) or
                     # Ignore TESTS dir
                     (d == 'TESTS')):
-                        print("ignoreing %s" % dir_path)
                         self.ignore_dir(dir_path)
                         dirs.remove(d)
                 elif d.startswith('FEATURE_'):
@@ -456,7 +454,6 @@ class Resources:
                     # These are dynamically added by the config system if the conditions are matched
                     def closure (dir_path=dir_path, base_path=base_path):
                         return self.add_directory(dir_path, base_path=base_path)
-                    print("lazying %s" % dir_path)
                     self.features.add_lazy(d[8:], closure)
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
@@ -464,7 +461,6 @@ class Resources:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
                         if not (rel_path.startswith('..')):
-                            print("excluding %s" % dir_path)
                             self.ignore_dir(dir_path)
                             dirs.remove(d)
                             break
@@ -537,41 +533,44 @@ class Resources:
             self.json_files.append(file_path)
 
 
-def scan_resources(src_paths, toolchain, dependencies_paths=None,
-                   inc_dirs=None, base_path=None, collect_ignores=False):
-    """ Scan resources using initialized toolcain
+    def scan_with_toolchain(self, src_paths, toolchain, dependencies_paths=None,
+                            inc_dirs=None, base_path=None, exclude=True):
+        """ Scan resources using initialized toolcain
 
-    Positional arguments
-    src_paths - the paths to source directories
-    toolchain - valid toolchain object
-    dependencies_paths - dependency paths that we should scan for include dirs
-    inc_dirs - additional include directories which should be added to
-               the scanner resources
-    """
+        Positional arguments
+        src_paths - the paths to source directories
+        toolchain - valid toolchain object
+        dependencies_paths - dependency paths that we should scan for include dirs
+        inc_dirs - additional include directories which should be added to
+                the scanner resources
+        """
 
-    resources = Resources(base_path, collect_ignores)
-    resources.add_toolchain_labels(toolchain)
-    for path in src_paths:
-        resources.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
+        self.add_toolchain_labels(toolchain)
+        for path in src_paths:
+            if exclude:
+                self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
+            else:
+                self.add_directory(path, base_path)
 
-    # Scan dependency paths for include dirs
-    if dependencies_paths is not None:
-        for path in dependencies_paths:
-            lib_resources = toolchain.scan_resources(path)
-            resources.inc_dirs.extend(lib_resources.inc_dirs)
+        # Scan dependency paths for include dirs
+        if dependencies_paths is not None:
+            for path in dependencies_paths:
+                lib_self = self.__class__(self.base_path, self.collect_ignores)\
+                               .scan_with_toolchain([path], toolchain)
+                self.inc_dirs.extend(lib_self.inc_dirs)
 
-    # Add additional include directories if passed
-    if inc_dirs:
-        if isinstance(inc_dirs, list):
-            resources.inc_dirs.extend(inc_dirs)
-        else:
-            resources.inc_dirs.append(inc_dirs)
+        # Add additional include directories if passed
+        if inc_dirs:
+            if isinstance(inc_dirs, list):
+                self.inc_dirs.extend(inc_dirs)
+            else:
+                self.inc_dirs.append(inc_dirs)
 
-    # Load resources into the config system which might expand/modify resources
-    # based on config data
-    toolchain.config.load_resources(resources)
+        # Load self into the config system which might expand/modify self
+        # based on config data
+        toolchain.config.load_resources(self)
 
-    # Set the toolchain's configuration data
-    toolchain.set_config_data(toolchain.config.get_config_data())
+        # Set the toolchain's configuration data
+        toolchain.set_config_data(toolchain.config.get_config_data())
 
-    return resources
+        return self
