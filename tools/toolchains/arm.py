@@ -360,7 +360,8 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mcmse")
 
         # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+        if ((target.core == "Cortex-M23" or self.target.core == "Cortex-M33") and
+            kwargs.get('build_dir', False)):
             build_dir = kwargs['build_dir']
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
