@@ -1,0 +1,207 @@
+/**
+ * @mainpage XMC USB Library
+ *
+ * @tableofcontents
+ *
+ * This package contains the device version of the open-source USB LUFA library for being used with 
+ * XMC microcontrollers. This library is based on the LUFA library version 140928.
+ * For a proper use, this package requires XMCLib version 2.0.0.<br>
+ *
+ * @section overview Overview
+ * LUFA is a simple to use, lightweight framework which allows for the
+ * quick and easy creation of complex USB applications.
+ * Please, download XMCLib version 2.0.0 package from the Infineon website in order to have the hardware access layer necessary 
+ * for the proper use of the XMC USB Library.
+ *
+ * @subsection why Why using LUFA for XMC USB Device applications?
+ * The LUFA Library has many advantages over implementing the code required to drive the XMC USB directly.
+ * It is much more preferable to incorporate LUFA into your existing projects - or even make a new project 
+ * using LUFA - than it is to start from scratch and use the XMC USB registers directly. 
+ * 
+ * Some of these reasons are:
+ * 
+ * - Speed of Development: LUFA ships with a wide range of pre-made demos
+ *   and projects for you to try, learn and extend. 
+ *   In addition, there are inbuilt class drivers for several of the USB classes which you can make use of 
+ *   in your projects with minimal effort.
+ * 
+ * - Maintainability: As LUFA takes care of much of the USB implementation, you can be left to focusing 
+ * 	 on your actual project's functionality, rather than being held back developing and debugging the USB stack code. 
+ * 	 Since LUFA uses clear APIs for USB development, your code will be more readable than if it had 
+ * 	 the low level USB stack code integrated into it directly. Updating the LUFA library is a simple folder-replacement 
+ * 	 and gives new features and bug fixes in seconds each time a new release is made.
+ * 
+ * - Size: Not just requiring less code to make complex USB devices, LUFA is written to compile down as much as possible 
+ * 	 into optimal code, to occupy only a small space for its feature set.
+ * 
+ * - Support: Since many people are now using LUFA in their own projects, 
+ * 	 you can take advantage of other's knowledge when you run into difficulties or need some advice. 
+ *
+ * @section support Supported devices and toolchains
+ * The following 32-Bit Industrial Microcontrollers based on ARM Cortex are supported:
+ * - XMC4500 series
+ * - XMC4400 series
+ * - XMC4200 series
+ * - XMC4100 series
+ *
+ * The following tool chains are supported:
+ * - GNU GCC for ARM (gcc) found in Atollic TrueSTUDIO, DAVE and Rowley CrossWorks.
+ * - Keil MDK-ARM Microcontroller Development Kit v5.x (armcc)
+ * - IAR Embedded Workbench for ARM v7.x(iccarm)
+ * - TASKING VX-toolset for ARM v5.(carm)
+ *
+ * @section files Directories and Files
+ * The following diagram shows the most important directories and files provided in the distribution.
+ *
+ * @verbatim 
+ * USBlib\                          - USBlib root directory
+ * |
+ * +-USB\                             - USBlib code folder
+ * |
+ * | +-Class\                           - Class Driver layer from LUFA stack
+ * | | +-Common                           - Common header files and parsers
+ * | | +-Device\                          - Device specific source and header files
+ * | | +-CDCClass.h                       - Communication Device Class 
+ * | | +-HIDClass.h                       - Human Interface Device Class
+ * | | +-MassStorageClass.h               - Mass Storage Class
+ * | |
+ * | +-Common                           - Common header files from LUFA stack
+ * | | +-Architectures.h              
+ * | | +-ArchitectureSpecific.h       
+ * | | +-Attributes.h
+ * | | +-BoardTypes.h
+ * | | +-Common.h 
+ * | | +-CompilerSpecific.h 
+ * | | +-Endianness.h      
+ * | |
+ * | +-Core\                            - Device specific interface layer LUFA Core layer
+ * | | +-XMC4000\                           - XMC4000 devices interface layer 
+ * | | +- . . .
+ * | |
+ * | +-USB.h                            - Master include file for the library USB functionality
+ * |
+ * +-Examples\                        - Examples making use of the USBlib
+ * | +-Device\                          - Device examples folder         
+ * | | +-GenericHID\                    - Generic HID Device example folder                     
+ * | | | +-ARM\                           - Generic HID Device Keil MDK project folder 
+ * | | | +-HostTestApp\                   - Python Application for testing in the Host side
+ * | | | +-main.c                         - Main source code of the application example
+ * | | | +-Descriptors.c                  - Descriptors source code of the application example                   
+ * | | | +-...
+ * | | +-VirtualSerial\               - Virtual Serial Port Device example folder    
+ * | | | +-ARM\                           - Virtual Serial Port Device Keil MDK project folder 
+ * | | | +-VirtualSerial_Signed_..\       - Signed Virtual Serial Port Driver for Windows OS
+ * | | | +-IAR\                           - Virtual Serial Port Device IAR project folder 
+ * | | | +-main.c                         - Main source code of the application example
+ * | | | +-Descriptors.c                  - Descriptors source code of the application example                   
+ * | | | +-...
+ * | | +-WinUSB\
+ * | | | +-ARM\                           - WINUSB Device Keil MDK project folder 
+ * | | | +-HostTestApp\                   - Winodws OS Application executable for testing in the Host side
+ * | | | +-WinUSB_Signed_..\          - Signed WINUSB Driver for Windows OS
+ * | | | +-main.c                         - Main source code of the application example
+ * | | | +-Descriptors.c                  - Descriptors source code of the application example                   
+ * | | | +-...
+ * | 
+ * +-Doc\                             - Doxygen documentation
+ * | +-html\                            - Doxygen html folder documentation
+ * | +- . . .
+ * @endverbatim  
+ *
+ * @section examples XMC USB Library examples
+ * The XMC USB Library comes with set of examples, one per Class (HID, CDC and WINUSB classes).
+ * All the examples are toolchain agnostic
+ *
+ *
+ * @subsection generic GenericHID: Generic HID device demonstration application. 
+ * This gives a simple reference application for implementing a generic HID device, 
+ * using the basic USB HID drivers in all modern OSes (i.e. no special drivers required). 
+ * By default it accepts and sends up to 8 byte reports to and from a USB Host, 
+ * and transmits the last sent report back to the host.
+ * Last version of Python and its pywinusb library need to be installed in the host side.
+ *
+ * On start-up the system will automatically enumerate and function as a vendor HID device.
+ *
+ * Run the python application "test_generic_hid_winusb.py" inside the HostTestApp folder 
+ * in the Host. This script will send a continuous stream of generic reports to the device, 
+ * to show a variable LED pattern on the Relax Kit board. Send and received report data is printed 
+ * to the terminal.
+ *
+ * @subsection virtual VirtualSerial: Communications Device Class demonstration application.
+ * This gives a simple reference application for implementing
+ * a CDC device acting as a virtual serial port. 
+ * 
+ * Before running this demo for the first time on a new computer,
+ * you will need to supply the driver for the Host side.
+ * When running under Windows, please install the Signed Driver 
+ * (.INF file) located in VirtualSerial_Signed_Package_Driver folder. 
+ *
+ * @subsection winusb WINUSB: WINUSB demonstration application.
+ * This gives a simple reference application for implementing
+ * a WINUSB device. using the the Infineon CPU board together 
+ * with the HMI_OLED extension.
+ * 
+ * Run the WinUSB-Example.exe inside the HostTestApp folder in the Host 
+ * to interact with the microcontroller.
+ * 
+ * Before running this demo for the first time on a new computer,
+ * you will need to supply the driver for the Host side.
+ * When running under Windows, please install the Signed Driver 
+ * (.INF file) located in WinUSB_Signed_Package_Driver folder. 
+ *
+ * @section licensing XMC USB Library Licensing
+ * 
+ * <b> License Terms and Copyright Information Infineon code </b>
+ *   
+ * Copyright (c) 2015, Infineon Technologies AG All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+ * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+ * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation 
+ *   and/or other materials provided with the distribution. 
+ * - Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived from this software 
+ *   without specific prior written permission. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with Infineon Technologies AG (support@infineon.com).  
+ *
+ * <b>Legal Disclaimer</b> The information given in this document shall in no event be regarded as a guarantee of conditions or characteristics. With respect to any examples or hints given herein, any typical values stated herein and/or any information regarding the application of the device, Infineon Technologies hereby disclaims any and all warranties and liabilities of any kind, including without limitation, warranties of non-infringement of intellectual property rights of any third party. 
+ *
+ * <b>Information</b> For further information on technology, delivery terms and conditions and prices, please contact the nearest Infineon Technologies Office (www.infineon.com). 
+ *
+ * <b>Warnings</b> Due to technical requirements, components may contain dangerous substances. For information on the types in question, please contact the nearest Infineon Technologies Office. 
+ * Infineon Technologies components may be used in life-support devices or systems only with the express written approval of Infineon Technologies, if a failure of such components can reasonably be expected to cause the failure of that life-support device or system or to affect the safety or effectiveness of that device or system. Life support devices or systems are intended to be implanted in the human body or to support and/or maintain and sustain and/or protect human life. 
+ * If they fail, it is reasonable to assume that the health of the user or other persons may be endangered.
+ *
+ * <b> License Terms and Copyright Information LUFA code </b>
+ *
+ *                  LUFA Library
+ *       Copyright (C) Dean Camera, 2015.
+ *
+ *     dean [at] fourwalledcubicle [dot] com
+ *                www.lufa-lib.org
+ *
+ *
+ * Permission to use, copy, modify, and distribute this software
+ * and its documentation for any purpose is hereby granted without
+ * fee, provided that the above copyright notice appear in all
+ * copies and that both that the copyright notice and this
+ * permission notice and warranty disclaimer appear in supporting
+ * documentation, and that the name of the author not be used in
+ * advertising or publicity pertaining to distribution of the
+ * software without specific, written prior permission.
+ * 
+ * The author disclaims all warranties with regard to this
+ * software, including all implied warranties of merchantability
+ * and fitness.  In no event shall the author be liable for any
+ * special, indirect or consequential damages or any damages
+ * whatsoever resulting from loss of use, data or profits, whether
+ * in an action of contract, negligence or other tortious action,
+ * arising out of or in connection with the use or performance of
+ * this software.
+ */
