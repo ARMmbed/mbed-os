@@ -121,7 +121,7 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
@@ -193,7 +193,7 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
                   | capture(\"code size is (?<size>[0-9]+)\").size" \

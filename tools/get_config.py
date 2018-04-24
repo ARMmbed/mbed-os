@@ -18,8 +18,7 @@ limitations under the License.
 """
 from __future__ import print_function
 import sys
-from os.path import isdir, abspath, dirname, join
-from os import _exit
+from os.path import abspath, dirname, join
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -31,20 +30,20 @@ from tools.options import extract_mcus
 from tools.build_api import get_config
 from tools.config import Config
 from tools.utils import argparse_filestring_type
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
 
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type, required=True,
-                        default=[], help="The source (input) directory", action="append")
-    parser.add_argument("--prefix", dest="prefix", action="append",
-                      default=[], help="Restrict listing to parameters that have this prefix")
-    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
-                      default=False, help="Verbose diagnostic output")
+    parser.add_argument(
+        "--source", dest="source_dir", type=argparse_filestring_type,
+        required=True, default=[], help="The source (input) directory",
+        action="append")
+    parser.add_argument(
+        "--prefix", dest="prefix", action="append", default=[],
+        help="Restrict listing to parameters that have this prefix")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", dest="verbose", default=False,
+        help="Verbose diagnostic output")
 
     options = parser.parse_args()
 
@@ -61,25 +60,27 @@ if __name__ == '__main__':
     options.prefix = options.prefix or [""]
 
     try:
-        params, macros, features = get_config(options.source_dir, target, toolchain)
+        params, macros, features = get_config(
+            options.source_dir, target, toolchain)
         if not params and not macros:
             print("No configuration data available.")
-            _exit(0)
+            sys.exit(0)
         if params:
             print("Configuration parameters")
             print("------------------------")
-            for p in sorted(params):
-                for s in options.prefix:
-                    if p.startswith(s):
-                        print(str(params[p]) if not options.verbose else params[p].get_verbose_description())
-                        break
+            for p in sorted(list(params.keys())):
+                if any(p.startswith(s) for s in options.prefix):
+                    if options.verbose:
+                        print(params[p].get_verbose_description())
+                    else:
+                        print(str(params[p]))
             print("")
 
         print("Macros")
         print("------")
-        if macros:
-            print('Defined with "macros":', Config.config_macros_to_macros(macros))
-        print("Generated from configuration parameters:", Config.parameters_to_macros(params))
+        for m in Config.config_macros_to_macros(macros):
+            if any(m.startswith(s) for s in options.prefix):
+                print(m)
 
     except KeyboardInterrupt as e:
         print("\n[CTRL+c] exit")

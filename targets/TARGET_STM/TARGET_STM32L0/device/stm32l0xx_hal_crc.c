@@ -421,7 +421,14 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   return temp;
 }
 
+#if __GNUC__
+#    define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#    define MAY_ALIAS
+#endif
 
+typedef __IO uint8_t  MAY_ALIAS uint8_io_t;
+typedef __IO uint16_t MAY_ALIAS uint16_io_t;
 
 /**
   * @}
@@ -486,16 +493,16 @@ static uint32_t CRC_Handle_8(CRC_HandleTypeDef *hcrc, uint8_t pBuffer[], uint32_
    {
      if  (BufferLength%4U == 1U)
      {
-       *(uint8_t volatile*) (&hcrc->Instance->DR) = pBuffer[4U*i];
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4U*i];
      }
      if  (BufferLength%4U == 2U)
      {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4U*i]<<8U) | (uint32_t)pBuffer[4U*i+1U];
+       *(uint16_io_t*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4U*i]<<8U) | (uint32_t)pBuffer[4U*i+1U];
      }
      if  (BufferLength%4U == 3U)
      {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4U*i]<<8U) | (uint32_t)pBuffer[4U*i+1U];
-       *(uint8_t volatile*) (&hcrc->Instance->DR) = pBuffer[4U*i+2U];
+       *(uint16_io_t*) (&hcrc->Instance->DR) = ((uint32_t)pBuffer[4U*i]<<8U) | (uint32_t)pBuffer[4U*i+1U];
+       *(uint8_io_t*) (&hcrc->Instance->DR) = pBuffer[4U*i+2U];
      }
    }
   
@@ -524,7 +531,7 @@ static uint32_t CRC_Handle_16(CRC_HandleTypeDef *hcrc, uint16_t pBuffer[], uint3
   }
   if ((BufferLength%2U) != 0U)
   {
-       *(uint16_t volatile*) (&hcrc->Instance->DR) = pBuffer[2U*i];
+       *(uint16_io_t*) (&hcrc->Instance->DR) = pBuffer[2U*i];
   }
    
   /* Return the CRC computed value */ 

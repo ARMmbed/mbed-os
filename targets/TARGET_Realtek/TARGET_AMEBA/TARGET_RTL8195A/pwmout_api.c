@@ -53,7 +53,7 @@ static const PinMap PinMap_PWM[] = {
  
 void pwmout_init(pwmout_t* obj, PinName pin) 
 {
-    uint32_t peripheral;
+    int peripheral;
     u32 pwm_idx;
     u32 pin_sel;
 

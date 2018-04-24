@@ -58,8 +58,14 @@ struct spi_s {
     uint8_t bits;
 };
 
-#if DEVICE_FLASH
+#if defined(DEVICE_FLASH)
 struct flash_s {
+    uint8_t dummy;
+};
+#endif
+
+#if defined(DEVICE_TRNG)
+struct trng_s {
     uint8_t dummy;
 };
 #endif

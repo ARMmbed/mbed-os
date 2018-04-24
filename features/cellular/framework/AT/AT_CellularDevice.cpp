@@ -60,7 +60,7 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
         atHandler = atHandler->_nextATHandler;
     }
 
-    atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r");
+    atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r", get_send_delay());
     if (atHandler) {
         if (_modem_debug_on) {
             atHandler->enable_debug(_modem_debug_on);
@@ -223,6 +223,11 @@ void AT_CellularDevice::set_timeout(int timeout)
         atHandler->set_at_timeout(_default_timeout, true); // set as default timeout
         atHandler = atHandler->_nextATHandler;
     }
+}
+
+uint16_t AT_CellularDevice::get_send_delay()
+{
+    return 0;
 }
 
 void AT_CellularDevice::modem_debug_on(bool on)

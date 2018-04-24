@@ -32,7 +32,7 @@
   *
   ******************************************************************************  
   */ 
-#if (defined(TWO_RAM_REGIONS) && defined(__GNUC__) && !defined(__CC_ARM))
+#if (defined(TWO_RAM_REGIONS) && defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
 #include <errno.h>
 #include "stm32l4xx.h"
 extern uint32_t __mbed_sbrk_start;

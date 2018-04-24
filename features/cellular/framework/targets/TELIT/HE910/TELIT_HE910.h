@@ -20,6 +20,9 @@
 
 #include "AT_CellularDevice.h"
 
+//the delay between sending AT commands
+#define DEFAULT_DELAY_BETWEEN_AT_COMMANDS 20
+
 namespace mbed {
 
 class TELIT_HE910 : public AT_CellularDevice
@@ -32,6 +35,7 @@ public:
 public: // from CellularDevice
     virtual CellularPower *open_power(FileHandle *fh);
     virtual CellularNetwork *open_network(FileHandle *fh);
+    virtual uint16_t get_send_delay();
 };
 } // namespace mbed
 #endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */
