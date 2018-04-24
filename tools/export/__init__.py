@@ -25,8 +25,8 @@ import copy
 from shutil import rmtree, copyfile
 import zipfile
 
-from ..build_api import prepare_toolchain, scan_resources
-from ..toolchains import Resources
+from ..resources import Resources
+from ..build_api import prepare_toolchain
 from ..targets import TARGET_NAMES
 from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
@@ -275,10 +275,13 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 
-    resource_dict = {loc: sum((toolchain.scan_resources(p, collect_ignores=True)
-                               for p in path),
-                              Resources())
-                     for loc, path in src_paths.items()}
+    resource_dict = {}
+    for loc, path in src_paths.items():
+        res = Resources(collect_ignores=True)
+        res.add_toolchain_labels(toolchain)
+        for p in path:
+            res.add_directory(p, None)
+        resource_dict[loc] =  res
     resources = Resources()
 
     for loc, res in resource_dict.items():
