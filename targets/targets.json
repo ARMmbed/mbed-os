@@ -4032,7 +4032,7 @@
     "XMC_4500_F100_1024": {
         "inherits": ["XMC_4500"],
         "macros_add": ["XMC4500_F100x1024"],
-        "device_name": "XMC4500_F100x1024"
+        "device_name": "XMC_4500_F100_1024"
     },
     "XMC_4500_RELAX_KIT": {
         "inherits": ["XMC_4500_F100_1024"],
@@ -4040,6 +4040,6 @@
         "macros_add": ["XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
         "features_add": ["LWIP"],
         "OUTPUT_EXT": "hex",
-        "device_name": "XMC4500_Relax_Kit"
+        "device_name": "XMC_4500_RELAX_KIT"
     }
 }
