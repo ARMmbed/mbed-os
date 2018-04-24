@@ -53,7 +53,11 @@ void rtc_init(void)
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
 
+#if DEVICE_LOWPOWERTIMER
+    if ( (rtc_isenabled()) && ((RTC->PRER & RTC_PRER_PREDIV_S) == PREDIV_S_VALUE) ) {
+#else /* DEVICE_LOWPOWERTIMER */
     if (rtc_isenabled()) {
+#endif /* DEVICE_LOWPOWERTIMER */
         return;
     }
 
@@ -107,19 +111,8 @@ void rtc_init(void)
     RtcHandle.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
 #else /* TARGET_STM32F1 */
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-
-    /* PREDIV_A : 7-bit asynchronous prescaler */
-#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
-    /* PREDIV_A is set to a small value to improve the SubSeconds resolution */
-    /* with a 32768Hz clock, PREDIV_A=7 gives a precision of 244us */
-    RtcHandle.Init.AsynchPrediv = 7;
-#else
-    /* PREDIV_A is set to the maximum value to improve the consumption */
-    RtcHandle.Init.AsynchPrediv   = 0x007F;
-#endif
-    /* PREDIV_S : 15-bit synchronous prescaler */
-    /* PREDIV_S is set in order to get a 1 Hz clock */
-    RtcHandle.Init.SynchPrediv    = RTC_CLOCK / (RtcHandle.Init.AsynchPrediv + 1) - 1;
+    RtcHandle.Init.AsynchPrediv   = PREDIV_A_VALUE;
+    RtcHandle.Init.SynchPrediv    = PREDIV_S_VALUE;
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
