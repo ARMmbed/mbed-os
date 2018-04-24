@@ -36,15 +36,6 @@
 
 static RTC_HandleTypeDef RtcHandle;
 
-#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
-
-#define GET_TICK_PERIOD(VALUE) (2048 * 1000000 / VALUE) /* 1s / SynchPrediv value * 2^11 (value to get the maximum precision value with no u32 overflow) */
-
-static void (*irq_handler)(void);
-static void RTC_IRQHandler(void);
-static uint32_t lp_TickPeriod_us = GET_TICK_PERIOD(4095); /* default SynchPrediv value = 4095 */
-#endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
-
 void rtc_init(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -118,10 +109,6 @@ void rtc_init(void)
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
 #endif /* TARGET_STM32F1 */
-
-#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
-    lp_TickPeriod_us = GET_TICK_PERIOD(RtcHandle.Init.SynchPrediv);
-#endif
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
         error("RTC initialization failed");
@@ -288,18 +275,41 @@ void rtc_synchronize(void)
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 
+static void RTC_IRQHandler(void);
+static void (*irq_handler)(void);
+
+volatile uint8_t lp_Fired = 0;
+volatile uint32_t LP_continuous_time = 0;
+volatile uint32_t LP_last_RTC_time = 0;
+
 static void RTC_IRQHandler(void)
 {
     /*  Update HAL state */
     RtcHandle.Instance = RTC;
-    HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
-    /* In case of registered handler, call it. */
-    if (irq_handler) {
-        irq_handler();
+    if(__HAL_RTC_WAKEUPTIMER_GET_IT(&RtcHandle, RTC_IT_WUT)) {
+        /* Get the status of the Interrupt */
+        if((uint32_t)(RTC->CR & RTC_IT_WUT) != (uint32_t)RESET) {
+            /* Clear the WAKEUPTIMER interrupt pending bit */
+            __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(&RtcHandle, RTC_FLAG_WUTF);
+
+            lp_Fired = 0;
+            if (irq_handler) {
+                irq_handler();
+            }
+        }
     }
+
+    if (lp_Fired) {
+        lp_Fired = 0;
+        if (irq_handler) {
+            irq_handler();
+        }
+    }
+
+    __HAL_RTC_WAKEUPTIMER_EXTI_CLEAR_FLAG();
 }
 
-uint32_t rtc_read_us(void)
+uint32_t rtc_read_lp(void)
 {
     RTC_TimeTypeDef timeStruct = {0};
     RTC_DateTypeDef dateStruct = {0};
@@ -316,52 +326,52 @@ uint32_t rtc_read_us(void)
            time/date is one second less than as indicated by RTC_TR/RTC_DR. */
         timeStruct.Seconds -= 1;
     }
-    uint32_t RTCTime = timeStruct.Seconds + timeStruct.Minutes * 60 + timeStruct.Hours * 60 * 60;
-    uint32_t Time_us = ((timeStruct.SecondFraction - timeStruct.SubSeconds) * lp_TickPeriod_us) >> 11;
+    uint32_t RTC_time_s = timeStruct.Seconds + timeStruct.Minutes * 60 + timeStruct.Hours * 60 * 60; // Max 0x0001-517F => * 8191 + 8191 = 0x2A2E-AE80
 
-    return (RTCTime * 1000000) + Time_us ;
+    if (LP_last_RTC_time <= RTC_time_s) {
+        LP_continuous_time += (RTC_time_s - LP_last_RTC_time);
+    } else {
+        LP_continuous_time += (24 * 60 * 60 + RTC_time_s - LP_last_RTC_time);
+    }
+    LP_last_RTC_time = RTC_time_s;
+
+    return LP_continuous_time * PREDIV_S_VALUE + timeStruct.SecondFraction - timeStruct.SubSeconds;
 }
 
-void rtc_set_wake_up_timer(uint32_t delta)
+void rtc_set_wake_up_timer(timestamp_t timestamp)
 {
-#define RTC_CLOCK_US (((uint64_t)RTC_CLOCK << 32 ) / 1000000)
-
     uint32_t WakeUpCounter;
-    uint32_t WakeUpClock;
+    uint32_t current_lp_time;
 
-    /* Ex for Wakeup period resolution with RTCCLK=32768 Hz :
-    *    RTCCLK_DIV2: ~122us < wakeup period < ~4s
-    *    RTCCLK_DIV4: ~244us < wakeup period < ~8s
-    *    RTCCLK_DIV8: ~488us < wakeup period < ~16s
-    *    RTCCLK_DIV16: ~976us < wakeup period < ~32s
-    *    CK_SPRE_16BITS: 1s < wakeup period < (0xFFFF+ 1) x 1 s = 65536 s (18 hours)
-    *    CK_SPRE_17BITS: 18h+1s < wakeup period < (0x1FFFF+ 1) x 1 s = 131072 s (36 hours)
-    */
-    if (delta < (0x10000 * 2 / RTC_CLOCK * 1000000) ) { // (0xFFFF + 1) * RTCCLK_DIV2 / RTC_CLOCK * 1s
-        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 1 ;
-        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV2;
-    } else if (delta < (0x10000 * 4 / RTC_CLOCK * 1000000) ) {
-        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 2 ;
-        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV4;
-    } else if (delta < (0x10000 * 8 / RTC_CLOCK * 1000000) ) {
-        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 3 ;
-        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV8;
-    } else if (delta < (0x10000 * 16 / RTC_CLOCK * 1000000) ) {
-        WakeUpCounter = (((uint64_t)delta * RTC_CLOCK_US) >> 32) >> 4 ;
-        WakeUpClock = RTC_WAKEUPCLOCK_RTCCLK_DIV16;
+    current_lp_time = rtc_read_lp();
+
+    if (timestamp < current_lp_time) {
+        WakeUpCounter = 0xFFFFFFFF - current_lp_time + timestamp;
     } else {
-        WakeUpCounter = (delta / 1000000) ;
-        WakeUpClock = RTC_WAKEUPCLOCK_CK_SPRE_16BITS;
+        WakeUpCounter = timestamp - current_lp_time;
     }
 
-    irq_handler = (void (*)(void))lp_ticker_irq_handler;
-    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
-    NVIC_EnableIRQ(RTC_WKUP_IRQn);
+    if (WakeUpCounter > 0xFFFF) {
+        WakeUpCounter = 0xFFFF;
+    }
 
     RtcHandle.Instance = RTC;
-    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, (uint32_t)WakeUpCounter, WakeUpClock) != HAL_OK) {
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, RTC_WAKEUPCLOCK_RTCCLK_DIV4) != HAL_OK) {
         error("rtc_set_wake_up_timer init error\n");
     }
+
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    irq_handler = (void (*)(void))lp_ticker_irq_handler;
+    NVIC_EnableIRQ(RTC_WKUP_IRQn);
+}
+
+void rtc_fire_interrupt(void)
+{
+    lp_Fired = 1;
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
+    irq_handler = (void (*)(void))lp_ticker_irq_handler;
+    NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
+    NVIC_EnableIRQ(RTC_WKUP_IRQn);
 }
 
 void rtc_deactivate_wake_up_timer(void)

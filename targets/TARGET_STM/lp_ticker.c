@@ -173,8 +173,8 @@ static void LPTIM1_IRQHandler(void)
             /* Clear Compare match flag */
             __HAL_LPTIM_CLEAR_FLAG(&LptimHandle, LPTIM_FLAG_CMPM);
 
-                if (irq_handler) {
-                    irq_handler();
+            if (irq_handler) {
+                irq_handler();
             }
         }
     }
@@ -240,28 +240,35 @@ void lp_ticker_clear_interrupt(void)
 #else /* MBED_CONF_TARGET_LPTICKER_LPTIM */
 
 #include "rtc_api_hal.h"
+
+const ticker_info_t* lp_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        RTC_CLOCK/4, // RTC_WAKEUPCLOCK_RTCCLK_DIV4
+        32
+    };
+    return &info;
+}
+
 void lp_ticker_init(void)
 {
     rtc_init();
+    lp_ticker_disable_interrupt();
 }
 
 uint32_t lp_ticker_read(void)
 {
-    uint32_t usecs = rtc_read_us();
-    return usecs;
+    return rtc_read_lp();
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta;
-
-    delta = timestamp - lp_ticker_read();
-    rtc_set_wake_up_timer(delta);
+    rtc_set_wake_up_timer(timestamp);
 }
 
 void lp_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
+    rtc_fire_interrupt();
 }
 
 void lp_ticker_disable_interrupt(void)
@@ -271,7 +278,7 @@ void lp_ticker_disable_interrupt(void)
 
 void lp_ticker_clear_interrupt(void)
 {
-    NVIC_ClearPendingIRQ(RTC_WKUP_IRQn);
+    NVIC_DisableIRQ(RTC_WKUP_IRQn);
 }
 
 #endif /* MBED_CONF_TARGET_LPTICKER_LPTIM */
