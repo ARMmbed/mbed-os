@@ -137,28 +137,7 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
     toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
                                   app_config=app_config)
 
-    # Scan src_path for config files
-    resources = toolchain.scan_resources(src_paths[0])
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
-
-    # Update configuration files until added features creates no changes
-    prev_features = set()
-    while True:
-        # Update the configuration with any .json files found while scanning
-        toolchain.config.add_config_files(resources.json_files)
-
-        # Add features while we find new ones
-        features = set(toolchain.config.get_features())
-        if features == prev_features:
-            break
-
-        for feature in features:
-            if feature in resources.features:
-                resources += resources.features[feature]
-
-        prev_features = features
-    toolchain.config.validate_config()
+    res = Resources().scan_with_toolchain(src_paths, toolchain, exclude=False)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
@@ -693,10 +672,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = scan_resources(src_paths, toolchain,
-                                   dependencies_paths=dependencies_paths,
-                                   inc_dirs=inc_dirs)
-
+        resources = Resources().scan_with_toolchain(
+            src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib

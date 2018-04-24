@@ -168,7 +168,11 @@ class Resources(object):
         self.features = LazyDict()
         self.ignored_dirs = []
 
-        self.labels = {}
+        self.labels = {
+            "TARGET": [],
+            "TOOLCHAIN": [],
+            "FEATURE": []
+        }
 
         # Pre-mbed 2.0 ignore dirs
         self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS | TOOLCHAINS)
