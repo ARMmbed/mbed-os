@@ -46,7 +46,6 @@ public:
             delete temp;
             temp = _head;
         }
-        _tail=NULL;
     }
 
     T* add_new()
