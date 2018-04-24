@@ -54,7 +54,7 @@ extern "C" {
 /* PREDIV_A : 7-bit asynchronous prescaler */
 /* PREDIV_S : 15-bit synchronous prescaler */
 /* PREDIV_S is set in order to get a 1 Hz clock */
-#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
 /* PREDIV_A is set to a small value to improve the SubSeconds resolution */
 /* with a 32768Hz clock, PREDIV_A=7 gives a precision of 244us */
 #define PREDIV_A_VALUE 7
