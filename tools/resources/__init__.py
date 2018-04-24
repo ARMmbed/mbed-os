@@ -37,7 +37,8 @@ import re
 from copy import copy
 from itertools import chain
 from os import walk
-from os.path import (join, splitext, dirname, relpath, basename, split, normcase)
+from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
+                     abspath, exists)
 
 from ..toolchains import TOOLCHAINS
 
@@ -51,8 +52,10 @@ LEGACY_IGNORE_DIRS = set([
     'ARMC6'
 ])
 LEGACY_TOOLCHAIN_NAMES = {
-    'ARM_STD':'ARM', 'ARM_MICRO': 'uARM',
-    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR',
+    'ARM_STD':'ARM',
+    'ARM_MICRO': 'uARM',
+    'GCC_ARM': 'GCC_ARM',
+    'GCC_CR': 'GCC_CR',
     'IAR': 'IAR',
     'ARMC6': 'ARMC6',
 }
@@ -368,6 +371,8 @@ class Resources(object):
     def add_toolchain_labels(self, toolchain):
         for prefix, value in toolchain.get_labels().items():
             self._add_labels(prefix, value)
+        self.legacy_ignore_dirs -= set(
+            [toolchain.target.name, LEGACY_TOOLCHAIN_NAMES[toolchain.name]])
 
     def get_labels(self):
         """
@@ -544,19 +549,22 @@ class Resources(object):
         inc_dirs - additional include directories which should be added to
                 the scanner resources
         """
-
+        print(src_paths)
         self.add_toolchain_labels(toolchain)
         for path in src_paths:
-            if exclude:
-                self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
-            else:
-                self.add_directory(path, base_path)
+            if exists(path):
+                toolchain.progress("scan", abspath(path))
+                if exclude:
+                    self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
+                else:
+                    self.add_directory(path, base_path)
 
         # Scan dependency paths for include dirs
         if dependencies_paths is not None:
-            for path in dependencies_paths:
+            toolchain.progress("dep", dependencies_paths)
+            for dep in dependencies_paths:
                 lib_self = self.__class__(self.base_path, self.collect_ignores)\
-                               .scan_with_toolchain([path], toolchain)
+                               .scan_with_toolchain([dep], toolchain)
                 self.inc_dirs.extend(lib_self.inc_dirs)
 
         # Add additional include directories if passed

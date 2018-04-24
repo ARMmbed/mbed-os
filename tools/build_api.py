@@ -517,7 +517,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = Resources().scan_with_toolchain(src_paths, toolchain, inc_dirs)
+        resources = Resources().scan_with_toolchain(src_paths, toolchain, inc_dirs=inc_dirs)
 
         # Change linker script if specified
         if linker_script is not None:
