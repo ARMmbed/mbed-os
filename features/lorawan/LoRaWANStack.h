@@ -70,7 +70,7 @@ private:
     } device_states_t;
 
 public:
-    static LoRaWANStack& get_lorawan_stack();
+    LoRaWANStack();
 
     /** Binds radio driver to PHY layer.
      *
@@ -396,9 +396,6 @@ public:
     lorawan_status_t set_device_class(const device_class_t& device_class);
 
 private:
-    LoRaWANStack();
-    ~LoRaWANStack();
-
     /**
      * Checks if the user provided port is valid or not
      */
@@ -465,7 +462,6 @@ private:
     void send_automatic_uplink_message(const uint8_t port);
 
 private:
-
     LoRaMac _loramac;
     loramac_primitives_t LoRaMacPrimitives;
 
