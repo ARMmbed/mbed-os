@@ -42,6 +42,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
+from .resources import scan_resources
 from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
@@ -440,46 +441,6 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
                 (merged.maxaddr() - merged.minaddr() + 1))
     merged.tofile(destination, format=format.strip("."))
 
-def scan_resources(src_paths, toolchain, dependencies_paths=None,
-                   inc_dirs=None, base_path=None, collect_ignores=False):
-    """ Scan resources using initialized toolcain
-
-    Positional arguments
-    src_paths - the paths to source directories
-    toolchain - valid toolchain object
-    dependencies_paths - dependency paths that we should scan for include dirs
-    inc_dirs - additional include directories which should be added to
-               the scanner resources
-    """
-
-    # Scan src_path
-    resources = toolchain.scan_resources(src_paths[0], base_path=base_path,
-                                         collect_ignores=collect_ignores)
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path, base_path=base_path,
-                                               collect_ignores=collect_ignores))
-
-    # Scan dependency paths for include dirs
-    if dependencies_paths is not None:
-        for path in dependencies_paths:
-            lib_resources = toolchain.scan_resources(path)
-            resources.inc_dirs.extend(lib_resources.inc_dirs)
-
-    # Add additional include directories if passed
-    if inc_dirs:
-        if isinstance(inc_dirs, list):
-            resources.inc_dirs.extend(inc_dirs)
-        else:
-            resources.inc_dirs.append(inc_dirs)
-
-    # Load resources into the config system which might expand/modify resources
-    # based on config data
-    resources = toolchain.config.load_resources(resources)
-
-    # Set the toolchain's configuration data
-    toolchain.set_config_data(toolchain.config.get_config_data())
-
-    return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
                   libraries_paths=None, linker_script=None, clean=False,
@@ -557,6 +518,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
+        print(resources)
 
         # Change linker script if specified
         if linker_script is not None:
