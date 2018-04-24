@@ -4224,7 +4224,7 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351KIAAEES", "FLASH_CMSIS_ALGO"],
         "OUTPUT_EXT": "hex",
-        "macros": ["MBED_FAULT_HANDLER_DISABLED"],
+        "macros": ["MBED_FAULT_HANDLER_DISABLED", "MBED_TZ_DEFAULT_ACCESS=1"],
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "config": {
