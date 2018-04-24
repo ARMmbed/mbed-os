@@ -2090,6 +2090,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_SERIAL_ASYNCH    \
                          DEVICE_SERIAL_FC        \
                          DEVICE_SLEEP            \
+                         DEVICE_SAI              \
                          DEVICE_SPI              \
                          DEVICE_SPI_ASYNCH       \
                          DEVICE_SPISLAVE         \
