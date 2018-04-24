@@ -80,4 +80,11 @@ extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
 #endif
 
+#ifdef DEVICE_SAI
+extern const PinMap PinMap_SAI_MCLK[];
+extern const PinMap PinMap_SAI_SD[];
+extern const PinMap PinMap_SAI_BCLK[];
+extern const PinMap PinMap_SAI_WCLK[];
+#endif
+
 #endif

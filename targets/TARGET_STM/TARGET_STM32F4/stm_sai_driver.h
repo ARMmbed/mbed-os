@@ -1,7 +1,5 @@
-// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
-// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
+ 
+#ifndef __STM_SAI_DRIVER_H__
+#define __STM_SAI_DRIVER_H__
 
+#if DEVICE_SAI
 
+#include "stm_sai_api.h"
 
+extern const stm_sai_api_t stm_sai_vtable;
 
+#endif // DEVICE_SAI
 
-
-
-
-
-#define SAI_DEFAULT_SAMPLE_RATE (16000)
-
-#define DEVICE_ID_LENGTH       24
-
-
-
-
-
-#include "objects.h"
-
-#endif
+#endif // __STM_SAI_DRIVER_H__

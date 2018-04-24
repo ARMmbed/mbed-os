@@ -299,3 +299,65 @@ const PinMap PinMap_PWM[] = {
 
     {NC   , NC    , 0}
 };
+
+/************I2S***************/
+const PinMap PinMap_SAI_MCLK[] = {
+    {PTA17, SAI_0, 6},
+    {PTC6 , SAI_0, 6},
+    {PTC8 , SAI_0, 4},
+    {PTE6 , SAI_0, 4},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_TXSD[] = {
+    {PTA12, SAI_0, 6},
+    {PTA14, SAI_0, 7},
+    {PTC0 , SAI_0, 6},
+    {PTC1 , SAI_0, 6},
+    {PTE9 , SAI_0, 2},
+    {PTE10, SAI_0, 4},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_TXBCLK[] = {
+    {PTA5 , SAI_0, 6},
+    {PTB18, SAI_0, 4},
+    {PTC3 , SAI_0, 6},
+    {PTE12, SAI_0, 4},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_TXWCLK[] = {
+    {PTA13, SAI_0, 6},
+    {PTB19, SAI_0, 4},
+    {PTC2 , SAI_0, 6},
+    {PTE11, SAI_0, 4},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_RXSD[] = {
+    {PTA15, SAI_0, 6},
+    {PTA16, SAI_0, 7},
+    {PTC5 , SAI_0, 4},
+    {PTC11, SAI_0, 4},
+    {PTE7 , SAI_0, 4},
+    {PTE8 , SAI_0, 2},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_RXBCLK[] = {
+    {PTA14, SAI_0, 6},
+    {PTC6 , SAI_0, 4},
+    {PTC9 , SAI_0, 4},
+    {PTE9 , SAI_0, 4},
+
+    {NC   , NC, 0}
+};
+const PinMap PinMap_SAI_RXWCLK[] = {
+    {PTA16, SAI_0, 6},
+    {PTC7 , SAI_0, 4},
+    {PTC10, SAI_0, 4},
+    {PTE8 , SAI_0, 4},
+
+    {NC, NC, 0}
+};
