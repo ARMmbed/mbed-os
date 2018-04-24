@@ -167,7 +167,13 @@ build_list = [
             { "target": "SAML21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
         )
     },
-
+	
+	{
+        "INFINEON":
+        (
+            { "target": "XMC4500",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        )
+    },
 
     {
         "NUVOTON":
