@@ -1021,9 +1021,7 @@ class Config(object):
             if features == prev_features:
                 break
 
-            for feature in features:
-                if feature in resources.features:
-                    resources.add(resources.features[feature])
+            resources.add_features(features)
 
             prev_features = features
         self.validate_config()
@@ -1032,8 +1030,6 @@ class Config(object):
              "5" not in self.target.release_versions and
              "rtos" in self.lib_config_data):
             raise NotSupportedException("Target does not support mbed OS 5")
-
-        return resources
 
     @staticmethod
     def config_to_header(config, fname=None):
