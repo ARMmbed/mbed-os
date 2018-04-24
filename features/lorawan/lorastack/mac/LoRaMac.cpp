@@ -1432,7 +1432,7 @@ void LoRaMac::setup_link_check_request()
 
     _mlme_confirmation.req_type = MLME_LINK_CHECK;
     _params.flags.bits.mlme_req = 1;
-    mac_commands.add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
+    mac_commands.add_link_check_req();
 }
 
 lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_otaa)
