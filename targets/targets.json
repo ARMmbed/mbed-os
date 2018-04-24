@@ -4012,29 +4012,21 @@
         "inherits": ["Target"],
         "extra_labels": ["Infineon", "XMCLib"],
         "supported_toolchains": ["GCC_ARM"],
-        "device_name": "XMCXXX",
         "public": false
     },
     "XMC_4XXX": {
         "inherits": ["XMC_XXXX"],
         "extra_labels_add": ["XMC4XXX", "USBlib", "VirtualSerial"],
         "core": "Cortex-M4F",
-        "device_name": "XMC4XXX",
         "public": false
     },
-    "XMC_4500": {
+    "XMC4500": {
         "inherits": ["XMC_4XXX"],
-        "extra_labels_add": ["XMC4500"],
+        "extra_labels_add": ["XMC4500", "XMC4500_Relax_Kit"],
         "device_has": ["SERIAL", "INTERRUPTIN", "ANALOGOUT", "ANALOGIN", "PWMOUT", "I2C", "RTC", "FLASH", "SPI"],
-        "device_name": "XMC4500",
-        "public": false
-    },
-    "XMC_4500_RELAX_KIT": {
-        "inherits": ["XMC_4500"],
-        "extra_labels_add": ["XMC4500_Relax_Kit"],
-        "macros_add": ["XMC4500_F100x1024", "XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
-        "features_add": ["LWIP"],
+		"macros_add": ["XMC4500_F100x1024", "XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
+		"features_add": ["LWIP"],
         "OUTPUT_EXT": "hex",
-        "device_name": "XMC4500RelaxKit"
-    }
+		"device_name": "XMC4500"
+    },
 }
