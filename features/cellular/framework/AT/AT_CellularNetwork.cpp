@@ -459,7 +459,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
             strncpy(pdp_type, "IPV6", sizeof(pdp_type));
             break;
         case IPV4V6_STACK:
-            strncpy(pdp_type, "IPV4V6", sizeof(pdp_type));
+            strncpy(pdp_type, "IPV6", sizeof(pdp_type)); // try first IPV6 and then fall-back to IPv4
             break;
         default:
             break;
