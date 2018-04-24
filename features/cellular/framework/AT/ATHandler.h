@@ -493,6 +493,8 @@ private:
 
     // check is urc is already added
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+
+    ssize_t read(char *buf, size_t size, bool read_even_stop_tag, bool hex);
 };
 
 } // namespace mbed
