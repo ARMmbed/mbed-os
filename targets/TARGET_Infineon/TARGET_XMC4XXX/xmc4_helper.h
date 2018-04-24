@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 /****************************************************************** Defines **/
-#define NOT_SUPPORTET                               -1
+#define NOT_SUPPORTED  	                            -1
 
 /****************************************************************** Typedef **/
 typedef const struct pin_io_function_s {
