@@ -329,7 +329,6 @@ void USBPhyHw::sof_disable()
 void USBPhyHw::set_address(uint8_t address)
 {
     HAL_PCD_SetAddress(&hpcd, address);
-    ep0_write(NULL, 0);
 }
 
 void USBPhyHw::remote_wakeup()
