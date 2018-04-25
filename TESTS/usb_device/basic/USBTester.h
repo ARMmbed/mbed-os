@@ -59,10 +59,13 @@ private:
     enum { NONE = -1 };
     const char *get_desc_string(const uint8_t *desc);
     virtual void suspend(bool suspended);
-    void remove_endpoints();
     bool set_configuration(uint16_t configuration);
-    bool set_interface(uint16_t configuration, uint16_t interface, uint16_t alternate);
-    int16_t interface_set;
+    bool set_interface(uint16_t interface, uint16_t alternate);
+    bool setup_iterface(uint8_t ep_in, uint8_t ep_out, uint32_t ep_size, usb_ep_type_t ep_type,
+                        uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)(usb_ep_t endpoint));
+    void remove_iterface(uint16_t interface);
+    int16_t interface_0_alt_set;
+    int16_t interface_1_alt_set;
     int16_t configuration_set;
 
 protected:
