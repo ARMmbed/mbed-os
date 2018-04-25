@@ -2,7 +2,7 @@
  * @file rail_types.h
  * @brief This file contains the type definitions for RAIL structures, enums,
  *        and other types.
- * @copyright Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com
+ * @copyright Copyright 2017 Silicon Laboratories, Inc. www.silabs.com
  *****************************************************************************/
 
 #ifndef __RAIL_TYPES_H__
@@ -12,6 +12,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef DOXYGEN_SHOULD_SKIP_THIS
 /// The RAIL library does not use enums because the ARM EABI leaves their
@@ -46,6 +50,12 @@
  * @addtogroup Multiprotocol
  * @{
  */
+
+/**
+ * @typedef RAIL_Time_t
+ * @brief Time in microseconds
+ */
+typedef uint32_t RAIL_Time_t;
 
 /**
  * @def RAIL_SCHEDULER_STATE_UINT32_BUFFER_SIZE
@@ -98,7 +108,7 @@ typedef struct RAIL_SchedulerInfo {
    * the current time for relative transmits. If we cannot start by this time
    * the operation will be considered a failure.
    */
-  uint32_t slipTime;
+  RAIL_Time_t slipTime;
   /**
    * The transaction time in us for this operation. Since transaction times may
    * not be known exactly you will likely want to use a minimum or expected
@@ -106,7 +116,7 @@ typedef struct RAIL_SchedulerInfo {
    * for overlaps between low priority and high priority tasks and attempt to
    * find a schedule where all tasks get to run.
    */
-  uint32_t transactionTime;
+  RAIL_Time_t transactionTime;
 } RAIL_SchedulerInfo_t;
 
 /**
@@ -164,8 +174,8 @@ RAIL_ENUM(RAIL_SchedulerStatus_t) {
   RAIL_SCHEDULER_STATUS_TX_STREAM_FAIL,
   /**
    * RSSI averaging failed. If this scheduler status occurs
-   * RAIL_GetAverageRssi will return \ref RAIL_RSSI_INVALID until
-   * a RAIL_StartAverageRssi completes successfully.
+   * RAIL_GetAverageRssi() will return \ref RAIL_RSSI_INVALID until
+   * a RAIL_StartAverageRssi() completes successfully.
    */
   RAIL_SCHEDULER_STATUS_AVERAGE_RSSI_FAIL,
   /**
@@ -191,9 +201,6 @@ RAIL_ENUM(RAIL_SchedulerStatus_t) {
  *   indicated due to interrupt latency.
  */
 RAIL_ENUM_GENERIC(RAIL_Events_t, uint64_t) {
-  /** Value representing no events */
-  RAIL_EVENTS_NONE = 0,
-
   // RX Event Bit Shifts
 
   /** Shift position of \ref RAIL_EVENT_RSSI_AVERAGE_DONE bit */
@@ -204,6 +211,8 @@ RAIL_ENUM_GENERIC(RAIL_Events_t, uint64_t) {
   RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT,
   /** Shift position of \ref RAIL_EVENT_RX_PACKET_RECEIVED bit */
   RAIL_EVENT_RX_PACKET_RECEIVED_SHIFT,
+  /** Shift position of \ref RAIL_EVENT_RX_PREAMBLE_LOST bit */
+  RAIL_EVENT_RX_PREAMBLE_LOST_SHIFT,
   /** Shift position of \ref RAIL_EVENT_RX_PREAMBLE_DETECT bit */
   RAIL_EVENT_RX_PREAMBLE_DETECT_SHIFT,
   /** Shift position of \ref RAIL_EVENT_RX_SYNC1_DETECT bit */
@@ -273,191 +282,356 @@ RAIL_ENUM_GENERIC(RAIL_Events_t, uint64_t) {
 
   /** Shift position of \ref RAIL_EVENT_CAL_NEEDED bit */
   RAIL_EVENT_CAL_NEEDED_SHIFT,
-
-  // RX Event Bitmasks
-
-  /**
-   * Occurs when the AGC averaged RSSI is done.
-   * It occurs in response to RAIL_StartAverageRssi() to indicate that the
-   * hardware has completed averaging. Call \ref RAIL_GetAverageRssi to get the
-   * result.
-   */
-  RAIL_EVENT_RSSI_AVERAGE_DONE
-    = (1ull << RAIL_EVENT_RSSI_AVERAGE_DONE_SHIFT),
-  /**
-   * Notifies the application when searching for an ACK has timed
-   * out. This event occurs whenever the timeout for searching for an
-   * ACK is exceeded.
-   */
-  RAIL_EVENT_RX_ACK_TIMEOUT
-    = (1ull << RAIL_EVENT_RX_ACK_TIMEOUT_SHIFT),
-  /**
-   * Occurs when the receive FIFO exceeds the configured threshold
-   * value. Call \ref RAIL_GetRxFifoBytesAvailable to get the number of bytes
-   * available.
-   */
-  RAIL_EVENT_RX_FIFO_ALMOST_FULL
-    = (1ull << RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT),
-  /**
-   * Occurs whenever a packet is received.
-   * Call RAIL_GetRxPacketInfo() to get basic packet information along
-   * with a handle to this packet for subsequent use with
-   * RAIL_PeekRxPacket(), RAIL_GetRxPacketDetails(),
-   * RAIL_HoldRxPacket(), and RAIL_ReleaseRxPacket() as needed.
-   *
-   * If \ref RAIL_RX_OPTION_IGNORE_CRC_ERRORS is set, this event also occurs
-   * for packets with CRC errors.
-   */
-  RAIL_EVENT_RX_PACKET_RECEIVED
-    = (1ull << RAIL_EVENT_RX_PACKET_RECEIVED_SHIFT),
-  /** Event for preamble detection */
-  RAIL_EVENT_RX_PREAMBLE_DETECT
-    = (1ull << RAIL_EVENT_RX_PREAMBLE_DETECT_SHIFT),
-  /** Event for detection of the first sync word */
-  RAIL_EVENT_RX_SYNC1_DETECT
-    = (1ull << RAIL_EVENT_RX_SYNC1_DETECT_SHIFT),
-  /** Event for detection of the second sync word */
-  RAIL_EVENT_RX_SYNC2_DETECT
-    = (1ull << RAIL_EVENT_RX_SYNC2_DETECT_SHIFT),
-  /** Event for detection of frame errors
-   *
-   * For efr32xg1x parts, frame errors include violations of variable length
-   * minimum/maximum limits, frame coding errors, and CRC errors. If \ref
-   * RAIL_RX_OPTION_IGNORE_CRC_ERRORS is set, \ref RAIL_EVENT_RX_FRAME_ERROR
-   * will not occur for CRC errors.
-   */
-  RAIL_EVENT_RX_FRAME_ERROR
-    = (1ull << RAIL_EVENT_RX_FRAME_ERROR_SHIFT),
-  /** Occurs when RX buffer is full */
-  RAIL_EVENT_RX_FIFO_OVERFLOW
-    = (1ull << RAIL_EVENT_RX_FIFO_OVERFLOW_SHIFT),
-  /** Occurs when a packet is address filtered */
-  RAIL_EVENT_RX_ADDRESS_FILTERED
-    = (1ull << RAIL_EVENT_RX_ADDRESS_FILTERED_SHIFT),
-  /** Occurs when an RX event times out */
-  RAIL_EVENT_RX_TIMEOUT
-    = (1ull << RAIL_EVENT_RX_TIMEOUT_SHIFT),
-  /** Occurs when the scheduled RX window ends */
-  RAIL_EVENT_RX_SCHEDULED_RX_END
-    = (1ull << RAIL_EVENT_RX_SCHEDULED_RX_END_SHIFT),
-  /** An event for an aborted packet. It is triggered when a more specific
-   *  reason isn't known for why the packet was aborted (e.g.
-   *  \ref RAIL_EVENT_RX_ADDRESS_FILTERED). */
-  RAIL_EVENT_RX_PACKET_ABORTED
-    = (1ull << RAIL_EVENT_RX_PACKET_ABORTED_SHIFT),
-  /**
-   * Occurs when the packet has passed any configured address and frame
-   * filtering options.
-   */
-  RAIL_EVENT_RX_FILTER_PASSED
-    = (1ull << RAIL_EVENT_RX_FILTER_PASSED_SHIFT),
-  /** Occurs when modem timing is lost */
-  RAIL_EVENT_RX_TIMING_LOST
-    = (1ull << RAIL_EVENT_RX_TIMING_LOST_SHIFT),
-  /** Occurs when modem timing is detected */
-  RAIL_EVENT_RX_TIMING_DETECT
-    = (1ull << RAIL_EVENT_RX_TIMING_DETECT_SHIFT),
-  /**
-   * Indicates a Data Request is being received when using IEEE 802.15.4
-   * functionality. This occurs when the command byte of an incoming frame is
-   * for a data request, which requests an ACK. This callback is called before
-   * the packet is fully received to allow the node to have more time to decide
-   * whether to set the frame pending in the outgoing ACK. This event only ever
-   * occurs if the RAIL IEEE 802.15.4 functionality is enabled.
-   *
-   * Call \ref RAIL_IEEE802154_GetAddress to get the source address of the
-   * packet.
-   */
-  RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND
-    = (1ull << RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND_SHIFT),
-
-  // TX Event Bitmasks
-
-  /**
-   * Occurs when the transmit FIFO falls under the configured
-   * threshold value. It only occurs if a rising edge occurs across this
-   * threshold. This event does not occur on initailization or after resetting
-   * the transmit FIFO with RAIL_ResetFifo().
-   * Call \ref RAIL_GetTxFifoSpaceAvailable to get the number of bytes
-   * available in the transmit FIFO at the time of the callback dispatch.
-   */
-  RAIL_EVENT_TX_FIFO_ALMOST_EMPTY
-    = (1ull << RAIL_EVENT_TX_FIFO_ALMOST_EMPTY_SHIFT),
-  /**
-   * Interrupt level event to signify when the packet was sent.
-   * Call RAIL_GetTxPacketDetails() to get information about the packet
-   * that was transmitted.
-   * @note that this structure is only valid during the timeframe of the
-   *   \ref RAIL_Config_t::eventsCallback.
-   */
-  RAIL_EVENT_TX_PACKET_SENT
-    = (1ull << RAIL_EVENT_TX_PACKET_SENT_SHIFT),
-  /**
-   * An interrupt level event to signify when the packet was sent.
-   * Call RAIL_GetTxPacketDetails() to get information about the packet
-   * that was transmitted.
-   * @note This structure is only valid during the timeframe of the
-   *   \ref RAIL_Config_t::eventsCallback.
-   */
-  RAIL_EVENT_TXACK_PACKET_SENT
-    = (1ull << RAIL_EVENT_TXACK_PACKET_SENT_SHIFT),
-  /** Occurs when a TX is aborted by the user */
-  RAIL_EVENT_TX_ABORTED
-    = (1ull << RAIL_EVENT_TX_ABORTED_SHIFT),
-  /** Occurs when a TX ACK is aborted by the user */
-  RAIL_EVENT_TXACK_ABORTED
-    = (1ull << RAIL_EVENT_TXACK_ABORTED_SHIFT),
-  /** Occurs when a TX is blocked by something like PTA or RHO */
-  RAIL_EVENT_TX_BLOCKED
-    = (1ull << RAIL_EVENT_TX_BLOCKED_SHIFT),
-  /** Occurs when a TX ACK is blocked by something like PTA or RHO */
-  RAIL_EVENT_TXACK_BLOCKED
-    = (1ull << RAIL_EVENT_TXACK_BLOCKED_SHIFT),
-  /** Occurs when the TX buffer underflows */
-  RAIL_EVENT_TX_UNDERFLOW
-    = (1ull << RAIL_EVENT_TX_UNDERFLOW_SHIFT),
-  /** Occurs when the buffer used for TX acking underflows */
-  RAIL_EVENT_TXACK_UNDERFLOW
-    = (1ull << RAIL_EVENT_TXACK_UNDERFLOW_SHIFT),
-  /** Occurs when CCA/CSMA/LBT succeeds */
-  RAIL_EVENT_TX_CHANNEL_CLEAR
-    = (1ull << RAIL_EVENT_TX_CHANNEL_CLEAR_SHIFT),
-  /** Occurs when CCA/CSMA/LBT fails */
-  RAIL_EVENT_TX_CHANNEL_BUSY
-    = (1ull << RAIL_EVENT_TX_CHANNEL_BUSY_SHIFT),
-  /** Occurs when a CCA check is being retried */
-  RAIL_EVENT_TX_CCA_RETRY
-    = (1ull << RAIL_EVENT_TX_CCA_RETRY_SHIFT),
-  /** Occurs when a clear channel assessment (CCA) is begun */
-  RAIL_EVENT_TX_START_CCA
-    = (1ull << RAIL_EVENT_TX_START_CCA_SHIFT),
-
-  // Scheduler Event Bitmasks
-
-  /** Event for when the scheduler switches away from this configuration */
-  RAIL_EVENT_CONFIG_UNSCHEDULED
-    = (1ull << RAIL_EVENT_CONFIG_UNSCHEDULED_SHIFT),
-  /** Event for when the scheduler switches to this configuration */
-  RAIL_EVENT_CONFIG_SCHEDULED
-    = (1ull << RAIL_EVENT_CONFIG_SCHEDULED_SHIFT),
-  /** Event for when the status of the scheduler changes */
-  RAIL_EVENT_SCHEDULER_STATUS
-    = (1ull << RAIL_EVENT_SCHEDULER_STATUS_SHIFT),
-
-  // Other Event Bitmasks
-
-  /**
-   * Notifies the application that a calibration is needed.
-   * It occurs whenever the RAIL library detects that a
-   * calibration is needed. An application determines a valid
-   * window to call \ref RAIL_Calibrate().
-   */
-  RAIL_EVENT_CAL_NEEDED
-    = (1ull << RAIL_EVENT_CAL_NEEDED_SHIFT),
-
-  /** Value representing all possible events */
-  RAIL_EVENTS_ALL = 0xFFFFFFFFFFFFFFFFULL
 };
+
+// RAIL_Event_t bitmasks
+
+/** Value representing no events */
+#define RAIL_EVENTS_NONE 0ULL
+
+/**
+ * Occurs when the hardware-averaged RSSI is done. It only occurs in response to
+ * RAIL_StartAverageRssi() to indicate that the hardware has completed
+ * averaging. Call RAIL_GetAverageRssi() to get the result.
+ */
+#define RAIL_EVENT_RSSI_AVERAGE_DONE (1ULL << RAIL_EVENT_RSSI_AVERAGE_DONE_SHIFT)
+
+/**
+ * Notifies the application when searching for an ack packet has timed out.
+ * This event occurs whenever the timeout for searching for an ack packet is
+ * exceeded. This will only occur after calling RAIL_ConfigAutoAck() and
+ * transmitting a packet.
+ */
+#define RAIL_EVENT_RX_ACK_TIMEOUT (1ULL << RAIL_EVENT_RX_ACK_TIMEOUT_SHIFT)
+
+/**
+ * Occurs when the receive FIFO exceeds the configured threshold value. Call
+ * RAIL_GetRxFifoBytesAvailable() to get the number of bytes available. When
+ * using this event, the threshold should be set via RAIL_SetRxFifoThreshold().
+ */
+#define RAIL_EVENT_RX_FIFO_ALMOST_FULL (1ULL << RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT)
+
+/**
+ * Occurs whenever a packet is received. Call RAIL_GetRxPacketInfo() to get
+ * basic packet information along with a handle to this packet for subsequent
+ * use with RAIL_PeekRxPacket(), RAIL_GetRxPacketDetails(), RAIL_HoldRxPacket(),
+ * and RAIL_ReleaseRxPacket() as needed.
+ *
+ * If \ref RAIL_RX_OPTION_IGNORE_CRC_ERRORS is set, this event also occurs
+ * for packets with CRC errors.
+ */
+#define RAIL_EVENT_RX_PACKET_RECEIVED (1ULL << RAIL_EVENT_RX_PACKET_RECEIVED_SHIFT)
+
+/**
+ * Occurs when the radio has lost a preamble. This event can occur multiple
+ * times while searching for a packet, and is generally used for diagnostic
+ * purposes.  This event can only occur after a
+ * \ref RAIL_EVENT_RX_PREAMBLE_DETECT event has already occurred.
+ */
+#define RAIL_EVENT_RX_PREAMBLE_LOST (1ULL << RAIL_EVENT_RX_PREAMBLE_LOST_SHIFT)
+
+/**
+ * Occurs when the radio has detected a preamble. This event can occur multiple
+ * times while searching for a packet, and is generally used for diagnostic
+ * purposes. This event can only occur after a \ref RAIL_EVENT_RX_TIMING_DETECT
+ * event has already occurred.
+ */
+#define RAIL_EVENT_RX_PREAMBLE_DETECT (1ULL << RAIL_EVENT_RX_PREAMBLE_DETECT_SHIFT)
+
+/**
+ * Occurs when the first sync word is detected. After this event occurs, one of
+ * the events in the \ref RAIL_EVENTS_RX_COMPLETION mask will occur.
+ */
+#define RAIL_EVENT_RX_SYNC1_DETECT (1ULL << RAIL_EVENT_RX_SYNC1_DETECT_SHIFT)
+
+/**
+ * Occurs when the second sync word is detected. After this event occurs, one of
+ * the events in the \ref RAIL_EVENTS_RX_COMPLETION mask will occur.
+ */
+#define RAIL_EVENT_RX_SYNC2_DETECT (1ULL << RAIL_EVENT_RX_SYNC2_DETECT_SHIFT)
+
+/**
+ * Occurs when a packet being received has a frame error.
+ *
+ * For efr32xg1x parts, frame errors include violations of variable length
+ * minimum/maximum limits and CRC errors. If
+ * \ref RAIL_RX_OPTION_IGNORE_CRC_ERRORS is set, \ref RAIL_EVENT_RX_FRAME_ERROR
+ * will not occur for CRC errors.
+ */
+#define RAIL_EVENT_RX_FRAME_ERROR (1ULL << RAIL_EVENT_RX_FRAME_ERROR_SHIFT)
+
+/**
+ * Occurs when RX buffer is full. This will cause the radio to stop receiving
+ * packets until the packet causing the overflow is processed.
+ * */
+#define RAIL_EVENT_RX_FIFO_OVERFLOW (1ULL << RAIL_EVENT_RX_FIFO_OVERFLOW_SHIFT)
+
+/**
+ * Occurs when a packet's address does not match the filtering settings. After
+ * this event, the packet will not be received, and no other events should occur
+ * for the packet. This event can only occur after calling
+ * RAIL_EnableAddressFilter().
+ */
+#define RAIL_EVENT_RX_ADDRESS_FILTERED (1ULL << RAIL_EVENT_RX_ADDRESS_FILTERED_SHIFT)
+
+/**
+ * Occurs when an RX event times out. This event can only occur if the
+ * RAIL_StateTiming_t::rxSearchTimeout passed to RAIL_SetStateTiming() is
+ * nonzero.
+ */
+#define RAIL_EVENT_RX_TIMEOUT (1ULL << RAIL_EVENT_RX_TIMEOUT_SHIFT)
+
+/**
+ * Occurs when the scheduled RX window ends. This event only occurs in response
+ * to a scheduled receive timeout after calling RAIL_ScheduleRx(). If
+ * RAIL_ScheduleRxConfig_t::rxTransitionEndSchedule was passed as false, then
+ * this event will occur unless the receive is aborted (due to a call to
+ * RAIL_Idle() or a scheduler pre-emption, for instance). If
+ * RAIL_ScheduleRxConfig_t::rxTransitionEndSchedule was passed as true, then
+ * any of the \ref RAIL_EVENTS_RX_COMPLETION events occurring will also cause
+ * this event to not occur, since the scheduled reeive will end with the
+ * transition at the end of the packet.
+ */
+#define RAIL_EVENT_RX_SCHEDULED_RX_END (1ULL << RAIL_EVENT_RX_SCHEDULED_RX_END_SHIFT)
+
+/**
+ * Occurs when a packet is aborted, but a more specific reason (such as
+ * \ref RAIL_EVENT_RX_ADDRESS_FILTERED) isn't known.
+ */
+#define RAIL_EVENT_RX_PACKET_ABORTED (1ULL << RAIL_EVENT_RX_PACKET_ABORTED_SHIFT)
+
+/**
+ * Occurs when the packet has passed any configured address and frame
+ * filtering options. This event will only occur between the start of the
+ * packet, indicated by \ref RAIL_EVENT_RX_SYNC1_DETECT or
+ * \ref RAIL_EVENT_RX_SYNC2_DETECT, and one of the events in the
+ * \ref RAIL_EVENTS_RX_COMPLETION mask. This event will always occur before or
+ * concurrently with \ref RAIL_EVENT_RX_PACKET_RECEIVED. If IEEE 802.15.4 frame
+ * and address filtering are enabled, this event will occur immediately after
+ * destination address filtering.
+ */
+#define RAIL_EVENT_RX_FILTER_PASSED (1ULL << RAIL_EVENT_RX_FILTER_PASSED_SHIFT)
+
+/**
+ * Occurs when the modem timing is lost. This event can occur multiple times
+ * while searching for a packet, and is generally used for diagnostic purposes.
+ * This event can only occur after a \ref RAIL_EVENT_RX_TIMING_DETECT event has
+ * already occurred.
+ */
+#define RAIL_EVENT_RX_TIMING_LOST (1ULL << RAIL_EVENT_RX_TIMING_LOST_SHIFT)
+
+/**
+ * Occurs when the modem timing is detected. This event can occur multiple times
+ * while searching for a packet, and is generally used for diagnostic purposes.
+ */
+#define RAIL_EVENT_RX_TIMING_DETECT (1ULL << RAIL_EVENT_RX_TIMING_DETECT_SHIFT)
+
+/**
+ * Indicates a Data Request is being received when using IEEE 802.15.4
+ * functionality. This occurs when the command byte of an incoming frame is
+ * for a data request, which requests an ACK. This callback is called before
+ * the packet is fully received to allow the node to have more time to decide
+ * whether to set the frame pending in the outgoing ACK. This event only ever
+ * occurs if the RAIL IEEE 802.15.4 functionality is enabled, but will never
+ * occur if promiscuous mode is enabled via
+ * RAIL_IEEE802154_SetPromiscuousMode().
+ *
+ * Call RAIL_IEEE802154_GetAddress() to get the source address of the packet.
+ */
+#define RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND (1ULL << RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND_SHIFT)
+
+/**
+ * This mask indicates all of the events that determine the end of a received
+ * packet. After a packet has begun to be received, which is indicated by a
+ * \ref RAIL_EVENT_RX_SYNC1_DETECT or a \ref RAIL_EVENT_RX_SYNC2_DETECT,
+ * exactly one of the following events will occur. When one of these events
+ * occurs a state transition will take place, based on the parameter passed to
+ * RAIL_SetRxTransitions(). The RAIL_StateTransitions_t::success transition
+ * will be followed only if the \ref RAIL_EVENT_RX_PACKET_RECEIVED event occurs.
+ * Any of the other events will trigger the RAIL_StateTransitions_t::error
+ * transition.
+ */
+#define RAIL_EVENTS_RX_COMPLETION (RAIL_EVENT_RX_PACKET_RECEIVED  \
+                                   | RAIL_EVENT_RX_PACKET_ABORTED \
+                                   | RAIL_EVENT_RX_FRAME_ERROR    \
+                                   | RAIL_EVENT_RX_FIFO_OVERFLOW  \
+                                   | RAIL_EVENT_RX_ADDRESS_FILTERED)
+
+// TX Event Bitmasks
+
+/**
+ * Occurs when the number of bytes in the transmit FIFO was above the
+ * configured threshold, and falls to a value at or below the threshold value.
+ * This event does not occur on initailization or after resetting the transmit
+ * FIFO with RAIL_ResetFifo(). Call RAIL_GetTxFifoSpaceAvailable() to get the
+ * number of bytes available in the transmit FIFO at the time of the callback
+ * dispatch. When using this event, the threshold should be set via
+ * RAIL_SetTxFifoThreshold().
+ */
+#define RAIL_EVENT_TX_FIFO_ALMOST_EMPTY (1ULL << RAIL_EVENT_TX_FIFO_ALMOST_EMPTY_SHIFT)
+
+/**
+ * Occurs when a packet was sent. Call RAIL_GetTxPacketDetails() to get
+ * information about the packet that was transmitted.
+ * @note RAIL_GetTxPacketDetails() is only valid to call during the timeframe
+ *   of the RAIL_Config_t::eventsCallback.
+ */
+#define RAIL_EVENT_TX_PACKET_SENT (1ULL << RAIL_EVENT_TX_PACKET_SENT_SHIFT)
+
+/**
+ * Occurs when an ack packet was sent. Call RAIL_GetTxPacketDetails() to get
+ * information about the packet that was transmitted. This event can only occur
+ * after calling RAIL_ConfigAutoAck().
+ * @note RAIL_GetTxPacketDetails() is only valid to call during the timeframe
+ *   of the RAIL_Config_t::eventsCallback.
+ */
+#define RAIL_EVENT_TXACK_PACKET_SENT (1ULL << RAIL_EVENT_TXACK_PACKET_SENT_SHIFT)
+
+/**
+ * Occurs when a transmit is aborted by the user. This can occur due to calling
+ * RAIL_Idle() or due to a scheduler pre-emption.
+ */
+#define RAIL_EVENT_TX_ABORTED (1ULL << RAIL_EVENT_TX_ABORTED_SHIFT)
+
+/**
+ * Occurs when an ack transmit is aborted by the user. This event can only
+ * occur after calling RAIL_ConfigAutoAck(). This can occur due to calling
+ * RAIL_Idle() or due to a scheduler pre-emption.
+ */
+#define RAIL_EVENT_TXACK_ABORTED (1ULL << RAIL_EVENT_TXACK_ABORTED_SHIFT)
+
+/**
+ * Occurs when a transmit is blocked from occurring due to having called
+ * RAIL_EnableTxHoldOff().
+ */
+#define RAIL_EVENT_TX_BLOCKED (1ULL << RAIL_EVENT_TX_BLOCKED_SHIFT)
+
+/**
+ * Occurs when an ack transmit is blocked from occurring due to having called
+ * RAIL_EnableTxHoldOff(). This event can only occur after calling
+ * RAIL_ConfigAutoAck().
+ */
+#define RAIL_EVENT_TXACK_BLOCKED (1ULL << RAIL_EVENT_TXACK_BLOCKED_SHIFT)
+
+/**
+ * Occurs when the transmit buffer underflows. This can happen due to the
+ * transmitted packet specifying an unintended length based on the current
+ * radio configuration, or due to RAIL_WriteTxFifo() calls not keeping up with
+ * the transmit rate, if the entire packet isn't loaded at once.
+ */
+#define RAIL_EVENT_TX_UNDERFLOW (1ULL << RAIL_EVENT_TX_UNDERFLOW_SHIFT)
+
+/**
+ * Occurs when the ack transmit buffer underflows. This can happen due to the
+ * transmitted packet specifying an unintended length based on the current
+ * radio configuration, or due to RAIL_WriteAutoAckFifo() not being called at
+ * all before an ack transmit. This event can only occur after calling
+ * RAIL_ConfigAutoAck().
+ */
+#define RAIL_EVENT_TXACK_UNDERFLOW (1ULL << RAIL_EVENT_TXACK_UNDERFLOW_SHIFT)
+
+/**
+ * Occurs when Carrier Sense Mulitple Access (CSMA) or Listen Before Talk (LBT)
+ * succeeds. This event can only happen after calling RAIL_StartCcaCsmaTx() or
+ * RAIL_StartCsmaLbtTx().
+ */
+#define RAIL_EVENT_TX_CHANNEL_CLEAR (1ULL << RAIL_EVENT_TX_CHANNEL_CLEAR_SHIFT)
+
+/**
+ * Occurs when Carrier Sense Mulitple Access (CSMA) or Listen Before Talk (LBT)
+ * fails. This event can only happen after calling RAIL_StartCcaCsmaTx() or
+ * RAIL_StartCsmaLbtTx().
+ */
+#define RAIL_EVENT_TX_CHANNEL_BUSY (1ULL << RAIL_EVENT_TX_CHANNEL_BUSY_SHIFT)
+
+/**
+ * Occurs during CSMA or LBT when an individual Clear Channel Assessment (CCA)
+ * check failed, but there are more tries needed before the overall operation
+ * completes. This event can occur multiple times based on the configuration
+ * of the ongoing CSMA or LBT tranmission. This event can only happen after
+ * calling RAIL_StartCcaCsmaTx() or RAIL_StartCsmaLbtTx().
+ *
+ */
+#define RAIL_EVENT_TX_CCA_RETRY (1ULL << RAIL_EVENT_TX_CCA_RETRY_SHIFT)
+
+/**
+ * Occurs when a Clear Channel Assessment (CCA) check begins. This event can
+ * occur multiple times based on the configuration of the ongoing CSMA or LBT
+ * transmission. This event can only happen after calling RAIL_StartCcaCsmaTx()
+ * or RAIL_StartCsmaLbtTx().
+ */
+#define RAIL_EVENT_TX_START_CCA (1ULL << RAIL_EVENT_TX_START_CCA_SHIFT)
+
+/**
+ * This mask indicates all of the events that determine the end of a transmitted
+ * packet. After a packet has begun to be transmitted, which is indicated by
+ * a \ref RAIL_STATUS_NO_ERROR return value from one of the transmit functions,
+ * exactly one of the following events will occur. When one of these events
+ * occurs a state transition will take place based on the parameter
+ * passed to RAIL_SetTxTransitions(). The RAIL_StateTransitions_t::success
+ * transition will be followed only if the \ref RAIL_EVENT_TX_PACKET_SENT
+ * event occurs. Any of the other events will trigger the
+ * RAIL_StateTransitions_t::error transition.
+ */
+#define RAIL_EVENTS_TX_COMPLETION (RAIL_EVENT_TX_PACKET_SENT \
+                                   | RAIL_EVENT_TX_ABORTED   \
+                                   | RAIL_EVENT_TX_BLOCKED   \
+                                   | RAIL_EVENT_TX_UNDERFLOW \
+                                   | RAIL_EVENT_TX_CHANNEL_BUSY)
+
+/**
+ * This mask indicates all of the events that determine the end of a transmitted
+ * ack packet. After an ack packet has begun to be transmitted, which occurs
+ * after an ack-requesting receive, exactly one of the following events will
+ * occur. When one of these events occurs a state transition will take place
+ * based on the RAIL_AutoAckConfig_t::rxTransitions passed to
+ * RAIL_ConfigAutoAck(). The receive transitions are used because the
+ * transmitted ack packet is considered a part of the ack-requesting received
+ * packet. The RAIL_StateTransitions_t::success transition will be followed
+ * only if the \ref RAIL_EVENT_TXACK_PACKET_SENT event occurs. Any of the other
+ * events will trigger the RAIL_StateTransitions_t::error transition.
+ */
+#define RAIL_EVENTS_TXACK_COMPLETION (RAIL_EVENT_TXACK_PACKET_SENT \
+                                      | RAIL_EVENT_TXACK_ABORTED   \
+                                      | RAIL_EVENT_TXACK_BLOCKED   \
+                                      | RAIL_EVENT_TXACK_UNDERFLOW)
+
+// Scheduler Event Bitmasks
+
+/**
+ * Occurs when the scheduler switches away from this configuration. This event
+ * can occur often in dynamic multiprotocol scenarios, and can give the
+ * current stack an opportunity to release hardware resources.
+ */
+#define RAIL_EVENT_CONFIG_UNSCHEDULED (1ULL << RAIL_EVENT_CONFIG_UNSCHEDULED_SHIFT)
+
+/**
+ * Occurs when the scheduler switches to this configuration. This event can
+ * occur often in dynamic multiprotocol scenarios, and can be used to influence
+ * the stack's operation.
+ */
+#define RAIL_EVENT_CONFIG_SCHEDULED (1ULL << RAIL_EVENT_CONFIG_SCHEDULED_SHIFT)
+
+/**
+ * Occurs when the scheduler has a status to report. The exact status can be
+ * found with RAIL_GetSchedulerStatus(). See \ref RAIL_SchedulerStatus_t for
+ * more details.
+ * @note RAIL_GetSchedulerStatus() is only valid to call during the timeframe
+ *   of the RAIL_Config_t::eventsCallback.
+ */
+#define RAIL_EVENT_SCHEDULER_STATUS (1ULL << RAIL_EVENT_SCHEDULER_STATUS_SHIFT)
+
+// Other Event Bitmasks
+
+/**
+ * Occurs when the application needs to run a calibration.
+ * The RAIL library detects when a calibration is needed. The application
+ * determines a valid window to call RAIL_Calibrate().
+ */
+#define RAIL_EVENT_CAL_NEEDED (1ULL << RAIL_EVENT_CAL_NEEDED_SHIFT)
+
+/** Value representing all possible events */
+#define RAIL_EVENTS_ALL 0xFFFFFFFFFFFFFFFFULL
 
 /** @} */ // end of group Events
 
@@ -531,7 +705,9 @@ RAIL_ENUM(RAIL_Status_t) {
   RAIL_STATUS_INVALID_STATE, /**< Call to RAIL function threw an error
                                   because it was called during an invalid
                                   radio state */
-  RAIL_STATUS_INVALID_CALL, /**< The function is called in an invalid order */
+  RAIL_STATUS_INVALID_CALL, /**< RAIL function is called in an invalid order */
+  RAIL_STATUS_SUSPENDED, /**< RAIL function did not finish in the allotted
+                              time */
 };
 
 /**
@@ -539,7 +715,7 @@ RAIL_ENUM(RAIL_Status_t) {
  * @brief The size, in 32-bit words, of RAIL_StateBuffer_t to store RAIL
  *   internal state.
  */
-#define RAIL_STATE_UINT32_BUFFER_SIZE 54
+#define RAIL_STATE_UINT32_BUFFER_SIZE 70
 
 /**
  * @typedef RAIL_StateBuffer_t
@@ -691,213 +867,212 @@ typedef struct RAIL_ChannelConfigEntry {
                                             channel set. */
 } RAIL_ChannelConfigEntry_t;
 
-/**
- * @struct RAIL_ChannelConfig_t
- * @brief Channel configuration structure, which defines the channel meaning
- *   when a channel number is passed into a RAIL function, e.g., RAIL_StartTx()
- *   and RAIL_StartRx().
- *
- * A RAIL_ChannelConfig_t structure defines the channel scheme that an
- * application uses when registered in RAIL_ConfigChannels().
- *
- * A few examples of different channel configurations:
- * @code{.c}
- * // 21 channels starting at 2.45GHz with channel spacing of 1MHz
- * // ... generated by Simplicity Studio (i.e. rail_config.c) ...
- * const uint32_t generated[] = { ... };
- * RAIL_ChannelConfigEntryAttr_t generated_entryAttr = { ... };
- * const RAIL_ChannelConfigEntry_t generated_channels[] = {
- *   {
- *     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated_entryAttr
- *   },
- * };
- * const RAIL_ChannelConfig_t generated_channelConfig = {
- *   .phyConfigBase = generated, // Default radio config for all entries
- *   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
- *   .configs = generated_channels,
- *   .length = 1 // There are this many channel config entries
- * };
- * const RAIL_ChannelConfig_t *channelConfigs[] = {
- *   &generated_channelConfig,
- *   NULL
- * };
- * // ... in main code ...
- * // Associate a specific channel config with a particular rail instance.
- * RAIL_ConfigChannels(railHandle, channelConfigs[0]);
- *
- * // 4 nonlinear channels
- * // ... in rail_config.c ...
- * const uint32_t generated[] = { ... };
- * RAIL_ChannelConfigEntryAttr_t generated_entryAttr = { ... };
- * const RAIL_ChannelConfigEntry_t generated_channels[] = {
- *   {
- *     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
- *     .baseFrequency = 910123456,
- *     .channelSpacing = 0,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 0,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated_entryAttr
- *   },
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 911654789,
- *     .channelSpacing = 0,
- *     .physicalChannelOffset = 0, // Since ch spacing = 0, offset can be 0
- *     .channelNumberStart = 1,
- *     .channelNumberEnd = 1,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated_entryAttr
- *   },
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 912321456,
- *     .channelSpacing = 100000,
- *     .physicalChannelOffset = 2, // Since ch spacing != 0, offset = 2
- *     .channelNumberStart = 2, // We want ch 2 = baseFrequency
- *     .channelNumberEnd = 2,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated_entryAttr
- *   },
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 913147852,
- *     .channelSpacing = 0,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 3,
- *     .channelNumberEnd = 3,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated_entryAttr
- *   },
- * };
- * const RAIL_ChannelConfig_t generated_channelConfig = {
- *   .phyConfigBase = generated, // Default radio config for all entries
- *   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
- *   .configs = generated_channels,
- *   .length = 4 // There are this many channel config entries
- * };
- * const RAIL_ChannelConfig_t *channelConfigs[] = {
- *   &generated_channelConfig,
- *   NULL
- * };
- * // ... in main code ...
- * // Associate a specific channel config with a particular rail instance.
- * RAIL_ConfigChannels(railHandle, channelConfigs[0]);
- *
- * // Multiple radio configurations
- * // ... in rail_config.c ...
- * const uint32_t generated0[] = { ... };
- * RAIL_ChannelConfigEntryAttr_t generated0_entryAttr = { ... };
- * const RAIL_ChannelConfigEntry_t generated0_channels[] = {
- *   {
- *     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated0_entryAttr
- *   },
- * };
- * const RAIL_ChannelConfig_t generated0_channelConfig = {
- *   .phyConfigBase = generated0, // Default radio config for all entries
- *   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
- *   .configs = generated0_channels,
- *   .length = 1 // There are this many channel config entries
- * };
- * const uint32_t generated1[] = { ... };
- * RAIL_ChannelConfigEntryAttr_t generated1_entryAttr = { ... };
- * const RAIL_ChannelConfigEntry_t generated1_channels[] = {
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = -100, // Use this entry when TX power <= -10dBm
- *     .attr = &generated1_entryAttr
- *   },
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = 15, // Use this entry when TX power > -10dBm
- *                     // and TX power <= 1.5dBm
- *     .attr = &generated1_entryAttr
- *   },
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = RAIL_TX_POWER_MAX, // Use this entry when TX power > 1.5dBm
- *     .attr = &generated1_entryAttr
- *   },
- * };
- * const RAIL_ChannelConfig_t generated1_channelConfig = {
- *   .phyConfigBase = generated1,
- *   .phyConfigDeltaSubtract = NULL,
- *   .configs = generated1_channels,
- *   .length = 3
- * };
- * const uint32_t generated2[] = { ... };
- * RAIL_ChannelConfigEntryAttr_t generated2_entryAttr = { ... };
- * const RAIL_ChannelConfigEntry_t generated2_channels[] = {
- *   {
- *     .phyConfigDeltaAdd = NULL,
- *     .baseFrequency = 2450000000,
- *     .channelSpacing = 1000000,
- *     .physicalChannelOffset = 0,
- *     .channelNumberStart = 0,
- *     .channelNumberEnd = 20,
- *     .maxPower = RAIL_TX_POWER_MAX,
- *     .attr = &generated2_entryAttr
- *   },
- * };
- * const RAIL_ChannelConfig_t generated2_channelConfig = {
- *   .phyConfigBase = generated2,
- *   .phyConfigDeltaSubtract = NULL,
- *   .configs = generated2_channels,
- *   .length = 1
- * };
- * const RAIL_ChannelConfig_t *channelConfigs[] = {
- *   &generated0_channelConfig,
- *   &generated1_channelConfig,
- *   &generated2_channelConfig,
- *   NULL
- * };
- * // ... in main code ...
- * // Create a unique RAIL handle for each unique channel config.
- * railHandle0 = RAIL_Init(&railCfg0, &RAILCb_RfReady0);
- * railHandle1 = RAIL_Init(&railCfg1, &RAILCb_RfReady1);
- * railHandle2 = RAIL_Init(&railCfg2, &RAILCb_RfReady2);
- * // Associate each channel config with its corresponding RAIL handle.
- * RAIL_ConfigChannels(railHandle0, channelConfigs[0]);
- * RAIL_ConfigChannels(railHandle1, channelConfigs[1]);
- * RAIL_ConfigChannels(railHandle2, channelConfigs[2]);
- * // Use a RAIL handle and channel to access the desired channel config entry.
- * RAIL_SetTxPowerDbm(railHandle1, 100); // set 10.0 dBm TX power
- * RAIL_StartRx(railHandle1, 0, &schedInfo); // RX using generated1_channels[2]
- * RAIL_SetTxPowerDbm(railHandle1, 0); // set 0 dBm TX power
- * RAIL_StartRx(railHandle1, 0, &schedInfo); // RX using generated1_channels[1]
- * RAIL_StartRx(railHandle2, 0, &schedInfo); // RX using generated2_channels[0]
- * @endcode
- */
+/// @struct RAIL_ChannelConfig_t
+/// @brief Channel configuration structure, which defines the channel meaning
+///   when a channel number is passed into a RAIL function, e.g., RAIL_StartTx()
+///   and RAIL_StartRx().
+///
+/// A RAIL_ChannelConfig_t structure defines the channel scheme that an
+/// application uses when registered in RAIL_ConfigChannels().
+///
+/// A few examples of different channel configurations:
+/// @code{.c}
+/// // 21 channels starting at 2.45GHz with channel spacing of 1MHz
+/// // ... generated by Simplicity Studio (i.e. rail_config.c) ...
+/// const uint32_t generated[] = { ... };
+/// RAIL_ChannelConfigEntryAttr_t generated_entryAttr = { ... };
+/// const RAIL_ChannelConfigEntry_t generated_channels[] = {
+///   {
+///     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated_entryAttr
+///   },
+/// };
+/// const RAIL_ChannelConfig_t generated_channelConfig = {
+///   .phyConfigBase = generated, // Default radio config for all entries
+///   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
+///   .configs = generated_channels,
+///   .length = 1 // There are this many channel config entries
+/// };
+/// const RAIL_ChannelConfig_t *channelConfigs[] = {
+///   &generated_channelConfig,
+///   NULL
+/// };
+/// // ... in main code ...
+/// // Associate a specific channel config with a particular rail instance.
+/// RAIL_ConfigChannels(railHandle, channelConfigs[0]);
+///
+/// // 4 nonlinear channels
+/// // ... in rail_config.c ...
+/// const uint32_t generated[] = { ... };
+/// RAIL_ChannelConfigEntryAttr_t generated_entryAttr = { ... };
+/// const RAIL_ChannelConfigEntry_t generated_channels[] = {
+///   {
+///     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
+///     .baseFrequency = 910123456,
+///     .channelSpacing = 0,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 0,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated_entryAttr
+///   },
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 911654789,
+///     .channelSpacing = 0,
+///     .physicalChannelOffset = 0, // Since ch spacing = 0, offset can be 0
+///     .channelNumberStart = 1,
+///     .channelNumberEnd = 1,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated_entryAttr
+///   },
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 912321456,
+///     .channelSpacing = 100000,
+///     .physicalChannelOffset = 2, // Since ch spacing != 0, offset = 2
+///     .channelNumberStart = 2, // We want ch 2 = baseFrequency
+///     .channelNumberEnd = 2,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated_entryAttr
+///   },
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 913147852,
+///     .channelSpacing = 0,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 3,
+///     .channelNumberEnd = 3,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated_entryAttr
+///   },
+/// };
+/// const RAIL_ChannelConfig_t generated_channelConfig = {
+///   .phyConfigBase = generated, // Default radio config for all entries
+///   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
+///   .configs = generated_channels,
+///   .length = 4 // There are this many channel config entries
+/// };
+/// const RAIL_ChannelConfig_t *channelConfigs[] = {
+///   &generated_channelConfig,
+///   NULL
+/// };
+/// // ... in main code ...
+/// // Associate a specific channel config with a particular rail instance.
+/// RAIL_ConfigChannels(railHandle, channelConfigs[0]);
+///
+/// // Multiple radio configurations
+/// // ... in rail_config.c ...
+/// const uint32_t generated0[] = { ... };
+/// RAIL_ChannelConfigEntryAttr_t generated0_entryAttr = { ... };
+/// const RAIL_ChannelConfigEntry_t generated0_channels[] = {
+///   {
+///     .phyConfigDeltaAdd = NULL, // Add this to default config for this entry
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated0_entryAttr
+///   },
+/// };
+/// const RAIL_ChannelConfig_t generated0_channelConfig = {
+///   .phyConfigBase = generated0, // Default radio config for all entries
+///   .phyConfigDeltaSubtract = NULL, // Subtract this to restore default config
+///   .configs = generated0_channels,
+///   .length = 1 // There are this many channel config entries
+/// };
+/// const uint32_t generated1[] = { ... };
+/// RAIL_ChannelConfigEntryAttr_t generated1_entryAttr = { ... };
+/// const RAIL_ChannelConfigEntry_t generated1_channels[] = {
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = -100, // Use this entry when TX power <= -10dBm
+///     .attr = &generated1_entryAttr
+///   },
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = 15, // Use this entry when TX power > -10dBm
+///                     // and TX power <= 1.5dBm
+///     .attr = &generated1_entryAttr
+///   },
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = RAIL_TX_POWER_MAX, // Use this entry when TX power > 1.5dBm
+///     .attr = &generated1_entryAttr
+///   },
+/// };
+/// const RAIL_ChannelConfig_t generated1_channelConfig = {
+///   .phyConfigBase = generated1,
+///   .phyConfigDeltaSubtract = NULL,
+///   .configs = generated1_channels,
+///   .length = 3
+/// };
+/// const uint32_t generated2[] = { ... };
+/// RAIL_ChannelConfigEntryAttr_t generated2_entryAttr = { ... };
+/// const RAIL_ChannelConfigEntry_t generated2_channels[] = {
+///   {
+///     .phyConfigDeltaAdd = NULL,
+///     .baseFrequency = 2450000000,
+///     .channelSpacing = 1000000,
+///     .physicalChannelOffset = 0,
+///     .channelNumberStart = 0,
+///     .channelNumberEnd = 20,
+///     .maxPower = RAIL_TX_POWER_MAX,
+///     .attr = &generated2_entryAttr
+///   },
+/// };
+/// const RAIL_ChannelConfig_t generated2_channelConfig = {
+///   .phyConfigBase = generated2,
+///   .phyConfigDeltaSubtract = NULL,
+///   .configs = generated2_channels,
+///   .length = 1
+/// };
+/// const RAIL_ChannelConfig_t *channelConfigs[] = {
+///   &generated0_channelConfig,
+///   &generated1_channelConfig,
+///   &generated2_channelConfig,
+///   NULL
+/// };
+/// // ... in main code ...
+/// // Create a unique RAIL handle for each unique channel config.
+/// railHandle0 = RAIL_Init(&railCfg0, &RAILCb_RfReady0);
+/// railHandle1 = RAIL_Init(&railCfg1, &RAILCb_RfReady1);
+/// railHandle2 = RAIL_Init(&railCfg2, &RAILCb_RfReady2);
+/// // Associate each channel config with its corresponding RAIL handle.
+/// RAIL_ConfigChannels(railHandle0, channelConfigs[0]);
+/// RAIL_ConfigChannels(railHandle1, channelConfigs[1]);
+/// RAIL_ConfigChannels(railHandle2, channelConfigs[2]);
+/// // Use a RAIL handle and channel to access the desired channel config entry.
+/// RAIL_SetTxPowerDbm(railHandle1, 100); // set 10.0 dBm TX power
+/// RAIL_StartRx(railHandle1, 0, &schedInfo); // RX using generated1_channels[2]
+/// RAIL_SetTxPowerDbm(railHandle1, 0); // set 0 dBm TX power
+/// RAIL_StartRx(railHandle1, 0, &schedInfo); // RX using generated1_channels[1]
+/// RAIL_StartRx(railHandle2, 0, &schedInfo); // RX using generated2_channels[0]
+/// @endcode
+
 typedef struct RAIL_ChannelConfig {
   const uint32_t *phyConfigBase; /**< Base radio config for the corresponding
                                       channel config entries. */
@@ -996,6 +1171,39 @@ RAIL_ENUM(RAIL_TimeMode_t) {
   RAIL_TIME_DISABLED
 };
 
+/// Forward declaration of RAIL_MultiTimer
+struct RAIL_MultiTimer;
+
+/**
+ * @typedef RAIL_MultiTimerCallback_t
+ * @brief Callback fired when timer expires
+ *
+ * @param[in] tmr pointer to expired timer
+ * @param[in] expectedTimeOfEvent Absolute time event fired
+ * @param[in] cbArg User supplied callback argument
+ */
+typedef void (*RAIL_MultiTimerCallback_t)(struct RAIL_MultiTimer *tmr,
+                                          RAIL_Time_t expectedTimeOfEvent,
+                                          void *cbArg);
+
+/**
+ * @struct RAIL_MultiTimer_t
+ * @brief RAIL timer state structure
+ *
+ * This structure is filled out and maintained internally only.
+ * The user/application should not alter any elements of this structure.
+ */
+typedef struct RAIL_MultiTimer {
+  RAIL_Time_t       absOffset;        /**< absolute time before next event */
+  RAIL_Time_t       relPeriodic;      /**< relative, periodic time between events; 0 = timer is oneshot */
+  RAIL_MultiTimerCallback_t callback; /**< user callback */
+  void                *cbArg;          /**< user callback argument */
+  struct RAIL_MultiTimer   *next;          /**< pointer to next soft timer structure */
+  uint8_t             priority;       /**< priority of callback; 0 = highest priority; 255 = lowest */
+  bool                isRunning;      /**< soft timer currently running? */
+  bool                doCallback;     /**< callback needs to run? */
+} RAIL_MultiTimer_t;
+
 /**
  * @enum RAIL_SleepConfig_t
  * @brief The config
@@ -1071,7 +1279,7 @@ typedef struct RAIL_PacketTimeStamp {
   /**
    * Timestamp of the packet in the RAIL timebase.
    */
-  uint32_t packetTime;
+  RAIL_Time_t packetTime;
   /**
    * A value specifying the total length in bytes of the packet for
    * use when calculating the packetTime requested by the timePosition
@@ -1189,10 +1397,12 @@ typedef struct RAIL_StateTransitions {
  * @struct RAIL_StateTiming_t
  * @brief Timing configuration structure for the RAIL State Machine.
  *
- * Configures the timings of the radio state transitions for
- * common situations. All of the listed timings are in µs.
- * Timing values cannot exceed 13 ms.
- * Transitions to IDLE always happen as fast as possible.
+ * Configures the timings of the radio state transitions for common situations.
+ * All of the listed timings are in us. Timing values cannot exceed 13 ms. A
+ * value of 0 for the transition time means that the specified transition
+ * should happen as fast as possible, even if the timing cannot be as
+ * consistent. Any other timing value will be limited, so that the time can be
+ * hit consistently. Transitions to IDLE always happen as fast as possible.
  */
 typedef struct RAIL_StateTiming {
   uint16_t idleToRx; /**< Transition time from IDLE to RX */
@@ -1253,40 +1463,59 @@ RAIL_ENUM(RAIL_IdleMode_t) {
  * @brief Transmit options, in reality a bitmask.
  */
 RAIL_ENUM_GENERIC(RAIL_TxOptions_t, uint32_t) {
-  /** Value representing no options enabled. */
-  RAIL_TX_OPTIONS_NONE = 0,
-  /** Default is all options disabled. */
-  RAIL_TX_OPTIONS_DEFAULT = RAIL_TX_OPTIONS_NONE,
-
   /** Shift position of \ref RAIL_TX_OPTION_WAIT_FOR_ACK bit */
   RAIL_TX_OPTION_WAIT_FOR_ACK_SHIFT = 0,
   /** Shift position of \ref RAIL_TX_OPTION_REMOVE_CRC bit */
   RAIL_TX_OPTION_REMOVE_CRC_SHIFT,
   /** Shift position of \ref RAIL_TX_OPTION_SYNC_WORD_ID bit */
   RAIL_TX_OPTION_SYNC_WORD_ID_SHIFT,
-
-  /**
-   * Option to configure whether or not the TX'ing node will listen for an ACK.
-   * If this is false, the isAck flag in RAIL_RxPacketDetails_t of a received
-   * packet will always be false.
-   */
-  RAIL_TX_OPTION_WAIT_FOR_ACK = (1ul << RAIL_TX_OPTION_WAIT_FOR_ACK_SHIFT),
-  /**
-   * Option to remove crc bytes from tx packets. If you want to be able to
-   * receive packets with this option set as true, you'll need to set
-   * the IGNORE_CRC_ERRORS option on the receive side.
-   */
-  RAIL_TX_OPTION_REMOVE_CRC = (1ul << RAIL_TX_OPTION_REMOVE_CRC_SHIFT),
-  /**
-   * Option to select which sync word to send (0 or 1). Note that this does
-   * not set the actual sync words, it just picks which of the two will be
-   * sent with the packet.
-   */
-  RAIL_TX_OPTION_SYNC_WORD_ID = (1ul << RAIL_TX_OPTION_SYNC_WORD_ID_SHIFT),
-
-  /** Value representing all possible options */
-  RAIL_TX_OPTIONS_ALL = 0xFFFFFFFFul
+  /** Shift position of \ref RAIL_TX_OPTION_ANTENNA0 bit */
+  RAIL_TX_OPTION_ANTENNA0_SHIFT,
+  /** Shift position of \ref RAIL_TX_OPTION_ANTENNA1 bit */
+  RAIL_TX_OPTION_ANTENNA1_SHIFT,
 };
+
+/** Value representing no options enabled. */
+#define RAIL_TX_OPTIONS_NONE 0UL
+/** Default is all options disabled. */
+#define RAIL_TX_OPTIONS_DEFAULT RAIL_TX_OPTIONS_NONE
+/**
+ * Option to configure whether or not the TX'ing node will listen for an ACK.
+ * If this is false, the isAck flag in RAIL_RxPacketDetails_t of a received
+ * packet will always be false.
+ */
+#define RAIL_TX_OPTION_WAIT_FOR_ACK (1UL << RAIL_TX_OPTION_WAIT_FOR_ACK_SHIFT)
+/**
+ * Option to remove crc bytes from tx packets. If you want to be able to
+ * receive packets with this option set as true, you'll need to set
+ * the IGNORE_CRC_ERRORS option on the receive side.
+ */
+#define RAIL_TX_OPTION_REMOVE_CRC (1UL << RAIL_TX_OPTION_REMOVE_CRC_SHIFT)
+/**
+ * Option to select which sync word to send (0 or 1). Note that this does
+ * not set the actual sync words, it just picks which of the two will be
+ * sent with the packet.
+ */
+#define RAIL_TX_OPTION_SYNC_WORD_ID (1UL << RAIL_TX_OPTION_SYNC_WORD_ID_SHIFT)
+/**
+ * Option to select antenna 0 for transmission. If not antenna selection
+ * option is set or if both antenna options are set, then the TX will
+ * take place in either antenna depending on the last RX or TX
+ * configuration. This option is only valid on platforms that support
+ * antenna selection.
+ */
+#define RAIL_TX_OPTION_ANTENNA0 (1UL << RAIL_TX_OPTION_ANTENNA0_SHIFT)
+/**
+ * Option to select antenna 1 for transmission. If not antenna selection
+ * option is set or if both antenna options are set, then the TX will
+ * take place in either antenna depending on the last RX or TX
+ * configuration. This option is only valid on platforms that support
+ * antenna selection.
+ */
+#define RAIL_TX_OPTION_ANTENNA1 (1UL << RAIL_TX_OPTION_ANTENNA1_SHIFT)
+
+/** Value representing all possible options */
+#define RAIL_TX_OPTIONS_ALL 0xFFFFFFFFUL
 
 /**
  * @struct RAIL_TxPacketDetails_t
@@ -1336,7 +1565,7 @@ typedef struct RAIL_ScheduleTxConfig {
    * The time when to transmit this packet. The exact interpretation of
    * this value depends on the mode specified below.
    */
-  uint32_t when;
+  RAIL_Time_t when;
   /**
    * The type of delay. See the \ref RAIL_TimeMode_t documentation for
    * more information. Be sure to use \ref RAIL_TIME_ABSOLUTE delays for
@@ -1398,7 +1627,7 @@ typedef struct RAIL_CsmaConfig {
    * If the transmission doesn't start before this timeout expires, the
    * transmission will fail. A value 0 means no timeout is imposed.
    */
-  uint32_t csmaTimeout;
+  RAIL_Time_t csmaTimeout;
 } RAIL_CsmaConfig_t;
 
 /**
@@ -1478,7 +1707,7 @@ typedef struct RAIL_LbtConfig {
    * unbounded requirement that if the channel is busy, the next try must wait
    * for the channel to clear. A value 0 means no timeout is imposed.
    */
-  uint32_t lbtTimeout;
+  RAIL_Time_t lbtTimeout;
 } RAIL_LbtConfig_t;
 
 /**
@@ -1512,11 +1741,6 @@ typedef struct RAIL_LbtConfig {
  * @brief Receive options, in reality a bitmask.
  */
 RAIL_ENUM_GENERIC(RAIL_RxOptions_t, uint32_t) {
-  /** Value representing no options enabled. */
-  RAIL_RX_OPTIONS_NONE = 0,
-  /** Default is all options disabled. */
-  RAIL_RX_OPTIONS_DEFAULT = RAIL_RX_OPTIONS_NONE,
-
   /** Shift position of \ref RAIL_RX_OPTION_STORE_CRC bit */
   RAIL_RX_OPTION_STORE_CRC_SHIFT = 0,
   /** Shift position of \ref RAIL_RX_OPTION_IGNORE_CRC_ERRORS bit */
@@ -1527,45 +1751,79 @@ RAIL_ENUM_GENERIC(RAIL_RxOptions_t, uint32_t) {
   RAIL_RX_OPTION_TRACK_ABORTED_FRAMES_SHIFT,
   /** Shift position of \ref RAIL_RX_OPTION_REMOVE_APPENDED_INFO bit */
   RAIL_RX_OPTION_REMOVE_APPENDED_INFO_SHIFT,
-
-  /**
-   * Option to configure whether the CRC portion of the packet is included in
-   * the packet payload exposed to the app on packet reception.
-   * Defaults to false.
-   */
-  RAIL_RX_OPTION_STORE_CRC
-    = (1ul << RAIL_RX_OPTION_STORE_CRC_SHIFT),
-  /**
-   * Option to configure whether CRC errors will be ignored
-   * if this is set, RX will still be successful, even if
-   * the CRC does not pass the check. Defaults to false.
-   */
-  RAIL_RX_OPTION_IGNORE_CRC_ERRORS
-    = (1ul << RAIL_RX_OPTION_IGNORE_CRC_ERRORS_SHIFT),
-  /**
-   * Option to configure which out of SYNC0 and SYNC1
-   * will be sent as the sync word during transmit.
-   * Defaults to false (SYNC0).
-   */
-  RAIL_RX_OPTION_ENABLE_DUALSYNC
-    = (1ul << RAIL_RX_OPTION_ENABLE_DUALSYNC_SHIFT),
-  /**
-   * Option to configure whether frames which are aborted during reception
-   * should continue to be tracked. Setting this option allows viewing Packet
-   * Trace information for frames which get discarded. Defaults to false.
-   */
-  RAIL_RX_OPTION_TRACK_ABORTED_FRAMES
-    = (1ul << RAIL_RX_OPTION_TRACK_ABORTED_FRAMES_SHIFT),
-  /**
-   * Option to configure whether appended info is included after received
-   * frames. Default is false.
-   */
-  RAIL_RX_OPTION_REMOVE_APPENDED_INFO
-    = (1ul << RAIL_RX_OPTION_REMOVE_APPENDED_INFO_SHIFT),
-
-  /** Value representing all possible options */
-  RAIL_RX_OPTIONS_ALL = 0xFFFFFFFFul
+  /** Shift position of \ref RAIL_RX_OPTION_ANTENNA0 bit */
+  RAIL_RX_OPTION_ANTENNA0_SHIFT,
+  /** Shift position of \ref RAIL_RX_OPTION_ANTENNA1 bit */
+  RAIL_RX_OPTION_ANTENNA1_SHIFT,
 };
+
+/** Value representing no options enabled. */
+#define RAIL_RX_OPTIONS_NONE 0
+/** Default is all options disabled. */
+#define RAIL_RX_OPTIONS_DEFAULT RAIL_RX_OPTIONS_NONE
+
+/**
+ * Option to configure whether the CRC portion of the packet is included in
+ * the packet payload exposed to the app on packet reception.
+ * Defaults to false.
+ */
+#define RAIL_RX_OPTION_STORE_CRC (1UL << RAIL_RX_OPTION_STORE_CRC_SHIFT)
+/**
+ * Option to configure whether CRC errors will be ignored
+ * if this is set, RX will still be successful, even if
+ * the CRC does not pass the check. Defaults to false.
+ */
+#define RAIL_RX_OPTION_IGNORE_CRC_ERRORS (1UL << RAIL_RX_OPTION_IGNORE_CRC_ERRORS_SHIFT)
+
+/**
+ * Option to control which sync words will be accepted. Setting it to
+ * 0 (default) will cause the receiver to listen for SYNC0 only, 1 causes
+ * the receiver to listen for either SYNC0 or SYNC1. RX appended info will
+ * contain which sync word was detected. Note, this only affects which
+ * sync word(s) are received, but not what each of the sync words actually are.
+ * This feature may not be available on some combinations of chips, phys, and
+ * protocols. Consult the data sheet or support team for more details.
+ */
+#define RAIL_RX_OPTION_ENABLE_DUALSYNC (1UL << RAIL_RX_OPTION_ENABLE_DUALSYNC_SHIFT)
+
+/**
+ * Option to configure whether frames which are aborted during reception
+ * should continue to be tracked. Setting this option allows viewing Packet
+ * Trace information for frames which get discarded. Defaults to false.
+ */
+#define RAIL_RX_OPTION_TRACK_ABORTED_FRAMES (1UL << RAIL_RX_OPTION_TRACK_ABORTED_FRAMES_SHIFT)
+
+/**
+ * Option to configure whether appended info is included after received
+ * frames. Default is false.
+ */
+#define RAIL_RX_OPTION_REMOVE_APPENDED_INFO (1UL << RAIL_RX_OPTION_REMOVE_APPENDED_INFO_SHIFT)
+
+/**
+ * Option to select the use of antenna 0 when doing RX. If no antenna option
+ * is selected, the RX may take place on either antenna depending on the last
+ * RX or TX configuration. Defaults to false.
+ * This option is only valid on platforms that support antenna selection.
+ */
+#define RAIL_RX_OPTION_ANTENNA0 (1UL << RAIL_RX_OPTION_ANTENNA0_SHIFT)
+
+/**
+ * Option to select the use of antenna 1 when doing RX. If no antenna option
+ * is selected, the RX may take place on either antenna depending on the last
+ * RX or TX configuration. Defaults to false.
+ * This option is only valid on platforms that support antenna selection.
+ */
+#define RAIL_RX_OPTION_ANTENNA1 (1UL << RAIL_RX_OPTION_ANTENNA1_SHIFT)
+
+/**
+ * Option to automatically choose an antenna. If both antenna 0 and
+ * antenna 1 options are set the chip will switch between antennas and
+ * will automatically choose one.
+ */
+#define RAIL_RX_OPTION_ANTENNA_AUTO (RAIL_RX_OPTION_ANTENNA0 | RAIL_RX_OPTION_ANTENNA1)
+
+/** Value representing all possible options */
+#define RAIL_RX_OPTIONS_ALL 0xFFFFFFFFUL
 
 /** The value returned by RAIL for an invalid RSSI, in dBm */
 #define RAIL_RSSI_INVALID_DBM     (-128)
@@ -1585,7 +1843,7 @@ typedef struct RAIL_ScheduleRxConfig {
    * The time to start receive. See startMode for more information about they
    * types of start times that you can specify.
    */
-  uint32_t start;
+  RAIL_Time_t start;
   /**
    * How to interpret the time value specified in the start parameter. See the
    * \ref RAIL_TimeMode_t documentation for more information. Use
@@ -1598,7 +1856,7 @@ typedef struct RAIL_ScheduleRxConfig {
    * The time to end receive. See endMode for more information about the types
    * of end times you can specify.
    */
-  uint32_t end;
+  RAIL_Time_t end;
   /**
    * How to interpret the time value specified in the end parameter. See the
    * \ref RAIL_TimeMode_t documentation for more information. Note that, in
@@ -1684,8 +1942,9 @@ typedef const void *RAIL_RxPacketHandle_t;
  * @note Because the RX FIFO buffer is circular, a packet might start
  *   near the end of the buffer and wrap around to the beginning of
  *   the buffer to finish, hence the distinction between the first
- *   and last portions.  Packets that fit without wrapping only have
- *   a first portion (firstPortionBytes == packetBytes).
+ *   and last portions. Packets that fit without wrapping only have
+ *   a first portion (firstPortionBytes == packetBytes and lastPortionData
+ *   will be NULL).
  */
 typedef struct RAIL_RxPacketInfo {
   RAIL_RxPacketStatus_t packetStatus; /**< Packet status of this packet. */
@@ -1696,8 +1955,8 @@ typedef struct RAIL_RxPacketInfo {
                                            data containing firstPortionBytes
                                            number of bytes. */
   uint8_t *lastPortionData;           /**< Pointer to last portion of
-                                           packet (if any). The number of
-                                           bytes in this portion is
+                                           packet, if any; NULL otherwise. The
+                                           number of bytes in this portion is
                                            packetBytes - firstPortionBytes. */
 } RAIL_RxPacketInfo_t;
 
@@ -1747,6 +2006,12 @@ typedef struct RAIL_RxPacketDetails {
    * this ability, and the subPhy is set to 0 in those cases.
    */
   uint8_t subPhyId;
+  /**
+   * For configurations where the device has multiple antennas, indicates
+   * which antenna received the packets. For hardware configurations
+   * with only one antenna, this will be set to the default of 0.
+   */
+  uint8_t antennaId;
 } RAIL_RxPacketDetails_t;
 
 /**
@@ -1940,6 +2205,59 @@ RAIL_ENUM(RAIL_StreamMode_t) {
   RAIL_STREAM_PN9_STREAM = 1,   /**< PN9 byte sequence */
 };
 
+/**
+ * @def RAIL_VERIFY_DURATION_MAX
+ * @brief This radio state verification duration indicates to RAIL that
+ *   all memory contents should be verified by RAIL before returning to the
+ *   application.
+ */
+#define RAIL_VERIFY_DURATION_MAX 0xFFFFFFFFUL
+
+/**
+ * A pointer to a verification callback function. This will be called by the
+ * radio state verification feature built into RAIL when a verified memory
+ * value is different from its reference value.
+ *
+ * @param[in] address The address of the data in question.
+ * @param[in] expectedValue The expected value of the data in question.
+ * @param[in] actualValue The actual value of the data in question.
+ * @return bool True indicates a data value difference is acceptable, and False
+ *   indicates a data value difference in unacceptable.
+ *
+ * @note This callback will be issued when an address' value is different from
+ *   its reference value and either of the following conditions are met:
+ *   1) The default radio config provided by the radio configurator is used
+ *      for verification purposes (i.e. a custom radio config is not supplied
+ *      as an input to \ref RAIL_ConfigVerification()), and the radio
+ *      configurator has flagged the address under question as being verifiable.
+ *   2) A custom radio config is provided to the verification API (i.e.
+ *      a custom radio config is supplied as an input to \ref
+ *      RAIL_ConfigVerification()). When providing a custom radio config for
+ *      verification purposes, all addresses in that config will be verified,
+ *      regardless of whether or not the addresses are flagged as verifiable.
+ */
+typedef bool (*RAIL_VerifyCallbackPtr_t)(uint32_t address,
+                                         uint32_t expectedValue,
+                                         uint32_t actualValue);
+
+/**
+ * @struct RAIL_VerifyConfig_t
+ * @brief The configuration array provided to RAIL for use by the radio state
+ *   verification feature. This structure will be populated with appropriate
+ *   values by calling \ref RAIL_ConfigVerification(). The application should
+ *   not set or alter any of these structure elements.
+ */
+typedef struct RAIL_VerifyConfig {
+  /** Internal verification tracking information */
+  RAIL_Handle_t correspondingHandle;
+  /** Internal verification tracking information */
+  uint32_t nextIndexToVerify;
+  /** Internal verification tracking information */
+  const uint32_t *override;
+  /** Internal verification tracking information */
+  RAIL_VerifyCallbackPtr_t cb;
+} RAIL_VerifyConfig_t;
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 typedef struct RAIL_DirectModeConfig {
@@ -1982,5 +2300,9 @@ typedef struct RAIL_DirectModeConfig {
  * @}
  * end of RAIL_API
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __RAIL_TYPES_H__
