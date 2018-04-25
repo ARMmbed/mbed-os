@@ -97,6 +97,10 @@ static void default_idle_hook(void)
 {
     uint32_t elapsed_ticks = 0;
 
+#ifdef MBED_SLEEP_TRACING_ENABLED
+    sleep_manager_print_stats();
+#endif
+
     core_util_critical_section_enter();
     uint32_t ticks_to_sleep = svcRtxKernelSuspend();
     if (ticks_to_sleep) {
@@ -124,12 +128,9 @@ static void default_idle_hook(void)
 
 static void default_idle_hook(void)
 {
-    // critical section to complete sleep with locked deepsleep
-    core_util_critical_section_enter();
     sleep_manager_lock_deep_sleep();
     sleep();
     sleep_manager_unlock_deep_sleep();
-    core_util_critical_section_exit();
 }
 
 #endif // MBED_TICKLESS
