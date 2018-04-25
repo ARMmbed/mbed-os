@@ -18,6 +18,8 @@
 
 #include <stdbool.h>
 #include <limits.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /***************************/
 /* MBED                    */
@@ -272,16 +274,23 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
             /* write to buffer or stdout */
             if (buffer)
             {
-                buffer[*result] = int2hex[nibble_one];
-                buffer[*result + 1] = int2hex[nibble_two];
+                if (nibble_one != 0) {
+                    buffer[*result] = int2hex[nibble_one];
+                    *result += 1;
+                }
+                buffer[*result] = int2hex[nibble_two];
+                *result += 1;
             }
             else
             {
-                MBED_PRINT_CHARACTER(int2hex[nibble_one]);
+                if (nibble_one != 0) {
+                    MBED_PRINT_CHARACTER(int2hex[nibble_one]);
+                    *result += 1;
+                }
                 MBED_PRINT_CHARACTER(int2hex[nibble_two]);
+                *result += 1;
             }
 
-            *result += 2;
         }
     }
 }
