@@ -42,6 +42,7 @@
 
 #if defined(SOFTDEVICE_PRESENT)
 #include "nrf_sdm.h"
+#include "nrf_dfu_mbr.h"
 #endif
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
@@ -54,12 +55,11 @@
     uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS] @ ".noinit";
 #endif
 
-
-typedef void (*generic_irq_handler_t)(void);
-
-
 extern uint32_t __Vectors[];
+
 #define VECTORS_FLASH_START __Vectors
+#define UICR_BOOTLOADER_ADDRESS 0x10001014
+#define MBR_ADDRESS 0x0
 
 /**
  * @brief Function for relocation of the vector to RAM on nRF5x devices.
@@ -75,8 +75,32 @@ void nrf_reloc_vector_table(void)
 	}
 
 #if defined(SOFTDEVICE_PRESENT)
-	sd_softdevice_vector_table_base_set((uint32_t) nrf_dispatch_vector);
+    /* Bootloader address is stored in UICR */
+    uint32_t *bootloader = (uint32_t *) UICR_BOOTLOADER_ADDRESS;
+
+    /**
+     * Before setting the new vector table address in the SoftDevice the MBR must be initialized. 
+     * If no bootloader is present the MBR will be initialized automatically. 
+     * If a bootloader is present nrf_dfu_mbr_init_sd must be called once and only once.
+     * 
+     * This application is a bootloader being booted for the first time if:
+     *  1. The application's vector table (VECTORS_FLASH_START) is set in the UICR.
+     *  2. SCB->VTOR is still pointing to the MBR's vector table (MBR_ADDRESS). 
+     */
+    if ((VECTORS_FLASH_START == (uint32_t *) *bootloader) && (SCB->VTOR == MBR_ADDRESS)) {
+
+        /* Initialize MBR so SoftDevice service calls are being trapped correctly. */
+        nrf_dfu_mbr_init_sd();
+    }
+
+    /* Set SCB->VTOR to go through MBR to trap SoftDevice service calls. */
+    SCB->VTOR = 0x0;
+
+    /* Instruct the SoftDevice to forward interrupts to the application's vector table in RAM. */
+    sd_softdevice_vector_table_base_set((uint32_t) nrf_dispatch_vector);
 #else
+
+    /* No SoftDevice is present. Set all interrupts to vector table in RAM. */
     SCB->VTOR = (uint32_t) nrf_dispatch_vector;    
 #endif
 }
