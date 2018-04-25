@@ -487,22 +487,6 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
 }
 ```
 
-## Examples
-
-Implementation examples might be found for: 
-* [ST BlueNRG module](../../TARGET_NUCLEO_F401RE/BlueNrgHCIDriver.cpp): It uses
-a custom transport driver and a vendor specific is sent right after the answer 
-to the reset command to switch the controller to link layer mode only.
-* [EM9301 module](../../TARGET_Maxim/TARGET_MAX32620HSP/EM9301HCIDriver.cpp): 
-it uses a custom transport driver and doesn't doesn't send the command *Set 
-Event Mask Page 2*  to the controller during the reset sequence because this 
-command is not supported by the controller.
-* [PAN1326](../../TARGET_Maxim/TARGET_MAX32630FTHR/CC2564HCIDriver.cpp): It 
-uses the H4 transport driver. The reset sequence start by sending a 
-*service pack* then once the service pack has been transferred it continue 
-with the regular reset sequence.
-
-
 
 
 
