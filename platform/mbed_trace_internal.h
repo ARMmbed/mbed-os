@@ -45,7 +45,7 @@
 #ifndef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
 #include "platform/mbed_logger.h"
 
-#define MBED_TRACE_MAX_LEVEL                    MBED_CONF_MAX_LOG_LEVEL
+#define MBED_TRACE_MAX_LEVEL                    MBED_CONF_PLATFORM_LOG_MAX_LEVEL
 
 #define tr_error(...)                           MBED_ERR(TRACE_GROUP, ##__VA_ARGS__)
 #define tr_err(...)                             MBED_ERR(TRACE_GROUP, ##__VA_ARGS__)

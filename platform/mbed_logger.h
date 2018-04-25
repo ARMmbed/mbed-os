@@ -79,20 +79,25 @@ extern "C" {
 #define LOG_LEVEL_DEBUG          0x10
 #define LOG_LEVEL_TRACE          0x20
 
-#ifndef MBED_CONF_MAX_LOG_LEVEL
-#define MBED_CONF_MAX_LOG_LEVEL  LOG_LEVEL_DEBUG
+/** Option to set select maximum level of logs enabled at compile time **/
+#ifndef MBED_CONF_PLATFORM_LOG_MAX_LEVEL
+#define MBED_CONF_PLATFORM_LOG_MAX_LEVEL  LOG_LEVEL_DEBUG
 #endif
 
 /** Critical level log
  *
- *  Critical level of log is equivalent to ASSERTS and it will dump
- *  all previous prints before asserting, use only when you want to assert.
+ *  Critical level of log is equivalent to ASSERTS and it will assert after
+ *  logging format string. Call to `MBED_CRIT` will terminate the application.
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
+ * @note  Pending ISR log data will be lost.
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR_CRITICAL
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_ERR_CRITICAL
 #define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ASSERT_1(mod, fmt, LOG_ERR_CRITICAL_, LOG_FILE_NAME_, __LINE__, ##__VA_ARGS__)
 #else
 #define MBED_CRIT(mod, fmt, ...)
@@ -104,10 +109,13 @@ extern "C" {
  *  log all the errors.
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_ERR
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_ERR
 #if MBED_ID_BASED_TRACING
 #define MBED_ERR(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_ERR_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
@@ -123,10 +131,13 @@ extern "C" {
  *  log all the warning messages.
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_WARN
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_WARN
 #if MBED_ID_BASED_TRACING
 #define MBED_WARN(mod, fmt, ...)    MBED_LOG_ID_1(mod, fmt, LOG_WARN_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
@@ -142,10 +153,13 @@ extern "C" {
  *  not use this for debug prints, use trace level instead.
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_DEBUG
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_DEBUG
 #if MBED_ID_BASED_TRACING
 #define MBED_DBG(mod, fmt, ...)     MBED_LOG_ID_1(mod, fmt, LOG_DEBUG_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
@@ -162,10 +176,13 @@ extern "C" {
  *
  * @param  mod  Module ID String
  * @param  condition output only if condition is true (!= 0)
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_DEBUG
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_DEBUG
 #if MBED_ID_BASED_TRACING
 #define MBED_DBG_IF(mod, condition, fmt, ...)  do { if(condition) \
                                                       { \
@@ -189,10 +206,13 @@ extern "C" {
  *  log any kind of information.
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
 #define MBED_INFO(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_INFO_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
@@ -209,10 +229,13 @@ extern "C" {
  *
  * @param  mod  Module ID String
  * @param  condition output only if condition is true (!= 0)
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_INFO
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_INFO
 #if MBED_ID_BASED_TRACING
 #define MBED_INFO_IF(mod, condition, fmt, ...)   do { if(condition) \
                                                       { \
@@ -237,10 +260,13 @@ extern "C" {
  *  used for tracing
  *
  * @param  mod  Module ID String
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_TRACE
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_TRACE
 #if MBED_ID_BASED_TRACING
 #define MBED_TRACE(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_TRACE_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
 #else
@@ -257,10 +283,13 @@ extern "C" {
  *
  * @param  mod  Module ID String
  * @param  condition output only if condition is true (!= 0)
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  **/
-#if MBED_CONF_MAX_LOG_LEVEL >= LOG_LEVEL_TRACE
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_TRACE
 #if MBED_ID_BASED_TRACING
 #define MBED_TRACE_IF(mod, condition, fmt, ...)  do { if(condition) \
                                                       { \
@@ -285,9 +314,11 @@ extern "C" {
  *
  * @param  ll   Log level
  * @param  mod  Module name
- * @param  fmt  printf-style format string, followed by variables. Expression evaluation
- *              (like printf(count == 1 "true":"%d", count);) is not supported.
- * @param  ...  variable arguments related to fmt
+ * @param  fmt  printf-style format string (must be string literal), followed by
+ *              variables. Example: Expression evaluation is not supported,
+ *              printf(count == 1 ? "true" : "%d", count);  - X
+ * @param  ...  Arguments for format specification
+ *
  */
 #if MBED_ID_BASED_TRACING
 #define MBED_LOG(ll, mod, fmt, ...)      MBED_LOG_ID_1(mod, fmt, GET_LOG_STRING(ll), LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)

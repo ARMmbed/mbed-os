@@ -33,12 +33,12 @@ extern "C" {
 #include <stdarg.h>
 #include "platform/mbed_preprocessor.h"
 
-#ifndef MBED_CONF_MAX_LOG_STR_SIZE
-#define MBED_CONF_MAX_LOG_STR_SIZE      128
+#ifndef MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE
+#define MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE      128
 #endif
 
-#ifndef MBED_CONF_MAX_BUFFER_SIZE
-#define MBED_CONF_MAX_BUFFER_SIZE       512
+#ifndef MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE
+#define MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE   512
 #endif
 
 #if defined (MBED_ID_BASED_TRACING)
@@ -53,9 +53,9 @@ extern "C" {
 #define LOG_FILE_NAME_                  __BASE_FILE__
 #endif
 
-#define LOG_SINGLE_STR_SIZE_            MBED_CONF_MAX_LOG_STR_SIZE
-#define LOG_SINGLE_HELPER_STR_SIZE_     LOG_SINGLE_STR_SIZE_
-#define LOG_BUF_SIZE_                   MBED_CONF_MAX_BUFFER_SIZE
+#define LOG_SINGLE_STR_SIZE_            MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE
+#define LOG_SINGLE_HELPER_STR_SIZE_     MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE
+#define LOG_BUF_SIZE_                   MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE
 
 // Log-Level Strings
 #define LOG_GEN_                 "GEN "
@@ -214,7 +214,7 @@ void log_reset(void);
  *
  *  If valid buffer pointer is provided, all log data will be dumped to
  *  buffer and not UART. Application should allocate buffer equivalent to
- *  `MBED_CONF_MAX_BUFFER_SIZE` size. Data will be over-written when
+ *  `MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE` size. Data will be over-written when
  *  full.
  *
  *  @param str - Buffer pointer
