@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#ifdef TARGET_LIKE_MBED
 #include "mbed.h"
+#endif
 #include "mbed_printf.h"
 
 #include "utest/utest.h"
@@ -88,8 +90,9 @@ static control_t test_printf_d(const size_t call_count)
     result_baseline = printf("lld: %lld\r\n", LLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_printf("jd: %jd\r\n", INT32_MIN);
     result_baseline = printf("jd: %jd\r\n", (intmax_t) INT32_MIN);
     TEST_ASSERT_EQUAL_INT(17, result_minimal);
@@ -97,9 +100,11 @@ static control_t test_printf_d(const size_t call_count)
     result_minimal = mbed_printf("jd: %jd\r\n", INT32_MAX);
     result_baseline = printf("jd: %jd\r\n", (intmax_t) INT32_MAX);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
     printf("%%zd not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_printf("zd: %zd\r\n", INT32_MIN);
     result_baseline = printf("zd: %zd\r\n", (ssize_t) INT32_MIN);
     TEST_ASSERT_EQUAL_INT(17, result_minimal);
@@ -107,9 +112,11 @@ static control_t test_printf_d(const size_t call_count)
     result_minimal = mbed_printf("zd: %zd\r\n", INT32_MAX);
     result_baseline = printf("zd: %zd\r\n", (ssize_t) INT32_MAX);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
     printf("%%td not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_printf("td: %td\r\n", PTRDIFF_MIN);
     result_baseline = printf("td: %td\r\n", PTRDIFF_MIN);
     TEST_ASSERT_EQUAL_INT(17, result_minimal);
@@ -117,6 +124,7 @@ static control_t test_printf_d(const size_t call_count)
     result_minimal = mbed_printf("td: %td\r\n", PTRDIFF_MAX);
     result_baseline = printf("td: %td\r\n", PTRDIFF_MAX);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
     return CaseNext;
 }
@@ -168,6 +176,9 @@ static control_t test_printf_u(const size_t call_count)
     result_baseline = printf("llu: %llu\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%ju not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("ju: %ju\r\n", 0);
     result_baseline = printf("ju: %ju\r\n",(uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(7, result_minimal);
@@ -175,7 +186,11 @@ static control_t test_printf_u(const size_t call_count)
     result_minimal = mbed_printf("ju: %ju\r\n", UINTMAX_MAX);
     result_baseline = printf("ju: %ju\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_INT(7, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%zu not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("zu: %zu\r\n", 0);
     result_baseline = printf("zu: %zu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(7, result_minimal);
@@ -183,7 +198,11 @@ static control_t test_printf_u(const size_t call_count)
     result_minimal = mbed_printf("zu: %zu\r\n", SIZE_MAX);
     result_baseline = printf("zu: %zu\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%tu not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("tu: %tu\r\n", 0);
     result_baseline = printf("tu: %tu\r\n", 0);
     TEST_ASSERT_EQUAL_INT(7, result_minimal);
@@ -191,6 +210,7 @@ static control_t test_printf_u(const size_t call_count)
     result_minimal = mbed_printf("tu: %tu\r\n", UINTPTR_MAX);
     result_baseline = printf("tu: %tu\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_INT(26, result_minimal);
+#endif
 
     return CaseNext;
 }
@@ -244,6 +264,9 @@ static control_t test_printf_x(const size_t call_count)
     result_baseline = printf("llX: %llX\r\n", ULLONG_MAX);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%jX not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("jX: %jX\r\n", 0);
     result_baseline = printf("jX: %jX\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
@@ -251,7 +274,11 @@ static control_t test_printf_x(const size_t call_count)
     result_minimal = mbed_printf("jX: %jX\r\n", UINTMAX_MAX);
     result_baseline = printf("jX: %jX\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%zX not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("zX: %zX\r\n", 0);
     result_baseline = printf("zX: %zX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
@@ -259,7 +286,11 @@ static control_t test_printf_x(const size_t call_count)
     result_minimal = mbed_printf("zX: %zX\r\n", SIZE_MAX);
     result_baseline = printf("zX: %zX\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_INT(14, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%tX not supported by mbed\r\n");
+#else
     result_minimal = mbed_printf("tX: %tX\r\n", 0);
     result_baseline = printf("tX: %tX\r\n", 0);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
@@ -267,6 +298,7 @@ static control_t test_printf_x(const size_t call_count)
     result_minimal = mbed_printf("tX: %tX\r\n", UINTPTR_MAX);
     result_baseline = printf("tX: %tX\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_INT(22, result_minimal);
+#endif
 
     return CaseNext;
 }
@@ -336,8 +368,9 @@ static control_t test_snprintf_d(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
     printf("%%jd not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jd: %jd\r\n", INT32_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jd: %jd\r\n", (intmax_t) INT32_MIN);
     TEST_ASSERT_EQUAL_STRING("jd: -2147483648\r\n", buffer_minimal);
@@ -347,9 +380,11 @@ static control_t test_snprintf_d(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jd: %jd\r\n", (intmax_t) INT32_MAX);
     TEST_ASSERT_EQUAL_STRING("jd: 2147483647\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
     printf("%%zd not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zd: %zd\r\n", INT32_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zd: %zd\r\n", (ssize_t) INT32_MIN);
     TEST_ASSERT_EQUAL_STRING("zd: -2147483648\r\n", buffer_minimal);
@@ -359,9 +394,11 @@ static control_t test_snprintf_d(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zd: %zd\r\n", (ssize_t) INT32_MAX);
     TEST_ASSERT_EQUAL_STRING("zd: 2147483647\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
     printf("%%td not supported by mbed\r\n");
-
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "td: %td\r\n", PTRDIFF_MIN);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "td: %td\r\n", PTRDIFF_MIN);
     TEST_ASSERT_EQUAL_STRING("td: -2147483648\r\n", buffer_minimal);
@@ -371,6 +408,7 @@ static control_t test_snprintf_d(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "td: %td\r\n", PTRDIFF_MAX);
     TEST_ASSERT_EQUAL_STRING("td: 2147483647\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
     return CaseNext;
 }
@@ -434,6 +472,9 @@ static control_t test_snprintf_u(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%ju not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "ju: %ju\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "ju: %ju\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_STRING("ju: 0\r\n", buffer_minimal);
@@ -443,7 +484,11 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "ju: %ju\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_STRING("ju: 0\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(7, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%zu not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zu: %zu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zu: %zu\r\n", 0);
     TEST_ASSERT_EQUAL_STRING("zu: 0\r\n", buffer_minimal);
@@ -453,7 +498,11 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zu: %zu\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_STRING("zu: 4294967295\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(16, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%tu not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tu: %tu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tu: %tu\r\n", 0);
     TEST_ASSERT_EQUAL_STRING("tu: 0\r\n", buffer_minimal);
@@ -463,6 +512,7 @@ static control_t test_snprintf_u(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tu: %tu\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_STRING("tu: 18446744073709551615\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(26, result_minimal);
+#endif
 
     return CaseNext;
 }
@@ -527,6 +577,9 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%jX not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jX: %jX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jX: %jX\r\n", (uintmax_t) 0);
     TEST_ASSERT_EQUAL_STRING("jX: 00\r\n", buffer_minimal);
@@ -536,7 +589,11 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jX: %jX\r\n", UINTMAX_MAX);
     TEST_ASSERT_EQUAL_STRING("jX: 00\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%xX not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zX: %zX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zX: %zX\r\n", 0);
     TEST_ASSERT_EQUAL_STRING("zX: 00\r\n", buffer_minimal);
@@ -546,7 +603,11 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zX: %zX\r\n", SIZE_MAX);
     TEST_ASSERT_EQUAL_STRING("zX: FFFFFFFF\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(14, result_minimal);
+#endif
 
+#ifdef TARGET_LIKE_MBED
+    printf("%%tX not supported by mbed\r\n");
+#else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tX: %tX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tX: %tX\r\n", 0);
     TEST_ASSERT_EQUAL_STRING("tX: 00\r\n", buffer_minimal);
@@ -556,6 +617,7 @@ static control_t test_snprintf_x(const size_t call_count)
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tX: %tX\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_STRING("tX: FFFFFFFFFFFFFFFF\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(22, result_minimal);
+#endif
 
     return CaseNext;
 }
