@@ -21,6 +21,7 @@
 #include "EndpointResolver.h"
 
 #define DEFAULT_CONFIGURATION (1)
+#define LAST_CONFIGURATION    (2)
 
 #define VENDOR_TEST_CTRL_IN                 1
 #define VENDOR_TEST_CTRL_OUT                2
@@ -39,7 +40,7 @@
 
 USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking):
                         USBDevice(phy, vendor_id, product_id, product_release), reset_count(0), suspend_count(0),
-                        resume_count(0), interface_set(NONE), configuration_set(NONE)
+                        resume_count(0), interface_0_alt_set(NONE), interface_1_alt_set(NONE), configuration_set(NONE)
 {
 
     EndpointResolver resolver(endpoint_table());
@@ -87,16 +88,6 @@ void USBTester::suspend(bool suspended)
     }
 }
 
-void USBTester::remove_endpoints()
-{
-    if(configuration_set == 1) {
-        endpoint_remove(int_in);
-        endpoint_remove(int_out);
-        endpoint_remove(bulk_in);
-        endpoint_remove(bulk_out);
-    }
-}
-
 const char *USBTester::get_serial_desc_string()
 {
     return get_desc_string(string_iserial_desc());
@@ -112,13 +103,12 @@ const char *USBTester::get_iproduct_desc_string()
     return get_desc_string(string_iserial_desc());
 }
 
-
-
 void USBTester::callback_state_change(DeviceState new_state)
 {
     if (new_state != Configured) {
         configuration_set = NONE;
-        interface_set = NONE;
+        interface_0_alt_set = NONE;
+        interface_1_alt_set = NONE;
     }
 }
 
@@ -205,7 +195,7 @@ void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool abo
                 break;
         }
     }
-    complete_request_xfer_done(true);
+    complete_request_xfer_done(result);
 }
 
 // Called in ISR context
@@ -213,58 +203,146 @@ void USBTester::callback_request_xfer_done(const setup_packet_t *setup, bool abo
 // configuration is not supported.
 void USBTester::callback_set_configuration(uint8_t configuration)
 {
-    if (configuration == DEFAULT_CONFIGURATION) {
-        complete_set_configuration(set_configuration(configuration));
-    } else {
-        complete_set_configuration(false);
+    bool ret = false;
+
+    if (configuration >= DEFAULT_CONFIGURATION && configuration <= LAST_CONFIGURATION) {
+        endpoint_remove_all();
+        ret = set_configuration(configuration);
+    }
+
+    complete_set_configuration(ret);
+}
+
+bool USBTester::setup_iterface(uint8_t ep_in, uint8_t ep_out, uint32_t ep_size, usb_ep_type_t ep_type,
+                               uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)(usb_ep_t endpoint))
+{
+    bool success = false;
+
+    success = endpoint_add(ep_in, ep_size, ep_type);
+    success &= endpoint_add(ep_out, ep_size, ep_type, callback);
+    success &= read_start(ep_out, buf, buf_size);
+    return success;
+}
+
+void USBTester::remove_iterface(uint16_t interface)
+{
+    if (configuration_set == 1) {
+        if (interface == 0) {
+            endpoint_remove(bulk_in);
+            endpoint_remove(bulk_out);
+            interface_0_alt_set = NONE;
+        }
+        if (interface == 1) {
+            endpoint_remove(int_in);
+            endpoint_remove(int_out);
+            interface_1_alt_set = NONE;
+        }
+    }
+    if (configuration_set == 2) {
+        if (interface == 0) {
+            endpoint_remove(int_in);
+            endpoint_remove(int_out);
+            interface_0_alt_set = NONE;
+        }
+        if (interface == 1) {
+            endpoint_remove(bulk_in);
+            endpoint_remove(bulk_out);
+            interface_1_alt_set = NONE;
+        }
     }
 }
 
 bool USBTester::set_configuration(uint16_t configuration)
 {
-    if(set_interface(configuration, 0, 0)) {
-        configuration_set = configuration;
-        return true;
+    bool success = false;
+    // set 0 alt setting for each interface
+    if (configuration == 1) {
+        // interface 0 alternate 0
+        success = setup_iterface(bulk_in, bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK,
+                                 bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+        // interface 1 alternate 0
+        success &= setup_iterface(int_in, int_out, MAX_EP_SIZE, USB_EP_TYPE_INT,
+                                 int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+    } else if (configuration == 2) {
+        // interface 0 alternate 0
+        success = setup_iterface(int_in, int_out, MIN_EP_SIZE, USB_EP_TYPE_INT,
+                                 int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+        // interface 1 alternate 0
+        success &= setup_iterface(bulk_in, bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK,
+                                 bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
     }
-    return false;
+    if (success) {
+        configuration_set = configuration;
+        interface_0_alt_set = interface_1_alt_set = 0;
+    }
+    return success;
 }
 
 void USBTester::callback_set_interface(uint16_t interface, uint8_t alternate)
 {
-    bool success = set_interface(configuration_set, interface, alternate);
-    complete_set_interface(success);
+    complete_set_interface(set_interface(interface, alternate));
 }
 
-bool USBTester::set_interface(uint16_t configuration, uint16_t interface, uint16_t alternate)
+bool USBTester::set_interface(uint16_t interface, uint16_t alternate)
 {
     bool success = false;
 
-    if (configuration == 1) {
-        if (interface == 0 && alternate == 0) {
-            remove_endpoints();
-
-            endpoint_add(int_in, MAX_EP_SIZE, USB_EP_TYPE_INT);
-            endpoint_add(int_out, MAX_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
-            read_start(int_out, int_buf, sizeof(int_buf));
-            endpoint_add(bulk_in, MAX_EP_SIZE, USB_EP_TYPE_BULK);
-            endpoint_add(bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
-            read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
-
-            interface_set = interface;
-            success = true;
+    if (interface == 0) {
+        if (configuration_set == 1) {
+            if (alternate == 0) {
+                remove_iterface(interface);
+                success = setup_iterface(bulk_in, bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK,
+                                         bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+            }
+            if (alternate == 1) {
+                remove_iterface(interface);
+                success = setup_iterface(bulk_in, bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK,
+                                         bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+            }
         }
-        if (interface == 0 && alternate == 1) {
-            remove_endpoints();
-
-            endpoint_add(int_in, MIN_EP_SIZE, USB_EP_TYPE_INT);
-            endpoint_add(int_out, MIN_EP_SIZE, USB_EP_TYPE_INT, &USBTester::epint_out_callback);
-            read_start(int_out, int_buf, sizeof(int_buf));
-            endpoint_add(bulk_in, MIN_EP_SIZE, USB_EP_TYPE_BULK);
-            endpoint_add(bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK, &USBTester::epbulk_out_callback);
-            read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
-
-            interface_set = interface;
-            success = true;
+        if (configuration_set == 2) {
+            if (alternate == 0) {
+                remove_iterface(interface);
+                success = setup_iterface(int_in, int_out, MIN_EP_SIZE, USB_EP_TYPE_INT,
+                                         int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+            }
+            if (alternate == 1) {
+                remove_iterface(interface);
+                success = setup_iterface(int_in, int_out, MAX_EP_SIZE, USB_EP_TYPE_INT,
+                                         int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+            }
+        }
+        if (success) {
+            interface_0_alt_set = alternate;
+        }
+    }
+    if (interface == 1) {
+        if (configuration_set == 1) {
+            if (alternate == 0) {
+                remove_iterface(interface);
+                success = setup_iterface(int_in, int_out, MAX_EP_SIZE, USB_EP_TYPE_INT,
+                                         int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+            }
+            if (alternate == 1) {
+                remove_iterface(interface);
+                success = setup_iterface(int_in, int_out, MIN_EP_SIZE, USB_EP_TYPE_INT,
+                                         int_buf, sizeof(int_buf), &USBTester::epint_out_callback);
+            }
+        }
+        if (configuration_set == 2) {
+            if (alternate == 0) {
+                remove_iterface(interface);
+                success = setup_iterface(bulk_in, bulk_out, MIN_EP_SIZE, USB_EP_TYPE_BULK,
+                                         bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+            }
+            if (alternate == 1) {
+                remove_iterface(interface);
+                success = setup_iterface(bulk_in, bulk_out, MAX_EP_SIZE, USB_EP_TYPE_BULK,
+                                         bulk_buf, sizeof(bulk_buf), &USBTester::epbulk_out_callback);
+            }
+        }
+        if (success) {
+            interface_1_alt_set = alternate;
         }
     }
     return success;
@@ -287,7 +365,7 @@ const uint8_t *USBTester::device_desc()
         1,                    // iManufacturer
         2,                    // iProduct
         3,                    // iSerialNumber
-        1                     // bNumConfigurations
+        2                     // bNumConfigurations
     };
     MBED_ASSERT(sizeof(device_descriptor_temp) == sizeof(device_descriptor));
     memcpy(device_descriptor, device_descriptor_temp, sizeof(device_descriptor));
@@ -317,30 +395,31 @@ const uint8_t *USBTester::string_iproduct_desc()
 }
 
 
-#define CONFIG1_DESC_SIZE (9+9+7+7+7+7 + 9+7+7+7+7)
+#define CONFIG_1_DESC_SIZE (9+9+7+7 + 9+7+7 + 9+7+7 + 9+7+7)
+#define CONFIG_2_DESC_SIZE (9+9+7+7 + 9+7+7 + 9+7+7 + 9+7+7)
 
 const uint8_t *USBTester::configuration_desc(uint8_t index)
 {
-    static const uint8_t config_descriptor[] = {
+    static const uint8_t config_1_descriptor[] = {
         // configuration descriptor
-        9,                      // bLength
-        2,                      // bDescriptorType
-        LSB(CONFIG1_DESC_SIZE), // wTotalLength
-        MSB(CONFIG1_DESC_SIZE),
-        1,                      // bNumInterfaces
-        1,                      // bConfigurationValue
-        0,                      // iConfiguration
-        0x80,                   // bmAttributes
-        50,                     // bMaxPower
+        CONFIGURATION_DESCRIPTOR_LENGTH,// bLength
+        CONFIGURATION_DESCRIPTOR,   // bDescriptorType
+        LSB(CONFIG_1_DESC_SIZE),    // wTotalLength
+        MSB(CONFIG_1_DESC_SIZE),
+        2,                          // bNumInterfaces
+        1,                          // bConfigurationValue
+        0,                          // iConfiguration
+        0x80,                       // bmAttributes
+        50,                         // bMaxPower
 
         // Interface 0 setting 0
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
-        9,                          // bLength
-        4,                          // bDescriptorType
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
         0,                          // bInterfaceNumber
         0,                          // bAlternateSetting
-        4,                          // bNumEndpoints
+        2,                          // bNumEndpoints
         0xFF,                       // bInterfaceClass
         0xFF,                       // bInterfaceSubClass
         0xFF,                       // bInterfaceProtocol
@@ -351,26 +430,70 @@ const uint8_t *USBTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         bulk_in,                    // bEndpointAddress
         E_BULK,                     // bmAttributes (0x02=bulk)
-        LSB(MAX_EP_SIZE),// wMaxPacketSize (LSB)
-        MSB(MAX_EP_SIZE),// wMaxPacketSize (MSB)
-        0,                          // bInterval
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
 
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         bulk_out,                   // bEndpointAddress
         E_BULK,                     // bmAttributes (0x02=bulk)
-        LSB(MAX_EP_SIZE),// wMaxPacketSize (LSB)
-        MSB(MAX_EP_SIZE),// wMaxPacketSize (MSB)
-        0,                          // bInterval
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // Interface 0 setting 1
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        0,                          // bInterfaceNumber
+        1,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_in,                    // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_out,                   // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // Interface 1 setting 0
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        1,                          // bInterfaceNumber
+        0,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
 
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         int_in,                     // bEndpointAddress
         E_INTERRUPT,                // bmAttributes (0x03=interrupt)
-        LSB(MAX_EP_SIZE), // wMaxPacketSize (LSB)
-        MSB(MAX_EP_SIZE), // wMaxPacketSize (MSB)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
         1,                          // bInterval
 
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
@@ -378,40 +501,22 @@ const uint8_t *USBTester::configuration_desc(uint8_t index)
         ENDPOINT_DESCRIPTOR,        // bDescriptorType
         int_out,                    // bEndpointAddress
         E_INTERRUPT,                // bmAttributes (0x03=interrupt)
-        LSB(MAX_EP_SIZE), // wMaxPacketSize (LSB)
-        MSB(MAX_EP_SIZE), // wMaxPacketSize (MSB)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
         1,                          // bInterval
 
-        // Interface 0 setting 1
+        // Interface 1 setting 1
 
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
-        9,                          // bLength
-        4,                          // bDescriptorType
-        0,                          // bInterfaceNumber
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        1,                          // bInterfaceNumber
         1,                          // bAlternateSetting
-        4,                          // bNumEndpoints
+        2,                          // bNumEndpoints
         0xFF,                       // bInterfaceClass
         0xFF,                       // bInterfaceSubClass
         0xFF,                       // bInterfaceProtocol
         0,                          // iInterface
-
-        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
-        ENDPOINT_DESCRIPTOR,        // bDescriptorType
-        bulk_in,                    // bEndpointAddress
-        E_BULK,                     // bmAttributes (0x02=bulk)
-        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
-        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
-        0,                          // bInterval
-
-        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
-        ENDPOINT_DESCRIPTOR,        // bDescriptorType
-        bulk_out,                   // bEndpointAddress
-        E_BULK,                     // bmAttributes (0x02=bulk)
-        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
-        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
-        0,                          // bInterval
 
         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
         ENDPOINT_DESCRIPTOR_LENGTH, // bLength
@@ -430,15 +535,153 @@ const uint8_t *USBTester::configuration_desc(uint8_t index)
         LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
         MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
         1                           // bInterval
-
     };
+
+    static const uint8_t config_2_descriptor[] = {
+        // configuration descriptor
+        CONFIGURATION_DESCRIPTOR_LENGTH,// bLength
+        CONFIGURATION_DESCRIPTOR,   // bDescriptorType
+        LSB(CONFIG_2_DESC_SIZE),    // wTotalLength
+        MSB(CONFIG_2_DESC_SIZE),
+        2,                          // bNumInterfaces
+        2,                          // bConfigurationValue
+        0,                          // iConfiguration
+        0x80,                       // bmAttributes
+        50,                         // bMaxPower
+
+        // Interface 0 setting 0
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        0,                          // bInterfaceNumber
+        0,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        int_in,                     // bEndpointAddress
+        E_INTERRUPT,                // bmAttributes (0x03=interrupt)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        int_out,                    // bEndpointAddress
+        E_INTERRUPT,                // bmAttributes (0x03=interrupt)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // Interface 0 setting 1
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        0,                          // bInterfaceNumber
+        1,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        int_in,                     // bEndpointAddress
+        E_INTERRUPT,                // bmAttributes (0x03=interrupt)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        int_out,                    // bEndpointAddress
+        E_INTERRUPT,                // bmAttributes (0x03=interrupt)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // Interface 1 setting 0
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        1,                          // bInterfaceNumber
+        0,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_in,                    // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_out,                   // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MIN_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MIN_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // Interface 1 setting 1
+
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        INTERFACE_DESCRIPTOR_LENGTH,// bLength
+        INTERFACE_DESCRIPTOR,       // bDescriptorType
+        1,                          // bInterfaceNumber
+        1,                          // bAlternateSetting
+        2,                          // bNumEndpoints
+        0xFF,                       // bInterfaceClass
+        0xFF,                       // bInterfaceSubClass
+        0xFF,                       // bInterfaceProtocol
+        0,                          // iInterface
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_in,                    // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1,                          // bInterval
+
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        ENDPOINT_DESCRIPTOR_LENGTH, // bLength
+        ENDPOINT_DESCRIPTOR,        // bDescriptorType
+        bulk_out,                   // bEndpointAddress
+        E_BULK,                     // bmAttributes (0x02=bulk)
+        LSB(MAX_EP_SIZE),           // wMaxPacketSize (LSB)
+        MSB(MAX_EP_SIZE),           // wMaxPacketSize (MSB)
+        1                           // bInterval
+    };
+
     if (index == 0) {
-        return config_descriptor;
+        return config_1_descriptor;
+    } else if (index == 1) {
+        return config_2_descriptor;
     } else {
         return NULL;
     }
 }
-
 
 void USBTester::epint_out_callback(usb_ep_t endpoint)
 {
@@ -450,4 +693,3 @@ void USBTester::epbulk_out_callback(usb_ep_t endpoint)
     read_finish(endpoint);
     read_start(endpoint, bulk_buf, sizeof(bulk_buf));
 }
-
