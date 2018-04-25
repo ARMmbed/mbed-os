@@ -45,6 +45,7 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
+from tools.notifier import TerminalNotifier
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
@@ -232,16 +233,7 @@ if __name__ == '__main__':
         args_error(parser, "argument --build is required when argument --source is provided")
 
 
-    if options.color:
-        # This import happens late to prevent initializing colorization when we don't need it
-        import colorize
-        if options.verbose:
-            notify = mbedToolchain.print_notify_verbose
-        else:
-            notify = mbedToolchain.print_notify
-        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-    else:
-        notify = None
+    notify = TerminalNotifier(options.verbose, options.silent)
 
     if not TOOLCHAIN_CLASSES[toolchain].check_executable():
         search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
@@ -283,10 +275,9 @@ if __name__ == '__main__':
                                      set(test.dependencies),
                                      linker_script=options.linker_script,
                                      clean=options.clean,
-                                     verbose=options.verbose,
                                      notify=notify,
-                                     report=build_data_blob,
                                      silent=options.silent,
+                                     report=build_data_blob,
                                      macros=options.macros,
                                      jobs=options.jobs,
                                      name=options.artifact_name,

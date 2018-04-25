@@ -48,12 +48,10 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               build_dir=build_dir,
-                               extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                 build_profile=None, build_dir=None):
+        mbedToolchain.__init__(
+            self, target, notify, macros, build_dir=build_dir,
+            build_profile=build_profile)
         if target.core not in self.SUPPORTED_CORES:
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
@@ -102,7 +100,7 @@ class ARM(mbedToolchain):
             match = ARM.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
                 if msg is not None:
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
@@ -119,13 +117,13 @@ class ARM(mbedToolchain):
                 match = ARM.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 else:
                     msg['text'] += line+"\n"
         
         if msg is not None:
-            self.cc_info(msg)
+            self.notify.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -238,7 +236,7 @@ class ARM(mbedToolchain):
             link_files = self.get_link_file(cmd[1:])
             cmd = [cmd_linker, '--via', link_files]
 
-        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @hook_tool
@@ -263,7 +261,7 @@ class ARM(mbedToolchain):
             else:
                 rmtree(bin)
 
-        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @staticmethod
@@ -285,10 +283,8 @@ class ARM(mbedToolchain):
 
 class ARM_STD(ARM):
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     build_dir=build_dir, extra_verbose=extra_verbose,
+                 build_profile=None, build_dir=None):
+        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if "ARM" not in target.supported_toolchains:
             raise NotSupportedException("ARM compiler support is required for ARM build")
@@ -299,8 +295,7 @@ class ARM_MICRO(ARM):
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     build_dir=build_dir, extra_verbose=extra_verbose,
+        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/uARM compiler support is required for ARM build")

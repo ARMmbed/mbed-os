@@ -37,6 +37,7 @@ from ..utils import (run_cmd, mkdir, rel_path, ToolException,
                     NotSupportedException, split_path, compile_worker)
 from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from .. import hooks
+from ..notifier import TerminalNotifier
 from ..memap import MemapParser
 
 
@@ -351,8 +352,8 @@ class mbedToolchain:
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
 
-    def __init__(self, target, notify=None, macros=None, silent=False,
-                 extra_verbose=False, build_profile=None, build_dir=None):
+    def __init__(self, target, notify=None, macros=None, build_profile=None,
+                 build_dir=None):
         self.target = target
         self.name = self.__class__.__name__
 
@@ -414,17 +415,9 @@ class mbedToolchain:
         #                  or an application was linked
         #       *Silent* is a boolean
         if notify:
-            self.notify_fun = notify
-        elif extra_verbose:
-            self.notify_fun = self.print_notify_verbose
+            self.notify = notify
         else:
-            self.notify_fun = self.print_notify
-
-        # Silent builds (no output)
-        self.silent = silent
-
-        # Print output buffer
-        self.output = str()
+            self.notify = TerminalNotifier()
 
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
@@ -447,70 +440,7 @@ class mbedToolchain:
         return True
 
     def get_output(self):
-        return self.output
-
-    def print_notify(self, event, silent=False):
-        """ Default command line notification
-        """
-        msg = None
-
-        if not self.VERBOSE and event['type'] == 'tool_error':
-            msg = event['message']
-
-        elif event['type'] in ['info', 'debug']:
-            msg = event['message']
-
-        elif event['type'] == 'cc':
-            event['severity'] = event['severity'].title()
-
-            if PRINT_COMPILER_OUTPUT_AS_LINK:
-                event['file'] = getcwd() + event['file'].strip('.')
-                msg = '[%(severity)s] %(file)s:%(line)s:%(col)s: %(message)s' % event
-            else:
-                event['file'] = basename(event['file'])
-                msg = '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
-
-        elif event['type'] == 'progress':
-            if 'percent' in event:
-                msg = '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
-                                                  event['percent'],
-                                                  basename(event['file']))
-            else:
-                msg = '{}: {}'.format(event['action'].title(),
-                                      basename(event['file']))
-
-        if msg:
-            if not silent:
-                print(msg)
-            self.output += msg + "\n"
-
-    def print_notify_verbose(self, event, silent=False):
-        """ Default command line notification with more verbose mode
-        """
-        if event['type'] in ['info', 'debug']:
-            self.print_notify(event, silent=silent) # standard handle
-
-        elif event['type'] == 'cc':
-            event['severity'] = event['severity'].title()
-            event['file'] = basename(event['file'])
-            event['mcu_name'] = "None"
-            event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
-            event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
-            msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
-            if not silent:
-                print(msg)
-            self.output += msg + "\n"
-
-        elif event['type'] == 'progress':
-            self.print_notify(event) # standard handle
-
-    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
-    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def notify(self, event):
-        """ Little closure for notify functions
-        """
-        event['toolchain'] = self
-        return self.notify_fun(event, self.silent)
+        return self.notifier.get_output()
 
     def get_symbols(self, for_asm=False):
         if for_asm:
@@ -890,7 +820,7 @@ class mbedToolchain:
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
-        self.cc_verbose("Macros: "+' '.join(['-D%s' % s for s in self.get_symbols()]))
+        self.notify.cc_verbose("Macros: "+' '.join(['-D%s' % s for s in self.get_symbols()]))
 
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
@@ -949,7 +879,7 @@ class mbedToolchain:
             self.compiled += 1
             self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
-                self.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
                 self.compile_output([
                     res['code'],
                     res['output'],
@@ -987,7 +917,7 @@ class mbedToolchain:
                         self.compiled += 1
                         self.progress("compile", result['source'], build_update=True)
                         for res in result['results']:
-                            self.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
                             self.compile_output([
                                 res['code'],
                                 res['output'],
@@ -1098,9 +1028,9 @@ class mbedToolchain:
 
         # Parse output for Warnings and Errors
         self.parse_output(_stderr)
-        self.debug("Return: %s"% _rc)
+        self.notify.debug("Return: %s"% _rc)
         for error_line in _stderr.splitlines():
-            self.debug("Output: %s"% error_line)
+            self.notify.debug("Output: %s"% error_line)
 
         # Check return code
         if _rc != 0:
@@ -1127,7 +1057,7 @@ class mbedToolchain:
             ext = self.target.OUTPUT_EXT
 
         if hasattr(self.target, 'OUTPUT_NAMING'):
-            self.var("binary_naming", self.target.OUTPUT_NAMING)
+            self.notify.var("binary_naming", self.target.OUTPUT_NAMING)
             if self.target.OUTPUT_NAMING == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
@@ -1162,8 +1092,8 @@ class mbedToolchain:
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(map)
 
-        self.var("compile_succeded", True)
-        self.var("binary", filename)
+        self.notify.var("compile_succeded", True)
+        self.notify.var("binary", filename)
 
         return full_path, needed_update
 
@@ -1171,54 +1101,24 @@ class mbedToolchain:
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def default_cmd(self, command):
         _stdout, _stderr, _rc = run_cmd(command, work_dir=getcwd(), chroot=self.CHROOT)
-        self.debug("Return: %s"% _rc)
+        self.notify.debug("Return: %s"% _rc)
 
         for output_line in _stdout.splitlines():
-            self.debug("Output: %s"% output_line)
+            self.notify.debug("Output: %s"% output_line)
         for error_line in _stderr.splitlines():
-            self.debug("Errors: %s"% error_line)
+            self.notify.debug("Errors: %s"% error_line)
 
         if _rc != 0:
             for line in _stderr.splitlines():
                 self.tool_error(line)
             raise ToolException(_stderr)
 
-    ### NOTIFICATIONS ###
-    def info(self, message):
-        self.notify({'type': 'info', 'message': message})
-
-    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
-    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def debug(self, message):
-        if self.VERBOSE:
-            if isinstance(message, list):
-                message = ' '.join(message)
-            message = "[DEBUG] " + message
-            self.notify({'type': 'debug', 'message': message})
-
-    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
-    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def cc_info(self, info=None):
-        if info is not None:
-            info['type'] = 'cc'
-            self.notify(info)
-
-    # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
-    # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def cc_verbose(self, message, file=""):
-        self.debug(message)
-
     def progress(self, action, file, build_update=False):
-        msg = {'type': 'progress', 'action': action, 'file': file}
         if build_update:
-            msg['percent'] = 100. * float(self.compiled) / float(self.to_be_compiled)
-        self.notify(msg)
-
-    def tool_error(self, message):
-        self.notify({'type': 'tool_error', 'message': message})
-
-    def var(self, key, value):
-        self.notify({'type': 'var', 'key': key, 'val': value})
+            percent = 100. * float(self.compiled) / float(self.to_be_compiled)
+        else:
+            percent = None
+        self.notify.progress(action, file, percent)
 
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY

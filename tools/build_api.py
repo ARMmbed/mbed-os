@@ -292,9 +292,8 @@ def get_mbed_official_release(version):
 
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
-                      notify=None, silent=False, verbose=False,
-                      extra_verbose=False, config=None,
-                      app_config=None, build_profile=None):
+                      notify=None, config=None, app_config=None,
+                      build_profile=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -307,9 +306,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     clean - Rebuild everything if True
     jobs - how many compilers we can run at once
     notify - Notify function for logs
-    silent - suppress printing of progress indicators
-    verbose - Write the actual tools command lines used if True
-    extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a list of mergeable build profiles
@@ -332,13 +328,12 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         for key in profile:
             profile[key].extend(contents[toolchain_name].get(key, []))
 
-    toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
-                       extra_verbose=extra_verbose, build_profile=profile)
+    toolchain = cur_tc(
+        target, notify, macros, build_dir=build_dir, build_profile=profile)
 
     toolchain.config = config
     toolchain.jobs = jobs
     toolchain.build_all = clean
-    toolchain.VERBOSE = verbose
 
     return toolchain
 
@@ -489,11 +484,10 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
-                  libraries_paths=None, linker_script=None,
-                  clean=False, notify=None, verbose=False, name=None,
-                  macros=None, inc_dirs=None, jobs=1, silent=False,
+                  libraries_paths=None, linker_script=None, clean=False, silent=False,
+                  notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
-                  project_description=None, extra_verbose=False, config=None,
+                  project_description=None, config=None,
                   app_config=None, build_profile=None, stats_depth=None):
     """ Build a project. A project may be a test or a user program.
 
@@ -509,17 +503,14 @@ def build_project(src_paths, build_path, target, toolchain_name,
     linker_script - the file that drives the linker to do it's job
     clean - Rebuild everything if True
     notify - Notify function for logs
-    verbose - Write the actual tools command lines used if True
     name - the name of the project
     macros - additional macros
     inc_dirs - additional directories where include files may be found
     jobs - how many compilers we can run at once
-    silent - suppress printing of progress indicators
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
     project_id - the name put in the report
     project_description - the human-readable version of what this thing does
-    extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
@@ -540,15 +531,14 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
-        clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config, app_config=app_config,
-        build_profile=build_profile)
+        clean=clean, jobs=jobs, notify=notify, config=config,
+        app_config=app_config, build_profile=build_profile)
 
     # The first path will give the name to the library
     name = (name or toolchain.config.name or
             basename(normpath(abspath(src_paths[0]))))
-    toolchain.info("Building project %s (%s, %s)" %
-                   (name, toolchain.target.name, toolchain_name))
+    notify.info("Building project %s (%s, %s)" %
+                (name, toolchain.target.name, toolchain_name))
 
     # Initialize reporting
     if report != None:
@@ -610,7 +600,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = toolchain.get_output() + memap_table
+            cur_result["output"] = notify.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = (memap_instance.mem_report
                                           if memap_instance is not None else None)
@@ -633,7 +623,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
             cur_result["elapsed_time"] = end - start
 
-            toolchain_output = toolchain.get_output()
+            toolchain_output = notify.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
@@ -644,9 +634,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
 def build_library(src_paths, build_path, target, toolchain_name,
                   dependencies_paths=None, name=None, clean=False,
-                  archive=True, notify=None, verbose=False, macros=None,
-                  inc_dirs=None, jobs=1, silent=False, report=None,
-                  properties=None, extra_verbose=False, project_id=None,
+                  archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
+                  report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
                   build_profile=None):
     """ Build a library
@@ -664,14 +653,11 @@ def build_library(src_paths, build_path, target, toolchain_name,
     clean - Rebuild everything if True
     archive - whether the library will create an archive file
     notify - Notify function for logs
-    verbose - Write the actual tools command lines used if True
     macros - additional macros
     inc_dirs - additional directories where include files may be found
     jobs - how many compilers we can run at once
-    silent - suppress printing of progress indicators
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
-    extra_verbose - even more output!
     project_id - the name that goes in the report
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
@@ -698,14 +684,13 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
-        clean=clean, jobs=jobs, notify=notify, silent=silent,
-        verbose=verbose, extra_verbose=extra_verbose, app_config=app_config,
+        clean=clean, jobs=jobs, notify=notify, app_config=app_config,
         build_profile=build_profile)
 
     # The first path will give the name to the library
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
-    toolchain.info("Building library %s (%s, %s)" %
+    notify.info("Building library %s (%s, %s)" %
                    (name, toolchain.target.name, toolchain_name))
 
     # Initialize reporting
@@ -770,7 +755,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = toolchain.get_output()
+            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
 
@@ -788,7 +773,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
             cur_result["elapsed_time"] = end - start
 
-            toolchain_output = toolchain.get_output()
+            toolchain_output = notify.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
@@ -805,9 +790,8 @@ def mbed2_obj_path(target_name, toolchain_name):
     real_tc_name = TOOLCHAIN_CLASSES[toolchain_name].__name__
     return join("TARGET_" + target_name, "TOOLCHAIN_" + real_tc_name)
 
-def build_lib(lib_id, target, toolchain_name, verbose=False,
-              clean=False, macros=None, notify=None, jobs=1, silent=False,
-              report=None, properties=None, extra_verbose=False,
+def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
+              notify=None, jobs=1, report=None, properties=None,
               build_profile=None):
     """ Legacy method for building mbed libraries
 
@@ -818,14 +802,11 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
 
     Keyword arguments:
     clean - Rebuild everything if True
-    verbose - Write the actual tools command lines used if True
     macros - additional macros
     notify - Notify function for logs
     jobs - how many compilers we can run at once
-    silent - suppress printing of progress indicators
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
-    extra_verbose - even more output!
     build_profile - a dict of flags that will be passed to the compiler
     """
     lib = Library(lib_id)
@@ -890,10 +871,9 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
 
         toolchain = prepare_toolchain(
             src_paths, tmp_path, target, toolchain_name, macros=macros,
-            notify=notify, silent=silent, extra_verbose=extra_verbose,
-            build_profile=build_profile, jobs=jobs, clean=clean)
+            notify=notify, build_profile=build_profile, jobs=jobs, clean=clean)
 
-        toolchain.info("Building library %s (%s, %s)" %
+        notify.info("Building library %s (%s, %s)" %
                        (name.upper(), target.name, toolchain_name))
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
@@ -947,7 +927,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         if report != None and needed_update:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = toolchain.get_output()
+            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -959,7 +939,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
             cur_result["result"] = "FAIL"
             cur_result["elapsed_time"] = end - start
 
-            toolchain_output = toolchain.get_output()
+            toolchain_output = notify.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
@@ -970,9 +950,8 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
 
 # We do have unique legacy conventions about how we build and package the mbed
 # library
-def build_mbed_libs(target, toolchain_name, verbose=False,
-                    clean=False, macros=None, notify=None, jobs=1, silent=False,
-                    report=None, properties=None, extra_verbose=False,
+def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
+                    notify=None, jobs=1, report=None, properties=None,
                     build_profile=None):
     """ Function returns True is library was built and false if building was
     skipped
@@ -982,15 +961,12 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
     toolchain_name - the name of the build tools
 
     Keyword arguments:
-    verbose - Write the actual tools command lines used if True
     clean - Rebuild everything if True
     macros - additional macros
     notify - Notify function for logs
     jobs - how many compilers we can run at once
-    silent - suppress printing of progress indicators
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
-    extra_verbose - even more output!
     build_profile - a dict of flags that will be passed to the compiler
     """
 
@@ -1034,8 +1010,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         mkdir(tmp_path)
 
         toolchain = prepare_toolchain(
-            [""], tmp_path, target, toolchain_name, macros=macros,verbose=verbose,
-            notify=notify, silent=silent, extra_verbose=extra_verbose,
+            [""], tmp_path, target, toolchain_name, macros=macros, notify=notify,
             build_profile=build_profile, jobs=jobs, clean=clean)
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
@@ -1044,7 +1019,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         toolchain.set_config_data(toolchain.config.get_config_data())
 
         # mbed
-        toolchain.info("Building library %s (%s, %s)" %
+        notify.info("Building library %s (%s, %s)" %
                        ('MBED', target.name, toolchain_name))
 
         # Common Headers
@@ -1111,7 +1086,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = toolchain.get_output()
+            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -1124,7 +1099,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
             cur_result["result"] = "FAIL"
             cur_result["elapsed_time"] = end - start
 
-            toolchain_output = toolchain.get_output()
+            toolchain_output = notify.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
