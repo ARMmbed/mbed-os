@@ -471,6 +471,10 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
     // TODO - stop the current transfer on this endpoint and don't call the IN or OUT callback
+		HAL_StatusTypeDef ret;
+		ret = HAL_PCD_EP_Abort(&hpcd, endpoint);
+		MBED_ASSERT(ret!=HAL_OK);
+		return;
 }
 
 void USBPhyHw::process()
