@@ -4008,7 +4008,7 @@
         "release_versions": ["5"],
         "bootloader_supported": true
     },
-	"XMC_XXXX": {
+    "XMC_XXXX": {
         "inherits": ["Target"],
         "extra_labels": ["Infineon", "XMCLib"],
         "supported_toolchains": ["GCC_ARM"],
@@ -4024,9 +4024,9 @@
         "inherits": ["XMC_4XXX"],
         "extra_labels_add": ["XMC4500", "XMC4500_Relax_Kit"],
         "device_has": ["SERIAL", "INTERRUPTIN", "ANALOGOUT", "ANALOGIN", "PWMOUT", "I2C", "RTC", "FLASH", "SPI"],
-		"macros_add": ["XMC4500_F100x1024", "XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
-		"features_add": ["LWIP"],
+        "macros_add": ["XMC4500_F100x1024", "XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
+        "features_add": ["LWIP"],
         "OUTPUT_EXT": "hex",
-		"device_name": "XMC4500"
+        "device_name": "XMC4500"
     },
 }
