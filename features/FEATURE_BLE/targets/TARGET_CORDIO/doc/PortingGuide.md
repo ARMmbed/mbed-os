@@ -93,8 +93,10 @@ More information about the architecture can be found in the
 
 #### HCITransport 
 
-> **Note:** If the Bluetooth controller uses an H4 communication interface, this 
-step can be skipped.
+> **Note:** If the Bluetooth controller uses an H4 communication interface and
+the host exposes serial flow control in mbed then this step can be skipped and
+the class `ble::vendor::cordio::H4TransportDriver` can be used as the transport
+driver.
 
 An empty transport driver can be coded as: 
 
