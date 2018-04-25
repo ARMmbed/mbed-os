@@ -4028,5 +4028,5 @@
         "features_add": ["LWIP"],
         "OUTPUT_EXT": "hex",
         "device_name": "XMC4500"
-    },
+    }
 }
