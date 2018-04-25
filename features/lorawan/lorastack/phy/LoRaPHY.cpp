@@ -880,9 +880,7 @@ bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
     band_t *bands = (band_t *)phy_params.bands.table;
 
     // limit TX power if set to too much
-    if (tx_conf->tx_power > bands[band_idx].max_tx_pwr) {
-        tx_conf->tx_power = bands[band_idx].max_tx_pwr;
-    }
+    tx_conf->tx_power = MAX(tx_conf->tx_power, bands[band_idx].max_tx_pwr);
 
     uint8_t bandwidth = get_bandwidth(tx_conf->datarate);
     int8_t phy_tx_power = 0;
