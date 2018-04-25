@@ -307,7 +307,7 @@ void ATHandler::process_oob()
                     fill_buffer();
                 } else {
 #ifdef MBED_CONF_RTOS_PRESENT
-                    rtos::Thread::yield();
+                    wait_ms(1);
 #endif
                 }
             }
@@ -359,12 +359,12 @@ void ATHandler::fill_buffer()
            }
            at_debug("\n----------readable----------\n");
            return;
-       } else if (len != -EAGAIN && len != 0) {
+        } else if (len != -EAGAIN && len != 0) {
            tr_warn("%s error: %d while reading", __func__, len);
            break;
-       }
+        }
 #ifdef MBED_CONF_RTOS_PRESENT
-        rtos::Thread::yield();
+        wait_ms(1);
 #endif
     } while ((uint32_t)timer.read_ms() < _at_timeout);
 
