@@ -1042,6 +1042,28 @@ HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, 
   __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7F]);
   return HAL_OK;
 }
+/**
+  * @brief  Abort a transaction.  
+  * @param  hpcd: PCD handle
+  * @param  ep_addr: endpoint address
+  * @param  pBuf: pointer to the transmission buffer   
+  * @param  len: amount of data to be sent
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
+{
+  HAL_StatusTypeDef ret;
+  USB_OTG_EPTypeDef *ep;
+
+  ep = &hpcd->IN_ep[ep_addr & 0x7F];
+
+  /*setup and start the Xfer */
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+   ret = USB_EPStopXfer(hpcd->Instance , ep, hpcd->Init.dma_enable); 
+
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+  return ret;
+}
 
 /**
   * @brief  Set a STALL condition over an endpoint.
