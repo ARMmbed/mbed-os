@@ -37,37 +37,6 @@ property of the target.
     }
 ```
 
-### Include prebuilt libraries 
-
-Last, the target shall also include the cordio libraries into the build. 
-
-Four prebuilt libraries are provided: 
-* `wscore`: which contains the base component used by the Cordio stack.
-* `wsstack`: The BLE stack itself, if contains the GAP and GATT layer as well as 
-the Security manager implementation.
-* `wssec`: The low level implementation of the security layer.
-* `wshci`: The HCI layer.
-
-The `wssec` and `wshci` libraries are delivered in feature folders. It allows 
-vendors to override those library if necessary. This can be required if the port 
-use specific crypto routine or require an highly modified HCI layer. 
-
-To include the default library in the target, the features have to be added in 
-this list of the features of the target: 
-* `WSSEC`: Include the default `wssec` library.
-* `WSHCI`: Include the default `wshci` library.
-
-The target should also compile the sources of the BLE Cordio port. It is 
-achieved by adding the string `CORDIO` in the list of the `extra_labels` 
-property of the target. 
-
-```json
-    "TARGET_NAME": {
-        "extra_labels": ["target extra labels ...", "CORDIO"],
-        "features": ["target features ...", "BLE", "WSHCI", "WSSEC"]
-    }
-```
-
 ## CordioHCIDriver implementation: 
 
 A port shall include an HCI driver for the BLE module used by the target and 
