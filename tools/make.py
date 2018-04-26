@@ -45,7 +45,7 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
-from tools.notifier import TerminalNotifier
+from tools.notifier.term import TerminalNotifier
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list

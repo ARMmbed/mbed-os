@@ -37,7 +37,7 @@ from ..utils import (run_cmd, mkdir, rel_path, ToolException,
                     NotSupportedException, split_path, compile_worker)
 from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from .. import hooks
-from ..notifier import TerminalNotifier
+from ..notifier.term import TerminalNotifier
 from ..memap import MemapParser
 
 
