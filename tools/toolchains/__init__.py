@@ -227,13 +227,13 @@ class Resources:
         for objname, filenames in dupe_dict.items():
             if len(filenames) > 1:
                 count+=1
-                toolchain.tool_error(
+                toolchain.notify.tool_error(
                     "Object file %s.o is not unique! It could be made from: %s"\
                     % (objname, " ".join(filenames)))
         for headername, locations in dupe_headers.items():
             if len(locations) > 1:
                 count+=1
-                toolchain.tool_error(
+                toolchain.notify.tool_error(
                     "Header file %s is not unique! It could be: %s" %\
                     (headername, " ".join(locations)))
         return count
@@ -1110,7 +1110,7 @@ class mbedToolchain:
 
         if _rc != 0:
             for line in _stderr.splitlines():
-                self.tool_error(line)
+                self.notify.tool_error(line)
             raise ToolException(_stderr)
 
     def progress(self, action, file, build_update=False):
