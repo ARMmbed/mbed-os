@@ -397,7 +397,7 @@ def _fill_header(region_list, current_region):
         start += Config.header_member_size(member)
     return header
 
-def merge_region_list(region_list, destination, padding=b'\xFF'):
+def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """Merge the region_list into a single image
 
     Positional Arguments:
@@ -408,7 +408,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     merged = IntelHex()
     _, format = splitext(destination)
 
-    print("Merging Regions:")
+    notify.info("Merging Regions")
 
     for region in region_list:
         if region.active and not region.filename:
@@ -419,7 +419,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
             _fill_header(region_list, region).tofile(header_filename, format='hex')
             region = region._replace(filename=header_filename)
         if region.filename:
-            print("  Filling region %s with %s" % (region.name, region.filename))
+            notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
             if part_size > region.size:
@@ -428,7 +428,8 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
             merged.merge(part)
             pad_size = region.size - part_size
             if pad_size > 0 and region != region_list[-1]:
-                print("  Padding region %s with 0x%x bytes" % (region.name, pad_size))
+                notify.info("  Padding region %s with 0x%x bytes" %
+                            (region.name, pad_size))
                 if format is ".hex":
                     """The offset will be in the hex file generated when we're done,
                     so we can skip padding here"""
@@ -437,8 +438,8 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
-    print("Space used after regions merged: 0x%x" %
-          (merged.maxaddr() - merged.minaddr() + 1))
+    notify.info("Space used after regions merged: 0x%x" %
+                (merged.maxaddr() - merged.minaddr() + 1))
     with open(destination, "wb+") as output:
         merged.tofile(output, format=format.strip("."))
 
@@ -574,7 +575,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                            for r in region_list]
             res = "%s.%s" % (join(build_path, name),
                              getattr(toolchain.target, "OUTPUT_EXT", "bin"))
-            merge_region_list(region_list, res)
+            merge_region_list(region_list, res, notify)
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
 

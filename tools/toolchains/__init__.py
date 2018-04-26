@@ -1148,8 +1148,10 @@ class mbedToolchain:
     def add_regions(self):
         """Add regions to the build profile, if there are any.
         """
-        print("Using regions in this build:")
-        for region in self.config.regions:
+        regions = list(self.config.regions)
+        self.notify.info("Using regions %s in this build."
+                         % ", ".join(region.name for region in regions))
+        for region in regions:
             for define in [(region.name.upper() + "_ADDR", region.start),
                            (region.name.upper() + "_SIZE", region.size)]:
                 define_string = "-D%s=0x%x" %  define
@@ -1162,8 +1164,8 @@ class mbedToolchain:
                     define_string = self.make_ld_define(*define)
                     self.ld.append(define_string)
                     self.flags["ld"].append(define_string)
-            print("  Region %s size 0x%x, offset 0x%x"
-                    % (region.name, region.size, region.start))
+            self.notify.info("  Region %s: size 0x%x, offset 0x%x"
+                             % (region.name, region.size, region.start))
 
     # Set the configuration data
     def set_config_data(self, config_data):
