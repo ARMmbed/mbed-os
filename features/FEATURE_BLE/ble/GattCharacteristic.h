@@ -72,25 +72,6 @@
  * GattServer, a unique attribute handle is assigned to the various attributes
  * of the characteristic. Clients use this handle to interact with the
  * characteristic. This handle is used locally in GattServer APIs.
- *
- *
- *
- *
- *
- *
- *
- *
- * Representation of a GattServer characteristic.
- *
- * A characteristic is a typed value used in a service. It contains a set of
- * properties that define client operations supported by the characteristic.
- * A characteristic may also include descriptors; a descriptor exposes
- * metainformation associated to a characteristic, such as the unit of its value,
- * its human readable name or a control point attribute that allows the client to
- * subscribe to the characteristic notifications.
- *
- * The GattCharacteristic class allows application code to construct
- * and monitor characteristics presents in a GattServer.
  */
 class GattCharacteristic {
 public:
