@@ -97,6 +97,19 @@ utest::v1::status_t test_setup(const size_t num_cases) {
 Specification specification(test_setup, cases);
 
 int main() {
-    return !Harness::run(specification);
+    int ret = 0;
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_context platform_ctx;
+    if((ret = mbedtls_platform_setup(&platform_ctx))!= 0)
+    {
+        mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
+        return 1;
+    }
+#endif
+    ret = (Harness::run(specification) ? 0 : 1);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(&platform_ctx);
+#endif
+    return ret;
 }
 

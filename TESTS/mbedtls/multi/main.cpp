@@ -23,6 +23,17 @@
 
 #include "mbedtls/sha256.h"
 
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#define mbedtls_printf     printf
+#define mbedtls_snprintf   snprintf
+#define mbedtls_exit       exit
+#define MBEDTLS_EXIT_SUCCESS EXIT_SUCCESS
+#define MBEDTLS_EXIT_FAILURE EXIT_FAILURE
+#endif
 
 using namespace utest::v1;
 
@@ -163,5 +174,18 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
 int main() {
-    Harness::run(specification);
+    int ret = 0;
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_context platform_ctx;
+    if((ret = mbedtls_platform_setup(&platform_ctx))!= 0)
+    {
+        mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
+        return 1;
+    }
+#endif
+    ret = (Harness::run(specification) ? 0 : 1);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(&platform_ctx);
+#endif
+    return ret;
 }
