@@ -155,18 +155,21 @@ bool sai_transfer(sai_t *obj, uint32_t *sample) {
 
     bool ret = false;
     if (obj->is_receiver) {
-        if (sample != NULL) {
-            uint32_t flags = SAI_RxGetStatusFlag(obj->base);
-            if ((flags & I2S_RCSR_RE_MASK) == 0) {
-                SAI_RxEnable(obj->base, true);
+        uint32_t flags = SAI_RxGetStatusFlag(obj->base);
+        if ((flags & I2S_RCSR_RE_MASK) == 0) {
+            SAI_RxEnable(obj->base, true);
+        }
+        ret = (flags & I2S_RCSR_FRF_MASK) == I2S_RCSR_FRF_MASK;
+        uint32_t tmpsample = 0;
+        if (ret) {
+            tmpsample = SAI_ReadData(obj->base, obj->channel);
+
+            if (sample != NULL) {
+                *sample = tmpsample;
             }
-            ret = (flags & I2S_RCSR_FRF_MASK) == I2S_RCSR_FRF_MASK;
-            if (ret) {
-                *sample = SAI_ReadData(obj->base, obj->channel);
-            }
-            if ((flags & I2S_RCSR_FEF_MASK) == I2S_RCSR_FEF_MASK) {
-                SAI_RxClearStatusFlags(obj->base, I2S_RCSR_FEF_MASK);
-            }
+        }
+        if ((flags & I2S_RCSR_FEF_MASK) == I2S_RCSR_FEF_MASK) {
+            SAI_RxClearStatusFlags(obj->base, I2S_RCSR_FEF_MASK);
         }
     } else {
         uint32_t tmp_sample = 0;
