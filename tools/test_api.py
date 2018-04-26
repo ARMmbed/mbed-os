@@ -2078,7 +2078,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
 
     # Prepare the toolchain
     toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
-                                  silent=True, app_config=app_config)
+                                  app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = scan_resources([base_dir], toolchain)
@@ -2206,7 +2206,7 @@ def build_test_worker(*args, **kwargs):
 
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
-                clean=False, notify=None, verbose=False, jobs=1, macros=None,
+                clean=False, notify=None, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
                 build_profile=None, stats_depth=None):
@@ -2258,12 +2258,12 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'project_id': test_name,
             'report': report,
             'properties': properties,
-            'verbose': verbose,
             'app_config': app_config,
             'build_profile': build_profile,
             'silent': True,
             'toolchain_paths': TOOLCHAIN_PATHS,
-            'stats_depth': stats_depth
+            'stats_depth': stats_depth,
+            'notify': notify
         }
 
         results.append(p.apply_async(build_test_worker, args, kwargs))
