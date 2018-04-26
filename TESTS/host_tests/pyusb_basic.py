@@ -115,7 +115,7 @@ class PyusbBasicTest(BaseHostTest):
             return
 
         try:
-            control_basic_test(dev, vendor_id, product_id, log=print)
+            control_basic_test(dev, int(vendor_id), int(product_id), log=print)
             self.report_success()
         except (RuntimeError) as exc:
             self.report_error(exc)
@@ -307,25 +307,93 @@ def raise_unconditionally(line, text=''):
 
 
 def control_basic_test(dev, vendor_id, product_id, log):
+    get_set_configuration_test(dev, log)
+    get_set_interface_test(dev, log)
     get_status_test(dev, log)
     set_clear_feature_test(dev, log)
-    get_set_interface_test(dev, log)
-    get_set_configuration_test(dev, log)
     get_descriptor_test(dev, vendor_id, product_id, log)
     set_descriptor_test(dev, log)
     #synch_frame_test(dev, log) wait for isochronous endpoint
 
 
+def get_set_configuration_test(dev, log):
+    print("<<< get_set_configuration_test >>>")
+    # check if dafault(1) configuration set
+    try:
+        ret = usb.control.get_configuration(dev)
+        raise_if_different(1, ret, lineno(), "FAILED - expected first configuration set")
+    except usb.core.USBError as error:
+        print(error)
+        raise_unconditionally(lineno(), "FAILED - get_configuration !!!")
+
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        usb.util.release_interface(dev, intf)
+
+    # deconfigure the device
+    try:
+        ret = dev.set_configuration(0)
+    except usb.core.USBError as error:
+        print(error)
+        raise_unconditionally(lineno(), "FAILED - set_configuration(0) !!!")
+
+    # check if deconfigured
+    try:
+        ret = usb.control.get_configuration(dev)
+        raise_if_different(0, ret, lineno(), "FAILED - expected to be deconfigured")
+        print("device deconfigured - OK")
+    except usb.core.USBError as error:
+        print(error)
+        raise_unconditionally(lineno(), "FAILED - get_active_configuration !!!")
+
+    # for every configuration
+    for cfg in dev:
+        try:
+            # set configuration
+            ret = cfg.set()
+        except usb.core.USBError as error:
+            print(error)
+            raise_unconditionally(lineno(), "FAILED - set configuration")
+
+        # check if configured
+        try:
+            ret = usb.control.get_configuration(dev)
+            raise_if_different(cfg.bConfigurationValue, ret, lineno(), "FAILED - expected {} configuration set".format(cfg.bConfigurationValue))
+            print("configuration {} set - OK ".format(cfg.bConfigurationValue))
+        except usb.core.USBError as error:
+            print(error)
+            raise_unconditionally(lineno(), "FAILED - get_configuration !!!")
+        # test control data transfer after configuration set
+        control_data_test(dev, [64, 256], log)
+    print("") # new line
+
+
+def get_set_interface_test(dev, log):
+    print("<<< get_set_interface_test >>>")
+    # for every configuration
+    for cfg in dev:
+        cfg.set()
+        # for every interface
+        for intf in cfg:
+            intf.set_altsetting();
+            altsett = usb.control.get_interface(dev, intf.bInterfaceNumber)
+            raise_if_different(intf.bAlternateSetting, altsett, lineno(), text='Wrong alternate setting for interface {}'.format(intf.bInterfaceNumber))
+            print("cfg({}) inteface {}.{} set - OK".format(cfg.bConfigurationValue, intf.bInterfaceNumber, intf.bAlternateSetting))
+            control_data_test(dev, [64, 256], log)
+
+        release_interfaces(dev)
+
+    restore_default_configuration(dev)
+
+    # test control data transfer after default interface restoring
+    control_data_test(dev, [64, 256], log)
+    print("") # new line
+
+
 def get_status_test(dev, log):
-    # Control IN GET_STATUS on DEVICE
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_DEVICE)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # 0 if recipient is device
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0] | (ret[1] << 8)
+    print("<<< get_status_test >>>")
+    # check device status
+    ret = get_status(dev, CTRL_RECIPIENT_DEVICE)
     # Status bits
     # ret == 0b01    (D0)Self Powered
     # ret == 0b10    (D1)Remote Wakeup
@@ -333,301 +401,128 @@ def get_status_test(dev, log):
     if(ret < 0 or ret > 3):
         raise_unconditionally(lineno(), "GET_STATUS on DEVICE failed")
 
-    # Control IN GET_STATUS on INTERFACE
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # interface index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0] | (ret[1] << 8)
-    # Status bits
-    # ret == 0b0
-    # (D0 - D15 reserved) Must be set to 0
-    if(ret != 0):
-        raise_unconditionally(lineno(), "GET_STATUS on INTERFACE failed")
-
-    # Control IN GET_STATUS on ENDPOINT 0
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # endpoint index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0] | (ret[1] << 8)
+    # check endpoint 0 status
+    ret = get_status(dev, CTRL_RECIPIENT_ENDPOINT, 0)
     # Status bits
     # ret == 0b1    (D0)endpoint Halt
     # (D1 - D15 reserved) Must be set to 0
     # endpoint 0 can't be halted ret == 0
-    if(ret != 0):
-        raise_unconditionally(lineno(), "GET_STATUS on ENDPOINT failed")
+    raise_if_different(0, ret, lineno(), "GET_STATUS on ENDPOINT 0 should return 0")
+
+    # for every configuration
+    for cfg in dev:
+        cfg.set()
+        raise_if_different(cfg.bConfigurationValue, usb.control.get_configuration(dev), lineno(), "Configuration {} set failed".format(cfg.bConfigurationValue))
+
+        for intf in cfg:
+            intf.set_altsetting()
+            # check interface status
+            ret = get_status(dev, CTRL_RECIPIENT_INTERFACE, intf.bInterfaceNumber)
+            # Status bits
+            # ret == 0b0
+            # (D0 - D15 reserved) Must be set to 0
+            if(ret != 0):
+                raise_unconditionally(lineno(), "GET_STATUS on INTERFACE ({},{}) failed".format(intf.bInterfaceNumber, intf.bAlternateSetting))
+            print("cfg({}) interface {}.{} status - OK".format(cfg.bConfigurationValue, intf.bInterfaceNumber, intf.bAlternateSetting))
+
+            # on every ENDPOINT in this altsetting
+            for ep in intf:
+                ret = usb.control.get_status(dev, ep)
+                # Status bits
+                # ret == 0b1    (D0)endpoint Halt
+                # (D1 - D15 reserved) Must be set to 0
+                if(ret >= 1):
+                    raise_unconditionally(lineno(), "GET_STATUS on ENDPOINT {} failed - endpoint halted".format(ep.bEndpointAddress))
+                print("cfg({}) intf({}.{}) endpoint {} status - OK".format(cfg.bConfigurationValue, intf.bInterfaceNumber, intf.bAlternateSetting, ep.bEndpointAddress))
+
+        release_interfaces(dev)
+    restore_default_configuration(dev)
+    print("") # new line
 
 
 def set_clear_feature_test(dev, log):
-    # Control OUT SET_FEATURE on endpoint - halt
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_SET_FEATURE
-    value = FEATURE_ENDPOINT_HALT
-    index = 1                                   # Endpoint index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "endpoint halt failed")
+    print("<<< set_clear_feature_test >>>")
+    # for every configuration
+    for cfg in dev:
+        cfg.set()
+        raise_if_different(cfg.bConfigurationValue, usb.control.get_configuration(dev), lineno(), "Configuration {} set failed".format(cfg.bConfigurationValue))
 
-    # check if endpoint was halted
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 1                                   # Endpoint index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0] | (ret[1] << 8)
-    if(ret != 1):
-        raise_unconditionally(lineno(), "endpoint was not halted")
+        for intf in cfg:
+            intf.set_altsetting()
+            # on every ENDPOINT
+            for ep in intf:
+                try:
+                    usb.control.set_feature(dev, FEATURE_ENDPOINT_HALT, ep)
+                except usb.core.USBError as err:
+                    print(err)
+                    raise_unconditionally(lineno(), "endpoint {} halt failed".format(ep.bEndpointAddress))
 
-    # Control OUT CLEAR_FEATURE on endpoint - unhalt
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_CLEAR_FEATURE
-    value = FEATURE_ENDPOINT_HALT
-    index = 1                                   # Endpoint index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "endpoint was not unhalted")
+                # check if endpoint was halted
+                try:
+                    ret = usb.control.get_status(dev, ep)
+                except usb.core.USBError as err:
+                    print(err)
+                    raise_unconditionally(lineno(), "endpoint status failed".format(ep.bEndpointAddress))
+                if(ret != 1):
+                    raise_unconditionally(lineno(), "endpoint {} was not halted".format(ep.bEndpointAddress))
+                print("cfg({}) intf({}.{})   ep {} halted - OK".format(cfg.bConfigurationValue, intf.bInterfaceNumber, intf.bAlternateSetting, ep.bEndpointAddress))
 
-    # check if endpoint was unhalted
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_ENDPOINT)
-    request = REQUEST_GET_STATUS
-    value = 0                                   # Always 0 for this request
-    index = 1                                   # Endpoint index
-    length = 2                                  # Always 2 for this request (size of return data)
-    ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    ret = ret[0]
-    if(ret != 0):
-        raise_unconditionally(lineno(), "endpoint unhalthalt failed")
+                # Control OUT CLEAR_FEATURE on endpoint - unhalt
+                try:
+                    usb.control.clear_feature(dev, FEATURE_ENDPOINT_HALT, ep)
+                except usb.core.USBError as err:
+                    print(err)
+                    raise_unconditionally(lineno(), "endpoint {} unhalt failed".format(ep.bEndpointAddress))
 
+                # check if endpoint was unhalted
+                ret = usb.control.get_status(dev, ep)
+                if(ret != 0):
+                    raise_unconditionally(lineno(), "endpoint {} was not unhalted".format(ep.bEndpointAddress))
+                print("cfg({}) intf({}.{})   ep {} unhalted - OK".format(cfg.bConfigurationValue, intf.bInterfaceNumber, intf.bAlternateSetting, ep.bEndpointAddress))
 
-def get_set_interface_test(dev, log):
-    # Control IN GET_INTERFACE
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_INTERFACE
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Interface index
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        print("GET_INTERFACE ret: %d" % (ret[0]))
-        if(ret[0] != 0):
-            raise_unconditionally(lineno(), "Wrong interface was set expected: 0")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_INTERFACE failed")
-    # test control data transfer
-    control_data_test(dev, [64, 256], log)
+        release_interfaces(dev)
 
-    # Control IN SET_INTERFACE
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_SET_INTERFACE
-    value = 1                                   # Alternative interface setting index
-    index = 0                                   # Interface index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "SET_INTERFACE failed")
-    # test control data transfer after alternative interface set
-    control_data_test(dev, [64, 256], log)
-
-    # Control IN GET_INTERFACE - check if alternative interface setting was set
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_INTERFACE
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Interface index
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        if(ret[0] != 1):
-            raise_unconditionally(lineno(), "Alternative interface setting was not set properly")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_INTERFACE failed")
-
-    # Control IN SET_INTERFACE restore interfejs settings
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_SET_INTERFACE
-    value = 0                                   # Interface setting index
-    index = 0                                   # Interface index
-    length = 0                                  # Always 0 for this request
-    try:
-        dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "SET_INTERFACE request failed")
-    # test control data transfer after interface restoring
-    control_data_test(dev, [64, 256], log)
-
-    # Control IN GET_INTERFACE - check if alternative interface setting was restored properly
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_INTERFACE
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Interface index
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        if(ret[0] != 0):
-            raise_unconditionally(lineno(), "Alternative interface setting was not restored properly")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_INTERFACE failed")
-
-
-def get_set_configuration_test(dev, log):
-    # Set Configuration can also be used, with wValue set to 0, to deconfigure the device
-    # Control IN GET_CONFIGURATION
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_CONFIGURATION
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Always 0 for this request
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        if(ret[0] != 1):
-            raise_unconditionally(lineno(), "Expected first configuration set")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_CONFIGURATION failed")
-    # test control data transfer
-    control_data_test(dev, [64, 256], log)
-
-    # Control OUT SET_CONFIGURATION 0 - deconfigure the device
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_SET_CONFIGURATION
-    value = 0                                   # Configuration Value (0 - deconfigure the device)
-    index = 0                                   # Always 0 for this request
-    length = 0                                  # Always 0 for this request
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "SET_CONFIGURATION failed")
-
-    # Control IN GET_CONFIGURATION - check if deconfigured
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_CONFIGURATION
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Always 0 for this request
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        if(ret[0] != 0):
-            raise_unconditionally(lineno(), "Expected to be deconfigured")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_CONFIGURATION failed")
-
-    # Control OUT SET_CONFIGURATION 1 - restore first configuration
-    request_type = build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_SET_CONFIGURATION
-    value = 1                                   # Configuration Value
-    index = 0                                   # Always 0 for this request
-    length = 0                                  # Always 0 for this request
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "SET_CONFIGURATION failed")
-    # test control data transfer after configured back
-    control_data_test(dev, [64, 256], log)
-
-    # Control IN GET_CONFIGURATION - check if configured back
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_INTERFACE)
-    request = REQUEST_GET_CONFIGURATION
-    value = 0                                   # Always 0 for this request
-    index = 0                                   # Always 0 for this request
-    length = 1                                  # Always 1 for this request (size of return data)
-    try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        if(ret[0] != 1):
-            raise_unconditionally(lineno(), "Expected to be deconfigured: 1")
-    except usb.core.USBError:
-        raise_unconditionally(lineno(), "GET_CONFIGURATION failed")
-    control_data_test(dev, [64, 256], log)
+    restore_default_configuration(dev)
+    print("") # new line
 
 
 def get_descriptor_test(dev, vendor_id, product_id, log):
+    print("<<< get_descriptor_test >>>")
     # Control IN GET_DESCRIPTOR - device
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_DEVICE)
-    request = REQUEST_GET_DESCRIPTOR
-    value = (DESC_TYPE_DEVICE << 8) | (0 << 0)  # Descriptor Type (H) and Descriptor Index (L)
-    index = 0                                   # 0 or Language ID for this request
-    length = DEVICE_DESC_SIZE                   # Descriptor Length
     try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        #print("### DEVICE_DESC ####################################################")
-        #dev_desc = dict(zip(device_descriptor_keys, device_descriptor_parser.unpack(ret)))
-        #for key in dev_desc:
-        #    print("%s: %d" % (key, dev_desc[key]))
-        #assert vendor_id != dev_desc['idVendor']
-        #assert product_id != dev_desc['idProduct']
+        ret = get_descriptor(dev, (DESC_TYPE_DEVICE << 8) | (0 << 0), 0, DEVICE_DESC_SIZE)
+        dev_desc = dict(zip(device_descriptor_keys, device_descriptor_parser.unpack(ret)))
+        raise_if_different(DEVICE_DESC_SIZE, dev_desc['bLength'], lineno(), text='Wrong device descriptor size !!!')
+        raise_if_different(vendor_id, dev_desc['idVendor'], lineno(), text='Wrong vendor id !!!')
+        raise_if_different(product_id, dev_desc['idProduct'], lineno(), text='Wrong product id !!!')
     except usb.core.USBError:
         raise_unconditionally(lineno(), "Requesting device descriptor failed")
 
     # Control IN GET_DESCRIPTOR - configuration
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_DEVICE)
-    request = REQUEST_GET_DESCRIPTOR
-    value = (DESC_TYPE_CONFIG << 8) | (0 << 0)  # Descriptor Type (H) and Descriptor Index (L)
-    index = 0                                   # 0 or Language ID for this request
-    length = CONFIGURATION_DESC_SIZE            # Descriptor Length
     try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
-        #print("### CONFIGURATION_DESC ####################################################")
-        #conf_desc = dict(zip(configuration_descriptor_keys, configuration_descriptor_parser.unpack(ret)))
-        #for key in conf_desc:
-        #    print("%s: %d" % (key, conf_desc[key]))
-        #print("#######################################################")
+        ret = get_descriptor(dev, (DESC_TYPE_CONFIG << 8) | (0 << 0), 0, CONFIGURATION_DESC_SIZE)
+        conf_desc = dict(zip(configuration_descriptor_keys, configuration_descriptor_parser.unpack(ret)))
+        raise_if_different(CONFIGURATION_DESC_SIZE, conf_desc['bLength'], lineno(), text='Wrong configuration descriptor size !!!')
     except usb.core.USBError:
         raise_unconditionally(lineno(), "Requesting configuration descriptor failed")
 
     # Control IN GET_DESCRIPTOR - interface
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_DEVICE)
-    request = REQUEST_GET_DESCRIPTOR
-    value = (DESC_TYPE_INTERFACE << 8) | (0 << 0)   # Descriptor Type (H) and Descriptor Index (L)
-    index = 0                                       # 0 or Language ID for this request
-    length = INTERFACE_DESC_SIZE                    # Descriptor Length
     try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
+        ret = get_descriptor(dev, (DESC_TYPE_INTERFACE << 8) | (0 << 0), 0, INTERFACE_DESC_SIZE)
         raise_unconditionally(lineno(), "Requesting interface descriptor should fail since it is not directly accessible")
     except usb.core.USBError:
-        log("interface descriptor is not directly accessible")
+        log("interface descriptor is not directly accessible - OK")
 
-    # Control IN GET_DESCRIPTOR - interface
-    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
-                                      CTRL_RECIPIENT_DEVICE)
-    request = REQUEST_GET_DESCRIPTOR
-    value = (DESC_TYPE_ENDPOINT << 8) | (0 << 0)   # Descriptor Type (H) and Descriptor Index (L)
-    index = 0                                       # 0 or Language ID for this request
-    length = INTERFACE_DESC_SIZE                    # Descriptor Length
+    # Control IN GET_DESCRIPTOR - endpoint
     try:
-        ret = dev.ctrl_transfer(request_type, request, value, index, length)
+        ret = get_descriptor(dev, (DESC_TYPE_ENDPOINT << 8) | (0 << 0), 0, ENDPOINT_DESC_SIZE)
         raise_unconditionally(lineno(), "Requesting endpoint descriptor should fail since it is not directly accessible")
     except usb.core.USBError:
-        log("endpoint descriptor is not directly accessible")
-
+        log("endpoint descriptor is not directly accessible - OK")
+    print("") # new line
 
 def set_descriptor_test(dev, log):
+    print("<<< set_descriptor_test >>>")
     # SET_DESCRIPTOR is optional and not implemented in Mbed
     # command should fail with no action on device side
 
@@ -642,10 +537,12 @@ def set_descriptor_test(dev, log):
         dev.ctrl_transfer(request_type, request, value, index, data)
         raise_unconditionally(lineno(), "SET_DESCRIPTOR should fail since it is not implemented")
     except usb.core.USBError:
-        log("SET_DESCRIPTOR is unsupported")
+        log("SET_DESCRIPTOR is unsupported - OK")
+    print("") # new line
 
 
 def synch_frame_test(dev, log):
+    print("<<< synch_frame_test >>>")
     # only for isochronous endpoints
     request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
                                       CTRL_RECIPIENT_ENDPOINT)
@@ -659,10 +556,11 @@ def synch_frame_test(dev, log):
         log("synch frame ret: %d" % (ret))
     except usb.core.USBError:
         raise_unconditionally(lineno(), "SYNCH_FRAME failed")
+    print("") # new line
 
 
 def control_stall_test(dev, log):
-
+    print("<<< control_stall_test >>>")
     # Control OUT stall
     try:
         request_type = build_request_type(CTRL_OUT, CTRL_TYPE_VENDOR,
@@ -674,7 +572,7 @@ def control_stall_test(dev, log):
         dev.ctrl_transfer(request_type, request, value, index, data, 5000)
         raise_unconditionally(lineno(), "Invalid request not stalled")
     except usb.core.USBError:
-        log("Invalid request stalled")
+        log("Invalid request stalled - OK")
 
     # Control request with no data stage (Device-to-host)
     try:
@@ -687,7 +585,7 @@ def control_stall_test(dev, log):
         dev.ctrl_transfer(request_type, request, value, index, length, 5000)
         raise_unconditionally(lineno(), "Invalid request not stalled")
     except usb.core.USBError:
-        log("Invalid request stalled")
+        log("Invalid request stalled - OK")
 
     # Control request with no data stage (Host-to-device)
     try:
@@ -700,7 +598,7 @@ def control_stall_test(dev, log):
         dev.ctrl_transfer(request_type, request, value, index, length, 5000)
         raise_unconditionally(lineno(), "Invalid request not stalled")
     except usb.core.USBError:
-        log("Invalid request stalled")
+        log("Invalid request stalled - OK")
 
     # Control IN stall
     try:
@@ -713,7 +611,7 @@ def control_stall_test(dev, log):
         dev.ctrl_transfer(request_type, request, value, index, length, 5000)
         raise_unconditionally(lineno(), "Invalid request not stalled")
     except usb.core.USBError:
-        log("Invalid request stalled")
+        log("Invalid request stalled - OK")
 
     for i in (3, 4, 5):
         try:
@@ -738,7 +636,8 @@ def control_stall_test(dev, log):
             resp = dev.ctrl_transfer(request_type, request, value, index, length, 5000)
             raise_unconditionally(lineno(), "Requesting string passed i: " + str(i))
         except usb.core.USBError:
-            log("Requesting string %s failed" % i)
+            log("Requesting string %s failed - OK" % i)
+    print("") # new line
 
 
 def control_sizes_test(dev, log):
@@ -883,13 +782,15 @@ def device_suspend_resume_test(log):
 
 
 def repeated_construction_destruction_test(log):
-    # run other test to check if USB works fine after repeated construction/destruction
     list = [64, 256]
     dev = yield
+    # run other test to check if USB works fine after repeated construction/destruction
     control_data_test(dev, list, log)
     dev = yield
+    # run other test to check if USB works fine after repeated construction/destruction
     control_data_test(dev, list, log)
     dev = yield
+    # run other test to check if USB works fine after repeated construction/destruction
     control_data_test(dev, list, log)
     yield
 
