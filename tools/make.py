@@ -55,7 +55,6 @@ from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
-from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     # Parse Options
@@ -233,7 +232,7 @@ if __name__ == '__main__':
         args_error(parser, "argument --build is required when argument --source is provided")
 
 
-    notify = TerminalNotifier(options.verbose, options.silent)
+    notify = TerminalNotifier(options.verbose, options.silent, options.color)
 
     if not TOOLCHAIN_CLASSES[toolchain].check_executable():
         search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"

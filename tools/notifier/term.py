@@ -15,20 +15,49 @@
 
 from __future__ import print_function, division, absolute_import
 
+import re
+import sys
 from os.path import basename
 
 from . import Notifier
-from ..settings import PRINT_COMPILER_OUTPUT_AS_LINK
+from ..settings import (PRINT_COMPILER_OUTPUT_AS_LINK,
+                        CLI_COLOR_MAP, COLOR)
 
 class TerminalNotifier(Notifier):
     """
-    Writes notifications to a terminal based on a silent and verbose flag.
+    Writes notifications to a terminal based on silent, verbose and color flags.
     """
 
-    def __init__(self, verbose=False, silent=False):
+    def __init__(self, verbose=False, silent=False, color=False):
         self.verbose = verbose
         self.silent = silent
         self.output = ""
+        self.color = color or COLOR
+        if self.color:
+            from colorama import init, Fore, Back, Style
+            init()
+            self.COLORS = {
+                'none' : "",
+                'default' : Style.RESET_ALL,
+
+                'black'   : Fore.BLACK,
+                'red'     : Fore.RED,
+                'green'   : Fore.GREEN,
+                'yellow'  : Fore.YELLOW,
+                'blue'    : Fore.BLUE,
+                'magenta' : Fore.MAGENTA,
+                'cyan'    : Fore.CYAN,
+                'white'   : Fore.WHITE,
+
+                'on_black'   : Back.BLACK,
+                'on_red'     : Back.RED,
+                'on_green'   : Back.GREEN,
+                'on_yellow'  : Back.YELLOW,
+                'on_blue'    : Back.BLUE,
+                'on_magenta' : Back.MAGENTA,
+                'on_cyan'    : Back.CYAN,
+                'on_white'   : Back.WHITE,
+            }
 
     def get_output(self):
         return self.output
@@ -40,7 +69,10 @@ class TerminalNotifier(Notifier):
             msg = self.print_notify(event)
         if msg:
             if not self.silent:
-                print(msg)
+                if self.color:
+                    self.print_in_color(event, msg)
+                else:
+                    print(msg)
             self.output += msg + "\n"
 
     def print_notify(self, event):
@@ -87,3 +119,33 @@ class TerminalNotifier(Notifier):
 
         elif event['type'] == 'progress':
             return self.print_notify(event) # standard handle
+
+    COLOR_MATCHER = re.compile(r"(\w+)(\W+on\W+\w+)?")
+    def colorstring_to_escapecode(self, color_string):
+        """ Convert a color string from a string into an ascii escape code that
+        will print that color on the terminal.
+
+        Positional arguments:
+        color_string - the string to parse
+        """
+        match = re.match(self.COLOR_MATCHER, color_string)
+        if match:
+            return self.COLORS[match.group(1)] + \
+                (self.COLORS[match.group(2).strip().replace(" ", "_")]
+                 if match.group(2) else "")
+        else:
+            return self.COLORS['default']
+
+    def print_in_color(self, event, msg):
+        """ Wrap a toolchain notifier in a colorizer. This colorizer will wrap
+        notifications in a color if the severity matches a color in the
+        CLI_COLOR_MAP.
+        """
+        """The notification function inself"""
+        if sys.stdout.isatty() and event.get('severity', None) in CLI_COLOR_MAP:
+            sys.stdout.write(self.colorstring_to_escapecode(
+                CLI_COLOR_MAP[event['severity']]))
+            print(msg)
+            sys.stdout.write(self.colorstring_to_escapecode('default'))
+        else:
+            print(msg)
