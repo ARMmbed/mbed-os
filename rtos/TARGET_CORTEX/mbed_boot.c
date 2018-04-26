@@ -202,7 +202,7 @@ osMutexAttr_t             singleton_mutex_attr;
 #define MBED_CONF_APP_LOG_STACK_SIZE    512
 #endif
 
-/** Logging thread priority can be configured by application, default it is osPriorityNormal1 */
+/** Logging thread priority can be configured by application, default it is osPriorityNormal */
 #ifndef MBED_CONF_LOG_THREAD_PRIORITY
 #define MBED_CONF_LOG_THREAD_PRIORITY   osPriorityNormal
 #endif
@@ -210,6 +210,7 @@ osMutexAttr_t             singleton_mutex_attr;
 osThreadAttr_t _log_thread_attr;
 MBED_ALIGN(8) char _log_stack[MBED_CONF_APP_LOG_STACK_SIZE];
 mbed_rtos_storage_thread_t _log_obj;
+
 void print_buf_data(void);
 #endif
 /*
@@ -325,6 +326,7 @@ WEAK void mbed_main(void) {
 
 #if !defined(NDEBUG)
 void log_init(void);
+
 void mbed_logging_start(void)
 {
 #if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)

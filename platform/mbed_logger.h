@@ -72,7 +72,7 @@ extern "C" {
 #error "ID based tracing is not supported"
 #endif
 
-#define LOG_LEVEL_ERR_CRITICAL   0x0
+#define LOG_LEVEL_ERR_CRITICAL   0x1
 #define LOG_LEVEL_ERR            0x2
 #define LOG_LEVEL_WARN           0x4
 #define LOG_LEVEL_INFO           0x8

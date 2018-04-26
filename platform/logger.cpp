@@ -30,34 +30,33 @@ using namespace rtos;
 using namespace mbed;
 
 // Globals related to ISR logging
-static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer_;
+static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer;
 #endif
 
 // Globals related to time printing
-static const ticker_data_t *const log_ticker_ = get_us_ticker_data();
-static bool time_enable_ = true;
+static const ticker_data_t *const log_ticker = get_us_ticker_data();
+static bool time_enable = true;
 
 // Globals related to external buffer capturing
-static LOG_DATA_TYPE_ *extern_buf_ = NULL;
-static uint32_t xbuf_count_ = 0;
+static LOG_DATA_TYPE_ *extern_buf = NULL;
+static uint32_t xbuf_count = 0;
 
 static void log_update_buf(const char *data, int32_t size)
 {
-    if ((NULL == extern_buf_) || (NULL == data) || (size <= 0)) {
+    if ((NULL == extern_buf) || (NULL == data) || (size <= 0)) {
         return;
     }
     uint32_t count = 0;
-    while(size--)
-    {
-        extern_buf_[xbuf_count_++] = data[count++];
-        xbuf_count_ %= LOG_BUF_SIZE_;
+    while(size--) {
+        extern_buf[xbuf_count++] = data[count++];
+        xbuf_count %= LOG_BUF_SIZE_;
     }
 }
 
 #if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
 extern "C" void log_init()
 {
-    log_buffer_ = new CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_>;
+    log_buffer = new CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_>;
 }
 #endif
 
@@ -65,10 +64,10 @@ extern "C" void log_assert(const char *format, ...)
 {
 #if DEVICE_STDIO_MESSAGES
     core_util_critical_section_enter();
-    volatile uint64_t time = ticker_read_us(log_ticker_);
+    uint64_t time = ticker_read_us(log_ticker);
     va_list args;
     va_start(args, format);
-    if (time_enable_) {
+    if (time_enable) {
         mbed_error_printf("\n[%-8lld]", time);
     }
     mbed_error_vfprintf(format, args);
@@ -80,27 +79,29 @@ extern "C" void log_assert(const char *format, ...)
 extern "C" void log_reset(void)
 {
     core_util_critical_section_enter();
-    time_enable_ = true;
-    xbuf_count_ = 0;
+    time_enable = true;
+    xbuf_count = 0;
     core_util_critical_section_exit();
 }
 
 extern "C" void log_buffer_data(LOG_DATA_TYPE_ *str)
 {
-    extern_buf_ = str;
+    core_util_critical_section_enter();
+    extern_buf = str;
+    core_util_critical_section_exit();
 }
 
 extern "C" void log_disable_time_capture(void)
 {
     core_util_critical_section_enter();
-    time_enable_ = false;
+    time_enable = false;
     core_util_critical_section_exit();
 }
 
 extern "C" void log_enable_time_capture(void)
 {
     core_util_critical_section_enter();
-    time_enable_ = true;
+    time_enable = true;
     core_util_critical_section_exit();
 }
 
@@ -112,8 +113,8 @@ extern "C" void print_buf_data(void)
 {
     LOG_DATA_TYPE_ data;
     while (1) {
-        while (!log_buffer_->empty()) {
-            log_buffer_->pop(data);
+        while (!log_buffer->empty()) {
+            log_buffer->pop(data);
             fprintf(stderr, "0x%x ", data);
         }
         Thread::wait(1);
@@ -133,14 +134,14 @@ extern "C" void log_id_data(uint32_t argCount, ...)
         core_util_critical_section_enter();
         in_isr = false;
     }
-    volatile uint64_t time = ticker_read_us(log_ticker_);
+    uint64_t time = ticker_read_us(log_ticker);
     LOG_DATA_TYPE_ checksum = 0;
     uint32_t count = 0;
 
     va_list args;
     va_start(args, argCount);
     MBED_ASSERT(argCount <= 20);
-    if (time_enable_) {
+    if (time_enable) {
         buf[count] = (LOG_DATA_TYPE_)(time/1000);
         checksum ^= buf[count];
         count++;
@@ -154,11 +155,11 @@ extern "C" void log_id_data(uint32_t argCount, ...)
     buf[count++] = 0x0;
     va_end(args);
 
-    if (NULL != extern_buf_) {
+    if (NULL != extern_buf) {
         log_update_buf(buf, count);
     } else {
         // Check buf size, if we have space for full line then only push
-        if ( (LOG_BUF_SIZE_ - log_buffer_->size()) < count) {
+        if ( (LOG_BUF_SIZE_ - log_buffer->size()) < count) {
             core_util_critical_section_exit();
             if (false == in_isr) {
                 mbed_log_unlock();
@@ -167,7 +168,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
         }
         int32_t bytes_written = 0;
         while (count--) {
-            log_buffer_->push(buf[bytes_written++]);
+            log_buffer->push(buf[bytes_written++]);
         }
         core_util_critical_section_exit();
         if (false == in_isr) {
@@ -180,12 +181,12 @@ extern "C" void log_id_data(uint32_t argCount, ...)
 
 static void log_format_str_data(const char *format, va_list args, bool in_isr)
 {
-    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_HELPER_STR_SIZE_];
-    int32_t size = LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_HELPER_STR_SIZE_;
+    LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_STR_SIZE_];
+    int32_t size = LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_STR_SIZE_;
 
-    volatile uint64_t time = ticker_read_us(log_ticker_);
+    uint64_t time = ticker_read_us(log_ticker);
     int32_t count = 0;
-    if (time_enable_) {
+    if (time_enable) {
         count = snprintf(one_line, size, "[%-8lld]", time);
         if (count < 0 || count > size) {
             return;
@@ -198,25 +199,29 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
         one_line[size-1] = '\0';
         count = size;
     }
-    if (NULL != extern_buf_) {
+
+    if (NULL != extern_buf) {
         log_update_buf(one_line, count);
     } else {
         if (true == in_isr) {
 #ifndef MBED_DISABLE_ISR_LOGGING
             count += 1;
             // Check buf size, if we have space for full line then only push
-            if ( (LOG_BUF_SIZE_ - log_buffer_->size()) < count) {
+            if ( (LOG_BUF_SIZE_ - log_buffer->size()) < count) {
                 return;
             }
             int32_t bytes_written = 0;
             while (count--) {
-                log_buffer_->push(one_line[bytes_written++]);
+                log_buffer->push(one_line[bytes_written++]);
             }
 #endif
+            return;
         } else {
             fputs(one_line, stderr);
+            return;
         }
     }
+    return;
 }
 
 #ifndef MBED_DISABLE_ISR_LOGGING
@@ -227,9 +232,9 @@ extern "C" void print_buf_data(void)
     int32_t count = 0;
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
     while (1) {
-        while (!log_buffer_->empty()) {
+        while (!log_buffer->empty()) {
             mbed_log_lock();
-            log_buffer_->pop(one_line[count]);
+            log_buffer->pop(one_line[count]);
             if ('\0' == one_line[count]) {
                 fputs(one_line, stderr);
                 count = 0;

@@ -31,9 +31,9 @@ static void test_log_reset()
 {
     log_reset();
     if (NULL == buf) {
-        buf = new LOG_DATA_TYPE_[MBED_CONF_MAX_BUFFER_SIZE];
+        buf = new LOG_DATA_TYPE_[MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE];
     }
-    memset(buf, 0x0, MBED_CONF_MAX_BUFFER_SIZE);
+    memset(buf, 0x0, MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE);
     log_buffer_data(buf);
     log_disable_time_capture();
     return;

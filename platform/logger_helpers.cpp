@@ -38,7 +38,7 @@ static mbed_log_mutex_fptr mbed_log_mutex_release_fptr;
 static void log_helper_init(void)
 {
     if (NULL == log_helper_data) {
-       log_helper_data = (char*)malloc(LOG_SINGLE_HELPER_STR_SIZE_);
+       log_helper_data = (char*)malloc(LOG_SINGLE_STR_SIZE_);
        MBED_ASSERT(log_helper_data != NULL);
     }
 }
@@ -57,7 +57,7 @@ extern "C" char* mbed_log_ipv6(const void *addr_ptr)
         return "";
     }
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 41, "Not enough room for ipv6 string, max 41");
+    MBED_STATIC_ASSERT(LOG_SINGLE_STR_SIZE_ >= 41, "Not enough room for ipv6 string, max 41");
     mbed_log_lock();
     if (addr_ptr == NULL) {
         return "<null>";
@@ -77,7 +77,7 @@ extern "C" char* mbed_log_ipv6_prefix(const uint8_t *prefix, uint32_t prefix_len
         return "";
     }
 #if defined(MBED_CONF_MBED_TRACE_FEA_IPV6)
-    MBED_STATIC_ASSERT(LOG_SINGLE_HELPER_STR_SIZE_ >= 44, "Not enough room for ipv6+prefix string, max 44");
+    MBED_STATIC_ASSERT(LOG_SINGLE_STR_SIZE_ >= 44, "Not enough room for ipv6+prefix string, max 44");
     mbed_log_lock();
     if ((prefix_len != 0 && prefix == NULL) || prefix_len > 128) {
         return "<err>";
@@ -104,17 +104,17 @@ extern "C" char* mbed_log_array(const uint8_t *buf, uint32_t len)
     }
     log_helper_init();
     char* str = log_helper_data;
-    uint32_t retVal = snprintf(str, LOG_SINGLE_HELPER_STR_SIZE_, "%02x", *buf++);
+    uint32_t retVal = snprintf(str, LOG_SINGLE_STR_SIZE_, "%02x", *buf++);
     uint32_t count = retVal;
     for (uint32_t i = 1; i < len; i++) {
-        retVal = snprintf(str + count, (LOG_SINGLE_HELPER_STR_SIZE_ - count), ":%02x", *buf++);
+        retVal = snprintf(str + count, (LOG_SINGLE_STR_SIZE_ - count), ":%02x", *buf++);
         if (retVal <= 0) {
             break;
         }
         count += retVal;
-        if (count >= LOG_SINGLE_HELPER_STR_SIZE_) {
-            str[LOG_SINGLE_HELPER_STR_SIZE_-2] = '*';
-            str[LOG_SINGLE_HELPER_STR_SIZE_-1] = '\0';
+        if (count >= LOG_SINGLE_STR_SIZE_) {
+            str[LOG_SINGLE_STR_SIZE_-2] = '*';
+            str[LOG_SINGLE_STR_SIZE_-1] = '\0';
             break;
         }
     }

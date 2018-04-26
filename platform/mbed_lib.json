@@ -54,7 +54,7 @@
         "log-max-buffer-size": {
             "help": "Maximum buffer size for storing log messages",
             "value": 512
-        },
+        }
     },
     "target_overrides": {
         "EFM32": {

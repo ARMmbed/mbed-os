@@ -54,7 +54,6 @@ extern "C" {
 #endif
 
 #define LOG_SINGLE_STR_SIZE_            MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE
-#define LOG_SINGLE_HELPER_STR_SIZE_     MBED_CONF_PLATFORM_LOG_MAX_STR_SIZE
 #define LOG_BUF_SIZE_                   MBED_CONF_PLATFORM_LOG_MAX_BUFFER_SIZE
 
 // Log-Level Strings
@@ -70,7 +69,7 @@ extern "C" {
                                 ((ll > LOG_LEVEL_INFO)  ? LOG_DEBUG_ : \
                                 ((ll > LOG_LEVEL_WARN)  ? LOG_INFO_  : \
                                 ((ll > LOG_LEVEL_ERR)   ? LOG_WARN_  : \
-                                ((ll > 1)   ? LOG_ERR_   : LOG_GEN_)))))
+                                ((ll >= 1)   ? LOG_ERR_   : LOG_GEN_)))))
 
 #define GET_MODULE_ID_(a, b, c, d)   (375 + (a << 1) + (b << 2) + (c >> 2) + (d >> 1))
 #define GET_MODULE_ID(x)        (GET_MODULE_ID_(x[0], x[1], x[2], x[3]))
