@@ -94,7 +94,7 @@ template <uint32_t polynomial=POLY_32BIT_ANSI, uint8_t width=32>
 class MbedCRC
 {
 public:
-    enum crc_mode { HARDWARE = 0, TABLE, BITWISE };
+    enum CrcMode { HARDWARE = 0, TABLE, BITWISE };
 
 public:
     typedef uint64_t crc_data_size_t;
@@ -168,7 +168,7 @@ public:
      */
     int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
-        switch (mode_)
+        switch (_mode)
         {
             case HARDWARE:
 #ifdef DEVICE_CRC
@@ -200,7 +200,7 @@ public:
         MBED_ASSERT(crc != NULL);
 
 #ifdef DEVICE_CRC
-        if (mode_ == HARDWARE) {
+        if (_mode == HARDWARE) {
           hal_crc_compute_partial_start(polynomial);
         }
 #endif // DEVICE_CRC
@@ -221,7 +221,7 @@ public:
     {
         MBED_ASSERT(crc != NULL);
 
-        if (mode_ == HARDWARE) {
+        if (_mode == HARDWARE) {
 #ifdef DEVICE_CRC
             *crc = hal_crc_get_result();
             return 0;
@@ -262,7 +262,7 @@ private:
     bool _reflect_data;
     bool _reflect_remainder;
     uint32_t *_crc_table;
-    crc_mode mode_;
+    CrcMode _mode;
 
     /** Get the current CRC data size
      *
@@ -428,11 +428,11 @@ private:
     {
         MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
 
-        mode_ = (_crc_table == NULL) ? TABLE : BITWISE;
+        _mode = (_crc_table == NULL) ? TABLE : BITWISE;
 
 #ifdef DEVICE_CRC
         if (hal_crc_is_supported(polynomial)) {
-            mode_ = HARDWARE;
+            _mode = HARDWARE;
         }
 #endif
     }
