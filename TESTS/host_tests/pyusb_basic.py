@@ -894,6 +894,58 @@ def repeated_construction_destruction_test(log):
     yield
 
 
+def release_interfaces(dev):
+    """ Releases interfaces to allow configuration switch
+
+        Fixes error while configuration change(on Windows machines):
+        USBError: [Errno None] libusb0-dll:err [set_configuration] can't change configuration, an interface is still in use (claimed)
+    """
+    cfg = dev.get_active_configuration()
+    for i in range(0, cfg.bNumInterfaces):
+        usb.util.release_interface(dev, i)
+
+
+def restore_default_configuration(dev):
+    cfg = dev[1]
+    cfg.set()
+
+
+def get_status(dev, recipient, index = 0):
+    """ Get status of the recipient
+
+    Args:
+        dev - pyusb device
+        recipient - CTRL_RECIPIENT_DEVICE/CTRL_RECIPIENT_INTERFACE/CTRL_RECIPIENT_ENDPOINT
+        index - 0 if recipient is device, interface index if recipient is interface, endpoint index if recipient is endpoint
+
+    Returns:
+        status flag 32b int
+    """
+    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
+                                      recipient)
+    request = REQUEST_GET_STATUS
+    value = 0                                   # Always 0 for this request
+    index = index                               # recipient index
+    length = 2                                  # Always 2 for this request (size of return data)
+    ret = dev.ctrl_transfer(request_type, request, value, index, length)
+    ret = ret[0] | (ret[1] << 8)
+
+    return ret
+
+
+def get_descriptor(dev, type_index, lang_id, length):
+    # Control IN GET_DESCRIPTOR - device
+    request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
+                                      CTRL_RECIPIENT_DEVICE)
+    request = REQUEST_GET_DESCRIPTOR
+    value = type_index                          # Descriptor Type (H) and Descriptor Index (L)
+    index = lang_id                             # 0 or Language ID for this request
+    length = length                             # Descriptor Length
+    ret = dev.ctrl_transfer(request_type, request, value, index, length)
+
+    return ret
+
+
 """
 For documentation purpose until test writing finished
 TODO: remove this if not needed anymore
