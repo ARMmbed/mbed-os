@@ -118,12 +118,17 @@ sai_result_t sai_init(sai_t *obj, sai_init_t *init) {
     obj->channel = 0U; // we should get it from the sd pin
 
     config.protocol = kSAI_BusI2S;
-
     if (init->is_receiver) {
         config.masterSlave = kSAI_Slave;
         SAI_RxInit(obj->base, &config);
+        // do this "manually" because SAI_RxSoftwareReset is not available on all targets.
+        obj->base->RCSR |= I2S_RCSR_SR_MASK | I2S_RCSR_FR_MASK; // this will reset both chan 0 & 1.
+        obj->base->RCSR &= ~(I2S_RCSR_SR_MASK | I2S_RCSR_FR_MASK);
     } else {
         SAI_TxInit(obj->base, &config);
+        // do this "manually" because SAI_TxSoftwareReset is not available on all targets.
+        obj->base->TCSR |= I2S_TCSR_SR_MASK | I2S_TCSR_FR_MASK; // this will reset both chan 0 & 1.
+        obj->base->TCSR &= ~(I2S_TCSR_SR_MASK | I2S_TCSR_FR_MASK);
     }
 
     /* Configure the audio format */
@@ -203,6 +208,9 @@ void sai_free(sai_t *obj) {
         SAI_TxEnable(obj->base, false);
         sai_transmitter_initialized = false;
     }
-    // Should it also unclock the periph ?
+
+    if (!sai_receiver_initialized && !sai_transmitter_initialized) {
+        SAI_Deinit(obj->base);
+    }
 }
 #endif
