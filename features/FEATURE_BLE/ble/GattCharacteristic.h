@@ -1408,8 +1408,6 @@ public:
         _properties(props),
         _descriptors(descriptors),
         _descriptorCount(numDescriptors),
-        enabledReadAuthorization(false),
-        enabledWriteAuthorization(false),
         readAuthorizationCallback(),
         writeAuthorizationCallback(),
         _update_security(SecurityRequirement_t::NONE) {
@@ -1560,7 +1558,6 @@ public:
         void (*callback)(GattWriteAuthCallbackParams *)
     ) {
         writeAuthorizationCallback.attach(callback);
-        enabledWriteAuthorization = true;
     }
 
     /**
@@ -1581,7 +1578,6 @@ public:
         void (T::*member)(GattWriteAuthCallbackParams *)
     ) {
         writeAuthorizationCallback.attach(object, member);
-        enabledWriteAuthorization = true;
     }
 
     /**
@@ -1598,7 +1594,6 @@ public:
         void (*callback)(GattReadAuthCallbackParams *)
     ) {
         readAuthorizationCallback.attach(callback);
-        enabledReadAuthorization = true;
     }
 
     /**
@@ -1620,7 +1615,6 @@ public:
         void (T::*member)(GattReadAuthCallbackParams *)
     ) {
         readAuthorizationCallback.attach(object, member);
-        enabledReadAuthorization = true;
     }
 
     /**
@@ -1803,7 +1797,7 @@ public:
      */
     bool isReadAuthorizationEnabled() const
     {
-        return enabledReadAuthorization;
+        return readAuthorizationCallback;
     }
 
     /**
@@ -1816,7 +1810,7 @@ public:
      */
     bool isWriteAuthorizationEnabled() const
     {
-        return enabledWriteAuthorization;
+        return writeAuthorizationCallback;
     }
 
     /**
@@ -1890,16 +1884,6 @@ private:
      * The number of descriptors in this characteristic.
      */
     uint8_t _descriptorCount;
-
-    /**
-     * Whether read authorization is enabled.
-     */
-    bool enabledReadAuthorization;
-
-    /**
-     * Whether write authorization is enabled.
-     */
-    bool enabledWriteAuthorization;
 
     /**
      * The registered callback handler for read authorization reply.
