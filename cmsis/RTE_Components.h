@@ -17,7 +17,6 @@
 #define RTE_COMPONENTS_H
 
 #define CMSIS_device_header <cmsis.h>
-#include "mbed_rtx_conf.h"
 
 #endif
 

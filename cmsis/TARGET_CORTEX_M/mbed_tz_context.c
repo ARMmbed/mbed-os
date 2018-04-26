@@ -31,15 +31,19 @@
 #include CMSIS_device_header
 #include "tz_context.h"
 
-/// Number of process slots (threads may call secure library code)
-#ifndef TZ_PROCESS_STACK_SLOTS
-#define TZ_PROCESS_STACK_SLOTS     8U
+#ifndef MBED_CONF_TZ_PROCESS_STACK_SLOTS
+#define MBED_CONF_TZ_PROCESS_STACK_SLOTS  8
 #endif
 
-/// Stack size of the secure library code
-#ifndef TZ_PROCESS_STACK_SIZE
-#define TZ_PROCESS_STACK_SIZE      256U
+#ifndef MBED_CONF_TZ_PROCESS_STACK_SIZE
+#define MBED_CONF_TZ_PROCESS_STACK_SIZE  512
 #endif
+
+/// Number of process slots (threads may call secure library code)
+#define TZ_PROCESS_STACK_SLOTS  MBED_CONF_TZ_PROCESS_STACK_SLOTS
+
+/// Stack size of the secure library code
+#define TZ_PROCESS_STACK_SIZE  MBED_CONF_TZ_PROCESS_STACK_SIZE
 
 typedef struct {
   uint32_t sp_top;      // stack space top
