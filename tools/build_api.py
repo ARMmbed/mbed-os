@@ -484,7 +484,7 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
-                  libraries_paths=None, linker_script=None, clean=False, silent=False,
+                  libraries_paths=None, linker_script=None, clean=False,
                   notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
@@ -583,9 +583,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if memap_instance:
             # Write output to stdout in text (pretty table) format
             memap_table = memap_instance.generate_output('table', stats_depth)
-
-            if not silent:
-                print(memap_table)
+            notify.info(memap_table)
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")

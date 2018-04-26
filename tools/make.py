@@ -276,7 +276,6 @@ if __name__ == '__main__':
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      notify=notify,
-                                     silent=options.silent,
                                      report=build_data_blob,
                                      macros=options.macros,
                                      jobs=options.jobs,
