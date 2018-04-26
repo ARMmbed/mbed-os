@@ -24,12 +24,15 @@
 #include "platform/mbed_assert.h"
 #include "platform/CircularBuffer.h"
 #include "rtos/Thread.h"
+#include "rtos/EventFlags.h"
 
 using namespace rtos;
 using namespace mbed;
 
 // Globals related to ISR logging
+#define BUF_FLAG_  0x1
 static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer = NULL;
+EventFlags log_flags("logging");
 
 // Globals related to time printing
 static const ticker_data_t *const log_ticker = get_us_ticker_data();
@@ -121,11 +124,16 @@ extern "C" void log_print_data(void)
 {
     LOG_DATA_TYPE_ data;
     while (1) {
+        // Application may not have prints for hours, say if only ERR level
+        // is enabled, hence no timeouts
+        int32_t flag = log_flags.wait_any(BUF_FLAG_);
+        if (flag & osFlagsError) {
+            MBED_CRIT("LOG", "Flag error\n");
+        }
         while (!log_buffer->empty()) {
             log_buffer->pop(data);
             fprintf(stderr, "0x%x ", data);
         }
-        Thread::wait(1);
     }
 }
 
@@ -172,6 +180,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
             if (false == in_isr) {
                 mbed_log_unlock();
             }
+            log_flags.set(BUF_FLAG_);
             return;
         }
         int32_t bytes_written = 0;
@@ -182,6 +191,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
         if (false == in_isr) {
             mbed_log_unlock();
         }
+        log_flags.set(BUF_FLAG_);
     }
 }
 
@@ -215,12 +225,14 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
             count += 1;
             // Check buf size, if we have space for full line then only push
             if ( (LOG_BUF_SIZE_ - log_buffer->size()) < count) {
+                log_flags.set(BUF_FLAG_);
                 return;
             }
             int32_t bytes_written = 0;
             while (count--) {
                 log_buffer->push(one_line[bytes_written++]);
             }
+            log_flags.set(BUF_FLAG_);
             return;
         } else {
             fputs(one_line, stderr);
@@ -237,6 +249,12 @@ extern "C" void log_print_data(void)
     int32_t count = 0;
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
     while (1) {
+        // Application may not have prints for hours, say if only ERR level
+        // is enabled, hence no timeouts
+        int32_t flag = log_flags.wait_any(BUF_FLAG_);
+        if (flag & osFlagsError) {
+            MBED_CRIT("LOG", "Flag error\n");
+        }
         while (!log_buffer->empty()) {
             mbed_log_lock();
             log_buffer->pop(one_line[count]);
@@ -251,7 +269,6 @@ extern "C" void log_print_data(void)
             }
             mbed_log_unlock();
         }
-        Thread::wait(1);
     }
 }
 
