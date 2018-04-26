@@ -22,7 +22,6 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_interface.h"
 #include "platform/mbed_assert.h"
-#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
 #include "platform/CircularBuffer.h"
 #include "rtos/Thread.h"
 
@@ -52,13 +51,14 @@ static void log_update_buf(const char *data, int32_t size)
     }
 }
 
-#if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
-extern "C" void log_init()
+extern "C" void mbed_logging_init()
 {
     // Do not stall the system if memory is not available
-    if (NULL != log_buffer) {
+    if (NULL == log_buffer) {
         void *buf = malloc(sizeof(CircularBuffer<LOG_DATA_TYPE_, LOG_BUF_SIZE_>));
         if (NULL != buf) {
+            // Cleanup the thread and stack memory allocated for the thread: TODO
+
 #if defined (MBED_ID_BASED_TRACING)
             MBED_CRIT("LOG", "Insufficient RAM memory to support ID based tracing\n");
 #endif
@@ -117,7 +117,7 @@ extern "C" void log_enable_time_capture(void)
 
 // Note: ISR data is lossy, and with too many interrupts it might be
 // over-written and last valid ISR data will be printed.
-extern "C" void print_buf_data(void)
+extern "C" void log_print_data(void)
 {
     LOG_DATA_TYPE_ data;
     while (1) {
@@ -211,8 +211,7 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
     if (NULL != extern_buf) {
         log_update_buf(one_line, count);
     } else {
-        if (true == in_isr) {
-#ifndef MBED_DISABLE_ISR_LOGGING
+        if ((true == in_isr) && (NULL != log_buffer))  {
             count += 1;
             // Check buf size, if we have space for full line then only push
             if ( (LOG_BUF_SIZE_ - log_buffer->size()) < count) {
@@ -222,7 +221,6 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
             while (count--) {
                 log_buffer->push(one_line[bytes_written++]);
             }
-#endif
             return;
         } else {
             fputs(one_line, stderr);
@@ -232,10 +230,9 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
     return;
 }
 
-#ifndef MBED_DISABLE_ISR_LOGGING
 // Note: ISR data is lossy, and with too many interrupts it might be
 // over-written and last valid ISR data will be printed.
-extern "C" void print_buf_data(void)
+extern "C" void log_print_data(void)
 {
     int32_t count = 0;
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_];
@@ -257,7 +254,6 @@ extern "C" void print_buf_data(void)
         Thread::wait(1);
     }
 }
-#endif
 
 extern "C" void log_str_data(const char *format, ...)
 {
@@ -272,9 +268,11 @@ extern "C" void log_str_vdata(const char *format, va_list args)
     MBED_STATIC_ASSERT(LOG_SINGLE_STR_SIZE_ >= 32, "String size too small, min 32 bytes");
 
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        core_util_critical_section_enter();
-        log_format_str_data(format, args, true);
-        core_util_critical_section_exit();
+        if (NULL != log_buffer) {
+            core_util_critical_section_enter();
+            log_format_str_data(format, args, true);
+            core_util_critical_section_exit();
+        }
     } else {
         mbed_log_lock();
         log_format_str_data(format, args, false);

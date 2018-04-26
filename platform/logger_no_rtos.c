@@ -25,10 +25,6 @@
 extern "C" {
 #endif
 
-void mbed_logging_start(void)
-{
-}
-
 #if defined (MBED_ID_BASED_TRACING)
 void log_id_data(uint32_t argCount, ...)
 {
