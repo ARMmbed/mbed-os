@@ -116,14 +116,13 @@ typedef enum {
     P15_8  = 0xF8,
     P15_9  = 0xF9,
 
-#ifdef XMC4500_Relax_Kit
     LED1    = P1_1,
     LED2    = P1_0,
     SW1     = P1_14,
     SW2     = P1_15,
+
     USBTX   = P0_5,
     USBRX   = P0_4,
-#endif
 
     NC    = (int)0xFFFFFFFF
 } PinName;
