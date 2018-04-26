@@ -145,16 +145,6 @@ if __name__ == '__main__':
     if options.source_dir and not options.build_dir:
         args_error(parser, "argument --build is required by argument --source")
 
-    if options.color:
-        # This import happens late to prevent initializing colorization when we don't need it
-        import colorize
-        if options.verbose:
-            notify = mbedToolchain.print_notify_verbose
-        else:
-            notify = mbedToolchain.print_notify
-        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-    else:
-        notify = None
 
     # Get libraries list
     libraries = []
@@ -190,6 +180,7 @@ if __name__ == '__main__':
                 skipped.append(tt_id)
             else:
                 try:
+                    notify = TerminalNotifer(options.verbose, options.silent)
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
