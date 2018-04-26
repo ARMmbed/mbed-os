@@ -30,8 +30,7 @@ using namespace rtos;
 using namespace mbed;
 
 // Globals related to ISR logging
-static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer;
-#endif
+static CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_> *log_buffer = NULL;
 
 // Globals related to time printing
 static const ticker_data_t *const log_ticker = get_us_ticker_data();
@@ -56,9 +55,18 @@ static void log_update_buf(const char *data, int32_t size)
 #if !defined(MBED_DISABLE_ISR_LOGGING) && !defined(MBED_ID_BASED_TRACING)
 extern "C" void log_init()
 {
-    log_buffer = new CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_>;
-}
+    // Do not stall the system if memory is not available
+    if (NULL != log_buffer) {
+        void *buf = malloc(sizeof(CircularBuffer<LOG_DATA_TYPE_, LOG_BUF_SIZE_>));
+        if (NULL != buf) {
+#if defined (MBED_ID_BASED_TRACING)
+            MBED_CRIT("LOG", "Insufficient RAM memory to support ID based tracing\n");
 #endif
+        }
+        log_buffer = new (buf) CircularBuffer <LOG_DATA_TYPE_, LOG_BUF_SIZE_>;
+    }
+    return ;
+}
 
 extern "C" void log_assert(const char *format, ...)
 {
