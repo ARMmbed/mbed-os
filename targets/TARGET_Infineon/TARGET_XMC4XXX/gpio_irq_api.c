@@ -71,7 +71,8 @@ static gpio_irq_handler irq_handler;
  * @param channel_id
  *
  */
-static void eru_irq(int channel_nbr) {
+static void eru_irq(int channel_nbr)
+{
 
     eru_params_t *eru_params = &channel_params[channel_nbr];
     gpio_irq_event event = IRQ_NONE;
@@ -97,75 +98,71 @@ static void eru_irq(int channel_nbr) {
 /**
  * ISR Handler ERU1_3 Interrupt
  */
-void eru_7_irq(){
-
+void eru_7_irq()
+{
     eru_irq(7);
 }
 
 /**
  * ISR Handler ERU1_2 Interrupt
  */
-void eru_6_irq(){
-
+void eru_6_irq()
+{
     eru_irq(6);
 }
 
 /**
  * ISR Handler ERU1_1 Interrupt
  */
-void eru_5_irq(){
-
+void eru_5_irq()
+{
     eru_irq(5);
 }
 
 /**
  * ISR Handler ERU1_0 Interrupt
  */
-void eru_4_irq(){
-
+void eru_4_irq()
+{
     eru_irq(4);
 }
 
 /**
  * ISR Handler ERU0_3 Interrupt
  */
-void eru_3_irq(){
-
+void eru_3_irq()
+{
     eru_irq(3);
 }
 
 /**
  * ISR Handler ERU0_2 Interrupt
  */
-void eru_2_irq(){
-
+void eru_2_irq()
+{
     eru_irq(2);
 }
 
 /**
  * ISR Handler ERU0_1 Interrupt
  */
-void eru_1_irq(){
-
+void eru_1_irq()
+{
     eru_irq(1);
 }
 
 /**
  * ISR Handler ERU0_0 Interrupt
  */
-void eru_0_irq(){
-
+void eru_0_irq()
+{
     eru_irq(0);
 }
 
 /************************************************************ API Functions **/
 
-/* @internal Get ERU parameters
- *
- * @param eru_params
- *
- */
-static void get_eru_params(eru_params_t *eru_params){
+static void get_eru_params(eru_params_t *eru_params)
+{
 
     /* Get PIN functions */
     pin_io_function_t *pin_function = get_pin_function(eru_params->pin);
@@ -219,15 +216,8 @@ static void get_eru_params(eru_params_t *eru_params){
     }
 }
 
-/** Initialize the GPIO IRQ pin
- *
- * @param obj     The GPIO object to initialize
- * @param pin     The GPIO pin name
- * @param handler The handler to be attached to GPIO IRQ
- * @param id      The object ID (id != 0, 0 is reserved)
- * @return -1 if pin is NC, 0 otherwise
- */
-int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id){
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
+{
 
     int eru_units[NUM_ERU_UNITS];
     XMC_ERU_ETL_CONFIG_t event_generator_cfg;
@@ -326,24 +316,16 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     return 0;
 }
 
-/** Release the GPIO IRQ PIN
- *
- * @param obj The gpio object
- */
-void gpio_irq_free(gpio_irq_t *obj){
+void gpio_irq_free(gpio_irq_t *obj)
+{
 
     eru_params_t *eru_params = (eru_params_t *)obj->eru_params;
 
     channel_used[eru_params->channel_nbr] = NOT_USED;
 }
 
-/** Enable/disable pin IRQ event
- *
- * @param obj    The GPIO object
- * @param event  The GPIO IRQ event
- * @param enable The enable flag
- */
-void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable){
+void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
+{
 
     eru_params_t *eru_params = (eru_params_t *)obj->eru_params;
     XMC_ERU_ETL_EDGE_DETECTION_t edge_detection;
@@ -384,12 +366,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable){
     }
 }
 
-/** Enable GPIO IRQ
- *
- * This is target dependent, as it might enable the entire port or just a pin
- * @param obj The GPIO object
- */
-void gpio_irq_enable(gpio_irq_t *obj){
+void gpio_irq_enable(gpio_irq_t *obj)
+{
 
     eru_params_t *eru_params = (eru_params_t *)obj->eru_params;
 
@@ -398,18 +376,13 @@ void gpio_irq_enable(gpio_irq_t *obj){
     NVIC_EnableIRQ(eru_params->irq_n);
 }
 
-/** Disable GPIO IRQ
- *
- * This is target dependent, as it might disable the entire port or just a pin
- * @param obj The GPIO object
- */
-void gpio_irq_disable(gpio_irq_t *obj){
+void gpio_irq_disable(gpio_irq_t *obj)
+{
 
     eru_params_t *eru_params = (eru_params_t *)obj->eru_params;
 
     /* Disable Interrupt */
     NVIC_DisableIRQ(eru_params->irq_n);
 }
-
 
 /*EOF*/

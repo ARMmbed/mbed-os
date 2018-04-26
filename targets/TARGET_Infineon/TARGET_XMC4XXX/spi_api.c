@@ -31,29 +31,16 @@
 /* SPI configuration */
 XMC_SPI_CH_CONFIG_t spi_cfg =
 {
-        .baudrate = 10000,
-        .bus_mode = XMC_SPI_CH_BUS_MODE_MASTER,
-        .selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS,
-        .parity_mode = XMC_USIC_CH_PARITY_MODE_NONE
+    .baudrate = 10000,
+    .bus_mode = XMC_SPI_CH_BUS_MODE_MASTER,
+    .selo_inversion = XMC_SPI_CH_SLAVE_SEL_INV_TO_MSLS,
+    .parity_mode = XMC_USIC_CH_PARITY_MODE_NONE
 };
 
 /**************************************************************** Functions **/
 
-/**
- * \defgroup hal_GeneralSPI SPI Configuration Functions
- * @{
- */
-
-/** Initialize the SPI peripheral
- *
- * Configures the pins used by SPI, sets a default format and frequency, and enables the peripheral
- * @param[out] obj  The SPI object to initialize
- * @param[in]  mosi The pin to use for MOSI
- * @param[in]  miso The pin to use for MISO
- * @param[in]  sclk The pin to use for SCLK
- * @param[in]  ssel The pin to use for SSEL
- */
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel){
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -139,17 +126,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     XMC_GPIO_SetMode(port_miso, XMC4_GET_PIN_NBR_FROM_NAME(miso), XMC_GPIO_MODE_INPUT_TRISTATE);
 }
 
-/** Release a SPI object
- *
- * TODO: spi_free is currently unimplemented
- * This will require reference counting at the C++ level to be safe
- *
- * Return the pins owned by the SPI object to their reset state
- * Disable the SPI peripheral
- * Disable the SPI clock
- * @param[in] obj The SPI object to deinitialize
- */
-void spi_free(spi_t *obj){
+void spi_free(spi_t *obj)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -157,16 +135,8 @@ void spi_free(spi_t *obj){
     XMC_SPI_CH_Stop(obj->channel);
 }
 
-/** Configure the SPI format
- *
- * Set the number of bits per frame, configure clock polarity and phase, shift order and master/slave mode.
- * The default bit order is MSB.
- * @param[in,out] obj   The SPI object to configure
- * @param[in]     bits  The number of bits per frame
- * @param[in]     mode  The SPI mode (clock polarity, phase, and shift direction)
- * @param[in]     slave Zero for master mode or non-zero for slave mode
- */
-void spi_format(spi_t *obj, int bits, int mode, int slave){
+void spi_format(spi_t *obj, int bits, int mode, int slave)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -204,14 +174,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave){
     XMC_SPI_CH_ConfigureShiftClockOutput(obj->channel, (XMC_SPI_CH_BRG_SHIFT_CLOCK_PASSIVE_LEVEL_t)format, XMC_SPI_CH_BRG_SHIFT_CLOCK_OUTPUT_SCLK);
 }
 
-/** Set the SPI baud rate
- *
- * Actual frequency may differ from the desired frequency due to available dividers and bus clock
- * Configures the SPI peripheral's baud rate
- * @param[in,out] obj The SPI object to configure
- * @param[in]     hz  The baud rate in Hz
- */
-void spi_frequency(spi_t *obj, int hz){
+void spi_frequency(spi_t *obj, int hz)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -219,13 +183,8 @@ void spi_frequency(spi_t *obj, int hz){
     XMC_SPI_CH_SetBaudrate(obj->channel, (uint32_t)hz);
 }
 
-/** Write a byte out in master mode and receive a value
- *
- * @param[in] obj   The SPI peripheral to use for sending
- * @param[in] value The value to send
- * @return Returns the value received during send
- */
-int  spi_master_write(spi_t *obj, int value){
+int  spi_master_write(spi_t *obj, int value)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -251,23 +210,8 @@ int  spi_master_write(spi_t *obj, int value){
     return XMC_SPI_CH_GetReceivedData(obj->channel);
 }
 
-/** Write a block out in master mode and receive a value
- *
- *  The total number of bytes sent and recieved will be the maximum of
- *  tx_length and rx_length. The bytes written will be padded with the
- *  value 0xff.
- *
- * @param[in] obj        The SPI peripheral to use for sending
- * @param[in] tx_buffer  Pointer to the byte-array of data to write to the device
- * @param[in] tx_length  Number of bytes to write, may be zero
- * @param[in] rx_buffer  Pointer to the byte-array of data to read from the device
- * @param[in] rx_length  Number of bytes to read, may be zero
- * @param[in] write_fill Default data transmitted while performing a read
- * @returns
- *      The number of bytes written and read from the device. This is
- *      maximum of tx_length and rx_length.
- */
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill){
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
+{
 
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
@@ -282,46 +226,28 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     return total;
 }
 
-/** Check if a value is available to read
- *
- * @param[in] obj The SPI peripheral to check
- * @return non-zero if a value is available
- */
-int  spi_slave_receive(spi_t *obj){
+int  spi_slave_receive(spi_t *obj)
+{
 
     /* Not supported */
     return 0;
 }
 
-/** Get a received value out of the SPI receive buffer in slave mode
- *
- * Blocks until a value is available
- * @param[in] obj The SPI peripheral to read
- * @return The value received
- */
-int  spi_slave_read(spi_t *obj){
+int  spi_slave_read(spi_t *obj)
+{
 
     /* Not supported */
     return 0;
 }
 
-/** Write a value to the SPI peripheral in slave mode
- *
- * Blocks until the SPI peripheral can be written to
- * @param[in] obj   The SPI peripheral to write
- * @param[in] value The value to write
- */
-void spi_slave_write(spi_t *obj, int value){
+void spi_slave_write(spi_t *obj, int value)
+{
 
     /* Not supported */
 }
 
-/** Checks if the specified SPI peripheral is in use
- *
- * @param[in] obj The SPI peripheral to check
- * @return non-zero if the peripheral is currently transmitting
- */
-int  spi_busy(spi_t *obj){
+int  spi_busy(spi_t *obj)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -332,12 +258,8 @@ int  spi_busy(spi_t *obj){
     return 0;
 }
 
-/** Get the module number
- *
- * @param[in] obj The SPI peripheral to check
- * @return The module number
- */
-uint8_t spi_get_module(spi_t *obj){
+uint8_t spi_get_module(spi_t *obj)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);

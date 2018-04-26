@@ -203,12 +203,8 @@ static void pwm_hw_init(pwmout_t *obj) {
 
 /**************************************************************** Functions **/
 
-/** Initialize the pwm out peripheral and configure the pin
- *
- * @param obj The pwmout object to initialize
- * @param pin The pwmout pin to initialize
- */
-void pwmout_init(pwmout_t *obj, PinName pin) {
+void pwmout_init(pwmout_t *obj, PinName pin)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -274,11 +270,8 @@ void pwmout_init(pwmout_t *obj, PinName pin) {
     pwm_hw_init(obj);
 }
 
-/** Deinitialize the pwmout object
- *
- * @param obj The pwmout object
- */
-void pwmout_free(pwmout_t *obj) {
+void pwmout_free(pwmout_t *obj)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -294,13 +287,8 @@ void pwmout_free(pwmout_t *obj) {
     }
 }
 
-/** Set the output duty-cycle in range <0.0f, 1.0f>
- *
- * Value 0.0f represents 0 percentage, 1.0f represents 100 percent.
- * @param obj     The pwmout object
- * @param percent The floating-point percentage number
- */
-void pwmout_write(pwmout_t *obj, float percent) {
+void pwmout_write(pwmout_t *obj, float percent)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -329,43 +317,26 @@ void pwmout_write(pwmout_t *obj, float percent) {
     }
 }
 
-/** Read the current float-point output duty-cycle
- *
- * @param obj The pwmout object
- * @return A floating-point output duty-cycle
- */
-float pwmout_read(pwmout_t *obj) {
+float pwmout_read(pwmout_t *obj)
+{
 
     return obj->duty_cycle;
 }
 
-/** Set the PWM period specified in seconds, keeping the duty cycle the same
- *
- * Periods smaller than microseconds (the lowest resolution) are set to zero.
- * @param obj     The pwmout object
- * @param seconds The floating-point seconds period
- */
-void pwmout_period(pwmout_t *obj, float seconds) {
+void pwmout_period(pwmout_t *obj, float seconds)
+{
 
     pwmout_period_us(obj, seconds * 1000000.0f);
 }
 
-/** Set the PWM period specified in miliseconds, keeping the duty cycle the same
- *
- * @param obj The pwmout object
- * @param ms  The milisecond period
- */
-void pwmout_period_ms(pwmout_t *obj, int ms) {
+void pwmout_period_ms(pwmout_t *obj, int ms)
+{
 
     pwmout_period_us(obj, ms * 1000);
 }
 
-/** Set the PWM period specified in microseconds, keeping the duty cycle the same
- *
- * @param obj The pwmout object
- * @param us  The microsecond period
- */
-void pwmout_period_us(pwmout_t *obj, int us) {
+void pwmout_period_us(pwmout_t *obj, int us)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -402,32 +373,20 @@ void pwmout_period_us(pwmout_t *obj, int us) {
     }
 }
 
-/** Set the PWM pulsewidth specified in seconds, keeping the period the same.
- *
- * @param obj     The pwmout object
- * @param seconds The floating-point pulsewidth in seconds
- */
-void pwmout_pulsewidth(pwmout_t *obj, float seconds) {
+void pwmout_pulsewidth(pwmout_t *obj, float seconds)
+{
 
     pwmout_pulsewidth_us(obj, seconds * 1000000.0f);
 }
 
-/** Set the PWM pulsewidth specified in miliseconds, keeping the period the same.
- *
- * @param obj The pwmout object
- * @param ms  The floating-point pulsewidth in miliseconds
- */
-void pwmout_pulsewidth_ms(pwmout_t *obj, int ms) {
+void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
+{
 
     pwmout_pulsewidth_us(obj, ms * 1000);
 }
 
-/** Set the PWM pulsewidth specified in microseconds, keeping the period the same.
- *
- * @param obj The pwmout object
- * @param us  The floating-point pulsewidth in microseconds
- */
-void pwmout_pulsewidth_us(pwmout_t *obj, int us) {
+void pwmout_pulsewidth_us(pwmout_t *obj, int us)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);

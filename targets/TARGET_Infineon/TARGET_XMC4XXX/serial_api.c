@@ -45,13 +45,8 @@ static uart_irq_handler irq_handler;
 
 /******************************************************* Internal Functions **/
 
-/* @internal uart_irq
- *
- * @param channel UART Channel
- * @param index ISR Index
- *
- */
-static void uart_irq(XMC_USIC_CH_t *const channel, uint32_t index) {
+static void uart_irq(XMC_USIC_CH_t *const channel, uint32_t index)
+{
 
     /* Check if interrupt is in registry */
     if (serial_irq_ids[index] != 0) {
@@ -74,61 +69,52 @@ static void uart_irq(XMC_USIC_CH_t *const channel, uint32_t index) {
 /**
  * ISR Handler for UART_1
  */
-void uart0_irq(void) {
-
+void uart0_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_0, 0);
 }
 
-/**
- * ISR Handler for UART_2
- */
-void uart1_irq(void) {
-
+void uart1_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_1, 1);
 }
 
 /**
  * ISR Handler for UART_3
  */
-void uart2_irq(void) {
-
+void uart2_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_2, 2);
 }
 
 /**
  * ISR Handler for UART_4
  */
-void uart3_irq(void) {
-
+void uart3_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_3, 3);
 }
 
 /**
  * ISR Handler for UART_5
  */
-void uart4_irq(void) {
-
+void uart4_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_4, 4);
 }
 
 /**
  * ISR Handler for UART_6
  */
-void uart5_irq(void) {
-
+void uart5_irq(void)
+{
     uart_irq((XMC_USIC_CH_t *)UART_5, 5);
 }
 
 /**************************************************************** Functions **/
 
-/** Initialize the serial peripheral. It sets the default parameters for serial
- *  peripheral, and configures its specifieds pins.
- *
- * @param obj The serial object
- * @param tx  The TX pin name
- * @param rx  The RX pin name
- */
-void serial_init(serial_t *obj, PinName tx, PinName rx) {
+void serial_init(serial_t *obj, PinName tx, PinName rx)
+{
 
     /* Determine corresponding USIC module & channel */
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
@@ -218,34 +204,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     }
 }
 
-/** Release the serial peripheral, not currently invoked. It requires further
- *  resource management.
- *
- * @param obj The serial object
- */
-void serial_free(serial_t *obj) {
+void serial_free(serial_t *obj)
+{
 
     serial_irq_ids[obj->index] = 0;
 }
 
-/** Configure the baud rate
- *
- * @param obj      The serial object
- * @param baudrate The baud rate to be configured
- */
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
 
     XMC_UART_CH_SetBaudrate(obj->channel, baudrate, 16);
 }
 
-/** Configure the format. Set the number of bits, parity and the number of stop bits
- *
- * @param obj       The serial object
- * @param data_bits The number of data bits
- * @param parity    The parity
- * @param stop_bits The number of stop bits
- */
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
+void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
+{
 
     XMC_UART_CH_CONFIG_t uart_config;
 
@@ -278,25 +250,15 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     XMC_UART_CH_Start(obj->channel);
 }
 
-/** The serial interrupt handler registration
- *
- * @param obj     The serial object
- * @param handler The interrupt handler which will be invoked when the interrupt fires
- * @param id      The SerialBase object
- */
-void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
+void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
+{
 
     irq_handler = handler;
     serial_irq_ids[obj->index] = id;
 }
 
-/** Configure serial interrupt. This function is used for word-approach
- *
- * @param obj    The serial object
- * @param irq    The serial IRQ type (RX or TX)
- * @param enable Set to non-zero to enable events, or zero to disable them
- */
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
+{
 
     IRQn_Type irq_n = (IRQn_Type)0;			///> interrupt number
     uint32_t vector = 0;					///> interrupt vector
@@ -379,32 +341,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     }
 }
 
-/** Get character. This is a blocking call, waiting for a character
- *
- * @param obj The serial object
- */
-int  serial_getc(serial_t *obj) {
+int  serial_getc(serial_t *obj)
+{
 
     return XMC_UART_CH_GetReceivedData(obj->channel);
 }
 
-/** Send a character. This is a blocking call, waiting for a peripheral to be available
- *  for writing
- *
- * @param obj The serial object
- * @param c   The character to be sent
- */
-void serial_putc(serial_t *obj, int c) {
+void serial_putc(serial_t *obj, int c)
+{
 
     XMC_UART_CH_Transmit(obj->channel, (uint16_t)c);
 }
 
-/** Check if the serial peripheral is readable
- *
- * @param obj The serial object
- * @return Non-zero value if a character can be read, 0 if nothing to read
- */
-int  serial_readable(serial_t *obj) {
+int  serial_readable(serial_t *obj)
+{
 
     /* Get UART channel status */
     uint32_t status = XMC_UART_CH_GetStatusFlag(obj->channel);
@@ -420,12 +370,8 @@ int  serial_readable(serial_t *obj) {
     return 0;
 }
 
-/** Check if the serial peripheral is writable
- *
- * @param obj The serial object
- * @return Non-zero value if a character can be written, 0 otherwise.
- */
-int  serial_writable(serial_t *obj) {
+int  serial_writable(serial_t *obj)
+{
 
     /* Get UART channel status */
     uint32_t status = XMC_UART_CH_GetStatusFlag(obj->channel);
@@ -437,37 +383,25 @@ int  serial_writable(serial_t *obj) {
     return 0;
 }
 
-/** Clear the serial peripheral
- *
- * @param obj The serial object
- */
-void serial_clear(serial_t *obj) {
+void serial_clear(serial_t *obj)
+{
 
     /* Stop UART Channel */
     XMC_UART_CH_Stop(obj->channel);
 }
 
-/** Set the break
- *
- * @param obj The serial object
- */
-void serial_break_set(serial_t *obj) {
+void serial_break_set(serial_t *obj)
+{
     /* Not implemented */
 }
 
-/** Clear the break
- *
- * @param obj The serial object
- */
-void serial_break_clear(serial_t *obj) {
+void serial_break_clear(serial_t *obj)
+{
     /* Not implemented */
 }
 
-/** Configure the TX pin for UART function.
- *
- * @param tx The pin name used for TX
- */
-void serial_pinout_tx(PinName tx) {
+void serial_pinout_tx(PinName tx)
+{
 
     /* Get TX pin alternative function */
     uint8_t tx_function = (uint8_t)pinmap_function(tx, PinMap_UART_TX);
@@ -484,15 +418,8 @@ void serial_pinout_tx(PinName tx) {
     XMC_GPIO_Init(port_tx, XMC4_GET_PIN_NBR_FROM_NAME(tx), &uart_tx_cfg);
 }
 
-/** Configure the serial for the flow control. It sets flow control in the hardware
- *  if a serial peripheral supports it, otherwise software emulation is used.
- *
- * @param obj    The serial object
- * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param rxflow The TX pin name
- * @param txflow The RX pin name
- */
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
     /* Not implemented */
 }
 

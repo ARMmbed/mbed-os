@@ -38,13 +38,8 @@
 
 /**************************************************************** Functions **/
 
-/** Initialize the analogin peripheral
- *
- * Configures the pin used by analogin.
- * @param obj The analogin object to initialize
- * @param pin The analogin pin name
- */
-void analogin_init(analogin_t *obj, PinName pin){
+void analogin_init(analogin_t *obj, PinName pin)
+{
 
     XMC_VADC_GLOBAL_CONFIG_t g_global_config = { 0 };
     XMC_VADC_GROUP_CONFIG_t g_group_config = { 0 };
@@ -131,12 +126,8 @@ void analogin_init(analogin_t *obj, PinName pin){
     XMC_VADC_GLOBAL_StartupCalibration(VADC);
 }
 
-/** Read the value from analogin pin, represented as an unsigned 16bit value
- *
- * @param obj The analogin object
- * @return An unsigned 16bit value representing the current input voltage
- */
-uint16_t analogin_read_u16(analogin_t *obj){
+uint16_t analogin_read_u16(analogin_t *obj)
+{
 
     VADC_G_TypeDef *group_ptr = (VADC_G_TypeDef *)obj->group_ptr;
 
@@ -150,12 +141,8 @@ uint16_t analogin_read_u16(analogin_t *obj){
     return XMC_VADC_GROUP_GetResult(group_ptr, RES_REG_NUMBER);
 }
 
-/** Read the input voltage, represented as a float in the range [0.0, 1.0]
- *
- * @param obj The analogin object
- * @return A floating value representing the current input voltage
- */
-float analogin_read(analogin_t *obj){
+float analogin_read(analogin_t *obj)
+{
 
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)RANGE_12BIT);

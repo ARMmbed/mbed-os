@@ -33,8 +33,8 @@
 
 /****************************************************************** Globals **/
 const ticker_info_t tick_info = {
-        .frequency = 1000000,
-        .bits = 32
+    .frequency = 1000000,
+    .bits = 32
 };
 static int us_ticker_inited = 0;
 
@@ -48,7 +48,8 @@ static int us_ticker_inited = 0;
  * Timer 1 bits 0-15 of 32 bit timer
  * Timer 2 bit 16-31 of 32 bit timer
  */
-static void timer_init(void) {
+static void timer_init(void)
+{
 
     XMC_CCU4_SLICE_COMPARE_CONFIG_t slice_config;
 
@@ -113,7 +114,8 @@ static void timer_init(void) {
  * @internal Set compare value of Timer
  *
  */
-static void timer_set_compare_value(uint32_t ticks) {
+static void timer_set_compare_value(uint32_t ticks)
+{
 
     /* Set new compare value */
     XMC_CCU4_SLICE_SetTimerCompareMatch(TIMER_SLICE_1_PTR, ticks & 0xffffU);
@@ -134,7 +136,8 @@ static void timer_set_compare_value(uint32_t ticks) {
  *
  * @return actual Timer value
  */
-static uint32_t timer_get_time(void) {
+static uint32_t timer_get_time(void)
+{
 
     uint32_t time_h = XMC_CCU4_SLICE_GetTimerValue(TIMER_SLICE_2_PTR);
     uint32_t time_l = XMC_CCU4_SLICE_GetTimerValue(TIMER_SLICE_1_PTR);
@@ -153,18 +156,16 @@ static uint32_t timer_get_time(void) {
  * @brief Timer ISR Handler
  *
  */
-void TIMER_IRQ_HANDLER(void) {
+void TIMER_IRQ_HANDLER(void)
+{
 
     us_ticker_irq_handler();
 }
 
 /**************************************************************** Functions **/
 
-/**
- * @brief Initialize the ticker
- *
- */
-void us_ticker_init(void) {
+void us_ticker_init(void)
+{
 
     if(us_ticker_inited) {
         return;
@@ -175,12 +176,8 @@ void us_ticker_init(void) {
     timer_init();
 }
 
-/**
- * @brief Read the current counter
- *
- * @return The current timer's counter value in microseconds
- */
-uint32_t us_ticker_read() {
+uint32_t us_ticker_read()
+{
 
     if (!us_ticker_inited)
         us_ticker_init();
@@ -188,13 +185,8 @@ uint32_t us_ticker_read() {
     return timer_get_time();
 }
 
-/**
- * @brief Set interrupt for specified timestamp
- *
- * @param Set interrupt for specified timestamp
- */
-void us_ticker_set_interrupt(timestamp_t timestamp) {
-
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
 
     NVIC_DisableIRQ(TIMER_IRQn);
 
@@ -205,33 +197,24 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     NVIC_EnableIRQ(TIMER_IRQn);
 }
 
-/**
- * @brief Disable us ticker interrupt
- *
- */
-void us_ticker_disable_interrupt(void) {
+void us_ticker_disable_interrupt(void)
+{
 
     /* Disable Event */
     XMC_CCU4_SLICE_DisableEvent(TIMER_SLICE_2_PTR, XMC_CCU4_SLICE_IRQ_ID_COMPARE_MATCH_UP);
     NVIC_DisableIRQ(TIMER_IRQn);
 }
 
-/**
- * @brief Clear us ticker interrupt
- *
- */
-void us_ticker_clear_interrupt(void) {
+void us_ticker_clear_interrupt(void)
+{
 
     /* Clear Event */
     XMC_CCU4_SLICE_ClearEvent(TIMER_SLICE_2_PTR, XMC_CCU4_SLICE_IRQ_ID_COMPARE_MATCH_UP);
     NVIC_ClearPendingIRQ(TIMER_IRQn);
 }
 
-/** Set pending interrupt that should be fired right away.
- *
- * The ticker should be initialized prior calling this function.
- */
-void us_ticker_fire_interrupt(void){
+void us_ticker_fire_interrupt(void)
+{
 
     if(!us_ticker_inited) {
         return;
@@ -239,10 +222,8 @@ void us_ticker_fire_interrupt(void){
     NVIC_SetPendingIRQ(TIMER_IRQn);
 }
 
-/** Get frequency and counter bits of this ticker.
- *
- */
-const ticker_info_t* us_ticker_get_info(void){
+const ticker_info_t* us_ticker_get_info(void)
+{
 
     return &tick_info;
 }

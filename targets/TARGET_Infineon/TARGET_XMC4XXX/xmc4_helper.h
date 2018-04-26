@@ -44,19 +44,19 @@ typedef const struct pin_io_function_s {
 }pin_io_function_t;
 
 typedef struct port_type_s {
-  __IO uint32_t  OUT;
-  __O  uint32_t  OMR;
-  __I  uint32_t  RESERVED0[2];
-  __IO uint32_t  IOCR[4];
-  __I  uint32_t  RESERVED1;
-  __I  uint32_t  IN;
-  __I  uint32_t  RESERVED2[6];
-  __IO uint32_t  PDR[2];
-  __I  uint32_t  RESERVED3[6];
-  __IO uint32_t  PDISC;
-  __I  uint32_t  RESERVED4[3];
-  __IO uint32_t  PPS;
-  __IO uint32_t  HWSEL;
+    __IO uint32_t  OUT;
+    __O  uint32_t  OMR;
+    __I  uint32_t  RESERVED0[2];
+    __IO uint32_t  IOCR[4];
+    __I  uint32_t  RESERVED1;
+    __I  uint32_t  IN;
+    __I  uint32_t  RESERVED2[6];
+    __IO uint32_t  PDR[2];
+    __I  uint32_t  RESERVED3[6];
+    __IO uint32_t  PDISC;
+    __I  uint32_t  RESERVED4[3];
+    __IO uint32_t  PPS;
+    __IO uint32_t  HWSEL;
 } port_type_t;
 
 /************************************************************ Helper Macros **/

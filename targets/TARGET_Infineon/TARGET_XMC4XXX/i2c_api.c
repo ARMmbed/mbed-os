@@ -56,14 +56,8 @@ XMC_GPIO_CONFIG_t i2c_scl_pin_cfg =
 
 /**************************************************************** Functions **/
 
-/** Initialize the I2C peripheral. It sets the default parameters for I2C
- *  peripheral, and configures its specifieds pins.
- *
- *  @param obj  The I2C object
- *  @param sda  The sda pin
- *  @param scl  The scl pin
- */
-void i2c_init(i2c_t *obj, PinName sda, PinName scl){
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -140,12 +134,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl){
     XMC_GPIO_Init(port_scl, XMC4_GET_PIN_NBR_FROM_NAME(scl), &i2c_scl_pin_cfg);
 }
 
-/** Configure the I2C frequency
- *
- *  @param obj The I2C object
- *  @param hz  Frequency in Hz
- */
-void i2c_frequency(i2c_t *obj, int hz){
+void i2c_frequency(i2c_t *obj, int hz)
+{
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -153,21 +143,15 @@ void i2c_frequency(i2c_t *obj, int hz){
     XMC_I2C_CH_SetBaudrate(obj->channel, (uint32_t)hz);
 }
 
-/** Send START command
- *
- *  @param obj The I2C object
- */
-int  i2c_start(i2c_t *obj){
+int i2c_start(i2c_t *obj)
+{
 
     /* Not supported */
     return 0;
 }
 
-/** Send STOP command
- *
- *  @param obj The I2C object
- */
-int  i2c_stop(i2c_t *obj){
+int i2c_stop(i2c_t *obj)
+{
 
     XMC_I2C_CH_MasterStop(obj->channel);
     obj->start_stop = I2C_STOP_SEND;
@@ -175,13 +159,8 @@ int  i2c_stop(i2c_t *obj){
     return 0;
 }
 
-/** Read one byte
- *
- *  @param obj The I2C object
- *  @param last Acknoledge
- *  @return The read byte
- */
-int i2c_byte_read(i2c_t *obj, int last){
+int i2c_byte_read(i2c_t *obj, int last)
+{
 
     int timeout = I2C_TIMEOUT;
 
@@ -207,13 +186,8 @@ int i2c_byte_read(i2c_t *obj, int last){
     return (int)XMC_I2C_CH_GetReceivedData(obj->channel);
 }
 
-/** Write one byte
- *
- *  @param obj The I2C object
- *  @param data Byte to be written
- *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout.
- */
-int i2c_byte_write(i2c_t *obj, int data){
+int i2c_byte_write(i2c_t *obj, int data)
+{
 
     int timeout = I2C_TIMEOUT;
 
@@ -233,20 +207,11 @@ int i2c_byte_write(i2c_t *obj, int data){
     }
     XMC_I2C_CH_ClearStatusFlag(obj->channel, (XMC_I2C_CH_STATUS_FLAG_ACK_RECEIVED | XMC_I2C_CH_STATUS_FLAG_NACK_RECEIVED));
 
-    /* ACK received */
     return 1;
 }
 
-/** Blocking reading data
- *
- *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 1)
- *  @param data    The buffer for receiving
- *  @param length  Number of bytes to read
- *  @param stop    Stop to be generated after the transfer is done
- *  @return Number of read bytes
- */
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop){
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
+{
 
     int i = 0;
     int timeout = I2C_TIMEOUT;
@@ -289,18 +254,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop){
     return length;
 }
 
-/** Blocking sending data
- *
- *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 0)
- *  @param data    The buffer for sending
- *  @param length  Number of bytes to write
- *  @param stop    Stop to be generated after the transfer is done
- *  @return
- *      zero or non-zero - Number of written bytes
- *      negative - I2C_ERROR_XXX status
- */
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop){
+int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
+{
 
     int timeout = I2C_TIMEOUT;
 
@@ -333,11 +288,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop){
     return length;
 }
 
-/** Reset I2C peripheral.
- *
- *  @param obj The I2C object
- */
-void i2c_reset(i2c_t *obj){
+void i2c_reset(i2c_t *obj)
+{
 
     /* Apply stop condition */
     i2c_stop(obj);

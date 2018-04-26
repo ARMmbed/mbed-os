@@ -28,10 +28,8 @@ XMC_RTC_CONFIG_t rtc_config =
 
 /**************************************************************** Functions **/
 
-/** Initialize the RTC peripheral
- *
- */
-void rtc_init(void){
+void rtc_init(void)
+{
 
     XMC_SCU_HIB_EnableHibernateDomain();
     XMC_SCU_HIB_SetRtcClockSource(XMC_SCU_HIB_RTCCLKSRC_OSI);
@@ -41,21 +39,15 @@ void rtc_init(void){
     XMC_RTC_Start();
 }
 
-/** Deinitialize RTC
- *
- */
-void rtc_free(void){
+void rtc_free(void)
+{
 
     XMC_RTC_Stop();
     XMC_RTC_Disable();
 }
 
-/** Get the RTC enable status
- *
- * @retval 0 disabled
- * @retval 1 enabled
- */
-int rtc_isenabled(void){
+int rtc_isenabled(void)
+{
 
     if(XMC_RTC_IsEnabled()){
         return 1;
@@ -64,11 +56,8 @@ int rtc_isenabled(void){
     }
 }
 
-/** Get the current time from the RTC peripheral
- *
- * @return The current time
- */
-time_t rtc_read(void){
+time_t rtc_read(void)
+{
 
     struct tm t;
 
@@ -76,11 +65,8 @@ time_t rtc_read(void){
     return mktime(&t);
 }
 
-/** Set the current time to the RTC peripheral
- *
- * @param t The current time to be set
- */
-void rtc_write(time_t t){
+void rtc_write(time_t t)
+{
 
     XMC_RTC_SetTimeStdFormat(localtime(&t));
 }
