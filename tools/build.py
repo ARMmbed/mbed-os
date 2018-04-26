@@ -39,9 +39,10 @@ from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
-from utils import argparse_filestring_type, args_error
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
-from utils import argparse_filestring_type, argparse_dir_not_parent
+from tools.notifier.term import TerminalNotifier
+from tools.utils import argparse_filestring_type, args_error
+from tools.utils import argparse_filestring_type, argparse_dir_not_parent
 
 if __name__ == '__main__':
     start = time()
