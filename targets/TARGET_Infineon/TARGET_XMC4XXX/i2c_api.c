@@ -36,19 +36,19 @@
 /* i2c configuration */
 XMC_I2C_CH_CONFIG_t i2c_cfg =
 {
-        .baudrate = 50000U, // Default to 100kHz
+    .baudrate = 50000U, // Default to 100kHz
 };
 
 /* pin configuration for i2c sda */
 XMC_GPIO_CONFIG_t i2c_sda_pin_cfg =
 {
-        .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
+    .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
 };
 
 /* pin configuration for i2c sdc */
 XMC_GPIO_CONFIG_t i2c_scl_pin_cfg =
 {
-        .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
+    .output_strength = XMC_GPIO_OUTPUT_STRENGTH_MEDIUM
 };
 
 /******************************************************* Internal Functions **/
