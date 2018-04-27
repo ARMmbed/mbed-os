@@ -303,6 +303,17 @@ public:
      */
     ssize_t read_string(char *str, size_t size, bool read_even_stop_tag = false);
 
+    /** Reads chars representing hex ascii values and converts them to the corresponding chars.
+     *  For example: "4156" to "AV".
+     *  Terminates with null. Skips the quotation marks.
+     *  Stops on delimiter or stop tag.
+     *
+     *  @param str output buffer for the read
+     *  @param size maximum number of chars to output
+     *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
+     */
+    ssize_t read_hex_string(char *str, size_t size);
+
     /** Reads as string and converts result to integer. Supports only positive integers.
      *
      *  @return the positive integer or -1 in case of error.
@@ -358,7 +369,7 @@ public:
 public: // just for debugging
     /**
      * AT debugging, when enabled will print all data read and written,
-     * non-printable chars are printed as "[%02x]".
+     * non-printable chars are printed as "[%d]".
      *
      * AT debug can be enabled at compile time using MBED_CONF_CELLULAR_DEBUG_AT flag or at runtime
      * calling set_debug(). Note that MBED_CONF_MBED_TRACE_ENABLE must also be enabled.
@@ -493,6 +504,11 @@ private:
 
     // check is urc is already added
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+
+    ssize_t read(char *buf, size_t size, bool read_even_stop_tag, bool hex);
+
+    // print contents of a buffer to trace log
+    void debug_print(char *p, int len);
 };
 
 } // namespace mbed
