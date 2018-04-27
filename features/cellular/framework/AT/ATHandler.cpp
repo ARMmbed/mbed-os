@@ -483,7 +483,7 @@ ssize_t ATHandler::read(char *buf, size_t size, bool read_even_stop_tag, bool he
     size_t buf_idx = 0;
 
     for (; read_idx < (read_size + match_pos); read_idx++) {
-        char c = get_char();
+        int c = get_char();
         buf_idx = hex ? read_idx/2 : read_idx;
         if (c == -1) {
             pbuf[buf_idx] = '\0';
@@ -515,15 +515,15 @@ ssize_t ATHandler::read(char *buf, size_t size, bool read_even_stop_tag, bool he
            pbuf[buf_idx] = c;
         } else {
             if (read_idx % 2 == 0) {
-                upper = hex_str_to_int(&c, 1);
+                upper = hex_str_to_int((const char*)&c, 1);
             } else {
-                lower = hex_str_to_int(&c, 1);
+                lower = hex_str_to_int((const char*)&c, 1);
                 pbuf[buf_idx] = ((upper<<4) & 0xF0) | (lower & 0x0F);
             }
         }
     }
 
-    return buf_idx + 1;
+    return buf_idx;
 }
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
