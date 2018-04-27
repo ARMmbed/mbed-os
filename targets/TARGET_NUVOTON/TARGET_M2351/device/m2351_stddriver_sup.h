@@ -51,6 +51,20 @@ void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex);
  */
 void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex);
 
+/* Secure SYS_LockReg
+ *
+ * Guard access to secure module from non-secure domain before SYS_LockReg.
+ * Its synopsis is the same as SYS_LockReg.
+ */
+void SYS_LockReg_S(void);
+
+/* Secure SYS_UnlockReg
+ *
+ * Guard access to secure module from non-secure domain before SYS_UnlockReg.
+ * Its synopsis is the same as SYS_UnlockReg.
+ */
+void SYS_UnlockReg_S(void);
+
 #ifdef __cplusplus
 }
 #endif
