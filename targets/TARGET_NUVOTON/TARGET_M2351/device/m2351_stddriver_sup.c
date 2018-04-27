@@ -181,6 +181,22 @@ void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex)
     CLK_DisableModuleClock(u32ModuleIndex);
 }
 
+__NONSECURE_ENTRY
+void SYS_LockReg_S(void)
+{
+    /* Allow non-secure domain to lock/unlock locked registers without check.
+     * Guard access to locked registers is done through other related secure functions. */
+    SYS_LockReg();
+}
+
+__NONSECURE_ENTRY
+void SYS_UnlockReg_S(void)
+{
+    /* Allow non-secure domain to lock/unlock locked registers without check.
+     * Guard access to locked registers is done through other related secure functions. */
+    SYS_UnlockReg();
+}
+
 static bool check_mod_ns(int modclass, uint32_t modidx)
 {
     const nu_modidx_ns_t *modidx_ns = modidx_ns_tab;
