@@ -26,7 +26,7 @@
 
 #include "mbed_retarget.h"
 #include "mbed_wait_api.h"
-#include "SMM_MPS2.h"
+#include "CM3DS.h"
 #include "smsc9220_eth.h"
 
 #define REG_WRITE_TIME_OUT  50
@@ -623,7 +623,7 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
     unsigned int dwords_to_write = 0;
     unsigned int xmit_inf = 0;
     unsigned int tx_buffer_free_space = 0;
-    volatile unsigned int xmit_stat = 0;
+    unsigned int xmit_stat = 0;
 
     if (!data) {
         return -1; /* Invalid input parameter */
@@ -677,7 +677,9 @@ int smsc9220_send_by_chunks(unsigned int total_packet_length, int is_new_packet,
         /* pop status port */
         /* for error check it should be checked "at a later time" according to data sheet */
         xmit_stat = SMSC9220->TX_STAT_PORT;
+        (void)xmit_stat;
     }
+
     ongoing_packet_length_sent += current_size;
     return 0;
 }

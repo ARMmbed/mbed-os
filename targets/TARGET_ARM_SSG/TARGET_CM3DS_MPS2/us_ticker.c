@@ -23,30 +23,37 @@
 #include "us_ticker_api.h"
 #include "platform_devices.h"
 
+/*
+ * The CMSDK Ticker counts on 32 bits.
+ */
+#define CMSDK_TICKER_COUNTER_BITS 32U
+
 /**
- * \brief Convert clocks to us
+ * \brief Pass-through function to make the US ticker HAL only work in the tick
+ *        domain. This function is needed by the CMSDK Ticker layer.
  *
- * \param[in] tick Number of clocks
+ * \param[in] tick Number of clock ticks
  *
- * \return Number of usec, relative to the timer frequency,
- *         that a given ammount of ticks equates to.
+ * \return The number of ticks given.
  */
 static uint32_t convert_tick_to_us(uint32_t tick)
 {
-    return (tick / (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
+    /* Work only in the tick domain. */
+    return tick;
 }
 
 /**
- * \brief Convert us to clock ticks
+ * \brief Pass-through function to make the US ticker HAL only work in the tick
+ *        domain. This function is needed by the CMSDK Ticker layer.
  *
- * \param[in] us Time to convert to clock ticks
+ * \param[in] us Number of us
  *
- * \return Number of clock ticks relative to the timer frequency,
- *         that a given period of usec equates to.
+ * \return The number of us given.
  */
 static uint32_t convert_us_to_tick(uint32_t us)
 {
-    return (us * (SystemCoreClock / SEC_TO_USEC_MULTIPLIER));
+    /* Work only in the tick domain. */
+    return us;
 }
 
 static const struct tick_cfg_t cfg =
@@ -108,4 +115,19 @@ void us_ticker_fire_interrupt(void)
 void TIMER0_IRQHandler(void)
 {
     cmsdk_ticker_irq_handler(&timer_data);
+}
+
+const ticker_info_t* us_ticker_get_info(void)
+{
+    static ticker_info_t us_ticker_info = {
+        .bits = CMSDK_TICKER_COUNTER_BITS
+    };
+
+    /*
+     * SystemCoreClock is not a constant so it cannot be used to initialize the
+     * ticker_info_t structure.
+     */
+    us_ticker_info.frequency = SystemCoreClock;
+
+    return &us_ticker_info;
 }
