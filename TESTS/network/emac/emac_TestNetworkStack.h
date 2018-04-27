@@ -49,15 +49,14 @@ public:
          * @param    netmask    Net mask to be used for the interface as "W:X:Y:Z" or NULL
          * @param    gw         Gateway address to be used for the interface as "W:X:Y:Z" or NULL
          * @param    stack      Allow manual selection of IPv4 and/or IPv6.
+         * @param    blocking   Specify whether bringup blocks for connection completion.
          * @return              NSAPI_ERROR_OK on success, or error code
          */
         virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                              const char *netmask, const char *gw,
-                              nsapi_ip_stack_t stack
-        #ifdef __cplusplus
-                                           = DEFAULT_STACK
-        #endif
-                                           );
+                                      const char *netmask, const char *gw,
+                                      nsapi_ip_stack_t stack = DEFAULT_STACK,
+                                      bool blocking = true
+                                      );
 
         /** Disconnect interface from the network
          *
@@ -66,6 +65,22 @@ public:
          * @return    NSAPI_ERROR_OK on success, or error code
          */
         virtual nsapi_error_t bringdown();
+
+        /** Register callback for status reporting
+         *
+         *  The specified status callback function will be called on status changes
+         *  on the network. The parameters on the callback are the event type and
+         *  event-type dependent reason parameter.
+         *
+         *  @param status_cb The callback for status changes
+         */
+        virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+        /** Get the connection status
+         *
+         *  @return         The connection status according to ConnectionStatusType
+         */
+        virtual nsapi_connection_status_t get_connection_status() const;
 
         /** Return MAC address of the network interface
          *
