@@ -24,12 +24,12 @@
  *
  *  #include "mbed.h"
  *  int main() {
- *      MBED_CRIT("OS", "This is critical error. Action Required: %s", "Restart");
- *      MBED_ERR("OS", "Error performing XYZ operation, errno = %d", -10);
- *      MBED_WARN("Lib", "This is warning message");
- *      MBED_DBG_IF("main", 1, "%d %s ", 1, "hello");
- *      MBED_INFO("main", "%s %s 0x%lx", "world", "!", 2);
- *      MBED_TRACE("lib", "Trace level of debugging for libraries");
+ *      MBED_ERR("OS", "Error performing XYZ operation, errno = %d\n", -10);
+ *      MBED_WARN("Lib", "This is warning message\n");
+ *      MBED_DBG_IF("main", 1, "%d %s\n", 1, "hello");
+ *      MBED_INFO("main", "%s %s 0x%lx\n", "world", "!", 2);
+ *      MBED_TRACE("lib", "Trace level of debugging for libraries\n");
+ *      MBED_CRIT("OS", "This is critical error. Action Required: %s\n", "Restart");
  *  }
  *
  * @endcode
@@ -41,7 +41,7 @@
  *
  *  void periodicCallback(void)
  *  {
- *      MBED_WARN("ISR", "Print in interrupt context");
+ *      MBED_WARN("ISR", "Print in interrupt context\n");
  *  }
  *
  *  int main() {
@@ -50,7 +50,7 @@
  *      int count = 1;
  *      while(count++) {
  *          wait(0.2);
- *          MBED_DBG_IF("main", (0 == count%10), "Count = %d", count);
+ *          MBED_DBG_IF("main", (0 == count%10), "Count = %d\n", count);
  *      }
  *  }
  *
