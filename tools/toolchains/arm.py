@@ -252,7 +252,8 @@ class ARM(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
-        bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
+        # On .hex format, combine multiple .hex files (for multiple load regions) into one 
+        bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
 
@@ -359,10 +360,15 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mcmse")
 
         # Create Secure library
-        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+        if ((target.core == "Cortex-M23" or self.target.core == "Cortex-M33") and
+            kwargs.get('build_dir', False)):
             build_dir = kwargs['build_dir']
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
+        # Add linking time preprocessor macro __DOMAIN_NS
+        if target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS":
+            define_string = self.make_ld_define("__DOMAIN_NS", 1)
+            self.flags["ld"].append(define_string)
 
         asm_cpu = {
             "Cortex-M0+": "Cortex-M0",
