@@ -107,9 +107,10 @@ class TerminalNotifier(Notifier):
     def print_notify_verbose(self, event):
         """ Default command line notification with more verbose mode
         """
-        if event['type'] in ['info', 'debug']:
+        if event['type'] == 'info':
             return event['message']
-
+        elif event['type'] == 'debug':
+            return "[DEBUG] {message}".format(**event)
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])

@@ -69,7 +69,6 @@ class Notifier(object):
         """
         if isinstance(message, list):
             message = ' '.join(message)
-        message = "[DEBUG] " + message
         self.notify({'type': 'debug', 'message': message})
 
     def cc_info(self, info=None):
@@ -78,7 +77,12 @@ class Notifier(object):
             self.notify(info)
 
     def cc_verbose(self, message, file=""):
-        self.debug(message)
+        self.notify({
+            'type': 'info',
+            'severity': 'verbose',
+            'file': file,
+            'message': message
+        })
 
     def progress(self, action, file, percent=None):
         """
