@@ -577,6 +577,57 @@ const PinMap PinMap_SPI_SSEL[] = {
     {NC,    NC,    0}
 };
 
+//*** SD ***
+
+const PinMap PinMap_SD_DAT0[] = {
+    {PB_2, SD_0, SYS_GPB_MFPL_PB2MFP_SD0_DAT0},
+    {PE_2, SD_0, SYS_GPE_MFPL_PE2MFP_SD0_DAT0},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_DAT1[] = {
+    {PB_3, SD_0, SYS_GPB_MFPL_PB3MFP_SD0_DAT1},
+    {PE_3, SD_0, SYS_GPE_MFPL_PE3MFP_SD0_DAT1},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_DAT2[] = {
+    {PB_4, SD_0, SYS_GPB_MFPL_PB4MFP_SD0_DAT2},
+    {PE_4, SD_0, SYS_GPE_MFPL_PE4MFP_SD0_DAT2},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_DAT3[] = {
+    {PB_5, SD_0, SYS_GPB_MFPL_PB5MFP_SD0_DAT3},
+    {PE_5, SD_0, SYS_GPE_MFPL_PE5MFP_SD0_DAT3},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_CMD[] = {
+    {PB_0, SD_0, SYS_GPB_MFPL_PB0MFP_SD0_CMD},
+    {PE_7, SD_0, SYS_GPE_MFPL_PE7MFP_SD0_CMD},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_CLK[] = {
+    {PB_1, SD_0, SYS_GPB_MFPL_PB1MFP_SD0_CLK},
+    {PE_6, SD_0, SYS_GPE_MFPL_PE6MFP_SD0_CLK},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_SD_CD[] = {
+    {PB_12, SD_0, SYS_GPB_MFPH_PB12MFP_SD0_nCD},
+    {PD_13, SD_0, SYS_GPD_MFPH_PD13MFP_SD0_nCD},
+
+    {NC,    NC,    0}
+};
+
 const PinMap PinMap_CAN_TD[] = {
     {PA_5, CAN_0, SYS_GPA_MFPL_PA5MFP_CAN0_TXD},
     {PA_12, CAN_0, SYS_GPA_MFPH_PA12MFP_CAN0_TXD},

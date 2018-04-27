@@ -299,6 +299,16 @@ typedef enum {
 } DMAName;
 
 typedef enum {
+
+#if defined(SCU_INIT_PNSSET0_VAL) && (SCU_INIT_PNSSET0_VAL & (1 << 13))
+    SD_0 = (int) NU_MODNAME(SDH0_BASE + NS_OFFSET, 0, 0)
+#else
+    SD_0 = (int) NU_MODNAME(SDH0_BASE, 0, 0)
+#endif
+
+} SDName;
+
+typedef enum {
     
 #if defined(SCU_INIT_PNSSET5_VAL) && (SCU_INIT_PNSSET5_VAL & (1 << 0))
     CAN_0 = (int) NU_MODNAME(CAN0_BASE + NS_OFFSET, 0, 0)
