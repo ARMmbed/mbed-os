@@ -11,12 +11,13 @@ bool hal_crc_is_supported(const uint32_t polynomial)
 {
   switch (polynomial)
   {
-    case POLY_8BIT_CCITT:
-    case POLY_7BIT_SD:
     case POLY_16BIT_CCITT:
     case POLY_16BIT_IBM:
     case POLY_32BIT_ANSI:
       return true;
+    case POLY_8BIT_CCITT:
+    case POLY_7BIT_SD:
+      return false;
     default:
       return false;
   }
@@ -70,34 +71,9 @@ void hal_crc_compute_partial_start(const uint32_t polynomial)
 
       break;
     }
-    case POLY_8BIT_CCITT:
-    {
-      width = kCrcBits16;
-
-      config.polynomial         = polynomial;
-      config.seed               = 0U;
-      config.reflectIn          = false;
-      config.reflectOut         = false;
-      config.complementChecksum = false;
-      config.crcBits            = width;
-      config.crcResult          = kCrcFinalChecksum;
-
+    default:
+      MBED_ASSERT("Configuring Mbed CRC with unsupported polynomial");
       break;
-    }
-    case POLY_7BIT_SD:
-    {
-      width = kCrcBits16;
-
-      config.polynomial         = polynomial;
-      config.seed               = 0U;
-      config.reflectIn          = false;
-      config.reflectOut         = false;
-      config.complementChecksum = false;
-      config.crcBits            = width;
-      config.crcResult          = kCrcFinalChecksum;
-
-      break;
-    }
   }
 
   CRC_Init(CRC0, &config);
