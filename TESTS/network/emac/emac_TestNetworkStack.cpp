@@ -125,6 +125,17 @@ EmacTestNetworkStack::Interface::Interface()
 
 }
 
+
+void EmacTestNetworkStack::Interface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+{
+
+}
+
+nsapi_connection_status_t EmacTestNetworkStack::Interface::get_connection_status() const
+{
+    return NSAPI_STATUS_ERROR_UNSUPPORTED;
+}
+
 char *EmacTestNetworkStack::Interface::get_mac_address(char *buf, nsapi_size_t buflen)
 {
     return NULL;
@@ -145,7 +156,7 @@ char *EmacTestNetworkStack::Interface::get_gateway(char *buf, nsapi_size_t bufle
     return NULL;
 }
 
-nsapi_error_t EmacTestNetworkStack::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
+nsapi_error_t EmacTestNetworkStack::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack, bool blocking)
 {
     if (!emac_if_init()) {
         TEST_ASSERT_MESSAGE(0, "emac initialization failed!");
