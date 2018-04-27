@@ -774,11 +774,11 @@
     "MCU_LPC546XX": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX", "NXP_EMAC"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
+        "device_has": ["ANALOGIN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
         "features": ["LWIP"],
         "device_name" : "LPC54628J512ET180",
         "overrides": {
