@@ -78,7 +78,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 //******************************************************************************
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    I2CM_Init(obj->i2c, &obj->sys_cfg, hz);
+    I2CM_Init(obj->i2c, &obj->sys_cfg, (i2cm_speed_t)hz);
 }
 
 //******************************************************************************
