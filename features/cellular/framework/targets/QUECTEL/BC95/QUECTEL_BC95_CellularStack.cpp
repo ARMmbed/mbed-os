@@ -154,7 +154,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
-    _at.write_int(size);
+    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
     _at.write_string(hexstr, false);
     _at.cmd_stop();
     _at.resp_start();
@@ -178,11 +178,10 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     nsapi_size_or_error_t recv_len=0;
     int port;
     char ip_address[NSAPI_IP_SIZE];
-    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2+1];
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
-    _at.write_int(size);
+    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
     _at.cmd_stop();
     _at.resp_start();
     // receiving socket id
@@ -190,13 +189,12 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
     recv_len = _at.read_int();
-    int hexlen = _at.read_string(hexstr, BC95_MAX_PACKET_SIZE*2+1);
+    int hexlen = _at.read_hex_string((char*)buffer, size);
     // remaining length
     _at.skip_param();
     _at.resp_stop();
 
     if (!recv_len || (recv_len == -1) || (_at.get_last_error() != NSAPI_ERROR_OK)) {
-        delete hexstr;
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
@@ -205,10 +203,8 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
         address->set_port(port);
     }
 
-    if (hexlen > 0) {
-        hex_str_to_char_str((const char*) hexstr, hexlen, (char*)buffer);
+    if (recv_len != hexlen) {
+        tr_error("Not received as much data as expected. Should receive: %d bytes, received: %d bytes", recv_len, hexlen);
     }
-
-    delete hexstr;
     return recv_len;
 }

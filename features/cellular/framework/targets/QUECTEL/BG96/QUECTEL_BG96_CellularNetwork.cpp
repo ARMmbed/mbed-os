@@ -30,9 +30,7 @@ QUECTEL_BG96_CellularNetwork::~QUECTEL_BG96_CellularNetwork()
 
 bool QUECTEL_BG96_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
 {
-    if ((requested_stack == IPV4_STACK) ||
-        (requested_stack == IPV6_STACK) ||
-        (requested_stack == IPV4V6_STACK)) {
+    if (requested_stack == IPV4_STACK) {
         return true;
     }
 
