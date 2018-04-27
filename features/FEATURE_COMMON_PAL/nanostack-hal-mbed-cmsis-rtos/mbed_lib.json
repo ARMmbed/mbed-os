@@ -6,7 +6,7 @@
             "value": false
         },
         "event_loop_thread_stack_size": {
-            "help": "Define event-loop thread stack size.",
+            "help": "Define event-loop thread stack size. [bytes]",
             "value": 6144
         },
         "critical-section-usable-from-interrupt": {
