@@ -197,7 +197,7 @@ extern "C" void log_id_data(uint32_t argCount, ...)
 
 #else // String based implementation
 
-static void log_format_str_data(const char *format, va_list args, bool in_isr)
+static void log_format_str_data(const char *format, va_list args)
 {
     LOG_DATA_TYPE_ one_line[LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_STR_SIZE_];
     int32_t size = LOG_SINGLE_STR_SIZE_ + LOG_SINGLE_STR_SIZE_;
@@ -219,19 +219,22 @@ static void log_format_str_data(const char *format, va_list args, bool in_isr)
     }
 
     if (NULL != extern_buf) {
+        core_util_critical_section_enter();
         log_update_buf(one_line, count);
+        core_util_critical_section_exit();
     } else {
-        if ((true == in_isr) && (NULL != log_buffer))  {
-            count += 1;
+        // Inside ISR
+        if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+            core_util_critical_section_enter();
             // Check buf size, if we have space for full line then only push
-            if ( (LOG_BUF_SIZE_ - log_buffer->size()) < count) {
-                log_flags.set(BUF_FLAG_);
-                return;
+            if ( (LOG_BUF_SIZE_ - log_buffer->size()) > count) {
+                count += 1;
+                int32_t bytes_written = 0;
+                while (count--) {
+                    log_buffer->push(one_line[bytes_written++]);
+                }
             }
-            int32_t bytes_written = 0;
-            while (count--) {
-                log_buffer->push(one_line[bytes_written++]);
-            }
+            core_util_critical_section_exit();
             log_flags.set(BUF_FLAG_);
             return;
         } else {
@@ -286,13 +289,11 @@ extern "C" void log_str_vdata(const char *format, va_list args)
 
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
         if (NULL != log_buffer) {
-            core_util_critical_section_enter();
-            log_format_str_data(format, args, true);
-            core_util_critical_section_exit();
+            log_format_str_data(format, args);
         }
     } else {
         mbed_log_lock();
-        log_format_str_data(format, args, false);
+        log_format_str_data(format, args);
         mbed_log_unlock_all();
     }
 }
