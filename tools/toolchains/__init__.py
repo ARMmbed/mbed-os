@@ -169,8 +169,7 @@ class Resources:
             self.ignored_dirs.append(directory)
 
     def add(self, resources):
-        for f,p in resources.file_basepath.items():
-            self.file_basepath[f] = p
+        self.file_basepath.update(resources.file_basepath)
 
         self.inc_dirs += resources.inc_dirs
         self.headers += resources.headers
@@ -200,6 +199,48 @@ class Resources:
         self.ignored_dirs += resources.ignored_dirs
 
         return self
+
+    def rewrite_basepath(self, file_name, export_path, loc):
+        """ Replace the basepath of filename with export_path
+
+        Positional arguments:
+        file_name - the absolute path to a file
+        export_path - the final destination of the file after export
+        """
+        new_f = join(loc, relpath(file_name, self.file_basepath[file_name]))
+        self.file_basepath[new_f] = export_path
+        return new_f
+
+    def subtract_basepath(self, export_path, loc=""):
+        """ Rewrite all of the basepaths with the export_path
+
+        Positional arguments:
+        export_path - the final destination of the resources with respect to the
+        generated project files
+        """
+        keys = ['s_sources', 'c_sources', 'cpp_sources', 'hex_files',
+                'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script',
+                'lib_dirs']
+        for key in keys:
+            vals = getattr(self, key)
+            if isinstance(vals, set):
+                vals = list(vals)
+            if isinstance(vals, list):
+                new_vals = []
+                for val in vals:
+                    new_vals.append(self.rewrite_basepath(
+                        val, export_path, loc))
+                if isinstance(getattr(self, key), set):
+                    setattr(self, key, set(new_vals))
+                else:
+                    setattr(self, key, new_vals)
+            elif vals:
+                setattr(self, key, self.rewrite_basepath(
+                    vals, export_path, loc))
+        def closure(res, export_path=export_path, loc=loc):
+            res.subtract_basepath(export_path, loc)
+            return res
+        self.features.apply(closure)
 
     def _collect_duplicates(self, dupe_dict, dupe_headers):
         for filename in self.s_sources + self.c_sources + self.cpp_sources:
