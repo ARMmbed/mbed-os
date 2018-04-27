@@ -447,6 +447,15 @@ static void spi_xfer(NRF_SPI_Type                  * p_spi,
 
     nrf_spi_event_clear(p_spi, NRF_SPI_EVENT_READY);
 
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
+    if (p_cb->handler)
+    {
+        nrf_spi_int_enable(p_spi, NRF_SPI_INT_READY_MASK);
+    }
+
     // Start the transfer by writing some byte to the TXD register;
     // if TX buffer is not empty, take the first byte from this buffer,
     // otherwise - use over-run character.
@@ -471,11 +480,11 @@ static void spi_xfer(NRF_SPI_Type                  * p_spi,
     // and a new incoming byte was moved to the RXD register) and continue
     // transaction until all requested bytes are transferred.
     // In non-blocking mode - IRQ service routine will do this stuff.
-    if (p_cb->handler)
-    {
-        nrf_spi_int_enable(p_spi, NRF_SPI_INT_READY_MASK);
-    }
-    else
+    /**
+     * 4/23/2018 Arm Mbed modification to Nordic SDK 14.2.
+     * Interrupts must be enabled before transmitting the first byte in asynchronous mode.
+     */
+    if (p_cb->handler == NULL)
     {
         do {
             while (!nrf_spi_event_check(p_spi, NRF_SPI_EVENT_READY)) {}
