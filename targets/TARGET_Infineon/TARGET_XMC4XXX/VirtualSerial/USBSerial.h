@@ -17,7 +17,6 @@
 #ifndef USBSERIAL_H_
 #define USBSERIAL_H_
 
-#include "RingBuff.h"
 #include "mbed.h"
 #include "rtos.h"
 #include "Stream.h"

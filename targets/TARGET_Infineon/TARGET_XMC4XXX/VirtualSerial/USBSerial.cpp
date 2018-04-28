@@ -20,7 +20,7 @@
 #include "VirtualSerial.h"
 
 /****************************************************************** Globals **/
-static RingBuff<int16_t, 1024> ringBuf;
+static CircularBuffer<int16_t, 1024> ringBuf;
 
 /**************************************************************** Functions **/
 
@@ -35,7 +35,7 @@ static void usb_vcom_task() {
 
         /* Check if new message is available */
         while(CDC_Device_BytesReceived(&VirtualSerial_CDC_Interface)){
-            ringBuf.add(CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface));
+            ringBuf.push(CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface));
         }
     }
 }
@@ -77,9 +77,9 @@ int USBSerial::_getc() {
     int16_t val = 0;
 
     // wait until character is available
-    while(ringBuf.isEmpty());
+    while(ringBuf.empty());
     // get & remove character from ring buffer
-    ringBuf.pull(&val);
+    ringBuf.pop(val);
     return val;
 }
 
@@ -103,7 +103,7 @@ int USBSerial::writable(void){
  */
 int USBSerial::readable(void){
 
-    if(!ringBuf.isEmpty()){
+    if(!ringBuf.empty()){
         return 1;
     }
     return 0;
