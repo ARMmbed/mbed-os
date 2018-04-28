@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-// library provided by https://github.com/wizard97/Embedded_RingBuf_CPP
-
-#ifndef MBED_OS_CIRCULAR_BUFFER_H_
-#define MBED_OS_CIRCULAR_BUFFER_H_
+#ifndef RING_BUFF_H_
+#define RING_BUFF_H_
 
 #include "mbed.h"
-#include "rtos.h"
 
 template <typename Type, size_t MaxElements>
 class RingBuff
@@ -38,7 +35,7 @@ RingBuff()
 }
 
 /**
- *  Add element obj to the buffer
+ * Add element obj to the buffer
  * Return: true on success
  */
 bool add(const Type &obj)
@@ -174,6 +171,6 @@ private:
 
 };
 
-#endif /* MBED_OS_CIRCULAR_BUFFER_H_ */
+#endif /* RING_BUFF_H_ */
 
 /*EOF*/
