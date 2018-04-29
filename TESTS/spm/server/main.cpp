@@ -22,7 +22,7 @@
 #include "utest.h"
 #include "spm_client.h"
 #include "spm_panic.h"
-#include "psa_client_common.h"
+#include "psa_server_test_part1_ifs.h"
 #include "server_tests.h"
 using namespace utest::v1;
 

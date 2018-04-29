@@ -23,8 +23,12 @@
 #include "mbed_rtos_storage.h"
 #include "spm_panic.h"
 #include "spm_internal.h"
-#include "psa_client_common.h"
 #include "psa_{{partition.name|lower}}_partition.h"
+#include "psa_{{partition.name|lower}}_ifs.h"
+{% for partition in dependent_partitions %}
+#include "psa_{{partition|lower}}_ifs.h"
+{% endfor %}
+
 
 /* Threads stacks */
 MBED_ALIGN(8) uint8_t {{partition.name|lower}}_thread_stack[{{partition.stack_size}}] = {0};
@@ -48,7 +52,7 @@ osThreadAttr_t {{partition.name|lower}}_thread_attr = {
 secure_func_t {{partition.name|lower}}_sec_funcs[{{partition.name|upper}}_SF_COUNT] = {
 {% for sf in partition.secure_functions %}
     {
-        .sfid = {{sf.sfid|upper}},
+        .sfid = {{sf.name|upper}},
         .mask = {{sf.signal|upper}},
         .partition = NULL,
         .min_version = {{sf.minor_version}},

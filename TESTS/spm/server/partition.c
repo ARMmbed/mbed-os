@@ -16,7 +16,7 @@
 #include "string.h"
 #include "spm_server.h"
 #include "spm_panic.h"
-#include "psa_part1_partition.h"
+#include "psa_server_test_part1_partition.h"
 #include "server_tests.h"
 
 extern psa_test_server_side_func test_list[];

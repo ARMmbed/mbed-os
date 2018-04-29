@@ -17,7 +17,7 @@
 #include "cmsis_os2.h"
 #include "spm_server.h"
 #include "spm_panic.h"
-#include "psa_part2_partition.h"
+#include "psa_server_test_part2_partition.h"
 
 static psa_msg_t msg = {0};
 

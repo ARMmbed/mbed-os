@@ -1,3 +1,3 @@
-from .generate_partition_code import process_manifest_files
+from .generate_partition_code import generate_partitions_sources, generate_spm_data
 
-__all__ = ['process_manifest_files']
+__all__ = ['generate_partitions_sources', 'generate_spm_data']

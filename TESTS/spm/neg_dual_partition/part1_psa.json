@@ -1,21 +1,21 @@
 {
-  "name": "CLIENT_TESTS_PART1",
+  "name": "NEG_DUAL_PART1",
   "type": "SECURE",
   "priority": "NORMAL",
-  "id": "0x00000001",
-  "entry_point": "server_main",
+  "id": "0x00000006",
+  "entry_point": "server_main1",
   "stack_size": "0x400",
   "heap_size": "0x400",
   "secure_functions": [{
-      "name": "PART1_SF1",
-      "identifier": "0x00001A05",
-      "signal": "PART1_SF1_MSK",
+      "name": "PART1_CALL_NON_EXISTS_EXTERN_SFID",
+      "identifier": "0x00001A08",
+      "signal": "PART1_CALL_NON_EXISTS_EXTERN_SFID_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "relaxed"
     }
   ],
   "source_files": [
-    "server.c"
+    "server1.c"
   ]
 }
