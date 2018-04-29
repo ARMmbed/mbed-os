@@ -47,7 +47,7 @@ from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
-from .spm import process_manifest_files
+from .spm import generate_spm_data
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -584,7 +584,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Directories scanned would not include the root of Mbed OS for legacy builds
         if 'rtos' in toolchain.config.lib_config_data:
             # Generate SPM additional code from manifests
-            psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
+            psa_files_dir = generate_spm_data(resources.psa_manifests, build_path)
             resources.add(toolchain.scan_resources(psa_files_dir))
 
         # Change linker script if specified

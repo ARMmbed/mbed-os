@@ -19,6 +19,7 @@ limitations under the License.
 TEST BUILD & RUN
 """
 from __future__ import print_function, division, absolute_import
+
 import sys
 import os
 import json
@@ -42,6 +43,7 @@ from tools.utils import argparse_filestring_type, argparse_lowercase_type, argpa
 from tools.utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
+from tools.spm import generate_partitions_sources
 
 if __name__ == '__main__':
     try:
@@ -193,6 +195,13 @@ if __name__ == '__main__':
             # Default base source path is the current directory
             if not base_source_paths:
                 base_source_paths = ['.']
+
+            manifests = set()
+            for src_dir in base_source_paths:
+                for root, dirnames, filenames in os.walk(src_dir):
+                    for filename in fnmatch.filter(filenames, '*_psa.json'):
+                        manifests.add(os.path.join(root, filename))
+            generate_partitions_sources(list(manifests))
 
             build_report = {}
             build_properties = {}

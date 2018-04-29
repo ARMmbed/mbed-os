@@ -15,7 +15,7 @@ TEMPLATES_DIR = path_join(SCRIPT_DIR, 'templates')
 def assert_int(num):
     """
     Tries to parse an integer num from a given string
-    
+
     :param num: Number in int/string type
     :return: Numeric value
     """
@@ -35,7 +35,8 @@ class SecureFunction(object):
 
     def __init__(
             self,
-            sfid,
+            name,
+            identifier,
             signal,
             non_secure_clients,
             minor_version=1,
@@ -43,16 +44,20 @@ class SecureFunction(object):
     ):
         """
         Secure Function C'tor (Aligned with json schema)
-        
-        :param sfid: Secure function identifier (available to user)
+
+        :param name: Secure function identifier (available to user)
+        :param identifier: Secure function numeric enumaration.
         :param signal: Secure Function identifier inside the partition
         :param non_secure_clients: True to allow connections from non-secure
                partitions
         :param minor_version: Secure function version
         :param minor_policy: Enforcement level of minor version
         """
-        self.sfid = sfid
+        self.name = name
+        self.id = identifier
         self.signal = signal
+
+        assert assert_int(identifier)
 
         assert isinstance(non_secure_clients, bool), \
             'non_secure_clients parameter must be of boolean type'
@@ -65,9 +70,14 @@ class SecureFunction(object):
             'minor_policy parameter is invalid'
         self.minor_policy = minor_policy
 
+    @property
+    def numeric_id(self):
+        return assert_int(self.id)
+
     def __eq__(self, other):
         return (
-            (self.sfid == other.sfid) and
+            (self.name == other.name) and
+            (self.id == other.id) and
             (self.signal == other.signal) and
             (self.nspe_callable == other.nspe_callable) and
             (self.minor_version == other.minor_version) and
@@ -84,18 +94,18 @@ class MmioRegion(object):
     def __init__(self, **kwargs):
         """
         MMIO Region C'tor (Aligned with json schema)
-        
+
         Supports both named and numeric regions
         In case of named region the acceptable params are name and permission
         In case of numeric region the acceptable params are name, size and
         permission
-        
+
         :param name: C definition name of the region (size will be
                      auto-generated)
         :param base: C hex string defining a memory address (must be 32bit)
         :param size: size of a region (Applicable only for numbered regions)
-        :param permission: Access permissions to the described region (R/RW) 
-         
+        :param permission: Access permissions to the described region (R/RW)
+
         """
         assert 'permission' in kwargs
         self.permission = self.MMIO_PERMISSIONS[kwargs['permission']]
@@ -122,9 +132,9 @@ class Irq(object):
     def __init__(self, line_num, signal):
         """
         IRQ line C'tor (Aligned with json schema)
-        
-        :param line_num: number of interrupt used by the partition 
-        :param signal: IRQ line identifier inside the partition 
+
+        :param line_num: number of interrupt used by the partition
+        :param signal: IRQ line identifier inside the partition
         """
         self.line_num = assert_int(line_num)
         assert isinstance(signal, basestring)
@@ -161,7 +171,7 @@ class Manifest(object):
     ):
         """
         Manifest C'tor (Aligned with json schema)
-        
+
         :param manifest_file: Path to json manifest
         :param name: Partition unique name
         :param partition_id: Partition identifier
@@ -316,6 +326,70 @@ class Manifest(object):
             irqs=irqs
         )
 
+    @property
+    def sfids(self):
+        return [sf.name for sf in self.secure_functions]
+
+    @property
+    def autogen_folder(self):
+        return path_join(os.path.dirname(self.file), 'psa_partition_autogen')
+
+    def is_up_to_date(self, template_files):
+        """
+        Check if need to re-generate source files
+
+        We don't need to re-generate the files if:
+        1. All the expected generated files exist AND
+        2. None of the JSON, templates, script files were modified after the
+           auto-generated files
+
+        :param template_files: List of the template files
+        :return: True/False
+        """
+
+        return is_up_to_date(
+            [self.file],
+            template_files,
+            list(self.templates_to_files(template_files,
+                                         self.autogen_folder).values())
+        )
+
+    def find_dependencies(self, manifests):
+        """
+        Find other manifests which holds Secure functions that 
+        are declared as extern in this manifest
+
+        :param manifests: list of manifests to filter
+        :return: list of manifest's names that holds current 
+                extern secure functions
+        """
+
+        manifests = filter(lambda man: man != self, manifests)
+        extern_sfids_set = set(self.extern_sfids)
+        return [manifest.name for manifest in manifests
+                if extern_sfids_set.intersection(set(manifest.sfids))]
+
+    def templates_to_files(self, templates, output_dir):
+        """
+        Translates a list of partition templates to file names
+
+        :param templates: List of partition templates
+        :param output_dir: Output directory (Default is autogen folder property)
+        :return: Dictionary of template to output file translation
+        """
+
+        generated_files = {}
+        for t in templates:
+            fname = os.path.basename(t)
+            _tpl = fname.replace('NAME', self.name.lower())
+            full_path = path_join(
+                output_dir,
+                os.path.splitext(_tpl)[0]
+            )
+            generated_files[t] = full_path
+
+        return generated_files
+
 
 def validate_partition_manifests(manifests):
     """
@@ -330,6 +404,7 @@ def validate_partition_manifests(manifests):
     partitions_names = {}
     partitions_ids = {}
     secure_function_ids = {}
+    secure_function_names = {}
     secure_function_signals = {}
     irq_signals = {}
     irq_numbers = {}
@@ -361,16 +436,16 @@ def validate_partition_manifests(manifests):
 
         # Make sure all the secure function IDs and signals are unique.
         for secure_function in manifest.secure_functions:
-            if secure_function.sfid in secure_function_ids:
+            if secure_function.name in secure_function_names:
                 raise ValueError(
-                    'Secure function sfid {} is found '
+                    'Secure function name {} is found '
                     'in both {} and {}.'.format(
-                        secure_function.sfid,
-                        secure_function_ids[secure_function.sfid],
+                        secure_function.name,
+                        secure_function_names[secure_function.name],
                         manifest.file
                     )
                 )
-            secure_function_ids[secure_function.sfid] = manifest.file
+            secure_function_names[secure_function.name] = manifest.file
 
             if secure_function.signal in secure_function_signals:
                 raise ValueError(
@@ -382,6 +457,17 @@ def validate_partition_manifests(manifests):
                     )
                 )
             secure_function_signals[secure_function.signal] = manifest.file
+
+            if secure_function.numeric_id in secure_function_ids:
+                raise ValueError(
+                    'Secure function identifier {} is found '
+                    'in both {} and {}.'.format(
+                        secure_function.numeric_id,
+                        secure_function_ids[secure_function.numeric_id],
+                        manifest.file
+                    )
+                )
+            secure_function_ids[secure_function.numeric_id] = manifest.file
 
         # Make sure all the IRQ signals and line-numbers are unique.
         for irq in manifest.irqs:
@@ -406,7 +492,7 @@ def validate_partition_manifests(manifests):
             irq_numbers[irq.line_num] = manifest.file
 
     # Check that all the external SFIDs can be found.
-    declared_sfids = set(secure_function_ids.keys())
+    declared_sfids = set(secure_function_names.keys())
     for manifest in manifests:
         extern_sfids = set(manifest.extern_sfids)
         if not extern_sfids.issubset(declared_sfids):
@@ -426,83 +512,6 @@ def get_latest_timestamp(*files):
     :return: Latest modification time from all the files
     """
     return max([os.path.getmtime(f) for f in files])
-
-
-def generate_source_files(
-        manifests,
-        template_files,
-        output_dir,
-        extra_filters=None
-):
-    """
-    Generate C code from manifests using given templates
-
-    :param manifests: List of the partition manifests
-    :param template_files: List of template files
-    :param output_dir: Output directory for the generated C file
-    :param extra_filters: Dictionary of extra filters to use in the rendering
-           process
-    :return: List of paths to the generated files
-    """
-    autogen_folder = path_join(output_dir, 'psa_autogen')
-
-    # Create a list of all the defined MMIO regions.
-    region_list = []
-    for manifest in manifests:
-        for region in manifest.mmio_regions:
-            region_list.append(region)
-
-    templates_dirs = list(
-        set([os.path.dirname(path) for path in template_files])
-    )
-
-    # Load templates for the code generation.
-    env = Environment(
-        loader=FileSystemLoader(templates_dirs),
-        lstrip_blocks=True,
-        trim_blocks=True
-    )
-    if extra_filters:
-        env.filters.update(extra_filters)
-
-    rendered_files = {}
-    template_files = [os.path.basename(elem) for elem in template_files]
-    partition_templates = filter(
-        lambda filename: '_NAME_' in filename, template_files
-    )
-    common_templates = []
-    for elem in template_files:
-        if elem not in partition_templates:
-            common_templates.append(elem)
-
-    for template_file in common_templates:
-        template = env.get_template(template_file)
-        generated_filename = os.path.splitext(template_file)[0]
-
-        full_path_common = path_join(autogen_folder, generated_filename)
-        rendered_files[full_path_common] = template.render(
-            partitions=manifests,
-            region_pair_list=list(itertools.combinations(region_list, 2))
-        )
-
-    for partition in manifests:
-        for template_file in partition_templates:
-            template = env.get_template(template_file)
-
-            _tpl = template_file.replace('NAME', partition.name.lower())
-            generated_filename = os.path.splitext(_tpl)[0]
-
-            full_path = path_join(autogen_folder, generated_filename)
-            rendered_files[full_path] = template.render(partition=partition)
-
-    if not os.path.exists(autogen_folder):
-        os.makedirs(autogen_folder)
-
-    for rendered_filename in rendered_files:
-        with open(rendered_filename, 'wt') as fh:
-            fh.write(rendered_files[rendered_filename])
-
-    return autogen_folder
 
 
 def is_up_to_date(manifest_files, template_files, generated_files):
@@ -530,6 +539,10 @@ def is_up_to_date(manifest_files, template_files, generated_files):
         (num_of_partitions * num_of_partition_templates) + \
         num_of_common_templates
 
+    for f in generated_files:
+        if not os.path.exists(f):
+            return False
+
     if expected_num_of_generated_files == len(generated_files):
         timestamp_generated = get_latest_timestamp(*generated_files)
         timestamp_src = get_latest_timestamp(
@@ -540,32 +553,138 @@ def is_up_to_date(manifest_files, template_files, generated_files):
     return False
 
 
-def process_manifest_files(manifest_files, output_dir):
+def generate_source_files(
+        templates,
+        render_args,
+        output_folder,
+        extra_filters=None
+):
+    """
+    Generate SPM common C code from manifests using given templates
+
+    :param templates: Dictionary of template and their auto-generated products
+    :param render_args: Dictionary of arguments that should be passed to render
+    :param output_folder: Output directory for file generation
+    :param extra_filters: Dictionary of extra filters to use in the rendering
+           process
+    :return: Path to generated folder containing common generated files
+    """
+
+    rendered_files = []
+    templates_dirs = list(
+        set([os.path.dirname(path) for path in templates])
+    )
+    template_files = {os.path.basename(t): t for t in templates}
+
+    # Load templates for the code generation.
+    env = Environment(
+        loader=FileSystemLoader(templates_dirs),
+        lstrip_blocks=True,
+        trim_blocks=True
+    )
+    if extra_filters:
+        env.filters.update(extra_filters)
+
+    for tf in template_files:
+        template = env.get_template(tf)
+        rendered_files.append(
+            (templates[template_files[tf]], template.render(**render_args)))
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for fname, data in rendered_files:
+        with open(fname, 'wt') as fh:
+            fh.write(data)
+
+    return output_folder
+
+
+def generate_partitions_sources(manifest_files, extra_filters=None):
     """
     Process all the given manifest files and generate C code from them
 
     :param manifest_files: List of manifest files
-    :param output_dir: Output directory for the generated source files
+    :param extra_filters: Dictionary of extra filters to use in the rendering
+           process
     :return: List of paths to the generated files
     """
-    autogen_folder = path_join(output_dir, 'psa_autogen')
 
-    template_files = glob.glob(path_join(TEMPLATES_DIR, '*.tpl'))
-    generated_files = glob.glob(path_join(autogen_folder, '*'))
+    partition_template_files = filter(
+        lambda filename: '_NAME_' in filename,
+        glob.glob(path_join(TEMPLATES_DIR, '*.tpl'))
+    )
 
-    if is_up_to_date(manifest_files, template_files, generated_files):
-        return autogen_folder
-
-    # Construct a list of all the manifests.
+    # Construct a list of all the manifests and sfids.
     manifests = []
     for manifest_file in manifest_files:
-        manifests.append(Manifest.from_json(manifest_file))
+        manifest = Manifest.from_json(manifest_file)
+        manifests.append(manifest)
 
     # Validate the correctness of the manifest collection.
     validate_partition_manifests(manifests)
 
-    # Generate code.
+    generated_folders = []
+    for manifest in manifests:
+        manifest_output_folder = manifest.autogen_folder
+        if not manifest.is_up_to_date(partition_template_files):
+            render_args = {
+                'partition': manifest,
+                'dependent_partitions': manifest.find_dependencies(manifests)
+            }
+            manifest_output_folder = generate_source_files(
+                manifest.templates_to_files(partition_template_files,
+                                            manifest_output_folder),
+                render_args,
+                manifest_output_folder,
+                extra_filters=extra_filters
+            )
+
+        generated_folders.append(manifest_output_folder)
+
+    return generated_folders
+
+
+def generate_spm_data(manifest_files, output_dir, extra_filters=None):
+    """
+Process all the given manifest files and generate C code from them
+    :param manifest_files: List of manifest files
+    :param output_dir: Output directory for the generated source files
+    :param extra_filters: Dictionary of extra filters to use in the rendering
+           process
+    :return: List of paths to the generated files
+    """
+    autogen_folder = path_join(output_dir, 'psa_autogen')
+    template_files = filter(
+        lambda filename: '_NAME_' not in filename,
+        glob.glob(path_join(TEMPLATES_DIR, '*.tpl'))
+    )
+
+    templates_dict = {
+        t: path_join(autogen_folder, os.path.basename(os.path.splitext(t)[0]))
+        for t in template_files
+    }
+
+    if is_up_to_date(manifest_files, template_files, templates_dict.values()):
+        return autogen_folder
+
+    # Construct lists of all the manifests and mmio_regions.
+    region_list = []
+    manifests = []
+    for manifest_file in manifest_files:
+        manifest_obj = Manifest.from_json(manifest_file)
+        for region in manifest_obj.mmio_regions:
+            region_list.append(region)
+        manifests.append(manifest_obj)
+
+    render_args = {
+        'partitions': manifests,
+        'region_pair_list': list(itertools.combinations(region_list, 2))
+    }
+
     return generate_source_files(
-        sorted(manifests, key=lambda k: k.name),
-        template_files, output_dir
+        templates_dict,
+        render_args,
+        autogen_folder,
+        extra_filters=extra_filters
     )

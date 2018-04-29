@@ -1,20 +1,22 @@
 {
-  "name": "PART2",
+  "name": "SERVER_TEST_PART2",
   "type": "SECURE",
   "priority": "NORMAL",
-  "id": "0x7FFFFFFF",
+  "id": "0x00000003",
   "entry_point": "part2_main",
   "stack_size": "0x400",
   "heap_size": "0x400",
   "secure_functions": [{
-      "sfid": "SF_REVERSE",
+      "name": "SF_REVERSE",
+      "identifier": "0x00001A03",
       "signal": "SF_REVERSE_MSK",
       "non_secure_clients": false,
       "minor_version": 5,
       "minor_policy": "strict"
     },
     {
-      "sfid": "SF_DB_TST",
+      "name": "SF_DB_TST",
+      "identifier": "0x00001A04",
       "signal": "SF_DB_TST_MSK",
       "non_secure_clients": false,
       "minor_version": 5,

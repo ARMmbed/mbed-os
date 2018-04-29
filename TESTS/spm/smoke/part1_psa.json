@@ -1,13 +1,14 @@
 {
-  "name": "PART1",
+  "name": "SMOKE_TEST_PART1",
   "type": "SECURE",
   "priority": "NORMAL",
-  "id": "0x00000001",
+  "id": "0x00000004",
   "entry_point": "part1_main",
   "stack_size": "0x400",
   "heap_size": "0x400",
   "secure_functions": [{
-      "sfid": "SF1",
+      "name": "SF1",
+      "identifier": "0x00001A00",
       "signal": "SF1_MSK",
       "non_secure_clients": true,
       "minor_version": 5,

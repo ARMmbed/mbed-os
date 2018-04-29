@@ -12,38 +12,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdbool.h>
 #include <string.h>
 #include "spm_server.h"
 #include "spm_panic.h"
-#include "psa_client_tests_part1_partition.h"
+#include "psa_neg_client_part1_partition.h"
 
-#define MSG_BUF_SIZE 128
-uint8_t data[MSG_BUF_SIZE] = {0};
+#define msg_buff_SIZE 128
+char msg_buff[msg_buff_SIZE];
 
-void server_main(void *ptr)
+void server_main1(void *ptr)
 {
     uint32_t signals = 0;
-    while (1) {
+    memset(msg_buff, 0, sizeof(msg_buff));
+    while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (signals & PART1_SF1_MSK) {
+        if (signals & NEG_CLIENT_PART1_SF1_MSK) {
             psa_msg_t msg = {0};
-            psa_get(PART1_SF1_MSK, &msg);
+            psa_get(NEG_CLIENT_PART1_SF1_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
-                    memset(data, 0, sizeof(data));
-                    if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 1) {
-                        size_t offset = 0;
-                        offset += psa_read(msg.handle, 0, (void*)data, msg.in_size[0]);
-                        offset += psa_read(msg.handle, 1, (void*)(data + offset), msg.in_size[1]);
-                        offset += psa_read(msg.handle, 2, (void*)(data + offset), msg.in_size[2]);
+                    memset(msg_buff, 0, msg_buff_SIZE);
+                    uint32_t bytes_read = 0;
+                    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+                        bytes_read = psa_read(msg.handle, i, msg_buff + bytes_read, msg.in_size[i]);
                     }
+
                     if (msg.out_size[0] > 0) {
-                        uint8_t resp_size = data[0];
-                        uint8_t resp_offset = data[1];
-                        psa_write(msg.handle, 0, (const void*)(data + resp_offset), resp_size);
+                        psa_write(msg.handle, 0, msg_buff, bytes_read);
                     }
                     break;
                 }
@@ -51,12 +51,10 @@ void server_main(void *ptr)
                     break;
                 }
                 default: {
-                    SPM_PANIC("Invalid msg type");
+                    SPM_ASSERT(false);
                 }
             }
             psa_end(msg.handle, PSA_SUCCESS);
         }
     }
-
-    return;
 }
