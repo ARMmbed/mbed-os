@@ -35,6 +35,7 @@ static int lfs_toerror(int err)
         case LFS_ERR_INVAL:     return -EINVAL;
         case LFS_ERR_NOSPC:     return -ENOSPC;
         case LFS_ERR_NOMEM:     return -ENOMEM;
+        case LFS_ERR_CORRUPT:   return -EILSEQ;
         default:                return err;
     }
 }
