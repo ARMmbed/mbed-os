@@ -6,7 +6,7 @@
 #include "spm_server.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
-#include "psa_part1_partition.h"
+#include "psa_smoke_test_part1_partition.h"
 
 // ------------------------------------ Definitions ----------------------------------
 

@@ -88,15 +88,15 @@ def temp_test_data(tmpdir_factory):
 
 
 """
-'modified_json_params' contain the parameters to be used in the 
+'modified_json_params' contain the parameters to be used in the
 'modified_json' fixture.
-Each key in the dictionary represents a different parameter to be used by 
+Each key in the dictionary represents a different parameter to be used by
 'modified_json', so for each test which uses
 the 'modified_json' fixture, the test will run len(modified_json_params) times,
  each time with different parameters.
 Each parameter is a dictionary which contains these keys:
   'partition': A modified partition dictionary.
-  'assert': The expected assertion which must occur when running with this 
+  'assert': The expected assertion which must occur when running with this
   parameter.
 """
 modified_json_params = {
@@ -285,14 +285,20 @@ def test_valid_json(temp_test_data):
         pytest.param(
             dict(manifests[1],
                  secure_functions=manifests[0]['secure_functions']),
-            (ValueError, r'Secure function sfid .* is found in both .*'),
-            id='duplicate_sf_sfid'
+            (ValueError, r'Secure function name .* is found in both .*'),
+            id='duplicate_sf_name'
         ),
         pytest.param(
             dict(manifests[1],
                  secure_functions=duplicate_signal_secure_functions),
             (ValueError, r'Secure function signal .* is found in both .*'),
             id='duplicate_sf_signal'
+        ),
+        pytest.param(
+            dict(manifests[1],
+                 secure_functions=duplicate_identifier_secure_functions),
+            (ValueError, r'Secure function identifier .* is found in both .*'),
+            id='duplicate_sf_identifier'
         ),
         pytest.param(
             dict(manifests[1], irqs=duplicate_signal_irqs),
@@ -341,10 +347,10 @@ def test_validate_partition_manifest(request, temp_test_data, manifest,
 
 
 """
-'verify_json_params' contain the parameters to be used in the 'verify_json' 
+'verify_json_params' contain the parameters to be used in the 'verify_json'
 fixture. Each key in the dictionary represents a different parameter to be used
-by 'verify_json', so for each test which uses the 'verify_json' fixture, the 
-test will run len(verify_json_params) times, each time with different 
+by 'verify_json', so for each test which uses the 'verify_json' fixture, the
+test will run len(verify_json_params) times, each time with different
 parameters.
 Each parameter is a dictionary which contains these keys:
   'partition': A modified partition dictionary.
@@ -358,8 +364,8 @@ verify_json_params = {
         'field': 'secure_functions',
         'expected': [
             SecureFunction(
-                sfid='SFID1', signal='SFID1', minor_policy='relaxed',
-                non_secure_clients=True, minor_version=1
+                name='SFID1', identifier='0x00000001',signal='SFID1',
+                minor_policy='relaxed', non_secure_clients=True, minor_version=1
             )
         ]
     },
@@ -369,8 +375,8 @@ verify_json_params = {
         'field': 'secure_functions',
         'expected': [
             SecureFunction(
-                sfid='SFID2', signal='SFID2', minor_policy='strict',
-                non_secure_clients=True, minor_version=1
+                name='SFID2', identifier='0x00000002', signal='SFID2',
+                minor_policy='strict', non_secure_clients=True, minor_version=1
             )
         ]
     },
@@ -380,8 +386,8 @@ verify_json_params = {
         'field': 'secure_functions',
         'expected': [
             SecureFunction(
-                sfid='SFID2', signal='SFID2', minor_policy='strict',
-                non_secure_clients=False, minor_version=1
+                name='SFID2', identifier='0x00000002', signal='SFID2',
+                minor_policy='strict', non_secure_clients=False, minor_version=1
             )
         ]
     }
@@ -505,7 +511,16 @@ def test_is_up_to_date(monkeypatch, mock_files, expected):
         """
         return mock_files.get(mock_file, 0)
 
-    monkeypatch.setattr(os.path, 'getmtime', mock_getmtime)
+    def mock_file_exists(mock_file):
+        """
+        A mocking function for 'os.path.exists' which returns the value of
+        'test_mock_files[mock-file]'
+
+        :param mock_file: The mocked file name (key in 'test_mock_files').
+        :return: The mocked modification-time (value of
+                 'test_mock_files[mock-file]').
+        """
+        return True
 
     def get_mock_files(prefix):
         """
@@ -516,6 +531,9 @@ def test_is_up_to_date(monkeypatch, mock_files, expected):
         :return: List of elements which match the requirement.
         """
         return {k: mock_files[k] for k in mock_files if k.startswith(prefix)}
+
+    monkeypatch.setattr(os.path, 'getmtime', mock_getmtime)
+    monkeypatch.setattr(os.path, 'exists', mock_file_exists)
 
     result = is_up_to_date(
         get_mock_files('manifest').keys(),
@@ -581,10 +599,17 @@ def test_template_setup(tmpdir_factory):
                             (test_common_template, template_files[1])]:
         _file.write(template)
     template_files = [_file.strpath for _file in template_files]
+
+    expected_common_files = [test_dir.join('common.json')]
+    for output, _file in [(test_common_expected, expected_common_files[0])]:
+        _file.write(output)
+    expected_common_files = [_file.strpath for _file in expected_common_files]
+
     return {
         'dir': test_dir.strpath,
         'template_files': template_files,
         'manifest_files': manifest_files,
+        'common_files': expected_common_files,
         'manifests': manifest_objects,
         'filters': filters
     }
@@ -598,16 +623,42 @@ def test_generate_source_files(test_template_setup):
     :param test_template_setup: The 'test_template_setup' fixture.
     :return:
     """
-    autogen_dir = generate_source_files(
-        test_template_setup['manifests'],
-        test_template_setup['template_files'],
-        test_template_setup['dir'],
+
+    before_file_list = set(os.listdir(test_template_setup['dir']))
+    partition_templates = filter(lambda filename: '_NAME_' in filename, test_template_setup['template_files'])
+    common_templates = filter(lambda filename: '_NAME_' not in filename, test_template_setup['template_files'])
+    common_templates = {
+        t: path_join(test_template_setup['dir'], os.path.basename(os.path.splitext(t)[0])) for t in common_templates
+    }
+    region_list = []
+
+    for manifest in test_template_setup['manifests']:
+        generate_source_files(
+            templates=manifest.templates_to_files(partition_templates, test_template_setup['dir']),
+            render_args={
+                'partition': manifest,
+                'dependent_partitions': manifest.find_dependencies(test_template_setup['manifests'])
+            },
+            output_folder=test_template_setup['dir'],
+            extra_filters=test_template_setup['filters']
+        )
+        for region in manifest.mmio_regions:
+            region_list.append(region)
+
+    generate_source_files(
+        common_templates,
+        render_args={
+            'partitions': test_template_setup['manifests'],
+            'region_pair_list': list(itertools.combinations(region_list, 2))
+        },
+        output_folder=test_template_setup['dir'],
         extra_filters=test_template_setup['filters']
     )
-    assert os.path.isdir(autogen_dir)
 
-    for gen_file in [os.path.join(autogen_dir, f) for f in
-                     os.listdir(autogen_dir)]:
+    after_file_list = set(os.listdir(test_template_setup['dir']))
+    generated_files = list(after_file_list.difference(before_file_list))
+
+    for gen_file in [os.path.join(test_template_setup['dir'], f) for f in generated_files]:
         """
         For each generated json file in 'autogen_dir':
           1. Load the json file to a dictionary named 'generated'.
@@ -643,16 +694,16 @@ def test_generate_source_files(test_template_setup):
         assert generated == expected
 
 
-def test_process_manifest_files(monkeypatch, test_template_setup):
+def test_generate_partitions_sources(monkeypatch, test_template_setup):
     """
-    Test which calls process_manifest_files() with the data from
+    Test which calls generate_partitions_sources() with the data from
     'test_template_setup' fixture.
-    Because process_manifest_files() is a compound of the other functions in
+    Because generate_partitions_sources() is a compound of the other functions in
     the module which are tested individually, this test just do the following:
-    1. Calls process_manifest_files() and checks that the autogen directory
+    1. Calls generate_partitions_sources() and checks that the autogen directory
        was created.
     2. Saves the modified times of the generated files.
-    3. Calls process_manifest_files() again, checks that the autogen directory
+    3. Calls generate_partitions_sources() again, checks that the autogen directory
        still exist and that modified times of the generated files didn't
        change.
 
@@ -669,19 +720,46 @@ def test_process_manifest_files(monkeypatch, test_template_setup):
     monkeypatch.setitem(DEFAULT_FILTERS, 'find_permission_key',
                         find_permission_key)
 
-    autogen_dir = process_manifest_files(test_template_setup['manifest_files'],
-                                         test_template_setup['dir'])
-    assert os.path.isdir(autogen_dir)
+    autogen_dirs = generate_partitions_sources(test_template_setup['manifest_files'])
+    for directory in autogen_dirs:
+        assert os.path.isdir(directory)
+        autogen_files = {}
+        for file_name in os.listdir(directory):
+            autogen_files[file_name] = os.path.getmtime(
+                os.path.join(directory, file_name))
 
-    autogen_files = {}
-    for file_name in os.listdir(autogen_dir):
-        autogen_files[file_name] = os.path.getmtime(
-            os.path.join(autogen_dir, file_name))
+    autogen_dirs = generate_partitions_sources(test_template_setup['manifest_files'])
+    for directory in autogen_dirs:
+        assert os.path.isdir(directory)
+        for file_name in os.listdir(directory):
+            assert autogen_files[file_name] == os.path.getmtime(
+                os.path.join(directory, file_name))
 
-    autogen_dir = process_manifest_files(test_template_setup['manifest_files'],
-                                         test_template_setup['dir'])
-    assert os.path.isdir(autogen_dir)
+    spm_output_dir = generate_spm_data(
+        test_template_setup['manifest_files'],
+        test_template_setup['dir'],
+        extra_filters=test_template_setup['filters']
+    )
 
-    for file_name in os.listdir(autogen_dir):
-        assert autogen_files[file_name] == os.path.getmtime(
-            os.path.join(autogen_dir, file_name))
+    assert os.path.isdir(spm_output_dir)
+    for f in os.listdir(spm_output_dir):
+        autogen_files[f] = os.path.getmtime(os.path.join(spm_output_dir, f))
+
+    for gen_file in test_template_setup['common_files']:
+        generated_file = os.path.join(spm_output_dir, gen_file)
+        expected_file = os.path.join(test_template_setup['dir'], gen_file)
+        assert os.path.isfile(generated_file)
+        assert os.path.isfile(expected_file)
+
+        with open(generated_file) as gfh:
+            with open(expected_file) as efh:
+                assert json.load(gfh) == json.load(efh)
+
+    spm_output_dir = generate_spm_data(
+        test_template_setup['manifest_files'],
+        test_template_setup['dir'],
+        extra_filters=test_template_setup['filters']
+    )
+
+    for f in os.listdir(spm_output_dir):
+        assert autogen_files[f] == os.path.getmtime(os.path.join(spm_output_dir, f))

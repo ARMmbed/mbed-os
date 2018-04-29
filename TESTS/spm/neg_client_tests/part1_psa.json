@@ -1,0 +1,29 @@
+{
+  "name": "NEG_CLIENT_PART1",
+  "type": "SECURE",
+  "priority": "NORMAL",
+  "id": "0x00000005",
+  "entry_point": "server_main1",
+  "stack_size": "0x400",
+  "heap_size": "0x400",
+  "secure_functions": [{
+      "name": "NEG_CLIENT_PART1_SF1",
+      "identifier": "0x00001A06",
+      "signal": "NEG_CLIENT_PART1_SF1_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "relaxed"
+    },
+    {
+      "name": "NEG_CLIENT_PART1_SF2",
+      "identifier": "0x00001A07",
+      "signal": "NEG_CLIENT_PART1_SF2_MSK",
+      "non_secure_clients": false,
+      "minor_version": 5,
+      "minor_policy": "strict"
+    }
+  ],
+  "source_files": [
+    "server1.c"
+  ]
+}
