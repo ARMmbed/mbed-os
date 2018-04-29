@@ -40,6 +40,7 @@
 #ifndef MBED_LORAWAN_MAC_H__
 #define MBED_LORAWAN_MAC_H__
 
+#include "device.h"
 #include "lorawan/system/LoRaWANTimer.h"
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorawan/system/lorawan_data_structures.h"

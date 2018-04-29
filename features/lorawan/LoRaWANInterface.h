@@ -18,6 +18,7 @@
 #ifndef LORAWANINTERFACE_H_
 #define LORAWANINTERFACE_H_
 
+#include "device.h"
 #include "platform/Callback.h"
 #include "lorawan/LoRaWANStack.h"
 #include "lorawan/LoRaRadio.h"

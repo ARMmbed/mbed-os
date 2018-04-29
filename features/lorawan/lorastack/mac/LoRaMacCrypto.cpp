@@ -299,7 +299,7 @@ int compute_skeys_for_join_frame(const uint8_t *key, const uint8_t *app_nonce,
 int compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
                 uint8_t dir, uint32_t, uint32_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;
@@ -308,7 +308,7 @@ int compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
 int encrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
                     uint8_t , uint32_t , uint8_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;
@@ -317,7 +317,7 @@ int encrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
 int decrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
                     uint8_t , uint32_t , uint8_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;
@@ -325,7 +325,7 @@ int decrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t,
 
 int compute_join_frame_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;
@@ -333,7 +333,7 @@ int compute_join_frame_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t
 
 int decrypt_join_frame(const uint8_t *, uint16_t , const uint8_t *, uint8_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;
@@ -342,7 +342,7 @@ int decrypt_join_frame(const uint8_t *, uint16_t , const uint8_t *, uint8_t *)
 int compute_skeys_for_join_frame(const uint8_t *, const uint8_t *, uint16_t ,
                                  uint8_t *, uint8_t *)
 {
-    MBED_ASSERT("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+    printf("[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
     // Never actually reaches here
     return LORAWAN_STATUS_CRYPTO_FAIL;

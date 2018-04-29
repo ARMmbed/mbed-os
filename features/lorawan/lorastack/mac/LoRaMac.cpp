@@ -29,9 +29,10 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbed_trace.h"
 #define TRACE_GROUP "LMAC"
 #else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
+#define tr_debug(...) printf("[LMAC][DBG] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_info(...)  printf("[LMAC][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_error(...) printf("[LMAC][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_warn(...) printf("[LMAC][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
 using namespace events;
