@@ -17,8 +17,8 @@
 #include "spm_client.h"
 #include "spm_server.h"
 #include "spm_panic.h"
-#include "psa_part1_partition.h"
-#include "psa_client_common.h"
+#include "psa_server_test_part1_partition.h"
+#include "psa_server_test_part2_ifs.h"
 #include "server_tests.h"
 
 /**
@@ -690,8 +690,8 @@ PSA_TEST_SERVER(doorbell_test)
 
     if (partition_call_status == PSA_SUCCESS) {
         // Wait for doorball notification - Only after that call psa_end() for the client called you
-        signals = psa_wait_interrupt(PART1_DOORBELL_MSK, PSA_WAIT_BLOCK);
-        if ((signals & PART1_DOORBELL_MSK) == 0) {
+        signals = psa_wait_interrupt(SERVER_TEST_PART1_DOORBELL_MSK, PSA_WAIT_BLOCK);
+        if ((signals & SERVER_TEST_PART1_DOORBELL_MSK) == 0) {
             partition_call_status = PSA_GENERIC_ERROR;
         }
     }

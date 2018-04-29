@@ -27,14 +27,16 @@ manifests = [
         ],
         'secure_functions': [
             {
-                'sfid': 'SFID1',
+                'name': 'SFID1',
+                'identifier': '0x00000001',
                 'signal': 'SFID1',
                 'minor_version': 1,
                 'minor_policy': 'relaxed',
                 'non_secure_clients': True
             },
             {
-                'sfid': 'SFID2',
+                'name': 'SFID2',
+                'identifier': '0x00000002',
                 'signal': 'SFID2',
                 'minor_version': 2,
                 'minor_policy': 'strict',
@@ -76,14 +78,16 @@ manifests = [
         ],
         'secure_functions': [
             {
-                'sfid': 'SFID3',
+                'name': 'SFID3',
+                'identifier': '0x00000003',
                 'signal': 'SFID3',
                 'minor_version': 5,
                 'minor_policy': 'relaxed',
                 'non_secure_clients': True
             },
             {
-                'sfid': 'SFID4',
+                'name': 'SFID4',
+                'identifier': '0x00000004',
                 'signal': 'SFID4',
                 'minor_version': 12,
                 'minor_policy': 'strict',
@@ -101,7 +105,8 @@ manifests = [
 
 invalid_minor_version_policy_sf = [
     {
-        'sfid': 'SFID1',
+        'name': 'SFID1',
+        'identifier': '0x00000001',
         'signal': 'SFID1',
         'minor_version': 1,
         'minor_policy': 'invalid_policy',
@@ -111,7 +116,8 @@ invalid_minor_version_policy_sf = [
 
 invalid_nspe_callable_sf = [
     {
-        'sfid': 'SFID1',
+        'name': 'SFID1',
+        'identifier': '0x00000001',
         'signal': 'SFID1',
         'minor_version': 1,
         'minor_policy': 'strict',
@@ -121,7 +127,8 @@ invalid_nspe_callable_sf = [
 
 missing_nspe_callable_sf = [
     {
-        'sfid': 'SFID1',
+        'name': 'SFID1',
+        'identifier': '0x00000001',
         'signal': 'SFID1',
         'minor_version': 1,
         'minor_policy': 'strict'
@@ -130,15 +137,36 @@ missing_nspe_callable_sf = [
 
 duplicate_signal_secure_functions = [
     {
-        'sfid': 'SFID3',
+        'name': 'SFID3',
+        'identifier': '0x00000001',
         'signal': 'SFID1',
         'minor_version': 5,
         'minor_policy': 'relaxed',
         'non_secure_clients': True
     },
     {
-        'sfid': 'SFID4',
+        'name': 'SFID4',
+        'identifier': '0x00000002',
         'signal': 'SFID2',
+        'minor_version': 12,
+        'minor_policy': 'strict',
+        'non_secure_clients': False
+    },
+]
+
+duplicate_identifier_secure_functions = [
+    {
+        'name': 'SFID3',
+        'identifier': '0x00000003',
+        'signal': 'SFID3',
+        'minor_version': 5,
+        'minor_policy': 'relaxed',
+        'non_secure_clients': True
+    },
+    {
+        'name': 'SFID4',
+        'identifier': '0x00000002',
+        'signal': 'SFID4',
         'minor_version': 12,
         'minor_policy': 'strict',
         'non_secure_clients': False
@@ -147,7 +175,8 @@ duplicate_signal_secure_functions = [
 
 missing_minor_version_sf = [
     {
-        'sfid': 'SFID1',
+        'name': 'SFID1',
+        'identifier': '0x00000001',
         'signal': 'SFID1',
         'minor_policy': 'relaxed',
         'non_secure_clients': True
@@ -156,7 +185,8 @@ missing_minor_version_sf = [
 
 missing_minor_version_policy_sf = [
     {
-        'sfid': 'SFID2',
+        'name': 'SFID2',
+        'identifier': '0x00000002',
         'signal': 'SFID2',
         'minor_version': 1,
         'non_secure_clients': True
@@ -164,7 +194,7 @@ missing_minor_version_policy_sf = [
 ]
 
 missing_minor_completley_sf = [
-    {'sfid': 'SFID2', 'signal': 'SFID2', 'non_secure_clients': False}
+    {'name': 'SFID2', 'identifier': '0x00000002', 'signal': 'SFID2', 'non_secure_clients': False}
 ]
 
 duplicate_signal_irqs = [
@@ -213,6 +243,16 @@ test_common_template = '''{
 }
 '''
 
+test_common_expected = '''{
+    "num_of_partitions": 2,
+    "partition_names": [
+        "TEST_PARTITION",
+        "TEST_PARTITION2"
+    ],
+    "num_of_region_pairs": 28
+}
+'''
+
 test_partition_template = '''{
     "name": "{{partition.name}}",
     "id": "0x{{"%0x"|format(partition.id|int)|upper}}",
@@ -237,7 +277,8 @@ test_partition_template = '''{
     "secure_functions": [
 {% for sf in partition.secure_functions %}
         {
-            "sfid": "{{sf.sfid}}",
+            "name": "{{sf.name}}",
+            "identifier": "{{sf.id}}",
             "signal": "{{sf.signal}}",
             "minor_version": {{sf.minor_version}},
             "minor_policy": "{{sf.minor_policy}}",

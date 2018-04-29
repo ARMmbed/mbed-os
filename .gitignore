@@ -86,3 +86,6 @@ tags
 
 # Visual Studio Code
 .vscode/
+
+# PSA partition code
+/**/psa_partition_autogen

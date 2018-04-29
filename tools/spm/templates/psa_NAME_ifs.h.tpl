@@ -19,17 +19,12 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  **********************************************************************************************************************/
 
-#ifndef PSA_CLIENT_COMMON_H
-#define PSA_CLIENT_COMMON_H
+#ifndef PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
+#define PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
 
-enum {
-    DUMMY_SFID = 0,
-{% for partition in partitions %}
 {% for sf in partition.secure_functions %}
-    {{sf.sfid|upper}},
-{% endfor %} {# sf in partition.secure_functions #}
-{% endfor %} {# partition in partitions #}
-};
+#define {{sf.name|upper}} {{sf.id}}
+{% endfor %}
 
-#endif
+#endif // PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
 {# End of file #}
