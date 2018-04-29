@@ -128,7 +128,7 @@ static struct equeue_event *equeue_mem_alloc(equeue_t *q, size_t size) {
 #ifdef TARGET_SIMULATOR
         // ok... so for some reason this is necessary
         // no idea why, maybe something with blocks not actually allocated until we yield back
-        wait_ms(10);
+        // wait_ms(10);
 #endif
     // add event overhead
     size += sizeof(struct equeue_event);

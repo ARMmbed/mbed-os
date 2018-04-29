@@ -166,7 +166,8 @@ void LoRaMac::handle_tx_timeout(void)
 void LoRaMac::handle_cad_done(bool cad)
 {
     //TODO Not implemented yet
-    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioCadDone, cad);
+    //const int ret = 1;
+    // this->OnRadioCadDone(cad);
     //MBED_ASSERT(ret != 0);
     //(void)ret;
 }
@@ -174,13 +175,15 @@ void LoRaMac::handle_cad_done(bool cad)
 void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
 {
     // TODO Not implemented yet
-    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
+    //const int ret = 1;
+    // this->OnRadioFHSSChangeChannel(cur_channel);
     //MBED_ASSERT(ret != 0);
     //(void)ret;
 }
 
 void LoRaMac::handle_mac_state_check_timer_event(void)
 {
+    tr_info("handle_mac_state_check_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_mac_state_check_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -219,6 +222,8 @@ void LoRaMac::handle_rx2_timer_event(void)
  **************************************************************************/
 void LoRaMac::on_radio_tx_done( void )
 {
+    tr_info("on_radio_tx_done");
+
     set_band_txdone_params_t tx_done_params;
     lorawan_time_t cur_time = _lora_time.get_current_time( );
     loramac_mlme_confirm_t mlme_confirm = mlme.get_confirmation();
@@ -798,6 +803,8 @@ void LoRaMac::on_radio_rx_timeout(void)
  **************************************************************************/
 void LoRaMac::on_mac_state_check_timer_event(void)
 {
+    tr_info("on_mac_state_check_timer_event");
+
     bool tx_timeout = false;
 
     _lora_time.stop(_params.timers.mac_state_check_timer);
@@ -1496,6 +1503,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
 lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 {
+    tr_info("send_frame_on_channel (channel=%u)", channel);
+
     tx_config_params_t tx_config;
     int8_t tx_power = 0;
 
@@ -1508,6 +1517,8 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 
     lora_phy->tx_config(&tx_config, &tx_power, &_params.timers.tx_toa);
 
+    tr_info("done tx_config");
+
     mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -1519,12 +1530,14 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     mlme.get_confirmation().tx_toa = _params.timers.tx_toa;
 
     // Starts the MAC layer status check timer
-    _lora_time.start(_params.timers.mac_state_check_timer,
-                     MAC_STATE_CHECK_TIMEOUT);
+    // _lora_time.start(_params.timers.mac_state_check_timer,
+    //                  MAC_STATE_CHECK_TIMEOUT);
 
     if (_params.is_nwk_joined == false) {
         _params.join_request_trial_counter++;
     }
+
+    tr_info("going to call phy->handle_send (len=%u)", _params.buffer_pkt_len);
 
     // Send now
     lora_phy->handle_send(_params.buffer, _params.buffer_pkt_len);

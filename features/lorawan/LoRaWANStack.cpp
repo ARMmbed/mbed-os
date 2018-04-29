@@ -705,8 +705,7 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm)
                 }
 
                 if (_callbacks.events) {
-                    const int ret = 1;
-                    _callbacks.events(JOIN_FAILURE);
+                    const int ret = _queue->call(_callbacks.events, JOIN_FAILURE);
                     MBED_ASSERT(ret != 0);
                     (void)ret;
                 }
@@ -775,8 +774,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
         // If sending timed out, we have a special event for that
         if (mcps_confirm->status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT) {
             if (_callbacks.events) {
-                const int ret = 1;
-                _callbacks.events(TX_TIMEOUT);
+                const int ret = _queue->call(_callbacks.events, TX_TIMEOUT);
                 MBED_ASSERT(ret != 0);
                 (void)ret;
             }
@@ -787,8 +785,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
 
         // Otherwise send a general TX_ERROR event
         if (_callbacks.events) {
-            const int ret = 1;
-            _callbacks.events(TX_ERROR);
+            const int ret = _queue->call(_callbacks.events, TX_ERROR);
             MBED_ASSERT(ret != 0);
             (void)ret;
         }
@@ -812,8 +809,7 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
     _lw_session.uplink_counter = mcps_confirm->ul_frame_counter;
     _tx_msg.tx_ongoing = false;
      if (_callbacks.events) {
-         const int ret = 1;
-         _callbacks.events(TX_DONE);
+         const int ret = _queue->call(_callbacks.events, TX_DONE);
          MBED_ASSERT(ret != 0);
          (void)ret;
      }
@@ -833,8 +829,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
 
     if (mcps_indication->status != LORAMAC_EVENT_INFO_STATUS_OK) {
         if (_callbacks.events) {
-            const int ret = 1;
-            _callbacks.events(RX_ERROR);
+            const int ret = _queue->call(_callbacks.events, RX_ERROR);
             MBED_ASSERT(ret != 0);
             (void)ret;
         }
@@ -900,8 +895,7 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
                 _rx_msg.receive_ready = true;
 
                 if (_callbacks.events) {
-                    const int ret = 1;
-                    _callbacks.events(RX_DONE);
+                    const int ret = _queue->call(_callbacks.events, RX_DONE);
                     MBED_ASSERT(ret != 0);
                     (void)ret;
                 }
@@ -1092,12 +1086,18 @@ lorawan_status_t LoRaWANStack::shutdown()
     return lora_state_machine();
 }
 
+#include "DigitalOut.h"
+void blink() {
+    static mbed::DigitalOut led2(LED2);
+    led2 = !led2;
+}
+
 lorawan_status_t LoRaWANStack::lora_state_machine()
 {
     loramac_mib_req_confirm_t mib_req;
     lorawan_status_t status = LORAWAN_STATUS_DEVICE_OFF;
 
-    printf("lora_state_machine... current state is %d\n", _device_current_state);
+    tr_info("lora_state_machine %d", _device_current_state);
 
     switch (_device_current_state) {
         case DEVICE_STATE_SHUTDOWN:
@@ -1133,8 +1133,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
 
             tr_debug("LoRaWAN protocol has been shut down.");
             if (_callbacks.events) {
-                const int ret = 1;
-                _callbacks.events(DISCONNECTED);
+                const int ret = _queue->call(_callbacks.events, DISCONNECTED);
                 MBED_ASSERT(ret != 0);
                 (void)ret;
             }
@@ -1179,8 +1178,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
             _lw_session.active = true;
             // Tell the application that we are connected
             if (_callbacks.events) {
-                const int ret = 1;
-                _callbacks.events(CONNECTED);
+                const int ret = _queue->call(_callbacks.events, CONNECTED);
                 MBED_ASSERT(ret != 0);
                 (void)ret;
             }
@@ -1192,7 +1190,6 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
              */
             mib_req.type = MIB_NET_ID;
             mib_req.param.net_id = _lw_session.connection.connection_u.abp.nwk_id;
-            printf("Calling mib_set_request 1?\n");
             mib_set_request(&mib_req);
 
             mib_req.type = MIB_DEV_ADDR;
@@ -1210,23 +1207,20 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
             mib_req.type = MIB_NETWORK_JOINED;
             mib_req.param.is_nwk_joined = true;
             mib_set_request(&mib_req);
-            printf("ABP Connection OK!");
+            tr_debug("ABP Connection OK!");
             // tell the application we are okay
             // if users provide wrong keys, it's their responsibility
             // there is no way to test ABP authentication success
             status = LORAWAN_STATUS_OK;
             // Session is now active
             _lw_session.active = true;
+            tr_info("I has callbacks.events??? %d", !!_callbacks.events);
             if (_callbacks.events) {
-                printf("hello im gonna send to queueueue\n");
-                // const int ret = 1;
-                _callbacks.events(CONNECTED);
-                _callbacks.events(CONNECTED);
-                // MBED_ASSERT(ret != 0);
-                // (void)ret;
-            }
-            else {
-                printf("hello im not gonna send to queue\n");
+                tr_info("Gonna call CONNECTED on queue %p", _queue);
+                const int ret = _queue->call(_callbacks.events, CONNECTED);
+                tr_info("call returned %d", ret);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
             }
             break;
         case DEVICE_STATE_SEND:
@@ -1244,8 +1238,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
                     case LORAWAN_STATUS_CRYPTO_FAIL:
                         tr_error("Crypto failed. Clearing TX buffers");
                         if (_callbacks.events) {
-                            const int ret = 1;
-                            _callbacks.events(TX_CRYPTO_ERROR);
+                            const int ret = _queue->call(_callbacks.events, TX_CRYPTO_ERROR);
                             MBED_ASSERT(ret != 0);
                             (void)ret;
                         }
@@ -1253,8 +1246,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
                     default:
                         tr_error("Failure to schedule TX!");
                         if (_callbacks.events) {
-                            const int ret = 1;
-                            _callbacks.events(TX_SCHEDULING_ERROR);
+                            const int ret = _queue->call(_callbacks.events, TX_SCHEDULING_ERROR);
                             MBED_ASSERT(ret != 0);
                             (void)ret;
                         }
