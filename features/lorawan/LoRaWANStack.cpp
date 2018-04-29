@@ -32,7 +32,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"
 #else
-#define tr_debug(...) printf("[LSTK][DBG] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_debug(...) void(0) //dummies if feature common pal is not added
 #define tr_info(...)  printf("[LSTK][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #define tr_error(...) printf("[LSTK][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
 #define tr_warn(...) printf("[LSTK][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
@@ -1086,18 +1086,10 @@ lorawan_status_t LoRaWANStack::shutdown()
     return lora_state_machine();
 }
 
-#include "DigitalOut.h"
-void blink() {
-    static mbed::DigitalOut led2(LED2);
-    led2 = !led2;
-}
-
 lorawan_status_t LoRaWANStack::lora_state_machine()
 {
     loramac_mib_req_confirm_t mib_req;
     lorawan_status_t status = LORAWAN_STATUS_DEVICE_OFF;
-
-    tr_info("lora_state_machine %d", _device_current_state);
 
     switch (_device_current_state) {
         case DEVICE_STATE_SHUTDOWN:
@@ -1214,11 +1206,8 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
             status = LORAWAN_STATUS_OK;
             // Session is now active
             _lw_session.active = true;
-            tr_info("I has callbacks.events??? %d", !!_callbacks.events);
             if (_callbacks.events) {
-                tr_info("Gonna call CONNECTED on queue %p", _queue);
                 const int ret = _queue->call(_callbacks.events, CONNECTED);
-                tr_info("call returned %d", ret);
                 MBED_ASSERT(ret != 0);
                 (void)ret;
             }

@@ -112,7 +112,7 @@ uint32_t LoRaPHY::get_radio_rng()
 
 void LoRaPHY::handle_send(uint8_t *buf, uint8_t size)
 {
-    tr_info("handle_send");
+    tr_info("handle_send (size=%u)", size);
     _radio->lock();
     _radio->send(buf, size);
     _radio->unlock();
@@ -866,8 +866,6 @@ bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
 bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
                         lorawan_time_t* tx_toa)
 {
-    tr_info("tx_config");
-
     radio_modems_t modem;
     int8_t phy_dr = ((uint8_t *)phy_params.datarates.table)[tx_conf->datarate];
     channel_params_t *list = phy_params.channels.channel_list;

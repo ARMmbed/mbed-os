@@ -183,7 +183,6 @@ void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
 
 void LoRaMac::handle_mac_state_check_timer_event(void)
 {
-    tr_info("handle_mac_state_check_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_mac_state_check_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -222,7 +221,7 @@ void LoRaMac::handle_rx2_timer_event(void)
  **************************************************************************/
 void LoRaMac::on_radio_tx_done( void )
 {
-    tr_info("on_radio_tx_done");
+    tr_info("radio_tx_done");
 
     set_band_txdone_params_t tx_done_params;
     lorawan_time_t cur_time = _lora_time.get_current_time( );
@@ -803,8 +802,6 @@ void LoRaMac::on_radio_rx_timeout(void)
  **************************************************************************/
 void LoRaMac::on_mac_state_check_timer_event(void)
 {
-    tr_info("on_mac_state_check_timer_event");
-
     bool tx_timeout = false;
 
     _lora_time.stop(_params.timers.mac_state_check_timer);
@@ -1503,8 +1500,6 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
 lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 {
-    tr_info("send_frame_on_channel (channel=%u)", channel);
-
     tx_config_params_t tx_config;
     int8_t tx_power = 0;
 
@@ -1516,8 +1511,6 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     tx_config.pkt_len = _params.buffer_pkt_len;
 
     lora_phy->tx_config(&tx_config, &tx_power, &_params.timers.tx_toa);
-
-    tr_info("done tx_config");
 
     mlme.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
@@ -1536,8 +1529,6 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     if (_params.is_nwk_joined == false) {
         _params.join_request_trial_counter++;
     }
-
-    tr_info("going to call phy->handle_send (len=%u)", _params.buffer_pkt_len);
 
     // Send now
     lora_phy->handle_send(_params.buffer, _params.buffer_pkt_len);
