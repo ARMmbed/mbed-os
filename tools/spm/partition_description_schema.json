@@ -144,11 +144,15 @@
       }
     },
     "secure_func": {
-      "required": ["sfid", "non_secure_clients", "signal"],
+      "required": ["name", "identifier", "non_secure_clients", "signal"],
       "properties": {
-        "sfid": {
+        "name": {
           "description": "Alphanumeric C macro for referring to a Secure Function. (all capital)",
           "$ref": "#/definitions/c_macro"
+        },
+        "identifier": {
+          "description": "Numeric value representing the secure function.",
+          "$ref": "#/definitions/positive_integer_or_hex_string"
         },
         "non_secure_clients": {
           "description": "Denote whether the secure Function is exposed to non-secure clients.",

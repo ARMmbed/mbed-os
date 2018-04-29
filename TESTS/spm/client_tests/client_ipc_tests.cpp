@@ -22,7 +22,7 @@
 #include "unity.h"
 #include "utest.h"
 #include "spm_client.h"
-#include "psa_client_common.h"
+#include "psa_client_tests_part1_ifs.h"
 
 using namespace utest::v1;
 

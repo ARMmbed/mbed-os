@@ -19,6 +19,9 @@ limitations under the License.
 TEST BUILD & RUN
 """
 from __future__ import print_function
+
+import fnmatch
+import os
 from builtins import str
 import sys
 import json
@@ -55,6 +58,7 @@ from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from tools.spm import generate_partitions_sources
 
 if __name__ == '__main__':
     # Parse Options
@@ -241,6 +245,13 @@ if __name__ == '__main__':
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
                            %(toolchain, search_path))
+
+    manifests = set()
+    for src_dir in options.source_dir:
+        for root, dirnames, filenames in os.walk(src_dir):
+            for filename in fnmatch.filter(filenames, '*_psa.json'):
+                manifests.add(join(root, filename))
+    generate_partitions_sources(list(manifests))
 
     # Test
     build_data_blob = {} if options.build_data else None

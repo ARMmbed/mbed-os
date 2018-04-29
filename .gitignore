@@ -87,4 +87,8 @@ tags
 # Visual Studio Code
 .vscode/
 
+# PSA partition code
+/**/psa_partition_autogen
+
 features/FEATURE_BLE/targets/TARGET_CORDIO/stack_backup/
+
