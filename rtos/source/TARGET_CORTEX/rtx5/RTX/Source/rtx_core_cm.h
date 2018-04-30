@@ -35,11 +35,11 @@
 typedef bool bool_t;
 
 #ifndef FALSE
-#define FALSE                   ((bool_t)0)
+#define FALSE                   (0)
 #endif
 
 #ifndef TRUE
-#define TRUE                    ((bool_t)1)
+#define TRUE                    (1)
 #endif
 
 #ifdef  RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS
