@@ -77,15 +77,12 @@ class TerminalNotifier(Notifier):
             self.output += msg + "\n"
 
     def print_notify(self, event):
-        """ Default command line notification
+        """ Command line notification
         """
-        if not self.verbose and event['type'] == 'tool_error':
+        if event['type'] == 'tool_error':
             return event['message']
 
-        elif event['type'] in ['info']:
-            return event['message']
-
-        elif event['type'] == 'cc':
+        elif event['type'] == 'cc' and event['severity'] != 'verbose':
             event['severity'] = event['severity'].title()
 
             if PRINT_COMPILER_OUTPUT_AS_LINK:
@@ -105,7 +102,7 @@ class TerminalNotifier(Notifier):
                                       basename(event['file']))
 
     def print_notify_verbose(self, event):
-        """ Default command line notification with more verbose mode
+        """ Command line notification with more verbose mode
         """
         if event['type'] == 'info':
             return event['message']
