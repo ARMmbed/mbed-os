@@ -1697,7 +1697,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     MBED_ASSERT(obj);
     MBED_ASSERT(rx_width == 8);
     MBED_ASSERT(rx_length < 256);
-    MBED_ASSERT(char_match == SERIAL_RESERVED_CHAR_MATCH);
+    MBED_ASSERT(char_match == SERIAL_RESERVED_CHAR_MATCH);  // EasyDMA based UART handling does not support char_match
 
     int instance = obj->serial.instance;
 
