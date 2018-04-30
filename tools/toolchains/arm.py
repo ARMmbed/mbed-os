@@ -157,7 +157,7 @@ class ARM(mbedToolchain):
         tempfile = join(dir, basename(object) + '.E.s')
 
         # Build preprocess assemble command
-        cmd_pre = self.asm
+        cmd_pre = copy(self.asm)
         cmd_pre.extend(self.get_compile_options(
             self.get_symbols(True), includes, True))
         cmd_pre.extend(["-E", "-o", tempfile, source])
