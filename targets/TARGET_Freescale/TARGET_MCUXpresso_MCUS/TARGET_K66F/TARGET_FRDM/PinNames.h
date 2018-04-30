@@ -217,14 +217,14 @@ typedef enum {
     USBRX = PTB16,
 
     // Audio bus
-    SAI_A_MCLK = PTC6,
-    SAI_A_SD   = PTE7,
-    SAI_A_BCLK = PTE9,
-    SAI_A_WCLK = PTE8,
     SAI_B_MCLK = PTC6,
-    SAI_B_SD   = PTC1,
-    SAI_B_BCLK = PTE12,
-    SAI_B_WCLK = PTE11,
+    SAI_B_SD   = PTE7,
+    SAI_B_BCLK = PTE9,
+    SAI_B_WCLK = PTE8,
+    SAI_A_MCLK = PTC6,
+    SAI_A_SD   = PTC1,
+    SAI_A_BCLK = PTE12,
+    SAI_A_WCLK = PTE11,
 
     // Arduino Headers
     D0 = PTC3,
