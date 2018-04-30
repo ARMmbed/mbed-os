@@ -8,7 +8,7 @@ The SPM provides hardware-enforced partitions for individual code blocks by limi
 
 The SPM and the secure partitions are located in the Secure Processing Environment (SPE), isolating them from the Non-Secure Processing Environment (NSPE), which contains the application firmware, OS kernel and libraries, and other nonsecure hardware resources.
 
-A secure partition is a container for one or more secure functions, and a platform may have multiple secure partitions. secure partitions provide the execution environment for security functionality.
+A secure partition is a container for one or more secure functions, and a platform may have multiple secure partitions. Secure partitions provide the execution environment for security functionality.
 
 Platform hardware, such as the Security Attribution Unit (SAU) and Memory Protection Unit (MPU) in the new ARMv8-M platforms, enforces the separation of partitions. Other platforms may use different mechanisms to provide equivalent isolation for the partitions.
 
@@ -18,13 +18,13 @@ If you are prototyping software or using platforms without SAU or MPU, you can c
 
 * **Level 1 - SPE isolation** In this level, the SPE is fully isolated from the nonsecure application firmware and hardware.
 * **Level 2 - Root of Trust isolation** In this level, the SPE is fully isolated from the nonsecure application firmware and hardware and the trusted partitions (secure partitions that implement Root of Trust services) are isolated from other secure partitions.
-* **Level 3 - Maximum firmware isolation** In this level, the SPE is fully isolated from the nonsecure application firmware and hardware, and all secure and trusted Partitions are individually sandboxed from one another and from the SPM.
+* **Level 3 - Maximum firmware isolation** In this level, the SPE is fully isolated from the nonsecure application firmware and hardware, and all secure and trusted partitions are individually sandboxed from one another and from the SPM.
 
 ### Using secure partitions
 
-Secure partitions are located within the SPE, and must contain at least one set of related security operations (known as a Secure Function) or at least one Interrupt Request (IRQ). You can have multiple secure functions in a single secure partition.
+Secure partitions are located within the SPE, and must contain at least one set of related security operations (known as a secure function) or at least one Interrupt Request (IRQ). You can have multiple secure functions in a single secure partition.
 
-For a Secure Partition, you need:
+For a secure partition, you need:
 
 * The **secure partition code**, which must:
   * Be single threaded.
@@ -42,7 +42,7 @@ The secure partition manifest file describes the properties of the secure partit
 * **source_files** is the list of source files containing the partition's code.
 * **heap_size** sets the heap size for platforms that have an isolation level of 2 and higher.
 * **secure_functions** is the list of the partition's secure functions with their properties.
-* **extern_sfids** defines a dependency to other Secure Function (referenced by SFID).  If the manifest does not specify the access between a partition (acting as client) and a secure function (acting as server), then the client is not be able to send any messages to the secure function.
+* **extern_sfids** defines a dependency to other Secure Function (referenced by SFID). If the manifest does not specify the access between a partition (acting as client) and a secure function (acting as server), then the client is not able to send any messages to the secure function.
 
 For example:
 
