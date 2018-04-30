@@ -201,7 +201,14 @@ public:
 
 #ifdef DEVICE_CRC
         if (_mode == HARDWARE) {
-          hal_crc_compute_partial_start(polynomial);
+            crc_mbed_config_t config;
+            config.polynomial  = polynomial;
+            config.initial_xor = _initial_value;
+            config.final_xor   = _final_xor;
+            config.reflect_in  = _reflect_data;
+            config.reflect_out = _reflect_remainder;
+
+            hal_crc_compute_partial_start(&config);
         }
 #endif // DEVICE_CRC
 
@@ -431,7 +438,14 @@ private:
         _mode = (_crc_table == NULL) ? TABLE : BITWISE;
 
 #ifdef DEVICE_CRC
-        if (hal_crc_is_supported(polynomial)) {
+        crc_mbed_config_t config;
+        config.polynomial  = polynomial;
+        config.initial_xor = _initial_value;
+        config.final_xor   = _final_xor;
+        config.reflect_in  = _reflect_data;
+        config.reflect_out = _reflect_remainder;
+
+        if (hal_crc_is_supported(&config)) {
             _mode = HARDWARE;
         }
 #endif

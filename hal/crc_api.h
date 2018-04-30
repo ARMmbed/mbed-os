@@ -35,6 +35,19 @@ typedef enum crc_polynomial {
     POLY_32BIT_ANSI  = 0x04C11DB7, // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
 } crc_polynomial_t;
 
+typedef struct crc_mbed_config {
+    /// CRC Polynomial. Example polynomial: 0x21 = 0010_0011 = x^5+x+1
+    uint32_t polynomial;
+    /// Initial seed value for the computation.
+    uint32_t initial_xor;
+    /// Final xor value for the computation.
+    uint32_t final_xor;
+    /// Reflect bits on input.
+    bool reflect_in;
+    /// Reflect bits in final result before returning.
+    bool reflect_out;
+} crc_mbed_config_t;
+
 #ifdef DEVICE_CRC
 
 #ifdef __cplusplus
@@ -70,7 +83,7 @@ extern "C" {
  *
  * \return  True if running if the polynomial is supported, false if not.
  */
-bool hal_crc_is_supported(const uint32_t polynomial);
+bool hal_crc_is_supported(const crc_mbed_config_t* polynomial);
 
 /** Initialise the hardware CRC module with the given polynomial
  *
@@ -100,7 +113,7 @@ bool hal_crc_is_supported(const uint32_t polynomial);
  *
  * \param polynomial CRC Polynomial. Example polynomial: 0x1021 = x^12+x^5+1
  */
-void hal_crc_compute_partial_start(const uint32_t polynomial);
+void hal_crc_compute_partial_start(const crc_mbed_config_t* polynomial);
 
 /** Writes data to the current CRC module.
  *

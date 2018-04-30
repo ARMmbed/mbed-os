@@ -7,77 +7,34 @@
 
 static crc_bits_t width;
 
-bool hal_crc_is_supported(const uint32_t polynomial)
+bool hal_crc_is_supported(const crc_mbed_config_t* config)
 {
-  switch (polynomial)
-  {
-    case POLY_16BIT_CCITT:
-    case POLY_16BIT_IBM:
-    case POLY_32BIT_ANSI:
-      return true;
-    case POLY_8BIT_CCITT:
-    case POLY_7BIT_SD:
-      return false;
-    default:
-      return false;
-  }
+  if (config == NULL)
+    return false;
+
+  if ((config->polynomial & 0x80008000) == 0)
+    return false;
+
+  return true;
 }
 
-void hal_crc_compute_partial_start(const uint32_t polynomial)
+void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 {
-  crc_config_t config;
+  if (config == NULL)
+    return;
 
-  switch (polynomial)
-  {
-    case POLY_32BIT_ANSI:
-    {
-      width = kCrcBits32;
+  width = ((config->polynomial & 0xFFFF0000U) != 0) ? kCrcBits32 : kCrcBits16;
 
-      config.polynomial         = polynomial;
-      config.seed               = 0xFFFFFFFFU;
-      config.reflectIn          = true;
-      config.reflectOut         = true;
-      config.complementChecksum = true;
-      config.crcBits            = width;
-      config.crcResult          = kCrcFinalChecksum;
+  crc_config_t platform_config;
+  platform_config.polynomial         = config->polynomial;
+  platform_config.seed               = config->initial_xor;
+  platform_config.reflectIn          = config->reflect_in;
+  platform_config.reflectOut         = config->reflect_out;
+  platform_config.complementChecksum = true;
+  platform_config.crcBits            = width;
+  platform_config.crcResult          = kCrcFinalChecksum;
 
-      break;
-    }
-    case POLY_16BIT_IBM:
-    {
-      width = kCrcBits16;
-
-      config.polynomial         = polynomial;
-      config.seed               = 0;
-      config.reflectIn          = true;
-      config.reflectOut         = true;
-      config.complementChecksum = false;
-      config.crcBits            = width;
-      config.crcResult          = kCrcFinalChecksum;
-
-      break;
-    }
-    case POLY_16BIT_CCITT:
-    {
-      width = kCrcBits16;
-
-      config.polynomial         = polynomial;
-      config.seed               = 0xFFFFFFFFU;
-      config.reflectIn          = false;
-      config.reflectOut         = false;
-      config.complementChecksum = false;
-      config.crcBits            = width;
-      config.crcResult          = kCrcFinalChecksum;
-
-      break;
-    }
-    default:
-      MBED_ASSERT("Configuring Mbed CRC with unsupported polynomial");
-
-      return;
-  }
-
-  CRC_Init(CRC0, &config);
+  CRC_Init(CRC0, &platform_config);
 }
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
