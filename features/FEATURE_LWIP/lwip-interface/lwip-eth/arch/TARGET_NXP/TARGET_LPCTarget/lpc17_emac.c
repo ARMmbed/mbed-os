@@ -557,7 +557,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	u8_t *dst;
     u32_t idx, notdmasafe = 0;
 	struct pbuf *np;
-	s32_t dn;
+	s32_t count, dn;
 
 	/* Zero-copy TX buffers may be fragmented across mutliple payload
 	   chains. Determine the number of descriptors needed for the
@@ -611,7 +611,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	/* Wait until enough descriptors are available for the transfer. */
 	/* THIS WILL BLOCK UNTIL THERE ARE ENOUGH DESCRIPTORS AVAILABLE */
 #if NO_SYS == 0
-	for (idx = 0; idx < dn; idx++) {
+	for (count = 0; count < dn; count++) {
 	    osSemaphoreAcquire(lpc_enetif->xTXDCountSem.id, osWaitForever);
 	}
 	MBED_ASSERT(dn <= lpc_tx_ready(netif));
