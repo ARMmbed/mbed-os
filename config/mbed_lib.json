@@ -78,6 +78,12 @@
              "SPI_CLK":  "p13",
              "SPI_CS":   "p14"
         },
+         "NUCLEO_F411RE": {
+             "SPI_MOSI": "PC_3",
+             "SPI_MISO": "PC_2",
+             "SPI_CLK":  "PC_7",
+             "SPI_CS":   "PB_9"
+         },
          "NUCLEO_F429ZI": {
              "SPI_MOSI": "PC_12",
              "SPI_MISO": "PC_11",
