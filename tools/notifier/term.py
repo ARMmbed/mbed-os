@@ -87,19 +87,21 @@ class TerminalNotifier(Notifier):
 
             if PRINT_COMPILER_OUTPUT_AS_LINK:
                 event['file'] = getcwd() + event['file'].strip('.')
-                return '[%(severity)s] %(file)s:%(line)s:%(col)s: %(message)s' % event
+                return '[{severity}] {file}:{line}:{col}: {message}'.format(
+                    **event)
             else:
                 event['file'] = basename(event['file'])
-                return '[%(severity)s] %(file)s@%(line)s,%(col)s: %(message)s' % event
+                return '[{severity}] {file}@{line},{col}: {message}'.format(
+                    **event)
 
         elif event['type'] == 'progress':
+            event['action'] = event['action'].title()
+            event['file'] = basename(event['file'])
             if 'percent' in event:
-                return '{} [{:>5.1f}%]: {}'.format(event['action'].title(),
-                                                  event['percent'],
-                                                  basename(event['file']))
+                format_string = '{action} [{percent:>5.1f}%]: {file}'
             else:
-                return '{}: {}'.format(event['action'].title(),
-                                      basename(event['file']))
+                format_string = '{action}: {file}'
+            return format_string.format(**event)
 
     def print_notify_verbose(self, event):
         """ Command line notification with more verbose mode
@@ -112,9 +114,10 @@ class TerminalNotifier(Notifier):
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])
             event['mcu_name'] = "None"
-            event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
-            event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
-            return '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
+            event['tgt_name'] = event.get('target_name', 'unknown').upper()
+            event['tc_name'] = event.get('toolchain_name', 'unknown').upper()
+            return ('[{severity}] {tgt_name}::{tc_name}::{file}@{line}: '
+                    '{message}'.format(**event))
 
         elif event['type'] == 'progress':
             return self.print_notify(event) # standard handle
