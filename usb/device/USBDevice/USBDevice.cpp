@@ -994,20 +994,20 @@ bool USBDevice::configured()
     return ret;
 }
 
-void USBDevice::connect(bool blocking)
+void USBDevice::connect()
 {
-    /* Connect device */
     lock();
+
+    /* Ensure device has been initialized */
+    init();
+
+    /* Connect device */
     if (!_connected) {
         _phy->connect();
         _connected = true;
     }
-    unlock();
 
-    if (blocking) {
-        /* Block if not configured */
-        while (!configured());
-    }
+    unlock();
 }
 
 void USBDevice::disconnect()
