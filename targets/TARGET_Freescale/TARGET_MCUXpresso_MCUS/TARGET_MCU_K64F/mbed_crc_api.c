@@ -73,7 +73,8 @@ void hal_crc_compute_partial_start(const uint32_t polynomial)
     }
     default:
       MBED_ASSERT("Configuring Mbed CRC with unsupported polynomial");
-      break;
+
+      return;
   }
 
   CRC_Init(CRC0, &config);
@@ -81,6 +82,12 @@ void hal_crc_compute_partial_start(const uint32_t polynomial)
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 {
+  if (data == NULL)
+    return;
+
+  if (size == 0)
+    return;
+
   CRC_WriteData(CRC0, data, size);
 }
 

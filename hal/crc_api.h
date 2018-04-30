@@ -114,6 +114,9 @@ void hal_crc_compute_partial_start(const uint32_t polynomial);
  * To obtain the final result of the CRC calculation hal_crc_get_result() is
  * called to apply the final transformations to the data.
  *
+ * If the function is passed an undefined pointer, or the size of the buffer is
+ * specified to be 0, this function will do nothing and return.
+ *
  * This function can be call multiple times in succession, this can be used
  * to calculate the CRC result of streamed data.
  *
