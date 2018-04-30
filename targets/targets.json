@@ -2433,11 +2433,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 100 to 96 MHz (set 0 for the max SYSCLK value)",
-                "value": "0",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
@@ -2670,11 +2665,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "extra_labels_add": [
@@ -2723,11 +2713,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "extra_labels_add": [
@@ -3642,11 +3627,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
-                "value": "1",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "overrides": { "lse_available": 0 },
