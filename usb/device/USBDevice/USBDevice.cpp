@@ -1246,34 +1246,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _device.state = Powered;
     _device.configuration = 0;
     _device.suspended = false;
-};
-
-USBDevice::USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-{
-    this->vendor_id = vendor_id;
-    this->product_id = product_id;
-    this->product_release = product_release;
-
-    memset(_endpoint_info, 0, sizeof(_endpoint_info));
-    memset(&_transfer, 0, sizeof(_transfer));
-    _transfer.user_callback = None;
-
-    _setup_ready = false;
-    _abort_control = false;
-
-    _phy = get_usb_phy();
-    _initialized = false;
-    _connected = false;
-    _current_interface = 0;
-    _current_alternate = 0;
-    _locked = 0;
-    _post_process = NULL;
-
-    /* Set initial device state */
-    _device.state = Powered;
-    _device.configuration = 0;
-    _device.suspended = false;
-};
+}
 
 uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)
 {
