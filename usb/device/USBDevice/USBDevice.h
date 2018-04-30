@@ -117,10 +117,8 @@ public:
 
     /**
     * Connect a device
-    *
-    * @param blocking: block if not configured
     */
-    void connect(bool blocking = true);
+    void connect();
 
     /**
     * Disconnect a device
