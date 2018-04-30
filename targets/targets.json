@@ -2782,7 +2782,7 @@
     "MAX32625MBED": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132"],
+        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132", "OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
