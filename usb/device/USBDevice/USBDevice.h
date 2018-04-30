@@ -75,17 +75,6 @@ public:
     /**
      * Instantiate a new USBDevice with the given parameters
      *
-     * This function uses a target's built in USBPhy.
-     *
-     * @param vendor_id The USB vendor ID
-     * @param product_id The USB product ID
-     * @param product_release The device release number
-     */
-    USBDevice(uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
-
-    /**
-     * Instantiate a new USBDevice with the given parameters
-     *
      * @param phy The USBPhy providing physical USB access
      * @param vendor_id The USB vendor ID
      * @param product_id The USB product ID
