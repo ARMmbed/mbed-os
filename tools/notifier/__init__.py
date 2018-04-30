@@ -78,7 +78,7 @@ class Notifier(object):
 
     def cc_verbose(self, message, file=""):
         self.notify({
-            'type': 'info',
+            'type': 'cc',
             'severity': 'verbose',
             'file': file,
             'message': message

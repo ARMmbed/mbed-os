@@ -79,7 +79,7 @@ class TerminalNotifier(Notifier):
     def print_notify(self, event):
         """ Command line notification
         """
-        if event['type'] == 'tool_error':
+        if event['type'] in ('tool_error', 'info'):
             return event['message']
 
         elif event['type'] == 'cc' and event['severity'] != 'verbose':
@@ -106,21 +106,13 @@ class TerminalNotifier(Notifier):
     def print_notify_verbose(self, event):
         """ Command line notification with more verbose mode
         """
-        if event['type'] == 'info':
+        if event['type'] == 'info' or (event['type'] == 'cc' and
+                                       event['severity'] == 'verbose'):
             return event['message']
         elif event['type'] == 'debug':
             return "[DEBUG] {message}".format(**event)
-        elif event['type'] == 'cc':
-            event['severity'] = event['severity'].title()
-            event['file'] = basename(event['file'])
-            event['mcu_name'] = "None"
-            event['tgt_name'] = event.get('target_name', 'unknown').upper()
-            event['tc_name'] = event.get('toolchain_name', 'unknown').upper()
-            return ('[{severity}] {tgt_name}::{tc_name}::{file}@{line}: '
-                    '{message}'.format(**event))
-
-        elif event['type'] == 'progress':
-            return self.print_notify(event) # standard handle
+        elif event['type'] in ('progress', 'cc'):
+            return self.print_notify(event)
 
     COLOR_MATCHER = re.compile(r"(\w+)(\W+on\W+\w+)?")
     def colorstring_to_escapecode(self, color_string):
