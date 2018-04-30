@@ -34,7 +34,15 @@
 
 #define OS_STACK_SIZE               MBED_CONF_APP_THREAD_STACK_SIZE
 
-#define OS_TIMER_THREAD_STACK_SIZE 768
+#ifndef OS_TIMER_THREAD_STACK_SIZE
+    #if (defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)) ||\
+        (defined(__DOMAIN_NS) && (__DOMAIN_NS == 1U))
+        #define OS_TIMER_THREAD_STACK_SIZE  1280
+    #else
+        #define OS_TIMER_THREAD_STACK_SIZE  768
+    #endif
+#endif
+
 #ifndef OS_IDLE_THREAD_STACK_SIZE
 #define OS_IDLE_THREAD_STACK_SIZE  512
 #endif
