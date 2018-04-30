@@ -2260,7 +2260,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'properties': properties,
             'app_config': app_config,
             'build_profile': build_profile,
-            'silent': True,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,
             'notify': notify
