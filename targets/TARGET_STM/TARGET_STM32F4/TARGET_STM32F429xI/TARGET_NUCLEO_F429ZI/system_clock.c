@@ -18,7 +18,7 @@
   * This file configures the system clock as follows:
   *-----------------------------------------------------------------------------------
   * System clock source   | 1- USE_PLL_HSE_EXTC (external 8 MHz clock) |
-  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | CLOCK_SOURCE_USB=1
+  *                       | 2- USE_PLL_HSE_XTAL (external 8 MHz xtal)  | DEVICE_USBDEVICE=1
   *                       | 3- USE_PLL_HSI (internal 16 MHz clock)     |
   *-----------------------------------------------------------------------------------
   * SYSCLK(MHz)           |                               180          | 168
@@ -152,13 +152,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
+#if (DEVICE_USBDEVICE)
     RCC_OscInitStruct.PLL.PLLN = 336;
 #else
     RCC_OscInitStruct.PLL.PLLN = 360;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
@@ -207,13 +207,13 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM = 8;
-#if (CLOCK_SOURCE_USB)
+#if (DEVICE_USBDEVICE)
     RCC_OscInitStruct.PLL.PLLN = 168;
 #else
     RCC_OscInitStruct.PLL.PLLN = 180;
 #endif
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if CLOCK_SOURCE_USB defined
-    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if CLOCK_SOURCE_USB defined
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; // 180 MHz or 168 MHz if DEVICE_USBDEVICE defined
+    RCC_OscInitStruct.PLL.PLLQ = 7;             //  48 MHz if DEVICE_USBDEVICE defined
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
