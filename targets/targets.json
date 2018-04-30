@@ -2166,11 +2166,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (SYSCLK=72 MHz) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI (SYSCLK=64 MHz)",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "clock_source_usb": {
-                "help": "In case of HSI clock source, to get 48 Mhz USB, SYSCLK has to be reduced from 64 to 48 MHz (set 0 for the max SYSCLK value)",
-                "value": "0",
-                "macro_name": "CLOCK_SOURCE_USB"
             }
         },
         "detect_code": ["0700"],
