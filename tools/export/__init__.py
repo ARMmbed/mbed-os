@@ -205,7 +205,24 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     return files, exporter
 
 
-def zip_export(file_name, prefix, resources, project_files, inc_repos):
+def _inner_zip_export(resources, inc_repos):
+    for loc, res in resources.items():
+        to_zip = (
+            res.headers + res.s_sources + res.c_sources +\
+            res.cpp_sources + res.libraries + res.hex_files + \
+            [res.linker_script] + res.bin_files + res.objects + \
+            res.json_files + res.lib_refs + res.lib_builds)
+        if inc_repos:
+            for directory in res.repo_dirs:
+                for root, _, files in walk(directory):
+                    for repo_file in files:
+                        source = join(root, repo_file)
+                        to_zip.append(source)
+                        res.file_basepath[source] = res.base_path
+            to_zip += res.repo_files
+        yield loc, to_zip
+
+def zip_export(file_name, prefix, resources, project_files, inc_repos, notify):
     """Create a zip file from an exported project.
 
     Positional Parameters:
@@ -215,29 +232,25 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
     project_files - a list of extra files to be added to the root of the prefix
       directory
     """
+    to_zip_list = list(_inner_zip_export(resources, inc_repos))
+    total_files = sum(len(to_zip) for _, to_zip in to_zip_list)
+    total_files += len(project_files)
+    zipped = 0
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, res in resources.items():
-            to_zip = (
-                res.headers + res.s_sources + res.c_sources +\
-                res.cpp_sources + res.libraries + res.hex_files + \
-                [res.linker_script] + res.bin_files + res.objects + \
-                res.json_files + res.lib_refs + res.lib_builds)
-            if inc_repos:
-                for directory in res.repo_dirs:
-                    for root, _, files in walk(directory):
-                        for repo_file in files:
-                            source = join(root, repo_file)
-                            to_zip.append(source)
-                            res.file_basepath[source] = res.base_path
-                to_zip += res.repo_files
+        for loc, to_zip in to_zip_list:
+            res = resources[loc]
             for source in to_zip:
                 if source:
                     zip_file.write(
                         source,
                         join(prefix, loc,
                              relpath(source, res.file_basepath[source])))
+                    notify.progress("Zipping", source,
+                                    100 * (zipped / total_files))
+                    zipped += 1
+        for lib, res in resources.items():
             for source in res.lib_builds:
                 target_dir, _ = splitext(source)
                 dest = join(prefix, loc,
@@ -248,10 +261,9 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
 
 
 def export_project(src_paths, export_path, target, ide, libraries_paths=None,
-                   linker_script=None, notify=None, verbose=False, name=None,
-                   inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
-                   config=None, macros=None, zip_proj=None, inc_repos=False,
-                   build_profile=None, app_config=None):
+                   linker_script=None, notify=None, name=None, inc_dirs=None,
+                   jobs=1, config=None, macros=None, zip_proj=None,
+                   inc_repos=False, build_profile=None, app_config=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -265,13 +277,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     linker_script - path to the linker script for the specified target
     notify - function is passed all events, and expected to handle notification
       of the user, emit the events to a log, etc.
-    verbose - assigns the notify function to toolchains print_notify_verbose
     name - project name
     inc_dirs - additional include directories
     jobs - number of threads
-    silent - silent build - no output
-    extra_verbose - assigns the notify function to toolchains
-      print_notify_verbose
     config - toolchain's config object
     macros - User-defined macros
     zip_proj - string name of the zip archive you wish to creat (exclude arg
@@ -302,8 +310,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     # Pass all params to the unified prepare_resources()
     toolchain = prepare_toolchain(
         paths, "", target, toolchain_name, macros=macros, jobs=jobs,
-        notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config, build_profile=build_profile,
+        notify=notify, config=config, build_profile=build_profile,
         app_config=app_config)
     # The first path will give the name to the library
     toolchain.RESPONSE_FILES = False
@@ -349,10 +356,10 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                     resource.add(res)
         if isinstance(zip_proj, basestring):
             zip_export(join(export_path, zip_proj), name, resource_dict,
-                       files + list(exporter.static_files), inc_repos)
+                       files + list(exporter.static_files), inc_repos, notify)
         else:
             zip_export(zip_proj, name, resource_dict,
-                       files + list(exporter.static_files), inc_repos)
+                       files + list(exporter.static_files), inc_repos, notify)
     else:
         for static_file in exporter.static_files:
             if not exists(join(export_path, basename(static_file))):
