@@ -32,6 +32,7 @@ extern "C" {
 #ifdef MBED_ALL_STATS_ENABLED
 #define MBED_STACK_STATS_ENABLED    1
 #define MBED_HEAP_STATS_ENABLED     1
+#define MBED_THREAD_STATS_ENABLED   1
 #endif
 
 /**
@@ -45,6 +46,19 @@ typedef struct {
     uint32_t alloc_cnt;         /**< Current number of allocations. */
     uint32_t alloc_fail_cnt;    /**< Number of failed allocations. */
 } mbed_stats_heap_t;
+
+/**
+ * struct mbed_stats_thread_t definition
+ */
+
+typedef struct {
+    uint32_t thread_id;             /**< Thread Object Identifier */
+    uint32_t thread_state;          /**< Thread Object State */
+    uint32_t thread_priority;       /**< Thread Priority */
+    uint32_t thread_stack_size;     /**< Thread Stack Size */
+    uint32_t thread_stack_space;    /**< Thread remaining stack size */
+    const char   *thread_name;      /**< Thread Object name */
+} mbed_stats_thread_t;
 
 /**
  *  Fill the passed in heap stat structure with heap stats.
@@ -80,6 +94,16 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats);
  *                  this is equal to the number of stacks on the system.
  */
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
+
+/**
+ *  Fill the passed array of stat structures with the thread stats for each available thread.
+ *
+ *  @param stats    A pointer to an array of mbed_stats_thread_t structures to fill
+ *  @param count    The number of mbed_stats_thread_t structures in the provided array
+ *  @return         The number of mbed_stats_thread_t structures that have been filled,
+ *                  this is equal to the number of stacks on the system.
+ */
+size_t mbed_stats_thread_get_each(mbed_stats_thread_t *stats, size_t count);
 
 #ifdef __cplusplus
 }

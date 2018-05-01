@@ -67,6 +67,36 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
     return i;
 }
 
-#if defined(MBED_STACK_STATS_ENABLED) && !defined(MBED_CONF_RTOS_PRESENT)
-#warning Stack statistics are currently not supported without the rtos.
+size_t mbed_stats_thread_get_each(mbed_stats_thread_t *stats, size_t count)
+{
+    MBED_ASSERT(stats != NULL);
+    memset(stats, 0, count*sizeof(mbed_stats_thread_t));
+    size_t i = 0;
+
+#if defined(MBED_THREAD_STATS_ENABLED) && MBED_CONF_RTOS_PRESENT
+    osThreadId_t *threads;
+
+    threads = malloc(sizeof(osThreadId_t) * count);
+    MBED_ASSERT(threads != NULL);
+
+    osKernelLock();
+    count = osThreadEnumerate(threads, count);
+
+    for(i = 0; i < count; i++) {
+        stats[i].thread_id = (uint32_t)threads[i];
+        stats[i].thread_state = (uint32_t)osThreadGetState(threads[i]);
+        stats[i].thread_priority = (uint32_t)osThreadGetPriority(threads[i]);
+        stats[i].thread_stack_size = osThreadGetStackSize(threads[i]);
+        stats[i].thread_stack_space = osThreadGetStackSpace(threads[i]);
+        stats[i].thread_name = osThreadGetName(threads[i]);
+    }
+    osKernelUnlock();
+    free(threads);
+#endif
+
+    return i;
+}
+
+#if (defined(MBED_STACK_STATS_ENABLED) || defined(MBED_THREAD_STATS_ENABLED)) && !defined(MBED_CONF_RTOS_PRESENT)
+#warning statistics are currently not supported without the rtos.
 #endif
