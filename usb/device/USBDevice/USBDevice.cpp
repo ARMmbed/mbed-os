@@ -1248,6 +1248,12 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _device.suspended = false;
 }
 
+USBDevice::~USBDevice()
+{
+    MBED_ASSERT(!_initialized);
+    deinit();
+}
+
 uint32_t USBDevice::endpoint_max_packet_size(usb_ep_t endpoint)
 {
     lock();
