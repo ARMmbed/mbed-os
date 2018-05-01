@@ -129,7 +129,8 @@ struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
         NOT_ENCRYPTED,          /**< The link is not secured. */
         ENCRYPTION_IN_PROGRESS, /**< Link security is being established. */
         ENCRYPTED,              /**< The link is secure. */
-        ENCRYPTED_WITH_MITM     /**< The link is secure and authenticated. */
+        ENCRYPTED_WITH_MITM,    /**< The link is secure and authenticated. */
+        ENCRYPTED_WITH_SC_AND_MITM  /**< The link is secure and authenticated with a secure connection key. */
     };
 
     /**
