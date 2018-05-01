@@ -63,7 +63,8 @@ ble_error_t GenericSecurityManager::init(
     _default_authentication.set_secure_connections(secure_connections);
     _default_authentication.set_keypress_notification(true);
 
-    _default_key_distribution.set_link(secure_connections);
+    // FIXME: depends on BR/EDR support
+    _default_key_distribution.set_link(false);
 
     _default_key_distribution.set_signing(signing);
     if (signing) {
