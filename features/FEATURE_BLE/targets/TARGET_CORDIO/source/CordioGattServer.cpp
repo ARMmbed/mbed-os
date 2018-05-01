@@ -15,17 +15,46 @@
  */
 
 #include <algorithm>
+#include "CordioBLE.h"
 #include "CordioGattServer.h"
 #include "mbed.h"
 #include "wsf_types.h"
 #include "att_api.h"
 
-static UUID cccUUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG);
-static const uint16_t cccSize = sizeof(uint16_t);
-
 namespace ble {
 namespace vendor {
 namespace cordio {
+
+namespace {
+
+static UUID CCCD_UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG);
+static const uint16_t CCCD_SIZE = sizeof(uint16_t);
+
+static const unsigned int READ_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ;
+static const unsigned int WRITE_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE;
+static const unsigned int WRITE_WITHOUT_RESPONSE_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE;
+static const unsigned int SIGNED_WRITE_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES;
+static const unsigned int NOTIFY_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY;
+static const unsigned int INDICATE_PROPERTY =
+    GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE;
+
+static const uint8_t WRITABLE_PROPERTIES =
+    WRITE_PROPERTY |
+    WRITE_WITHOUT_RESPONSE_PROPERTY |
+    SIGNED_WRITE_PROPERTY;
+
+static const uint8_t UPDATE_PROPERTIES =
+    NOTIFY_PROPERTY |
+    INDICATE_PROPERTY;
+
+static const uint16_t CONNECTION_ID_LIMIT = 0x100;
+
+} // end of anonymous namespace
 
 GattServer &GattServer::getInstance()
 {
@@ -35,384 +64,650 @@ GattServer &GattServer::getInstance()
 
 void GattServer::initialize()
 {
+    AttsAuthorRegister(atts_auth_cb);
     add_generic_access_service();
     add_generic_attribute_service();
 }
 
 ble_error_t GattServer::addService(GattService &service)
 {
-    ++currentHandle;
-    uint16_t startHandle = currentHandle;
-
-    internal_service_t *internal_service = new internal_service_t;
-
-    if (registered_service) {
-        internal_service->next = registered_service;
-    } else {
-        internal_service->next = NULL;
-    }
-
-    registered_service = internal_service;
-
-    // Create cordio attribute group
-    internal_service->attGroup = new attsGroup_t;
+    // create and fill the service structure
+    internal_service_t *att_service = new internal_service_t;
+    att_service->attGroup.pNext = NULL;
+    att_service->attGroup.readCback = atts_read_cb;
+    att_service->attGroup.writeCback = atts_write_cb;
 
     // Determine the attribute list length
-    unsigned int attListLen = 1;
-    for (int i = 0; i < service.getCharacteristicCount(); i++) {
-        attListLen += 2;
-        GattCharacteristic *p_char = service.getCharacteristic(i);
-
-        attListLen += p_char->getDescriptorCount();
-        if (p_char->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE)) {
-            // add a CCCD
-            attListLen++;
-        }
-    }
+    uint16_t attributes_count = compute_attributes_count(service);
 
     // Create cordio attribute list
-    internal_service->attGroup->pAttr = (attsAttr_t*)alloc_block(attListLen * sizeof(attsAttr_t));
-    if (internal_service->attGroup->pAttr == NULL) {
+    att_service->attGroup.pAttr =
+        (attsAttr_t*) alloc_block(attributes_count * sizeof(attsAttr_t));
+    if (att_service->attGroup.pAttr == NULL) {
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 
-    // Create characteristics
-    internal_service->chars = new internal_char_t [service.getCharacteristicCount()];
-
-    attsAttr_t *currAtt = internal_service->attGroup->pAttr;
+    // insert every element in the iterator
+    attsAttr_t *attribute_it = att_service->attGroup.pAttr;
 
     /* Service */
-    currAtt->pUuid = attPrimSvcUuid;
-    if (service.getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
-        internal_service->uuidLen = UUID::LENGTH_OF_LONG_UUID;
-    } else {
-        internal_service->uuidLen = sizeof(UUID::ShortUUIDBytes_t);
-    }
-    currAtt->pValue = (uint8_t*)alloc_block(internal_service->uuidLen);
-    memcpy(currAtt->pValue, service.getUUID().getBaseUUID(), internal_service->uuidLen);
-    currAtt->maxLen = internal_service->uuidLen;
-    currAtt->pLen = &internal_service->uuidLen;
-    currAtt->settings = 0;
-    currAtt->permissions = ATTS_PERMIT_READ;
-
-    currAtt++;
+    insert_service_attribute(service, attribute_it);
+    att_service->attGroup.startHandle = currentHandle;
+    service.setHandle(currentHandle);
 
     /* Add characteristics to the service */
     for (int i = 0; i < service.getCharacteristicCount(); i++) {
+        ble_error_t err = insert_characteristic(
+            service.getCharacteristic(i),
+            attribute_it
+        );
+        if (err) {
+            // FIXME: proper cleanup of data structure:
+            //   - att_service->attGroup.pAttr
+            //   - blocks allocated for characteristics value
+            // NOTE: those are rightfully released when reset() is called.
+            delete att_service;
+            return err;
+        }
+    }
+    att_service->attGroup.endHandle = currentHandle;
+
+    // add the service to the list of registered services
+    if (registered_service) {
+        att_service->next = registered_service;
+    } else {
+        att_service->next = NULL;
+    }
+
+    registered_service = att_service;
+
+    // register services and update cccds
+    AttsAddGroup(&att_service->attGroup);
+    AttsCccRegister(cccd_cnt, (attsCccSet_t*)cccds, cccd_cb);
+    return BLE_ERROR_NONE;
+}
+
+uint16_t GattServer::compute_attributes_count(GattService& service)
+{
+    // start at 1, one attribute is required for the service itself
+    uint16_t attributes_count = 1;
+    for (int i = 0; i < service.getCharacteristicCount(); i++) {
+        attributes_count += 2;
         GattCharacteristic *p_char = service.getCharacteristic(i);
+        attributes_count += p_char->getDescriptorCount();
+        if (p_char->getProperties() & UPDATE_PROPERTIES) {
+            // add a CCCD
+            ++attributes_count;
 
-        /* Skip any incompletely defined, read-only characteristics. */
-        if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
-            (p_char->getValueAttribute().getLength() == 0) &&
-            (p_char->getProperties() == GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)) {
-            continue;
-        }
-
-        // Create Characteristic Attribute
-        currentHandle += 2;
-        currAtt->pUuid = attChUuid;
-
-        p_char->getValueAttribute().setHandle(currentHandle);
-        internal_service->chars[i].descLen = 1 + sizeof(currentHandle) + p_char->getValueAttribute().getUUID().getLen();
-        currAtt->pValue = (uint8_t*) alloc_block(internal_service->chars[i].descLen);
-        uint8_t *pValue = currAtt->pValue;
-        *pValue++ = p_char->getProperties();
-        memcpy(pValue, &currentHandle, sizeof(currentHandle));
-        pValue += sizeof(currentHandle);
-        memcpy(pValue, p_char->getValueAttribute().getUUID().getBaseUUID(), p_char->getValueAttribute().getUUID().getLen());
-
-        currAtt->pLen = &internal_service->chars[i].descLen;
-        currAtt->maxLen = internal_service->chars[i].descLen;
-        currAtt->settings = 0;
-        currAtt->permissions = ATTS_PERMIT_READ;
-        currAtt++;
-
-        // Create Value Attribute
-        currAtt->pUuid = p_char->getValueAttribute().getUUID().getBaseUUID();
-        currAtt->maxLen = p_char->getValueAttribute().getMaxLength();
-        currAtt->pLen = (uint16_t*) alloc_block(currAtt->maxLen + sizeof(uint16_t));
-        *currAtt->pLen = p_char->getValueAttribute().getLength();
-        currAtt->pValue = (uint8_t*) ((uint16_t*)currAtt->pLen + 1);
-        memcpy(currAtt->pValue, p_char->getValueAttribute().getValuePtr(), *currAtt->pLen);
-        memset(currAtt->pValue + *currAtt->pLen, 0, currAtt->maxLen - *currAtt->pLen);
-
-        currAtt->settings = ATTS_SET_WRITE_CBACK | ATTS_SET_READ_CBACK;
-        if (p_char->getValueAttribute().getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
-            currAtt->settings |= ATTS_SET_UUID_128;
-        }
-        if (p_char->getValueAttribute().hasVariableLength()) {
-            currAtt->settings |= ATTS_SET_VARIABLE_LEN;
-        }
-
-        currAtt->permissions = 0;
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ)  { currAtt->permissions |= ATTS_PERMIT_READ; }
-        if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE) { currAtt->permissions |= ATTS_PERMIT_WRITE; }
-        currAtt++;
-
-        bool cccCreated = false;
-
-        for (int i = 0; i < p_char->getDescriptorCount(); i++) {
-            GattAttribute *p_att = p_char->getDescriptor(i);
-
-            currentHandle++;
-
-            p_att->setHandle(currentHandle);
-
-            currAtt->pUuid = p_att->getUUID().getBaseUUID();
-            currAtt->maxLen = p_att->getMaxLength();
-            currAtt->pLen = (uint16_t*) alloc_block(currAtt->maxLen + sizeof(uint16_t));
-            *currAtt->pLen = p_att->getLength();
-            currAtt->pValue = (uint8_t*) ((uint16_t*)currAtt->pLen + 1);
-            memcpy(currAtt->pValue, p_att->getValuePtr(), *currAtt->pLen);
-            memset(currAtt->pValue + *currAtt->pLen, 0, currAtt->maxLen - *currAtt->pLen);
-
-            currAtt->settings = 0;
-            currAtt->permissions = ATTS_PERMIT_READ | ATTS_PERMIT_WRITE;
-            if (p_att->getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
-                currAtt->settings |= ATTS_SET_UUID_128;
-            }
-            if (p_att->getUUID() == UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)) {
-                cccCreated = true;
-                currAtt->settings |= ATTS_SET_CCC;
-                currAtt->permissions |= ATTS_PERMIT_READ;
-                currAtt->permissions |= ATTS_PERMIT_WRITE;
-
-                if (cccCnt < MAX_CCC_CNT) {
-                    cccSet[cccCnt].handle = currentHandle;
-                    cccSet[cccCnt].valueRange = 0;
-                    if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) {
-                        cccSet[cccCnt].valueRange |= ATT_CLIENT_CFG_NOTIFY;
-                    }
-                    if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) {
-                        cccSet[cccCnt].valueRange |= ATT_CLIENT_CFG_INDICATE;
-                    }
-                    cccSet[cccCnt].secLevel = DM_SEC_LEVEL_NONE;
-                    cccHandles[cccCnt] = p_char->getValueAttribute().getHandle();
-                    cccCnt++;
-                } else {
-                    return BLE_ERROR_PARAM_OUT_OF_RANGE;
+            // verify that it hasn't been counted twice
+            for (size_t j = 0; j < p_char->getDescriptorCount(); ++j) {
+                if (p_char->getDescriptor(j)->getUUID() ==
+                    UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)
+                ) {
+                    --attributes_count;
+                    break;
                 }
             }
-            if (p_att->hasVariableLength()) {
-                currAtt->settings |= ATTS_SET_VARIABLE_LEN;
-            }
-            currAtt++;
-        }
-
-        if (!cccCreated && (p_char->getProperties() & (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE))) {
-            /* There was not a CCCD included in the descriptors, but this
-             * characteristic is notifiable and/or indicatable. A CCCD is
-             * required so create one now.
-             */
-            if (cccCnt >= MAX_CCC_CNT) {
-                return BLE_ERROR_PARAM_OUT_OF_RANGE;
-            }
-
-            currentHandle++;
-
-            currAtt->pUuid = cccUUID.getBaseUUID();
-            currAtt->pValue = (uint8_t*)&cccValues[cccCnt];
-            currAtt->pLen = (uint16_t*)&cccSize;
-            currAtt->maxLen = sizeof(uint16_t);
-            currAtt->settings = ATTS_SET_CCC;
-            currAtt->permissions = (ATTS_PERMIT_READ | ATTS_PERMIT_WRITE);
-
-            cccSet[cccCnt].handle = currentHandle;
-            cccSet[cccCnt].valueRange = 0;
-            if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) {
-                cccSet[cccCnt].valueRange |= ATT_CLIENT_CFG_NOTIFY;
-            }
-            if (p_char->getProperties() & GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE) {
-                cccSet[cccCnt].valueRange |= ATT_CLIENT_CFG_INDICATE;
-            }
-            cccSet[cccCnt].secLevel = DM_SEC_LEVEL_NONE;
-            cccHandles[cccCnt] = p_char->getValueAttribute().getHandle();
-
-            cccCnt++;
-            currAtt++;
         }
     }
 
-    internal_service->attGroup->pNext = NULL;
-    internal_service->attGroup->readCback = attsReadCback;
-    internal_service->attGroup->writeCback = attsWriteCback;
-    internal_service->attGroup->startHandle = startHandle;
-    internal_service->attGroup->endHandle = currentHandle;
-    AttsAddGroup(internal_service->attGroup);
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    return attributes_count;
+}
 
-    service.setHandle(startHandle);
+void GattServer::insert_service_attribute(
+    GattService& service,
+    attsAttr_t *&attribute_it
+) {
+    ++currentHandle;
+    const UUID& service_uuid = service.getUUID();
+
+    attribute_it->pUuid = attPrimSvcUuid;
+    if (service_uuid.shortOrLong() == UUID::UUID_TYPE_LONG) {
+        attribute_it->maxLen = UUID::LENGTH_OF_LONG_UUID;
+    } else {
+        attribute_it->maxLen = sizeof(UUID::ShortUUIDBytes_t);
+    }
+    attribute_it->pValue = (uint8_t*) alloc_block(attribute_it->maxLen);
+    memcpy(attribute_it->pValue, service_uuid.getBaseUUID(), attribute_it->maxLen);
+    attribute_it->pLen = &attribute_it->maxLen;
+    attribute_it->settings = 0;
+    attribute_it->permissions = ATTS_PERMIT_READ;
+
+    ++attribute_it;
+}
+
+ble_error_t GattServer::insert_characteristic(
+    GattCharacteristic *characteristic,
+    attsAttr_t *&attribute_it
+) {
+    bool valid = is_characteristic_valid(characteristic);
+    if (!valid) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    uint8_t properties = characteristic->getProperties();
+
+    // Create Characteristic Declaration Attribute
+    insert_characteristic_declaration_attribute(characteristic, attribute_it);
+    insert_characteristic_value_attribute(characteristic, attribute_it);
+
+    // insert descriptors
+    bool cccd_created = false;
+    for (size_t i = 0; i < characteristic->getDescriptorCount(); i++) {
+        insert_descriptor(
+            characteristic,
+            characteristic->getDescriptor(i),
+            attribute_it,
+            cccd_created
+        );
+    }
+
+    // insert implicit CCCD
+    if ((properties & UPDATE_PROPERTIES) && (cccd_created == false)) {
+        insert_cccd(characteristic, attribute_it);
+    }
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t * lengthP)
-{
-    uint16_t attribute_length = 0;
-    uint8_t* attribute_value = NULL;
+bool GattServer::is_characteristic_valid(GattCharacteristic *characteristic) {
+    uint8_t properties = characteristic->getProperties();
 
-    if (AttsGetAttr(attributeHandle, &attribute_length, &attribute_value) != ATT_SUCCESS) {
+    // nothing to read while the characteristic is flagged as readable
+    if ((characteristic->getValueAttribute().getValuePtr() == NULL) &&
+        (characteristic->getValueAttribute().getMaxLength() == 0) &&
+        (properties == READ_PROPERTY) &&
+        (characteristic->isReadAuthorizationEnabled() == false)
+    ) {
+        return false;
+    }
+
+    // nothing to write while the characteristic is flagged as writable
+    if ((characteristic->getValueAttribute().getValuePtr() == NULL) &&
+        (characteristic->getValueAttribute().getMaxLength() == 0) &&
+        (properties & WRITABLE_PROPERTIES) &&
+        (characteristic->isWriteAuthorizationEnabled() == false)
+    ) {
+        return false;
+    }
+
+    // check for invalid permissions
+    if ((properties == SIGNED_WRITE_PROPERTY) &&
+        (characteristic->getWriteSecurityRequirement() == att_security_requirement_t::NONE ||
+        characteristic->getWriteSecurityRequirement() == att_security_requirement_t::SC_AUTHENTICATED)
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+void GattServer::insert_characteristic_declaration_attribute(
+    GattCharacteristic *characteristic,
+    attsAttr_t *&attribute_it
+) {
+    const UUID& value_uuid = characteristic->getValueAttribute().getUUID();
+
+    // move the current handle to point to the value handle
+    currentHandle += 2;
+    characteristic->getValueAttribute().setHandle(currentHandle);
+
+    // fill the cordio attribute
+    attribute_it->pUuid = attChUuid;
+    attribute_it->maxLen = 1 + sizeof(currentHandle) + value_uuid.getLen();
+    attribute_it->pLen = &attribute_it->maxLen;
+    attribute_it->pValue = (uint8_t*) alloc_block(attribute_it->maxLen);
+    attribute_it->settings = 0;
+    attribute_it->permissions = ATTS_PERMIT_READ;
+
+    // set the attribute value
+    uint8_t *value_it = attribute_it->pValue;
+    *value_it++ = characteristic->getProperties();
+    memcpy(value_it, &currentHandle, sizeof(currentHandle));
+    value_it += sizeof(currentHandle);
+    memcpy(value_it, value_uuid.getBaseUUID(), value_uuid.getLen());
+
+    ++attribute_it;
+}
+
+ble_error_t GattServer::insert_characteristic_value_attribute(
+    GattCharacteristic *characteristic,
+    attsAttr_t *&attribute_it
+) {
+    GattAttribute &value_attribute = characteristic->getValueAttribute();
+    uint8_t properties = characteristic->getProperties();
+
+    // note: currentHandle has been already moved to the correct value
+
+    // Create Value Attribute
+    attribute_it->pUuid = value_attribute.getUUID().getBaseUUID();
+    attribute_it->maxLen = characteristic->getValueAttribute().getMaxLength();
+    attribute_it->pLen = (uint16_t*) alloc_block(attribute_it->maxLen + sizeof(uint16_t));
+    *attribute_it->pLen = value_attribute.getLength();
+    attribute_it->pValue = (uint8_t*) ((uint16_t*)attribute_it->pLen + 1);
+    memcpy(attribute_it->pValue, value_attribute.getValuePtr(), *attribute_it->pLen);
+    memset(attribute_it->pValue + *attribute_it->pLen, 0, attribute_it->maxLen - *attribute_it->pLen);
+
+    // Set value attribute settings
+    if (properties & READ_PROPERTY) {
+        attribute_it->settings = ATTS_SET_READ_CBACK;
+    }
+    if (properties & WRITABLE_PROPERTIES) {
+        attribute_it->settings = ATTS_SET_WRITE_CBACK;
+    }
+    if (value_attribute.getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
+        attribute_it->settings |= ATTS_SET_UUID_128;
+    }
+    if (value_attribute.hasVariableLength()) {
+        attribute_it->settings |= ATTS_SET_VARIABLE_LEN;
+    }
+    if (properties & SIGNED_WRITE_PROPERTY) {
+        attribute_it->settings |= ATTS_SET_ALLOW_SIGNED;
+    }
+
+    // setup permissions
+    attribute_it->permissions = 0;
+
+    // configure read permission
+    if (properties & READ_PROPERTY) {
+        attribute_it->permissions |= ATTS_PERMIT_READ;
+        switch (characteristic->getReadSecurityRequirement().value()) {
+            case att_security_requirement_t::NONE:
+                break;
+            case att_security_requirement_t::UNAUTHENTICATED:
+                attribute_it->permissions |= ATTS_PERMIT_READ_ENC;
+                break;
+            case att_security_requirement_t::AUTHENTICATED:
+                attribute_it->permissions |=
+                    ATTS_PERMIT_READ_ENC |
+                    ATTS_PERMIT_READ_AUTH;
+                break;
+            case att_security_requirement_t::SC_AUTHENTICATED:
+                // Note: check done in the cordio stack doesn't cover LESC
+                // so this one is done in attsAuthorCback
+                attribute_it->permissions |=
+                    ATTS_PERMIT_READ_ENC |
+                    ATTS_PERMIT_READ_AUTH |
+                    ATTS_PERMIT_READ_AUTHORIZ;
+                break;
+        }
+    }
+
+    // configure write permission
+    if (properties & WRITABLE_PROPERTIES) {
+        attribute_it->permissions |= ATTS_PERMIT_WRITE;
+        switch (characteristic->getWriteSecurityRequirement().value()) {
+            case att_security_requirement_t::NONE:
+                break;
+            case att_security_requirement_t::UNAUTHENTICATED:
+                attribute_it->permissions |= ATTS_PERMIT_WRITE_ENC;
+                break;
+            case att_security_requirement_t::AUTHENTICATED:
+                attribute_it->permissions |=
+                    ATTS_PERMIT_WRITE_ENC |
+                    ATTS_PERMIT_WRITE_AUTH;
+                break;
+            case att_security_requirement_t::SC_AUTHENTICATED:
+                // Note: check done in the cordio stack doesn't cover LESC
+                // so this one is done in attsAuthorCback
+                attribute_it->permissions |=
+                    ATTS_PERMIT_WRITE_ENC |
+                    ATTS_PERMIT_WRITE_AUTH |
+                    ATTS_PERMIT_WRITE_AUTHORIZ;
+                break;
+        }
+    }
+
+    // Register characteristic in authorisation list
+    // Note: ATTS_PERMIT_*_AUTHORIZ is uniquely used to check if security
+    // requirements are met according to the security requirements set in the
+    // characteristic.
+    // User defined security authorisation does not impact this flag
+    if ((attribute_it->permissions & (ATTS_PERMIT_READ_AUTHORIZ | ATTS_PERMIT_WRITE_AUTHORIZ)) ||
+        (attribute_it->permissions & UPDATE_PROPERTIES) ||
+        characteristic->isReadAuthorizationEnabled() ||
+        characteristic->isWriteAuthorizationEnabled()
+    ) {
+        if ( _auth_char_count >= MAX_CHARACTERISTIC_AUTHORIZATION_CNT) {
+            return BLE_ERROR_NO_MEM;
+        }
+        _auth_char[_auth_char_count] = characteristic;
+        ++_auth_char_count;
+    }
+
+    ++attribute_it;
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GattServer::insert_descriptor(
+    GattCharacteristic *characteristic,
+    GattAttribute* descriptor,
+    attsAttr_t *&attribute_it,
+    bool& cccd_created
+) {
+    uint8_t properties = characteristic->getProperties();
+
+    currentHandle++;
+
+    descriptor->setHandle(currentHandle);
+
+    attribute_it->pUuid = descriptor->getUUID().getBaseUUID();
+    attribute_it->maxLen = descriptor->getMaxLength();
+    attribute_it->pLen = (uint16_t*) alloc_block(attribute_it->maxLen + sizeof(uint16_t));
+    *attribute_it->pLen = descriptor->getLength();
+    attribute_it->pValue = (uint8_t*) ((uint16_t*)attribute_it->pLen + 1);
+    memcpy(attribute_it->pValue, descriptor->getValuePtr(), *attribute_it->pLen);
+    memset(attribute_it->pValue + *attribute_it->pLen, 0, attribute_it->maxLen - *attribute_it->pLen);
+
+    attribute_it->settings = 0;
+
+    if (descriptor->getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
+        attribute_it->settings |= ATTS_SET_UUID_128;
+    }
+
+    // handle the special case of a CCCD
+    if (descriptor->getUUID() == UUID(BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG)) {
+        if (cccd_cnt >= MAX_CCCD_CNT) {
+            return BLE_ERROR_NO_MEM;
+        }
+
+        if (descriptor->isReadAllowed() == false ||
+            descriptor->getReadSecurityRequirement() != att_security_requirement_t::NONE
+        ) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        cccd_created = true;
+        attribute_it->settings |= ATTS_SET_CCC;
+
+        cccds[cccd_cnt].handle = currentHandle;
+        cccds[cccd_cnt].valueRange = 0;
+        if (properties & NOTIFY_PROPERTY) {
+            cccds[cccd_cnt].valueRange |= ATT_CLIENT_CFG_NOTIFY;
+        }
+        if (properties & INDICATE_PROPERTY) {
+            cccds[cccd_cnt].valueRange |= ATT_CLIENT_CFG_INDICATE;
+        }
+        cccd_handles[cccd_cnt] = characteristic->getValueAttribute().getHandle();
+        cccd_cnt++;
+    }
+
+    if (descriptor->hasVariableLength()) {
+        attribute_it->settings |= ATTS_SET_VARIABLE_LEN;
+    }
+
+    // setup permissions
+    attribute_it->permissions = 0;
+
+    // configure read permission
+    if (descriptor->isReadAllowed()) {
+        attribute_it->permissions |= ATTS_PERMIT_READ;
+        switch (descriptor->getReadSecurityRequirement().value()) {
+            case att_security_requirement_t::NONE:
+                break;
+            case att_security_requirement_t::UNAUTHENTICATED:
+                attribute_it->permissions |= ATTS_PERMIT_READ_ENC;
+                break;
+            case att_security_requirement_t::AUTHENTICATED:
+                attribute_it->permissions |=
+                    ATTS_PERMIT_READ_ENC |
+                    ATTS_PERMIT_READ_AUTH;
+                break;
+            case att_security_requirement_t::SC_AUTHENTICATED:
+                // Note: check done in the cordio stack doesn't cover LESC
+                // so this one is done in attsAuthorCback
+                attribute_it->permissions |=
+                    ATTS_PERMIT_READ_ENC |
+                    ATTS_PERMIT_READ_AUTH |
+                    ATTS_PERMIT_READ_AUTHORIZ;
+                break;
+        }
+    }
+
+    // configure write permission
+    if (descriptor->isReadAllowed()) {
+        attribute_it->permissions |= ATTS_PERMIT_WRITE;
+        switch (descriptor->getWriteSecurityRequirement().value()) {
+            case att_security_requirement_t::NONE:
+                break;
+            case att_security_requirement_t::UNAUTHENTICATED:
+                attribute_it->permissions |= ATTS_PERMIT_WRITE_ENC;
+                break;
+            case att_security_requirement_t::AUTHENTICATED:
+                attribute_it->permissions |=
+                    ATTS_PERMIT_WRITE_ENC |
+                    ATTS_PERMIT_WRITE_AUTH;
+                break;
+            case att_security_requirement_t::SC_AUTHENTICATED:
+                // Note: check done in the cordio stack doesn't cover LESC
+                // so this one is done in attsAuthorCback
+                attribute_it->permissions |=
+                    ATTS_PERMIT_WRITE_ENC |
+                    ATTS_PERMIT_WRITE_AUTH |
+                    ATTS_PERMIT_WRITE_AUTHORIZ;
+                break;
+        }
+    }
+
+    attribute_it++;
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GattServer::insert_cccd(
+    GattCharacteristic *characteristic,
+    attsAttr_t *&attribute_it
+) {
+    if (cccd_cnt >= MAX_CCCD_CNT) {
+        return BLE_ERROR_NO_MEM;
+    }
+
+    uint8_t properties = characteristic->getProperties();
+
+    currentHandle++;
+
+    attribute_it->pUuid = CCCD_UUID.getBaseUUID();
+    attribute_it->pValue = (uint8_t*) &cccd_values[cccd_cnt];
+    attribute_it->maxLen = CCCD_SIZE;
+    attribute_it->pLen = &attribute_it->maxLen;
+    attribute_it->settings = ATTS_SET_CCC;
+    attribute_it->permissions = (ATTS_PERMIT_READ | ATTS_PERMIT_WRITE);
+
+    cccds[cccd_cnt].handle = currentHandle;
+    cccds[cccd_cnt].valueRange = 0;
+    if (properties & NOTIFY_PROPERTY) {
+        cccds[cccd_cnt].valueRange |= ATT_CLIENT_CFG_NOTIFY;
+    }
+    if (properties & INDICATE_PROPERTY) {
+        cccds[cccd_cnt].valueRange |= ATT_CLIENT_CFG_INDICATE;
+    }
+    cccds[cccd_cnt].secLevel = characteristic->getUpdateSecurityRequirement().value();
+    cccd_handles[cccd_cnt] = characteristic->getValueAttribute().getHandle();
+
+    cccd_cnt++;
+    attribute_it++;
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GattServer::read(
+    GattAttribute::Handle_t att_handle,
+    uint8_t buffer[],
+    uint16_t * buffer_length
+) {
+    uint16_t att_length = 0;
+    uint8_t* att_value = NULL;
+
+    if (AttsGetAttr(att_handle, &att_length, &att_value) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
     if (buffer) {
-        memcpy(buffer, attribute_value, std::min(*lengthP, attribute_length));
+        memcpy(buffer, att_value, std::min(*buffer_length, att_length));
     }
 
-    *lengthP = attribute_length;
+    *buffer_length = att_length;
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
-{
+ble_error_t GattServer::read(
+    Gap::Handle_t connection,
+    GattAttribute::Handle_t att_handle,
+    uint8_t buffer[],
+    uint16_t *buffer_length
+) {
     // Check to see if this is a CCCD
-    uint8_t idx;
-    for (idx = 0; idx < cccCnt; idx++) {
-        if (attributeHandle == cccSet[idx].handle) {
-            if (connectionHandle == DM_CONN_ID_NONE) { // CCCDs are always 16 bits
-                return BLE_ERROR_PARAM_OUT_OF_RANGE;
-            }
-            *((uint16_t*)buffer) = AttsCccGet(connectionHandle, idx);
-            *lengthP = 2;   // CCCDs are always 16 bits
-            return BLE_ERROR_NONE;
+    uint8_t cccd_index;
+    if (get_cccd_id(att_handle, cccd_index)) {
+        if (connection == DM_CONN_ID_NONE) {
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
+        uint16_t cccd_value = AttsCccGet(connection, cccd_index);
+        uint16_t cccd_length = sizeof(cccd_value);
+
+        if (buffer) {
+            memcpy(buffer, &cccd_value, std::min(*buffer_length, cccd_length));
+        }
+
+        *buffer_length = cccd_length;
+        return BLE_ERROR_NONE;
     }
 
     // This is not a CCCD. Use the non-connection specific update method.
-    return read(attributeHandle, buffer, lengthP);
+    return read(att_handle, buffer, buffer_length);
 }
 
-ble_error_t GattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
-{
+ble_error_t GattServer::write(
+    GattAttribute::Handle_t att_handle,
+    const uint8_t buffer[],
+    uint16_t len,
+    bool local_only
+) {
     // Check to see if this is a CCCD, if it is the case update the value for all
     // connections
-    uint8_t idx;
-    for (idx = 0; idx < cccCnt; idx++) {
-        if (attributeHandle == cccSet[idx].handle) {
-            for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
-                if (DmConnInUse(conn_id) == true) {
-                    ++conn_found;
-                } else {
-                    continue;
-                }
-
-                AttsCccSet(conn_id, idx, *((uint16_t*)buffer));
-            }
-            return BLE_ERROR_NONE;
+    uint8_t cccd_index;
+    if (get_cccd_id(att_handle, cccd_index)) {
+        if (len != sizeof(uint16_t)) {
+            return BLE_ERROR_INVALID_PARAM;
         }
+
+        uint16_t cccd_value;
+        memcpy(&cccd_value, buffer, sizeof(cccd_value));
+
+        uint16_t conn_id = 0;
+        uint16_t conn_found = 0;
+        while ((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
+            if (DmConnInUse(conn_id) == true) {
+                ++conn_found;
+                AttsCccSet(conn_id, cccd_index, cccd_value);
+            }
+            ++conn_id;
+        }
+
+        return BLE_ERROR_NONE;
     }
 
     // write the value to the attribute handle
-    if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
+    if (AttsSetAttr(att_handle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
     // return if the update does not have to be propagated to peers
-    if (localOnly) {
+    if (local_only || !has_cccd(att_handle)) {
         return BLE_ERROR_NONE;
     }
 
-    // Check to see if this characteristic has a CCCD attribute
-    for (idx = 0; idx < cccCnt; idx++) {
-        if (attributeHandle == cccHandles[idx]) {
-            break;
-        }
-    }
-
-    // exit if the characteristic has no CCCD attribute
-    if (idx >= cccCnt) {
-        return BLE_ERROR_NONE;
-    }
-
-    // This characteristic has a CCCD attribute. Handle notifications and indications.
-    // for all connections
-
-    for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
+    // This characteristic has a CCCD attribute. Handle notifications and
+    // indications for all active connections if the authentication is
+    // successful
+    uint16_t conn_id = 0;
+    uint16_t conn_found = 0;
+    while((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
         if (DmConnInUse(conn_id) == true) {
             ++conn_found;
-        } else {
-            uint16_t cccEnabled = AttsCccEnabled(conn_id, idx);
-            if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
-                AttsHandleValueNtf(conn_id, attributeHandle, len, (uint8_t*)buffer);
-            }
-            if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
-                AttsHandleValueInd(conn_id, attributeHandle, len, (uint8_t*)buffer);
+            if (is_update_authorized(conn_id, att_handle)) {
+                uint16_t cccd_config = AttsCccEnabled(conn_id, cccd_index);
+                if (cccd_config & ATT_CLIENT_CFG_NOTIFY) {
+                    AttsHandleValueNtf(conn_id, att_handle, len, (uint8_t*)buffer);
+                }
+                if (cccd_config & ATT_CLIENT_CFG_INDICATE) {
+                    AttsHandleValueInd(conn_id, att_handle, len, (uint8_t*)buffer);
+                }
             }
         }
-
-        AttsCccSet(conn_id, idx, *((uint16_t*)buffer));
+        ++conn_id;
     }
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
-{
+ble_error_t GattServer::write(
+    Gap::Handle_t connection,
+    GattAttribute::Handle_t att_handle,
+    const uint8_t buffer[],
+    uint16_t len,
+    bool local_only
+) {
     // Check to see if this is a CCCD
-    uint8_t idx;
-    for (idx = 0; idx < cccCnt; idx++) {
-        if (attributeHandle == cccSet[idx].handle) {
-            if ((connectionHandle == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
-                return BLE_ERROR_PARAM_OUT_OF_RANGE;
-            }
-            AttsCccSet(connectionHandle, idx, *((uint16_t*)buffer));
-            return BLE_ERROR_NONE;
+    uint8_t cccd_index;
+    if (get_cccd_id(att_handle, cccd_index)) {
+        if ((connection == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
+
+        uint16_t cccd_value;
+        memcpy(&cccd_value, buffer, sizeof(cccd_value));
+        AttsCccSet(connection, cccd_index, cccd_value);
+        return BLE_ERROR_NONE;
     }
 
     // write the value to the attribute handle
-    if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
+    if (AttsSetAttr(att_handle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
     // return if the update does not have to be propagated to peers
-    if (localOnly) {
-        return BLE_ERROR_NONE;
-    }
-
-    // Check to see if this characteristic has a CCCD attribute
-    for (idx = 0; idx < cccCnt; idx++) {
-        if (attributeHandle == cccHandles[idx]) {
-            break;
-        }
-    }
-
-    // exit if the characteristic has no CCCD attribute
-    if (idx >= cccCnt) {
+    if (local_only || !has_cccd(att_handle)) {
         return BLE_ERROR_NONE;
     }
 
     // This characteristic has a CCCD attribute. Handle notifications and indications.
-    uint16_t cccEnabled = AttsCccEnabled(connectionHandle, idx);
-    if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
-        AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
-    }
-    if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
-        AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+    if (is_update_authorized(connection, att_handle)) {
+        uint16_t cccEnabled = AttsCccEnabled(connection, cccd_index);
+        if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
+            AttsHandleValueNtf(connection, att_handle, len, (uint8_t*)buffer);
+        }
+        if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
+            AttsHandleValueInd(connection, att_handle, len, (uint8_t*)buffer);
+        }
     }
 
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
-{
-    for (size_t idx = 0; idx < cccCnt; idx++) {
-        if (characteristic.getValueHandle() == cccHandles[idx]) {
-            for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
+ble_error_t GattServer::areUpdatesEnabled(
+    const GattCharacteristic &characteristic,
+    bool *enabled
+) {
+    for (size_t idx = 0; idx < cccd_cnt; idx++) {
+        if (characteristic.getValueHandle() == cccd_handles[idx]) {
+            uint16_t conn_id = 0;
+            uint16_t conn_found = 0;
+
+            while ((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
                 if (DmConnInUse(conn_id) == true) {
                     ++conn_found;
-                } else {
-                    continue;
-                }
+                    uint16_t cccd_value = AttsCccGet(conn_id, idx);
+                    if (cccd_value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
+                        *enabled = true;
+                        return BLE_ERROR_NONE;
+                    }
 
-                uint16_t cccValue = AttsCccGet(conn_id, idx);
-                if ((cccValue & ATT_CLIENT_CFG_NOTIFY) || (cccValue & ATT_CLIENT_CFG_INDICATE)) {
-                    *enabledP = true;
-                    return BLE_ERROR_NONE;
                 }
+                ++conn_id;
             }
-            *enabledP = false;
+            *enabled = false;
             return BLE_ERROR_NONE;
         }
     }
@@ -420,23 +715,26 @@ ble_error_t GattServer::areUpdatesEnabled(const GattCharacteristic &characterist
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
-ble_error_t GattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP)
-{
-    if (connectionHandle != DM_CONN_ID_NONE) {
-        uint8_t idx;
-        for (idx = 0; idx < cccCnt; idx++) {
-            if (characteristic.getValueHandle() == cccHandles[idx]) {
-                uint16_t cccValue = AttsCccGet(connectionHandle, idx);
-                if (cccValue & ATT_CLIENT_CFG_NOTIFY || (cccValue & ATT_CLIENT_CFG_INDICATE)) {
-                    *enabledP = true;
-                } else {
-                    *enabledP = false;
-                }
-                return BLE_ERROR_NONE;
-            }
-        }
+ble_error_t GattServer::areUpdatesEnabled(
+    Gap::Handle_t connectionHandle,
+    const GattCharacteristic &characteristic,
+    bool *enabled
+) {
+    if (connectionHandle == DM_CONN_ID_NONE) {
+        return BLE_ERROR_INVALID_PARAM;
     }
 
+    for (uint8_t idx = 0; idx < cccd_cnt; idx++) {
+        if (characteristic.getValueHandle() == cccd_handles[idx]) {
+            uint16_t cccd_value = AttsCccGet(connectionHandle, idx);
+            if (cccd_value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
+                *enabled = true;
+            } else {
+                *enabled = false;
+            }
+            return BLE_ERROR_NONE;
+        }
+    }
     return BLE_ERROR_PARAM_OUT_OF_RANGE;
 }
 
@@ -511,9 +809,7 @@ ble_error_t GattServer::reset(void)
     while (registered_service) {
         internal_service_t* s = registered_service;
         registered_service = s->next;
-        AttsRemoveGroup(s->attGroup->startHandle);
-        delete s->attGroup;
-        delete[] s->chars;
+        AttsRemoveGroup(s->attGroup.startHandle);
         delete s;
     }
 
@@ -528,33 +824,60 @@ ble_error_t GattServer::reset(void)
     free(generic_access_service.device_name_value());
 
     currentHandle = 0;
-    cccCnt = 0;
+    cccd_cnt = 0;
 
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    _auth_char_count = 0;
+
+    AttsCccRegister(cccd_cnt, (attsCccSet_t*)cccds, cccd_cb);
 
     return BLE_ERROR_NONE;
 }
 
-void GattServer::cccCback(attsCccEvt_t *pEvt)
+void GattServer::cccd_cb(attsCccEvt_t *evt)
 {
-    if (pEvt->value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE)) {
-        getInstance().handleEvent(GattServerEvents::GATT_EVENT_UPDATES_ENABLED, pEvt->handle);
-    } else {
-        getInstance().handleEvent(GattServerEvents::GATT_EVENT_UPDATES_DISABLED, pEvt->handle);
+    GattServerEvents::gattEvent_t evt_type =
+        evt->value & (ATT_CLIENT_CFG_NOTIFY | ATT_CLIENT_CFG_INDICATE) ?
+            GattServerEvents::GATT_EVENT_UPDATES_ENABLED :
+            GattServerEvents::GATT_EVENT_UPDATES_DISABLED;
+
+    getInstance().handleEvent(evt_type, evt->handle);
+}
+
+void GattServer::att_cb(const attEvt_t *evt)
+{
+    if (evt->hdr.status == ATT_SUCCESS && evt->hdr.event == ATTS_HANDLE_VALUE_CNF) {
+        getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, evt->handle);
     }
 }
 
-void GattServer::attCback(attEvt_t *pEvt)
-{
-    // TODO enable again
-    if (pEvt->hdr.status == ATT_SUCCESS) {
-        getInstance().handleEvent(GattServerEvents::GATT_EVENT_DATA_SENT, pEvt->handle);
-    }
-}
+uint8_t GattServer::atts_read_cb(
+    dmConnId_t connId,
+    uint16_t handle,
+    uint8_t operation,
+    uint16_t offset,
+    attsAttr_t *pAttr
+) {
+    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
+    if (auth_char && auth_char->isReadAuthorizationEnabled()) {
+        GattReadAuthCallbackParams read_auth_params = {
+            connId,
+            handle,
+            offset,
+            /* len */ 0,
+            /* data */ NULL,
+            AUTH_CALLBACK_REPLY_SUCCESS
+        };
 
-uint8_t GattServer::attsReadCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr)
-{
-    GattReadCallbackParams cbParams = {
+        GattAuthCallbackReply_t ret = auth_char->authorizeRead(&read_auth_params);
+        if (ret != AUTH_CALLBACK_REPLY_SUCCESS) {
+            return ret & 0xFF;
+        }
+
+        pAttr->pValue = read_auth_params.data;
+        *pAttr->pLen = read_auth_params.len;
+    }
+
+    GattReadCallbackParams read_params = {
         connId,
         handle,
         offset,
@@ -562,13 +885,20 @@ uint8_t GattServer::attsReadCback(dmConnId_t connId, uint16_t handle, uint8_t op
         pAttr->pValue,
         /* status */ BLE_ERROR_NONE,
     };
-    getInstance().handleDataReadEvent(&cbParams);
+    getInstance().handleDataReadEvent(&read_params);
 
     return ATT_SUCCESS;
 }
 
-uint8_t GattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, uint16_t len, uint8_t *pValue, attsAttr_t *pAttr)
-{
+uint8_t GattServer::atts_write_cb(
+    dmConnId_t connId,
+    uint16_t handle,
+    uint8_t operation,
+    uint16_t offset,
+    uint16_t len,
+    uint8_t *pValue,
+    attsAttr_t *pAttr
+) {
     uint8_t err;
 
     /* TODO: offset is not handled properly */
@@ -604,7 +934,24 @@ uint8_t GattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t o
             break;
     }
 
-    GattWriteCallbackParams cbParams = {
+    GattCharacteristic* auth_char = getInstance().get_auth_char(handle);
+    if (auth_char && auth_char->isWriteAuthorizationEnabled()) {
+        GattWriteAuthCallbackParams write_auth_params = {
+            connId,
+            handle,
+            offset,
+            len,
+            pValue,
+            AUTH_CALLBACK_REPLY_SUCCESS
+        };
+
+        GattAuthCallbackReply_t ret = auth_char->authorizeWrite(&write_auth_params);
+        if (ret!= AUTH_CALLBACK_REPLY_SUCCESS) {
+            return ret & 0xFF;
+        }
+    }
+
+    GattWriteCallbackParams write_params = {
         connId,
         handle,
         writeOp,
@@ -612,7 +959,26 @@ uint8_t GattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_t o
         len,
         pValue
     };
-    getInstance().handleDataWrittenEvent(&cbParams);
+    getInstance().handleDataWrittenEvent(&write_params);
+
+    return ATT_SUCCESS;
+}
+
+uint8_t GattServer::atts_auth_cb(dmConnId_t connId, uint8_t permit, uint16_t handle)
+{
+    // this CB is triggered when read or write of an attribute (either a value
+    // handle or a descriptor) requires secure connection security.
+    SecurityManager& security_manager = BLE::deviceInstance().getSecurityManager();
+
+    link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
+    ble_error_t err = security_manager.getLinkEncryption(connId, &encryption);
+    if (err) {
+        return ATT_ERR_AUTH;
+    }
+
+    if (encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+        return ATT_ERR_AUTH;
+    }
 
     return ATT_SUCCESS;
 }
@@ -622,8 +988,8 @@ void GattServer::add_generic_access_service()
     ++currentHandle;
     generic_access_service.service.pNext = NULL;
     generic_access_service.service.startHandle = currentHandle;
-    generic_access_service.service.readCback = attsReadCback;
-    generic_access_service.service.writeCback = attsWriteCback;
+    generic_access_service.service.readCback = atts_read_cb;
+    generic_access_service.service.writeCback = atts_write_cb;
 
     // bind attributes to the service
     generic_access_service.service.pAttr = generic_access_service.attributes;
@@ -738,8 +1104,8 @@ void GattServer::add_generic_attribute_service()
     ++currentHandle;
     generic_attribute_service.service.pNext = NULL;
     generic_attribute_service.service.startHandle = currentHandle;
-    generic_attribute_service.service.readCback = attsReadCback;
-    generic_attribute_service.service.writeCback = attsWriteCback;
+    generic_attribute_service.service.readCback = atts_read_cb;
+    generic_attribute_service.service.writeCback = atts_write_cb;
 
     // bind attributes to the service
     generic_attribute_service.service.pAttr = generic_attribute_service.attributes;
@@ -784,21 +1150,21 @@ void GattServer::add_generic_attribute_service()
     // CCCD
     ++current_attribute;
     current_attribute->pUuid = attCliChCfgUuid;
-    current_attribute->pValue = (uint8_t*)&cccValues[cccCnt];
+    current_attribute->pValue = (uint8_t*)&cccd_values[cccd_cnt];
     current_attribute->maxLen = 2;
     current_attribute->pLen = &current_attribute->maxLen;
     current_attribute->settings = ATTS_SET_CCC;
     current_attribute->permissions = (ATTS_PERMIT_READ | ATTS_PERMIT_WRITE);
 
-    cccSet[cccCnt].handle = currentHandle;
-    cccSet[cccCnt].valueRange = ATT_CLIENT_CFG_INDICATE;
-    cccSet[cccCnt].secLevel = DM_SEC_LEVEL_NONE;
-    cccHandles[cccCnt] = currentHandle - 1;
-    cccCnt++;
+    cccds[cccd_cnt].handle = currentHandle;
+    cccds[cccd_cnt].valueRange = ATT_CLIENT_CFG_INDICATE;
+    cccds[cccd_cnt].secLevel = DM_SEC_LEVEL_NONE;
+    cccd_handles[cccd_cnt] = currentHandle - 1;
+    cccd_cnt++;
 
     generic_attribute_service.service.endHandle = currentHandle;
     AttsAddGroup(&generic_attribute_service.service);
-    AttsCccRegister(cccCnt, (attsCccSet_t*)cccSet, cccCback);
+    AttsCccRegister(cccd_cnt, (attsCccSet_t*)cccds, cccd_cb);
 }
 
 void* GattServer::alloc_block(size_t block_size) {
@@ -818,10 +1184,96 @@ void* GattServer::alloc_block(size_t block_size) {
     return block->data;
 }
 
+GattCharacteristic* GattServer::get_auth_char(uint16_t value_handle)
+{
+    for (size_t i = 0; i < _auth_char_count; ++i) {
+        if (_auth_char[i]->getValueHandle() == value_handle) {
+            return _auth_char[i];
+        }
+    }
+    return NULL;
+}
+
+bool GattServer::get_cccd_id(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const
+{
+    for (idx = 0; idx < cccd_cnt; idx++) {
+        if (cccd_handle == cccds[idx].handle) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GattServer::has_cccd(GattAttribute::Handle_t char_handle) const
+{
+    for (uint8_t cccd_index = 0; cccd_index < cccd_cnt; ++cccd_index) {
+        if (char_handle == cccd_handles[cccd_index]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GattServer::is_update_authorized(
+    Gap::Handle_t connection,
+    GattAttribute::Handle_t value_handle
+) {
+    GattCharacteristic* auth_char = get_auth_char(value_handle);
+    if (!auth_char) {
+        return true;
+    }
+
+    att_security_requirement_t sec_req =
+        auth_char->getUpdateSecurityRequirement();
+
+    if (sec_req == att_security_requirement_t::NONE) {
+        return true;
+    }
+
+    SecurityManager& security_manager = BLE::deviceInstance().getSecurityManager();
+    link_encryption_t encryption(link_encryption_t::NOT_ENCRYPTED);
+    ble_error_t err = security_manager.getLinkEncryption(connection, &encryption);
+    if (err) {
+        return false;
+    }
+
+    switch (sec_req.value()) {
+        case att_security_requirement_t::UNAUTHENTICATED:
+            if (encryption < link_encryption_t::ENCRYPTED) {
+                return false;
+            }
+            return true;
+
+        case att_security_requirement_t::AUTHENTICATED:
+            if (encryption < link_encryption_t::ENCRYPTED_WITH_MITM) {
+                return false;
+            }
+            return true;
+
+        case att_security_requirement_t::SC_AUTHENTICATED:
+            if (encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+                return false;
+            }
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 GattServer::GattServer() :
-    ::GattServer(), _signing_event_handler(NULL), cccSet(), cccValues(), cccHandles(), cccCnt(0),
-    generic_access_service(), generic_attribute_service(),
-    registered_service(NULL), allocated_blocks(NULL),
+    ::GattServer(),
+    _signing_event_handler(NULL),
+    cccds(),
+    cccd_values(),
+    cccd_handles(),
+    cccd_cnt(0),
+    _auth_char(),
+    _auth_char_count(0),
+    generic_access_service(),
+    generic_attribute_service(),
+    registered_service(NULL),
+    allocated_blocks(NULL),
     currentHandle(0)
 {
 }
