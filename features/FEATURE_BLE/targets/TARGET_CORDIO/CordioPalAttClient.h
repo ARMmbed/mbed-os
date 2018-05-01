@@ -30,7 +30,8 @@ namespace cordio {
 class CordioAttClient : public ::ble::pal::AttClient {
 
 public:
-    CordioAttClient() : ::ble::pal::AttClient() { }
+    CordioAttClient() : ::ble::pal::AttClient(), _local_sign_counter(0) { }
+
     virtual ~CordioAttClient() { }
 
     /**
