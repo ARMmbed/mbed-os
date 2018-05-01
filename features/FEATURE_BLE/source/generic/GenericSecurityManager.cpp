@@ -135,7 +135,8 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
 
     /* by default the initiator doesn't send any keys other then identity */
     KeyDistribution initiator_distribution(
-        KeyDistribution::KEY_DISTRIBUTION_IDENTITY | _default_key_distribution.get_link()
+        KeyDistribution::KEY_DISTRIBUTION_IDENTITY |
+        _default_key_distribution.get_link()
     );
 
     /* if requested the initiator may send all the default keys for later
@@ -183,13 +184,18 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     if (_master_sends_keys) {
         initiator_distribution &= _default_key_distribution;
     } else {
-        initiator_distribution &= KeyDistribution(KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK);
+        initiator_distribution &= KeyDistribution(
+            KeyDistribution::KEY_DISTRIBUTION_IDENTITY |
+            KeyDistribution::KEY_DISTRIBUTION_LINK
+        );
     }
 
     /* signing has to be offered and enabled on the link */
     if (master_signing) {
         initiator_distribution.set_signing(
-            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+            cb->signing_override_default ?
+                cb->signing_requested :
+                _default_key_distribution.get_signing()
         );
     }
 
@@ -200,7 +206,9 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     /* signing has to be requested and enabled on the link */
     if (responder_distribution.get_signing()) {
         responder_distribution.set_signing(
-            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+            cb->signing_override_default ?
+                cb->signing_requested :
+                _default_key_distribution.get_signing()
         );
     }
 
@@ -733,7 +741,12 @@ void GenericSecurityManager::set_ltk_cb(
 
     if (cb) {
         if (entryKeys) {
-            _pal.set_ltk(cb->connection, entryKeys->ltk, cb->ltk_mitm_protected, cb->secure_connections_paired);
+            _pal.set_ltk(
+                cb->connection,
+                entryKeys->ltk,
+                cb->ltk_mitm_protected,
+                cb->secure_connections_paired
+            );
         } else {
             _pal.set_ltk_not_found(cb->connection);
         }
