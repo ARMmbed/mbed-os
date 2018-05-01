@@ -356,6 +356,7 @@ void BLE::stack_setup()
     AttsInit();
     AttsIndInit();
     AttsSignInit();
+    AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
     AttcSignInit();
 

@@ -45,12 +45,15 @@ class CordioAttClient;
 namespace vendor {
 namespace cordio {
 
+class BLE;
+
 /**
  * Cordio implementation of ::GattServer
  */
 class GattServer : public ::GattServer,
                    public pal::SigningEventMonitor
 {
+    friend ble::vendor::cordio::BLE;
     friend ble::pal::vendor::cordio::CordioAttClient;
 
 public:
