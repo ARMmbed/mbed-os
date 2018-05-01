@@ -475,12 +475,12 @@ static control_t test_snprintf_u(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "ju: %ju\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "ju: %ju\r\n", (uintmax_t) 0);
-    TEST_ASSERT_EQUAL_STRING("ju: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "ju: %ju\r\n", UINTMAX_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "ju: %ju\r\n", UINTMAX_MAX);
-    TEST_ASSERT_EQUAL_STRING("ju: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -489,12 +489,12 @@ static control_t test_snprintf_u(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zu: %zu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zu: %zu\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("zu: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zu: %zu\r\n", SIZE_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zu: %zu\r\n", SIZE_MAX);
-    TEST_ASSERT_EQUAL_STRING("zu: 4294967295\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -503,12 +503,12 @@ static control_t test_snprintf_u(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tu: %tu\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tu: %tu\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("tu: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tu: %tu\r\n", UINTPTR_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tu: %tu\r\n", UINTPTR_MAX);
-    TEST_ASSERT_EQUAL_STRING("tu: 18446744073709551615\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -526,7 +526,7 @@ static control_t test_snprintf_x(const size_t call_count)
     /*************************************************************************/
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhX: %hhX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hhX: %hhX\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("hhX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hhX: %hhX\r\n", UCHAR_MAX);
@@ -536,7 +536,7 @@ static control_t test_snprintf_x(const size_t call_count)
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hX: %hX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "hX: %hX\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("hX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "hX: %hX\r\n", USHRT_MAX);
@@ -545,7 +545,7 @@ static control_t test_snprintf_x(const size_t call_count)
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "X: %X\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "X: %X\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("X: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "X: %X\r\n", UINT_MAX);
@@ -555,7 +555,7 @@ static control_t test_snprintf_x(const size_t call_count)
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lX: %lX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "lX: %lX\r\n", 0UL);
-    TEST_ASSERT_EQUAL_STRING("lX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "lX: %lX\r\n", ULONG_MAX);
@@ -565,7 +565,7 @@ static control_t test_snprintf_x(const size_t call_count)
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "llX: %llX\r\n", 0ULL);
-    TEST_ASSERT_EQUAL_STRING("llX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "llX: %llX\r\n", ULLONG_MAX);
@@ -578,12 +578,12 @@ static control_t test_snprintf_x(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jX: %jX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jX: %jX\r\n", (uintmax_t) 0);
-    TEST_ASSERT_EQUAL_STRING("jX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "jX: %jX\r\n", UINTMAX_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "jX: %jX\r\n", UINTMAX_MAX);
-    TEST_ASSERT_EQUAL_STRING("jX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -592,12 +592,12 @@ static control_t test_snprintf_x(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zX: %zX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zX: %zX\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("zX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "zX: %zX\r\n", SIZE_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "zX: %zX\r\n", SIZE_MAX);
-    TEST_ASSERT_EQUAL_STRING("zX: FFFFFFFF\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -606,12 +606,12 @@ static control_t test_snprintf_x(const size_t call_count)
 #else
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tX: %tX\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tX: %tX\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("tX: 0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "tX: %tX\r\n", UINTPTR_MAX);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "tX: %tX\r\n", UINTPTR_MAX);
-    TEST_ASSERT_EQUAL_STRING("tX: FFFFFFFFFFFFFFFF\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 #endif
 
@@ -663,7 +663,7 @@ static control_t test_snprintf_f(const size_t call_count)
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %f\r\n", 0);
     result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "f: %f\r\n", 0);
-    TEST_ASSERT_EQUAL_STRING("f: 0.0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %f\r\n", pi);
