@@ -18,6 +18,7 @@
 #include "USBCDC.h"
 #include "EndpointResolver.h"
 #include "AsyncOp.h"
+#include "usb_phy_api.h"
 
 static const uint8_t cdc_line_coding_default[7] = {0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08};
 
@@ -58,20 +59,31 @@ public:
     bool result;
 };
 
-USBCDC::USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking)
-    : USBDevice(vendor_id, product_id, product_release)
+USBCDC::USBCDC(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
 
 {
-    _init(connect_blocking);
+    _init();
+    if (connect_blocking) {
+        connect();
+        wait_ready();
+    } else {
+        init();
+    }
 }
 
-USBCDC::USBCDC(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking)
+USBCDC::USBCDC(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(phy, vendor_id, product_id, product_release)
 {
-    _init(connect_blocking);
+    _init();
 }
 
-void USBCDC::_init(bool connect_blocking)
+USBCDC::~USBCDC()
+{
+    deinit();
+}
+
+void USBCDC::_init()
 {
     memcpy(_cdc_line_coding, cdc_line_coding_default, sizeof(_cdc_line_coding));
 
@@ -91,13 +103,6 @@ void USBCDC::_init(bool connect_blocking)
     _rx_in_progress = false;
     _rx_buf = _rx_buffer;
     _rx_size = 0;
-
-    init();
-
-    USBDevice::connect(false);
-    if (connect_blocking) {
-        wait_connected();
-    }
 }
 
 void USBCDC::callback_reset()
@@ -234,7 +239,17 @@ void USBCDC::_change_terminal_connected(bool connected)
     _terminal_connected = connected;
 }
 
-void USBCDC::wait_connected()
+bool USBCDC::ready()
+{
+    lock();
+
+    bool ready = _terminal_connected;
+
+    unlock();
+    return ready;
+}
+
+void USBCDC::wait_ready()
 {
     lock();
 
