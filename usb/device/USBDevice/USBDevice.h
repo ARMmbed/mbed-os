@@ -83,6 +83,14 @@ public:
     USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     /**
+     * Cleanup this USBDevice
+     *
+     * This USBDevice must be uninitialized when the destructor is
+     * called or the behavior is undefined.
+     */
+    virtual ~USBDevice();
+
+    /**
      * Initialize this instance
      *
      * This function must be called before calling
