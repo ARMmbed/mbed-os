@@ -875,6 +875,8 @@ void GenericSecurityManager::on_disconnected(
         return;
     }
 
+    _pal.remove_peer_csrk(connection);
+
     _db.close_entry(cb->db_entry);
     release_control_block(cb);
 
