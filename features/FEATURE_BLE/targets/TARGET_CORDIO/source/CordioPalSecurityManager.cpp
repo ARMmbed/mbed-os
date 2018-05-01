@@ -273,8 +273,11 @@ ble_error_t CordioSecurityManager::set_csrk(
     const csrk_t& csrk,
     sign_count_t sign_counter
 ) {
+    _csrk = csrk;
+    DmSecSetLocalCsrk(_csrk.data());
+    // extra set the sign counter used by the client
     CordioAttClient::get_client().set_sign_counter(sign_counter);
-    DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
+
     return BLE_ERROR_NONE;
 }
 

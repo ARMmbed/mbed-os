@@ -327,6 +327,7 @@ private:
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
     irk_t _irk;
+    csrk_t _csrk;
 };
 
 } // cordio
