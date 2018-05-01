@@ -150,6 +150,7 @@ typedef struct spi_init_t {
 
     bool clock_phase; /**< True if data line is valid when leaving active state. */
     bool clock_polarity; /**< True if the clock's rest state is high (+Vcc). */
+    uint32_t word_length; /**< Length of a symbol in bit. */
 } spi_init_t;
 
 /**
