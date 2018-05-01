@@ -29,31 +29,57 @@ class AsyncOp;
 class USBCDC: public USBDevice {
 public:
 
-    /*
-    * Constructor
+    /**
+    * Basic constructor
     *
+    * Construct this object optionally connecting and blocking until it is ready.
+    *
+    * @note Do not use this constructor in derived classes.
+    *
+    * @param connect_blocking true to perform a blocking connect, false to start in a disconnected state
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
-    * @param product_release Your preoduct_release
-    * @param connect_blocking define if the connection must be blocked if USB not plugged in
+    * @param product_release Your product_release
     */
-    USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
+    USBCDC(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
-    /*
-    * Constructor
+    /**
+    * Fully featured constructor
+    *
+    * Construct this object with the supplied USBPhy and parameters. The user
+    * this object is responsible for calling connect() or init().
+    *
+    * @note Derived classes must use this constructor and call init() or
+    * connect() themselves. Derived classes should also call deinit() in
+    * their destructor. This ensures that no interrupts can occur when the
+    * object is partially constructed or destroyed.
     *
     * @param phy USB phy to use
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
-    * @param product_release Your preoduct_release
-    * @param connect_blocking define if the connection must be blocked if USB not plugged in
+    * @param product_release Your product_release
     */
-    USBCDC(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
+    USBCDC(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
+
+    /**
+     * Destroy this object
+     *
+     * Any classes which inherit from this class must call deinit
+     * before this destructor runs.
+     */
+    virtual ~USBCDC();
+
+    /**
+     * Check if this class is ready
+     *
+     * @return true if a terminal is connected, false otherwise
+     */
+    bool ready();
 
     /**
      * Block until the terminal is connected
      */
-    void wait_connected();
+    void wait_ready();
 
     /*
     * Send a buffer
@@ -162,7 +188,7 @@ protected:
     virtual void callback_set_configuration(uint8_t configuration);
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate);
 
-    void _init(bool connect_blocking);
+    void _init();
 
     void _change_terminal_connected(bool connected);
     void _connect_wake_all();
