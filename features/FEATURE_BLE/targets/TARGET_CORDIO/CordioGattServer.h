@@ -32,6 +32,16 @@
 #define MAX_CCCD_CNT 20
 
 namespace ble {
+
+// fwd declaration of CordioAttClient and BLE
+namespace pal {
+namespace vendor {
+namespace cordio {
+class CordioAttClient;
+}
+}
+}
+
 namespace vendor {
 namespace cordio {
 
@@ -41,6 +51,8 @@ namespace cordio {
 class GattServer : public ::GattServer,
                    public pal::SigningEventMonitor
 {
+    friend ble::pal::vendor::cordio::CordioAttClient;
+
 public:
     /**
      * Return the singleton of the Cordio implementation of ::GattServer.

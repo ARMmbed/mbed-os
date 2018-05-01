@@ -17,6 +17,7 @@
 #ifndef CORDIO_PAL_ATT_CLIENT_
 #define CORDIO_PAL_ATT_CLIENT_
 
+#include "CordioGattServer.h"
 #include "ble/pal/AttClient.h"
 #include "ble/pal/SimpleAttServerMessage.h"
 #include "att_api.h"
@@ -349,6 +350,9 @@ public:
                 return;
             }
         }
+
+        // pass events not handled to the server side
+        ble::vendor::cordio::GattServer::getInstance().att_cb(event);
     }
 
 private:
