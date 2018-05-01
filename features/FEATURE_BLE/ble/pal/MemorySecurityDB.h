@@ -276,8 +276,16 @@ public:
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_entries[i].state == ENTRY_FREE) {
                 continue;
-            } else if (peer_address == _entries[i].peer_identity.identity_address
-                && _entries[i].flags.peer_address_is_public == peer_address_public) {
+            } else if (
+                peer_address == _entries[i].peer_identity.identity_address &&
+                peer_address_public ==_entries[i].flags.peer_address_is_public
+            ) {
+                return &_entries[i];
+            } else if (
+                _entries[i].peer_identity.identity_address == address_t() &&
+                peer_address == _entries[i].flags.peer_address &&
+                peer_address_public == _entries[i].flags.peer_address_is_public
+            ) {
                 return &_entries[i];
             }
         }
