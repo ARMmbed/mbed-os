@@ -139,14 +139,16 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
         _default_key_distribution.get_link()
     );
 
+    initiator_distribution.set_signing(
+        cb->signing_override_default ?
+            cb->signing_requested :
+            _default_key_distribution.get_signing()
+    );
+
     /* if requested the initiator may send all the default keys for later
      * use when roles are changed */
     if (_master_sends_keys) {
         initiator_distribution = _default_key_distribution;
-        /* override default if requested */
-        if (cb->signing_override_default) {
-            initiator_distribution.set_signing(cb->signing_requested);
-        }
     }
 
     KeyDistribution responder_distribution(_default_key_distribution);
