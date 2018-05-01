@@ -1185,6 +1185,7 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
 
     cb->ltk_mitm_protected = cb->mitm_performed;
     cb->secure_connections_paired = true;
+    cb->ltk_stored = true;
 
     _db.set_entry_peer_ltk(cb->db_entry, ltk);
 }
@@ -1198,6 +1199,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
         return;
     }
     cb->ltk_mitm_protected = cb->mitm_performed;
+    cb->ltk_stored = true;
     _db.set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
