@@ -45,33 +45,46 @@ class USBSerial: public USBCDC, public Stream {
 public:
 
     /**
-    *   Constructor
+    * Basic constructor
     *
+    * Construct this object optionally connecting and blocking until it is ready.
+    *
+    * @note Do not use this constructor in derived classes.
+    *
+    * @param connect_blocking true to perform a blocking connect, false to start in a disconnected state
     * @param vendor_id Your vendor_id (default: 0x1f00)
     * @param product_id Your product_id (default: 0x2012)
-    * @param product_release Your preoduct_release (default: 0x0001)
-    * @param connect_blocking define if the connection must be blocked if USB not plugged in
+    * @param product_release Your product_release (default: 0x0001)
     *
     */
-    USBSerial(uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001, bool connect_blocking = true): USBCDC(vendor_id, product_id, product_release, connect_blocking)
-    {
-        _settings_changed_callback = 0;
-    };
+    USBSerial(bool connect_blocking=true, uint16_t vendor_id=0x1f00, uint16_t product_id=0x2012, uint16_t product_release=0x0001);
 
     /**
-    *   Constructor
+    * Fully featured constructor
+    *
+    * Construct this object with the supplied USBPhy and parameters. The user
+    * this object is responsible for calling connect() or init().
+    *
+    * @note Derived classes must use this constructor and call init() or
+    * connect() themselves. Derived classes should also call deinit() in
+    * their destructor. This ensures that no interrupts can occur when the
+    * object is partially constructed or destroyed.
     *
     * @param phy USB phy to use
     * @param vendor_id Your vendor_id (default: 0x1f00)
     * @param product_id Your product_id (default: 0x2012)
-    * @param product_release Your preoduct_release (default: 0x0001)
-    * @param connect_blocking define if the connection must be blocked if USB not plugged in
+    * @param product_release Your product_release (default: 0x0001)
     *
     */
-    USBSerial(USBPhy *phy, uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001, bool connect_blocking = true): USBCDC(phy, vendor_id, product_id, product_release, connect_blocking)
-    {
-        _settings_changed_callback = 0;
-    };
+    USBSerial(USBPhy *phy, uint16_t vendor_id=0x1f00, uint16_t product_id=0x2012, uint16_t product_release=0x0001);
+
+    /**
+     * Destroy this object
+     *
+     * Any classes which inherit from this class must call deinit
+     * before this destructor runs.
+     */
+    virtual ~USBSerial();
 
     /**
     * Send a character. You can use puts, printf.
