@@ -264,7 +264,8 @@ ble_error_t CordioSecurityManager::set_ltk_not_found(
 
 ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
 {
-    DmSecSetLocalIrk(const_cast<uint8_t*>(irk.data()));
+    _irk = irk;
+    DmSecSetLocalIrk(_irk.data());
     return BLE_ERROR_NONE;
 }
 
