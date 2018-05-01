@@ -1280,6 +1280,7 @@ void GenericSecurityManager::on_keys_distributed_csrk(
     }
 
     cb->csrk_mitm_protected = cb->mitm_performed;
+    cb->csrk_stored = true;
 
     _db.set_entry_peer_csrk(cb->db_entry, csrk);
 
