@@ -1,10 +1,10 @@
 {
     "name": "sd",
     "config": {
-        "SPI_CS": "D10",
-        "SPI_MOSI": "D11",
-        "SPI_MISO": "D12",
-        "SPI_CLK": "D13",
+        "SPI_CS": "NC",
+        "SPI_MOSI": "NC",
+        "SPI_MISO": "NC",
+        "SPI_CLK": "NC",
         "DEVICE_SPI": 1,
         "FSFAT_SDCARD_INSTALLED": 1,
         "CMD_TIMEOUT": 5000,
@@ -13,6 +13,12 @@
     },
     "target_overrides": {
         "DISCO_F051R8": {
+             "SPI_MOSI": "SPI_MOSI",
+             "SPI_MISO": "SPI_MISO",
+             "SPI_CLK":  "SPI_SCK",
+             "SPI_CS":   "SPI_CS"
+        },
+        "DISCO_L475VG_IOT01A": {
              "SPI_MOSI": "SPI_MOSI",
              "SPI_MISO": "SPI_MISO",
              "SPI_CLK":  "SPI_SCK",
@@ -90,6 +96,12 @@
             "SPI_CLK":  "PC_10",
             "SPI_CS":   "PA_15"
         },
+         "NUCLEO_F746ZG": {
+            "SPI_MOSI": "PC_12",
+            "SPI_MISO": "PC_11",
+            "SPI_CLK":  "PC_10",
+            "SPI_CS":   "PA_15"
+        },
          "NUCLEO_F767ZI": {
             "SPI_MOSI": "PC_12",
             "SPI_MISO": "PC_11",
@@ -102,11 +114,23 @@
              "SPI_CLK":  "SPI_SCK",
              "SPI_CS":   "SPI_CS"
         },
+        "NUCLEO_L476RG": {
+             "SPI_MOSI": "SPI_MOSI",
+             "SPI_MISO": "SPI_MISO",
+             "SPI_CLK":  "SPI_SCK",
+             "SPI_CS":   "SPI_CS"
+        },
         "NUMAKER_PFM_M453": {
              "SPI_MOSI": "PD_13",
              "SPI_MISO": "PD_14",
              "SPI_CLK":  "PD_15",
              "SPI_CS":   "PD_12"
+        },
+        "NUMAKER_PFM_M487": {
+             "SPI_MOSI": "D11",
+             "SPI_MISO": "D12",
+             "SPI_CLK":  "D13",
+             "SPI_CS":   "D10"
         },
         "NUMAKER_PFM_NUC472": {
              "SPI_MOSI": "PF_0",
@@ -119,6 +143,12 @@
              "SPI_MISO": "p13",
              "SPI_CLK":  "p15",
              "SPI_CS":   "p14"
+        },
+        "UBLOX_C030_U201": {
+             "SPI_MOSI": "D11",
+             "SPI_MISO": "D12",
+             "SPI_CLK":  "D13",
+             "SPI_CS":   "D10"
         },
         "UBLOX_EVK_ODIN_W2": {
             "SPI_CS": "D9",
@@ -167,6 +197,12 @@
             "SPI_MISO": "p6",
             "SPI_CLK": "p7",
             "SPI_CS": "p8"
+        },
+        "REALTEK_RTL8195AM": {
+            "SPI_MOSI": "D11",
+            "SPI_MISO": "D12",
+            "SPI_CLK": "D13",
+            "SPI_CS": "D9"
         }
     }
 }
