@@ -249,6 +249,11 @@ public:
         sign_count_t sign_counter
     );
 
+    /**
+     * @see ::ble::pal::SecurityManager::remove_peer_csrk
+     */
+    virtual ble_error_t remove_peer_csrk(connection_handle_t connection);
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication

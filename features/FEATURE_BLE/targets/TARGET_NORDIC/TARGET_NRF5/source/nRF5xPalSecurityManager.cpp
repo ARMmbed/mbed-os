@@ -527,6 +527,11 @@ ble_error_t nRF5xSecurityManager::set_peer_csrk(
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t nRF5xSecurityManager::remove_peer_csrk(connection_handle_t connection)
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
 //
