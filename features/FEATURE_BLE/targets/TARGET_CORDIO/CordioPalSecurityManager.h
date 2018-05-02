@@ -22,6 +22,7 @@
 #include "wsf_os.h"
 #include "sec_api.h"
 #include "smp_defs.h"
+#include "cfg_stack.h"
 
 namespace ble {
 namespace pal {
@@ -252,6 +253,8 @@ public:
         sign_count_t sign_counter
     );
 
+    virtual ble_error_t remove_peer_csrk(connection_handle_t connection);
+
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
@@ -322,12 +325,15 @@ public:
     static bool sm_handler(const wsfMsgHdr_t* msg);
 
 private:
+    void cleanup_peer_csrks();
+
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
     irk_t _irk;
     csrk_t _csrk;
+    csrk_t* _peer_csrks[DM_CONN_MAX];
 };
 
 } // cordio
