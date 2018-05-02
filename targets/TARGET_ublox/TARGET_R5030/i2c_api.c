@@ -15,7 +15,6 @@
  */
 #include "mbed_assert.h"
 #include "i2c_api.h"
-#include "cmsis.h"
 
 //#if DEVICE_I2C
 
@@ -58,7 +57,7 @@
 
 #define FIFO_SIZE   (16)
 
-#define MAX_TIMEOUT (3000) //TODO: this large value is for testing only
+#define MAX_TIMEOUT (0xFFFF) //TODO: this large value is for testing only
 
 
 //PIO channels used by I2C0 bus
@@ -67,38 +66,37 @@
 #define I2C2SclxCIO_CHANNEL    (52)
 #define I2C2SdaxSIO_CHANNEL    (53)
 
-#define ERROR_BITS  (DRIVER_BITFIELD_MASK(I2C_SR_BERR) | DRIVER_BITFIELD_MASK(I2C_SR_ARLO)) //removed AF bit as it sets even when transfer is successful
-
+#define ERROR_BITS  (DRIVER_BITFIELD_MASK(I2C_SR_BERR) | DRIVER_BITFIELD_MASK(I2C_SR_ARLO) | DRIVER_BITFIELD_MASK(I2C_SR_AF))
 
 int is_bus_busy(i2c_t *obj)
 {
-  uint32_t timeout = 800;
+    uint32_t timeout = MAX_TIMEOUT;
 
-  while((1 == DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_BUSY)) && (timeout > 0))
-  {
-    timeout--;
-  }
+    while((1 == DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_BUSY)) && (timeout > 0))
+    {
+        timeout--;
+    }
 
-  if(1 == DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_BUSY) )
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+    if(1 == DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_BUSY) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 static void config_pio_channel(uint8_t channel)
 {
     struct pio_s *pio_channel_regbase;
     uint8_t channel_offset_in_reg;
-    
+
     channel_offset_in_reg = channel & PIO_CHANNEL_SUB_32_MASK;
-    
-    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {      
+
+    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {
         pio_channel_regbase = (struct pio_s *)PIO_CONTROL_BASE;
-    } else {          
+    } else {
         pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
     }
 
@@ -115,26 +113,23 @@ static void config_pio_channel(uint8_t channel)
     //pio_channel_regbase->pio_ifer_0 = (1 << channel_offset_in_reg);    //input filter disable
     //pio_channel_regbase->pio_mddr_0 = (1 << channel_offset_in_reg);    //multidriver disable
     pio_channel_regbase->pio_asr_0 |= (1 << channel_offset_in_reg);    //mux0 enable
-    
+
 }
 
 static void disable_pio_channel(uint8_t channel)
 {
     struct pio_s *pio_channel_regbase;
     uint8_t channel_offset_in_reg;
-    
+
     channel_offset_in_reg = channel & PIO_CHANNEL_SUB_32_MASK;
-    
-    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {      
+
+    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {
         pio_channel_regbase = (struct pio_s *)PIO_CONTROL_BASE;
-    } else {          
+    } else {
         pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
-    }          
+    }
     pio_channel_regbase->pio_pdr_0 = (1 << channel_offset_in_reg);     //pio disable
 }
-
-
-
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
@@ -161,20 +156,20 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     }*/ else {
         MBED_ASSERT(false);
     }
-    
+
     obj->reg_base->cr = 0x0;
     obj->reg_base->sr = 0x0;
-	obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
-	obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-	obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+    obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
+    obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+    obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
 
     /* use 7bit addressing mode */
     obj->reg_base->oar = DRIVER_BITFIELD_CLR(obj->reg_base->oar, I2C_OAR_OAM);
 
-    /* FIXME: ACK to enabled or disabled? */
+    /* ACK enabled */
     obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
     obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_INSYN);
-    i2c_frequency(obj, 50000);
+    i2c_frequency(obj, 50000); //TODO: change it to default 100KHz in final version
 
     /* fifo flush */
     obj->reg_base->txflush = 0x0;
@@ -183,18 +178,17 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 int i2c_start(i2c_t *obj)
 {
-    uint32_t timeout = 2000;
+    uint32_t timeout = MAX_TIMEOUT;
 
     obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_START);
-    while( !(DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_SB)) && (timeout > 0) )
+    while(timeout--)
     {
-        timeout--;
+        if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_SB))
+        {
+            return true;
+        }
     }
-    if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_SB) != 0) { /* it is cleared once txbuffer is written */
-       return true;
-    } else {    
-       return false;
-    }
+    return false;
 }
 
 int i2c_stop(i2c_t *obj)
@@ -205,73 +199,71 @@ int i2c_stop(i2c_t *obj)
 
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    /* FIXME: reset interface after a frequency change? */
-
     /* hz should not be zero */
     MBED_ASSERT(hz);
+
     hz=hz/1000; /* convert to KHz */
     bool fast_mode;
-    unsigned char fr_value;  
-    uint16_t cc_value;  
-    uint32_t register_value;
-    uint32_t engine_frequency_in_KHz;
+    unsigned char fr_value;
+    uint16_t cc_value;
+    uint32_t engine_frequency_in_khz;
 
     /* TODO: Should the engine frequency be read at run time? */
-    engine_frequency_in_KHz = (REF_FREQ/1000);
-    MBED_ASSERT(engine_frequency_in_KHz <= 100000); /* FR value for frequency greater than 100MHz is not specified */
-    
+    engine_frequency_in_khz = (REF_FREQ/1000);
+    MBED_ASSERT(engine_frequency_in_khz <= 100000); /* FR value for frequency greater than 100MHz is not specified */
+
     /* evaluate FR bits */
-    if(engine_frequency_in_KHz <= 10000)
+    if(engine_frequency_in_khz <= 10000)
     {
-      fr_value = 0;
+        fr_value = 0;
     }
-    else if(engine_frequency_in_KHz <= 16670)
+    else if(engine_frequency_in_khz <= 16670)
     {
-      fr_value = 1;
+        fr_value = 1;
     }
-    else if(engine_frequency_in_KHz <= 26670)
+    else if(engine_frequency_in_khz <= 26670)
     {
-      fr_value = 2;
+        fr_value = 2;
     }
-    else if(engine_frequency_in_KHz <= 40000)
+    else if(engine_frequency_in_khz <= 40000)
     {
-      fr_value = 3;
+        fr_value = 3;
     }
-    else if(engine_frequency_in_KHz <= 53330)
+    else if(engine_frequency_in_khz <= 53330)
     {
-      fr_value = 4;
+        fr_value = 4;
     }
-    else if(engine_frequency_in_KHz <= 66000)
+    else if(engine_frequency_in_khz <= 66000)
     {
-      fr_value = 5;
+        fr_value = 5;
     }
-    else if(engine_frequency_in_KHz <= 80000)
+    else if(engine_frequency_in_khz <= 80000)
     {
-      fr_value = 6;
+        fr_value = 6;
     }
     else /* 80-100 MHz */
     {
-      fr_value = 7;
+        fr_value = 7;
     }
 
     /* evaluate if fast mode or standard mode */
     if(hz <= 100) /* standard mode */
     {
-      fast_mode = false;
-      /* Set Clock Divider */
-      cc_value = ((engine_frequency_in_KHz / hz) - 7)/2; 
+        fast_mode = false;
+        /* Set Clock Divider */
+        cc_value = ((engine_frequency_in_khz / hz) - 7)/2;
     }
     else /* fast mode */
     {
-      fast_mode = true;
-      /* Set Clock Divider */
-      cc_value = ((engine_frequency_in_KHz / hz) - 9)/3;
+        fast_mode = true;
+        /* Set Clock Divider */
+        cc_value = ((engine_frequency_in_khz / hz) - 9)/3;
     }
     cc_value = cc_value & 0xFFF; /*CC field is 12 bits */
     if(cc_value < 2)
     {
-      cc_value = 2; /* the divider must be equal or greater than 2 */
-    } 
+        cc_value = 2; /* the divider must be equal or greater than 2 */
+    }
 
     /* set FR bits according to FENG */
     obj->reg_base->oar = DRIVER_BITFIELD_SET(obj->reg_base->oar, I2C_OAR_FR, fr_value);
@@ -285,29 +277,29 @@ void i2c_frequency(i2c_t *obj, int hz)
 
 //void i2c_slave_mode(i2c_t *obj, int enable_slave)
 //{
-//	if (enable_slave)
-//	{
-//		obj->reg_base->intenableset = DRIVER_BITFIELD_MASK(I2C_INTENABLESET_ADSL);
-//	}
-//	else
-//	{
-//		obj->reg_base->intenableclear = DRIVER_BITFIELD_MASK(I2C_INTENABLESET_ADSL);
-//	}
-//	//i2c_stop(obj);
+//  if (enable_slave)
+//  {
+//      obj->reg_base->intenableset = DRIVER_BITFIELD_MASK(I2C_INTENABLESET_ADSL);
+//  }
+//  else
+//  {
+//      obj->reg_base->intenableclear = DRIVER_BITFIELD_MASK(I2C_INTENABLESET_ADSL);
+//  }
+//  //i2c_stop(obj);
 //}
 //
 //int i2c_slave_receive(i2c_t *obj)
 //{
 //    if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_ADSL) != 0) { //address matched
 //
-//    	obj->reg_base->sr = DRIVER_BITFIELD_MASK(I2C_SR_ADSL);
-//    	if ( ((uint8_t)obj->reg_base->rxbuffer) & 0x01 ) { //check if R/W bit is set or clear
+//      obj->reg_base->sr = DRIVER_BITFIELD_MASK(I2C_SR_ADSL);
+//      if ( ((uint8_t)obj->reg_base->rxbuffer) & 0x01 ) { //check if R/W bit is set or clear
 //
-//    		return 1;
-//    	}
-//    	else {
-//    		return 3;
-//    	}
+//          return 1;
+//      }
+//      else {
+//          return 3;
+//      }
 //    } else if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_GC) != 0)  {
 //        return 2;
 //    } else {
@@ -318,17 +310,17 @@ void i2c_frequency(i2c_t *obj, int hz)
 //void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 //{
 //
-//	obj->reg_base->oar |= (unsigned char) (address & 0xFE);
+//  obj->reg_base->oar |= (unsigned char) (address & 0xFE);
 //}
 //
 //int  i2c_slave_read(i2c_t *obj, char *data, int length)
 //{
-//	uint32_t rxFifoBytes=0;
-//	int bytes_read=0;
+//  uint32_t rxFifoBytes=0;
+//  int bytes_read=0;
 //
-//	if(!DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_RXNOTEMPTY)) //0= RX buffer empty, 1= At least one data word is in RX
+//  if(!DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_RXNOTEMPTY)) //0= RX buffer empty, 1= At least one data word is in RX
 //    {
-//	     return 0;
+//       return 0;
 //    }
 //    /* receive bytes from fifo */
 //    while (length) /* loop until all bytes are received */
@@ -336,16 +328,16 @@ void i2c_frequency(i2c_t *obj, int hz)
 //        rxFifoBytes = obj->reg_base->rxwordcount; /* get fifo count */
 //        if (rxFifoBytes)
 //        {
-//        	do
-//			{
-//				*data++ = (uint8_t) obj->reg_base->rxbuffer;
-//				length--;
-//				rxFifoBytes--;
-//				bytes_read++;
-//			} while (length && rxFifoBytes); /* receive from fifo as long as there are bytes available */
+//          do
+//          {
+//              *data++ = (uint8_t) obj->reg_base->rxbuffer;
+//              length--;
+//              rxFifoBytes--;
+//              bytes_read++;
+//          } while (length && rxFifoBytes); /* receive from fifo as long as there are bytes available */
 //        }
 //    }
-//	return bytes_read;
+//  return bytes_read;
 //}
 //
 //int i2c_slave_write(i2c_t *obj, const char *data, int length)
@@ -374,9 +366,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 //            status=obj->reg_base->sr;
 //            if(DRIVER_BITFIELD_GET(status, I2C_SR_TXEMPTY) ) /* fifo empty i.e transfer complete, put in more data */
 //            {
-//            	obj->reg_base->sr=0;
-//            	obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-//            	obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+//              obj->reg_base->sr=0;
+//              obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+//              obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
 //                break;
 //            }
 ////            else if ( (status &  ERROR_BITS) || timeout <= 0)
@@ -392,91 +384,84 @@ void i2c_frequency(i2c_t *obj, int hz)
 //}
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
-{  
+{
     uint32_t timeout = MAX_TIMEOUT;
-    int bytes_read=0;
     uint32_t rxFifoBytes=0;
     uint32_t status;
-    int temp=0;
+    int bytes_read=0;
 
-    /* check if bus is busy */
-/*	if (is_bus_busy(obj))
-	{
-		printf("Error: bus busy\r\n");
-		return -1;
-	}*/
+    /* check if bus is busy */ //cannot check bus busy as busy bit is set after start is generated in write with no stop
+    /*if (is_bus_busy(obj))
+    {
+        printf("Error: bus busy\r\n");
+        return -1;
+    }*/
 
-    obj->reg_base->nrbr = (length > 16) ? 16 : length;
+    /* send start */
+    if (!i2c_start(obj)) /* start condition failure. Clear start and send stop ? */
+    {
+        printf("Error: start failure\r\n");
+        /* clear start and release lines */
+        if(DRIVER_BITFIELD_GET(obj->reg_base->cr, I2C_CR_START))
+        {
+            obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
+        }
+        obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+        obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+        return -1;
+    }
 
-	if (!i2c_start(obj)) /* start condition failure. Clear start and send stop ? */
-	{
-		printf("Error: start failure\r\n");
-		/* clear start and release lines */
-		if(DRIVER_BITFIELD_GET(obj->reg_base->cr, I2C_CR_START))
-		{
-			obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
-		}
-		obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-		obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-		return -1;
-	}
-    
     /* send slave address and check endad bit */
     obj->reg_base->txbuffer = (uint8_t)(address|1); //r/w bit set to high for read
 
     /* wait for successful address transfer */
     timeout=MAX_TIMEOUT;
-    while (1)
+    while (true)
     {
-	   status=obj->reg_base->sr;
-	   if( DRIVER_BITFIELD_GET(status, I2C_SR_ENDAD) )
-	   {
-		   obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_ENDAD); // clear the bit
-		   obj->reg_base->sr=0;
-		   break;
-	   }
-	   else if ( (status &  ERROR_BITS) || timeout <= 0)
-	   {
-		printf("Error: address transfer error\r\n");
-		obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-		obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-		   return -1;
-	   }
-	   timeout--;
+        status=obj->reg_base->sr;
+        if( DRIVER_BITFIELD_GET(status, I2C_SR_ENDAD) )
+        {
+            obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_ENDAD); // clear the bit
+            obj->reg_base->cr = obj->reg_base->cr;
+            break;
+        }
+        else if ( (status &  ERROR_BITS) || timeout <= 0)
+        {
+            printf("Error: address transfer error\r\n");
+            obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+            obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+            return -1;
+        }
+        timeout--;
     }
 
-    /* receive bytes from fifo */    
-    while (length) /* loop until all bytes are received */
+    /* receive bytes from fifo */
+    while (length) /* loop until all bytes are received */ //FIXME: Recovery mechanism in case slave is not responding
     {
-    	obj->reg_base->nrbr = (length > 16) ? 16 : length;
+        /* set number of expected bytes to be received by fifo */
+        obj->reg_base->nrbr = (length > 16) ? 16 : length;
 
-        //rxFifoBytes = obj->reg_base->rxwordcount; /* get fifo count */
+        /* check if required number of bytes are available in fifo */
         if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_NRB))
         {
-        	rxFifoBytes = obj->reg_base->rxwordcount; /* get fifo count */
+            /* get fifo count */
+            rxFifoBytes = obj->reg_base->rxwordcount;
             do
             {
-            	if (length == 1) //generate stop before reading last byte
-            	{
-            	    /* send stop if stop == true */
-            	    if (stop)
-            	    {
-            	    	obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-            	        obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_NRB);
-            	        obj->reg_base->sr = 0;
-            	        obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
-            	    }
-            	}
-            	*data++ = (uint8_t)obj->reg_base->rxbuffer;
+                /* if the next byte is going to be the last, set stop bit before reading last byte so that master sends NACK after last byte */
+                if (length == 1 && stop == true)
+                {
+                    obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
+                    obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+                    obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_NRB);
+                }
+                *data++ = (uint8_t)obj->reg_base->rxbuffer;
                 length--;
                 rxFifoBytes--;
                 bytes_read++;
             } while (length && rxFifoBytes); /* receive from fifo as long as there are bytes available */
-        }      
+        }
     }
-
-    //obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-    //obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
 
     return bytes_read;
 }
@@ -485,102 +470,97 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
     uint32_t timeout = MAX_TIMEOUT;
     uint32_t status;
-    int bytes_written=0;
     uint32_t txFifoBytes=0;
-
+    int bytes_written=0;
 
     /* check if bus is busy */
     if (is_bus_busy(obj))
     {
-    	printf("Error: bus busy\r\n");
+        printf("Error: bus busy\r\n");
         return -1;
     }
 
     if (!i2c_start(obj)) /* start condition failure. Clear start and send stop ? */
     {
-    	printf("Error: start failure\r\n");
+        printf("Error: start failure\r\n");
         /* clear start and release lines */
-    	if(DRIVER_BITFIELD_GET(obj->reg_base->cr, I2C_CR_START))
-    	{
-    		obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
-    	}
-		obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-		obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+        if(DRIVER_BITFIELD_GET(obj->reg_base->cr, I2C_CR_START))
+        {
+            obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_START);
+        }
+        obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+        obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
         return -1;
     }
 
-//    obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_START);
-//    /* send slave address and check endad bit */
-//    obj->reg_base->txbuffer = 0x8A;
-//    obj->reg_base->txbuffer = 0xAC;
-
-	/* send slave address and check endad bit */
-	obj->reg_base->txbuffer = address;
+    /* send slave address and check endad bit */
+    obj->reg_base->txbuffer = address;
 
     /* wait for successful address transfer */
     timeout=MAX_TIMEOUT;
-    while (1)
+    while (true)
     {
         status=obj->reg_base->sr;
         if( DRIVER_BITFIELD_GET(status, I2C_SR_ENDAD) )
         {
             obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_ENDAD); // clear the bit
+            //TODO: Then the master waits for a write to the SR register followed by a write in the CR register, holding the SCL line low
             //obj->reg_base->sr=0;
             break;
         }
         else if ( (status &  ERROR_BITS) || timeout <= 0)
         {
-        	printf("Error: address transfer error\r\n");
-        	obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-        	obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+            printf("Error: address transfer error\r\n");
+            obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+            obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
             return -1;
         }
         timeout--;
     }
 
     /* transfer bytes keeping in check fifo count and by reading fifo empty flag */
-    while (length) /* loop until all bytes are transferred */
+    while (length)
     {
-      txFifoBytes = obj->reg_base->txwordcount; /* get available space in fifo */
-      if (txFifoBytes)
-      {
-          do
-          {
-              obj->reg_base->txbuffer = *data++;
-              length--;
-              txFifoBytes--;
-              bytes_written++;
-          } while (length && txFifoBytes); /* write to fifo as long as there is space in fifo */
-      }
+        /* get available space in fifo */
+        txFifoBytes = obj->reg_base->txwordcount;
+        if (txFifoBytes)
+        {
+            do
+            {
+                obj->reg_base->txbuffer = *data++;
+                length--;
+                txFifoBytes--;
+                bytes_written++;
+            } while (length && txFifoBytes); /* write to fifo as long as there is space in fifo */
+        }
 
-      /* wait until transfer is complete or an error is generated */
-      timeout=MAX_TIMEOUT;
-      while (1)
-      {
-          status=obj->reg_base->sr;
-          if( DRIVER_BITFIELD_GET(status, I2C_SR_TXEMPTY) ) /* fifo empty i.e transfer complete, put in more data */
-          {
-        	  obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_ENDAD);
-        	  //printf("tx\r\n");
-              break;
-          }
-          else if ( (status &  ERROR_BITS) || timeout <= 0)
-          {
-        	  printf("Error: tx fifo error\r\n");
-        	  obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-        	  obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-              return -1; /* FIXME: return error or number of bytes transferred? */
-          }
-          timeout--;
-      }
+        /* wait until transfer is complete or an error is generated */
+        timeout=MAX_TIMEOUT;
+        while (true)
+        {
+            status=obj->reg_base->sr;
+            if( DRIVER_BITFIELD_GET(status, I2C_SR_TXEMPTY) ) /* fifo empty i.e transfer complete, put in more data */
+            {
+                obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_ENDAD);
+                //printf("tx\r\n");
+                break;
+            }
+            else if ( (status &  ERROR_BITS) || timeout <= 0)
+            {
+                printf("Error: tx fifo error\r\n");
+                obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+                obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+                return -1; /* FIXME: return error or number of bytes transferred? */
+            }
+            timeout--;
+        }
+    }
 
-   }
-    
     /* send stop if stop == true */
-   if (stop)
-   {
- 	   obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
-   }
+    if (stop)
+    {
+        obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
+    }
 
     return bytes_written;
 }
@@ -598,12 +578,11 @@ int i2c_byte_read(i2c_t *obj, int last)
     /* Send ACK (last = 0) or not (last = 1) */
     if (last)
     {
-    	obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
-
+        obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
     }
     else
     {
-    	obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
+        obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
     }
 
     /* wait until a byte is ready to be read from fifo or a timeout has occurred */
@@ -621,14 +600,22 @@ int i2c_byte_write(i2c_t *obj, int data)
 {
     int ret_val;
     uint32_t status;
-    uint32_t time_out=MAX_TIMEOUT;
+    uint32_t timeout=MAX_TIMEOUT;
 
     /* wait until there is space in fifo */
     while (!DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_TXHALFFULL)); /* 0 = TX buffer contains more than 8 words, 1 = TX buffer contains less than or exact 8 words */
-    obj->reg_base->txbuffer = (uint8_t) data;
+    {
+        timeout--;
+        if (timeout == 0)
+        {
+            return 2;
+        }
+    }
 
+    timeout=MAX_TIMEOUT;
+    obj->reg_base->txbuffer = (uint8_t) data;
     /* wait until transfer is complete or an error has occured */
-    while (time_out)  
+    while (timeout)
     {
         status = obj->reg_base->sr;
         if( DRIVER_BITFIELD_GET(status, I2C_SR_TXEMPTY) ) /* fifo empty i.e transfer complete */
@@ -641,12 +628,12 @@ int i2c_byte_write(i2c_t *obj, int data)
             ret_val=0;
             break;
         }
-        else if (time_out <= 0)
-        {   
+        else if (timeout <= 0)
+        {
             ret_val=2;
             break;
         }
-        time_out--;
+        timeout--;
     }
     /* stop to be generated? */
     /* obj->reg_base->crset = DRIVER_BITFIELD_MASK(I2C_CR_STOP); */
