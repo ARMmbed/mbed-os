@@ -344,16 +344,16 @@ static int reserve_filehandle() {
 }
 
 int mbed::bind_to_fd(FileHandle *fh) {
-    int fh_i = reserve_filehandle();
-    if (fh_i < 0) {
-        return fh_i;
+    int fildes = reserve_filehandle();
+    if (fildes < 0) {
+        return fildes;
     }
 
-    filehandles[fh_i] = fh;
-    stdio_in_prev[fh_i] = 0;
-    stdio_out_prev[fh_i] = 0;
+    filehandles[fildes] = fh;
+    stdio_in_prev[fildes] = 0;
+    stdio_out_prev[fildes] = 0;
 
-    return fh_i;
+    return fildes;
 }
 
 static int unbind_from_fd(int fd, FileHandle *fh) {
@@ -464,9 +464,9 @@ extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags) {
 }
 
 extern "C" int open(const char *name, int oflag, ...) {
-    int fh_i = reserve_filehandle();
-    if (fh_i < 0) {
-        return fh_i;
+    int fildes = reserve_filehandle();
+    if (fildes < 0) {
+        return fildes;
     }
 
     FileHandle *res = NULL;
@@ -476,7 +476,7 @@ extern "C" int open(const char *name, int oflag, ...) {
         /* The first part of the filename (between first 2 '/') is not a
          * registered mount point in the namespace.
          */
-        return handle_open_errors(-ENODEV, fh_i);
+        return handle_open_errors(-ENODEV, fildes);
     }
 
     if (path.isFile()) {
@@ -484,28 +484,28 @@ extern "C" int open(const char *name, int oflag, ...) {
     } else {
         FileSystemHandle *fs = path.fileSystem();
         if (fs == NULL) {
-            return handle_open_errors(-ENODEV, fh_i);
+            return handle_open_errors(-ENODEV, fildes);
         }
         int err = fs->open(&res, path.fileName(), oflag);
         if (err) {
-            return handle_open_errors(err, fh_i);
+            return handle_open_errors(err, fildes);
         }
     }
 
-    filehandles[fh_i] = res;
-    stdio_in_prev[fh_i] = 0;
-    stdio_out_prev[fh_i] = 0;
+    filehandles[fildes] = res;
+    stdio_in_prev[fildes] = 0;
+    stdio_out_prev[fildes] = 0;
 
-    return fh_i;
+    return fildes;
 }
 
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     return close(fh);
 }
 
-extern "C" int close(int fh) {
-    FileHandle* fhc = get_fhc(fh);
-    filehandles[fh] = NULL;
+extern "C" int close(int fildes) {
+    FileHandle* fhc = get_fhc(fildes);
+    filehandles[fildes] = NULL;
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -610,9 +610,9 @@ finish:
 #endif
 }
 
-extern "C" ssize_t write(int fh, const void *buf, size_t length) {
+extern "C" ssize_t write(int fildes, const void *buf, size_t length) {
 
-    FileHandle* fhc = get_fhc(fh);
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -700,9 +700,9 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 }
 
-extern "C" ssize_t read(int fh, void *buf, size_t length) {
+extern "C" ssize_t read(int fildes, void *buf, size_t length) {
 
-    FileHandle* fhc = get_fhc(fh);
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -727,8 +727,8 @@ extern "C" int _isatty(FILEHANDLE fh)
     return isatty(fh);
 }
 
-extern "C" int isatty(int fh) {
-    FileHandle* fhc = get_fhc(fh);
+extern "C" int isatty(int fildes) {
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return 0;
@@ -765,8 +765,8 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     return off;
 }
 
-extern "C" off_t lseek(int fh, off_t offset, int whence) {
-    FileHandle* fhc = get_fhc(fh);
+extern "C" off_t lseek(int fildes, off_t offset, int whence) {
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -786,8 +786,8 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
 }
 #endif
 
-extern "C" int fsync(int fh) {
-    FileHandle* fhc = get_fhc(fh);
+extern "C" int fsync(int fildes) {
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -850,8 +850,8 @@ extern "C" int _fstat(int fh, struct stat *st) {
 }
 #endif
 
-extern "C" int fstat(int fh, struct stat *st) {
-    FileHandle* fhc = get_fhc(fh);
+extern "C" int fstat(int fildes, struct stat *st) {
+    FileHandle* fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;

@@ -503,7 +503,7 @@ extern "C" {
     off_t lseek(int fildes, off_t offset, int whence);
     int isatty(int fildes);
     int fsync(int fildes);
-    int fstat(int fh, struct stat *st);
+    int fstat(int fildes, struct stat *st);
     int poll(struct pollfd fds[], nfds_t nfds, int timeout);
     int close(int fildes);
     int stat(const char *path, struct stat *st);
