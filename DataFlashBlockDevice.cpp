@@ -413,7 +413,7 @@ int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
             /* update loop variables */
             addr += _block_size;
-            erased -= _block_size;
+            erased += _block_size;
         }
 
         /* enable write protection */
