@@ -369,7 +369,11 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
 
     if (cb->encrypted) {
         if (cb->ltk_mitm_protected  || cb->mitm_performed) {
-            *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
+            if (cb->secure_connections_paired) {
+                *encryption = link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM;
+            } else {
+                *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
+            }
         } else {
             *encryption = link_encryption_t::ENCRYPTED;
         }
@@ -408,7 +412,9 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
         /* only change if we're not already encrypted with mitm */
-        if (current_encryption != link_encryption_t::ENCRYPTED_WITH_MITM) {
+        if (current_encryption != link_encryption_t::ENCRYPTED_WITH_MITM ||
+            current_encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+        ) {
             cb->encryption_requested = true;
             return enable_encryption(connection);
         }
@@ -416,6 +422,19 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
         if (cb->ltk_mitm_protected && !cb->encrypted) {
+            cb->encryption_requested = true;
+            return enable_encryption(connection);
+        } else {
+            cb->encryption_requested = true;
+            return requestAuthentication(connection);
+        }
+
+    } else if (encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+
+        if (cb->ltk_mitm_protected &&
+            cb->secure_connections_paired && !
+            cb->encrypted
+        ) {
             cb->encryption_requested = true;
             return enable_encryption(connection);
         } else {
@@ -1059,7 +1078,10 @@ void GenericSecurityManager::on_link_encryption_result(
         cb->encryption_failed = false;
         cb->encrypted = true;
 
-    } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+    } else if (
+        result == link_encryption_t::ENCRYPTED_WITH_MITM ||
+        result == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+    ) {
 
         cb->encryption_requested = false;
         cb->encryption_failed = false;
