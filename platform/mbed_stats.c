@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "mbed_assert.h"
 
-#if MBED_CONF_RTOS_PRESENT
+#ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #endif
 
@@ -13,7 +13,7 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
 {
     memset(stats, 0, sizeof(mbed_stats_stack_t));
 
-#if MBED_STACK_STATS_ENABLED && MBED_CONF_RTOS_PRESENT
+#if defined(MBED_STACK_STATS_ENABLED) && defined(MBED_CONF_RTOS_PRESENT)
     uint32_t thread_n = osThreadGetCount();
     unsigned i;
     osThreadId_t *threads;
@@ -41,7 +41,7 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
     memset(stats, 0, count*sizeof(mbed_stats_stack_t));
     size_t i = 0;
 
-#if MBED_STACK_STATS_ENABLED && MBED_CONF_RTOS_PRESENT
+#if defined(MBED_STACK_STATS_ENABLED) && defined(MBED_CONF_RTOS_PRESENT)
     osThreadId_t *threads;
 
     threads = malloc(sizeof(osThreadId_t) * count);
@@ -65,6 +65,6 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
     return i;
 }
 
-#if MBED_STACK_STATS_ENABLED && !MBED_CONF_RTOS_PRESENT
+#if defined(MBED_STACK_STATS_ENABLED) && !defined(MBED_CONF_RTOS_PRESENT)
 #warning Stack statistics are currently not supported without the rtos.
 #endif
