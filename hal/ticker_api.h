@@ -73,7 +73,6 @@ typedef struct {
     ticker_event_handler event_handler; /**< Event handler */
     ticker_event_t *head;               /**< A pointer to head */
     uint32_t frequency;                 /**< Frequency of the timer in Hz */
-    uint32_t frequency_shifts;          /**< Frequency shift if divisible by 2, ohterwise 0 */
     uint32_t bitmask;                   /**< Mask to be applied to time values read */
     uint32_t max_delta;                 /**< Largest delta in ticks that can be used when scheduling */
     uint64_t max_delta_us;              /**< Largest delta in us that can be used when scheduling */
@@ -81,6 +80,7 @@ typedef struct {
     uint64_t tick_remainder;            /**< Ticks that have not been added to base_time */
     us_timestamp_t present_time;        /**< Store the timestamp used for present time */
     bool initialized;                   /**< Indicate if the instance is initialized */
+    uint8_t frequency_shifts;           /**< If frequency is a value of 2^n, this is n, otherwise 0 */ 
 } ticker_event_queue_t;
 
 /** Ticker's data structure
