@@ -862,6 +862,41 @@ extern "C" int fstat(int fildes, struct stat *st) {
     return 0;
 }
 
+extern "C" int fcntl(int fildes, int cmd, ...) {
+    FileHandle *fhc = get_fhc(fildes);
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+
+    switch (cmd) {
+        case F_GETFL: {
+            int flags = 0;
+            if (fhc->is_blocking()) {
+                flags |= O_NONBLOCK;
+            }
+            return flags;
+        }
+        case F_SETFL: {
+            va_list ap;
+            va_start(ap, cmd);
+            int flags = va_arg(ap, int);
+            va_end(ap);
+            int ret = fhc->set_blocking(flags & O_NONBLOCK);
+            if (ret < 0) {
+                errno = -ret;
+                return -1;
+            }
+            return 0;
+        }
+
+        default: {
+            errno = EINVAL;
+            return -1;
+        }
+    }
+}
+
 extern "C" int poll(struct pollfd fds[], nfds_t nfds, int timeout)
 {
     if (nfds > OPEN_MAX) {
