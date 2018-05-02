@@ -48,6 +48,19 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 
 AT_CellularNetwork::~AT_CellularNetwork()
 {
+#if NSAPI_PPP_AVAILABLE
+    (void)disconnect();
+#else
+    delete _stack;
+#endif // NSAPI_PPP_AVAILABLE
+
+    for (int type = 0; type < CellularNetwork::C_MAX; type++) {
+        if (has_registration((RegistrationType)type)) {
+            _at.remove_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
+        }
+    }
+
+    _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
     free_credentials();
 }
 

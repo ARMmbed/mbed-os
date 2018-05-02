@@ -102,7 +102,8 @@ public:
      */
     nsapi_error_t start_dispatch();
 
-    /** Stop event queue dispatching and close cellular interfaces
+    /** Stop event queue dispatching and close cellular interfaces. After calling stop(), init() must be called
+     *  before any other methods.
      */
     void stop();
 
@@ -153,6 +154,7 @@ public:
      *  @return      string format of the given state
      */
     const char* get_state_string(CellularState state);
+
 private:
     bool power_on();
     bool open_sim();

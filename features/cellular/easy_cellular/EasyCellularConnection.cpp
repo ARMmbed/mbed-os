@@ -76,7 +76,8 @@ EasyCellularConnection::EasyCellularConnection(bool debug) :
 
 EasyCellularConnection::~EasyCellularConnection()
 {
-    _cellularConnectionFSM.stop();
+    _cellularConnectionFSM.set_callback(NULL);
+    _cellularConnectionFSM.attach(NULL);
 }
 
 nsapi_error_t EasyCellularConnection::init()
@@ -118,7 +119,7 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
             }
 #endif // #if USE_APN_LOOKUP
         } else {
-            //if get_network() returns NULL it means there was not enough memory for 
+            //if get_network() returns NULL it means there was not enough memory for
             //an AT_CellularNetwork element during CellularConnectionFSM initialization
             tr_error("There was not enough memory during CellularConnectionFSM initialization");
         }
@@ -224,13 +225,19 @@ nsapi_error_t EasyCellularConnection::disconnect()
 {
     _credentials_err = NSAPI_ERROR_OK;
     _is_connected = false;
+    _is_initialized = false;
 #if USE_APN_LOOKUP
     _credentials_set = false;
 #endif // #if USE_APN_LOOKUP
-    if (!_cellularConnectionFSM.get_network()) {
-        return NSAPI_ERROR_NO_CONNECTION;
+
+    nsapi_error_t err = NSAPI_ERROR_OK;
+    if (_cellularConnectionFSM.get_network()) {
+        err = _cellularConnectionFSM.get_network()->disconnect();
     }
-    return _cellularConnectionFSM.get_network()->disconnect();
+
+    _cellularConnectionFSM.stop();
+
+    return err;
 }
 
 bool EasyCellularConnection::is_connected()
