@@ -61,13 +61,13 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
 #if MBED_CONF_MBED_TRACE_ENABLE
     switch (state) {
         case SimStatePinNeeded:
-            tr_error("SIM PIN required");
+            tr_info("SIM PIN required");
             break;
         case SimStatePukNeeded:
             tr_error("SIM PUK required");
             break;
         case SimStateUnknown:
-            tr_error("SIM state unknown");
+            tr_warn("SIM state unknown");
             break;
         default:
             tr_info("SIM is ready");

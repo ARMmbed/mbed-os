@@ -18,6 +18,8 @@
 #ifndef CELLULAR_LOG_H_
 #define CELLULAR_LOG_H_
 
+#include "rtos.h"
+
 #if defined(HAVE_DEBUG) && !defined(FEA_TRACE_SUPPORT)
 #define FEA_TRACE_SUPPORT
 #endif
@@ -26,7 +28,7 @@
 
 #include "mbed-trace/mbed_trace.h"
 #ifndef TRACE_GROUP
-#define TRACE_GROUP  "cellular"
+#define TRACE_GROUP  "CELL"
 #endif // TRACE_GROUP
 
 #else
@@ -37,5 +39,16 @@
 #define tr_warn(...) (void(0))
 
 #endif // FEATURE_COMMON_PAL
+
+/**
+ * Set mutex wait/release functions for 'tr_' macros,
+ * implementation here is modified from that found from mbed_trace.
+ */
+namespace mbed_cellular_trace {
+void mutex_wait_function_set(void (*mutex_wait_f)(void));
+void mutex_release_function_set(void (*mutex_release_f)(void));
+void mutex_wait();
+void mutex_release();
+}
 
 #endif // CELLULAR_LOG_H_

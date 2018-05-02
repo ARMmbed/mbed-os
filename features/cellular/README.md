@@ -72,7 +72,7 @@ You can define the debug tracing level in the `mbed_app.json` configuration file
 
 The `TESTS` folder contains Greentea tests for cellular specific classes. You need to give relevant configuration file with `--app-config` parameter, e.g.:
 
-    mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json -vv
+    mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json.txt -v
 
     Note that Greentea tests use SIM PIN so you need to change that or your SIM card may get locked.
 

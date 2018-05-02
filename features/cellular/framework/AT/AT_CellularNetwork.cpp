@@ -115,13 +115,13 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 #if MBED_CONF_MBED_TRACE_ENABLE
     switch (reg_status) {
         case NotRegistered:
-            tr_error("not registered");
+            tr_warn("not registered");
             break;
         case RegistrationDenied:
-            tr_error("registration denied");
+            tr_warn("registration denied");
             break;
         case Unknown:
-            tr_error("registration status unknown");
+            tr_warn("registration status unknown");
             break;
         default:
             break;

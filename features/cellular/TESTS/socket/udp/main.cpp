@@ -55,11 +55,56 @@ static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SER
 static rtos::Semaphore network_semaphore(0);
 static CellularConnectionFSM cellular;
 
+#if MBED_CONF_MBED_TRACE_ENABLE
+
+static rtos::Mutex trace_mutex;
+
+void trace_wait()
+{
+    trace_mutex.lock();
+}
+
+void trace_release()
+{
+    trace_mutex.unlock();
+}
+
+static char time_st[sizeof("[12345678]") + 1];
+
+static char* trace_time(size_t ss)
+{
+    snprintf(time_st, sizeof("[12345678]"), "[%08llu]", rtos::Kernel::get_ms_count());
+    return time_st;
+}
+
+static void trace_open()
+{
+    mbed_trace_init();
+    mbed_trace_prefix_function_set( &trace_time );
+    mbed_trace_mutex_wait_function_set(trace_wait);
+    mbed_trace_mutex_release_function_set(trace_release);
+
+    mbed_cellular_trace::mutex_wait_function_set(trace_wait);
+    mbed_cellular_trace::mutex_release_function_set(trace_release);
+}
+
+static void trace_close()
+{
+    mbed_cellular_trace::mutex_wait_function_set(NULL);
+    mbed_cellular_trace::mutex_release_function_set(NULL);
+
+    mbed_trace_free();
+}
+
+#endif // MBED_CONF_MBED_TRACE_ENABLE
+
 static SocketAddress echo_server_addr;
+
+static rtos::EventFlags eventFlags;
 
 class EchoSocket : public UDPSocket {
 public:
-  EchoSocket(int size) : UDPSocket(), _async_flag(0), _data(0), _size(size) {
+  EchoSocket(int size) : UDPSocket(), _data(0), _size(size), _async_flag(0), _tx_pending(false), _rx_pending(false) {
   }
   virtual ~EchoSocket() {
     delete _data;
@@ -69,53 +114,69 @@ public:
         if (_async_flag) {
             set_blocking(false);
             sigio(callback(this, &EchoSocket::async_callback));
-        } else {
-            set_blocking(true);
-            set_timeout(SOCKET_TIMEOUT);
-            sigio(NULL);
         }
+	}
 
-	}
 	void test_sendto(const char *const hostname = NULL) {
-		_data = new uint8_t[_size];
-		for (int i=0; i<_size; i++) {
-			_data[i] = (uint8_t)rand();
-		}
-		// clear pending events
-		TEST_ASSERT(!(EchoSocket::eventFlags.clear(_async_flag) & osFlagsError));
+	    if (!_data) {
+	        _data = new uint8_t[_size];
+	        for (int i=0; i<_size; i++) {
+	            _data[i] = (uint8_t)rand();
+	        }
+	    }
+	    nsapi_size_or_error_t ret;
 		if (hostname) {
-			TEST_ASSERT(sendto(hostname, ECHO_SERVER_UDP_PORT, _data, _size) == _size);
+		    ret = sendto(hostname, ECHO_SERVER_UDP_PORT, _data, _size);
 		} else {
-			TEST_ASSERT(sendto(echo_server_addr, _data, _size) == _size);
+		    ret = sendto(echo_server_addr, _data, _size);
+		}
+		if (ret == _size) { // send successful
+		    _tx_pending = false;
+		} else {
+		    TEST_ASSERT(_async_flag && ret == NSAPI_ERROR_WOULD_BLOCK);
+            _tx_pending = true;
 		}
 	}
+
 	void test_recvfrom() {
-		if (_async_flag) {
-			TEST_ASSERT((EchoSocket::eventFlags.wait_any(_async_flag, SOCKET_TIMEOUT) & (osFlagsError | _async_flag)) == _async_flag);
-		}
 		uint8_t *buf = new uint8_t[_size];
 		memset(buf, 0, _size);
 		SocketAddress recv_address;
-
-		TEST_ASSERT(recvfrom(&recv_address, buf, _size) == _size);
-
-		TEST_ASSERT(recv_address == echo_server_addr);
-		TEST_ASSERT(memcmp(_data, buf, _size) == 0);
-		delete buf;
-		delete _data;
-		_data = 0;
+		nsapi_size_or_error_t ret = recvfrom(&recv_address, buf, _size);
+		if (ret == _size) { // recv successful
+		    _rx_pending = false;
+	        TEST_ASSERT(recv_address == echo_server_addr);
+	        TEST_ASSERT(memcmp(_data, buf, _size) == 0);
+	        delete _data;
+	        _data = NULL;
+	        _rx_pending = false;
+		} else {
+		    TEST_ASSERT(_async_flag && ret == NSAPI_ERROR_WOULD_BLOCK);
+            _rx_pending = true;
+		}
+        delete buf;
 	}
+
+	bool async_process() {
+        if (_tx_pending) {
+            test_sendto();
+        }
+        if (_rx_pending) {
+            test_recvfrom();
+        }
+        return _tx_pending | _rx_pending;
+	}
+
 private:
 	void async_callback() {
-		EchoSocket::eventFlags.set(_async_flag);
+	    eventFlags.set(_async_flag);
 	}
 	uint8_t *_data;
 	int _size;
 	uint32_t _async_flag; // 0 for blocking socket, signal bit for async
-	static rtos::EventFlags eventFlags;
+	bool _tx_pending;
+	bool _rx_pending;
 };
-
-rtos::EventFlags EchoSocket::eventFlags;
 
 static void network_callback(nsapi_event_t ev, intptr_t ptr)
 {
@@ -136,6 +197,10 @@ static void udp_network_stack()
     cellular.attach(&network_callback);
     TEST_ASSERT(cellular.start_dispatch() == NSAPI_ERROR_OK);
     cellular.set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
+#ifdef MBED_CONF_APP_APN
+    CellularNetwork * network = cellular.get_network();
+    TEST_ASSERT(network->set_credentials(MBED_CONF_APP_APN) == NSAPI_ERROR_OK);
+#endif
     cellular_target_state = CellularConnectionFSM::STATE_CONNECTED;
     TEST_ASSERT(cellular.continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
 	TEST_ASSERT(network_semaphore.wait(NETWORK_TIMEOUT) == 1);
@@ -144,37 +209,48 @@ static void udp_network_stack()
 static void udp_gethostbyname()
 {
     TEST_ASSERT(cellular.get_network()->gethostbyname(ECHO_SERVER_NAME, &echo_server_addr) == 0);
-    tr_info("HOST: %s", echo_server_addr.get_ip_address());
+    tr_info("Echo server IP: %s", echo_server_addr.get_ip_address());
 	echo_server_addr.set_port(7);
-	wait(1);
 }
 
 static void udp_socket_send_receive()
 {
     EchoSocket echo_socket(4);
     TEST_ASSERT(echo_socket.open(cellular.get_network()) == NSAPI_ERROR_OK);
-    echo_socket.set_async(0);
+    echo_socket.set_blocking(true);
+    echo_socket.set_timeout(SOCKET_TIMEOUT);
     echo_socket.test_sendto();
     echo_socket.test_recvfrom();
     TEST_ASSERT(echo_socket.close() == NSAPI_ERROR_OK);
-    wait(1);
 }
 
 static void udp_socket_send_receive_async()
 {
+    int async_flag = 1;
+    TEST_ASSERT(!(eventFlags.clear(async_flag) & osFlagsError));
+
     EchoSocket echo_socket(4);
     TEST_ASSERT(echo_socket.open(cellular.get_network()) == NSAPI_ERROR_OK);
-    echo_socket.set_async(1);
+    echo_socket.set_async(async_flag);
     echo_socket.test_sendto();
     echo_socket.test_recvfrom();
+
+    while (true) {
+        TEST_ASSERT((eventFlags.wait_any(async_flag, SOCKET_TIMEOUT) & (osFlagsError)) != osFlagsError);
+        if (!echo_socket.async_process()) {
+            break;
+        }
+    }
     TEST_ASSERT(echo_socket.close() == NSAPI_ERROR_OK);
-    wait(1);
 }
 
 using namespace utest::v1;
 
 static utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
+#if MBED_CONF_MBED_TRACE_ENABLE
+    trace_close();
+#endif 
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_ABORT;
 }
@@ -184,7 +260,6 @@ static Case cases[] = {
 	Case("UDP gethostbyname", udp_gethostbyname, greentea_failure_handler),
 	Case("UDP socket send/receive", udp_socket_send_receive, greentea_failure_handler),
 	Case("UDP socket send/receive async", udp_socket_send_receive_async, greentea_failure_handler),
-	//Case("UDP socket multiple simultaneous", udp_socket_multiple_simultaneous, greentea_failure_handler),
 };
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -197,7 +272,12 @@ static Specification specification(test_setup, cases);
 
 int main()
 {
-	mbed_trace_init();
-
-	return Harness::run(specification);
+#if MBED_CONF_MBED_TRACE_ENABLE
+    trace_open();
+#endif
+    int ret = Harness::run(specification);
+#if MBED_CONF_MBED_TRACE_ENABLE
+    trace_close();
+#endif 
+	return ret;
 }
