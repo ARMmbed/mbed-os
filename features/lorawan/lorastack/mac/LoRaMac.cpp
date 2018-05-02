@@ -204,6 +204,7 @@ void LoRaMac::handle_ack_timeout()
 
 void LoRaMac::handle_rx1_timer_event(void)
 {
+    tr_info("handle_rx1_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_rx_window1_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -211,6 +212,7 @@ void LoRaMac::handle_rx1_timer_event(void)
 
 void LoRaMac::handle_rx2_timer_event(void)
 {
+    tr_info("handle_rx2_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_rx_window2_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -281,10 +283,14 @@ void LoRaMac::on_radio_tx_done( void )
         mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_OK;
         _params.ul_nb_rep_counter++;
     }
+
+    _lora_time.start(_params.timers.mac_state_check_timer, 1);
 }
 
 void LoRaMac::prepare_rx_done_abort(void)
 {
+    tr_info("prepare_rx_done_abort");
+
     _params.mac_state |= LORAMAC_RX_ABORT;
 
     if (_params.is_node_ack_requested) {
@@ -301,6 +307,8 @@ void LoRaMac::prepare_rx_done_abort(void)
 void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                int8_t snr)
 {
+    tr_info("on_radio_rx_done, payload=%p, size=%u, rssi=%u, snr=%d", payload, size, rssi, snr);
+
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
     cflist_params_t cflist;
@@ -719,6 +727,8 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 
 void LoRaMac::on_radio_tx_timeout( void )
 {
+    tr_info("on_radio_tx_timeout");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -734,6 +744,8 @@ void LoRaMac::on_radio_tx_timeout( void )
 
 void LoRaMac::on_radio_rx_error( void )
 {
+    tr_info("on_radio_rx_error");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -766,6 +778,8 @@ void LoRaMac::on_radio_rx_error( void )
 
 void LoRaMac::on_radio_rx_timeout(void)
 {
+    tr_info("on_radio_rx_timeout");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -795,6 +809,8 @@ void LoRaMac::on_radio_rx_timeout(void)
             _params.flags.bits.mac_done = 1;
         }
     }
+
+    _lora_time.start(_params.timers.mac_state_check_timer, 1);
 }
 
 /***************************************************************************
@@ -993,6 +1009,8 @@ void LoRaMac::on_mac_state_check_timer_event(void)
 
 void LoRaMac::on_tx_delayed_timer_event(void)
 {
+    tr_info("on_tx_delayed_timer_event");
+
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
 
@@ -1029,6 +1047,8 @@ void LoRaMac::on_tx_delayed_timer_event(void)
 
 void LoRaMac::on_rx_window1_timer_event(void)
 {
+    tr_info("on_rx_window1_timer_event");
+
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
@@ -1052,6 +1072,8 @@ void LoRaMac::on_rx_window1_timer_event(void)
 
 void LoRaMac::on_rx_window2_timer_event(void)
 {
+    tr_info("on_rx_window2_timer_event");
+
     _lora_time.stop(_params.timers.rx_window2_timer);
 
     _params.rx_window2_config.channel = _params.channel;
@@ -1079,6 +1101,8 @@ void LoRaMac::on_rx_window2_timer_event(void)
 
 void LoRaMac::on_ack_timeout_timer_event(void)
 {
+    tr_info("on_ack_timeout_timer_event");
+
     _lora_time.stop(_params.timers.ack_timeout_timer);
 
     if (_params.is_node_ack_requested == true) {
@@ -1092,12 +1116,16 @@ void LoRaMac::on_ack_timeout_timer_event(void)
 
 void LoRaMac::rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time)
 {
+    tr_info("rx_window_setup");
+
     lora_phy->setup_rx_window(rx_continuous, max_rx_window_time);
 }
 
 bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,
                                       uint8_t fopts_len)
 {
+    tr_info("validate_payload_length");
+
     uint16_t max_value = 0;
     uint16_t payloadSize = 0;
 
@@ -1116,6 +1144,8 @@ bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,
 
 void LoRaMac::set_mlme_schedule_ul_indication(void)
 {
+    tr_info("set_mlme_schedule_ul_indication");
+
     mlme.get_indication().indication_type = MLME_SCHEDULE_UPLINK;
     _params.flags.bits.mlme_ind = 1;
 }
@@ -1500,6 +1530,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
 lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 {
+    tr_info("send_frame_on_channel");
+
     tx_config_params_t tx_config;
     int8_t tx_power = 0;
 
@@ -1841,6 +1873,8 @@ lorawan_status_t LoRaMac::multicast_channel_unlink(
 
 lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
 {
+    tr_info("mlme_request");
+
     if (LORAMAC_IDLE != _params.mac_state) {
         return LORAWAN_STATUS_BUSY;
     }
@@ -1914,6 +1948,8 @@ lorawan_status_t LoRaMac::mlme_request( loramac_mlme_req_t *mlmeRequest )
 
 lorawan_status_t LoRaMac::mcps_request( loramac_mcps_req_t *mcpsRequest )
 {
+    tr_info("mcps_request");
+
     if (_params.mac_state != LORAMAC_IDLE) {
         return LORAWAN_STATUS_BUSY;
     }
@@ -1978,11 +2014,13 @@ lorawan_status_t LoRaMac::mcps_request( loramac_mcps_req_t *mcpsRequest )
 
 lorawan_status_t LoRaMac::mib_get_request_confirm( loramac_mib_req_confirm_t *mibGet )
 {
+    tr_info("mib_get_request_confirm");
     return mib.get_request(mibGet, &_params);
 }
 
 lorawan_status_t LoRaMac::mib_set_request_confirm( loramac_mib_req_confirm_t *mibSet )
 {
+    tr_info("mib_set_request_confirm");
     lorawan_status_t status = mib.set_request(mibSet, &_params);
     if (LORAWAN_STATUS_OK == status && CLASS_C == _params.dev_class && (MIB_DEVICE_CLASS == mibSet->type ||
        (MIB_RX2_CHANNEL == mibSet->type && _params.is_nwk_joined))) {

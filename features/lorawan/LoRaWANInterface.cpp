@@ -21,6 +21,11 @@
 
 #include "lorawan/LoRaWANInterface.h"
 
+#define tr_debug(...) void(0) //dummies if feature common pal is not added
+#define tr_info(...)  printf("[LWIF][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_error(...) printf("[LWIF][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_warn(...) printf("[LWIF][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+
 using namespace events;
 
 inline LoRaWANStack& stk_obj()
@@ -175,6 +180,8 @@ int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
         // explicitly removes it.
         add_link_check_request();
     }
+
+    tr_info("send");
 
     if (data) {
         return stk_obj().handle_tx(port, data, length, flags);
