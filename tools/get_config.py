@@ -33,7 +33,8 @@ from tools.utils import argparse_filestring_type
 
 if __name__ == '__main__':
     # Parse Options
-    parser = get_default_options_parser(add_clean=False, add_options=False)
+    parser = get_default_options_parser(add_clean=False, add_options=False,
+                                        add_app_config=True)
     parser.add_argument(
         "--source", dest="source_dir", type=argparse_filestring_type,
         required=True, default=[], help="The source (input) directory",
@@ -61,7 +62,7 @@ if __name__ == '__main__':
 
     try:
         params, macros, features = get_config(
-            options.source_dir, target, toolchain)
+            options.source_dir, target, toolchain, app_config=options.app_config)
         if not params and not macros:
             print("No configuration data available.")
             sys.exit(0)
