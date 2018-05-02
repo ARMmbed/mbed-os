@@ -45,11 +45,7 @@
 #error "OS Tickrate must be 1000 for system timing"
 #endif
 
-#if !defined(OS_STACK_WATERMARK) && defined(MBED_STACK_STATS_ENABLED)
-#define OS_STACK_WATERMARK          1
-#endif
-
-#if !defined(OS_STACK_WATERMARK) && defined(MBED_ALL_STATS_ENABLED)
+#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) || defined(MBED_ALL_STATS_ENABLED))
 #define OS_STACK_WATERMARK          1
 #endif
 
