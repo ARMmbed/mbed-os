@@ -47,13 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#if DEVICE_CRYPTOCELL
-#include "objects_cryptocell.h"
-#else
-struct trng_s {
-    uint32_t placeholder;
-};
-#endif
 
 struct serial_s {
     uint32_t placeholder; // struct is unused by nRF5x API implementation
@@ -89,6 +82,10 @@ struct gpio_irq_s {
 };
 
 struct flash_s {
+    uint32_t placeholder;
+};
+
+struct trng_s {
     uint32_t placeholder;
 };
 

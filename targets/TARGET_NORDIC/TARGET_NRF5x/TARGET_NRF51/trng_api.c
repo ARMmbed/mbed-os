@@ -41,7 +41,6 @@
 #include "hal/trng_api.h"
 #include "hal/lp_ticker_api.h"
 
-#if !defined(DEVICE_CRYPTOCELL)
 #include "nrf_drv_rng.h"
 
 #define DEFAULT_TIMEOUT_US (1000*1000)
@@ -180,5 +179,4 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     return (*output_length == 0) ? -1 : 0;
 }
 
-#endif/* !DEVICE_CRYPTOCELL */
 #endif

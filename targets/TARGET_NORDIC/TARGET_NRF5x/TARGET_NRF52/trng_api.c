@@ -37,7 +37,7 @@
  */
 
 #if defined(DEVICE_TRNG)
-
+#if !defined(DEVICE_CRYPTOCELL)
 #include "hal/trng_api.h"
 #include "hal/critical_section_api.h"
 
@@ -119,5 +119,5 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
     return result;
 }
-
+#endif/* !DEVICE_CRYPTOCELL */
 #endif
