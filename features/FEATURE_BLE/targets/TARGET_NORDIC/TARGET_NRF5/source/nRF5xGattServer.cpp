@@ -25,6 +25,7 @@
 #include "btle/custom/custom_helper.h"
 
 #include "nRF5xn.h"
+#include "nrf_ble_gap.h"
 
 namespace {
 
@@ -164,21 +165,25 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         }
 
         ASSERT_TRUE ( ERROR_NONE ==
-                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
-                                              &nordicUUID,
-                                              p_char->getProperties(),
-                                              p_char->getRequiredSecurity(),
-                                              p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getLength(),
-                                              p_char->getValueAttribute().getMaxLength(),
-                                              p_char->getValueAttribute().hasVariableLength(),
-                                              userDescriptionDescriptorValuePtr,
-                                              userDescriptionDescriptorValueLen,
-                                              presentationFormatDescriptorValuePtr,
-                                              presentationFormatDescriptorValueLen,
-                                              p_char->isReadAuthorizationEnabled(),
-                                              p_char->isWriteAuthorizationEnabled(),
-                                              &nrfCharacteristicHandles[characteristicCount]),
+                 custom_add_in_characteristic(
+                     BLE_GATT_HANDLE_INVALID,
+                     &nordicUUID,
+                     p_char->getProperties(),
+                     p_char->getReadSecurityRequirement(),
+                     p_char->getWriteSecurityRequirement(),
+                     p_char->getUpdateSecurityRequirement(),
+                     p_char->getValueAttribute().getValuePtr(),
+                     p_char->getValueAttribute().getLength(),
+                     p_char->getValueAttribute().getMaxLength(),
+                     p_char->getValueAttribute().hasVariableLength(),
+                     userDescriptionDescriptorValuePtr,
+                     userDescriptionDescriptorValueLen,
+                     presentationFormatDescriptorValuePtr,
+                     presentationFormatDescriptorValueLen,
+                     p_char->isReadAuthorizationEnabled(),
+                     p_char->isWriteAuthorizationEnabled(),
+                     &nrfCharacteristicHandles[characteristicCount]
+                 ),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
@@ -218,7 +223,9 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                             p_desc->getLength(),
                                             p_desc->getMaxLength(),
                                             p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
+                                            &nrfDescriptorHandles[descriptorCount],
+                                            p_desc->getReadSecurityRequirement(),
+                                            p_desc->getWriteSecurityRequirement()),
                 BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             p_descriptors[descriptorCount] = p_desc;
@@ -345,7 +352,16 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             }
         }
 
-        if (updatesEnabled) {
+        bool updates_permitted = false;
+        ble_gap_conn_sec_t connection_security;
+        uint32_t err = sd_ble_gap_conn_sec_get(connectionHandle, &connection_security);
+        if (!err &&
+            (connection_security.sec_mode.sm == 1) &&
+            (connection_security.sec_mode.lv >=  p_characteristics[characteristicIndex]->getUpdateSecurityRequirement().value())) {
+            updates_permitted = true;
+        }
+
+        if (updatesEnabled && updates_permitted) {
             error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
             if (error != ERROR_NONE) {
                 switch (error) {
