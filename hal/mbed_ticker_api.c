@@ -42,8 +42,8 @@ static void initialize(const ticker_data_t *ticker)
         frequency = 1000000;
     }
 
-    uint32_t frequency_shifts = 0;
-    for (int i = 31; i > 0; --i) {
+    uint8_t frequency_shifts = 0;
+    for (uint8_t i = 31; i > 0; --i) {
         if ((1 << i) == frequency) {
             frequency_shifts = i;
             break;
