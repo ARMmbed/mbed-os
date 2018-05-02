@@ -192,7 +192,16 @@ public:
      */
     virtual int set_blocking(bool blocking)
     {
-        return -1;
+        return blocking ? 0 : -ENOTTY;
+    }
+
+    /** Check current blocking or non-blocking mode for file operations.
+     *
+     *  @return             true for blocking mode, false for non-blocking mode.
+     */
+    virtual bool is_blocking() const
+    {
+        return true;
     }
 
     /** Check for poll event flags
