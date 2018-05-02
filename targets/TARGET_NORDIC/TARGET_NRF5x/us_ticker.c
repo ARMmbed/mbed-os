@@ -234,18 +234,15 @@ void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
     // the interrupt generation.
     uint64_t current_time64 = common_rtc_64bit_us_get();
     // [add upper 32 bits from the current time to the timestamp value]
-    uint64_t timestamp64 = us_timestamp +
-        (current_time64 & ~(uint64_t)0xFFFFFFFF);
+    uint64_t timestamp64 = (current_time64 & ~(uint64_t)0xFFFFFFFF) | us_timestamp;
     // [if the original timestamp value happens to be after the 32 bit counter
     //  of microsends overflows, correct the upper 32 bits accordingly]
-    if (us_timestamp < (uint32_t)(current_time64 & 0xFFFFFFFF)) {
+    if (timestamp64 < current_time64) {
         timestamp64 += ((uint64_t)1 << 32);
     }
     // [microseconds -> ticks, always round the result up to avoid too early
     //  interrupt generation]
-    uint32_t compare_value =
-        (uint32_t)CEIL_DIV((timestamp64) * RTC_INPUT_FREQ, 1000000);
-
+    uint32_t compare_value = RTC_WRAP((uint32_t)CEIL_DIV((timestamp64) * RTC_INPUT_FREQ, 1000000));
 
     core_util_critical_section_enter();
     // The COMPARE event occurs when the value in compare register is N and
@@ -253,12 +250,12 @@ void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
     // difference between the compare value to be set and the current counter
     // value is 2 ticks. This guarantees that the compare trigger is properly
     // setup before the compare condition occurs.
-    uint32_t closest_safe_compare = common_rtc_32bit_ticks_get() + 2;
-    if ((int)(compare_value - closest_safe_compare) <= 0) {
+    uint32_t closest_safe_compare = RTC_WRAP(common_rtc_32bit_ticks_get() + 2);
+    if (closest_safe_compare - compare_value < 2) {
         compare_value = closest_safe_compare;
     }
 
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(compare_value));
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, compare_value);
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, int_mask);
 
     core_util_critical_section_exit();
