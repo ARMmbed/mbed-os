@@ -73,6 +73,7 @@ typedef struct {
     ticker_event_handler event_handler; /**< Event handler */
     ticker_event_t *head;               /**< A pointer to head */
     uint32_t frequency;                 /**< Frequency of the timer in Hz */
+    uint32_t frequency_shifts;          /**< Frequency shift if divisible by 2, ohterwise 0 */
     uint32_t bitmask;                   /**< Mask to be applied to time values read */
     uint32_t max_delta;                 /**< Largest delta in ticks that can be used when scheduling */
     uint64_t max_delta_us;              /**< Largest delta in us that can be used when scheduling */

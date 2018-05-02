@@ -42,6 +42,14 @@ static void initialize(const ticker_data_t *ticker)
         frequency = 1000000;
     }
 
+    uint32_t frequency_shifts = 0;
+    for (int i = 31; i > 0; --i) {
+        if ((1 << i) == frequency) {
+            frequency_shifts = i;
+            break;
+        }
+    }
+
     uint32_t bits = info->bits;
     if ((info->bits > 32) || (info->bits < 4)) {
         MBED_ASSERT(0);
@@ -56,6 +64,7 @@ static void initialize(const ticker_data_t *ticker)
     ticker->queue->tick_last_read = ticker->interface->read();
     ticker->queue->tick_remainder = 0;
     ticker->queue->frequency = frequency;
+    ticker->queue->frequency_shifts = frequency_shifts;
     ticker->queue->bitmask = ((uint64_t)1 << bits) - 1;
     ticker->queue->max_delta = max_delta;
     ticker->queue->max_delta_us = max_delta_us;
@@ -125,14 +134,13 @@ static void update_present_time(const ticker_data_t *const ticker)
         // Optimized for 1MHz
 
         elapsed_us = elapsed_ticks;
-    } else if (32768 == queue->frequency) {
-        // Optimized for 32KHz
-
+    } else if (0 != queue->frequency_shifts) {
+        // Optimized for frequencies divisible by 2
         uint64_t us_x_ticks = elapsed_ticks * 1000000;
-        elapsed_us = us_x_ticks >> 15;
+        elapsed_us = us_x_ticks >> queue->frequency_shifts;
 
         // Update remainder
-        queue->tick_remainder += us_x_ticks - (elapsed_us << 15);
+        queue->tick_remainder += us_x_ticks - (elapsed_us << queue->frequency_shifts);
         if (queue->tick_remainder >= queue->frequency) {
             elapsed_us += 1;
             queue->tick_remainder -= queue->frequency;
@@ -174,10 +182,10 @@ static timestamp_t compute_tick(const ticker_data_t *const ticker, us_timestamp_
             if (delta > ticker->queue->max_delta) {
                 delta = ticker->queue->max_delta;
             }
-        } else if (32768 == queue->frequency) {
-            // Optimized for 32KHz
+        } else if (0 != queue->frequency_shifts) {
+            // Optimized frequencies divisible by 2
 
-            delta = (delta_us << 15) / 1000000;
+            delta = (delta_us << ticker->queue->frequency_shifts) / 1000000;
             if (delta > ticker->queue->max_delta) {
                 delta = ticker->queue->max_delta;
             }
