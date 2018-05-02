@@ -33,7 +33,7 @@ public:
     *
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
-    * @param product_release Your preoduct_release
+    * @param product_release Your product_release
     * @param connect_blocking define if the connection must be blocked if USB not plugged in
     */
     USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
