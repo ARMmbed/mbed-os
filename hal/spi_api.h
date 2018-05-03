@@ -20,7 +20,7 @@
 
 #if DEVICE_SPI
 /**
- * \defgroup hal_new_spi Serial peripheral interface HAL API.
+ * \defgroup hal_spi Serial peripheral interface HAL API.
  * Low level interface to the serial peripheral interface of a target.
  *
  * A SPI peripheral might be used by multiple spi_t as it only represents a communication
@@ -45,7 +45,7 @@
  *   - If tx is NULL a fill symbol is sent instead. See spi_init_t.
  *   - Receives `rx_count` symbols.
  *   - If rx is not NULL, the rx buffer must be at least `rx_count` symbols long.
- *   - If rx is NULL, all read symbols are dropped into the void.
+ *   - If rx is NULL, all read symbols are dropped.
  * - `spi_transfer()` returns true if the operation has completed successfully and false otherwise.
  * - `spi_transfer()` returns false if at least one of its parameters is undefined (NULL).
  * - `spi_transfer()` returns false if the peripheral is busy with another transaction (from this
@@ -55,15 +55,12 @@
  *   - conflicting master ;
  *   - rx or tx buffer overflow ;
  *   - rx or tx buffer underflow.
- * - `spi_data_available()` returns true if a symbol is available for reading with `spi_read()`.
+ * - `spi_data_available()` is only valid in slave mode.
+ * - `spi_data_available()` returns true if a symbol is available for reading.
  * - `spi_data_available()` returns false if passed a NULL pointer as its spi_t argument.
- * - `spi_read()` blocks until it reads a symbol from the SPI interface.
- * - `spi_read()` does nothing if passed a NULL pointer as its spi_t argument.
- * - `spi_write()` blocks until it writes a symbol to the SPI interface.
- * - `spi_write()` does nothing if passed a NULL pointer as its spi_t argument.
  * - `spi_free()` does nothing if passed a NULL pointer.
  * - `spi_free()` de-initialize and eventually disable the clock of the peripheral if it is no longer
- *    in used anymore.
+ *    in use.
  *
  * ## Asynchronous API
  * - `spi_async_transfer()` returns NULL if any of `spi_t *obj` or `spi_transfer_args_t *args` is NULL.
@@ -96,10 +93,6 @@
  * - The use of Interrupts and/or DMA for async operations.
  * - The way `spi_transfer()` is implemented : using specific to this function or using
  *   `spi_async_transfer()`.
- * - The way `spi_read()` reads the data : using `spi_transfer()`, `spi_async_transfer()` or specific
- *   implementation.
- * - The way `spi_write()` sends the data : using `spi_transfer()`, `spi_async_transfer()` or specific
- *   implementation.
  * - Wether the SS pin is controlled by hardware or software.
  * - The way `spi_async_abort()` is implemented : abortion callback invoked in the same thread before
  *   returning, in an interrupt or in another thread.
@@ -132,18 +125,18 @@ typedef enum spi_mode_t {
 typedef struct spi_s spi_t;
 
 /**
- * This structure groups all initialization parameters required by an SPI interface.
+ * This structure groups all initialization parameters required by a SPI interface.
  */
-typedef struct spi_init_t {
+typedef struct spi_init_s {
     bool    is_master;  /**< True to configure the device in Master mode */
     bool    msb_first;  /**< True to send/receive the most significant bit first. */
 
     spi_mode_t  mode;   /**< Transmission mode. See spi_mode_t. */
 
-    PinName SS;         /**< Slave select pin. */
-    PinName MISO;
-    PinName MOSI;       /**< Might not be connected in 3-wire mode. */
-    PinName MCLK;
+    PinName ss;         /**< Slave select pin. */
+    PinName miso;
+    PinName mosi;       /**< Might not be connected in 3-wire mode. */
+    PinName mclk;
 
     uint32_t fill_symbol; /**< only the n lower bits will be used. */
     uint32_t clock_frequency; /**< MCLK frequency in Hz. */
@@ -169,13 +162,13 @@ typedef enum spi_result_t {
  * - If tx is NULL a fill symbol is sent instead. See spi_init_t.
  * - If tx is not NULL, the tx buffer must be at least `tx_count` symbols long.
  *
- * - If rx is NULL, all read symbols are dropped into the void.
+ * - If rx is NULL, all read symbols are dropped.
  * - If rx is not NULL, the rx buffer must be at least `rx_count` symbols long.
  *
  * A symbol might be bigger than a byte. In such case symbols are read/written following the
  * platform's endianness.
  */
-typedef struct spi_transfer_args_t {
+typedef struct spi_transfer_args_s {
     const uint8_t *tx; /**< A buffer containing the data to be sent. */
     uint32_t tx_count; /**< The number of symbol to send. */
     uint8_t *rx; /**< A buffer to store the received data. */
@@ -190,11 +183,11 @@ typedef enum spi_event_type_t {
     SPI_EVENT_TYPE_ON_DONE, /**< The operation has completed successfully. */
     SPI_EVENT_TYPE_ON_ABORT, /**< The operation has been aborted. */
     SPI_EVENT_TYPE_ON_ERROR /**< An error occured. */
-} spi_even_type_t;
+} spi_event_type_t;
 
 
 /**
- * Signature for an SPI async completion event.
+ * Signature for a SPI async completion event.
  *
  * As this may be executed from an interrupt context it is highly adviced to restrict this callback
  * to signaling completion to a thread.
@@ -207,11 +200,11 @@ extern "C" {
 
 /**
  * Initializes a SPI instance.
-
- * A single SPI peripheral might be used by multiple spi_t as it only represents a communication
- * channel towards a slave (or a master). Instances of spi_t may only differ by their SS pin.
  *
- * @param[in,out] obj   This.
+ * Instances of spi_t may use the same hardware interface, as long as they are configured to use
+ * different SS pin.
+ *
+ * @param[in,out] obj   A pointer to a spi_t object.
  * @param[in]     init  Initialization parameters.
  *
  * @return SPI_RESULT_OK on success. See spi_result_t for more details about failures.
@@ -230,11 +223,11 @@ spi_result_t spi_init(spi_t *obj, spi_init_t *init);
  *   - rx or tx buffer overflow ;
  *   - rx or tx buffer underflow.
  *
- * It sends `tx_count` symbols from the buffer pointed by `tx` or a place holder is `tx` is NULL.
+ * It sends `tx_count` symbols from the buffer pointed by `tx` or a fill symbol is `tx` is NULL.
  * It receives `rx_count` symbols from the peripheral and stores them to `rx` if it is not NULL, else
  * it will discard the read symbols.
  *
- * @param[in,out] obj   This.
+ * @param[in,out] obj   A pointer to a spi_t object.
  * @param[in,out] args  A pointer to a spi_transfer_args_t object.
  *
  * @return True on success.
@@ -245,7 +238,7 @@ bool spi_transfer(spi_t *obj, spi_transfer_args_t *args);
  * Schedules a transfer using the given parameters.
  * @warning All parameters and the embedded references must stay "alive" until completion of the operation.
  *
- * @param[in,out] obj       This.
+ * @param[in,out] obj       A pointer to a spi_t object.
  * @param[in,out] args      A pointer to a spi_transfer_args_t object.
  * @param[in]     context   A context to be used by the callback.
  * @param[in]     cb        A callback invoked upon completion of this transaction.
@@ -269,7 +262,7 @@ spi_async_handle_t* spi_async_transfer(
  *
  * This does nothing when used on an already cancelled/aborted transaction.
  *
- * @param[in] handle This.
+ * @param[in] handle A spi_async_handle_t object.
  *
  * The handle is consumed in this operation and should no longer be used.
  */
@@ -280,7 +273,7 @@ void spi_async_abort(spi_async_handle_t* handle);
  *
  * This does nothing if passed a NULL pointer.
  *
- * @param[in] handle This.
+ * @param[in] handle A spi_async_handle_t object.
  */
 void spi_async_free_handle(spi_async_handle_t* handle);
 
@@ -292,7 +285,7 @@ void spi_async_free_handle(spi_async_handle_t* handle);
  * @warning An asynchronous transaction might be completed/errored/aborted and still alive if
  * `spi_async_free_handle()` has not beed called yet on it.
  *
- * @param[in,out] obj   This.
+ * @param[in,out] obj   A pointer to a spi_t object.
  *
  * @return `true` on success.
  */
@@ -300,7 +293,7 @@ bool spi_free(spi_t *obj);
 
 /*
  * =======================
- * The following functions are deprecated and are provided solely to maintain compatibility with the
+ * The following function is deprecated and is provided solely to maintain compatibility with the
  * SPISlave driver class.
  * =======================
  */
@@ -308,28 +301,9 @@ bool spi_free(spi_t *obj);
 /**
  * Returns true if a symbol is available for reading.
  *
- * @param[in,out] obj   This.
+ * @param[in,out] obj   A pointer to a spi_t object.
  */
 bool spi_data_available(spi_t *obj);
-
-/**
- * Reads a symbol from the SPI interface.
- * It blocks until it reads a symbol from the SPI interface waiting for any other transaction to
- * complete.
- *
- * @param[in,out] obj   This.
- */
-uint32_t spi_read(spi_t *obj);
-
-/**
- * Sends a symbol to the SPI interface.
- * It blocks until it writes a symbol to the SPI interface waiting for any other transaction to
- * complete.
- *
- * @param[in,out] obj   This.
- * @param[in]     value A symbol to send.
- */
-void spi_write(spi_t *obj, uint32_t value);
 
 /**
  * @}
