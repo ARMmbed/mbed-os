@@ -21,6 +21,15 @@
  */
 #define NU_TZ_NSC_REGION_BASE       (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE)
 
+/* Initial/ISR stack size */
+#if (! defined(NU_INITIAL_STACK_SIZE))
+#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#define NU_INITIAL_STACK_SIZE       0x800
+#else
+#define NU_INITIAL_STACK_SIZE       0x800
+#endif
+#endif
+
 #if defined(__DOMAIN_NS) && __DOMAIN_NS
 
 #if (! defined(MBED_APP_START))
@@ -41,12 +50,15 @@ LR_IROM1    MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   0x30000000 + NU_TZ_SECURE_SRAM_SIZE     EMPTY   0x800
+    ARM_LIB_STACK   0x30000000 + NU_TZ_SECURE_SRAM_SIZE     EMPTY   NU_INITIAL_STACK_SIZE
     {
     }
 
-    /* Reserve for vectors */
-    ER_IRAMVEC  0x30000800 + NU_TZ_SECURE_SRAM_SIZE         EMPTY   (4*(16 + 102))
+    /* Reserve for vectors
+     *
+     * Vector table base address is required to be 128-byte aligned at a minimum.
+     * A PE might impose further restrictions on it. */
+    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 102))
     {
     }
 
@@ -84,12 +96,15 @@ LR_IROM1 MBED_APP_START
         .ANY (+RO)
     }
 
-    ARM_LIB_STACK   0x20000000  EMPTY   0x800
+    ARM_LIB_STACK   0x20000000  EMPTY   NU_INITIAL_STACK_SIZE
     {
     }
 
-    /* Reserve for vectors */
-    ER_IRAMVEC  0x20000800  EMPTY   (4*(16 + 102))
+    /* Reserve for vectors
+     *
+     * Vector table base address is required to be 128-byte aligned at a minimum.
+     * A PE might impose further restrictions on it. */
+    ER_IRAMVEC  AlignExpr(+0, 128)  EMPTY   (4*(16 + 102))
     {
     }
 
