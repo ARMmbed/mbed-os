@@ -37,8 +37,10 @@
 #define MAX_EP_SIZE 64
 #define MIN_EP_SIZE 8
 
+#define EVENT_READY (1 << 0)
 
-USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking):
+
+USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
                         USBDevice(phy, vendor_id, product_id, product_release), reset_count(0), suspend_count(0),
                         resume_count(0), interface_0_alt_set(NONE), interface_1_alt_set(NONE), configuration_set(NONE)
 {
@@ -56,7 +58,8 @@ USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     configuration_desc(0);
 
     init();
-    USBDevice::connect(connect_blocking);
+    USBDevice::connect();
+    flags.wait_any(EVENT_READY, osWaitForever, false);
 
 }
 
@@ -105,7 +108,10 @@ const char *USBTester::get_iproduct_desc_string()
 
 void USBTester::callback_state_change(DeviceState new_state)
 {
-    if (new_state != Configured) {
+    if (new_state == Configured) {
+        flags.set(EVENT_READY);
+    } else {
+        flags.clear(EVENT_READY);
         configuration_set = NONE;
         interface_0_alt_set = NONE;
         interface_1_alt_set = NONE;
