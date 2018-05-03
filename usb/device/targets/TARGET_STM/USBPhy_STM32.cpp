@@ -159,11 +159,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     this->events = events;
     sof_enabled = false;
     memset(epComplete, 0, sizeof(epComplete));
-    memset(pBufRx, 0, sizeof(pBufRx));
-    memset(pBufRx0, 0, sizeof(pBufRx0));
     memset(&hpcd.Init, 0, sizeof(hpcd.Init));
-    memset(_read_size, 0, sizeof(_read_size));
-    memset(_read_buf, 0, sizeof(_read_buf));
 
 #if defined(TARGET_DISCO_F769NI) || \
     defined(TARGET_DISCO_F746NG_OTG_HS)
@@ -380,27 +376,16 @@ void USBPhyHw::ep0_setup_read_result(uint8_t *buffer, uint32_t size)
 
 void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
 {
-    _read_buf[0] = data;
-    _read_size[0] = size;
-
-    uint8_t *pBuf = (uint8_t *)pBufRx0;
     HAL_StatusTypeDef ret;
     epComplete[EP_TO_IDX(EP0OUT)] = 2;
-    ret = HAL_PCD_EP_Receive(&hpcd, EP0OUT, pBuf, MAX_PACKET_SIZE_EP0 );
+    ret = HAL_PCD_EP_Receive(&hpcd, EP0OUT, data, size > MAX_PACKET_SIZE_EP0 ? MAX_PACKET_SIZE_EP0 : size);
     MBED_ASSERT(ret!=HAL_BUSY);
 }
 
 uint32_t USBPhyHw::ep0_read_result()
 {
-    uint32_t length = (uint32_t) HAL_PCD_EP_GetRxCount(&hpcd, 0);
     epComplete[EP_TO_IDX(EP0OUT)] = 0;
-    if (length) {
-        uint8_t  *buff = (uint8_t *)pBufRx0;
-        memcpy(_read_buf[0], buff, _read_size[0] > length ? length : _read_size[0]);
-    }
-    _read_buf[0] = 0;
-    _read_size[0] = 0;
-    return length;
+    return HAL_PCD_EP_GetRxCount(&hpcd, 0);
 }
 
 void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
@@ -452,33 +437,22 @@ void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
-    _read_buf[EP_TO_LOG(endpoint)] = data;
-    _read_size[EP_TO_LOG(endpoint)] = size;
-
-    uint8_t* pBuf = (uint8_t *)pBufRx; //TODO - this buffer shouldn't be shared for multiple endpoints
-    HAL_StatusTypeDef ret;
     // clean reception end flag before requesting reception
-    ret = HAL_PCD_EP_Receive(&hpcd, endpoint, pBuf, size);
+    HAL_StatusTypeDef ret = HAL_PCD_EP_Receive(&hpcd, endpoint, data, size);
     MBED_ASSERT(ret!=HAL_BUSY);
     return true;
 }
 
 uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
-    uint8_t *buffer =_read_buf[EP_TO_LOG(endpoint)];
-    uint8_t max_size = _read_size[EP_TO_LOG(endpoint)];
-
     if (epComplete[EP_TO_IDX(endpoint)]==0) {
         /*  no reception possible !!! */
         return 0;
     } else if ((epComplete[EP_TO_IDX(endpoint)]!=1)) {
         return 0;
     }
-    uint8_t  *buff = (uint8_t *)pBufRx;
-    uint32_t length = (uint32_t) HAL_PCD_EP_GetRxCount(&hpcd, endpoint);
-    memcpy(buffer, buff, length > max_size ? max_size : length);
     epComplete[EP_TO_IDX(endpoint)]= 0;
-    return length;
+    return HAL_PCD_EP_GetRxCount(&hpcd, endpoint);;
 }
 
 bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
