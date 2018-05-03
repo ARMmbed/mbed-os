@@ -58,8 +58,8 @@
 extern uint32_t __Vectors[];
 
 #define VECTORS_FLASH_START __Vectors
-#define UICR_BOOTLOADER_ADDRESS 0x10001014
-#define MBR_ADDRESS 0x0
+#define MBR_VTOR_ADDRESS 0x20000000
+#define SOFTDEVICE_VTOR_ADDRESS 0x20000004
 
 /**
  * @brief Function for relocation of the vector to RAM on nRF5x devices.
@@ -68,36 +68,42 @@ extern uint32_t __Vectors[];
 void nrf_reloc_vector_table(void)
 {
     // Copy and switch to dynamic vectors
-	uint32_t *old_vectors = (uint32_t*)VECTORS_FLASH_START;
+	uint32_t *old_vectors = VECTORS_FLASH_START;
 	uint32_t i;
 	for (i = 0; i< NVIC_NUM_VECTORS; i++) {
 		nrf_dispatch_vector[i] = old_vectors[i];
 	}
 
 #if defined(SOFTDEVICE_PRESENT)
-    /* Bootloader address is stored in UICR */
-    uint32_t *bootloader = (uint32_t *) UICR_BOOTLOADER_ADDRESS;
 
     /**
-     * Before setting the new vector table address in the SoftDevice the MBR must be initialized. 
-     * If no bootloader is present the MBR will be initialized automatically. 
+     * Before setting the new vector table address in the SoftDevice the MBR must be initialized.
+     * If no bootloader is present the MBR will be initialized automatically.
      * If a bootloader is present nrf_dfu_mbr_init_sd must be called once and only once.
      * 
-     * This application is a bootloader being booted for the first time if:
-     *  1. The application's vector table (VECTORS_FLASH_START) is set in the UICR.
-     *  2. SCB->VTOR is still pointing to the MBR's vector table (MBR_ADDRESS). 
+     * By resetting the MBR and SoftDevice VTOR address first, it becomes safe to initialize
+     * the MBR again regardless of how the application was started. 
      */
-    if ((VECTORS_FLASH_START == (uint32_t *) *bootloader) && (SCB->VTOR == MBR_ADDRESS)) {
 
-        /* Initialize MBR so SoftDevice service calls are being trapped correctly. */
-        nrf_dfu_mbr_init_sd();
-    }
+    /* Reset MBR VTOR to original state before calling MBR init. */
+    uint32_t *mbr_vtor_address = (uint32_t *) MBR_VTOR_ADDRESS;
+    *mbr_vtor_address = (uint32_t) VECTORS_FLASH_START;
+
+    /* Reset SoftDevive VTOR. */
+    uint32_t *softdevice_vtor_address = (uint32_t *) SOFTDEVICE_VTOR_ADDRESS;
+    *softdevice_vtor_address = 0xFFFFFFFF;
 
     /* Set SCB->VTOR to go through MBR to trap SoftDevice service calls. */
     SCB->VTOR = 0x0;
 
+    /* Initialize MBR so SoftDevice service calls are being trapped correctly. 
+     * This call sets MBR_VTOR_ADDRESS to point to the SoftDevice's VTOR at address 0x1000.
+     */
+    nrf_dfu_mbr_init_sd();
+
     /* Instruct the SoftDevice to forward interrupts to the application's vector table in RAM. */
     sd_softdevice_vector_table_base_set((uint32_t) nrf_dispatch_vector);
+
 #else
 
     /* No SoftDevice is present. Set all interrupts to vector table in RAM. */
