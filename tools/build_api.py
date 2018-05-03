@@ -599,7 +599,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = notify.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = (memap_instance.mem_report
                                           if memap_instance is not None else None)
@@ -622,12 +621,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
             cur_result["elapsed_time"] = end - start
 
-            toolchain_output = notify.get_output()
-            if toolchain_output:
-                cur_result["output"] += toolchain_output
-
             add_result_to_report(report, cur_result)
-
         # Let Exception propagate
         raise
 
@@ -754,7 +748,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
 
@@ -771,10 +764,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
                 cur_result["result"] = "NOT_SUPPORTED"
 
             cur_result["elapsed_time"] = end - start
-
-            toolchain_output = notify.get_output()
-            if toolchain_output:
-                cur_result["output"] += toolchain_output
 
             add_result_to_report(report, cur_result)
 
@@ -926,7 +915,6 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
         if report != None and needed_update:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -937,10 +925,6 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             end = time()
             cur_result["result"] = "FAIL"
             cur_result["elapsed_time"] = end - start
-
-            toolchain_output = notify.get_output()
-            if toolchain_output:
-                cur_result["output"] += toolchain_output
 
             add_result_to_report(report, cur_result)
 
@@ -1085,7 +1069,6 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
-            cur_result["output"] = notify.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -1097,10 +1080,6 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
             end = time()
             cur_result["result"] = "FAIL"
             cur_result["elapsed_time"] = end - start
-
-            toolchain_output = notify.get_output()
-            if toolchain_output:
-                cur_result["output"] += toolchain_output
 
             cur_result["output"] += str(exc)
 

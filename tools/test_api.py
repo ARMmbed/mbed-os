@@ -32,7 +32,7 @@ import ctypes
 import functools
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
-from copy import copy
+from copy import copy, deepcopy
 
 from time import sleep, time
 try:
@@ -75,6 +75,7 @@ from tools.utils import argparse_filestring_type
 from tools.utils import argparse_uppercase_type
 from tools.utils import argparse_lowercase_type
 from tools.utils import argparse_many
+from tools.notifier.mock import MockNotifier
 
 import tools.host_tests.host_tests_plugins as host_tests_plugins
 
@@ -2262,7 +2263,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'build_profile': build_profile,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,
-            'notify': notify
+            'notify': MockNotifier()
         }
 
         results.append(p.apply_async(build_test_worker, args, kwargs))
@@ -2285,9 +2286,15 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         worker_result = r.get()
                         results.remove(r)
 
+                        # Push all deferred notifications out to the actual notifier
+                        new_notify = deepcopy(notify)
+                        for message in worker_result['kwargs']['notify'].messages:
+                            new_notify.notify(message)
+
                         # Take report from the kwargs and merge it into existing report
                         if report:
                             report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                            report_entry[worker_result['kwargs']['project_id'].upper()][0][0]['output'] = new_notify.get_output()
                             for test_key in report_entry.keys():
                                 report[target_name][toolchain_name][test_key] = report_entry[test_key]
 
@@ -2297,6 +2304,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             not isinstance(worker_result['reason'], NotSupportedException)):
                             result = False
                             break
+
 
                         # Adding binary path to test build result
                         if ('result' in worker_result and
@@ -2313,8 +2321,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             }
 
                             test_key = worker_result['kwargs']['project_id'].upper()
-                            if report:
-                                print(report[target_name][toolchain_name][test_key][0][0]['output'].rstrip())
                             print('Image: %s\n' % bin_file)
 
                     except:
