@@ -5,7 +5,8 @@
     Good example: https://os.mbed.com/docs/latest/reference/workflow.html
     Things to consider sharing:
     - What target does this relate to?
-    - What toolchain are you using?
+    - What toolchain (name + version) are you using?
+    - What tools (name + version - is it mbed-cli, online compiler or IDE) are you using?
     - What is the SHA of Mbed OS (git log -n1 --oneline)?
     - Steps to reproduce. (Did you publish code or a test case that exhibits the problem?)
 -->
