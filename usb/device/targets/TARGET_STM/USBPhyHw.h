@@ -88,13 +88,9 @@ public:
     bool sof_enabled;
 
     uint8_t epComplete[2 * NB_ENDPOINT];
-    uint32_t pBufRx[MAXTRANSFER_SIZE >> 2];
-    uint32_t pBufRx0[MAX_PACKET_SIZE_EP0 >> 2];
     PCD_HandleTypeDef hpcd;
 
 private:
-    uint32_t _read_size[16];
-    uint8_t *_read_buf[16];
 
     static void _usbisr(void);
 };
