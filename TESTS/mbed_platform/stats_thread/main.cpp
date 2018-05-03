@@ -22,7 +22,7 @@
 #include "mbed.h"
 
 #if !defined(MBED_THREAD_STATS_ENABLED)
-#warning [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -54,16 +54,15 @@ void test_case_single_thread_stats()
 {
     mbed_stats_thread_t *stats = new mbed_stats_thread_t[MAX_THREAD_STATS];
     int old_count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
-
     Thread t1(osPriorityNormal, TEST_STACK_SIZE, NULL, "Th1");
     t1.start(increment_with_delay);
 
     // Read stats
     int count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
-    TEST_ASSERT_EQUAL(1, (count-old_count));
+    TEST_ASSERT_EQUAL(1, (count - old_count));
 
-    for(int i = 0; i < count; i++) {
-        if(0 == strcmp(stats[i].name, "Th1")) {
+    for (int i = 0; i < count; i++) {
+        if (0 == strcmp(stats[i].name, "Th1")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal, stats[i].priority);
             break;
@@ -96,13 +95,13 @@ void test_case_multi_threads_blocked()
     // Read stats
 
     int count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
-    TEST_ASSERT_EQUAL(2, (count-old_count));
-    for(int i = 0; i < count; i++) {
-        if(0 == strcmp(stats[i].name, "Th2")) {
+    TEST_ASSERT_EQUAL(2, (count - old_count));
+    for (int i = 0; i < count; i++) {
+        if (0 == strcmp(stats[i].name, "Th2")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal1, stats[i].priority);
             TEST_ASSERT_EQUAL(osThreadBlocked, stats[i].state);
-        } else if(0 == strcmp (stats[i].name, "Th1")) {
+        } else if (0 == strcmp (stats[i].name, "Th1")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal, stats[i].priority);
         }
@@ -115,7 +114,7 @@ void test_case_multi_threads_blocked()
     Thread::wait(100);
 
     count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
-    TEST_ASSERT_EQUAL(1, (count-old_count));
+    TEST_ASSERT_EQUAL(1, (count - old_count));
 
     t1.terminate();
     delete[] stats;
@@ -134,13 +133,13 @@ void test_case_multi_threads_terminate()
     // Read stats
 
     int count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
-    TEST_ASSERT_EQUAL(2, (count-old_count));
+    TEST_ASSERT_EQUAL(2, (count - old_count));
 
-    for(int i = 0; i < count; i++) {
-        if(0 == strcmp(stats[i].name, "Th2")) {
+    for (int i = 0; i < count; i++) {
+        if (0 == strcmp(stats[i].name, "Th2")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal2, stats[i].priority);
-        } else if(0 == strcmp(stats[i].name, "Th1")) {
+        } else if (0 == strcmp(stats[i].name, "Th1")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal1, stats[i].priority);
             TEST_ASSERT_EQUAL(osThreadBlocked, stats[i].state);

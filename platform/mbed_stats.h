@@ -48,19 +48,6 @@ typedef struct {
 } mbed_stats_heap_t;
 
 /**
- * struct mbed_stats_thread_t definition
- */
-
-typedef struct {
-    uint32_t id;                /**< Thread Object Identifier */
-    uint32_t state;             /**< Thread Object State */
-    uint32_t priority;          /**< Thread Priority */
-    uint32_t stack_size;        /**< Thread Stack Size */
-    uint32_t stack_space;       /**< Thread remaining stack size */
-    const char   *name;         /**< Thread Object name */
-} mbed_stats_thread_t;
-
-/**
  *  Fill the passed in heap stat structure with heap stats.
  *
  *  @param stats    A pointer to the mbed_stats_heap_t structure to fill
@@ -94,6 +81,19 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats);
  *                  this is equal to the number of stacks on the system.
  */
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
+
+/**
+ * struct mbed_stats_thread_t definition
+ */
+
+typedef struct {
+    uint32_t id;                /**< Thread Object Identifier */
+    uint32_t state;             /**< Thread Object State */
+    uint32_t priority;          /**< Thread Priority */
+    uint32_t stack_size;        /**< Thread Stack Size */
+    uint32_t stack_space;       /**< Thread remaining stack size */
+    const char   *name;         /**< Thread Object name */
+} mbed_stats_thread_t;
 
 /**
  *  Fill the passed array of stat structures with the thread stats for each available thread.
