@@ -1099,7 +1099,8 @@
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F411RE"
+        "device_name": "STM32F411RE",
+        "bootloader_supported": true
     },
     "NUCLEO_F412ZG": {
         "inherits": ["FAMILY_STM32"],
