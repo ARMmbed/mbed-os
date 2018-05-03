@@ -171,7 +171,6 @@ if __name__ == '__main__':
         else:
             tests = all_tests
 
-        notify = TerminalNotifier(options.verbose)
 
         if options.list:
             # Print available tests in order and exit
@@ -195,6 +194,7 @@ if __name__ == '__main__':
             profile = extract_profile(parser, options, toolchain)
             try:
                 # Build sources
+                notify = TerminalNotifier(options.verbose)
                 build_library(base_source_paths, options.build_dir, mcu,
                               toolchain, jobs=options.jobs,
                               clean=options.clean, report=build_report,
@@ -219,6 +219,7 @@ if __name__ == '__main__':
                 print("Failed to build library")
             else:
                 # Build all the tests
+                notify = TerminalNotifier(options.verbose)
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         clean=options.clean,
                         report=build_report,
