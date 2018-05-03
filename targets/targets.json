@@ -706,7 +706,7 @@
     "FAMILY_STM32": {
         "inherits": ["Target"],
         "public": false,
-        "extra_labels": ["STM"],
+        "extra_labels": ["STM", "MBEDOS_MBEDTLS", "MBED_CLIENT_MBED_TLS"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "config": {
