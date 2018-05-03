@@ -40,7 +40,6 @@ void LoRaMacChannelPlan::activate_channelplan_subsystem(LoRaPHY *phy)
 
 lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
 {
-    channel_params_t mac_layer_ch_params;
     lorawan_status_t status;
 
     uint8_t max_num_channels;
@@ -57,16 +56,7 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
     }
 
     for (uint8_t i = 0; i < plan.nb_channels; i++) {
-
-        mac_layer_ch_params.band = plan.channels[i].ch_param.band;
-
-        mac_layer_ch_params.dr_range.fields.max = plan.channels[i].ch_param.dr_range.fields.max;
-        mac_layer_ch_params.dr_range.fields.min = plan.channels[i].ch_param.dr_range.fields.min;
-        mac_layer_ch_params.dr_range.value = plan.channels[i].ch_param.dr_range.value;
-        mac_layer_ch_params.frequency = plan.channels[i].ch_param.frequency;
-        mac_layer_ch_params.rx1_frequency = plan.channels[i].ch_param.rx1_frequency;
-
-        status = _lora_phy->add_channel(&mac_layer_ch_params, plan.channels[i].id);
+        status = _lora_phy->add_channel(&plan.channels[i].ch_param, plan.channels[i].id);
 
         if (status != LORAWAN_STATUS_OK) {
             return status;
