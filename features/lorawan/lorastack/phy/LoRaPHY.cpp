@@ -307,7 +307,7 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
     return next_tx_delay;
 }
 
-uint8_t LoRaPHY::parse_link_ADR_req(uint8_t* payload, link_adr_params_t* params)
+uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t* payload, link_adr_params_t* params)
 {
     uint8_t ret_index = 0;
 
