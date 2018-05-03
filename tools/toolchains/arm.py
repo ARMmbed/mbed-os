@@ -71,7 +71,7 @@ class ARM(mbedToolchain):
 
         ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
         ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
-        
+
         main_cc = join(ARM_BIN, "armcc")
 
         self.flags['common'] += ["--cpu=%s" % cpu]
@@ -135,17 +135,18 @@ class ARM(mbedToolchain):
     def get_config_option(self, config_header):
         return ['--preinclude=' + config_header]
 
-    def get_compile_options(self, defines, includes, for_asm=False):        
+    def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
+        if for_asm:
+            return opts
         if self.RESPONSE_FILES:
             opts += ['--via', self.get_inc_file(includes)]
         else:
             opts += ["-I%s" % i for i in includes]
 
-        if not for_asm:
-            config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -154,9 +155,12 @@ class ARM(mbedToolchain):
         dir = join(dirname(object), '.temp')
         mkdir(dir)
         tempfile = join(dir, basename(object) + '.E.s')
-        
+
         # Build preprocess assemble command
-        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-E", "-o", tempfile, source]
+        cmd_pre = copy(self.asm)
+        cmd_pre.extend(self.get_compile_options(
+            self.get_symbols(True), includes, True))
+        cmd_pre.extend(["-E", "-o", tempfile, source])
 
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]
@@ -164,7 +168,7 @@ class ARM(mbedToolchain):
         # Call cmdline hook
         cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
         cmd = self.hook.get_cmdline_assembler(cmd)
-       
+
         # Return command array, don't execute
         return [cmd_pre, cmd]
 
@@ -172,9 +176,9 @@ class ARM(mbedToolchain):
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
-        
+
         cmd.extend(self.get_dep_option(object))
-            
+
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook

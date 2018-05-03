@@ -22,7 +22,7 @@
  * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
  */
 
-#include "memory_zones.h"
+#include "../memory_zones.h"
 
 __initial_sp    EQU     ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE ; Top of ZBT SSRAM2 and 3, used for data
 
