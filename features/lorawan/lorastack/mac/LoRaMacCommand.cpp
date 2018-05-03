@@ -150,7 +150,7 @@ bool LoRaMacCommand::has_sticky_mac_cmd() const
     return sticky_mac_cmd;
 }
 
-lorawan_status_t LoRaMacCommand::process_mac_commands(uint8_t *payload, uint8_t mac_index,
+lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                                       uint8_t commands_size, uint8_t snr,
                                                       loramac_mlme_confirm_t& mlme_conf,
                                                       lora_mac_system_params_t &mac_sys_params,
