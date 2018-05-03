@@ -432,7 +432,7 @@ private:
     void rewind_buffer();
     // Reads from serial to receiving buffer.
     // Returns true on successful read OR false on timeout.
-    bool fill_buffer();
+    bool fill_buffer(bool wait_for_timeout = true);
 
     void set_tag(tag_t* tag_dest, const char *tag_seq);
 

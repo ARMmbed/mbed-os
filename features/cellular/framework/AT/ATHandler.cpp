@@ -17,6 +17,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <limits.h>
 #include "ATHandler.h"
 #include "mbed_poll.h"
 #include "FileHandle.h"
@@ -101,7 +102,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
             memcpy(_output_delimiter, output_delimiter, strlen(output_delimiter) + 1);
         }
     } else {
-         _output_delimiter = NULL;
+        _output_delimiter = NULL;
     }
 
     reset_buffer();
@@ -290,8 +291,7 @@ void ATHandler::process_oob()
                     break; // we have nothing to read anymore
                 }
                 _start_time = rtos::Kernel::get_ms_count(); // time to process next (potential) URC
-            } else if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) {
-                // If no match found, look for CRLF and consume everything up to CRLF
+            } else if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) { // If no match found, look for CRLF and consume everything up to CRLF
                 consume_to_tag(CRLF, true);
             } else {
                 if (!fill_buffer()) {
@@ -335,7 +335,7 @@ void ATHandler::rewind_buffer()
     }
 }
 
-bool ATHandler::fill_buffer()
+bool ATHandler::fill_buffer(bool wait_for_timeout)
 {
     tr_debug("%s", __func__);
     // Reset buffer when full
@@ -343,22 +343,35 @@ bool ATHandler::fill_buffer()
         reset_buffer();
     }
 
-    int timeout = (_start_time + _at_timeout) - rtos::Kernel::get_ms_count();
-    if (timeout >= 0) {
-        pollfh fhs;
-        fhs.fh = _fileHandle;
-        fhs.events = POLLIN;
-        int count = poll(&fhs, 1, timeout);
-        if (count > 0 && (fhs.revents & POLLIN)) {
-            ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
-            if (len > 0) {
-                _recv_len += len;
-                return true;
-            }
+    int timeout;
+    if (wait_for_timeout) {
+        uint64_t now = rtos::Kernel::get_ms_count();
+        if (now >= _start_time + _at_timeout) {
+            timeout = 0;
+        } else if ( _start_time + _at_timeout - now > INT_MAX) {
+            timeout = INT_MAX;
+        } else {
+            timeout = _start_time + _at_timeout - now;
+        }
+    } else {
+        timeout = 0;
+    }
+
+    pollfh fhs;
+    fhs.fh = _fileHandle;
+    fhs.events = POLLIN;
+    int count = poll(&fhs, 1, timeout);
+    if (count > 0 && (fhs.revents & POLLIN)) {
+        ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
+        if (len > 0) {
+            _recv_len += len;
+            return true;
         }
     }
 
-    set_error(NSAPI_ERROR_DEVICE_ERROR);
+    if (wait_for_timeout) {
+        set_error(NSAPI_ERROR_DEVICE_ERROR);
+    }
 
     return false;
 }
@@ -501,7 +514,7 @@ ssize_t ATHandler::read(char *buf, size_t size, bool read_even_stop_tag, bool he
         }
 
         if (!hex) {
-           buf[buf_idx] = c;
+            buf[buf_idx] = c;
         } else {
             hexbuf[read_idx % 2] = c;
             if (read_idx % 2 == 1) {
@@ -527,9 +540,9 @@ int32_t ATHandler::read_int()
 {
     tr_debug("%s", __func__);
 
-     if (_last_err || !_stop_tag || _stop_tag->found) {
-         return -1;
-     }
+    if (_last_err || !_stop_tag || _stop_tag->found) {
+        return -1;
+    }
 
     char buff[BUFF_SIZE];
     char *first_no_digit;
@@ -578,24 +591,24 @@ void ATHandler::set_scope(ScopeType scope_type)
     if (_current_scope != scope_type) {
         _current_scope = scope_type;
         switch (_current_scope) {
-        case RespType:
-            _stop_tag = &_resp_stop;
-            _stop_tag->found = false;
-            break;
-        case InfoType:
-            _stop_tag = &_info_stop;
-            _stop_tag->found = false;
-            consume_char(' ');
-            break;
-        case ElemType:
-            _stop_tag = &_elem_stop;
-            _stop_tag->found = false;
-            break;
-        case NotSet:
-            _stop_tag = NULL;
-            return;
-        default:
-            break;
+            case RespType:
+                _stop_tag = &_resp_stop;
+                _stop_tag->found = false;
+                break;
+            case InfoType:
+                _stop_tag = &_info_stop;
+                _stop_tag->found = false;
+                consume_char(' ');
+                break;
+            case ElemType:
+                _stop_tag = &_elem_stop;
+                _stop_tag->found = false;
+                break;
+            case NotSet:
+                _stop_tag = NULL;
+                return;
+            default:
+                break;
         }
     }
 }
@@ -800,17 +813,11 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 
     // Try get as much data as possible
     rewind_buffer();
-    if (!fill_buffer()) {
-        tr_error("fill failed %s", prefix);
-        return;
-    }
+    (void)fill_buffer(false);
 
     if (prefix) {
-        if ((strlen(prefix) < sizeof(_info_resp_prefix))) {
-            strcpy(_info_resp_prefix, prefix);
-        } else {
-            MBED_ASSERT(0);
-        }
+        MBED_ASSERT(strlen(prefix) < BUFF_SIZE);
+        strcpy(_info_resp_prefix, prefix); // copy prefix so we can later use it without having to provide again for info_resp
     }
 
     set_scope(RespType);
@@ -832,7 +839,7 @@ bool ATHandler::info_resp()
 
     if (_prefix_matched) {
         _prefix_matched = false;
-       return true;
+        return true;
     }
 
     // If coming here after another info response was started(looping), stop the previous one.
@@ -844,9 +851,9 @@ bool ATHandler::info_resp()
     resp(_info_resp_prefix, false);
 
     if (_prefix_matched) {
-       set_scope(InfoType);
-       _prefix_matched = false;
-       return true;
+        set_scope(InfoType);
+        _prefix_matched = false;
+        return true;
     }
 
     // On mismatch go to response scope
@@ -1011,7 +1018,7 @@ void ATHandler::cmd_start(const char* cmd)
 
     if (_at_send_delay) {
         rtos::Thread::wait_until(_last_response_stop + _at_send_delay);
-    } 
+    }
 
     at_debug("AT cmd %s (err %d)\n", cmd, _last_err);
 
@@ -1068,14 +1075,14 @@ void ATHandler::cmd_stop()
     if (_last_err != NSAPI_ERROR_OK) {
         return;
     }
-     // Finish with CR
+    // Finish with CR
     (void)write(_output_delimiter, strlen(_output_delimiter));
 }
 
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     at_debug("AT write bytes %d (err %d)\n", len, _last_err);
-    
+
     if (_last_err != NSAPI_ERROR_OK) {
         return 0;
     }
@@ -1133,9 +1140,8 @@ bool ATHandler::check_cmd_send()
 
 void ATHandler::flush()
 {
-    while (_fileHandle->readable()) {
-        reset_buffer();
-        (void) fill_buffer();
-    }
     reset_buffer();
+    while (fill_buffer(false)) {
+        reset_buffer();
+    }
 }
