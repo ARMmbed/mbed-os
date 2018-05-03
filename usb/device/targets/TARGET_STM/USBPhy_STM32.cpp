@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/* This target doesn't support USB */
+#if !defined(DEVICE_USBDEVICE) || !DEVICE_USBDEVICE
+#define USBSTM_HAL_UNSUPPORTED
+#endif
+
 /* TARGET NOT STM does not support this HAL */
 #ifndef TARGET_STM
 #define USBSTM_HAL_UNSUPPORTED
