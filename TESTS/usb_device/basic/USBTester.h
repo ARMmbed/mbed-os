@@ -22,6 +22,7 @@
 #include "USBDescriptor.h"
 #include "USBDevice_Types.h"
 #include "EventQueue.h"
+#include "EventFlags.h"
 
 #include "USBDevice.h"
 
@@ -34,9 +35,8 @@ public:
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
     * @param product_release Your product_release
-    * @param connect_blocking define if the connection must be blocked if USB not plugged in
     */
-    USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release, bool connect_blocking);
+    USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     ~USBTester();
 
@@ -107,6 +107,7 @@ protected:
     uint8_t int_out;
     uint8_t int_buf[64];
     EventQueue *queue;
+    rtos::EventFlags flags;
     volatile uint32_t reset_count;
     volatile uint32_t suspend_count;
     volatile uint32_t resume_count;
