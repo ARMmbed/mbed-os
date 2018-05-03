@@ -248,8 +248,11 @@ LoRaPHYKR920::LoRaPHYKR920(LoRaWANTimeHandler &lora_time)
 
     // Channels
     channels[0] = KR920_LC1;
+    channels[0].band = 0;
     channels[1] = KR920_LC2;
+    channels[1].band = 0;
     channels[2] = KR920_LC3;
+    channels[2].band = 0;
 
     // Initialize the channels default mask
     default_channel_mask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
