@@ -430,6 +430,9 @@ private:
     void reset_buffer();
     // Reading position set to 0 and buffer's unread content moved to beginning
     void rewind_buffer();
+    // Calculate remaining time for polling based on request start time and AT timeout.
+    // Returns 0 or time in ms for polling.
+    int poll_timeout(bool wait_for_timeout = true);
     // Reads from serial to receiving buffer.
     // Returns true on successful read OR false on timeout.
     bool fill_buffer(bool wait_for_timeout = true);

@@ -335,14 +335,8 @@ void ATHandler::rewind_buffer()
     }
 }
 
-bool ATHandler::fill_buffer(bool wait_for_timeout)
+int ATHandler::poll_timeout(bool wait_for_timeout)
 {
-    tr_debug("%s", __func__);
-    // Reset buffer when full
-    if (sizeof(_recv_buff) == _recv_len) {
-        reset_buffer();
-    }
-
     int timeout;
     if (wait_for_timeout) {
         uint64_t now = rtos::Kernel::get_ms_count();
@@ -356,11 +350,22 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     } else {
         timeout = 0;
     }
+    return timeout;
+}
+
+bool ATHandler::fill_buffer(bool wait_for_timeout)
+{
+    tr_debug("%s", __func__);
+    // Reset buffer when full
+    if (sizeof(_recv_buff) == _recv_len) {
+        reset_buffer();
+    }
 
     pollfh fhs;
     fhs.fh = _fileHandle;
     fhs.events = POLLIN;
-    int count = poll(&fhs, 1, timeout);
+    int timeout = 0;
+    int count = poll(&fhs, 1, poll_timeout(wait_for_timeout));
     if (count > 0 && (fhs.revents & POLLIN)) {
         ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
         if (len > 0) {
@@ -1097,12 +1102,7 @@ size_t ATHandler::write(const void *data, size_t len)
     fhs.events = POLLOUT;
     size_t write_len = 0;
     for (; write_len < len; ) {
-        int timeout = (_start_time + _at_timeout) - rtos::Kernel::get_ms_count();
-        if (timeout < 0) {
-            set_error(NSAPI_ERROR_DEVICE_ERROR);
-            return 0;
-        }
-        int count = poll(&fhs, 1, timeout);
+        int count = poll(&fhs, 1, poll_timeout());
         if (count <= 0 || !(fhs.revents & POLLOUT)) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
             return 0;
