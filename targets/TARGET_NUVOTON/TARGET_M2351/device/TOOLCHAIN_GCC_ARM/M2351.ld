@@ -2,7 +2,11 @@
  * Nuvoton M2351 GCC linker script file
  */
 
+#if defined(__DOMAIN_NS) && __DOMAIN_NS
 StackSize = 0x800;
+#else
+StackSize = 0x800;
+#endif
 
 #include "partition_M2351_sub.h"
 
