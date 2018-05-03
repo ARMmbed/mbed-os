@@ -51,7 +51,7 @@ void control_basic_test()
     char str[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         sprintf (str, "%s %d %d", serial.get_serial_desc_string(), vendor_id, product_id);
         greentea_send_kv("control_basic_test", str);
         // Wait for host before terminating
@@ -69,7 +69,7 @@ void control_stall_test()
     char _value[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         greentea_send_kv("control_stall_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -86,7 +86,7 @@ void control_sizes_test()
     char _value[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         greentea_send_kv("control_sizes_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -103,7 +103,7 @@ void control_stress_test()
     char _value[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         greentea_send_kv("control_stress_test", serial.get_serial_desc_string());
         // Wait for host before terminating
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
@@ -123,7 +123,7 @@ void device_reset_test()
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
     if (strcmp(_value, "false") != 0) {
 
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         serial.clear_reset_count();
         greentea_send_kv("device_reset_test", serial.get_serial_desc_string());
         while(serial.get_reset_count() == 0);
@@ -169,7 +169,7 @@ void device_soft_reconnection_test()
     const uint32_t reconnect_try_count = 3;
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
 
         greentea_send_kv("device_soft_reconnection_test", serial.get_serial_desc_string());
         // Wait for host before terminating
@@ -211,7 +211,7 @@ void device_suspend_resume_test()
     char _value[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         greentea_send_kv("device_suspend_resume_test", serial.get_serial_desc_string());
         printf("[1] suspend_count: %d  resume_count: %d\n", serial.get_suspend_count(), serial.get_resume_count());
         serial.clear_suspend_count();
@@ -234,35 +234,25 @@ void repeated_construction_destruction_test()
     char _value[128] = {};
 
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         TEST_ASSERT_EQUAL(true, serial.configured());
     }
 
     wait_us(MIN_DISCONNECT_TIME_US);
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         TEST_ASSERT_EQUAL(true, serial.configured());
     }
 
     wait_us(MIN_DISCONNECT_TIME_US);
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         TEST_ASSERT_EQUAL(true, serial.configured());
     }
 
     wait_us(MIN_DISCONNECT_TIME_US);
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
-        TEST_ASSERT_EQUAL(true, serial.configured());
-        greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
-        // Wait for host before terminating
-        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-        TEST_ASSERT_EQUAL_STRING("pass", _key);
-    }
-
-    wait_us(MIN_DISCONNECT_TIME_US);
-    {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         TEST_ASSERT_EQUAL(true, serial.configured());
         greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
         // Wait for host before terminating
@@ -272,7 +262,17 @@ void repeated_construction_destruction_test()
 
     wait_us(MIN_DISCONNECT_TIME_US);
     {
-        USBTester serial(get_phy(), vendor_id, product_id, product_release, true);
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
+        TEST_ASSERT_EQUAL(true, serial.configured());
+        greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
+        // Wait for host before terminating
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+
+    wait_us(MIN_DISCONNECT_TIME_US);
+    {
+        USBTester serial(get_phy(), vendor_id, product_id, product_release);
         TEST_ASSERT_EQUAL(true, serial.configured());
         greentea_send_kv("repeated_construction_destruction_test", serial.get_serial_desc_string());
         // Wait for host before terminating
