@@ -55,7 +55,7 @@ extern "C" {
  *  @param s number of seconds to wait
  * 
  *  @note
- *    This function always spins to get the exact number of microseconds, 
+ *    If the RTOS is present, this function always spins to get the exact number of microseconds, 
  *    which potentially affects power (such as preventing deep sleep) and multithread performance. 
  *    You can avoid it by using Thread::wait().
  */
@@ -66,7 +66,7 @@ void wait(float s);
  *  @param ms the whole number of milliseconds to wait
  * 
  *  @note
- *    This function always spins to get the exact number of microseconds, 
+ *    If the RTOS is present, this function always spins to get the exact number of microseconds, 
  *    which potentially affects power (such as preventing deep sleep) and multithread performance. 
  *    You can avoid it by using Thread::wait().
  */
@@ -77,7 +77,7 @@ void wait_ms(int ms);
  *  @param us the whole number of microseconds to wait
  * 
  *  @note
- *    This function always spins to get the exact number of microseconds, 
+ *    If the RTOS is present, this function always spins to get the exact number of microseconds, 
  *    which potentially affects power (such as preventing deep sleep) and multithread performance.
  */
 void wait_us(int us);
