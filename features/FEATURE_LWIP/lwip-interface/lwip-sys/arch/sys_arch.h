@@ -85,7 +85,7 @@ typedef sys_thread_data_t* sys_thread_t;
 // === PROTECTION ===
 typedef int sys_prot_t;
 
-bool sys_tcpip_thread_set(void);
+void sys_tcpip_thread_set(void);
 bool sys_tcpip_thread_check(void);
 
 #else

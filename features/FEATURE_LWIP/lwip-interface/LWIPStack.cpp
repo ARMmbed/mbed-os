@@ -207,11 +207,6 @@ void LWIP::tcpip_thread_callback(void *ptr)
     }
 }
 
-nsapi_error_t LWIP::call(mbed::Callback<void()> func)
-{
-    return call_in(0, func);
-}
-
 nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
 {
     lwip_callback *cb = new lwip_callback;
@@ -227,6 +222,12 @@ nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
     }
 
     return NSAPI_ERROR_OK;
+}
+
+LWIP::call_in_callback_cb_t LWIP::get_call_in_callback()
+{
+    call_in_callback_cb_t cb(this, &LWIP::call_in);
+    return cb;
 }
 
 const char *LWIP::get_ip_address()

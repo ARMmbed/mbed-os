@@ -20,6 +20,8 @@
 #include "netsocket/nsapi_types.h"
 #include "netsocket/SocketAddress.h"
 #include "Callback.h"
+#include "DNS.h"
+
 
 // Predeclared classes
 class NetworkStack;
@@ -34,7 +36,7 @@ class EMACInterface;
  *  Common interface that is shared between network devices
  *  @addtogroup netsocket
  */
-class NetworkInterface {
+class NetworkInterface: public DNS {
 public:
 
 
@@ -118,8 +120,8 @@ public:
      *  If no stack-specific DNS resolution is provided, the hostname
      *  will be resolve using a UDP socket on the stack.
      *
-     *  @param address  Destination for the host SocketAddress
      *  @param host     Hostname to resolve
+     *  @param address  Destination for the host SocketAddress
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
      *  @return         0 on success, negative error code on failure
@@ -129,14 +131,18 @@ public:
 
     /** Hostname translation callback (asynchronous)
      *
-     *  Callback will be called after DNS resolution completes or a failure
-     *  occurs.
+     *  Callback will be called after DNS resolution completes or a failure occurs.
+     *
+     *  Callback should not take more than 10ms to execute, otherwise it might
+     *  prevent underlying thread processing. A portable user of the callback
+     *  should not make calls to network operations due to stack size limitations.
+     *  The callback should not perform expensive operations such as socket recv/send
+     *  calls or blocking operations.
      *
      *  @param status  0 on success, negative error code on failure
      *  @param address On success, destination for the host SocketAddress
-     *  @param data    Caller defined data
      */
-    typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address, void *data)> hostbyname_cb_t;
+    typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address)> hostbyname_cb_t;
 
     /** Translates a hostname to an IP address (asynchronous)
      *
@@ -147,17 +153,29 @@ public:
      *  will be resolve using a UDP socket on the stack.
      *
      *  Call is non-blocking. Result of the DNS operation is returned by the callback.
-     *  If this function returns failure, callback will not be called.
+     *  If this function returns failure, callback will not be called. In case result
+     *  is success (IP address was found from DNS cache), callback will be called
+     *  before function returns.
      *
      *  @param host     Hostname to resolve
      *  @param callback Callback that is called for result
-     *  @param data     Caller defined data returned in callback
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
+     *  @return         0 on success, negative error code on failure or an unique id that
+     *                  represents the hostname translation operation and can be passed to
+     *                  cancel
+     */
+    virtual nsapi_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
+            nsapi_version_t version = NSAPI_UNSPEC);
+
+    /** Cancels asynchronous hostname translation
+     *
+     *  When translation is cancelled, callback will not be called.
+     *
+     *  @param id       Unique id of the hostname translation operation
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback, void *data,
-            nsapi_version_t version = NSAPI_UNSPEC);
+    virtual nsapi_error_t gethostbyname_async_cancel(nsapi_error_t id);
 
     /** Add a domain name server to list of servers to query
      *
