@@ -461,11 +461,6 @@ void Nanostack::call_event_tasklet_main(arm_event_s *event)
     }
 }
 
-nsapi_error_t Nanostack::call(mbed::Callback<void()> func)
-{
-    return call_in(0, func);
-}
-
 nsapi_error_t Nanostack::call_in(int delay, mbed::Callback<void()> func)
 {
     if (call_event_tasklet < 0) {
@@ -494,15 +489,23 @@ nsapi_error_t Nanostack::call_in(int delay, mbed::Callback<void()> func)
     if (delay) {
         uint32_t ticks = eventOS_event_timer_ms_to_ticks(delay);
         if (!eventOS_event_send_in(&event, ticks)) {
+            delete cb;
             return NSAPI_ERROR_NO_MEMORY;
         }
     } else {
         if (eventOS_event_send(&event) < 0) {
+            delete cb;
             return NSAPI_ERROR_NO_MEMORY;
         }
     }
 
     return NSAPI_ERROR_OK;
+}
+
+Nanostack::call_in_callback_cb_t Nanostack::get_call_in_callback()
+{
+    call_in_callback_cb_t cb(this, &Nanostack::call_in);
+    return cb;
 }
 
 const char * Nanostack::get_ip_address()

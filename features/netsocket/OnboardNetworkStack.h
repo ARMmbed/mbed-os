@@ -39,8 +39,6 @@ public:
      */
     static OnboardNetworkStack &get_default_instance();
 
-    virtual OnboardNetworkStack *onboardNetworkStack() { return this; }
-
     /** Representation of a stack's view of an interface.
      *
      * Provides facilities required by a driver to implement the application
@@ -122,27 +120,6 @@ public:
          */
         virtual char *get_gateway(char *buf, nsapi_size_t buflen) = 0;
     };
-
-    /** Call a callback
-     *
-     *  Call a callback from the network stack context. If returns error
-     *  callback will not be called.
-     *
-     *  @param func     Callback to be called
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t call(mbed::Callback<void()> func) = 0;
-
-    /** Call a callback after a delay
-     *
-     *  Call a callback from the network stack context after a delay. If
-     *  returns error callback will not be called.
-     *
-     *  @param delay    Delay in milliseconds
-     *  @param func     Callback to be called
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t call_in(int delay, mbed::Callback<void()> func) = 0;
 
     /** Register a network interface with the IP stack
      *

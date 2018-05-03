@@ -1892,6 +1892,7 @@ lwip_netconn_do_join_leave_group(void *m)
 #endif /* LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD) */
 
 #if LWIP_DNS
+#if LWIP_FULL_DNS
 /**
  * Callback function that is called when DNS name is resolved
  * (or on timeout). A waiting application thread is waked up by
@@ -1943,5 +1944,6 @@ lwip_netconn_do_gethostbyname(void *arg)
   }
 }
 #endif /* LWIP_DNS */
+#endif /* LWIP_FULL_DNS */
 
 #endif /* LWIP_NETCONN */

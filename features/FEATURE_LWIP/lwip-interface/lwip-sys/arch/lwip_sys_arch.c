@@ -482,20 +482,14 @@ void sys_msleep(u32_t ms) {
 
 osThreadId_t lwip_tcpip_thread_id = 0;
 
-bool sys_tcpip_thread_set(void)
+void sys_tcpip_thread_set(void)
 {
     lwip_tcpip_thread_id = osThreadGetId();
 }
 
 bool sys_tcpip_thread_check(void)
 {
-    osThreadId_t thread_id = osThreadGetId();
-
-    if (thread_id == lwip_tcpip_thread_id) {
-        return true;
-    } else {
-        return false;
-    }
+    return osThreadGetId() == lwip_tcpip_thread_id;
 }
 
 // Keep a pool of thread structures

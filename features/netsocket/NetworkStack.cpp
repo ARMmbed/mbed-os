@@ -49,7 +49,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return nsapi_dns_query(this, name, address, version);
 }
 
-nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, void *data, nsapi_version_t version)
+nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
 {
     SocketAddress address;
 
@@ -59,6 +59,7 @@ nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_
             return NSAPI_ERROR_DNS_FAILURE;
         }
 
+        callback(NSAPI_ERROR_OK, &address);
         return NSAPI_ERROR_OK;
     }
 
@@ -71,7 +72,14 @@ nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_
         }
     }
 
-    return nsapi_dns_query_async(this, name, callback, data, version);
+    call_in_callback_cb_t call_in_cb = get_call_in_callback();
+
+    return nsapi_dns_query_async(this, name, callback, call_in_cb, version);
+}
+
+nsapi_error_t NetworkStack::gethostbyname_async_cancel(nsapi_error_t handle)
+{
+    return nsapi_dns_query_async_cancel(handle);
 }
 
 nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
@@ -102,6 +110,39 @@ nsapi_error_t NetworkStack::setsockopt(void *handle, int level, int optname, con
 nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
+{
+    events::EventQueue *event_queue = mbed::mbed_event_queue();
+    if (!event_queue) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    if (delay > 0) {
+        if (event_queue->call_in(delay, func) == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    } else {
+        if (event_queue->call(func) == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
+
+call_in_callback_cb_t NetworkStack::get_call_in_callback()
+{
+    events::EventQueue *event_queue = mbed::mbed_event_queue();
+    if (!event_queue) {
+        return NULL;
+    }
+
+    call_in_callback_cb_t cb(this, &NetworkStack::call_in);
+    return cb;
 }
 
 
