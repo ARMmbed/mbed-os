@@ -19,6 +19,7 @@
 #define LORAWANINTERFACE_H_
 
 #include "platform/Callback.h"
+#include "platform/ScopedLock.h"
 #include "LoRaWANStack.h"
 #include "LoRaRadio.h"
 #include "LoRaWANBase.h"
@@ -435,7 +436,13 @@ public:
      */
     virtual lorawan_status_t set_device_class(const device_class_t device_class);
 
+    void lock(void) { _lw_stack.lock(); }
+    void unlock(void) { _lw_stack.unlock(); }
+
+
 private:
+    typedef mbed::ScopedLock<LoRaWANInterface> Lock;
+
     LoRaWANStack _lw_stack;
 };
 

@@ -44,6 +44,7 @@
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
+#include "platform/ScopedLock.h"
 
 #include "lorastack/mac/LoRaMac.h"
 #include "system/LoRaWANTimer.h"
@@ -395,7 +396,11 @@ public:
      */
     lorawan_status_t set_device_class(const device_class_t& device_class);
 
+    void lock(void) { _loramac.lock(); }
+    void unlock(void) { _loramac.unlock(); }
+
 private:
+    typedef mbed::ScopedLock<LoRaWANStack> Lock;
     /**
      * Checks if the user provided port is valid or not
      */

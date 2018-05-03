@@ -51,7 +51,11 @@
 #include "LoRaMacChannelPlan.h"
 #include "LoRaMacCommand.h"
 #include "LoRaMacCrypto.h"
+#if MBED_CONF_RTOS_PRESENT
+#include "rtos/Mutex.h"
+#endif
 
+#include "platform/ScopedLock.h"
 
 class LoRaMac {
 
@@ -421,6 +425,24 @@ private:
      *Function executed on Resend Frame timer event.
      */
     void on_mac_state_check_timer_event(void);
+
+    /**
+     * These locks trample through to the upper layers and make
+     * the stack thread safe.
+     */
+#if MBED_CONF_RTOS_PRESENT
+    void lock(void) { osStatus status = _mutex.lock(); MBED_ASSERT(status == osOK); }
+    void unlock(void) { osStatus status = _mutex.unlock(); MBED_ASSERT(status == osOK); }
+#else
+    void lock(void) { }
+    void unlock(void) { }
+#endif
+
+private:
+    typedef mbed::ScopedLock<LoRaMac> Lock;
+#if MBED_CONF_RTOS_PRESENT
+    rtos::Mutex _mutex;
+#endif
 
     /**
      * Function executed on duty cycle delayed Tx  timer event
