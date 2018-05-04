@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -139,12 +140,25 @@ typedef enum {
     SPI_CS      = PA_4,
     PWM_OUT     = PB_0,
 
-    //USB pins
-    USB_NOE = PA_4,
+/**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
-    USB_NOE_ALT = PA_13,
-    USB_NOE_ALT2 = PA_15,
+    USB_NOE = PA_4,
+    USB_NOE_ALT0 = PA_13,
+    USB_NOE_ALT1 = PA_15,
+
+/**** No ETHERNET pins ***/
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC_IN = PF_0,
+    RCC_OSC_OUT = PF_1,
+
+/**** DEBUG pins ****/
+    SYS_SWCLK = PA_14,
+    SYS_SWDIO = PA_13,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP4 = PA_2,
+    SYS_WKUP6 = PB_5,
 
     // Not connected
     NC = (int)0xFFFFFFFF
