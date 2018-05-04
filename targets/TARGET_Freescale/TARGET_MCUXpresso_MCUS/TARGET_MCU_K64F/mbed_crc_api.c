@@ -12,7 +12,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config)
   if (config == NULL)
     return false;
 
-  if ((config->polynomial & 0x80008000) == 0)
+  if ((config->width != 32) || (config->width != 16))
     return false;
 
   return true;

@@ -203,6 +203,7 @@ public:
         if (_mode == HARDWARE) {
             crc_mbed_config_t config;
             config.polynomial  = polynomial;
+            config.width       = width;
             config.initial_xor = _initial_value;
             config.final_xor   = _final_xor;
             config.reflect_in  = _reflect_data;
@@ -440,6 +441,7 @@ private:
 #ifdef DEVICE_CRC
         crc_mbed_config_t config;
         config.polynomial  = polynomial;
+        config.width       = width;
         config.initial_xor = _initial_value;
         config.final_xor   = _final_xor;
         config.reflect_in  = _reflect_data;
