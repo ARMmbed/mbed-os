@@ -293,7 +293,8 @@ LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
     phy_params.accept_tx_param_setup_req = true;
     phy_params.fsk_supported = true;
     phy_params.cflist_supported = true;
-
+    phy_params.dl_channel_req_supported = true;
+    phy_params.custom_channelplans_supported = true;
     phy_params.default_channel_cnt = AS923_NUMB_DEFAULT_CHANNELS;
     phy_params.max_channel_cnt = AS923_MAX_NB_CHANNELS;
     phy_params.cflist_channel_cnt = AS923_NUMB_CHANNELS_CF_LIST;
