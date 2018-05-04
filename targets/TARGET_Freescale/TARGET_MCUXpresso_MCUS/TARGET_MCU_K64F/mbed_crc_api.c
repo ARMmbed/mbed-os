@@ -6,6 +6,7 @@
 #ifdef DEVICE_CRC
 
 static crc_bits_t width;
+static uint32_t final_xor;
 
 bool hal_crc_is_supported(const crc_mbed_config_t* config)
 {
@@ -24,13 +25,14 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
     return;
 
   width = ((config->polynomial & 0xFFFF0000U) != 0) ? kCrcBits32 : kCrcBits16;
+  final_xor = config->final_xor;
 
   crc_config_t platform_config;
   platform_config.polynomial         = config->polynomial;
   platform_config.seed               = config->initial_xor;
   platform_config.reflectIn          = config->reflect_in;
   platform_config.reflectOut         = config->reflect_out;
-  platform_config.complementChecksum = true;
+  platform_config.complementChecksum = (config->final_xor == 0xFFFFFFFFU);
   platform_config.crcBits            = width;
   platform_config.crcResult          = kCrcFinalChecksum;
 
@@ -50,6 +52,11 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 
 uint32_t hal_crc_get_result(void)
 {
+  if ((final_xor != 0x00000000U) && (final_xor != 0xFFFFFFFFU))
+  {
+    CRC_WriteData(CRC0, (uint8_t*)&final_xor, sizeof(final_xor));
+  }
+
   switch (width)
   {
     case kCrcBits16:
