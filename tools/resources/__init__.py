@@ -133,7 +133,8 @@ class LazyDict(object):
         self.eager = {}
 
 class Resources(object):
-    def __init__(self, base_path=None, collect_ignores=False):
+    def __init__(self, notify, base_path=None, collect_ignores=False):
+        self.notify = notify
         self.base_path = base_path
         self.collect_ignores = collect_ignores
 
@@ -421,6 +422,7 @@ class Resources(object):
         bottom-up mode the directories in dirnames are generated before dirpath
         itself is generated.
         """
+        self.notify.progress("scan", abspath(path))
         if base_path is None:
             base_path = path
         for root, dirs, files in walk(path, followlinks=True):
@@ -553,11 +555,9 @@ class Resources(object):
         inc_dirs - additional include directories which should be added to
                 the scanner resources
         """
-        print(src_paths)
         self.add_toolchain_labels(toolchain)
         for path in src_paths:
             if exists(path):
-                toolchain.progress("scan", abspath(path))
                 if exclude:
                     self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
                 else:
