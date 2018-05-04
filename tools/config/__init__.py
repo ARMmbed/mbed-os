@@ -29,6 +29,7 @@ from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
+from toml import TomlDecodeError
 
 from ..utils import (json_file_to_dict, intelhex_offset, integer,
                      NotSupportedException)
@@ -361,8 +362,8 @@ class Config(object):
 
     # Libraries and applications have different names for their configuration
     # files
-    __mbed_app_config_name = "mbed_app.json"
-    __mbed_lib_config_name = "mbed_lib.json"
+    __mbed_app_config_names = ("mbed_app.json", "mbed_app.toml")
+    __mbed_lib_config_names = ("mbed_lib.json", "mbed_lib.toml")
 
     __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
                               "target.mbed_app_start", "target.mbed_app_size"])
@@ -378,14 +379,14 @@ class Config(object):
     def find_app_config(cls, top_level_dirs):
         app_config_location = None
         for directory in top_level_dirs:
-            full_path = os.path.join(directory, cls.__mbed_app_config_name)
-            if os.path.isfile(full_path):
-                if app_config_location is not None:
-                    raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
-                                            % (cls.__mbed_app_config_name,
-                                               cls.app_config_location, full_path))
-                else:
-                    app_config_location = full_path
+            for app_name in cls.__mbed_app_config_names:
+                full_path = os.path.join(directory, app_name)
+                if os.path.isfile(full_path):
+                    if app_config_location is not None:
+                        raise ConfigException("Duplicate mbed_app file in '%s' and '%s'"
+                                                % (cls.app_config_location, full_path))
+                    else:
+                        app_config_location = full_path
         return app_config_location
 
     def format_validation_error(self, error, path):
@@ -479,7 +480,8 @@ class Config(object):
         flist - a list of files to add to this configuration
         """
         for config_file in flist:
-            if not config_file.endswith(self.__mbed_lib_config_name):
+            print(config_file)
+            if not config_file.endswith(self.__mbed_lib_config_names):
                 continue
             full_path = os.path.normpath(os.path.abspath(config_file))
             # Check that we didn't already process this file
@@ -490,6 +492,8 @@ class Config(object):
             # attribute to it
             try:
                 cfg = json_file_to_dict(config_file)
+            except TomlDecodeError as exc:
+                raise ConfigException(str(exc))
             except ValueError as exc:
                 raise ConfigException(str(exc))
 

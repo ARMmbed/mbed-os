@@ -783,7 +783,7 @@ class mbedToolchain:
         elif ext == '.bin':
             resources.bin_files.append(file_path)
 
-        elif ext == '.json':
+        elif ext in ('.json', '.toml'):
             resources.json_files.append(file_path)
 
 

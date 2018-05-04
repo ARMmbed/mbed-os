@@ -27,6 +27,7 @@ from os.path import commonprefix, normpath, dirname
 from subprocess import Popen, PIPE, STDOUT, call
 from math import ceil
 import json
+import toml
 from collections import OrderedDict
 import logging
 from intelhex import IntelHex
@@ -347,8 +348,12 @@ def json_file_to_dict(fname):
     """
     try:
         with open(fname, "r") as file_obj:
-            return json.loads(file_obj.read().encode('ascii', 'ignore'),
-                              object_pairs_hook=OrderedDict)
+            if fname.endswith(".toml"):
+                return toml.loads(file_obj.read().encode('ascii', 'ignore'),
+                                  _dict=OrderedDict)
+            else:
+                return json.loads(file_obj.read().encode('ascii', 'ignore'),
+                                object_pairs_hook=OrderedDict)
     except (ValueError, IOError):
         sys.stderr.write("Error parsing '%s':\n" % fname)
         raise
