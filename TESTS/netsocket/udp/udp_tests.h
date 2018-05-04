@@ -26,6 +26,7 @@ void fill_tx_buffer_ascii(char *buff, size_t len);
  */
 void test_udpsocket_echotest_burst();
 void test_udpsocket_echotest_burst_nonblock();
+void test_udpsocket_open_limit();
 void test_udpsocket_recv_timeout();
 void test_udpsocket_sendto_timeout();
 

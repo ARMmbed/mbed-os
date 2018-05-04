@@ -80,6 +80,7 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
 Case cases[] = {
         Case("Echo burst", test_udpsocket_echotest_burst),
         Case("Echo burst non-block", test_udpsocket_echotest_burst_nonblock),
+        Case("Open at least 3 sockets", test_udpsocket_open_limit),
         Case("Receive in given time", test_udpsocket_recv_timeout),
         Case("Send in given time", test_udpsocket_sendto_timeout),
 
