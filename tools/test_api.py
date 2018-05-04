@@ -50,11 +50,13 @@ def get_module_avail(module_name):
     """
     return module_name in sys.modules.keys()
 
+
 def get_autodetected_MUTS_list(platform_name_filter=None):
     oldError = None
     if os.name == 'nt':
         # Disable Windows error box temporarily
-        oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
+        # note that SEM_FAILCRITICALERRORS = 1
+        oldError = ctypes.windll.kernel32.SetErrorMode(1)
 
     mbeds = mbed_lstools.create()
     detect_muts_list = mbeds.list_mbeds()
@@ -62,74 +64,67 @@ def get_autodetected_MUTS_list(platform_name_filter=None):
     if os.name == 'nt':
         ctypes.windll.kernel32.SetErrorMode(oldError)
 
-    return get_autodetected_MUTS(detect_muts_list, platform_name_filter=platform_name_filter)
+    return get_autodetected_MUTS(detect_muts_list,
+                                 name_filter=platform_name_filter)
 
-def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
-    """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
-        If function fails to auto-detect devices it will return empty dictionary.
 
-        if get_module_avail('mbed_lstools'):
-            mbeds = mbed_lstools.create()
-            mbeds_list = mbeds.list_mbeds()
-
-        @param mbeds_list list of mbeds captured from mbed_lstools
-        @param platform_name You can filter 'platform_name' with list of filtered targets from 'platform_name_filter'
+def get_autodetected_MUTS(mbeds_list, name_filter=None):
+    """ Convert devices to artificial MUTS file in muts_all.json format
+    @param mbeds_list list of mbeds captured from mbed_lstools
+    @param name_filet Filter 'platform_name' to include only the names specified
     """
-    result = {}   # Should be in muts_all.json format
-    # Align mbeds_list from mbed_lstools to MUT file format (JSON dictionary with muts)
-    # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
+    result = {}
     index = 1
-    for mut in mbeds_list:
-        # Filter the MUTS if a filter is specified
-
-        if platform_name_filter and not mut['platform_name'] in platform_name_filter:
+    for index, mut in enumerate(mbeds_list):
+        if platform_name_filter and mut['platform_name'] not in name_filter:
             continue
 
-        # For mcu_unique - we are assigning 'platform_name_unique' value from  mbedls output (if its existing)
-        # if not we  are creating our own unique value (last few chars from platform's target_id).
-        m = {'mcu': mut['platform_name'],
-             'mcu_unique' : mut['platform_name_unique'] if 'platform_name_unique' in mut else "%s[%s]" % (mut['platform_name'], mut['target_id'][-4:]),
-             'port': mut['serial_port'],
-             'disk': mut['mount_point'],
-             'peripherals': []     # No peripheral detection
-             }
-        if index not in result:
-            result[index] = {}
-        result[index] = m
-        index += 1
+        m = {
+            'mcu': mut['platform_name'],
+            'port': mut['serial_port'],
+            'disk': mut['mount_point'],
+            'peripherals': []
+        }
+
+        if 'platform_name_unique' in mut:
+            m['mcu_unique'] = mut['platform_name_unique']
+        else:
+            m['mcu_unique'] = "%s[%s]" % (mut['platform_name'],
+                                          mut['target_id'][-4:])
+
+        result[index + 1] = m
     return result
 
+
 def test_path_to_name(path, base):
-    """Change all slashes in a path into hyphens
-    This creates a unique cross-platform test name based on the path
-    This can eventually be overriden by a to-be-determined meta-data mechanism"""
+    """ Create a unique cross-platform test name based on the path """
     name_parts = []
-    head, tail = split(relpath(path,base))
-    while (tail and tail != "."):
+    head, tail = split(relpath(path, base))
+    while tail and tail != ".":
         name_parts.insert(0, tail)
         head, tail = split(head)
-
     return "-".join(name_parts).lower()
 
+
 def get_test_config(config_name, target_name):
-    """Finds the path to a test configuration file
-    config_name: path to a custom configuration file OR mbed OS interface "ethernet, wifi_odin, etc"
+    """Find the path to a test configuration file
+
+    config_name: path to a custom configuration file or mbed OS interface
+                 "ethernet, wifi_odin, etc"
     target_name: name of target to determing if mbed OS interface given is valid
-    returns path to config, will return None if no valid config is found
+    returns path to config or None if unable to find a valid config
     """
-    # If they passed in a full path
     if exists(config_name):
-        # This is a module config
         return config_name
-    # Otherwise find the path to configuration file based on mbed OS interface
-    return get_config_path(config_name, target_name)
+    else:
+        return get_config_path(config_name, target_name)
+
 
 def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
-    base_dir: path to the directory to scan for tests (ex. 'path/to/project')
-    target_name: name of the target to use for scanning (ex. 'K64F')
-    toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
-    options: Compile options to pass to the toolchain (ex. ['debug-info'])
+    base_dir: path to the directory to scan for tests
+    target_name: name of the target to use for scanning
+    toolchain_name: name of the toolchain to use for scanning
     app_config - location of a chosen mbed_app.json file
 
     returns a dictionary where keys are the test name, and the values are
@@ -141,52 +136,53 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     # List of common folders: (predicate function, path) tuple
     commons = []
 
-    # Prepare the toolchain
     toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
                                   app_config=app_config)
 
-    # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = scan_resources([base_dir], toolchain)
-
-    dirs = base_resources.inc_dirs
-    for directory in dirs:
-        subdirs = os.listdir(directory)
-
-        # If the directory contains a subdirectory called 'TESTS', scan it for test cases
-        if 'TESTS' in subdirs:
-            walk_base_dir = join(directory, 'TESTS')
-            test_resources = toolchain.scan_resources(walk_base_dir, base_path=base_dir)
-
-            # Loop through all subdirectories
+    for directory in base_resources.inc_dirs:
+        walk_base_dir = join(directory, 'TESTS')
+        # If there is a subdirectory called 'TESTS', scan it for tests
+        if exists(walk_base_dir):
+            test_resources = toolchain.scan_resources(
+                walk_base_dir, base_path=base_dir)
             for d in test_resources.inc_dirs:
 
-                # If the test case folder is not called 'host_tests' or 'COMMON' and it is
-                # located two folders down from the main 'TESTS' folder (ex. TESTS/testgroup/testcase)
-                # then add it to the tests
+                # If the test case folder is not called 'host_tests' or 'COMMON'
+                # and it is located two folders down from the main 'TESTS'
+                # folder (ex. TESTS/testgroup/testcase), then add it to the tests
                 relative_path = relpath(d, walk_base_dir)
                 relative_path_parts = normpath(relative_path).split(os.sep)
                 if len(relative_path_parts) == 2:
                     test_group_directory_path, test_case_directory = split(d)
                     test_group_directory = basename(test_group_directory_path)
 
-                    # Check to make sure discoverd folder is not in a host test directory or common directory
+                    # Check to make sure discoverd folder is not in a host test
+                    # directory or common directory
                     special_dirs = ['host_tests', 'COMMON']
-                    if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
+                    if (test_group_directory not in special_dirs and
+                        test_case_directory not in special_dirs):
                         test_name = test_path_to_name(d, base_dir)
-                        tests[(test_name, walk_base_dir, test_group_directory, test_case_directory)] = [d]
+                        test_index = (test_name, walk_base_dir,
+                                      test_group_directory, test_case_directory)
+                        tests[test_index] = [d]
 
-                # Also find any COMMON paths, we'll add these later once we find all the base tests
+                # Also find any COMMON paths, we'll add these later once we find
+                # all the base tests
                 if 'COMMON' in relative_path_parts:
                     if relative_path_parts[0] != 'COMMON':
-                        def predicate(base_pred, group_pred, name_base_group_case):
+                        def predicate(base_pred, group_pred,
+                                      name_base_group_case):
                             (name, base, group, case) = name_base_group_case
                             return base == base_pred and group == group_pred
-                        commons.append((functools.partial(predicate, walk_base_dir, relative_path_parts[0]), d))
+                        commons.append((functools.partial(
+                            predicate, walk_base_dir, relative_path_parts[0]), d))
                     else:
                         def predicate(base_pred, name_base_group_case):
                             (name, base, group, case) = name_base_group_case
                             return base == base_pred
-                        commons.append((functools.partial(predicate, walk_base_dir), d))
+                        commons.append((functools.partial(
+                            predicate, walk_base_dir), d))
 
     # Apply common directories
     for pred, path in commons:
@@ -196,6 +192,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
 
     # Drop identity besides name
     return {name: paths for (name, _, _, _), paths in six.iteritems(tests)}
+
 
 def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
@@ -212,6 +209,7 @@ def print_tests(tests, format="list", sort=True):
     else:
         print("Unknown format '%s'" % format)
         sys.exit(1)
+
 
 def norm_relative_path(path, start):
     """This function will create a normalized, relative path. It mimics the
@@ -355,14 +353,13 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         for message in worker_result['kwargs']['notify'].messages:
                             new_notify.notify(message)
 
-                        # Take report from the kwargs and merge it into existing report
                         if report:
-                            report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
-                            report_entry[worker_result['kwargs']['project_id'].upper()][0][0]['output'] = new_notify.get_output()
-                            for test_key in report_entry.keys():
-                                report[target_name][toolchain_name][test_key] = report_entry[test_key]
+                            report_arg = worker_result['kwargs']['report']
+                            report_entry = report_arg[target_name][toolchain_name]
+                            this_build = report[target_name][toolchain_name]
+                            this_build.update(report_entry)
 
-                        # Set the overall result to a failure if a build failure occurred
+                        # Set the overall result to a failure on build failure
                         if ('reason' in worker_result and
                             not worker_result['reason'] and
                             not isinstance(worker_result['reason'], NotSupportedException)):
@@ -374,9 +371,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         if ('result' in worker_result and
                             worker_result['result'] and
                             'bin_file' in worker_result):
-                            bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
-
-                            test_build['tests'][worker_result['kwargs']['project_id']] = {
+                            bin_file = norm_relative_path(
+                                worker_result['bin_file'], execution_directory)
+                            project_id = worker_result['kwargs']['project_id']
+                            test_build['tests'][project_id] = {
                                 "binaries": [
                                     {
                                         "path": bin_file
@@ -384,7 +382,6 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                 ]
                             }
 
-                            test_key = worker_result['kwargs']['project_id'].upper()
                             print('Image: %s\n' % bin_file)
 
                     except:
