@@ -3697,7 +3697,7 @@
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED", "FLASH_CMSIS_ALGO", "NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "config": {
@@ -3720,7 +3720,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -3954,7 +3954,7 @@
     "NUMAKER_PFM_M487": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO","NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "config": {
@@ -3985,7 +3985,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "M487JIDAE",
