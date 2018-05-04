@@ -2083,7 +2083,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     commons = []
 
     # Scan the directory for paths to probe for 'TESTS' folders
-    base_resources = Resources()
+    base_resources = Resources(MockNotifier())
     base_resources.add_directory(base_dir, None)
 
     dirs = base_resources.inc_dirs
@@ -2093,7 +2093,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
         # If the directory contains a subdirectory called 'TESTS', scan it for test cases
         if 'TESTS' in subdirs:
             walk_base_dir = join(directory, 'TESTS')
-            test_resources = Resources()
+            test_resources = Resources(MockNotifier())
             test_resources.add_directory(walk_base_dir, base_dir)
 
             # Loop through all subdirectories

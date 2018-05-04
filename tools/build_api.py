@@ -43,6 +43,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
 from .resources import Resources
+from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
@@ -137,7 +138,7 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
     toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
                                   app_config=app_config)
 
-    res = Resources().scan_with_toolchain(src_paths, toolchain, exclude=False)
+    res = Resources(MockNotifier()).scan_with_toolchain(src_paths, toolchain, exclude=False)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
@@ -516,7 +517,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = Resources().scan_with_toolchain(src_paths, toolchain, inc_dirs=inc_dirs)
+        resources = Resources(notify).scan_with_toolchain(
+            src_paths, toolchain, inc_dirs=inc_dirs)
 
         # Change linker script if specified
         if linker_script is not None:
@@ -675,7 +677,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     try:
         # Call unified scan_resources
-        resources = Resources().scan_with_toolchain(
+        resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
 
         # Copy headers, objects and static libraries - all files needed for
