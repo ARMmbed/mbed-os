@@ -128,11 +128,6 @@ typedef struct spi_s spi_t;
  * This structure groups all initialization parameters required by a SPI interface.
  */
 typedef struct spi_init_s {
-    bool    is_master;  /**< True to configure the device in Master mode */
-    bool    msb_first;  /**< True to send/receive the most significant bit first. */
-
-    spi_mode_t  mode;   /**< Transmission mode. See spi_mode_t. */
-
     PinName ss;         /**< Slave select pin. */
     PinName miso;
     PinName mosi;       /**< Might not be connected in 3-wire mode. */
@@ -141,9 +136,13 @@ typedef struct spi_init_s {
     uint32_t fill_symbol; /**< only the n lower bits will be used. */
     uint32_t clock_frequency; /**< MCLK frequency in Hz. */
 
+    bool is_master;  /**< True to configure the device in Master mode */
+    bool msb_first;  /**< True to send/receive the most significant bit first. */
     bool clock_phase; /**< True if data line is valid when leaving active state. */
     bool clock_polarity; /**< True if the clock's rest state is high (+Vcc). */
     uint32_t word_length; /**< Length of a symbol in bit. */
+
+    spi_mode_t  mode;   /**< Transmission mode. See spi_mode_t. */
 } spi_init_t;
 
 /**
