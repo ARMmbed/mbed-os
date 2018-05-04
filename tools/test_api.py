@@ -2228,7 +2228,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     else:
         target_name = target
         target = TARGET_MAP[target_name]
-    cfg, _, _ = get_config(base_source_paths, target_name, toolchain_name, app_config=app_config)
+    cfg, _, _ = get_config(base_source_paths, target, app_config=app_config)
 
     baud_rate = 9600
     if 'platform.stdio-baud-rate' in cfg:

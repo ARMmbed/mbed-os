@@ -54,9 +54,7 @@ if __name__ == '__main__':
     target = extract_mcus(parser, options)[0]
 
     # Toolchain
-    if options.tool is None:
-        args_error(parser, "argument -t/--toolchain is required")
-    toolchain = options.tool[0]
+    toolchain = options.tool[0] if options.tool is not None else None
 
     options.prefix = options.prefix or [""]
 
