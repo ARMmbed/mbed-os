@@ -26,7 +26,7 @@ import ctypes
 import functools
 from copy import copy, deepcopy
 from time import sleep
-from os.path import join, exists, basename, relpath
+from os.path import join, exists, basename, relpath, normpath, split
 from multiprocessing import Pool, cpu_count
 
 import mbed_lstools
@@ -104,10 +104,10 @@ def test_path_to_name(path, base):
     This creates a unique cross-platform test name based on the path
     This can eventually be overriden by a to-be-determined meta-data mechanism"""
     name_parts = []
-    head, tail = os.path.split(relpath(path,base))
+    head, tail = split(relpath(path,base))
     while (tail and tail != "."):
         name_parts.insert(0, tail)
-        head, tail = os.path.split(head)
+        head, tail = split(head)
 
     return "-".join(name_parts).lower()
 
@@ -164,10 +164,10 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
                 # located two folders down from the main 'TESTS' folder (ex. TESTS/testgroup/testcase)
                 # then add it to the tests
                 relative_path = relpath(d, walk_base_dir)
-                relative_path_parts = os.path.normpath(relative_path).split(os.sep)
+                relative_path_parts = normpath(relative_path).split(os.sep)
                 if len(relative_path_parts) == 2:
-                    test_group_directory_path, test_case_directory = os.path.split(d)
-                    test_group_directory = os.path.basename(test_group_directory_path)
+                    test_group_directory_path, test_case_directory = split(d)
+                    test_group_directory = basename(test_group_directory_path)
 
                     # Check to make sure discoverd folder is not in a host test directory or common directory
                     special_dirs = ['host_tests', 'COMMON']
@@ -217,8 +217,8 @@ def norm_relative_path(path, start):
     """This function will create a normalized, relative path. It mimics the
     python os.path.relpath function, but also normalizes a Windows-syle path
     that use backslashes to a Unix style path that uses forward slashes."""
-    path = os.path.normpath(path)
-    path = os.path.relpath(path, start)
+    path = normpath(path)
+    path = relpath(path, start)
     path = path.replace("\\", "/")
     return path
 
@@ -309,10 +309,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         if not isinstance(test_paths, list):
             test_paths = [test_paths]
 
-        test_build_path = os.path.join(build_path, test_paths[0])
+        test_build_path = join(build_path, test_paths[0])
         src_paths = base_source_paths + test_paths
         bin_file = None
-        test_case_folder_name = os.path.basename(test_paths[0])
+        test_case_folder_name = basename(test_paths[0])
 
         args = (src_paths, test_build_path, target, toolchain_name)
         kwargs = {
