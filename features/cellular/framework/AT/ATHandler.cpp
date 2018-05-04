@@ -358,13 +358,13 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     tr_debug("%s", __func__);
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
+        tr_error("AT overflow");
         reset_buffer();
     }
 
     pollfh fhs;
     fhs.fh = _fileHandle;
     fhs.events = POLLIN;
-    int timeout = 0;
     int count = poll(&fhs, 1, poll_timeout(wait_for_timeout));
     if (count > 0 && (fhs.revents & POLLIN)) {
         ssize_t len = _fileHandle->read(_recv_buff + _recv_len, sizeof(_recv_buff) - _recv_len);
@@ -372,10 +372,6 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
             _recv_len += len;
             return true;
         }
-    }
-
-    if (wait_for_timeout) {
-        set_error(NSAPI_ERROR_DEVICE_ERROR);
     }
 
     return false;
@@ -387,7 +383,8 @@ int ATHandler::get_char()
         tr_debug("%s", __func__);
         reset_buffer(); // try to read as much as possible
         if (!fill_buffer()) {
-            tr_warn("AT TIMEOUT");
+            tr_warn("AT timeout");
+            set_error(NSAPI_ERROR_DEVICE_ERROR);
             return -1; // timeout to read
         }
     }
@@ -800,7 +797,10 @@ void ATHandler::resp(const char *prefix, bool check_urc)
             if (!prefix && ((_recv_len-_recv_pos) >= _max_resp_length)) {
                 return;
             }
-            (void)fill_buffer();
+            if (!fill_buffer()) {
+                // if we don't get any match and no data within timeout, set an error to indicate need for recovery
+                set_error(NSAPI_ERROR_DEVICE_ERROR);
+            }
         }
     }
 

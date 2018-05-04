@@ -425,6 +425,7 @@ private:
 
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
+    // Returns a next char or -1 on failure (also sets error flag)
     int get_char();
     // Sets to 0 the reading position, reading length and the whole buffer content.
     void reset_buffer();
