@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+#ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
+    #error [NOT_SUPPORTED] No network interface found for this target.
+#endif
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -26,11 +30,8 @@
 #if !defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
     !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
     !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
-    !defined(MBED_CONF_APP_WIFI_DRIVER)        || \
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
-    !defined(MBED_CONF_APP_WIFI_RX)            || \
     !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-    !defined(MBED_CONF_APP_WIFI_TX)            || \
     !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for secure connections)
 #endif
@@ -40,10 +41,7 @@
 #if !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
     !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
     !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
-    !defined(MBED_CONF_APP_WIFI_DRIVER)        || \
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
-    !defined(MBED_CONF_APP_WIFI_RX)            || \
-    !defined(MBED_CONF_APP_WIFI_TX)            || \
     !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for unsecure connections)
 #endif
