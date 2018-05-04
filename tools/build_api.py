@@ -122,7 +122,7 @@ def add_result_to_report(report, result):
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
 
-def get_config(src_paths, target, toolchain_name, app_config=None):
+def get_config(src_paths, target, toolchain_name=None, app_config=None):
     """Get the configuration object for a target-toolchain combination
 
     Positional arguments:
@@ -134,16 +134,20 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
     if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
-    # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
-                                  app_config=app_config)
+    res = Resources(MockNotifier())
+    if toolchain_name:
+        toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
+                                      app_config=app_config)
+        config = toolchain.config
+        res.scan_with_toolchain(src_paths, toolchain, exclude=False)
+    else:
+        config = Config(target, src_paths, app_config=app_config)
+        res.scan_with_config(src_paths, config, exclude=False)
+    if config.has_regions:
+        _ = list(config.regions)
 
-    res = Resources(MockNotifier()).scan_with_toolchain(src_paths, toolchain, exclude=False)
-    if toolchain.config.has_regions:
-        _ = list(toolchain.config.regions)
-
-    cfg, macros = toolchain.config.get_config_data()
-    features = toolchain.config.get_features()
+    cfg, macros = config.get_config_data()
+    features = config.get_features()
     return cfg, macros, features
 
 def is_official_target(target_name, version):

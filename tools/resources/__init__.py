@@ -373,6 +373,9 @@ class Resources(object):
         self.labels.setdefault(prefix, [])
         self.labels[prefix].extend(labels)
 
+    def add_target_labels(self, target):
+        self._add_labels("TARGET_", target.labels)
+
     def add_toolchain_labels(self, toolchain):
         for prefix, value in toolchain.get_labels().items():
             self._add_labels(prefix, value)
@@ -585,4 +588,16 @@ class Resources(object):
         # Set the toolchain's configuration data
         toolchain.set_config_data(toolchain.config.get_config_data())
 
+        return self
+
+    def scan_with_config(self, src_paths, config, exclude=True, base_path=None):
+        if config.target:
+            self.add_target_labels(config.target)
+        for path in src_paths:
+            if exists(path):
+                if exclude:
+                    self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
+                else:
+                    self.add_directory(path, base_path)
+        config.load_resources(self)
         return self
