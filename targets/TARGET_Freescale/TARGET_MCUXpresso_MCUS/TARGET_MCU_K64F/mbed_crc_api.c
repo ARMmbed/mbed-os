@@ -1,3 +1,18 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "crc_api.h"
 
 #include "drivers/fsl_crc.h"
@@ -10,19 +25,22 @@ static uint32_t final_xor;
 
 bool hal_crc_is_supported(const crc_mbed_config_t* config)
 {
-  if (config == NULL)
+  if (config == NULL) {
     return false;
+  }
 
-  if ((config->width != 32) || (config->width != 16))
+  if ((config->width != 32) || (config->width != 16)) {
     return false;
+  }
 
   return true;
 }
 
 void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 {
-  if (config == NULL)
+  if (config == NULL) {
     return;
+  }
 
   width = ((config->polynomial & 0xFFFF0000U) != 0) ? kCrcBits32 : kCrcBits16;
   final_xor = config->final_xor;
@@ -41,19 +59,20 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 {
-  if (data == NULL)
+  if (data == NULL) {
     return;
+  }
 
-  if (size == 0)
+  if (size == 0) {
     return;
+  }
 
   CRC_WriteData(CRC0, data, size);
 }
 
 uint32_t hal_crc_get_result(void)
 {
-  if ((final_xor != 0x00000000U) && (final_xor != 0xFFFFFFFFU))
-  {
+  if ((final_xor != 0x00000000U) && (final_xor != 0xFFFFFFFFU)) {
     CRC_WriteData(CRC0, (uint8_t*)&final_xor, sizeof(final_xor));
   }
 

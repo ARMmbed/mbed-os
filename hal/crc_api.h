@@ -36,17 +36,17 @@ typedef enum crc_polynomial {
 } crc_polynomial_t;
 
 typedef struct crc_mbed_config {
-    /// CRC Polynomial. Example polynomial: 0x21 = 0010_0011 = x^5+x+1
+    /** CRC Polynomial. Example polynomial: 0x21 = 0010_0011 = x^5+x+1 */
     uint32_t polynomial;
-    /// CRC Bit Width
+    /** CRC Bit Width */
     uint32_t width;
-    /// Initial seed value for the computation.
+    /** Initial seed value for the computation. */
     uint32_t initial_xor;
-    /// Final xor value for the computation.
+    /** Final xor value for the computation. */
     uint32_t final_xor;
-    /// Reflect bits on input.
+    /** Reflect bits on input. */
     bool reflect_in;
-    /// Reflect bits in final result before returning.
+    /** Reflect bits in final result before returning. */
     bool reflect_out;
 } crc_mbed_config_t;
 
