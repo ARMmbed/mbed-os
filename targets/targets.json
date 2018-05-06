@@ -4011,12 +4011,12 @@
     "XMC_XXXX": {
         "inherits": ["Target"],
         "extra_labels": ["Infineon", "XMCLib"],
-        "supported_toolchains": ["GCC_ARM"],
+        "supported_toolchains": ["GCC_ARM", "ARM"],
         "public": false
     },
     "XMC_4XXX": {
         "inherits": ["XMC_XXXX"],
-        "extra_labels_add": ["XMC4XXX", "USBlib", "VirtualSerial"],
+        "extra_labels_add": ["XMC4XXX"],
         "core": "Cortex-M4F",
         "public": false
     },
@@ -4029,9 +4029,13 @@
     },
     "XMC_4500_RELAX_KIT": {
         "inherits": ["XMC_4500"],
-        "extra_labels_add": ["XMC4500", "XMC4500_Relax_Kit"],
-        "macros_add": ["XMC4500_Relax_Kit", "XMC_ETH_PHY_KSZ8031RNL", "USE_LWIP"],
+        "macros_add": ["XMC4500_RELAX_KIT", "XMC_ETH_PHY_KSZ8031RNL"],
         "features_add": ["LWIP"],
+        "OUTPUT_EXT": "hex"
+    },
+    "XMC_4500_RELAX_KIT_LITE": {
+        "inherits": ["XMC_4500"],
+        "macros_add": ["XMC4500_RELAX_KIT_LITE"],
         "OUTPUT_EXT": "hex"
     }
 }
