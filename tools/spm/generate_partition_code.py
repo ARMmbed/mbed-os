@@ -271,7 +271,7 @@ class Manifest(object):
         )
 
     @classmethod
-    def from_json(cls, manifest_file):
+    def from_json(cls, manifest_file, skip_src=False):
         """
         Load a partition manifest file
 
@@ -294,9 +294,10 @@ class Manifest(object):
         manifest_dir = os.path.dirname(manifest_file)
 
         source_files = []
-        for src_file in manifest['source_files']:
-            source_files.append(
-                os.path.normpath(path_join(manifest_dir, src_file)))
+        if not skip_src:
+            for src_file in manifest['source_files']:
+                source_files.append(
+                    os.path.normpath(path_join(manifest_dir, src_file)))
 
         mmio_regions = []
         for mmio_region in manifest.get('mmio_regions', []):
@@ -356,11 +357,11 @@ class Manifest(object):
 
     def find_dependencies(self, manifests):
         """
-        Find other manifests which holds Secure functions that 
+        Find other manifests which holds Secure functions that
         are declared as extern in this manifest
 
         :param manifests: list of manifests to filter
-        :return: list of manifest's names that holds current 
+        :return: list of manifest's names that holds current
                 extern secure functions
         """
 
@@ -672,7 +673,7 @@ Process all the given manifest files and generate C code from them
     region_list = []
     manifests = []
     for manifest_file in manifest_files:
-        manifest_obj = Manifest.from_json(manifest_file)
+        manifest_obj = Manifest.from_json(manifest_file, skip_src=True)
         for region in manifest_obj.mmio_regions:
             region_list.append(region)
         manifests.append(manifest_obj)
