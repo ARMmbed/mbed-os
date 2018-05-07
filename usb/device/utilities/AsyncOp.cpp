@@ -16,68 +16,129 @@
 
 #include "AsyncOp.h"
 #include "mbed_critical.h"
+#include "mbed_assert.h"
 
 using namespace rtos;
 
-AsyncOp::AsyncOp(Mutex *lock): _list(NULL), _signal(NULL), _signal_lock(lock)
+AsyncOp::AsyncOp():
+    _list(NULL), _wait(NULL), _aborted(false), _timeout(false)
 {
 
 }
 
-void AsyncOp::start(LinkedListBase *list)
+AsyncOp::AsyncOp(mbed::Callback<void()> &callback):
+    _list(NULL), _wait(NULL), _aborted(false), _timeout(false)
 {
-    _lock();
-    _list = list;
-    list->enqueue(this);
-    _unlock();
+    _callback = callback;
 }
 
-void AsyncOp::wait()
+AsyncOp::~AsyncOp()
 {
-    if (_list == NULL) {
-        // Event either hasn't start or has already occurred
+    MBED_ASSERT(_list == NULL);
+}
+
+void AsyncOp::wait(rtos::Mutex *host_mutex, uint32_t milliseconds)
+{
+    // Optimization so semaphore is only created if necessary
+    core_util_critical_section_enter();
+    bool done = _list == NULL;
+    core_util_critical_section_exit();
+    if (done) {
         return;
     }
 
     // Construct semaphore to wait on
     Semaphore sem(0);
 
-    // Atomically set the semaphore pointer and
-    // check for completion
-    _lock();
-    bool done = _list == NULL;
-    _signal = &sem;
-    _unlock();
+    core_util_critical_section_enter();
+    done = _list == NULL;
+    // Wait is only allowed to be called from one thread
+    MBED_ASSERT(_wait == NULL);
+    _wait = &sem;
+    core_util_critical_section_exit();
 
-    if (!done) {
-        sem.wait();
+    if (done) {
+        // Operation was signaled before semaphore was set
+        return;
     }
+
+    if (sem.wait(milliseconds) == 1) {
+        // Operation completion signaled semaphore
+        return;
+    }
+
+    _host_lock(host_mutex);
+    _abort(true);
+    _host_unlock(host_mutex);
+}
+
+void AsyncOp::abort()
+{
+    // Host lock must be held
+
+    _abort(false);
 }
 
 void AsyncOp::complete()
 {
-    _lock();
-    _list->remove(this);
+    core_util_critical_section_enter();
+
+    mbed::Callback<void()> cb = _callback;
+    _callback = NULL;
     _list = NULL;
-    if (_signal != NULL) {
-        _signal->release();
+    if (_wait != NULL) {
+        _wait->release();
     }
-    _unlock();
+
+    core_util_critical_section_exit();
+
+    if (cb) {
+        cb();
+    }
 }
 
-void AsyncOp::_lock()
+bool AsyncOp::timeout()
 {
-    if (_signal_lock) {
-        _signal_lock->lock();
+    core_util_critical_section_enter();
+
+    bool ret = _timeout;
+
+    core_util_critical_section_exit();
+    return ret;
+}
+
+void AsyncOp::_abort(bool timeout)
+{
+    // host lock must be held
+
+    core_util_critical_section_enter();
+    OperationListBase *list = _list;
+    if (list) {
+        _callback = NULL;
+        _aborted = true;
+        _wait = NULL;
+        _timeout = timeout;
+        _list = NULL;
+    }
+    core_util_critical_section_exit();
+    if (list) {
+        list->remove(this);
+    }
+}
+
+void AsyncOp::_host_lock(rtos::Mutex *host_mutex)
+{
+    if (host_mutex) {
+        host_mutex->lock();
     } else {
         core_util_critical_section_enter();
     }
 }
 
-void AsyncOp::_unlock()
+void AsyncOp::_host_unlock(rtos::Mutex *host_mutex)
 {
-    if (_signal_lock) {
-        _signal_lock->unlock();
+    if (host_mutex) {
+        host_mutex->unlock();
     } else {
         core_util_critical_section_exit();
     }
