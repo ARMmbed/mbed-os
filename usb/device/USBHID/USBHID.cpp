@@ -21,24 +21,91 @@
 
 class USBHID::AsyncSend: public AsyncOp {
 public:
-    AsyncSend(const HID_REPORT *report): AsyncOp(NULL), report(report), result(false)
+    AsyncSend(USBHID *hid, const HID_REPORT *report): hid(hid), report(report), result(false)
     {
 
     }
+
+    ~AsyncSend()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (!hid->configured()) {
+            result = false;
+            return true;
+        }
+
+        if (hid->send_nb(report)) {
+            result = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    USBHID *hid;
     const HID_REPORT *report;
     bool result;
 };
 
 class USBHID::AsyncRead: public AsyncOp {
 public:
-    AsyncRead(HID_REPORT *report): AsyncOp(NULL), report(report), result(false)
+    AsyncRead(USBHID *hid, HID_REPORT *report): hid(hid), report(report), result(false)
     {
 
     }
+
+    ~AsyncRead()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (!hid->configured()) {
+            result = false;
+            return true;
+        }
+
+        if (hid->read_nb(report)) {
+            result = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    USBHID *hid;
     HID_REPORT *report;
     bool result;
 };
 
+class USBHID::AsyncWait: public AsyncOp {
+public:
+    AsyncWait(USBHID *hid): hid(hid)
+    {
+
+    }
+
+    ~AsyncWait()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (hid->configured()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    USBHID *hid;
+};
 
 USBHID::USBHID(bool connect_blocking, uint8_t output_report_length, uint8_t input_report_length, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(get_usb_phy(), vendor_id, product_id, product_release)
@@ -88,15 +155,12 @@ void USBHID::wait_ready()
 {
     lock();
 
-    AsyncOp wait_op(NULL);
-    wait_op.start(&_connect_list);
-    if (configured()) {
-        wait_op.complete();
-    }
+    AsyncWait wait_op(this);
+    _connect_list.add(&wait_op);
 
     unlock();
 
-    wait_op.wait();
+    wait_op.wait(NULL);
 }
 
 
@@ -104,23 +168,12 @@ bool USBHID::send(const HID_REPORT *report)
 {
     lock();
 
-    if (!configured()) {
-        unlock();
-        return false;
-    }
-
-    if (send_nb(report)) {
-        unlock();
-        return true;
-    }
-
-    AsyncSend send_op(report);
-    send_op.start(&_send_list);
+    AsyncSend send_op(this, report);
+    _send_list.add(&send_op);
 
     unlock();
 
-    send_op.wait();
-
+    send_op.wait(NULL);
     return send_op.result;
 }
 
@@ -149,23 +202,12 @@ bool USBHID::read(HID_REPORT *report)
 {
     lock();
 
-    if (!configured()) {
-        unlock();
-        return false;
-    }
-
-    if (read_nb(report)) {
-        unlock();
-        return true;
-    }
-
-    AsyncRead read_op(report);
-    read_op.start(&_read_list);
+    AsyncRead read_op(this, report);
+    _read_list.add(&read_op);
 
     unlock();
 
-    read_op.wait();
-
+    read_op.wait(NULL);
     return read_op.result;
 }
 
@@ -198,13 +240,8 @@ void USBHID::_send_isr(usb_ep_t endpoint)
     write_finish(_int_in);
     _send_idle = true;
 
-    AsyncSend *send_op = _send_list.head();
-    if (send_op != NULL) {
-        if (send_nb(send_op->report)) {
-            send_op->result = true;
-            send_op->complete();
-        }
-    } else {
+    _send_list.process();
+    if (_send_idle) {
         report_tx();
     }
 
@@ -217,57 +254,9 @@ void USBHID::_read_isr(usb_ep_t endpoint)
     _output_report.length = read_finish(_int_out);
     _read_idle = true;
 
-    AsyncRead *read_op = _read_list.head();
-    if (read_op != NULL) {
-        if (read_nb(read_op->report)) {
-            read_op->result = true;
-            read_op->complete();
-        }
-    } else {
+    _read_list.process();
+    if (_read_idle) {
         report_rx();
-    }
-}
-
-void USBHID::_connect_wake_all()
-{
-    assert_locked();
-
-    AsyncOp *wait_op = _connect_list.head();
-    while (wait_op != NULL) {
-        wait_op->complete();
-        wait_op = _connect_list.head();
-    }
-}
-
-void USBHID::_send_abort_all()
-{
-    assert_locked();
-
-    if (!_send_idle) {
-        endpoint_abort(_int_in);
-        _send_idle = true;
-    }
-    AsyncSend *tx_cur = _send_list.head();
-    while (tx_cur != NULL) {
-        tx_cur->result = false;
-        tx_cur->complete();
-        tx_cur = _send_list.head();
-    }
-}
-
-void USBHID::_read_abort_all()
-{
-    assert_locked();
-
-    if (!_read_idle) {
-        endpoint_abort(_int_out);
-        _read_idle = true;
-    }
-    AsyncRead *rx_cur = _read_list.head();
-    while (rx_cur != NULL) {
-        rx_cur->result = false;
-        rx_cur->complete();
-        rx_cur = _read_list.head();
     }
 }
 
@@ -280,12 +269,19 @@ uint16_t USBHID::report_desc_length()
 
 void USBHID::callback_state_change(DeviceState new_state)
 {
-    if (new_state == Configured) {
-        _connect_wake_all();
-    } else {
-        _send_abort_all();
-        _read_abort_all();
+    if (new_state != Configured) {
+        if (!_send_idle) {
+            endpoint_abort(_int_in);
+            _send_idle = true;
+        }
+        if (!_read_idle) {
+            endpoint_abort(_int_out);
+            _read_idle = true;
+        }
     }
+    _send_list.process();
+    _read_list.process();
+    _connect_list.process();
 }
 
 //
