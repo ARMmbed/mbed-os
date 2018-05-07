@@ -205,6 +205,32 @@ static inline void system_reset(void)
 {
     NVIC_SystemReset();
 }
+ 
+/** Provides the time spent in sleep mode, since system is up and running
+ *
+ *  @return  Time spent in sleep
+ */
+uint64_t mbed_time_sleep(void);
+
+/** Provides the time spent in deep sleep mode, since system is up and running
+ *
+ *  @return  Time spent in deep sleep
+ */
+uint64_t mbed_time_deepsleep(void);
+
+/** Provides the time spent in idle thread since the system is up
+ *
+ * @return  Idle thread time.
+ */
+uint64_t mbed_time_idle(void);
+
+
+/** Provides the time since the system is up and running
+ *
+ * @return  System uptime.
+ */
+uint64_t mbed_uptime(void);
+
 
 #ifdef __cplusplus
 }
