@@ -1046,24 +1046,22 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         uart_object->rx = rx;
     }
 
-    /* Set default parity and baud rate. */
+    /* Set default parity, baud rate, and callback handler. */
     uart_object->parity = NRF_UART_PARITY_EXCLUDED;
     uart_object->baudrate = NRF_UART_BAUDRATE_9600;
     uart_object->cts = NRF_UART_PSEL_DISCONNECTED;
     uart_object->rts = NRF_UART_PSEL_DISCONNECTED;
     uart_object->hwfc = NRF_UART_HWFC_DISABLED;
+    uart_object->handler = 0;
 
     /* The STDIO object is stored in this file. Set the flag once initialized. */
     if (obj == &stdio_uart) {
         stdio_uart_inited = 1;
     }
 
-    /* Initializing the serial object does not make it the owner of an instance. 
-     * Only when the serial object is being used will the object take ownership 
-     * over the instance.
-     */
+    /* Take ownership and configure UART. */
     uart_object->update = true;
-    uart_object->handler = 0;
+    nordic_nrf5_serial_configure(obj);
 }
 
 /** Release the serial peripheral, not currently invoked. It requires further
