@@ -22,8 +22,7 @@
 #include "USBDevice.h"
 
 #include "USBHID_Types.h"
-#include "AsyncOp.h"
-#include "LinkedList.h"
+#include "OperationList.h"
 
 
 
@@ -249,17 +248,14 @@ private:
     void _send_isr(usb_ep_t endpoint);
     void _read_isr(usb_ep_t endpoint);
 
-    void _connect_wake_all();
-    void _send_abort_all();
-    void _read_abort_all();
-
     class AsyncSend;
     class AsyncRead;
+    class AsyncWait;
 
-    LinkedList<AsyncOp> _connect_list;
-    LinkedList<AsyncSend> _send_list;
+    OperationList<AsyncWait> _connect_list;
+    OperationList<AsyncSend> _send_list;
     bool _send_idle;
-    LinkedList<AsyncRead> _read_list;
+    OperationList<AsyncRead> _read_list;
     bool _read_idle;
 
     uint8_t _configuration_descriptor[41];
