@@ -44,7 +44,7 @@ SPDX-License-Identifier: BSD-3-Clause
   #define LoRaPHY_region LoRaPHYAS923
  #elif MBED_CONF_LORA_PHY    == 2
   #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
- #define LoRaPHY_region LoRaPHYAU915;
+ #define LoRaPHY_region LoRaPHYAU915
  #elif MBED_CONF_LORA_PHY    == 3
   #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
   #define LoRaPHY_region LoRaPHYCN470
