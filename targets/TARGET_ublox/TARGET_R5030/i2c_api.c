@@ -390,13 +390,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     uint32_t status;
     int bytes_read=0;
 
-    /* check if bus is busy */ //cannot check bus busy as busy bit is set after start is generated in write with no stop
-    /*if (is_bus_busy(obj))
-    {
-        printf("Error: bus busy\r\n");
-        return -1;
-    }*/
-
     /* send start */
     if (!i2c_start(obj)) /* start condition failure. Clear start and send stop ? */
     {
@@ -410,6 +403,10 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_STOP);
         return -1;
     }
+
+    /* Clear BTF flag and set number of bytes to receive */
+    obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_BTF);
+    obj->reg_base->nrbr = (length > FIFO_SIZE) ? FIFO_SIZE : length;
 
     /* send slave address and check endad bit */
     obj->reg_base->txbuffer = (uint8_t)(address|1); //r/w bit set to high for read
@@ -435,17 +432,13 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         timeout--;
     }
 
-    /* receive bytes from fifo */
     while (length) /* loop until all bytes are received */ //FIXME: Recovery mechanism in case slave is not responding
     {
-        /* set number of expected bytes to be received by fifo */
-        obj->reg_base->nrbr = (length > 16) ? 16 : length;
-
-        /* check if required number of bytes are available in fifo */
-        if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_NRB))
+        /* get fifo count */
+        rxFifoBytes = obj->reg_base->rxwordcount;
+        if (rxFifoBytes)
         {
-            /* get fifo count */
-            rxFifoBytes = obj->reg_base->rxwordcount;
+            obj->reg_base->sr = DRIVER_BITFIELD_CLR(obj->reg_base->sr, I2C_SR_BTF);
             do
             {
                 /* if the next byte is going to be the last, set stop bit before reading last byte so that master sends NACK after last byte */
@@ -461,8 +454,21 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
                 bytes_read++;
             } while (length && rxFifoBytes); /* receive from fifo as long as there are bytes available */
         }
+        /* check if required number of bytes are available in fifo */
+        if (DRIVER_BITFIELD_GET(obj->reg_base->sr, I2C_SR_NRB))
+        {
+            if (length)
+            {
+                obj->reg_base->nrbr = (length > FIFO_SIZE) ? FIFO_SIZE : length;
+            }
+            else
+            {
+                obj->reg_base->sr=0;
+            }
+        }
     }
 
+    obj->reg_base->crclear = DRIVER_BITFIELD_MASK(I2C_CR_ACK);
     return bytes_read;
 }
 
