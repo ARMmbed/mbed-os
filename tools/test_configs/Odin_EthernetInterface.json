@@ -13,7 +13,7 @@
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
-            "value" : "\"dragon.u-blox.com\""
+            "value" : "\"echo.mbedcloudtesting.com\""
         },
         "echo-server-port" : {
             "help" : "Port of echo server",
@@ -21,7 +21,7 @@
         },
         "tcp-echo-prefix" : {
             "help" : "Some servers send a prefix before echoed message",
-            "value" : "\"u-blox AG TCP/UDP test service\\n\""
+            "value" : null
         },
         "sim-blockdevice": {
             "help": "Simulated block device, requires sufficient heap",

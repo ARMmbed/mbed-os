@@ -2,14 +2,14 @@
     "config": {
         "header-file": {
             "help" : "String for including your driver header file",
-            "value" : "\"OdinWiFiInterface.h\""
+            "value" : "\"WicedInterface.h\""
         },
         "object-construction" : {
-            "value" : "new OdinWiFiInterface()"
+            "value" : "new WicedInterface()"
         },
         "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD)"
+            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
+            "value" : "((WicedInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -30,9 +30,17 @@
         }
     },
     "target_overrides": {
-        "*": {
-            "target.features_add": ["LWIP"],
-            "nsapi.default-stack": "LWIP"
+        "MTB_ADV_WISE_1530": {
+            "target.extra_labels_add": ["WICED"],
+            "target.features_add": ["BLE", "LWIP"]
+        },
+        "MTB_USI_WM_BN_BM_22": {
+            "target.extra_labels_add": ["WICED"],
+            "target.features_add": ["BLE", "LWIP"]
+        },
+        "MTB_MXCHIP_EMW3166": {
+            "target.extra_labels_add": ["WICED"],
+            "target.features_add": ["LWIP"]
         }
     }
 }

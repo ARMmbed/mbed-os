@@ -8,8 +8,8 @@
             "value" : "new ESP8266Interface( D1, D0, false )"
         },
         "connect-statement" : {
-            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL with your WiFi settings",
-            "value" : "((ESP8266Interface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL)"
+            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
+            "value" : "((ESP8266Interface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
