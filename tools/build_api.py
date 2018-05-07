@@ -502,7 +502,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
-                  app_config=None, build_profile=None, stats_depth=None):
+                  app_config=None, build_profile=None, stats_depth=None, ignore=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -529,6 +529,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
     stats_depth - depth level for memap to display file/dirs
+    ignore - list of paths to add to mbedignore
     """
 
     # Convert src_path to a list if needed
@@ -547,6 +548,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
         app_config=app_config, build_profile=build_profile)
+
+    if ignore:
+        toolchain.add_ignore_patterns(root=".", base_path=".",
+                                      patterns=ignore)
 
     # The first path will give the name to the library
     name = (name or toolchain.config.name or
@@ -643,7 +648,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None):
+                  build_profile=None, ignore=None):
     """ Build a library
 
     Positional arguments:
@@ -668,6 +673,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    ignore - list of paths to add to mbedignore
     """
 
     # Convert src_path to a list if needed
@@ -692,6 +698,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
         build_profile=build_profile)
+
+    if ignore:
+        toolchain.add_ignore_patterns(root=".", base_path=".",
+                                      patterns=ignore)
 
     # The first path will give the name to the library
     if name is None:

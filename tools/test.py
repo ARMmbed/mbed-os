@@ -112,6 +112,9 @@ if __name__ == '__main__':
                             default=2,
                             help="Depth level for static memory report")
 
+        parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                          default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
         options = parser.parse_args()
 
         # Filter tests by path if specified
@@ -152,6 +155,7 @@ if __name__ == '__main__':
 
         if not config:
             config = get_default_config(options.source_dir or ['.'], mcu)
+
 
         # Find all tests in the relevant paths
         for path in all_paths:
@@ -205,7 +209,8 @@ if __name__ == '__main__':
                               macros=options.macros,
                               notify=notify, archive=False,
                               app_config=config,
-                              build_profile=profile)
+                              build_profile=profile,
+                              ignore=options.ignore)
 
                 library_build_success = True
             except ToolException as e:
@@ -233,7 +238,8 @@ if __name__ == '__main__':
                         continue_on_build_fail=options.continue_on_build_fail,
                         app_config=config,
                         build_profile=profile,
-                        stats_depth=options.stats_depth)
+                        stats_depth=options.stats_depth,
+                        ignore=options.ignore)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
