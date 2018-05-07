@@ -138,48 +138,6 @@ def get_exporter_toolchain(ide):
     return EXPORTERS[ide], EXPORTERS[ide].TOOLCHAIN
 
 
-def rewrite_basepath(file_name, resources, export_path, loc):
-    """ Replace the basepath of filename with export_path
-
-    Positional arguments:
-    file_name - the absolute path to a file
-    resources - the resources object that the file came from
-    export_path - the final destination of the file after export
-    """
-    new_f = join(loc, relpath(file_name, resources.file_basepath[file_name]))
-    resources.file_basepath[new_f] = export_path
-    return new_f
-
-
-def subtract_basepath(resources, export_path, loc=""):
-    """ Rewrite all of the basepaths with the export_path
-
-    Positional arguments:
-    resources - the resource object to rewrite the basepaths of
-    export_path - the final destination of the resources with respect to the
-      generated project files
-    """
-    keys = ['s_sources', 'c_sources', 'cpp_sources', 'hex_files',
-            'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script',
-            'lib_dirs']
-    for key in keys:
-        vals = getattr(resources, key)
-        if isinstance(vals, set):
-            vals = list(vals)
-        if isinstance(vals, list):
-            new_vals = []
-            for val in vals:
-                new_vals.append(rewrite_basepath(val, resources, export_path,
-                                                 loc))
-            if isinstance(getattr(resources, key), set):
-                setattr(resources, key, set(new_vals))
-            else:
-                setattr(resources, key, new_vals)
-        elif vals:
-            setattr(resources, key, rewrite_basepath(vals, resources,
-                                                     export_path, loc))
-
-
 def generate_project_files(resources, export_path, target, name, toolchain, ide,
                            macros=None):
     """Generate the project files for a project
@@ -305,27 +263,21 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, build_profile=build_profile,
         app_config=app_config)
-    # The first path will give the name to the library
+
     toolchain.RESPONSE_FILES = False
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 
-    # Call unified scan_resources
     resource_dict = {loc: sum((toolchain.scan_resources(p, collect_ignores=True)
                                for p in path),
                               Resources())
                      for loc, path in src_paths.items()}
     resources = Resources()
 
-    if zip_proj:
-        subtract_basepath(resources, ".")
-        for loc, res in resource_dict.items():
-            temp = copy.deepcopy(res)
-            subtract_basepath(temp, ".", loc)
-            resources.add(temp)
-    else:
-        for _, res in resource_dict.items():
-            resources.add(res)
+    for loc, res in resource_dict.items():
+        temp = copy.deepcopy(res)
+        temp.subtract_basepath(".", loc)
+        resources.add(temp)
 
     toolchain.build_dir = export_path
     toolchain.config.load_resources(resources)
@@ -345,8 +297,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if zip_proj:
         for resource in resource_dict.values():
             for label, res in resource.features.items():
-                if label not in toolchain.target.features:
-                    resource.add(res)
+                resource.add(res)
         if isinstance(zip_proj, basestring):
             zip_export(join(export_path, zip_proj), name, resource_dict,
                        files + list(exporter.static_files), inc_repos)
