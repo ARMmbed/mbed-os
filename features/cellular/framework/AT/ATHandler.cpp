@@ -63,7 +63,6 @@ static const uint8_t map_3gpp_errors[][2] =  {
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
-    _fileHandle(fh),
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -109,9 +108,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     set_tag(&_info_stop, CRLF);
     set_tag(&_elem_stop, ")");
 
-    _fileHandle->set_blocking(false);
-
-    set_filehandle_sigio();
+    set_file_handle(fh);
 }
 
 void ATHandler::enable_debug(bool enable)
@@ -153,7 +150,20 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
+    _fh_sigio_set = false;
     _fileHandle = fh;
+    _fileHandle->set_blocking(false);
+    set_filehandle_sigio();
+}
+
+void ATHandler::set_filehandle_sigio()
+{
+    if (_fh_sigio_set) {
+        return;
+    }
+
+    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
+    _fh_sigio_set = true;
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
@@ -308,15 +318,6 @@ void ATHandler::process_oob()
     flush(); // consume anything that could not be handled
 
     unlock();
-}
-
-void ATHandler::set_filehandle_sigio()
-{
-    if (_fh_sigio_set) {
-        return;
-    }
-    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
-    _fh_sigio_set = true;
 }
 
 void ATHandler::reset_buffer()
@@ -1019,8 +1020,8 @@ void ATHandler::cmd_start(const char* cmd)
         if (time_difference < (uint64_t)_at_send_delay) {
             wait_ms((uint64_t)_at_send_delay - time_difference);
             tr_debug("AT wait %llu %llu", current_time, _last_response_stop);
-        } 
-    } 
+        }
+    }
 
     at_debug("AT cmd %s (err %d)\n", cmd, _last_err);
 
@@ -1084,7 +1085,7 @@ void ATHandler::cmd_stop()
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     at_debug("AT write bytes %d (err %d)\n", len, _last_err);
-    
+
     if (_last_err != NSAPI_ERROR_OK) {
         return 0;
     }

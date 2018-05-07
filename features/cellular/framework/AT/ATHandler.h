@@ -86,12 +86,6 @@ public:
      */
     FileHandle *get_file_handle();
 
-    /** Set file handle, which is used for reading AT responses and writing AT commands
-     *
-     *  @param fh file handle used for reading AT responses and writing AT commands
-     */
-    void set_file_handle(FileHandle *fh);
-
     /** Locks the mutex for file handle if AT_HANDLER_MUTEX is defined.
      */
     void lock();
@@ -165,6 +159,11 @@ public:
      */
     void clear_error();
 
+    /**
+     * Flushes the underlying stream
+     */
+    void flush();
+
     /** Tries to find oob's from the AT response. Call the urc callback if one is found.
      */
     void process_oob();
@@ -173,10 +172,11 @@ public:
      */
     void set_filehandle_sigio();
 
-    /**
-     * Flushes the underlying stream
+    /** Set file handle, which is used for reading AT responses and writing AT commands
+     *
+     *  @param fh file handle used for reading AT responses and writing AT commands
      */
-    void flush();
+    void set_file_handle(FileHandle *fh);
 
 protected:
     void event();
