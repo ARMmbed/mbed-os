@@ -438,7 +438,10 @@ void ns_mem_free(ns_mem_book_t *book, void *block)
     platform_exit_critical();
 #else
     platform_enter_critical();
-    free(block);
+    if (block)
+    {
+        free(block);
+    }
     platform_exit_critical();
 #endif
 }
