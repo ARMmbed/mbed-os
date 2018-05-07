@@ -15,20 +15,24 @@
  * limitations under the License.
  */
 
-#ifndef UDP_TESTS_H
-#define UDP_TESTS_H
+#include "greentea-client/test_env.h"
+#include "mbed.h"
+#include MBED_CONF_APP_HEADER_FILE
+#include "udp_tests.h"
+#include "UDPSocket.h"
+#include "unity/unity.h"
+#include "utest.h"
 
-NetworkInterface* get_interface();
-void fill_tx_buffer_ascii(char *buff, size_t len);
+void test_udpsocket_open_close_repeat()
+{
+    UDPSocket *sock = new UDPSocket;
+    if (!sock) {
+        TEST_FAIL();
+    }
 
-/*
- * Test cases
- */
-void test_udpsocket_echotest_burst();
-void test_udpsocket_echotest_burst_nonblock();
-void test_udpsocket_open_close_repeat();
-void test_udpsocket_open_limit();
-void test_udpsocket_recv_timeout();
-void test_udpsocket_sendto_timeout();
-
-#endif //UDP_TESTS_H
+    for (int i = 0; i < 2; i++) {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
+    }
+    delete sock;
+}
