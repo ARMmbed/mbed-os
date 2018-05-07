@@ -93,6 +93,9 @@ public:
 
     void set_past_timestamp(void) {
         insert_absolute(::ticker_read_us(_ticker_data) - 1ULL);
+#if defined(TARGET_RTL8195A)
+        wait_us(62);
+#endif
     }
 };
 
@@ -160,6 +163,9 @@ void test_insert_zero(void) {
     TestTimerEvent tte;
 
     tte.insert_absolute(0ULL);
+#if defined(TARGET_RTL8195A)
+    wait_us(62);
+#endif
     int32_t sem_slots = tte.sem_wait(0);
     TEST_ASSERT_EQUAL(1, sem_slots);
 
