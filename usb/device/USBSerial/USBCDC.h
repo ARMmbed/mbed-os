@@ -22,7 +22,7 @@
 #include "USBDevice_Types.h"
 
 #include "USBDevice.h"
-#include "LinkedList.h"
+#include "OperationList.h"
 
 class AsyncOp;
 
@@ -180,6 +180,7 @@ protected:
 
     class AsyncWrite;
     class AsyncRead;
+    class AsyncWait;
 
     virtual void callback_reset();
     virtual void callback_state_change(DeviceState new_state);
@@ -191,15 +192,10 @@ protected:
     void _init();
 
     void _change_terminal_connected(bool connected);
-    void _connect_wake_all();
 
-    void _send_next();
-    void _send_abort_all();
     void _send_isr_start();
     void _send_isr(usb_ep_t endpoint);
 
-    void _receive_next();
-    void _receive_abort_all();
     void _receive_isr_start();
     void _receive_isr(usb_ep_t endpoint);
 
@@ -211,16 +207,16 @@ protected:
     uint8_t _cdc_new_line_coding[7];
     uint8_t _config_descriptor[75];
 
-    LinkedList<AsyncOp> _connected_list;
+    OperationList<AsyncWait> _connected_list;
     bool _terminal_connected;
 
-    LinkedList<AsyncWrite> _tx_list;
+    OperationList<AsyncWrite> _tx_list;
     bool _tx_in_progress;
     uint8_t _tx_buffer[64];
     uint8_t *_tx_buf;
     uint32_t _tx_size;
 
-    LinkedList<AsyncRead> _rx_list;
+    OperationList<AsyncRead> _rx_list;
     bool _rx_in_progress;
     uint8_t _rx_buffer[64];
     uint8_t *_rx_buf;
