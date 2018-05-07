@@ -25,6 +25,7 @@ void fill_tx_buffer_ascii(char *buff, size_t len);
 /*
  * Test cases
  */
+void test_tcpsocket_connect_invalid();
 void test_tcpsocket_echotest_burst();
 void test_tcpsocket_echotest_burst_nonblock();
 void test_tcpsocket_endpoint_close();

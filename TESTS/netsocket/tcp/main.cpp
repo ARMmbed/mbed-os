@@ -91,6 +91,7 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
 
 
 Case cases[] = {
+    Case("Invalid endpoint rejected", test_tcpsocket_connect_invalid),
     Case("Echo burst", test_tcpsocket_echotest_burst),
     Case("Echo burst non-block", test_tcpsocket_echotest_burst_nonblock),
     Case("Reuse a socket", test_tcpsocket_open_close_repeat),
