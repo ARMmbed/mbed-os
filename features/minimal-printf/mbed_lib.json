@@ -12,6 +12,10 @@
         "enable-64-bit": {
             "help": "Enable printing 64 bit integers",
             "value": true
+        },
+        "console-output": {
+            "help": "Console output. Options: UART, SWO",
+            "value": "UART"
         }
     }
 }

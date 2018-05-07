@@ -25,18 +25,26 @@
 /* MBED                    */
 /***************************/
 #if TARGET_LIKE_MBED
+
+#define CONSOLE_OUTPUT_UART     1
+#define CONSOLE_OUTPUT_SWO      2
+#define mbed_console_concat_(x) CONSOLE_OUTPUT_##x
+#define mbed_console_concat(x) mbed_console_concat_(x)
+#define CONSOLE_OUTPUT mbed_console_concat(MBED_CONF_MINIMAL_PRINTF_CONSOLE_OUTPUT)
+
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
+static char mbed_stdio_out_prev = 0;
+#endif
+
+#if CONSOLE_OUTPUT == CONSOLE_OUTPUT_UART
+#if DEVICE_SERIAL
 /*
  Serial initialization and new line replacement is a direct copy from mbed_retarget.cpp
  If the static modifier were to be removed, this part of the code would not be necessary.
 */
 #include "hal/serial_api.h"
 
-#if DEVICE_SERIAL
 static serial_t stdio_uart = { 0 };
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-static char mbed_stdio_out_prev = 0;
-#endif
-#endif
 
 /* module variable for keeping track of initialization */
 static bool not_initialized = true;
@@ -47,17 +55,31 @@ static void init_serial()
     {
         not_initialized = false;
 
-#if DEVICE_SERIAL
         serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         serial_baud(&stdio_uart, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
-#endif
 #endif
     }
 }
 
 #define MBED_INITIALIZE_PRINT(x) { init_serial(); }
 #define MBED_PRINT_CHARACTER(x) { serial_putc(&stdio_uart, x); }
+
+#else
+
+#define MBED_INITIALIZE_PRINT(x)
+#define MBED_PRINT_CHARACTER(x)
+
+#endif // if DEVICE_SERIAL
+
+#elif CONSOLE_OUTPUT == CONSOLE_OUTPUT_SWO
+
+#include "hal/itm_api.h"
+
+#define MBED_INITIALIZE_PRINT(x) { mbed_itm_init(); }
+#define MBED_PRINT_CHARACTER(x) { mbed_itm_send(ITM_PORT_SWO, x); }
+
+#endif // if CONSOLE_OUTPUT
 
 /***************************/
 /* Linux                   */
