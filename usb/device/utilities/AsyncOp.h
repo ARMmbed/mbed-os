@@ -19,44 +19,93 @@
 
 #include "Mutex.h"
 #include "Semaphore.h"
+#include "Callback.h"
 
 #include "LinkEntry.h"
-#include "LinkedListBase.h"
+#include "OperationListBase.h"
 
 class AsyncOp: public LinkEntry {
 public:
+
+    /**
+     * Construct a new AsyncOp object
+     */
+    AsyncOp();
+
     /**
      * Construct a new AsyncOp object
      *
-     * @param lock Mutex used to serialize the object or code calling complete
-     *  or NULL if a critical section is used
+     * @param callback Completion callback
      */
-    AsyncOp(rtos::Mutex *lock);
+    AsyncOp(mbed::Callback<void()> &callback);
 
     /**
-     * Add this operation to the linked list to start it
+     * Cleanup resources used by this AsyncOp
      */
-    void start(LinkedListBase *list);
+    virtual ~AsyncOp();
 
     /**
      * Wait for this asynchronous operation to complete
+     *
+     * If the timeout expires then this asynchronous operation is
+     * aborted and the timeout flag is set.
+     *
+     * @note - the host object's lock MUST NOT be held when this call is made
      */
-    void wait();
+    void wait(rtos::Mutex *host_mutex, uint32_t milliseconds=osWaitForever);
 
     /**
-     * Mark this asynchronous operation as complete
+     * Abort this asynchronous operation
      *
-     * This wake the thread calling wait()
+     * This function has no effect if the operation is complete. Otherwise
+     * the aborted flag is set.
+     *
+     * @note - the host object's lock MUST be held when this call is made
      */
-    void complete();
+    void abort();
+
+    /**
+     * Check if this operation timed out
+     *
+     * @return true if this operation timed out, false otherwise
+     */
+    bool timeout();
+
+    /**
+     * Check if this operation was aborted
+     *
+     * @return true if this operation was aborted, false otherwise
+     */
+    bool aborted();
+
+protected:
+
+    /**
+     * Callback indicating that something changed
+     *
+     * @return true if finished false if not
+     */
+    virtual bool process() = 0;
+
+    /**
+     * Callback indicating that this event finished
+     */
+    virtual void complete();
 
 private:
-    void _lock();
-    void _unlock();
+    friend class OperationListBase;
 
-    LinkedListBase *_list;
-    rtos::Semaphore *_signal;
-    rtos::Mutex *const _signal_lock;
+    mbed::Callback<void()> _callback;
+    OperationListBase *_list;
+    rtos::Semaphore *_wait;
+    bool _aborted;
+    bool _timeout;
+
+    void _abort(bool timeout);
+
+    static void _host_lock(rtos::Mutex *host_mutex);
+
+    static void _host_unlock(rtos::Mutex *host_mutex);
 };
 
 #endif
