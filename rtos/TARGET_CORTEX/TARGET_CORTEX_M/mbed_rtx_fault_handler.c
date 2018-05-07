@@ -220,6 +220,9 @@ void fault_print_str(char *fmtstr, uint32_t *values)
                 serial_putc(&stdio_uart, hex_str[idx]);
             }
         } else {
+            if (fmtstr[i] == '\n') {
+                serial_putc(&stdio_uart, '\r');
+            }
             serial_putc(&stdio_uart, fmtstr[i]);
         }
         i++;
