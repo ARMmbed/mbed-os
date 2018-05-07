@@ -10,5 +10,5 @@
     "EXPAND_AS_DEFINED": "", 
     "SKIP_FUNCTION_MACROS": "NO",
     "STRIP_CODE_COMMENTS": "NO",
-    "EXCLUDE_PATTERNS": "*/tools/* */targets/* */features/mbedtls/* */features/storage/* */features/unsupported/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/FEATURE_COMMON_PAL/* */features/FEATURE_LWIP/* */features/FEATURE_UVISOR/* */features/nanostack/FEATURE_NANOSTACK/sal-stack-nanostack/* */features/nanostack/FEATURE_NANOSTACK/coap-service/* */ble/generic/* */ble/pal/*"
+    "EXCLUDE_PATTERNS": "*/tools/* */targets/* */features/mbedtls/* */features/storage/* */features/unsupported/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/FEATURE_LWIP/* */features/FEATURE_UVISOR/* */nanostack/sal-stack-nanostack/* */nanostack/coap-service/* */ble/generic/* */ble/pal/*  */mbed-trace/* */mbed-coap/* */nanostack-libservice/* */mbed-client-randlib/* */nanostack/sal-stack-nanostack-eventloop/*"
 }

@@ -844,11 +844,15 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/mbedtls/* \
                          */features/storage/* \
                          */features/unsupported/* \
-                         */features/FEATURE_COMMON_PAL/* \
                          */features/FEATURE_LWIP/* \
                          */features/FEATURE_UVISOR/* \
-                         */features/nanostack/FEATURE_NANOSTACK/sal-stack-nanostack/* \
-                         */features/nanostack/FEATURE_NANOSTACK/coap-service/* \
+                         */features/nanostack/sal-stack-nanostack/* \
+                         */features/nanostack/coap-service/* \
+                         */mbed-trace/* \
+                         */mbed-coap/* \
+                         */nanostack-libservice/* \
+                         */mbed-client-randlib/* \
+                         */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
                          */ble/pal/*
 
