@@ -323,7 +323,7 @@ void mbed_start_main(void)
     _main_thread_attr.name = "main_thread";
     osThreadId_t result = osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
     if ((void *)result == NULL) {
-        error("Pre main thread not created");
+        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_INITIALIZATION_FAILED), "Pre main thread not created", &_main_thread_attr);
     }
 
     osKernelStart();
