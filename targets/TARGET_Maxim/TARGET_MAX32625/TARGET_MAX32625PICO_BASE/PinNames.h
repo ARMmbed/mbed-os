@@ -119,6 +119,20 @@ typedef enum {
     SPI2_MISO = P2_6,
     SPI2_SS   = P2_7,
 
+    // Default peripherals defines
+    I2C_SCL = I2C0_SCL,
+    I2C_SDA = I2C0_SDA,
+
+    UART_RX = UART0_RX,
+    UART_TX = UART0_TX,
+    UART_CTS = UART0_CTS,
+    UART_RTS = UART0_RTS,
+
+    SPI_SCK = SPI0_SCK,
+    SPI_MOSI = SPI0_MOSI,
+    SPI_MISO = SPI0_MISO,
+    SPI_SS = SPI0_SS,
+
     // Not connected
     NC = NOT_CONNECTED
 } PinName;
