@@ -50,7 +50,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     // Set the object pointer and channel encoding
     obj->adc = MXC_ADC;
-    obj->channel = pinmap_find_function(pin, PinMap_ADC);
+    obj->channel = (mxc_adc_chsel_t)pinmap_find_function(pin, PinMap_ADC);
 
     if (!initialized) {
         MBED_ASSERT(ADC_Init() == E_NO_ERROR);
@@ -93,4 +93,3 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
     return result;
 }
-

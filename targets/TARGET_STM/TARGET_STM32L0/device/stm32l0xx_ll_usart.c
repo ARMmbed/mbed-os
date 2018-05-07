@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_usart.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   USART LL module driver.
   ******************************************************************************
   * @attention
@@ -153,7 +151,7 @@ ErrorStatus LL_USART_DeInit(USART_TypeDef *USARTx)
     /* Release reset of USART clock */
     LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_USART1);
   }
-#endif
+#endif /* USART1 */
 #if defined(USART1)
   else if (USARTx == USART2)
 #else
@@ -263,7 +261,7 @@ ErrorStatus LL_USART_Init(USART_TypeDef *USARTx, LL_USART_InitTypeDef *USART_Ini
     {
       periphclk = LL_RCC_GetUSARTClockFreq(LL_RCC_USART1_CLKSOURCE);
     }
-#endif
+#endif /* USART1 */
 #if defined(USART1)
     else if (USARTx == USART2)
 #else
@@ -279,7 +277,7 @@ ErrorStatus LL_USART_Init(USART_TypeDef *USARTx, LL_USART_InitTypeDef *USART_Ini
       LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
       periphclk = RCC_Clocks.PCLK1_Frequency;
     }
-#endif
+#endif /* USART4 */
 #if defined(USART5)
     else if (USARTx == USART5)
     {
@@ -287,7 +285,7 @@ ErrorStatus LL_USART_Init(USART_TypeDef *USARTx, LL_USART_InitTypeDef *USART_Ini
       LL_RCC_GetSystemClocksFreq(&RCC_Clocks);
       periphclk = RCC_Clocks.PCLK1_Frequency;
     }
-#endif
+#endif /* USART5 */
     else
     {
       /* Nothing to do, as error code is already assigned to ERROR value */

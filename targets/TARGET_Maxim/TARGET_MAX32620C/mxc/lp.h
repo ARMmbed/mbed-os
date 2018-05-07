@@ -138,7 +138,7 @@ int LP_ClearGPIOWakeUpDetect(const gpio_cfg_t *gpio);
  *          nonzero = at least one of the gpio passed in triggered a wake up
  *                    the bit set represents which pin is the wake up source
  */
-uint8_t LP_IsGPIOWakeUpSource(const gpio_cfg_t *gpio);
+int LP_IsGPIOWakeUpSource(const gpio_cfg_t *gpio);
 
 /**
  * @brief   Wake on USB plug or unplug

@@ -78,7 +78,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 //******************************************************************************
 void i2c_frequency(i2c_t *obj, int hz)
 {
-    I2CM_Init(obj->i2c, &obj->sys_cfg, hz);
+    I2CM_Init(obj->i2c, &obj->sys_cfg, (i2cm_speed_t)hz);
 }
 
 //******************************************************************************
@@ -143,11 +143,6 @@ int i2c_byte_read(i2c_t *obj, int last)
     if (last) {
         // NACK the last read byte
         if (I2CM_WriteTxFifo(i2cm, fifo, MXC_S_I2CM_TRANS_TAG_RXDATA_NACK) != E_NO_ERROR) {
-            goto byte_read_err;
-        }
-
-        // Send the stop condition
-        if (I2CM_WriteTxFifo(i2cm, fifo, MXC_S_I2CM_TRANS_TAG_STOP) != E_NO_ERROR) {
             goto byte_read_err;
         }
     } else {

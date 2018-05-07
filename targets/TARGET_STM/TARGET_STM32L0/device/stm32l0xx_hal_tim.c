@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   TIM HAL module driver.
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -1109,7 +1107,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 /**
   * @brief  Starts the PWM signal generation in interrupt mode.
   * @param  htim : TIM handle
-  * @param  Channel: TIM Channel to be disabled.
+  * @param  Channel: TIM Channel to be enabled.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected

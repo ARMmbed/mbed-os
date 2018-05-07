@@ -51,6 +51,20 @@ extern "C" {
 #define RTC_CLOCK LSI_VALUE
 #endif
 
+/* PREDIV_A : 7-bit asynchronous prescaler */
+/* PREDIV_S : 15-bit synchronous prescaler */
+/* PREDIV_S is set in order to get a 1 Hz clock */
+#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
+/* PREDIV_A is set to a small value to improve the SubSeconds resolution */
+/* with a 32768Hz clock, PREDIV_A=7 gives a precision of 244us */
+#define PREDIV_A_VALUE 7
+#else /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
+/* PREDIV_A is set to the maximum value to improve the consumption */
+#define PREDIV_A_VALUE 127
+#endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
+
+#define PREDIV_S_VALUE RTC_CLOCK / (PREDIV_A_VALUE + 1) - 1
+
 /** Read RTC time with subsecond precision.
  *
  * @return Time is microsecond
