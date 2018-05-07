@@ -36,10 +36,39 @@ static const uint8_t cdc_line_coding_default[7] = {0x80, 0x25, 0x00, 0x00, 0x00,
 
 class USBCDC::AsyncWrite: public AsyncOp {
 public:
-    AsyncWrite(uint8_t *buf, uint32_t size): AsyncOp(NULL), tx_buf(buf), tx_size(size), result(false)
+    AsyncWrite(USBCDC *serial, uint8_t *buf, uint32_t size):
+        serial(serial), tx_buf(buf), tx_size(size), result(false)
     {
 
     }
+
+    virtual ~AsyncWrite()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (!serial->_terminal_connected) {
+            result = false;
+            return true;
+        }
+
+        uint32_t actual_size = 0;
+        serial->send_nb(tx_buf, tx_size, &actual_size, true);
+        tx_size -= actual_size;
+        tx_buf += actual_size;
+        if (tx_size == 0) {
+            result = true;
+            return true;
+        }
+
+        // Start transfer if it hasn't been
+        serial->_send_isr_start();
+        return false;
+    }
+
+    USBCDC *serial;
     uint8_t *tx_buf;
     uint32_t tx_size;
     bool result;
@@ -47,16 +76,70 @@ public:
 
 class USBCDC::AsyncRead: public AsyncOp {
 public:
-    AsyncRead(uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
-        :   AsyncOp(NULL), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
+    AsyncRead(USBCDC *serial, uint8_t *buf, uint32_t size, uint32_t *size_read, bool read_all)
+        :   serial(serial), rx_buf(buf), rx_size(size), rx_actual(size_read), all(read_all), result(false)
     {
 
     }
+
+    virtual ~AsyncRead()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (!serial->_terminal_connected) {
+            result = false;
+            return true;
+        }
+
+        uint32_t actual_size = 0;
+        serial->receive_nb(rx_buf, rx_size, &actual_size);
+        rx_buf += actual_size;
+        *rx_actual += actual_size;
+        rx_size -= actual_size;
+        if ((!all && *rx_actual > 0) || (rx_size == 0)) {
+            // Wake thread if request is done
+            result = true;
+            return true;
+        }
+
+        serial->_receive_isr_start();
+        return false;
+    }
+
+    USBCDC *serial;
     uint8_t *rx_buf;
     uint32_t rx_size;
     uint32_t *rx_actual;
     bool all;
     bool result;
+};
+
+class USBCDC::AsyncWait: public AsyncOp {
+public:
+    AsyncWait(USBCDC *serial)
+        :   serial(serial)
+    {
+
+    }
+
+    virtual ~AsyncWait()
+    {
+
+    }
+
+    virtual bool process()
+    {
+        if (serial->_terminal_connected) {
+            return true;
+        }
+
+        return false;
+    }
+
+    USBCDC *serial;
 };
 
 USBCDC::USBCDC(bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
@@ -230,13 +313,30 @@ void USBCDC::_change_terminal_connected(bool connected)
 {
     assert_locked();
 
-    if (connected) {
-        _connect_wake_all();
-    } else {
-        _send_abort_all();
-        _receive_abort_all();
-    }
     _terminal_connected = connected;
+    if (!_terminal_connected) {
+        // Abort TX
+        if (_tx_in_progress) {
+            endpoint_abort(_bulk_in);
+            _tx_in_progress = false;
+        }
+        _tx_buf = _tx_buffer;
+        _tx_size = 0;
+        _tx_list.process();
+        MBED_ASSERT(_tx_list.empty());
+
+        // Abort RX
+        if (_rx_in_progress) {
+            endpoint_abort(_bulk_in);
+            _rx_in_progress = false;
+        }
+        _rx_buf = _rx_buffer;
+        _rx_size = 0;
+        _rx_list.process();
+        MBED_ASSERT(_rx_list.empty());
+
+    }
+    _connected_list.process();
 }
 
 bool USBCDC::ready()
@@ -253,87 +353,25 @@ void USBCDC::wait_ready()
 {
     lock();
 
-    AsyncOp wait_op(NULL);
-    wait_op.start(&_connected_list);
-    if (_terminal_connected) {
-        wait_op.complete();
-    }
+    AsyncWait wait_op(this);
+    _connected_list.add(&wait_op);
 
     unlock();
 
-    wait_op.wait();
-}
-
-void USBCDC::_connect_wake_all()
-{
-    AsyncOp *wait_op = _connected_list.head();
-    while (wait_op != NULL) {
-        wait_op->complete();
-        wait_op = _connected_list.head();
-    }
+    wait_op.wait(NULL);
 }
 
 bool USBCDC::send(uint8_t *buffer, uint32_t size)
 {
     lock();
 
-    if (!_terminal_connected) {
-        unlock();
-        return false;
-    }
-    AsyncWrite write_op(buffer, size);
-    write_op.start(&_tx_list);
-    _send_next();
+    AsyncWrite write_op(this, buffer, size);
+    _tx_list.add(&write_op);
 
     unlock();
 
-    write_op.wait();
+    write_op.wait(NULL);
     return write_op.result;
-}
-
-void USBCDC::_send_next()
-{
-    assert_locked();
-
-    uint32_t actual_size;
-    do {
-        // Set current TX operation or return if there are none left
-        AsyncWrite *tx_cur = _tx_list.head();
-        if (tx_cur == NULL) {
-            break;
-        }
-
-        actual_size = 0;
-        send_nb(tx_cur->tx_buf, tx_cur->tx_size, &actual_size, false);
-        tx_cur->tx_size -= actual_size;
-        tx_cur->tx_buf += actual_size;
-        if (tx_cur->tx_size == 0) {
-            tx_cur->result = true;
-            tx_cur->complete();
-        }
-    } while (actual_size > 0);
-
-    // Start transfer if it hasn't been
-    _send_isr_start();
-}
-
-void USBCDC::_send_abort_all()
-{
-    assert_locked();
-
-    if (_tx_in_progress) {
-        endpoint_abort(_bulk_in);
-        _tx_in_progress = false;
-    }
-    _tx_buf = _tx_buffer;
-    _tx_size = 0;
-
-    AsyncWrite *tx_cur = _tx_list.head();
-    while (tx_cur != NULL) {
-        tx_cur->result = false;
-        tx_cur->complete();
-        tx_cur = _tx_list.head();
-    }
 }
 
 void USBCDC::send_nb(uint8_t *buffer, uint32_t size, uint32_t *actual, bool now)
@@ -356,7 +394,6 @@ void USBCDC::send_nb(uint8_t *buffer, uint32_t size, uint32_t *actual, bool now)
 
     unlock();
 }
-
 
 void USBCDC::_send_isr_start()
 {
@@ -382,7 +419,7 @@ void USBCDC::_send_isr(usb_ep_t endpoint)
     _tx_size = 0;
     _tx_in_progress = false;
 
-    _send_next();
+    _tx_list.process();
     if (!_tx_in_progress) {
         data_tx();
     }
@@ -392,70 +429,17 @@ bool USBCDC::receive(uint8_t *buffer, uint32_t size,  uint32_t *size_read)
 {
     lock();
 
-    if (!_terminal_connected) {
-        unlock();
-        return false;
-    }
     bool read_all = size_read == NULL;
     uint32_t size_read_dummy;
     uint32_t *size_read_ptr = read_all ? &size_read_dummy : size_read;
     *size_read_ptr = 0;
-    AsyncRead read_op(buffer, size, size_read_ptr, read_all);
-    read_op.start(&_rx_list);
-    _receive_next();
+    AsyncRead read_op(this, buffer, size, size_read_ptr, read_all);
+    _rx_list.add(&read_op);
 
     unlock();
 
-    read_op.wait();
+    read_op.wait(NULL);
     return read_op.result;
-}
-
-void USBCDC::_receive_next()
-{
-    assert_locked();
-
-    uint32_t actual_size;
-    do {
-        // Set current RX operation or return if there are none left
-        AsyncRead *rx_cur = _rx_list.head();
-        if (rx_cur == NULL) {
-            break;
-        }
-
-        actual_size = 0;
-        receive_nb(rx_cur->rx_buf, rx_cur->rx_size, &actual_size);
-        rx_cur->rx_buf += actual_size;
-        *rx_cur->rx_actual += actual_size;
-        rx_cur->rx_size -= actual_size;
-        if ((!rx_cur->all && *rx_cur->rx_actual > 0) || (rx_cur->rx_size == 0)) {
-            // Wake thread if request is done
-            rx_cur->result = true;
-            rx_cur->complete();
-            rx_cur = NULL;
-        }
-    } while (actual_size > 0);
-
-    _receive_isr_start();
-
-}
-
-void USBCDC::_receive_abort_all()
-{
-    assert_locked();
-
-    if (_rx_in_progress) {
-        endpoint_abort(_bulk_in);
-        _rx_in_progress = false;
-    }
-    _rx_buf = _rx_buffer;
-    _rx_size = 0;
-
-    AsyncRead *rx_cur = _rx_list.head();
-    while (rx_cur != NULL) {
-        rx_cur->result = false;
-        rx_cur->complete();
-        rx_cur = _rx_list.head();
-    }
 }
 
 void USBCDC::receive_nb(uint8_t *buffer, uint32_t size,  uint32_t *size_read)
@@ -496,7 +480,7 @@ void USBCDC::_receive_isr(usb_ep_t endpoint)
     _rx_buf = _rx_buffer;
     _rx_size = read_finish(_bulk_out);
     _rx_in_progress = false;
-    _receive_next();
+    _rx_list.process();
     if (!_rx_in_progress) {
         data_rx();
     }
