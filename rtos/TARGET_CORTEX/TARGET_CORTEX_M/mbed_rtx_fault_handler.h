@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+#ifndef MBED_RTX_FAULT_HANDLER_H
+#define MBED_RTX_FAULT_HANDLER_H 
 
 //Fault context struct
 //WARNING: DO NOT CHANGE THIS STRUCT WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
@@ -52,3 +55,4 @@ typedef struct {
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
 __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn);
 
+#endif

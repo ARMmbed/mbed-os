@@ -57,14 +57,14 @@ int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
 int ReadOnlyBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    error("ReadOnlyBlockDevice::program() not allowed");
-    return 0;
+    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_BLOCK_DEVICE, ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::program() not allowed", addr);
+    return ERROR_WRITE_PROTECTED;
 }
 
 int ReadOnlyBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    error("ReadOnlyBlockDevice::erase() not allowed");
-    return 0;
+    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_BLOCK_DEVICE, ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::erase() not allowed", addr);
+    return ERROR_WRITE_PROTECTED;
 }
 
 bd_size_t ReadOnlyBlockDevice::get_read_size() const
