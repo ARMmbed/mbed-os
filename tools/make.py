@@ -20,15 +20,11 @@ TEST BUILD & RUN
 """
 from __future__ import print_function
 
-import fnmatch
-import os
 from builtins import str
 import sys
-import json
 from time import sleep
 from shutil import copy
 from os.path import join, abspath, dirname
-from json import load, dump
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
