@@ -872,8 +872,8 @@ void LoRaMac::open_rx1_window(void)
         _lora_phy.put_radio_to_standby();
     }
 
-    _lora_phy.rx_config(&_params.rx_window1_config,
-                        (int8_t*) &_mcps_indication.rx_datarate);
+    _mcps_indication.rx_datarate = _params.rx_window1_config.datarate;
+    _lora_phy.rx_config(&_params.rx_window1_config);
 
     _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
                               _params.sys_params.max_rx_win_time);
@@ -892,8 +892,9 @@ void LoRaMac::open_rx2_window()
 
     _params.rx_window2_config.is_rx_continuous = get_device_class()==CLASS_C ? true : false;
 
-    if (_lora_phy.rx_config(&_params.rx_window2_config,
-                            (int8_t*) &_mcps_indication.rx_datarate) == true) {
+    _mcps_indication.rx_datarate = _params.rx_window2_config.datarate;
+
+    if (_lora_phy.rx_config(&_params.rx_window2_config)) {
 
         _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
                                   _params.sys_params.max_rx_win_time);

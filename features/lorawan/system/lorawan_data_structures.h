@@ -1005,7 +1005,7 @@ typedef struct {
      */
     uint8_t channel;
     /*!
-     * The RX datarate.
+     * The RX datarate index.
      */
     uint8_t datarate;
     /*!

@@ -194,11 +194,9 @@ public:
      *
      * @param [in] config    A pointer to the RX configuration.
      *
-     * @param [out] datarate The datarate index set.
-     *
      * @return True, if the configuration was applied successfully.
      */
-    virtual bool rx_config(rx_config_params_t* config, int8_t* datarate);
+    virtual bool rx_config(rx_config_params_t* config);
 
     /** Computing Receive Windows
      *

@@ -808,7 +808,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset);
 }
 
-bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
+bool LoRaPHY::rx_config(rx_config_params_t* rx_conf)
 {
     radio_modems_t modem;
     uint8_t dr = rx_conf->datarate;
@@ -867,8 +867,6 @@ bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
     _radio->set_max_payload_length(modem, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
 
     _radio->unlock();
-
-    *datarate = phy_dr;
 
     return true;
 }
