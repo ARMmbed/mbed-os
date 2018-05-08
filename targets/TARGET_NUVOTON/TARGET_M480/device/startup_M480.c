@@ -51,7 +51,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 /* Initialize segments */
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
+extern uint32_t Image$$ARM_LIB_STACK_$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
 void __iar_program_start(void);
@@ -202,7 +202,7 @@ const uint32_t __vector_handlers[] = {
 #endif
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
+    (uint32_t) &Image$$ARM_LIB_STACK_$$ZI$$Limit,
 #elif defined(__ICCARM__)
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
@@ -407,7 +407,7 @@ void Reset_Handler_1(void)
     SYS_LockReg();
     
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    Reset_Handler_Cascade((void *) &Image$$ARM_LIB_STACK$$ZI$$Limit, (void *) Reset_Handler_2);
+    Reset_Handler_Cascade((void *) &Image$$ARM_LIB_STACK_$$ZI$$Limit, (void *) Reset_Handler_2);
 #elif defined(__ICCARM__)
     Reset_Handler_Cascade((void *) &CSTACK$$Limit, (void *) Reset_Handler_2);
 #elif defined(__GNUC__)
