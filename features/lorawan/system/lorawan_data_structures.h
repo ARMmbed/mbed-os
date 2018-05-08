@@ -47,40 +47,6 @@ typedef uint32_t lorawan_time_t;
 // Radio wake-up time from sleep - unit ms.
 #define RADIO_WAKEUP_TIME                           1
 
-/**
- * Option Flags for send(), receive() APIs
- */
-#define MSG_UNCONFIRMED_FLAG                  0x01
-#define MSG_CONFIRMED_FLAG                    0x02
-#define MSG_MULTICAST_FLAG                    0x04
-#define MSG_PROPRIETARY_FLAG                  0x08
-
-/**
- * Bit mask for message flags
- */
-
-#define MSG_FLAG_MASK                         0x0F
-
-/**
- * Mask for unconfirmed multicast message
- */
-#define MSG_UNCONFIRMED_MULTICAST              0x05
-
-/**
- * Mask for confirmed multicast message
- */
-#define MSG_CONFIRMED_MULTICAST                0x06
-
-/**
- * Mask for unconfirmed message proprietary message
- */
-#define MSG_UNCONFIRMED_PROPRIETARY            0x09
-
-/**
- * Mask for confirmed proprietary message
- */
-#define MSG_CONFIRMED_PROPRIETARY              0x0A
-
 /*!
  * Sets the length of the LoRaMAC footer field.
  * Mainly indicates the MIC field length.
