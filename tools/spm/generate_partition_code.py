@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import fnmatch
 import glob
 import itertools
 import json
@@ -18,6 +19,7 @@ COMMON_TEMPLATES = filter(
     lambda filename: '_NAME_' not in filename,
     glob.glob(path_join(TEMPLATES_DIR, '*.tpl'))
 )
+MANIFEST_FILE_PATTERN = '*_psa.json'
 
 
 def assert_int(num):
@@ -697,3 +699,18 @@ Process all the given manifest files and generate C code from them
         autogen_folder,
         extra_filters=extra_filters
     )
+
+
+def scan_for_manifests(src_dirs):
+    """
+    Scan a list of directories for PSA manifests.
+    
+    :param src_dirs: List of directories
+    :return: List of PSA manifests
+    """
+    manifests = set()
+    for src_dir in src_dirs:
+        for root, dirnames, filenames in os.walk(src_dir, followlinks=True):
+            for filename in fnmatch.filter(filenames, MANIFEST_FILE_PATTERN):
+                manifests.add(os.path.join(root, filename))
+    return list(manifests)

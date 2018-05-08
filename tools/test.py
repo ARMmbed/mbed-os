@@ -42,7 +42,7 @@ from tools.utils import argparse_filestring_type, argparse_lowercase_type, argpa
 from tools.utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
-from tools.spm import generate_partitions_sources
+from tools.spm import generate_partitions_sources, scan_for_manifests
 
 if __name__ == '__main__':
     try:
@@ -198,12 +198,7 @@ if __name__ == '__main__':
             if not base_source_paths:
                 base_source_paths = ['.']
 
-            manifests = set()
-            for src_dir in base_source_paths:
-                for root, dirnames, filenames in os.walk(src_dir):
-                    for filename in fnmatch.filter(filenames, '*_psa.json'):
-                        manifests.add(os.path.join(root, filename))
-            generate_partitions_sources(list(manifests))
+            generate_partitions_sources(scan_for_manifests(base_source_paths))
 
             build_report = {}
             build_properties = {}
