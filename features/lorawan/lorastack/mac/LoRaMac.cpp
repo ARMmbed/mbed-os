@@ -321,7 +321,7 @@ void LoRaMac::handle_join_accept_frame(const uint8_t *payload,
     }
 }
 
-bool LoRaMac::is_frame_size_valid(const uint16_t size)
+void LoRaMac::check_frame_size(uint16_t size)
 {
     uint8_t value = _lora_phy.get_max_payload(_mcps_indication.rx_datarate,
                                               _params.is_repeater_supported);
@@ -329,12 +329,7 @@ bool LoRaMac::is_frame_size_valid(const uint16_t size)
     if (MAX(0, (int16_t) ((int16_t)size - (int16_t)LORA_MAC_FRMPAYLOAD_OVERHEAD))
             > (int32_t) value) {
         tr_error("Invalid frame size");
-        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-        abort_rx();
-        return false;
     }
-
-    return true;
 }
 
 bool LoRaMac::message_integrity_check(const uint8_t * const payload,
@@ -504,9 +499,7 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
                                 int16_t rssi,
                                 int8_t snr)
 {
-    if (!is_frame_size_valid(size)) {
-        return;
-    }
+    check_frame_size(size);
 
     bool is_multicast = false;
     loramac_frame_ctrl_t fctrl;

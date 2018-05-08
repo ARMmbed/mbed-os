@@ -484,7 +484,7 @@ private:
     /**
      * Checks if the frame is valid
      */
-    bool is_frame_size_valid(const uint16_t size);
+    void check_frame_size(uint16_t size);
 
     /**
      * Performs MIC
