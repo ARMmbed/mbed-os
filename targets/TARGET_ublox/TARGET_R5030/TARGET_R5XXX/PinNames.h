@@ -58,8 +58,8 @@ typedef enum {
     I2C1_SCL = p0,
     I2C1_SDA = p1,
 
-	I2C_SCL = I2C1_SCL,
-	I2C_SDA = I2C1_SDA,
+    I2C_SCL = I2C1_SCL,
+    I2C_SDA = I2C1_SDA,
 
     I2C2_SCL = p10,
     I2C2_SDA = p11,
