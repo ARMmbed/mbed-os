@@ -37,6 +37,8 @@
 #include "cmsis.h"
 #include "nRF5xCrypto.h"
 #include "platform/mbed_assert.h"
+#include "nrf_soc.h"
+
 
 namespace ble {
 namespace pal {
@@ -126,6 +128,36 @@ bool CryptoToolbox::generate_shared_secret(
     mbedtls_mpi_free(&result);
 
     return err ? false : true;
+}
+
+bool CryptoToolbox::ah(
+    const ArrayView<const uint8_t, irk_size_>& irk,
+    const ArrayView<const uint8_t, prand_size_>& prand,
+    ArrayView<uint8_t, hash_size_> hash
+) {
+    // Note copy then swap operation can be optimized.
+
+    // Note: the encryption block works in big endian; go figure.
+    nrf_ecb_hal_data_t ecb_hal_data;
+
+    memcpy(ecb_hal_data.key, irk.data(), irk.size());
+    swap_endian(ecb_hal_data.key, sizeof(ecb_hal_data.key));
+
+    memcpy(ecb_hal_data.cleartext, prand.data(), prand.size());
+    memset(ecb_hal_data.cleartext + prand.size(), 0, sizeof(ecb_hal_data.cleartext) - prand.size());
+    swap_endian(ecb_hal_data.cleartext, sizeof(ecb_hal_data.cleartext));
+
+    uint32_t err = sd_ecb_block_encrypt(&ecb_hal_data);
+
+    if (err) {
+        return false;
+    }
+
+    swap_endian(ecb_hal_data.ciphertext, sizeof(ecb_hal_data.ciphertext));
+
+    memcpy(hash.data(), ecb_hal_data.ciphertext, hash.size());
+
+    return true;
 }
 
 

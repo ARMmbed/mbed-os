@@ -426,10 +426,10 @@ typedef uint32_t sign_count_t;
  */
 struct address_t : public byte_array_t<6> {
     /**
-     * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
+     * Create an invalid mac address, equal to 00:00:00:00:00:00
      */
     address_t() {
-        memset(_value, 0xFF, sizeof(_value));
+        memset(_value, 0x00, sizeof(_value));
     }
 
     /**

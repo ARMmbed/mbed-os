@@ -83,6 +83,40 @@ public:
      */
     virtual ble_error_t clear_resolving_list();
 
+    /**
+     * An entry of the resolving list stored in the SecurityManager.
+     */
+    struct resolving_list_entry_t {
+        resolving_list_entry_t() :
+            peer_identity_address_type(
+                advertising_peer_address_type_t::PUBLIC_ADDRESS
+            )
+        { }
+
+        irk_t peer_irk;
+        address_t peer_identity_address;
+        advertising_peer_address_type_t peer_identity_address_type;
+    };
+
+    /**
+     * Return the IRKs present in the resolving list
+     * @param count The number of entries present in the resolving list.
+     * @param pointer to the first entry of the resolving list.
+     */
+    ArrayView<resolving_list_entry_t> get_resolving_list();
+
+    /**
+     * Try to resolve a private resolvable address.
+     *
+     * @param resolvable_address The address to resolve.
+     *
+     * @return Pointer to the entry found if any.
+     */
+    const resolving_list_entry_t*  resolve_address(
+        const address_t& resolvable_address
+    );
+
+
     ////////////////////////////////////////////////////////////////////////////
     // Pairing
     //
@@ -351,6 +385,11 @@ private:
     ble::public_key_coord_t X;
     ble::public_key_coord_t Y;
     ble::public_key_coord_t secret;
+
+    static const size_t MAX_RESOLVING_LIST_ENTRIES = BLE_GAP_WHITELIST_IRK_MAX_COUNT;
+
+    size_t resolving_list_entry_count;
+    resolving_list_entry_t resolving_list[MAX_RESOLVING_LIST_ENTRIES];
 };
 
 } // nordic

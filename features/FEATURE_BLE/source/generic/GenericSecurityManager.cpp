@@ -74,6 +74,22 @@ ble_error_t GenericSecurityManager::init(
     _signing_monitor.set_signing_event_handler(this);
     _pal.set_event_handler(this);
 
+    uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
+    pal::SecurityEntryIdentity_t** identity_list_p =
+        new (std::nothrow) pal::SecurityEntryIdentity_t*[resolving_list_capacity];
+
+    if (identity_list_p) {
+        ArrayView<pal::SecurityEntryIdentity_t*> identity_list(
+            identity_list_p,
+            resolving_list_capacity
+        );
+
+        _db.get_identity_list(
+            mbed::callback(this, &GenericSecurityManager::on_identity_list_retrieved),
+            identity_list
+        );
+    }
+
     return BLE_ERROR_NONE;
 }
 
@@ -866,6 +882,46 @@ void GenericSecurityManager::on_disconnected(
     _db.sync();
 }
 
+void GenericSecurityManager::on_security_entry_retrieved(
+    pal::SecurityDb::entry_handle_t entry,
+    const pal::SecurityEntryIdentity_t* identity
+) {
+    if (!identity) {
+        return;
+    }
+
+    typedef advertising_peer_address_type_t address_type_t;
+
+    _pal.add_device_to_resolving_list(
+        identity->identity_address_is_public ?
+            address_type_t::PUBLIC_ADDRESS :
+            address_type_t::RANDOM_ADDRESS,
+        identity->identity_address,
+        identity->irk
+    );
+}
+
+void GenericSecurityManager::on_identity_list_retrieved(
+    ble::ArrayView<pal::SecurityEntryIdentity_t*>& identity_list,
+    size_t count
+) {
+    typedef advertising_peer_address_type_t address_type_t;
+
+    _pal.clear_resolving_list();
+    for (size_t i = 0; i < count; ++i) {
+        _pal.add_device_to_resolving_list(
+            identity_list[i]->identity_address_is_public ?
+                address_type_t::PUBLIC_ADDRESS :
+                address_type_t::RANDOM_ADDRESS,
+            identity_list[i]->identity_address,
+            identity_list[i]->irk
+        );
+    }
+
+    delete [] identity_list.data();
+}
+
+
 /* Implements ble::pal::SecurityManagerEventHandler */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -937,6 +993,10 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
     if (cb) {
         // set the distribution flags in the db
         _db.set_distribution_flags(cb->db_entry, *cb);
+        _db.get_entry_identity(
+            mbed::callback(this, &GenericSecurityManager::on_security_entry_retrieved),
+            cb->db_entry
+        );
     }
 
     eventHandler->pairingResult(
