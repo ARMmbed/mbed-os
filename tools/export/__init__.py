@@ -342,6 +342,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     # Skip SPM sources for Mbed OS 2 builds
     # Directories scanned would not include the root of Mbed OS for legacy builds
     if 'rtos' in toolchain.config.lib_config_data:
+        # generate_partitions_sources() is called here to prevent another scan of the file tree
         psa_files_dirs = generate_partitions_sources(resources.psa_manifests)
         psa_files_dirs.append(generate_spm_data(resources.psa_manifests, export_path))
         for directory in psa_files_dirs:
