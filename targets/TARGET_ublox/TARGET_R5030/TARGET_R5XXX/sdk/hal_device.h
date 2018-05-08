@@ -43,6 +43,14 @@
 #define HAL_NR_VSP 1
 /** Number of DSP cores available in VSP Subsystem 0 */
 #define HAL_NR_VSP0_AR1DE 1
+/** Continuation Code used for the Klein Matterhorn Chip (0x7 -> u-blox, 0x4 -> ARM) */
+#define KM_CONTINUATION_CODE 0x7
+/** Identification Code used for the Klein Matterhorn Chip (0x7 -> u-blox, 0x4 -> ARM) */
+#define KM_IDENTIFICATION_CODE 0x0D
+/** Part number used for the Klein Matterhorn Chip */
+#define KM_PART_NUMBER 0xAA6
+/** Target ID for the Klein Matterhorn Chip (field descriptions covered in ARM Coresight SoC TRM) */
+#define KM_TARGETID (KM_PART_NUMBER << 16) | (KM_CONTINUATION_CODE << 8) | (KM_IDENTIFICATION_CODE << 1) | 0x1
 /** Modem CPU Type */
 #define MDM_CPU CORTEX_M7
 /** Modem CPU Type */
@@ -1320,14 +1328,14 @@ enum RF_CPU_IRQ_CFG {
    RF_CPU_IRQ_CFG_TIMER2_INT = 33,
    /** RF Timer 2 Overflow Interrupt */
    RF_CPU_IRQ_CFG_TIMER2_OVF_INT = 34,
+   /** RF Rx Mailbox 0 Interrupt */
+   RF_CPU_IRQ_CFG_RX_MBX0_INT = 35,
    /** RF Rx Mailbox 1 Interrupt */
-   RF_CPU_IRQ_CFG_RX_MBX1_INT = 35,
-   /** RF Rx Mailbox 2 Interrupt */
-   RF_CPU_IRQ_CFG_RX_MBX2_INT = 36,
+   RF_CPU_IRQ_CFG_RX_MBX1_INT = 36,
+   /** RF Tx Mailbox 0 Interrupt */
+   RF_CPU_IRQ_CFG_TX_MBX0_INT = 37,
    /** RF Tx Mailbox 1 Interrupt */
-   RF_CPU_IRQ_CFG_TX_MBX1_INT = 37,
-   /** RF Tx Mailbox 2 Interrupt */
-   RF_CPU_IRQ_CFG_TX_MBX2_INT = 38,
+   RF_CPU_IRQ_CFG_TX_MBX1_INT = 38,
    /** RF Cross Trigger 1 Interface Interrupt */
    RF_CPU_IRQ_CFG_CTI1_INT = 39,
    /** RF Cross Trigger 2 Interface Interrupt */
@@ -1344,30 +1352,30 @@ enum RF_CPU_NMI_CFG {
 
 /** RF Scheduler Queue IDs */
 enum RF_DIG_SCH_Q_DEPTH {
-   /** RF Scheduler Q4 depth - PLL1 TX SYN */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL1 = 1,
    /** RF Scheduler Q5 depth - PLL2 RX SYN */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL2 = 1,
-   /** RF Scheduler Q6 depth - AUX */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_AUX = 4,
+   /** RF Scheduler Q4 depth - PLL1 TX SYN */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL1 = 1,
    /** RF Scheduler Q1 depth - TX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX2 = 4,
+   /** RF Scheduler Q7 depth - Master Load */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
    /** RF Scheduler Q0 depth - TX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX1 = 4,
-   /** RF Scheduler Q6 depth - Master Load */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
+   /** RF Scheduler Q6 depth - AUX */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_AUX = 4,
    /** RF Scheduler Q3 depth - RX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX2 = 8,
    /** RF Scheduler Q2 depth - RX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX1 = 8,
-   /** RF Scheduler Q14 depth - RFFE */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16,
-   /** RF Scheduler Q14 depth - GPIO */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_GPIO = 16,
    /** RF Scheduler Q15 depth - CPU Interrupt */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CPU = 16,
+   /** RF Scheduler Q14 depth - RFFE */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16,
    /** RF Scheduler Q13 depth - Clock */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CLK = 16
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CLK = 16,
+   /** RF Scheduler Q14 depth - GPIO */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_GPIO = 16
 };
 
 /** RF Scheduler Queue IDs */
@@ -1384,10 +1392,10 @@ enum RF_DIG_SCH_Q_ID {
    RF_DIG_SCH_Q_ID_RF_SCH_Q_PLL1 = 4,
    /** RF Scheduler Q5 - PLL2 RX SYN */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_PLL2 = 5,
-   /** RF Scheduler Q6 - Master Load */
-   RF_DIG_SCH_Q_ID_RF_SCH_Q_MSTR = 6,
    /** RF Scheduler Q6 - AUX */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_AUX = 6,
+   /** RF Scheduler Q7 - Master Load */
+   RF_DIG_SCH_Q_ID_RF_SCH_Q_MSTR = 7,
    /** RF Scheduler Q13 - Clock */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_CLK = 13,
    /** RF Scheduler Q14 - GPIO */
@@ -1425,44 +1433,44 @@ enum RF_DIG_SCH_Q_POS_CLK {
 /** RF Scheduler Queue 14 Bit Positions for the GPIO and RFFE Queue */
 enum RF_DIG_SCH_Q_POS_GPIO_RFFE {
    /** RFFE Trigger */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_UNUSED0 = 0,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_RFFE_TRIG = 0,
    /** GPIO[0] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO0 = 1,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO0 = 16,
    /** GPIO[1] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO1 = 2,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO1 = 17,
    /** GPIO[2] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO2 = 3,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO2 = 18,
    /** GPIO[3] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO3 = 4,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO3 = 19,
    /** GPIO[4] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO4 = 5,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO4 = 20,
    /** GPIO[5] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO5 = 6,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO5 = 21,
    /** GPIO[6] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO6 = 7,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO6 = 22,
    /** GPIO[7] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO7 = 8,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO7 = 23,
    /** GPIO[8] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO8 = 9,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO8 = 24,
    /** GPIO[9] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO9 = 10,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO9 = 25,
    /** GPIO[10] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO10 = 11,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO10 = 26,
    /** GPIO[11] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO11 = 12,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO11 = 27,
    /** GPIO[12] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO12 = 13,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO12 = 28,
    /** GPIO[13] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO13 = 14,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO13 = 29,
    /** GPIO[14] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 15,
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 30,
    /** GPIO[15] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 15
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 31
 };
 
 /** RF Scheduler Queue 7 Bit Positions for Master Load */
 enum RF_DIG_SCH_Q_POS_MSTR {
-   /** Master Load */
+   /** Master Load - used for Config Regs */
    RF_DIG_SCH_Q_POS_MSTR_Q7_MASLD = 0,
    /** Tx Scratchpad Trigger */
    RF_DIG_SCH_Q_POS_MSTR_Q7_TXSCRTRIG = 1,
@@ -1735,7 +1743,7 @@ static volatile struct timer_s* const app_ss_app_timer = (struct timer_s*)(+0x49
 }
 #endif
 
-struct i2c_s;
+struct i2c_ss;
 #ifdef __cplusplus
 namespace device {
 #endif
