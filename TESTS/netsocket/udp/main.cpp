@@ -83,8 +83,8 @@ Case cases[] = {
         Case("Reuse a socket", test_udpsocket_open_close_repeat),
         Case("Open at least 3 sockets", test_udpsocket_open_limit),
         Case("Receive in given time", test_udpsocket_recv_timeout),
+        Case("Detect sendto invalid params", test_udpsocket_sendto_invalid),
         Case("Send in given time", test_udpsocket_sendto_timeout),
-
 };
 
 Specification specification(greentea_setup, cases, greentea_teardown);
