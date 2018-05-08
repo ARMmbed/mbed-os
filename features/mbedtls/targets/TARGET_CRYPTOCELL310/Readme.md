@@ -17,6 +17,6 @@ To port your CC 310 driver to Mbed OS on your specific target, do the following:
 1. In `objects.h`, include `objects_cryptocell.h`. You can use the `DEBICE_CRYPTOCELL` pre-compilation check as defined above.
 1. In `features/mbedtls/targets/TARGET_CRYPTOCELL310/TARGET_<target name>`, add your platform-specific libraries for all toolchains in `TOOLCHAIN_ARM`, `TOOLCHAIN_GCC_ARM` and `TOOLCHAIN_IAR` respectively.
 1. Add your CC setup code:
-	* Implement `cc_platform_setup()` and `cc_platform_terminate()` to enable CC on your platform, in case you have such limitations. You can implement these functions as empty functions.
+	* Implement `cc_platform_setup()` and `cc_platform_terminate()` to enable CC on your platform, in case you have board specific setup functionality, required for CC setup. You can implement these functions as empty functions.
 	* Define `cc_platform_ctx` in `cc_platform.h` in a way that suits your implementation.
  
