@@ -197,7 +197,7 @@ int spi_busy(spi_t *obj)
 
 int spi_slave_receive(spi_t *obj)
 {
-    return (spi_readable(obj) && !spi_busy(obj)) ? (1) : (0);
+    return ssp_readable(obj) ? (1) : (0);
 }
 
 int spi_slave_read(spi_t *obj)
