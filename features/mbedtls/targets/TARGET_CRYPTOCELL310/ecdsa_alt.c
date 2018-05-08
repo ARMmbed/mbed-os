@@ -128,7 +128,6 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
             ret = convert_CrysError_to_mbedtls_err( CrysRet );
             goto cleanup;
         }
-        mbedtls_zeroize( temp_buf, sizeof(temp_buf) );
     }
     else
     {
