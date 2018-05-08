@@ -94,16 +94,6 @@ private:
     // Private constructor, as class is a singleton
     DeviceKey();
 
-    /** Calculate CMAC
-     * @param input buffer contain some string.
-     * @param isize size of the supplied input string.
-     * @param ikey_buff input buffer holding the ROT key
-     * @param ikey_size size of the input key. must be 16 bytes or 32 bytes.
-     * @param output buffer for the CMAC result.
-     * @return 0 on success, negative error code on failure
-     */
-    int calculate_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size, unsigned char *output);
-
     /** Read a device key from the NVStore
      * @param output buffer for the returned key.
      * @param size input: the size of the output buffer.
@@ -119,7 +109,8 @@ private:
      */
     int write_key_to_nvstore(uint32_t *input, size_t isize);
 
-    /** Get a derived key base on a salt string
+    /** Get a derived key base on a salt string. The methods implements
+     * Section 5.1 in NIST SP 800-108, Recommendation for Key Derivation Using Pseudorandom Functions
      * @param ikey_buff input buffer holding the ROT key
      * @param ikey_size size of the input key. Must be 16 bytes or 32 bytes.
      * @param isalt input buffer contain some string.

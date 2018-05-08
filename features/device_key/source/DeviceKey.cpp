@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-#include "drivers/DeviceKey.h"
+#include "DeviceKey.h"
 #include "mbedtls/config.h"
 #include "mbedtls/cmac.h"
 #include "nvstore.h"
 #include "trng_api.h"
 #include "mbed_wait_api.h"
+#include "stdlib.h"
 
 #if !defined(MBEDTLS_CMAC_C)
 #error [NOT_SUPPORTED] MBEDTLS_CMAC_C needs to be enabled for this driver
@@ -29,13 +30,21 @@
 
 namespace mbed {
 
-static void buffer_zeroize(void *v, size_t n)
-{
-    volatile unsigned char *p = (volatile unsigned char *)v;
-    while ( n-- ) {
-        *p++ = 0;
-    }
-}
+#define DEVKEY_WRITE_UINT32_LE( dst, src )                              \
+    do                                                                  \
+    {                                                                   \
+        (dst)[0] = ( (src) >> 0 ) & 0xFF;                               \
+        (dst)[1] = ( (src) >> 8 ) & 0xFF;                               \
+        (dst)[2] = ( (src) >> 16 ) & 0xFF;                              \
+        (dst)[3] = ( (src) >> 24 ) & 0xFF;                              \
+    } while( 0 )
+
+#define DEVKEY_WRITE_UINT8_LE( dst, src )                               \
+    do                                                                  \
+    {                                                                   \
+        (dst)[0] = (src) & 0xFF;                                        \
+    } while( 0 )
+
 
 DeviceKey::DeviceKey()
 {
@@ -145,12 +154,19 @@ int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
     return DEVICEKEY_SUCCESS;
 }
 
-// Calculate CMAC functions - wrapper for mbedtls start/update and finish
-int DeviceKey::calculate_cmac(const unsigned char *input, size_t isize, uint32_t *ikey_buff, int ikey_size,
-                              unsigned char *output)
+int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsigned char *isalt,
+                               size_t isalt_size, unsigned char *output, uint32_t ikey_type)
 {
+    //KDF in counter mode implementation as described in Section 5.1
+    //of NIST SP 800-108, Recommendation for Key Derivation Using Pseudorandom Functions
     int ret;
+    size_t counter = 0;
+    char separator = 0x00;
     mbedtls_cipher_context_t ctx;
+    unsigned char output_len_enc[ 4 ] = {0};
+    unsigned char counter_enc[ 1 ] = {0};
+
+    DEVKEY_WRITE_UINT32_LE(output_len_enc, ikey_type);
 
     mbedtls_cipher_type_t mbedtls_cipher_type = MBEDTLS_CIPHER_AES_128_ECB;
     if (DEVICE_KEY_32BYTE == ikey_size) {
@@ -165,60 +181,46 @@ int DeviceKey::calculate_cmac(const unsigned char *input, size_t isize, uint32_t
         goto finish;
     }
 
-    ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
-    if (ret != 0) {
-        goto finish;
-    }
+    do {
 
-    ret = mbedtls_cipher_cmac_update(&ctx, input, isize);
-    if (ret != 0) {
-        goto finish;
-    }
+        ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
+        if (ret != 0) {
+            goto finish;
+        }
 
-    ret = mbedtls_cipher_cmac_finish(&ctx, output);
-    if (ret != 0) {
-        goto finish;
-    }
+        DEVKEY_WRITE_UINT8_LE(counter_enc, (counter+1));
 
-    ret =  DEVICEKEY_SUCCESS;
+        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)counter_enc, sizeof(counter_enc));
+        if (ret != 0) {
+            goto finish;
+        }
+
+        ret = mbedtls_cipher_cmac_update(&ctx, isalt, isalt_size);
+        if (ret != 0) {
+            goto finish;
+        }
+
+        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)&separator, sizeof(char));
+        if (ret != 0) {
+            goto finish;
+        }
+
+        ret = mbedtls_cipher_cmac_update(&ctx, (unsigned char *)&output_len_enc, sizeof(output_len_enc));
+        if (ret != 0) {
+            goto finish;
+        }
+
+        ret = mbedtls_cipher_cmac_finish(&ctx, output + (DEVICE_KEY_16BYTE * (counter)));
+        if (ret != 0) {
+            goto finish;
+        }
+
+        counter++;
+
+    } while (DEVICE_KEY_16BYTE * counter < ikey_type);
 
 finish:
     mbedtls_cipher_free( &ctx );
-    return ret;
-}
-
-int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsigned char *isalt,
-                               size_t isalt_size, unsigned char *output, uint32_t ikey_type)
-{
-    int ret;
-    unsigned char *double_size_salt = NULL;
-
-    if (DEVICE_KEY_16BYTE == ikey_type) {
-        ret = calculate_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
-        if (DEVICEKEY_SUCCESS != ret) {
-            goto finish;
-        }
-    }
-
-    if (DEVICE_KEY_32BYTE == ikey_type) {
-        ret = this->calculate_cmac(isalt, isalt_size, ikey_buff, ikey_size, output);
-        if (DEVICEKEY_SUCCESS != ret) {
-            goto finish;
-        }
-
-        //Double the salt size cause cmac always return just 16 bytes
-        double_size_salt = new unsigned char[isalt_size * 2];
-        memcpy(double_size_salt, isalt, isalt_size);
-        memcpy(double_size_salt + isalt_size, isalt, isalt_size);
-
-        ret = this->calculate_cmac(double_size_salt, isalt_size * 2, ikey_buff, ikey_size, output + 16);
-    }
-
-finish:
-    if (double_size_salt != NULL) {
-        buffer_zeroize(double_size_salt, isalt_size);
-        delete[] double_size_salt;
-    }
 
     if (DEVICEKEY_SUCCESS != ret) {
         return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
