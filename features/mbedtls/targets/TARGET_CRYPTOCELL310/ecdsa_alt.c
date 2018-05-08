@@ -84,12 +84,6 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
         goto cleanup;
     }
 
-    if( blen > 0xFFFFFFFF )
-    {
-        ret = MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
-        goto cleanup;
-    }
-
     if ( pDomain != NULL )
     {
         uint8_t temp_buf[ MAX_KEY_SIZE_IN_BYTES ] = {0};
