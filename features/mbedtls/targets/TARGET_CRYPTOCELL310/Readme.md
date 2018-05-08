@@ -11,7 +11,7 @@ The CC 310 driver consists of three libraries:
 To port your CC 310 driver to Mbed OS on your specific target, do the following:
 
 1. In `targets.json` add the following  to your target:
- 	* `MBEDTLS_CONFIG_HW_SUPPORT` to `macros_add` key. This suggests there is a hardware accelerated cryptography engine that replaces the default Mbed TLS implementation.
+ 	* `MBEDTLS_CONFIG_HW_SUPPORT` to `macros_add` key. This instructs Mbed TLS to look for an alternative cryptographic implementation.
  	* `CRYPTOCELL` to `device_has_add` key. Use this in your common code that you need to remove from compilation in case CC exists in your board. Use `#if !defined(DEVICE_CRYPTOCELL)` or  `#if DEVICE_CRYPTOCELL`.
  	* `CRYPTOCELL310` to `extra_labels_add` key. The build system uses this to look for the CC 310 code and binaries.
 1. In `objects.h`, include `objects_cryptocell.h`. You can use the `DEBICE_CRYPTOCELL` precompilation check as defined above.
