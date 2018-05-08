@@ -42,7 +42,7 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
     return;
   }
 
-  width = ((config->polynomial & 0xFFFF0000U) != 0) ? kCrcBits32 : kCrcBits16;
+  width = (config->width == 32) ? kCrcBits32 : kCrcBits16;
   final_xor = config->final_xor;
 
   crc_config_t platform_config;
