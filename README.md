@@ -24,7 +24,7 @@ SDCard support and other resources, as outlined below:
 - POSIX File API test cases for testing the FAT32 filesystem on SDCard.
     - basic.cpp, a basic set of functional test cases.
     - fopen.cpp, more functional tests reading/writing greater volumes of data to SDCard, for example.
-- `mbed_lib.json` mbed-os application configuration file with SPI pin configurations for the CI shield and overrides for specific targets.
+- `mbed_lib.json` mbed-os application configuration file with SPI pin configurations and overrides for specific targets.
    This file allows the SPI pins to be specified for the target without having to edit the implementation files.
 - This README which includes [Summary of POSIX File API Documentation](#summary-posix-api-documentation)
   including detailed instruction on how to use the FAT filesystem and SDBlockDevice driver.
@@ -193,10 +193,10 @@ The following is an example of the `mbed_lib.json` file available in the reposit
 
     {
         "config": {
-            "SPI_CS": "D10",
-            "SPI_MOSI": "D11",
-            "SPI_MISO": "D12",
-            "SPI_CLK": "D13",
+            "SPI_CS": "NC",
+            "SPI_MOSI": "NC",
+            "SPI_MISO": "NC",
+            "SPI_CLK": "NC",
             "DEVICE_SPI": 1,
             "FSFAT_SDCARD_INSTALLED": 1
         },
@@ -228,13 +228,12 @@ Note the following things about the `mbed_lib.json` file:
     - "SPI\_MOSI". This is the Master Out Slave In data line.
     - "SPI\_MISO". This is the Master In Slave Out data line.
     - "SPI\_CLK".  This is the serial Clock line.
-- The default configuration defined in the "config" section is for the standard Arduino header pin mappings for the SPI bus.
-  The "config" section defines a dictionary mapping functional names to target board Arduino header pins:
-    - "SPI\_CS": "D10". This causes the MBED\_CONF\_APP\_SPI\_CS symbol to be defined in mbed\_config.h as D10, which is used in the filesystem test implementation.
-      D10 is defined in the target specific PinNames.h file.
-    - "SPI\_MOSI": "D11". This causes the MBED\_CONF\_APP\_SPI\_MOSI symbol to be defined in mbed\_config.h.
-    - "SPI\_MISO": "D12". This causes the MBED\_CONF\_APP\_SPI\_MISO symbol to be defined in mbed\_config.h.
-    - "SPI\_CLK": "D13". This causes the MBED\_CONF\_APP\_SPI\_CLK symbol to be defined in mbed\_config.h.
+- The default configuration defined in the "config" section **is not valid for any platform** (will error at runtime).
+  The "config" section defines a dictionary mapping functional names to target board pins:
+    - "SPI\_CS" causes the MBED\_CONF\_APP\_SPI\_CS symbol to be defined in mbed\_config.h, which is used in the filesystem test implementation.
+    - "SPI\_MOSI" causes the MBED\_CONF\_APP\_SPI\_MOSI symbol to be defined in mbed\_config.h.
+    - "SPI\_MISO" causes the MBED\_CONF\_APP\_SPI\_MISO symbol to be defined in mbed\_config.h.
+    - "SPI\_CLK" causes the MBED\_CONF\_APP\_SPI\_CLK symbol to be defined in mbed\_config.h.
 - The `"target_overrides"` section is used to override the "SPI\_xxx" symbols for specific target boards, which may have an SDCard slot, for example.
   This is the case for the K64F, where the "SPI\_xxx" are mapped to the pin names for the on-board SDCard.
 
@@ -247,13 +246,19 @@ Note the following things about the `mbed_lib.json` file:
     }
     ```
 - Thus, in the absence of any target specific definitions in the `"target_overrides"` section, all boards will default to
-  using the Arduino header configuration. For those platforms with a `"target_overrides"` section then this configuration
+  using the invalid configuration (will error at runtime). For those platforms with a `"target_overrides"` section then this configuration
   will be used in preference.
 - Hence in the case that you want to test a platform with an SDCard inserted into a
   fitted CI test shield (rather than the on-board SDCard slot)
-  and there is a `"target_overrides"` section present in the `mbed_lib.json` file, you must then delete the `"target_overrides"`
+  and there is a `"target_overrides"` section present in the `mbed_lib.json` file, you must provide the correct Arduino pins in the `"target_overrides"`
   section before building. This will result in the default configuration being used (suitable for the CI
-  Test Shield).
+  Test Shield). The correct pins for the CI test shield are as follows:
+    "<your platform name>": {
+         "SPI_MOSI": "D11",
+         "SPI_MISO": "D12",
+         "SPI_CLK":  "D13",
+         "SPI_CS":   "D10"
+    }
 -  Note when inserting the v1.0.0 CI Test Shield into the Arduino header of the target platform, the shield pins D0 and
   D1 should be bent to be parallel to the shield PCB so they are not inserted into the Arduino header. This is because
   some boards use the same UART on DAPLINK and D0/D1, which means the serial debug channel breaks and hence the mbed greentea
@@ -402,7 +407,7 @@ The build trace is quite extensive but on a successful build you should see the 
       * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
       * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-PARALLEL
       * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-SEEK
-    
+
     Build skips:
       * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
       <trace removed>
