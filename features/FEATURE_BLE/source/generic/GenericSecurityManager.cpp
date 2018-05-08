@@ -193,6 +193,8 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
 
     KeyDistribution initiator_distribution = cb->get_initiator_key_distribution();
 
+    bool master_signing = initiator_distribution.get_signing();
+
     if (_master_sends_keys) {
         initiator_distribution &= _default_key_distribution;
     } else {
@@ -200,7 +202,7 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     }
 
     /* signing has to be offered and enabled on the link */
-    if (initiator_distribution.get_signing()) {
+    if (master_signing) {
         initiator_distribution.set_signing(
             cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
         );
