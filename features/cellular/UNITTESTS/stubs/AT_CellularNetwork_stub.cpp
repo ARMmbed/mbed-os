@@ -151,6 +151,10 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t AT_CellularNetwork::detach()
+{
+    return NSAPI_ERROR_OK;
+}
 
 nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoffTime)
 {
@@ -253,3 +257,7 @@ int AT_CellularNetwork::get_3gpp_error()
     return 0;
 }
 
+nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_names)
+{
+    return NSAPI_ERROR_OK;
+}

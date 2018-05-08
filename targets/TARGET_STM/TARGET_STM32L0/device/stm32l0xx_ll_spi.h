@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_spi.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of SPI LL module.
   ******************************************************************************
   * @attention
@@ -1121,6 +1119,14 @@ __STATIC_INLINE void LL_SPI_TransmitData8(SPI_TypeDef *SPIx, uint8_t TxData)
   *((__IO uint8_t *)&SPIx->DR) = TxData;
 }
 
+#if __GNUC__
+#    define MAY_ALIAS __attribute__ ((__may_alias__))
+#else
+#    define MAY_ALIAS
+#endif
+
+typedef __IO uint16_t MAY_ALIAS uint16_io_t;
+
 /**
   * @brief  Write 16-Bits in the data register
   * @rmtoll DR           DR            LL_SPI_TransmitData16
@@ -1130,7 +1136,7 @@ __STATIC_INLINE void LL_SPI_TransmitData8(SPI_TypeDef *SPIx, uint8_t TxData)
   */
 __STATIC_INLINE void LL_SPI_TransmitData16(SPI_TypeDef *SPIx, uint16_t TxData)
 {
-  *((__IO uint16_t *)&SPIx->DR) = TxData;
+  *((uint16_io_t*)&SPIx->DR) = TxData;
 }
 
 /**
@@ -1415,7 +1421,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsEnabled(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Set I2S Data frame length
+  * @brief  Set I2S data frame length
   * @rmtoll I2SCFGR      DATLEN        LL_I2S_SetDataFormat\n
   *         I2SCFGR      CHLEN         LL_I2S_SetDataFormat
   * @param  SPIx SPI Instance
@@ -1432,7 +1438,7 @@ __STATIC_INLINE void LL_I2S_SetDataFormat(SPI_TypeDef *SPIx, uint32_t DataFormat
 }
 
 /**
-  * @brief  Get I2S Data frame length
+  * @brief  Get I2S data frame length
   * @rmtoll I2SCFGR      DATLEN        LL_I2S_GetDataFormat\n
   *         I2SCFGR      CHLEN         LL_I2S_GetDataFormat
   * @param  SPIx SPI Instance
@@ -1475,7 +1481,7 @@ __STATIC_INLINE uint32_t LL_I2S_GetClockPolarity(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Set I2S Standard Protocol
+  * @brief  Set I2S standard protocol
   * @rmtoll I2SCFGR      I2SSTD        LL_I2S_SetStandard\n
   *         I2SCFGR      PCMSYNC       LL_I2S_SetStandard
   * @param  SPIx SPI Instance
@@ -1493,7 +1499,7 @@ __STATIC_INLINE void LL_I2S_SetStandard(SPI_TypeDef *SPIx, uint32_t Standard)
 }
 
 /**
-  * @brief  Get I2S Standard Protocol
+  * @brief  Get I2S standard protocol
   * @rmtoll I2SCFGR      I2SSTD        LL_I2S_GetStandard\n
   *         I2SCFGR      PCMSYNC       LL_I2S_GetStandard
   * @param  SPIx SPI Instance
@@ -1510,7 +1516,7 @@ __STATIC_INLINE uint32_t LL_I2S_GetStandard(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Set I2S Transfer Mode
+  * @brief  Set I2S transfer mode
   * @rmtoll I2SCFGR      I2SCFG        LL_I2S_SetTransferMode
   * @param  SPIx SPI Instance
   * @param  Mode This parameter can be one of the following values:
@@ -1526,7 +1532,7 @@ __STATIC_INLINE void LL_I2S_SetTransferMode(SPI_TypeDef *SPIx, uint32_t Mode)
 }
 
 /**
-  * @brief  Get I2S Transfer Mode
+  * @brief  Get I2S transfer mode
   * @rmtoll I2SCFGR      I2SCFG        LL_I2S_GetTransferMode
   * @param  SPIx SPI Instance
   * @retval Returned value can be one of the following values:
@@ -1591,7 +1597,7 @@ __STATIC_INLINE uint32_t LL_I2S_GetPrescalerParity(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Enable the Master Clock Ouput (Pin MCK)
+  * @brief  Enable the master clock ouput (Pin MCK)
   * @rmtoll I2SPR        MCKOE         LL_I2S_EnableMasterClock
   * @param  SPIx SPI Instance
   * @retval None
@@ -1602,7 +1608,7 @@ __STATIC_INLINE void LL_I2S_EnableMasterClock(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Disable the Master Clock Ouput (Pin MCK)
+  * @brief  Disable the master clock ouput (Pin MCK)
   * @rmtoll I2SPR        MCKOE         LL_I2S_DisableMasterClock
   * @param  SPIx SPI Instance
   * @retval None
@@ -1613,7 +1619,7 @@ __STATIC_INLINE void LL_I2S_DisableMasterClock(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Check if the Master Clock Ouput (Pin MCK) is enabled
+  * @brief  Check if the master clock ouput (Pin MCK) is enabled
   * @rmtoll I2SPR        MCKOE         LL_I2S_IsEnabledMasterClock
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1625,7 +1631,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsEnabledMasterClock(SPI_TypeDef *SPIx)
 
 #if defined(SPI_I2SCFGR_ASTRTEN)
 /**
-  * @brief  Enable Asynchronous Start
+  * @brief  Enable asynchronous start
   * @rmtoll I2SCFGR      ASTRTEN       LL_I2S_EnableAsyncStart
   * @param  SPIx SPI Instance
   * @retval None
@@ -1636,7 +1642,7 @@ __STATIC_INLINE void LL_I2S_EnableAsyncStart(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Disable  Asynchronous Start
+  * @brief  Disable  asynchronous start
   * @rmtoll I2SCFGR      ASTRTEN       LL_I2S_DisableAsyncStart
   * @param  SPIx SPI Instance
   * @retval None
@@ -1647,7 +1653,7 @@ __STATIC_INLINE void LL_I2S_DisableAsyncStart(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Check if Asynchronous Start is enabled
+  * @brief  Check if asynchronous start is enabled
   * @rmtoll I2SCFGR      ASTRTEN       LL_I2S_IsEnabledAsyncStart
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1689,7 +1695,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_TXE(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Get Busy flag
+  * @brief  Get busy flag
   * @rmtoll SR           BSY           LL_I2S_IsActiveFlag_BSY
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1700,7 +1706,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_BSY(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Get Overrun error flag
+  * @brief  Get overrun error flag
   * @rmtoll SR           OVR           LL_I2S_IsActiveFlag_OVR
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1711,7 +1717,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_OVR(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Get Underrun error flag
+  * @brief  Get underrun error flag
   * @rmtoll SR           UDR           LL_I2S_IsActiveFlag_UDR
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1722,7 +1728,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_UDR(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Get Frame format error flag
+  * @brief  Get frame format error flag
   * @rmtoll SR           FRE           LL_I2S_IsActiveFlag_FRE
   * @param  SPIx SPI Instance
   * @retval State of bit (1 or 0).
@@ -1733,7 +1739,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_FRE(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Get Channel side flag.
+  * @brief  Get channel side flag.
   * @note   0: Channel Left has to be transmitted or has been received\n
   *         1: Channel Right has to be transmitted or has been received\n
   *         It has no significance in PCM mode.
@@ -1747,7 +1753,7 @@ __STATIC_INLINE uint32_t LL_I2S_IsActiveFlag_CHSIDE(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Clear Overrun error flag
+  * @brief  Clear overrun error flag
   * @rmtoll SR           OVR           LL_I2S_ClearFlag_OVR
   * @param  SPIx SPI Instance
   * @retval None
@@ -1758,7 +1764,7 @@ __STATIC_INLINE void LL_I2S_ClearFlag_OVR(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Clear Underrun error flag
+  * @brief  Clear underrun error flag
   * @rmtoll SR           UDR           LL_I2S_ClearFlag_UDR
   * @param  SPIx SPI Instance
   * @retval None
@@ -1771,7 +1777,7 @@ __STATIC_INLINE void LL_I2S_ClearFlag_UDR(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Clear Frame format error flag
+  * @brief  Clear frame format error flag
   * @rmtoll SR           FRE           LL_I2S_ClearFlag_FRE
   * @param  SPIx SPI Instance
   * @retval None
@@ -1824,7 +1830,7 @@ __STATIC_INLINE void LL_I2S_EnableIT_TXE(SPI_TypeDef *SPIx)
 }
 
 /**
-  * @brief  Disable Error IT
+  * @brief  Disable error IT
   * @note   This bit controls the generation of an interrupt when an error condition occurs (OVR, UDR and FRE in I2S mode).
   * @rmtoll CR2          ERRIE         LL_I2S_DisableIT_ERR
   * @param  SPIx SPI Instance

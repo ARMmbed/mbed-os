@@ -43,7 +43,7 @@ namespace mbed
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
         _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0)
+        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -70,21 +70,28 @@ CellularConnectionFSM::CellularConnectionFSM() :
 CellularConnectionFSM::~CellularConnectionFSM()
 {
     stop();
-    delete _cellularDevice;
 }
 
 void CellularConnectionFSM::stop()
 {
-    tr_info("CellularConnectionUtil::stop");
-    if (_cellularDevice) {
-        _cellularDevice->close_power();
-        _cellularDevice->close_network();
-    }
+    _queue.cancel(_event_id);
+    _queue.break_dispatch();
+
     if (_queue_thread) {
         _queue_thread->terminate();
         delete _queue_thread;
         _queue_thread = NULL;
     }
+
+    delete _cellularDevice;
+    _cellularDevice = NULL;
+    // _cellularDevice closes all interfaces in destructor
+    _power = NULL;
+    _network = NULL;
+    _sim = NULL;
+
+    _state = STATE_INIT;
+    _next_state = _state;
 }
 
 nsapi_error_t CellularConnectionFSM::init()
@@ -101,6 +108,7 @@ nsapi_error_t CellularConnectionFSM::init()
         stop();
         return NSAPI_ERROR_NO_MEMORY;
     }
+
     _network = _cellularDevice->open_network(_serial);
     if (!_network) {
         stop();
@@ -129,7 +137,7 @@ bool CellularConnectionFSM::power_on()
         tr_warn("Cellular start failed. Power off/on.");
         err = _power->off();
         if (err != NSAPI_ERROR_OK && err != NSAPI_ERROR_UNSUPPORTED) {
-            tr_error("Cellular power down failed!");
+            tr_error("Cellular power down failing after failed power up attempt!");
         }
         return false;
     }
@@ -142,6 +150,11 @@ void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
     _sim_pin[sizeof(_sim_pin)-1] = '\0';
 }
 
+void CellularConnectionFSM::set_plmn(const char* plmn)
+{
+    _plmn = plmn;
+}
+
 bool CellularConnectionFSM::open_sim()
 {
     CellularSIM::SimState state = CellularSIM::SimStateUnknown;
@@ -152,31 +165,16 @@ bool CellularConnectionFSM::open_sim()
         return false;
     }
 
-    switch (state) {
-        case CellularSIM::SimStateReady:
-            tr_info("SIM Ready");
-            break;
-        case CellularSIM::SimStatePinNeeded: {
-            if (strlen(_sim_pin)) {
-                tr_info("SIM pin required, entering pin: %s", _sim_pin);
-                nsapi_error_t err = _sim->set_pin(_sim_pin);
-                if (err) {
-                    tr_error("SIM pin set failed with: %d, bailing out...", err);
-                }
-            } else {
-                tr_warn("PIN required but No SIM pin provided.");
+    if (state == CellularSIM::SimStatePinNeeded) {
+        if (strlen(_sim_pin)) {
+            tr_info("SIM pin required, entering pin: %s", _sim_pin);
+            nsapi_error_t err = _sim->set_pin(_sim_pin);
+            if (err) {
+                tr_error("SIM pin set failed with: %d, bailing out...", err);
             }
+        } else {
+            tr_warn("PIN required but No SIM pin provided.");
         }
-            break;
-        case CellularSIM::SimStatePukNeeded:
-            tr_info("SIM PUK code needed...");
-            break;
-        case CellularSIM::SimStateUnknown:
-            tr_info("SIM, unknown state...");
-            break;
-        default:
-            MBED_ASSERT(1);
-            break;
     }
 
     if (_event_status_cb) {
@@ -186,9 +184,9 @@ bool CellularConnectionFSM::open_sim()
     return state == CellularSIM::SimStateReady;
 }
 
-bool CellularConnectionFSM::set_network_registration(char *plmn)
+bool CellularConnectionFSM::set_network_registration()
 {
-    if (_network->set_registration(plmn) != NSAPI_ERROR_OK) {
+    if (_network->set_registration(_plmn) != NSAPI_ERROR_OK) {
         tr_error("Failed to set network registration.");
         return false;
     }
@@ -289,8 +287,12 @@ void CellularConnectionFSM::report_failure(const char* msg)
 
 const char* CellularConnectionFSM::get_state_string(CellularState state)
 {
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Attaching network", "Connecting network", "Connected"};
+#if MBED_CONF_MBED_TRACE_ENABLE
+    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
     return strings[state];
+#else
+    return NULL;
+#endif // #if MBED_CONF_MBED_TRACE_ENABLE
 }
 
 nsapi_error_t CellularConnectionFSM::is_automatic_registering(bool& auto_reg)
@@ -302,6 +304,54 @@ nsapi_error_t CellularConnectionFSM::is_automatic_registering(bool& auto_reg)
         auto_reg = (mode == CellularNetwork::NWModeAutomatic);
     }
     return err;
+}
+
+bool CellularConnectionFSM::is_registered_to_plmn()
+{
+    int format;
+    CellularNetwork::operator_t op;
+
+    nsapi_error_t err = _network->get_operator_params(format, op);
+    if (err == NSAPI_ERROR_OK) {
+        if (format == 2) {
+            // great, numeric format we can do comparison for that
+            if (strcmp(op.op_num, _plmn) == 0) {
+                return true;
+            }
+            return false;
+        }
+
+        // format was alpha, get operator names to do the comparing
+        CellularNetwork::operator_names_list names_list;
+        nsapi_error_t err = _network->get_operator_names(names_list);
+        if (err == NSAPI_ERROR_OK) {
+            CellularNetwork::operator_names_t* op_names = names_list.get_head();
+            bool found_match = false;
+            while (op_names) {
+                if (format == 0) {
+                    if (strcmp(op.op_long, op_names->alpha) == 0) {
+                        found_match = true;
+                    }
+                } else if (format == 1) {
+                    if (strcmp(op.op_short, op_names->alpha) == 0) {
+                        found_match = true;
+                    }
+                }
+
+                if (found_match) {
+                    if (strcmp(_plmn, op_names->numeric)) {
+                        names_list.delete_all();
+                        return true;
+                    }
+                    names_list.delete_all();
+                    return false;
+                }
+            }
+        }
+        names_list.delete_all();
+    }
+
+    return false;
 }
 
 nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
@@ -321,6 +371,7 @@ nsapi_error_t CellularConnectionFSM::continue_from_state(CellularState state)
 
 nsapi_error_t CellularConnectionFSM::continue_to_state(CellularState state)
 {
+    MBED_ASSERT(_cellularDevice);
     _retry_count = 0;
     if (state < _state) {
         _state = state;
@@ -340,6 +391,7 @@ void CellularConnectionFSM::enter_to_state(CellularState state)
 {
     _next_state = state;
     _retry_count = 0;
+    _command_success = false;
 }
 
 void CellularConnectionFSM::retry_state_or_fail()
@@ -416,7 +468,11 @@ void CellularConnectionFSM::state_sim_pin()
     _cellularDevice->set_timeout(TIMEOUT_SIM_PIN);
     tr_info("Sim state (timeout %d ms)", TIMEOUT_SIM_PIN);
     if (open_sim()) {
-        enter_to_state(STATE_REGISTERING_NETWORK);
+        if (_plmn) {
+            enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
+        } else {
+            enter_to_state(STATE_REGISTERING_NETWORK);
+        }
     } else {
         retry_state_or_fail();
     }
@@ -431,12 +487,30 @@ void CellularConnectionFSM::state_registering()
     } else {
         bool auto_reg = false;
         nsapi_error_t err = is_automatic_registering(auto_reg);
-        if (err == NSAPI_ERROR_OK && !auto_reg) { // when we support plmn add this :  || plmn
+        if (err == NSAPI_ERROR_OK && !auto_reg) {
             // automatic registering is not on, set registration and retry
             _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
             set_network_registration();
         }
         retry_state_or_fail();
+    }
+}
+
+// only used when _plmn is set
+void CellularConnectionFSM::state_manual_registering_network()
+{
+    _cellularDevice->set_timeout(TIMEOUT_REGISTRATION);
+    tr_info("state_manual_registering_network");
+    if (!_plmn_network_found) {
+        if (is_registered() && is_registered_to_plmn()) {
+            _plmn_network_found = true;
+            enter_to_state(STATE_ATTACHING_NETWORK);
+        } else {
+            if (!_command_success) {
+                _command_success = set_network_registration();
+            }
+            retry_state_or_fail();
+        }
     }
 }
 
@@ -446,11 +520,25 @@ void CellularConnectionFSM::state_attaching()
     CellularNetwork::AttachStatus attach_status;
     if (get_attach_network(attach_status)) {
         if (attach_status == CellularNetwork::Attached) {
-            enter_to_state(STATE_CONNECTING_NETWORK);
+            enter_to_state(STATE_ACTIVATING_PDP_CONTEXT);
         } else {
-            set_attach_network();
+            if (!_command_success) {
+                _command_success = set_attach_network();
+            }
             retry_state_or_fail();
         }
+    } else {
+        retry_state_or_fail();
+    }
+}
+
+void CellularConnectionFSM::state_activating_pdp_context()
+{
+    _cellularDevice->set_timeout(TIMEOUT_CONNECT);
+    tr_info("Activate PDP Context (timeout %d ms)", TIMEOUT_CONNECT);
+    if (_network->activate_context() == NSAPI_ERROR_OK) {
+        // when using modems stack connect is synchronous
+        _next_state = STATE_CONNECTING_NETWORK;
     } else {
         retry_state_or_fail();
     }
@@ -498,8 +586,14 @@ void CellularConnectionFSM::event()
         case STATE_REGISTERING_NETWORK:
             state_registering();
             break;
+        case STATE_MANUAL_REGISTERING_NETWORK:
+            state_manual_registering_network();
+            break;
         case STATE_ATTACHING_NETWORK:
             state_attaching();
+            break;
+        case STATE_ACTIVATING_PDP_CONTEXT:
+            state_activating_pdp_context();
             break;
         case STATE_CONNECTING_NETWORK:
             state_connect_to_network();
@@ -565,19 +659,34 @@ void CellularConnectionFSM::set_callback(mbed::Callback<bool(int, int)> status_c
 
 void CellularConnectionFSM::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
+    MBED_ASSERT(_network);
     _event_status_cb = status_cb;
-    _network->attach(callback(this, &CellularConnectionFSM::network_callback));
+    if (status_cb) {
+        _network->attach(callback(this, &CellularConnectionFSM::network_callback));
+    } else {
+        _network->attach(NULL);
+    }
 }
 
 void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
-
-    tr_info("FSM: network_callback called with event: %d, intptr: %d", ev, ptr);
-    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged && _state == STATE_REGISTERING_NETWORK) {
+    tr_info("FSM: network_callback called with event: %d, intptr: %d, _state: %s", ev, ptr, get_state_string(_state));
+    if ((cellular_connection_status_t)ev == CellularRegistrationStatusChanged &&
+            (_state == STATE_REGISTERING_NETWORK || _state == STATE_MANUAL_REGISTERING_NETWORK)) {
         // expect packet data so only these states are valid
-        if (ptr == CellularNetwork::RegisteredHomeNetwork && CellularNetwork::RegisteredRoaming) {
-            _queue.cancel(_event_id);
-            continue_from_state(STATE_ATTACHING_NETWORK);
+        if (ptr == CellularNetwork::RegisteredHomeNetwork || ptr == CellularNetwork::RegisteredRoaming) {
+            if (_plmn) {
+                if (is_registered_to_plmn()) {
+                    if (!_plmn_network_found) {
+                        _plmn_network_found = true;
+                        _queue.cancel(_event_id);
+                        continue_from_state(STATE_ATTACHING_NETWORK);
+                    }
+                }
+            } else {
+                _queue.cancel(_event_id);
+                continue_from_state(STATE_ATTACHING_NETWORK);
+            }
         }
     }
 

@@ -4,7 +4,7 @@
  * @version INTERNAL
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2017 Silicon Labs, http://silabs.com</b>
+ * <b>(C) Copyright 2017 Silicon Labs, www.silabs.com</b>
  ******************************************************************************/
 #ifndef __TIMING_STATE_H
 #define __TIMING_STATE_H
@@ -34,6 +34,12 @@ typedef struct StateTimings {
   // delay for RX only calculates how long we need to stay in RX to get SYNC,
   // which does not need to be precise. (And hard to measure.)
   int32_t rxDoneDelayNs;
+#endif
+#if _SILICON_LABS_32B_SERIES_1_CONFIG >= 2
+  // The viterbi phy needs extra time to power up the receive path during
+  // TX2RX in order to receive low RSSI packets. This flag indicates to
+  // turn on that extra time
+  bool viterbiPhy;
 #endif
   int32_t txChainDelayNs;
   uint16_t rxSearch;

@@ -23,7 +23,7 @@
             "value": 256
         },
         "use-lowpower-timer-ticker": {
-            "help": "Enable use of low power timer and ticker classes. May reduce the accuracy of the event queue.",
+            "help": "Enable use of low power timer and ticker classes in non-RTOS builds. May reduce the accuracy of the event queue. In RTOS builds, the RTOS tick count is used, and this configuration option has no effect.",
             "value": 0
         }
     }

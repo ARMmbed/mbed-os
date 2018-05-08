@@ -42,6 +42,8 @@ public:
 
     void test_AT_CellularNetwork_get_attach();
 
+    void test_AT_CellularNetwork_detach();
+
     void test_AT_CellularNetwork_get_rate_control();
 
     void test_AT_CellularNetwork_get_apn_backoff_timer();
@@ -71,6 +73,8 @@ public:
     void test_AT_CellularNetwork_get_3gpp_error();
 
     void test_AT_CellularNetwork_get_operator_params();
+
+    void test_AT_CellularNetwork_get_operator_names();
 };
 
 #endif // TEST_AT_CELLULARNETWORK_H

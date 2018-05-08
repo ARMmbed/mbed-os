@@ -35,7 +35,7 @@
 #define LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_
 
 #include <inttypes.h>
-#include "platform/Callback.h"
+#include "lorawan_types.h"
 
 /*!
  * \brief Timer time variable definition
@@ -113,88 +113,6 @@ typedef uint32_t lorawan_time_t;
     #warning "Cannot set TX Max size more than MTU=255"
     #define MBED_CONF_LORA_TX_MAX_SIZE              255
 #endif
-
-/*!
- * LoRaWAN device classes definition.
- *
- * LoRaWAN Specification V1.0.2, chapter 2.1.
- */
-typedef enum {
-    /*!
-     * LoRaWAN device class A.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 3.
-     */
-    CLASS_A,
-    /*!
-     * LoRaWAN device class B.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 8.
-     */
-    CLASS_B,
-    /*!
-     * LoRaWAN device class C.
-     *
-     * LoRaWAN Specification V1.0.2, chapter 17.
-     */
-    CLASS_C,
-} device_class_t;
-
-/*!
- * LoRaMAC channel parameters definition.
- * DO NOT MODIFY, WILL BREAK THE API!
- */
-typedef union {
-    /*!
-     * Byte-access to the bits.
-     */
-    int8_t value;
-    /*!
-     * The structure to store the minimum and the maximum datarate.
-     */
-    struct sFields
-    {
-         /*!
-         * The minimum data rate.
-         *
-         * LoRaWAN Regional Parameters V1.0.2rB.
-         *
-         * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-         */
-        int8_t min : 4;
-        /*!
-         * The maximum data rate.
-         *
-         * LoRaWAN Regional Parameters V1.0.2rB.
-         *
-         * The allowed ranges are region-specific. Please refer to \ref DR_0 to \ref DR_15 for details.
-         */
-        int8_t max : 4;
-    } fields;
-} dr_range_t;
-
-/*!
- * LoRaMAC channel definition.
- * DO NOT MODIFY, WILL BREAK THE API!
- */
-typedef struct {
-    /*!
-     * The frequency in Hz.
-     */
-    uint32_t frequency;
-    /*!
-     * The alternative frequency for RX window 1.
-     */
-    uint32_t rx1_frequency;
-    /*!
-     * The data rate definition.
-     */
-    dr_range_t dr_range;
-    /*!
-     * The band index.
-     */
-    uint8_t band;
-} channel_params_t;
 
 /*!
  * LoRaMAC band parameters definition.
@@ -999,36 +917,6 @@ typedef struct {
     mlme_type_t indication_type;
 } loramac_mlme_indication_t;
 
-/** LoRaMAC status.
- *
- */
-typedef enum lorawan_status {
-    LORAWAN_STATUS_OK = 0,                         /**< Service started successfully */
-    LORAWAN_STATUS_BUSY = -1000,                   /**< Service not started - LoRaMAC is busy */
-    LORAWAN_STATUS_WOULD_BLOCK = -1001,            /**< LoRaMAC cannot send at the moment or have nothing to read */
-    LORAWAN_STATUS_SERVICE_UNKNOWN = -1002,        /**< Service unknown */
-    LORAWAN_STATUS_PARAMETER_INVALID = -1003,      /**< Service not started - invalid parameter */
-    LORAWAN_STATUS_FREQUENCY_INVALID = -1004,      /**< Service not started - invalid frequency */
-    LORAWAN_STATUS_DATARATE_INVALID = -1005,       /**< Service not started - invalid datarate */
-    LORAWAN_STATUS_FREQ_AND_DR_INVALID = -1006,    /**< Service not started - invalid frequency and datarate */
-    LORAWAN_STATUS_NO_NETWORK_JOINED = -1009,      /**< Service not started - the device is not in a LoRaWAN */
-    LORAWAN_STATUS_LENGTH_ERROR = -1010,           /**< Service not started - payload lenght error */
-    LORAWAN_STATUS_DEVICE_OFF = -1011,             /**< Service not started - the device is switched off */
-    LORAWAN_STATUS_NOT_INITIALIZED = -1012,        /**< Service not started - stack not initialized */
-    LORAWAN_STATUS_UNSUPPORTED = -1013,            /**< Service not supported */
-    LORAWAN_STATUS_CRYPTO_FAIL = -1014,            /**< Service not started - crypto failure */
-    LORAWAN_STATUS_PORT_INVALID = -1015,           /**< Invalid port */
-    LORAWAN_STATUS_CONNECT_IN_PROGRESS = -1016,    /**< Services started - Connection in progress */
-    LORAWAN_STATUS_NO_ACTIVE_SESSIONS = -1017,            /**< Services not started - No active session */
-    LORAWAN_STATUS_IDLE = -1018,                   /**< Services started - Idle at the moment */
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
-#endif
-    LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,
-    LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,
-    LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,
-} lorawan_status_t;
-
 /*!
  * LoRaMAC events structure.
  * Used to notify upper layers of MAC events.
@@ -1063,70 +951,13 @@ typedef struct {
     mbed::Callback<void(loramac_mlme_indication_t*)> mlme_indication;
 }loramac_primitives_t;
 
-/** Enum of LoRaWAN connection type.
- *
- * The LoRaWAN connection type specifies how an end-device connects to the gateway.
+/**
+ * Enumeration for LoRaWAN connection type.
  */
 typedef enum lorawan_connect_type {
     LORAWAN_CONNECTION_OTAA = 0,    /**< Over The Air Activation */
     LORAWAN_CONNECTION_ABP          /**< Activation By Personalization */
 } lorawan_connect_type_t;
-
-/** The lorawan_connect_otaa structure.
- *
- * A structure representing the LoRaWAN Over The Air Activation
- * parameters.
- */
-typedef struct {
-    /** End-device identifier
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.2.1
-     */
-    uint8_t *dev_eui;
-    /** Application identifier
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.2
-     */
-    uint8_t *app_eui;
-    /** AES-128 application key
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.2.2
-     */
-    uint8_t *app_key;
-    /** Join request trials
-     *
-     * Number of trials for the join request.
-     */
-    uint8_t nb_trials;
-} lorawan_connect_otaa_t;
-
-/** The lorawan_connect_abp structure.
- *
- * A structure representing the LoRaWAN Activation By Personalization
- * parameters.
- */
-typedef struct {
-    /** Network identifier
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.1
-     */
-    uint32_t nwk_id;
-    /** End-device address
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.1
-     */
-    uint32_t dev_addr;
-    /** Network session key
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.3
-     */
-    uint8_t *nwk_skey;
-    /** Application session key
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.4
-     */
-    uint8_t *app_skey;
-} lorawan_connect_abp_t;
 
 /**
  * Stack level TX message structure
@@ -1232,40 +1063,6 @@ typedef struct {
     uint16_t pending_size;
     uint16_t prev_read_size;
 } loramac_rx_message_t;
-
-/**
- * Structure to hold A list of LoRa Channels
- * DO NOT MODIFY, WILL BREAK THE API!
- */
-typedef struct lora_channels_s {
-    uint8_t id;
-    channel_params_t ch_param;
-} loramac_channel_t;
-
-
-/** lorawan_connect_t structure
- *
- * A structure representing the parameters for different connections.
- */
-typedef struct lorawan_connect {
-    /*!
-     * Select the connection type, either LORAWAN_CONNECTION_OTAA
-     * or LORAWAN_CONNECTION_ABP.
-     */
-    uint8_t connect_type;
-
-    union {
-        /*!
-         * Join the network using OTA
-         */
-        lorawan_connect_otaa_t otaa;
-        /*!
-         * Authentication by personalization
-         */
-        lorawan_connect_abp_t abp;
-    } connection_u;
-
-} lorawan_connect_t;
 
 /** LoRaWAN session
  *
@@ -1447,11 +1244,13 @@ typedef struct {
 
     /*!
      * AES encryption/decryption cipher network session key
+     * NOTE! LoRaMac determines the length of the key based on sizeof this variable
      */
     uint8_t nwk_skey[16];
 
     /*!
      * AES encryption/decryption cipher application session key
+     * NOTE! LoRaMac determines the length of the key based on sizeof this variable
      */
     uint8_t app_skey[16];
 
@@ -1693,48 +1492,6 @@ typedef struct {
     multicast_params_t *multicast_channels;
 
 } loramac_protocol_params;
-
-/** LoRaWAN callback functions
- *
- */
-typedef enum lora_events {
-    CONNECTED=0,
-    DISCONNECTED,
-    TX_DONE,
-    TX_TIMEOUT,
-    TX_ERROR,
-    TX_CRYPTO_ERROR,
-    TX_SCHEDULING_ERROR,
-    RX_DONE,
-    RX_TIMEOUT,
-    RX_ERROR,
-    JOIN_FAILURE,
-} lorawan_event_t;
-
-typedef struct  {
-     // Mandatory. Event Callback must be provided
-     mbed::Callback<void(lorawan_event_t)> events;
-
-     // Rest are optional
-     // If the user do not assign these callbacks, these callbacks would return
-     // null if checked with bool operator
-     // link_check_resp callback and other such callbacks will be maped in
-     // future releases of Mbed-OS
-     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
-
-     // Battery level callback goes in the down direction, i.e., it informs
-     // the stack about the battery level by calling a function provided
-     // by the upper layers
-     mbed::Callback<uint8_t(void)> battery_level;
- } lorawan_app_callbacks_t;
-
-/**
-  * DO NOT MODIFY, WILL BREAK THE API!
-  */
-typedef struct lora_channelplan {
-    uint8_t nb_channels;    // number of channels
-    loramac_channel_t *channels;
-} lorawan_channelplan_t;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
 

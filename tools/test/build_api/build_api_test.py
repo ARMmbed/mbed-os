@@ -21,12 +21,14 @@ from mock import patch, MagicMock
 from tools.build_api import prepare_toolchain, build_project, build_library,\
     scan_resources
 from tools.toolchains import TOOLCHAINS
+from tools.notifier.mock import MockNotifier
 
 """
 Tests for build_api.py
 """
 make_mock_target = namedtuple(
     "Target", "init_hooks name features core supported_toolchains")
+
 
 class BuildApiTests(unittest.TestCase):
     """
@@ -61,19 +63,19 @@ class BuildApiTests(unittest.TestCase):
     @patch('tools.toolchains.mbedToolchain.dump_build_profile')
     @patch('tools.utils.run_cmd', return_value=(b'', b'', 0))
     def test_always_complete_build(self, *_):
-        with MagicMock() as notify:
-            toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
-                                          self.toolchain_name, notify=notify)
+        notify = MockNotifier()
+        toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
+                                        self.toolchain_name, notify=notify)
 
-            res = scan_resources(self.src_paths, toolchain)
+        res = scan_resources(self.src_paths, toolchain)
 
-            toolchain.RESPONSE_FILES=False
-            toolchain.config_processed = True
-            toolchain.config_file = "junk"
-            toolchain.compile_sources(res)
+        toolchain.RESPONSE_FILES=False
+        toolchain.config_processed = True
+        toolchain.config_file = "junk"
+        toolchain.compile_sources(res)
 
-            assert any('percent' in msg[0] and msg[0]['percent'] == 100.0
-                       for _, msg, _ in notify.mock_calls if msg)
+        assert any('percent' in msg and msg['percent'] == 100.0
+                   for msg in notify.messages if msg)
 
 
     @patch('tools.build_api.Config')
@@ -128,6 +130,7 @@ class BuildApiTests(unittest.TestCase):
         :param __: mock of function scan_resources (not tested)
         :return:
         """
+        notify = MockNotifier()
         app_config = "app_config"
         mock_exists.return_value = False
         mock_prepare_toolchain().link_program.return_value = 1, 2
@@ -135,7 +138,7 @@ class BuildApiTests(unittest.TestCase):
             "Config", "has_regions name lib_config_data")(None, None, {})
 
         build_project(self.src_paths, self.build_path, self.target,
-                      self.toolchain_name, app_config=app_config)
+                      self.toolchain_name, app_config=app_config, notify=notify)
 
         args = mock_prepare_toolchain.call_args
         self.assertTrue('app_config' in args[1],
@@ -157,6 +160,7 @@ class BuildApiTests(unittest.TestCase):
         :param __: mock of function scan_resources (not tested)
         :return:
         """
+        notify = MockNotifier()
         mock_exists.return_value = False
         # Needed for the unpacking of the returned value
         mock_prepare_toolchain().link_program.return_value = 1, 2
@@ -164,7 +168,7 @@ class BuildApiTests(unittest.TestCase):
             "Config", "has_regions name lib_config_data")(None, None, {})
 
         build_project(self.src_paths, self.build_path, self.target,
-                      self.toolchain_name)
+                      self.toolchain_name, notify=notify)
 
         args = mock_prepare_toolchain.call_args
         self.assertTrue('app_config' in args[1],
@@ -186,11 +190,12 @@ class BuildApiTests(unittest.TestCase):
         :param __: mock of function scan_resources (not tested)
         :return:
         """
+        notify = MockNotifier()
         app_config = "app_config"
         mock_exists.return_value = False
 
         build_library(self.src_paths, self.build_path, self.target,
-                      self.toolchain_name, app_config=app_config)
+                      self.toolchain_name, app_config=app_config, notify=notify)
 
         args = mock_prepare_toolchain.call_args
         self.assertTrue('app_config' in args[1],
@@ -212,10 +217,11 @@ class BuildApiTests(unittest.TestCase):
         :param __: mock of function scan_resources (not tested)
         :return:
         """
+        notify = MockNotifier()
         mock_exists.return_value = False
 
         build_library(self.src_paths, self.build_path, self.target,
-                      self.toolchain_name)
+                      self.toolchain_name, notify=notify)
 
         args = mock_prepare_toolchain.call_args
         self.assertTrue('app_config' in args[1],

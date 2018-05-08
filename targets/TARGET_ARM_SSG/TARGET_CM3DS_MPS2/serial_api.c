@@ -76,8 +76,9 @@ static uint32_t fill_serial_object(struct serial_s *serial_obj, PinName tx,
         return 1;
     }
 
-    uart_peripheral = pinmap_merge(pinmap_peripheral(tx, PinMap_UART_TX),
-                                   pinmap_peripheral(rx, PinMap_UART_RX));
+    uart_peripheral = (UARTName)pinmap_merge(
+                                         pinmap_peripheral(tx, PinMap_UART_TX),
+                                         pinmap_peripheral(rx, PinMap_UART_RX));
 
     switch (uart_peripheral) {
 #ifdef ARM_UART0

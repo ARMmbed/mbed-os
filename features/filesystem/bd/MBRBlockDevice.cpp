@@ -96,6 +96,7 @@ static int partition_absolute(
     table->entries[part-1].type = type;
 
     // lba dimensions
+    MBED_ASSERT(bd->is_valid_erase(offset, size));
     uint32_t sector = std::max<uint32_t>(bd->get_erase_size(), 512);
     uint32_t lba_offset = offset / sector;
     uint32_t lba_size = size / sector;
@@ -105,6 +106,19 @@ static int partition_absolute(
     // chs dimensions
     tochs(lba_offset,            table->entries[part-1].chs_start);
     tochs(lba_offset+lba_size-1, table->entries[part-1].chs_stop);
+
+    // Check that we don't overlap other entries
+    for (int i = 1; i <= 4; i++) {
+        if (i != part && table->entries[i-1].type != 0x00) {
+            uint32_t neighbor_lba_offset = fromle32(table->entries[i-1].lba_offset);
+            uint32_t neighbor_lba_size = fromle32(table->entries[i-1].lba_size);
+            MBED_ASSERT(
+                    (lba_offset >= neighbor_lba_offset + neighbor_lba_size) ||
+                    (lba_offset + lba_size <= neighbor_lba_offset));
+            (void)neighbor_lba_offset;
+            (void)neighbor_lba_size;
+        }
+    }
 
     // Write out MBR
     err = bd->erase(0, bd->get_erase_size());

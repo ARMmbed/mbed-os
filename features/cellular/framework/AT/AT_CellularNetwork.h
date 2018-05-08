@@ -74,6 +74,8 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_attach(AttachStatus &status);
 
+    virtual nsapi_error_t detach();
+
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
         CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
 
@@ -116,6 +118,7 @@ public: // CellularNetwork
 
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on);
 
+    virtual nsapi_error_t get_operator_names(operator_names_list &op_names);
 protected:
 
     /** Check if modem supports the given stack type.

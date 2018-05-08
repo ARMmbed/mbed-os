@@ -15,10 +15,13 @@
  */
 #include "mbed_poll.h"
 #include "FileHandle.h"
+#if MBED_CONF_RTOS_PRESENT
+#include "rtos/Kernel.h"
+#include "rtos/Thread.h"
+using namespace rtos;
+#else
 #include "Timer.h"
 #include "LowPowerTimer.h"
-#ifdef MBED_CONF_RTOS_PRESENT
-#include "rtos/Thread.h"
 #endif
 
 namespace mbed {
@@ -35,6 +38,13 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
      * interested in. In future, his spinning behaviour will be replaced with
      * condition variables.
      */
+#if MBED_CONF_RTOS_PRESENT
+    uint64_t start_time = 0;
+    if (timeout > 0) {
+        start_time = Kernel::get_ms_count();
+    }
+#define TIME_ELAPSED() int64_t(Kernel::get_ms_count() - start_time)
+#else
 #if MBED_CONF_PLATFORM_POLL_USE_LOWPOWER_TIMER
     LowPowerTimer timer;
 #else
@@ -43,6 +53,8 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
     if (timeout > 0) {
         timer.start();
     }
+#define TIME_ELAPSED() timer.read_ms()
+#endif // MBED_CONF_RTOS_PRESENT
 
     int count = 0;
     for (;;) {
@@ -65,7 +77,7 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
         }
 
         /* Nothing selected - this is where timeout handling would be needed */
-        if (timeout == 0 || (timeout > 0 && timer.read_ms() > timeout)) {
+        if (timeout == 0 || (timeout > 0 && TIME_ELAPSED() > timeout)) {
             break;
         }
 #ifdef MBED_CONF_RTOS_PRESENT

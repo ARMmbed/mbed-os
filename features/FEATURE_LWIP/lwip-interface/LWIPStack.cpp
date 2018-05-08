@@ -309,7 +309,7 @@ nsapi_error_t LWIP::socket_bind(nsapi_socket_t handle, const SocketAddress &addr
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (!ip_addr_isany(&ip_addr) && !is_local_addr(&ip_addr)) {
+    if (!ip_addr_isany_val(ip_addr) && !is_local_addr(&ip_addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 

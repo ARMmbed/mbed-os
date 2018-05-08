@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:

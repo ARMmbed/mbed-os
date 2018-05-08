@@ -199,6 +199,18 @@ public:
     };
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
+    struct operator_names_t {
+        char numeric[MAX_OPERATOR_NAME_SHORT+1];
+        char alpha[MAX_OPERATOR_NAME_LONG+1];
+        operator_names_t* next;
+        operator_names_t() {
+            numeric[0] = '\0';
+            alpha[0] = '\0';
+            next = NULL;
+        }
+    };
+    typedef CellularList<operator_names_t> operator_names_list;
+
     /* Network registering mode */
     enum NWRegisteringMode {
         NWModeAutomatic = 0,    // automatic registering
@@ -272,9 +284,11 @@ public:
 
     /** Request attach to network.
      *
+     *  @deprecated Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.
      *  @param timeout milliseconds to wait for attach response
      *  @return        zero on success
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
     virtual nsapi_error_t set_attach(int timeout = 10*1000) = 0;
 
     /** Request attach status from network.
@@ -283,6 +297,12 @@ public:
      *  @return       zero on success
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
+
+    /** Request detach from a network.
+     *
+     *  @return        zero on success
+     */
+    virtual nsapi_error_t detach() = 0;
 
     /** Get APN rate control.
      *
@@ -452,6 +472,12 @@ public:
      */
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
 
+    /** Read operator names
+     *
+     *  @param op_names     on successful return will contain linked list of operator names.
+     *  @return             zero on success
+     */
+    virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
 };
 
 } // namespace mbed

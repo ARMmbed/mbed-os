@@ -3,10 +3,12 @@
  */
 
 MEMORY {
+    FIB (rx)              : ORIGIN = 0x00002000, LENGTH = 0x00000800
+    TRIM (rx)             : ORIGIN = 0x00002800, LENGTH = 0x00000800
     VECTORS (rx)          : ORIGIN = 0x00003000, LENGTH = 0x00000090
-        FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
-        RAM (rwx)             : ORIGIN = 0x3FFF4090, LENGTH = 48K - 0x90 /* 8_byte_aligned(35 vectors * 4 bytes each) = 0x90 */
-    }
+    FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
+    RAM (rwx)             : ORIGIN = 0x3FFF4090, LENGTH = 48K - 0x90 /* 8_byte_aligned(35 vectors * 4 bytes each) = 0x90 */
+}
 
     /* Linker script to place sections and symbol values. Should be used together
      * with other linker script that defines memory regions FLASH and RAM.
@@ -37,7 +39,17 @@ MEMORY {
     ENTRY(Reset_Handler)
 
     SECTIONS {
-.isr_vector :
+    .fib :
+    {
+        KEEP(*(.fib))
+    } > FIB
+
+    .trim :
+    {
+        KEEP(*(.trim))
+    } > TRIM
+
+    .isr_vector :
     {
         __vector_table = .;
         KEEP(*(.vector_table))

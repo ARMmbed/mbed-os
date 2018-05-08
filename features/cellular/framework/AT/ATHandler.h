@@ -86,12 +86,6 @@ public:
      */
     FileHandle *get_file_handle();
 
-    /** Set file handle, which is used for reading AT responses and writing AT commands
-     *
-     *  @param fh file handle used for reading AT responses and writing AT commands
-     */
-    void set_file_handle(FileHandle *fh);
-
     /** Locks the mutex for file handle if AT_HANDLER_MUTEX is defined.
      */
     void lock();
@@ -165,6 +159,11 @@ public:
      */
     void clear_error();
 
+    /**
+     * Flushes the underlying stream
+     */
+    void flush();
+
     /** Tries to find oob's from the AT response. Call the urc callback if one is found.
      */
     void process_oob();
@@ -173,10 +172,11 @@ public:
      */
     void set_filehandle_sigio();
 
-    /**
-     * Flushes the underlying stream
+    /** Set file handle, which is used for reading AT responses and writing AT commands
+     *
+     *  @param fh file handle used for reading AT responses and writing AT commands
      */
-    void flush();
+    void set_file_handle(FileHandle *fh);
 
 protected:
     void event();
@@ -302,6 +302,17 @@ public:
      *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
      */
     ssize_t read_string(char *str, size_t size, bool read_even_stop_tag = false);
+
+    /** Reads chars representing hex ascii values and converts them to the corresponding chars.
+     *  For example: "4156" to "AV".
+     *  Terminates with null. Skips the quotation marks.
+     *  Stops on delimiter or stop tag.
+     *
+     *  @param str output buffer for the read
+     *  @param size maximum number of chars to output
+     *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
+     */
+    ssize_t read_hex_string(char *str, size_t size);
 
     /** Reads as string and converts result to integer. Supports only positive integers.
      *
@@ -482,6 +493,8 @@ private:
 
     // check is urc is already added
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+
+    ssize_t read(char *buf, size_t size, bool read_even_stop_tag, bool hex);
 };
 
 } // namespace mbed

@@ -25,9 +25,11 @@
 #include "rtos/Thread.h"
 #endif
 #include "Kernel.h"
+#include "CellularUtil.h"
 
 using namespace mbed;
 using namespace events;
+using namespace mbed_cellular_util;
 
 //#define MBED_TRACE_MAX_LEVEL TRACE_LEVEL_DEBUG
 #include "CellularLog.h"
@@ -61,7 +63,6 @@ static const uint8_t map_3gpp_errors[][2] =  {
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
-    _fileHandle(fh),
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -107,9 +108,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     set_tag(&_info_stop, CRLF);
     set_tag(&_elem_stop, ")");
 
-    _fileHandle->set_blocking(false);
-
-    set_filehandle_sigio();
+    set_file_handle(fh);
 }
 
 void ATHandler::enable_debug(bool enable)
@@ -151,7 +150,20 @@ FileHandle *ATHandler::get_file_handle()
 
 void ATHandler::set_file_handle(FileHandle *fh)
 {
+    _fh_sigio_set = false;
     _fileHandle = fh;
+    _fileHandle->set_blocking(false);
+    set_filehandle_sigio();
+}
+
+void ATHandler::set_filehandle_sigio()
+{
+    if (_fh_sigio_set) {
+        return;
+    }
+
+    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
+    _fh_sigio_set = true;
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
@@ -308,15 +320,6 @@ void ATHandler::process_oob()
     unlock();
 }
 
-void ATHandler::set_filehandle_sigio()
-{
-    if (_fh_sigio_set) {
-        return;
-    }
-    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
-    _fh_sigio_set = true;
-}
-
 void ATHandler::reset_buffer()
 {
     tr_debug("%s", __func__);
@@ -456,39 +459,42 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
     return read_len;
 }
 
-ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
+ssize_t ATHandler::read(char *buf, size_t size, bool read_even_stop_tag, bool hex)
 {
     tr_debug("%s", __func__);
-    at_debug("\n----------read_string buff:----------\n");
+    at_debug("\n----------read buff:----------\n");
     for (size_t i = _recv_pos; i < _recv_len; i++) {
         at_debug("%c", _recv_buff[i]);
     }
-    at_debug("\n----------buff----------\n");
+    at_debug("\n----------read end----------\n");
 
     if (_last_err || !_stop_tag || (_stop_tag->found && read_even_stop_tag == false)) {
         return -1;
     }
 
-    uint8_t *pbuf = (uint8_t*)buf;
-
-    size_t len = 0;
     size_t match_pos = 0;
+    size_t read_size = hex ? size*2 : size;
 
     consume_char('\"');
 
-    for (; len < (size + match_pos); len++) {
+    size_t read_idx = 0;
+    size_t buf_idx = 0;
+    char hexbuf[2];
+
+    for (; read_idx < (read_size + match_pos); read_idx++) {
         int c = get_char();
+        buf_idx = hex ? read_idx/2 : read_idx;
         if (c == -1) {
-            pbuf[len] = '\0';
+            buf[buf_idx] = '\0';
             set_error(NSAPI_ERROR_DEVICE_ERROR);
             return -1;
         } else if (c == _delimiter) {
-            pbuf[len] = '\0';
+            buf[buf_idx] = '\0';
             break;
         } else if (c == '\"') {
             match_pos = 0;
-            if (len > 0) {
-                len--;
+            if (read_idx > 0) {
+                read_idx--;
             }
             continue;
         } else if (_stop_tag->len && c == _stop_tag->tag[match_pos]) {
@@ -496,19 +502,35 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             if (match_pos == _stop_tag->len) {
                 _stop_tag->found = true;
                 // remove tag from string if it was matched
-                len -= (_stop_tag->len - 1);
-                pbuf[len] = '\0';
+                buf_idx -= (_stop_tag->len - 1);
+                buf[buf_idx] = '\0';
                 break;
             }
         } else if (match_pos) {
             match_pos = 0;
         }
 
-        pbuf[len] = c;
+        if (!hex) {
+           buf[buf_idx] = c;
+        } else {
+            hexbuf[read_idx % 2] = c;
+            if (read_idx % 2 == 1) {
+                hex_str_to_char_str(hexbuf, 2, buf+buf_idx);
+            }
+        }
     }
 
-    // Do we need _stop_found set after reading by size -> is _stop_tag_by_len needed or not?
-    return len;
+    return buf_idx;
+}
+
+ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
+{
+    return read(buf, size, read_even_stop_tag, false);
+}
+
+ssize_t ATHandler::read_hex_string(char *buf, size_t size)
+{
+    return read(buf, size, false, true);
 }
 
 int32_t ATHandler::read_int()
@@ -998,8 +1020,8 @@ void ATHandler::cmd_start(const char* cmd)
         if (time_difference < (uint64_t)_at_send_delay) {
             wait_ms((uint64_t)_at_send_delay - time_difference);
             tr_debug("AT wait %llu %llu", current_time, _last_response_stop);
-        } 
-    } 
+        }
+    }
 
     at_debug("AT cmd %s (err %d)\n", cmd, _last_err);
 
@@ -1063,7 +1085,7 @@ void ATHandler::cmd_stop()
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     at_debug("AT write bytes %d (err %d)\n", len, _last_err);
-    
+
     if (_last_err != NSAPI_ERROR_OK) {
         return 0;
     }

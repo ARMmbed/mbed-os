@@ -26,6 +26,7 @@ from tools.utils import argparse_force_uppercase_type
 from tools.utils import print_large_string
 from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
+from tools.notifier.term import TerminalNotifier
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
     """Generate a name, if not provided, and find dependencies
@@ -71,7 +72,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           zip_proj=False, build_profile=None, export_path=None, silent=False,
+           zip_proj=False, build_profile=None, export_path=None, notify=None,
            app_config=None):
     """Do an export of a project.
 
@@ -96,7 +97,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     return export_project(src, project_dir, target, ide, name=name,
                           macros=macros, libraries_paths=lib, zip_proj=zip_name,
-                          build_profile=build_profile, silent=silent,
+                          build_profile=build_profile, notify=notify,
                           app_config=app_config)
 
 
@@ -247,6 +248,8 @@ def main():
 
     zip_proj = not bool(options.source_dir)
 
+    notify = TerminalNotifier()
+
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
     exporter, toolchain_name = get_exporter_toolchain(options.ide)
@@ -270,7 +273,7 @@ def main():
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
                build_profile=profile, app_config=options.app_config,
-               export_path=options.build_dir)
+               export_path=options.build_dir, notify = notify)
     except NotSupportedException as exc:
         print("[ERROR] %s" % str(exc))
 

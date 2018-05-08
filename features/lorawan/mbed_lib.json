@@ -60,6 +60,10 @@
         "lbt-on": {
             "help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
             "value": false
+        },
+        "automatic-uplink-message": {
+            "help": "Stack will automatically send an uplink message when lora server requires immediate response",
+            "value": true
         }
     }
 }

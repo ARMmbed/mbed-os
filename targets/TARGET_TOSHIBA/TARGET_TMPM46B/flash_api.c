@@ -20,6 +20,7 @@
 
 #define PROGRAM_WIRTE_MAX             16U      /* Page program could be written 16 bytes/4 words once */
 #define SECTOR_SIZE                   0x8000   /* (512 * 8) sectors  */
+#define PAGE_SIZE                     16U      /* Page program size is 16 bytes */
 
 #if defined ( __ICCARM__ )    /* IAR Compiler */
 #define FLASH_API_ROM           ((uint32_t *)__section_begin("FLASH_CODE_ROM"))
@@ -143,7 +144,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 #endif
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    return FLASH_PAGE_SIZE;
+    return PAGE_SIZE;
 }
 
 #if defined ( __ICCARM__ )    /* IAR Compiler */

@@ -48,6 +48,19 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
 
 AT_CellularNetwork::~AT_CellularNetwork()
 {
+#if NSAPI_PPP_AVAILABLE
+    (void)disconnect();
+#else
+    delete _stack;
+#endif // NSAPI_PPP_AVAILABLE
+
+    for (int type = 0; type < CellularNetwork::C_MAX; type++) {
+        if (has_registration((RegistrationType)type)) {
+            _at.remove_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
+        }
+    }
+
+    _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
     free_credentials();
 }
 
@@ -85,6 +98,7 @@ void AT_CellularNetwork::free_credentials()
 
 void AT_CellularNetwork::urc_no_carrier()
 {
+    tr_error("Data call failed: no carrier");
     _connect_status = NSAPI_STATUS_DISCONNECTED;
     if (_connection_status_cb) {
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
@@ -97,6 +111,22 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
     int lac = -1, cell_id = -1, act = -1;
 
     read_reg_params(type, reg_status, lac, cell_id, act);
+
+#if MBED_CONF_MBED_TRACE_ENABLE
+    switch (reg_status) {
+        case NotRegistered:
+            tr_error("not registered");
+            break;
+        case RegistrationDenied:
+            tr_error("registration denied");
+            break;
+        case Unknown:
+            tr_error("registration status unknown");
+            break;
+        default:
+            break;
+    }
+#endif
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
         tr_debug("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);
@@ -216,7 +246,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = set_context_to_be_activated();
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
-        tr_error("Failed to activate network context!");
+        tr_error("Failed to activate network context! (%d)", err);
 
         _connect_status = NSAPI_STATUS_DISCONNECTED;
         if (_connection_status_cb) {
@@ -229,7 +259,8 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     // do check for stack to validate that we have support for stack
     _stack = get_stack();
     if (!_stack) {
-        return err;
+        tr_error("No cellular stack!");
+        return NSAPI_ERROR_UNSUPPORTED;
     }
 
     _is_context_active = false;
@@ -246,7 +277,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     _at.resp_stop();
 
     if (!_is_context_active) {
-        tr_info("Activate PDP context");
+        tr_info("Activate PDP context %d",_cid);
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
         _at.cmd_stop();
@@ -259,6 +290,8 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     // If new PDP context was created and failed to activate, delete it
     if (err != NSAPI_ERROR_OK && _new_context_set) {
         delete_current_context();
+    } else if (err == NSAPI_ERROR_OK) {
+        _is_context_active = true;
     }
 
     _at.unlock();
@@ -439,7 +472,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
             strncpy(pdp_type, "IPV6", sizeof(pdp_type));
             break;
         case IPV4V6_STACK:
-            strncpy(pdp_type, "IPV4V6", sizeof(pdp_type));
+            strncpy(pdp_type, "IPV6", sizeof(pdp_type)); // try first IPV6 and then fall-back to IPv4
             break;
         default:
             break;
@@ -636,7 +669,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         tr_debug("Automatic network registration");
         _at.cmd_start("AT+COPS?");
         _at.cmd_stop();
-        _at.resp_start("AT+COPS:");
+        _at.resp_start("+COPS:");
         int mode = _at.read_int();
         _at.resp_stop();
         if (mode != 0) {
@@ -724,7 +757,8 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
 
 nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
 {
-    return _cell_id;
+    cell_id = _cell_id;
+    return NSAPI_ERROR_OK;
 }
 
 bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
@@ -733,7 +767,7 @@ bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
     return true;
 }
 
-nsapi_error_t AT_CellularNetwork::set_attach(int timeout)
+nsapi_error_t AT_CellularNetwork::set_attach(int /*timeout*/)
 {
     _at.lock();
 
@@ -770,6 +804,19 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
     return _at.unlock_return_error();
 }
 
+nsapi_error_t AT_CellularNetwork::detach()
+{
+    _at.lock();
+
+    tr_debug("Network detach");
+    _at.cmd_start("AT+CGATT=0");
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+
+    return _at.unlock_return_error();
+}
+
 nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
 {
     // If apn is set
@@ -792,11 +839,11 @@ nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoff_timer)
 
 NetworkStack *AT_CellularNetwork::get_stack()
 {
-    // use lwIP/PPP if modem does not have IP stack
 #if NSAPI_PPP_AVAILABLE
-    _stack = nsapi_ppp_get_stack();
-#else
-    _stack = NULL;
+    // use lwIP/PPP if modem does not have IP stack
+    if (!_stack) {
+        _stack = nsapi_ppp_get_stack();
+    }
 #endif
     return _stack;
 }
@@ -879,6 +926,14 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     while (_at.info_elem('(')) {
 
         op = operators.add_new();
+        if (!op) {
+            tr_warn("Could not allocate new operator");
+            _at.resp_stop();
+            _at.unlock();
+            operators.delete_all();
+            opsCount = 0;
+            return NSAPI_ERROR_NO_MEMORY;
+        }
 
         op->op_status = (operator_t::Status)_at.read_int();
         _at.read_string(op->op_long, sizeof(op->op_long));
@@ -900,7 +955,6 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     _at.resp_stop();
 
     opsCount = idx;
-
     return _at.unlock_return_error();
 }
 
@@ -1012,8 +1066,9 @@ nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params
         params = params_list.add_new();
         if (!params) {
             tr_warn("Could not allocate new pdpcontext_params_t");
-            params_list.delete_all();
             _at.resp_stop();
+            _at.unlock();
+            params_list.delete_all();
             free(temp);
             free(ipv6_and_subnetmask);
             return NSAPI_ERROR_NO_MEMORY;
@@ -1152,5 +1207,31 @@ nsapi_error_t AT_CellularNetwork::get_operator_params(int &format, operator_t &o
 
     _at.resp_stop();
 
+    return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_names)
+{
+    _at.lock();
+
+    _at.cmd_start("AT+COPN?");
+    _at.cmd_stop();
+
+    _at.resp_start("+COPN:");
+    operator_names_t *names = NULL;
+    while (_at.info_resp()) {
+        names = op_names.add_new();
+        if (!names) {
+            tr_warn("Could not allocate new operator_names_t");
+            _at.resp_stop();
+            _at.unlock();
+            op_names.delete_all();
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        _at.read_string(names->numeric, sizeof(names->numeric));
+        _at.read_string(names->alpha, sizeof(names->alpha));
+    }
+
+    _at.resp_stop();
     return _at.unlock_return_error();
 }
