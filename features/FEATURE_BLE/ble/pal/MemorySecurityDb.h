@@ -18,7 +18,7 @@
 #define PAL_MEMORY_SECURITY_DB_H_
 
 #include "ble/Gap.h"
-#include "SecurityDB.h"
+#include "SecurityDb.h"
 
 namespace ble {
 namespace pal {
