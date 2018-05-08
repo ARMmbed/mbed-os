@@ -27,12 +27,7 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdio.h>
-#include <stdlib.h>
 #define mbedtls_printf     printf
-#define mbedtls_snprintf   snprintf
-#define mbedtls_exit       exit
-#define MBEDTLS_EXIT_SUCCESS EXIT_SUCCESS
-#define MBEDTLS_EXIT_FAILURE EXIT_FAILURE
 #endif
 
 using namespace utest::v1;
@@ -179,7 +174,7 @@ int main() {
     mbedtls_platform_context platform_ctx;
     if((ret = mbedtls_platform_setup(&platform_ctx))!= 0)
     {
-        mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
+        mbedtls_printf("Mbed TLS multitest failed! mbedtls_platform_setup returned %d\n", ret);
         return 1;
     }
 #endif
