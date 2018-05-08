@@ -4011,7 +4011,7 @@
     "XMC_XXXX": {
         "inherits": ["Target"],
         "extra_labels": ["Infineon", "XMCLib"],
-        "supported_toolchains": ["GCC_ARM", "ARM"],
+        "supported_toolchains": ["GCC_ARM"],
         "public": false
     },
     "XMC_4XXX": {
