@@ -24,6 +24,7 @@
 #include "pdc.h"
 
 
+#if DEVICE_SPI
 /* Chip select. */
 #define SPI_CHIP_SEL 0
 
@@ -518,4 +519,5 @@ void spi_abort_asynch(spi_t *obj)
     NVIC_DisableIRQ(obj->spi.irq_type);
 }
 
-#endif
+#endif /* DEVICE_SPI_ASYNCH */
+#endif /* DEVICE_SPI */

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if DEVICE_SPI
 #include "mbed_assert.h"
 #include "spi_api.h"
 
@@ -239,3 +240,4 @@ void spi_slave_write(spi_t *obj, int value) {
     }
 
 }
+#endif /* DEVICE_SPI */

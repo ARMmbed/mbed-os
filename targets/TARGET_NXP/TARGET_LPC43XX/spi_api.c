@@ -23,6 +23,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
+#if DEVICE_SPI
 // SCU mode for SPI pins
 #define SCU_PINIO_SPI       SCU_PINIO_FAST
 
@@ -227,3 +228,4 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+#endif /* DEVICE_SPI */

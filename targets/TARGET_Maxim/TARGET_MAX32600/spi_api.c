@@ -31,6 +31,7 @@
  *******************************************************************************
  */
 
+#if DEVICE_SPI
 #include <string.h>
 #include "mbed_assert.h"
 #include "cmsis.h"
@@ -199,3 +200,4 @@ int spi_busy(spi_t *obj)
 {
     return !(obj->spi->intfl & MXC_F_SPI_INTFL_TX_READY);
 }
+#endif /* DEVICE_SPI */

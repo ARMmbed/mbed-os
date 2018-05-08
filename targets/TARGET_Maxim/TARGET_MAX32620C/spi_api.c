@@ -31,6 +31,7 @@
  *******************************************************************************
  */
 
+#if DEVICE_SPI
 #include "mbed_assert.h"
 #include "mbed_critical.h"
 #include "spi_api.h"        // mbed HAL
@@ -233,3 +234,4 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return obj->index;
 }
+#endif /* DEVICE_SPI */

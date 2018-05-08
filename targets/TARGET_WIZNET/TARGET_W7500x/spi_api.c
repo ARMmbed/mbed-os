@@ -37,6 +37,7 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
+#if DEVICE_SPI
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);
 
@@ -215,3 +216,4 @@ int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
 
+#endif /* DEVICE_SPI */

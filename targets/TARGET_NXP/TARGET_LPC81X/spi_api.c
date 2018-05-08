@@ -21,6 +21,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
+#if DEVICE_SPI
 static const SWM_Map SWM_SPI_SSEL[] = {
     {4, 16},
     {5, 16},
@@ -209,3 +210,4 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+#endif /* DEVICE_SPI */

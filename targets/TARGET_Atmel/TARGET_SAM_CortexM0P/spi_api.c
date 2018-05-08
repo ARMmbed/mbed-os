@@ -16,6 +16,7 @@
 #include "mbed_assert.h"
 #include "spi_api.h"
 
+#if DEVICE_SPI
 #include "cmsis.h"
 #include "pinmap.h"
 #include "sercom.h"
@@ -1014,3 +1015,4 @@ void spi_abort_asynch(spi_t *obj)
 }
 
 #endif /* DEVICE_SPI_ASYNCH */
+#endif /* DEVICE_SPI */

@@ -21,6 +21,7 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h" // For the Peripheral to Pin Definitions found in the individual Target's Platform
 
+#if DEVICE_SPI
 static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);
 
@@ -187,3 +188,4 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+#endif /* DEVICE_SPI */
