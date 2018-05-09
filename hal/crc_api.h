@@ -81,11 +81,13 @@ extern "C" {
  * and final xor of 0xFFFFFFFF, and reflection of both input and output. If any
  * of these settings cannot be configured the polynomial is not supported.
  *
- * \param polynomial CRC Polynomial. Example polynomial: 0x1021 = x^12+x^5+1
+ * \param config Contains CRC configuration parameters for initialising the
+ *               hardware CRC module. For example, polynomial and initial seed
+ *               values.
  *
  * \return  True if running if the polynomial is supported, false if not.
  */
-bool hal_crc_is_supported(const crc_mbed_config_t* polynomial);
+bool hal_crc_is_supported(const crc_mbed_config_t* config);
 
 /** Initialise the hardware CRC module with the given polynomial
  *
@@ -113,9 +115,11 @@ bool hal_crc_is_supported(const crc_mbed_config_t* polynomial);
  * from two different contexts may lead to configurations being overwrite and
  * results being lost.
  *
- * \param polynomial CRC Polynomial. Example polynomial: 0x1021 = x^12+x^5+1
+ * \param config Contains CRC configuration parameters for initialising the
+ *               hardware CRC module. For example, polynomial and initial seed
+ *               values.
  */
-void hal_crc_compute_partial_start(const crc_mbed_config_t* polynomial);
+void hal_crc_compute_partial_start(const crc_mbed_config_t* config);
 
 /** Writes data to the current CRC module.
  *
