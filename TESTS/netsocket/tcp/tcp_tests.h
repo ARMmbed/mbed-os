@@ -36,6 +36,7 @@ void test_tcpsocket_open_limit();
 void test_tcpsocket_recv_100k();
 void test_tcpsocket_recv_100k_nonblock();
 void test_tcpsocket_recv_timeout();
+void test_tcpsocket_send_repeat();
 void test_tcpsocket_send_timeout();
 void test_tcpsocket_thread_per_socket_safety();
 

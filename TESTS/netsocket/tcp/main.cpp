@@ -101,6 +101,7 @@ Case cases[] = {
     Case("Receive 100k from CHARGEN service", test_tcpsocket_recv_100k),
     Case("Receive 100k from CHARGEN service non-block", test_tcpsocket_recv_100k_nonblock),
     Case("Receive in given time", test_tcpsocket_recv_timeout),
+    Case("Send repeatedly", test_tcpsocket_send_repeat),
     Case("Sending shall not take too long", test_tcpsocket_send_timeout),
     Case("Parallel socket thread safety", test_tcpsocket_thread_per_socket_safety),
     Case("Endpoint initiated close", test_tcpsocket_endpoint_close),
