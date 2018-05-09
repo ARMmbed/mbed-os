@@ -35,6 +35,40 @@
 #include "platform/Callback.h"
 
 /**
+ * Option Flags for send(), receive() APIs
+ */
+#define MSG_UNCONFIRMED_FLAG                  0x01
+#define MSG_CONFIRMED_FLAG                    0x02
+#define MSG_MULTICAST_FLAG                    0x04
+#define MSG_PROPRIETARY_FLAG                  0x08
+
+/**
+ * Bit mask for message flags
+ */
+
+#define MSG_FLAG_MASK                         0x0F
+
+/**
+ * Mask for unconfirmed multicast message
+ */
+#define MSG_UNCONFIRMED_MULTICAST              0x05
+
+/**
+ * Mask for confirmed multicast message
+ */
+#define MSG_CONFIRMED_MULTICAST                0x06
+
+/**
+ * Mask for unconfirmed message proprietary message
+ */
+#define MSG_UNCONFIRMED_PROPRIETARY            0x09
+
+/**
+ * Mask for confirmed proprietary message
+ */
+#define MSG_CONFIRMED_PROPRIETARY              0x0A
+
+/**
  * LoRaWAN device classes definition.
  *
  * LoRaWAN Specification V1.0.2, chapter 2.1.

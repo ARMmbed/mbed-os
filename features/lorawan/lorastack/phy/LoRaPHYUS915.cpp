@@ -353,7 +353,7 @@ void LoRaPHYUS915::restore_default_channels()
     }
 }
 
-bool LoRaPHYUS915::rx_config(rx_config_params_t* config, int8_t* datarate)
+bool LoRaPHYUS915::rx_config(rx_config_params_t* config)
 {
     int8_t dr = config->datarate;
     uint8_t max_payload = 0;
@@ -409,7 +409,6 @@ bool LoRaPHYUS915::rx_config(rx_config_params_t* config, int8_t* datarate)
 
     _radio->unlock();
 
-    *datarate = (uint8_t) dr;
     return true;
 }
 

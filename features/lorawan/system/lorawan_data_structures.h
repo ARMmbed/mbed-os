@@ -47,40 +47,6 @@ typedef uint32_t lorawan_time_t;
 // Radio wake-up time from sleep - unit ms.
 #define RADIO_WAKEUP_TIME                           1
 
-/**
- * Option Flags for send(), receive() APIs
- */
-#define MSG_UNCONFIRMED_FLAG                  0x01
-#define MSG_CONFIRMED_FLAG                    0x02
-#define MSG_MULTICAST_FLAG                    0x04
-#define MSG_PROPRIETARY_FLAG                  0x08
-
-/**
- * Bit mask for message flags
- */
-
-#define MSG_FLAG_MASK                         0x0F
-
-/**
- * Mask for unconfirmed multicast message
- */
-#define MSG_UNCONFIRMED_MULTICAST              0x05
-
-/**
- * Mask for confirmed multicast message
- */
-#define MSG_CONFIRMED_MULTICAST                0x06
-
-/**
- * Mask for unconfirmed message proprietary message
- */
-#define MSG_UNCONFIRMED_PROPRIETARY            0x09
-
-/**
- * Mask for confirmed proprietary message
- */
-#define MSG_CONFIRMED_PROPRIETARY              0x0A
-
 /*!
  * Sets the length of the LoRaMAC footer field.
  * Mainly indicates the MIC field length.
@@ -570,7 +536,7 @@ typedef enum {
     /*!
      * The node has lost MAX_FCNT_GAP or more frames.
      */
-    LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
+    LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOST,
     /*!
      * An address error occurred.
      */
@@ -586,46 +552,6 @@ typedef enum {
 } loramac_event_info_status_t;
 
 /*!
- * LoRaMac service state flags.
- */
-typedef union {
-    /*!
-     * Byte-access to the bits.
-     */
-    uint8_t value;
-    /*!
-     * The structure containing single access to bits.
-     */
-    struct mac_flag_bits_s
-    {
-        /*!
-         * MCPS-Req pending
-         */
-        uint8_t mcps_req         : 1;
-        /*!
-         * MCPS-Ind pending
-         */
-        uint8_t mcps_ind         : 1;
-        /*!
-         * MCPS-Ind pending. Skip indication to the application layer.
-         */
-        uint8_t mcps_ind_skip     : 1;
-        /*!
-         * MLME-Req pending
-         */
-        uint8_t mlme_req         : 1;
-        /*!
-         * MLME-Ind pending
-         */
-        uint8_t mlme_ind         : 1;
-        /*!
-         * MAC cycle done
-         */
-        uint8_t mac_done         : 1;
-    } bits;
-} loramac_flags_t;
-
-/*!
  *
  * \brief   LoRaMAC data services
  *
@@ -639,14 +565,6 @@ typedef union {
  * \ref MCPS_MULTICAST   | NO      | YES        | NO       | NO
  * \ref MCPS_PROPRIETARY | YES     | YES        | NO       | YES
  *
- * The following table provides links to the function implementations of the
- * related MCPS primitives:
- *
- * Primitive        | Function
- * ---------------- | :---------------------:
- * MCPS-Request     | LoRaMacMlmeRequest
- * MCPS-Confirm     | MacMcpsConfirm in \ref loramac_primitives_t
- * MCPS-Indication  | MacMcpsIndication in \ref loramac_primitives_t
  */
 typedef enum {
     /*!
@@ -715,6 +633,10 @@ typedef struct {
  */
 typedef struct {
     /*!
+     * True if an MCPS indication was pending
+     */
+    bool pending;
+    /*!
      * MCPS-Indication type.
      */
     mcps_type_t type;
@@ -741,7 +663,7 @@ typedef struct {
     /*!
      * A pointer to the received data stream.
      */
-    uint8_t *buffer;
+    const uint8_t *buffer;
     /*!
      * The size of the received data stream.
      */
@@ -787,14 +709,6 @@ typedef struct {
  * \ref MLME_TXCW               | YES     | NO         | NO       | YES
  * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
  *
- * The following table provides links to the function implementations of the
- * related MLME primitives.
- *
- * Primitive        | Function
- * ---------------- | :---------------------:
- * MLME-Request     | LoRaMacMlmeRequest
- * MLME-Confirm     | MacMlmeConfirm in \ref loramac_primitives_t
- * MLME-Indication  | MacMlmeIndication in \ref loramac_primitives_t
  */
 typedef enum {
     /*!
@@ -880,6 +794,10 @@ typedef struct {
  */
 typedef struct {
     /*!
+     * Indicates if a request is pending or not
+     */
+    bool pending;
+    /*!
      * The previously performed MLME-Request. i.e., the request type
      * for which the confirmation is being generated
      */
@@ -915,41 +833,29 @@ typedef struct {
      * MLME-Indication type
      */
     mlme_type_t indication_type;
+    bool pending;
 } loramac_mlme_indication_t;
 
-/*!
- * LoRaMAC events structure.
- * Used to notify upper layers of MAC events.
+/**
+ * End-device states.
  */
-typedef struct {
-    /*!
-     * \brief   MCPS-Confirm primitive.
-     *
-     * \param   [OUT] MCPS-Confirm parameters.
-     */
-    mbed::Callback<void(loramac_mcps_confirm_t*)> mcps_confirm;
-
-    /*!
-     * \brief   MCPS-Indication primitive.
-     *
-     * \param   [OUT] MCPS-Indication parameters.
-     */
-    mbed::Callback<void(loramac_mcps_indication_t*)> mcps_indication;
-
-    /*!
-     * \brief   MLME-Confirm primitive.
-     *
-     * \param   [OUT] MLME-Confirm parameters.
-     */
-    mbed::Callback<void(loramac_mlme_confirm_t*)> mlme_confirm;
-
-    /*!
-     * \brief   MLME-Indication primitive
-     *
-     * \param   [OUT] MLME-Indication parameters
-     */
-    mbed::Callback<void(loramac_mlme_indication_t*)> mlme_indication;
-}loramac_primitives_t;
+typedef enum device_states {
+    DEVICE_STATE_NOT_INITIALIZED,
+    DEVICE_STATE_JOINING,
+    DEVICE_STATE_IDLE,
+    DEVICE_STATE_CONNECTING,
+    DEVICE_STATE_AWAITING_JOIN_ACCEPT,
+    DEVICE_STATE_RECEIVING,
+    DEVICE_STATE_CONNECTED,
+    DEVICE_STATE_SCHEDULING,
+    DEVICE_STATE_SENDING,
+    DEVICE_STATE_AWAITING_ACK,
+    DEVICE_STATE_STATUS_CHECK,
+#if defined(LORAWAN_COMPLIANCE_TEST)
+    DEVICE_STATE_COMPLIANCE_TEST,
+#endif
+    DEVICE_STATE_SHUTDOWN
+} device_states_t;
 
 /**
  * Enumeration for LoRaWAN connection type.
@@ -1090,70 +996,6 @@ typedef struct lorawan_session {
     uint32_t downlink_counter;
 } lorawan_session_t;
 
-/** Structure containing the uplink status
- *
- */
-typedef struct {
-    /** Is acked
-     *
-     */
-    uint8_t acked;
-    /** Uplink data rate
-     *
-     */
-    int8_t datarate;
-    /** Uplink counter
-     *
-     */
-    uint16_t uplink_counter;
-    /** Port is used by application
-     *
-     */
-    uint8_t port;
-    /** Payload
-     *
-     */
-    uint8_t *buffer;
-    /** Payload size
-     *
-     */
-    uint8_t buffer_size;
-} loramac_uplink_status_t;
-
-/** A structure containing the downlink status
- *
- */
-typedef struct {
-    /** RSSI of downlink
-     *
-     */
-    int16_t rssi;
-    /** SNR of downlink
-     *
-     */
-    int8_t snr;
-    /** Downlink counter
-     *
-     */
-    uint16_t downlink_counter;
-    /** Is RX data received
-     *
-     */
-    bool rx_data;
-    /** Port used by application
-     *
-     */
-    uint8_t port;
-    /** Payload
-     *
-     */
-    uint8_t *buffer;
-    /** Payload size
-     *
-     */
-    uint8_t buffer_size;
-} loramac_downlink_status_t;
-
 /*!
  * The parameter structure for the function for regional rx configuration.
  */
@@ -1163,7 +1005,7 @@ typedef struct {
      */
     uint8_t channel;
     /*!
-     * The RX datarate.
+     * The RX datarate index.
      */
     uint8_t datarate;
     /*!
@@ -1212,20 +1054,6 @@ typedef struct {
     int timer_id;
 } timer_event_t;
 
-/*!
- * LoRaMac internal states
- */
-typedef enum {
-    LORAMAC_IDLE          = 0x00000000,
-    LORAMAC_TX_RUNNING    = 0x00000001,
-    LORAMAC_RX            = 0x00000002,
-    LORAMAC_ACK_REQ       = 0x00000004,
-    LORAMAC_ACK_RETRY     = 0x00000008,
-    LORAMAC_TX_DELAYED    = 0x00000010,
-    LORAMAC_TX_CONFIG     = 0x00000020,
-    LORAMAC_RX_ABORT      = 0x00000040,
-} loramac_internal_state;
-
 typedef struct {
     /*!
      * Device IEEE EUI
@@ -1270,21 +1098,15 @@ typedef struct {
        */
       lorawan_time_t mac_init_time;
 
-
       /*!
        * Last transmission time on air
        */
       lorawan_time_t tx_toa;
 
       /*!
-       * LoRaMac timer used to check the LoRaMacState (runs every second)
+       * LoRaMac duty cycle backoff timer
        */
-      timer_event_t mac_state_check_timer;
-
-      /*!
-       * LoRaMac duty cycle delayed Tx timer
-       */
-      timer_event_t tx_delayed_timer;
+      timer_event_t backoff_timer;
 
       /*!
        * LoRaMac reception windows timers
@@ -1375,24 +1197,24 @@ typedef struct {
     uint8_t ul_nb_rep_counter;
 
     /*!
-     * Buffer containing the data to be sent or received.
+     * TX buffer used for encrypted outgoing frames
      */
-    uint8_t buffer[LORAMAC_PHY_MAXPAYLOAD];
+    uint8_t tx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 
     /*!
-     * Length of packet in LoRaMacBuffer
+     * Length of TX buffer
      */
-    uint16_t buffer_pkt_len;
+    uint16_t tx_buffer_len;
 
     /*!
-     * Buffer containing the upper layer data.
+     * Used for storing decrypted RX data.
      */
-    uint8_t payload[LORAMAC_PHY_MAXPAYLOAD];
+    uint8_t rx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 
     /*!
-     * Length of the payload in LoRaMacBuffer
+     * Length of the RX buffer
      */
-    uint8_t payload_length;
+    uint8_t rx_buffer_len;
 
     /*!
      * Number of trials to get a frame acknowledged
@@ -1418,11 +1240,6 @@ typedef struct {
      * Mac keys
      */
     loramac_keys keys;
-
-    /*!
-     * LoRaMac tx/rx operation state
-     */
-    loramac_flags_t flags;
 
     /*!
      * Device nonce is a random value extracted by issuing a sequence of RSSI
@@ -1456,11 +1273,6 @@ typedef struct {
      * Counts the number of missed ADR acknowledgements
      */
     uint32_t adr_ack_counter;
-
-    /*!
-     * LoRaMac internal state
-     */
-    uint32_t mac_state;
 
     /*!
      * LoRaMac reception windows delay

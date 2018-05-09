@@ -335,7 +335,7 @@ LoRaPHYAU915::~LoRaPHYAU915()
 {
 }
 
-bool LoRaPHYAU915::rx_config(rx_config_params_t* params, int8_t* datarate)
+bool LoRaPHYAU915::rx_config(rx_config_params_t* params)
 {
     int8_t dr = params->datarate;
     uint8_t max_payload = 0;
@@ -374,7 +374,6 @@ bool LoRaPHYAU915::rx_config(rx_config_params_t* params, int8_t* datarate)
 
     _radio->unlock();
 
-    *datarate = (uint8_t) dr;
     return true;
 }
 

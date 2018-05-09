@@ -301,9 +301,9 @@ public:
      *  lorawan.connect();
      * }
      *
-     * static void my_event_handler(lora_events_t events)
+     * static void my_event_handler(lorawan_event_t event)
      * {
-     *  switch(events) {
+     *  switch(event) {
      *      case CONNECTED:
      *          //do something
      *          break;
