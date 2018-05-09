@@ -26,7 +26,7 @@
 #include "ble_advdata.h"
 #include "headers/nrf_ble_hci.h"
 #include "ble/pal/ConnectionEventMonitor.h"
-#include "nRF5XPalSecurityManager.h"
+#include "nRF5xPalSecurityManager.h"
 
 using ble::pal::vendor::nordic::nRF5xSecurityManager;
 typedef nRF5xSecurityManager::resolving_list_entry_t resolving_list_entry_t;
@@ -490,7 +490,7 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     if ((addr.addr_type == 	BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE)
     	|| (addr.addr_type == 	BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)) {
         /* If a device is using Resolvable Private Addresses Section 1.3.2.2 (Core spec v4.2 volume 6 part B),
-        it shall also have an Identity Address that is either a Public or Random Static address type.”
+        it shall also have an Identity Address that is either a Public or Random Static address type.
         To establish a connection, a static address must be provided by the application to the SoftDevice.
         The SoftDevice resolves the address and connects to the right device if it is available. */
         addr.addr_id_peer = 1;

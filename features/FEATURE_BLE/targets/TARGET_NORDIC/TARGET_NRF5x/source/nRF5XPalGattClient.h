@@ -34,12 +34,12 @@ namespace nordic {
 /**
  * Implementation of pal::GattClient for the Nordic stack.
  */
-class nRF5XGattClient : public ble::pal::GattClient {
+class nRF5xGattClient : public ble::pal::GattClient {
 
 public:
-    nRF5XGattClient();
+    nRF5xGattClient();
 
-    virtual ~nRF5XGattClient();
+    virtual ~nRF5xGattClient();
 
     /**
      * see pal::GattClient::initialize .
@@ -184,7 +184,7 @@ public:
     );
 
     // singleton of the ARM Cordio client
-    static nRF5XGattClient& get_client();
+    static nRF5xGattClient& get_client();
 
     /**
      * Function call from btle.cpp

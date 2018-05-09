@@ -50,8 +50,8 @@ extern "C" {
 
 #include "nrf_ble_hci.h"
 
-#include "nRF5XPalGattClient.h"
-#include "nRF5XPalSecurityManager.h"
+#include "nRF5xPalGattClient.h"
+#include "nRF5xPalSecurityManager.h"
 
 
 bool isEventsSignaled = false;
@@ -163,7 +163,7 @@ error_t btle_init(void)
 
 void btle_handler(ble_evt_t *p_ble_evt)
 {
-    using ble::pal::vendor::nordic::nRF5XGattClient;
+    using ble::pal::vendor::nordic::nRF5xGattClient;
     using ble::pal::vendor::nordic::nRF5xSecurityManager;
 
     /* Library service handlers */
@@ -179,7 +179,7 @@ void btle_handler(ble_evt_t *p_ble_evt)
 #endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    nRF5XGattClient::handle_events(p_ble_evt);
+    nRF5xGattClient::handle_events(p_ble_evt);
 #endif
 
     nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
@@ -222,7 +222,7 @@ void btle_handler(ble_evt_t *p_ble_evt)
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
-            nRF5XGattClient::handle_connection_termination(handle);
+            nRF5xGattClient::handle_connection_termination(handle);
 #endif
 
             gap.processDisconnectionEvent(handle, reason);
