@@ -20,9 +20,8 @@
 #include "ble/BLETypes.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "nrf_ble.h"
-#if defined(MBEDTLS_ECDH_C)
 #include "nRF5xCrypto.h"
-#endif
+
 
 namespace ble {
 namespace pal {

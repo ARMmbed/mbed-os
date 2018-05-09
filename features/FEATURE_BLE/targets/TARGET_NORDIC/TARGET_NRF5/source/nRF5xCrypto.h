@@ -25,6 +25,8 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#if defined(MBEDTLS_ECDH_C)
+
 #include "mbedtls/platform.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ecp.h"
@@ -138,5 +140,7 @@ private:
 } // vendor
 } // pal
 } // ble
+
+#endif // defined(MBEDTLS_ECDH_C)
 
 #endif // NRF5X_CRYPTO_

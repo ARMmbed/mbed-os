@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(MBEDTLS_ECDH_C)
 
 #include "mbedtls/platform.h"
 #include "mbedtls/ecdh.h"
@@ -182,4 +183,6 @@ void CryptoToolbox::swap_endian(uint8_t* buf, size_t len) {
 } // vendor
 } // pal
 } // ble
+
+#endif //defined(MBEDTLS_ECDH_C)
 
