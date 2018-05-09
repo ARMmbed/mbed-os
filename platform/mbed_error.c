@@ -266,5 +266,66 @@ int get_error_log_count(void)
 {
     return mbed_log_get_error_log_count();
 }
+
+MbedErrorStatus save_error_log(const char *path)
+{
+    MbedErrorStatus ret = ERROR_SUCCESS;
+    mbed_error_ctx ctx = {0};
+    int log_count = mbed_log_get_error_log_count();
+    FILE *error_log_file = NULL;
+    
+    //Ensure path is valid
+    if(path==NULL) {
+        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_INVALID_ARGUMENT);
+        goto exit;
+    }
+    
+    //Open the file for saving the error log info
+    if((error_log_file = fopen( path, "w" ) ) == NULL){
+        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OPEN_FAILED);
+        goto exit;
+    }
+    
+    //First store the first and last errors
+    if(fprintf(error_log_file, "\nFirst Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n", 
+        (unsigned int)first_error_ctx.error_status, 
+        (unsigned int)first_error_ctx.thread_id, 
+        (unsigned int)first_error_ctx.error_address, 
+        (unsigned int)first_error_ctx.error_value) <= 0) {
+        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        goto exit;
+    }
+    
+    if(fprintf(error_log_file, "\nLast Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n", 
+        (unsigned int)current_error_ctx.error_status, 
+        (unsigned int)current_error_ctx.thread_id, 
+        (unsigned int)current_error_ctx.error_address, 
+        (unsigned int)current_error_ctx.error_value) <= 0) {
+        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        goto exit;
+    }
+    
+    //Update with error log info
+    while(--log_count >= 0) {
+        mbed_log_get_error(log_count, &ctx);
+        //first line of file will be error log count
+        if(fprintf(error_log_file, "\n%d: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n", 
+            log_count, 
+            (unsigned int)ctx.error_status, 
+            (unsigned int)ctx.thread_id, 
+            (unsigned int)ctx.error_address, 
+            (unsigned int)ctx.error_value) <= 0) {
+            ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+            goto exit;
+        }
+    }
+    
+exit:
+    fclose(error_log_file);
+        
+    return ret;
+}
+
+
 #endif
 

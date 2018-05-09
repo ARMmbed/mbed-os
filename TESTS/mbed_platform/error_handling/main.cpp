@@ -17,6 +17,8 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "mbed.h"
+#include <LittleFileSystem.h>
+#include "HeapBlockDevice.h"
 
 using utest::v1::Case;
 
@@ -319,7 +321,7 @@ void test_error_logging()
     
 }
 
-#define NUM_TEST_THREADS 15
+#define NUM_TEST_THREADS 10
 
 //Error logger threads
 void err_thread_func(MbedErrorStatus *error_status)
@@ -338,8 +340,7 @@ void test_error_logging_multithread()
     Thread errThread[NUM_TEST_THREADS];
     MbedErrorStatus error_status[NUM_TEST_THREADS] = { 
                                         ERROR_INVALID_ARGUMENT, ERROR_INVALID_DATA, ERROR_INVALID_FORMAT, ERROR_INVALID_SIZE, ERROR_INVALID_OPERATION, 
-                                        ERROR_NOT_FOUND, ERROR_ACCESS_DENIED, ERROR_FAILED_OPERATION, ERROR_OPERATION_PROHIBITED, ERROR_OPERATION_ABORTED, 
-                                        ERROR_NO_RESPONSE, ERROR_SEMAPHORE_LOCK_FAILED, ERROR_MUTEX_LOCK_FAILED, ERROR_OPEN_FAILED, ERROR_CLOSE_FAILED
+                                        ERROR_NOT_FOUND, ERROR_ACCESS_DENIED, ERROR_FAILED_OPERATION, ERROR_OPERATION_PROHIBITED, ERROR_OPERATION_ABORTED
     };
     
         
@@ -355,7 +356,11 @@ void test_error_logging_multithread()
     printf("\nError log count = %d\n", i+1);
     for(;i>=0;--i) {
         MbedErrorStatus status = get_error_log_info( i, &error_ctx );
-        printf("\nError Status[%d] = 0x%08X Value = 0x%08X\n", i, error_ctx.error_status, error_ctx.error_value);
+        if(status != ERROR_SUCCESS) {
+            TEST_FAIL();
+        }
+            
+        printf("\nError Status[%d] = 0x%08X Value = 0x%08X\n", i, (unsigned int)error_ctx.error_status, (unsigned int)error_ctx.error_value);
         TEST_ASSERT_EQUAL_UINT((unsigned int)error_ctx.error_value, (unsigned int)error_ctx.error_status);
     }
 }
@@ -381,6 +386,94 @@ void test_error_hook()
     TEST_ASSERT(sem_status > 0);
 }
 
+#ifdef MBED_TEST_SIM_BLOCKDEVICE
+
+// test configuration
+#ifndef MBED_TEST_FILESYSTEM
+#define MBED_TEST_FILESYSTEM LittleFileSystem
+#endif
+
+#ifndef MBED_TEST_FILESYSTEM_DECL
+#define MBED_TEST_FILESYSTEM_DECL MBED_TEST_FILESYSTEM fs("fs")
+#endif
+
+#ifndef MBED_TEST_BLOCK_COUNT
+#define MBED_TEST_BLOCK_COUNT 64
+#endif
+
+#ifndef MBED_TEST_SIM_BLOCKDEVICE_DECL
+#define MBED_TEST_SIM_BLOCKDEVICE_DECL MBED_TEST_SIM_BLOCKDEVICE fd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
+#endif
+
+// declarations
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define INCLUDE(x) STRINGIZE(x.h)
+
+#include INCLUDE(MBED_TEST_FILESYSTEM)
+#include INCLUDE(MBED_TEST_SIM_BLOCKDEVICE)
+
+MBED_TEST_FILESYSTEM_DECL;
+MBED_TEST_SIM_BLOCKDEVICE_DECL;
+
+/** Test save error log
+ */
+void test_save_error_log()
+{
+    //Log some errors
+    SET_ERROR(ERROR_TIMEOUT, "Timeout error", 1 );
+    SET_ERROR(ERROR_ALREADY_IN_USE, "Already in use error", 2 );
+    SET_ERROR(ERROR_NOT_SUPPORTED, "Not supported error", 3 );
+    SET_ERROR(ERROR_ACCESS_DENIED, "Access denied error", 4 );
+    SET_ERROR(ERROR_NOT_FOUND, "Not found error", 5 );
+    SET_ERROR(ERROR_INVALID_ARGUMENT, "Invalid argument error", 6 );
+    SET_ERROR(ERROR_INVALID_SIZE, "Invalid size error", 7 );
+    SET_ERROR(ERROR_INVALID_FORMAT, "Invalid format error", 8 );
+    SET_ERROR(ERROR_INVALID_OPERATION, "Invalid operation", 9 );
+    SET_ERROR(ERROR_NOT_READY, "Not ready error", 10 );
+    
+    int error = 0;
+    
+    error = MBED_TEST_FILESYSTEM::format(&fd);
+    if(error < 0) {
+        printf("Failed formatting");
+        TEST_FAIL();
+    }
+    
+    error = fs.mount(&fd);
+    if(error < 0) {
+        printf("Failed mounting fs");
+        TEST_FAIL();
+    }
+    
+    if(ERROR_SUCCESS != save_error_log("/fs/errors.log")) {
+        printf("Failed saving error log");
+        TEST_FAIL();
+    }
+    
+    FILE *error_file = fopen("/fs/errors.log", "r");
+    if(error_file == NULL) {
+        printf("Unable to find error log in fs");
+        TEST_FAIL();
+    }
+    
+    char buff[64] = {0};
+    while (!feof(error_file)){
+      int size = fread(&buff[0], 1, 15, error_file);
+      fwrite(&buff[0], 1, size, stdout);
+    }
+    printf("\r\n");
+    fclose(error_file);
+    
+    error = fs.unmount();
+    if(error < 0) {
+        printf("Failed unmounting fs");
+        TEST_FAIL();
+    }
+}
+
+#endif
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(100, "default_auto");
@@ -400,6 +493,9 @@ Case cases[] = {
 #ifndef MBED_CONF_ERROR_LOG_DISABLED    
     Case("Test error logging", test_error_logging),
     Case("Test error handling multi-threaded", test_error_logging_multithread),
+#ifdef MBED_TEST_SIM_BLOCKDEVICE    
+    Case("Test error save log", test_save_error_log),
+#endif    
 #endif    
 };
 
