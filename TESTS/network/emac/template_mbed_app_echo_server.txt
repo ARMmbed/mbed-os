@@ -10,12 +10,12 @@
         },
         "echo-server": {
             "help": "Build test to be echo server",
-            "value": 0
+            "value": 1
         },
         "echo-server-trace": {
             "help": "Trace incoming messages on echo server",
             "value": 0
-        },        
+        },
         "wifi-scan": {
             "help": "Scan and list access points",
             "value": 0

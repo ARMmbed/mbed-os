@@ -510,13 +510,11 @@ static void worker_loop_event_cb(int event)
 {
     if (event == LINK_UP) {
         link_up = true;
-        printf("cable connected\r\n\r\n");
         link_status_semaphore.release();
     }
 
     if (event == LINK_DOWN) {
         link_up = false;
-        printf("cable disconnected\r\n\r\n");
     }
 }
 
