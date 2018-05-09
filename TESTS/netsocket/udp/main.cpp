@@ -84,6 +84,7 @@ Case cases[] = {
         Case("Open at least 3 sockets", test_udpsocket_open_limit),
         Case("Receive in given time", test_udpsocket_recv_timeout),
         Case("Detect sendto invalid params", test_udpsocket_sendto_invalid),
+        Case("Send repeatedly", test_udpsocket_sendto_repeat),
         Case("Send in given time", test_udpsocket_sendto_timeout),
 };
 

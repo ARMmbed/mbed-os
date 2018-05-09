@@ -30,6 +30,7 @@ void test_udpsocket_open_close_repeat();
 void test_udpsocket_open_limit();
 void test_udpsocket_recv_timeout();
 void test_udpsocket_sendto_invalid();
+void test_udpsocket_sendto_repeat();
 void test_udpsocket_sendto_timeout();
 
 #endif //UDP_TESTS_H
