@@ -81,6 +81,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
         if(fmtstr[i]=='%') {
             i++;
             if(fmtstr[i]=='x') {
+                memset(num_str, '0', sizeof(num_str));
                 //print the number in hex format
                 value_to_hex_str(values[vidx++],num_str);
                 for(idx=7; idx>=0; idx--) {
@@ -88,9 +89,12 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
                 }
             }
             else if(fmtstr[i]=='d') {
+                memset(num_str, '0', sizeof(num_str));
                 //print the number in dec format
                 value_to_dec_str(values[vidx++],num_str);
-                for(idx=5; idx>=0; idx--) {
+                idx=7;
+                while(num_str[idx--]=='0' && idx > 0);//Dont print zeros at front
+                for(idx++;idx>=0; idx--) {
                     serial_putc(&stdio_uart, num_str[idx]);
                 }
             }
@@ -140,9 +144,11 @@ void print_thread(osRtxThread_t *thread)
 void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg) 
 {
     int error_code = GET_MBED_ERROR_CODE(error_ctx->error_status);
+    int error_entity = GET_MBED_ERROR_ENTITY(error_ctx->error_status);
     
     mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x", (uint32_t *)&error_ctx->error_status);
-    mbed_error_print("\nError Code: %d\nError Message: ", (uint32_t *)&error_code);
+    mbed_error_print("\nError Code: %d", (uint32_t *)&error_code);
+    mbed_error_print("\nError Entity: %d\nError Message: ", (uint32_t *)&error_entity);
     
     //Report error info based on error code, some errors require different info
     if(error_code == ERROR_CODE_HARDFAULT_EXCEPTION || 
