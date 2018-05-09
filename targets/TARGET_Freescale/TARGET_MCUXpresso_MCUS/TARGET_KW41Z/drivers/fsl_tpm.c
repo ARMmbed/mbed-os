@@ -162,6 +162,12 @@ status_t TPM_SetupPwm(TPM_Type *base,
     assert(pwmFreq_Hz);
     assert(numOfChnls);
     assert(srcClock_Hz);
+#if defined(FSL_FEATURE_TPM_HAS_COMBINE) && FSL_FEATURE_TPM_HAS_COMBINE
+    if(mode == kTPM_CombinedPwm)
+    {
+        assert(FSL_FEATURE_TPM_COMBINE_HAS_EFFECTn(base));
+    }
+#endif
 
     uint32_t mod;
     uint32_t tpmClock = (srcClock_Hz / (1U << (base->SC & TPM_SC_PS_MASK)));
@@ -169,8 +175,12 @@ status_t TPM_SetupPwm(TPM_Type *base,
     uint8_t i;
 
 #if defined(FSL_FEATURE_TPM_HAS_QDCTRL) && FSL_FEATURE_TPM_HAS_QDCTRL
-    /* Clear quadrature Decoder mode because in quadrature Decoder mode PWM doesn't operate*/
-    base->QDCTRL &= ~TPM_QDCTRL_QUADEN_MASK;
+    /* The TPM's QDCTRL register required to be effective */
+    if( FSL_FEATURE_TPM_QDCTRL_HAS_EFFECTn(base) )
+    {
+        /* Clear quadrature Decoder mode because in quadrature Decoder mode PWM doesn't operate*/
+        base->QDCTRL &= ~TPM_QDCTRL_QUADEN_MASK;
+    }
 #endif
 
     switch (mode)

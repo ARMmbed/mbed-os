@@ -30,9 +30,7 @@ QUECTEL_BG96_CellularNetwork::~QUECTEL_BG96_CellularNetwork()
 
 bool QUECTEL_BG96_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
 {
-    if ((requested_stack == IPV4_STACK) ||
-        (requested_stack == IPV6_STACK) ||
-        (requested_stack == IPV4V6_STACK)) {
+    if (requested_stack == IPV4_STACK) {
         return true;
     }
 
@@ -47,12 +45,12 @@ NetworkStack *QUECTEL_BG96_CellularNetwork::get_stack()
     return _stack;
 }
 
-nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opsAct)
+nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
     _at.lock();
 
     switch (opsAct) {
-        case operator_t::RAT_CATM1:
+        case RAT_CATM1:
             _at.cmd_start("AT+QCFG=\"nwscanseq\",020301");
             _at.cmd_stop();
             _at.resp_start();
@@ -66,7 +64,7 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(operator_
             _at.resp_start();
             _at.resp_stop();
             break;
-        case operator_t::RAT_NB1:
+        case RAT_NB1:
             _at.cmd_start("AT+QCFG=\"nwscanseq\",030201");
             _at.cmd_stop();
             _at.resp_start();
@@ -80,10 +78,10 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(operator_
             _at.resp_start();
             _at.resp_stop();
             break;
-        case operator_t::RAT_GSM:
-        case operator_t::RAT_GSM_COMPACT:
-        case operator_t::RAT_UTRAN:
-        case operator_t::RAT_EGPRS:
+        case RAT_GSM:
+        case RAT_GSM_COMPACT:
+        case RAT_UTRAN:
+        case RAT_EGPRS:
             _at.cmd_start("AT+QCFG=\"nwscanseq\",010203");
             _at.cmd_stop();
             _at.resp_start();
@@ -107,7 +105,7 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(operator_
             _at.resp_start();
             _at.resp_stop();
             _at.unlock();
-            _op_act = operator_t::RAT_UNKNOWN;
+            _op_act = RAT_UNKNOWN;
             return NSAPI_ERROR_UNSUPPORTED;
     }
 

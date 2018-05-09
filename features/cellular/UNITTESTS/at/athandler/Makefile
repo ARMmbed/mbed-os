@@ -20,6 +20,7 @@ TEST_SRC_FILES = \
         ../../stubs/mbed_poll_stub.cpp \
         ../../stubs/Timer_stub.cpp \
         ../../stubs/equeue_stub.cpp \
+        ../../stubs/Kernel.cpp \
 
 include ../../MakefileWorker.mk
 

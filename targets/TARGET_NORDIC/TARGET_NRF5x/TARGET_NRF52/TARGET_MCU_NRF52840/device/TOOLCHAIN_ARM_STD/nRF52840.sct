@@ -1,0 +1,38 @@
+#! armcc -E
+
+/* Default to no softdevice */
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+/* If app_start is 0, do not set aside space for the softdevice */
+#if MBED_APP_START == 0
+  #define MBED_RAM_START  0x20000000
+  #define MBED_RAM_SIZE   0x40000
+#else
+  #define MBED_RAM_START  0x20003700
+  #define MBED_RAM_SIZE   0x3C900
+#endif
+
+#define MBED_RAM0_START MBED_RAM_START
+#define MBED_RAM0_SIZE  0x100
+#define MBED_RAM1_START (MBED_RAM_START + MBED_RAM0_SIZE)
+#define MBED_RAM1_SIZE  (MBED_RAM_SIZE - MBED_RAM0_SIZE)
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE {
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM0 MBED_RAM0_START UNINIT MBED_RAM0_SIZE { ;no init section
+        *(*noinit)
+  }
+  RW_IRAM1 MBED_RAM1_START MBED_RAM1_SIZE {
+   .ANY (+RW +ZI)
+  }
+}

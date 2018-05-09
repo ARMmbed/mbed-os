@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef TELIT_HE910_CELLULAR_POWER_H_
-#define TELIT_HE910_CELLULAR_POWER_H_
+#ifndef QUECTEL_BC95_CELLULAR_POWER_H_
+#define QUECTEL_BC95_CELLULAR_POWER_H_
 
 #include "AT_CellularPower.h"
 
@@ -36,4 +36,4 @@ public: //from CellularPower
 
 } // namespace mbed
 
-#endif // TELIT_HE910_CELLULAR_POWER_H_
+#endif // QUECTEL_BC95_CELLULAR_POWER_H_

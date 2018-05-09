@@ -72,7 +72,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.OversamplingMode      = DISABLE;
     obj->handle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
     obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
-    obj->handle.Init.SamplingTime          = ADC_SAMPLETIME_239CYCLES_5;
+    obj->handle.Init.SamplingTime          = ADC_SAMPLETIME_160CYCLES_5;
     obj->handle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
     obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     obj->handle.Init.ContinuousConvMode    = DISABLE;

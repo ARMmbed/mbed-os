@@ -86,9 +86,9 @@ struct SecurityEntryIdentity_t {
 };
 
 /**
- * SecurityDB holds the state for active connections and bonded devices.
+ * SecurityDb holds the state for active connections and bonded devices.
  * Keys can be stored in NVM and are returned via callbacks.
- * SecurityDB is responsible for serialising any requests and keeping
+ * SecurityDb is responsible for serialising any requests and keeping
  * the store in a consistent state.
  * Active connections state must be returned immediately.
  */

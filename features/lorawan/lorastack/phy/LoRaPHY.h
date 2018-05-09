@@ -34,10 +34,11 @@
 #ifndef MBED_OS_LORAPHY_BASE_
 #define MBED_OS_LORAPHY_BASE_
 
-#include "lorawan/LoRaRadio.h"
-#include "lorawan/system/LoRaWANTimer.h"
-#include "lorawan/lorastack/phy/lora_phy_ds.h"
 #include "platform/NonCopyable.h"
+
+#include "system/LoRaWANTimer.h"
+#include "LoRaRadio.h"
+#include "lora_phy_ds.h"
 
 class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {
 
@@ -104,34 +105,34 @@ public:
      */
     uint32_t get_radio_rng();
 
-    /** Calculates and applies duty cycle back-off time.
+    /**
+     * @brief calculate_backoff Calculates and applies duty cycle back-off time.
+     *                          Explicitly updates the band time-off.
      *
-     * Explicitly updates the band time-off.
-     *
-     * @param [in] backoff_params    A pointer to backoff parameters.
+     * @param joined                Set to true, if the node has already joined a network, otherwise false.
+     * @param last_tx_was_join_req  Set to true, if the last uplink was a join request.
+     * @param dc_enabled            Set to true, if the duty cycle is enabled, otherwise false.
+     * @param channel               The current channel index.
+     * @param elapsed_time          Elapsed time since the start of the node.
+     * @param tx_toa                Time-on-air of the last transmission.
      */
-     void calculate_backoff(backoff_params_t* backoff_params);
+    void calculate_backoff(bool joined, bool last_tx_was_join_req, bool dc_enabled, uint8_t channel,
+                           lorawan_time_t elapsed_time, lorawan_time_t tx_toa);
 
-     /**
+    /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline bool mask_bit_test(const uint16_t *mask, unsigned bit) {
-         return mask[bit/16] & (1U << (bit % 16));
-     }
+    bool mask_bit_test(const uint16_t *mask, unsigned bit);
 
-     /**
+    /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline void mask_bit_set(uint16_t *mask, unsigned bit) {
-          mask[bit/16] |= (1U << (bit % 16));
-     }
+    void mask_bit_set(uint16_t *mask, unsigned bit);
 
-     /**
+    /**
       * Tests if a channel is on or off in the channel mask
       */
-     inline void mask_bit_clear(uint16_t *mask, unsigned bit) {
-          mask[bit/16] &= ~(1U << (bit % 16));
-     }
+    void mask_bit_clear(uint16_t *mask, unsigned bit);
 
     /** Entertain a new channel request MAC command.
      *
@@ -139,32 +140,21 @@ public:
      * the network server and then MAC layer asks the PHY layer to entertain
      * the request.
      *
-     * @param [in] new_channel_req    A pointer to the new_channel_req_params_t.
+     * @param channel_id The channel ID.
+     * @param new_channel A pointer to the new channel's parameters.
      *
      * @return bit mask, according to the LoRaWAN spec 1.0.2.
      */
-    virtual uint8_t request_new_channel(new_channel_req_params_t* new_channel_req);
-
-    /** Grants access to PHY layer parameters.
-     *
-     * This is essentially a PHY layer parameter retrieval system.
-     * A request is made for a certain parameter by setting an appropriate
-     * attribute.
-     *
-     * @param [in] get_phy A pointer to get_phy_params_t
-     *
-     * @return A structure containing the requested PHY parameter value.
-     */
-    virtual phy_param_t get_phy_params(get_phy_params_t* get_phy);
+    virtual uint8_t request_new_channel(int8_t channel_id, channel_params_t* new_channel);
 
     /** Process PHY layer state after a successful transmission.
-     *
-     * Updates times of the last transmission for the particular channel and
-     * band upon which last transmission took place.
-     *
-     * @param [in] tx_done    A pointer to set_band_txdone_params_t
+     * @brief set_last_tx_done Updates times of the last transmission for the particular channel and
+     *                         band upon which last transmission took place.
+     * @param channel The channel in use.
+     * @param joined Boolean telling if node has joined the network.
+     * @param last_tx_done_time The last TX done time.
      */
-    virtual void set_last_tx_done(set_band_txdone_params_t* tx_done);
+    virtual void set_last_tx_done(uint8_t channel, bool joined, lorawan_time_t last_tx_done_time);
 
     /** Enables default channels only.
      *
@@ -173,25 +163,16 @@ public:
      */
     virtual void restore_default_channels();
 
-    /** Verify if a parameter is eligible.
-     *
-     * @param verify    A pointer to the verification_params_t that contains
-     *                  parameters which we need to check for validity.
-     *
-     * @param phy_attr  The attribute for which the verification is needed.
-     *
-     * @return          True, if the parameter is valid.
-     */
-    virtual bool verify(verification_params_t* verify, phy_attributes_t phy_attr);
-
     /** Processes the incoming CF-list.
      *
      * Handles the payload containing CF-list and enables channels defined
      * therein.
      *
-     * @param cflist_params    A pointer to cflist_params_t.
+     * @param payload Payload to process.
+     * @param size Size of the payload.
+     *
      */
-   virtual void apply_cf_list(cflist_params_t* cflist_params);
+    virtual void apply_cf_list(const uint8_t* payload, uint8_t size);
 
     /** Calculates the next datarate to set, when ADR is on or off.
      *
@@ -288,7 +269,7 @@ public:
      * @return True, if the configuration was applied successfully.
      */
     virtual bool tx_config(tx_config_params_t* tx_config, int8_t* tx_power,
-                                lorawan_time_t* tx_toa);
+                           lorawan_time_t* tx_toa);
 
     /** Processes a Link ADR Request.
      *
@@ -320,23 +301,26 @@ public:
      */
     virtual uint8_t accept_rx_param_setup_req(rx_param_setup_req_t* params);
 
-    /** Makes decision whether to accept or reject TxParamSetupReq MAC command
+    /**
+     * @brief accept_tx_param_setup_req Makes decision whether to accept or reject TxParamSetupReq MAC command.
      *
-     * @param [in] params    A pointer to tx parameter setup request.
+     * @param ul_dwell_time The uplink dwell time.
+     * @param dl_dwell_time The downlink dwell time.
      *
-     * @return               True to let the MAC know that the request is
-     *                       accepted and MAC can apply TX parameters received
-     *                       form Network Server. Otherwise false is returned.
+     * @return True to let the MAC know that the request is
+     *         accepted and MAC can apply TX parameters received
+     *         form Network Server. Otherwise false is returned.
      */
-    virtual bool accept_tx_param_setup_req(tx_param_setup_req_t* params);
+    virtual bool accept_tx_param_setup_req(uint8_t ul_dwell_time, uint8_t dl_dwell_time);
 
     /** Processes a DlChannelReq MAC command.
      *
-     * @param [in] params    A pointer to downlink channel request.
+     * @param channel_id The channel ID to add the frequency.
+     * @param rx1_frequency The alternative frequency for the Rx1 window.
      *
      * @return The status of the operation, according to the LoRaWAN specification.
      */
-    virtual uint8_t dl_channel_request(dl_channel_req_params_t* params);
+    virtual uint8_t dl_channel_request(uint8_t channel_id, uint32_t rx1_frequency);
 
     /** Alternates the datarate of the channel for the join request.
      *
@@ -361,9 +345,9 @@ public:
      *
      * @return Function status [1: OK, 0: Unable to find a channel on the current datarate].
      */
-    virtual bool set_next_channel(channel_selection_params_t* nextChanParams,
-                                   uint8_t* channel, lorawan_time_t* time,
-                                   lorawan_time_t* aggregatedTimeOff);
+    virtual lorawan_status_t set_next_channel(channel_selection_params_t* nextChanParams,
+                                              uint8_t* channel, lorawan_time_t* time,
+                                              lorawan_time_t* aggregatedTimeOff);
 
     /** Adds a channel to the channel list.
      *
@@ -377,7 +361,7 @@ public:
      * @return LORAWAN_STATUS_OK if everything goes fine, negative error code
      *         otherwise.
      */
-    virtual lorawan_status_t add_channel(channel_params_t* new_channel, uint8_t id);
+    virtual lorawan_status_t add_channel(const channel_params_t* new_channel, uint8_t id);
 
     /** Removes a channel from the channel list.
      *
@@ -406,23 +390,157 @@ public:
      */
     virtual uint8_t apply_DR_offset(int8_t dr, int8_t dr_offset);
 
-protected:
-    LoRaRadio *_radio;
-    LoRaWANTimeHandler &_lora_time;
-    loraphy_params_t phy_params;
+    /**
+     * @brief reset_to_default_values resets some parameters to default values
+     * @param params Pointer to MAC protocol parameters which will be reset
+     * @param init If true, most of the values will be modified
+     */
+    void reset_to_default_values(loramac_protocol_params *params, bool init = false);
 
+public:
+    /**
+     * @brief get_next_lower_tx_datarate Gets the next lower datarate
+     * @param datarate Current TX datarate
+     * @return Lower datarate than given one or minimum if lower cannot be found anymore
+     */
+    int8_t get_next_lower_tx_datarate(int8_t datarate);
+
+    /**
+     * @brief get_minimum_rx_datarate Gets the minimum RX datarate supported by a device
+     * @return Minimum RX datarate
+     */
+    uint8_t get_minimum_rx_datarate();
+
+    /**
+     * @brief get_minimum_tx_datarate Gets the minimum TX datarate supported by a device
+     * @return Minimum TX datarate
+     */
+    uint8_t get_minimum_tx_datarate();
+
+    /**
+     * @brief get_default_tx_datarate Gets the default TX datarate
+     * @return default TX datarate
+     */
+    uint8_t get_default_tx_datarate();
+
+    /**
+     * @brief get_default_tx_power Gets the default TX power
+     * @return Default TX power
+     */
+    uint8_t get_default_tx_power();
+
+    /**
+     * @brief get_max_payload Gets maximum amount in bytes which device can send
+     * @param datarate A datarate to use
+     * @param use_repeater If true repeater table is used, otherwise payloads table is used
+     * @return Maximum number of bytes for payload
+     */
+    uint8_t get_max_payload(uint8_t datarate, bool use_repeater = false);
+
+    /**
+     * @brief get_maximum_frame_counter_gap Gets maximum frame counter gap
+     * @return Maximum frame counter gap
+     */
+    uint16_t get_maximum_frame_counter_gap();
+
+    /**
+     * @brief get_ack_timeout Gets timeout value for ACK to be received
+     * @return ACK timeout
+     */
+    uint32_t get_ack_timeout();
+
+    /**
+     * @brief get_default_rx2_frequency Gets default RX2 frequency
+     * @return RX2 frequency
+     */
+    uint32_t get_default_rx2_frequency();
+
+    /**
+     * @brief get_default_rx2_datarate Gets default RX2 datarate
+     * @return RX2 datarate
+     */
+    uint8_t get_default_rx2_datarate();
+
+    /**
+     * @brief get_channel_mask Gets the channel mask
+     * @param get_default If true the default mask is returned, otherwise the current mask is returned
+     * @return A channel mask
+     */
+    uint16_t* get_channel_mask(bool get_default = false);
+
+    /**
+     * @brief get_max_nb_channels Gets maximum number of channels supported
+     * @return Number of channels
+     */
+    uint8_t get_max_nb_channels();
+
+    /**
+     * @brief get_phy_channels Gets PHY channels
+     * @return PHY channels
+     */
+    channel_params_t* get_phy_channels();
+
+    /**
+     * @brief is_custom_channel_plan_supported Checks if custom channel plan is supported
+     * @return True if custom channel plan is supported, false otherwise
+     */
+    bool is_custom_channel_plan_supported();
+
+public: //Verifiers
+
+    /**
+     * @brief verify_rx_datarate Verifies that given RX datarate is valid
+     * @param datarate Datarate to check
+     * @return true if given datarate is valid, false otherwise
+     */
+    bool verify_rx_datarate(uint8_t datarate);
+
+    /**
+     * @brief verify_tx_datarate Verifies that given TX datarate is valid
+     * @param datarate Datarate to check
+     * @param use_default If true validation is done against default value
+     * @return true if given datarate is valid, false otherwise
+     */
+    bool verify_tx_datarate(uint8_t datarate, bool use_default = false);
+
+    /**
+     * @brief verify_tx_power Verifies that given TX power is valid
+     * @param tx_power Power to check
+     * @return True if valid, false otherwise
+     */
+    bool verify_tx_power(uint8_t tx_power);
+
+    /**
+     * @brief verify_duty_cycle Verifies that given cycle is valid
+     * @param cycle Cycle to check
+     * @return True if valid, false otherwise
+     */
+    bool verify_duty_cycle(bool cycle);
+
+    /**
+     * @brief verify_nb_join_trials Verifies that given number of trials is valid
+     * @param nb_join_trials Number to check
+     * @return True if valid, false otherwise
+     */
+    bool verify_nb_join_trials(uint8_t nb_join_trials);
+
+protected:
     LoRaPHY(LoRaWANTimeHandler &lora_time);
 
     /**
-     * Verifies the given frequency.
+     * Looks up corresponding band for a frequency. Returns -1 if not in any band.
      */
-    virtual bool verify_frequency(uint32_t freq);
+    int lookup_band_for_frequency(uint32_t freq) const;
 
+    /**
+     * Verifies, if a frequency is within a given band.
+     */
+    virtual bool verify_frequency_for_band(uint32_t freq, uint8_t band) const;
 
     /**
      * Verifies, if a value is in a given range.
      */
-    uint8_t val_in_range(int8_t value, int8_t min, int8_t max);
+    bool val_in_range(int8_t value, int8_t min, int8_t max);
 
     /**
      * Verifies, if a datarate is available on an active channel.
@@ -509,8 +627,13 @@ protected:
     uint8_t enabled_channel_count(bool joined, uint8_t datarate,
                                   const uint16_t *mask, uint8_t* enabledChannels,
                                   uint8_t* delayTx);
+
+    bool is_datarate_supported(const int8_t datarate) const;
+
+protected:
+    LoRaRadio *_radio;
+    LoRaWANTimeHandler &_lora_time;
+    loraphy_params_t phy_params;
 };
-
-
 
 #endif /* MBED_OS_LORAPHY_BASE_ */

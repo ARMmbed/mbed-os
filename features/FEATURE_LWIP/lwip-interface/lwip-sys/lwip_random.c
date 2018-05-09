@@ -18,9 +18,6 @@
 #include "lwip/debug.h"
 #include "lwip/def.h"
 #include "lwip_random.h"
-
-#if FEATURE_COMMON_PAL
-
 #include "randLIB.h"
 
 void lwip_seed_random(void)
@@ -37,20 +34,3 @@ inline uint32_t lwip_get_random(void)
 {
     return randLIB_get_32bit();
 }
-
-#else
-
-void lwip_seed_random(void)
-{
-}
-
-void lwip_add_random_seed(uint64_t seed)
-{
-}
-
-uint32_t lwip_get_random(void)
-{
-    return rand();
-}
-
-#endif

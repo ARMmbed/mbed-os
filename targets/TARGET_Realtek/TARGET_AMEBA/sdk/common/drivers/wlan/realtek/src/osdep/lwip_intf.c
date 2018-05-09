@@ -126,25 +126,26 @@ exit:
 void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-	struct eth_drv_sg *last_sg;
+    struct eth_drv_sg *last_sg;
     struct sk_buff *skb;
 
-	DBG_TRACE("%s is called", __FUNCTION__);
+    DBG_TRACE("%s is called", __FUNCTION__);
 	
-    if (!rltk_wlan_check_isup(idx))
+    if (!rltk_wlan_check_isup(idx)) {
         return;
+    }
 	
-	if(idx == -1){
-		DBG_ERR("skb is NULL");
-		return;
-	}
+    if (idx == -1) {
+        DBG_ERR("skb is NULL");
+        return;
+    }
 	
     skb = rltk_wlan_get_recv_skb(idx);
-	DBG_ASSERT(skb, "No pending rx skb");
+    DBG_ASSERT(skb, "No pending rx skb");
 
-	for (last_sg = &sg_list[sg_len]; sg_list < last_sg; ++sg_list) {
+    for (last_sg = &sg_list[sg_len]; sg_list < last_sg; ++sg_list) {
         if (sg_list->buf != 0) {
-			rtw_memcpy((void *)(sg_list->buf), skb->data, sg_list->len);
+            rtw_memcpy((void *)(sg_list->buf), skb->data, sg_list->len);
             skb_pull(skb, sg_list->len);
         }
     }

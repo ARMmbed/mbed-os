@@ -376,13 +376,27 @@
 #endif
 #endif
 
+// Macro containing the filename part of the value of __FILE__. Defined as
+// string literal.
+#ifndef MBED_FILENAME
+#if defined(__CC_ARM)
+#define MBED_FILENAME __MODULE__
+#elif defined(__GNUC__)
+#define MBED_FILENAME (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __builtin_strrchr(__FILE__, '\\') ? __builtin_strrchr(__FILE__, '\\') + 1 : __FILE__)
+#elif defined(__ICCARM__)
+#define MBED_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define MBED_FILENAME __FILE__
+#endif
+#endif // #ifndef MBED_FILENAME
+
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)
 #include <rt_sys.h>
 #endif
 
 #ifndef FILEHANDLE
-typedef int FILEHANDLE;
+    typedef int FILEHANDLE;
 #endif
 
 // Backwards compatibility
@@ -396,6 +410,27 @@ typedef int FILEHANDLE;
 
 #ifndef EXTERN
 #define EXTERN extern
+#endif
+
+/** MBED_NONSECURE_ENTRY
+ *  Declare a function that can be called from non-secure world or secure world
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  MBED_NONSECURE_ENTRY void foo() {
+ *
+ *  }
+ *  @endcode
+ */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3L)
+#if defined (__ICCARM__)
+#define MBED_NONSECURE_ENTRY       __cmse_nonsecure_entry
+#else
+#define MBED_NONSECURE_ENTRY       __attribute__((cmse_nonsecure_entry))
+#endif
+#else
+#define MBED_NONSECURE_ENTRY
 #endif
 
 #endif

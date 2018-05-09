@@ -18,20 +18,53 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : mmc_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef MMC_IODEFINE_H
 #define MMC_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_mmc
-{                                                          /* MMC              */
+#define MMC     (*(struct st_mmc     *)0xE804C800uL) /* MMC */
+
+
+#define MMCCE_CMD_SETH (MMC.CE_CMD_SETH)
+#define MMCCE_CMD_SETL (MMC.CE_CMD_SETL)
+#define MMCCE_ARG (MMC.CE_ARG)
+#define MMCCE_ARG_CMD12 (MMC.CE_ARG_CMD12)
+#define MMCCE_CMD_CTRL (MMC.CE_CMD_CTRL)
+#define MMCCE_BLOCK_SET (MMC.CE_BLOCK_SET)
+#define MMCCE_CLK_CTRL (MMC.CE_CLK_CTRL)
+#define MMCCE_BUF_ACC (MMC.CE_BUF_ACC)
+#define MMCCE_RESP3 (MMC.CE_RESP3)
+#define MMCCE_RESP2 (MMC.CE_RESP2)
+#define MMCCE_RESP1 (MMC.CE_RESP1)
+#define MMCCE_RESP0 (MMC.CE_RESP0)
+#define MMCCE_RESP_CMD12 (MMC.CE_RESP_CMD12)
+#define MMCCE_DATA (MMC.CE_DATA)
+#define MMCCE_INT (MMC.CE_INT)
+#define MMCCE_INT_EN (MMC.CE_INT_EN)
+#define MMCCE_HOST_STS1 (MMC.CE_HOST_STS1)
+#define MMCCE_HOST_STS2 (MMC.CE_HOST_STS2)
+#define MMCCE_DMA_MODE (MMC.CE_DMA_MODE)
+#define MMCCE_DETECT (MMC.CE_DETECT)
+#define MMCCE_ADD_MODE (MMC.CE_ADD_MODE)
+#define MMCCE_VERSION (MMC.CE_VERSION)
+
+#define MMC_CE_RESPn_COUNT (4)
+
+
+typedef struct st_mmc
+{
+                                                           /* MMC              */
     volatile uint16_t CE_CMD_SETH;                      /*  CE_CMD_SETH */
     volatile uint16_t CE_CMD_SETL;                      /*  CE_CMD_SETL */
     volatile uint8_t   dummy182[4];                            /*                  */
@@ -41,7 +74,8 @@ struct st_mmc
     volatile uint32_t  CE_BLOCK_SET;                           /*  CE_BLOCK_SET    */
     volatile uint32_t  CE_CLK_CTRL;                            /*  CE_CLK_CTRL     */
     volatile uint32_t  CE_BUF_ACC;                             /*  CE_BUF_ACC      */
-#define MMC_CE_RESPn_COUNT 4
+
+/* #define MMC_CE_RESPn_COUNT (4) */
     volatile uint32_t  CE_RESP3;                               /*  CE_RESP3        */
     volatile uint32_t  CE_RESP2;                               /*  CE_RESP2        */
     volatile uint32_t  CE_RESP1;                               /*  CE_RESP1        */
@@ -60,33 +94,11 @@ struct st_mmc
     volatile uint32_t  CE_ADD_MODE;                            /*  CE_ADD_MODE     */
     volatile uint8_t   dummy186[4];                            /*                  */
     volatile uint32_t  CE_VERSION;                             /*  CE_VERSION      */
-};
+} r_io_mmc_t;
 
 
-#define MMC     (*(struct st_mmc     *)0xE804C800uL) /* MMC */
-
-
-#define MMCCE_CMD_SETH MMC.CE_CMD_SETH
-#define MMCCE_CMD_SETL MMC.CE_CMD_SETL
-#define MMCCE_ARG MMC.CE_ARG
-#define MMCCE_ARG_CMD12 MMC.CE_ARG_CMD12
-#define MMCCE_CMD_CTRL MMC.CE_CMD_CTRL
-#define MMCCE_BLOCK_SET MMC.CE_BLOCK_SET
-#define MMCCE_CLK_CTRL MMC.CE_CLK_CTRL
-#define MMCCE_BUF_ACC MMC.CE_BUF_ACC
-#define MMCCE_RESP3 MMC.CE_RESP3
-#define MMCCE_RESP2 MMC.CE_RESP2
-#define MMCCE_RESP1 MMC.CE_RESP1
-#define MMCCE_RESP0 MMC.CE_RESP0
-#define MMCCE_RESP_CMD12 MMC.CE_RESP_CMD12
-#define MMCCE_DATA MMC.CE_DATA
-#define MMCCE_INT MMC.CE_INT
-#define MMCCE_INT_EN MMC.CE_INT_EN
-#define MMCCE_HOST_STS1 MMC.CE_HOST_STS1
-#define MMCCE_HOST_STS2 MMC.CE_HOST_STS2
-#define MMCCE_DMA_MODE MMC.CE_DMA_MODE
-#define MMCCE_DETECT MMC.CE_DETECT
-#define MMCCE_ADD_MODE MMC.CE_ADD_MODE
-#define MMCCE_VERSION MMC.CE_VERSION
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

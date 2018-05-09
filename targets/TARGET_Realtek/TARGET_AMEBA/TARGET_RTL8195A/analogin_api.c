@@ -19,7 +19,9 @@
 #include "hal_adc.h"
 #include "analogin_api.h"
 
-
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
 
 #if CONFIG_ADC_EN
 #include "pinmap.h"

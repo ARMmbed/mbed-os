@@ -82,6 +82,11 @@ bd_size_t ProfilingBlockDevice::get_erase_size() const
     return _bd->get_erase_size();
 }
 
+bd_size_t ProfilingBlockDevice::get_erase_size(bd_addr_t addr) const
+{
+    return _bd->get_erase_size(addr);
+}
+
 int ProfilingBlockDevice::get_erase_value() const
 {
     return _bd->get_erase_value();
