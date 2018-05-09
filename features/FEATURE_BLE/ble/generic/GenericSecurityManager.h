@@ -354,8 +354,8 @@ private:
      * @return true if cryptography functioned worked
      */
     static bool crypto_toolbox_f4(
-        const public_key_t &U,
-        const public_key_t &V,
+        const public_key_coord_t &U,
+        const public_key_coord_t &V,
         const oob_lesc_value_t &X,
         oob_confirm_t &confirm
     );
