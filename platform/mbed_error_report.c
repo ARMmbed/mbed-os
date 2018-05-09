@@ -41,6 +41,21 @@ static void value_to_hex_str(uint32_t value, char *hex_str)
     }
 }
 
+/* Converts a uint32 to dec char string */
+static void value_to_dec_str(uint32_t value, char *dec_str)
+{
+    char dec_char_map[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    int i = 0;
+    
+    //Return without converting if hex_str is not provided
+    if(dec_str == NULL) return;
+        
+    while(value > 0) {
+        dec_str[i++] = dec_char_map[value % 10];
+        value = value / 10;
+    }
+}
+
 /* Limited print functionality which prints the string out to 
 stdout/uart without using stdlib by directly calling serial-api 
 and also uses less resources 
@@ -54,7 +69,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
     int i = 0;
     int idx = 0;
     int vidx = 0;
-    char hex_str[9]={0};
+    char num_str[9]={0};
     char *str=NULL;
     
     /* Initializes std uart if not init-ed yet */
@@ -67,9 +82,16 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
             i++;
             if(fmtstr[i]=='x') {
                 //print the number in hex format
-                value_to_hex_str(values[vidx++],hex_str);
+                value_to_hex_str(values[vidx++],num_str);
                 for(idx=7; idx>=0; idx--) {
-                    serial_putc(&stdio_uart, hex_str[idx]);
+                    serial_putc(&stdio_uart, num_str[idx]);
+                }
+            }
+            else if(fmtstr[i]=='d') {
+                //print the number in dec format
+                value_to_dec_str(values[vidx++],num_str);
+                for(idx=5; idx>=0; idx--) {
+                    serial_putc(&stdio_uart, num_str[idx]);
                 }
             }
             else if(fmtstr[i]=='s') {
@@ -120,7 +142,7 @@ void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg)
     int error_code = GET_MBED_ERROR_CODE(error_ctx->error_status);
     
     mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x", (uint32_t *)&error_ctx->error_status);
-    mbed_error_print("\nError Message: ", NULL);
+    mbed_error_print("\nError Code: %d\nError Message: ", (uint32_t *)&error_code);
     
     //Report error info based on error code, some errors require different info
     if(error_code == ERROR_CODE_HARDFAULT_EXCEPTION || 

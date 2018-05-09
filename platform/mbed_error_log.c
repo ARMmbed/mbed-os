@@ -106,43 +106,4 @@ MbedErrorStatus mbed_log_reset()
     return ERROR_SUCCESS;
 }
 
-#if DEVICE_LOCALFILESYSTEM
-MbedErrorStatus mbed_log_save_error_log(const char *path)
-{
-    MbedErrorStatus ret = ERROR_SUCCESS;
-    mbed_error_ctx ctx = {0};
-    int log_count = mbed_log_get_error_log_count();
-    FILE *error_log_file = NULL;
-    
-    //Open the file for saving the error log info
-    if((error_log_file = fopen( path, "w" ) ) == NULL){
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OPEN_FAILED);
-        goto exit;
-    }
-
-    //first line of file will be error log count
-    if(fprintf(error_log_file, "\nError Log Count = %d\n", log_count)){
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
-        goto exit;
-    }
-    
-    //Update with error log info
-    while(log_count >= 0) {
-        mbed_log_get_error(log_count, &ctx);
-        //first line of file will be error log count
-        if(fprintf(error_log_file, "\n%d: Status:0x%x ThreadId:0x%x Address:0x%x File:%s+%d\n", log_count, ctx.error_status, ctx.thread_id, ctx.error_address)) {
-            ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
-            goto exit;
-        }
-        log_count--;
-    }
-
-    ret = 0;
-
-exit:
-    fclose(error_log_file);
-        
-    return ret;
-}
-#endif
 #endif
