@@ -436,7 +436,6 @@ class Sw4STM32(GNUARMEclipse):
         config_header = self.toolchain.get_config_header()
         if config_header:
             config_header = relpath(config_header, self.resources.file_basepath[config_header])
-        print('Config header: ' + config_header)
 
         libraries = []
         for lib in self.resources.libraries:
