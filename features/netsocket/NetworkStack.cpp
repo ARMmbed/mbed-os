@@ -49,7 +49,7 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return nsapi_dns_query(this, name, address, version);
 }
 
-nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
 {
     SocketAddress address;
 
@@ -77,9 +77,9 @@ nsapi_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_
     return nsapi_dns_query_async(this, name, callback, call_in_cb, version);
 }
 
-nsapi_error_t NetworkStack::gethostbyname_async_cancel(nsapi_error_t handle)
+nsapi_error_t NetworkStack::gethostbyname_async_cancel(int id)
 {
-    return nsapi_dns_query_async_cancel(handle);
+    return nsapi_dns_query_async_cancel(id);
 }
 
 nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
@@ -115,6 +115,7 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
 nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
 {
     events::EventQueue *event_queue = mbed::mbed_event_queue();
+
     if (!event_queue) {
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -132,19 +133,11 @@ nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
     return NSAPI_ERROR_OK;
 }
 
-typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
-
 call_in_callback_cb_t NetworkStack::get_call_in_callback()
 {
-    events::EventQueue *event_queue = mbed::mbed_event_queue();
-    if (!event_queue) {
-        return NULL;
-    }
-
     call_in_callback_cb_t cb(this, &NetworkStack::call_in);
     return cb;
 }
-
 
 // NetworkStackWrapper class for encapsulating the raw nsapi_stack structure
 class NetworkStackWrapper : public NetworkStack

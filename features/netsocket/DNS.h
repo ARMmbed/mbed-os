@@ -69,11 +69,12 @@ public:
      *  @param callback Callback that is called for result
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC)
-     *  @return         0 on success, negative error code on failure or an unique id that
-     *                  represents the hostname translation operation and can be passed to
-     *                  cancel
+     *  @return         0 on immediate success,
+     *                  negative error code on immediate failure or
+     *                  a positive unique id that represents the hostname translation operation
+     *                  and can be passed to cancel
      */
-    virtual nsapi_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
+    virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
             nsapi_version_t version = NSAPI_UNSPEC) = 0;
 
     /** Cancels asynchronous hostname translation
@@ -83,7 +84,7 @@ public:
      *  @param id       Unique id of the hostname translation operation
      *  @return         0 on success, negative error code on failure
      */
-    virtual nsapi_error_t gethostbyname_async_cancel(nsapi_error_t id) = 0;
+    virtual nsapi_error_t gethostbyname_async_cancel(int id) = 0;
 
     /** Add a domain name server to list of servers to query
      *
