@@ -190,16 +190,48 @@ typedef enum _MbedErrorType
 
 //Entity type/id definitions
 /** MbedEntityType definition
- *  @note
- *  This enumeration defines the Entity types. The value of these enum values will be encoded into MbedErrorStatus ENTITY field.\n\n
+ * @note
+ * This enumeration defines the Entity types. The value of these enum values will be encoded into MbedErrorStatus ENTITY field.\n\n
  *      See MbedErrorStatus description for more info.\n
  *          ENTITY_UNKNOWN - This entity type can be used if caller of the set_error/set_error_fatal doesn't know who is the actual originator of the error.\n
  *                       Other entity values can be used to provide more info on who/where the error originated from.\n\n
  *                       For example, if I2C driver is the component originating the error you can use ENTITY_DRIVER_I2C to provide more info.\n
  *                       Its used in call to MAKE_ERROR/MAKE_SYSTEM_ERROR/MAKE_CUSTOM_ERROR macros.\n
+ *
  * @code
- *      MbedErrorStatus i2c_driver_error = MAKE_ERROR( ENTITY_DRIVER_I2C, ERROR_CONFIG_UNSUPPORTED );
+ *      Example: MbedErrorStatus i2c_driver_error = MAKE_ERROR( ENTITY_DRIVER_I2C, ERROR_CONFIG_UNSUPPORTED );
  * @endcode
+ * 
+ * @note
+ *  \n Below are the entity code mappings:\n
+    \verbatim
+    ENTITY_APPLICATION              0       Application     
+    ENTITY_PLATFORM                 1       Platform
+    ENTITY_KERNEL                   2       RTX Kernel
+    ENTITY_NETWORK_STACK            3       Network stack
+    ENTITY_HAL                      4       HAL - Hardware Abstraction Layer
+    ENTITY_MEMORY_SUBSYSTEM         5       Memory Subsystem    
+    ENTITY_FILESYSTEM               6       Filesystem
+    ENTITY_BLOCK_DEVICE             7       Block device
+    ENTITY_DRIVER                   8       Driver
+    ENTITY_DRIVER_SERIAL            9       Serial Driver
+    ENTITY_DRIVER_RTC               10      RTC Driver
+    ENTITY_DRIVER_I2C               11      I2C Driver
+    ENTITY_DRIVER_SPI               12      SPI Driver
+    ENTITY_DRIVER_GPIO              13      GPIO Driver
+    ENTITY_DRIVER_ANALOG            14      Analog Driver
+    ENTITY_DRIVER_DIGITAL           15      DigitalIO Driver
+    ENTITY_DRIVER_CAN               16      CAN Driver
+    ENTITY_DRIVER_ETHERNET          17      Ethernet Driver
+    ENTITY_DRIVER_CRC               18      CRC Module
+    ENTITY_DRIVER_PWM               19      PWM Driver
+    ENTITY_DRIVER_QSPI              20      QSPI Driver
+    ENTITY_DRIVER_USB               21      USB Driver
+    ENTITY_TARGET_SDK               22      SDK 
+    
+    ENTITY_UNKNOWN                  255     Unknown entity
+    \endverbatim
+ *       
  */
 typedef enum _MbedEntityType
 {
@@ -485,18 +517,22 @@ typedef enum _MbedEntityType
  *
  *  
  *  @note
- *  Searching for error codes in mbed-os source tree. \n
- *  If you get an error report as below which you want to search for mbed-os source tree first take note of "Error Code" number. \n
+ *  **Searching for error codes in mbed-os source tree:** \n
+ *  If you get an error report as below which you want to search for in mbed-os source tree, first take note of "Error Code" number. \n
  *  For example, the below error report has an error code of \b 259. Find the error name associated with the error code and in this case its \b INVALID_FORMAT. \n
  *  Use that error name(\b INVALID_FORMAT) to search the source tree for code locations setting that specific error code. \n 
-    \verbatim
+ *  If the Error Entity reported is not 255(which indicates unknown entity), you can also use that to narrow down to the specific component reporting the error.
+ *  See MbedEntityType enum above for entity mapping. \n
+ *  
+ *  \verbatim
     ++ MbedOS Error Info ++
-    Error Status: 0x80FF0103
-    Error Code:    259
-    Error Message: Invalid format error
-    Error Location: 0x00002CFF
-    Error Value: 0x00000008
-    Current Thread: Id: 0x200025AC EntryFn: 0x00009681 StackSize: 0x00001000 StackMem: 0x200025F8 SP: 0x2002FFD8
+    Error Status: 0x80040103
+    Error Code: 259
+    Error Entity: 04
+    Error Message: HAL Entity error
+    Error Location: 0x000067C7
+    Error Value: 0x00005566
+    Current Thread: Id: 0x200024A8 EntryFn: 0x0000FB0D StackSize: 0x00001000 StackMem: 0x200014A8 SP: 0x2002FFD8
     -- MbedOS Error Info --
     \endverbatim
  */
