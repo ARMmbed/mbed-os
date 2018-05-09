@@ -20,7 +20,9 @@
 #include "ble/BLETypes.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "nrf_ble.h"
+#if defined(MBEDTLS_ECDH_C)
 #include "nRF5xCrypto.h"
+#endif
 
 namespace ble {
 namespace pal {
@@ -381,10 +383,12 @@ private:
     void release_all_pairing_cb();
 
     pairing_control_block_t* _control_blocks;
+#if defined(MBEDTLS_ECDH_C)
     CryptoToolbox _crypto;
     ble::public_key_coord_t X;
     ble::public_key_coord_t Y;
     ble::public_key_coord_t secret;
+#endif
 
     static const size_t MAX_RESOLVING_LIST_ENTRIES = BLE_GAP_WHITELIST_IRK_MAX_COUNT;
 

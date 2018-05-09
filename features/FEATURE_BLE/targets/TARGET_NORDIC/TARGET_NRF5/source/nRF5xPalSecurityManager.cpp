@@ -106,6 +106,7 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 
 ble_error_t nRF5xSecurityManager::initialize()
 {
+#if defined(MBEDTLS_ECDH_C)
     if (_crypto.generate_keys(
         make_ArrayView(X),
         make_ArrayView(Y),
@@ -115,6 +116,8 @@ ble_error_t nRF5xSecurityManager::initialize()
     }
 
     return BLE_ERROR_INTERNAL_STACK_FAILURE;
+#endif
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::terminate()
@@ -210,6 +213,7 @@ nRF5xSecurityManager::get_resolving_list() {
 
 const nRF5xSecurityManager::resolving_list_entry_t*
 nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
+#if defined(MBEDTLS_ECDH_C)
     typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
 
     for (size_t i = 0; i < resolving_list_entry_count; ++i) {
@@ -233,6 +237,7 @@ nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
             return &entry;
         }
     }
+#endif
     return NULL;
 }
 
@@ -715,6 +720,7 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
 
 ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
 {
+#if defined(MBEDTLS_ECDH_C)
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
@@ -734,6 +740,8 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     }
 
     return convert_sd_error(err);
+#endif
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
@@ -877,6 +885,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
         }
 
         case BLE_GAP_EVT_LESC_DHKEY_REQUEST: {
+#if defined(MBEDTLS_ECDH_C)
             const ble_gap_evt_lesc_dhkey_request_t& dhkey_request =
                 gap_evt.params.lesc_dhkey_request;
 
@@ -895,7 +904,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             if (dhkey_request.oobd_req) {
                 handler->on_secure_connections_oob_request(connection);
             }
-
+#endif
             return true;
         }
 
@@ -1138,9 +1147,10 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     }
 
     // copy public keys used
+#if defined(MBEDTLS_ECDH_C)
     memcpy(pairing_cb.own_pk.pk, X.data(), X.size());
     memcpy(pairing_cb.own_pk.pk + X.size(), Y.data(), Y.size());
-
+#endif
     return keyset;
 }
 
