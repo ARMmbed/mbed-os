@@ -17,7 +17,7 @@ The characteristics required by this root of trust are:
 
 The DeviceKey feature keeps the root of trust key in internal storage, using the NVStore component. Internal storage provides protection from external physical attacks to the device.
 
-The root of trust is generated at the first use of Devicekey if the true random number generator is available in the device. If no true random number generator is available, you must pass the injected root of trust key to the DeviceKey before you call the key derivation API.
+The root of trust is generated at the first use of DeviceKey if the true random number generator is available in the device. If no true random number generator is available, you must pass the injected root of trust key to the DeviceKey before you call the key derivation API.
 
 ### Key derivation API
 
@@ -25,7 +25,7 @@ The root of trust is generated at the first use of Devicekey if the true random 
 
 #### Root of Trust Injection API
 
-`device_inject_root_of_trust`: You must call this API once in the lifecycle of the device, before any call to key derivation, if the device does not support True Random generator (`DEVICE_TRNG` is not defined).
+`device_inject_root_of_trust`: You must call this API once in the lifecycle of the device, before any call to key derivation, if the device does not support True Random Number Generator (`DEVICE_TRNG` is not defined).
 
 #### Using DeviceKey 
 
@@ -39,7 +39,7 @@ To instantiate DeviceKey, you need to call its `get_instance` member function as
 
 #### Testing DeviceKey
 
-Run the DeviceKey functionality test with the `mbed` command as following:
+Run the DeviceKey functionality test with the `mbed` command as follows:
 
 ``` 
     ```mbed test -n features-device_key-tests-device_key-functionality```
