@@ -45,7 +45,9 @@ void test_emac_broadcast_cb(int opt)
 #if MBED_CONF_APP_ECHO_SERVER
     static bool echo_server_started = false;
     if (!echo_server_started) {
+#if MBED_CONF_APP_ECHO_SERVER_TRACE == 0
         SET_TRACE_LEVEL(TRACE_NONE);
+#endif
         printf("echo server started successfully\r\n\r\n");
         echo_server_started = true;
     } else {
@@ -65,7 +67,6 @@ void test_emac_broadcast_cb(int opt)
         if (++no_response_cnt > 3) {
             if (++retries > 6) {
                 printf("too many retries\r\n\r\n");
-                RESET_ERROR_FLAGS(NO_RESPONSE);
                 END_TEST_LOOP;
             } else {
                 printf("retry count %i\r\n\r\n", retries);

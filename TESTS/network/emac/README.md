@@ -6,6 +6,76 @@ This document describes how to run EMAC tests. The EMAC test cases are made usin
 
 To configure a device to be a CTP echo server, you need to enable the `echo-server` setting in the `json` file of the test environment application. When a device is configured to be a CTP echo server, it starts to forward CTP messages automatically when it is switched on and continues to do so until it is switched off.
 
+## Other configuration options
+
+Default configuration files included with tests are configured for ethernet. For Wifi, set `test-ethernet` to 0 and `test-wifi` to 1. Also Wifi SSID and security options need to be configured to the configuration file. 
+
+## Example commands
+
+### CTP echo server
+
+You can use following command to build CTP echo server:
+
+`mbed test --compile -m TARGET -t GCC_ARM -v -n tests-network-emac --app-config TESTS/network/emac/template_mbed_app_echo_server.txt`
+
+Replace TARGET with the target device. After building, flash the binary to the CTP echo server device.
+
+You can verify that the CTP echo server has been started properly by making terminal connection to the device, resetting it and verifying that `echo server started successfully` is printed on the terminal. Host tests can be run when the CTP echo server is running on the Ethernet segment.
+
+For Wifi tests the CTP echo server can be also running of ethernet side as long as network configuration is such that Ethernet frames are routed between Wifi and Ethernet. 
+
+CTP echo server is sending 100 bytes long broadcast CTP Ethernet frame every 60 seconds to inform the network of its presence.
+
+### Running tests
+
+You can use following command to run tests:
+
+`mbed test --compile --run -m TARGET -t GCC_ARM -v -n tests-network-emac --app-config TESTS/network/emac/template_mbed_app.txt`
+
+Replace TARGET with the target device.
+
+## Traces
+
+Test cases have different trace levels based on how much tracing can be done without affecting the performance of the test case. Tracing is configured using `SET\_TRACE\_LEVEL' macro.
+
+For example `EMAC broadcast` test enables send, input CTP frame, success and failure traces:
+
+`SET_TRACE_LEVEL(TRACE_SEND | TRACE_ETH_FRAMES | TRACE_SUCCESS | TRACE_FAILURE);`
+
+Here is an example trace about a message that has been send to broadcast address `ff:ff:ff:ff:ff:ff` and is answered by echo server:
+
+```
+
+message sent ff:ff:ff:ff:ff:ff
+
+response: receipt number 24 LENGTH OK DATA OK BROADCAST
+
+```
+
+Here is an example trace about a message that has been send to broadcast address `ff:ff:ff:ff:ff:ff` and is not answered by echo server:
+
+```
+
+message sent ff:ff:ff:ff:ff:ff
+
+NO RESPONSE: receipt number 25
+
+```
+
+Here is an example about input message trace, message hex dump contains the first 32 bytes of the received Ethernet frame.
+
+```
+
+INP> LEN 100
+
+INP> 000000 ff ff ff ff ff ff ba 42 ed 79 11 8a 90 00
+
+INP> 00000e 00 00 02 00 ba 42 ed 79 11 8a 01 00 01 00
+
+```
+
+If you like to verify whether the echo server is receiving CTP Ethernet frames you can enable `echo-server-trace` option in the echo server configuration file. This can be used for debugging purposes. Do not run performance test like `EMAC unicast burst` with tracing enabled, since tracing affects the echo server performance.
+
 ## Test cases
 
 ### EMAC initialize
