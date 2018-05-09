@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Nuvoton Technology Corp.
+ * Copyright (c) 2018 Nuvoton Technology Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -19,13 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * Description:   NUC472 EMAC driver header file
+ * Description:   M480 EMAC driver header file
  */
-#include "lwip/def.h"
-#include "lwip/pbuf.h"
-#include "NUC472_442.h"
-#ifndef  _NUC472_ETH_
-#define  _NUC472_ETH_
+
+#include "numaker_emac_config.h"
+#include "M480.h"
+#ifndef  _M480_ETH_
+#define  _M480_ETH_
 
 /* Generic MII registers. */
 
@@ -87,10 +87,10 @@
 #define ADVERTISE_LPACK         0x4000  /* Ack link partners response  */
 #define ADVERTISE_NPAGE         0x8000  /* Next page bit               */
 
-#define RX_DESCRIPTOR_NUM 4 //2    // 4: Max Number of Rx Frame Descriptors
-#define TX_DESCRIPTOR_NUM 4 //2    // 4: Max number of Tx Frame Descriptors
+#define RX_DESCRIPTOR_NUM       NU_RX_RING_LEN//4 //2    // 4: Max Number of Rx Frame Descriptors
+#define TX_DESCRIPTOR_NUM       NU_TX_RING_LEN//4 //2    // 4: Max number of Tx Frame Descriptors
 
-#define PACKET_BUFFER_SIZE  1520
+#define PACKET_BUFFER_SIZE      NU_ETH_MAX_FLEN//1520
 
 #define CONFIG_PHY_ADDR     1
 
@@ -119,15 +119,15 @@
 // Tx/Rx buffer descriptor structure
 struct eth_descriptor;
 struct eth_descriptor {
-    u32_t  status1;
-    u8_t *buf;
-    u32_t  status2;
+    uint32_t  status1;
+    uint8_t *buf;
+    uint32_t  status2;
     struct eth_descriptor *next;
 #ifdef TIME_STAMPING
-    u32_t backup1;
-    u32_t backup2;
-    u32_t reserved1;
-    u32_t reserved2;
+    uint32_t backup1;
+    uint32_t backup2;
+    uint32_t reserved1;
+    uint32_t reserved2;
 #endif
 };
 
@@ -143,8 +143,4 @@ void ETH_setinc(void);
 
 #endif
 
-extern void ETH_init(u8_t *mac_addr);
-extern u8_t *ETH_get_tx_buf(void);
-extern void ETH_trigger_tx(u16_t length, struct pbuf *p);
-
-#endif  /* _NUC472_ETH_ */
+#endif  /* _M480_ETH_ */

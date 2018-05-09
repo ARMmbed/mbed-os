@@ -142,8 +142,4 @@ void ETH_setinc(void);
 
 #endif
 
-extern void numaker_eth_init(uint8_t *mac_addr);
-extern uint8_t *numaker_eth_get_tx_buf(void);
-extern void numaker_eth_trigger_tx(uint16_t length, void *p);
-
 #endif  /* _NUC472_ETH_ */
