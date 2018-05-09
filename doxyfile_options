@@ -2069,6 +2069,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_ANALOGIN         \
                          DEVICE_ANALOGOUT        \
                          DEVICE_CAN              \
+                         DEVICE_CRC              \
                          DEVICE_ETHERNET         \
                          DEVICE_EMAC             \
                          DEVICE_ETH              \
