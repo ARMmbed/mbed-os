@@ -20,7 +20,6 @@
 /* mbed includes */
 #include "mbed_error.h"
 #include "mbed_interface.h"
-#include "us_ticker_api.h"
 #include "mbed_rtos_storage.h"
 
 /* lwIP includes. */
@@ -237,7 +236,7 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
  *                                  of milliseconds until received.
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
-    uint32_t start = us_ticker_read();
+    uint32_t start = osKernelGetTickCount();
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
             osFlagsWaitAny | osFlagsNoClear, (timeout ? timeout : osWaitForever));
     if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
@@ -254,7 +253,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
         osEventFlagsClear(mbox->id, SYS_MBOX_FETCH_EVENT);
 
     osKernelRestoreLock(state);
-    return (us_ticker_read() - start) / 1000;
+    return osKernelGetTickCount() - start;
 }
 
 /*---------------------------------------------------------------------------*
@@ -339,12 +338,12 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
  *      u32_t                   -- Time elapsed or SYS_ARCH_TIMEOUT.
  *---------------------------------------------------------------------------*/
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
-    u32_t start = us_ticker_read();
+    u32_t start = osKernelGetTickCount();
     
     if (osSemaphoreAcquire(sem->id, (timeout != 0)?(timeout):(osWaitForever)) != osOK)
         return SYS_ARCH_TIMEOUT;
     
-    return (us_ticker_read() - start) / 1000;
+    return osKernelGetTickCount() - start;
 }
 
 /*---------------------------------------------------------------------------*
@@ -414,7 +413,6 @@ osMutexAttr_t lwip_sys_mutex_attr;
 mbed_rtos_storage_mutex_t lwip_sys_mutex_data;
 
 void sys_init(void) {
-    us_ticker_read(); // Init sys tick
     lwip_sys_mutex_attr.name = "lwip_sys_mutex";
     lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
@@ -430,9 +428,7 @@ void sys_init(void) {
  *      Used by PPP as a timestamp-ish value
  *---------------------------------------------------------------------------*/
 u32_t sys_jiffies(void) {
-    static u32_t jiffies = 0;
-    jiffies += 1 + (us_ticker_read()/10000);
-    return jiffies;
+    return osKernelGetTickCount();
 }
 
 /*---------------------------------------------------------------------------*
@@ -477,7 +473,7 @@ void sys_arch_unprotect(sys_prot_t p) {
 }
 
 u32_t sys_now(void) {
-    return us_ticker_read() / 1000;
+    return osKernelGetTickCount();
 }
 
 void sys_msleep(u32_t ms) {

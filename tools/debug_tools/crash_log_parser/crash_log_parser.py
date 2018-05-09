@@ -48,7 +48,7 @@ class ElfHelper(object):
 
 def print_HFSR_info(hfsr):
     if int(hfsr, 16) & 0x80000000:
-        print("\t\tDebug Event Occured")
+        print("\t\tDebug Event Occurred")
     if int(hfsr, 16) & 0x40000000:
         print("\t\tForced exception, a fault with configurable priority has been escalated to HardFault")    
     if int(hfsr, 16) & 0x2:

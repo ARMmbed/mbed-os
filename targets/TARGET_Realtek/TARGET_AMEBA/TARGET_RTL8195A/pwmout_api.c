@@ -18,6 +18,10 @@
 #include "objects.h"
 #include "pinmap.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #if DEVICE_PWMOUT
 
 #ifdef CONFIG_PWM_EN
@@ -49,7 +53,7 @@ static const PinMap PinMap_PWM[] = {
  
 void pwmout_init(pwmout_t* obj, PinName pin) 
 {
-    uint32_t peripheral;
+    int peripheral;
     u32 pwm_idx;
     u32 pin_sel;
 

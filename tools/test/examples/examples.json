@@ -1,17 +1,4 @@
 { 
-  "update-config" : {
-      "help" : "Update each example repo with a version of mbed-os identified by the tag",
-      "via-fork" : {
-        "help" : "-f cmd line option. Update a fork",
-        "github-user" : "adbridge"          
-      },
-      "via-branch" : {
-        "help" : "-b cmd line option. Update dst branch, created from src branch",
-        "src-branch" : "mbed-os-5.6.0-oob2",
-        "dst-branch" : "mbed-os-5.6.0-oob2"    
-      },
-      "tag" : "mbed-os-5.6.2"
-  },
   "examples": [
     {
       "name": "mbed-os-example-blinky",
@@ -238,6 +225,32 @@
       "compile" : true,
       "export": true,
       "auto-update" : true
-    }
+    },
+    {
+        "name": "mbed-os-example-lorawan",
+        "github":"https://github.com/ARMmbed/mbed-os-example-lorawan",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": false,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-nvstore",
+        "github":"https://github.com/ARMmbed/mbed-os-example-nvstore",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }      
   ]
 }

@@ -279,7 +279,7 @@ LoRaPHYKR920::LoRaPHYKR920(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_KR920;
     phy_params.payloads.size = 6;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater_KR920;
-    phy_params.payloads.size = 6;
+    phy_params.payloads_with_repeater.size = 6;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;
@@ -339,7 +339,7 @@ int8_t LoRaPHYKR920::get_max_eirp(uint32_t freq)
 }
 
 
-bool LoRaPHYKR920::verify_frequency(uint32_t freq)
+bool LoRaPHYKR920::verify_frequency_for_band(uint32_t freq, uint8_t band) const
 {
     uint32_t tmp_freq = freq;
 
@@ -404,9 +404,9 @@ bool LoRaPHYKR920::tx_config(tx_config_params_t* config, int8_t* tx_power,
     return true;
 }
 
-bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
-                                    uint8_t* channel, lorawan_time_t* time,
-                                    lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
+                                                uint8_t* channel, lorawan_time_t* time,
+                                                lorawan_time_t* aggregate_timeoff)
 {
     uint8_t next_channel_idx = 0;
     uint8_t nb_enabled_channels = 0;
@@ -455,26 +455,26 @@ bool LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
                 *channel = next_channel_idx;
                 *time = 0;
                 _radio->unlock();
-                return true;
+                return LORAWAN_STATUS_OK;
             }
 
             _radio->unlock();
         }
 
-        return false;
+        return LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND;
 
     } else {
 
         if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
         }
 
         // Datarate not supported by any channel, restore defaults
         channel_mask[0] |= LC(1) + LC(2) + LC(3);
         *time = 0;
-        return false;
+        return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

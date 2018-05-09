@@ -32,7 +32,7 @@
 
 #include <stdbool.h>
 
-#include "CMSDK_CM3DS.h"
+#include "CM3DS.h"
 #include "timer_cmsdk_drv.h"
 
 #define SEC_TO_USEC_MULTIPLIER    1000000U

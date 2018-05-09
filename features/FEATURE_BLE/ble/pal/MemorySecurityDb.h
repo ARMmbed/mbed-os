@@ -17,7 +17,6 @@
 #ifndef PAL_MEMORY_SECURITY_DB_H_
 #define PAL_MEMORY_SECURITY_DB_H_
 
-#include "ble/Gap.h"
 #include "SecurityDb.h"
 
 namespace ble {
@@ -51,7 +50,6 @@ private:
 
 public:
     MemorySecurityDb() : _local_sign_counter(0) { }
-
     virtual ~MemorySecurityDb() { }
 
     virtual const SecurityDistributionFlags_t* get_distribution_flags(

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_adc.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of ADC LL module.
   ******************************************************************************
   * @attention
@@ -211,9 +209,14 @@ extern "C" {
 #define VREFINT_CAL_ADDR                   ((uint16_t*) ((uint32_t)0x1FF80078U)) /* Internal voltage reference, address of parameter VREFINT_CAL: VrefInt ADC raw data acquired at temperature 30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
 #define VREFINT_CAL_VREF                   ((uint32_t) 3000U)                    /* Analog voltage reference (Vref+) value with which temperature sensor has been calibrated in production (tolerance: +-10 mV) (unit: mV). */
 /* Temperature sensor */
+/* Note: On device STM32L011, calibration parameter TS_CAL1 is not available. */
+#if !defined(STM32L011xx)
 #define TEMPSENSOR_CAL1_ADDR               ((uint16_t*) ((uint32_t)0x1FF8007AU)) /* Internal temperature sensor, address of parameter TS_CAL1: On STM32L0, temperature sensor ADC raw data acquired at temperature  30 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#endif
 #define TEMPSENSOR_CAL2_ADDR               ((uint16_t*) ((uint32_t)0x1FF8007EU)) /* Internal temperature sensor, address of parameter TS_CAL2: On STM32L0, temperature sensor ADC raw data acquired at temperature 130 DegC (tolerance: +-5 DegC), Vref+ = 3.0 V (tolerance: +-10 mV). */
+#if !defined(STM32L011xx)
 #define TEMPSENSOR_CAL1_TEMP               (( int32_t)   30)                     /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL1_ADDR (tolerance: +-5 DegC) (unit: DegC). */
+#endif
 #define TEMPSENSOR_CAL2_TEMP               (( int32_t)  130)                     /* Internal temperature sensor, temperature at which temperature sensor has been calibrated in production for data into TEMPSENSOR_CAL2_ADDR (tolerance: +-5 DegC) (unit: DegC). */
 #define TEMPSENSOR_CAL_VREFANALOG          ((uint32_t) 3000U)                    /* Analog voltage reference (Vref+) voltage with which temperature sensor has been calibrated in production (+-10 mV) (unit: mV). */
 
@@ -492,7 +495,7 @@ typedef struct
 /** @defgroup ADC_LL_EC_LP_MODE  ADC instance - Low power mode
   * @{
   */
-#define LL_ADC_LP_MODE_NONE                ((uint32_t)0x00000000U)              /*!< No ADC low power mode activated */
+#define LL_ADC_LP_MODE_NONE                ((uint32_t)0x00000000U)             /*!< No ADC low power mode activated */
 #define LL_ADC_LP_AUTOWAIT                 (ADC_CFGR1_WAIT)                    /*!< ADC low power mode auto delay: Dynamic low power mode, ADC conversions are performed only when necessary (when previous ADC conversion data is read). See description with function @ref LL_ADC_SetLowPowerMode(). */
 #define LL_ADC_LP_AUTOPOWEROFF             (ADC_CFGR1_AUTOFF)                  /*!< ADC low power mode auto power-off: the ADC automatically powers-off after a ADC conversion and automatically wakes up when a new ADC conversion is triggered (with startup time between trigger and start of sampling). See description with function @ref LL_ADC_SetLowPowerMode(). */
 #define LL_ADC_LP_AUTOWAIT_AUTOPOWEROFF    (ADC_CFGR1_WAIT | ADC_CFGR1_AUTOFF) /*!< ADC low power modes auto wait and auto power-off combined. See description with function @ref LL_ADC_SetLowPowerMode(). */
@@ -550,7 +553,7 @@ typedef struct
 #define LL_ADC_REG_TRIG_EXT_TIM22_TRGO     (ADC_CFGR1_EXTSEL_2 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                                           /*!< ADC group regular conversion trigger from external IP: TIM22 TRGO. Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM2_CH3       (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: TIM2 channel 4 event (capture compare: input capture or output capture). Trigger edge set to rising edge (default setting). */
 #define LL_ADC_REG_TRIG_EXT_TIM3_TRGO      (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_1 | ADC_REG_TRIG_EXT_EDGE_DEFAULT)                      /*!< ADC group regular conversion trigger from external IP: TIM3 TRG0. Trigger edge set to rising edge (default setting). */
-#define LL_ADC_REG_TRIG_EXT_EXTI_LINE11    (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT) /*!< ADC group regular conversion trigger external interrupt line 11. Trigger edge set to rising edge (default setting). */
+#define LL_ADC_REG_TRIG_EXT_EXTI_LINE11    (ADC_CFGR1_EXTSEL_2 | ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0 | ADC_REG_TRIG_EXT_EDGE_DEFAULT) /*!< ADC group regular conversion trigger from external IP: external interrupt line 11. Trigger edge set to rising edge (default setting). */
 /**
   * @}
   */
@@ -615,13 +618,13 @@ typedef struct
   * @{
   */
 #define LL_ADC_SAMPLINGTIME_1CYCLE_5       ((uint32_t)0x00000000U)                               /*!< Sampling time 1.5 ADC clock cycle */
-#define LL_ADC_SAMPLINGTIME_7CYCLES_5      (ADC_SMPR_SMP_0)                                      /*!< Sampling time 7.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_13CYCLES_5     (ADC_SMPR_SMP_1)                                      /*!< Sampling time 13.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_28CYCLES_5     (ADC_SMPR_SMP_1 | ADC_SMPR_SMP_0)                     /*!< Sampling time 28.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_41CYCLES_5     (ADC_SMPR_SMP_2)                                      /*!< Sampling time 41.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_55CYCLES_5     (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_0)                     /*!< Sampling time 55.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_71CYCLES_5     (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_1)                     /*!< Sampling time 71.5 ADC clock cycles */
-#define LL_ADC_SAMPLINGTIME_239CYCLES_5    (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_0)    /*!< Sampling time 239.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_3CYCLES_5      (ADC_SMPR_SMP_0)                                      /*!< Sampling time 3.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_7CYCLES_5      (ADC_SMPR_SMP_1)                                      /*!< Sampling time 7.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_12CYCLES_5     (ADC_SMPR_SMP_1 | ADC_SMPR_SMP_0)                     /*!< Sampling time 12.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_19CYCLES_5     (ADC_SMPR_SMP_2)                                      /*!< Sampling time 19.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_39CYCLES_5     (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_0)                     /*!< Sampling time 39.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_79CYCLES_5     (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_1)                     /*!< Sampling time 79.5 ADC clock cycles */
+#define LL_ADC_SAMPLINGTIME_160CYCLES_5    (ADC_SMPR_SMP_2 | ADC_SMPR_SMP_1 | ADC_SMPR_SMP_0)    /*!< Sampling time 160.5 ADC clock cycles */
 /**
   * @}
   */
@@ -1072,8 +1075,8 @@ typedef struct
   *         @arg @ref LL_ADC_CHANNEL_VLCD       (1)
   *         
   *         (1) On STM32L0, parameter not available on all devices: only on STM32L053xx, STM32L063xx, STM32L073xx, STM32L083xx.
-  * @retval - 0 if the channel corresponds to a parameter definition of a ADC external channel (channel connected to a GPIO pin)
-  *         - 1 if the channel corresponds to a parameter definition of a ADC internal channel
+  * @retval Value "0" if the channel corresponds to a parameter definition of a ADC external channel (channel connected to a GPIO pin).
+  *         Value "1" if the channel corresponds to a parameter definition of a ADC internal channel.
   */
 #define __LL_ADC_IS_CHANNEL_INTERNAL(__CHANNEL__)                              \
   (((__CHANNEL__) & ADC_CHANNEL_ID_INTERNAL_CH_MASK) != 0U)
@@ -1161,8 +1164,8 @@ typedef struct
   *         
   *         (1) On STM32L0, parameter not available on all devices: only on STM32L053xx, STM32L063xx, STM32L073xx, STM32L083xx.
 
-  * @retval - 0 if the internal channel selected is not available on the ADC instance selected.
-  *         - 1 if the internal channel selected is available on the ADC instance selected.
+  * @retval Value "0" if the internal channel selected is not available on the ADC instance selected.
+  *         Value "1" if the internal channel selected is available on the ADC instance selected.
   */
 #if defined(ADC_CCR_VLCDEN)
 #define __LL_ADC_IS_CHANNEL_INTERNAL_AVAILABLE(__ADC_INSTANCE__, __CHANNEL__)  \
@@ -1342,10 +1345,10 @@ typedef struct
   *         with devices featuring several ADC common instances).
   * @param  __ADCXY_COMMON__ ADC common instance
   *         (can be set directly from CMSIS definition or by using helper macro @ref __LL_ADC_COMMON_INSTANCE() )
-  * @retval - 0 All ADC instances sharing the same ADC common instance
-  *             are disabled.
-  *         - 1 At least one ADC instance sharing the same ADC common instance
-  *             is enabled
+  * @retval Value "0" if all ADC instances sharing the same ADC common instance
+  *         are disabled.
+  *         Value "1" if at least one ADC instance sharing the same ADC common instance
+  *         is enabled.
   */
 #define __LL_ADC_IS_ENABLED_ALL_COMMON_INSTANCE(__ADCXY_COMMON__)              \
   LL_ADC_IsEnabled(ADC1)
@@ -1446,6 +1449,10 @@ typedef struct
                                        LL_ADC_RESOLUTION_12B)                  \
   )
 
+/* Note: On device STM32L011, calibration parameter TS_CAL1 is not available. */
+/*       Therefore, helper macro __LL_ADC_CALC_TEMPERATURE() is not available.*/
+/*       Use helper macro @ref __LL_ADC_CALC_TEMPERATURE_TYP_PARAMS().        */
+#if !defined(STM32L011xx)
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
   *         from ADC conversion data of internal temperature sensor.
@@ -1504,6 +1511,7 @@ typedef struct
     ) / (int32_t)((int32_t)*TEMPSENSOR_CAL2_ADDR - (int32_t)*TEMPSENSOR_CAL1_ADDR) \
    ) + TEMPSENSOR_CAL1_TEMP                                                        \
   )
+#endif
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -1711,7 +1719,6 @@ __STATIC_INLINE uint32_t LL_ADC_GetCommonClock(ADC_Common_TypeDef *ADCxy_COMMON)
 __STATIC_INLINE void LL_ADC_SetCommonFrequencyMode(ADC_Common_TypeDef *ADCxy_COMMON, uint32_t Resolution)
 {
   MODIFY_REG(ADCxy_COMMON->CCR, ADC_CCR_LFMEN, Resolution);
-
 }
 
 /**
@@ -2110,13 +2117,13 @@ __STATIC_INLINE uint32_t LL_ADC_GetLowPowerMode(ADC_TypeDef *ADCx)
   * @param  ADCx ADC instance
   * @param  SamplingTime This parameter can be one of the following values:
   *         @arg @ref LL_ADC_SAMPLINGTIME_1CYCLE_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_3CYCLES_5
   *         @arg @ref LL_ADC_SAMPLINGTIME_7CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_13CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_28CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_41CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_55CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_71CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_239CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_12CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_19CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_39CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_79CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_160CYCLES_5
   * @retval None
   */
 __STATIC_INLINE void LL_ADC_SetSamplingTimeCommonChannels(ADC_TypeDef *ADCx, uint32_t SamplingTime)
@@ -2137,13 +2144,13 @@ __STATIC_INLINE void LL_ADC_SetSamplingTimeCommonChannels(ADC_TypeDef *ADCx, uin
   * @param  ADCx ADC instance
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_ADC_SAMPLINGTIME_1CYCLE_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_3CYCLES_5
   *         @arg @ref LL_ADC_SAMPLINGTIME_7CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_13CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_28CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_41CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_55CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_71CYCLES_5
-  *         @arg @ref LL_ADC_SAMPLINGTIME_239CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_12CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_19CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_39CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_79CYCLES_5
+  *         @arg @ref LL_ADC_SAMPLINGTIME_160CYCLES_5
   */
 __STATIC_INLINE uint32_t LL_ADC_GetSamplingTimeCommonChannels(ADC_TypeDef *ADCx)
 {
@@ -2248,8 +2255,8 @@ __STATIC_INLINE uint32_t LL_ADC_REG_GetTriggerSource(ADC_TypeDef *ADCx)
   *         use function @ref LL_ADC_REG_GetTriggerSource().
   * @rmtoll CFGR1    EXTEN          LL_ADC_REG_IsTriggerSourceSWStart
   * @param  ADCx ADC instance
-  * @retval - 0 trigger source external trigger
-  *         - 1 trigger source SW start.
+  * @retval Value "0" if trigger source external trigger
+  *         Value "1" if trigger source SW start.
   */
 __STATIC_INLINE uint32_t LL_ADC_REG_IsTriggerSourceSWStart(ADC_TypeDef *ADCx)
 {
@@ -3254,7 +3261,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetOverSamplingShift(ADC_TypeDef *ADCx)
   * @note   On this STM32 serie, there are three possibilities to enable
   *         the voltage regulator:
   *         - by enabling it manually
-  *           using this function (@ref LL_ADC_EnableInternalRegulator() ).
+  *           using function @ref LL_ADC_EnableInternalRegulator().
   *         - by launching a calibration
   *           using function @ref LL_ADC_StartCalibration().
   *         - by enabling the ADC
@@ -3262,7 +3269,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetOverSamplingShift(ADC_TypeDef *ADCx)
   * @note   On this STM32 serie, after ADC internal voltage regulator enable,
   *         a delay for ADC internal voltage regulator stabilization
   *         is required before performing a ADC calibration or ADC enable.
-  *         Refer to device datasheet, parameter tUP_LDO.
+  *         Refer to device datasheet, parameter "tUP_LDO".
   *         Refer to literal @ref LL_ADC_DELAY_INTERNAL_REGUL_STAB_US.
   * @note   On this STM32 serie, setting of this feature is conditioned to
   *         ADC state:
@@ -3443,7 +3450,8 @@ __STATIC_INLINE uint32_t LL_ADC_IsCalibrationOnGoing(ADC_TypeDef *ADCx)
   * @note   On this STM32 serie, setting of this feature is conditioned to
   *         ADC state:
   *         ADC must be enabled without conversion on going on group regular,
-  *         without conversion stop command on going on group regular.
+  *         without conversion stop command on going on group regular,
+  *         without ADC disable command on going.
   * @rmtoll CR       ADSTART        LL_ADC_REG_StartConversion
   * @param  ADCx ADC instance
   * @retval None

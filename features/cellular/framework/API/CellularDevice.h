@@ -83,19 +83,19 @@ public:
      */
     virtual void close_network() = 0;
 
-    /** Closes the opened CellularNetwork by deleting the CellularSMS instance.
+    /** Closes the opened CellularSMS by deleting the CellularSMS instance.
      */
     virtual void close_sms() = 0;
 
-    /** Closes the opened CellularNetwork by deleting the CellularPower instance.
+    /** Closes the opened CellularPower by deleting the CellularPower instance.
      */
     virtual void close_power() = 0;
 
-    /** Closes the opened CellularNetwork by deleting the CellularSIM instance.
+    /** Closes the opened CellularSIM by deleting the CellularSIM instance.
      */
     virtual void close_sim() = 0;
 
-    /** Closes the opened CellularNetwork by deleting the CellularInformation instance.
+    /** Closes the opened CellularInformation by deleting the CellularInformation instance.
      */
     virtual void close_information() = 0;
 

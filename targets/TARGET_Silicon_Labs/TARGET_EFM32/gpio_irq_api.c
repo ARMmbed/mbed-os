@@ -61,15 +61,11 @@ static void handle_interrupt_in(uint8_t pin)
         return;
     }
 
-    //we are storing two ports in each uint8, so we must aquire the one we want.
-    // If pin is odd, the port is encoded in the 4 most significant bits. If pin is even, the port is encoded in the 4 least significant bits
-    uint8_t isRise = GPIO_PinInGet((pin & 0x1) ? channel_ports[(pin>>1) & 0x7] >> 4 & 0xF : channel_ports[(pin>>1) & 0x7] & 0xF, pin);
-
     // Get trigger event
     gpio_irq_event event = IRQ_NONE;
-    if ((GPIO->EXTIFALL & (1 << pin)) && !isRise) {
+    if (GPIO->EXTIFALL & (1 << pin)) {
         event = IRQ_FALL;
-    } else if ((GPIO->EXTIRISE & (1 << pin)) && isRise) {
+    } else if (GPIO->EXTIRISE & (1 << pin)) {
         event = IRQ_RISE;
     }
     GPIO_IntClear(pin);

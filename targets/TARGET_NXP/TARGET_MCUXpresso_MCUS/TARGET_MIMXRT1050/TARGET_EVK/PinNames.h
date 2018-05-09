@@ -217,7 +217,8 @@ typedef enum {
     PullUp_47K  = 2,
     PullUp_100K = 3,
     PullUp_22K  = 4,
-    PullDefault = PullUp_47K
+    PullDefault = PullUp_47K,
+    PullUp = PullUp_47K
 } PinMode;
 
 #ifdef __cplusplus

@@ -35,6 +35,7 @@ public:
     bool max_sock_value;
     nsapi_error_t create_error;
     int max_packet_size;
+    CellularSocket socket;
 
     MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ) : AT_CellularStack(atr, cid, typ)
     {
@@ -143,14 +144,14 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_open()
 
     st.bool_value = true;
     st.max_sock_value = 0;
-    nsapi_socket_t sock;
+    nsapi_socket_t sock = &st.socket;
     CHECK(NSAPI_ERROR_NO_SOCKET == st.socket_open(&sock, NSAPI_TCP));
 
     MyStack st2(at, 0, IPV6_STACK);
     st2.bool_value = true;
     st2.max_sock_value = 1;
-    nsapi_socket_t sock2;
-    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock2, NSAPI_TCP));
+    sock = &st2.socket;
+    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock, NSAPI_TCP));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_close()
@@ -160,12 +161,11 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_close()
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
-    nsapi_socket_t soc = NULL;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_close(soc));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_close(&st.socket));
 
+    nsapi_socket_t sock = &st.socket;
     st.bool_value = true;
     st.max_sock_value = 1;
-    nsapi_socket_t sock;
     CHECK(NSAPI_ERROR_OK == st.socket_open(&sock, NSAPI_TCP));
     st.max_sock_value = 0;
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_close(sock));
@@ -173,9 +173,9 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_close()
     MyStack st2(at, 0, IPV6_STACK);
     st2.max_sock_value = 1;
     st2.bool_value = true;
-    nsapi_socket_t sock2;
-    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock2, NSAPI_TCP));
-    CHECK(NSAPI_ERROR_OK == st2.socket_close(sock2));
+    sock = &st2.socket;
+    CHECK(NSAPI_ERROR_OK == st2.socket_open(&sock, NSAPI_TCP));
+    CHECK(NSAPI_ERROR_OK == st2.socket_close(sock));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_bind()
@@ -185,12 +185,11 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_bind()
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
-    nsapi_socket_t sock;
     SocketAddress addr;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_ALREADY;
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_bind(NULL, addr));
 
-    CHECK(NSAPI_ERROR_ALREADY == st.socket_bind(sock, addr));
+    CHECK(NSAPI_ERROR_ALREADY == st.socket_bind(&st.socket, addr));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_listen()
@@ -200,8 +199,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_listen()
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
-    nsapi_socket_t sock;
-    CHECK(0 == st.socket_listen(sock, 4));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == st.socket_listen(&st.socket, 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_connect()
@@ -214,8 +212,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_connect()
     SocketAddress addr;
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_connect(NULL, addr));
 
-    nsapi_socket_t sock;
-    CHECK(NSAPI_ERROR_OK == st.socket_connect(sock, addr));
+    CHECK(NSAPI_ERROR_OK == st.socket_connect(&st.socket, addr));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_accept()
@@ -225,8 +222,8 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_accept()
     ATHandler at(&fh1, que, 0, ",");
 
     MyStack st(at, 0, IPV6_STACK);
-    nsapi_socket_t sock;
-    CHECK(0 == st.socket_accept(NULL, &sock));
+    nsapi_socket_t sock = &st.socket;
+    CHECK(NSAPI_ERROR_UNSUPPORTED == st.socket_accept(NULL, &sock));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_send()
@@ -238,12 +235,12 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_send()
     MyStack st(at, 0, IPV6_STACK);
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(NULL, "addr", 4));
 
-    nsapi_socket_t sock;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(sock, "addr", 4));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(&st.socket, "addr", 4));
 
     SocketAddress addr;
     st.max_sock_value = 1;
     st.bool_value = true;
+    nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
     st.socket_connect(sock, addr);
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(sock, "addr", 4));
@@ -257,12 +254,12 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_sendto()
 
     MyStack st(at, 0, IPV6_STACK);
 
-    nsapi_socket_t sock;
     SocketAddress addr;
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_sendto(NULL, addr, "addr", 4));
 
     st.max_sock_value = 1;
     st.bool_value = true;
+    nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
     st.socket_connect(sock, addr);
     st.create_error = NSAPI_ERROR_CONNECTION_LOST;
@@ -294,10 +291,10 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_recvfrom()
     char table[4];
     CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_recvfrom(NULL, NULL, table, 4));
 
-    nsapi_socket_t sock;
     SocketAddress addr;
     st.max_sock_value = 1;
     st.bool_value = true;
+    nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
     st.socket_connect(sock, addr);
     st.create_error = NSAPI_ERROR_CONNECTION_LOST;
@@ -317,9 +314,9 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_attach()
     MyStack st(at, 0, IPV6_STACK);
 
     st.socket_attach(NULL, NULL, NULL);
-    nsapi_socket_t sock;
     st.max_sock_value = 1;
     st.bool_value = true;
+    nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
     st.socket_attach(sock, NULL, NULL);
 }

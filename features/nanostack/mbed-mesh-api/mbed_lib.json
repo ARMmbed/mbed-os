@@ -1,0 +1,105 @@
+{
+    "name": "mbed-mesh-api",
+    "config": {
+        "heap-size": {
+            "help": "Nanostack's heap size [bytes: 0-65534]",
+            "value": 32500
+        },
+        "use-malloc-for-heap": {
+            "help": "Use `malloc()` for reserving the Nanostack's internal heap.",
+            "value": false
+        },
+        "6lowpan-nd-channel-mask": {
+            "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
+            "value": "0x7fff800"
+        },
+        "6lowpan-nd-channel-page": {
+            "help": "0 for 2.4 GHz and 2 for sub-GHz radios.",
+            "value": 0
+        },
+        "6lowpan-nd-channel": {
+            "help": "RF channel to use when `channel_mask` is not defined. [0-26].",
+            "value": 0
+        },
+        "6lowpan-nd-panid-filter": {
+            "help": "Beacon PAN ID filter, 0xffff means no filtering. [0-0xffff]",
+            "value": "0xffff"
+        },
+        "6lowpan-nd-security-mode": {
+            "help": "NONE or PSK to use either no security, or pre-shared network key.",
+            "value": "NONE"
+        },
+        "6lowpan-nd-psk-key-id": {
+            "help": "PSK key ID when PSK is enabled.",
+            "value": 1
+        },
+        "6lowpan-nd-psk-key": {
+            "help": "Pre-shared network key. Byte array of 16 bytes. In form of: {0x00, 0x11, ... 0xff}",
+            "value": "{0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf}"
+        },
+        "6lowpan-nd-sec-level": {
+            "help": "Network security level (1-7). Use default `5`.",
+            "value": 5
+        },
+        "6lowpan-nd-device-type": {
+            "help": "Device mode (NET_6LOWPAN_ROUTER or NET_6LOWPAN_HOST). Router is routing packets from other device, creating a mesh network.",
+            "value": "NET_6LOWPAN_ROUTER"
+        },
+        "thread-pskd": {
+            "help": "Human-scaled commissioning credentials. Uppercase alphanumeric string (0-9, A-Y excluding I, O, Q and Z), 6-32 characters.",
+            "value": "\"ABCDEFGH\""
+        },
+        "thread-use-static-link-config": {
+            "help": "True: Use the below link config, False: Use commissioning, ignore the below link config.",
+            "value": true
+        },
+        "thread-config-channel-mask": {
+            "help": "Channel bit mask, 0x7ffff800 scans all channels. [0-0x07fff800]",
+            "value": "0x7fff800"
+        },
+        "thread-config-channel-page": {
+            "help": "Channel page, 0 for 2.4 GHz radio.",
+            "value": 0
+        },
+        "thread-config-channel": {
+            "help": "RF channel to use. [11-26]",
+            "value": 22
+        },
+        "thread-config-panid": {
+            "help": "Network identifier [0-0xFFFF]",
+            "value": "0x0700"
+        },
+        "thread-config-network-name": {
+            "help": "Network name [string, max 16 characters]",
+            "value": "\"Thread Network\""
+        },
+        "thread-config-commissioning-dataset-timestamp": {
+            "help": "[48 bit timestamp seconds]-[15 bit timestamp ticks]-[U bit] (0-0xFFFFFFFFFFFFFFFF)",
+            "value": "0x10000"
+        },
+        "thread-config-extended-panid": {
+            "help": "Extended PAN ID. [8 byte array]",
+            "value": "{0xf1, 0xb5, 0xa1, 0xb2,0xc4, 0xd5, 0xa1, 0xbd }"
+        },
+        "thread-master-key": {
+            "help": "Network master key. [16 byte array]",
+            "value": "{0x10, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}"
+        },
+        "thread-config-ml-prefix": {
+            "help": "Mesh Local prefix. [8 byte array]",
+            "value": "{0xfd, 0x0, 0x0d, 0xb8, 0x0, 0x0, 0x0, 0x0}"
+        },
+        "thread-config-pskc": {
+            "help": "Pre-Shared Key for the Commissioner. [16 byte array]",
+            "value": "{0xc8, 0xa6, 0x2e, 0xae, 0xf3, 0x68, 0xf3, 0x46, 0xa9, 0x9e, 0x57, 0x85, 0x98, 0x9d, 0x1c, 0xd0}"
+        },
+        "thread-device-type": {
+            "help": "Supported device operating modes: MESH_DEVICE_TYPE_THREAD_ROUTER, MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE, MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE",
+            "value": "MESH_DEVICE_TYPE_THREAD_ROUTER"
+        },
+        "thread-security-policy": {
+            "help": "Commissioning security policy bits [0-0xFF]",
+            "value": 255
+        }
+    }
+}

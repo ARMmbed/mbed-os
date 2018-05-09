@@ -58,3 +58,9 @@ CellularNetwork *TELIT_HE910::open_network(FileHandle *fh)
     }
     return _network;
 }
+
+uint16_t TELIT_HE910::get_send_delay()
+{
+    return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
+}
+

@@ -32,6 +32,7 @@ public:
 public: // CellularDevice
     virtual CellularNetwork *open_network(FileHandle *fh);
     virtual CellularPower *open_power(FileHandle *fh);
+    virtual CellularSIM *open_sim(FileHandle *fh);
 
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);

@@ -30,7 +30,7 @@ static void lptmr_isr(void)
     us_ticker_irq_handler();
 }
 
-void us_ticker_init(void) 
+void us_ticker_init(void)
 {
     if (us_ticker_inited) {
         return;
@@ -69,7 +69,7 @@ void us_ticker_init(void)
 }
 
 
-uint32_t us_ticker_read() 
+uint32_t us_ticker_read()
 {
     if (!us_ticker_inited) {
         us_ticker_init();
@@ -78,21 +78,25 @@ uint32_t us_ticker_read()
     return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
 }
 
-void us_ticker_disable_interrupt(void) 
+void us_ticker_disable_interrupt(void)
 {
     LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
 }
 
-void us_ticker_clear_interrupt(void) 
+void us_ticker_clear_interrupt(void)
 {
     LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp) 
+void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta = timestamp - us_ticker_read();
+    uint32_t now_us, delta_us;
+
+    now_us = us_ticker_read();
+    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+
     LPTMR_StopTimer(LPTMR0);
-    LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta);
+    LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta_us);
     LPTMR_EnableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
     LPTMR_StartTimer(LPTMR0);
 }

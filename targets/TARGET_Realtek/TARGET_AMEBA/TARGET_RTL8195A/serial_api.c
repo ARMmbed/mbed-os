@@ -17,6 +17,11 @@
 #include "rtl8195a.h"
 #include "objects.h"
 #include "serial_api.h"
+
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #if CONFIG_UART_EN
 
 #include "pinmap.h"
@@ -279,32 +284,29 @@ static void SerialRxDoneCallBack(VOID *pAdapter)
 #ifdef CONFIG_MBED_ENABLED
 static void serial_loguart_irq_handler(uint32_t id, LOG_UART_INT_ID event)
 {
-    if (event == IIR_RX_RDY || event == IIR_CHAR_TIMEOUT)
-    {
-        if (log_irq_handler) {
+    log_uart_irq_set(&stdio_uart_log, event, 0);
+    if (log_irq_handler) {
+        if (event == IIR_RX_RDY || event == IIR_CHAR_TIMEOUT) {
             log_irq_handler(serial_log_irq_ids, RxIrq);
-            }
-    } else if (event == IIR_THR_EMPTY) {
-        if (log_irq_handler) {
-                log_irq_handler(serial_log_irq_ids, TxIrq);
-            }
+        } else if (event == IIR_THR_EMPTY) {
+            log_irq_handler(serial_log_irq_ids, TxIrq);
+        }
     }
     return;
 }
 #endif
 
 
-
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) 
 {
 
 #ifdef CONFIG_MBED_ENABLED
-            if (obj->index == UART_3) {
-                log_irq_handler = handler;
-                serial_log_irq_ids = id;
-                log_uart_irq_handler(&stdio_uart_log, serial_loguart_irq_handler, id);
-                return;
-            }             
+    if (obj->index == UART_3) {
+        log_irq_handler = handler;
+        serial_log_irq_ids = id;
+        log_uart_irq_handler(&stdio_uart_log, serial_loguart_irq_handler, id);
+        return;
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     u8 uart_idx;
@@ -321,14 +323,33 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) 
 {
 #ifdef CONFIG_MBED_ENABLED
-        if (obj->index == UART_3) {
+    if (obj->index == UART_3) {
+        if(enable) {
             if (irq == RxIrq) {
                 log_uart_irq_set(&stdio_uart_log, IIR_RX_RDY, enable);
+                serial_log_irq_en |= SERIAL_RX_IRQ_EN;
             } else {
                 log_uart_irq_set(&stdio_uart_log, IIR_THR_EMPTY, enable);
+                serial_log_irq_en |= SERIAL_TX_IRQ_EN;
             }
-            return;
+        } else {
+            if (irq == RxIrq) {
+                log_uart_irq_set(&stdio_uart_log, IIR_RX_RDY, enable);
+                serial_log_irq_en &= ~SERIAL_RX_IRQ_EN;
+            } else {
+                log_uart_irq_set(&stdio_uart_log, IIR_THR_EMPTY, enable);
+                serial_log_irq_en &= ~SERIAL_TX_IRQ_EN;
+            }
+
+            log_uart_t *log_obj = &stdio_uart_log;
+            HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(log_obj->log_hal_uart);
+            if (pUartAdapter->IntEnReg == 0) {
+                InterruptUnRegister(&pUartAdapter->IrqHandle);
+                InterruptDis(&pUartAdapter->IrqHandle);
+            }
         }
+        return;
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     PHAL_RUART_OP pHalRuartOp;
@@ -347,7 +368,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         }
          
         pHalRuartOp->HalRuartRegIrq(pHalRuartAdapter);
-        //log_uart
         pHalRuartOp->HalRuartIntEnable(pHalRuartAdapter);
     } else { // disable
         if (irq == RxIrq) {
@@ -389,6 +409,14 @@ void serial_putc(serial_t *obj, int c)
 #ifdef CONFIG_MBED_ENABLED
     if (obj->index == UART_3) {
         log_uart_putc(&stdio_uart_log, (char)c);
+
+        // UnMask LOG_UART TX FIFO empty IRQ
+        if (serial_log_irq_en & SERIAL_TX_IRQ_EN) {
+            log_uart_t *log_obj = &stdio_uart_log;
+            HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(log_obj->log_hal_uart);
+            pUartAdapter->IntEnReg |= IER_ETBEI;
+            HalLogUartSetIntEn(pUartAdapter);
+        }
         return;
     }
 #endif

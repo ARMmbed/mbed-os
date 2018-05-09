@@ -81,7 +81,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_connect()
 
     AT_CellularNetwork cn(at);
     cn.set_stack_type(IPV4V6_STACK);
-    CHECK(NSAPI_ERROR_NO_CONNECTION == cn.connect("APN", "a", "b"));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.connect("APN", "a", "b"));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
     CHECK(NSAPI_ERROR_NO_CONNECTION == cn.connect("APN"));
@@ -152,6 +152,17 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_attach()
     CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_attach(stat));
 }
 
+void Test_AT_CellularNetwork::test_AT_CellularNetwork_detach()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
+    CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.detach());
+}
+
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_rate_control()
 {
     EventQueue que;
@@ -174,9 +185,11 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_apn_backoff_timer()
     AT_CellularNetwork cn(at);
     int time;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
+    CHECK(NSAPI_ERROR_PARAMETER == cn.get_apn_backoff_timer(time));
+
+    cn.set_credentials("internet", NULL, NULL);
     CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_apn_backoff_timer(time));
 }
-
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_ip_address()
 {
@@ -195,8 +208,8 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_set_access_technology()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularNetwork cn(at);
-    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::operator_t::RAT_UNKNOWN));
-    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::operator_t::RAT_GSM_COMPACT));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_UNKNOWN));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == cn.set_access_technology(CellularNetwork::RAT_GSM_COMPACT));
 }
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_scan_plmn()
@@ -306,8 +319,8 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_cell_id()
 
     AT_CellularNetwork cn(at);
     int id;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
-    CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_cell_id(id));
+    CHECK(NSAPI_ERROR_OK == cn.get_cell_id(id));
+    CHECK(id == -1);
 }
 
 void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_3gpp_error()
@@ -332,5 +345,20 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_operator_params()
     CellularNetwork::operator_t ops;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
     CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_operator_params(format, ops));
+}
+
+void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_operator_names()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularNetwork cn(at);
+    CellularNetwork::operator_names_list name_list;
+
+    CHECK(NSAPI_ERROR_OK == cn.get_operator_names(name_list));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_CONNECTION_LOST;
+    CHECK(NSAPI_ERROR_CONNECTION_LOST == cn.get_operator_names(name_list));
 }
 

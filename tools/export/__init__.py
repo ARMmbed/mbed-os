@@ -30,12 +30,11 @@ from ..toolchains import Resources
 from ..targets import TARGET_NAMES
 from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
-               cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb, cces)
+               cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb, cces, codeblocks)
 
 EXPORTERS = {
     u'uvision5': uvision.Uvision,
     u'uvision': uvision.Uvision,
-    u'lpcxpresso': lpcxpresso.LPCXpresso,
     u'gcc_arm': makefile.GccArm,
     u'make_gcc_arm': makefile.GccArm,
     u'make_armc5': makefile.Armc5,
@@ -44,10 +43,6 @@ EXPORTERS = {
     u'ds5_5': ds5_5.DS5_5,
     u'iar': iar.IAR,
     u'embitz' : embitz.EmBitz,
-    u'coide' : coide.CoIDE,
-    u'kds' : kds.KDS,
-    u'simplicityv3' : simplicity.SimplicityV3,
-    u'atmelstudio' : atmelstudio.AtmelStudio,
     u'sw4stm32'    : sw4stm32.Sw4STM32,
     u'e2studio' : e2studio.E2Studio,
     u'eclipse_gcc_arm'  : cdt.EclipseGcc,
@@ -61,7 +56,8 @@ EXPORTERS = {
     u'vscode_iar' : vscode.VSCodeIAR,
     u'vscode_armc5' : vscode.VSCodeArmc5,
     u'cmake_gcc_arm': cmake.GccArm,
-    u'cces' : cces.CCES
+    u'cces' : cces.CCES,
+    u'codeblocks': codeblocks.CodeBlocks
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -142,48 +138,6 @@ def get_exporter_toolchain(ide):
     return EXPORTERS[ide], EXPORTERS[ide].TOOLCHAIN
 
 
-def rewrite_basepath(file_name, resources, export_path, loc):
-    """ Replace the basepath of filename with export_path
-
-    Positional arguments:
-    file_name - the absolute path to a file
-    resources - the resources object that the file came from
-    export_path - the final destination of the file after export
-    """
-    new_f = join(loc, relpath(file_name, resources.file_basepath[file_name]))
-    resources.file_basepath[new_f] = export_path
-    return new_f
-
-
-def subtract_basepath(resources, export_path, loc=""):
-    """ Rewrite all of the basepaths with the export_path
-
-    Positional arguments:
-    resources - the resource object to rewrite the basepaths of
-    export_path - the final destination of the resources with respect to the
-      generated project files
-    """
-    keys = ['s_sources', 'c_sources', 'cpp_sources', 'hex_files',
-            'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script',
-            'lib_dirs']
-    for key in keys:
-        vals = getattr(resources, key)
-        if isinstance(vals, set):
-            vals = list(vals)
-        if isinstance(vals, list):
-            new_vals = []
-            for val in vals:
-                new_vals.append(rewrite_basepath(val, resources, export_path,
-                                                 loc))
-            if isinstance(getattr(resources, key), set):
-                setattr(resources, key, set(new_vals))
-            else:
-                setattr(resources, key, new_vals)
-        elif vals:
-            setattr(resources, key, rewrite_basepath(vals, resources,
-                                                     export_path, loc))
-
-
 def generate_project_files(resources, export_path, target, name, toolchain, ide,
                            macros=None):
     """Generate the project files for a project
@@ -209,7 +163,24 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     return files, exporter
 
 
-def zip_export(file_name, prefix, resources, project_files, inc_repos):
+def _inner_zip_export(resources, inc_repos):
+    for loc, res in resources.items():
+        to_zip = (
+            res.headers + res.s_sources + res.c_sources +\
+            res.cpp_sources + res.libraries + res.hex_files + \
+            [res.linker_script] + res.bin_files + res.objects + \
+            res.json_files + res.lib_refs + res.lib_builds)
+        if inc_repos:
+            for directory in res.repo_dirs:
+                for root, _, files in walk(directory):
+                    for repo_file in files:
+                        source = join(root, repo_file)
+                        to_zip.append(source)
+                        res.file_basepath[source] = res.base_path
+            to_zip += res.repo_files
+        yield loc, to_zip
+
+def zip_export(file_name, prefix, resources, project_files, inc_repos, notify):
     """Create a zip file from an exported project.
 
     Positional Parameters:
@@ -219,29 +190,25 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
     project_files - a list of extra files to be added to the root of the prefix
       directory
     """
+    to_zip_list = list(_inner_zip_export(resources, inc_repos))
+    total_files = sum(len(to_zip) for _, to_zip in to_zip_list)
+    total_files += len(project_files)
+    zipped = 0
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, res in resources.items():
-            to_zip = (
-                res.headers + res.s_sources + res.c_sources +\
-                res.cpp_sources + res.libraries + res.hex_files + \
-                [res.linker_script] + res.bin_files + res.objects + \
-                res.json_files + res.lib_refs + res.lib_builds)
-            if inc_repos:
-                for directory in res.repo_dirs:
-                    for root, _, files in walk(directory):
-                        for repo_file in files:
-                            source = join(root, repo_file)
-                            to_zip.append(source)
-                            res.file_basepath[source] = res.base_path
-                to_zip += res.repo_files
+        for loc, to_zip in to_zip_list:
+            res = resources[loc]
             for source in to_zip:
                 if source:
                     zip_file.write(
                         source,
                         join(prefix, loc,
                              relpath(source, res.file_basepath[source])))
+                    notify.progress("Zipping", source,
+                                    100 * (zipped / total_files))
+                    zipped += 1
+        for lib, res in resources.items():
             for source in res.lib_builds:
                 target_dir, _ = splitext(source)
                 dest = join(prefix, loc,
@@ -252,10 +219,9 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
 
 
 def export_project(src_paths, export_path, target, ide, libraries_paths=None,
-                   linker_script=None, notify=None, verbose=False, name=None,
-                   inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
-                   config=None, macros=None, zip_proj=None, inc_repos=False,
-                   build_profile=None, app_config=None):
+                   linker_script=None, notify=None, name=None, inc_dirs=None,
+                   jobs=1, config=None, macros=None, zip_proj=None,
+                   inc_repos=False, build_profile=None, app_config=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -269,13 +235,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     linker_script - path to the linker script for the specified target
     notify - function is passed all events, and expected to handle notification
       of the user, emit the events to a log, etc.
-    verbose - assigns the notify function to toolchains print_notify_verbose
     name - project name
     inc_dirs - additional include directories
     jobs - number of threads
-    silent - silent build - no output
-    extra_verbose - assigns the notify function to toolchains
-      print_notify_verbose
     config - toolchain's config object
     macros - User-defined macros
     zip_proj - string name of the zip archive you wish to creat (exclude arg
@@ -306,32 +268,30 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     # Pass all params to the unified prepare_resources()
     toolchain = prepare_toolchain(
         paths, "", target, toolchain_name, macros=macros, jobs=jobs,
-        notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config, build_profile=build_profile,
+        notify=notify, config=config, build_profile=build_profile,
         app_config=app_config)
-    # The first path will give the name to the library
+
     toolchain.RESPONSE_FILES = False
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 
-    # Call unified scan_resources
-    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs, collect_ignores=True)
+    resource_dict = {loc: sum((toolchain.scan_resources(p, collect_ignores=True)
+                               for p in path),
+                              Resources())
                      for loc, path in src_paths.items()}
     resources = Resources()
+
+    for loc, res in resource_dict.items():
+        temp = copy.deepcopy(res)
+        temp.subtract_basepath(".", loc)
+        resources.add(temp)
+
     toolchain.build_dir = export_path
+    toolchain.config.load_resources(resources)
+    toolchain.set_config_data(toolchain.config.get_config_data())
     config_header = toolchain.get_config_header()
     resources.headers.append(config_header)
     resources.file_basepath[config_header] = dirname(config_header)
-
-    if zip_proj:
-        subtract_basepath(resources, ".")
-        for loc, res in resource_dict.items():
-            temp = copy.deepcopy(res)
-            subtract_basepath(temp, ".", loc)
-            resources.add(temp)
-    else:
-        for _, res in resource_dict.items():
-            resources.add(res)
 
     # Change linker script if specified
     if linker_script is not None:
@@ -344,14 +304,13 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if zip_proj:
         for resource in resource_dict.values():
             for label, res in resource.features.items():
-                if label not in toolchain.target.features:
-                    resource.add(res)
+                resource.add(res)
         if isinstance(zip_proj, basestring):
             zip_export(join(export_path, zip_proj), name, resource_dict,
-                       files + list(exporter.static_files), inc_repos)
+                       files + list(exporter.static_files), inc_repos, notify)
         else:
             zip_export(zip_proj, name, resource_dict,
-                       files + list(exporter.static_files), inc_repos)
+                       files + list(exporter.static_files), inc_repos, notify)
     else:
         for static_file in exporter.static_files:
             if not exists(join(export_path, basename(static_file))):

@@ -38,6 +38,16 @@ public:
       _tail=NULL;
     }
 
+     ~CellularList()
+    {
+        T *temp = _head;
+        while (temp) {
+            _head = _head->next;
+            delete temp;
+            temp = _head;
+        }
+    }
+
     T* add_new()
     {
       T *temp=new T;
@@ -88,6 +98,7 @@ public:
             delete temp;
             temp = _head;
         }
+        _tail=NULL;
     }
 
 

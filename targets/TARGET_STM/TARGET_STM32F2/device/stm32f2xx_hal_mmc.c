@@ -1309,7 +1309,7 @@ HAL_StatusTypeDef HAL_MMC_Erase(MMC_HandleTypeDef *hmmc, uint32_t BlockStartAdd,
     hmmc->State = HAL_MMC_STATE_BUSY;
     
     /* Check if the card command class supports erase command */
-    if((hmmc->MmcCard.Class) & SDIO_CCCC_ERASE == 0U)
+    if(((hmmc->MmcCard.Class) & SDIO_CCCC_ERASE) == 0U)
     {
       /* Clear all the static flags */
       __HAL_MMC_CLEAR_FLAG(hmmc, SDIO_STATIC_FLAGS);

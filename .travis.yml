@@ -31,7 +31,7 @@ before_install:
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   # Loop until update succeeds (timeouts can occur)
-  - while [ -n "$(sudo apt-get update 2>&1 |grep Failed)" ]; do :; done
+  - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
 after_success:
   - bash -c "$STATUS" success "Local $NAME testing has passed"
@@ -95,6 +95,45 @@ matrix:
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
     - env:
+        - NAME=astyle
+      install:
+      - wget https://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
+        mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
+        pushd BUILD/astyle/build/gcc;
+        make;
+        export PATH=$PWD/bin:$PATH;
+        popd;
+      - astyle --version
+      script:
+        # only changed files this time
+        - git diff --name-only $TRAVIS_BRANCH | grep '.*\.\(h\|c\|hpp\|cpp\)' | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-files-changed.out;
+          if [ $(cat astyle-files-changed.out | grep Formatted | wc -l) -ne 0 ]; then
+            git --no-pager diff;
+            echo "Please fix style issues as shown above";
+          else
+            echo "Coding style check OK";
+          fi
+      after_success:
+        # run astyle for all files on the branch
+        - git checkout -- .
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
+          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\", (?<warnings>[0-9]+) warnings\").warnings" \
+              || echo 0)
+
+          STATUSM="Passed, ${CURR} warnings"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") warnings)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
+
+    - env:
         - NAME=events
         - EVENTS=events
       install:
@@ -111,10 +150,28 @@ matrix:
         - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
-        - rm -r rtos features/cellular features/netsocket features/frameworks BUILD
+        - rm -r rtos features/cellular features/netsocket features/nanostack features/frameworks BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
         - make -C $EVENTS/equeue test
+        # Run profiling tests
+        - make -C $EVENTS/equeue prof | tee prof
+      after_success:
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
+              || echo 0)
+
+          STATUSM="Passed, runtime is ${CURR} cycles"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") cycles)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
 
     - env:
         - NAME=littlefs
@@ -175,7 +232,7 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
                   | capture(\"code size is (?<size>[0-9]+)\").size" \
@@ -188,36 +245,8 @@ matrix:
           fi
         - bash -c "$STATUS" success "$STATUSM"
 
-    - &mbed-2
-      env: NAME=mbed2-NXP
-      install:
-        # Install dependencies
-        - export GCC_DIR=$HOME/gcc-arm-none-eabi-6-2017-q2-update
-        - export GCC_ARCHIVE=$HOME/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
-        - export GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2?revision=2cc92fb5-3e0e-402d-9197-bdfc8224d8a5?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,6-2017-q2-update
-        - if [ ! -e $GCC_DIR/bin/arm-none-eabi-gcc ]; then wget $GCC_URL -O $GCC_ARCHIVE; tar xfj $GCC_ARCHIVE -C $HOME; fi
-        - export PATH=$PATH:$GCC_DIR/bin
-        - pip install -r requirements.txt
-        # Print versions we use
-        - arm-none-eabi-gcc --version
-        - python --version
-      before_script:
-        # Create BUILD directory for tests
-        - mkdir BUILD
+    - env:
+        - NAME=gitattributestest
       script:
-        # Run local mbed 2 testing
-        - python -u tools/build_travis.py --vendor "${NAME#mbed2-}"
-    - <<: *mbed-2
-      env: NAME=mbed2-STM
-    - <<: *mbed-2
-      env: NAME=mbed2-NORDIC
-    - <<: *mbed-2
-      env: NAME=mbed2-SILICON_LABS
-    - <<: *mbed-2
-      env: NAME=mbed2-MAXIM
-    - <<: *mbed-2
-      env: NAME=mbed2-ATMEL
-    - <<: *mbed-2
-      env: NAME=mbed2-NUVOTON
-    - <<: *mbed-2
-      env: NAME=mbed2-RENESAS
+        # Check that no changes after clone. This check that .gitattributes is used right way.
+        - git diff --exit-code

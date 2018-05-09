@@ -222,7 +222,7 @@ void test_udp_packet_pressure()
                 }
             }
 
-            // Prioritize recieving over sending packets to avoid flooding
+            // Prioritize receiving over sending packets to avoid flooding
             // the network while handling erronous packets
             while (rx_count < size) {
                 int rd = sock.recvfrom(NULL, buffer, buffer_size);

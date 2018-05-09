@@ -23,7 +23,7 @@
 #define NVSTORE_ENABLED 0
 #endif
 
-#if NVSTORE_ENABLED
+#if (NVSTORE_ENABLED) || defined(DOXYGEN_ONLY)
 #include <stdint.h>
 #include <stdio.h>
 #include "platform/NonCopyable.h"
@@ -41,14 +41,29 @@ typedef enum {
     NVSTORE_FLASH_AREA_TOO_SMALL   = -7,
     NVSTORE_OS_ERROR               = -8,
     NVSTORE_ALREADY_EXISTS         = -9,
+    NVSTORE_NO_FREE_KEY            = -10,
 } nvstore_status_e;
 
+typedef enum {
+    NVSTORE_FIRST_PREDEFINED_KEY        = 0,
+
+    // All predefined keys used for internal features should be defined here
+
+    NVSTORE_LAST_PREDEFINED_KEY         = 15,
+    NVSTORE_NUM_PREDEFINED_KEYS
+} nvstore_predefined_keys_e;
+
 #ifndef NVSTORE_MAX_KEYS
-#define NVSTORE_MAX_KEYS 16
+#define NVSTORE_MAX_KEYS ((uint16_t)NVSTORE_NUM_PREDEFINED_KEYS)
 #endif
 
 // defines 2 areas - active and nonactive, not configurable
 #define NVSTORE_NUM_AREAS        2
+
+/** NVStore class
+ *
+ *  Class for storing data by keys in the internal flash
+ */
 
 class NVStore : private mbed::NonCopyable<NVStore> {
 public:
@@ -142,6 +157,24 @@ public:
      *
      */
     int set(uint16_t key, uint16_t buf_size, const void *buf);
+
+    /**
+     * @brief Programs one item of data on Flash, allocating a key.
+     *
+     * @param[out] key                  Returned key of stored item.
+     * @param[in]  buf_size             Item size in bytes.
+     * @param[in]  buf                  Buffer containing data.
+     *
+     * @returns NVSTORE_SUCCESS           Value was successfully written on Flash.
+     *          NVSTORE_WRITE_ERROR       Physical error writing data.
+     *          NVSTORE_BAD_VALUE         Bad value in any of the parameters.
+     *          NVSTORE_FLASH_AREA_TOO_SMALL
+     *                                    Not enough space in Flash area.
+     *          NVSTORE_ALREADY_EXISTS    Item set with write once API already exists.
+     *          NVSTORE_NO_FREE_KEY       Couldn't allocate a key for this call.
+     *
+     */
+    int set_alloc_key(uint16_t &key, uint16_t buf_size, const void *buf);
 
     /**
      * @brief Programs one item of data on Flash, given key, allowing no consequent sets to this key.
@@ -286,8 +319,6 @@ private:
     /**
      * @brief Calculate addresses and sizes of areas (in case no user configuration is given),
      *        or validate user configuration (if given).
-     *
-     * @param[in]  area                   Area.
      */
     void calc_validate_area_params();
 
@@ -310,7 +341,7 @@ private:
      * @param[in]  buf                    Output Buffer.
      * @param[out] actual_size            Actual data size (bytes).
      * @param[in]  validate_only          Just validate (without reading to buffer).
-     * @param[out] validate               Is the record valid.
+     * @param[out] valid                  Is the record valid.
      * @param[out] key                    Record key.
      * @param[out] flags                  Record flags.
      * @param[out] next_offset            Offset of next record.
@@ -391,16 +422,17 @@ private:
     /**
      * @brief Actual logics of set API (covers also set_once and remove APIs).
      *
-     * @param[in]  key                    key.
+     * @param[out] key                    key (both input and output).
      * @param[in]  buf_size               Buffer size (bytes).
      * @param[in]  buf                    Input Buffer.
      * @param[in]  flags                  Record flags.
      *
      * @returns 0 for success, nonzero for failure.
      */
-    int do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags);
+    int do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t flags);
 
 };
+/** @}*/
 
 #endif // NVSTORE_ENABLED
 

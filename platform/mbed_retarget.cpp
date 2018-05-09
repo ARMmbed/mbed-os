@@ -72,6 +72,16 @@ static SingletonPtr<PlatformMutex> _mutex;
 
 #define FILE_HANDLE_RESERVED    ((FileHandle*)0xFFFFFFFF)
 
+/**
+ * Macros for setting console flow control.
+ */
+#define CONSOLE_FLOWCONTROL_RTS     1
+#define CONSOLE_FLOWCONTROL_CTS     2
+#define CONSOLE_FLOWCONTROL_RTSCTS  3
+#define mbed_console_concat_(x) CONSOLE_FLOWCONTROL_##x
+#define mbed_console_concat(x) mbed_console_concat_(x)
+#define CONSOLE_FLOWCONTROL mbed_console_concat(MBED_CONF_TARGET_CONSOLE_UART_FLOW_CONTROL)
+
 using namespace mbed;
 
 #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
@@ -116,7 +126,6 @@ void remove_filehandle(FileHandle *file) {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
-#endif
 
 /* Private FileHandle to implement backwards-compatible functionality of
  * direct HAL serial access for default stdin/stdout/stderr.
@@ -147,6 +156,13 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud) {
     if (stdio_uart_inited) return;
     serial_init(&stdio_uart, tx, rx);
     serial_baud(&stdio_uart, baud);
+#if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
+    serial_set_flow_control(&stdio_uart, FlowControlRTS, STDIO_UART_RTS, NC);
+#elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
+    serial_set_flow_control(&stdio_uart, FlowControlCTS, NC, STDIO_UART_CTS);
+#elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
+    serial_set_flow_control(&stdio_uart, FlowControlRTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+#endif
 }
 
 ssize_t DirectSerial::write(const void *buffer, size_t size) {
@@ -176,6 +192,7 @@ short DirectSerial::poll(short events) const {
     }
     return revents;
 }
+#endif
 
 class Sink : public FileHandle {
 public:
@@ -216,6 +233,13 @@ static FileHandle* default_console()
 #if DEVICE_SERIAL
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+#   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
+        console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
+#   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
+        console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
+#   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
+        console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+#   endif
 #  else
     static DirectSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #  endif
@@ -1315,7 +1339,7 @@ extern "C" void __cxa_guard_abort(int *guard_object_p)
 
 #endif
 
-#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__CC_ARM) || defined(__ICCARM__))
+#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__CC_ARM) || defined(__ICCARM__) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)))
 
 // If the memory tracing is enabled, the wrappers in mbed_alloc_wrappers.cpp
 // provide the implementation for these. Note: this needs to use the wrappers

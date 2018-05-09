@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -58,7 +56,7 @@
  * @{
  */
 
-#define LSI_VALUE                  ((uint32_t)37000)  /* ~37kHz */
+#define LSI_VALUE                  (37000U)  /* ~37kHz */
 
 #if defined(STM32L100xBA) || defined(STM32L151xBA) || defined(STM32L152xBA)\
  || defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC)\
@@ -69,7 +67,7 @@
 
 /* Alias word address of LSECSSON bit */
 #define LSECSSON_BITNUMBER      POSITION_VAL(RCC_CSR_LSECSSON)
-#define CSR_LSECSSON_BB         ((uint32_t)(PERIPH_BB_BASE + (RCC_CSR_OFFSET_BB * 32) + (LSECSSON_BITNUMBER * 4)))
+#define CSR_LSECSSON_BB         ((uint32_t)(PERIPH_BB_BASE + (RCC_CSR_OFFSET_BB * 32U) + (LSECSSON_BITNUMBER * 4U)))
 
 #endif /* STM32L100xBA || STM32L151xBA || STM32L152xBA || STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX*/
 
@@ -132,11 +130,11 @@ typedef struct
 /** @defgroup RCCEx_Periph_Clock_Selection RCCEx Periph Clock Selection
   * @{
   */
-#define RCC_PERIPHCLK_RTC           ((uint32_t)0x00000001)
+#define RCC_PERIPHCLK_RTC           (0x00000001U)
 
 #if defined(LCD)
 
-#define RCC_PERIPHCLK_LCD           ((uint32_t)0x00000002)
+#define RCC_PERIPHCLK_LCD           (0x00000002U)
 
 #endif /* LCD */
 
@@ -183,7 +181,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_GPIOEEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_GPIOE_CLK_DISABLE()   (RCC->AHBENR &= ~(RCC_AHBENR_GPIOEEN))
 
 #endif /* STM32L151xB || STM32L152xB || ... || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
@@ -198,14 +196,14 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_GPIOFEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_GPIOG_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->AHBENR, RCC_AHBENR_GPIOGEN);\
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_GPIOGEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 
 #define __HAL_RCC_GPIOF_CLK_DISABLE()   (RCC->AHBENR &= ~(RCC_AHBENR_GPIOFEN))
 #define __HAL_RCC_GPIOG_CLK_DISABLE()   (RCC->AHBENR &= ~(RCC_AHBENR_GPIOGEN))
@@ -224,7 +222,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_DMA2EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 
 #define __HAL_RCC_DMA2_CLK_DISABLE()    (RCC->AHBENR &= ~(RCC_AHBENR_DMA2EN))
 
@@ -239,7 +237,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_AESEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_CRYP_CLK_DISABLE()    (RCC->AHBENR &= ~(RCC_AHBENR_AESEN))
 
 #endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX */
@@ -252,7 +250,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_FSMCEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_FSMC_CLK_DISABLE()    (RCC->AHBENR &= ~(RCC_AHBENR_FSMCEN))
 
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
@@ -269,7 +267,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LCDEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_LCD_CLK_DISABLE()       (RCC->APB1ENR &= ~(RCC_APB1ENR_LCDEN))
 
 #endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
@@ -290,7 +288,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM5EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_TIM5_CLK_DISABLE()    (RCC->APB1ENR &= ~(RCC_APB1ENR_TIM5EN))
 
 #endif /* STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
@@ -307,7 +305,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI3EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_SPI3_CLK_DISABLE()    (RCC->APB1ENR &= ~(RCC_APB1ENR_SPI3EN))
 
 #endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
@@ -321,14 +319,14 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_UART4EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_UART5_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
                                         SET_BIT(RCC->APB1ENR, RCC_APB1ENR_UART5EN);\
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_UART5EN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 
 #define __HAL_RCC_UART4_CLK_DISABLE()   (RCC->APB1ENR &= ~(RCC_APB1ENR_UART4EN))
 #define __HAL_RCC_UART5_CLK_DISABLE()   (RCC->APB1ENR &= ~(RCC_APB1ENR_UART5EN))
@@ -359,7 +357,7 @@ typedef struct
                                         /* Delay after an RCC peripheral clock enabling */ \
                                         tmpreg = READ_BIT(RCC->APB2ENR, RCC_APB2ENR_SDIOEN);\
                                         UNUSED(tmpreg); \
-                                      } while(0)
+                                      } while(0U)
 #define __HAL_RCC_SDIO_CLK_DISABLE()    (RCC->APB2ENR &= ~(RCC_APB2ENR_SDIOEN))
 
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
@@ -927,7 +925,7 @@ typedef struct
   do {                                                      \
     __HAL_RCC_LSECSS_EXTI_ENABLE_RISING_EDGE();             \
     __HAL_RCC_LSECSS_EXTI_ENABLE_FALLING_EDGE();            \
-  } while(0)  
+  } while(0U)  
   
 /**
   * @brief Disable the RCC LSE CSS Extended Interrupt Rising & Falling Trigger.
@@ -937,7 +935,7 @@ typedef struct
   do {                                                       \
     __HAL_RCC_LSECSS_EXTI_DISABLE_RISING_EDGE();             \
     __HAL_RCC_LSECSS_EXTI_DISABLE_FALLING_EDGE();            \
-  } while(0)  
+  } while(0U)  
 
 /**
   * @brief Check whether the specified RCC LSE CSS EXTI interrupt flag is set or not.
@@ -1035,7 +1033,7 @@ void              HAL_RCCEx_LSECSS_Callback(void);
 /**
   * @}
   */
-
+  
 /**
   * @}
   */

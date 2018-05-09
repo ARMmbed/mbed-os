@@ -1,8 +1,8 @@
 ;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32l073xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.5.0
-;* Date               : 8-January-2016
+;* Version            : V1.7.1
+;* Date               : 25-November-2016
 ;* Description        : STM32l073xx Devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -12,7 +12,6 @@
 ;*                        calls main()).
 ;*                      After Reset the Cortex-M0+ processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
-;* <<< Use Configuration Wizard in Context Menu >>>   
 ;*******************************************************************************
 ;* 
 ;* Redistribution and use in source and binary forms, with or without modification,

@@ -17,6 +17,10 @@
 #include "objects.h"
 #include "log_uart_api.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 #include <string.h>
 
 const u32 log_uart_support_rate[] = {
@@ -51,7 +55,7 @@ int32_t log_uart_init (log_uart_t *obj, int baudrate, int data_bits, SerialParit
     pUartAdapter = &obj->log_hal_uart;
     // Check Baud rate
     for (i=0; log_uart_support_rate[i]!=0xFFFFFF; i++) {
-        if (log_uart_support_rate[i] == baudrate) {
+        if (log_uart_support_rate[i] == (u32)baudrate) {
             break;
         }
     }    
@@ -144,7 +148,7 @@ void log_uart_baud(log_uart_t *obj, int baudrate)
     pUartAdapter = &obj->log_hal_uart;
     // Check Baud rate
     for (i=0; log_uart_support_rate[i]!=0xFFFFFFFF; i++) {
-        if (log_uart_support_rate[i] == baudrate) {
+        if (log_uart_support_rate[i] == (u32)baudrate) {
             break;
         }
     }
@@ -206,13 +210,13 @@ void log_uart_irq_handler(log_uart_t *obj, loguart_irq_handler handler, uint32_t
 
     pUartAdapter = &(obj->log_hal_uart);
     pUartAdapter->api_irq_handler = handler;
-    pUartAdapter->api_irq_id = id;    
+    pUartAdapter->api_irq_id = id;
 }
 
 void log_uart_irq_set(log_uart_t *obj, LOG_UART_INT_ID irq, uint32_t enable) 
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter;
-    u8 int_en=0;
+    u8 int_en = 0;
 
     pUartAdapter = &(obj->log_hal_uart);
 
@@ -237,7 +241,7 @@ void log_uart_irq_set(log_uart_t *obj, LOG_UART_INT_ID irq, uint32_t enable)
         DBG_UART_WARN("log_uart_irq_set: Unknown Irq Id\n");
         return;
     }
-        
+
     if (enable) {
         pUartAdapter->IntEnReg |= int_en;
     } else {
@@ -253,23 +257,18 @@ void log_uart_irq_set(log_uart_t *obj, LOG_UART_INT_ID irq, uint32_t enable)
 
 char log_uart_getc(log_uart_t *obj) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
-
     while (!log_uart_readable(obj));
     return (char)(HAL_UART_READ32(UART_REV_BUF_OFF) & 0xFF);
 }
 
 void log_uart_putc(log_uart_t *obj, char c) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
-    
     while (!log_uart_writable(obj));
     HAL_UART_WRITE8(UART_TRAN_HOLD_OFF, c);
 }
 
 int log_uart_readable(log_uart_t *obj) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
     volatile u8 line_status;
 
     line_status = HAL_UART_READ8(UART_LINE_STATUS_REG_OFF);
@@ -283,7 +282,6 @@ int log_uart_readable(log_uart_t *obj)
 
 int log_uart_writable(log_uart_t *obj) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
     volatile u8 line_status;
 
     line_status = HAL_UART_READ8(UART_LINE_STATUS_REG_OFF);
@@ -321,7 +319,6 @@ void log_uart_clear_rx(log_uart_t *obj)
 
 void log_uart_break_set(log_uart_t *obj) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
     u32 RegValue;
 
     RegValue = HAL_UART_READ32(UART_LINE_CTL_REG_OFF);
@@ -331,7 +328,6 @@ void log_uart_break_set(log_uart_t *obj)
 
 void log_uart_break_clear(log_uart_t *obj) 
 {
-    HAL_LOG_UART_ADAPTER *pUartAdapter=(PHAL_LOG_UART_ADAPTER)&(obj->log_hal_uart);
     u32 RegValue;
 
     RegValue = HAL_UART_READ32(UART_LINE_CTL_REG_OFF);
@@ -367,20 +363,16 @@ void log_uart_line_status_handler(log_uart_t *obj, void *handler, uint32_t id)
 int32_t log_uart_recv (log_uart_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms)
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter=&(obj->log_hal_uart);
-    int ret;
 
-    ret = (int)HalLogUartRecv(pUartAdapter, prxbuf, len, timeout_ms);
-    return (ret);
+    return (int32_t)HalLogUartRecv(pUartAdapter, (u8 *)prxbuf, len, timeout_ms);
 }
 
 // Blocked(busy wait) send, return transmitted bytes count
 int32_t log_uart_send (log_uart_t *obj, char *ptxbuf, uint32_t len, uint32_t timeout_ms)
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter=&(obj->log_hal_uart);
-    int ret;
 
-    ret = (int)HalLogUartSend(pUartAdapter, ptxbuf, len, timeout_ms);
-    return (ret);
+    return (int32_t)HalLogUartSend(pUartAdapter, (u8 *)ptxbuf, len, timeout_ms);
 }
 
 // Interrupt mode(no wait) receive, return HAL function result

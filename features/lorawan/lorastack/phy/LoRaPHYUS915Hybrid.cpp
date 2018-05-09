@@ -269,7 +269,7 @@ LoRaPHYUS915Hybrid::LoRaPHYUS915Hybrid(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_US915_HYBRID;
     phy_params.payloads.size = 16;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater_US915_HYBRID;
-    phy_params.payloads.size = 16;
+    phy_params.payloads_with_repeater.size = 16;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;
@@ -334,9 +334,6 @@ bool LoRaPHYUS915Hybrid::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
 {
     bool adrAckReq = false;
 
-    get_phy_params_t get_phy;
-    phy_param_t phy_param;
-
     uint16_t ack_limit_plus_delay = phy_params.adr_ack_limit + phy_params.adr_ack_delay;
 
     if (dr_out == phy_params.min_tx_datarate) {
@@ -356,10 +353,7 @@ bool LoRaPHYUS915Hybrid::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
     if (adr_ack_cnt >= ack_limit_plus_delay) {
         if ((adr_ack_cnt % phy_params.adr_ack_delay) == 1) {
             // Decrease the datarate
-            get_phy.attribute = PHY_NEXT_LOWER_TX_DR;
-            get_phy.datarate = dr_out;
-            phy_param = get_phy_params(&get_phy);
-            dr_out = phy_param.value;
+            dr_out = get_next_lower_tx_datarate(dr_out);
 
             if (dr_out == phy_params.min_tx_datarate) {
                 // We must set adrAckReq to false as soon as we reach the lowest datarate
@@ -607,9 +601,9 @@ int8_t LoRaPHYUS915Hybrid::get_alternate_DR(uint8_t nb_trials)
     return datarate;
 }
 
-bool LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t* params,
-                                          uint8_t* channel, lorawan_time_t* time,
-                                          lorawan_time_t* aggregate_timeOff)
+lorawan_status_t LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t* params,
+                                                      uint8_t* channel, lorawan_time_t* time,
+                                                      lorawan_time_t* aggregate_timeOff)
 {
     uint8_t nb_enabled_channels = 0;
     uint8_t delay_tx = 0;
@@ -656,19 +650,19 @@ bool LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t* params,
         disable_channel(current_channel_mask, *channel, US915_HYBRID_MAX_NB_CHANNELS - 8);
 
         *time = 0;
-        return true;
+        return LORAWAN_STATUS_OK;
 
     } else {
 
         if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = next_tx_delay;
-            return true;
+            return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
         }
 
         // Datarate not supported by any channel
         *time = 0;
-        return false;
+        return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
@@ -763,7 +757,7 @@ bool LoRaPHYUS915Hybrid::validate_channel_mask(uint16_t* channel_masks)
         block1 = temp_channel_masks[i] & 0x00FF;
         block2 = temp_channel_masks[i] & 0xFF00;
 
-        if (count_bits(block1, 16) > 5) {
+        if (count_bits(block1, 16) > 1) {
 
             temp_channel_masks[i] &= block1;
             temp_channel_masks[4] = 1 << ( i * 2 );
@@ -771,7 +765,7 @@ bool LoRaPHYUS915Hybrid::validate_channel_mask(uint16_t* channel_masks)
             index = i;
             break;
 
-        } else if( count_bits( block2, 16 ) > 5 ) {
+        } else if( count_bits( block2, 16 ) > 1 ) {
 
             temp_channel_masks[i] &= block2;
             temp_channel_masks[4] = 1 << ( i * 2 + 1 );

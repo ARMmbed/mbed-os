@@ -21,6 +21,10 @@
 #include "pinmap.h"
 #include "hal_ssi.h"
 
+#ifdef CONFIG_MBED_ENABLED
+#include "platform_stdlib.h"
+#endif
+
 extern u32 SystemGetCpuClk(VOID);
 extern VOID HAL_GPIO_PullCtrl(u32 pin, u32 mode);
 
@@ -61,20 +65,18 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
 {
     SSI_DBG_ENTRANCE("spi_init()\n");
 
-    uint32_t ssi_mosi, ssi_miso, ssi_peri;
+    int ssi_mosi, ssi_miso, ssi_peri;
     uint8_t  ssi_idx, ssi_pinmux;
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;
     PHAL_SSI_OP pHalSsiOp;
 
     _memset((void*)obj, 0, sizeof(spi_t));
     obj->state = 0;
-    uint32_t SystemClock = SystemGetCpuClk();
-    uint32_t MaxSsiFreq  = (SystemClock >> 2) >> 1;
 
     /* SsiClockDivider doesn't support odd number */
 
-    DBG_SSI_INFO("SystemClock: %d\n", SystemClock);
-    DBG_SSI_INFO("MaxSsiFreq : %d\n", MaxSsiFreq);
+    DBG_SSI_INFO("SystemClock: %d\n", SystemGetCpuClk());
+    DBG_SSI_INFO("MaxSsiFreq : %d\n", SystemGetCpuClk() >> 3);
 
     ssi_mosi = pinmap_peripheral(mosi, PinMap_SSI_MOSI);
     ssi_miso = pinmap_peripheral(miso, PinMap_SSI_MISO);
