@@ -76,10 +76,6 @@ extern "C" {
 void assert_nrf_callback(uint16_t line_num, const uint8_t *file_name);
 //lint -restore
 
-#if !defined(NDEBUG) && !defined(DEBUG_NRF_USER)
-#define DEBUG_NRF_USER
-#endif
-
 #if (defined(DEBUG_NRF) || defined(DEBUG_NRF_USER))
 #define NRF_ASSERT_PRESENT 1
 #else
