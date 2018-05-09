@@ -1,4 +1,4 @@
-# Nordic NRF52
+# Nordic NRF5x
 
 ## Adding New Targets Based On Nordic NRF52832 And NRF52840 MCUs
 
@@ -143,6 +143,16 @@ The table must be placed in a C compilation file.
 Because each DMA buffer must be at least 5 bytes deep, each buffer is automatically flushed after a certain idle period to ensure low latency and correctness. This idle timeout is implemented using 2 of the 4 channels on RTC instance 2. This leaves RTC0 for the SoftDevice and RTC1 for Mbed tickers.
 
 The RTC2 ISR is set at the lowest interrupt priority to ensure that UARTE interrupts take precedence. The last 2 of the 4 RTC channels are used for decoupling UARTE ISR context from Mbed IRQ events. This ensures that any user code will only delay other user callbacks and idle flushing and puts an upper bound on the interrupt handling time for the UARTE ISR.
+
+
+#### Asserts
+
+The nordic asserts have been redirected to mbed error handling when building in debug mode.
+The SDK file `mbed-os/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_14_2/libraries/util/nrf_assert.h` was modified to enable the asserts when NDEBUG is not defined. 
+
+The assert handler is defined in mbed-os/features/FEATURE_BLE/targets/TARGET_NORDIC/TARGET_NRF5x/source/btle/btle.cpp : assert_nrf_callback() which forwards assert failures to thye mbed error() handler.
+
+
 
 #### Limitations
 

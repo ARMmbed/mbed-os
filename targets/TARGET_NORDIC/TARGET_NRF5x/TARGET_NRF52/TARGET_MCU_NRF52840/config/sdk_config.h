@@ -48,6 +48,11 @@
 #endif
 // <h> Board Support 
 
+// Enable NRF Asserts when Mbed NDEBUG is not set
+#if !defined(NDEBUG) && !defined(DEBUG_NRF_USER)
+#define DEBUG_NRF_USER
+#endif
+
 //==========================================================
 // <q> BSP_BTN_BLE_ENABLED  - bsp_btn_ble - Button Control for BLE
  
