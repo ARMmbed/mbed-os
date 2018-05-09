@@ -59,7 +59,11 @@ void hal_critical_section_exit()
 
 bool hal_in_critical_section(void)
 {
+#if defined(SOFTDEVICE_PRESENT)
     return (state_saved != 0);
+#else
+    return false;
+#endif
 }
 
 
