@@ -873,7 +873,7 @@ bool LoRaPHY::rx_config(rx_config_params_t* rx_conf, int8_t* datarate)
 
     _radio->unlock();
 
-    *datarate = phy_dr;
+    *datarate = dr;
 
     return true;
 }
