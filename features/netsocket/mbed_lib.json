@@ -4,15 +4,15 @@
         "present": 1,
         "default-stack": "LWIP",
         "dns-response-wait-time": {
-            "help": "How long the DNS translator waits for a reply from a server",
+            "help": "How long the DNS translator waits for a reply from a server in milliseconds",
             "value": 5000
         },
-        "dns-total-retries": {
-            "help": "Number of total DNS query retries that the DNS translator makes",
+        "dns-total-attempts": {
+            "help": "Number of total DNS query attempts that the DNS translator makes",
             "value": 3
         },
         "dns-retries": {
-            "help": "Number of DNS query retries that the DNS translator makes per server",
+            "help": "Number of DNS query retries that the DNS translator makes per server, before moving on to the next server. Total retries/attempts is always limited by dns-total-attempts.",
             "value": 0
         },
         "dns-cache-size": {
