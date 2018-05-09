@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -320,45 +318,49 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
       {
         /* Note : COMP1 can be connected to the input 1 of LPTIM if requested */
         assert_param(IS_COMP1_LPTIMCONNECTION(hcomp->Init.LPTIMConnection));
-        if (hcomp->Init.LPTIMConnection == COMP_LPTIMCONNECTION_IN1_ENABLED)
-        {
+        
+        /* Note: Compatibility with previous driver version using             */
+        /* generic literal COMP_LPTIMCONNECTION_ENABLED corresponding         */
+        /* to LPTIM input 1 for COMP1.                                        */
           tmp_csr |= (COMP_CSR_COMP1LPTIM1IN1);
         }
-      }
       else
       {
-        /* Check the MCU_ID in order to allow or not the COMP2 connection to LPTIM-input2 */
-        if (((HAL_GetDEVID() == C_DEV_ID_L073) && (HAL_GetREVID() == C_REV_ID_A))
-                          ||
-            ((HAL_GetDEVID() == C_DEV_ID_L053) && (HAL_GetREVID() == C_REV_ID_A))
-                          ||
-            ((HAL_GetDEVID() == C_DEV_ID_L053) && (HAL_GetREVID() == C_REV_ID_Z)))
+        /* Note : COMP2 can be connected to input 1 or input 2 of LPTIM if requested */
+        assert_param(IS_COMP2_LPTIMCONNECTION(hcomp->Init.LPTIMConnection));
+        
+        switch (hcomp->Init.LPTIMConnection)
         {
-          /* Note : COMP2 can be connected only to input 1 of LPTIM if requested */
-          assert_param(IS_COMP2_LPTIMCONNECTION_RESTRICTED(hcomp->Init.LPTIMConnection));
-          
+        case  COMP_LPTIMCONNECTION_IN1_ENABLED :
           tmp_csr |= (COMP_CSR_COMP2LPTIM1IN1);
-        }
-        /* LPTIM connexion requested on COMP2 */
-        else
-        {
-           /* Note : COMP2 can be connected to input 1 or input2  of LPTIM if requested */
-          assert_param(IS_COMP2_LPTIMCONNECTION(hcomp->Init.LPTIMConnection));
-          switch (hcomp->Init.LPTIMConnection)
+          break;
+        case  COMP_LPTIMCONNECTION_IN2_ENABLED :
+        default :
+          /* Note: Default case for compatibility with previous driver version*/
+          /* using generic literal COMP_LPTIMCONNECTION_ENABLED corresponding */
+          /* to LPTIM input 2 for COMP2.                                      */
+          
+          /* Check the MCU_ID in order to allow or not the COMP2 connection to LPTIM input 2 */
+          if (((HAL_GetDEVID() == C_DEV_ID_L073) && (HAL_GetREVID() == C_REV_ID_A))
+                            ||
+              ((HAL_GetDEVID() == C_DEV_ID_L053) && (HAL_GetREVID() == C_REV_ID_A))
+                            ||
+              ((HAL_GetDEVID() == C_DEV_ID_L053) && (HAL_GetREVID() == C_REV_ID_Z)))
           {
-          case  COMP_LPTIMCONNECTION_IN1_ENABLED :
-              tmp_csr |= (COMP_CSR_COMP2LPTIM1IN1);
-              break;
-          case  COMP_LPTIMCONNECTION_IN2_ENABLED :
-              tmp_csr |= (COMP_CSR_COMP2LPTIM1IN2);
-              break;
-          default :
-              break;
+            assert_param(IS_COMP2_LPTIMCONNECTION_RESTRICTED(hcomp->Init.LPTIMConnection));
+            
+            /* Error: On the selected device, COMP2 cannot be connected to LPTIM input 2 */
+            status = HAL_ERROR;
           }
+          else
+          {
+            tmp_csr |= (COMP_CSR_COMP2LPTIM1IN2);
+          }
+          break;
         }
       }
     }
-      
+    
     /* Update comparator register */
     if ((hcomp->Instance) == COMP1)
     {
@@ -442,8 +444,11 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     }
     else
     {
-      /* Disable EXTI event generation */
+      /* Disable EXTI event mode */
       CLEAR_BIT(EXTI->EMR, exti_line);
+      
+      /* Disable EXTI interrupt mode */
+      CLEAR_BIT(EXTI->IMR, exti_line);
     }
     
     /* Set HAL COMP handle state */
@@ -641,8 +646,23 @@ void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
   /* Check COMP EXTI flag */
   if(READ_BIT(EXTI->PR, exti_line) != RESET)
   {
-    /* Clear COMP EXTI pending bit */
-    WRITE_REG(EXTI->PR, exti_line);
+    /* Check whether comparator is in independent or window mode */
+    if(READ_BIT(COMP12_COMMON->CSR, COMP_CSR_WINMODE) != 0)
+    {
+      /* Clear COMP EXTI line pending bit of the pair of comparators          */
+      /* in window mode.                                                      */
+      /* Note: Pair of comparators in window mode can both trig IRQ when      */
+      /*       input voltage is changing from "out of window" area            */
+      /*       (low or high ) to the other "out of window" area (high or low).*/
+      /*       Both flags must be cleared to call comparator trigger          */
+      /*       callback is called once.                                       */
+      WRITE_REG(EXTI->PR, (COMP_EXTI_LINE_COMP1 | COMP_EXTI_LINE_COMP2));
+    }
+    else
+    {
+      /* Clear COMP EXTI line pending bit */
+      WRITE_REG(EXTI->PR, exti_line);
+    }
     
     /* COMP trigger user callback */
     HAL_COMP_TriggerCallback(hcomp);

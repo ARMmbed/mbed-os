@@ -1,0 +1,26 @@
+{
+  "name": "mbed-coap",
+  "version": "4.4.2",
+  "description": "COAP library",
+  "keywords": [
+    "coap",
+    "nanostack"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "nanostack-libservice": "^3.0.0",
+    "mbed-trace": ">=0.2.0,<2.0.0",
+    "nanostack-randlib": "^1.2.0"
+  },
+  "targetDependencies": {},
+  "author": "Yogesh Pande <yogesh.pande@arm.com>",
+  "repository": {
+    "url": "https://github.com/ARMmbed/mbed-coap.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ARMmbed/mbed-coap",
+  "extraIncludes": [
+    "mbed-coap",
+    "source/include"
+  ]
+}

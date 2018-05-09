@@ -77,6 +77,8 @@ public: // CellularDevice
 
     virtual void set_timeout(int timeout);
 
+    virtual uint16_t get_send_delay();
+
     virtual void modem_debug_on(bool on);
 
     virtual NetworkStack *get_stack();

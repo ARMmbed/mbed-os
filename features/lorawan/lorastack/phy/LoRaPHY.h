@@ -34,10 +34,11 @@
 #ifndef MBED_OS_LORAPHY_BASE_
 #define MBED_OS_LORAPHY_BASE_
 
-#include "lorawan/LoRaRadio.h"
-#include "lorawan/system/LoRaWANTimer.h"
-#include "lorawan/lorastack/phy/lora_phy_ds.h"
 #include "platform/NonCopyable.h"
+
+#include "system/LoRaWANTimer.h"
+#include "LoRaRadio.h"
+#include "lora_phy_ds.h"
 
 class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {
 
@@ -360,7 +361,7 @@ public:
      * @return LORAWAN_STATUS_OK if everything goes fine, negative error code
      *         otherwise.
      */
-    virtual lorawan_status_t add_channel(channel_params_t* new_channel, uint8_t id);
+    virtual lorawan_status_t add_channel(const channel_params_t* new_channel, uint8_t id);
 
     /** Removes a channel from the channel list.
      *
@@ -527,15 +528,19 @@ protected:
     LoRaPHY(LoRaWANTimeHandler &lora_time);
 
     /**
-     * Verifies the given frequency.
+     * Looks up corresponding band for a frequency. Returns -1 if not in any band.
      */
-    virtual bool verify_frequency(uint32_t freq);
+    int lookup_band_for_frequency(uint32_t freq) const;
 
+    /**
+     * Verifies, if a frequency is within a given band.
+     */
+    virtual bool verify_frequency_for_band(uint32_t freq, uint8_t band) const;
 
     /**
      * Verifies, if a value is in a given range.
      */
-    uint8_t val_in_range(int8_t value, int8_t min, int8_t max);
+    bool val_in_range(int8_t value, int8_t min, int8_t max);
 
     /**
      * Verifies, if a datarate is available on an active channel.

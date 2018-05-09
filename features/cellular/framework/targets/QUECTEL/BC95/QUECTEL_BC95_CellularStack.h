@@ -21,7 +21,7 @@
 #include "AT_CellularStack.h"
 
 #define BC95_SOCKET_MAX 7
-#define BC95_MAX_PACKET_SIZE 512
+#define BC95_MAX_PACKET_SIZE 1358
 
 namespace mbed {
 

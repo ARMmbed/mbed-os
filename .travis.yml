@@ -95,6 +95,45 @@ matrix:
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
     - env:
+        - NAME=astyle
+      install:
+      - wget https://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
+        mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
+        pushd BUILD/astyle/build/gcc;
+        make;
+        export PATH=$PWD/bin:$PATH;
+        popd;
+      - astyle --version
+      script:
+        # only changed files this time
+        - git diff --name-only $TRAVIS_BRANCH | grep '.*\.\(h\|c\|hpp\|cpp\)' | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-files-changed.out;
+          if [ $(cat astyle-files-changed.out | grep Formatted | wc -l) -ne 0 ]; then
+            git --no-pager diff;
+            echo "Please fix style issues as shown above";
+          else
+            echo "Coding style check OK";
+          fi
+      after_success:
+        # run astyle for all files on the branch
+        - git checkout -- .
+        - find -regex '.*\.\(h\|c\|hpp\|cpp\)' -type f | fgrep -v -f .astyleignore | xargs -n 100 -I {} bash -c "astyle -n --options=.astylerc \"{}\"" > astyle-branch.out;
+        # update status if we succeeded, compare with master if possible
+        - |
+          CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
+          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+              | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
+                  | .statuses[] | select(.context == \"travis-ci/$NAME\").description
+                  | capture(\", (?<warnings>[0-9]+) warnings\").warnings" \
+              || echo 0)
+
+          STATUSM="Passed, ${CURR} warnings"
+          if [ "$PREV" -ne 0 ]
+          then
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") warnings)"
+          fi
+        - bash -c "$STATUS" success "$STATUSM"
+
+    - env:
         - NAME=events
         - EVENTS=events
       install:
@@ -111,7 +150,7 @@ matrix:
         - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
         # Check that example compiles without rtos
         - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
-        - rm -r rtos features/cellular features/netsocket features/frameworks BUILD
+        - rm -r rtos features/cellular features/netsocket features/nanostack features/frameworks BUILD
         - python tools/make.py -t GCC_ARM -m DISCO_F401VC --source=. --build=BUILD/DISCO_F401VC/GCC_ARM -j0
         # Run local equeue tests
         - make -C $EVENTS/equeue test
@@ -121,7 +160,7 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(grep -o '[0-9]\+ cycles' prof | awk '{sum += $1} END {print sum}')
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
                   | capture(\"runtime is (?<runtime>[0-9]+)\").runtime" \
@@ -193,7 +232,7 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(tail -n1 sizes | awk '{print $1}')
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
                   | capture(\"code size is (?<size>[0-9]+)\").size" \

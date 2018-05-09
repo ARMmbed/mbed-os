@@ -855,7 +855,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         if (lwip_blocking) {
             if (sys_arch_sem_wait(&lwip_netif_linked, 15000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
-                    ppp_lwip_disconnect();
+                    (void)ppp_lwip_disconnect();
                 }
                 return NSAPI_ERROR_NO_CONNECTION;
             }
@@ -872,7 +872,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
             if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
-                    ppp_lwip_disconnect();
+                    (void)ppp_lwip_disconnect();
                 }
                 return NSAPI_ERROR_DHCP_FAILURE;
             }
@@ -1135,7 +1135,7 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (!ip_addr_isany(&ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
+    if (!ip_addr_isany_val(ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 

@@ -18,14 +18,8 @@
 #include "platform/FileHandle.h"
 #include "platform/mbed_poll.h"
 #include "events/EventQueue.h"
-#if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LPPP"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 #include "rtos/Thread.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"

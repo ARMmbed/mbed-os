@@ -29,10 +29,9 @@
 #include "CellularNetwork.h"
 #include "CellularPower.h"
 #include "CellularSIM.h"
+#include "CellularUtil.h"
 
 // modem type is defined as CELLULAR_DEVICE macro
-#define _CELLULAR_STRINGIFY(a) #a
-#define CELLULAR_STRINGIFY(a) _CELLULAR_STRINGIFY(a)
 #include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 namespace mbed {
@@ -58,12 +57,12 @@ public:
         STATE_POWER_ON,
         STATE_DEVICE_READY,
         STATE_SIM_PIN,
-        STATE_REGISTER_NETWORK,
         STATE_REGISTERING_NETWORK,
-        STATE_ATTACH_NETWORK,
+        STATE_MANUAL_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
-        STATE_CONNECT_NETWORK,
-        STATE_CONNECTED,
+        STATE_ACTIVATING_PDP_CONTEXT,
+        STATE_CONNECTING_NETWORK,
+        STATE_CONNECTED
     };
 
 public:
@@ -83,6 +82,16 @@ public:
      */
     void set_callback(mbed::Callback<bool(int, int)> status_callback);
 
+    /** Register callback for status reporting
+     *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
@@ -93,7 +102,8 @@ public:
      */
     nsapi_error_t start_dispatch();
 
-    /** Stop event queue dispatching and close cellular interfaces
+    /** Stop event queue dispatching and close cellular interfaces. After calling stop(), init() must be called
+     *  before any other methods.
      */
     void stop();
 
@@ -113,10 +123,10 @@ public:
     CellularSIM* get_sim();
 
     /** Change cellular connection to the target state
-     *  @param state to continue
+     *  @param state to continue. Default is to connect.
      *  @return see nsapi_error_t, 0 on success
      */
-    nsapi_error_t continue_to_state(CellularState state);
+    nsapi_error_t continue_to_state(CellularState state = STATE_CONNECTED);
 
     /** Set cellular device SIM PIN code
      *  @param sim_pin PIN code
@@ -131,28 +141,63 @@ public:
      */
     void set_retry_timeout_array(uint16_t timeout[], int array_len);
 
+    /** Sets the operator plmn which is used when registering to a network specified by plmn. If plmn is not set then automatic
+     *  registering is used when registering to a cellular network. Does not start any operations.
+     *
+     *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
+     */
+    void set_plmn(const char* plmn);
+
+    /** returns readable format of the given state. Used for printing states while debugging.
+     *
+     *  @param state state which is returned in string format
+     *  @return      string format of the given state
+     */
+    const char* get_state_string(CellularState state);
+
 private:
-    bool open_power(FileHandle *fh);
+    bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
-    bool set_network_registration(char *plmn = 0);
+    bool set_network_registration();
     bool get_attach_network(CellularNetwork::AttachStatus &status);
     bool set_attach_network();
+    bool is_registered();
+    bool device_ready();
+    nsapi_error_t is_automatic_registering(bool& auto_reg);
+
+    // state functions to keep state machine simple
+    void state_init();
+    void state_power_on();
+    void state_device_ready();
+    void state_sim_pin();
+    void state_registering();
+    void state_manual_registering_network();
+    void state_attaching();
+    void state_activating_pdp_context();
+    void state_connect_to_network();
+    void state_connected();
+    void enter_to_state(CellularState state);
+    void retry_state_or_fail();
+    void network_callback(nsapi_event_t ev, intptr_t ptr);
+    nsapi_error_t continue_from_state(CellularState state);
+    bool is_registered_to_plmn();
 
 private:
     friend class EasyCellularConnection;
     NetworkStack *get_stack();
 
 private:
-    void device_ready();
     void report_failure(const char* msg);
     void event();
+    void ready_urc_cb();
 
     UARTSerial *_serial;
     CellularState _state;
     CellularState _next_state;
 
     Callback<bool(int, int)> _status_callback;
+    Callback<void(nsapi_event_t, intptr_t)> _event_status_cb;
 
     CellularNetwork *_network;
     CellularPower *_power;
@@ -162,11 +207,17 @@ private:
     CellularDevice *_cellularDevice;
     char _sim_pin[PIN_SIZE+1];
     int _retry_count;
-    int _state_retry_count;
     int _start_time;
+    int _event_timeout;
+
     uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
     int _retry_array_length;
     events::EventQueue _at_queue;
+    char _st_string[20];
+    int _event_id;
+    const char* _plmn;
+    bool _command_success;
+    bool _plmn_network_found;
 };
 
 } // namespace

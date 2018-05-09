@@ -22,8 +22,8 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 #include <stdlib.h>
+
 #include "LoRaMac.h"
-#include "LoRaMacCrypto.h"
 
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
@@ -35,6 +35,13 @@ SPDX-License-Identifier: BSD-3-Clause
 #endif //defined(FEATURE_COMMON_PAL)
 
 using namespace events;
+
+
+/*
+ * LoRaWAN spec 6.2: AppKey is AES-128 key
+ */
+#define APPKEY_KEY_LENGTH                           128
+
 
 /*!
  * Maximum length of the fOpts field
@@ -292,6 +299,7 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
     _mcps_indication.is_ack_recvd = false;
     _mcps_indication.dl_frame_counter = 0;
     _mcps_indication.type = MCPS_UNCONFIRMED;
+    _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_OK;
 
     if (_device_class != CLASS_C) {
         _lora_phy.put_radio_to_sleep();
@@ -309,17 +317,22 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                 return;
             }
 
-            if (0 != decrypt_join_frame(payload + 1, size - 1,
-                                        _params.keys.app_key,
-                                        _params.payload + 1)) {
+            if (0 != _lora_crypto.decrypt_join_frame(payload + 1,
+                                                     size - 1,
+                                                     _params.keys.app_key,
+                                                     APPKEY_KEY_LENGTH,
+                                                     _params.payload + 1)) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return;
             }
 
             _params.payload[0] = mac_hdr.value;
 
-            if (0 != compute_join_frame_mic(_params.payload, size - LORAMAC_MFR_LEN,
-                                           _params.keys.app_key, &mic)) {
+            if (0 != _lora_crypto.compute_join_frame_mic(_params.payload,
+                                                         size - LORAMAC_MFR_LEN,
+                                                         _params.keys.app_key,
+                                                         APPKEY_KEY_LENGTH,
+                                                         &mic)) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return;
             }
@@ -331,11 +344,12 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 
             if (mic_rx == mic) {
 
-                if (0 != compute_skeys_for_join_frame(_params.keys.app_key,
-                                                 _params.payload + 1,
-                                                 _params.dev_nonce,
-                                                 _params.keys.nwk_skey,
-                                                 _params.keys.app_skey)) {
+                if (0 != _lora_crypto.compute_skeys_for_join_frame(_params.keys.app_key,
+                                                                   APPKEY_KEY_LENGTH,
+                                                                   _params.payload + 1,
+                                                                   _params.dev_nonce,
+                                                                   _params.keys.nwk_skey,
+                                                                   _params.keys.app_skey)) {
                     _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                     return;
                 }
@@ -434,15 +448,17 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 
                 if (sequence_counter_diff < (1 << 15)) {
                     downlink_counter += sequence_counter_diff;
-                    compute_mic(payload, size - LORAMAC_MFR_LEN, nwk_skey,
-                                      address, DOWN_LINK, downlink_counter, &mic);
+                    _lora_crypto.compute_mic(payload, size - LORAMAC_MFR_LEN,
+                                             nwk_skey, sizeof(_params.keys.nwk_skey)*8, // sizeof nws_skey must be the same as _params.keys.nwk_skey
+                                             address, DOWN_LINK, downlink_counter, &mic);
                     if (mic_rx == mic) {
                         is_mic_ok = true;
                     }
                 } else {
                     uint32_t  downlink_counter_tmp = downlink_counter + 0x10000 + (int16_t)sequence_counter_diff;
-                    compute_mic(payload, size - LORAMAC_MFR_LEN, nwk_skey,
-                                      address, DOWN_LINK, downlink_counter_tmp, &mic);
+                    _lora_crypto.compute_mic(payload, size - LORAMAC_MFR_LEN,
+                                             nwk_skey, sizeof(_params.keys.nwk_skey)*8, // sizeof nws_skey must be the same as _params.keys.nwk_skey
+                                             address, DOWN_LINK, downlink_counter_tmp, &mic);
 
                     if (mic_rx == mic ) {
                         is_mic_ok = true;
@@ -537,13 +553,14 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 
                         if (port == 0) {
                             if (fctrl.bits.fopts_len == 0) {
-                                if (0 != decrypt_payload(payload + app_payload_start_index,
-                                                               frame_len,
-                                                               nwk_skey,
-                                                               address,
-                                                               DOWN_LINK,
-                                                               downlink_counter,
-                                                               _params.payload)) {
+                                if (0 != _lora_crypto.decrypt_payload(payload + app_payload_start_index,
+                                                                      frame_len,
+                                                                      nwk_skey,
+                                                                      sizeof(_params.keys.nwk_skey)*8, // sizeof nws_skey must be the same as _params.keys.nwk_skey
+                                                                      address,
+                                                                      DOWN_LINK,
+                                                                      downlink_counter,
+                                                                      _params.payload)) {
                                     _mcps_indication.status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                                 }
 
@@ -573,13 +590,14 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                 }
                             }
 
-                            if (0 != decrypt_payload(payload + app_payload_start_index,
-                                                           frame_len,
-                                                           app_skey,
-                                                           address,
-                                                           DOWN_LINK,
-                                                           downlink_counter,
-                                                           _params.payload)) {
+                            if (0 != _lora_crypto.decrypt_payload(payload + app_payload_start_index,
+                                                                  frame_len,
+                                                                  app_skey,
+                                                                  sizeof(_params.keys.app_skey)*8, // sizeof app_skey must be the same as _params.keys.app_skey
+                                                                  address,
+                                                                  DOWN_LINK,
+                                                                  downlink_counter,
+                                                                  _params.payload)) {
                                 _mcps_indication.status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                             }
 
@@ -1101,7 +1119,6 @@ lorawan_status_t LoRaMac::schedule_tx(void)
 {
     lorawan_time_t dutyCycleTimeOff = 0;
     channel_selection_params_t nextChan;
-    lorawan_status_t status = LORAWAN_STATUS_PARAMETER_INVALID;
 
     if (_params.sys_params.max_duty_cycle == 255) {
         return LORAWAN_STATUS_DEVICE_OFF;
@@ -1120,9 +1137,10 @@ lorawan_status_t LoRaMac::schedule_tx(void)
     nextChan.joined = _is_nwk_joined;
     nextChan.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
 
-    status = _lora_phy.set_next_channel(&nextChan, &_params.channel,
-                                        &dutyCycleTimeOff,
-                                        &_params.timers.aggregated_timeoff);
+    lorawan_status_t status = _lora_phy.set_next_channel(&nextChan,
+                                                         &_params.channel,
+                                                         &dutyCycleTimeOff,
+                                                         &_params.timers.aggregated_timeoff);
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:
         case LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND:
@@ -1414,7 +1432,7 @@ void LoRaMac::setup_link_check_request()
 
     _mlme_confirmation.req_type = MLME_LINK_CHECK;
     _params.flags.bits.mlme_req = 1;
-    mac_commands.add_mac_command(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
+    mac_commands.add_link_check_req();
 }
 
 lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_otaa)
@@ -1561,9 +1579,11 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             _params.buffer[_params.buffer_pkt_len++] = _params.dev_nonce & 0xFF;
             _params.buffer[_params.buffer_pkt_len++] = (_params.dev_nonce >> 8) & 0xFF;
 
-            if (0 != compute_join_frame_mic(_params.buffer,
-                                           _params.buffer_pkt_len & 0xFF,
-                                           _params.keys.app_key, &mic)) {
+            if (0 != _lora_crypto.compute_join_frame_mic(_params.buffer,
+                                                         _params.buffer_pkt_len & 0xFF,
+                                                         _params.keys.app_key,
+                                                         APPKEY_KEY_LENGTH,
+                                                         &mic)) {
                 return LORAWAN_STATUS_CRYPTO_FAIL;
             }
 
@@ -1644,23 +1664,27 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                 _params.buffer[pkt_header_len++] = frame_port;
 
                 uint8_t *key = _params.keys.app_skey;
+                uint32_t key_length = sizeof(_params.keys.app_skey)*8;
                 if (frame_port == 0) {
                     mac_commands.clear_command_buffer();
                     key = _params.keys.nwk_skey;
+                    key_length = sizeof(_params.keys.nwk_skey)*8;
                 }
-                if (0 != encrypt_payload((uint8_t*) payload, _params.payload_length,
-                                         key, _params.dev_addr, UP_LINK,
-                                         _params.ul_frame_counter,
-                                         &_params.buffer[pkt_header_len])) {
+                if (0 != _lora_crypto.encrypt_payload((uint8_t*) payload, _params.payload_length,
+                                                      key, key_length,
+                                                      _params.dev_addr, UP_LINK,
+                                                      _params.ul_frame_counter,
+                                                      &_params.buffer[pkt_header_len])) {
                     status = LORAWAN_STATUS_CRYPTO_FAIL;
                 }
             }
 
             _params.buffer_pkt_len = pkt_header_len + _params.payload_length;
 
-            if (0 != compute_mic(_params.buffer, _params.buffer_pkt_len,
-                                 _params.keys.nwk_skey, _params.dev_addr,
-                                 UP_LINK, _params.ul_frame_counter, &mic)) {
+            if (0 != _lora_crypto.compute_mic(_params.buffer, _params.buffer_pkt_len,
+                                              _params.keys.nwk_skey, sizeof(_params.keys.nwk_skey)*8,
+                                              _params.dev_addr,
+                                              UP_LINK, _params.ul_frame_counter, &mic)) {
                 status = LORAWAN_STATUS_CRYPTO_FAIL;
             }
 

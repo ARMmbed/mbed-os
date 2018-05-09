@@ -82,6 +82,11 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_attach)
     unit->test_AT_CellularNetwork_get_attach();
 }
 
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_detach)
+{
+    unit->test_AT_CellularNetwork_detach();
+}
+
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_rate_control)
 {
     unit->test_AT_CellularNetwork_get_rate_control();
@@ -157,3 +162,7 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
     unit->test_AT_CellularNetwork_get_operator_params();
 }
 
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_operator_names)
+{
+    unit->test_AT_CellularNetwork_get_operator_names();
+}

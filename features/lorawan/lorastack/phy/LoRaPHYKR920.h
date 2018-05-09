@@ -54,7 +54,7 @@ public:
     LoRaPHYKR920(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYKR920();
 
-    virtual bool verify_frequency(uint32_t freq);
+    virtual bool verify_frequency_for_band(uint32_t freq, uint8_t band) const;
 
     virtual bool tx_config(tx_config_params_t* config, int8_t* tx_power,
                            lorawan_time_t* tx_toa);

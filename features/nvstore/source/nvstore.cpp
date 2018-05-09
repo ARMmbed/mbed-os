@@ -134,7 +134,7 @@ NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_key
       _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
       _min_prog_size(0), _page_buf(0)
 {
-    memcpy(_flash_area_params, 0, sizeof(_flash_area_params));
+    memset(_flash_area_params, 0, sizeof(_flash_area_params));
 }
 
 NVStore::~NVStore()

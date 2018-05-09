@@ -46,9 +46,9 @@
 #include "spis.h"
 
 /**
- * @ingroup spis 
+ * @ingroup spis
  * @{
- */ 
+ */
 /* **** Definitions **** */
 #define SPIS_FIFO_BUFFER        6
 
@@ -119,7 +119,7 @@ int SPIS_Shutdown(mxc_spis_regs_t *spis)
     }
 
     // Clear system level configurations
-    if ((err = SYS_SPIS_Shutdown(spis)) != E_NO_ERROR) {
+    if ((err = SYS_SPIS_Shutdown()) != E_NO_ERROR) {
         return err;
     }
 
@@ -162,7 +162,7 @@ int SPIS_Trans(mxc_spis_regs_t *spis, spis_req_t *req)
 
     // Start the transaction, keep calling the handler until complete
     spis->intfl = (MXC_F_SPIS_INTFL_SS_DEASSERTED | MXC_F_SPIS_INTFL_TX_UNDERFLOW);
-    while(SPIS_TransHandler(spis, req, spis_num) & (MXC_F_SPIS_INTEN_RX_FIFO_AF | 
+    while(SPIS_TransHandler(spis, req, spis_num) & (MXC_F_SPIS_INTEN_RX_FIFO_AF |
         MXC_F_SPIS_INTEN_TX_FIFO_AE)) {
 
         if((req->tx_data != NULL) && (spis->intfl & MXC_F_SPIS_INTFL_TX_UNDERFLOW)) {
@@ -174,7 +174,7 @@ int SPIS_Trans(mxc_spis_regs_t *spis, spis_req_t *req)
         }
 
         if((req->deass) && (spis->intfl & MXC_F_SPIS_INTFL_SS_DEASSERTED)) {
-            if(((req->rx_data != NULL) && ((req->read_num + SPIS_NumReadAvail(spis)) < req->len)) || 
+            if(((req->rx_data != NULL) && ((req->read_num + SPIS_NumReadAvail(spis)) < req->len)) ||
                 ((req->tx_data != NULL) && (req->write_num < req->len))) {
 
                 return E_COMM_ERR;
@@ -306,7 +306,7 @@ void SPIS_Handler(mxc_spis_regs_t *spis)
     if((flags & MXC_F_SPIS_INTFL_SS_DEASSERTED) && (req != NULL) &&
         (req->deass)) {
 
-        if(((req->rx_data != NULL) && ((req->read_num + SPIS_NumReadAvail(spis)) < req->len)) || 
+        if(((req->rx_data != NULL) && ((req->read_num + SPIS_NumReadAvail(spis)) < req->len)) ||
             ((req->tx_data != NULL) && (req->write_num < req->len))) {
 
             // Unlock this SPIS

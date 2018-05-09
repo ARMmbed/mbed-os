@@ -2,6 +2,9 @@
     "STM32L443RC": {
         "OGChipSelectEditMenu": "STM32L443RC\tST STM32L443RC"
     },
+    "STM32L496AG": {
+        "OGChipSelectEditMenu": "STM32L496AG\tST STM32L496AG"
+    },
     "STM32L496ZG": {
         "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
     },
@@ -112,6 +115,9 @@
     },
     "STM32F303RE": {
         "OGChipSelectEditMenu": "STM32F303xE\tST STM32F303xE"
+    },
+    "STM32L151CC": {
+        "OGChipSelectEditMenu": "STM32L151CC\tST STM32L151CC"
     },
     "STM32L152RE": {
         "OGChipSelectEditMenu": "STM32L152xE\tST STM32L152xE"
@@ -267,5 +273,10 @@
     },
     "ADuCM4050": {
         "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
+    },
+    "TMPM46BF10FG":{
+        "OGChipSelectEditMenu": "TMPM46BF10FG\tToshiba TMPM46BF10FG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
     }
 }

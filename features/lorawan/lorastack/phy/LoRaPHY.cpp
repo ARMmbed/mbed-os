@@ -26,7 +26,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include "lorawan/lorastack/phy/LoRaPHY.h"
+
+#include "LoRaPHY.h"
 
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
@@ -126,7 +127,7 @@ uint8_t LoRaPHY::request_new_channel(int8_t channel_id, channel_params_t* new_ch
             status &= 0xFC;
         }
     } else {
-
+        new_channel->band = lookup_band_for_frequency(new_channel->frequency);
         switch (add_channel(new_channel, channel_id)) {
             case LORAWAN_STATUS_OK:
             {
@@ -185,13 +186,13 @@ bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t* channel_mask,
     return false;
 }
 
-uint8_t LoRaPHY::val_in_range( int8_t value, int8_t min, int8_t max )
+bool LoRaPHY::val_in_range( int8_t value, int8_t min, int8_t max )
 {
     if ((value >= min) && (value <= max)) {
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 bool LoRaPHY::disable_channel(uint16_t* channel_mask, uint8_t id,
@@ -732,6 +733,9 @@ void LoRaPHY::apply_cf_list(const uint8_t* payload, uint8_t size)
         }
 
         if (new_channel.frequency != 0) {
+            //lookup for band
+            new_channel.band = lookup_band_for_frequency(new_channel.frequency);
+
             // Try to add channel
             add_channel(&new_channel, channel_id);
         } else {
@@ -879,9 +883,7 @@ bool LoRaPHY::tx_config(tx_config_params_t* tx_conf, int8_t* tx_power,
     band_t *bands = (band_t *)phy_params.bands.table;
 
     // limit TX power if set to too much
-    if (tx_conf->tx_power > bands[band_idx].max_tx_pwr) {
-        tx_conf->tx_power = bands[band_idx].max_tx_pwr;
-    }
+    tx_conf->tx_power = MAX(tx_conf->tx_power, bands[band_idx].max_tx_pwr);
 
     uint8_t bandwidth = get_bandwidth(tx_conf->datarate);
     int8_t phy_tx_power = 0;
@@ -1064,21 +1066,30 @@ bool LoRaPHY::accept_tx_param_setup_req(uint8_t ul_dwell_time, uint8_t dl_dwell_
     return phy_params.accept_tx_param_setup_req;
 }
 
-bool LoRaPHY::verify_frequency(uint32_t freq)
+int LoRaPHY::lookup_band_for_frequency(uint32_t freq) const
 {
-    band_t *bands_table = (band_t *)phy_params.bands.table;
-
     // check all sub bands (if there are sub-bands) to check if the given
     // frequency falls into any of the frequency ranges
 
-    for (uint8_t i=0; i<phy_params.bands.size; i++) {
-        if (freq <= bands_table[i].higher_band_freq
-                 && freq >= bands_table[i].lower_band_freq) {
-            return true;
+    for (int band=0; band<phy_params.bands.size; band++) {
+        if (verify_frequency_for_band(freq, band)) {
+            return band;
         }
     }
 
-    return false;
+    return -1;
+}
+
+bool LoRaPHY::verify_frequency_for_band(uint32_t freq, uint8_t band) const
+{
+    band_t *bands_table = (band_t *)phy_params.bands.table;
+
+    if (freq <= bands_table[band].higher_band_freq
+            && freq >= bands_table[band].lower_band_freq) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 uint8_t LoRaPHY::dl_channel_request(uint8_t channel_id, uint32_t rx1_frequency)
@@ -1090,7 +1101,8 @@ uint8_t LoRaPHY::dl_channel_request(uint8_t channel_id, uint32_t rx1_frequency)
     uint8_t status = 0x03;
 
     // Verify if the frequency is supported
-    if (verify_frequency(rx1_frequency) == false) {
+    uint8_t band = lookup_band_for_frequency(rx1_frequency);
+    if (verify_frequency_for_band(rx1_frequency, band) == false) {
         status &= 0xFE;
     }
 
@@ -1262,7 +1274,7 @@ lorawan_status_t LoRaPHY::set_next_channel(channel_selection_params_t* params,
     return LORAWAN_STATUS_NO_CHANNEL_FOUND;
 }
 
-lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)
+lorawan_status_t LoRaPHY::add_channel(const channel_params_t* new_channel, uint8_t id)
 {
     bool dr_invalid = false;
     bool freq_invalid = false;
@@ -1311,7 +1323,9 @@ lorawan_status_t LoRaPHY::add_channel(channel_params_t* new_channel, uint8_t id)
 
     // Check frequency
     if (!freq_invalid) {
-        if (verify_frequency(new_channel->frequency) == false) {
+        if (new_channel->band >= phy_params.bands.size
+                || verify_frequency_for_band(new_channel->frequency,
+                                             new_channel->band) == false) {
             freq_invalid = true;
         }
     }

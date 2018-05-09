@@ -31,7 +31,7 @@
 #ifndef MBED_OS_LORA_PHY_DATASTRUCTURES_
 #define MBED_OS_LORA_PHY_DATASTRUCTURES_
 
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/lorawan_data_structures.h"
 
 /*!
  * \brief Returns the minimum value between a and b.

@@ -27,7 +27,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdlib.h>
 #include "platform/Callback.h"
 #include "events/EventQueue.h"
-#include "lorawan/LoRaWANStack.h"
+
+#include "LoRaWANStack.h"
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"
@@ -57,19 +58,19 @@ using namespace events;
 /*****************************************************************************
  * Private Member Functions                                                  *
  ****************************************************************************/
-bool LoRaWANStack::is_port_valid(uint8_t port)
+bool LoRaWANStack::is_port_valid(uint8_t port, bool allow_port_0)
 {
     //Application should not use reserved and illegal port numbers.
-    if (port >= 224 || port == 0) {
-        return false;
+    if (port == 0) {
+        return allow_port_0;
     } else {
         return true;
     }
 }
 
-lorawan_status_t LoRaWANStack::set_application_port(uint8_t port)
+lorawan_status_t LoRaWANStack::set_application_port(uint8_t port, bool allow_port_0)
 {
-    if (is_port_valid(port)) {
+    if (is_port_valid(port, allow_port_0)) {
         _app_port = port;
         return LORAWAN_STATUS_OK;
     }
@@ -102,19 +103,9 @@ LoRaWANStack::LoRaWANStack()
      LoRaMacPrimitives.mlme_indication  = callback(this, &LoRaWANStack::mlme_indication_handler);
 }
 
-LoRaWANStack::~LoRaWANStack()
-{
-}
-
 /*****************************************************************************
  * Public member functions                                                   *
  ****************************************************************************/
-LoRaWANStack& LoRaWANStack::get_lorawan_stack()
-{
-    static LoRaWANStack _lw_stack;
-    return _lw_stack;
-}
-
 void LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
 {
     _loramac.bind_radio_driver(radio);
@@ -235,10 +226,14 @@ void LoRaWANStack::mlme_indication_handler(loramac_mlme_indication_t *mlmeIndica
     switch( mlmeIndication->indication_type )
     {
         case MLME_SCHEDULE_UPLINK:
-        {// The MAC signals that we shall provide an uplink as soon as possible
-            // TODO: Sending implementation missing and will be implemented using
-            //       another task.
-            //OnTxNextPacketTimerEvent( );
+        {
+            // The MAC signals that we shall provide an uplink as soon as possible
+#if (MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE)
+            tr_debug("mlme indication: sending empty uplink to port 0 to acknowledge MAC commands...");
+            send_automatic_uplink_message(0);
+#else
+            send_event_to_application(UPLINK_REQUIRED);
+#endif
             break;
         }
         default:
@@ -331,8 +326,26 @@ lorawan_status_t LoRaWANStack::set_channel_data_rate(uint8_t data_rate)
     return _loramac.set_channel_data_rate(data_rate);
 }
 
+void LoRaWANStack::send_event_to_application(const lorawan_event_t event) const
+{
+    if (_callbacks.events) {
+        const int ret = _queue->call(_callbacks.events, event);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
+    }
+}
+
+void LoRaWANStack::send_automatic_uplink_message(const uint8_t port)
+{
+    const int16_t ret = handle_tx(port, NULL, 0, MSG_CONFIRMED_FLAG, true, true);
+    if (ret < 0) {
+        send_event_to_application(AUTOMATIC_UPLINK_ERROR);
+    }
+}
+
 int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
-                                uint16_t length, uint8_t flags, bool null_allowed)
+                                uint16_t length, uint8_t flags,
+                                bool null_allowed, bool allow_port_0)
 {
     if (!null_allowed && !data) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
@@ -363,7 +376,7 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         return LORAWAN_STATUS_NO_NETWORK_JOINED;
     }
 
-    status = set_application_port(port);
+    status = set_application_port(port, allow_port_0);
 
     if (status != LORAWAN_STATUS_OK) {
         tr_error("Illegal application port definition.");
@@ -378,7 +391,6 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
 
     int16_t len = _loramac.prepare_ongoing_tx(port, data, length, flags, _num_retry);
 
-
     status = lora_state_machine(DEVICE_STATE_SEND);
 
     // send user the length of data which is scheduled now.
@@ -386,8 +398,35 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
     return (status == LORAWAN_STATUS_OK) ? len : (int16_t) status;
 }
 
-int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
-                                uint16_t length, uint8_t flags)
+int convert_to_msg_flag(const mcps_type_t type)
+{
+    int msg_flag = MSG_UNCONFIRMED_FLAG;
+    switch (type) {
+        case MCPS_UNCONFIRMED:
+            msg_flag = MSG_UNCONFIRMED_FLAG;
+            break;
+
+        case MCPS_CONFIRMED:
+            msg_flag = MSG_CONFIRMED_FLAG;
+            break;
+
+        case MCPS_MULTICAST:
+            msg_flag = MSG_MULTICAST_FLAG;
+            break;
+
+        case MCPS_PROPRIETARY:
+            msg_flag = MSG_PROPRIETARY_FLAG;
+            break;
+
+        default:
+            tr_error("Unknown message type!");
+            MBED_ASSERT(0);
+    }
+
+    return msg_flag;
+}
+
+int16_t LoRaWANStack::handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params)
 {
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
@@ -408,36 +447,28 @@ int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    uint8_t *base_ptr = _rx_msg.msg.mcps_indication.buffer;
+    int received_flags = convert_to_msg_flag(_rx_msg.msg.mcps_indication.type);
+    if (validate_params) {
+        // Check received message port and flags match with the ones requested by user
+        received_flags &= MSG_FLAG_MASK;
+
+        if (_rx_msg.msg.mcps_indication.port != port || !(flags & received_flags)) {
+            return LORAWAN_STATUS_WOULD_BLOCK;
+        }
+    }
+
+    // Report values back to user
+    port = _rx_msg.msg.mcps_indication.port;
+    flags = received_flags;
+
+    const uint8_t *base_ptr = _rx_msg.msg.mcps_indication.buffer;
     uint16_t base_size = _rx_msg.msg.mcps_indication.buffer_size;
     bool read_complete = false;
-
-    if (_rx_msg.msg.mcps_indication.port != port) {
-        // Nothing yet received for this particular port
-        return LORAWAN_STATUS_WOULD_BLOCK;
-    }
-
-    // check if message received is a Confirmed message and user subscribed to it or not
-    if (_rx_msg.msg.mcps_indication.type == MCPS_CONFIRMED
-            && ((flags & MSG_FLAG_MASK) == MSG_CONFIRMED_FLAG
-                    || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_MULTICAST
-                    || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_PROPRIETARY)) {
-
-        tr_debug("RX - Confirmed Message, flags=%d", flags);
-    }
-
-    // check if message received is a Unconfirmed message and user subscribed to it or not
-    if (_rx_msg.msg.mcps_indication.type == MCPS_UNCONFIRMED
-            && ((flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_FLAG
-                    || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_MULTICAST
-                    || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_PROPRIETARY)) {
-        tr_debug("RX - Unconfirmed Message - flags=%d", flags);
-    }
 
     // check the length of received message whether we can fit into user
     // buffer completely or not
     if (_rx_msg.msg.mcps_indication.buffer_size > length &&
-            _rx_msg.prev_read_size == 0) {
+        _rx_msg.prev_read_size == 0) {
         // we can't fit into user buffer. Invoke counter measures
         _rx_msg.pending_size = _rx_msg.msg.mcps_indication.buffer_size - length;
         base_size = length;
@@ -481,11 +512,7 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm)
                     tr_error("Lora state machine did not return DEVICE_STATE_IDLE !");
                 }
 
-                if (_callbacks.events) {
-                    const int ret = _queue->call(_callbacks.events, JOIN_FAILURE);
-                    MBED_ASSERT(ret != 0);
-                    (void)ret;
-                }
+                send_event_to_application(JOIN_FAILURE);
             }
             break;
         case MLME_LINK_CHECK:
@@ -521,21 +548,13 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
         tr_error("mcps_confirm_handler: Error code = %d", mcps_confirm->status);
 
         if (mcps_confirm->status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT) {
-            if (_callbacks.events) {
-                const int ret = _queue->call(_callbacks.events, TX_TIMEOUT);
-                MBED_ASSERT(ret != 0);
-                (void)ret;
-            }
+            send_event_to_application(TX_TIMEOUT);
             return;
         } else if (mcps_confirm->status == LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT) {
             tr_debug("Did not receive Ack");
         }
 
-        if (_callbacks.events) {
-            const int ret = _queue->call(_callbacks.events, TX_ERROR);
-            MBED_ASSERT(ret != 0);
-            (void)ret;
-        }
+        send_event_to_application(TX_ERROR);
         return;
     }
 
@@ -546,21 +565,14 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
 
     _lw_session.uplink_counter = mcps_confirm->ul_frame_counter;
     _loramac.set_tx_ongoing(false);
-     if (_callbacks.events) {
-         const int ret = _queue->call(_callbacks.events, TX_DONE);
-         MBED_ASSERT(ret != 0);
-         (void)ret;
-     }
+    send_event_to_application(TX_DONE);
 }
 
 void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indication)
 {
     if (mcps_indication->status != LORAMAC_EVENT_INFO_STATUS_OK) {
-        if (_callbacks.events) {
-            const int ret = _queue->call(_callbacks.events, RX_ERROR);
-            MBED_ASSERT(ret != 0);
-            (void)ret;
-        }
+        tr_error("RX_ERROR: mcps_indication status = %d", mcps_indication->status);
+        send_event_to_application(RX_ERROR);
         return;
     }
 
@@ -613,41 +625,39 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
         default: {
             if (is_port_valid(mcps_indication->port) == true ||
                     mcps_indication->type == MCPS_PROPRIETARY) {
-
                 // Valid message arrived.
                 _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
                 _rx_msg.msg.mcps_indication.buffer_size = mcps_indication->buffer_size;
                 _rx_msg.msg.mcps_indication.port = mcps_indication->port;
                 _rx_msg.msg.mcps_indication.buffer = mcps_indication->buffer;
+                _rx_msg.msg.mcps_indication.type = mcps_indication->type;
 
                 // Notify application about received frame..
                 tr_debug("Received %d bytes", _rx_msg.msg.mcps_indication.buffer_size);
                 _rx_msg.receive_ready = true;
 
-                if (_callbacks.events) {
-                    const int ret = _queue->call(_callbacks.events, RX_DONE);
-                    MBED_ASSERT(ret != 0);
-                    (void)ret;
-                }
+                send_event_to_application(RX_DONE);
 
-                //TODO: below if clauses can be combined,
-                //      because those are calling same function with same parameters
-
-                // If fPending bit is set we try to generate an empty packet
-                // with CONFIRMED flag set. We always set a CONFIRMED flag so
-                // that we could retry a certain number of times if the uplink
-                // failed for some reason
-                if (_loramac.get_device_class() != CLASS_C && mcps_indication->fpending_status) {
-                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
-                }
-
-                // Class C and node received a confirmed message so we need to
-                // send an empty packet to acknowledge the message.
-                // This scenario is unspecified by LoRaWAN 1.0.2 specification,
-                // but version 1.1.0 says that network SHALL not send any new
-                // confirmed messages until ack has been sent
-                if (_loramac.get_device_class() == CLASS_C && mcps_indication->type == MCPS_CONFIRMED) {
-                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG, true);
+                /*
+                 * If fPending bit is set we try to generate an empty packet
+                 * with CONFIRMED flag set. We always set a CONFIRMED flag so
+                 * that we could retry a certain number of times if the uplink
+                 * failed for some reason
+                 * or
+                 * Class C and node received a confirmed message so we need to
+                 * send an empty packet to acknowledge the message.
+                 * This scenario is unspecified by LoRaWAN 1.0.2 specification,
+                 * but version 1.1.0 says that network SHALL not send any new
+                 * confirmed messages until ack has been sent
+                 */
+                if ((_loramac.get_device_class() != CLASS_C && mcps_indication->fpending_status) ||
+                    (_loramac.get_device_class() == CLASS_C && mcps_indication->type == MCPS_CONFIRMED)) {
+#if (MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE)
+                    tr_debug("Sending empty uplink message...");
+                    send_automatic_uplink_message(mcps_indication->port);
+#else
+                    send_event_to_application(UPLINK_REQUIRED);
+#endif
                 }
             } else {
                 // Invalid port, ports 0, 224 and 225-255 are reserved.
@@ -718,11 +728,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
             _lw_session.active = false;
 
             tr_debug("LoRaWAN protocol has been shut down.");
-            if (_callbacks.events) {
-                const int ret = _queue->call(_callbacks.events, DISCONNECTED);
-                MBED_ASSERT(ret != 0);
-                (void)ret;
-            }
+            send_event_to_application(DISCONNECTED);
             status = LORAWAN_STATUS_DEVICE_OFF;
             break;
         case DEVICE_STATE_NOT_INITIALIZED:
@@ -750,11 +756,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
 
             _lw_session.active = true;
 
-            if (_callbacks.events) {
-                const int ret = _queue->call(_callbacks.events, CONNECTED);
-                MBED_ASSERT(ret != 0);
-                (void)ret;
-            }
+            send_event_to_application(CONNECTED);
             status = LORAWAN_STATUS_OK;
             break;
         case DEVICE_STATE_ABP_CONNECTING:
@@ -766,11 +768,7 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
             status = LORAWAN_STATUS_OK;
 
             _lw_session.active = true;
-            if (_callbacks.events) {
-                const int ret = _queue->call(_callbacks.events, CONNECTED);
-                MBED_ASSERT(ret != 0);
-                (void)ret;
-            }
+            send_event_to_application(CONNECTED);
             break;
         case DEVICE_STATE_SEND:
             if (_loramac.tx_ongoing()) {
@@ -785,19 +783,11 @@ lorawan_status_t LoRaWANStack::lora_state_machine(device_states_t new_state)
                         break;
                     case LORAWAN_STATUS_CRYPTO_FAIL:
                         tr_error("Crypto failed. Clearing TX buffers");
-                        if (_callbacks.events) {
-                            const int ret = _queue->call(_callbacks.events, TX_CRYPTO_ERROR);
-                            MBED_ASSERT(ret != 0);
-                            (void)ret;
-                        }
+                        send_event_to_application(TX_CRYPTO_ERROR);
                         break;
                     default:
                         tr_error("Failure to schedule TX!");
-                        if (_callbacks.events) {
-                            const int ret = _queue->call(_callbacks.events, TX_SCHEDULING_ERROR);
-                            MBED_ASSERT(ret != 0);
-                            (void)ret;
-                        }
+                        send_event_to_application(TX_SCHEDULING_ERROR);
                         break;
                 }
             }

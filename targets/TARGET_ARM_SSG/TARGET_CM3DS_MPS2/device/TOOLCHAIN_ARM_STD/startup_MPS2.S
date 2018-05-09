@@ -16,13 +16,13 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- *
- * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
- *
  */
 
-#include "memory_zones.h"
+/*
+ * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
+ */
+
+#include "../memory_zones.h"
 
 __initial_sp    EQU     ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE ; Top of ZBT SSRAM2 and 3, used for data
 

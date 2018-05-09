@@ -339,7 +339,7 @@ int8_t LoRaPHYKR920::get_max_eirp(uint32_t freq)
 }
 
 
-bool LoRaPHYKR920::verify_frequency(uint32_t freq)
+bool LoRaPHYKR920::verify_frequency_for_band(uint32_t freq, uint8_t band) const
 {
     uint32_t tmp_freq = freq;
 

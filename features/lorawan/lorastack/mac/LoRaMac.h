@@ -40,13 +40,18 @@
 #ifndef MBED_LORAWAN_MAC_H__
 #define MBED_LORAWAN_MAC_H__
 
-#include "lorawan/system/LoRaWANTimer.h"
-#include "lorastack/phy/LoRaPHY.h"
-#include "lorawan/system/lorawan_data_structures.h"
-#include "LoRaMacCommand.h"
 #include "events/EventQueue.h"
+
+#include "lorastack/phy/loraphy_target.h"
+#include "lorastack/phy/LoRaPHY.h"
+
+#include "system/LoRaWANTimer.h"
+#include "system/lorawan_data_structures.h"
+
 #include "LoRaMacChannelPlan.h"
-#include "loraphy_target.h"
+#include "LoRaMacCommand.h"
+#include "LoRaMacCrypto.h"
+
 
 class LoRaMac {
 
@@ -538,6 +543,11 @@ private:
      * Channel planning subsystem
      */
     LoRaMacChannelPlan channel_plan;
+
+    /**
+     * Crypto handling subsystem
+     */
+    LoRaMacCrypto _lora_crypto;
 
     /**
      * Central MAC layer data storage

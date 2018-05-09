@@ -33,6 +33,11 @@ AT_CellularNetwork::~AT_CellularNetwork()
 {
 }
 
+nsapi_error_t AT_CellularNetwork::init()
+{
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         const char *username, const char *password)
 {
@@ -52,6 +57,11 @@ nsapi_error_t AT_CellularNetwork::connect(const char *apn,
 }
 
 nsapi_error_t AT_CellularNetwork::connect()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularNetwork::activate_context()
 {
     return NSAPI_ERROR_OK;
 }
@@ -100,8 +110,14 @@ nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
     return IPV4_STACK;
 }
 
-nsapi_error_t AT_CellularNetwork::set_registration_urc(bool urc_on)
+nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bool urc_on)
 {
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode& mode)
+{
+    mode = NWModeAutomatic;
     return NSAPI_ERROR_OK;
 }
 
@@ -135,6 +151,10 @@ nsapi_error_t AT_CellularNetwork::get_attach(AttachStatus &status)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t AT_CellularNetwork::detach()
+{
+    return NSAPI_ERROR_OK;
+}
 
 nsapi_error_t AT_CellularNetwork::get_apn_backoff_timer(int &backoffTime)
 {
@@ -171,13 +191,19 @@ void AT_CellularNetwork::urc_no_carrier()
 
 }
 
-nsapi_error_t AT_CellularNetwork::set_access_technology_impl(operator_t::RadioAccessTechnology opsAct)
+nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::set_access_technology(operator_t::RadioAccessTechnology opAct)
+nsapi_error_t AT_CellularNetwork::set_access_technology(RadioAccessTechnology opAct)
 {
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularNetwork::get_access_technology(RadioAccessTechnology& rat)
+{
+    rat = RAT_CATM1;
     return NSAPI_ERROR_OK;
 }
 
@@ -231,3 +257,7 @@ int AT_CellularNetwork::get_3gpp_error()
     return 0;
 }
 
+nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_names)
+{
+    return NSAPI_ERROR_OK;
+}

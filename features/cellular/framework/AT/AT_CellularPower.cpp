@@ -18,6 +18,7 @@
 #include "AT_CellularPower.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
+#include "CellularTargets.h"
 #include "nsapi_types.h"
 
 static const int PSMTimerBits = 5;
@@ -230,4 +231,13 @@ nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnolog
     _at.resp_stop();
 
     return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularPower::set_device_ready_urc_cb(mbed::Callback<void()> callback)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callback)
+{
 }

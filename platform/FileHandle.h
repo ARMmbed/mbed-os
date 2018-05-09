@@ -146,6 +146,8 @@ public:
      *  @returns
      *    new file position on success,
      *    -1 on failure or unsupported
+     *  @deprecated Replaced by `off_t FileHandle::seek(off_t offset, int whence = SEEK_SET)'
+     *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::seek")
     virtual off_t lseek(off_t offset, int whence)
@@ -159,6 +161,7 @@ public:
      *  @returns
      *    0 on success or un-needed,
      *   -1 on error
+     *  @deprecated Replaced by `int FileHandle::sync()'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::sync")
     virtual int fsync()
@@ -170,6 +173,7 @@ public:
      *
      *  @returns
      *   Length of the file
+     *  @deprecated Replaced by `off_t FileHandle::size()'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::size")
     virtual off_t flen()

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
@@ -142,7 +140,8 @@ typedef enum
   */
 
 #define GPIO_PIN_MASK              ((uint32_t)0x0000FFFFU) /* PIN mask for assert test */
-#define IS_GPIO_PIN(__PIN__)           (((__PIN__) & GPIO_PIN_MASK ) != (uint32_t)0x00U)
+#define IS_GPIO_PIN(__PIN__)        ((((__PIN__) & GPIO_PIN_MASK) != (uint32_t)0x00) &&\
+                                     (((__PIN__) & ~GPIO_PIN_MASK) == (uint32_t)0x00))
 
 /** @defgroup GPIO_mode_define Mode definition
   * @brief GPIO Configuration Mode 

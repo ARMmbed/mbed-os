@@ -12,6 +12,10 @@ This is the Github repo for Mbed cellular connectivity:
         common      Common and utility sources
         targets     Vendor specific cellular module adaptations
 
+    TESTS           Cellular Greentea test
+
+    UNITTESTS       Cellular unit test
+
 ## Known limitations
 
 **Please note that this is a first release of Cellular framework and is subject to further development in future.**
@@ -24,7 +28,9 @@ You can find currently supported cellular modules in the `framework/targets/` fo
 
 ## Cellular configuration
 
-You can change cellular defaults in the `mbed_app.json` configuration file:
+You can change cellular defaults in the `mbed_lib.json` configuration file.
+
+You can also override cellular defaults in the `mbed_app.json` configuration file:
 
     "config": {
         "cellular_plmn": {
@@ -61,6 +67,14 @@ You can define the debug tracing level in the `mbed_app.json` configuration file
             "value": "TRACE_LEVEL_INFO"
         }
     }
+
+## Greentea tests
+
+The `TESTS` folder contains Greentea tests for cellular specific classes. You need to give relevant configuration file with `--app-config` parameter, e.g.:
+
+    mbed test -n features-cellular-tests-* --app-config features\cellular\TESTS\socket\udp\template_mbed_app.json -vv
+
+    Note that Greentea tests use SIM PIN so you need to change that or your SIM card may get locked.
 
 ## Unit tests
 

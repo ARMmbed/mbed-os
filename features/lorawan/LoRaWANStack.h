@@ -44,9 +44,10 @@
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
-#include "lorawan/system/LoRaWANTimer.h"
+
 #include "lorastack/mac/LoRaMac.h"
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/LoRaWANTimer.h"
+#include "system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
@@ -69,7 +70,7 @@ private:
     } device_states_t;
 
 public:
-    static LoRaWANStack& get_lorawan_stack();
+    LoRaWANStack();
 
     /** Binds radio driver to PHY layer.
      *
@@ -290,24 +291,30 @@ public:
      * @param null_allowed      Internal use only. Needed for sending empty packet
      *                          having CONFIRMED bit on.
      *
+     * @param allow_port_0      Internal use only. Needed for flushing MAC commands.
+     *
      * @return                  The number of bytes sent, or
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
     int16_t handle_tx(uint8_t port, const uint8_t* data,
-                      uint16_t length, uint8_t flags, bool null_allowed = false);
+                      uint16_t length, uint8_t flags,
+                      bool null_allowed = false, bool allow_port_0 = false);
 
     /** Receives a message from the Network Server.
+     *
+     * @param data              A pointer to buffer where the received data will be
+     *                          stored.
+     *
+     * @param length            The size of data in bytes
      *
      * @param port              The application port number. Port numbers 0 and 224
      *                          are reserved, whereas port numbers from 1 to 223
      *                          (0x01 to 0xDF) are valid port numbers.
      *                          Anything out of this range is illegal.
      *
-     * @param data              A pointer to buffer where the received data will be
-     *                          stored.
-     *
-     * @param length            The size of data in bytes
+     *                          In return will contain the number of port to which
+     *                          message was received.
      *
      * @param flags             A flag is used to determine what type of
      *                          message is being received, for example:
@@ -329,6 +336,13 @@ public:
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.
      *
+     *                          In return will contain the flags to determine what kind
+     *                          of message was received.
+     *
+     * @param validate_params   If set to true, the given port and flags values will be checked
+     *                          against the values received with the message. If values do not
+     *                          match, LORAWAN_STATUS_WOULD_BLOCK will be returned.
+     *
      * @return                  It could be one of these:
      *                             i)   0 if there is nothing else to read.
      *                             ii)  Number of bytes written to user buffer.
@@ -336,8 +350,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    int16_t handle_rx(const uint8_t port, uint8_t* data,
-                      uint16_t length, uint8_t flags);
+    int16_t handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params);
 
     /** Send Link Check Request MAC command.
      *
@@ -383,13 +396,10 @@ public:
     lorawan_status_t set_device_class(const device_class_t& device_class);
 
 private:
-    LoRaWANStack();
-    ~LoRaWANStack();
-
     /**
      * Checks if the user provided port is valid or not
      */
-    bool is_port_valid(uint8_t port);
+    bool is_port_valid(uint8_t port, bool allow_port_0 = false);
 
     /**
      * State machine for stack controller layer.
@@ -429,15 +439,29 @@ private:
     /**
      * Sets up user application port
      */
-    lorawan_status_t set_application_port(uint8_t port);
+    lorawan_status_t set_application_port(uint8_t port, bool allow_port_0 = false);
 
     /**
      * Handles connection internally
      */
     lorawan_status_t handle_connect(bool is_otaa);
 
-private:
 
+    /** Send event to application.
+     *
+     * @param  event            The event to be sent.
+     */
+    void send_event_to_application(const lorawan_event_t event) const;
+
+    /** Send empty uplink message to network.
+     *
+     * Sends an empty confirmed message to gateway.
+     *
+     * @param  port            The event to be sent.
+     */
+    void send_automatic_uplink_message(const uint8_t port);
+
+private:
     LoRaMac _loramac;
     loramac_primitives_t LoRaMacPrimitives;
 

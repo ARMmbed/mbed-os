@@ -92,6 +92,8 @@ typedef struct {
 
 /** PPPCellularInterface class
  *
+ *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+ *
  *  This interface serves as the controller/driver for the Cellular
  *  modems (tested with UBLOX_C027 and MTS_DRAGONFLY_F411RE).
  *
@@ -106,16 +108,24 @@ public:
 
     /** Constructor for a generic modem, using a single FileHandle for commands and PPP data.
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      * The file handle pointer is not accessed within the constructor, only recorded for later
      * use - this permits a derived class to pass a pointer to a not-yet-constructed member object.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     PPPCellularInterface(FileHandle *fh, bool debug = false);
 
+    /** Destructor
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     virtual ~PPPCellularInterface();
 
     /** Set the Cellular network credentials
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  Please check documentation of connect() for default behaviour of APN settings.
      *
@@ -129,12 +139,16 @@ public:
 
     /** Set the pin code for SIM card
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      *  @param sim_pin      PIN for the SIM card
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     virtual void set_sim_pin(const char *sim_pin);
 
     /** Start the interface
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  Attempts to connect to a Cellular network.
      *  This driver is written mainly for data network connections as CellularInterface
@@ -154,6 +168,8 @@ public:
                                   const char *uname = 0, const char *pwd = 0);
 
     /** Attempt to connect to the Cellular network
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  Brings up the network interface. Connects to the Cellular Radio
      *  network and then brings up the underlying network stack to be used
@@ -188,6 +204,8 @@ public:
 
     /** Adds or removes a SIM facility lock
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      * Can be used to enable or disable SIM pin check at device startup.
      * This API sets up flags for the driver which would either enable or disable
      * SIM pin checking depending upon the user provided argument while establishing
@@ -201,6 +219,8 @@ public:
 
     /** Change the pin for the SIM card
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      * Provide the new pin for your SIM card with this API. Old pin code will be assumed to
      * be set using set_SIM_pin() API. This API have no immediate effect. While establishing
      * connection, driver will change the SIM pin for the next boot.
@@ -212,6 +232,8 @@ public:
 
     /** Check if the connection is currently established or not
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      * @return true/false   If the cellular module have successfully acquired a carrier and is
      *                      connected to an external packet data network using PPP, isConnected()
      *                      API returns true and false otherwise.
@@ -221,6 +243,8 @@ public:
 
     /** Get the local IP address
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      *  @return         Null-terminated representation of the local IP address
      *                  or null if no IP address has been received
      */
@@ -229,6 +253,8 @@ public:
 
     /** Get the local network mask
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been received
      */
@@ -236,6 +262,8 @@ public:
     virtual const char *get_netmask();
 
     /** Get the local gateways
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  @return         Null-terminated representation of the local gateway
      *                  or null if no network mask has been received
@@ -253,6 +281,8 @@ public:
 
     /** Register callback for status reporting
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      *  @param status_cb The callback for status changes
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
@@ -260,12 +290,16 @@ public:
 
     /** Get the connection status
      *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
+     *
      *  @return         The connection status according to nsapi_connection_status_t
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.")
     virtual nsapi_connection_status_t get_connection_status() const;
 
     /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  @param blocking true if connect is blocking
      *  @return         0 on success, negative error code on failure

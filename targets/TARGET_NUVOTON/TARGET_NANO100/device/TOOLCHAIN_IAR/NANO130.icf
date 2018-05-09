@@ -10,7 +10,7 @@ define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
 define symbol __ICFEDIT_region_IRAM_end__   = 0x20004000 - 1;
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = 0x600;
-define symbol __ICFEDIT_size_heap__   = 0x1200;
+define symbol __ICFEDIT_size_heap__   = 0x1000;
 /**** End of ICF editor section. ###ICF###*/
 
 

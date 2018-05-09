@@ -46,6 +46,13 @@ public: // NetworkStack
     virtual const char *get_ip_address();
 protected: // NetworkStack
 
+    /**
+     * Modem specific socket stack initialization
+     *
+     *  @return 0 on success
+     */
+    virtual nsapi_error_t socket_stack_init();
+
     virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto);
 
     virtual nsapi_error_t socket_close(nsapi_socket_t handle);
@@ -87,8 +94,10 @@ protected:
         SocketAddress localAddress;
         void (*_cb)(void *);
         void *_data;
-        bool created;
-        bool rx_avail; // used to synchronize reading from modem
+        bool created; // socket has been created on modem stack
+        bool started; // socket has been opened on modem stack
+        bool tx_ready; // socket is ready for sending on modem stack
+        bool rx_avail; // socket has data for reading on modem stack
     };
 
     /**
