@@ -436,7 +436,7 @@ private:
     {
         MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
 
-        _mode = (_crc_table == NULL) ? TABLE : BITWISE;
+        _mode = (_crc_table != NULL) ? TABLE : BITWISE;
 
 #ifdef DEVICE_CRC
         crc_mbed_config_t config;
