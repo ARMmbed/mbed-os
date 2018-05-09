@@ -81,6 +81,9 @@ extern "C" {
  * and final xor of 0xFFFFFFFF, and reflection of both input and output. If any
  * of these settings cannot be configured the polynomial is not supported.
  *
+ * This function is thread safe, it safe to call from multiple contexts if
+ * required.
+ *
  * \param config Contains CRC configuration parameters for initialising the
  *               hardware CRC module. For example, polynomial and initial seed
  *               values.
@@ -112,7 +115,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config);
  *
  * This function is not thread safe, a CRC calculation must not be started from
  * two different threads or contexts at the same time, calling this function
- * from two different contexts may lead to configurations being overwrite and
+ * from two different contexts may lead to configurations being overwritten and
  * results being lost.
  *
  * \param config Contains CRC configuration parameters for initialising the
@@ -164,6 +167,10 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size);
  * function will return the final result of the CRC calculation, the return
  * value on successive calls is undefined as the contents of the register after
  * accessing them is platform-specific.
+ *
+ * This function is not thread safe. There is only one instance of the CRC
+ * module active at a time, calling this function from multiple contexts may
+ * return incorrect data or affect the current state of the module.
  *
  * \return The final CRC checksum after the reflections and final calculations
  *         have been applied.
