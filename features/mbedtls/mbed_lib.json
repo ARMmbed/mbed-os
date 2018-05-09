@@ -1,18 +1,9 @@
 {
     "name": "mbedtls",
     "config": {
-        "MBED_CLOUD_CLIENT": {
-            "help": "Include support for ciphersuites required by the Mbed Cloud Client",
-            "value": 1
-        },
-        "MBED_MINI_CLOUD_CLIENT": {
-            "help": "Include support for ciphersuites required by the Mbed Cloud Mini Client",
-            "value": 1
-        },
         "ECDHE_ECDSA_WITH_AES_128_GCM_SHA256": {
-
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256 ciphersuites",
-            "value": 0
+            "value": 1
         },
         "ECDHE_ECDSA_WITH_AES_128_CBC_SHA256": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-128-CBC-SHA256 ciphersuite",
@@ -24,7 +15,7 @@
         },
         "ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": {
             "help": "Include support for the TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384 ciphersuite",
-            "value": 0
+            "value": 1
         },
         "PSK_WITH_AES_CCM": {
             "help": "Include support for the TLS-PSK-WITH-AES-*-CCM* ciphersuites",
