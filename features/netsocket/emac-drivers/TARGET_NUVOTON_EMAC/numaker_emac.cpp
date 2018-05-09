@@ -34,10 +34,11 @@
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
 
+#define NU_TRACE
 
 #include "numaker_emac_config.h"
 #include "numaker_emac.h"
-
+#include "numaker_eth_hal.h"
 
 /********************************************************************************
  * 
@@ -47,18 +48,7 @@
 #define PHY_UNLINKED_STATE      0
 #define PACKET_BUFFER_SIZE      NU_ETH_MAX_FLEN
 
-typedef void (* eth_callback_t) (char, void*);
-extern "C" void numaker_init_eth_hardware(void);
-extern "C" void mbed_mac_address(char *mac);
-extern "C" void numaker_eth_init(uint8_t *mac_addr);
-extern "C" void numaker_eth_trigger_rx(void);
-extern "C" int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf);
-extern "C" uint8_t *numaker_eth_get_tx_buf(void);
-extern "C" void numaker_eth_trigger_tx(uint16_t length, void *p);
-extern "C" int numaker_eth_link_ok(void);
-extern "C" void numaker_eth_set_cb(eth_callback_t eth_cb, void *userData);
-extern "C" void numaker_set_mac_addr(uint8_t *addr);
-
+extern "C" void numaker_eth_rx_next(void);
 /* \brief Flags for worker thread */
 #define FLAG_TX  1
 #define FLAG_RX  2
@@ -126,7 +116,7 @@ bool NUMAKER_EMAC::low_level_init_successful()
     /* Init ETH */
 
     mbed_mac_address((char *)hwaddr);
-
+    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", hwaddr[0], hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]);
     /* Enable clock & set EMAC configuration         */
     /* Enable MAC and DMA transmission and reception */
     numaker_eth_init(hwaddr);
@@ -147,7 +137,7 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
     uint32_t payloadoffset = 0;
 
     /* get received frame */
-    if ( !numaker_eth_get_rx_buf(&len, &buffer)) {
+    if ( numaker_eth_get_rx_buf(&len, &buffer) != 0) {
         return -1;
     }
 
@@ -157,19 +147,19 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
         /* Allocate a memory buffer chain from buffer pool */
         *buf = memory_manager->alloc_pool(len, 0);
     }
-
+    NU_DEBUGF(("%s... length=%d, buf=0x%x\r\n", __FUNCTION__, len, *buf));
     if (*buf != NULL) {
         bufferoffset = 0;
         for (q = *buf; q != NULL; q = memory_manager->get_next(q)) {
             byteslefttocopy = memory_manager->get_len(q);
             payloadoffset = 0;
-
+            NU_DEBUGF(("offset=[%d], bytes-to-copy[%d]\r\n",bufferoffset,byteslefttocopy));
             /* Copy data in pbuf */
             memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, static_cast<uint8_t *>(buffer) + bufferoffset, byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
-
+    numaker_eth_rx_next();
     return 0;
 }
 
@@ -208,8 +198,10 @@ void NUMAKER_EMAC::packet_rx()
           break;
       }
       if (p) {
+          NU_DEBUGF(("%s ... p=0x%x\r\n",__FUNCTION__,p));
           emac_link_input_cb(p);
       }
+//      numaker_eth_rx_next();
   }
   numaker_eth_trigger_rx();
   
@@ -242,14 +234,14 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
 
     /* Get exclusive access */
     TXLockMutex.lock();
-
+    NU_DEBUGF(("%s ... buffer=0x%x\r\n",__FUNCTION__, buffer));
     /* copy frame from buf to driver buffers */
     for (q = buf; q != NULL; q = memory_manager->get_next(q)) {
 
         /* Get bytes in current lwIP buffer */
         byteslefttocopy = memory_manager->get_len(q);
         payloadoffset = 0;
-
+        NU_DEBUGF(("offset=%d, bytes-to-copy=%d\r\n",bufferoffset, byteslefttocopy));
         /* Check if the length of data to copy is bigger than Tx buffer size*/
         while ((byteslefttocopy + bufferoffset) > PACKET_BUFFER_SIZE) {
             /* Copy data to Tx buffer*/
@@ -265,7 +257,7 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
             framelength = framelength + (PACKET_BUFFER_SIZE - bufferoffset);
             bufferoffset = 0;
         }
-
+        
         /* Copy the remaining bytes */
         memcpy(static_cast<uint8_t *>(buffer) + bufferoffset, static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, byteslefttocopy);
         bufferoffset = bufferoffset + byteslefttocopy;
@@ -297,10 +289,10 @@ void NUMAKER_EMAC::phy_task()
 
     
     if ((state & PHY_LINKED_STATE) && !(phy_state & PHY_LINKED_STATE)) {
-        printf("Link Up\r\n");
+        NU_DEBUGF(("Link Up\r\n"));
         if (emac_link_state_cb) emac_link_state_cb(true);
     } else if (!(state & PHY_LINKED_STATE) && (phy_state & PHY_LINKED_STATE)) {
-        printf("Link Down\r\n");
+        NU_DEBUGF(("Link Down\r\n"));
         if (emac_link_state_cb) emac_link_state_cb(false);
     }
     phy_state = state;        
@@ -323,7 +315,7 @@ bool NUMAKER_EMAC::power_up()
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   osDelay(10);
-
+  numaker_eth_enable_interrupts();
   return true;
 }
 

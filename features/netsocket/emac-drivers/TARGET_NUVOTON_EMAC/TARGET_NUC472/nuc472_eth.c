@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Nuvoton Technology Corp.
+ * Copyright (c) 2018 Nuvoton Technology Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,6 +23,7 @@
  */
 #include "nuc472_eth.h"
 #include "mbed_toolchain.h"
+#include "numaker_eth_hal.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)
@@ -30,32 +31,19 @@
 #define ETH_ENABLE_RX()     do{EMAC->CTL |= EMAC_CTL_RXON;}while(0)
 #define ETH_DISABLE_TX()    do{EMAC->CTL &= ~EMAC_CTL_TXON;}while(0)
 #define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON;}while(0)
-
-#define NU_DEBUGF printf
     
-/*
-#ifdef __ICCARM__
-#pragma data_alignment=4
-struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
-struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
-#else
-struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
-struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM] __attribute__ ((aligned(4)));
-#endif
-*/
-struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM] MBED_ALIGN(4);
-struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM] MBED_ALIGN(4);
+
+MBED_ALIGN(4) struct eth_descriptor rx_desc[RX_DESCRIPTOR_NUM];
+MBED_ALIGN(4) struct eth_descriptor tx_desc[TX_DESCRIPTOR_NUM];
 
 struct eth_descriptor volatile *cur_tx_desc_ptr, *cur_rx_desc_ptr, *fin_tx_desc_ptr;
 
-uint8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE]  MBED_ALIGN(4);
-uint8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE]  MBED_ALIGN(4);
+MBED_ALIGN(4) uint8_t rx_buf[RX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
+MBED_ALIGN(4) uint8_t tx_buf[TX_DESCRIPTOR_NUM][PACKET_BUFFER_SIZE];
 
-typedef void (* eth_callback_t) (char, void*);
 eth_callback_t nu_eth_txrx_cb = NULL;
 void *nu_userData = NULL;
 
-//extern void ethernetif_input(uint16_t len, uint8_t *buf, uint32_t s, uint32_t ns);
 extern void ack_emac_rx_isr(void);
 
 // PTP source clock is 84MHz (Real chip using PLL). Each tick is 11.90ns
@@ -89,20 +77,20 @@ static int reset_phy(void)
 {
 
     uint16_t reg;
-    uint32_t delay;
+    uint32_t delayCnt;
 
 
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, BMCR_RESET);
 
-    delay = 2000;
-    while(delay-- > 0) {
+    delayCnt = 2000;
+    while(delayCnt-- > 0) {
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMCR) & BMCR_RESET) == 0)
             break;
 
     }
 
-    if(delay == 0) {
-        NU_DEBUGF("Reset phy failed\n");
+    if(delayCnt == 0) {
+        NU_DEBUGF(("Reset phy failed\n"));
         return(-1);
     }
 
@@ -115,34 +103,36 @@ static int reset_phy(void)
     reg = mdio_read(CONFIG_PHY_ADDR, MII_BMCR);
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, reg | BMCR_ANRESTART);
 
-    delay = 200000;
-    while(delay-- > 0) {
+    delayCnt = 200000;
+    while(delayCnt-- > 0) {
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
                 == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
             break;
     }
 
-    if(delay == 0) {
-        NU_DEBUGF("AN failed. Set to 100 FULL\n");
+    if(delayCnt == 0) {
+        NU_DEBUGF(("AN failed. Set to 100 FULL\n"));
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         return(-1);
     } else {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
 
         if(reg & ADVERTISE_100FULL) {
-            NU_DEBUGF("100 full\n");
+            NU_DEBUGF(("100 full\n"));
             EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         } else if(reg & ADVERTISE_100HALF) {
-            NU_DEBUGF("100 half\n");
+            NU_DEBUGF(("100 half\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_FUDUP_Msk) | EMAC_CTL_OPMODE_Msk;
         } else if(reg & ADVERTISE_10FULL) {
-            NU_DEBUGF("10 full\n");
+            NU_DEBUGF(("10 full\n"));
             EMAC->CTL = (EMAC->CTL & ~EMAC_CTL_OPMODE_Msk) | EMAC_CTL_FUDUP_Msk;
         } else {
-            NU_DEBUGF("10 half\n");
+            NU_DEBUGF(("10 half\n"));
             EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         }
     }
+	printf("PHY ID 1:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID1));
+	printf("PHY ID 2:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID2));
 
     return(0);
 }
@@ -269,17 +259,18 @@ unsigned int m_status;
 
 void EMAC_RX_IRQHandler(void)
 {
-
+//    NU_DEBUGF(("%s ... nu_eth_txrx_cb=0x%x\r\n", __FUNCTION__, nu_eth_txrx_cb));
     m_status = EMAC->INTSTS & 0xFFFF;
     EMAC->INTSTS = m_status;
     if (m_status & EMAC_INTSTS_RXBEIF_Msk) {
         // Shouldn't goes here, unless descriptor corrupted
-		NU_DEBUGF("RX descriptor corrupted \r\n");
+		NU_DEBUGF(("RX descriptor corrupted \r\n"));
 		//return;
     }
-	if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('R', nu_userData); //ack_emac_rx_isr();
+	if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('R', nu_userData); 
 }
 
+#if 0
 void EMAC_RX_Action(void)
 {
     unsigned int cur_entry, status;
@@ -308,6 +299,7 @@ void EMAC_RX_Action(void)
     ETH_TRIGGER_RX();
 //	eth_arch_tcpip_thread();
 }
+#endif
 
 void numaker_eth_trigger_rx(void)
 {
@@ -327,8 +319,8 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
             return -1;
 
     if (status & RXFD_RXGD) {
-        cur_rx_desc_ptr->status1 = OWNERSHIP_EMAC;
-        cur_rx_desc_ptr = cur_rx_desc_ptr->next;
+        *buf = cur_rx_desc_ptr->buf;
+        *len = status & 0xFFFF;
     }
     cur_rx_desc_ptr->status1 = OWNERSHIP_EMAC;
     cur_rx_desc_ptr = cur_rx_desc_ptr->next;
@@ -430,5 +422,17 @@ void mbed_mac_address(char *mac)
     mac[4] = (word0 & 0x0000ff00) >> 8;
     mac[5] = (word0 & 0x000000ff);
     
-    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]);
+    NU_DEBUGF(("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]));
+}
+
+void numaker_eth_enable_interrupts(void) {
+    EMAC->INTEN |= EMAC_INTEN_RXIEN_Msk |
+                   EMAC_INTEN_TXIEN_Msk ;
+	NVIC_EnableIRQ(EMAC_RX_IRQn);
+	NVIC_EnableIRQ(EMAC_TX_IRQn);
+}
+
+void numaker_eth_disable_interrupts(void) {
+	NVIC_DisableIRQ(EMAC_RX_IRQn);
+	NVIC_DisableIRQ(EMAC_TX_IRQn);
 }
