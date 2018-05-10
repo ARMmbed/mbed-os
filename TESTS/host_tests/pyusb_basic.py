@@ -313,7 +313,6 @@ def control_basic_test(dev, vendor_id, product_id, log):
     set_clear_feature_test(dev, log)
     get_descriptor_test(dev, vendor_id, product_id, log)
     set_descriptor_test(dev, log)
-    #synch_frame_test(dev, log) wait for isochronous endpoint
 
 
 def get_set_configuration_test(dev, log):
@@ -738,8 +737,12 @@ def device_reset_test(log):
     dev = yield
     dev.reset();
     dev = yield
+    # run other test to check if USB works fine after reset
+    control_data_test(dev, [64, 256], log)
     dev.reset();
     dev = yield
+    # run other test to check if USB works fine after reset
+    control_data_test(dev, [64, 256], log)
     dev.reset();
     dev = yield
     # run other test to check if USB works fine after reset
@@ -769,15 +772,25 @@ def device_soft_reconnection_test(log):
 
 def device_suspend_resume_test(log):
     dev = yield
-    time.sleep(0.1)
     control_data_test(dev, [64, 256], log)
-    time.sleep(0.1)
+    # suspend code goes here
+    # ...
+    # resume code here
+    # ...
+    # run other test to check if USB works fine after resume
     control_data_test(dev, [64, 256], log)
-    time.sleep(0.1)
+    # suspend code here
+    # ...
+    # resume code here
+    # ...
+    # run other test to check if USB works fine after resume
     control_data_test(dev, [64, 256], log)
-    time.sleep(0.1)
+    # suspend code here
+    # ...
+    # resume code here
+    # ...
+    # run other test to check if USB works fine after resume
     control_data_test(dev, [64, 256], log)
-    time.sleep(0.1)
     yield
 
 
