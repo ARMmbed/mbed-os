@@ -28,14 +28,15 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "platform/Callback.h"
 #include "events/EventQueue.h"
 #include "lorawan/LoRaWANStack.h"
+
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"
 #else
-#define tr_debug(...) void(0) //dummies if feature common pal is not added
-#define tr_info(...)  printf("[LSTK][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_error(...) printf("[LSTK][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_warn(...) printf("[LSTK][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
+#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
+#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
+#define tr_error(...) (void(0)) //dummies if feature common pal is not added
+#define tr_warn(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
 #define INVALID_PORT                0xFF
@@ -484,7 +485,7 @@ lorawan_status_t LoRaWANStack::activation_by_personalization(const lorawan_conne
 int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
                                 uint16_t length, uint8_t flags)
 {
-    tr_info("handle_tx, lw_session.active=%d tx_msg.tx_ongoing=%d", _lw_session.active, _tx_msg.tx_ongoing);
+    tr_debug("handle_tx, lw_session.active=%d tx_msg.tx_ongoing=%d", _lw_session.active, _tx_msg.tx_ongoing);
 
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
@@ -508,8 +509,6 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
     lorawan_status_t status;
     mib_req.type = MIB_NETWORK_JOINED;
     status = mib_get_request(&mib_req);
-
-    tr_info("mib status is %d", status);
 
     if (status == LORAWAN_STATUS_OK) {
         if (mib_req.param.is_nwk_joined == false) {
@@ -583,8 +582,6 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
     tr_info("RTS = %u bytes, PEND = %u", _tx_msg.f_buffer_size, _tx_msg.pending_size);
     set_device_state(DEVICE_STATE_SEND);
     status = lora_state_machine();
-
-    tr_info("lora_state_machine is %d", status);
 
     // send user the length of data which is scheduled now.
     // user should take care of the pending data.
@@ -767,8 +764,6 @@ void LoRaWANStack::mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm)
         return;
     }
 
-    tr_info("mcps_confirm_handler, status=%d", mcps_confirm->status);
-
     if (mcps_confirm->status != LORAMAC_EVENT_INFO_STATUS_OK) {
         // Couldn't schedule packet, ack not recieved in CONFIRMED case
         // or some other error happened. Discard buffer, unset the tx-ongoing
@@ -834,8 +829,6 @@ void LoRaWANStack::mcps_indication_handler(loramac_mcps_indication_t *mcps_indic
         tr_error("mcps_indication: struct [in] is null.");
         return;
     }
-
-    tr_info("mcps_indication_handler, status=%d", mcps_indication->status);
 
     if (mcps_indication->status != LORAMAC_EVENT_INFO_STATUS_OK) {
         if (_callbacks.events) {
@@ -1101,7 +1094,8 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
     loramac_mib_req_confirm_t mib_req;
     lorawan_status_t status = LORAWAN_STATUS_DEVICE_OFF;
 
-    tr_info("lora_state_machine %d", _device_current_state);
+
+    tr_debug("lora_state_machine %d", _device_current_state);
 
     switch (_device_current_state) {
         case DEVICE_STATE_SHUTDOWN:

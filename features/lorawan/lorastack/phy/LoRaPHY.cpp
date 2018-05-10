@@ -28,11 +28,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <math.h>
 #include "lorawan/lorastack/phy/LoRaPHY.h"
 
-#define tr_debug(...) printf("[LPHY][DBG] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_info(...)  printf("[LPHY][INF] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_error(...) printf("[LPHY][ERR] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-#define tr_warn(...) printf("[LPHY][WRN] "); printf(__VA_ARGS__); printf("\n") //dummies if feature common pal is not added
-
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
 #define BACKOFF_DC_24_HOURS     10000
@@ -112,7 +107,6 @@ uint32_t LoRaPHY::get_radio_rng()
 
 void LoRaPHY::handle_send(uint8_t *buf, uint8_t size)
 {
-    tr_info("handle_send (size=%u)", size);
     _radio->lock();
     _radio->send(buf, size);
     _radio->unlock();
