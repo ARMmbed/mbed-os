@@ -24,7 +24,11 @@
 #include "USBTester.h"
 #include "usb_phy_api.h"
 
-// Uncomment or remove this if host suspend_resume_test part will be implemented
+// TODO
+// suspend resume test: implement host side USB suspend/resume
+// sync frame test: add test on isochronous endpoint
+
+// Uncomment/remove this when host suspend_resume_test part will be implemented
 //#define SUSPEND_RESUME_TEST_SUPPORTED
 
 // If disconnect() + connect() occur too fast the reset event will be dropped.
@@ -37,6 +41,7 @@
 #error [NOT_SUPPORTED] USB Device not supported for this target
 #endif
 
+
 using namespace utest::v1;
 
 static USBPhy *get_phy()
@@ -44,6 +49,55 @@ static USBPhy *get_phy()
     return get_usb_phy();
 }
 
+
+/** Control basic tests
+
+    Test device configuration/deconfiguration
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device configuration is checked just after initialization
+    Then get_configuration returns 1 (default configuration is set)
+    When device is deconfigured
+    Then get_configuration returns 0 (no configuration is set)
+    When each from supported configurations is set
+    Then the configuration is set correctly
+
+    Test device interface setting
+    Given an initialized USB (HOST <---> DUT connection established)
+    When each altsetting from every supported configuration is set
+    Then the interface altsetting is set correctly
+
+    Test device/interface/endpoint status
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device status is checked
+    Then status is within allowed values (see status bits description below)
+    When control endpoint status is checked
+    Then control endpoint status is 0
+    When status of each interface from every supported configuration is checked
+    Then interface status is 0
+    When status of each endpoint in every allowed device interface/configuration combination is checked
+    Then endpoint status is 0 (not halted)
+
+    Test set/clear feature on device/interface/endpoint
+    Given an initialized USB (HOST <---> DUT connection established)
+    When for each endpoint in every allowed interface/configuration combination the feature is set and then cleared
+    Then selected feature is set/cleared accordingly
+
+    Test device/configuration/interface/endpoint descriptors
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device descriptor is read
+    Then the descriptor content is valid
+    When configuration descriptor is read
+    Then the descriptor content is valid
+    When interface descriptor is read
+    Then the error is thrown since it is not directly accessible
+    When endpoint descriptor is read
+    Then the error is thrown since it is not directly accessible
+
+    Test descriptor setting
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device descriptor is to be set
+    Then error is thrown since descriptor setting command is not supported by Mbed
+*/
 void control_basic_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -63,6 +117,14 @@ void control_basic_test()
     }
 }
 
+
+/** Test control endpoint stall on invalid request
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When unsupported request to control endpoint is to be sent
+    Then the endpoint is stalled and error is thrown
+
+*/
 void control_stall_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -80,6 +142,14 @@ void control_stall_test()
     }
 }
 
+
+/** Test various data sizes in control transfer
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When control data in each tested size is sent
+    Then read data should match sent data
+
+*/
 void control_sizes_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -97,6 +167,18 @@ void control_sizes_test()
     }
 }
 
+
+/** Test various patterns of control transfers
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When stress control transfer with a data in stage is performed
+    Then transfer ends with success
+    When stress control transfer with a data out stage followed by a control transfer with a data in stage is performed
+    Then transfer ends with success
+    When stress control transfer with a data out stage is performed
+    Then transfer ends with success
+
+*/
 void control_stress_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -114,6 +196,14 @@ void control_stress_test()
     }
 }
 
+
+/** Test USB implementation against repeated reset
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is reset repeatedly
+    Then the USB is operational with no errors
+
+*/
 void device_reset_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -162,6 +252,13 @@ void device_reset_test()
 }
 
 
+/** Test USB implementation against repeated reconnection
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is disconnected and then connected repeatedly
+    Then the USB is operational with no errors
+
+*/
 void device_soft_reconnection_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -205,7 +302,15 @@ void device_soft_reconnection_test()
     }
 }
 
+
 #if SUSPEND_RESUME_TEST_SUPPORTED
+/** Test USB implementation against repeated suspend and resume
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is suspended and then resumed repeatedly
+    Then the USB is operational with no errors
+
+*/
 void device_suspend_resume_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -230,6 +335,14 @@ void device_suspend_resume_test()
 }
 #endif
 
+
+/** Test USB implementation against repeated initialization and deinitialization
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is deinitialized and then initialized repeatedly
+    Then the USB is operational with no errors
+
+*/
 void repeated_construction_destruction_test()
 {
     uint16_t vendor_id = 0x0d28;
