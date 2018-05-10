@@ -627,9 +627,6 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
         manifest = Manifest.from_json(manifest_file)
         manifests.append(manifest)
 
-    # Validate the correctness of the manifest collection.
-    validate_partition_manifests(manifests)
-
     generated_folders = []
     for manifest in manifests:
         manifest_output_folder = manifest.autogen_folder
@@ -645,8 +642,7 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
                 manifest_output_folder,
                 extra_filters=extra_filters
             )
-
-        generated_folders.append(manifest_output_folder)
+            generated_folders.append(manifest_output_folder)
 
     return generated_folders
 
@@ -682,6 +678,9 @@ Process all the given manifest files and generate C code from them
                 manifest_obj.autogen_folder).values()
         )
 
+    # Validate the correctness of the manifest collection.
+    validate_partition_manifests(manifests)
+
     if is_up_to_date(
             manifest_files,
             MANIFEST_TEMPLATES + COMMON_TEMPLATES,
@@ -699,18 +698,3 @@ Process all the given manifest files and generate C code from them
         autogen_folder,
         extra_filters=extra_filters
     )
-
-
-def scan_for_manifests(src_dirs):
-    """
-    Scan a list of directories for PSA manifests.
-    
-    :param src_dirs: List of directories
-    :return: List of PSA manifests
-    """
-    manifests = set()
-    for src_dir in src_dirs:
-        for root, dirnames, filenames in os.walk(src_dir, followlinks=True):
-            for filename in fnmatch.filter(filenames, MANIFEST_FILE_PATTERN):
-                manifests.add(os.path.join(root, filename))
-    return list(manifests)

@@ -42,7 +42,6 @@ from tools.utils import argparse_filestring_type, argparse_lowercase_type, argpa
 from tools.utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
-from tools.spm import generate_partitions_sources, scan_for_manifests
 
 if __name__ == '__main__':
     try:
@@ -198,10 +197,9 @@ if __name__ == '__main__':
             if not base_source_paths:
                 base_source_paths = ['.']
 
-            generate_partitions_sources(scan_for_manifests(base_source_paths))
-
             build_report = {}
             build_properties = {}
+            psa_manifests = []
 
             library_build_success = False
             profile = extract_profile(parser, options, toolchain)
@@ -214,7 +212,8 @@ if __name__ == '__main__':
                               macros=options.macros, verbose=options.verbose,
                               notify=notify, archive=False,
                               app_config=config,
-                              build_profile=profile)
+                              build_profile=profile,
+                              psa_manifests=psa_manifests)
 
                 library_build_success = True
             except ToolException as e:
@@ -243,7 +242,8 @@ if __name__ == '__main__':
                         continue_on_build_fail=options.continue_on_build_fail,
                         app_config=config,
                         build_profile=profile,
-                        stats_depth=options.stats_depth)
+                        stats_depth=options.stats_depth,
+                        psa_manifests=psa_manifests)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

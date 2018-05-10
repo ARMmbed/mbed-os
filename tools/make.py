@@ -54,7 +54,6 @@ from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
-from tools.spm import generate_partitions_sources, scan_for_manifests
 
 if __name__ == '__main__':
     # Parse Options
@@ -248,8 +247,6 @@ if __name__ == '__main__':
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
                            %(toolchain, search_path))
-
-    generate_partitions_sources(scan_for_manifests(options.source_dir))
 
     # Test
     build_data_blob = {} if options.build_data else None

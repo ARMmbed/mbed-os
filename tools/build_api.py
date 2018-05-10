@@ -47,8 +47,7 @@ from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
-from .spm import generate_spm_data
-
+from .spm import generate_spm_data, generate_partitions_sources
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -502,7 +501,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None, build_profile=None, stats_depth=None):
+                  app_config=None, build_profile=None, stats_depth=None,
+                  psa_manifests=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -576,11 +576,20 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
+        if psa_manifests is None:
+            psa_manifests = resources.psa_manifests
+        else:
+            psa_manifests.extend(resources.psa_manifests)
+
+        for f in generate_partitions_sources(psa_manifests):
+            resources.add(toolchain.scan_resources(
+                f, base_path=resources.base_path))
+
         # Skip SPM sources for Mbed OS 2 builds
         # Directories scanned would not include the root of Mbed OS for legacy builds
         if 'rtos' in toolchain.config.lib_config_data:
             # Generate SPM additional code from manifests
-            psa_files_dir = generate_spm_data(resources.psa_manifests, build_path)
+            psa_files_dir = generate_spm_data(psa_manifests, build_path)
             resources.add(toolchain.scan_resources(psa_files_dir))
 
         # Change linker script if specified
@@ -663,7 +672,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   inc_dirs=None, jobs=1, silent=False, report=None,
                   properties=None, extra_verbose=False, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None):
+                  build_profile=None, psa_manifests=None):
     """ Build a library
 
     Positional arguments:
@@ -753,6 +762,15 @@ def build_library(src_paths, build_path, target, toolchain_name,
                                    dependencies_paths=dependencies_paths,
                                    inc_dirs=inc_dirs)
 
+        if psa_manifests is None:
+            psa_manifests = resources.psa_manifests
+        else:
+            psa_manifests.extend(resources.psa_manifests)
+
+        for f in generate_partitions_sources(psa_manifests):
+            resources.add(toolchain.scan_resources(
+                f, base_path=resources.base_path))
+
         # Copy headers, objects and static libraries - all files needed for
         # static lib, PSA manifests
         toolchain.copy_files(resources.headers, build_path, resources=resources)
@@ -768,10 +786,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if resources.hex_files:
             toolchain.copy_files(resources.hex_files, build_path,
                                  resources=resources)
-
-        # if resources.psa_manifests:
-        #     toolchain.copy_files(resources.psa_manifests, build_path,
-        #                          resources=resources)
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, resources.inc_dirs)
