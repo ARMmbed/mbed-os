@@ -122,6 +122,24 @@ public:
         return BLE_ERROR_UNSPECIFIED;
     }
 
+    virtual ble_error_t enablePrivacy(bool enable);
+
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    );
+
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
@@ -260,21 +278,8 @@ public:
     /** @note Implements ConnectionEventMonitor.
      *  @copydoc ConnectionEventMonitor::set_connection_event_handler
      */
-    void set_connection_event_handler(
+    virtual void set_connection_event_handler(
         ConnectionEventMonitor::EventHandler* connection_event_handler
-    );
-
-    /**
-     * @copydoc ::Gap::processConnectionEvent
-     */
-    void processConnectionEvent(
-        Handle_t handle,
-        Role_t role,
-        BLEProtocol::AddressType_t peerAddrType,
-        const BLEProtocol::AddressBytes_t peerAddr,
-        BLEProtocol::AddressType_t ownAddrType,
-        const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams
     );
 
     /**
@@ -285,9 +290,21 @@ public:
         DisconnectionReason_t reason
     );
 
+private:
+    friend void btle_handler(ble_evt_t *p_ble_evt);
+
+    void on_connection(Handle_t handle, const ble_gap_evt_connected_t& evt);
+    void on_advertising_packet(const ble_gap_evt_adv_report_t &evt);
+
     uint16_t m_connectionHandle;
 
     ConnectionEventMonitor::EventHandler* _connection_event_handler;
+
+    bool _privacy_enabled;
+    PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
+    CentralPrivacyConfiguration_t _central_privacy_configuration;
+    AddressType_t _non_private_type;
+    Address_t _non_private_address;
 
     /*
      * Allow instantiation from nRF5xn when required.

@@ -176,9 +176,6 @@ const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii)/sizeof(gsm_to_ascii[0])
 AT_CellularSMS::AT_CellularSMS(ATHandler &at) : AT_CellularBase(at), _cb(0), _mode(CellularSMSMmodeText),
         _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
 {
-    /* URCs, handled out of band */
-    _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc));
-    _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc));
 }
 
 AT_CellularSMS::~AT_CellularSMS()
@@ -258,6 +255,11 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 
 nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
 {
+    if (_at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
+            _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
     _at.lock();
     set_cnmi();     //set new SMS indication
     set_cmgf(mode); //set message format/PDU
@@ -350,8 +352,6 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
         pdu[x++] = '0';
     }
 
-    // possible to use 16 bit identifier, can't be defined yet from outside
-    bool use_16_bit_identifier = false;
     uint8_t udhlen = 0;
     // Length can be update after we have created PDU, store position for later use.
     int lengthPos = x;
@@ -361,34 +361,17 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     if (msg_parts > 1) { // concatenated, must use UDH
         // user data header length in chars
         pdu[x++] = '0';
-        if (use_16_bit_identifier) {
-            udhlen = 7; // udh length in chars (6) + udhl length in chars
-            pdu[x++] = '6';
-        } else {
-            udhlen = 6; // udh length in chars (5) + udhl length in chars
-            pdu[x++] = '5';
-        }
+        udhlen = 6; // udh length in chars (5) + udhl length in chars
+        pdu[x++] = '5';
         // Information element identifier
         pdu[x++] = '0';
-        if (use_16_bit_identifier) {
-            pdu[x++] = '8';
-        } else {
-            pdu[x++] = '0';
-        }
+        pdu[x++] = '0';
         //  Information element data length
         pdu[x++] = '0';
-        if (use_16_bit_identifier) {
-            pdu[x++] = '4';
-        } else {
-            pdu[x++] = '3';
-        }
+        pdu[x++] = '3';
         //  A reference number (must be the same for all parts of the same larger messages)
         int_to_hex_str(_sms_message_ref_number&0xFF, pdu+x);
         x +=2;
-        if (use_16_bit_identifier) {
-            int_to_hex_str((_sms_message_ref_number>>16)&0xFF, pdu+x);
-            x +=2;
-        }
         // How many parts does this message have?
         int_to_hex_str(msg_parts, pdu+x);
         x +=2;
@@ -676,13 +659,13 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* b
 nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char* phone_num, char* time_stamp)
 {
     // +CMGR: <stat>,[<alpha>],<length><CR><LF><pdu>
-    int index = -1;
+    int index;
     if (sms->parts == sms->parts_added) {
         char *pdu; // we need a temp buffer as payload is hexencoded ---> can't use buf as it might be enough for message but not hexenconded pdu.
-        int status = -1;
-        int msg_len = 0;
+        int status;
+        int msg_len;
         index = 0;
-        int pduSize = 0;
+        int pduSize;
 
         for (int i = 0; i < sms->parts; i++) {
             wait_ms(_sim_wait_time);
@@ -1210,13 +1193,16 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
     uint8_t shift;
     char tmp;
 
+    if (len == 0) {
+        return 0;
+    }
     // convert to 7bit gsm first
     char* gsm_str = (char*)malloc(len);
     if (!gsm_str) {
         return 0;
     }
     for (uint16_t y = 0; y < len; y++) {
-        for (int x=0;  x < GSM_TO_ASCII_TABLE_SIZE; x++) {
+        for (int x=0; x < GSM_TO_ASCII_TABLE_SIZE; x++) {
             if (gsm_to_ascii[x] == str[y]) {
                 gsm_str[y] = x;
             }

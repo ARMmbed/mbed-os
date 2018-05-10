@@ -299,7 +299,7 @@ LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_EU868;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_repeater_EU868;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;

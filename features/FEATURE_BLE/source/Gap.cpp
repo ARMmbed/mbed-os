@@ -17,7 +17,7 @@
 #include "ble/Gap.h"
 
 ble_error_t Gap::getRandomAddressType(
-    BLEProtocol::AddressBytes_t address,
+    const BLEProtocol::AddressBytes_t address,
     RandomAddressType_t* type
 ) {
     // see section Device address in Bluetooth Link Layer specification
@@ -36,3 +36,13 @@ ble_error_t Gap::getRandomAddressType(
             return BLE_ERROR_INVALID_PARAM;
     }
 }
+
+const Gap::PeripheralPrivacyConfiguration_t Gap::default_peripheral_privacy_configuration = {
+    /* use_non_resolvable_random_address */ false,
+    /* resolution_strategy */ PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE
+};
+
+const Gap::CentralPrivacyConfiguration_t Gap::default_central_privacy_configuration = {
+    /* use_non_resolvable_random_address */ false,
+    /* resolution_strategy */ CentralPrivacyConfiguration_t::DO_NOT_RESOLVE
+};

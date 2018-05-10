@@ -40,8 +40,13 @@ static const size_t basic_func_max_data_size = 128;
 static const int thr_test_num_buffs = 5;
 static const int thr_test_num_secs = 5;
 static const int thr_test_max_data_size = 32;
-static const int thr_test_stack_size = 768;
 static const int thr_test_num_threads = 3;
+
+#ifdef TARGET_NRF52
+static const int thr_test_stack_size = 1024;
+#else
+static const int thr_test_stack_size = 768;
+#endif
 
 typedef struct {
     uint8_t *buffs[max_test_keys][thr_test_num_buffs];
@@ -70,6 +75,7 @@ static void nvstore_basic_functionality_test()
 
     uint16_t actual_len_bytes = 0;
     NVStore &nvstore = NVStore::get_instance();
+    uint16_t key;
 
     uint8_t *nvstore_testing_buf_set = new uint8_t[basic_func_max_data_size];
     uint8_t *nvstore_testing_buf_get = new uint8_t[basic_func_max_data_size];
@@ -127,6 +133,10 @@ static void nvstore_basic_functionality_test()
     result = nvstore.set(19, 10, &(nvstore_testing_buf_set[3]));
     TEST_ASSERT_EQUAL(NVSTORE_ALREADY_EXISTS, result);
 
+    result = nvstore.set_alloc_key(key, 17, &(nvstore_testing_buf_set[3]));
+    TEST_ASSERT_EQUAL(NVSTORE_NUM_PREDEFINED_KEYS, key);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+
     // Make sure set items are also gotten OK after reset
     result = nvstore.deinit();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
@@ -152,6 +162,11 @@ static void nvstore_basic_functionality_test()
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
     TEST_ASSERT_EQUAL(64, actual_len_bytes);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(nvstore_testing_buf_set, nvstore_testing_buf_get, 64);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+    TEST_ASSERT_EQUAL(17, actual_len_bytes);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&nvstore_testing_buf_set[3], nvstore_testing_buf_get, 17);
 
     result = nvstore.get(10, 65, nvstore_testing_buf_get, actual_len_bytes);
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -73,6 +71,15 @@ typedef enum
   HAL_PCD_STATE_BUSY     = 0x03U,
   HAL_PCD_STATE_TIMEOUT  = 0x04U
 } PCD_StateTypeDef;
+
+/* Device LPM suspend state */
+typedef enum  
+{
+  LPM_L0 = 0x00, /* on */
+  LPM_L1 = 0x01, /* LPM L1 sleep */
+  LPM_L2 = 0x02, /* suspend */
+  LPM_L3 = 0x03, /* off */
+}PCD_LPM_StateTypeDef;
 
 typedef enum
 {
@@ -179,6 +186,15 @@ typedef struct
   HAL_LockTypeDef         Lock;       /*!< PCD peripheral status              */
   __IO PCD_StateTypeDef   State;      /*!< PCD communication state            */
   uint32_t                Setup[12];  /*!< Setup packet buffer                */
+    PCD_LPM_StateTypeDef    LPM_State;    /*!< LPM State                          */
+  uint32_t                BESL;
+  
+  
+  uint32_t lpm_active;                  /*!< Enable or disable the Link Power Management .                                  
+                                        This parameter can be set to ENABLE or DISABLE                      */
+
+  uint32_t battery_charging_active;     /*!< Enable or disable Battery charging.                                  
+                                        This parameter can be set to ENABLE or DISABLE                      */
   void                    *pData;      /*!< Pointer to upper stack Handler     */    
   
 } PCD_HandleTypeDef;

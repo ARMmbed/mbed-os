@@ -210,7 +210,7 @@ static const channel_params_t IN865_LC3 = { 865985000, 0, { ( ( DR_5 << 4 ) | DR
 /*!
  * Data rates table definition
  */
-static const uint8_t datarates_IN865[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
+static const uint8_t datarates_IN865[]  = { 12, 11, 10,  9,  8,  7,  0, 50 };
 
 /*!
  * Bandwidths table definition in Hz
@@ -270,7 +270,7 @@ LoRaPHYIN865::LoRaPHYIN865(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_IN865;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_with_repeater;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;

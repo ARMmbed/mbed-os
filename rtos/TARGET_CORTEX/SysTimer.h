@@ -49,12 +49,41 @@ class SysTimer: private mbed::TimerEvent, private mbed::NonCopyable<SysTimer> {
 public:
 
     SysTimer();
+    SysTimer(const ticker_data_t *data);
     virtual ~SysTimer();
 
     /**
      * Enable an IRQ/SysTick with the correct priority.
      */
     static void setup_irq();
+
+    /**
+     * Set wakeup time and schedule a wakeup event after delta ticks
+     *
+     * After suspend has been called the function suspend_time_passed
+     * can be used to determine if the suspend time has passed.
+     *
+     * @param delta Ticks to remain suspended
+     */
+    void suspend(uint32_t delta);
+
+    /**
+     * Check if the suspend time has passed
+     *
+     * @return true if the specified number of ticks has passed otherwise false
+     */
+    bool suspend_time_passed();
+
+    /**
+     * Exit suspend mode and return elapsed ticks
+     *
+     * Due to a scheduling issue, the number of ticks returned is decremented
+     * by 1 so that a handler can be called and update to the current value.
+     * This allows scheduling restart successfully after the OS is resumed.
+     *
+     * @return the number of elapsed ticks minus 1
+     */
+    uint32_t resume();
 
     /**
      * Schedule an os tick to fire
@@ -78,17 +107,6 @@ public:
     uint32_t get_tick();
 
     /**
-     * Update the internal tick count
-     *
-     * @return The number of ticks incremented
-     *
-     * @note Due to a scheduling issue, the number of ticks returned is decremented
-     * by 1 so that a handler can be called and update to the current value.
-     * This allows scheduling restart successfully after the OS is resumed.
-     */
-    uint32_t update_tick();
-
-    /**
      * Get the time
      *
      * @return Current time in microseconds
@@ -97,10 +115,12 @@ public:
 
 protected:
     virtual void handler();
-    void increment_tick();
-    static void set_irq_pending();
+    void _increment_tick();
+    static void _set_irq_pending();
     us_timestamp_t _start_time;
     uint64_t _tick;
+    bool _suspend_time_passed;
+    bool _suspended;
 };
 
 /**

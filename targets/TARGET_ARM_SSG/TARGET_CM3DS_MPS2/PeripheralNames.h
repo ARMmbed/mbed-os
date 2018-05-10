@@ -61,31 +61,6 @@ typedef enum {
     SPI_NC = (SPI_4 + 1)
 } SPIName;
 
-typedef enum {
-    PWM_1 = 0,
-    PWM_2,
-    PWM_3,
-    PWM_4,
-    PWM_5,
-    PWM_6,
-    PWM_7,
-    PWM_8,
-    PWM_9,
-    PWM_10,
-    PWM_11
-} PWMName;
-
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_1
-
-#define MBED_UART0        MCC_TX, MCC_RX
-#define MBED_UART1        USBTX, USBRX
-#define MBED_UART2        XB_TX, XB_RX
-#define MBED_UART3        SH0_TX, SH0_RX
-#define MBED_UART4        SH1_TX, SH1_RX
-#define MBED_UARTUSB      USBTX, USBRX
-
 #ifdef __cplusplus
 }
 #endif

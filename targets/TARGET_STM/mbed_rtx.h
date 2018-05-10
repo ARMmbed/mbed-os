@@ -59,6 +59,7 @@
 
 #elif (defined(TARGET_STM32F091RC) ||\
        defined(TARGET_STM32F410RB) ||\
+       defined(TARGET_STM32L151CBA)||\
        defined(TARGET_STM32L151CC) ||\
        defined(TARGET_STM32L151RC) ||\
        defined(TARGET_STM32L152RC))
@@ -82,7 +83,8 @@
 #elif defined(TARGET_STM32L152RE)
 #define INITIAL_SP              (0x20014000UL)
 
-#elif defined(TARGET_STM32F401RE)
+#elif (defined(TARGET_STM32F401RE) ||\
+       defined(TARGET_STM32F401VE))
 #define INITIAL_SP              (0x20018000UL)
 
 #elif (defined(TARGET_STM32F207ZG) ||\
@@ -107,6 +109,7 @@
        defined(TARGET_STM32F746NG) ||\
        defined(TARGET_STM32F746ZG) ||\
        defined(TARGET_STM32F756ZG) ||\
+       defined(TARGET_STM32L496AG) ||\
        defined(TARGET_STM32L496ZG))
 #define INITIAL_SP              (0x20050000UL)
 
@@ -119,7 +122,7 @@
 #endif
 
 #endif // INITIAL_SP
-#if (defined(__GNUC__) && !defined(__CC_ARM) && defined(TWO_RAM_REGIONS))
+#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION) && defined(TWO_RAM_REGIONS))
     extern uint32_t               __StackLimit[];
     extern uint32_t               __StackTop[];
     extern uint32_t               __end__[];

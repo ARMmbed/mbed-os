@@ -1,27 +1,41 @@
 /**
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
- ___ _____ _   ___ _  _____ ___  ___  ___ ___
-/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-embedded.connectivity.solutions===============
-
-Description: LoRaWAN stack layer that controls both MAC and PHY underneath
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
-
-
-Copyright (c) 2017, Arm Limited and affiliates.
-
-SPDX-License-Identifier: BSD-3-Clause
-*/
+ * \file      LoRaWANStack.h
+ *
+ * \brief     LoRaWAN stack layer implementation
+ *
+ * \copyright Revised BSD License, see LICENSE.TXT file include in the project
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013 Semtech
+ *
+ *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
+ *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+ *              \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+ *              |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+ *              embedded.connectivity.solutions===============
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Daniel Jaeckle ( STACKFORCE )
+ *
+ * \defgroup  LoRaWAN stack layer that controls MAC layer underneath
+ *
+ * License: Revised BSD License, see LICENSE.TXT file include in the project
+ *
+ * Copyright (c) 2017, Arm Limited and affiliates.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef LORAWANSTACK_H_
 #define LORAWANSTACK_H_
@@ -30,70 +44,123 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
-#include "lorawan/system/LoRaWANTimer.h"
+
 #include "lorastack/mac/LoRaMac.h"
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/LoRaWANTimer.h"
+#include "system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
 
-#ifdef MBED_CONF_LORA_PHY
- #if MBED_CONF_LORA_PHY      == 0
-  #include "lorawan/lorastack/phy/LoRaPHYEU868.h"
-  #define LoRaPHY_region LoRaPHYEU868
- #elif MBED_CONF_LORA_PHY    == 1
-  #include "lorawan/lorastack/phy/LoRaPHYAS923.h"
-  #define LoRaPHY_region LoRaPHYAS923
- #elif MBED_CONF_LORA_PHY    == 2
-  #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
- #define LoRaPHY_region LoRaPHYAU915;
- #elif MBED_CONF_LORA_PHY    == 3
-  #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
-  #define LoRaPHY_region LoRaPHYCN470
- #elif MBED_CONF_LORA_PHY    == 4
-  #include "lorawan/lorastack/phy/LoRaPHYCN779.h"
-  #define LoRaPHY_region LoRaPHYCN779
- #elif MBED_CONF_LORA_PHY    == 5
-  #include "lorawan/lorastack/phy/LoRaPHYEU433.h"
-  #define LoRaPHY_region LoRaPHYEU433
- #elif MBED_CONF_LORA_PHY    == 6
-  #include "lorawan/lorastack/phy/LoRaPHYIN865.h"
-  #define LoRaPHY_region LoRaPHYIN865
- #elif MBED_CONF_LORA_PHY    == 7
-  #include "lorawan/lorastack/phy/LoRaPHYKR920.h"
-  #define LoRaPHY_region LoRaPHYKR920
- #elif MBED_CONF_LORA_PHY    == 8
-  #include "lorawan/lorastack/phy/LoRaPHYUS915.h"
-  #define LoRaPHY_region LoRaPHYUS915
- #elif MBED_CONF_LORA_PHY    == 9
-  #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
-  #define LoRaPHY_region LoRaPHYUS915Hybrid
- #endif //MBED_CONF_LORA_PHY == VALUE
-#else
- #error "Must set LoRa PHY layer parameters."
-#endif //MBED_CONF_LORA_PHY
-
-/**
- * A mask for the network ID.
- */
-#define LORAWAN_NETWORK_ID_MASK                          ( uint32_t )0xFE000000
-
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
+private:
+    /** End-device states.
+     *
+     */
+    typedef enum device_states {
+        DEVICE_STATE_NOT_INITIALIZED,
+        DEVICE_STATE_INIT,
+        DEVICE_STATE_JOINING,
+        DEVICE_STATE_ABP_CONNECTING,
+        DEVICE_STATE_JOINED,
+        DEVICE_STATE_SEND,
+        DEVICE_STATE_IDLE,
+#if defined(LORAWAN_COMPLIANCE_TEST)
+        DEVICE_STATE_COMPLIANCE_TEST,
+#endif
+        DEVICE_STATE_SHUTDOWN
+    } device_states_t;
+
 public:
-    static LoRaWANStack& get_lorawan_stack();
+    LoRaWANStack();
 
     /** Binds radio driver to PHY layer.
      *
      * MAC layer is totally detached from the PHY layer so the stack layer
      * needs to play the role of an arbitrator. This API gets a radio driver
      * object from the application (via LoRaWANInterface), binds it to the PHY
-     * layer and returns MAC layer callback handles which the radio driver will
+     * layer and initialises radio callback handles which the radio driver will
      * use in order to report events.
      *
      * @param radio            LoRaRadio object, i.e., the radio driver
      *
-     * @return                 A list of callbacks from MAC layer that needs to
-     *                         be passed to radio driver
      */
-    radio_events_t *bind_radio_driver(LoRaRadio& radio);
+    void bind_radio_driver(LoRaRadio& radio);
+
+    /** Connect OTAA or ABP using Mbed-OS config system
+     *
+     * Connect by Over The Air Activation or Activation By Personalization.
+     * You need to configure the connection properly via the Mbed OS configuration
+     * system.
+     *
+     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * However, this is not a real error. It tells you that the connection is in progress and you will
+     * be notified of the completion via an event. By default, after the Join Accept message
+     * is received, base stations may provide the node with a CF-List that replaces
+     * all user-configured channels except the Join/Default channels. A CF-List can
+     * configure a maximum of five channels other than the default channels.
+     *
+     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
+     * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
+     * By default, the PHY layers configure only the mandatory Join channels. The retransmission back-off restrictions
+     * on these channels are severe and you may experience long delays or even failures in the confirmed traffic.
+     * If you add more channels, the aggregated duty cycle becomes much more relaxed as compared to the Join (default) channels only.
+     *
+     * **NOTES ON RECONNECTION:**
+     * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
+     * memory storage. Therefore, the state and frame counters cannot be restored after
+     * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
+     * protocol, the state and frame counters are saved. Connecting again would try to
+     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
+     * to zero for OTAA and a new Join request lets the network server know
+     * that the counters need a reset. The same is said about the ABP but there
+     * is no way to convey this information to the network server. For a network
+     * server, an ABP device is always connected. That's why storing the frame counters
+     * is important, at least for ABP. That's why we try to restore frame counters from
+     * session information after a disconnection.
+     *
+     * @return         LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS
+     *                 on success, or a negative error code on failure.
+     */
+    lorawan_status_t connect();
+
+    /** Connect OTAA or ABP with parameters
+     *
+     * All connection parameters are chosen by the user and provided in the
+     * data structure passed down.
+     *
+     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * However, this is not a real error. It tells you that connection is in progress and you will
+     * be notified of completion via an event. By default, after Join Accept message
+     * is received, base stations may provide the node with a CF-List which replaces
+     * all user-configured channels except the Join/Default channels. A CF-List can
+     * configure a maximum of five channels other than the default channels.
+     *
+     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
+     * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
+     * By default, the PHY layers configure only the mandatory Join
+     * channels. The retransmission back-off restrictions on these channels
+     * are severe and you may experience long delays or even
+     * failures in the confirmed traffic. If you add more channels, the aggregated duty
+     * cycle becomes much more relaxed as compared to the Join (default) channels only.
+     *
+     * **NOTES ON RECONNECTION:**
+     * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
+     * memory storage. Therefore, the state and frame counters cannot be restored after
+     * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
+     * protocol, the state and frame counters are saved. Connecting again would try to
+     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
+     * to zero for OTAA and a new Join request lets the network server know
+     * that the counters need a reset. The same is said about the ABP but there
+     * is no way to convey this information to the network server. For a network
+     * server, an ABP device is always connected. That's why storing the frame counters
+     * is important, at least for ABP. That's why we try to restore frame counters from
+     * session information after a disconnection.
+     *
+     * @param connect  Options for an end device connection to the gateway.
+     *
+     * @return        LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS,
+     *                a negative error code on failure.
+     */
+    lorawan_status_t connect(const lorawan_connect_t &connect);
 
     /** End device initialization.
      * @param queue            A pointer to an EventQueue passed from the application.
@@ -104,8 +171,9 @@ public:
     /** Sets all callbacks for the application.
      *
      * @param callbacks        A pointer to the structure carrying callbacks.
+     * @return                 LORAWAN_STATUS_OK on success, a negative error code on failure.
      */
-    void set_lora_callbacks(lorawan_app_callbacks_t *callbacks);
+    lorawan_status_t set_lora_callbacks(lorawan_app_callbacks_t *callbacks);
 
     /** Adds channels to use.
      *
@@ -191,39 +259,6 @@ public:
      */
     lorawan_status_t enable_adaptive_datarate(bool adr_enabled);
 
-    /** Commissions a LoRa device.
-     *
-     * @param commission_data   A structure representing all the commission
-     *                          information.
-     */
-    void commission_device(const lorawan_dev_commission_t &commission_data);
-
-    /** End device OTAA join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Over The Air Activation (OTAA) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
-     */
-    lorawan_status_t join_request_by_otaa(const lorawan_connect_t &params);
-
-    /** End device ABP join.
-     *
-     * Based on the LoRaWAN standard 1.0.2.
-     * Join the network using the Activation By Personalization (ABP) procedure.
-     *
-     * @param  params           The `lorawan_connect_t` type structure.
-     *
-     * @return                  LORAWAN_STATUS_OK or
-     *                          LORAWAN_STATUS_CONNECT_IN_PROGRESS on success,
-     *                          or a negative error code on failure.
-     */
-    lorawan_status_t activation_by_personalization(const lorawan_connect_t &params);
-
     /** Send message to gateway
      *
      * @param port              The application port number. Port numbers 0 and 224
@@ -253,25 +288,33 @@ public:
      *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
      *                          mutually exclusive.
      *
+     * @param null_allowed      Internal use only. Needed for sending empty packet
+     *                          having CONFIRMED bit on.
+     *
+     * @param allow_port_0      Internal use only. Needed for flushing MAC commands.
      *
      * @return                  The number of bytes sent, or
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
     int16_t handle_tx(uint8_t port, const uint8_t* data,
-                      uint16_t length, uint8_t flags);
+                      uint16_t length, uint8_t flags,
+                      bool null_allowed = false, bool allow_port_0 = false);
 
     /** Receives a message from the Network Server.
+     *
+     * @param data              A pointer to buffer where the received data will be
+     *                          stored.
+     *
+     * @param length            The size of data in bytes
      *
      * @param port              The application port number. Port numbers 0 and 224
      *                          are reserved, whereas port numbers from 1 to 223
      *                          (0x01 to 0xDF) are valid port numbers.
      *                          Anything out of this range is illegal.
      *
-     * @param data              A pointer to buffer where the received data will be
-     *                          stored.
-     *
-     * @param length            The size of data in bytes
+     *                          In return will contain the number of port to which
+     *                          message was received.
      *
      * @param flags             A flag is used to determine what type of
      *                          message is being received, for example:
@@ -293,6 +336,13 @@ public:
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.
      *
+     *                          In return will contain the flags to determine what kind
+     *                          of message was received.
+     *
+     * @param validate_params   If set to true, the given port and flags values will be checked
+     *                          against the values received with the message. If values do not
+     *                          match, LORAWAN_STATUS_WOULD_BLOCK will be returned.
+     *
      * @return                  It could be one of these:
      *                             i)   0 if there is nothing else to read.
      *                             ii)  Number of bytes written to user buffer.
@@ -300,8 +350,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    int16_t handle_rx(const uint8_t port, uint8_t* data,
-                      uint16_t length, uint8_t flags);
+    int16_t handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params);
 
     /** Send Link Check Request MAC command.
      *
@@ -319,6 +368,13 @@ public:
      */
     lorawan_status_t set_link_check_request();
 
+    /** Removes link check request sticky MAC command.
+     *
+     * Any already queued request may still get entertained. However, no new
+     * requests will be made.
+     */
+    void remove_link_check_request();
+
     /** Shuts down the LoRaWAN protocol.
      *
      * In response to the user call for disconnection, the stack shuts down itself.
@@ -327,33 +383,28 @@ public:
      */
     lorawan_status_t shutdown();
 
-private:
-    LoRaWANStack();
-    ~LoRaWANStack();
+    /** Change device class
+     *
+     * Change current device class.
+     *
+     * @param    device_class   The device class
+     *
+     * @return                  LORAWAN_STATUS_OK on success,
+     *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
+     *                          or other negative error code if request failed.
+     */
+    lorawan_status_t set_device_class(const device_class_t& device_class);
 
+private:
     /**
      * Checks if the user provided port is valid or not
      */
-    bool is_port_valid(uint8_t port);
+    bool is_port_valid(uint8_t port, bool allow_port_0 = false);
 
     /**
      * State machine for stack controller layer.
-     * Needs to be wriggled for every state change
      */
-    lorawan_status_t lora_state_machine();
-
-    /**
-     * Sets the current state of the device.
-     * Every call to set_device_state() should precede with
-     * a call to lora_state_machine() in order to take the state change
-     * in effect.
-     */
-    void set_device_state(device_states_t new_state);
-
-    /**
-     * Hands over the packet to Mac layer by posting an MCPS request.
-     */
-    lorawan_status_t send_frame_to_mac();
+    lorawan_status_t lora_state_machine(device_states_t new_state);
 
     /**
      * Callback function for MLME indication. Mac layer calls this function once
@@ -363,25 +414,11 @@ private:
     void mlme_indication_handler(loramac_mlme_indication_t *mlmeIndication);
 
     /**
-     * Handles an MLME request coming from the upper layers and delegates
-     * it to the Mac layer, for example, a Join request goes as an MLME request
-     * to the Mac layer.
-     */
-    lorawan_status_t mlme_request_handler(loramac_mlme_req_t *mlme_request);
-
-    /**
      * Handles an MLME confirmation coming from the Mac layer and uses it to
      * update the state for example, a Join Accept triggers an MLME confirmation,
      * that eventually comes here and we take necessary steps accordingly.
      */
     void mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm);
-
-    /**
-     * Handles an MCPS request while attempting to hand over a packet from
-     * upper layers to Mac layer. For example in response to send_frame_to_mac(),
-     * an MCPS request is generated.
-     */
-    lorawan_status_t mcps_request_handler(loramac_mcps_req_t *mcps_request);
 
     /**
      * Handles an MCPS confirmation coming from the Mac layer in response to an
@@ -400,35 +437,46 @@ private:
     void mcps_indication_handler(loramac_mcps_indication_t *mcps_indication);
 
     /**
-     * Sets a MIB request, i.e., update a particular parameter etc.
-     */
-    lorawan_status_t mib_set_request(loramac_mib_req_confirm_t *mib_set_params);
-
-    /**
-     * Requests the MIB to inquire about a particular parameter.
-     */
-    lorawan_status_t mib_get_request(loramac_mib_req_confirm_t *mib_get_params);
-
-    /**
      * Sets up user application port
      */
-    lorawan_status_t set_application_port(uint8_t port);
+    lorawan_status_t set_application_port(uint8_t port, bool allow_port_0 = false);
 
     /**
-     * Helper function to figure out if the user defined data size is possible
-     * to send or not. The allowed size for transmission depends on the current
-     * data rate set for the channel. If its not possible to send user defined
-     * packet size, this method returns the maximum possible size at the moment,
-     * otherwise the user defined size is returned which means all of user data
-     * can be sent.
+     * Handles connection internally
      */
-    uint16_t check_possible_tx_size(uint16_t size);
+    lorawan_status_t handle_connect(bool is_otaa);
+
+
+    /** Send event to application.
+     *
+     * @param  event            The event to be sent.
+     */
+    void send_event_to_application(const lorawan_event_t event) const;
+
+    /** Send empty uplink message to network.
+     *
+     * Sends an empty confirmed message to gateway.
+     *
+     * @param  port            The event to be sent.
+     */
+    void send_automatic_uplink_message(const uint8_t port);
+
+private:
+    LoRaMac _loramac;
+    loramac_primitives_t LoRaMacPrimitives;
+
+    device_states_t _device_current_state;
+    lorawan_app_callbacks_t _callbacks;
+    lorawan_session_t _lw_session;
+    loramac_tx_message_t _tx_msg;
+    loramac_rx_message_t _rx_msg;
+    uint8_t _num_retry;
+    uint8_t _app_port;
+    bool _link_check_requested;
+
+    events::EventQueue *_queue;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
-    /**
-     * This function is used only for compliance testing
-     */
-    void prepare_special_tx_frame(uint8_t port);
 
     /**
      * Used only for compliance testing
@@ -439,28 +487,9 @@ private:
      * Used only for compliance testing
      */
     lorawan_status_t send_compliance_test_frame_to_mac();
-#endif
 
-    LoRaWANTimeHandler _lora_time;
-    LoRaMac _loramac;
-    LoRaPHY_region _lora_phy;
-    loramac_primitives_t LoRaMacPrimitives;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
     compliance_test_t _compliance_test;
 #endif
-
-    device_states_t _device_current_state;
-    lorawan_app_callbacks_t _callbacks;
-    radio_events_t *_mac_handlers;
-    lorawan_session_t _lw_session;
-    loramac_tx_message_t _tx_msg;
-    loramac_rx_message_t _rx_msg;
-    uint8_t _app_port;
-    uint8_t _num_retry;
-    events::EventQueue *_queue;
-    bool _duty_cycle_on;
 };
 
 #endif /* LORAWANSTACK_H_ */

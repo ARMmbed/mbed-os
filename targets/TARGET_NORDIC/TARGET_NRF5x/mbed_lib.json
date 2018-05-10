@@ -1,0 +1,199 @@
+{
+    "name": "nordic",
+    "config": {
+        "uart_timeout_us": {
+            "help": "Idle time in micro seconds between characters before buffer is flushed.",
+            "value": 2000
+        },
+        "uart_0_fifo_size": {
+            "help": "UART0 FIFO buffer. FIFO buffer is filled from DMA buffer.",
+            "value": 32
+        },
+        "uart_1_fifo_size": {
+            "help": "UART1 FIFO buffer. FIFO buffer is filled from DMA buffer.",
+            "value": 32
+        },
+        "uart_dma_size": {
+            "help": "UART DMA buffer. 2 buffers per instance. DMA buffer is filled by UARTE",
+            "value": 8
+        }
+    },
+    "target_overrides": {
+        "DELTA_DFBM_NQ620": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ],
+            "target.lf_clock_src": "NRF_LF_SRC_RC",
+            "target.lf_clock_rc_calib_timer_interval": 16,
+            "target.lf_clock_rc_calib_mode_config": 0
+        },
+        "MTB_LAIRD_BL652": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ],
+            "target.lf_clock_src": "NRF_LF_SRC_RC",
+            "target.console-uart-flow-control": "RTSCTS"
+        },
+        "MTB_UBLOX_NINA_B1": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ]
+        },
+        "NRF52_DK": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ],
+            "target.console-uart-flow-control": "RTSCTS"
+        },
+        "RBLAB_BLENANO2": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ]
+        },
+        "UBLOX_EVA_NINA": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ]
+        },
+        "UBLOX_EVK_NINA_B1": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ],
+            "target.console-uart-flow-control": "RTSCTS"
+        },
+        "VBLUNO52": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_PAN_12", 
+                "NRF52_PAN_15", 
+                "NRF52_PAN_20", 
+                "NRF52_PAN_30", 
+                "NRF52_PAN_31", 
+                "NRF52_PAN_36", 
+                "NRF52_PAN_51", 
+                "NRF52_PAN_53", 
+                "NRF52_PAN_54", 
+                "NRF52_PAN_55", 
+                "NRF52_PAN_58", 
+                "NRF52_PAN_62", 
+                "NRF52_PAN_63",
+                "NRF52_PAN_64"
+            ],
+            "target.console-uart-flow-control": "RTSCTS"
+        },
+        "NRF52840_DK": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET", 
+                "SWI_DISABLE0", 
+                "NRF52_ERRATA_20"
+            ],
+            "target.console-uart-flow-control": "RTSCTS"
+        }
+    }
+}

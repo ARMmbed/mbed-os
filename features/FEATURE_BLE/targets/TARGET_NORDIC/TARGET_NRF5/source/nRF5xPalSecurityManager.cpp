@@ -89,7 +89,8 @@ nRF5xSecurityManager::nRF5xSecurityManager()
     _io_capability(io_capability_t::NO_INPUT_NO_OUTPUT),
     _min_encryption_key_size(7),
     _max_encryption_key_size(16),
-    _control_blocks(NULL)
+    _control_blocks(NULL),
+    resolving_list_entry_count(0)
 {
 
 }
@@ -105,6 +106,7 @@ nRF5xSecurityManager::~nRF5xSecurityManager()
 
 ble_error_t nRF5xSecurityManager::initialize()
 {
+#if defined(MBEDTLS_ECDH_C)
     if (_crypto.generate_keys(
         make_ArrayView(X),
         make_ArrayView(Y),
@@ -114,6 +116,8 @@ ble_error_t nRF5xSecurityManager::initialize()
     }
 
     return BLE_ERROR_INTERNAL_STACK_FAILURE;
+#endif
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::terminate()
@@ -141,8 +145,7 @@ ble_error_t nRF5xSecurityManager::reset()
 
 uint8_t nRF5xSecurityManager::read_resolving_list_capacity()
 {
-    // FIXME: implement with privacy
-    return 0;
+    return MAX_RESOLVING_LIST_ENTRIES;
 }
 
 ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
@@ -150,23 +153,95 @@ ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
     const address_t &peer_identity_address,
     const irk_t &peer_irk
 ) {
-    // FIXME: implement with privacy
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    if (resolving_list_entry_count >= MAX_RESOLVING_LIST_ENTRIES) {
+        return BLE_ERROR_INVALID_STATE;
+    }
+
+    resolving_list_entry_t& entry = resolving_list[resolving_list_entry_count];
+    entry.peer_identity_address_type = peer_identity_address_type;
+    entry.peer_identity_address = peer_identity_address;
+    entry.peer_irk = peer_irk;
+
+    ++resolving_list_entry_count;
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address
 ) {
-    // FIXME: implement with privacy
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    size_t entry_index;
+
+    // first the index needs to be found
+    for (entry_index = 0; entry_index < resolving_list_entry_count; ++entry_index) {
+        resolving_list_entry_t& entry = resolving_list[entry_index];
+        if (entry.peer_identity_address_type == peer_identity_address_type &&
+            entry.peer_identity_address == peer_identity_address
+        ) {
+            break;
+        }
+    }
+
+    if (entry_index == resolving_list_entry_count) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    // Elements after the entry can be moved in the list
+    for (size_t i = entry_index; i < (resolving_list_entry_count - 1); ++i) {
+        resolving_list[i] = resolving_list[i + 1];
+    }
+
+    --resolving_list_entry_count;
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t nRF5xSecurityManager::clear_resolving_list()
 {
-    // FIXME: implement with privacy
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    resolving_list_entry_count = 0;
+    return BLE_ERROR_NONE;
 }
+
+ArrayView<nRF5xSecurityManager::resolving_list_entry_t>
+nRF5xSecurityManager::get_resolving_list() {
+    return ArrayView<nRF5xSecurityManager::resolving_list_entry_t>(
+        resolving_list,
+        resolving_list_entry_count
+    );
+}
+
+const nRF5xSecurityManager::resolving_list_entry_t*
+nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
+#if defined(MBEDTLS_ECDH_C)
+    typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
+
+    for (size_t i = 0; i < resolving_list_entry_count; ++i) {
+        resolving_list_entry_t& entry = resolving_list[i];
+        hash_t hash_generated;
+
+        // Compute the hash part from the random address part when the irk of
+        // the entry is used
+        _crypto.ah(
+            make_const_ArrayView<CryptoToolbox::irk_size_>(entry.peer_irk),
+            make_const_ArrayView<CryptoToolbox::prand_size_>(
+                resolvable_address.data() + CryptoToolbox::hash_size_
+            ),
+            make_ArrayView(hash_generated)
+        );
+
+        // Compare hash generated with the hash present in the address passed as
+        // parameter. If they are equal then the IRK of the entry has been used
+        // to generate the resolvable address.
+        if (memcmp(hash_generated.data(), resolvable_address.data(), CryptoToolbox::hash_size_) == 0) {
+            return &entry;
+        }
+    }
+#endif
+    return NULL;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Pairing
@@ -650,6 +725,7 @@ ble_error_t nRF5xSecurityManager::send_keypress_notification(
 
 ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
 {
+#if defined(MBEDTLS_ECDH_C)
     ble_gap_lesc_p256_pk_t own_secret;
     ble_gap_lesc_oob_data_t oob_data;
 
@@ -669,6 +745,8 @@ ble_error_t nRF5xSecurityManager::generate_secure_connections_oob()
     }
 
     return convert_sd_error(err);
+#endif
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
@@ -812,6 +890,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
         }
 
         case BLE_GAP_EVT_LESC_DHKEY_REQUEST: {
+#if defined(MBEDTLS_ECDH_C)
             const ble_gap_evt_lesc_dhkey_request_t& dhkey_request =
                 gap_evt.params.lesc_dhkey_request;
 
@@ -830,7 +909,7 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             if (dhkey_request.oobd_req) {
                 handler->on_secure_connections_oob_request(connection);
             }
-
+#endif
             return true;
         }
 
@@ -1073,9 +1152,10 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     }
 
     // copy public keys used
+#if defined(MBEDTLS_ECDH_C)
     memcpy(pairing_cb.own_pk.pk, X.data(), X.size());
     memcpy(pairing_cb.own_pk.pk + X.size(), Y.data(), Y.size());
-
+#endif
     return keyset;
 }
 

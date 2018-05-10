@@ -14,6 +14,7 @@ sys.path.insert(0, ROOT)
 from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
     Resources, TOOLCHAIN_PATHS, mbedToolchain
 from tools.targets import TARGET_MAP
+from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/']]
 
@@ -32,7 +33,8 @@ def test_toolchain_profile_c(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
@@ -62,7 +64,8 @@ def test_toolchain_profile_cpp(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
@@ -92,7 +95,8 @@ def test_toolchain_profile_asm(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier)
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             for parameter in profile['asm']:
@@ -109,7 +113,7 @@ def test_toolchain_profile_asm(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
+        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 @given(fixed_dictionaries({
@@ -128,7 +132,8 @@ def test_toolchain_profile_ld(profile, source_file):
     with patch('os.mkdir') as _mkdir,\
          patch('tools.toolchains.mbedToolchain.default_cmd') as _dflt_cmd:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.RESPONSE_FILES = False
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
@@ -146,7 +151,7 @@ def test_toolchain_profile_ld(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
+        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 
@@ -155,20 +160,20 @@ def test_detect_duplicates(filenames):
     c_sources = [os.path.join(name, "dupe.c") for name in filenames]
     s_sources = [os.path.join(name, "dupe.s") for name in filenames]
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
-    with MagicMock() as notify:
-        toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
-        res = Resources()
-        res.c_sources = c_sources
-        res.s_sources = s_sources
-        res.cpp_sources = cpp_sources
-        assert res.detect_duplicates(toolchain) == 1,\
-            "Not Enough duplicates found"
+    notify = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
+    res = Resources()
+    res.c_sources = c_sources
+    res.s_sources = s_sources
+    res.cpp_sources = cpp_sources
+    assert res.detect_duplicates(toolchain) == 1,\
+        "Not Enough duplicates found"
 
-        _, (notification, _), _ = notify.mock_calls[1]
-        assert "dupe.o" in notification["message"]
-        assert "dupe.s" in notification["message"]
-        assert "dupe.c" in notification["message"]
-        assert "dupe.cpp" in notification["message"]
+    notification = notify.messages[0]
+    assert "dupe.o" in notification["message"]
+    assert "dupe.s" in notification["message"]
+    assert "dupe.c" in notification["message"]
+    assert "dupe.cpp" in notification["message"]
 
 @given(text(alphabet=ALPHABET + ["/"], min_size=1))
 @given(booleans())

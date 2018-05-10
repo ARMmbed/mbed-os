@@ -855,7 +855,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         if (lwip_blocking) {
             if (sys_arch_sem_wait(&lwip_netif_linked, 15000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
-                    ppp_lwip_disconnect();
+                    (void)ppp_lwip_disconnect();
                 }
                 return NSAPI_ERROR_NO_CONNECTION;
             }
@@ -872,7 +872,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
             if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
-                    ppp_lwip_disconnect();
+                    (void)ppp_lwip_disconnect();
                 }
                 return NSAPI_ERROR_DHCP_FAILURE;
             }
@@ -1125,9 +1125,9 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
 
     if (
 #if LWIP_TCP
-        (s->conn->type == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
+        (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_TCP && s->conn->pcb.tcp->local_port != 0) ||
 #endif
-        (s->conn->type == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
+        (NETCONNTYPE_GROUP(s->conn->type) == NETCONN_UDP && s->conn->pcb.udp->local_port != 0)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -1135,7 +1135,7 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
-    if (!ip_addr_isany(&ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
+    if (!ip_addr_isany_val(ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
         return NSAPI_ERROR_PARAMETER;
     }
 
@@ -1145,6 +1145,7 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
 
 static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_t handle, int backlog)
 {
+#if LWIP_TCP
     struct lwip_socket *s = (struct lwip_socket *)handle;
 
     if (s->conn->pcb.tcp->local_port == 0) {
@@ -1153,6 +1154,9 @@ static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_
 
     err_t err = netconn_listen_with_backlog(s->conn, backlog);
     return mbed_lwip_err_remap(err);
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 static nsapi_error_t mbed_lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket_t handle, nsapi_addr_t addr, uint16_t port)
@@ -1173,6 +1177,7 @@ static nsapi_error_t mbed_lwip_socket_connect(nsapi_stack_t *stack, nsapi_socket
 
 static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_t server, nsapi_socket_t *handle, nsapi_addr_t *addr, uint16_t *port)
 {
+#if LWIP_TCP
     struct lwip_socket *s = (struct lwip_socket *)server;
     struct lwip_socket *ns = mbed_lwip_arena_alloc();
     if (!ns) {
@@ -1199,6 +1204,9 @@ static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_
     netconn_set_nonblocking(ns->conn, true);
 
     return 0;
+#else
+    return NSAPI_ERROR_UNSUPPORTED;
+#endif
 }
 
 static nsapi_size_or_error_t mbed_lwip_socket_send(nsapi_stack_t *stack, nsapi_socket_t handle, const void *data, nsapi_size_t size)
@@ -1307,7 +1315,7 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
     switch (optname) {
 #if LWIP_TCP
         case NSAPI_KEEPALIVE:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -1315,7 +1323,7 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
             return 0;
 
         case NSAPI_KEEPIDLE:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
@@ -1323,7 +1331,7 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
             return 0;
 
         case NSAPI_KEEPINTVL:
-            if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
+            if (optlen != sizeof(int) || NETCONNTYPE_GROUP(s->conn->type) != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 

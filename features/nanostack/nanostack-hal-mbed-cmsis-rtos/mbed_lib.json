@@ -1,0 +1,22 @@
+{
+    "name": "nanostack-hal",
+    "config": {
+        "nvm_cfstore": {
+            "help": "Use cfstore as a NVM storage. Else RAM simulation will be used",
+            "value": false
+        },
+        "event_loop_thread_stack_size": {
+            "help": "Define event-loop thread stack size. [bytes]",
+            "value": 6144
+        },
+        "critical-section-usable-from-interrupt": {
+            "help": "Make critical section API usable from interrupt context. Else a mutex is used as locking primitive. Consult arm_hal_interrupt.c for possible side effects on interrupt latency.",
+            "value": false
+        }
+        ,
+        "event-loop-dispatch-from-application": {
+            "help": "Application is responsible of message dispatch loop. Else launch a separate thread for event-loop.",
+            "value": false
+        }
+    }
+}

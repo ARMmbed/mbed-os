@@ -31,7 +31,7 @@ extern "C" {
 #include "softdevice_handler.h"
 }
 
-#include "nRF5XPalGattClient.h"
+#include "nRF5xPalGattClient.h"
 
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
@@ -62,7 +62,7 @@ nRF5xn::nRF5xn(void) :
     instanceID(BLE::DEFAULT_INSTANCE),
     gapInstance(),
     gattServerInstance(NULL),
-    gattClient(&(ble::pal::vendor::nordic::nRF5XGattClient::get_client()))
+    gattClient(&(ble::pal::vendor::nordic::nRF5xGattClient::get_client()))
 {
 }
 

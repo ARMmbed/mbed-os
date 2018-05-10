@@ -35,12 +35,12 @@ struct SecurityDistributionFlags_t {
         peer_address(),
         encryption_key_size(0),
         peer_address_is_public(false),
-        local_address_is_public(false),
         csrk_stored(false),
         csrk_mitm_protected(false),
         ltk_stored(false),
         ltk_mitm_protected(false),
-        secure_connections_paired(false) {
+        secure_connections_paired(false),
+        irk_stored(false) {
     }
 
     /** peer address */
@@ -50,8 +50,6 @@ struct SecurityDistributionFlags_t {
     uint8_t encryption_key_size;
     /** true if peer address is public, false if it's static random */
     uint8_t peer_address_is_public:1;
-    /** true if local address is public, false if it's static random */
-    uint8_t local_address_is_public:1;
 
     /** CSRK (Connection Signature Resolving Key) has been distributed and stored */
     uint8_t csrk_stored:1;
@@ -63,6 +61,8 @@ struct SecurityDistributionFlags_t {
     uint8_t ltk_mitm_protected:1;
     /** the current pairing was done using Secure Connections */
     uint8_t secure_connections_paired:1;
+    /** the security entry has been distributed and stored */
+    uint8_t irk_stored:1;
 };
 
 /** Long Term Key and data used to identify it */
@@ -81,12 +81,14 @@ struct SecurityEntryIdentity_t {
     address_t identity_address;
     /** Identity Resolving Key */
     irk_t irk;
+    /** true if peer identity address is public, false if it's static random */
+    uint8_t identity_address_is_public:1;
 };
 
 /**
- * SecurityDB holds the state for active connections and bonded devices.
+ * SecurityDb holds the state for active connections and bonded devices.
  * Keys can be stored in NVM and are returned via callbacks.
- * SecurityDB is responsible for serialising any requests and keeping
+ * SecurityDb is responsible for serialising any requests and keeping
  * the store in a consistent state.
  * Active connections state must be returned immediately.
  */
@@ -103,6 +105,10 @@ public:
         SecurityEntryKeysDbCb_t;
     typedef mbed::Callback<void(entry_handle_t, const csrk_t*, uint32_t sign_counter)>
         SecurityEntryCsrkDbCb_t;
+    typedef mbed::Callback<void(entry_handle_t, const SecurityEntryIdentity_t*)>
+        SecurityEntryIdentityDbCb_t;
+    typedef mbed::Callback<void(ArrayView<SecurityEntryIdentity_t*>&, size_t count)>
+        IdentitylistDbCb_t;
     typedef mbed::Callback<void(::Gap::Whitelist_t*)>
         WhitelistDbCb_t;
 
@@ -257,6 +263,31 @@ public:
         entry_handle_t db_entry,
         bool address_is_public,
         const address_t &peer_address
+    ) = 0;
+
+    /**
+     * Retrieve stored identity address and IRK.
+     *
+     * @param[in] cb callback that will receive the SecurityEntryIdentity_t struct
+     * @param[in] db_entry handle of the entry being queried.
+     */
+    virtual void get_entry_identity(
+        SecurityEntryIdentityDbCb_t cb,
+        entry_handle_t db_entry
+    ) = 0;
+
+    /**
+     * Asynchronously return the identity list stored in NVM through a callback.
+     * Function takes ownership of the memory. The identity list and the
+     * ownership will be returned in the callback.
+     *
+     * @param[in] cb callback that will receive the whitelist
+     * @param[in] identity_list preallocated identity_list that will be filled
+     * in.
+     */
+    virtual void get_identity_list(
+        IdentitylistDbCb_t cb,
+        ArrayView<SecurityEntryIdentity_t*>& identity_list
     ) = 0;
 
     /**

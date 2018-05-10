@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_opamp.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of OPAMP LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -70,8 +68,8 @@ extern "C" {
 /* - OPAMP trimming register offset                                           */
 
 /* Internal register offset for OPAMP trimming configuration */
-#define OPAMP_POWERMODE_OTR_REGOFFSET       ((uint32_t)0x00000000U)
-#define OPAMP_POWERMODE_LPOTR_REGOFFSET     ((uint32_t)0x00000001U)
+#define OPAMP_POWERMODE_OTR_REGOFFSET       (0x00000000U)
+#define OPAMP_POWERMODE_LPOTR_REGOFFSET     (0x00000001U)
 #define OPAMP_POWERMODE_OTR_REGOFFSET_MASK  (OPAMP_POWERMODE_OTR_REGOFFSET | OPAMP_POWERMODE_LPOTR_REGOFFSET)
 
 /* Mask for OPAMP power mode into control register */
@@ -82,7 +80,7 @@ extern "C" {
 /* To select into literal LL_OPAMP_TRIMMING_x the relevant bits for:          */
 /* - OPAMP trimming selection of transistors differential pair                */
 /* - OPAMP trimming values of transistors differential pair                   */
-#define OPAMP_TRIMMING_SELECT_SW_OFFSET     ((uint32_t)16U)
+#define OPAMP_TRIMMING_SELECT_SW_OFFSET     (16U)
 #define OPAMP_TRIMMING_SELECT_MASK          ((OPAMP_CSR_OPA1CAL_H | OPAMP_CSR_OPA1CAL_L) << OPAMP_TRIMMING_SELECT_SW_OFFSET)
 #define OPAMP_TRIMMING_VALUE_MASK           (OPAMP_OTR_AO1_OPT_OFFSET_TRIM_HIGH | OPAMP_OTR_AO1_OPT_OFFSET_TRIM_LOW)
 
@@ -193,7 +191,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_POWERSUPPLY_RANGE OPAMP power supply range
   * @{
   */
-#define LL_OPAMP_POWERSUPPLY_RANGE_LOW  ((uint32_t)0x00000000U) /*!< Power supply range low. On STM32L1 serie: Vdda lower than 2.4V. */
+#define LL_OPAMP_POWERSUPPLY_RANGE_LOW  (0x00000000U)           /*!< Power supply range low. On STM32L1 serie: Vdda lower than 2.4V. */
 #define LL_OPAMP_POWERSUPPLY_RANGE_HIGH (OPAMP_CSR_AOP_RANGE)   /*!< Power supply range high. On STM32L1 serie: Vdda higher than 2.4V. */
 /**
   * @}
@@ -211,7 +209,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_MODE OPAMP mode calibration or functional.
   * @{
   */
-#define LL_OPAMP_MODE_FUNCTIONAL        ((uint32_t)0x00000000U)                                                                        /*!< OPAMP functional mode */
+#define LL_OPAMP_MODE_FUNCTIONAL        (0x00000000U)                                                                                  /*!< OPAMP functional mode */
 #define LL_OPAMP_MODE_CALIBRATION       (OPAMP_CSR_S3SEL1 | OPAMP_CSR_S4SEL1 | OPAMP_CSR_S5SEL1 | OPAMP_CSR_S6SEL1 | OPAMP_CSR_S7SEL2) /*!< OPAMP calibration mode (on STM32L1 serie, it corresponds to all OPAMP input internal switches opened) */
 /**
   * @}
@@ -220,7 +218,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_FUNCTIONAL_MODE OPAMP functional mode
   * @{
   */
-#define LL_OPAMP_MODE_STANDALONE        ((uint32_t)0x00000000U) /*!< OPAMP functional mode, OPAMP operation in standalone (on STM32L1 serie, it corresponds to OPAMP internal switches S3 opened (switch SanB state depends on switch S4 state)) */
+#define LL_OPAMP_MODE_STANDALONE        (0x00000000U)           /*!< OPAMP functional mode, OPAMP operation in standalone (on STM32L1 serie, it corresponds to OPAMP internal switches S3 opened (switch SanB state depends on switch S4 state)) */
 #define LL_OPAMP_MODE_FOLLOWER          (OPAMP_CSR_S3SEL1)      /*!< OPAMP functional mode, OPAMP operation in follower (on STM32L1 serie, it corresponds to OPAMP internal switches S3 and SanB closed) */
 /**
   * @}
@@ -244,7 +242,7 @@ typedef struct
   */
 #define LL_OPAMP_INPUT_INVERT_IO0        (OPAMP_CSR_S4SEL1)      /*!< OPAMP inverting input connected to GPIO pin (low leakage input). Note: OPAMP inverting input is used with OPAMP in mode standalone. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
 #define LL_OPAMP_INPUT_INVERT_IO1        (OPAMP_CSR_ANAWSEL1)    /*!< OPAMP inverting input connected to GPIO pin (alternative IO pin, not low leakage, availability depends on STM32L1 serie devices packages). Note: OPAMP inverting input is used with OPAMP in mode standalone. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
-#define LL_OPAMP_INPUT_INVERT_CONNECT_NO ((uint32_t)0x00000000U) /*!< OPAMP inverting input not externally connected (intended for OPAMP in mode follower) */
+#define LL_OPAMP_INPUT_INVERT_CONNECT_NO (0x00000000U)           /*!< OPAMP inverting input not externally connected (intended for OPAMP in mode follower) */
 /**
   * @}
   */
@@ -252,7 +250,7 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_TRIMMING_MODE OPAMP trimming mode
   * @{
   */
-#define LL_OPAMP_TRIMMING_FACTORY       ((uint32_t)0x00000000U) /*!< OPAMP trimming factors set to factory values */
+#define LL_OPAMP_TRIMMING_FACTORY       (0x00000000U)           /*!< OPAMP trimming factors set to factory values */
 #define LL_OPAMP_TRIMMING_USER          (OPAMP_OTR_OT_USER)     /*!< OPAMP trimming factors set to user values */
 /**
   * @}
@@ -263,7 +261,7 @@ typedef struct
   */
 #define LL_OPAMP_TRIMMING_NMOS          (OPAMP_OTR_AO1_OPT_OFFSET_TRIM_HIGH | (OPAMP_CSR_OPA1CAL_H << OPAMP_TRIMMING_SELECT_SW_OFFSET)) /*!< OPAMP trimming of transistors differential pair NMOS */
 #define LL_OPAMP_TRIMMING_PMOS          (OPAMP_OTR_AO1_OPT_OFFSET_TRIM_LOW  | (OPAMP_CSR_OPA1CAL_L << OPAMP_TRIMMING_SELECT_SW_OFFSET)) /*!< OPAMP trimming of transistors differential pair PMOS */
-#define LL_OPAMP_TRIMMING_NONE          ((uint32_t)0x00000000U)                                                                         /*!< OPAMP trimming unselect transistors differential pair NMOS and PMOs */
+#define LL_OPAMP_TRIMMING_NONE          (0x00000000U)                                                                                   /*!< OPAMP trimming unselect transistors differential pair NMOS and PMOs */
 /**
   * @}
   */
@@ -285,7 +283,7 @@ typedef struct
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tWAKEUP").                                                      */
 /* Unit: us                                                                   */
-#define LL_OPAMP_DELAY_STARTUP_US         ((uint32_t) 30U)  /*!< Delay for OPAMP startup time */
+#define LL_OPAMP_DELAY_STARTUP_US         (30U)  /*!< Delay for OPAMP startup time */
 
 /**
   * @}

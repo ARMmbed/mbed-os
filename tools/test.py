@@ -27,14 +27,15 @@ import fnmatch
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from tools.config import ConfigException
+from tools.config import ConfigException, Config
 from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
-import tools.test_configs as TestConfig
+from tools.test_configs import get_default_config
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
+from tools.notifier.term import TerminalNotifier
 from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
@@ -144,10 +145,13 @@ if __name__ == '__main__':
             config = get_test_config(options.test_config, mcu)
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
-        elif not options.app_config:
-            config = TestConfig.get_default_config(options.source_dir or ['.'], mcu)
-        else:
+        elif options.app_config:
             config = options.app_config
+        else:
+            config = Config.find_app_config(options.source_dir)
+
+        if not config:
+            config = get_default_config(options.source_dir or ['.'], mcu)
 
         # Find all tests in the relevant paths
         for path in all_paths:
@@ -170,16 +174,6 @@ if __name__ == '__main__':
         else:
             tests = all_tests
 
-        if options.color:
-            # This import happens late to prevent initializing colorization when we don't need it
-            import colorize
-            if options.verbose:
-                notify = mbedToolchain.print_notify_verbose
-            else:
-                notify = mbedToolchain.print_notify
-            notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-        else:
-            notify = None
 
         if options.list:
             # Print available tests in order and exit
@@ -203,11 +197,12 @@ if __name__ == '__main__':
             profile = extract_profile(parser, options, toolchain)
             try:
                 # Build sources
+                notify = TerminalNotifier(options.verbose)
                 build_library(base_source_paths, options.build_dir, mcu,
                               toolchain, jobs=options.jobs,
                               clean=options.clean, report=build_report,
                               properties=build_properties, name="mbed-build",
-                              macros=options.macros, verbose=options.verbose,
+                              macros=options.macros,
                               notify=notify, archive=False,
                               app_config=config,
                               build_profile=profile)
@@ -227,13 +222,12 @@ if __name__ == '__main__':
                 print("Failed to build library")
             else:
                 # Build all the tests
-
+                notify = TerminalNotifier(options.verbose)
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
                         clean=options.clean,
                         report=build_report,
                         properties=build_properties,
                         macros=options.macros,
-                        verbose=options.verbose,
                         notify=notify,
                         jobs=options.jobs,
                         continue_on_build_fail=options.continue_on_build_fail,

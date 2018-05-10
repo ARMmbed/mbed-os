@@ -45,6 +45,7 @@ IAR_PATH = ""
 # Goanna static analyser. Please overload it in mbed_settings.py
 GOANNA_PATH = ""
 
+
 # cppcheck path (command) and output message format
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
 CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
@@ -54,9 +55,15 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+# Print compiler warnings and errors as link format
+PRINT_COMPILER_OUTPUT_AS_LINK = False
+
+# Print warnings/errors in color
+COLOR = False
+
 CLI_COLOR_MAP = {
-    "warning": "yellow",
-    "error"  : "red"
+    "Warning": "yellow",
+    "Error"  : "red"
 }
 
 ##############################################################################
@@ -83,6 +90,12 @@ for _n in _ENV_PATHS:
         else:
             print("WARNING: MBED_%s set as environment variable but doesn't"
                   " exist" % _n)
+
+_ENV_VARS = ['PRINT_COMPILER_OUTPUT_AS_LINK', 'COLOR']
+for _n in _ENV_VARS:
+    value = getenv('MBED_%s' % _n)
+    if value:
+        globals()[_n] = value
 
 
 ##############################################################################

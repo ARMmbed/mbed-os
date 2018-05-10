@@ -89,7 +89,7 @@ public:
 
     /** Pop the transaction from the buffer
      *
-     * @param data Data to be pushed to the buffer
+     * @param data Data to be popped from the buffer
      * @return True if the buffer is not empty and data contains a transaction, false otherwise
      */
     bool pop(T& data) {
@@ -153,6 +153,22 @@ public:
         }
         core_util_critical_section_exit();
         return elements;
+    }
+
+    /** Peek into circular buffer without popping
+     *
+     * @param data Data to be peeked from the buffer
+     * @return True if the buffer is not empty and data contains a transaction, false otherwise
+     */
+    bool peek(T& data) const {
+        bool data_updated = false;
+        core_util_critical_section_enter();
+        if (!empty()) {
+            data = _pool[_tail];
+            data_updated = true;
+        }
+        core_util_critical_section_exit();
+        return data_updated;
     }
     
 private:

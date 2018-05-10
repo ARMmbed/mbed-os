@@ -18,7 +18,6 @@
 #ifndef CELLULAR_NETWORK_H_
 #define CELLULAR_NETWORK_H_
 
-#include "CellularInterface.h"
 #include "NetworkInterface.h"
 #include "CellularList.h"
 
@@ -117,16 +116,7 @@ public:
         CHAP
     };
 
-    // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
-    struct operator_t {
-        enum Status {
-            Unknown,
-            Available,
-            Current,
-            Forbiden
-        };
-
-        enum RadioAccessTechnology {
+    enum RadioAccessTechnology {
             RAT_GSM,
             RAT_GSM_COMPACT,
             RAT_UTRAN,
@@ -140,6 +130,14 @@ public:
             RAT_UNKNOWN
         };
 
+    // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
+    struct operator_t {
+        enum Status {
+            Unknown,
+            Available,
+            Current,
+            Forbiden
+        };
 
         Status op_status;
         char op_long[MAX_OPERATOR_NAME_LONG+1];
@@ -201,12 +199,59 @@ public:
     };
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
+    struct operator_names_t {
+        char numeric[MAX_OPERATOR_NAME_SHORT+1];
+        char alpha[MAX_OPERATOR_NAME_LONG+1];
+        operator_names_t* next;
+        operator_names_t() {
+            numeric[0] = '\0';
+            alpha[0] = '\0';
+            next = NULL;
+        }
+    };
+    typedef CellularList<operator_names_t> operator_names_list;
+
+    /* Network registering mode */
+    enum NWRegisteringMode {
+        NWModeAutomatic = 0,    // automatic registering
+        NWModeManual,           // manual registering with plmn
+        NWModeDeRegister,       // deregister from network
+        NWModeSetOnly,          // set only <format> (for read command +COPS?), do not attempt registration/deregistration
+        NWModeManualAutomatic   // if manual fails, fallback to automatic
+    };
+
+
+    /** Does all the needed initializations that can fail
+     *
+     *  @remark         must be called immediately after constructor.
+     *  @return         zero on success
+     */
+    virtual nsapi_error_t init() = 0;
+
     /** Request registering to network.
      *
      *  @param plmn     format is in numeric format or 0 for automatic network registration
      *  @return         zero on success
      */
     virtual nsapi_error_t set_registration(const char *plmn = 0) = 0;
+
+    /** Get the current network registering mode
+     *
+     *  @param mode on successful return contains the current network registering mode
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
+
+    /** Activate/deactivate listening of network events for the given RegistrationType.
+     *  This should be called after network class is created and ready to receive AT commands.
+     *  After successful call network class starts to get information about network changes like
+     *  registration statue, access technology, cell id...
+     *
+     *  @param type RegistrationType to set urc on/off
+     *  @param on   Controls are urc' active or not
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
     /** Gets the network registration status.
      *
@@ -239,9 +284,11 @@ public:
 
     /** Request attach to network.
      *
+     *  @deprecated Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.
      *  @param timeout milliseconds to wait for attach response
      *  @return        zero on success
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
     virtual nsapi_error_t set_attach(int timeout = 10*1000) = 0;
 
     /** Request attach status from network.
@@ -250,6 +297,12 @@ public:
      *  @return       zero on success
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
+
+    /** Request detach from a network.
+     *
+     *  @return        zero on success
+     */
+    virtual nsapi_error_t detach() = 0;
 
     /** Get APN rate control.
      *
@@ -271,10 +324,17 @@ public:
 
     /** Sets radio access technology.
      *
-     *  @param op_rat Radio access technology
-     *  @return       zero on success
+     *  @param rat  Radio access technology
+     *  @return     zero on success
      */
-    virtual nsapi_error_t set_access_technology(operator_t::RadioAccessTechnology op_rat) = 0;
+    virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
+
+    /** Get current radio access technology.
+     *
+     *  @param rat  Radio access technology
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat) = 0;
 
     /** Scans for operators module can reach.
      *
@@ -317,6 +377,13 @@ public:
      */
     virtual nsapi_error_t connect(const char *apn,
                                   const char *username = 0, const char *password = 0) = 0;
+
+    /** Finds the correct PDP context and activates it. If correct PDP context is not found, one is created.
+     *  Given APN (or not given) and stack type (IPv4/IPv6/dual) are influencing when finding the PDP context.
+     *
+     *  @return zero on success
+     */
+    virtual nsapi_error_t activate_context() = 0;
 
     /**
      * Set the pdn type to be used
@@ -381,6 +448,36 @@ public:
      *  @return NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params) = 0;
+
+    /** Register callback for status reporting
+     *
+     *  The specified status callback function will be called on status changes
+     *  on the network. The parameters on the callback are the event type and
+     *  event-type dependent reason parameter.
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual nsapi_connection_status_t get_connection_status() const = 0;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking) = 0;
+
+    /** Read operator names
+     *
+     *  @param op_names     on successful return will contain linked list of operator names.
+     *  @return             zero on success
+     */
+    virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
 };
 
 } // namespace mbed

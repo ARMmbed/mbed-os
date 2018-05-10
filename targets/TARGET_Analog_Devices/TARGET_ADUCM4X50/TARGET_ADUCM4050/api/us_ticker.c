@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Analog Devices, Inc.
+ * Copyright (c) 2010-2018 Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -116,7 +116,7 @@ static uint32_t get_current_time(void)
          * thereby clearing any TMR1 pend's.  This have no effect if this routine is called with interrupts globally disabled.
          */
 
-        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// Prevent Upper_count increment
+        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);     // Prevent Upper_count increment
         tmrpend0 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
         // Check if there is a pending interrupt for timer 1
 
@@ -128,27 +128,27 @@ static uint32_t get_current_time(void)
 
         tmrcnt1 = adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CURCNT;    // read both timers manually
 
-        totaltmr0 = tmrcnt0;        								// expand to u32 bits
-        totaltmr1 = tmrcnt1;        								// expand to u32 bits
+        totaltmr0 = tmrcnt0;                                        // expand to u32 bits
+        totaltmr1 = tmrcnt1;                                        // expand to u32 bits
 
         tmrcnt0 &= 0xff00u;
         tmrcnt1 <<= 8;
 
         __DMB();
 
-        uc1 = *ucptr;												// Read Upper_count
+        uc1 = *ucptr;                                               // Read Upper_count
 
         tmrpend1 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
         // Check for a pending interrupt again.  Only leave loop if they match
 
-        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// enable interrupt on every loop to allow TMR1 interrupt to run
+        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);      // enable interrupt on every loop to allow TMR1 interrupt to run
     } while ((tmrcnt0 != tmrcnt1) || (tmrpend0 != tmrpend1));
 
     totaltmr1 <<= 8;                 // Timer1 runs 256x slower
     totaltmr1 += totaltmr0 & 0xffu;  // Use last 8 bits of Timer0 as it runs faster
     // totaltmr1 now contain 24 bits of significance
 
-    if (tmrpend0) {					 // If an interrupt is pending, then increment local copy of upper count
+    if (tmrpend0) {                  // If an interrupt is pending, then increment local copy of upper count
         uc1++;
     }
 
@@ -158,7 +158,7 @@ static uint32_t get_current_time(void)
     // Divide Uc by 26 (26MHz converted to 1MHz) todo scale for other clock freqs
 
     Uc *= 1290555u;                  // Divide total(1/26) << 25
-    Uc >>= 25;						 // shift back.  Fixed point avoid use of floating point divide.
+    Uc >>= 25;                       // shift back.  Fixed point avoid use of floating point divide.
     // Compiler does this inline using shifts and adds.
 
     return Uc;
@@ -205,7 +205,10 @@ static void event_timer()
         adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmr2Config);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     } else {
-        us_ticker_irq_handler();
+        tmr2Config.nLoad        = 65535u;
+        tmr2Config.nAsyncLoad   = 65535u;
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmr2Config);
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     }
 }
 
@@ -229,7 +232,11 @@ static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
 
     if (largecnt < 65536u) {
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
-        event_timer();
+        if (largecnt) {
+            event_timer();
+        } else {
+            us_ticker_irq_handler();
+        }
     }
 }
 
@@ -326,7 +333,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      *
      */
     calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
-    event_timer();							  // uses largecnt to initiate timer interrupts
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
+    event_timer();                            // uses largecnt to initiate timer interrupts
 }
 
 /** Set pending interrupt that should be fired right away.
@@ -337,7 +345,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
  */
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(TMR2_EVT_IRQn);
+    largecnt = 1;                              // set a minimal interval so interrupt fire immediately
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_1;   // TMR2 at 26MHz/1
+    event_timer();                             // enable the timer and interrupt
 }
 
 

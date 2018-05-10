@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.c
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 

@@ -19,7 +19,7 @@
 #include <string.h>
 #include "nsapi_ppp.h"
 #if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-#include "utils/APN_db.h"
+#include "APN_db.h"
 #endif //MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
@@ -570,12 +570,12 @@ nsapi_error_t PPPCellularInterface::connect()
         user_specified_apn = true;
 #endif
     }
-    
+
     if (is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
         return NSAPI_ERROR_ALREADY;
-    } 
+    }
 
     _connect_status = NSAPI_STATUS_CONNECTING;
     if (_connection_status_cb) {
@@ -677,7 +677,7 @@ nsapi_error_t PPPCellularInterface::connect()
         }
 
         tr_info("The APN being used is %s.\n", _apn);
-        
+
         /* Attempt to enter data mode */
         success = set_atd(_at); //enter into Data mode with the modem
         if (!success) {

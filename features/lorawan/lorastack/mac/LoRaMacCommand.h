@@ -41,8 +41,8 @@
 #define __LORAMACCOMMAND_H__
 
 #include <stdint.h>
-#include "lorawan/system/lorawan_data_structures.h"
-#include "lorawan/lorastack/phy/LoRaPHY.h"
+#include "system/lorawan_data_structures.h"
+#include "lorastack/phy/LoRaPHY.h"
 
 /*!
  * Maximum MAC commands buffer size
@@ -54,27 +54,7 @@ class LoRaMac;
 class LoRaMacCommand {
 
 public:
-    LoRaMacCommand(LoRaMac &lora_mac);
-    ~LoRaMacCommand();
-
-    /**
-     * @brief Adds a new MAC command to be sent.
-     *
-     * @remark MAC layer internal function
-     *
-     * @param [in] cmd    MAC command to be added
-     *                    [MOTE_MAC_LINK_CHECK_REQ,
-     *                     MOTE_MAC_LINK_ADR_ANS,
-     *                     MOTE_MAC_DUTY_CYCLE_ANS,
-     *                     MOTE_MAC_RX2_PARAM_SET_ANS,
-     *                     MOTE_MAC_DEV_STATUS_ANS
-     *                     MOTE_MAC_NEW_CHANNEL_ANS]
-     * @param [in] p1  1st parameter (optional depends on the command)
-     * @param [in] p2  2nd parameter (optional depends on the command)
-     *
-     * @return status  Function status [0: OK, 1: Unknown command, 2: Buffer full]
-     */
-    lorawan_status_t add_mac_command(uint8_t cmd, uint8_t p1, uint8_t p2);
+    LoRaMacCommand();
 
     /**
      * @brief Clear MAC command buffer.
@@ -125,9 +105,21 @@ public:
     /**
      * @brief Check if MAC command buffer has commands to be sent in next TX
      *
-     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer]
+     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer
      */
     bool is_mac_command_in_next_tx() const;
+
+    /**
+     * @brief Clear sticky MAC commands.
+     */
+    void clear_sticky_mac_cmd();
+
+    /**
+     * @brief Check if MAC command buffer contains sticky commands
+     *
+     * @return status  True: buffer has sticky MAC commands in it, false: no sticky commands in buffer
+     */
+    bool has_sticky_mac_cmd() const;
 
     /**
      * @brief Decodes MAC commands in the fOpts field and in the payload
@@ -147,13 +139,107 @@ public:
      */
     bool is_sticky_mac_command_pending();
 
-private:
-    LoRaMac& _lora_mac;
+    /**
+     * @brief Adds a new LinkCheckReq MAC command to be sent.
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_link_check_req();
 
+private:
+    /**
+     * @brief Get the remaining size of the MAC command buffer
+     *
+     * @return      Remaining free space in buffer (bytes).
+     */
+    int32_t cmd_buffer_remaining() const;
+
+    /**
+     * @brief Adds a new LinkAdrAns MAC command to be sent.
+     *
+     * @param [in] status Status bits
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_link_adr_ans(uint8_t status);
+
+    /**
+     * @brief Adds a new DutyCycleAns MAC command to be sent.
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_duty_cycle_ans();
+
+    /**
+     * @brief Adds a new RXParamSetupAns MAC command to be sent.
+     *
+     * @param [in] status Status bits
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_rx_param_setup_ans(uint8_t status);
+
+    /**
+     * @brief Adds a new DevStatusAns MAC command to be sent.
+     *
+     * @param [in] battery  Battery level
+     * @param [in] margin   Demodulation signal-to-noise ratio (dB)
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_dev_status_ans(uint8_t battery, uint8_t margin);
+
+    /**
+     * @brief Adds a new NewChannelAns MAC command to be sent.
+     *
+     * @param [in] status Status bits
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_new_channel_ans(uint8_t status);
+
+    /**
+     * @brief Adds a new RXTimingSetupAns MAC command to be sent.
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_rx_timing_setup_ans();
+
+    /**
+     * @brief Adds a new TXParamSetupAns MAC command to be sent.
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_tx_param_setup_ans();
+
+    /**
+     * @brief Adds a new DlChannelAns MAC command to be sent.
+     *
+     * @param [in] status Status bits
+     *
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_dl_channel_ans(uint8_t status);
+
+private:
     /**
      * Indicates if the MAC layer wants to send MAC commands
      */
     bool mac_cmd_in_next_tx;
+
+    /**
+      * Indicates if there are any pending sticky MAC commands
+      */
+    bool sticky_mac_cmd;
 
     /**
      * Contains the current Mac command buffer index in 'mac_cmd_buffer'

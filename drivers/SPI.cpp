@@ -49,8 +49,8 @@ void SPI::format(int bits, int mode) {
     lock();
     _bits = bits;
     _mode = mode;
-    // If changing format while you are the owner than just
-    // update format, but if owner is changed than even frequency should be
+    // If changing format while you are the owner then just
+    // update format, but if owner is changed then even frequency should be
     // updated which is done by acquire.
     if (_owner == this) {
         spi_format(&_spi, _bits, _mode, 0);
@@ -63,8 +63,8 @@ void SPI::format(int bits, int mode) {
 void SPI::frequency(int hz) {
     lock();
     _hz = hz;
-    // If changing format while you are the owner than just
-    // update frequency, but if owner is changed than even frequency should be
+    // If changing format while you are the owner then just
+    // update frequency, but if owner is changed then even frequency should be
     // updated which is done by acquire.
     if (_owner == this) {
         spi_frequency(&_spi, _hz);
@@ -77,7 +77,7 @@ void SPI::frequency(int hz) {
 SPI* SPI::_owner = NULL;
 SingletonPtr<PlatformMutex> SPI::_mutex;
 
-// ignore the fact there are multiple physical spis, and always update if it wasnt us last
+// ignore the fact there are multiple physical spis, and always update if it wasn't us last
 void SPI::aquire() {
     lock();
      if (_owner != this) {
@@ -252,7 +252,7 @@ void SPI::irq_handler_asynch(void)
     }
 #if TRANSACTION_QUEUE_SIZE_SPI
     if (event & (SPI_EVENT_ALL | SPI_EVENT_INTERNAL_TRANSFER_COMPLETE)) {
-        // SPI peripheral is free (event happend), dequeue transaction
+        // SPI peripheral is free (event happened), dequeue transaction
         dequeue_transaction();
     }
 #endif

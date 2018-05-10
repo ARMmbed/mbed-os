@@ -1,0 +1,10 @@
+{
+    "name": "nanostack",
+    "config": {
+        "configuration": {
+            "help": "Build time configuration. Refer to Handbook for valid values. Default: full stack",
+            "value": "nanostack_full"
+        }
+    },
+    "macros": ["NS_USE_EXTERNAL_MBED_TLS"]
+}

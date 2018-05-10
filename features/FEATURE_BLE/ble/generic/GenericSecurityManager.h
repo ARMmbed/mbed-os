@@ -25,6 +25,7 @@
 #include "ble/pal/SigningEventMonitor.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/pal/PalSecurityManager.h"
+#include "ble/ArrayView.h"
 
 namespace ble {
 namespace generic {
@@ -400,21 +401,28 @@ private:
     );
 
     /**
-     * Inform the security manager of a new connection.
-     *
-     * @param[in] params information about the new connection.
+     * Callback invoked by the secure DB when an identity entry has been
+     * retrieved.
+     * @param entry Handle of the entry.
+     * @param identity The identity associated with the entry; may be NULL.
      */
-    void connection_callback(
-        const Gap::ConnectionCallbackParams_t* params
+    void on_security_entry_retrieved(
+        pal::SecurityDb::entry_handle_t entry,
+        const pal::SecurityEntryIdentity_t* identity
     );
 
     /**
-     * Inform the security manager that a connection ended.
+     * Callback invoked by the secure DB when the identity list has been
+     * retrieved.
      *
-     * @param[in] params handle and reason of the disconnection.
+     * @param identity View to the array passed to the secure DB. It contains
+     * identity entries retrieved.
+     *
+     * @param count Number of identities entries retrieved.
      */
-    void disconnection_callback(
-        const Gap::DisconnectionCallbackParams_t* params
+    void on_identity_list_retrieved(
+        ble::ArrayView<pal::SecurityEntryIdentity_t*>& identity_list,
+        size_t count
     );
 
 private:

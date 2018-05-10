@@ -887,6 +887,12 @@ public:
      */
     static const uint16_t UNIT_1_25_MS  = 1250;
 
+    static const PeripheralPrivacyConfiguration_t
+        default_peripheral_privacy_configuration;
+
+    static const CentralPrivacyConfiguration_t
+        default_central_privacy_configuration;
+
     /**
      * Convert milliseconds into 1.25ms units.
      *
@@ -1062,7 +1068,7 @@ public:
      * the address in input was not identifiable as a random address.
      */
     static ble_error_t getRandomAddressType(
-        BLEProtocol::AddressBytes_t address,
+        const BLEProtocol::AddressBytes_t address,
         RandomAddressType_t* addressType
     );
 

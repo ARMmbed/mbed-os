@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l072xx.h
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    25-November-2016
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer Header File. 
   *          This file contains all the peripheral register's definitions, bits 
   *          definitions and memory mapping for stm32l072xx devices.  

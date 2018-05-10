@@ -117,7 +117,7 @@ public:
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      *
      *  @param id       Unique id of the event
@@ -701,6 +701,9 @@ public:
     }
 
     /** Calls an event on the queue periodically
+     *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
      *
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.

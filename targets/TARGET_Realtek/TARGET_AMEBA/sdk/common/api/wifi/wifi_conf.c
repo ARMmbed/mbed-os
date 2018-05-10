@@ -66,9 +66,7 @@ extern int inic_stop(void);
 /******************************************************
  *               Variables Declarations
  ******************************************************/
-#if DEVICE_EMAC
-//extern struct netif *xnetif[];
-#else
+#if !DEVICE_EMAC
 extern struct netif xnetif[NET_IF_NUM];
 #endif
 /******************************************************
@@ -325,7 +323,7 @@ static void wifi_disconn_hdl( char* buf, int buf_len, int flags, void* userdata)
 			else if(rtw_join_status == 0)
 		 		error_flag = RTW_CONNECT_FAIL;
 
-			else if(rtw_join_status ==JOIN_COMPLETE | JOIN_SECURITY_COMPLETE | JOIN_ASSOCIATED | JOIN_AUTHENTICATED | JOIN_LINK_READY)
+			else if(rtw_join_status == (JOIN_COMPLETE | JOIN_SECURITY_COMPLETE | JOIN_ASSOCIATED | JOIN_AUTHENTICATED | JOIN_LINK_READY))
 				error_flag = RTW_WRONG_PASSWORD;	
 		}
 		
@@ -450,7 +448,7 @@ int wifi_connect(
 
 				u32 p[5] = {0};
 				u8 i = 0; 
-				sscanf((const char*)password, "%02x%02x%02x%02x%02x", &p[0], &p[1], &p[2], &p[3], &p[4]);
+				sscanf((const char*)password, "%02lx%02lx%02lx%02lx%02lx", &p[0], &p[1], &p[2], &p[3], &p[4]);
 				for(i=0; i< 5; i++)
 					wep_pwd[i] = (u8)p[i];
 				wep_pwd[5] = '\0';
@@ -459,8 +457,8 @@ int wifi_connect(
 			} else if (password_len == 26) {
 				u32 p[13] = {0};
 				u8 i = 0;
-				sscanf((const char*)password, "%02x%02x%02x%02x%02x%02x%02x"\
-					 "%02x%02x%02x%02x%02x%02x", &p[0], &p[1], &p[2], &p[3], &p[4],\
+				sscanf((const char*)password, "%02lx%02lx%02lx%02lx%02lx%02lx%02lx"\
+					 "%02lx%02lx%02lx%02lx%02lx%02lx", &p[0], &p[1], &p[2], &p[3], &p[4],\
 					  &p[5], &p[6], &p[7], &p[8], &p[9], &p[10], &p[11], &p[12]);
 				for(i=0; i< 13; i++)
 					wep_pwd[i] = (u8)p[i];
@@ -830,7 +828,7 @@ int wifi_get_ap_info(rtw_bss_info_t * ap_info, rtw_security_t* security)
 
 	snprintf(buf, 24, "get_security");
 	ret = wext_private_command_with_retval(ifname, buf, buf, 24);
-	sscanf(buf, "%d", security);
+	sscanf(buf, "%lu", security);
 
 	return ret;
 }
@@ -977,8 +975,7 @@ int wifi_on(rtw_mode_t mode)
 	}
 
 	#if CONFIG_LWIP_LAYER
-	#if DEVICE_EMAC
-	#else
+	#if !DEVICE_EMAC
 	netif_set_up(&xnetif[0]);
 	if(mode == RTW_MODE_STA_AP) {
 		netif_set_up(&xnetif[1]);		
@@ -1005,9 +1002,7 @@ int wifi_off(void)
 	}
 #if CONFIG_LWIP_LAYER
 	dhcps_deinit();
-#if DEVICE_EMAC
-// TODO:
-#else
+#if !DEVICE_EMAC
 	LwIP_DHCP(0, DHCP_STOP);
 	netif_set_down(&xnetif[0]);
 	netif_set_down(&xnetif[1]);
@@ -1049,9 +1044,7 @@ int wifi_off_fastly(void)
 {
 #if CONFIG_LWIP_LAYER
 	dhcps_deinit();
-#if DEVICE_EMAC
-// TODO:
-#else
+#if !DEVICE_EMAC
 	LwIP_DHCP(0, DHCP_STOP);
 #endif
 #endif	
@@ -1339,7 +1332,8 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*buf, int buflen, cha
 	memcpy(scan_buf.buf+sizeof(int), ssid, ssid_len);
 
 	//Scan channel	
-	if(scan_cnt = (wifi_scan(RTW_SCAN_TYPE_ACTIVE, RTW_BSS_TYPE_ANY, &scan_buf)) < 0){
+	scan_cnt = wifi_scan(RTW_SCAN_TYPE_ACTIVE, RTW_BSS_TYPE_ANY, &scan_buf);
+	if(scan_cnt < 0){
 		WIFI_CONF_MSG("\n\rERROR: wifi scan failed");
 		ret = RTW_ERROR;
 	}else{
@@ -1402,7 +1396,7 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*buf, int buflen, cha
 		results_handler(scan_buf.buf, scan_buf.buf_len, ssid, user_data);
 		
 	if(scan_buf.buf)
-		rtw_mfree(scan_buf.buf, scan_buf.buf_len);
+		rtw_mfree((u8 *)scan_buf.buf, scan_buf.buf_len);
 
 	return ret;
 }
@@ -1678,12 +1672,10 @@ int wifi_restart_ap(
 	int					channel)
 {
 	unsigned char idx = 0;
+#if !DEVICE_EMAC
 	ip_addr_t ipaddr;
 	ip_addr_t netmask;
 	ip_addr_t gw;
-#if DEVICE_EMAC
-        //struct netif * pnetif = xnetif[0];
-#else
 	struct netif * pnetif = &xnetif[0];
 #endif
 #ifdef  CONFIG_CONCURRENT_MODE
@@ -1708,8 +1700,7 @@ int wifi_restart_ap(
 	else
 #endif
 	{
-#if DEVICE_EMAC
-#else
+#if !DEVICE_EMAC
 		IP4_ADDR(&ipaddr, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 		IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
 		IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
@@ -1731,18 +1722,23 @@ int wifi_restart_ap(
 #ifdef  CONFIG_CONCURRENT_MODE
 	// connect to ap if wlan0 was linked with ap
 	if(idx > 0 && sta_linked == 0){
+#if CONFIG_DHCP_CLIENT
 		int ret;
+#endif
 		printf("\r\nAP: ssid=%s", (char*)setting.ssid);
 		printf("\r\nAP: security_type=%d", setting.security_type);
 		printf("\r\nAP: password=%s", (char*)setting.password);
 		printf("\r\nAP: key_idx =%d\n", setting.key_idx);
-		ret = wifi_connect((char*)setting.ssid,
-									setting.security_type,
-									(char*)setting.password,
-									strlen((char*)setting.ssid),
-									strlen((char*)setting.password),
-									setting.key_idx,
-									NULL);	
+#if CONFIG_DHCP_CLIENT
+		ret =
+#endif
+                wifi_connect((char*)setting.ssid,
+                             setting.security_type,
+                             (char*)setting.password,
+                             strlen((char*)setting.ssid),
+                             strlen((char*)setting.password),
+                             setting.key_idx,
+                             NULL);
 #if CONFIG_DHCP_CLIENT
 		if(ret == RTW_SUCCESS) {
 			/* Start DHCPClient */
@@ -1754,10 +1750,7 @@ int wifi_restart_ap(
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	printf("\r\nWebServer Thread: High Water Mark is %ld\n", uxTaskGetStackHighWaterMark(NULL));
 #endif
-#if DEVICE_EMAC
-	// start dhcp server
-	//dhcps_init(xnetif[idx]);
-#else
+#if !DEVICE_EMAC
 	// start dhcp server
 	dhcps_init(&xnetif[idx]);
 #endif
@@ -1780,15 +1773,22 @@ struct wifi_autoreconnect_param {
 
 static void wifi_autoreconnect_thread(void *param)
 {
+#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
 	int ret = RTW_ERROR;
+#endif
 	struct wifi_autoreconnect_param *reconnect_param = (struct wifi_autoreconnect_param *) param;
 	WIFI_CONF_MSG("\n\rauto reconnect ...\n");
-	ret = wifi_connect(reconnect_param->ssid, reconnect_param->security_type, reconnect_param->password,
-	                   reconnect_param->ssid_len, reconnect_param->password_len, reconnect_param->key_id, NULL);
-#if DEVICE_EMAC
-	// call wlan_emac API 
-#else
-#if CONFIG_LWIP_LAYER
+#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
+	ret =
+#endif
+        wifi_connect(reconnect_param->ssid,
+                     reconnect_param->security_type,
+                     reconnect_param->password,
+                     reconnect_param->ssid_len,
+                     reconnect_param->password_len,
+                     reconnect_param->key_id,
+                     NULL);
+#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
 	if(ret == RTW_SUCCESS) {
 #if ATCMD_VER == ATVER_2
 		if (dhcp_mode_sta == 2){
@@ -1809,7 +1809,6 @@ static void wifi_autoreconnect_thread(void *param)
 #endif
 		}
 	}
-#endif //#if CONFIG_LWIP_LAYER
 #endif
 	rtw_delete_task(&g_wifi_auto_reconnect_task);
 }
