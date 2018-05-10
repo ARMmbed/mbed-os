@@ -25,7 +25,7 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     _file = fdopen(this, "w+");
     // fdopen() will make us buffered because Stream::isatty()
     // wrongly returns zero which is not being changed for
-    // backward compatibility 
+    // backward compatibility
     if (_file) {
         mbed_set_unbuffered_stream(_file);
     } else {
@@ -41,7 +41,11 @@ Stream::~Stream() {
 int Stream::putc(int c) {
     lock();
     fflush(_file);
+#if defined(TARGET_SIMULATOR)
+    int ret = _putc(c);
+#else
     int ret = std::fputc(c, _file);
+#endif
     unlock();
     return ret;
 }
@@ -128,8 +132,17 @@ int Stream::printf(const char* format, ...) {
     lock();
     std::va_list arg;
     va_start(arg, format);
+#if defined(TARGET_SIMULATOR)
+    char buffer[4096] = { 0 };
+    int r = vsprintf(buffer, format, arg);
+    for (int ix = 0; ix < r; ix++) {
+        _putc(buffer[ix]);
+    }
+    _flush();
+#else
     fflush(_file);
     int r = vfprintf(_file, format, arg);
+#endif
     va_end(arg);
     unlock();
     return r;

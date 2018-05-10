@@ -13,41 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/Serial.h"
-#include "platform/mbed_wait_api.h"
+#include <stddef.h>
+#include "us_ticker_api.h"
 
-#if DEVICE_SERIAL
+void us_ticker_init(void)
+{
 
-namespace mbed {
-
-Serial::Serial(PinName tx, PinName rx, const char *name, int baud) : SerialBase(tx, rx, baud), Stream(name) {
 }
 
-Serial::Serial(PinName tx, PinName rx, int baud): SerialBase(tx, rx, baud), Stream(NULL) {
+
+uint32_t us_ticker_read()
+{
+    return 0;
 }
 
-int Serial::_getc() {
-    // Mutex is already held
-    return _base_getc();
+void us_ticker_disable_interrupt(void)
+{
+
 }
 
-int Serial::_putc(int c) {
-    // Mutex is already held
-    return _base_putc(c);
+void us_ticker_clear_interrupt(void)
+{
+
 }
 
-void Serial::_flush() {
-    _base_flush();
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
 }
 
-void Serial::lock() {
-    _mutex.lock();
+void us_ticker_fire_interrupt(void)
+{
 }
-
-void Serial::unlock() {
-    _mutex.unlock();
-}
-
-} // namespace mbed
-
-#endif

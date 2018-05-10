@@ -2855,6 +2855,7 @@
 
 #endif /* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY */
 
+#ifndef TARGET_SIMULATOR
 #if defined(MBEDTLS_TEST_NULL_ENTROPY)
 #warning "MBEDTLS_TEST_NULL_ENTROPY has been enabled. This " \
     "configuration is not secure and is not suitable for production use"
@@ -2865,5 +2866,6 @@
 #error "No entropy source was found at build time, so TLS " \
     "functionality is not available"
 #endif
+#endif //ifndef TARGET_SIMULATOR
 
 #endif /* MBEDTLS_CONFIG_H */

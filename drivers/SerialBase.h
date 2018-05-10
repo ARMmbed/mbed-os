@@ -168,7 +168,7 @@ public:
     /** Begin asynchronous write using 8bit buffer. The completition invokes registered TX event callback
      *
      *  This function locks the deep sleep until any event has occurred
-     * 
+     *
      *  @param buffer   The buffer where received data will be stored
      *  @param length   The buffer length in bytes
      *  @param callback The event callback function
@@ -179,7 +179,7 @@ public:
     /** Begin asynchronous write using 16bit buffer. The completition invokes registered TX event callback
      *
      *  This function locks the deep sleep until any event has occurred
-     * 
+     *
      *  @param buffer   The buffer where received data will be stored
      *  @param length   The buffer length in bytes
      *  @param callback The event callback function
@@ -194,7 +194,7 @@ public:
     /** Begin asynchronous reading using 8bit buffer. The completition invokes registred RX event callback.
      *
      *  This function locks the deep sleep until any event has occurred
-     * 
+     *
      *  @param buffer     The buffer where received data will be stored
      *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
@@ -206,7 +206,7 @@ public:
     /** Begin asynchronous reading using 16bit buffer. The completition invokes registred RX event callback.
      *
      *  This function locks the deep sleep until any event has occurred
-     * 
+     *
      *  @param buffer     The buffer where received data will be stored
      *  @param length     The buffer length in bytes
      *  @param callback   The event callback function
@@ -245,6 +245,7 @@ protected:
 
     int _base_getc();
     int _base_putc(int c);
+    void _base_flush();
 
 #if DEVICE_SERIAL_ASYNCH
     CThunk<SerialBase> _thunk_irq;

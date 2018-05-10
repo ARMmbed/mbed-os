@@ -13,41 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/Serial.h"
-#include "platform/mbed_wait_api.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#if DEVICE_SERIAL
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-namespace mbed {
+typedef enum {
+    Port0 = 0,
+    Port1 = 1,
+    Port2 = 2,
+    Port3 = 3,
+    Port4 = 4
+} PortName;
 
-Serial::Serial(PinName tx, PinName rx, const char *name, int baud) : SerialBase(tx, rx, baud), Stream(name) {
+#ifdef __cplusplus
 }
-
-Serial::Serial(PinName tx, PinName rx, int baud): SerialBase(tx, rx, baud), Stream(NULL) {
-}
-
-int Serial::_getc() {
-    // Mutex is already held
-    return _base_getc();
-}
-
-int Serial::_putc(int c) {
-    // Mutex is already held
-    return _base_putc(c);
-}
-
-void Serial::_flush() {
-    _base_flush();
-}
-
-void Serial::lock() {
-    _mutex.lock();
-}
-
-void Serial::unlock() {
-    _mutex.unlock();
-}
-
-} // namespace mbed
-
+#endif
 #endif
