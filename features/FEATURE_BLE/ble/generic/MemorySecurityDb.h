@@ -20,7 +20,7 @@
 #include "SecurityDb.h"
 
 namespace ble {
-namespace pal {
+namespace generic {
 
 /** Naive memory implementation for verification. */
 class MemorySecurityDb : public SecurityDb {

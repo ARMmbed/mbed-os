@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 namespace ble {
-namespace pal {
+namespace generic {
 
 
 /**

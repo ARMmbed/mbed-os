@@ -19,7 +19,7 @@
 
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
-#include "ble/pal/SecurityDb.h"
+#include "ble/generic/SecurityDb.h"
 #include "platform/Callback.h"
 #include "ble/pal/ConnectionEventMonitor.h"
 #include "ble/pal/SigningEventMonitor.h"
@@ -37,8 +37,6 @@ class GenericSecurityManager : public SecurityManager,
                                public pal::ConnectionEventMonitor::EventHandler,
                                public pal::SigningEventMonitor::EventHandler {
 public:
-    typedef ble::pal::SecurityDistributionFlags_t SecurityDistributionFlags_t;
-    typedef ble::pal::SecurityEntryKeys_t SecurityEntryKeys_t;
 
     /* implements SecurityManager */
 
@@ -51,7 +49,8 @@ public:
         bool mitm = true,
         SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
         const Passkey_t passkey = NULL,
-        bool signing = true
+        bool signing = true,
+        const uint8_t* db_path = NULL
     );
 
     virtual ble_error_t reset();
@@ -236,11 +235,9 @@ public:
 public:
     GenericSecurityManager(
         pal::SecurityManager &palImpl,
-        pal::SecurityDb &dbImpl,
         pal::ConnectionEventMonitor &connMonitorImpl,
         pal::SigningEventMonitor &signingMonitorImpl
     ) : _pal(palImpl),
-        _db(dbImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
         _default_authentication(0),
@@ -308,7 +305,7 @@ private:
      * @param[in] entryKeys security entry containing keys.
      */
     void enable_encryption_cb(
-        pal::SecurityDb::entry_handle_t entry,
+        SecurityDb::entry_handle_t entry,
         const SecurityEntryKeys_t* entryKeys
     );
 
@@ -319,7 +316,7 @@ private:
      * @param[in] entryKeys security entry containing keys.
      */
     void set_ltk_cb(
-        pal::SecurityDb::entry_handle_t entry,
+        SecurityDb::entry_handle_t entry,
         const SecurityEntryKeys_t* entryKeys
     );
 
@@ -330,7 +327,7 @@ private:
      * @param[in] csrk connection signature resolving key.
      */
     void return_csrk_cb(
-        pal::SecurityDb::entry_handle_t connection,
+        SecurityDb::entry_handle_t connection,
         const csrk_t *csrk,
         sign_count_t sign_counter
     );
@@ -342,7 +339,7 @@ private:
      * @param[in] csrk connection signature resolving key.
      */
     void set_peer_csrk_cb(
-        pal::SecurityDb::entry_handle_t connection,
+        SecurityDb::entry_handle_t connection,
         const csrk_t *csrk,
         sign_count_t sign_counter
     );
@@ -407,8 +404,8 @@ private:
      * @param identity The identity associated with the entry; may be NULL.
      */
     void on_security_entry_retrieved(
-        pal::SecurityDb::entry_handle_t entry,
-        const pal::SecurityEntryIdentity_t* identity
+        SecurityDb::entry_handle_t entry,
+        const SecurityEntryIdentity_t* identity
     );
 
     /**
@@ -421,12 +418,12 @@ private:
      * @param count Number of identities entries retrieved.
      */
     void on_identity_list_retrieved(
-        ble::ArrayView<pal::SecurityEntryIdentity_t*>& identity_list,
+        ble::ArrayView<SecurityEntryIdentity_t*>& identity_list,
         size_t count
     );
 
 private:
-    struct ControlBlock_t : public pal::SecurityDistributionFlags_t {
+    struct ControlBlock_t : public SecurityDistributionFlags_t {
         ControlBlock_t();
 
         pal::KeyDistribution get_initiator_key_distribution() {
@@ -443,7 +440,7 @@ private:
         };
 
         connection_handle_t connection;
-        pal::SecurityDb::entry_handle_t db_entry;
+        SecurityDb::entry_handle_t db_entry;
 
         address_t local_address; /**< address used for connection, possibly different from identity */
 
@@ -473,9 +470,10 @@ private:
     };
 
     pal::SecurityManager &_pal;
-    pal::SecurityDb &_db;
     pal::ConnectionEventMonitor &_connection_monitor;
     pal::SigningEventMonitor &_signing_monitor;
+
+    SecurityDb *_db;
 
     /* OOB data */
     address_t _oob_local_address;
@@ -718,7 +716,7 @@ public:
 
     ControlBlock_t* get_control_block(const address_t &peer_address);
 
-    ControlBlock_t* get_control_block(pal::SecurityDb::entry_handle_t db_entry);
+    ControlBlock_t* get_control_block(SecurityDb::entry_handle_t db_entry);
 
     void release_control_block(ControlBlock_t* entry);
 };

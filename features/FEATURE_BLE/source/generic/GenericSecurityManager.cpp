@@ -17,6 +17,8 @@
 #include "ble/SecurityManager.h"
 #include "ble/pal/PalSecurityManager.h"
 #include "ble/generic/GenericSecurityManager.h"
+#include "ble/generic/MemorySecurityDb.h"
+#include "ble/generic/FileSecurityDb.h"
 
 using ble::pal::advertising_peer_address_type_t;
 using ble::pal::AuthenticationMask;
@@ -37,14 +39,17 @@ ble_error_t GenericSecurityManager::init(
     bool mitm,
     SecurityIOCapabilities_t iocaps,
     const Passkey_t passkey,
-    bool signing
+    bool signing,
+    const uint8_t* db_path
 ) {
     ble_error_t err = _pal.initialize();
     if (err) {
     	return err;
     }
 
-    _db.restore();
+    _db = new (std::nothrow) MemorySecurityDb();
+
+    _db->restore();
     _pal.set_io_capability((io_capability_t::type) iocaps);
 
     if (passkey) {
@@ -75,16 +80,16 @@ ble_error_t GenericSecurityManager::init(
     _pal.set_event_handler(this);
 
     uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
-    pal::SecurityEntryIdentity_t** identity_list_p =
-        new (std::nothrow) pal::SecurityEntryIdentity_t*[resolving_list_capacity];
+    SecurityEntryIdentity_t** identity_list_p =
+        new (std::nothrow) SecurityEntryIdentity_t*[resolving_list_capacity];
 
     if (identity_list_p) {
-        ArrayView<pal::SecurityEntryIdentity_t*> identity_list(
+        ArrayView<SecurityEntryIdentity_t*> identity_list(
             identity_list_p,
             resolving_list_capacity
         );
 
-        _db.get_identity_list(
+        _db->get_identity_list(
             mbed::callback(this, &GenericSecurityManager::on_identity_list_retrieved),
             identity_list
         );
@@ -94,7 +99,7 @@ ble_error_t GenericSecurityManager::init(
 }
 
 ble_error_t GenericSecurityManager::reset(void) {
-    _db.sync();
+    _db->sync();
     _pal.reset();
     SecurityManager::reset();
 
@@ -102,7 +107,7 @@ ble_error_t GenericSecurityManager::reset(void) {
 }
 
 ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
-    _db.set_restore(enabled);
+    _db->set_restore(enabled);
     return BLE_ERROR_NONE;
 }
 
@@ -111,13 +116,13 @@ ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
 //
 
 ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
-    _db.clear_entries();
+    _db->clear_entries();
     return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
     if (eventHandler) {
-        _db.generate_whitelist_from_bond_table(
+        _db->generate_whitelist_from_bond_table(
             mbed::callback(eventHandler, &::SecurityManager::EventHandler::whitelistFromBondTable),
             whitelist
         );
@@ -333,7 +338,7 @@ ble_error_t GenericSecurityManager::enableSigning(
         cb->signing_requested = true;
         if (cb->csrk_stored) {
             /* used the stored ones when available */
-            _db.get_entry_peer_csrk(
+            _db->get_entry_peer_csrk(
                 mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
                 cb->db_entry
             );
@@ -471,7 +476,7 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
     if (cb->csrk_stored && (cb->csrk_mitm_protected || !authenticated)) {
         /* we have a key that is either authenticated or we don't care if it is
          * so retrieve it from the db now */
-        _db.get_entry_peer_csrk(
+        _db->get_entry_peer_csrk(
             mbed::callback(this, &GenericSecurityManager::return_csrk_cb),
             cb->db_entry
         );
@@ -658,8 +663,8 @@ ble_error_t GenericSecurityManager::oobReceived(
 //
 
 ble_error_t GenericSecurityManager::init_signing() {
-    const csrk_t *pcsrk = _db.get_local_csrk();
-    sign_count_t local_sign_counter = _db.get_local_sign_counter();
+    const csrk_t *pcsrk = _db->get_local_csrk();
+    sign_count_t local_sign_counter = _db->get_local_sign_counter();
 
     if (!pcsrk) {
         csrk_t csrk;
@@ -670,8 +675,8 @@ ble_error_t GenericSecurityManager::init_signing() {
         }
 
         pcsrk = &csrk;
-        _db.set_local_csrk(csrk);
-        _db.set_local_sign_counter(local_sign_counter);
+        _db->set_local_csrk(csrk);
+        _db->set_local_sign_counter(local_sign_counter);
     }
 
     return _pal.set_csrk(*pcsrk, local_sign_counter);
@@ -713,7 +718,7 @@ ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connec
     }
     if (cb->is_master) {
         if (cb->ltk_stored) {
-            _db.get_entry_peer_keys(
+            _db->get_entry_peer_keys(
                 mbed::callback(this, &GenericSecurityManager::enable_encryption_cb),
                 cb->db_entry
             );
@@ -727,7 +732,7 @@ ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connec
 }
 
 void GenericSecurityManager::enable_encryption_cb(
-    pal::SecurityDb::entry_handle_t db_entry,
+    SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
@@ -742,7 +747,7 @@ void GenericSecurityManager::enable_encryption_cb(
 }
 
 void GenericSecurityManager::set_ltk_cb(
-    pal::SecurityDb::entry_handle_t db_entry,
+    SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
     ControlBlock_t *cb = get_control_block(db_entry);
@@ -757,7 +762,7 @@ void GenericSecurityManager::set_ltk_cb(
 }
 
 void GenericSecurityManager::set_peer_csrk_cb(
-    pal::SecurityDb::entry_handle_t db_entry,
+    SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk,
     sign_count_t sign_counter
 ) {
@@ -775,7 +780,7 @@ void GenericSecurityManager::set_peer_csrk_cb(
 }
 
 void GenericSecurityManager::return_csrk_cb(
-    pal::SecurityDb::entry_handle_t db_entry,
+    SecurityDb::entry_handle_t db_entry,
     const csrk_t *csrk,
     sign_count_t sign_counter
 ) {
@@ -846,13 +851,13 @@ void GenericSecurityManager::on_connected(
     cb->is_master = (role == Gap::CENTRAL);
 
     // get the associated db handle and the distribution flags if any
-    cb->db_entry = _db.open_entry(peer_address_type, peer_address);
+    cb->db_entry = _db->open_entry(peer_address_type, peer_address);
 
-    const pal::SecurityDistributionFlags_t* dist_flags =
-        _db.get_distribution_flags(cb->db_entry);
+    const SecurityDistributionFlags_t* dist_flags =
+        _db->get_distribution_flags(cb->db_entry);
 
     if (dist_flags) {
-        *static_cast<pal::SecurityDistributionFlags_t*>(cb) = *dist_flags;
+        *static_cast<SecurityDistributionFlags_t*>(cb) = *dist_flags;
     }
 
     const bool signing = cb->signing_override_default ?
@@ -860,7 +865,7 @@ void GenericSecurityManager::on_connected(
                          _default_key_distribution.get_signing();
 
     if (signing && cb->csrk_stored) {
-        _db.get_entry_peer_csrk(
+        _db->get_entry_peer_csrk(
             mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
             cb->db_entry
         );
@@ -876,15 +881,15 @@ void GenericSecurityManager::on_disconnected(
         return;
     }
 
-    _db.close_entry(cb->db_entry);
+    _db->close_entry(cb->db_entry);
     release_control_block(cb);
 
-    _db.sync();
+    _db->sync();
 }
 
 void GenericSecurityManager::on_security_entry_retrieved(
-    pal::SecurityDb::entry_handle_t entry,
-    const pal::SecurityEntryIdentity_t* identity
+    SecurityDb::entry_handle_t entry,
+    const SecurityEntryIdentity_t* identity
 ) {
     if (!identity) {
         return;
@@ -902,7 +907,7 @@ void GenericSecurityManager::on_security_entry_retrieved(
 }
 
 void GenericSecurityManager::on_identity_list_retrieved(
-    ble::ArrayView<pal::SecurityEntryIdentity_t*>& identity_list,
+    ble::ArrayView<SecurityEntryIdentity_t*>& identity_list,
     size_t count
 ) {
     typedef advertising_peer_address_type_t address_type_t;
@@ -992,8 +997,8 @@ void GenericSecurityManager::on_pairing_completed(connection_handle_t connection
     ControlBlock_t *cb = get_control_block(connection);
     if (cb) {
         // set the distribution flags in the db
-        _db.set_distribution_flags(cb->db_entry, *cb);
-        _db.get_entry_identity(
+        _db->set_distribution_flags(cb->db_entry, *cb);
+        _db->get_entry_identity(
             mbed::callback(this, &GenericSecurityManager::on_security_entry_retrieved),
             cb->db_entry
         );
@@ -1021,7 +1026,7 @@ void GenericSecurityManager::on_signed_write_received(
     if (!cb) {
         return;
     }
-    _db.set_entry_peer_sign_counter(cb->db_entry, sign_counter);
+    _db->set_entry_peer_sign_counter(cb->db_entry, sign_counter);
 }
 
 void GenericSecurityManager::on_signed_write_verification_failure(
@@ -1050,7 +1055,7 @@ void GenericSecurityManager::on_signed_write_verification_failure(
 }
 
 void GenericSecurityManager::on_signed_write() {
-    _db.set_local_sign_counter(_db.get_local_sign_counter() + 1);
+    _db->set_local_sign_counter(_db->get_local_sign_counter() + 1);
 }
 
 void GenericSecurityManager::on_slave_security_request(
@@ -1229,7 +1234,7 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
     cb->ltk_mitm_protected = cb->mitm_performed;
     cb->secure_connections_paired = true;
 
-    _db.set_entry_peer_ltk(cb->db_entry, ltk);
+    _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
 void GenericSecurityManager::on_keys_distributed_ltk(
@@ -1241,7 +1246,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
         return;
     }
     cb->ltk_mitm_protected = cb->mitm_performed;
-    _db.set_entry_peer_ltk(cb->db_entry, ltk);
+    _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
 void GenericSecurityManager::on_keys_distributed_ediv_rand(
@@ -1254,7 +1259,7 @@ void GenericSecurityManager::on_keys_distributed_ediv_rand(
         return;
     }
 
-    _db.set_entry_peer_ediv_rand(cb->db_entry, ediv, rand);
+    _db->set_entry_peer_ediv_rand(cb->db_entry, ediv, rand);
 }
 
 void GenericSecurityManager::on_keys_distributed_local_ltk(
@@ -1266,7 +1271,7 @@ void GenericSecurityManager::on_keys_distributed_local_ltk(
         return;
     }
 
-    _db.set_entry_local_ltk(cb->db_entry, ltk);
+    _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
 void GenericSecurityManager::on_keys_distributed_local_ediv_rand(
@@ -1279,7 +1284,7 @@ void GenericSecurityManager::on_keys_distributed_local_ediv_rand(
         return;
     }
 
-    _db.set_entry_local_ediv_rand(cb->db_entry, ediv, rand);
+    _db->set_entry_local_ediv_rand(cb->db_entry, ediv, rand);
 }
 
 void GenericSecurityManager::on_keys_distributed_irk(
@@ -1291,7 +1296,7 @@ void GenericSecurityManager::on_keys_distributed_irk(
         return;
     }
 
-    _db.set_entry_peer_irk(cb->db_entry, irk);
+    _db->set_entry_peer_irk(cb->db_entry, irk);
 }
 
 void GenericSecurityManager::on_keys_distributed_bdaddr(
@@ -1304,7 +1309,7 @@ void GenericSecurityManager::on_keys_distributed_bdaddr(
         return;
     }
 
-    _db.set_entry_peer_bdaddr(
+    _db->set_entry_peer_bdaddr(
         cb->db_entry,
         (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
         peer_identity_address
@@ -1322,7 +1327,7 @@ void GenericSecurityManager::on_keys_distributed_csrk(
 
     cb->csrk_mitm_protected = cb->mitm_performed;
 
-    _db.set_entry_peer_csrk(cb->db_entry, csrk);
+    _db->set_entry_peer_csrk(cb->db_entry, csrk);
 
     eventHandler->signingKey(
         connection,
@@ -1341,7 +1346,7 @@ void GenericSecurityManager::on_ltk_request(
         return;
     }
 
-    _db.get_entry_local_keys(
+    _db->get_entry_local_keys(
         mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
         cb->db_entry,
         ediv,
@@ -1352,7 +1357,7 @@ void GenericSecurityManager::on_ltk_request(
 /* control blocks list management */
 
 GenericSecurityManager::ControlBlock_t::ControlBlock_t() :
-    pal::SecurityDistributionFlags_t(),
+    SecurityDistributionFlags_t(),
     connection(0),
     db_entry(0),
     local_address(),
@@ -1379,7 +1384,7 @@ void GenericSecurityManager::on_ltk_request(connection_handle_t connection)
         return;
     }
 
-    _db.get_entry_local_keys(
+    _db->get_entry_local_keys(
         mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
         cb->db_entry
     );
@@ -1428,7 +1433,7 @@ GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_bloc
 }
 
 GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_block(
-    pal::SecurityDb::entry_handle_t db_entry
+    SecurityDb::entry_handle_t db_entry
 ) {
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
         if (!_control_blocks[i].connected) {

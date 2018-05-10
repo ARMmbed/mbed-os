@@ -204,11 +204,9 @@ generic::GenericGattClient& BLE::getGattClient()
 
 SecurityManager& BLE::getSecurityManager()
 {
-    static pal::MemorySecurityDb m_db;
     static SigningEventMonitorProxy signing_event_monitor(*this);
     static generic::GenericSecurityManager m_instance(
         pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
-        m_db,
         getGap(),
         signing_event_monitor
     );
