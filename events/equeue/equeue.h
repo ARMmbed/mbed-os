@@ -80,6 +80,10 @@ typedef struct equeue {
     equeue_sema_t eventsema;
     equeue_mutex_t queuelock;
     equeue_mutex_t memlock;
+
+#ifdef TARGET_SIMULATOR
+    bool dispatch_called;
+#endif
 } equeue_t;
 
 
