@@ -107,10 +107,18 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
     _mutex->lock();
     while (size) {
         uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);
+        bool unaligned_src = (((size_t) buf / sizeof(uint32_t) * sizeof(uint32_t)) != (size_t) buf);
         chunk = std::min(current_sector_size - (addr % current_sector_size), size);
-        if (chunk < page_size) {
+        // Need to use the internal page buffer in any of these two cases:
+        // 1. Size is not page aligned
+        // 2. Source buffer is not aligned to uint32_t. This is not supported by many targets (although
+        //    the pointer they accept is of uint8_t).
+        if (unaligned_src || (chunk < page_size)) {
+            chunk = std::min(chunk, page_size);
             memcpy(_page_buf, buf, chunk);
-            memset(_page_buf + chunk, 0xFF, page_size - chunk);
+            if (chunk < page_size) {
+                memset(_page_buf + chunk, 0xFF, page_size - chunk);
+            }
             prog_buf = _page_buf;
             prog_size = page_size;
         } else {
