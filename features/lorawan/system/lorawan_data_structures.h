@@ -35,6 +35,7 @@
 #define LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_
 
 #include <inttypes.h>
+#include "device.h"
 #include "platform/Callback.h"
 
 /*!

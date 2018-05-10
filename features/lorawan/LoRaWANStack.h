@@ -27,6 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define LORAWANSTACK_H_
 
 #include <stdint.h>
+#include "device.h"
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"

@@ -28,6 +28,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "platform/Callback.h"
 #include "events/EventQueue.h"
 #include "lorawan/LoRaWANStack.h"
+
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LSTK"
@@ -484,6 +485,8 @@ lorawan_status_t LoRaWANStack::activation_by_personalization(const lorawan_conne
 int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
                                 uint16_t length, uint8_t flags)
 {
+    tr_debug("handle_tx, lw_session.active=%d tx_msg.tx_ongoing=%d", _lw_session.active, _tx_msg.tx_ongoing);
+
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
     }
@@ -1090,6 +1093,9 @@ lorawan_status_t LoRaWANStack::lora_state_machine()
 {
     loramac_mib_req_confirm_t mib_req;
     lorawan_status_t status = LORAWAN_STATUS_DEVICE_OFF;
+
+
+    tr_debug("lora_state_machine %d", _device_current_state);
 
     switch (_device_current_state) {
         case DEVICE_STATE_SHUTDOWN:

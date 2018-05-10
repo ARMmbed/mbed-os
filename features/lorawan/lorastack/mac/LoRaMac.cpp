@@ -32,6 +32,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define tr_debug(...) (void(0)) //dummies if feature common pal is not added
 #define tr_info(...)  (void(0)) //dummies if feature common pal is not added
 #define tr_error(...) (void(0)) //dummies if feature common pal is not added
+#define tr_warn(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
 using namespace events;
@@ -201,6 +202,7 @@ void LoRaMac::handle_ack_timeout()
 
 void LoRaMac::handle_rx1_timer_event(void)
 {
+    tr_debug("handle_rx1_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_rx_window1_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -208,6 +210,7 @@ void LoRaMac::handle_rx1_timer_event(void)
 
 void LoRaMac::handle_rx2_timer_event(void)
 {
+    tr_debug("handle_rx2_timer_event");
     const int ret = ev_queue->call(this, &LoRaMac::on_rx_window2_timer_event);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -218,6 +221,8 @@ void LoRaMac::handle_rx2_timer_event(void)
  **************************************************************************/
 void LoRaMac::on_radio_tx_done( void )
 {
+    tr_debug("radio_tx_done");
+
     set_band_txdone_params_t tx_done_params;
     lorawan_time_t cur_time = _lora_time.get_current_time( );
     loramac_mlme_confirm_t mlme_confirm = mlme.get_confirmation();
@@ -280,6 +285,8 @@ void LoRaMac::on_radio_tx_done( void )
 
 void LoRaMac::prepare_rx_done_abort(void)
 {
+    tr_debug("prepare_rx_done_abort");
+
     _params.mac_state |= LORAMAC_RX_ABORT;
 
     if (_params.is_node_ack_requested) {
@@ -296,6 +303,8 @@ void LoRaMac::prepare_rx_done_abort(void)
 void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
                                int8_t snr)
 {
+    tr_debug("on_radio_rx_done, payload=%p, size=%u, rssi=%d, snr=%d", payload, size, rssi, snr);
+
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
     cflist_params_t cflist;
@@ -714,6 +723,8 @@ void LoRaMac::on_radio_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
 
 void LoRaMac::on_radio_tx_timeout( void )
 {
+    tr_debug("on_radio_tx_timeout");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -729,6 +740,8 @@ void LoRaMac::on_radio_tx_timeout( void )
 
 void LoRaMac::on_radio_rx_error( void )
 {
+    tr_debug("on_radio_rx_error");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -761,6 +774,8 @@ void LoRaMac::on_radio_rx_error( void )
 
 void LoRaMac::on_radio_rx_timeout(void)
 {
+    tr_debug("on_radio_rx_timeout");
+
     if (_params.dev_class != CLASS_C) {
         lora_phy->put_radio_to_sleep();
     } else {
@@ -988,6 +1003,8 @@ void LoRaMac::on_mac_state_check_timer_event(void)
 
 void LoRaMac::on_tx_delayed_timer_event(void)
 {
+    tr_debug("on_tx_delayed_timer_event");
+
     loramac_mhdr_t mac_hdr;
     loramac_frame_ctrl_t fctrl;
 
@@ -1024,6 +1041,8 @@ void LoRaMac::on_tx_delayed_timer_event(void)
 
 void LoRaMac::on_rx_window1_timer_event(void)
 {
+    tr_debug("on_rx_window1_timer_event");
+
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
@@ -1047,6 +1066,8 @@ void LoRaMac::on_rx_window1_timer_event(void)
 
 void LoRaMac::on_rx_window2_timer_event(void)
 {
+    tr_debug("on_rx_window2_timer_event");
+
     _lora_time.stop(_params.timers.rx_window2_timer);
 
     _params.rx_window2_config.channel = _params.channel;
@@ -1074,6 +1095,8 @@ void LoRaMac::on_rx_window2_timer_event(void)
 
 void LoRaMac::on_ack_timeout_timer_event(void)
 {
+    tr_debug("on_ack_timeout_timer_event");
+
     _lora_time.stop(_params.timers.ack_timeout_timer);
 
     if (_params.is_node_ack_requested == true) {
@@ -1087,12 +1110,16 @@ void LoRaMac::on_ack_timeout_timer_event(void)
 
 void LoRaMac::rx_window_setup(bool rx_continuous, uint32_t max_rx_window_time)
 {
+    tr_debug("rx_window_setup");
+
     lora_phy->setup_rx_window(rx_continuous, max_rx_window_time);
 }
 
 bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,
                                       uint8_t fopts_len)
 {
+    tr_debug("validate_payload_length");
+
     uint16_t max_value = 0;
     uint16_t payloadSize = 0;
 
@@ -1111,6 +1138,8 @@ bool LoRaMac::validate_payload_length(uint8_t length, int8_t datarate,
 
 void LoRaMac::set_mlme_schedule_ul_indication(void)
 {
+    tr_debug("set_mlme_schedule_ul_indication");
+
     mlme.get_indication().indication_type = MLME_SCHEDULE_UPLINK;
     _params.flags.bits.mlme_ind = 1;
 }
@@ -1495,6 +1524,8 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
 lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 {
+    tr_debug("send_frame_on_channel");
+
     tx_config_params_t tx_config;
     int8_t tx_power = 0;
 

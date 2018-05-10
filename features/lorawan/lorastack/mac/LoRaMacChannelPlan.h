@@ -28,6 +28,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORAWAN_LORAMACCHANNELPLAN_H_
 #define MBED_LORAWAN_LORAMACCHANNELPLAN_H_
 
+#include "device.h"
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorastack/mac/LoRaMacMib.h"

@@ -31,6 +31,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define tr_debug(...) (void(0)) //dummies if feature common pal is not added
 #define tr_info(...)  (void(0)) //dummies if feature common pal is not added
 #define tr_error(...) (void(0)) //dummies if feature common pal is not added
+#define tr_warn(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
 /**
