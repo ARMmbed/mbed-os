@@ -1,23 +1,19 @@
 /*
- * Copyright (c) 2018 Nuvoton Technology Corp.
+ * Copyright (c) 2018 Nuvoton Technology Corp. 
+ * Copyright (c) 2018 ARM Limited
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
  *
  * Description:   NuMaker EMAC
  */
@@ -34,7 +30,7 @@
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
 
-#define NU_TRACE
+//#define NU_TRACE
 
 #include "numaker_emac_config.h"
 #include "numaker_emac.h"
@@ -140,7 +136,6 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
     if ( numaker_eth_get_rx_buf(&len, &buffer) != 0) {
         return -1;
     }
-
     byteslefttocopy = len;
 
     if (len > 0) {
@@ -156,10 +151,11 @@ int NUMAKER_EMAC::low_level_input(emac_mem_buf_t **buf)
             NU_DEBUGF(("offset=[%d], bytes-to-copy[%d]\r\n",bufferoffset,byteslefttocopy));
             /* Copy data in pbuf */
             memcpy(static_cast<uint8_t *>(memory_manager->get_ptr(q)) + payloadoffset, static_cast<uint8_t *>(buffer) + bufferoffset, byteslefttocopy);
+            
             bufferoffset = bufferoffset + byteslefttocopy;
         }
     }
-    numaker_eth_rx_next();
+
     return 0;
 }
 
@@ -201,7 +197,7 @@ void NUMAKER_EMAC::packet_rx()
           NU_DEBUGF(("%s ... p=0x%x\r\n",__FUNCTION__,p));
           emac_link_input_cb(p);
       }
-//      numaker_eth_rx_next();
+      numaker_eth_rx_next();
   }
   numaker_eth_trigger_rx();
   
@@ -263,9 +259,9 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
         bufferoffset = bufferoffset + byteslefttocopy;
         framelength = framelength + byteslefttocopy;
     }
-
+    
     /* Prepare transmit descriptors to give to DMA */
-    numaker_eth_trigger_tx(byteslefttocopy, NULL);
+    numaker_eth_trigger_tx(framelength, NULL);
 
     result = true;
 
