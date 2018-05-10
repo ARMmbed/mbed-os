@@ -1,23 +1,18 @@
 /*
- * Copyright (c) 2018 Nuvoton Technology Corp.
+ * Copyright (c) 2018 Nuvoton Technology Corp. 
+ * Copyright (c) 2018 ARM Limited
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Description:   M480 MAC driver source file
  */
@@ -297,36 +292,6 @@ void EMAC_RX_IRQHandler(void)
 	if (nu_eth_txrx_cb != NULL) nu_eth_txrx_cb('R', nu_userData); 
 }
 
-#if 0
-void EMAC_RX_Action(void)
-{
-    unsigned int cur_entry, status;
-    do {
-
-        cur_entry = EMAC->CRXDSA;
-
-        if ((cur_entry == (uint32_t)cur_rx_desc_ptr) && (!(m_status & EMAC_INTSTS_RDUIF_Msk)))  // cur_entry may equal to cur_rx_desc_ptr if RDU occures
-            break;
-        status = cur_rx_desc_ptr->status1;
-
-        if(status & OWNERSHIP_EMAC)
-            break;
-
-        if (status & RXFD_RXGD) {
-			// Lwip will invoke osMutexWait for resource protection, so ethernetif_input can't be called in EMAC_RX_IRQHandler.
-            //ethernetif_input(status & 0xFFFF, cur_rx_desc_ptr->buf, cur_rx_desc_ptr->status2, (uint32_t)cur_rx_desc_ptr->next);
-
-        }
-
-        cur_rx_desc_ptr->status1 = OWNERSHIP_EMAC;
-        cur_rx_desc_ptr = cur_rx_desc_ptr->next;
-
-    } while (1);
-
-    ETH_TRIGGER_RX();
-//	eth_arch_tcpip_thread();
-}
-#endif
 
 void numaker_eth_trigger_rx(void)
 {
@@ -349,8 +314,6 @@ int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf)
         *buf = cur_rx_desc_ptr->buf;
         *len = status & 0xFFFF;
     }
-//    cur_rx_desc_ptr->status1 = OWNERSHIP_EMAC;
-//    cur_rx_desc_ptr = cur_rx_desc_ptr->next;
     return 0;
 }    
 
