@@ -872,7 +872,7 @@
         },
         "detect_code": ["0755"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F070RB"
     },
@@ -1064,7 +1064,7 @@
         },
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
+        "device_has_add": ["CRC", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
