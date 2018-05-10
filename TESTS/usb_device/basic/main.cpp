@@ -24,6 +24,9 @@
 #include "USBTester.h"
 #include "usb_phy_api.h"
 
+// Uncomment or remove this if host suspend_resume_test part will be implemented
+//#define SUSPEND_RESUME_TEST_SUPPORTED
+
 // If disconnect() + connect() occur too fast the reset event will be dropped.
 // At a minimum there should be a 200us delay between disconnect and connect.
 // To be on the safe side I would recommend a 1ms delay, so the host controller
@@ -202,6 +205,7 @@ void device_soft_reconnection_test()
     }
 }
 
+#if SUSPEND_RESUME_TEST_SUPPORTED
 void device_suspend_resume_test()
 {
     uint16_t vendor_id = 0x0d28;
@@ -224,6 +228,7 @@ void device_suspend_resume_test()
         printf("[3] suspend_count: %d  resume_count: %d\n", serial.get_suspend_count(), serial.get_resume_count());
     }
 }
+#endif
 
 void repeated_construction_destruction_test()
 {
@@ -288,7 +293,9 @@ Case cases[] = {
     Case("usb control stress test", control_stress_test),
     Case("usb device reset test", device_reset_test),
     Case("usb soft reconnection test", device_soft_reconnection_test),
+#if SUSPEND_RESUME_TEST_SUPPORTED
     Case("usb device suspend/resume test", device_suspend_resume_test),
+#endif
     Case("usb repeated construction destruction test", repeated_construction_destruction_test)
 };
 
