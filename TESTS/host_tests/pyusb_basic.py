@@ -316,6 +316,18 @@ def control_basic_test(dev, vendor_id, product_id, log):
 
 
 def get_set_configuration_test(dev, log):
+    """
+    Test device configuration/deconfiguration
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device configuration is checked just after initialization
+    Then get_configuration returns 1 (default configuration is set)
+    When device is deconfigured
+    Then get_configuration returns 0 (no configuration is set)
+    When each from supported configurations is set
+    Then the configuration is set correctly
+    """
+
     print("<<< get_set_configuration_test >>>")
     # check if dafault(1) configuration set
     try:
@@ -368,6 +380,14 @@ def get_set_configuration_test(dev, log):
 
 
 def get_set_interface_test(dev, log):
+    """
+    Test device interface setting
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When each altsetting from every supported configuration is set
+    Then the interface altsetting is set correctly
+    """
+
     print("<<< get_set_interface_test >>>")
     # for every configuration
     for cfg in dev:
@@ -390,6 +410,20 @@ def get_set_interface_test(dev, log):
 
 
 def get_status_test(dev, log):
+    """
+    Test device/interface/endpoint status
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device status is checked
+    Then status is within allowed values (see status bits description below)
+    When control endpoint status is checked
+    Then control endpoint status is 0
+    When status of each interface from every supported configuration is checked
+    Then interface status is 0
+    When status of each endpoint in every allowed device interface/configuration combination is checked
+    Then endpoint status is 0 (not halted)
+    """
+
     print("<<< get_status_test >>>")
     # check device status
     ret = get_status(dev, CTRL_RECIPIENT_DEVICE)
@@ -440,7 +474,19 @@ def get_status_test(dev, log):
 
 
 def set_clear_feature_test(dev, log):
+    """
+    Test set/clear feature on device/interface/endpoint
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When for each endpoint in every allowed interface/configuration combination the feature is set and then cleared
+    Then selected feature is set/cleared accordingly
+    """
+
     print("<<< set_clear_feature_test >>>")
+    # TODO:
+    # test set_feature on device (Remote wakeup feature not supported on DUT side)
+    # test set_feature on interface (not supported at all)
+
     # for every configuration
     for cfg in dev:
         cfg.set()
@@ -450,6 +496,7 @@ def set_clear_feature_test(dev, log):
             intf.set_altsetting()
             # on every ENDPOINT
             for ep in intf:
+                # halt endpoint
                 try:
                     usb.control.set_feature(dev, FEATURE_ENDPOINT_HALT, ep)
                 except usb.core.USBError as err:
@@ -486,8 +533,22 @@ def set_clear_feature_test(dev, log):
 
 
 def get_descriptor_test(dev, vendor_id, product_id, log):
+    """
+    Test device/configuration/interface/endpoint descriptors
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device descriptor is read
+    Then the descriptor content is valid
+    When configuration descriptor is read
+    Then the descriptor content is valid
+    When interface descriptor is read
+    Then the error is thrown since it is not directly accessible
+    When endpoint descriptor is read
+    Then the error is thrown since it is not directly accessible
+    """
+
     print("<<< get_descriptor_test >>>")
-    # Control IN GET_DESCRIPTOR - device
+    # device descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_DEVICE << 8) | (0 << 0), 0, DEVICE_DESC_SIZE)
         dev_desc = dict(zip(device_descriptor_keys, device_descriptor_parser.unpack(ret)))
@@ -497,7 +558,7 @@ def get_descriptor_test(dev, vendor_id, product_id, log):
     except usb.core.USBError:
         raise_unconditionally(lineno(), "Requesting device descriptor failed")
 
-    # Control IN GET_DESCRIPTOR - configuration
+    # configuration descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_CONFIG << 8) | (0 << 0), 0, CONFIGURATION_DESC_SIZE)
         conf_desc = dict(zip(configuration_descriptor_keys, configuration_descriptor_parser.unpack(ret)))
@@ -505,14 +566,14 @@ def get_descriptor_test(dev, vendor_id, product_id, log):
     except usb.core.USBError:
         raise_unconditionally(lineno(), "Requesting configuration descriptor failed")
 
-    # Control IN GET_DESCRIPTOR - interface
+    # interface descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_INTERFACE << 8) | (0 << 0), 0, INTERFACE_DESC_SIZE)
         raise_unconditionally(lineno(), "Requesting interface descriptor should fail since it is not directly accessible")
     except usb.core.USBError:
         log("interface descriptor is not directly accessible - OK")
 
-    # Control IN GET_DESCRIPTOR - endpoint
+    # endpoint descriptor
     try:
         ret = get_descriptor(dev, (DESC_TYPE_ENDPOINT << 8) | (0 << 0), 0, ENDPOINT_DESC_SIZE)
         raise_unconditionally(lineno(), "Requesting endpoint descriptor should fail since it is not directly accessible")
@@ -520,7 +581,16 @@ def get_descriptor_test(dev, vendor_id, product_id, log):
         log("endpoint descriptor is not directly accessible - OK")
     print("") # new line
 
+
 def set_descriptor_test(dev, log):
+    """
+    Test descriptor setting
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When device descriptor is to be set
+    Then error is thrown since descriptor setting command is not supported by Mbed
+    """
+
     print("<<< set_descriptor_test >>>")
     # SET_DESCRIPTOR is optional and not implemented in Mbed
     # command should fail with no action on device side
@@ -541,6 +611,14 @@ def set_descriptor_test(dev, log):
 
 
 def synch_frame_test(dev, log):
+    """
+    Test sync frame request
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When ...
+    Then ...
+    """
+
     print("<<< synch_frame_test >>>")
     # only for isochronous endpoints
     request_type = build_request_type(CTRL_IN, CTRL_TYPE_STANDARD,
@@ -559,6 +637,14 @@ def synch_frame_test(dev, log):
 
 
 def control_stall_test(dev, log):
+    """
+    Test control endpoint stall on invalid request
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When unsupported request to control endpoint is to be sent
+    Then the endpoint is stalled and error is thrown
+    """
+
     print("<<< control_stall_test >>>")
     # Control OUT stall
     try:
@@ -640,6 +726,14 @@ def control_stall_test(dev, log):
 
 
 def control_sizes_test(dev, log):
+    """
+    Test various data sizes in control transfer
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When control data in each tested size is sent
+    Then read data should match sent data
+    """
+
     list = [1, 2, 3, 7, 8, 9, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 511, 512, 513, 1023, 1024, 1025, 2047, 2048]
     control_data_test(dev, list, log)
 
@@ -683,8 +777,18 @@ def control_data_test(dev, sizes_list, log):
 
 
 def control_stress_test(dev, log):
-    # Test various patterns of control transfers
-    #
+    """
+    Test various patterns of control transfers
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When stress control transfer with a data in stage is performed
+    Then transfer ends with success
+    When stress control transfer with a data out stage followed by a control transfer with a data in stage is performed
+    Then transfer ends with success
+    When stress control transfer with a data out stage is performed
+    Then transfer ends with success
+    """
+
     # Some devices have had problems with back-to-back
     # control transfers. Intentionally send these sequences
     # to make sure they are properly handled.
@@ -734,6 +838,14 @@ def control_stress_test(dev, log):
 
 
 def device_reset_test(log):
+    """
+    Test USB implementation against repeated reset
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is reset repeatedly
+    Then the USB is operational with no errors
+    """
+
     dev = yield
     dev.reset();
     dev = yield
@@ -751,6 +863,14 @@ def device_reset_test(log):
 
 
 def device_soft_reconnection_test(log):
+    """
+    Test USB implementation against repeated reconnection
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is disconnected and then connected repeatedly
+    Then the USB is operational with no errors
+    """
+
     list = [64, 256]
     dev = yield
     # run other test to check if USB works fine before reconnection
@@ -771,6 +891,14 @@ def device_soft_reconnection_test(log):
 
 
 def device_suspend_resume_test(log):
+    """
+    Test USB implementation against repeated suspend and resume
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is suspended and then resumed repeatedly
+    Then the USB is operational with no errors
+    """
+
     dev = yield
     control_data_test(dev, [64, 256], log)
     # suspend code goes here
@@ -795,6 +923,14 @@ def device_suspend_resume_test(log):
 
 
 def repeated_construction_destruction_test(log):
+    """
+    Test USB implementation against repeated initialization and deinitialization
+
+    Given an initialized USB (HOST <---> DUT connection established)
+    When USB device is deinitialized and then initialized repeatedly
+    Then the USB is operational with no errors
+    """
+
     list = [64, 256]
     dev = yield
     # run other test to check if USB works fine after repeated construction/destruction
@@ -820,6 +956,8 @@ def release_interfaces(dev):
 
 
 def restore_default_configuration(dev):
+    """ Set default configuration """
+
     cfg = dev[1]
     cfg.set()
 
