@@ -166,8 +166,7 @@ void LoRaMac::handle_tx_timeout(void)
 void LoRaMac::handle_cad_done(bool cad)
 {
     //TODO Not implemented yet
-    //const int ret = 1;
-    // this->OnRadioCadDone(cad);
+    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioCadDone, cad);
     //MBED_ASSERT(ret != 0);
     //(void)ret;
 }
@@ -175,8 +174,7 @@ void LoRaMac::handle_cad_done(bool cad)
 void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
 {
     // TODO Not implemented yet
-    //const int ret = 1;
-    // this->OnRadioFHSSChangeChannel(cur_channel);
+    //const int ret = ev_queue->call(this, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
     //MBED_ASSERT(ret != 0);
     //(void)ret;
 }
@@ -283,8 +281,6 @@ void LoRaMac::on_radio_tx_done( void )
         mcps.get_confirmation().status = LORAMAC_EVENT_INFO_STATUS_OK;
         _params.ul_nb_rep_counter++;
     }
-
-    _lora_time.start(_params.timers.mac_state_check_timer, 1);
 }
 
 void LoRaMac::prepare_rx_done_abort(void)
@@ -809,8 +805,6 @@ void LoRaMac::on_radio_rx_timeout(void)
             _params.flags.bits.mac_done = 1;
         }
     }
-
-    _lora_time.start(_params.timers.mac_state_check_timer, 1);
 }
 
 /***************************************************************************
@@ -1555,8 +1549,8 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     mlme.get_confirmation().tx_toa = _params.timers.tx_toa;
 
     // Starts the MAC layer status check timer
-    // _lora_time.start(_params.timers.mac_state_check_timer,
-    //                  MAC_STATE_CHECK_TIMEOUT);
+    _lora_time.start(_params.timers.mac_state_check_timer,
+                     MAC_STATE_CHECK_TIMEOUT);
 
     if (_params.is_nwk_joined == false) {
         _params.join_request_trial_counter++;
