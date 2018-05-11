@@ -50,7 +50,7 @@ public:
         SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
         const Passkey_t passkey = NULL,
         bool signing = true,
-        const uint8_t* db_path = NULL
+        const char* db_path = NULL
     );
 
     virtual ble_error_t reset();
@@ -329,24 +329,22 @@ private:
      * Returns the CSRK for the connection. Called by the security db.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] csrk connection signature resolving key.
+     * @param[in] signing connection signature resolving key and counter.
      */
     void return_csrk_cb(
         SecurityDb::entry_handle_t connection,
-        const csrk_t *csrk,
-        sign_count_t sign_counter
+        const SecurityEntrySigning_t *signing
     );
 
     /**
      * Set the peer CSRK for the connection. Called by the security db.
      *
      * @param[in] connectionHandle Handle to identify the connection.
-     * @param[in] csrk connection signature resolving key.
+     * @param[in] signing connection signature resolving key and counter.
      */
     void set_peer_csrk_cb(
         SecurityDb::entry_handle_t connection,
-        const csrk_t *csrk,
-        sign_count_t sign_counter
+        const SecurityEntrySigning_t *signing
     );
 
     /**

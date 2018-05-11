@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PAL_MEMORY_SECURITY_DB_H_
-#define PAL_MEMORY_SECURITY_DB_H_
+#ifndef GENERIC_MEMORY_SECURITY_DB_H_
+#define GENERIC_MEMORY_SECURITY_DB_H_
 
 #include "SecurityDb.h"
 
@@ -25,121 +25,54 @@ namespace generic {
 /** Naive memory implementation for verification. */
 class MemorySecurityDb : public SecurityDb {
 private:
-    enum state_t {
-        ENTRY_FREE,
-        ENTRY_RESERVED,
-        ENTRY_WRITTEN,
-        ENTRY_DISCONNECTED
+    struct entry_t {
+        entry_t() : peer_sign_counter(0) { };
+        SecurityDistributionFlags_t flags;
+        SecurityEntryKeys_t local_keys;
+        SecurityEntryKeys_t peer_keys;
+        SecurityEntryIdentity_t peer_identity;
+        SecurityEntrySigning_t peer_signing;
+        sign_count_t peer_sign_counter;
     };
 
-    struct entry_t {
-        entry_t() : sign_counter(0), state(ENTRY_FREE) { };
-        SecurityDistributionFlags_t flags;
-        SecurityEntryKeys_t peer_keys;
-        SecurityEntryKeys_t local_keys;
-        SecurityEntryIdentity_t peer_identity;
-        csrk_t csrk;
-        sign_count_t sign_counter;
-        state_t state;
-    };
     static const size_t MAX_ENTRIES = 5;
 
-    static entry_t* as_entry(entry_handle_t entry_handle)
+    static entry_t* as_entry(entry_handle_t db_handle)
     {
-        return reinterpret_cast<entry_t*>(entry_handle);
+        return reinterpret_cast<entry_t*>(db_handle);
     }
 
 public:
-    MemorySecurityDb() : _local_sign_counter(0) { }
+    MemorySecurityDb() : SecurityDb() { }
     virtual ~MemorySecurityDb() { }
 
-    virtual const SecurityDistributionFlags_t* get_distribution_flags(
-        entry_handle_t entry_handle
+    virtual SecurityDistributionFlags_t* get_distribution_flags(
+        entry_handle_t db_handle
     ) {
-        entry_t* entry = as_entry(entry_handle);
-        if (!entry) {
-            return NULL;
-        }
-
-        return &entry->flags;
-    }
-
-    /**
-     * Set the distribution flags of the DB entry
-     */
-    virtual void set_distribution_flags(
-        entry_handle_t entry_handle,
-        const SecurityDistributionFlags_t& flags
-    ) {
-        entry_t* entry = as_entry(entry_handle);
-        if (!entry) {
-            return;
-        }
-
-        entry->state = ENTRY_WRITTEN;
-        entry->flags = flags;
+        return reinterpret_cast<SecurityDistributionFlags_t*>(db_handle);
     }
 
     /* local keys */
 
-    /* get */
-    virtual void get_entry_local_keys(
-        SecurityEntryKeysDbCb_t cb,
-        entry_handle_t entry_handle,
-        const ediv_t &ediv,
-        const rand_t &rand
-    ) {
-        entry_t* entry = as_entry(entry_handle);
-        if (!entry) {
-            return;
-        }
-
-        /* validate we have the correct key */
-        if (ediv == entry->local_keys.ediv && rand == entry->local_keys.rand) {
-            cb(entry_handle, &entry->local_keys);
-        } else {
-            cb(entry_handle, NULL);
-        }
-    }
-
-    virtual void get_entry_local_keys(
-        SecurityEntryKeysDbCb_t cb,
-        entry_handle_t entry_handle
-    ) {
-        entry_t* entry = as_entry(entry_handle);
-        if (!entry) {
-            return;
-        }
-
-        /* validate we have the correct key */
-        if (entry->flags.secure_connections_paired) {
-            cb(entry_handle, &entry->local_keys);
-        } else {
-            cb(entry_handle, NULL);
-        }
-    }
-
-
     /* set */
     virtual void set_entry_local_ltk(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const ltk_t &ltk
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
+            entry->flags.ltk_sent = true;
             entry->local_keys.ltk = ltk;
         }
     }
 
     virtual void set_entry_local_ediv_rand(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const ediv_t &ediv,
         const rand_t &rand
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
             entry->local_keys.ediv = ediv;
             entry->local_keys.rand = rand;
         }
@@ -147,270 +80,118 @@ public:
 
     /* peer's keys */
 
-    /* get */
-    virtual void get_entry_peer_csrk(
-        SecurityEntryCsrkDbCb_t cb,
-        entry_handle_t entry_handle
-    ) {
-        csrk_t csrk;
-        sign_count_t sign_counter = 0;
-        entry_t *entry = as_entry(entry_handle);
-        if (entry) {
-            csrk = entry->csrk;
-            sign_counter = entry->sign_counter;
-        }
-        cb(entry_handle, &csrk, sign_counter);
-    }
-
-    virtual void get_entry_peer_keys(
-        SecurityEntryKeysDbCb_t cb,
-        entry_handle_t entry_handle
-    ) {
-        SecurityEntryKeys_t *key = NULL;
-        entry_t *entry = as_entry(entry_handle);
-        if (entry) {
-            key = &entry->peer_keys;
-        }
-        cb(entry_handle, key);
-    }
-
-    virtual void get_entry_identity(
-        SecurityEntryIdentityDbCb_t cb,
-        entry_handle_t entry_handle
-    ) {
-        entry_t *entry = as_entry(entry_handle);
-        if (entry && entry->flags.irk_stored) {
-            cb(entry_handle, &entry->peer_identity);
-        } else {
-            cb(entry_handle, NULL);
-        }
-    }
-
-    virtual void get_identity_list(
-        IdentitylistDbCb_t cb,
-        ArrayView<SecurityEntryIdentity_t*>& entries
-    ) {
-        size_t count = 0;
-        for (size_t i = 0; i < MAX_ENTRIES && count < entries.size(); ++i) {
-            entry_t& e = _entries[i];
-
-            if (e.state == ENTRY_WRITTEN && e.flags.irk_stored) {
-                entries[count] = &e.peer_identity;
-                ++count;
-            }
-        }
-
-        cb(entries, count);
-    }
-
     /* set */
 
     virtual void set_entry_peer_ltk(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const ltk_t &ltk
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
             entry->peer_keys.ltk = ltk;
+            entry->flags.ltk_stored = true;
         }
     }
 
     virtual void set_entry_peer_ediv_rand(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const ediv_t &ediv,
         const rand_t &rand
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
             entry->peer_keys.ediv = ediv;
             entry->peer_keys.rand = rand;
         }
     }
 
     virtual void set_entry_peer_irk(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const irk_t &irk
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
             entry->peer_identity.irk = irk;
             entry->flags.irk_stored = true;
         }
     }
 
     virtual void set_entry_peer_bdaddr(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         bool address_is_public,
         const address_t &peer_address
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
             entry->peer_identity.identity_address = peer_address;
             entry->peer_identity.identity_address_is_public = address_is_public;
         }
     }
 
     virtual void set_entry_peer_csrk(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         const csrk_t &csrk
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
-            entry->csrk = csrk;
+            entry->flags.csrk_stored = true;
+            entry->peer_signing.csrk = csrk;
         }
     }
 
     virtual void set_entry_peer_sign_counter(
-        entry_handle_t entry_handle,
+        entry_handle_t db_handle,
         sign_count_t sign_counter
     ) {
-        entry_t *entry = as_entry(entry_handle);
+        entry_t *entry = as_entry(db_handle);
         if (entry) {
-            entry->state = ENTRY_WRITTEN;
-            entry->sign_counter = sign_counter;
+            entry->peer_signing.counter = sign_counter;
         }
     }
-
-    /* local csrk */
-
-    virtual const csrk_t* get_local_csrk() {
-        return &_local_csrk;
-    }
-
-    virtual void set_local_csrk(const csrk_t &csrk) {
-        _local_csrk = csrk;
-    }
-
-    virtual sign_count_t get_local_sign_counter() {
-        return _local_sign_counter;
-    }
-
-    virtual void set_local_sign_counter(
-        sign_count_t sign_counter
-    ) {
-        _local_sign_counter = sign_counter;
-    }
-
-    /* list management */
-
-    virtual void close_entry(entry_handle_t entry_handle) {
-        entry_t *entry = as_entry(entry_handle);
-        if (entry) {
-            if (entry->state == ENTRY_RESERVED) {
-                entry->state = ENTRY_FREE;
-            } else {
-                entry->state = ENTRY_DISCONNECTED;
-            }
-        }
-    }
-
-    virtual void remove_entry(const address_t peer_identity_address) {
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            if (_entries[i].state == ENTRY_FREE) {
-                continue;
-            } else if (peer_identity_address == _entries[i].peer_identity.identity_address) {
-                _entries[i] = entry_t();
-                _entries[i].state = ENTRY_FREE;
-                return;
-            }
-        }
-    }
-
-    virtual void clear_entries() {
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            _entries[i] = entry_t();
-        }
-        _local_identity = SecurityEntryIdentity_t();
-        _local_csrk = csrk_t();
-    }
-
-    virtual void get_whitelist(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
-        /*TODO: fill whitelist*/
-        cb(whitelist);
-    }
-
-    virtual void generate_whitelist_from_bond_table(WhitelistDbCb_t cb, ::Gap::Whitelist_t *whitelist) {
-        for (size_t i = 0; i < MAX_ENTRIES && i < whitelist->capacity; i++) {
-            if (_entries[i].flags.peer_address_is_public) {
-                whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;
-            } else {
-                whitelist->addresses[i].type = BLEProtocol::AddressType::RANDOM_STATIC;
-            }
-
-            memcpy(
-                whitelist->addresses[i].address,
-                _entries[i].peer_identity.identity_address.data(),
-                sizeof(BLEProtocol::AddressBytes_t)
-            );
-        }
-
-        cb(whitelist);
-    }
-
-    virtual void set_whitelist(const ::Gap::Whitelist_t &whitelist) { };
-
-    virtual void add_whitelist_entry(const address_t &address) { }
-
-    virtual void remove_whitelist_entry(const address_t &address) { }
-
-    virtual void clear_whitelist() { }
-
-    /* saving and loading from nvm */
-
-    virtual void restore() { }
-
-    virtual void sync() { }
-
-    virtual void set_restore(bool reload) { }
 
 private:
-    virtual uint8_t get_stored_entry_number() {
+    virtual uint8_t get_entry_count() {
         return MAX_ENTRIES;
     }
 
-    virtual SecurityDistributionFlags_t* get_stored_entry_flags(uint8_t index) {
-        return &_entries[index % MAX_ENTRIES].flags;
-    }
-
-    virtual SecurityEntryIdentity_t* get_stored_entry_identity(uint8_t index) {
-        return &_entries[index % MAX_ENTRIES].peer_identity;
-    }
-
-    virtual SecurityDistributionFlags_t* get_free_entry_flags() {
-        /* get a free one if available */
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            if (_entries[i].state == ENTRY_FREE) {
-                _entries[i] = entry_t();
-                _entries[i].state = ENTRY_RESERVED;
-                return &_entries[i].flags;
-            }
+    virtual SecurityDistributionFlags_t* get_entry_handle_by_index(uint8_t index) {
+        if (index < MAX_ENTRIES) {
+            return &_entries[index].flags;
+        } else {
+            return NULL;
         }
-
-        /* get any disconnected one */
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            if (_entries[i].state == ENTRY_DISCONNECTED) {
-                _entries[i] = entry_t();
-                _entries[i].state = ENTRY_RESERVED;
-                return &_entries[i].flags;
-            }
-        }
-
-        return NULL;
     }
+
+    virtual void reset_entry(entry_handle_t db_entry) {
+        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+        *entry = entry_t();
+    }
+
+    virtual SecurityEntryIdentity_t* read_in_entry_peer_identity(entry_handle_t db_entry) {
+        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+        return &entry->peer_identity;
+    };
+
+    virtual SecurityEntryKeys_t* read_in_entry_peer_keys(entry_handle_t db_entry) {
+        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+        return &entry->peer_keys;
+    };
+
+    virtual SecurityEntryKeys_t* read_in_entry_local_keys(entry_handle_t db_entry) {
+        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+        return &entry->local_keys;
+    };
+
+    virtual SecurityEntrySigning_t* read_in_entry_peer_signing(entry_handle_t db_entry) {
+        entry_t *entry = reinterpret_cast<entry_t*>(db_entry);
+        return &entry->peer_signing;
+    };
 
 private:
     entry_t _entries[MAX_ENTRIES];
-    SecurityEntryIdentity_t _local_identity;
-    csrk_t _local_csrk;
-    sign_count_t _local_sign_counter;
 };
 
 } /* namespace pal */
 } /* namespace ble */
 
-#endif /*PAL_MEMORY_SECURITY_DB_H_*/
+#endif /*GENERIC_MEMORY_SECURITY_DB_H_*/

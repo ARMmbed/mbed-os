@@ -428,7 +428,7 @@ public:
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
                              const Passkey_t          passkey       = NULL,
                              bool                     signing       = true,
-                             const uint8_t           *dbPath        = NULL) {
+                             const char              *dbPath        = NULL) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
