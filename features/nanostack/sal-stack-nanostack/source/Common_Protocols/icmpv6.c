@@ -48,7 +48,6 @@
 #define TRACE_GROUP "icmp"
 
 static buffer_t *icmpv6_echo_request_handler(struct buffer *buf);
-static buffer_t *icmpv6_na_handler(struct buffer *buf);
 
 /* Check to see if a message is recognisable ICMPv6, and if so, fill in code/type */
 /* This used ONLY for the e.1 + e.2 tests in RFC 4443, to try to avoid ICMPv6 error loops */
@@ -280,6 +279,11 @@ buffer_t *icmpv6_packet_too_big_handler(buffer_t *buf)
     const uint8_t *ptr = buffer_data_pointer(buf);
     uint32_t mtu = common_read_32_bit(ptr);
 
+    /* RFC 8201 - ignore MTU smaller than minimum */
+    if (mtu < IPV6_MIN_LINK_MTU) {
+        return buffer_free(buf);
+    }
+
     ptr = buffer_data_strip_header(buf, 4);
 
     /* Check source is us */
@@ -481,7 +485,6 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
      * interface, which we should only do in the whiteboard case.
      */
     if (addr_interface_address_compare(cur, target) != 0) {
-        int8_t mesh_id = -1;
         //tr_debug("Received  NS for proxy %s", trace_ipv6(target));
 
         proxy = true;
@@ -490,7 +493,7 @@ static buffer_t *icmpv6_ns_handler(buffer_t *buf)
             goto drop;
         }
 
-        if (!nd_proxy_enabled_for_downstream(cur->id) || !nd_proxy_target_address_validation(cur->id, target, &mesh_id)) {
+        if (!nd_proxy_enabled_for_downstream(cur->id) || !nd_proxy_target_address_validation(cur->id, target)) {
             goto drop;
         }
     }
@@ -917,6 +920,80 @@ drop:
     tr_warn("Redirect drop");
     return buffer_free(buf);
 }
+
+static buffer_t *icmpv6_na_handler(buffer_t *buf)
+{
+    protocol_interface_info_entry_t *cur;
+    uint8_t *dptr = buffer_data_pointer(buf);
+    uint8_t flags;
+    const uint8_t *target;
+    const uint8_t *tllao;
+    if_address_entry_t *addr_entry;
+    ipv6_neighbour_t *neighbour_entry;
+
+    //"Parse NA at IPv6\n");
+
+    if (buf->options.code != 0 || buf->options.hop_limit != 255) {
+        goto drop;
+    }
+
+    if (!icmpv6_options_well_formed_in_buffer(buf, 20)) {
+        goto drop;
+    }
+
+    // Skip the 4 reserved bytes
+    flags = *dptr;
+    dptr += 4;
+
+    // Note the target IPv6 address
+    target = dptr;
+
+    if (addr_is_ipv6_multicast(target)) {
+        goto drop;
+    }
+
+    /* Solicited flag must be clear if sent to a multicast address */
+    if (addr_is_ipv6_multicast(buf->dst_sa.address) && (flags & NA_S)) {
+        goto drop;
+    }
+
+    cur = buf->interface;
+
+    /* RFC 4862 5.4.4 DAD checks */
+    addr_entry = addr_get_entry(cur, target);
+    if (addr_entry) {
+        if (addr_entry->tentative) {
+            tr_debug("Received NA for our tentative address");
+            addr_duplicate_detected(cur, target);
+        } else {
+            tr_debug("NA received for our own address: %s", trace_ipv6(target));
+        }
+        goto drop;
+    }
+
+    if (cur->ipv6_neighbour_cache.recv_na_aro) {
+        const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 2);
+        if (aro) {
+            icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
+        }
+    }
+
+    /* No need to create a neighbour cache entry if one doesn't already exist */
+    neighbour_entry = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, target);
+    if (!neighbour_entry) {
+        goto drop;
+    }
+
+    tllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_TGT_LL_ADDR, 0);
+    if (!tllao || !cur->if_llao_parse(cur, tllao, &buf->dst_sa)) {
+        buf->dst_sa.addr_type = ADDR_NONE;
+    }
+
+    ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, neighbour_entry, flags, buf->dst_sa.addr_type, buf->dst_sa.address);
+
+drop:
+    return buffer_free(buf);
+}
 #endif // HAVE_IPV6_ND
 
 buffer_t *icmpv6_up(buffer_t *buf)
@@ -989,7 +1066,7 @@ buffer_t *icmpv6_up(buffer_t *buf)
 
         case ICMPV6_TYPE_INFO_ECHO_REPLY:
             ipv6_neighbour_reachability_confirmation(buf->src_sa.address, buf->interface->id);
-            /* no break */
+            /* fall through */
 
         case ICMPV6_TYPE_ERROR_DESTINATION_UNREACH:
 #ifdef HAVE_RPL_ROOT
@@ -1494,79 +1571,6 @@ buffer_t *icmpv6_build_na(protocol_interface_info_entry_t *cur, bool solicited, 
     return (buf);
 }
 
-static buffer_t *icmpv6_na_handler(buffer_t *buf)
-{
-    protocol_interface_info_entry_t *cur;
-    uint8_t *dptr = buffer_data_pointer(buf);
-    uint8_t flags;
-    const uint8_t *target;
-    const uint8_t *tllao;
-    if_address_entry_t *addr_entry;
-    ipv6_neighbour_t *neighbour_entry;
-
-    //"Parse NA at IPv6\n");
-
-    if (buf->options.code != 0 || buf->options.hop_limit != 255) {
-        goto drop;
-    }
-
-    if (!icmpv6_options_well_formed_in_buffer(buf, 20)) {
-        goto drop;
-    }
-
-    // Skip the 4 reserved bytes
-    flags = *dptr;
-    dptr += 4;
-
-    // Note the target IPv6 address
-    target = dptr;
-
-    if (addr_is_ipv6_multicast(target)) {
-        goto drop;
-    }
-
-    /* Solicited flag must be clear if sent to a multicast address */
-    if (addr_is_ipv6_multicast(buf->dst_sa.address) && (flags & NA_S)) {
-        goto drop;
-    }
-
-    cur = buf->interface;
-
-    /* RFC 4862 5.4.4 DAD checks */
-    addr_entry = addr_get_entry(cur, target);
-    if (addr_entry) {
-        if (addr_entry->tentative) {
-            tr_debug("Received NA for our tentative address");
-            addr_duplicate_detected(cur, target);
-        } else {
-            tr_debug("NA received for our own address: %s", trace_ipv6(target));
-        }
-        goto drop;
-    }
-
-    if (cur->ipv6_neighbour_cache.recv_na_aro) {
-        const uint8_t *aro = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_ADDR_REGISTRATION, 2);
-        if (aro) {
-            icmpv6_na_aro_handler(cur, aro, buf->dst_sa.address);
-        }
-    }
-
-    /* No need to create a neighbour cache entry if one doesn't already exist */
-    neighbour_entry = ipv6_neighbour_lookup(&cur->ipv6_neighbour_cache, target);
-    if (!neighbour_entry) {
-        goto drop;
-    }
-
-    tllao = icmpv6_find_option_in_buffer(buf, 20, ICMPV6_OPT_TGT_LL_ADDR, 0);
-    if (!tllao || !cur->if_llao_parse(cur, tllao, &buf->dst_sa)) {
-        buf->dst_sa.addr_type = ADDR_NONE;
-    }
-
-    ipv6_neighbour_update_from_na(&cur->ipv6_neighbour_cache, neighbour_entry, flags, buf->dst_sa.addr_type, buf->dst_sa.address);
-
-drop:
-    return buffer_free(buf);
-}
 #endif // HAVE_IPV6_ND
 
 #ifdef HAVE_IPV6_ND

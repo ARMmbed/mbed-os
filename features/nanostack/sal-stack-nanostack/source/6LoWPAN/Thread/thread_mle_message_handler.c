@@ -102,7 +102,7 @@ void thread_general_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, 
     case MLE_COMMAND_REJECT: {
         mle_neigh_table_entry_t *entry_temp;
         tr_warn("Reject Link");
-        entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false);
+        entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false, NULL);
         if (entry_temp) {
             mle_class_remove_entry(cur->id, entry_temp);
         }
@@ -224,8 +224,6 @@ static bool thread_router_leader_data_process(protocol_interface_info_entry_t *c
             // Request network data if we have a 2-way link
             tr_debug("Request New Network Data from %s", trace_ipv6(src_address));
             thread_network_data_request_send(cur, src_address, true);
-        } else {
-
         }
     } else if (leaderDataUpdate == 2) {
         tr_debug("Start Merge");
@@ -239,27 +237,16 @@ static bool thread_router_leader_data_process(protocol_interface_info_entry_t *c
     return true;
 }
 
-static bool thread_reed_partitions_merge(protocol_interface_info_entry_t *cur, uint16_t shortAddress, thread_leader_data_t heard_partition_leader_data)
+static bool thread_heard_lower_partition(protocol_interface_info_entry_t *cur, thread_leader_data_t heard_partition_leader_data)
 {
-    if (thread_is_router_addr(shortAddress)) {
-        return false;
+    if (heard_partition_leader_data.weighting < thread_info(cur)->thread_leader_data->weighting) {
+        return true;
     }
-    if (thread_extension_version_check(thread_info(cur)->version)) {
-        // lower weighting heard
-        if (thread_info(cur)->thread_leader_data->weighting > heard_partition_leader_data.weighting) {
-            return false;
-        }
-        // lower/same partition id heard
-        if (thread_info(cur)->thread_leader_data->weighting == heard_partition_leader_data.weighting &&
-                thread_info(cur)->thread_leader_data->partitionId >= heard_partition_leader_data.partitionId ) {
-            return false;
-        }
-    } else if (thread_info(cur)->thread_leader_data->partitionId >= heard_partition_leader_data.partitionId){
-        return false;
+    if (heard_partition_leader_data.weighting == thread_info(cur)->thread_leader_data->weighting &&
+            heard_partition_leader_data.partitionId < thread_info(cur)->thread_leader_data->partitionId) {
+        return true;
     }
-    // can merge to a higher weighting/partition id
-    thread_bootstrap_connection_error(cur->id, CON_ERROR_PARTITION_MERGE, NULL);
-    return true;
+    return false;
 }
 
 static bool thread_router_advertiment_tlv_analyze(uint8_t *ptr, uint16_t data_length, thread_leader_data_t *leaderData, uint16_t *shortAddress, mle_tlv_info_t *routeTlv)
@@ -315,12 +302,31 @@ static void thread_update_mle_entry(protocol_interface_info_entry_t *cur, mle_me
     return;
 }
 
+static bool thread_parse_advertisement_from_parent(protocol_interface_info_entry_t *cur, thread_leader_data_t *leader_data, uint16_t short_address)
+{
+    if ((thread_info(cur)->thread_leader_data->partitionId != leader_data->partitionId) ||
+        (thread_info(cur)->thread_leader_data->weighting != leader_data->weighting)) {
+        //parent changed partition/weight - reset own routing information
+        thread_old_partition_data_purge(cur);
+    }
+    //check if network data needs to be requested
+    if (!thread_bootstrap_request_network_data(cur, leader_data, short_address)) {
+        tr_debug("Parent short address changed - re-attach");
+        thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
+        return false;
+    }
+
+    return true;
+}
+
 static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, mle_security_header_t *security_headers, uint8_t linkMargin)
 {
     mle_tlv_info_t routeTlv;
     thread_leader_data_t leaderData;
-    uint16_t shortAddress;
     mle_neigh_table_entry_t *entry_temp;
+    uint16_t shortAddress;
+    bool adv_from_my_partition;
+    bool my_parent;
 
     // Check device mode & bootstrap state
     if ((thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) ||
@@ -336,29 +342,27 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
     }
 
     // Get MLE entry
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false, NULL);
 
-    if ((security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX)
-            && (thread_instance_id_matches(cur, &leaderData))) {
+    // Check if this is from my parent
+    my_parent = thread_check_is_this_my_parent(cur, entry_temp);
+
+    adv_from_my_partition = thread_instance_id_matches(cur, &leaderData);
+
+    if ((security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX) && adv_from_my_partition) {
         thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
     }
 
-    // Check parent status
-    if (!thread_attach_active_router(cur)) {
-        //processing for non routers
-        if (thread_check_is_this_my_parent(cur, entry_temp)) {
-            //advertisement from parent
-            if ((thread_info(cur)->thread_leader_data->partitionId != leaderData.partitionId) ||
-                (thread_info(cur)->thread_leader_data->weighting != leaderData.weighting)) {
-                //parent changed partition/weight - reset own routing information
-                thread_old_partition_data_purge(cur);
-            }
-            //check if network data needs to be requested
-            if (!thread_bootstrap_request_network_data(cur, &leaderData, shortAddress)) {
-                tr_debug("Parent short address changed - re-attach");
-                thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
-                return;
-            }
+    if (entry_temp && !adv_from_my_partition && !my_parent ) {
+        // Remove MLE entry that are located in other partition and is not my parent
+        mle_class_remove_entry(cur->id, entry_temp);
+        entry_temp = NULL;
+    }
+
+    /* Check parent status */
+    if (!thread_attach_active_router(cur) && my_parent) {
+        if (!thread_parse_advertisement_from_parent(cur, &leaderData, shortAddress)) {
+            return;
         }
     }
 
@@ -367,26 +371,31 @@ static void thread_parse_advertisement(protocol_interface_info_entry_t *cur, mle
 
     // Process advertisement
     if (thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_END_DEVICE) {
+        /* REED and FED */
         if (!thread_attach_active_router(cur)) {
-            // REED and FED
-            if (!entry_temp && thread_bootstrap_link_create_check(cur, shortAddress) && thread_bootstrap_link_create_allowed(cur, shortAddress, mle_msg->packet_src_address)) {
-                if ((thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId) &&
-                        (thread_info(cur)->thread_leader_data->weighting == leaderData.weighting)) {
+            /* Check if advertisement is from same partition */
+            if (thread_info(cur)->thread_leader_data->weighting == leaderData.weighting && thread_info(cur)->thread_leader_data->partitionId == leaderData.partitionId ) {
+                if (!entry_temp && thread_bootstrap_link_create_check(cur, shortAddress) && thread_bootstrap_link_create_allowed(cur, shortAddress, mle_msg->packet_src_address)) {
                     // Create link to new neighbor no other processing allowed
                     thread_link_request_start(cur, mle_msg->packet_src_address);
                     return;
                 }
-                if (!thread_router_leader_data_process(cur, mle_msg->packet_src_address, &leaderData, &routeTlv, entry_temp)) {
-                    // better partition found or new network data learn started
+            /* Advertisement from higher / lower partition */
+            } else {
+                // Check if better partition is heard
+                if (thread_bootstrap_partition_process(cur, thread_get_router_count_from_route_tlv(&routeTlv), &leaderData, &routeTlv) > 0) {
+                    tr_debug("Start Merge");
+                    thread_bootstrap_connection_error(cur->id, CON_ERROR_PARTITION_MERGE, NULL);
                     return;
                 }
+
+                // REED advertisement to lower partition to help merge faster
+                if (thread_heard_lower_partition(cur,leaderData)) {
+                    thread_router_bootstrap_reed_merge_advertisement(cur);
+                }
             }
-            // process REED advertisement from higher partition
-            if (thread_reed_partitions_merge(cur, shortAddress, leaderData)) {
-                return;
-            }
+        /* ROUTER */
         } else {
-            //Router
             if (!thread_router_leader_data_process(cur, mle_msg->packet_src_address, &leaderData, &routeTlv, entry_temp) ) {
                 return;
             }
@@ -409,14 +418,14 @@ static void thread_parse_accept(protocol_interface_info_entry_t *cur, mle_messag
     uint16_t messageId;
     uint8_t linkMarginfronNeigh;
     mle_neigh_table_entry_t *entry_temp;
-    bool createNew;
+    bool createNew, new_entry_created;
 
     tr_info("MLE LINK ACCEPT");
 
     messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
 
     if (messageId == 0) {
-        tr_debug("Not for me");
+        tr_debug("No matching challenge");
         return;
     }
 
@@ -435,7 +444,7 @@ static void thread_parse_accept(protocol_interface_info_entry_t *cur, mle_messag
     /* Call to determine whether or not we should create a new link */
     createNew = thread_bootstrap_link_create_check(cur, shortAddress);
 
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, createNew);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, createNew, &new_entry_created);
 
     if (!entry_temp) {
         thread_link_reject_send(cur, mle_msg->packet_src_address);
@@ -457,7 +466,7 @@ static void thread_parse_accept(protocol_interface_info_entry_t *cur, mle_messag
     // Set full data as REED needs full data and SED will not make links
     entry_temp->mode |= MLE_THREAD_REQ_FULL_DATA_SET;
 
-    mac_helper_devicetable_set(entry_temp, cur, llFrameCounter, security_headers->KeyIndex);
+    mac_helper_devicetable_set(entry_temp, cur, llFrameCounter, security_headers->KeyIndex, new_entry_created);
 
     if (entry_temp->timeout_rx) {
         mle_entry_timeout_refresh(entry_temp);
@@ -551,7 +560,7 @@ static void thread_parse_data_response(protocol_interface_info_entry_t *cur, mle
         return;
     }
 
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false, NULL);
 
     if(cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER ||
             cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE) {
@@ -700,7 +709,7 @@ static void thread_host_child_update_request_process(protocol_interface_info_ent
     bool data_request_needed = false;
 
     tr_debug("Child update request");
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false, NULL);
 
     if (!thread_leader_data_parse(mle_msg->data_ptr, mle_msg->data_length, &leaderData) ||
         !entry_temp ||
@@ -763,10 +772,15 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     uint8_t status;
     bool leader_data_received;
 
+    if (cur->thread_info->thread_endnode_parent == NULL) {
+        return;
+    }
+
     tr_debug("Child Update Response");
 
+    //mle_service_buffer_find
     leader_data_received = thread_leader_data_parse(mle_msg->data_ptr, mle_msg->data_length, &leaderData);
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, mle_msg->packet_src_address, false, NULL);
 
     if (mle_tlv_read_8_bit_tlv(MLE_TYPE_STATUS, mle_msg->data_ptr, mle_msg->data_length, &status) &&
         status == 1 && thread_check_is_this_my_parent(cur, entry_temp)) {
@@ -783,8 +797,7 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
         return;
     }
 
-    if ((security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX)
-            && (thread_instance_id_matches(cur, &leaderData))) {
+    if (security_headers->KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX) {
         thread_management_key_synch_req(cur->id, common_read_32_bit(security_headers->Keysource));
     } else {
         tr_debug("Key ID Mode 2 not used; dropped.");
@@ -796,12 +809,13 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
         return;
     }
 
+    timeout = cur->thread_info->host_link_timeout;
     if (mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &timeout)) {
         entry_temp->holdTime = 90;
         tr_debug("Setting child timeout, value=%"PRIu32, timeout);
         mle_entry_timeout_update(entry_temp, timeout);
-        thread_info(cur)->thread_endnode_parent->childUpdateProcessStatus = true;
     }
+
     tr_debug("Keep-Alive -->Respond from Parent");
     mle_entry_timeout_refresh(entry_temp);
 
@@ -809,7 +823,22 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     if (leader_data_received) {
         thread_save_leader_data(cur, &leaderData);
     }
+
+    if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
+        if  (cur->thread_info->childUpdateReqTimer < 1) {
+            cur->thread_info->childUpdateReqTimer = 0.8 * timeout;
+        }
+    }
+    //This process is ready
+    cur->thread_info->thread_endnode_parent->childUpdateProcessActive = false;
+    if (cur->thread_info->thread_endnode_parent->childUpdatePending) {
+        tr_debug("Child Update Pending");
+        thread_bootsrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
+        return;
+    }
+
     mac_data_poll_protocol_poll_mode_decrement(cur);
+
 }
 
 #endif

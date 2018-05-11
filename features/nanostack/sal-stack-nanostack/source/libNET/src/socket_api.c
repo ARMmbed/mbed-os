@@ -656,7 +656,7 @@ int8_t socket_bind(int8_t socket, const ns_address_t *address)
             return -4;
         }
 
-        if (protcol_interface_address_compare(NULL, address->address) != 0) {
+        if (protocol_interface_address_compare(address->address) != 0) {
             return -3;
         }
 

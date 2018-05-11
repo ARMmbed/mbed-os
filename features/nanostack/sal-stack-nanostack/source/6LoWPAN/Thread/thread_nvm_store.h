@@ -67,6 +67,15 @@ typedef struct {
     uint8_t mle_id[8];
 } thread_nvm_device_conf_t;
 
+typedef struct {
+    uint8_t mle_id[8];
+} thread_nvm_rloc_map_entry_t;
+
+typedef struct {
+    // mapping is in order from 0 to 63
+    thread_nvm_rloc_map_entry_t mleid_rloc_map[64];
+} thread_nvm_mleid_rloc_map;
+
 /* reads all fast data from nvm, if the return values is THREAD_NVM_FILE_ROOT_PATH_INVALID, the cached values are returned.  */
 int thread_nvm_store_fast_data_read(thread_nvm_fast_data_t* fast_data);
 /* stores all fast data to nvm */
@@ -87,6 +96,9 @@ int thread_nvm_store_active_configuration_remove(void);
 
 int thread_nvm_store_device_configuration_write(uint8_t *mac_ptr, uint8_t *mleid_ptr);
 int thread_nvm_store_device_configuration_read(uint8_t *mac_ptr, uint8_t *mleid_ptr);
+int thread_nvm_store_mleid_rloc_map_write(thread_nvm_mleid_rloc_map *mleid_rloc_map);
+int thread_nvm_store_mleid_rloc_map_read(thread_nvm_mleid_rloc_map *mleid_rloc_map);
+int thread_nvm_store_mleid_rloc_map_remove(void);
 int thread_nvm_store_pending_configuration_write(void *data, uint16_t size);
 int thread_nvm_store_pending_configuration_read(void *data, uint16_t size);
 int thread_nvm_store_pending_configuration_remove(void);

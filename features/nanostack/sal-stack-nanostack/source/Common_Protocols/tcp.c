@@ -559,7 +559,7 @@ tcp_error tcp_session_abort(tcp_session_t *tcp_session)
         case TCP_STATE_FIN_WAIT_2:
         case TCP_STATE_CLOSE_WAIT:
             tcp_session_send_reset_to_abort_connection(tcp_session);
-            /* no break */
+            /* fall through */
         case TCP_STATE_LISTEN:
         case TCP_STATE_SYN_SENT:
             tcp_session_delete_with_error(tcp_session, SOCKET_CONNECTION_RESET);

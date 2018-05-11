@@ -21,15 +21,12 @@
  * References:
  *
  * RFC  815   IP Datagram Reassembly Algorithms
- * RFC 2460   Internet Protocol. Version 6 (IPv6) Specification
  * RFC 3168   The Addition of Explicit Congestion Notification (ECN) to IP
- * RFC 5722   Handling of Overlapping IPv6 Fragments
  * RFC 6040   Tunnelling of Explicit Congestion Notification
- * RFC 6145   IP/ICMP Translation Algorithm [sections on Path MTU]
  * RFC 6660   Encoding Three Pre-Congestion Notification (PCN) States in the
  *            IP Header Using a Single Diffserv Codepoint (DSCP)
- * RFC 6946   Processing of IPv6 "Atomic" Fragments
- * RFC 7112   Implications of Oversized IPv6 Header Chains
+ * RFC 8200   Internet Protocol, Version 6 (IPv6) Specification
+ * RFC 8201   Path MTU Discovery for IP version 6
  */
 #include "nsconfig.h"
 #include "ns_types.h"
@@ -655,35 +652,6 @@ buffer_t *ipv6_frag_down(buffer_t *dgram_buf)
     uint16_t fragmentable_len = buffer_data_end(dgram_buf) - fragmentable;
 
     *nh_ptr = IPV6_NH_FRAGMENT;
-
-    /* Special case for atomic fragments (caused by a small PMTU) */
-    /* Note that we DO have the option of actually fragmenting and obeying
-     * a small PMTU, which would avoid this special case.
-     */
-    if (buffer_data_length(dgram_buf) <= IPV6_MIN_LINK_MTU - 8) {
-        dgram_buf = buffer_headroom(dgram_buf, 8);
-        if (!dgram_buf) {
-            return NULL;
-        }
-
-        /* Move unfragmentable section back 8 bytes; increase IP length field */
-        ip_ptr = buffer_data_reserve_header(dgram_buf, 8);
-        memmove(ip_ptr, ip_ptr + 8, unfrag_len);
-        common_write_16_bit(common_read_16_bit(ip_ptr + 4) + 8, ip_ptr + 4);
-
-        /* Write atomic fragment header into the gap */
-        frag_hdr = ip_ptr + unfrag_len;
-        frag_hdr[0] = nh;
-        frag_hdr[1] = 0;
-        common_write_16_bit(0, frag_hdr + 2);
-        common_write_32_bit(++dest->fragment_id, frag_hdr + 4);
-        return dgram_buf;
-    }
-
-    /* We won't fragment below minimum MTU. (Although we could...) */
-    if (pmtu < IPV6_MIN_LINK_MTU) {
-        pmtu = IPV6_MIN_LINK_MTU;
-    }
 
     /* Check for silly situation - can't fit any fragment data (8 for fragment
      * header, 8 for minimum fragment payload) */

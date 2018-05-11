@@ -88,7 +88,6 @@ static int thread_parent_request_build(protocol_interface_info_entry_t *cur);
 static int thread_attach_child_id_request_build(protocol_interface_info_entry_t *cur);
 static int thread_end_device_synch_response_validate(protocol_interface_info_entry_t *cur, uint8_t *ptr, uint16_t data_length, uint8_t linkMargin, uint8_t *src_address, mle_security_header_t *securityHeader);
 
-static uint8_t *thread_single_address_registration_tlv_write(uint8_t *ptr, lowpan_context_t *ctx, uint8_t *addressPtr);
 static int8_t thread_end_device_synch_start(protocol_interface_info_entry_t *cur);
 
 
@@ -122,18 +121,17 @@ static void thread_merge_prepare(protocol_interface_info_entry_t *cur)
 {
     thread_clean_old_16_bit_address_based_addresses(cur);
     mpl_clear_realm_scope_seeds(cur);
-    ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_PROXIED_HOST, NULL);
-    thread_routing_deactivate(&cur->thread_info->routing);
-    thread_routing_init(&cur->thread_info->routing);
-    cur->nwk_mode = ARM_NWK_GP_IP_MODE;
+    thread_old_partition_data_purge(cur);
     thread_network_data_clean(cur);
+    cur->nwk_mode = ARM_NWK_GP_IP_MODE;
 }
 
 //This function is for Thread Parent scan callback
 static bool thread_parent_discover_timeout_cb(int8_t interface_id, uint16_t msgId, bool usedAllRetries)
 {
     protocol_interface_info_entry_t *cur;
+    bool new_entry_created;
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -159,7 +157,7 @@ static bool thread_parent_discover_timeout_cb(int8_t interface_id, uint16_t msgI
         memcpy(&ll64[8], parent->mac64 , 8);
         ll64[8] ^= 2;
 
-        entry_temp = mle_class_get_entry_by_ll64(interface_id, parent->linkMarginToParent,ll64, true);
+        entry_temp = mle_class_get_entry_by_ll64(interface_id, parent->linkMarginToParent,ll64, true, &new_entry_created);
         if (entry_temp == NULL) {
             return false;
         }
@@ -172,7 +170,7 @@ static bool thread_parent_discover_timeout_cb(int8_t interface_id, uint16_t msgI
         thread_management_key_sets_calc(cur, linkConfiguration, cur->thread_info->thread_attach_scanned_parent->keySequence);
         thread_calculate_key_guard_timer(cur, linkConfiguration, true);
 
-        mac_helper_devicetable_set(entry_temp, cur, parent->linLayerFrameCounter, mac_helper_default_key_index_get(cur));
+        mac_helper_devicetable_set(entry_temp, cur, parent->linLayerFrameCounter, mac_helper_default_key_index_get(cur), new_entry_created);
         mle_entry_timeout_update(entry_temp, THREAD_DEFAULT_LINK_LIFETIME);
 
         if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
@@ -229,13 +227,20 @@ static int thread_parent_request_build(protocol_interface_info_entry_t *cur)
         return -1;
     }
 
+    timeout.retrans_max = THREAD_PARENT_REQUEST_MAX_RETRY_CNT;
+    timeout.timeout_init = THREAD_PARENT_REQ_SCANMASK_R_TIMEOUT;
+    timeout.timeout_max = THREAD_PARENT_REQ_SCANMASK_RE_TIMEOUT;
+    timeout.delay = MLE_STANDARD_RESPONSE_DELAY;
+
     if (cur->thread_info->thread_attached_state == THREAD_STATE_REATTACH ||
         cur->thread_info->thread_attached_state == THREAD_STATE_REATTACH_RETRY ||
         cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED ||
         cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED_ROUTER) {
         // When doing re-attach End devices are immediately accepted as parents
         scanMask |= 0x40;
+        timeout.timeout_init = THREAD_PARENT_REQ_SCANMASK_RE_TIMEOUT;
     }
+
     thread_management_get_current_keysequence(cur->id, &keySequence);
     mle_service_msg_update_security_params(buf_id, 5, 2, keySequence);
 
@@ -258,11 +263,9 @@ static int thread_parent_request_build(protocol_interface_info_entry_t *cur)
     if (mle_service_update_length_by_ptr(buf_id,ptr)!= 0) {
         tr_debug("Buffer overflow at message write");
     }
-    timeout.retrans_max = THREAD_PARENT_REQUEST_MAX_RETRY_CNT;
-    timeout.timeout_init = 1;
-    timeout.timeout_max = 2;
-    timeout.delay = MLE_NO_DELAY;
+
     cur->nwk_nd_re_scan_count = 1;
+
     mle_service_set_packet_callback(buf_id, thread_parent_discover_timeout_cb);
     if (cur->thread_info->thread_attached_state == THREAD_STATE_NETWORK_DISCOVER) {
         mle_service_interface_receiver_handler_update(cur->id, thread_mle_parent_discover_receive_cb);
@@ -270,7 +273,7 @@ static int thread_parent_request_build(protocol_interface_info_entry_t *cur)
         mle_service_interface_receiver_handler_update(cur->id, thread_general_mle_receive_cb);
     }
 
-    mle_service_set_msg_timeout_parameters(buf_id, &timeout);
+    mle_service_set_msg_timeout_parameters_fast(buf_id, &timeout);
     mle_service_send_message(buf_id);
     return 0;
 }
@@ -295,6 +298,7 @@ static int thread_end_device_synch_response_validate(protocol_interface_info_ent
     uint32_t llFrameCounter;
     thread_leader_data_t leaderData;
     mle_neigh_table_entry_t *entry_temp;
+    bool new_entry_created;
 
     tr_debug("Validate Link Synch Response");
     //Check First Status
@@ -325,7 +329,7 @@ static int thread_end_device_synch_response_validate(protocol_interface_info_ent
     }
 
     //Update parent link information
-    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, src_address, true);
+    entry_temp = mle_class_get_entry_by_ll64(cur->id, linkMargin, src_address, true, &new_entry_created);
 
     if (!entry_temp) {
         tr_debug("Neighbor allocate fail");
@@ -343,7 +347,7 @@ static int thread_end_device_synch_response_validate(protocol_interface_info_ent
 
     mac_helper_coordinator_address_set(cur, ADDR_802_15_4_SHORT, shortAddress);
     mle_entry_timeout_update(entry_temp, thread_info(cur)->host_link_timeout);
-    mac_helper_devicetable_set(entry_temp, cur, llFrameCounter, securityHeader->KeyIndex);
+    mac_helper_devicetable_set(entry_temp, cur, llFrameCounter, securityHeader->KeyIndex, new_entry_created);
 
     thread_info(cur)->thread_attached_state = THREAD_STATE_CONNECTED;
     thread_bootstrap_update_ml16_address(cur, address16);
@@ -394,7 +398,7 @@ static void thread_child_synch_receive_cb(int8_t interface_id, mle_message_t *ml
         messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
 
         if (messageId == 0) {
-            tr_debug("Not for me");
+            tr_debug("No matching challenge");
             return;
         }
 
@@ -472,7 +476,7 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
         return;
     }
 
-    tr_debug("Thread MLE Parent request response Handler");
+    tr_debug("MLE Parent response handler");
     //State machine What packet should accept in this case
     switch (mle_msg->message_type) {
         case MLE_COMMAND_PARENT_RESPONSE: {
@@ -497,7 +501,7 @@ void thread_mle_parent_discover_receive_cb(int8_t interface_id, mle_message_t *m
             messageId = mle_tlv_validate_response(mle_msg->data_ptr, mle_msg->data_length);
 
             if (messageId == 0) {
-                tr_debug("Not for me");
+                tr_debug("No matching challenge");
                 return;
             }
 
@@ -748,11 +752,12 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
         return;
     }
 
-    tr_debug("Thread MLE Child request response Handler");
+    tr_debug("Thread MLE Child ID response handler");
 
     switch (mle_msg->message_type) {
 
         case MLE_COMMAND_CHILD_ID_RESPONSE: {
+            uint8_t src_mac64[8];
             uint8_t shortAddress[2];
             uint16_t childId;
             mle_tlv_info_t routeTlv, addressRegisteredTlv, networkDataTlv;
@@ -760,22 +765,32 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
             uint64_t pending_timestamp = 0;
             uint64_t active_timestamp;
             thread_scanned_parent_t *scan_result = thread_info(cur)->thread_attach_scanned_parent;
+            bool new_entry_created;
 
-            tr_info("Received Child ID Response");
+            tr_info("Recv Child ID Response");
+
+            // Validate that response is coming from the scanned parent candidate
+            memcpy(src_mac64, (mle_msg->packet_src_address + 8), 8);
+            src_mac64[0] ^= 2;
+            if (memcmp(src_mac64, scan_result->mac64, 8) != 0) {
+                tr_debug("Drop Child ID response from previous request");
+                return;
+            }
 
             // Clear old data
             if (cur->thread_info->releaseRouterId) {
                 thread_bootstrap_clear_neighbor_entries(cur);
-                cur->thread_info->localServerDataBase.release_old_address = true;
             }
 
-            thread_clean_all_routers_from_neighbor_list(cur->id);
+            cur->thread_info->localServerDataBase.release_old_address = true;
+
+            thread_neighbor_list_clean(cur);
             thread_leader_service_stop(interface_id);
             thread_leader_service_leader_data_free(cur->thread_info);
             thread_merge_prepare(cur);
 
             // Create entry for new parent
-            entry_temp = mle_class_get_entry_by_ll64(cur->id, thread_compute_link_margin(mle_msg->dbm), mle_msg->packet_src_address, true);
+            entry_temp = mle_class_get_entry_by_ll64(cur->id, thread_compute_link_margin(mle_msg->dbm), mle_msg->packet_src_address, true, &new_entry_created);
             if (entry_temp == NULL) {
                 // todo: what to do here?
                 return;
@@ -832,7 +847,14 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
 
             mac_helper_coordinator_address_set(cur, ADDR_802_15_4_SHORT, shortAddress);
             mle_entry_timeout_update(entry_temp, thread_info(cur)->host_link_timeout);
-            mac_helper_devicetable_set(entry_temp, cur, scan_result->linLayerFrameCounter, security_headers->KeyIndex);
+
+            if (scan_result->security_key_index != security_headers->KeyIndex) {
+                // KeyIndex has been changed between parent_response and child_id_response, reset link layer frame counter
+                scan_result->linLayerFrameCounter = 0;
+                scan_result->security_key_index = security_headers->KeyIndex;
+            }
+
+            mac_helper_devicetable_set(entry_temp, cur, scan_result->linLayerFrameCounter, security_headers->KeyIndex, new_entry_created);
 
             thread_info(cur)->thread_attached_state = THREAD_STATE_CONNECTED;
 
@@ -868,7 +890,7 @@ static void thread_mle_child_request_receive_cb(int8_t interface_id, mle_message
             break;
         }
         default:
-            tr_debug("Unsupported TLV %d", mle_msg->message_type);
+            tr_debug("Skip msg type %d", mle_msg->message_type);
             break;
 
     }
@@ -927,9 +949,10 @@ void thread_endevice_synch_start(protocol_interface_info_entry_t *cur)
 {
     if (cur->thread_info->thread_endnode_parent) {
         mle_neigh_table_entry_t *entry_temp;
+        bool new_entry_created;
 
         // Add the parent to the MLE neighbor table
-        entry_temp = mle_class_get_entry_by_mac64(cur->id, 64, cur->thread_info->thread_endnode_parent->mac64, true);
+        entry_temp = mle_class_get_entry_by_mac64(cur->id, 64, cur->thread_info->thread_endnode_parent->mac64, true, &new_entry_created);
 
         if (entry_temp) {
             entry_temp->short_adr = cur->thread_info->thread_endnode_parent->shortAddress;
@@ -941,7 +964,7 @@ void thread_endevice_synch_start(protocol_interface_info_entry_t *cur)
             mle_entry_timeout_update(entry_temp, 20);
 
             // Add the parent to the MAC table (for e.g. secured/fragmented Child Update Response)
-            mac_helper_devicetable_set(entry_temp, cur, 0, cur->mac_parameters->mac_default_key_index);
+            mac_helper_devicetable_set(entry_temp, cur, 0, cur->mac_parameters->mac_default_key_index, new_entry_created);
         }
     }
 
@@ -975,7 +998,7 @@ static bool thread_child_id_req_timeout(int8_t interface_id, uint16_t msgId, boo
     cur->thread_info->thread_attach_scanned_parent->child_id_request_id = 0;
 
     uint8_t *addr = mle_service_get_msg_destination_address_pointer(msgId);
-    tr_debug("Child ID Request timed out, address: %s", trace_ipv6(addr));
+    tr_debug("Child ID Request timed out: %s", trace_ipv6(addr));
 
     blacklist_update(addr, false);
 
@@ -999,8 +1022,9 @@ static bool thread_child_id_req_timeout(int8_t interface_id, uint16_t msgId, boo
         memcpy(&ll64[8], scanned_parent->mac64 , 8);
         ll64[8] ^= 2;
 
-        entry_temp = mle_class_get_entry_by_ll64(cur->id, scanned_parent->linkMarginToParent, ll64, false);
-        if (entry_temp) {
+        entry_temp = mle_class_get_entry_by_ll64(cur->id, scanned_parent->linkMarginToParent, ll64, false, NULL);
+        if (entry_temp && !thread_check_is_this_my_parent(cur, entry_temp)) {
+            // remove scanned_parent entry only if it is not my parent
             mle_class_remove_entry(cur->id, entry_temp);
         }
     }
@@ -1017,34 +1041,17 @@ static bool thread_child_id_req_timeout(int8_t interface_id, uint16_t msgId, boo
 
     cur->thread_info->localServerDataBase.release_old_address = false;
     cur->thread_info->releaseRouterId = false;
+    cur->thread_info->networkDataRequested = false;
 
     cur->nwk_bootstrap_state = ER_BOOTSRAP_DONE;
-    mle_service_interface_receiver_handler_update(cur->id, thread_general_mle_receive_cb);
 
 exit:
+    mle_service_interface_receiver_handler_update(cur->id, thread_general_mle_receive_cb);
+
     ns_dyn_mem_free(cur->thread_info->thread_attach_scanned_parent);
     cur->thread_info->thread_attach_scanned_parent = NULL;
 
     return false;
-}
-
-static uint8_t *thread_single_address_registration_tlv_write(uint8_t *ptr, lowpan_context_t *ctx, uint8_t *addressPtr)
-{
-    *ptr++ = MLE_TYPE_ADDRESS_REGISTRATION;
-    if (ctx) {
-        *ptr++ = 9;
-        //Write TLV to list
-        *ptr++ = (ctx->cid | 0x80);
-        memcpy(ptr, addressPtr + 8, 8);
-        ptr += 8;
-    } else {
-        *ptr++ = 17;
-        //Write TLV to list
-        *ptr++ = 0;
-        memcpy(ptr, addressPtr, 16);
-        ptr += 16;
-    }
-    return ptr;
 }
 
 static int thread_attach_child_id_request_build(protocol_interface_info_entry_t *cur)
@@ -1069,8 +1076,6 @@ static int thread_attach_child_id_request_build(protocol_interface_info_entry_t 
     thread_management_get_current_keysequence(cur->id, &keySequence);
     mle_service_msg_update_security_params(buf_id, 5, 2, keySequence);
 
-    lowpan_context_t *ctx;
-    uint8_t ml64[16];
     uint8_t request_tlv_list[3];
     uint8_t macShort[2];
     uint8_t reqTlvCnt;
@@ -1088,15 +1093,10 @@ static int thread_attach_child_id_request_build(protocol_interface_info_entry_t 
     ptr = mle_tlv_write_response(ptr, scan_parent->challengeData, scan_parent->chal_len);
 
     //Add ML-EID
-    memcpy(ml64, thread_info(cur)->threadPrivatePrefixInfo.ulaPrefix, 8);
-    memcpy(&ml64[8], cur->iid_slaac, 8);
     if ((mode & MLE_FFD_DEV) == 0) {
-        ctx = lowpan_context_get_by_address(&cur->lowpan_contexts, ml64);
-        if (ctx) {
-            //Write TLV to list
-            ptr = thread_single_address_registration_tlv_write(ptr, ctx, ml64);
-        }
+        ptr = thread_address_registration_tlv_write(ptr, cur);
     }
+
     reqTlvCnt = 2;
     request_tlv_list[0] = MLE_TYPE_NETWORK_DATA;
 
@@ -1133,52 +1133,53 @@ static int thread_attach_child_id_request_build(protocol_interface_info_entry_t 
 static bool thread_child_update_timeout_cb(int8_t interface_id, uint16_t msgId, bool usedAllRerties)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    (void)msgId;
     if (!cur || !cur->thread_info->thread_endnode_parent) {
         return false;
     }
-    tr_debug("Child Update CB");
-    if (cur->thread_info->thread_endnode_parent->childUpdateProcessStatus) {
-        //This process is ready
-        cur->thread_info->thread_endnode_parent->childUpdateProcessStatus = false;
-        if (!cur->thread_info->thread_endnode_parent->childUpdatePending) {
-
-            cur->thread_info->thread_endnode_parent->childUpdateProcessActive = false;
-            //Disable Poll
-            mac_data_poll_protocol_poll_mode_decrement(cur);
-            tr_debug("Child Update ready");
-        } else {
-            cur->thread_info->thread_endnode_parent->childUpdatePending = false;
-            tr_debug("Child Update Pending");
-            thread_bootsrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
-        }
+    if (msgId != cur->thread_info->childUpdateReqMsgId) {
+        //Wrong message id
         return false;
     }
 
     if (usedAllRerties) {
-
+        tr_debug("Child Update timed out");
         cur->thread_info->thread_endnode_parent->childUpdatePending = false;
         cur->thread_info->thread_endnode_parent->childUpdateProcessActive = false;
-        cur->thread_info->thread_endnode_parent->childUpdateProcessStatus = false;
         mac_data_poll_protocol_poll_mode_decrement(cur);
         thread_bootstrap_reset_restart(cur->id);
         tr_debug("Restart attachment");
         return false;
     }
+    if (cur->thread_info->thread_endnode_parent->childUpdateProcessActive) {
+        // we have not received response so re-send
+        return true;
+    }
 
-    return true;
+    return false;
 
 }
 
-int8_t thread_bootstrap_child_update(protocol_interface_info_entry_t *cur)
+int8_t thread_host_bootstrap_child_update(int8_t interface_id, const uint8_t *mac64)
 {
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     mle_message_timeout_params_t timeout;
     uint8_t mode;
     uint32_t keySequence;
 
+
     if (!cur->thread_info->thread_endnode_parent) {
         return -1;
     }
+
+    if (cur->thread_info->thread_endnode_parent->childUpdateProcessActive) {
+        //Set Pending if earlier process is already started
+        cur->thread_info->thread_endnode_parent->childUpdatePending = true;
+        return -1;
+    }
+    //Trig event
+    cur->thread_info->thread_endnode_parent->childUpdatePending = false;
+    cur->thread_info->thread_endnode_parent->childUpdateProcessActive = true;
+
 
     tr_debug("Child Update Request");
 
@@ -1196,11 +1197,12 @@ int8_t thread_bootstrap_child_update(protocol_interface_info_entry_t *cur)
 
     uint8_t *address_ptr = mle_service_get_msg_destination_address_pointer(bufId);
     memcpy(address_ptr, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(address_ptr + 8, cur->thread_info->thread_endnode_parent->mac64, 8);
+    memcpy(address_ptr + 8, mac64, 8);
     address_ptr[8] ^= 2;
 
     uint8_t *ptr = mle_service_get_data_pointer(bufId);
     ptr = mle_tlv_write_mode(ptr, mode);
+    ptr = mle_general_write_source_address(ptr, cur);
     ptr = mle_tlv_write_timeout(ptr, cur->thread_info->host_link_timeout);
     ptr = thread_leader_data_tlv_write(ptr, cur);
 
@@ -1221,9 +1223,11 @@ int8_t thread_bootstrap_child_update(protocol_interface_info_entry_t *cur)
         thread_end_device_mode_set(cur, false);
     }
     mac_data_poll_init_protocol_poll(cur);
+    cur->thread_info->childUpdateReqMsgId = bufId;
     mle_service_set_packet_callback(bufId, thread_child_update_timeout_cb);
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
     mle_service_send_message(bufId);
+
     return 0;
 }
 int thread_host_bootstrap_child_update_negative_response(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, mle_tlv_info_t *challenge)

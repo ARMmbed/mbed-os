@@ -48,6 +48,8 @@
  */
 #define ROUTER_ID_REUSE_DELAY 100 //Seconds
 
+#define LEADER_NVM_SYNC_DELAY 30 // Leader router ids write delay to NVM
+
 #define ROUTER_ID_INFINITY_DELAY 90 //Seconds
 
 #define NETWORK_ID_TIMEOUT 120 //seconds
@@ -145,6 +147,7 @@ typedef struct thread_leader_info_s {
     uint8_t leader_id_seq_timer;
     uint8_t master_router_id_mask[8];
     uint8_t maskSeq;
+    uint8_t leader_nvm_sync_timer;
 } thread_leader_info_t;
 
 typedef struct thread_leader_data_s {
@@ -174,7 +177,6 @@ typedef struct thread_parent_info_s {
     uint8_t pathCostToLeader;
     bool    childUpdatePending: 1;
     bool    childUpdateProcessActive: 1;
-    bool    childUpdateProcessStatus: 1;
 } thread_parent_info_t;
 
 
@@ -287,8 +289,10 @@ typedef struct thread_info_s {
     uint16_t native_commissioner_port;
     uint16_t routerShortAddress;
     uint16_t reedJitterTimer;
+    uint16_t reedMergeAdvTimer;
     uint16_t routerIdReqCoapID;  // COAP msg id of RouterID request
     int16_t childUpdateReqTimer;
+    uint16_t childUpdateReqMsgId;
     uint16_t proactive_an_timer;
     //uint8_t lastValidRouteMask[8];
     int8_t interface_id; //Thread Interface ID

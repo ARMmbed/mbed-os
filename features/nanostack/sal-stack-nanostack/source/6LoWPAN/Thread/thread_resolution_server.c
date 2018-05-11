@@ -91,6 +91,7 @@ static int thread_resolution_server_query_cb(int8_t service_id, uint8_t source_a
     uint8_t mlEID[8];
     bool proxy;
     uint16_t rloc16;
+    uint16_t requestor_rloc;
     uint32_t last_transaction_time = 0;
     uint8_t *ptr;
     (void)source_port;
@@ -118,9 +119,11 @@ static int thread_resolution_server_query_cb(int8_t service_id, uint8_t source_a
         return -1;
     }
 
+    requestor_rloc = common_read_16_bit(source_address + 14);
+
     tr_debug("Thread address query %s", trace_ipv6(target_ip_ptr));
 
-    int ret = this->query_cb_ptr(this->interface_id, target_ip_ptr, &rloc16, &proxy, &last_transaction_time, mlEID);
+    int ret = this->query_cb_ptr(this->interface_id, target_ip_ptr, &requestor_rloc, &rloc16, &proxy, &last_transaction_time, mlEID);
     if (ret < 0) {
         /* XXX "Forbidden" response? */
         return -1;
