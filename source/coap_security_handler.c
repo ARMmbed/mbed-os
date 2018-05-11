@@ -196,6 +196,7 @@ void coap_security_destroy(coap_security_t *sec){
     }
 }
 
+#ifdef MBEDTLS_SSL_SRV_C
 /**** Random number functions ****/
 
 /**
@@ -265,6 +266,7 @@ static int simple_cookie_check(void *ctx,
     }
     return 0;
 }
+#endif // MBEDTLS_SSL_SRV_C
 
 /**** Key export function ****/
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
