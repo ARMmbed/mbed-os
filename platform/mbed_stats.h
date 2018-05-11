@@ -29,6 +29,11 @@
 extern "C" {
 #endif
 
+#ifdef MBED_ALL_STATS_ENABLED
+#define MBED_STACK_STATS_ENABLED    1
+#define MBED_HEAP_STATS_ENABLED     1
+#endif
+
 /**
  * struct mbed_stats_heap_t definition
  */
