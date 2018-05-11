@@ -14,3 +14,4 @@ fuzzywuzzy>=0.11
 pyelftools>=0.24
 jsonschema>=2.6
 future>=0.16.0
+six>=1.11.0
