@@ -363,7 +363,52 @@ public:
     virtual entry_handle_t open_entry(
         BLEProtocol::AddressType_t peer_address_type,
         const address_t &peer_address
-    ) = 0;
+    ) {
+        const bool peer_address_public =
+            (peer_address_type == BLEProtocol::AddressType::PUBLIC) ||
+            (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY);
+
+        for (size_t i = 0; i < get_stored_entry_number(); i++) {
+            SecurityDistributionFlags_t* flags = get_stored_entry_flags(i);
+
+            if (flags) {
+                if (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY &&
+                    flags->irk_stored == false) {
+                    continue;
+                }
+
+                /* lookup for connection address used during bonding */
+                if (flags->peer_address == peer_address &&
+                    flags->peer_address_is_public == peer_address_public) {
+                    return flags;
+                }
+
+                /* look for the identity address if stored */
+                if (flags->irk_stored) {
+                    SecurityEntryIdentity_t* identity = get_stored_entry_identity(i);
+
+                    if (identity &&
+                        identity->identity_address == peer_address &&
+                        identity->identity_address_is_public == peer_address_public) {
+                        return flags;
+                    }
+                }
+
+            }
+        }
+
+        SecurityDistributionFlags_t* flags = get_free_entry_flags();
+        if (flags) {
+            /* we need some address to store, so we store even random ones
+             * this address will be used as an id, possibly replaced later
+             * by identity address */
+            flags->peer_address = peer_address;
+            flags->peer_address_is_public = peer_address_public;
+            return flags;
+        }
+
+        return NULL;
+    }
 
     /**
      * Close a connection entry.
@@ -454,6 +499,12 @@ public:
      * @param[in] reload if true values will be preserved across resets.
      */
     virtual void set_restore(bool reload) = 0;
+
+protected:
+    virtual uint8_t get_stored_entry_number() = 0;
+    virtual SecurityDistributionFlags_t* get_stored_entry_flags(uint8_t index) = 0;
+    virtual SecurityEntryIdentity_t* get_stored_entry_identity(uint8_t index) = 0;
+    virtual SecurityDistributionFlags_t* get_free_entry_flags() = 0;
 };
 
 } /* namespace pal */

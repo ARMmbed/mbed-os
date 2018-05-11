@@ -28,7 +28,8 @@ private:
     enum state_t {
         ENTRY_FREE,
         ENTRY_RESERVED,
-        ENTRY_WRITTEN
+        ENTRY_WRITTEN,
+        ENTRY_DISCONNECTED
     };
 
     struct entry_t {
@@ -297,84 +298,18 @@ public:
 
     /* list management */
 
-    virtual entry_handle_t open_entry(
-        BLEProtocol::AddressType_t peer_address_type,
-        const address_t &peer_address
-    ) {
-        const bool peer_address_public =
-            (peer_address_type == BLEProtocol::AddressType::PUBLIC) ||
-            (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY);
-
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            entry_t& e = _entries[i];
-
-            if (e.state == ENTRY_FREE) {
-                continue;
-            } else {
-                if (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY &&
-                    e.flags.irk_stored == false
-                ) {
-                    continue;
-                }
-
-                // lookup for the identity address then the connection address.
-                if (e.flags.irk_stored &&
-                    e.peer_identity.identity_address == peer_address &&
-                    e.peer_identity.identity_address_is_public == peer_address_public
-                ) {
-                    return &e;
-                // lookup for connection address used during bonding
-                } else if (e.flags.peer_address == peer_address &&
-                           e.flags.peer_address_is_public == peer_address_public
-                ) {
-                    return &e;
-                }
-            }
-        }
-
-        // determine if the address in input is private or not.
-        bool is_private_address = false;
-        if (peer_address_type == BLEProtocol::AddressType::RANDOM) {
-            ::Gap::RandomAddressType_t random_type(::Gap::RandomAddressType_t::STATIC);
-            ble_error_t err = ::Gap::getRandomAddressType(peer_address.data(), &random_type);
-            if (err) {
-                return NULL;
-            }
-            if (random_type != ::Gap::RandomAddressType_t::STATIC) {
-                is_private_address = true;
-            }
-        }
-
-        /* if we din't find one grab the first disconnected slot*/
-        for (size_t i = 0; i < MAX_ENTRIES; i++) {
-            if (_entries[i].state == ENTRY_FREE) {
-                _entries[i] = entry_t();
-                // do not store private addresses in the flags; just store public
-                // or random static address so it can be reused latter.
-                if (is_private_address == false) {
-                    _entries[i].flags.peer_address = peer_address;
-                    _entries[i].flags.peer_address_is_public = peer_address_public;
-                } else {
-                    _entries[i].flags.peer_address = address_t();
-                }
-                _entries[i].state = ENTRY_RESERVED;
-                return &_entries[i];
-            }
-        }
-
-        return NULL;
-    }
-
-    virtual void close_entry(entry_handle_t entry_handle)
-    {
+    virtual void close_entry(entry_handle_t entry_handle) {
         entry_t *entry = as_entry(entry_handle);
-        if (entry && entry->state == ENTRY_RESERVED) {
-            entry->state = ENTRY_FREE;
+        if (entry) {
+            if (entry->state == ENTRY_RESERVED) {
+                entry->state = ENTRY_FREE;
+            } else {
+                entry->state = ENTRY_DISCONNECTED;
+            }
         }
     }
 
-    virtual void remove_entry(const address_t peer_identity_address)
-    {
+    virtual void remove_entry(const address_t peer_identity_address) {
         for (size_t i = 0; i < MAX_ENTRIES; i++) {
             if (_entries[i].state == ENTRY_FREE) {
                 continue;
@@ -432,6 +367,41 @@ public:
     virtual void sync() { }
 
     virtual void set_restore(bool reload) { }
+
+private:
+    virtual uint8_t get_stored_entry_number() {
+        return MAX_ENTRIES;
+    }
+
+    virtual SecurityDistributionFlags_t* get_stored_entry_flags(uint8_t index) {
+        return &_entries[index % MAX_ENTRIES].flags;
+    }
+
+    virtual SecurityEntryIdentity_t* get_stored_entry_identity(uint8_t index) {
+        return &_entries[index % MAX_ENTRIES].peer_identity;
+    }
+
+    virtual SecurityDistributionFlags_t* get_free_entry_flags() {
+        /* get a free one if available */
+        for (size_t i = 0; i < MAX_ENTRIES; i++) {
+            if (_entries[i].state == ENTRY_FREE) {
+                _entries[i] = entry_t();
+                _entries[i].state = ENTRY_RESERVED;
+                return &_entries[i].flags;
+            }
+        }
+
+        /* get any disconnected one */
+        for (size_t i = 0; i < MAX_ENTRIES; i++) {
+            if (_entries[i].state == ENTRY_DISCONNECTED) {
+                _entries[i] = entry_t();
+                _entries[i].state = ENTRY_RESERVED;
+                return &_entries[i].flags;
+            }
+        }
+
+        return NULL;
+    }
 
 private:
     entry_t _entries[MAX_ENTRIES];
