@@ -439,6 +439,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
         if region.filename:
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
+            part.start_addr = None
             part_size = (part.maxaddr() - part.minaddr()) + 1
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
