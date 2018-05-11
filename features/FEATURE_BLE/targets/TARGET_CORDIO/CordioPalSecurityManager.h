@@ -327,21 +327,30 @@ private:
     struct PrivacyAddDevToResListControlBlock;
     struct PrivacyRemoveDevFromResListControlBlock;
 
+    // Queue control block to add device to resolving list
     void queue_add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address,
         const irk_t &peer_irk
     );
 
+    // Queue control block to remove device from resolving list
     void queue_remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
         const address_t &peer_identity_address
     );
 
+    // Queue control block to clear resolving list
     void queue_clear_resolving_list();
 
+    // Clear all control blocks
     void clear_privacy_control_blocks();
+
+    // Queue a control block
     void queue_privacy_control_block(PrivacyControlBlock* block);
+
+    // Try to dequeue and process the next control block
+    // cb_completed is set when the previous block has completed
     void process_privacy_control_blocks(bool cb_completed);
     
     bool _use_default_passkey;
