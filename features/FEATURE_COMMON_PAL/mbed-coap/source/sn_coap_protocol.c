@@ -61,7 +61,7 @@ static bool                  sn_coap_protocol_linked_list_blockwise_payload_comp
 static void                  sn_coap_protocol_linked_list_blockwise_payload_remove(struct coap_s *handle, coap_blockwise_payload_s *removed_payload_ptr);
 static void                  sn_coap_protocol_linked_list_blockwise_payload_remove_oldest(struct coap_s *handle);
 static uint32_t              sn_coap_protocol_linked_list_blockwise_payloads_get_len(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr);
-static void                  sn_coap_protocol_linked_list_blockwise_remove_old_data(struct coap_s *handle);
+static void                  sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle);
 static sn_coap_hdr_s        *sn_coap_handle_blockwise_message(struct coap_s *handle, sn_nsdl_addr_s *src_addr_ptr, sn_coap_hdr_s *received_coap_msg_ptr, void *param);
 static sn_coap_hdr_s        *sn_coap_protocol_copy_header(struct coap_s *handle, sn_coap_hdr_s *source_header_ptr);
 #endif
@@ -538,6 +538,8 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         memcpy(stored_blockwise_msg_ptr->coap_msg_ptr->payload_ptr, src_coap_msg_ptr->payload_ptr, stored_blockwise_msg_ptr->coap_msg_ptr->payload_len);
 
         stored_blockwise_msg_ptr->coap = handle;
+        stored_blockwise_msg_ptr->param = param;
+        stored_blockwise_msg_ptr->msg_id = stored_blockwise_msg_ptr->coap_msg_ptr->msg_id;
         ns_list_add_to_end(&handle->linked_list_blockwise_sent_msgs, stored_blockwise_msg_ptr);
     }
 
@@ -564,6 +566,8 @@ int16_t sn_coap_protocol_build(struct coap_s *handle, sn_nsdl_addr_s *dst_addr_p
         }
 
         stored_blockwise_msg_ptr->coap = handle;
+        stored_blockwise_msg_ptr->param = param;
+        stored_blockwise_msg_ptr->msg_id = stored_blockwise_msg_ptr->coap_msg_ptr->msg_id;
         ns_list_add_to_end(&handle->linked_list_blockwise_sent_msgs, stored_blockwise_msg_ptr);
     }
 
@@ -794,11 +798,11 @@ int8_t sn_coap_protocol_exec(struct coap_s *handle, uint32_t current_time)
 
     /* * * * Store current System time * * * */
     handle->system_time = current_time;
-#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
-    /* * * * Remove old blocwise data * * * */
-    sn_coap_protocol_linked_list_blockwise_remove_old_data(handle);
-#endif
 
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    /* * * * Handle block transfer timed outs * * * */
+    sn_coap_protocol_handle_blockwise_timout(handle);
+#endif
 
 #if SN_COAP_DUPLICATION_MAX_MSGS_COUNT
     /* * * * Remove old duplication messages * * * */
@@ -1455,20 +1459,29 @@ static uint32_t sn_coap_protocol_linked_list_blockwise_payloads_get_len(struct c
 }
 
 /**************************************************************************//**
- * \fn static void sn_coap_protocol_linked_list_blockwise_remove_old_data(struct coap_s *handle)
+ * \fn static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
  *
- * \brief Removes old stored Blockwise messages and payloads from Linked list
+ * \brief Check incoming and outgoing blockwise messages for time out.
+ *        Remove timed out messages from lists. Notify application if
+ *        outgoing message times out.
  *****************************************************************************/
 
-static void sn_coap_protocol_linked_list_blockwise_remove_old_data(struct coap_s *handle)
+static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
 {
-    /* Loop all stored Blockwise messages in Linked list */
+    /* Loop all outgoing blockwise messages */
     ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
         if ((handle->system_time - removed_blocwise_msg_ptr->timestamp)  > SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED) {
-            //TODO: Check do we need to check handle == removed_blocwise_msg_ptr->coap here?
 
-            /* * * * Old Blockise message found, remove it from Linked list * * * */
+            /* * * * This messages has timed out, remove it from Linked list * * * */
             if( removed_blocwise_msg_ptr->coap_msg_ptr ){
+
+                if (handle->sn_coap_rx_callback) {
+                    /* Notify the application about the time out */
+                    removed_blocwise_msg_ptr->coap_msg_ptr->coap_status = COAP_STATUS_BUILDER_BLOCK_SENDING_FAILED;
+                    removed_blocwise_msg_ptr->coap_msg_ptr->msg_id = removed_blocwise_msg_ptr->msg_id;
+                    handle->sn_coap_rx_callback(removed_blocwise_msg_ptr->coap_msg_ptr, NULL, removed_blocwise_msg_ptr->param);
+                }
+
                 if(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr){
                     handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
                     removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
@@ -1480,10 +1493,10 @@ static void sn_coap_protocol_linked_list_blockwise_remove_old_data(struct coap_s
         }
     }
 
-    /* Loop all stored Blockwise payloads in Linked list */
+    /* Loop all incoming Blockwise messages */
     ns_list_foreach_safe(coap_blockwise_payload_s, removed_blocwise_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
         if ((handle->system_time - removed_blocwise_payload_ptr->timestamp)  > SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED) {
-            /* * * * Old Blockise payload found, remove it from Linked list * * * */
+            /* * * * This messages has timed out, remove it from Linked list * * * */
             sn_coap_protocol_linked_list_blockwise_payload_remove(handle, removed_blocwise_payload_ptr);
         }
     }
@@ -2056,6 +2069,8 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
 
                     stored_blockwise_msg_ptr->coap_msg_ptr = src_coap_blockwise_ack_msg_ptr;
                     stored_blockwise_msg_ptr->coap = handle;
+                    stored_blockwise_msg_ptr->param = param;
+                    stored_blockwise_msg_ptr->msg_id = stored_blockwise_msg_ptr->coap_msg_ptr->msg_id;
                     ns_list_add_to_end(&handle->linked_list_blockwise_sent_msgs, stored_blockwise_msg_ptr);
 
                     /* * * Then release memory of CoAP Acknowledgement message * * */
@@ -2201,6 +2216,13 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr = original_payload_ptr;
 
                 if ((block_size * (block_number + 1)) >= stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len) {
+
+                    if (handle->sn_coap_rx_callback) {
+                        stored_blockwise_msg_temp_ptr->coap_msg_ptr->coap_status = COAP_STATUS_BUILDER_BLOCK_SENDING_DONE;
+                        stored_blockwise_msg_temp_ptr->coap_msg_ptr->msg_id = stored_blockwise_msg_temp_ptr->msg_id;
+                        handle->sn_coap_rx_callback(stored_blockwise_msg_temp_ptr->coap_msg_ptr, NULL, stored_blockwise_msg_temp_ptr->param);
+                    }
+
                     sn_coap_protocol_linked_list_blockwise_msg_remove(handle, stored_blockwise_msg_temp_ptr);
                 }
 
