@@ -2726,12 +2726,14 @@
     "RZ_A1H": {
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["RZA1H", "MBRZA1H"],
+        "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
+        "device_has_add": ["EMAC"],
         "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
-        "extra_labels_add": ["RZA1H", "VKRZA1H"],
+        "extra_labels_add": ["RZA1H", "VKRZA1H", "RZ_A1_EMAC"],
+        "device_has_add": ["EMAC"],
         "release_versions": ["2", "5"]
     },
     "GR_LYCHEE": {
