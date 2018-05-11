@@ -221,7 +221,8 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos, notify):
 def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                    linker_script=None, notify=None, name=None, inc_dirs=None,
                    jobs=1, config=None, macros=None, zip_proj=None,
-                   inc_repos=False, build_profile=None, app_config=None):
+                   inc_repos=False, build_profile=None, app_config=None,
+                   ignore=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -242,6 +243,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     macros - User-defined macros
     zip_proj - string name of the zip archive you wish to creat (exclude arg
      if you do not wish to create an archive
+    ignore - list of paths to add to mbedignore
     """
 
     # Convert src_path to a list if needed
@@ -269,7 +271,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     toolchain = prepare_toolchain(
         paths, "", target, toolchain_name, macros=macros, jobs=jobs,
         notify=notify, config=config, build_profile=build_profile,
-        app_config=app_config)
+        app_config=app_config, ignore=ignore)
 
     toolchain.RESPONSE_FILES = False
     if name is None:
