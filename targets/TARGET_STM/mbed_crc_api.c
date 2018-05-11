@@ -1,10 +1,9 @@
 #include "crc_api.h"
+#include "device.h"
 
 #include "platform/mbed_assert.h"
 
 #ifdef DEVICE_CRC
-
-#include "stm32f0xx_hal.h"
 
 static CRC_HandleTypeDef current_state;
 static uint32_t final_xor;
