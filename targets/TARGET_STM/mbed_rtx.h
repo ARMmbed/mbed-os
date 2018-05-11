@@ -17,6 +17,8 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#include <stdint.h>
+
 #ifndef INITIAL_SP
 
 #if (defined(TARGET_STM32L475VG) ||\
