@@ -825,6 +825,7 @@ void CordioSecurityManager::queue_add_device_to_resolving_list(
         new (std::nothrow) PrivacyAddDevToResListControlBlock(peer_identity_address_type, peer_identity_address, peer_irk);
     if( cb == NULL )
     {
+        // Cannot go further
         return;
     }
 
@@ -840,6 +841,7 @@ void CordioSecurityManager::queue_remove_device_from_resolving_list(
         new (std::nothrow) PrivacyRemoveDevFromResListControlBlock(peer_identity_address_type, peer_identity_address);
     if( cb == NULL )
     {
+        // Cannot go further
         return;
     }
 
@@ -854,6 +856,7 @@ void CordioSecurityManager::queue_clear_resolving_list() {
         new (std::nothrow) PrivacyClearResListControlBlock();
     if( cb == NULL )
     {
+        // Cannot go further
         return;
     }
 
@@ -885,7 +888,7 @@ void CordioSecurityManager::queue_privacy_control_block(PrivacyControlBlock* blo
     process_privacy_control_blocks(false);
 }
 
-// Can be called with msg set to NULL
+// If cb_completed is set to true, it means the previous control block has completed
 void CordioSecurityManager::process_privacy_control_blocks(bool cb_completed)
 {
     if( (_processing_privacy_control_block == true) && !cb_completed )
