@@ -240,6 +240,7 @@ public:
     ) : _pal(palImpl),
         _connection_monitor(connMonitorImpl),
         _signing_monitor(signingMonitorImpl),
+        _db(NULL),
         _default_authentication(0),
         _default_key_distribution(pal::KeyDistribution::KEY_DISTRIBUTION_ALL),
         _pairing_authorisation_required(false),
@@ -251,6 +252,10 @@ public:
          * the last process to finish first before restarting (this is to simplify checking).
          * This fake value will not be used as the oob address is currently invalid */
         _oob_local_random[0] = 1;
+    }
+
+    ~GenericSecurityManager() {
+        delete _db;
     }
 
     ////////////////////////////////////////////////////////////////////////////
