@@ -17,14 +17,14 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifdef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+#if !defined(MBED_CONF_PLATFORM_LOGGING_ENABLE) || !(MBED_CONF_PLATFORM_LOGGING_ENABLE)
 
 #ifdef MBED_CONF_MBED_TRACE_ENABLE
 #undef MBED_CONF_MBED_TRACE_ENABLE
 #endif
-#define MBED_CONF_MBED_TRACE_ENABLE 1
+#define MBED_CONF_MBED_TRACE_ENABLE     1
 #ifndef MBED_CONF_MBED_TRACE_FEA_IPV6
-#define MBED_CONF_MBED_TRACE_FEA_IPV6 1
+#define MBED_CONF_MBED_TRACE_FEA_IPV6   1
 #endif
 
 #include "mbed-trace/mbed_trace.h"

@@ -24,7 +24,7 @@
 #define MBED_ASSERT_H
 
 #include "mbed_preprocessor.h"
-#include "platform/mbed_logger.h"
+#include "platform/mbed_log_trace.h"
 
 #ifdef __cplusplus
 extern "C" {

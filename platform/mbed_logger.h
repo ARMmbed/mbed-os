@@ -60,6 +60,8 @@
 #ifndef MBED_LOGGER_H
 #define MBED_LOGGER_H
 
+#if defined(MBED_CONF_PLATFORM_LOGGING_ENABLE) && (MBED_CONF_PLATFORM_LOGGING_ENABLE)
+
 #include <stdint.h>
 #include "platform/logger_internal.h"
 
@@ -273,6 +275,8 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif

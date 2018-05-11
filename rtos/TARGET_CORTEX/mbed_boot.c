@@ -169,7 +169,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "mbed_critical.h"
-#include "platform/mbed_logger.h"
+#include "platform/mbed_log_trace.h"
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif

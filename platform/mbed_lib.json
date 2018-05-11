@@ -41,6 +41,11 @@
             "value": false
         },
 
+        "logging-enable": {
+            "help": "Select the default tracing as mbed_logging.",
+            "value": false
+        },
+
         "log-max-level": {
             "help": "Option to set select maximum level of logs enabled at compile time",
             "value": 8

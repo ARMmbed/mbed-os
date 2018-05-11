@@ -14,35 +14,10 @@
  * limitations under the License.
  */
 
-/**
- * \file mbed_trace_internal.h
- * Trace interface for Mbed OS applications.
- * This file provide simple but flexible way to handle software traces.
- * Trace library is abstract layer, which use stdout (printf) by default,
- * but outputs can be easily redirect to custom function, for example to
- * store traces to memory or other interfaces.
- *
- *  usage example:
- * \code(main.c:)
- *      #include "mbed.h"
- *      #define TRACE_GROUP  "main"
- *
- *      int main(void){
- *          tr_debug("this is debug msg");
- *          tr_info("this is info msg");
- *          tr_warn("this is warning msg");
- *          tr_err("this is error msg");
- *          return 0;
- *      }
- * \endcode
- *
- * @{
- */
+#ifndef MBED_LOG_TRACE_H
+#define MBED_LOG_TRACE_H
 
-#ifndef MBED_TRACE_INTERNAL_H
-#define MBED_TRACE_INTERNAL_H
-
-#ifndef MBED_CONF_EXTERNAL_MBED_TRACE_ENABLED
+#if defined(MBED_CONF_PLATFORM_LOGGING_ENABLE) && (MBED_CONF_PLATFORM_LOGGING_ENABLE)
 #include "platform/mbed_logger.h"
 
 #define MBED_TRACE_MAX_LEVEL                    MBED_CONF_PLATFORM_LOG_MAX_LEVEL
@@ -103,5 +78,73 @@
 #define mbed_trace_include_filters_get(...)         ((const char *) 0)
 #define mbed_trace_last(...)                        ((const char *) 0)
 
+#else // MBED_CONF_PLATFORM_LOGGING_ENABLE
+
+#include "mbed_trace.h"
+#include "platform/logger_internal.h"
+
+#define LOG_LEVEL_ERR_CRITICAL   0x1
+#define LOG_LEVEL_ERR            0x2
+#define LOG_LEVEL_WARN           0x4
+#define LOG_LEVEL_INFO           0x8
+#define LOG_LEVEL_DEBUG          0x10
+
+#ifndef MBED_CONF_PLATFORM_LOG_MAX_LEVEL
+#define MBED_CONF_PLATFORM_LOG_MAX_LEVEL  LOG_LEVEL_INFO
 #endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_ERR_CRITICAL
+#define MBED_CRIT(mod, fmt, ...)    MBED_LOG_ASSERT_1(mod, fmt, LOG_ERR_CRITICAL_, LOG_FILE_NAME_, __LINE__, ##__VA_ARGS__)
+#else
+#define MBED_CRIT(mod, fmt, ...)
 #endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_ERR
+#define MBED_ERR(mod, fmt, ...)     mbed_tracef(LOG_LEVEL_ERR, mod, fmt, ##__VA_ARGS__)
+#else
+#define MBED_ERR(mod, fmt, ...)
+#endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_WARN
+#define MBED_WARN(mod, fmt, ...)    mbed_tracef(LOG_LEVEL_WARN, mod, fmt, ##__VA_ARGS__)
+#else
+#define MBED_WARN(mod, fmt, ...)
+#endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_DEBUG
+#define MBED_DBG(mod, fmt, ...)     mbed_tracef(LOG_LEVEL_DEBUG, mod, fmt, ##__VA_ARGS__)
+#else
+#define MBED_DBG(mod, fmt, ...)
+#endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_DEBUG
+#define MBED_DBG_IF(mod, condition, fmt, ...)  do { if(condition) \
+                                                      { \
+                                                        mbed_tracef(LOG_LEVEL_DEBUG, mod, fmt, ##__VA_ARGS__);\
+                                                      } \
+                                               } while(0);
+#else
+#define MBED_DBG_IF(mod, condition, fmt, ...)
+#endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_INFO
+#define MBED_INFO(mod, fmt, ...)   mbed_tracef(LOG_LEVEL_INFO, mod, fmt, ##__VA_ARGS__)
+#else
+#define MBED_INFO(mod, fmt, ...)
+#endif
+
+#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_INFO
+#define MBED_INFO_IF(mod, condition, fmt, ...)   do { if(condition) \
+                                                      { \
+                                                         mbed_tracef(LOG_LEVEL_INFO, mod, fmt, ##__VA_ARGS__);\
+                                                      } \
+                                                 } while(0);
+
+#else
+#define MBED_INFO_IF(mod, condition, fmt, ...)
+#endif
+
+#define MBED_LOG(ll, mod, fmt, ...)     mbed_tracef(ll, mod, fmt, ##__VA_ARGS__)
+
+#endif
+#endif // MBED_LOG_TRACE_H
