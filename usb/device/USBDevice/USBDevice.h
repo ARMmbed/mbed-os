@@ -267,10 +267,7 @@ public:
     * @param index descriptor index
     * @returns pointer to the configuration descriptor
     */
-    virtual const uint8_t *configuration_desc(uint8_t index)
-    {
-        return NULL;
-    };
+    virtual const uint8_t *configuration_desc(uint8_t index) = 0;
 
     /*
     * Get string lang id descriptor
