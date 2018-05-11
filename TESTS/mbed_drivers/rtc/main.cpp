@@ -144,7 +144,7 @@ void test_attach_RTC_stub_funtions()
     TEST_ASSERT_EQUAL(false, rtc_init_called);
 
     /* Check if time has been successfully set and retrieved. */
-    TEST_ASSERT_EQUAL(CUSTOM_TIME_1, seconds);
+    TEST_ASSERT_UINT32_WITHIN(RTC_DELTA, CUSTOM_TIME_1, seconds);
 }
 
 /* This test verifies if attach_rtc provides availability to
@@ -183,7 +183,7 @@ void test_attach_RTC_org_funtions()
     TEST_ASSERT_EQUAL(false, rtc_init_called);
 
     /* Check if time has been successfully set and retrieved. */
-    TEST_ASSERT_EQUAL(CUSTOM_TIME_1, seconds);
+    TEST_ASSERT_UINT32_WITHIN(RTC_DELTA, CUSTOM_TIME_1, seconds);
 }
 
 /* This test verifies if time() function returns
@@ -430,7 +430,7 @@ void test_functional_set()
     set_time(timeValue);
 
     /* Get current time and verify that new value has been set. */
-    TEST_ASSERT_EQUAL(timeValue, time(NULL));
+    TEST_ASSERT_UINT32_WITHIN(1, timeValue, time(NULL));
 }
 
 /* This test verifies if RTC counts seconds.
