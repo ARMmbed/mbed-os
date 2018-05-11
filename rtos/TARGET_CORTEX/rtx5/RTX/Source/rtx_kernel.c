@@ -293,7 +293,7 @@ static osStatus_t svcRtxKernelStart (void) {
 
 /// Lock the RTOS Kernel scheduler.
 /// \note API identical to osKernelLock
-static int32_t svcRtxKernelLock (void) {
+int32_t svcRtxKernelLock (void) {
   int32_t lock;
 
   switch (osRtxInfo.kernel.state) {
@@ -316,7 +316,7 @@ static int32_t svcRtxKernelLock (void) {
 
 /// Unlock the RTOS Kernel scheduler.
 /// \note API identical to osKernelUnlock
-static int32_t svcRtxKernelUnlock (void) {
+int32_t svcRtxKernelUnlock (void) {
   int32_t lock;
 
   switch (osRtxInfo.kernel.state) {
