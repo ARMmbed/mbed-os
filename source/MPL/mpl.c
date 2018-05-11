@@ -685,7 +685,8 @@ buffer_t *mpl_control_handler(buffer_t *buf, protocol_interface_info_entry_t *cu
     // by its colour not being flipped.
     // This is equivalent to having a "mentioned" flag, except we don't have
     // to have a separate "reset" loop.
-    bool new_colour = --domain->colour; // smart-alec binary flip
+    domain->colour = !domain->colour;
+    bool new_colour = domain->colour;
 
     while (ptr < end) {
         if (end - ptr < 2) {

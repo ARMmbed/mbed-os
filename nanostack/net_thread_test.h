@@ -275,6 +275,19 @@ int thread_test_increment_key_sequence_counter(int8_t interface_id);
 int thread_test_key_sequence_counter_update(int8_t interface_id, uint32_t thrKeySequenceCounter);
 
 /**
+ * \brief Resets cached values from stack
+ *
+ Resets link configuration from cache and from  NVM.
+ *
+  *
+ * \param interface_id Network Interface
+  *
+ * \return 0, OK
+ * \return <0 Error
+ */
+int thread_test_stack_cache_reset(int8_t interface_id);
+
+/**
  * \brief Set new Thread key rotation value
  *
  * \param interface_id Network interface ID

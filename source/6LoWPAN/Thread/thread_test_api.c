@@ -47,6 +47,7 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
+#include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
 #include "MLE/mle.h"
 #include "thread_meshcop_lib.h"
@@ -409,6 +410,27 @@ int thread_test_key_sequence_counter_update(int8_t interface_id, uint32_t thrKey
 #else
     (void)interface_id;
     (void)thrKeySequenceCounter;
+    return -1;
+#endif
+}
+
+int thread_test_stack_cache_reset(int8_t interface_id)
+{
+#ifdef HAVE_THREAD
+    protocol_interface_info_entry_t *cur;
+
+    cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        tr_warn("Invalid interface id");
+        return -1;
+    }
+
+    // Reset link information
+    (void) thread_nvm_store_link_info_clear();
+
+    return 0;
+#else
+    (void)interface_id;
     return -1;
 #endif
 }

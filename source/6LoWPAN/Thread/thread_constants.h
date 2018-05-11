@@ -31,7 +31,7 @@
 #define THREAD_CONSTANTS_H_
 
 /**
- * Constants defined in Thread specifications
+ * Constants defined in Thread specifications. All configured values are defined in thread_config.h
  */
 
 /**
@@ -164,7 +164,7 @@
 
 #define THREAD_ENTERPRISE_NUMBER 44970
 
-#define THREAD_ADDR_REG_TIMEOUT_BASE 300
+#define THREAD_ADDR_REG_RETRY_INTERVAL 300
 #define THREAD_PROACTIVE_AN_INTERVAL 3600
 
 // Router defines
@@ -173,6 +173,10 @@
 #define REED_ADVERTISEMENT_MAX_JITTER 60
 #define MIN_DOWNGRADE_NEIGHBORS 7
 #define THREAD_REED_ADVERTISEMENT_DELAY 5000
+
+// Interval after which REED can send an advertisement to help others merge to higher partition.
+// This is not related to default REED advertisements.
+#define THREAD_REED_MERGE_ADVERTISEMENT_INTERVAL 120
 
 /** Default Threshold for router Selection */
 #define ROUTER_DOWNGRADE_THRESHOLD 23 // Define downGrade Threshold when active router is higher than this

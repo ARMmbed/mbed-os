@@ -126,8 +126,8 @@ typedef struct {
  *
  */
 typedef struct {
-uint16_t timeout_init; /*!< Define start timeout in seconds */
-uint16_t timeout_max; /*!< Define max timeout time in seconds */
+uint16_t timeout_init; /*!< Define start timeout */
+uint16_t timeout_max; /*!< Define max timeout time */
 uint8_t retrans_max; /*!< Define max packet TX count */
 uint8_t delay; /*!< 100ms Ticks for random delay */
 } mle_message_timeout_params_t;
@@ -188,6 +188,21 @@ typedef uint8_t * (mle_service_security_notify_cb)(int8_t interface_id, mle_secu
  *
  */
 typedef bool (mle_service_message_timeout_cb)(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
+
+/**
+ *  A callback for receive MLE message filtering
+ *
+ *  This function will be called when MLE message is received. Only for testing purposes.
+ *
+ *  \param interface_id define interface id for receiver
+ *  \param mle_msg received MLE message
+ *  \param security_headers messages security parameters
+ *
+ *  \return true continue MLE packet processing
+ *  \return false drop MLE packet
+ *
+ */
+typedef bool (mle_service_filter_cb)(int8_t interface_id, mle_message_t *mle_msg, mle_security_header_t *security_headers);
 
 /*
  * Initialise server instance.
@@ -568,13 +583,24 @@ int mle_service_set_msg_panid(uint16_t msgId, uint16_t panid);
 /**
 * Set messages timeout parameters.
 *
-* Messages timeout parameters define messages TX count and init timeout and max timeout values is messages delayed.
+* Struct timeout_params defines messages retransmission times in seconds, retransmission count and sending delay.
 * Delayed message will affect random time between 100-900ms
 *
 * \param msgId Message Id.
 * \param timeout_params messages transmission parameters
 */
 int mle_service_set_msg_timeout_parameters(uint16_t msgId, mle_message_timeout_params_t *timeout_params);
+
+/**
+* Set messages timeout parameters.
+*
+* Struct timeout_params defines messages retransmission times in 100ms, retransmission count and sending delay.
+* Delayed message will affect random time between 100-900ms
+*
+* \param msgId Message Id.
+* \param timeout_params messages transmission parameters
+*/
+int mle_service_set_msg_timeout_parameters_fast(uint16_t msgId, mle_message_timeout_params_t *timeout_params);
 
 int mle_service_set_msg_rf_channel(uint16_t msgId, uint8_t channel);
 
@@ -704,4 +730,14 @@ void mle_service_set_fragmented_msg_ll_security(bool value);
 */
 void mle_service_set_accept_invalid_frame_counter(bool value);
 
+#ifdef MLE_TEST
+/**
+ * Set callback for MLE receiving packet filtering.
+ *
+ * If this is set, all received MLE messages will be passed to given callback.
+ */
+void mle_service_receive_filter_cb_set(mle_service_filter_cb *filter_cb);
+#else
+#define mle_service_receive_filter_cb_set(filter_cb) ((void) 0)
+#endif /* MLE_TEST */
 #endif /* MLE_SERVICE_API_H_ */

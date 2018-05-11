@@ -1301,7 +1301,7 @@ int16_t socket_buffer_sendmsg(int8_t sid, buffer_t *buf, const struct ns_msghdr 
      * address is valid in one of the available interfaces
      * */
     if (buf->src_sa.addr_type == ADDR_IPV6 &&
-        protcol_interface_address_compare(NULL, buf->src_sa.address) != 0) {
+        protocol_interface_address_compare(buf->src_sa.address) != 0) {
         tr_warn("Specified source address %s is not valid",trace_ipv6(buf->src_sa.address));
         ret_val = -3;
         goto fail;

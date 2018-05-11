@@ -135,6 +135,13 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
         tr_error("Sol Not include all Options");
         goto error_exit;
     }
+
+    if (libdhcpv6_nonTemporal_entry_get_by_iaid(dhcp_ia_non_temporal_params.iaId) != srv_data_ptr) {
+        /* Validate server data availability */
+         tr_error("Valid instance not found");
+         goto error_exit;
+     }
+
     if (srv_data_ptr->IAID != dhcp_ia_non_temporal_params.iaId) {
         tr_error("Wrong IAID");
         goto error_exit;
@@ -181,7 +188,9 @@ int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[st
         tr_error("Invalid parameters");
         return -1;
     }
+
     srv_data_ptr = libdhcvp6_nontemporalAddress_server_data_allocate(interface, dhcp_client.libDhcp_instance, mac64, DHCPV6_DUID_HARDWARE_EUI64_TYPE, prefix, dhcp_addr);
+
     payload_len = libdhcpv6_solication_message_length(DHCPV6_DUID_HARDWARE_EUI64_TYPE, true, 0);
     payload_ptr = ns_dyn_mem_temporary_alloc(payload_len);
 
@@ -207,6 +216,7 @@ int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[st
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr , dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
     return srv_data_ptr->transActionId ? 0 : -1;
 }
+
 void thread_dhcp_client_global_address_renew(int8_t interface)
 {
     // only prepared for changes in thread specifications
@@ -219,15 +229,23 @@ void thread_dhcp_client_global_address_delete(int8_t interface, uint8_t dhcp_add
     protocol_interface_info_entry_t *cur;
     dhcpv6_client_server_data_t *srv_data_ptr;
     (void) dhcp_addr;
+
     srv_data_ptr = libdhcpv6_nonTemporal_entry_get_by_prefix(interface, prefix);
     cur = protocol_stack_interface_info_get_by_id(interface);
-    if (cur == NULL || srv_data_ptr == NULL) {
-        tr_error("Not valid prefix");
-        return;
-    }
-    dhcp_service_req_remove(srv_data_ptr->transActionId);// remove all pending retransmissions
-    addr_delete(cur, srv_data_ptr->iaNontemporalAddress.addressPrefix);
-    libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
+
+    do {
+        if (cur == NULL || srv_data_ptr == NULL) {
+            return;
+        }
+        dhcp_service_req_remove(srv_data_ptr->transActionId);// remove all pending retransmissions
+        tr_debug("Deleting address: %s", trace_ipv6(srv_data_ptr->iaNontemporalAddress.addressPrefix));
+
+        addr_delete(cur, srv_data_ptr->iaNontemporalAddress.addressPrefix);
+
+        libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
+        srv_data_ptr = libdhcpv6_nonTemporal_entry_get_by_prefix(interface, prefix);
+    } while (srv_data_ptr);
+
     return;
 }
 
@@ -306,7 +324,7 @@ void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_
 
     if (address_entry == NULL) {
         tr_error("Address add failed");
-        return ;
+        return;
     }
     if (renewTimer) {
         // translate seconds to 100ms ticks
@@ -316,7 +334,6 @@ void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_
             renewTimer = 0xfffffffe;
         }
     }
-    tr_debug("Added new address");
     address_entry->state_timer = renewTimer;
     address_entry->cb = thread_dhcpv6_renew;
 }

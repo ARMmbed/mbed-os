@@ -995,6 +995,7 @@ extern void net_get_version_information(uint8_t *ptr);
  *
  * Note! In Thread mode parent buffer size is automatically set during Thread initialization.
  *
+ * \param interface_id Network interface ID.
  * \param big_packet_threshold Indicate how long packets are considered big. For Thread, must be 106 bytes.
  * \param small_packets_per_child_count Number of small packets stored for each sleepy children. For Thread, must be at least 1.
  * \param big_packets_total_count Total number of big packets parent can store for all sleepy children. For Thread, must be at least 1.

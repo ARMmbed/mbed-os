@@ -68,6 +68,10 @@ typedef struct {
 
 mle_service_class_t *mle_service = NULL;
 
+#ifdef MLE_TEST
+static mle_service_filter_cb *receive_filter_cb = NULL;
+#endif
+
 static uint8_t *mle_security_aux_header_write(uint8_t *ptr, const mle_security_header_t *auxHeader);
 static void mle_security_aux_ccm_nonce_set(uint8_t *noncePtr, uint8_t *mac64, uint32_t securityFrameCounter, uint8_t securityLevel);
 static uint8_t mle_security_aux_header_size(uint8_t keyIdMode);
@@ -802,6 +806,13 @@ static void mle_service_socket_callback(void *cb)
     mle_msg.dbm = buf->options.dbm;
     mle_msg.lqi = buf->options.lqi;
 
+#ifdef MLE_TEST
+    if (receive_filter_cb) {
+        if (!receive_filter_cb(service_handler->interface_id, &mle_msg, &securityHeader)) {
+            goto error_handler;
+        }
+    }
+#endif
     if (security_bypass) {
         /* Security by pass message handler call */
         service_handler->recv_security_bypass_cb(service_handler->interface_id, &mle_msg);
@@ -812,7 +823,7 @@ static void mle_service_socket_callback(void *cb)
         }
     }
 
-    error_handler:
+error_handler:
     if (buf) {
         buffer_free(buf);
     }
@@ -1199,7 +1210,7 @@ int mle_service_message_tail_get(uint16_t msgId, uint16_t tail_length)
     return mle_service_buffer_tail_get(msgId,tail_length);
 }
 
-int mle_service_set_msg_timeout_parameters(uint16_t msgId, mle_message_timeout_params_t *timeout_params)
+static int mle_service_timeout_fill(uint16_t msgId, mle_message_timeout_params_t *timeout_params, bool timeout_in_seconds)
 {
     mle_service_msg_buf_t *buffer = mle_service_buffer_find(msgId);
 
@@ -1207,12 +1218,31 @@ int mle_service_set_msg_timeout_parameters(uint16_t msgId, mle_message_timeout_p
         return -1;
     }
 
-    buffer->timeout_init = randLIB_randomise_base(timeout_params->timeout_init * 10, MLE_RAND_LOW, MLE_RAND_HIGH);
-    buffer->timeout = buffer->timeout_init;
-    buffer->timeout_max = timeout_params->timeout_max * 10;
+    buffer->timeout_max = timeout_params->timeout_max;
     buffer->retrans_max = timeout_params->retrans_max;
     buffer->delayed_response = timeout_params->delay;
+    buffer->timeout_init = timeout_params->timeout_init;
+
+    if (timeout_in_seconds) {
+        buffer->timeout_max = buffer->timeout_max * 10;
+        buffer->timeout_init = buffer->timeout_init * 10;
+    }
+
+    buffer->timeout_init = randLIB_randomise_base(buffer->timeout_init, MLE_RAND_LOW, MLE_RAND_HIGH);
+
+    buffer->timeout = buffer->timeout_init;
+
     return 0;
+}
+
+int mle_service_set_msg_timeout_parameters(uint16_t msgId, mle_message_timeout_params_t *timeout_params)
+{
+    return mle_service_timeout_fill(msgId, timeout_params, true);
+}
+
+int mle_service_set_msg_timeout_parameters_fast(uint16_t msgId, mle_message_timeout_params_t *timeout_params)
+{
+    return mle_service_timeout_fill(msgId, timeout_params, false);
 }
 
 int mle_service_set_msg_token_bucket_priority(uint16_t msgId)
@@ -1497,3 +1527,10 @@ void mle_service_set_accept_invalid_frame_counter(bool value)
     }
 }
 
+#ifdef MLE_TEST
+void mle_service_receive_filter_cb_set(mle_service_filter_cb *filter_cb)
+{
+    receive_filter_cb = filter_cb;
+}
+
+#endif

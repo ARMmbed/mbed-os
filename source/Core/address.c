@@ -1354,14 +1354,23 @@ int8_t addr_interface_address_compare(protocol_interface_info_entry_t *cur, cons
         return 0;
     }
 
-    /* If link-local, that's it */
-    if (addr_is_ipv6_link_local(addr)) {
-        return -1;
+    /* Then check other interfaces, enforcing scope zones */
+    uint_fast8_t scope = addr_ipv6_scope(addr, cur);
+    ns_list_foreach(protocol_interface_info_entry_t, other, &protocol_interface_info_list) {
+        if (other != cur &&
+                other->zone_index[scope] == cur->zone_index[scope] &&
+                addr_is_assigned_to_interface(other, addr)) {
+            // special handling for Thread - external global-scope ULA coming in,
+            // which would match, but we need to restrict if that ULA is mesh-local
+            // on the Thread side.
+            if (thread_info(other) && addr_ipv6_scope(addr, other) <= IPV6_SCOPE_REALM_LOCAL) {
+                continue;
+            }
+            return 0;
+        }
     }
 
-    /* Now check other interfaces */
-    /* TODO: should only do this if both current and other interface have forwarding enabled */
-    return protcol_interface_address_compare(cur, addr);
+    return -1;
 }
 
 int8_t addr_interface_select_source(protocol_interface_info_entry_t *cur, uint8_t *src_ptr, const uint8_t *dest, uint32_t addr_preferences)

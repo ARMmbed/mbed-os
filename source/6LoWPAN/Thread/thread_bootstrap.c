@@ -63,6 +63,7 @@
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_extension.h"
+#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_address_registration_client.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
@@ -112,7 +113,6 @@ static void thread_bootsrap_network_discovery_failure(int8_t interface_id);
 
 static void thread_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *cur);
 static void thread_bootsrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info);
-static int8_t thread_child_keep_alive(int8_t interface_id, const uint8_t *mac64);
 
 
 
@@ -134,37 +134,6 @@ static void thread_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t 
     thread_reset_neighbour_info(cur_interface, cur);
 }
 
-
-static bool thread_child_keep_alive_callback(int8_t interface_id, uint16_t msgId, bool usedAllRetries)
-{
-    uint8_t mac64[8];
-    uint8_t *ll64_ptr = mle_service_get_msg_destination_address_pointer(msgId);
-
-    memcpy(mac64, ll64_ptr + 8, 8);
-    mac64[0] ^= 2;
-
-    mle_neigh_table_entry_t *neig_info = mle_class_get_by_link_address(interface_id, mac64, ADDR_802_15_4_LONG);
-
-    if (!neig_info) {
-        return false;//Why entry is removed before timeout??
-    }
-
-
-    if (neig_info->ttl > MLE_TABLE_CHALLENGE_TIMER) {
-        return false;
-    }
-
-
-    if (usedAllRetries) {
-
-        //GET entry
-        mle_class_remove_entry(interface_id, neig_info);
-        return false;
-    }
-
-    return true;
-}
-
 int8_t thread_mle_class_init(int8_t interface_id)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -182,7 +151,7 @@ int8_t thread_mle_class_init(int8_t interface_id)
         return -1;
     }
 
-    if (mle_class_init(interface_id, buffer.device_decription_table_size - 1, &thread_neighbor_remove, &thread_child_keep_alive, &thread_interface_is_active) != 0) {
+    if (mle_class_init(interface_id, buffer.device_decription_table_size - 1, &thread_neighbor_remove, &thread_host_bootstrap_child_update, &thread_interface_is_active) != 0) {
         return -1;
     }
 
@@ -229,68 +198,6 @@ uint8_t thread_mode_get_by_interface_ptr(protocol_interface_info_entry_t *cur)
 
 
     return mle_mode;
-}
-
-static int8_t thread_child_keep_alive(int8_t interface_id, const uint8_t *mac64)
-{
-    mle_message_timeout_params_t timeout;
-    uint8_t ll64[16];
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    uint32_t keySequence;
-    uint16_t bufId;
-    uint8_t mode;
-    if (!cur) {
-        return -1;
-    }
-
-    if (!thread_info(cur)) {
-        return -1;
-    }
-
-    //routers do not send keep alive
-    if (thread_i_am_router(cur)){
-    	return -1;
-    }
-
-    tr_debug("Child Keep Alive");
-    bufId = mle_service_msg_allocate(cur->id, 150 + 3 + 6 + 10, false,MLE_COMMAND_CHILD_UPDATE_REQUEST);
-    if (bufId == 0) {
-        return -1;
-    }
-
-    thread_management_get_current_keysequence(cur->id, &keySequence);
-    mle_service_msg_update_security_params(bufId, 5, 2, keySequence);
-    mode = thread_mode_get_by_interface_ptr(cur);
-
-    uint8_t *ptr = mle_service_get_data_pointer(bufId);
-    ptr = mle_general_write_source_address(ptr, cur);
-    ptr = mle_tlv_write_mode(ptr, mode);
-
-    ptr = thread_leader_data_tlv_write(ptr, cur);
-
-    //Set Addresss TLV
-    if ((mode & MLE_FFD_DEV) == 0) {
-        ptr = thread_address_registration_tlv_write(ptr, cur);
-    }
-
-    memcpy(ll64, ADDR_LINK_LOCAL_PREFIX, 8);
-    memcpy(&ll64[8], mac64, 8);
-    ll64[8] ^= 2;
-    if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
-        tr_debug("Buffer overflow at message write");
-    }
-    timeout.retrans_max = 3;
-    timeout.timeout_init = 1;
-    timeout.timeout_max = 4;
-    timeout.delay = MLE_NO_DELAY;
-
-    //SET Destination address
-    mle_service_set_msg_destination_address(bufId, ll64);
-    //Set Callback
-    mle_service_set_packet_callback(bufId, thread_child_keep_alive_callback);
-    mle_service_set_msg_timeout_parameters(bufId, &timeout);
-    mle_service_send_message(bufId);
-    return 0;
 }
 
 /**
@@ -419,17 +326,24 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur, uin
         tr_debug("Dropping advertisement from old partition without sequence number increase");
         return -2;
     }
-    if (heard_partition_routers == 0 && active_routers == 1) {
-        //heard a REED and I am in a singleton partition so merge
-        tr_debug("Heard a REED and I am a singleton - merge");
-        return 2;
-    }
+
     /*Rule 0: If we are going to form Higher partition than heard we dont try to attach to lower ones
      */
     if (thread_extension_enabled(cur) &&
-        thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER &&
-        heard_partition_leader_data->weighting < thread_info(cur)->partition_weighting) {
-        return -2;
+        thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
+        if (heard_partition_leader_data->weighting < thread_info(cur)->partition_weighting) {
+        	tr_debug("Heard a lower weight partition");
+            return -2;
+        }
+        if (heard_partition_leader_data->weighting > thread_info(cur)->partition_weighting) {
+            return 2;
+        }
+    }
+
+    if ((heard_partition_routers == 0 && active_routers == 1) && thread_am_router(cur)) {
+        //heard a REED and I am a lonely router in a singleton partition, so merge
+        tr_debug("Heard a REED and I am a singleton - merge");
+        return 2;
     }
 
     //Rule 1: A non-singleton Thread Network Partition always has higher priority than a singleton Thread Network Partition
@@ -768,6 +682,8 @@ int thread_configuration_thread_activate(protocol_interface_info_entry_t *cur, l
 
     thread_extension_activate(cur);
 
+    thread_extension_bbr_route_update(cur);
+
     blacklist_clear();
 
     blacklist_params_set(
@@ -1014,6 +930,7 @@ static void thread_interface_bootsrap_mode_init(protocol_interface_info_entry_t 
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_SLEEPY_END_DEVICE;
         //SET Sleepy Host To RX on Idle mode for bootsrap
         nwk_thread_host_control(cur, NET_HOST_RX_ON_IDLE, 0);
+        cur->thread_info->childUpdateReqTimer = 0.8 * cur->thread_info->host_link_timeout;
     } else {
         tr_debug("Set End node Mode");
         cur->thread_info->thread_device_mode = THREAD_DEVICE_MODE_END_DEVICE;
@@ -1134,7 +1051,9 @@ void thread_tasklet(arm_event_s *event)
 
         case THREAD_CHILD_UPDATE:
             tr_debug_extra("Thread SM THREAD_CHILD_UPDATE");
-            thread_bootstrap_child_update(cur);
+            if (thread_info(cur)->thread_endnode_parent) {
+                thread_host_bootstrap_child_update(cur->id, cur->thread_info->thread_endnode_parent->mac64);
+            }
             break;
         case THREAD_ANNOUNCE_ACTIVE: {
             tr_debug_extra("Thread SM THREAD_ANNOUNCE_ACTIVE");
@@ -1245,14 +1164,14 @@ void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
     mac_data_poll_protocol_poll_mode_decrement(cur);
 }
 
-void thread_clean_all_routers_from_neighbor_list(int8_t interface_id)
+void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur)
 {
-    mle_neigh_table_list_t *neig_list = mle_class_active_list_get(interface_id);
-    /* Init Double linked Routing Table */
-    ns_list_foreach_safe(mle_neigh_table_entry_t, cur, neig_list) {
-        if (thread_is_router_addr(cur->short_adr)) {
-            tr_debug("Free Router %x", cur->short_adr);
-            mle_class_remove_entry(interface_id, cur);
+    mle_neigh_table_list_t *neig_list = mle_class_active_list_get(cur->id);
+
+    ns_list_foreach_safe(mle_neigh_table_entry_t, cur_entry, neig_list) {
+        if (!thread_addr_is_equal_or_child(cur->thread_info->routerShortAddress, cur_entry->short_adr)) {
+            tr_debug("Free ID %x", cur_entry->short_adr);
+            mle_class_remove_entry(cur->id, cur_entry);
         }
     }
 }
@@ -1751,6 +1670,23 @@ bool thread_network_data_timeout(int8_t interface_id, uint16_t msgId, bool usedA
         return true;
     }
 
+    if(cur->thread_info->leader_synced) {
+        if(usedAllRetries) {
+            // could not learn network data from neighbour, everyone must reregister
+            cur->thread_info->leader_synced = false;
+            thread_leader_service_network_data_changed(cur,true,true);
+            return false;
+        } else {
+            tr_debug("retrying as leader data not yet synced");
+            return true;
+        }
+    }
+
+    // if REED fails to get updated network data, it reattaches
+    if (thread_info(cur)->networkDataRequested && !thread_attach_active_router(cur) && usedAllRetries) {
+        thread_bootstrap_reset_restart(interface_id);
+    }
+
     thread_info(cur)->networkDataRequested = false;
     mac_data_poll_protocol_poll_mode_decrement(cur);
     return false;
@@ -1876,7 +1812,7 @@ static void thread_dhcp_client_gua_error_cb(int8_t interface, uint8_t dhcp_addr[
     }
 }
 
-static bool thread_dhcpv6_address_valid(uint8_t *prefixPtr, if_address_list_t *list)
+bool thread_dhcpv6_address_entry_available(uint8_t *prefixPtr, if_address_list_t *list)
 {
     bool addressReady = false;
     ns_list_foreach(if_address_entry_t, entry, list) {
@@ -2333,21 +2269,7 @@ void thread_bootstrap_stop(protocol_interface_info_entry_t *cur)
 
 void thread_bootstrap_child_update_trig(protocol_interface_info_entry_t *cur)
 {
-    if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED) {
-        if (cur->thread_info->thread_endnode_parent == NULL) {
-            return;
-        }
-
-        if (cur->thread_info->thread_endnode_parent->childUpdateProcessActive) {
-            //Set Pending if earlier proces is already started
-            cur->thread_info->thread_endnode_parent->childUpdatePending = true;
-            return;
-        }
-        //Trig event
-        cur->thread_info->thread_endnode_parent->childUpdatePending = false;
-        cur->thread_info->thread_endnode_parent->childUpdateProcessActive = true;
-        cur->thread_info->thread_endnode_parent->childUpdateProcessStatus = false;
-
+    if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED && cur->thread_info->thread_endnode_parent) {
         thread_bootsrap_event_trig(THREAD_CHILD_UPDATE, cur->bootStrapId, ARM_LIB_HIGH_PRIORITY_EVENT);
     }
 }
@@ -2584,8 +2506,8 @@ int thread_bootstrap_network_data_process(protocol_interface_info_entry_t *cur, 
                                                 memcpy(addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 8);
                                                 memcpy(&addr[8], ADDR_SHORT_ADR_SUFFIC, 6);
                                                 common_write_16_bit(genericService.routerID, &addr[14]);
-                                                thread_dhcp_client_global_address_delete(cur->id, addr, prefixTlv.Prefix);
                                                 tr_debug("Delete DHCPv6 given address");
+                                                thread_dhcp_client_global_address_delete(cur->id, addr, prefixTlv.Prefix);
                                             }
                                         }
 
@@ -2812,7 +2734,7 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
     bool validToLearnRoutes, validToLearOnMeshRoute;
     thread_network_server_data_entry_t *weHostService = NULL;
     uint16_t routerId;
-    tr_debug("Network Data:");
+    tr_debug("Network Data process:");
     routerId = cur->mac_parameters->mac_short_address;
     thread_network_data_cache_entry_t *networkData;
     networkData = &cur->thread_info->networkDataStorage;
@@ -2875,14 +2797,14 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                     }
                 }
 
-                if (!thread_dhcpv6_address_valid(curPrefix->servicesPrefix, &cur->ip_addresses)) {
+                if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
                     thread_addr_write_mesh_local_16(addr, curBorderRouter->routerID, cur->thread_info);
-
+                    /* Do not allow multiple DHCP solicits from one prefix => delete previous */
+                    thread_dhcp_client_global_address_delete(cur->id, NULL, curPrefix->servicesPrefix);
                     if (thread_dhcp_client_get_global_address(cur->id, addr, curPrefix->servicesPrefix, cur->mac, thread_dhcp_client_gua_error_cb) == 0) {
                         tr_debug("GP Address Requested");
                     }
                 }
-
             } else {
                 /* All end device types perform RLOC16 -> 0xfffe
                    replacement if stable network data was requested. */
@@ -2895,7 +2817,7 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
             }
 
             if (curBorderRouter->P_preferred) {
-                if (!thread_dhcpv6_address_valid(curPrefix->servicesPrefix, &cur->ip_addresses)) {
+                if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
                     icmpv6_slaac_address_add(cur, curPrefix->servicesPrefix, curPrefix->servicesPrefixLen, 0xffffffff, 0xffffffff, true, SLAAC_IID_DEFAULT);
                 }
             }

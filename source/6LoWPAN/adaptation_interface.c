@@ -1014,6 +1014,12 @@ int8_t lowpan_adaptation_interface_tx_confirm(protocol_interface_info_entry_t *c
         case MLME_TRANSACTION_EXPIRED:
         default:
             tr_error("MCPS Data fail by status %u", confirm->status);
+            if (buf->dst_sa.addr_type == ADDR_802_15_4_SHORT) {
+                tr_info("Dest addr: %x", common_read_16_bit(buf->dst_sa.address+2));
+            } else if (buf->dst_sa.addr_type == ADDR_802_15_4_LONG) {
+                tr_info("Dest addr: %s", trace_array(buf->dst_sa.address+2, 8));
+            }
+
 #ifdef HAVE_RPL
             if (confirm->status == MLME_TX_NO_ACK) {
                 if (buf->route && rpl_data_is_rpl_parent_route(buf->route->route_info.source)) {

@@ -768,6 +768,8 @@ static void delete_link(thread_info_t *thread, thread_router_link_t *link)
     thread_router_id_t id = link->router_id;
     thread_routing_info_t *routing = &thread->routing;
 
+    tr_debug("delete_link: router: %x", thread_router_addr_from_id(link->router_id));
+
     /* Remove entry from the link set */
     ns_list_remove(&routing->link_set, link);
     ns_dyn_mem_free(link);
@@ -779,7 +781,6 @@ static void delete_link(thread_info_t *thread, thread_router_link_t *link)
             ns_dyn_mem_free(route_entry);
         }
     }
-
     thread_update_fast_route_table(thread);
 }
 
@@ -879,7 +880,6 @@ void thread_routing_init(thread_routing_info_t *routing)
 {
     ns_list_init(&routing->route_set);
     ns_list_init(&routing->link_set);
-    routing->networkIdTimeout = NETWORK_ID_TIMEOUT;
     thread_routing_reset(routing);
 }
 
@@ -887,6 +887,7 @@ void thread_routing_reset(thread_routing_info_t *routing)
 {
     thread_routing_free(routing);
     routing->router_id_sequence_valid = false;
+    routing->networkIdTimeout = NETWORK_ID_TIMEOUT;
     memset(routing->fast_route_table, FAST_ROUTE_INVALID_ID, sizeof routing->fast_route_table);
     trickle_start(&routing->mle_advert_timer, &thread_mle_advert_trickle_params);
 }

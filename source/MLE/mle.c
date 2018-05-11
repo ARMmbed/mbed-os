@@ -386,9 +386,8 @@ int16_t mle_class_rfd_entry_count_get(int8_t interface_id)
     return count;
 }
 
-mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_t linkMargin, const uint8_t *ipv6Address, bool allocateNew)
+mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_t linkMargin, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated)
 {
-
     // Check it really is LL64 (not LL16)
 
     if (memcmp(ipv6Address, ADDR_LINK_LOCAL_PREFIX , 8) != 0) {
@@ -403,9 +402,8 @@ mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_
     memcpy(temporary_mac64, (ipv6Address + 8), 8);
     temporary_mac64[0] ^= 2;
 
-    return mle_class_get_entry_by_mac64(interface_id, linkMargin, temporary_mac64,allocateNew);
+    return mle_class_get_entry_by_mac64(interface_id, linkMargin, temporary_mac64, allocateNew, new_entry_allocated);
 }
-
 
 mle_neigh_table_entry_t *mle_class_discover_entry_by_ll64(int8_t interface_id, const uint8_t *ipv6Address)
 {
@@ -428,12 +426,16 @@ mle_neigh_table_entry_t *mle_class_discover_entry_by_ll64(int8_t interface_id, c
 }
 
 
-mle_neigh_table_entry_t *mle_class_get_entry_by_mac64(int8_t interface_id, uint8_t linkMargin, const uint8_t *mac64, bool allocateNew)
+mle_neigh_table_entry_t *mle_class_get_entry_by_mac64(int8_t interface_id, uint8_t linkMargin, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated)
 {
     mle_table_class_t *mle_class_ptr = mle_table_class_discover(interface_id);
     //Clean list and set function pointer call backs
     if (!mle_class_ptr) {
         return NULL;
+    }
+
+    if (new_entry_allocated) {
+        *new_entry_allocated = false;
     }
 
     mle_neigh_table_entry_t *ret_val = mle_class_neighbor_get(&mle_class_ptr->mle_table, mac64, ADDR_802_15_4_LONG);
@@ -454,6 +456,9 @@ mle_neigh_table_entry_t *mle_class_get_entry_by_mac64(int8_t interface_id, uint8
             topo_trace(TOPOLOGY_MLE, mac64, TOPO_ADD);
             ret_val->link_margin = linkMargin << THREAD_LINK_MARGIN_SCALING;
             memcpy(ret_val->mac64, mac64, 8);
+            if (new_entry_allocated) {
+                *new_entry_allocated = true;
+            }
         }
     }
     return ret_val;
@@ -788,7 +793,7 @@ bool mle_neigh_entry_frame_counter_update(mle_neigh_table_entry_t *entry_temp, u
         frame_counter = common_read_32_bit(mle_tlv_info.dataPtr);
     }
 
-    mac_helper_devicetable_set(entry_temp, cur, frame_counter, key_id);
+    mac_helper_devicetable_set(entry_temp, cur, frame_counter, key_id, false);
     return true;
 }
 

@@ -917,6 +917,15 @@ link_configuration_s *thread_joiner_application_get_config(int8_t interface_id)
     return this->configuration_ptr;
 }
 
+uint8_t *thread_joiner_application_network_name_get(int8_t interface_id)
+{
+    thread_joiner_t *this = thread_joiner_find(interface_id);
+    if (!this) {
+        return NULL;
+    }
+    return this->configuration_ptr->name;
+}
+
 static int thread_joiner_application_nvm_link_config_read(thread_joiner_t *this) {
 
     // read config from NVM, in case of failure current settings are unchanged.
