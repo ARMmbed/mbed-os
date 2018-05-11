@@ -28,7 +28,6 @@
  *      MBED_WARN("Lib", "This is warning message\n");
  *      MBED_DBG_IF("main", 1, "%d %s\n", 1, "hello");
  *      MBED_INFO("main", "%s %s 0x%lx\n", "world", "!", 2);
- *      MBED_TRACE("lib", "Trace level of debugging for libraries\n");
  *      MBED_CRIT("OS", "This is critical error. Action Required: %s\n", "Restart");
  *  }
  *
@@ -77,11 +76,10 @@ extern "C" {
 #define LOG_LEVEL_WARN           0x4
 #define LOG_LEVEL_INFO           0x8
 #define LOG_LEVEL_DEBUG          0x10
-#define LOG_LEVEL_TRACE          0x20
 
 /** Option to set select maximum level of logs enabled at compile time **/
 #ifndef MBED_CONF_PLATFORM_LOG_MAX_LEVEL
-#define MBED_CONF_PLATFORM_LOG_MAX_LEVEL  LOG_LEVEL_DEBUG
+#define MBED_CONF_PLATFORM_LOG_MAX_LEVEL  LOG_LEVEL_INFO
 #endif
 
 /** Critical level log
@@ -254,63 +252,10 @@ extern "C" {
 #define MBED_INFO_IF(mod, condition, fmt, ...)
 #endif
 
-/** Trace level log
- *
- *  Trace level of log can be used by OS, library to log internal information
- *  used for tracing
- *
- * @param  mod  Module ID String
- * @param  fmt  printf-style format string (must be string literal), followed by
- *              variables. Example: Expression evaluation is not supported,
- *              printf(count == 1 ? "true" : "%d", count);  - X
- * @param  ...  Arguments for format specification
- *
- **/
-#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_TRACE
-#if MBED_ID_BASED_TRACING
-#define MBED_TRACE(mod, fmt, ...)   MBED_LOG_ID_1(mod, fmt, LOG_TRACE_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__)
-#else
-#define MBED_TRACE(mod, fmt, ...)   MBED_LOG_STR_1(mod, fmt, LOG_TRACE_, ##__VA_ARGS__)
-#endif
-#else
-#define MBED_TRACE(mod, fmt, ...)
-#endif
-
-/** Trace level log
- *
- *  Debugging level is mainly for application. Libraries and OS must
- *  not use this for debug prints, use trace level instead.
- *
- * @param  mod  Module ID String
- * @param  condition output only if condition is true (!= 0)
- * @param  fmt  printf-style format string (must be string literal), followed by
- *              variables. Example: Expression evaluation is not supported,
- *              printf(count == 1 ? "true" : "%d", count);  - X
- * @param  ...  Arguments for format specification
- *
- **/
-#if MBED_CONF_PLATFORM_LOG_MAX_LEVEL >= LOG_LEVEL_TRACE
-#if MBED_ID_BASED_TRACING
-#define MBED_TRACE_IF(mod, condition, fmt, ...)  do { if(condition) \
-                                                      { \
-                                                         MBED_LOG_ID_1(mod, fmt, LOG_TRACE_, LOG_FILE_NAME_, __LINE__, __COUNTER__, ##__VA_ARGS__); \
-                                                      } \
-                                               } while(0);
-#else
-#define MBED_TRACE_IF(mod, condition, fmt, ...)  do { if(condition) \
-                                                      { \
-                                                         MBED_LOG_STR_1(mod, fmt, LOG_TRACE_, ##__VA_ARGS__);\
-                                                      } \
-                                               } while(0);
-#endif
-#else
-#define MBED_TRACE_IF(mod, condition, fmt, ...)
-#endif
-
 /** General trace function
  *
- *  Generic function to print user data, this log level is always
- *  enabled hence should be used to print important information
+ *  Generic function to print user data, this API is always enabled
+ *  irrespective of set log level.
  *
  * @param  ll   Log level
  * @param  mod  Module name

@@ -43,7 +43,7 @@
 
         "log-max-level": {
             "help": "Option to set select maximum level of logs enabled at compile time",
-            "value": 16
+            "value": 8
         },
 
         "log-max-str-size": {
