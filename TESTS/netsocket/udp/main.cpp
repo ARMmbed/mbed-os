@@ -55,6 +55,17 @@ static void _ifdown() {
     printf("MBED: ifdown\n");
 }
 
+void drop_bad_packets(UDPSocket& sock) {
+    nsapi_error_t err;
+    sock.set_timeout(0);
+    while (true) {
+        err = sock.recvfrom(NULL, 0, 0);
+        if (err == NSAPI_ERROR_WOULD_BLOCK) {
+            break;
+        }
+    }
+}
+
 void fill_tx_buffer_ascii(char *buff, size_t len)
 {
     for (size_t i = 0; i<len; ++i) {
@@ -76,8 +87,9 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
     return greentea_test_teardown_handler(passed, failed, failure);
 }
 
-
 Case cases[] = {
+        Case("Echo", test_udpsocket_echotest),
+        Case("Echo non-block", test_udpsocket_echotest_nonblock),
         Case("Echo burst", test_udpsocket_echotest_burst),
         Case("Echo burst non-block", test_udpsocket_echotest_burst_nonblock),
         Case("Reuse a socket", test_udpsocket_open_close_repeat),

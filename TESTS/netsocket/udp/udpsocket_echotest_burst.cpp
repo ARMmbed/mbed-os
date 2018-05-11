@@ -56,18 +56,6 @@ void free_tx_buffers() {
     }
 }
 
-void drop_bad_packets(UDPSocket& sock) {
-    nsapi_error_t err;
-    sock.set_timeout(0);
-    while (true) {
-        err = sock.recvfrom(NULL, NULL, 0);
-        if (err == NSAPI_ERROR_WOULD_BLOCK) {
-            break;
-        }
-    }
-    sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
-}
-
 void test_udpsocket_echotest_burst()
 {
     SocketAddress udp_addr;

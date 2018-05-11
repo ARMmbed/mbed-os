@@ -19,11 +19,14 @@
 #define UDP_TESTS_H
 
 NetworkInterface* get_interface();
+void drop_bad_packets(UDPSocket& sock);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 
 /*
  * Test cases
  */
+void test_udpsocket_echotest();
+void test_udpsocket_echotest_nonblock();
 void test_udpsocket_echotest_burst();
 void test_udpsocket_echotest_burst_nonblock();
 void test_udpsocket_open_close_repeat();
