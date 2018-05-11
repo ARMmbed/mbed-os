@@ -27,6 +27,10 @@
       "cpputest": "ARMmbed/cpputest",
       "nanostack-libservice": "^3.6.0"
     },
+    "x86-osx-native": {
+      "cpputest": "ARMmbed/cpputest",
+      "nanostack-libservice": "^3.6.0"
+    },
     "x86-windows-native": {
       "cpputest": "ARMmbed/cpputest",
       "nanostack-libservice": "^3.6.0"

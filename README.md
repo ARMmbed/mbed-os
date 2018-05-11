@@ -171,6 +171,13 @@ yotta target x86-linux-native
 yotta test mbed_trace_test
 ```
 
+* In Mac
+
+```
+yotta target x86-osx-native
+yotta test mbed_trace_test
+```
+
 * In Windows
 
 ```
