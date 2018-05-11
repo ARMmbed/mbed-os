@@ -185,7 +185,10 @@ typedef struct coap_blockwise_msg_ {
     sn_coap_hdr_s       *coap_msg_ptr;
     struct coap_s       *coap;      /* CoAP library handle */
 
-    ns_list_link_t     link;
+    void                *param;
+    uint16_t            msg_id;
+
+    ns_list_link_t      link;
 } coap_blockwise_msg_s;
 
 typedef NS_LIST_HEAD(coap_blockwise_msg_s, link) coap_blockwise_msg_list_t;

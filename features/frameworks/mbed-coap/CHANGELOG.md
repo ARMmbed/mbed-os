@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.4.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.3) 
+**Closed issues:**
+ - IOTCLT-2506 [GitHub] Cannot set registration time if server does not use max age option
+
+Extend blockwise message transfer status to have states for sending as well.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.4.2...v4.4.3)
+
 ## [v4.4.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.2) 
 **Closed issues:**
  - IOTCLT-2469 CoAP UDP retransmission does not work for blocks after first one for requests (Eg. registration POST)
