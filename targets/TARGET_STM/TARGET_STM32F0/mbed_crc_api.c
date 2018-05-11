@@ -15,7 +15,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config)
     return false;
   }
 
-  if (config->polynomial != DEFAULT_CRC32_POLY) {
+  if (config->polynomial != POLY_32BIT_ANSI) {
     return false;
   }
 
