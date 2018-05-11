@@ -90,11 +90,11 @@ ble_error_t GenericSecurityManager::init(
     _pal.set_event_handler(this);
 
     uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
-    SecurityEntryIdentity_t** identity_list_p =
-        new (std::nothrow) SecurityEntryIdentity_t*[resolving_list_capacity];
+    SecurityEntryIdentity_t* identity_list_p =
+        new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
 
     if (identity_list_p) {
-        ArrayView<SecurityEntryIdentity_t*> identity_list(
+        ArrayView<SecurityEntryIdentity_t> identity_list(
             identity_list_p,
             resolving_list_capacity
         );
@@ -925,7 +925,7 @@ void GenericSecurityManager::on_security_entry_retrieved(
 }
 
 void GenericSecurityManager::on_identity_list_retrieved(
-    ble::ArrayView<SecurityEntryIdentity_t*>& identity_list,
+    ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
     size_t count
 ) {
     typedef advertising_peer_address_type_t address_type_t;
@@ -933,11 +933,11 @@ void GenericSecurityManager::on_identity_list_retrieved(
     _pal.clear_resolving_list();
     for (size_t i = 0; i < count; ++i) {
         _pal.add_device_to_resolving_list(
-            identity_list[i]->identity_address_is_public ?
+            identity_list[i].identity_address_is_public ?
                 address_type_t::PUBLIC_ADDRESS :
                 address_type_t::RANDOM_ADDRESS,
-            identity_list[i]->identity_address,
-            identity_list[i]->irk
+            identity_list[i].identity_address,
+            identity_list[i].irk
         );
     }
 

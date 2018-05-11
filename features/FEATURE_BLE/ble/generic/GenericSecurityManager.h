@@ -421,7 +421,7 @@ private:
      * @param count Number of identities entries retrieved.
      */
     void on_identity_list_retrieved(
-        ble::ArrayView<SecurityEntryIdentity_t*>& identity_list,
+        ble::ArrayView<SecurityEntryIdentity_t>& identity_list,
         size_t count
     );
 

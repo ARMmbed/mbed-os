@@ -130,7 +130,7 @@ private:
 private:
     entry_t _entries[MAX_ENTRIES];
     FILE *_db_file;
-    static uint8_t _buffer[sizeof(SecurityEntryKeys_t)];
+    uint8_t _buffer[sizeof(SecurityEntryKeys_t)];
 };
 
 } /* namespace pal */
