@@ -322,10 +322,35 @@ public:
     static bool sm_handler(const wsfMsgHdr_t* msg);
 
 private:
+    struct PrivacyControlBlock;
+    struct PrivacyClearResListControlBlock;
+    struct PrivacyAddDevToResListControlBlock;
+    struct PrivacyRemoveDevFromResListControlBlock;
+
+    void queue_add_device_to_resolving_list(
+        advertising_peer_address_type_t peer_identity_address_type,
+        const address_t &peer_identity_address,
+        const irk_t &peer_irk
+    );
+
+    void queue_remove_device_from_resolving_list(
+        advertising_peer_address_type_t peer_identity_address_type,
+        const address_t &peer_identity_address
+    );
+
+    void queue_clear_resolving_list();
+
+    void clear_privacy_control_blocks();
+    void queue_privacy_control_block(PrivacyControlBlock* block);
+    void process_privacy_control_blocks(bool cb_completed);
+    
     bool _use_default_passkey;
     passkey_num_t _default_passkey;
     bool _lesc_keys_generated;
     uint8_t _public_key_x[SEC_ECC_KEY_LEN];
+
+    PrivacyControlBlock* _pending_privacy_control_blocks;
+    bool _processing_privacy_control_block;
 };
 
 } // cordio
