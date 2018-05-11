@@ -1,4 +1,11 @@
 
+#ifndef ETHERNETEXT_H
+#define ETHERNETEXT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* PHY link mode */
 #define NEGO_FAIL               (0)
 #define HALF_10M                (1)
@@ -18,3 +25,11 @@ extern int ethernetext_init(ethernet_cfg_t *p_ethcfg);
 extern void ethernetext_start_stop(int32_t mode);
 extern int ethernetext_chk_link_mode(void);
 extern void ethernetext_set_link_mode(int32_t link);
+extern void ethernetext_add_multicast_group(const uint8_t *addr);
+extern void ethernetext_remove_multicast_group(const uint8_t *addr);
+extern void ethernetext_set_all_multicast(int all);
+#ifdef __cplusplus
+}
+#endif
+
+#endif
