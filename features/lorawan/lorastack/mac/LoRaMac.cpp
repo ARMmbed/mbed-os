@@ -661,6 +661,11 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
                                  _params.ack_timeout_retry_counter, _params.max_ack_timeout_retries );
 }
 
+void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
+{
+    _mac_commands.set_batterylevel_callback(battery_level);
+}
+
 void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {

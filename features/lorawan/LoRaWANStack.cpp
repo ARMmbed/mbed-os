@@ -134,6 +134,7 @@ lorawan_status_t LoRaWANStack::set_lora_callbacks(const lorawan_app_callbacks_t 
 
     if (callbacks->battery_level) {
         _callbacks.battery_level = callbacks->battery_level;
+        _loramac.set_batterylevel_callback(callbacks->battery_level);
     }
 
     return LORAWAN_STATUS_OK;
