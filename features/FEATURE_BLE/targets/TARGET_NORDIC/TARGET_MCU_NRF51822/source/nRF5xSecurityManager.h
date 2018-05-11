@@ -30,7 +30,8 @@ public:
     virtual ble_error_t init(bool                     enableBonding,
                              bool                     requireMITM,
                              SecurityIOCapabilities_t iocaps,
-                             const Passkey_t          passkey) {
+                             const Passkey_t          passkey,
+                             bool                     signing) {
         return btle_initializeSecurity(enableBonding, requireMITM, iocaps, passkey);
     }
 
