@@ -31,7 +31,7 @@ void pin_mode(PinName pin, PinMode mode)
 
     uint32_t pin_number = (uint32_t)pin;
     
-#ifdef TARGET_SDK11
+#ifdef TARGET_SDK_11
     NRF_GPIO_Type * reg = NRF_GPIO;
 #else
     NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);

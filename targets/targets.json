@@ -3453,7 +3453,14 @@
             "MBED_TICKLESS"
         ],
         "MERGE_BOOTLOADER": false,
-        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5", "SDK11"],
+        "extra_labels": [
+            "NORDIC",
+            "MCU_NRF51",
+            "MCU_NRF51822_UNIFIED",
+            "NRF5x",
+            "NRF51",
+            "SDK_11"
+        ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
