@@ -18,14 +18,14 @@
 #include "rtx_os.h"
 #include "mbed_rtx.h"
 #include "hal/serial_api.h"
+#include "hal/itm_api.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_error_report.h"
 
-#if DEVICE_SERIAL
+#ifdef DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
 #endif
-
 
 /* Converts a uint32 to hex char string */
 static void value_to_hex_str(uint32_t value, char *hex_str)
@@ -56,6 +56,33 @@ static void value_to_dec_str(uint32_t value, char *dec_str)
     }
 }
 
+void mbed_error_init(void)
+{
+#if DEVICE_SERIAL && (MBED_CONF_ERROR_REPORT_INTERFACE==DEVICE_SERIAL)
+    /* Initializes std uart if not init-ed yet */
+    if (!stdio_uart_inited) {
+        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+    }
+#endif
+
+#if DEVICE_ITM && (MBED_CONF_ERROR_REPORT_INTERFACE==DEVICE_ITM)
+    /*Initialize ITM interfaces*/
+    mbed_itm_init();
+#endif
+}
+
+void mbed_error_putc(char ch)
+{
+#if DEVICE_SERIAL && (MBED_CONF_ERROR_REPORT_INTERFACE==DEVICE_SERIAL)
+    serial_putc(&stdio_uart, ch);
+#endif
+
+#if DEVICE_ITM && (MBED_CONF_ERROR_REPORT_INTERFACE==DEVICE_ITM)
+    /*Initialize ITM interfaces*/
+    mbed_itm_send(ITM_PORT_SWO, ch);
+#endif
+}
+
 /* Limited print functionality which prints the string out to 
 stdout/uart without using stdlib by directly calling serial-api 
 and also uses less resources 
@@ -72,10 +99,8 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
     char num_str[9]={0};
     char *str=NULL;
     
-    /* Initializes std uart if not init-ed yet */
-    if (!stdio_uart_inited) {
-        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-    }
+    //Init error reporting interfaces
+    mbed_error_init();
         
     while(fmtstr[i] != '\0') {
         if(fmtstr[i]=='%') {
@@ -85,7 +110,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
                 //print the number in hex format
                 value_to_hex_str(values[vidx++],num_str);
                 for(idx=7; idx>=0; idx--) {
-                    serial_putc(&stdio_uart, num_str[idx]);
+                    mbed_error_putc(num_str[idx]);
                 }
             }
             else if(fmtstr[i]=='d') {
@@ -95,24 +120,28 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
                 idx=7;
                 while(num_str[idx--]=='0' && idx > 0);//Dont print zeros at front
                 for(idx++;idx>=0; idx--) {
-                    serial_putc(&stdio_uart, num_str[idx]);
+                    mbed_error_putc(num_str[idx]);
                 }
             }
             else if(fmtstr[i]=='s') {
                 //print the string
                 str = (char *)((uint32_t)values[vidx++]);
                 while(*str != '\0') {
-                    serial_putc(&stdio_uart, *str);
+                    mbed_error_putc(*str);
                     str++;
                 }
                 str = NULL;
             } else {
                 //print the % and char without formatting and keep going
-                serial_putc(&stdio_uart, '%');
-                serial_putc(&stdio_uart, fmtstr[i]);
+                mbed_error_putc('%');
+                mbed_error_putc(fmtstr[i]);
             }
         } else {
-            serial_putc(&stdio_uart, fmtstr[i]);
+            //handle carriage returns
+            if (fmtstr[i] == '\n') {
+                mbed_error_putc('\r');
+            }
+            mbed_error_putc(fmtstr[i]);
         }
         i++;
     }
@@ -144,7 +173,7 @@ void print_thread(osRtxThread_t *thread)
 void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg) 
 {
     int error_code = GET_MBED_ERROR_CODE(error_ctx->error_status);
-    int error_entity = GET_MBED_ERROR_ENTITY(error_ctx->error_status);
+    int error_entity = GET_MBED_ERROR_MODULE(error_ctx->error_status);
     
     mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x", (uint32_t *)&error_ctx->error_status);
     mbed_error_print("\nError Code: %d", (uint32_t *)&error_code);
