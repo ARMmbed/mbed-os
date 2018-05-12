@@ -29,7 +29,7 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     if (_file) {
         mbed_set_unbuffered_stream(_file);
     } else {
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OPEN_FAILED), "Stream obj failure", _file);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OPEN_FAILED), "Stream obj failure", _file);
     }
 }
 

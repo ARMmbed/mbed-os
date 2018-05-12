@@ -22,8 +22,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#ifndef MBED_CONF_ERROR_REPORT_INTERFACE
+#define MBED_CONF_ERROR_REPORT_INTERFACE            DEVICE_SERIAL
+#endif       
 
-/* routine to report the error */
+/* Routine to report the error */
 void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg);
     
 /* Prints thread info from a list */
@@ -40,6 +44,12 @@ found in that it fetches a uint32 value from values buffer
 and prints it in hex format.
 */
 void mbed_error_print(char *fmtstr, uint32_t *values);
+    
+/*Initializes the data structures and interfaces for printing the error output*/
+void mbed_error_init(void);
+
+/*Routine which putc into serial/itm interface*/
+void mbed_error_putc(char ch);
 
 #ifdef __cplusplus
 }

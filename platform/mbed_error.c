@@ -23,6 +23,7 @@
 #include "platform/mbed_error_log.h"
 #include "platform/mbed_error_report.h"
 #include "platform/mbed_interface.h"
+
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -30,7 +31,7 @@
 static uint8_t error_in_progress = 0;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
-static mbed_error_ctx current_error_ctx = {0};
+static mbed_error_ctx last_error_ctx = {0};
 static MbedErrorHook error_hook = NULL;
 
 //Helper function to get the current SP
@@ -83,11 +84,15 @@ WEAK void error(const char* format, ...) {
 }
 
 //Set an error status with the error handling system
-MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+MbedErrorStatus handle_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
+    mbed_error_ctx current_error_ctx;
+    
     //Error status should always be < 0
     if(error_status >= 0) {
-        return ERROR_INVALID_ARGUMENT;
+        //This is a weird situation, someone called set_error with invalid error code.
+        //We will still handle the situation but change the error code to ERROR_INVALID_ARGUMENT, atleast the context will have info on who called it
+        error_status = ERROR_INVALID_ARGUMENT;
     }
     
     //Use critsect here, as we don't want processing more than one error at the same time
@@ -95,6 +100,8 @@ MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, u
     
     //Increment error count
     error_count++;
+    //Use critsect here, as we don't want processing more than one error at the same time
+    core_util_critical_section_exit();
     
     //Clear the context capturing buffer
     memset(&current_error_ctx, sizeof(mbed_error_ctx), 0);
@@ -125,16 +132,13 @@ MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, u
     current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
     current_error_ctx.thread_current_sp = get_current_sp();
     
-    //Call the error hook if available
-    if(error_hook != NULL) {
-        error_hook(&current_error_ctx);
-    }
-    
 #ifndef MBED_CONF_ERROR_LOG_DISABLED    
     //Log the error with error log
     mbed_log_put_error(&current_error_ctx);
 #endif
     
+    //Use critsect here, as we don't want processing more than one error at the same time
+    core_util_critical_section_enter();
     //Report the error
     mbed_report_error(&current_error_ctx, (char *)error_msg);
     
@@ -143,9 +147,17 @@ MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, u
         memcpy(&first_error_ctx, &current_error_ctx, sizeof(mbed_error_ctx));
     }
     
+    //copy this error to last error
+    memcpy(&last_error_ctx, &current_error_ctx, sizeof(mbed_error_ctx));
+    
     //Use critsect here, as we don't want processing more than one error at the same time
     core_util_critical_section_exit();
-        
+    
+    //Call the error hook if available
+    if(error_hook != NULL) {
+        error_hook(&last_error_ctx);
+    }
+    
     return ERROR_SUCCESS;
 }
 
@@ -160,7 +172,7 @@ MbedErrorStatus get_first_error(void)
 MbedErrorStatus get_last_error(void) 
 {
     //return the last error recorded
-    return current_error_ctx.error_status;
+    return last_error_ctx.error_status;
 }
 
 //Gets the current error count
@@ -171,10 +183,16 @@ int get_error_count(void)
 }
 
 //Sets a fatal error 
-MbedErrorStatus set_error_fatal(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+MbedErrorStatus set_warning(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+{
+    return handle_error(error_status, error_msg, error_value, filename, line_number);
+}
+
+//Sets a fatal error 
+MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     //set the error reported and then halt the system
-    if( ERROR_SUCCESS != set_error(error_status, error_msg, error_value, filename, line_number) )
+    if( ERROR_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )
         return ERROR_FAILED_OPERATION;
     mbed_halt_system();
     
@@ -203,12 +221,12 @@ MbedErrorStatus get_first_error_log_info (mbed_error_ctx *error_info)
 //Retrieve the last error context from error log 
 MbedErrorStatus get_last_error_log_info (mbed_error_ctx *error_info) 
 {
-    memcpy(error_info, &current_error_ctx, sizeof(mbed_error_ctx));
+    memcpy(error_info, &last_error_ctx, sizeof(mbed_error_ctx));
     return ERROR_SUCCESS;
 }
 
 //Makes an MbedErrorStatus value
-MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedEntityType entity, MbedErrorCode error_code) 
+MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedModuleType entity, MbedErrorCode error_code) 
 {
     switch(error_type)
     {
@@ -232,7 +250,7 @@ MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedEntityType entity,
     }
     
     //If we are passed incorrect values return a generic system error
-    return MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, ENTITY_UNKNOWN, ERROR_CODE_UNKNOWN);
+    return MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_UNKNOWN);
 }
 
 /**
@@ -245,7 +263,7 @@ MbedErrorStatus clear_all_errors(void)
     MbedErrorStatus status = ERROR_SUCCESS;
     
     //Clear the error and context capturing buffer
-    memset(&current_error_ctx, sizeof(mbed_error_ctx), 0);
+    memset(&last_error_ctx, sizeof(mbed_error_ctx), 0);
     //reset error count to 0
     error_count = 0;
 #ifndef MBED_CONF_ERROR_LOG_DISABLED    
@@ -276,13 +294,13 @@ MbedErrorStatus save_error_log(const char *path)
     
     //Ensure path is valid
     if(path==NULL) {
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_INVALID_ARGUMENT);
+        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_INVALID_ARGUMENT);
         goto exit;
     }
     
     //Open the file for saving the error log info
     if((error_log_file = fopen( path, "w" ) ) == NULL){
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OPEN_FAILED);
+        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OPEN_FAILED);
         goto exit;
     }
     
@@ -292,16 +310,16 @@ MbedErrorStatus save_error_log(const char *path)
         (unsigned int)first_error_ctx.thread_id, 
         (unsigned int)first_error_ctx.error_address, 
         (unsigned int)first_error_ctx.error_value) <= 0) {
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
         goto exit;
     }
     
     if(fprintf(error_log_file, "\nLast Error: Status:0x%x ThreadId:0x%x Address:0x%x Value:0x%x\n", 
-        (unsigned int)current_error_ctx.error_status, 
-        (unsigned int)current_error_ctx.thread_id, 
-        (unsigned int)current_error_ctx.error_address, 
-        (unsigned int)current_error_ctx.error_value) <= 0) {
-        ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        (unsigned int)last_error_ctx.error_status, 
+        (unsigned int)last_error_ctx.thread_id, 
+        (unsigned int)last_error_ctx.error_address, 
+        (unsigned int)last_error_ctx.error_value) <= 0) {
+        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
         goto exit;
     }
     
@@ -315,7 +333,7 @@ MbedErrorStatus save_error_log(const char *path)
             (unsigned int)ctx.thread_id, 
             (unsigned int)ctx.error_address, 
             (unsigned int)ctx.error_value) <= 0) {
-            ret = MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_WRITE_FAILED);
+            ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
             goto exit;
         }
     }

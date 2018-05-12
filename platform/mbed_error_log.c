@@ -27,16 +27,6 @@
 static mbed_error_ctx mbed_error_ctx_log[MBED_CONF_ERROR_LOG_SIZE] = {0};
 static int error_log_count = -1;
 
-static void mbed_log_lock()
-{
-    core_util_critical_section_enter();
-}
-
-static void mbed_log_unlock()
-{
-    core_util_critical_section_exit(); 
-}
-
 MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx)
 {
     //Return error if error_ctx is NULL
@@ -44,10 +34,10 @@ MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx)
         return ERROR_INVALID_ARGUMENT;
     }
     
-    mbed_log_lock();
+    core_util_critical_section_enter();
     error_log_count++;
     memcpy(&mbed_error_ctx_log[error_log_count % MBED_CONF_ERROR_LOG_SIZE], error_ctx, sizeof(mbed_error_ctx) );
-    mbed_log_unlock();
+    core_util_critical_section_exit(); 
     
     return ERROR_SUCCESS;
 }
@@ -59,12 +49,12 @@ MbedErrorStatus mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
         return ERROR_INVALID_ARGUMENT;
     }
     
-    mbed_log_lock();
+    core_util_critical_section_enter();
     //calculate the index where we want to pick the ctx
     if(error_log_count >= MBED_CONF_ERROR_LOG_SIZE) {
         index = (error_log_count + index + 1) % MBED_CONF_ERROR_LOG_SIZE;
     }
-    mbed_log_unlock();
+    core_util_critical_section_exit(); 
     memcpy(error_ctx, &mbed_error_ctx_log[index % MBED_CONF_ERROR_LOG_SIZE], sizeof(mbed_error_ctx) );
         
     return ERROR_SUCCESS;
@@ -72,10 +62,10 @@ MbedErrorStatus mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
 
 mbed_error_ctx *mbed_log_get_entry(void)
 {
-    mbed_log_lock();
+    core_util_critical_section_enter();
     error_log_count++;
     mbed_error_ctx *ctx = &mbed_error_ctx_log[error_log_count % MBED_CONF_ERROR_LOG_SIZE];
-    mbed_log_unlock();
+    core_util_critical_section_exit(); 
     
     return ctx;
 }
@@ -83,11 +73,11 @@ mbed_error_ctx *mbed_log_get_entry(void)
 MbedErrorStatus mbed_log_get_last_error(mbed_error_ctx *error_ctx)
 {
     if(-1 == error_log_count) {
-        return ERROR_NOT_FOUND;
+        return ERROR_ITEM_NOT_FOUND;
     }
-    mbed_log_lock();
+    core_util_critical_section_enter();
     memcpy(error_ctx, &mbed_error_ctx_log[error_log_count % MBED_CONF_ERROR_LOG_SIZE], sizeof(mbed_error_ctx) );
-    mbed_log_unlock();
+    core_util_critical_section_exit(); 
     
     return ERROR_SUCCESS;
 }
@@ -99,9 +89,9 @@ int mbed_log_get_error_log_count()
 
 MbedErrorStatus mbed_log_reset()
 {
-    mbed_log_lock();
+    core_util_critical_section_enter();
     error_log_count = -1;
-    mbed_log_unlock();
+    core_util_critical_section_exit(); 
     
     return ERROR_SUCCESS;
 }

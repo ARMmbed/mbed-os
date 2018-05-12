@@ -43,7 +43,11 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 
 namespace rtos {
 
-void Thread::constructor(osPriority priority,
+#ifndef MBED_TZ_DEFAULT_ACCESS
+#define MBED_TZ_DEFAULT_ACCESS   0
+#endif
+
+void Thread::constructor(uint32_t tz_module, osPriority priority,
         uint32_t stack_size, unsigned char *stack_mem, const char *name) {
 
     const uintptr_t unaligned_mem = reinterpret_cast<uintptr_t>(stack_mem);
@@ -60,21 +64,27 @@ void Thread::constructor(osPriority priority,
     _attr.stack_size = aligned_size;
     _attr.name = name ? name : "application_unnamed_thread";
     _attr.stack_mem = reinterpret_cast<uint32_t*>(aligned_mem);
+    _attr.tz_module = tz_module;
+}
+
+void Thread::constructor(osPriority priority,
+        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+    constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
 }
 
 void Thread::constructor(Callback<void()> task,
         osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
-    constructor(priority, stack_size, stack_mem, name);
+    constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
 
     switch (start(task)) {
         case osErrorResource:
-            SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OUT_OF_RESOURCES), "OS ran out of threads!\n", task);
+            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_RESOURCES), "OS ran out of threads!\n", task);
             break;
         case osErrorParameter:
-            SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_ALREADY_IN_USE), "Thread already running!\n", task);
+            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_ALREADY_IN_USE), "Thread already running!\n", task);
             break;
         case osErrorNoMemory:
-            SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Error allocating the stack memory\n", task);
+            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Error allocating the stack memory\n", task);
         default:
             break;
     }

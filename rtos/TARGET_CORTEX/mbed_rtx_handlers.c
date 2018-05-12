@@ -47,27 +47,27 @@ __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
       case osRtxErrorStackUnderflow:
         // Stack underflow detected for thread (thread_id=object_id)
         // Note: "overflow" is printed instead of "underflow" due to end user familiarity with overflow errors
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_STACK_OVERFLOW), "CMSIS-RTOS error: Stack overflow", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_STACK_OVERFLOW), "CMSIS-RTOS error: Stack overflow", code);
         break;
       case osRtxErrorISRQueueOverflow:
         // ISR Queue overflow detected when inserting object (object_id)
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_ISR_QUEUE_OVERFLOW), "CMSIS-RTOS error: ISR Queue overflow", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_ISR_QUEUE_OVERFLOW), "CMSIS-RTOS error: ISR Queue overflow", code);
         break;
       case osRtxErrorTimerQueueOverflow:
         // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_TIMER_QUEUE_OVERFLOW), "CMSIS-RTOS error: User Timer Callback Queue overflow", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_TIMER_QUEUE_OVERFLOW), "CMSIS-RTOS error: User Timer Callback Queue overflow", code);
         break;
       case osRtxErrorClibSpace:
         // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_CLIB_SPACE_UNAVAILABLE), "CMSIS-RTOS error: STD C/C++ library libspace not available", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_CLIB_SPACE_UNAVAILABLE), "CMSIS-RTOS error: STD C/C++ library libspace not available", code);
         break;
       case osRtxErrorClibMutex:
         // Standard C/C++ library mutex initialization failed
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_CLIB_MUTEX_INIT_FAILURE), "CMSIS-RTOS error: STD C/C++ library mutex initialization failed", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_CLIB_MUTEX_INIT_FAILURE), "CMSIS-RTOS error: STD C/C++ library mutex initialization failed", code);
         break;
       default:
         //Unknown error flagged from kernel  
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_KERNEL, ERROR_CODE_UNKNOWN), "CMSIS-RTOS error: Unknown", code);
+        SET_ERROR(MAKE_ERROR(MODULE_KERNEL, ERROR_CODE_UNKNOWN), "CMSIS-RTOS error: Unknown", code);
         break;
     }
 
@@ -99,27 +99,27 @@ static const char* error_msg(int32_t status)
 
 void EvrRtxKernelError (int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_EVENT), error_msg(status), status);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_EVENT), error_msg(status), status);
 }
 
 void EvrRtxThreadError (osThreadId_t thread_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_THREAD_EVENT), error_msg(status), thread_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_THREAD_EVENT), error_msg(status), thread_id);
 }
 
 void EvrRtxTimerError (osTimerId_t timer_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_TIMER_EVENT), error_msg(status), timer_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_TIMER_EVENT), error_msg(status), timer_id);
 }
 
 void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_EVENT_FLAGS_EVENT), error_msg(status), ef_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_EVENT_FLAGS_EVENT), error_msg(status), ef_id);
 }
 
 void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_MUTEX_EVENT), error_msg(status), mutex_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_MUTEX_EVENT), error_msg(status), mutex_id);
 }
 
 void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
@@ -129,17 +129,17 @@ void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
         return;
     }
 
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_SEMAPHORE_EVENT), error_msg(status), semaphore_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_SEMAPHORE_EVENT), error_msg(status), semaphore_id);
 }
 
 void EvrRtxMemoryPoolError (osMemoryPoolId_t mp_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_MEMORY_POOL_EVENT), error_msg(status), mp_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_MEMORY_POOL_EVENT), error_msg(status), mp_id);
 }
 
 void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
 {
-    SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT), error_msg(status), mq_id);
+    SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT), error_msg(status), mq_id);
 }
 
 #endif

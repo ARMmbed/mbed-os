@@ -29,23 +29,25 @@
 extern "C" {
 #endif
 
-//Define this macro to include filenames in error context, this can save memory. For release builds, do not include filename    
-//#define MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED 1    
-    
-//Define this macro to disable error logging, note that the first and last error capture will still be active by default
-//#define MBED_CONF_ERROR_LOG_DISABLED    1
+/** Define this macro to include filenames in error context. For release builds, do not include filename to save memory.    
+ *  MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
+ */   
 
+/** Define this macro to disable error logging, note that the first and last error capture will still be active by default.
+ *  MBED_CONF_ERROR_LOG_DISABLED  
+ */
+    
 #ifndef MBED_CONF_MAX_ERROR_FILENAME_LEN
 #define MBED_CONF_MAX_ERROR_FILENAME_LEN            16
 #endif    
-    
+
 #define MBED_ERROR_STATUS_CODE_MASK                 (0x0000FFFF)
 #define MBED_ERROR_STATUS_CODE_POS                  (0)
 #define MBED_ERROR_STATUS_CODE_FIELD_SIZE           (16)
 
-#define MBED_ERROR_STATUS_ENTITY_MASK               (0x00FF0000)
-#define MBED_ERROR_STATUS_ENTITY_POS                (16)
-#define MBED_ERROR_STATUS_ENTITY_FIELD_SIZE         (8)
+#define MBED_ERROR_STATUS_MODULE_MASK               (0x00FF0000)
+#define MBED_ERROR_STATUS_MODULE_POS                (16)
+#define MBED_ERROR_STATUS_MODULE_FIELD_SIZE         (8)
 
 #define MBED_ERROR_STATUS_TYPE_MASK                 (0x60000000)
 #define MBED_ERROR_STATUS_TYPE_POS                  (29)
@@ -53,33 +55,33 @@ extern "C" {
 
 /* MbedErrorStatus Status Encoding */
 //|31(1 bit) Always Negative|30-29(2 bits)  |28-24              | 23-16(8 bits) |  15-0(16 bits) |
-//|-1                       |TYPE           |(unused/reserved)  | ENTITY TYPE   |  ERROR CODE    |
+//|-1                       |TYPE           |(unused/reserved)  | MODULE TYPE   |  ERROR CODE    |
 
-#define MAKE_MBED_ERROR(type, entity, error_code)   (MbedErrorStatus)                                                                   \
+#define MAKE_MBED_ERROR(type, module, error_code)   (MbedErrorStatus)                                                                   \
                                                     ((0x80000000) |                                                                     \
                                                     (MBED_ERROR_STATUS_CODE_MASK & (error_code << MBED_ERROR_STATUS_CODE_POS)) |        \
-                                                    (MBED_ERROR_STATUS_ENTITY_MASK & (entity << MBED_ERROR_STATUS_ENTITY_POS)) |        \
+                                                    (MBED_ERROR_STATUS_MODULE_MASK & (module << MBED_ERROR_STATUS_MODULE_POS)) |        \
                                                     (MBED_ERROR_STATUS_TYPE_MASK & (type << MBED_ERROR_STATUS_TYPE_POS)))    
 
 #define GET_MBED_ERROR_TYPE( error_status )         ((error_status & MBED_ERROR_STATUS_TYPE_MASK) >> MBED_ERROR_STATUS_TYPE_POS)
-#define GET_MBED_ERROR_ENTITY( error_status )       ((error_status & MBED_ERROR_STATUS_ENTITY_MASK) >> MBED_ERROR_STATUS_ENTITY_POS)    
+#define GET_MBED_ERROR_MODULE( error_status )       ((error_status & MBED_ERROR_STATUS_MODULE_MASK) >> MBED_ERROR_STATUS_MODULE_POS)    
 #define GET_MBED_ERROR_CODE( error_status )         (int)((GET_MBED_ERROR_TYPE( error_status ) == ERROR_TYPE_POSIX)?(-error_status):((error_status & MBED_ERROR_STATUS_CODE_MASK) >> MBED_ERROR_STATUS_CODE_POS))
 
 /** MbedErrorStatus description
  *
  * MbedErrorStatus type represents the error status values under MbedOS. MbedErrorStatus values are signed integers and always be negative.\n
- * Internally its encoded as below with bit-fields representing error type, entity and error code:\n\n
+ * Internally its encoded as below with bit-fields representing error type, module and error code:\n\n
  * MbedErrorStatus Status Encoding:\n
  *
  \verbatim
  | 31 Always Negative | 30-29(2 bits)  | 28-24              | 23-16(8 bits) | 15-0(16 bits) |
- | -1                 | TYPE           | (unused/reserved)  | ENTITY TYPE    | ERROR CODE    |
+ | -1                 | TYPE           | (unused/reserved)  | MODULE TYPE    | ERROR CODE    |
  \endverbatim
  * 
  * The error status value range for each error type is as follows:\n
  *   Posix Error Status-es  - 0xFFFFFFFF to 0xFFFFFF01(-1 -255) - This corresponds to Posix error codes represented as negative.\n
- *   System Error Status-es - 0x80XX0100 to 0x80XX0FFF - This corresponds to System error codes range(all values are negative). Bits 23-16 will be entity type(marked with XX)\n
- *   Custom Error Status-es - 0xA0XX1000 to 0xA0XXFFFF - This corresponds to Custom error codes range(all values are negative). Bits 23-16 will be entity type(marked with XX)\n\n
+ *   System Error Status-es - 0x80XX0100 to 0x80XX0FFF - This corresponds to System error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n
+ *   Custom Error Status-es - 0xA0XX1000 to 0xA0XXFFFF - This corresponds to Custom error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n\n
  *
  * The ERROR CODE(values encoded into ERROR CODE bit-field in MbedErrorStatus) value range for each error type is also seperated as below:\n
  *   Posix Error Codes  - 1 to 255.\n
@@ -87,7 +89,7 @@ extern "C" {
  *   Custom Error Codes - 4096 to 65535.\n
  *
  * @note Posix error codes are always encoded as negative of their actual value. For example, EPERM is encoded as -EPERM.
- *       And, the ENTITY TYPE for Posix error codes are always encoded as ENTITY_UNKNOWN.\n
+ *       And, the MODULE TYPE for Posix error codes are always encoded as MODULE_UNKNOWN.\n
  *       This is to enable easy injection of Posix error codes into MbedOS error handling system without altering the actual Posix error values.\n
  *       Accordingly, Posix error codes are represented as -1 to -255 under MbedOS error status representation.
  */
@@ -111,7 +113,7 @@ typedef int MbedErrorStatus;
  */
 #define DEFINE_SYSTEM_ERROR( error_name, error_code )   \
                       ERROR_CODE_##error_name = MBED_SYSTEM_ERROR_BASE + error_code,  \
-                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, ENTITY_UNKNOWN, ERROR_CODE_##error_name)
+                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
 
 /**
  * Macro for defining a Custom error status. This macro is used to define custom error values in MbedErrorCode enumeration.
@@ -121,7 +123,7 @@ typedef int MbedErrorStatus;
  */
 #define DEFINE_CUSTOM_ERROR( error_name, error_code )   \
                       ERROR_CODE_##error_name = MBED_CUSTOM_ERROR_BASE + error_code,  \
-                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, ENTITY_UNKNOWN, ERROR_CODE_##error_name)
+                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
 
 
 /**
@@ -140,13 +142,13 @@ typedef int MbedErrorStatus;
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define SET_ERROR( error_status, error_msg, error_value )             set_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define SET_WARNING( error_status, error_msg, error_value )             set_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define SET_ERROR( error_status, error_msg, error_value )             set_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define SET_WARNING( error_status, error_msg, error_value )             set_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif
 
 /**
- * Macro for setting a fatal system error. This macro will log the error, prints the error report and halts the system. Its a wrapper for calling set_error_fatal API
+ * Macro for setting a fatal system error. This macro will log the error, prints the error report and halts the system. Its a wrapper for calling set_error API
  * @param  error_status     MbedErrorStatus status to be set(See MbedErrorStatus enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
@@ -155,17 +157,17 @@ typedef int MbedErrorStatus;
  *
  * @code
  * 
- * SET_ERROR_FATAL( ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
+ * SET_ERROR( ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
  *
  * @endcode
- * @note The macro calls set_error_fatal API with filename and line number info without caller explicitly passing them.
-*        Since this macro is a wrapper for set_error_fatal API callers should process the return value from this macro which is the return value from calling set_error_fatal API. 
+ * @note The macro calls set_error API with filename and line number info without caller explicitly passing them.
+*        Since this macro is a wrapper for set_error API callers should process the return value from this macro which is the return value from calling set_error API. 
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define SET_ERROR_FATAL( error_status, error_msg, error_value )       set_error_fatal( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define SET_ERROR( error_status, error_msg, error_value )       set_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define SET_ERROR_FATAL( error_status, error_msg, error_value )       set_error_fatal( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define SET_ERROR( error_status, error_msg, error_value )       set_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif         
 
 //Error Type definition
@@ -188,81 +190,81 @@ typedef enum _MbedErrorType
     ERROR_TYPE_POSIX = 3
 } MbedErrorType;        
 
-//Entity type/id definitions
-/** MbedEntityType definition
+//Module type/id definitions
+/** MbedModuleType definition
  * @note
- * This enumeration defines the Entity types. The value of these enum values will be encoded into MbedErrorStatus ENTITY field.\n\n
+ * This enumeration defines the module types. The value of these enum values will be encoded into MbedErrorStatus MODULE field.\n\n
  *      See MbedErrorStatus description for more info.\n
- *          ENTITY_UNKNOWN - This entity type can be used if caller of the set_error/set_error_fatal doesn't know who is the actual originator of the error.\n
- *                       Other entity values can be used to provide more info on who/where the error originated from.\n\n
- *                       For example, if I2C driver is the component originating the error you can use ENTITY_DRIVER_I2C to provide more info.\n
+ *          MODULE_UNKNOWN - This module type can be used if caller of the set_error/set_warning doesn't know who is the actual originator of the error.\n
+ *                       Other module values can be used to provide more info on who/where the error originated from.\n\n
+ *                       For example, if I2C driver is the component originating the error you can use MODULE_DRIVER_I2C to provide more info.\n
  *                       Its used in call to MAKE_ERROR/MAKE_SYSTEM_ERROR/MAKE_CUSTOM_ERROR macros.\n
  *
  * @code
- *      Example: MbedErrorStatus i2c_driver_error = MAKE_ERROR( ENTITY_DRIVER_I2C, ERROR_CONFIG_UNSUPPORTED );
+ *      Example: MbedErrorStatus i2c_driver_error = MAKE_ERROR( MODULE_DRIVER_I2C, ERROR_CONFIG_UNSUPPORTED );
  * @endcode
  * 
  * @note
- *  \n Below are the entity code mappings:\n
+ *  \n Below are the module code mappings:\n
     \verbatim
-    ENTITY_APPLICATION              0       Application     
-    ENTITY_PLATFORM                 1       Platform
-    ENTITY_KERNEL                   2       RTX Kernel
-    ENTITY_NETWORK_STACK            3       Network stack
-    ENTITY_HAL                      4       HAL - Hardware Abstraction Layer
-    ENTITY_MEMORY_SUBSYSTEM         5       Memory Subsystem    
-    ENTITY_FILESYSTEM               6       Filesystem
-    ENTITY_BLOCK_DEVICE             7       Block device
-    ENTITY_DRIVER                   8       Driver
-    ENTITY_DRIVER_SERIAL            9       Serial Driver
-    ENTITY_DRIVER_RTC               10      RTC Driver
-    ENTITY_DRIVER_I2C               11      I2C Driver
-    ENTITY_DRIVER_SPI               12      SPI Driver
-    ENTITY_DRIVER_GPIO              13      GPIO Driver
-    ENTITY_DRIVER_ANALOG            14      Analog Driver
-    ENTITY_DRIVER_DIGITAL           15      DigitalIO Driver
-    ENTITY_DRIVER_CAN               16      CAN Driver
-    ENTITY_DRIVER_ETHERNET          17      Ethernet Driver
-    ENTITY_DRIVER_CRC               18      CRC Module
-    ENTITY_DRIVER_PWM               19      PWM Driver
-    ENTITY_DRIVER_QSPI              20      QSPI Driver
-    ENTITY_DRIVER_USB               21      USB Driver
-    ENTITY_TARGET_SDK               22      SDK 
+    MODULE_APPLICATION              0       Application     
+    MODULE_PLATFORM                 1       Platform
+    MODULE_KERNEL                   2       RTX Kernel
+    MODULE_NETWORK_STACK            3       Network stack
+    MODULE_HAL                      4       HAL - Hardware Abstraction Layer
+    MODULE_MEMORY_SUBSYSTEM         5       Memory Subsystem    
+    MODULE_FILESYSTEM               6       Filesystem
+    MODULE_BLOCK_DEVICE             7       Block device
+    MODULE_DRIVER                   8       Driver
+    MODULE_DRIVER_SERIAL            9       Serial Driver
+    MODULE_DRIVER_RTC               10      RTC Driver
+    MODULE_DRIVER_I2C               11      I2C Driver
+    MODULE_DRIVER_SPI               12      SPI Driver
+    MODULE_DRIVER_GPIO              13      GPIO Driver
+    MODULE_DRIVER_ANALOG            14      Analog Driver
+    MODULE_DRIVER_DIGITAL           15      DigitalIO Driver
+    MODULE_DRIVER_CAN               16      CAN Driver
+    MODULE_DRIVER_ETHERNET          17      Ethernet Driver
+    MODULE_DRIVER_CRC               18      CRC Module
+    MODULE_DRIVER_PWM               19      PWM Driver
+    MODULE_DRIVER_QSPI              20      QSPI Driver
+    MODULE_DRIVER_USB               21      USB Driver
+    MODULE_TARGET_SDK               22      SDK 
     
-    ENTITY_UNKNOWN                  255     Unknown entity
+    MODULE_UNKNOWN                  255     Unknown module
     \endverbatim
  *       
  */
-typedef enum _MbedEntityType
+typedef enum _MbedModuleType
 {
-    ENTITY_APPLICATION = 0,
-    ENTITY_PLATFORM,
-    ENTITY_KERNEL,
-    ENTITY_NETWORK_STACK,
-    ENTITY_HAL,
-    ENTITY_MEMORY_SUBSYSTEM,
-    ENTITY_FILESYSTEM,
-    ENTITY_BLOCK_DEVICE,
-    ENTITY_DRIVER,
-    ENTITY_DRIVER_SERIAL,
-    ENTITY_DRIVER_RTC,
-    ENTITY_DRIVER_I2C,
-    ENTITY_DRIVER_SPI,
-    ENTITY_DRIVER_GPIO,
-    ENTITY_DRIVER_ANALOG,
-    ENTITY_DRIVER_DIGITAL,
-    ENTITY_DRIVER_CAN,
-    ENTITY_DRIVER_ETHERNET,
-    ENTITY_DRIVER_CRC,
-    ENTITY_DRIVER_PWM,
-    ENTITY_DRIVER_QSPI,
-    ENTITY_DRIVER_USB,
-    ENTITY_TARGET_SDK,
+    MODULE_APPLICATION = 0,
+    MODULE_PLATFORM,
+    MODULE_KERNEL,
+    MODULE_NETWORK_STACK,
+    MODULE_HAL,
+    MODULE_MEMORY_SUBSYSTEM,
+    MODULE_FILESYSTEM,
+    MODULE_BLOCK_DEVICE,
+    MODULE_DRIVER,
+    MODULE_DRIVER_SERIAL,
+    MODULE_DRIVER_RTC,
+    MODULE_DRIVER_I2C,
+    MODULE_DRIVER_SPI,
+    MODULE_DRIVER_GPIO,
+    MODULE_DRIVER_ANALOG,
+    MODULE_DRIVER_DIGITAL,
+    MODULE_DRIVER_CAN,
+    MODULE_DRIVER_ETHERNET,
+    MODULE_DRIVER_CRC,
+    MODULE_DRIVER_PWM,
+    MODULE_DRIVER_QSPI,
+    MODULE_DRIVER_USB,
+    MODULE_TARGET_SDK,
     /* Add More entities here as required */
     
-    ENTITY_UNKNOWN = 255,
-    ENTITY_MAX = ENTITY_UNKNOWN
-} MbedEntityType;
+    MODULE_UNKNOWN = 255,
+    MODULE_MAX = MODULE_UNKNOWN
+} MbedModuleType;
 
 //Use ERROR_SUCCESS(=0) or any postive number for successful returns
 #define ERROR_SUCCESS           0
@@ -274,7 +276,7 @@ typedef enum _MbedEntityType
 //Error Code definitions
 /** MbedErrorCode definition
  *
- *  MbedErrorCode enumeration defines the Error codes and Error status values for ENTITY_UNKNOWN.\n
+ *  MbedErrorCode enumeration defines the Error codes and Error status values for MODULE_UNKNOWN.\n
  *  It defines all of Posix Error Codes/Statuses and Mbed System Error Codes/Statuses.\n\n
  *
  *  @note
@@ -430,10 +432,10 @@ typedef enum _MbedEntityType
  *  MbedOS System Error codes are defined using the macro DEFINE_SYSTEM_ERROR\n
  *  For example DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT ,1 ) macro defines the following values:\n
  *      ERROR_CODE_INVALID_ARGUMENT = MBED_SYSTEM_ERROR_BASE+1\n
- *      ERROR_INVALID_ARGUMENT = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, ENTITY_UNKNOWN, ERROR_CODE_INVALID_ARGUMENT)\n
+ *      ERROR_INVALID_ARGUMENT = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_INVALID_ARGUMENT)\n
  *  Its effectively equivalent to:\n
  *      ERROR_CODE_INVALID_ARGUMENT = 1\n
- *      ERROR_INVALID_ARGUMENT = 0x80FF0001\n (Note that ENTITY field is set to ENTITY_UNKNOWN) 
+ *      ERROR_INVALID_ARGUMENT = 0x80FF0001\n (Note that MODULE field is set to MODULE_UNKNOWN) 
  *  New System Error codes should be defined using DEFINE_SYSTEM_ERROR macro and must have an unique error code value\n
  *  passed as the second argument in the DEFINE_SYSTEM_ERROR macro.\n\n
  *  Below are the Mbed System error codes and the description:
@@ -510,26 +512,35 @@ typedef enum _MbedEntityType
  *  This is mainly meant to capture non-generic error codes specific to a device.
  *  For example DEFINE_CUSTOM_ERROR( MY_CUSTOM_ERROR ,1 ) macro defines the following values:\n
  *      ERROR_CODE_MY_CUSTOM_ERROR = MBED_CUSTOM_ERROR_BASE+1\n
- *      ERROR_MY_CUSTOM_ERROR = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, ENTITY_UNKNOWN, ERROR_CODE_MY_CUSTOM_ERROR)\n
+ *      ERROR_MY_CUSTOM_ERROR = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, MODULE_UNKNOWN, ERROR_CODE_MY_CUSTOM_ERROR)\n
  *  Its effectively equivalent to:\n
  *      ERROR_CODE_MY_CUSTOM_ERROR = 4097\n
- *      ERROR_MY_CUSTOM_ERROR = 0xA0FF1001\n (Note that ENTITY field is set to ENTITY_UNKNOWN) \n\n
+ *      ERROR_MY_CUSTOM_ERROR = 0xA0FF1001\n (Note that MODULE field is set to MODULE_UNKNOWN) \n\n
  *
+ *  @note
+ *  **Using error codes:** \n  
+ *  Posix error codes may be used in modules/functions currently using Posix error codes and switching them to Mbed-OS error codes
+ *  may cause interoperability issues. For example, some of the filesystem, network stack implementations may need to use 
+ *  Posix error codes in order to keep them compatible with other modules interfacing with them, and may continue to use Posix error codes. 
  *  
+ *  In all other cases, like for any native development of Mbed-OS modules Mbed-OS error codes should be used.
+ *  This makes it easy to use Mbed-OS error reporting/logging infrastructure and makes debugging error scenarios
+ *  much more efficient.
+ * 
  *  @note
  *  **Searching for error codes in mbed-os source tree:** \n
  *  If you get an error report as below which you want to search for in mbed-os source tree, first take note of "Error Code" number. \n
  *  For example, the below error report has an error code of \b 259. Find the error name associated with the error code and in this case its \b INVALID_FORMAT. \n
  *  Use that error name(\b INVALID_FORMAT) to search the source tree for code locations setting that specific error code. \n 
- *  If the Error Entity reported is not 255(which indicates unknown entity), you can also use that to narrow down to the specific component reporting the error.
- *  See MbedEntityType enum above for entity mapping. \n
+ *  If the Error module reported is not 255(which indicates unknown module), you can also use that to narrow down to the specific component reporting the error.
+ *  See MbedModuleType enum above for module mapping. \n
  *  
  *  \verbatim
     ++ MbedOS Error Info ++
     Error Status: 0x80040103
     Error Code: 259
-    Error Entity: 04
-    Error Message: HAL Entity error
+    Error Module: 04
+    Error Message: HAL Module error
     Error Location: 0x000067C7
     Error Value: 0x00005566
     Current Thread: Id: 0x200024A8 EntryFn: 0x0000FB0D StackSize: 0x00001000 StackMem: 0x200014A8 SP: 0x2002FFD8
@@ -680,18 +691,18 @@ typedef enum _MbedErrorCode
     //                   Error Name                 Error Offset   Error Code
     DEFINE_SYSTEM_ERROR( UNKNOWN                    ,0 ),          /* 256      Unknown error */
     DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT           ,1 ),          /* 257      Invalid Argument */
-    DEFINE_SYSTEM_ERROR( INVALID_DATA               ,2 ),          /* 258      Invalid data */
+    DEFINE_SYSTEM_ERROR( INVALID_DATA_DETECTED      ,2 ),          /* 258      Invalid data detected */
     DEFINE_SYSTEM_ERROR( INVALID_FORMAT             ,3 ),          /* 259      Invalid format */
     DEFINE_SYSTEM_ERROR( INVALID_INDEX              ,4 ),          /* 260      Invalid Index */
     DEFINE_SYSTEM_ERROR( INVALID_SIZE               ,5 ),          /* 261      Inavlid Size */
     DEFINE_SYSTEM_ERROR( INVALID_OPERATION          ,6 ),          /* 262      Invalid Operation */
-    DEFINE_SYSTEM_ERROR( NOT_FOUND                  ,7 ),          /* 263      Not Found */
+    DEFINE_SYSTEM_ERROR( ITEM_NOT_FOUND             ,7 ),          /* 263      Item Not Found */
     DEFINE_SYSTEM_ERROR( ACCESS_DENIED              ,8 ),          /* 264      Access Denied */
-    DEFINE_SYSTEM_ERROR( NOT_SUPPORTED              ,9 ),          /* 265      Not supported */
+    DEFINE_SYSTEM_ERROR( UNSUPPORTED                ,9 ),          /* 265      Unsupported */
     DEFINE_SYSTEM_ERROR( BUFFER_FULL                ,10 ),         /* 266      Buffer Full */
     DEFINE_SYSTEM_ERROR( MEDIA_FULL                 ,11 ),         /* 267      Media/Disk Full */
     DEFINE_SYSTEM_ERROR( ALREADY_IN_USE             ,12 ),         /* 268      Already in use */
-    DEFINE_SYSTEM_ERROR( TIMEOUT                    ,13 ),         /* 269      Timeout error */
+    DEFINE_SYSTEM_ERROR( TIME_OUT                   ,13 ),         /* 269      Timeout error */
     DEFINE_SYSTEM_ERROR( NOT_READY                  ,14 ),         /* 270      Not Ready */
     DEFINE_SYSTEM_ERROR( FAILED_OPERATION           ,15 ),         /* 271      Requested Operation failed */
     DEFINE_SYSTEM_ERROR( OPERATION_PROHIBITED       ,16 ),         /* 272      Operation prohibited */
@@ -795,8 +806,8 @@ typedef struct _mbed_error_ctx {
  *                  Code snippets below show valid format.
  *
  * @deprecated
- * This function has been deprecated, please use one of SET_ERROR/SET_ERROR_FATAL macros 
- * or one of set_error/set_error_fatal functions.
+ * This function has been deprecated, please use one of SET_WARNING/SET_ERROR macros 
+ * or one of set_error/set_warning functions.
  *
  * @code
  * #error "That shouldn't have happened!"
@@ -835,54 +846,54 @@ typedef struct _mbed_error_ctx {
  *
  */
     
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function has been deprecated, please use one of SET_ERROR/SET_ERROR_FATAL macros or one of set_error/set_error_fatal functions" )
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function has been deprecated, please use one of SET_WARNING/SET_ERROR macros or one of set_warning/set_error functions" )
 
 void error(const char* format, ...);
 
 /**
  * Call this Macro to generate a MbedErrorStatus value for a System error
- * @param  entity           Entity generating the error code. If its unknown, pass ENTITY_UNKNOWN. See MbedEntityType for entity types.
+ * @param  module           Module generating the error code. If its unknown, pass MODULE_UNKNOWN. See MbedModuleType for module types.
  * @param  error_code       The MbedErrorCode code to be used in generating the MbedErrorStatus. See MbedErrorCode for error codes.
  *
  * @code
  * 
- * MbedErrorStatus driver_error = MAKE_SYSTEM_ERROR( ENTITY_DRIVER_USB, ERROR_CODE_INITIALIZATION_FAILED )
+ * MbedErrorStatus driver_error = MAKE_SYSTEM_ERROR( MODULE_DRIVER_USB, ERROR_CODE_INITIALIZATION_FAILED )
  *
  * @endcode
  * @note This macro generate MbedErrorStatus-es with error type set to ERROR_TYPE_SYSTEM
  *
  */
-#define MAKE_SYSTEM_ERROR(entity, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, entity, error_code)
+#define MAKE_SYSTEM_ERROR(module, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, module, error_code)
 
 /**
  * Call this Macro to generate a MbedErrorStatus value for a Custom error
- * @param  entity           Entity generating the error code. If its unknown, pass ENTITY_UNKNOWN. See MbedEntityType for entity types.
+ * @param  module           Module generating the error code. If its unknown, pass MODULE_UNKNOWN. See MbedModuleType for module types.
  * @param  error_code       The MbedErrorCode code to be used in generating the MbedErrorStatus. See MbedErrorCode for error codes.
  *
  * @code
  * 
- * MbedErrorStatus custom_error = MAKE_CUSTOM_ERROR( ENTITY_APPLICATION, 0xDEAD//16-bit custom error code )
+ * MbedErrorStatus custom_error = MAKE_CUSTOM_ERROR( MODULE_APPLICATION, 0xDEAD//16-bit custom error code )
  *
  * @endcode
  * @note This macro generate MbedErrorStatus-es with error type set to ERROR_TYPE_CUSTOM
  *
  */
-#define MAKE_CUSTOM_ERROR(entity, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, entity, error_code)
+#define MAKE_CUSTOM_ERROR(module, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, module, error_code)
 
 /**
  * Call this Macro to generate a MbedErrorStatus value for a System error
- * @param  entity           Entity generating the error code. If its unknown, pass ENTITY_UNKNOWN. See MbedEntityType for entity types.
+ * @param  module           Module generating the error code. If its unknown, pass MODULE_UNKNOWN. See MbedModuleType for module types.
  * @param  error_code       The MbedErrorCode code to be used in generating the MbedErrorStatus. See MbedErrorCode for error codes.
  *
  * @code
  * 
- * MbedErrorStatus new_error = MAKE_ERROR( ENTITY_DRIVER_USB, ERROR_INITIALIZATION_FAILED )
+ * MbedErrorStatus new_error = MAKE_ERROR( MODULE_DRIVER_USB, ERROR_INITIALIZATION_FAILED )
  *
  * @endcode
  * @note This macro generate MbedErrorStatus-es with error type set to ERROR_TYPE_SYSTEM
  *
  */
-#define MAKE_ERROR(entity, error_code)                          MAKE_SYSTEM_ERROR(entity, error_code)
+#define MAKE_ERROR(module, error_code)                          MAKE_SYSTEM_ERROR(module, error_code)
 
 /**
  * Callback/Error hook function prototype. Applications needing a callback when an error is reported can use set_error_hook function
@@ -896,7 +907,7 @@ void error(const char* format, ...);
 typedef void (*MbedErrorHook)(const mbed_error_ctx *error_ctx);
 
 /**
- * Call this function to set a system error. This function will log the error status with the context info, prints the error report and return to caller.
+ * Call this function to set a system error/warning. This function will log the error status with the context info, prints the error report and return to caller.
  *
  * @param  error_status     MbedErrorStatus status to be set(See MbedErrorStatus enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
@@ -912,9 +923,9 @@ typedef void (*MbedErrorHook)(const mbed_error_ctx *error_ctx);
  *
  * @endcode
  *
- * @note See SET_ERROR/SET_ERROR_FATAL macros which provides a wrapper on this API
+ * @note See SET_WARNING/SET_ERROR macros which provides a wrapper on this API
  */
-MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
+MbedErrorStatus set_warning(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
 
 /**
  * Returns the first system error reported.
@@ -950,17 +961,18 @@ int get_error_count(void);
  *
  * @code
  * 
- * set_error_fatal( ERROR_PROHIBITED_OPERATION, "Prohibited operation tried", 0, __FILE__, __LINE__ )
+ * set_error( ERROR_PROHIBITED_OPERATION, "Prohibited operation tried", 0, __FILE__, __LINE__ )
  *
  * @endcode
  *
- * @note See SET_ERROR/SET_ERROR_FATAL macros which provides a wrapper on this API
+ * @note See SET_WARNING/SET_ERROR macros which provides a wrapper on this API
  */
-MbedErrorStatus set_error_fatal(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
+MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
 
 /**
  * Registers an application defined error callback with the error handling system. 
- * This function will be called with error context info whenever system handles a set_error/set_error_fatal call
+ * This function will be called with error context info whenever system handles a set_error/set_warning call
+ * NOTE: This function should be implemented for re-entrancy as multiple threads may invoke set_error which may cause error hook to be called.
  * @param  custom_error_hook    MbedErrorStatus status to be set(See MbedErrorStatus enum above for available error status values).
  * @return                      0 or ERROR_SUCCESS on success.
  *                              ERROR_INVALID_ARGUMENT in case of NULL for custom_error_hook
@@ -974,6 +986,7 @@ MbedErrorStatus set_error_fatal(MbedErrorStatus error_status, const char *error_
  * set_error_hook( my_custom_error_hook )
  *
  * @endcode
+ * @note The erro hook function implementation should be re-entrant.
  *
  */
 MbedErrorStatus set_error_hook(MbedErrorHook custom_error_hook);
@@ -1004,14 +1017,14 @@ MbedErrorStatus get_last_error_log_info(mbed_error_ctx *error_info);
 MbedErrorStatus clear_all_errors(void);
 
 /**
- * Generates a MbedErrorStatus value based on passed in values for type, entity and error code.
+ * Generates a MbedErrorStatus value based on passed in values for type, module and error code.
  * @param  error_type           Error type based on MbedErrorType enum.
- * @param  entity               Entity type based on MbedEntityType enum.
+ * @param  module               Module type based on MbedModuleType enum.
  * @param  error_code           Error codes defined by MbedErrorCode enum
  * @return                      0 or ERROR_SUCCESS on success.
  *
  */
-MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedEntityType entity, MbedErrorCode error_code);
+MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedModuleType module, MbedErrorCode error_code);
 
 /**
  * Returns the current number of entries in the error log, if there has been more than max number of errors logged the number returned will be max depth of error log.

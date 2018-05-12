@@ -126,7 +126,6 @@ void remove_filehandle(FileHandle *file) {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
-#endif
 
 /* Private FileHandle to implement backwards-compatible functionality of
  * direct HAL serial access for default stdin/stdout/stderr.
@@ -193,6 +192,7 @@ short DirectSerial::poll(short events) const {
     }
     return revents;
 }
+#endif
 
 class Sink : public FileHandle {
 public:
@@ -538,7 +538,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - writing to a file in an ISR or critical section\r\n", fh);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - writing to a file in an ISR or critical section\r\n", fh);
     }
 #endif
 
@@ -646,7 +646,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - reading from a file in an ISR or critical section\r\n", fh);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - reading from a file in an ISR or critical section\r\n", fh);
     }
 #endif
 
@@ -1088,7 +1088,7 @@ extern "C" int statvfs(const char *path, struct statvfs *buf) {
 #include "mbed_error.h"
 namespace __gnu_cxx {
     void __verbose_terminate_handler() {
-        SET_ERROR_FATAL(MAKE_ERROR( ENTITY_PLATFORM, ERROR_CODE_CLIB_EXCEPTION),"Exception", 0);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_CLIB_EXCEPTION),"Exception", 0);
     }
 }
 extern "C" WEAK void __cxa_pure_virtual(void);
@@ -1471,7 +1471,7 @@ void *operator new(std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1480,7 +1480,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        SET_ERROR_FATAL(MAKE_ERROR(ENTITY_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
+        SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
     }
     return buffer;
 }
