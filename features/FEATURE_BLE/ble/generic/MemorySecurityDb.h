@@ -26,13 +26,12 @@ namespace generic {
 class MemorySecurityDb : public SecurityDb {
 private:
     struct entry_t {
-        entry_t() : peer_sign_counter(0) { };
+        entry_t() { };
         SecurityDistributionFlags_t flags;
         SecurityEntryKeys_t local_keys;
         SecurityEntryKeys_t peer_keys;
         SecurityEntryIdentity_t peer_identity;
         SecurityEntrySigning_t peer_signing;
-        sign_count_t peer_sign_counter;
     };
 
     static const size_t MAX_ENTRIES = 5;

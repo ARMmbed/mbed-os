@@ -109,8 +109,6 @@ ble_error_t GenericSecurityManager::init(
 }
 
 ble_error_t GenericSecurityManager::reset(void) {
-    MBED_ASSERT(_db);
-    _db->sync();
     _pal.reset();
     SecurityManager::reset();
 
@@ -901,8 +899,6 @@ void GenericSecurityManager::on_disconnected(
 
     _db->close_entry(cb->db_entry);
     release_control_block(cb);
-
-    _db->sync();
 }
 
 void GenericSecurityManager::on_security_entry_retrieved(

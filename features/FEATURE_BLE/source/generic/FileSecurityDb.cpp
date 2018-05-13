@@ -25,19 +25,20 @@ const uint16_t DB_VERSION = 1;
 #define DB_STORE_OFFSET_PEER_KEYS     (DB_STORE_OFFSET_LOCAL_KEYS + sizeof(SecurityEntryKeys_t))
 #define DB_STORE_OFFSET_PEER_IDENTITY (DB_STORE_OFFSET_PEER_KEYS + sizeof(SecurityEntryKeys_t))
 #define DB_STORE_OFFSET_PEER_SIGNING  (DB_STORE_OFFSET_PEER_IDENTITY + sizeof(SecurityEntryIdentity_t))
-#define DB_SIZE_STORE_PEER_SIGN_COUNT (DB_STORE_OFFSET_PEER_SIGNING + sizeof(SecurityEntrySigning_t))
 
-#define DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS (DB_STORE_OFFSET_PEER_IDENTITY)
-#define DB_STORE_OFFSET_PEER_IDENTITY_IRK     (DB_STORE_OFFSET_PEER_IDENTITY + sizeof(address_t))
-#define DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC (DB_STORE_OFFSET_PEER_IDENTITY_IRK + sizeof(irk_t))
+#define DB_STORE_OFFSET_LOCAL_KEYS_LTK  (DB_STORE_OFFSET_LOCAL_KEYS)
+#define DB_STORE_OFFSET_LOCAL_KEYS_EDIV (DB_STORE_OFFSET_LOCAL_KEYS_LTK + sizeof(ltk_t))
+#define DB_STORE_OFFSET_LOCAL_KEYS_RAND (DB_STORE_OFFSET_LOCAL_KEYS_EDIV + sizeof(ediv_t))
 
 #define DB_STORE_OFFSET_PEER_KEYS_LTK  (DB_STORE_OFFSET_PEER_KEYS)
 #define DB_STORE_OFFSET_PEER_KEYS_EDIV (DB_STORE_OFFSET_PEER_KEYS_LTK + sizeof(ltk_t))
 #define DB_STORE_OFFSET_PEER_KEYS_RAND (DB_STORE_OFFSET_PEER_KEYS_EDIV + sizeof(ediv_t))
 
-#define DB_STORE_OFFSET_LOCAL_KEYS_LTK  (DB_STORE_OFFSET_LOCAL_KEYS)
-#define DB_STORE_OFFSET_LOCAL_KEYS_EDIV (DB_STORE_OFFSET_LOCAL_KEYS_LTK + sizeof(ltk_t))
-#define DB_STORE_OFFSET_LOCAL_KEYS_RAND (DB_STORE_OFFSET_LOCAL_KEYS_EDIV + sizeof(ediv_t))
+#define DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS (DB_STORE_OFFSET_PEER_IDENTITY)
+#define DB_STORE_OFFSET_PEER_IDENTITY_IRK     (DB_STORE_OFFSET_PEER_IDENTITY + sizeof(address_t))
+#define DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC (DB_STORE_OFFSET_PEER_IDENTITY_IRK + sizeof(irk_t))
+
+#define DB_STORE_OFFSET_PEER_SIGNING_COUNT (DB_STORE_OFFSET_PEER_SIGNING + sizeof(csrk_t))
 
 #define DB_SIZE_STORE \
     (sizeof(SecurityEntryKeys_t) + \
@@ -280,7 +281,14 @@ void FileSecurityDb::set_entry_peer_sign_counter(
 void FileSecurityDb::restore() {
 }
 
-void FileSecurityDb::sync() {
+void FileSecurityDb::sync(entry_handle_t db_handle) {
+    entry_t *entry = as_entry(db_handle);
+    if (!entry) {
+        return;
+    }
+
+    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT, SEEK_SET);
+    fwrite(&entry->peer_sign_counter, sizeof(sign_count_t), 1, _db_file);
 }
 
 void FileSecurityDb::set_restore(bool reload) {

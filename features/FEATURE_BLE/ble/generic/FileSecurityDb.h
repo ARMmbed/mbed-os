@@ -36,8 +36,7 @@ private:
 
     static const size_t MAX_ENTRIES = 5;
 
-    static entry_t* as_entry(entry_handle_t db_handle)
-    {
+    static entry_t* as_entry(entry_handle_t db_handle) {
         return reinterpret_cast<entry_t*>(db_handle);
     }
 
@@ -111,7 +110,7 @@ public:
 
     virtual void restore();
 
-    virtual void sync();
+    virtual void sync(entry_handle_t db_handle);
 
     virtual void set_restore(bool reload);
 

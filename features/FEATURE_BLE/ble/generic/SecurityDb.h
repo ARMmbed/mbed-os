@@ -86,6 +86,7 @@ struct SecurityEntryKeys_t {
 
 /** CSRK and sign counter used to verify messages */
 struct SecurityEntrySigning_t {
+    SecurityEntrySigning_t() : counter(0) { };
     /** Signing key */
     csrk_t csrk;
     /** counter used to verify message to guard from replay attacks */
@@ -526,7 +527,7 @@ public:
         if (flags) {
             flags->connected = false;
         }
-        sync();
+        sync(db_handle);
     }
 
     /**
@@ -650,7 +651,7 @@ public:
     /**
      * Flush all values which might be stored in memory into NVM.
      */
-    virtual void sync() { };
+    virtual void sync(entry_handle_t db_handle) { };
 
     /**
      * Toggle whether values should be preserved across resets.
