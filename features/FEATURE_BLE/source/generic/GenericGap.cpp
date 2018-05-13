@@ -1094,9 +1094,9 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
         pal::GapAdvertisingReportEvent::advertising_t advertising = e[i];
 
         // Check if the address hasn't been resolved
-        if(_central_privacy_configuration.resolution_strategy == ResolutionStrategy::RESOLVE_AND_FILTER)
+        if(_privacy_enabled && _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER)
         {
-            if(advertising.address_type == connection_peer_address_type_t::RANDOM_ADDRESS)
+            if(advertising.address_type == pal::connection_peer_address_type_t::RANDOM_ADDRESS)
             {
                 // Filter it out
                 continue;
