@@ -49,6 +49,9 @@ void part1_main(void *ptr)
                 MBED_ASSERT(msg.out_size[0] == SERVER_RSP_BUF_SIZE);
                 uint32_t bytes_read = 0;
                 char *read_msg_buf = malloc(sizeof(char) * SERVER_READ_MSG_BUF_SIZE);
+                if (NULL == read_msg_buf) {
+                    error("Failed to allocate Memory");
+                }
                 memset(read_msg_buf, 0, SERVER_READ_MSG_BUF_SIZE);
                 char *read_ptr = read_msg_buf;
 

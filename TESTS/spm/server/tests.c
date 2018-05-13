@@ -236,10 +236,14 @@ PSA_TEST_SERVER(msg_size_assertion)
     size_t read_size = 0;
 
     char *buff = malloc(sizeof(char) * 11);
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
     memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
@@ -335,10 +339,14 @@ PSA_TEST_SERVER(msg_read_truncation)
     uint32_t signals = 0;
     size_t read_size = 0;
     char *buff = malloc(sizeof(char) * 11);
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
     memset(buff, 0, 11);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
@@ -378,9 +386,13 @@ PSA_TEST_SERVER(skip_zero)
     size_t read_size = 0;
     size_t skip_size = 0;
     char *buff = malloc(sizeof(char) * 11);
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
@@ -421,9 +433,13 @@ PSA_TEST_SERVER(skip_some)
     size_t read_size2 = 0;
     size_t skip_size = 0;
     char *buff = malloc(sizeof(char) * 11);
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
@@ -466,9 +482,13 @@ PSA_TEST_SERVER(skip_more_than_left)
     size_t read_size2 = 0;
     size_t skip_size = 0;
     char *buff = malloc(sizeof(char) * 8);
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
@@ -596,12 +616,18 @@ PSA_TEST_SERVER(cross_partition_call)
     psa_error_t disconnect_status = PSA_SUCCESS;
     psa_error_t partition_call_status = PSA_SUCCESS;
     uint32_t data_read = 0;
-    char *buff = malloc(sizeof(char) * 60);
     uint32_t str_len = 0;
+    char *buff = malloc(sizeof(char) * 60);
+
+    if (NULL == buff) {
+        SPM_PANIC("memory allocation failure\n");
+    }
+
     memset(buff, 0, 60);
 
     test_status = proccess_connect_request();
     if (test_status != PSA_SUCCESS) {
+        free(buff);
         return test_status;
     }
 
