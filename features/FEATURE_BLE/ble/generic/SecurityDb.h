@@ -661,6 +661,11 @@ public:
     virtual void set_restore(bool reload) { };
 
 private:
+    /**
+     * Get an entry for a new connection not present in the db yet. This will find a free entry
+     * or use a disconnected entry by reseting all the stored information.
+     * @return empty entry for the new connection
+     */
     virtual SecurityDistributionFlags_t* get_free_entry_flags() {
         /* get a free one if available */
         SecurityDistributionFlags_t* match = NULL;
@@ -690,10 +695,23 @@ private:
         return match;
     }
 
+    /**
+     * How many entries can be stored in the databes.
+     * @return max number of entries
+     */
     virtual uint8_t get_entry_count() = 0;
 
+    /**
+     * Return database entry based on its index.
+     * @param index index from 0 to get_entry_count()
+     * @return databse entry stored at index
+     */
     virtual SecurityDistributionFlags_t* get_entry_handle_by_index(uint8_t index) = 0;
 
+    /**
+     * Delete all the information.
+     * @param db_handle handle for the entry to be reset
+     */
     virtual void reset_entry(entry_handle_t db_handle) = 0;
 
     virtual SecurityEntryIdentity_t* read_in_entry_peer_identity(entry_handle_t db_handle) = 0;
