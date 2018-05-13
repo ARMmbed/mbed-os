@@ -335,7 +335,7 @@ private:
 
     void on_unexpected_error(const pal::GapUnexpectedErrorEvent &e);
 
-    pal::own_address_type_t get_own_address_type();
+    pal::own_address_type_t get_own_address_type(bool central_not_peripheral, bool non_connectable_or_scan_request);
 
     bool initialize_whitelist() const;
 

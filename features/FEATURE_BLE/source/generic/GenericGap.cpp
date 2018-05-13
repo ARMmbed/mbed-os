@@ -533,7 +533,7 @@ ble_error_t GenericGap::connect(
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
         ble::address_t(peerAddr),
-        get_own_address_type(),
+        get_own_address_type(true /* central */, false /* requires resolvable address */),
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
         connectionParams->slaveLatency,
@@ -825,7 +825,7 @@ ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
         scanningParams.getActiveScanning(),
         scanningParams.getInterval(),
         scanningParams.getWindow(),
-        get_own_address_type(),
+        get_own_address_type(true /* central */, true /* can use non resolvable address for scan requests */),
         _scanning_filter_policy
     );
 
@@ -939,7 +939,8 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         /* advertising_interval_min */ params.getIntervalInADVUnits(),
         /* advertising_interval_max */ params.getIntervalInADVUnits(),
         (pal::advertising_type_t::type) params.getAdvertisingType(),
-        get_own_address_type(),
+        get_own_address_type(false /* peripheral */, 
+            params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED /* we can only use non resolvable addresses int this case */),
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
         ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
@@ -1186,14 +1187,34 @@ void GenericGap::on_unexpected_error(const pal::GapUnexpectedErrorEvent& e)
     // has been updated.
 }
 
-pal::own_address_type_t GenericGap::get_own_address_type()
+pal::own_address_type_t GenericGap::get_own_address_type(bool central_not_peripheral, bool non_connectable_or_scan_request)
 {
+    if(_privacy_enabled) {
+        bool can_use_non_resolvable_address = false;
+        if(central_not_peripheral) {
+            can_use_non_resolvable_address = _central_privacy_configuration.use_non_resolvable_random_address;
+        } else {
+            can_use_non_resolvable_address = _peripheral_privacy_configuration.use_non_resolvable_random_address;
+        }
+
+        // An non resolvable private address should be generated
+        if(non_connectable_or_scan_request && can_use_non_resolvable_address) {
+            return pal::own_address_type_t::RANDOM_ADDRESS;
+        }
+
+        switch (_address_type) {
+            case BLEProtocol::AddressType::PUBLIC:
+                return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_PUBLIC_FALLBACK;
+            default:
+                return pal::own_address_type_t::RESOLVABLE_PRIVATE_ADDRESS_RANDOM_FALLBACK;
+        }
+    }
+
     switch (_address_type) {
         case BLEProtocol::AddressType::PUBLIC:
             return pal::own_address_type_t::PUBLIC_ADDRESS;
         default:
             return pal::own_address_type_t::RANDOM_ADDRESS;
-        // FIXME: Handle case when privacy is used.
     }
 }
 
