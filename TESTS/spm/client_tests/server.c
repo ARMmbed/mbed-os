@@ -35,10 +35,9 @@ void server_main(void *ptr)
                 case PSA_IPC_MSG_TYPE_CALL: {
                     memset(data, 0, sizeof(data));
                     if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 1) {
-                        size_t offset = 0;
-                        offset += psa_read(msg.handle, 0, (void*)data, msg.in_size[0]);
+                        size_t offset = psa_read(msg.handle, 0, (void*)data, msg.in_size[0]);
                         offset += psa_read(msg.handle, 1, (void*)(data + offset), msg.in_size[1]);
-                        offset += psa_read(msg.handle, 2, (void*)(data + offset), msg.in_size[2]);
+                        psa_read(msg.handle, 2, (void*)(data + offset), msg.in_size[2]);
                     }
                     if (msg.out_size[0] > 0) {
                         uint8_t resp_size = data[0];

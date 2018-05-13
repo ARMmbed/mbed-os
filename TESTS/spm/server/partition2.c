@@ -73,11 +73,9 @@ void part2_main(void *ptr)
             psa_get(SF_DB_TST_MSK, &msg);
 
             switch (msg.type) {
-
-                int32_t caller_part_id = 0;
-
                 case PSA_IPC_MSG_TYPE_CALL:
-                    caller_part_id = psa_identity(msg.handle);
+                {
+                    int32_t caller_part_id = psa_identity(msg.handle);
                     // Doorbell contract is valid only between secure partitions
                     if (PSA_NSPE_IDENTIFIER == caller_part_id) {
                         SPM_PANIC("Caller partition is non secure\n");
@@ -89,6 +87,7 @@ void part2_main(void *ptr)
                     // After work is done, ring the doorbell
                     psa_notify(caller_part_id);
                     break;
+                }
 
                 case PSA_IPC_MSG_TYPE_DISCONNECT:
                 case PSA_IPC_MSG_TYPE_CONNECT:
