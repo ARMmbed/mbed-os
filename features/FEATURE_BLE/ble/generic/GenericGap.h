@@ -234,6 +234,39 @@ public:
     virtual ble_error_t initRadioNotification(void);
 
     /**
+     * @see Gap::enablePrivacy
+     */
+    virtual ble_error_t enablePrivacy(bool enable);
+
+    /**
+     * @see Gap::setPeripheralPrivacyConfiguration
+     */
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::getPeripheralPrivacyConfiguration
+     */
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::setCentralPrivacyConfiguration
+     */
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::getCentralPrivacyConfiguration
+     */
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    );
+
+    /**
      * @see Gap::setAdvertisingData
      */
     virtual ble_error_t setAdvertisingData(

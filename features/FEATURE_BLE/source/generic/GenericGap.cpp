@@ -853,6 +853,39 @@ ble_error_t GenericGap::initRadioNotification(void)
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
+ble_error_t GenericGap::enablePrivacy(bool enable) 
+{
+        return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t GenericGap::setPeripheralPrivacyConfiguration(
+    const PeripheralPrivacyConfiguration_t *configuration
+) 
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t GenericGap::getPeripheralPrivacyConfiguration(
+    PeripheralPrivacyConfiguration_t *configuration
+) 
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t GenericGap::setCentralPrivacyConfiguration(
+    const CentralPrivacyConfiguration_t *configuration
+) 
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t GenericGap::getCentralPrivacyConfiguration(
+    CentralPrivacyConfiguration_t *configuration
+) 
+{
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
 ble_error_t GenericGap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
 {
     ble_error_t err = _pal_gap.set_advertising_data(
