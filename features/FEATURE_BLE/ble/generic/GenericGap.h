@@ -339,6 +339,8 @@ private:
 
     bool initialize_whitelist() const;
 
+    ble_error_t update_address_resolution_setting();
+
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
