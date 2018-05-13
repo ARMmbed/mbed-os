@@ -777,11 +777,8 @@ struct CordioSecurityManager::PrivacyAddDevToResListControlBlock : CordioSecurit
     virtual ~PrivacyAddDevToResListControlBlock() {}
 
     virtual void execute() {
-        // Check whether we need to enable resolution in LL
-        bool enable_ll_resolving = !DmLlPrivEnabled();
-
         // Execute command
-        DmPrivAddDevToResList(_peer_identity_address_type.value(), _peer_identity_address.data(), _peer_irk.data(), DmSecGetLocalIrk(), enable_ll_resolving, 0);
+        DmPrivAddDevToResList(_peer_identity_address_type.value(), _peer_identity_address.data(), _peer_irk.data(), DmSecGetLocalIrk(), false, 0);
     }
 
 private:
