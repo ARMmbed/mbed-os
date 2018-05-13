@@ -649,6 +649,19 @@ struct Gap {
         disconnection_reason_t disconnection_reason
     ) = 0;
 
+    /** Enable or disable private addresses resolution
+     *
+     * @param enable whether to enable private addresses resolution
+     *  
+     * @return BLE_ERROR_NONE if the request has been successfully sent or the
+     * appropriate error otherwise.
+     * 
+     * @note: See Bluetooth 5 Vol 2 PartE: 7.8.44 LE Set Address Resolution Enable Command command.
+     */
+    virtual ble_error_t set_address_resolution(
+        bool enable
+    ) = 0;
+
     /**
      * Register a callback which will handle Gap events.
      *

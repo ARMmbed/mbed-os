@@ -308,6 +308,13 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    virtual ble_error_t set_address_resolution(
+        bool enable
+    ) {
+        DmPrivSetAddrResEnable(enable);
+        return BLE_ERROR_NONE;
+    }
+
     // singleton of the ARM Cordio client
     static Gap& get_gap() {
         static Gap _gap;
