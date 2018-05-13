@@ -858,6 +858,10 @@ ble_error_t GenericGap::initRadioNotification(void)
 
 ble_error_t GenericGap::enablePrivacy(bool enable) 
 {
+    _privacy_enabled = enable;
+
+    _pal_gap.set_privacy(enable);
+
     update_address_resolution_setting();
 
     return BLE_ERROR_NONE;
@@ -1216,7 +1220,7 @@ bool GenericGap::initialize_whitelist() const
     return true;
 }
 
-ble_error_t update_address_resolution_setting()
+ble_error_t GenericGap::update_address_resolution_setting()
 {
     // Only disable if privacy is disabled or resolution is not requested in either central or peripheral mode
     bool enable = true;
@@ -1224,8 +1228,8 @@ ble_error_t update_address_resolution_setting()
     if(!_privacy_enabled) {
         enable = false;
     }
-    else if( (_peripheral_privacy_configuration.resolution_strategy == DO_NOT_RESOLVE)
-        && (_central_privacy_configuration.resolution_strategy == DO_NOT_RESOLVE) ) {
+    else if( (_peripheral_privacy_configuration.resolution_strategy == PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE)
+        && (_central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::DO_NOT_RESOLVE) ) {
         enable = false;
     }
 
