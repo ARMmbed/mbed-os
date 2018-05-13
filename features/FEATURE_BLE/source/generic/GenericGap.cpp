@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <stdint.h>
 
+#include "ble/BLEInstanceBase.h"
 #include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
@@ -1120,6 +1121,37 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
     // TODO: deprecate ownAddrType and ownAddr, those are not specified
     // from the Bluetooth perspective
     if (e.status == pal::hci_error_code_t::SUCCESS) {
+        bool needs_pairing = false;
+        bool needs_authentication = false;
+
+        if(_privacy_enabled && (e.role.value() == e.role.SLAVE)) {
+            // Apply privacy policy if in peripheral mode for non-resolved addresses
+            RandomAddressType_t random_address_type(RandomAddressType_t::RESOLVABLE_PRIVATE);
+            ble_error_t ret = getRandomAddressType(e.peer_address.data(), &random_address_type);
+            if((ret != BLE_ERROR_NONE) 
+                || (random_address_type == RandomAddressType_t::RESOLVABLE_PRIVATE))
+            {
+                switch(_peripheral_privacy_configuration.resolution_strategy)
+                {
+                    case PeripheralPrivacyConfiguration_t::REJECT_NON_RESOLVED_ADDRESS:
+                        // Reject connection request - the user will get notified through a callback
+                        _pal_gap.disconnect(e.connection_handle, pal::disconnection_reason_t::AUTHENTICATION_FAILLURE);
+                        return;
+
+                    case PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE:
+                        needs_pairing = true;
+                        break;
+
+                    case PeripheralPrivacyConfiguration_t::PERFORM_AUTHENTICATION_PROCEDURE:
+                        needs_authentication = true;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
         if (e.role.value() == e.role.SLAVE) {
             _advertising_timeout.detach();
             _pal_gap.advertising_enable(false);
@@ -1149,7 +1181,17 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
             address.data(),
             &connection_params
         );
-    } else {
+
+        // Now starts pairing or authentication procedures if required
+        if(needs_pairing) {
+            SecurityManager &sm = createBLEInstance()->getSecurityManager();
+            sm.requestPairing(e.connection_handle);
+        }
+        else if(needs_authentication) {
+            SecurityManager &sm = createBLEInstance()->getSecurityManager();
+            sm.requestAuthentication(e.connection_handle);
+        }
+    } else { 
         // for now notify user that the connection failled by issuing a timeout
         // event
 
