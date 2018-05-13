@@ -656,7 +656,7 @@ struct Gap {
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      * 
-     * @note: See Bluetooth 5 Vol 2 PartE: 7.8.44 LE Set Address Resolution Enable Command command.
+     * @note: See Bluetooth 5 Vol 2 PartE: 7.8.44 LE Set Address Resolution Enable command.
      */
     virtual ble_error_t set_address_resolution(
         bool enable
