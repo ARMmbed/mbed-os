@@ -714,9 +714,36 @@ private:
      */
     virtual void reset_entry(entry_handle_t db_handle) = 0;
 
+    /**
+     * This will read in the requested information into a buffer that will remain valid
+     * until another read_in call is made.
+     * @param db_handle handle of the entry to be read
+     * @return pointer to buffer holding the query result, NULL when not found
+     */
     virtual SecurityEntryIdentity_t* read_in_entry_peer_identity(entry_handle_t db_handle) = 0;
+
+    /**
+     * This will read in the requested information into a buffer that will remain valid
+     * until another read_in call is made.
+     * @param db_handle handle of the entry to be read
+     * @return pointer to buffer holding the query result, NULL when not found
+     */
     virtual SecurityEntryKeys_t* read_in_entry_peer_keys(entry_handle_t db_handle) = 0;
+
+    /**
+     * This will read in the requested information into a buffer that will remain valid
+     * until another read_in call is made.
+     * @param db_handle handle of the entry to be read
+     * @return pointer to buffer holding the query result, NULL when not found
+     */
     virtual SecurityEntryKeys_t* read_in_entry_local_keys(entry_handle_t db_handle) = 0;
+
+    /**
+     * This will read in the requested information into a buffer that will remain valid
+     * until another read_in call is made.
+     * @param db_handle handle of the entry to be read
+     * @return pointer to buffer holding the query result, NULL when not found
+     */
     virtual SecurityEntrySigning_t* read_in_entry_peer_signing(entry_handle_t db_handle) = 0;
 
 protected:
