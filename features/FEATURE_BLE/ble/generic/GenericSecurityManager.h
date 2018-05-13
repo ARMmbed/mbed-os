@@ -426,7 +426,7 @@ private:
     );
 
 private:
-    struct ControlBlock_t : public SecurityDistributionFlags_t {
+    struct ControlBlock_t {
         ControlBlock_t();
 
         pal::KeyDistribution get_initiator_key_distribution() {
