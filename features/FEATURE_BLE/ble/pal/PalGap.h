@@ -649,6 +649,18 @@ struct Gap {
         disconnection_reason_t disconnection_reason
     ) = 0;
 
+    /** Enable or disable privacy feature
+     * @param enable whether to enable privacy feature
+     *  
+     * @return BLE_ERROR_NONE if the request has been successfully sent or the
+     * appropriate error otherwise.
+     * 
+     * @note: See Bluetooth 5 Vol 3 Part C: 10.7 Privacy feature.
+     */ 
+    virtual ble_error_t set_privacy(
+        bool enable
+    ) = 0;
+
     /** Enable or disable private addresses resolution
      *
      * @param enable whether to enable private addresses resolution
