@@ -348,6 +348,11 @@ private:
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
     mutable Whitelist_t _whitelist;
+    
+    bool _privacy_enabled;
+    PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
+    CentralPrivacyConfiguration_t _central_privacy_configuration;
+    
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;

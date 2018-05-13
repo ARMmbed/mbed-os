@@ -390,6 +390,9 @@ GenericGap::GenericGap(
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
+    _privacy_enabled(false),
+    _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
+    _central_privacy_configuration(default_central_privacy_configuration),
     _advertising_timeout(),
     _scan_timeout(),
     _connection_event_handler(NULL)
@@ -862,28 +865,38 @@ ble_error_t GenericGap::setPeripheralPrivacyConfiguration(
     const PeripheralPrivacyConfiguration_t *configuration
 ) 
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    _peripheral_privacy_configuration = *configuration;
+
+    
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::getPeripheralPrivacyConfiguration(
     PeripheralPrivacyConfiguration_t *configuration
 ) 
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    *configuration = _peripheral_privacy_configuration;
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::setCentralPrivacyConfiguration(
     const CentralPrivacyConfiguration_t *configuration
 ) 
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    _central_privacy_configuration = *configuration;
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::getCentralPrivacyConfiguration(
     CentralPrivacyConfiguration_t *configuration
 ) 
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    *configuration = _central_privacy_configuration;
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericGap::setAdvertisingData(const GapAdvertisingData &advData, const GapAdvertisingData &scanResponse)
