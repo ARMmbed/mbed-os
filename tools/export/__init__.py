@@ -75,7 +75,7 @@ To export this project please <a href='http://mbed.org/compiler/?import=http://m
 """
 
 def mcu_ide_list():
-    """Shows list of exportable ides 
+    """Shows list of exportable ides
 
     """
     supported_ides = sorted(EXPORTERS.keys())
@@ -346,7 +346,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         psa_files_dirs = generate_partitions_sources(resources.psa_manifests)
         psa_files_dirs.append(generate_spm_data(resources.psa_manifests, export_path))
         for directory in psa_files_dirs:
-            resources.add(toolchain.scan_resources(directory, base_path=export_path))
+            resources.add(toolchain.scan_resources(directory, base_path=resources.base_path))
 
     # Change linker script if specified
     if linker_script is not None:
