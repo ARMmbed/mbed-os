@@ -1093,6 +1093,16 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
     for (size_t i = 0; i < e.size(); ++i) {
         pal::GapAdvertisingReportEvent::advertising_t advertising = e[i];
 
+        // Check if the address hasn't been resolved
+        if(_central_privacy_configuration.resolution_strategy == ResolutionStrategy::RESOLVE_AND_FILTER)
+        {
+            if(advertising.address_type == connection_peer_address_type_t::RANDOM_ADDRESS)
+            {
+                // Filter it out
+                continue;
+            }
+        }
+
         processAdvertisementReport(
             advertising.address.data(),
             advertising.rssi,
