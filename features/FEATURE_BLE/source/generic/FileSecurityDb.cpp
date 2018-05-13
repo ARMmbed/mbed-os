@@ -40,8 +40,11 @@ const uint16_t DB_VERSION = 1;
 
 #define DB_STORE_OFFSET_PEER_SIGNING_COUNT (DB_STORE_OFFSET_PEER_SIGNING + sizeof(csrk_t))
 
+/* make size multiple of 4 */
+#define PAD4(value) ((((value - 1) / 4) * 4) + 4)
+
 #define DB_SIZE_STORE \
-    (sizeof(SecurityEntryKeys_t) + \
+    PAD4(sizeof(SecurityEntryKeys_t) + \
     sizeof(SecurityEntryKeys_t) + \
     sizeof(SecurityEntryIdentity_t) + \
     sizeof(SecurityEntrySigning_t) + \
@@ -65,8 +68,7 @@ const uint16_t DB_VERSION = 1;
 #define DB_OFFSET_ENTRIES          (DB_OFFSET_LOCAL_SIGN_COUNT + sizeof(sign_count_t))
 #define DB_OFFSET_STORES           (DB_OFFSET_ENTRIES + DB_SIZE_ENTRIES)
 #define DB_OFFSET_MAX              (DB_OFFSET_STORES + DB_SIZE_STORES)
-/* make size multiple of 4 */
-#define DB_SIZE                    ((((DB_OFFSET_MAX - 1) / 4) * 4) + 4)
+#define DB_SIZE                    PAD4(DB_OFFSET_MAX)
 
 typedef SecurityDb::entry_handle_t entry_handle_t;
 
@@ -311,6 +313,14 @@ void FileSecurityDb::reset_entry(entry_handle_t db_entry) {
     if (!entry) {
         return;
     }
+
+    fseek(_db_file, entry->file_offset, SEEK_SET);
+    const uint32_t zero = 0;
+    size_t count = DB_SIZE_STORE / 4;
+    while (count--) {
+        fwrite(&zero, sizeof(zero), 1, _db_file);
+    }
+
     entry->flags = SecurityDistributionFlags_t();
     entry->peer_sign_counter = 0;
 }
