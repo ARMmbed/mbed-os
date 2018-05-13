@@ -311,11 +311,6 @@ public:
     virtual ble_error_t set_privacy(
         bool enable
     ) {
-        if(enable) {
-            DmDevPrivStart(15 * 60); // Use 15 minutes renewal timer as mandated by the BLE Spec
-        } else {
-            DmDevPrivStop();
-        }
         return BLE_ERROR_NONE;
     }
     
