@@ -1377,16 +1377,40 @@ void GenericGap::set_random_address_rotation(bool enable)
 
 void GenericGap::update_random_address()
 {
-    ble::address_t address;
-
     if(!_random_address_rotating)
     {
         // This event might have been queued before we disabled address rotation
         return;
     }
 
-    // TODO: Placeholder: Get random data
-    // Build a non-resolvable private address
+    ble::address_t address;
+
+    do {
+        byte_array_t<8> random_data;
+
+        ble_error_t ret = _pal_sm.get_random_data(random_data);
+        if (ret != BLE_ERROR_NONE) {
+            // Abort
+            return;
+        }
+
+        // Build a non-resolvable private address as specified in the Core 4.2 spec, Vol 6, Part B, 1.3.2.2
+        // Mask out two MSbs
+        random_data[5] &= 0x3F;
+
+        // Copy to address - will copy first 6 bytes
+        address = ble::address_t(random_data.data());
+
+        if(!is_random_private_non_resolvable_address(address.data()))
+        {
+            // If address is invalid, which is unlikely (all 0s or all 1s), try again
+            // If implementation is faulty, we'll get stuck here
+            continue;
+        }
+
+        // Address is valid
+        break;
+    } while(true);
 
     ble_error_t err = _pal_gap.set_random_address(
         address
