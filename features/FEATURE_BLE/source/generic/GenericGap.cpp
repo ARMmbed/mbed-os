@@ -382,10 +382,12 @@ static bool is_advertising_params_valid(const GapAdvertisingParams& params)
 GenericGap::GenericGap(
     pal::EventQueue& event_queue,
     pal::Gap& pal_gap,
-    pal::GenericAccessService& generic_access_service
+    pal::GenericAccessService& generic_access_service,
+    pal::SecurityManager& pal_sm
 ) : _event_queue(event_queue),
     _pal_gap(pal_gap),
     _gap_service(generic_access_service),
+    _pal_sm(pal_sm),
     _address_type(BLEProtocol::AddressType::PUBLIC),
     _initiator_policy_mode(pal::initiator_policy_t::NO_FILTER),
     _scanning_filter_policy(pal::scanning_filter_policy_t::NO_FILTER),

@@ -23,6 +23,7 @@
 #include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
+#include "ble/pal/PalSecurityManager.h"
 #include "ble/pal/GapEvents.h"
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
@@ -55,11 +56,15 @@ public:
      *
      * @param generic_access_service Platform abstraction instance managing
      * the GATT generic access service.
+     * 
+     * @param pal_sm Security Manager Platform abstraction instance containing the base
+     * Security Manager primitives.
      */
     GenericGap(
         pal::EventQueue &event_queue,
         pal::Gap &pal_gap,
-        pal::GenericAccessService &generic_access_service
+        pal::GenericAccessService &generic_access_service,
+        pal::SecurityManager &pal_sm
     );
 
     /**
@@ -350,6 +355,7 @@ private:
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
+    pal::SecurityManager &_pal_sm;
     BLEProtocol::AddressType_t _address_type;
     ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;

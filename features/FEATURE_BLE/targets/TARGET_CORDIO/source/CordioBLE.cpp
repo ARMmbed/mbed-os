@@ -170,7 +170,8 @@ generic::GenericGap& BLE::getGap()
     static ble::generic::GenericGap gap(
         _event_queue,
         pal::vendor::cordio::Gap::get_gap(),
-        cordio_gap_service
+        cordio_gap_service,
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager()
     );
 
     return gap;
