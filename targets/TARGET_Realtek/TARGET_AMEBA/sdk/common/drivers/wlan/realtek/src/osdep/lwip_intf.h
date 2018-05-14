@@ -36,7 +36,6 @@ struct eth_drv_sg {
 
 #define MAX_ETH_DRV_SG	32
 #define MAX_ETH_MSG	1540
-extern void wlan_emac_recv(struct netif *netif, int len);
 #else
 #include "ethernetif.h"  // moved to ethernetif.h by jimmy 12/2/2015
 #endif
@@ -53,6 +52,8 @@ void rltk_wlan_send_skb(int idx, struct sk_buff *skb);	//struct sk_buff as defin
 int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_len);
 void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len);
 unsigned char rltk_wlan_running(unsigned char idx);		// interface is up. 0: interface is down
+typedef void (*emac_callback)(void *param, struct netif *netif, unsigned int len);
+void set_callback_func(emac_callback p, void *data);
 
 //----- ------------------------------------------------------------------
 // Network Interface provided
