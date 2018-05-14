@@ -522,7 +522,7 @@ void LoRaWANStack::process_reception(const uint8_t* const payload, uint16_t size
     }
 
     if (_loramac.nwk_joined()) {
-        if (_loramac.get_mcps_indication()->type == MCPS_CONFIRMED) {
+        if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
             // if ack was not received, we will try retransmission after
             // ACK_TIMEOUT. handle_data_frame() already disables ACK_TIMEOUT timer
             // if ack was received
