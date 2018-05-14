@@ -21,22 +21,22 @@
 //WARNING: DO NOT CHANGE THIS STRUCT WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
 //Offset of these registers are used by fault handler in except.S
 typedef struct {
-  uint32_t R0;
-  uint32_t R1;
-  uint32_t R2;
-  uint32_t R3;
-  uint32_t R4;
-  uint32_t R5;
-  uint32_t R6;
-  uint32_t R7;
-  uint32_t R8;
-  uint32_t R9;
-  uint32_t R10;
-  uint32_t R11;
-  uint32_t R12;
-  uint32_t SP;
-  uint32_t LR;
-  uint32_t PC;
+  uint32_t R0_reg;
+  uint32_t R1_reg;
+  uint32_t R2_reg;
+  uint32_t R3_reg;
+  uint32_t R4_reg;
+  uint32_t R5_reg;
+  uint32_t R6_reg;
+  uint32_t R7_reg;
+  uint32_t R8_reg;
+  uint32_t R9_reg;
+  uint32_t R10_reg;
+  uint32_t R11_reg;
+  uint32_t R12_reg;
+  uint32_t SP_reg;
+  uint32_t LR_reg;
+  uint32_t PC_reg;
   uint32_t xPSR;
   uint32_t PSP;
   uint32_t MSP;

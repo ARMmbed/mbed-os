@@ -27,15 +27,18 @@ extern "C" {
 #define MBED_CONF_ERROR_REPORT_INTERFACE            DEVICE_SERIAL
 #endif       
 
-/* Routine to report the error */
-void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg);
-    
+#ifdef MBED_CONF_RTOS_PRESENT 
+#include "rtx_os.h"
 /* Prints thread info from a list */
 void print_threads_info(osRtxThread_t *threads);
 
 /* Prints info of a thread(using osRtxThread_t struct)*/
 void print_thread(osRtxThread_t *thread);
+#endif
 
+/* Routine to report the error */
+void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg);
+    
 /* Limited print functionality which prints the string out to 
 stdout/uart without using stdlib by directly calling serial-api 
 and also uses less resources 
