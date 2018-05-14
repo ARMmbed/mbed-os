@@ -1,11 +1,9 @@
 {
     "name": "softdevice",
-    "config": {
-    },    
     "macros": [
         "SOFTDEVICE_PRESENT=1",
-        "S132", 
-        "BLE_STACK_SUPPORT_REQD",           
+        "S132",
+        "BLE_STACK_SUPPORT_REQD",
         "NRF_SDH_CLOCK_LF_SRC=1",
         "NRF_SDH_CLOCK_LF_RC_CTIV=0",
         "NRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0",
@@ -36,8 +34,7 @@
         "NRF_SDH_BLE_STACK_OBSERVER_PRIO=0",
         "NRF_SDH_SOC_STACK_OBSERVER_PRIO=0",
         "FDS_BACKEND=2",
-        "SWI_DISABLE1=1",
-        "NRF_LOG_ENABLED=0"
+        "SWI_DISABLE1=1"
     ],
     "target_overrides": {
         "*": {

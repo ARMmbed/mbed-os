@@ -1,14 +1,14 @@
 {
     "name": "softdevice",
     "macros": [
-        "SOFTDEVICE_PRESENT=1", 
+        "SOFTDEVICE_PRESENT=1",
+        "S140",
+        "BLE_STACK_SUPPORT_REQD",
         "NRF_SDH_CLOCK_LF_SRC=1",
         "NRF_SDH_CLOCK_LF_RC_CTIV=0",
         "NRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0",
         "NRF_SDH_CLOCK_LF_XTAL_ACCURACY=7",
-        "BLE_STACK_SUPPORT_REQD", 
-        "NRF_SD_BLE_API_VERSION=5", 
-        "S140",
+        "NRF_SD_BLE_API_VERSION=5",
         "NRF_SDH_ENABLED=1",
         "NRF_SDH_BLE_ENABLED=1",
         "PEER_MANAGER_ENABLED=1",
@@ -34,8 +34,7 @@
         "NRF_SDH_BLE_STACK_OBSERVER_PRIO=0",
         "NRF_SDH_SOC_STACK_OBSERVER_PRIO=0",
         "FDS_BACKEND=2",
-        "SWI_DISABLE1=1",
-        "S140"
+        "SWI_DISABLE1=1"
     ],
     "target_overrides": {
         "*": {
