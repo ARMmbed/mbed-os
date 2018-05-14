@@ -232,7 +232,7 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : [],
+        "targets" : ["DISCO_L072CZ_LRWAN1", "MTB_MTS_XDOT", "MTS_MDOT_F411RE"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
