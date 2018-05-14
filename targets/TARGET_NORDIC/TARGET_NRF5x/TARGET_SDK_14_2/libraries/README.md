@@ -6,6 +6,10 @@ components/libraries
 
 Only essential folders have been copied over.
 
+`experimental_log/nrf_log.h` has been removed and reimplemented in `TARGET_NRF5x/nrf_log.h` to 
+provide optional logging via mbed stdout. Only the minimum required headers have been left in 
+experimental_log folder.
+
 Removed:
  * block_dev/
  * bootloader/

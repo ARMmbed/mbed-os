@@ -39,25 +39,17 @@
  */
 /**@file
  *
- * @defgroup nrf_log Logger module
+ * @defgroup Replacement nrf_log Logger module
  * @{
- * @ingroup app_common
  *
- * @brief The nrf_log module interface.
+ * @brief Redirects the nrf log interface to mbed stdout logging .
  */
 
 #ifndef NRF_LOG_H_
 #define NRF_LOG_H_
 
-#include "sdk_common.h"
-#include "nrf_section.h"
-#if NRF_MODULE_ENABLED(NRF_LOG)
-#include "nrf_strerror.h"
-#define NRF_LOG_ERROR_STRING_GET(code) nrf_strerror_get(code)
-#else
-#define NRF_LOG_ERROR_STRING_GET(code) ""
-#endif
-
+#include <stdio.h>
+#include "mbed_debug.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,12 +59,15 @@ extern "C" {
  *
  * The severity level can be defined in a module to override the default.
  */
+#define NRF_LOG_LEVEL_ERROR        1UL
+#define NRF_LOG_LEVEL_WARNING      2UL
+#define NRF_LOG_LEVEL_INFO         3UL
+#define NRF_LOG_LEVEL_DEBUG        4UL
+#define NRF_LOG_LEVEL_INTERNAL     5UL
+
 #ifndef NRF_LOG_LEVEL
-    #define NRF_LOG_LEVEL NRF_LOG_DEFAULT_LEVEL
+    #define NRF_LOG_LEVEL NRF_LOG_LEVEL_INFO
 #endif
-
-
-#include "nrf_log_internal.h"
 
 /** @def NRF_LOG_ERROR
  *  @brief Macro for logging error messages. It takes a printf-like, formatted
@@ -101,16 +96,34 @@ extern "C" {
  *
  *  @details This macro is compiled only if @ref NRF_LOG_LEVEL includes debug logs.
  */
+#define NRF_LOG_DEBUG(x, ...)                                        \
+    if (NRF_LOG_ENABLED && (NRF_LOG_LEVEL >= NRF_LOG_LEVEL_DEBUG))   \
+    {                                                                \
+            printf("[NRF_DBG] "x"\r\n", ##__VA_ARGS__);              \
+    }
 
-#define NRF_LOG_ERROR(...)                     NRF_LOG_INTERNAL_ERROR(__VA_ARGS__)
-#define NRF_LOG_WARNING(...)                   NRF_LOG_INTERNAL_WARNING( __VA_ARGS__)
-#define NRF_LOG_INFO(...)                      NRF_LOG_INTERNAL_INFO( __VA_ARGS__)
-#define NRF_LOG_DEBUG(...)                     NRF_LOG_INTERNAL_DEBUG( __VA_ARGS__)
+#define NRF_LOG_WARNING(x, ...)                                        \
+    if (NRF_LOG_ENABLED && (NRF_LOG_LEVEL >= NRF_LOG_LEVEL_WARNING))   \
+    {                                                                \
+            printf("[NRF_WRN] "x"\r\n", ##__VA_ARGS__);              \
+    }
+
+#define NRF_LOG_ERROR(x, ...)                                        \
+    if (NRF_LOG_ENABLED && (NRF_LOG_LEVEL >= NRF_LOG_LEVEL_ERROR))   \
+    {                                                                \
+            printf("[NRF_ERR] "x"\r\n", ##__VA_ARGS__);              \
+    }
+
+#define NRF_LOG_INFO(x, ...)                                        \
+    if (NRF_LOG_ENABLED && (NRF_LOG_LEVEL >= NRF_LOG_LEVEL_INFO))   \
+    {                                                                \
+            printf("[NRF_INF] "x"\r\n", ##__VA_ARGS__);              \
+    }
 
 /**
  * @brief A macro for logging a formatted string without any prefix or timestamp.
  */
-#define NRF_LOG_RAW_INFO(...)                  NRF_LOG_INTERNAL_RAW_INFO( __VA_ARGS__)
+#define NRF_LOG_RAW_INFO(x, ...) printf(x, ##__VA_ARGS__);
 
 /** @def NRF_LOG_HEXDUMP_ERROR
  *  @brief Macro for logging raw bytes.
@@ -140,29 +153,30 @@ extern "C" {
  * @param p_data     Pointer to data.
  * @param len        Data length in bytes.
  */
-#define NRF_LOG_HEXDUMP_ERROR(p_data, len)   NRF_LOG_INTERNAL_HEXDUMP_ERROR(p_data, len)
-#define NRF_LOG_HEXDUMP_WARNING(p_data, len) NRF_LOG_INTERNAL_HEXDUMP_WARNING(p_data, len)
-#define NRF_LOG_HEXDUMP_INFO(p_data, len)    NRF_LOG_INTERNAL_HEXDUMP_INFO(p_data, len)
-#define NRF_LOG_HEXDUMP_DEBUG(p_data, len)   NRF_LOG_INTERNAL_HEXDUMP_DEBUG(p_data, len)
+// #define NRF_LOG_HEXDUMP_ERROR(p_data, len)   NRF_LOG_INTERNAL_HEXDUMP_ERROR(p_data, len)
+// #define NRF_LOG_HEXDUMP_WARNING(p_data, len) NRF_LOG_INTERNAL_HEXDUMP_WARNING(p_data, len)
+// #define NRF_LOG_HEXDUMP_INFO(p_data, len)    NRF_LOG_INTERNAL_HEXDUMP_INFO(p_data, len)
+// #define NRF_LOG_HEXDUMP_DEBUG(p_data, len)   NRF_LOG_INTERNAL_HEXDUMP_DEBUG(p_data, len)
 
-/**
- * @brief Macro for logging hexdump without any prefix or timestamp.
- */
-#define NRF_LOG_RAW_HEXDUMP_INFO(p_data, len) NRF_LOG_INTERNAL_RAW_HEXDUMP_INFO(p_data, len)
+// /**
+//  * @brief Macro for logging hexdump without any prefix or timestamp.
+//  */
+// #define NRF_LOG_RAW_HEXDUMP_INFO(p_data, len) NRF_LOG_INTERNAL_RAW_HEXDUMP_INFO(p_data, len)
 
 /**
  * @brief A macro for blocking reading from bidirectional backend used for logging.
  *
  * Macro call is blocking and returns when single byte is received.
  */
-#define NRF_LOG_GETCHAR()                    NRF_LOG_INTERNAL_GETCHAR()
+#define NRF_LOG_GETCHAR()                    getc(stdin)
+
 
 /**
  * @brief A macro for copying a string to internal logger buffer if logs are deferred.
  *
  * @param _str  String.
  */
-#define NRF_LOG_PUSH(_str)                   NRF_LOG_INTERNAL_LOG_PUSH(_str)
+// #define NRF_LOG_PUSH(_str)                   NRF_LOG_INTERNAL_LOG_PUSH(_str)
 
 /**
  * @brief Function for copying a string to the internal logger buffer if logs are deferred.
@@ -177,7 +191,10 @@ extern "C" {
  *
  * @return Address to the location where the string is stored in the internal logger buffer.
  */
-uint32_t nrf_log_push(char * const p_str);
+// __STATIC_INLINE uint32_t nrf_log_push(char * const p_str) {
+//     (void)p_str;
+//     return -1;
+// }
 
 /**
  * @brief Macro to be used in a formatted string to a pass float number to the log.
@@ -202,28 +219,28 @@ uint32_t nrf_log_push(char * const p_str);
  * @def NRF_LOG_MODULE_REGISTER
  * @brief Macro for registering an independent module.
  */
-#if NRF_LOG_ENABLED
+// #if NRF_LOG_ENABLED
 
-#ifdef UNIT_TEST
-#define _CONST
-#define COMPILED_LOG_LEVEL 4
-#else
-#define _CONST const
-#define COMPILED_LOG_LEVEL NRF_LOG_LEVEL
-#endif
-#define NRF_LOG_MODULE_REGISTER()                                                             \
-    NRF_SECTION_ITEM_REGISTER(NRF_LOG_CONST_SECTION_NAME(NRF_LOG_MODULE_NAME),                \
-                            _CONST nrf_log_module_const_data_t NRF_LOG_MODULE_DATA_CONST) = { \
-            .p_module_name = STRINGIFY(NRF_LOG_MODULE_NAME),                                  \
-            .info_color_id = NRF_LOG_INFO_COLOR,                                              \
-            .debug_color_id = NRF_LOG_DEBUG_COLOR,                                            \
-            .compiled_lvl   = COMPILED_LOG_LEVEL,                                             \
-    };                                                                                        \
-    NRF_SECTION_ITEM_REGISTER(NRF_LOG_DYNAMIC_SECTION_NAME(NRF_LOG_MODULE_NAME),              \
-                          nrf_log_module_dynamic_data_t NRF_LOG_MODULE_DATA_DYNAMIC)
-#else
-#define NRF_LOG_MODULE_REGISTER() /*lint -save -e19*/ /*lint -restore*/
-#endif
+// #ifdef UNIT_TEST
+// #define _CONST
+// #define COMPILED_LOG_LEVEL 4
+// #else
+// #define _CONST const
+// #define COMPILED_LOG_LEVEL NRF_LOG_LEVEL
+// #endif
+// #define NRF_LOG_MODULE_REGISTER()                                                             \
+//     NRF_SECTION_ITEM_REGISTER(NRF_LOG_CONST_SECTION_NAME(NRF_LOG_MODULE_NAME),                \
+//                             _CONST nrf_log_module_const_data_t NRF_LOG_MODULE_DATA_CONST) = { \
+//             .p_module_name = STRINGIFY(NRF_LOG_MODULE_NAME),                                  \
+//             .info_color_id = NRF_LOG_INFO_COLOR,                                              \
+//             .debug_color_id = NRF_LOG_DEBUG_COLOR,                                            \
+//             .compiled_lvl   = COMPILED_LOG_LEVEL,                                             \
+//     };                                                                                        \
+//     NRF_SECTION_ITEM_REGISTER(NRF_LOG_DYNAMIC_SECTION_NAME(NRF_LOG_MODULE_NAME),              \
+//                           nrf_log_module_dynamic_data_t NRF_LOG_MODULE_DATA_DYNAMIC)
+// #else
+// #define NRF_LOG_MODULE_REGISTER() /*lint -save -e19*/ /*lint -restore*/
+// #endif
 
 #ifdef __cplusplus
 }
