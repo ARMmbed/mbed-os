@@ -233,10 +233,11 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
             }
                 break;
             case SRV_MAC_DEV_STATUS_REQ: {
-                uint8_t batteryLevel = BAT_LEVEL_NO_MEASURE;
-                // we don't have a mechanism at the moment to measure
-                // battery levels
-                ret_value = add_dev_status_ans(batteryLevel, snr & 0x3F);
+                uint8_t battery_level = BAT_LEVEL_NO_MEASURE;
+                if (_battery_level_cb) {
+                    battery_level = _battery_level_cb();
+                }
+                ret_value = add_dev_status_ans(battery_level, snr & 0x3F);
                 break;
             }
             case SRV_MAC_NEW_CHANNEL_REQ: {
@@ -327,6 +328,11 @@ int32_t LoRaMacCommand::cmd_buffer_remaining() const
 {
     // The maximum buffer length must take MAC commands to re-send into account.
     return sizeof(mac_cmd_buffer) - mac_cmd_buf_idx_to_repeat - mac_cmd_buf_idx;
+}
+
+void LoRaMacCommand::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
+{
+    _battery_level_cb = battery_level;
 }
 
 lorawan_status_t LoRaMacCommand::add_link_check_req()

@@ -147,6 +147,12 @@ public:
      */
     lorawan_status_t add_link_check_req();
 
+    /**
+     * @brief Set battery level query callback method
+     *        If callback is not set, BAT_LEVEL_NO_MEASURE is returned.
+     */
+    void set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level);
+
 private:
     /**
      * @brief Get the remaining size of the MAC command buffer
@@ -261,6 +267,8 @@ private:
      * Buffer containing the MAC layer commands which must be repeated
      */
     uint8_t mac_cmd_buffer_to_repeat[LORA_MAC_COMMAND_MAX_LENGTH];
+
+    mbed::Callback<uint8_t(void)> _battery_level_cb;
 };
 
 #endif //__LORAMACCOMMAND_H__

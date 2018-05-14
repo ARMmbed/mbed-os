@@ -438,6 +438,11 @@ public:
     void post_process_mlme_ind(void);
 
     /**
+     * Set battery level query callback
+     */
+    void set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level);
+
+    /**
      * These locks trample through to the upper layers and make
      * the stack thread safe.
      */
