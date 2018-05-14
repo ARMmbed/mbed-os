@@ -1,0 +1,45 @@
+{
+    "name": "softdevice",
+    "macros": [
+        "SOFTDEVICE_PRESENT=1",
+        "S132",
+        "BLE_STACK_SUPPORT_REQD",
+        "NRF_SDH_CLOCK_LF_SRC=1",
+        "NRF_SDH_CLOCK_LF_RC_CTIV=0",
+        "NRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0",
+        "NRF_SDH_CLOCK_LF_XTAL_ACCURACY=7",
+        "NRF_SD_BLE_API_VERSION=5",
+        "NRF_SDH_ENABLED=1",
+        "NRF_SDH_BLE_ENABLED=1",
+        "PEER_MANAGER_ENABLED=1",
+        "NRF_SDH_BLE_PERIPHERAL_LINK_COUNT=3",
+        "NRF_SDH_BLE_CENTRAL_LINK_COUNT=1",
+        "NRF_SDH_BLE_TOTAL_LINK_COUNT=4",
+        "NRF_SDH_BLE_SERVICE_CHANGED=1",
+        "NRF_SDH_BLE_GATT_MAX_MTU_SIZE=23",
+        "NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE=0x600",
+        "NRF_SDH_BLE_VS_UUID_COUNT=4",
+        "NRF_SDH_BLE_OBSERVER_PRIO_LEVELS=4",
+        "NRF_SDH_BLE_GAP_EVENT_LENGTH=3",
+        "BLE_ADV_BLE_OBSERVER_PRIO=1",
+        "BLE_CONN_STATE_BLE_OBSERVER_PRIO=0",
+        "BLE_CONN_PARAMS_BLE_OBSERVER_PRIO=1",
+        "NRF_BLE_GATT_BLE_OBSERVER_PRIO=1",
+        "NRF_SDH_DISPATCH_MODEL=2",
+        "NRF_SDH_SOC_ENABLED=1",
+        "NRF_SDH_STACK_OBSERVER_PRIO_LEVELS=2",
+        "NRF_SDH_STATE_OBSERVER_PRIO_LEVELS=2",
+        "NRF_SDH_SOC_OBSERVER_PRIO_LEVELS=2",
+        "NRF_SDH_REQ_OBSERVER_PRIO_LEVELS=2",
+        "NRF_SDH_BLE_STACK_OBSERVER_PRIO=0",
+        "NRF_SDH_SOC_STACK_OBSERVER_PRIO=0",
+        "FDS_BACKEND=2",
+        "SWI_DISABLE1=1"
+    ],
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["BLE"],
+            "target.bootloader_img": "hex/s132_nrf52_5.0.0_softdevice.hex"
+        }
+    }
+}

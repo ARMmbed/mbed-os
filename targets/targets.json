@@ -3557,7 +3557,7 @@
             "NRF52",
             "SDK_14_2",
             "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S132"
+            "SOFTDEVICE_S132_FULL"
         ],
         "config": {
             "lf_clock_src": {
@@ -3654,7 +3654,7 @@
             "NRF52",
             "SDK_14_2",
             "SOFTDEVICE_COMMON",
-            "SOFTDEVICE_S140"
+            "SOFTDEVICE_S140_FULL"
         ],
         "config": {
             "lf_clock_src": {

@@ -1,0 +1,8 @@
+{
+    "name": "softdevice_mbr",
+    "target_overrides": {
+        "*": {
+            "target.bootloader_img": "hex/s140_nrf52840_5.0.0-2.alpha_mbr.hex"
+        }
+    }
+}
