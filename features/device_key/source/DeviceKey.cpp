@@ -253,7 +253,7 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
 
     final_size = 0;
     in_size = size;
-    while (true) {
+    while (DEVICEKEY_SUCCESS == ret && final_size < size) {
 
         ongoing_size = 0;
         ret = trng_get_bytes(&trng_obj, (unsigned char *)pBuffer, in_size, &ongoing_size);
@@ -263,11 +263,6 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
             goto finish;
         }
 
-        if (DEVICEKEY_SUCCESS == ret && final_size == size) {
-            break;
-        }
-
-        wait_ms(5);
         pBuffer += ongoing_size;
         in_size -= ongoing_size;
     }
