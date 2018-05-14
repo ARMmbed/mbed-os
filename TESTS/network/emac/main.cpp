@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_APP_TEST_WIFI)      || \
-    !defined(MBED_CONF_APP_TEST_ETHERNET)  || \
-    !defined(MBED_CONF_APP_ECHO_SERVER)    || \
-    !defined(MBED_CONF_APP_WIFI_SCAN)      || \
-    !defined(MBED_CONF_APP_WIFI_SSID )     || \
-    !defined(MBED_CONF_APP_WIFI_SECURITY)  || \
+#if !defined(MBED_CONF_APP_TEST_WIFI)         || \
+    !defined(MBED_CONF_APP_TEST_ETHERNET)     || \
+    !defined(MBED_CONF_APP_ECHO_SERVER)       || \
+    !defined(MBED_CONF_APP_ECHO_SERVER_TRACE) || \
+    !defined(MBED_CONF_APP_WIFI_SCAN)         || \
+    !defined(MBED_CONF_APP_WIFI_SSID )        || \
+    !defined(MBED_CONF_APP_WIFI_SECURITY)     || \
     !defined(MBED_CONF_APP_WIFI_PASSWORD)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
 #endif
