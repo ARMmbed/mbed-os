@@ -45,8 +45,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #define MAX_DATA_BUFFER_SIZE_SX1276                        256
 #endif
 
-#ifdef DEVICE_SPI
-
 /**
  * Radio driver implementation for Semtech SX1272 plus variants.
  * Supports only SPI at the moment. Implements pure virtual LoRaRadio class.
@@ -436,7 +434,5 @@ private:
     void handle_dio5_irq();
     void handle_timeout_irq();
 };
-
-#endif //DEVICE_SPI
 
 #endif // SX1276_LORARADIO_H_

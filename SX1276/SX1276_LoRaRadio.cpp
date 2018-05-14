@@ -30,8 +30,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 
-#ifdef DEVICE_SPI
-
 /*!
  * Sync word for Private LoRa networks
  */
@@ -2321,6 +2319,3 @@ void SX1276_LoRaRadio::handle_timeout_irq()
     }
 }
 // EOF
-
-#endif //DEVICE_SPI
-

@@ -32,8 +32,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
 
-#ifdef DEVICE_SPI
-
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "LRAD"
@@ -2169,6 +2167,3 @@ void SX1272_LoRaRadio::handle_timeout_irq()
          break;
      }
 }
-
-#endif //DEVICE_SPI
-
