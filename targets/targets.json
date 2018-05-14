@@ -4008,5 +4008,49 @@
         "detect_code": ["7013"],
         "release_versions": ["5"],
         "bootloader_supported": true
+    },
+    "ARM_FM": {
+        "inherits": ["Target"],
+        "public": false,
+        "extra_labels": ["ARM_FM"]
+    },
+    "FVP_MPS2": {
+        "inherits": ["ARM_FM"],
+        "public": false,
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "extra_labels_add": ["FVP_MPS2"],
+        "OUTPUT_EXT": "elf",
+        "device_has": ["AACI", "ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
+        "release_versions": ["5"]
+    },
+    "FVP_MPS2_M0": {
+        "inherits": ["FVP_MPS2"],
+        "core": "Cortex-M0",
+        "extra_labels_add": ["FVP_MPS2_M0"],
+        "macros": ["CMSDK_CM0","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""]
+    },
+    "FVP_MPS2_M0P": {
+        "inherits": ["FVP_MPS2"],
+        "core": "Cortex-M0+",
+        "extra_labels_add": ["FVP_MPS2_M0P"],
+        "macros": ["CMSDK_CM0plus"]
+    },
+    "FVP_MPS2_M3": {
+        "inherits": ["FVP_MPS2"],
+        "core": "Cortex-M3",
+        "extra_labels_add": ["FVP_MPS2_M3"],
+        "macros": ["CMSDK_CM3"]
+    },
+    "FVP_MPS2_M4": {
+        "inherits": ["FVP_MPS2"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["FVP_MPS2_M4"],
+        "macros": ["CMSDK_CM4"]
+    },
+    "FVP_MPS2_M7": {
+        "inherits": ["FVP_MPS2"],
+        "core": "Cortex-M7",
+        "extra_labels_add": ["FVP_MPS2_M7"],
+        "macros": ["CMSDK_CM7"]
     }
 }
