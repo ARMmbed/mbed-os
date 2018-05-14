@@ -40,7 +40,6 @@ struct SecurityDistributionFlags_t {
         ltk_stored(false),
         ltk_sent(false),
         irk_stored(false),
-        irk_sent(false),
         csrk_mitm_protected(false),
         ltk_mitm_protected(false),
         secure_connections_paired(false),
@@ -63,7 +62,6 @@ struct SecurityDistributionFlags_t {
     uint8_t ltk_sent:1;
     /** the security entry has been distributed and stored */
     uint8_t irk_stored:1;
-    uint8_t irk_sent:1;
 
     /** CSRK that is stored has MITM protection */
     uint8_t csrk_mitm_protected:1;
@@ -677,11 +675,9 @@ private:
                 /* we settle for any disconnected if we don't find an empty one */
                 match = flags;
                 if (!flags->csrk_stored
-                    && !flags->csrk_sent
                     && !flags->ltk_stored
                     && !flags->ltk_sent
-                    && !flags->irk_stored
-                    && !flags->irk_sent) {
+                    && !flags->irk_stored) {
                     /* empty one found, stop looking*/
                     break;
                 }

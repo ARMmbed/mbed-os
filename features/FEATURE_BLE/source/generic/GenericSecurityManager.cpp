@@ -354,7 +354,7 @@ ble_error_t GenericSecurityManager::enableSigning(
 
     if (enabled && !cb->signing_requested && !_default_key_distribution.get_signing()) {
         cb->signing_requested = true;
-        if (flags->csrk_stored) {
+        if (flags->csrk_stored && flags->csrk_sent) {
             /* used the stored ones when available */
             _db->get_entry_peer_csrk(
                 mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
@@ -389,7 +389,7 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
     connection_handle_t connection,
     link_encryption_t *encryption
 ) {
-
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -419,6 +419,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     connection_handle_t connection,
     link_encryption_t encryption
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -475,6 +476,7 @@ ble_error_t GenericSecurityManager::getEncryptionKeySize(
     connection_handle_t connection,
     uint8_t *size
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -547,6 +549,7 @@ ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in
 //
 
 ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t connection) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -663,6 +666,7 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
     const address_t *address,
     const oob_tk_t *tk
 ) {
+    MBED_ASSERT(_db);
     if (address && tk) {
         ControlBlock_t *cb = get_control_block(*address);
         if (!cb) {
@@ -792,6 +796,7 @@ void GenericSecurityManager::enable_encryption_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
         return;
@@ -815,6 +820,7 @@ void GenericSecurityManager::set_ltk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntryKeys_t* entryKeys
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb) {
         return;
@@ -858,6 +864,7 @@ void GenericSecurityManager::return_csrk_cb(
     SecurityDb::entry_handle_t db_entry,
     const SecurityEntrySigning_t *signing
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(db_entry);
     if (!cb || !signing) {
         return;
@@ -876,6 +883,7 @@ void GenericSecurityManager::return_csrk_cb(
 }
 
 void GenericSecurityManager::update_oob_presence(connection_handle_t connection) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return;
@@ -1142,6 +1150,7 @@ void GenericSecurityManager::on_slave_security_request(
     connection_handle_t connection,
     AuthenticationMask authentication
 ) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return;
@@ -1276,6 +1285,7 @@ void GenericSecurityManager::on_secure_connections_oob_request(connection_handle
 }
 
 void GenericSecurityManager::on_legacy_pairing_oob_request(connection_handle_t connection) {
+    MBED_ASSERT(_db);
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return;
@@ -1334,6 +1344,7 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
 
     flags->ltk_mitm_protected = cb->mitm_performed;
     flags->secure_connections_paired = true;
+    flags->ltk_stored = true;
 
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
@@ -1354,6 +1365,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
     }
 
     flags->ltk_mitm_protected = cb->mitm_performed;
+    flags->ltk_stored = true;
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
@@ -1381,6 +1393,12 @@ void GenericSecurityManager::on_keys_distributed_local_ltk(
         return;
     }
 
+    SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
+    if (!flags) {
+        return;
+    }
+
+    flags->ltk_sent = true;
     _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
@@ -1408,6 +1426,12 @@ void GenericSecurityManager::on_keys_distributed_irk(
         return;
     }
 
+    SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
+    if (!flags) {
+        return;
+    }
+
+    flags->irk_stored = true;
     _db->set_entry_peer_irk(cb->db_entry, irk);
 }
 
@@ -1445,6 +1469,7 @@ void GenericSecurityManager::on_keys_distributed_csrk(
     }
 
     flags->csrk_mitm_protected = cb->mitm_performed;
+    flags->csrk_stored = true;
 
     _db->set_entry_peer_csrk(cb->db_entry, csrk);
 
@@ -1466,12 +1491,19 @@ void GenericSecurityManager::on_ltk_request(
         return;
     }
 
-    _db->get_entry_local_keys(
-        mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
-        cb->db_entry,
-        ediv,
-        rand
-    );
+    SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
+    if (!flags) {
+        return;
+    }
+
+    if (flags->ltk_stored) {
+        _db->get_entry_local_keys(
+            mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
+            cb->db_entry,
+            ediv,
+            rand
+        );
+    }
 }
 
 /* control blocks list management */
@@ -1542,6 +1574,7 @@ GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_bloc
 GenericSecurityManager::ControlBlock_t* GenericSecurityManager::get_control_block(
     const address_t &peer_address
 ) {
+    MBED_ASSERT(_db);
     for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
         ControlBlock_t *cb = &_control_blocks[i];
         if (cb->connected) {
