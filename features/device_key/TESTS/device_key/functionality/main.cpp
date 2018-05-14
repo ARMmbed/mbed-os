@@ -49,7 +49,6 @@ int inject_dummy_rot_key()
 #if !defined(DEVICE_TRNG)
     uint32_t key[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
 
-    memset(key, 0, DEVICE_KEY_16BYTE);
     memcpy(key, "1234567812345678", DEVICE_KEY_16BYTE);
     int size = DEVICE_KEY_16BYTE;
     DeviceKey& devkey = DeviceKey::get_instance();
