@@ -31,9 +31,17 @@
  *******************************************************************************
  */
 
+#if !defined(MBED_APP_START)
+   #define MBED_APP_START 0x00010000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+   #define MBED_APP_SIZE 0x00070000
+#endif
+
 MEMORY
 {
-    FLASH (rx) : ORIGIN = 0x00010000, LENGTH = 0x00070000
+    FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
     RAM  (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00028000
 }
 
