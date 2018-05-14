@@ -15,8 +15,6 @@
  */
 #include <stdlib.h>
 #include <stdarg.h>
-#include "rtx_os.h"
-#include "mbed_rtx.h"
 #include "hal/serial_api.h"
 #include "hal/itm_api.h"
 #include "platform/mbed_error.h"
@@ -53,6 +51,22 @@ static void value_to_dec_str(uint32_t value, char *dec_str)
     while(value > 0) {
         dec_str[i++] = dec_char_map[value % 10];
         value = value / 10;
+    }
+}
+
+//Helper function to get the current SP
+static unsigned int get_current_sp()
+{
+    //If in Handler mode we are always using MSP
+    if( __get_IPSR() != 0U ) {
+        return __get_MSP();
+    } else {
+        //Look into CONTROL.SPSEL value
+        if ((__get_CONTROL() & 2U) == 0U) {
+            return __get_PSP();//Read PSP
+        } else {
+            return __get_MSP();//Read MSP
+        }
     }
 }
 
@@ -148,6 +162,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
 #endif    
 }
 
+#ifdef MBED_CONF_RTOS_PRESENT 
 /* Prints thread info from a list */
 void print_threads_info(osRtxThread_t *threads)
 {
@@ -169,8 +184,9 @@ void print_thread(osRtxThread_t *thread)
     data[4]=thread->sp;
     mbed_error_print("\nState: 0x%x EntryFn: 0x%x Stack Size: 0x%x Mem: 0x%x SP: 0x%x", data);
 }
+#endif
 
-void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg) 
+void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg) 
 {
     int error_code = GET_MBED_ERROR_CODE(error_ctx->error_status);
     int error_entity = GET_MBED_ERROR_MODULE(error_ctx->error_status);
@@ -234,10 +250,21 @@ void mbed_report_error(const mbed_error_ctx *error_ctx, char *error_msg)
             mbed_error_print("\nFile:%s", &file_name);
             mbed_error_print("+0x%x", (uint32_t *)&error_ctx->error_line_number);
         }
-#endif        
+#endif 
+
+#ifdef MBED_CONF_RTOS_PRESENT         
+        //Capture thread info
+        osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
+        error_ctx->thread_id = (uint32_t)current_thread;
+        error_ctx->thread_entry_address = (uint32_t)current_thread->thread_addr;
+        error_ctx->thread_stack_size = current_thread->stack_size;
+        error_ctx->thread_stack_mem = (uint32_t)current_thread->stack_mem;
+        error_ctx->thread_current_sp = get_current_sp();
+            
         //Take advantage of the fact that the thread info in context struct is consecutively placed
         mbed_error_print("\nError Value: 0x%x\nCurrent Thread: Id: 0x%x EntryFn: 0x%x StackSize: 0x%x StackMem: 0x%x SP: 0x%x ", 
                             (uint32_t *)&error_ctx->error_value);
+#endif
     }
     
     mbed_error_print("\n-- MbedOS Error Info --", NULL);

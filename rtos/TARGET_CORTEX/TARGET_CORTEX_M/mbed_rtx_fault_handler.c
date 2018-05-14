@@ -16,7 +16,6 @@
 
 #include "rtx_os.h"
 #include "device.h"
-#include "mbed_rtx.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_error_report.h"
 
@@ -83,7 +82,7 @@ __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_conte
     mbed_error_print("\n\n-- MbedOS Fault Handler --\n\n",NULL);
     
     //Now call set_error, to log the error and halt the system
-    set_error( MAKE_ERROR( MODULE_UNKNOWN, faultStatus ), "System encountered an unrecoverable fault excaption, halting system.", mbed_fault_context.PC, NULL, 0 );
+    set_error( MAKE_ERROR( MODULE_UNKNOWN, faultStatus ), "System encountered an unrecoverable fault excaption, halting system.", mbed_fault_context.PC_reg, NULL, 0 );
     
     /* In case we return, just spin here, we have already crashed */
     for (;;) { 

@@ -15,8 +15,6 @@
  */
 #include <stdlib.h>
 #include <stdarg.h>
-#include "rtx_os.h"
-#include "mbed_rtx.h"
 #include "device.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
@@ -33,22 +31,6 @@ static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 static mbed_error_ctx last_error_ctx = {0};
 static MbedErrorHook error_hook = NULL;
-
-//Helper function to get the current SP
-static unsigned int get_current_sp()
-{
-    //If in Handler mode we are always using MSP
-    if( __get_IPSR() != 0U ) {
-        return __get_MSP();
-    } else {
-        //Look into CONTROL.SPSEL value
-        if ((__get_CONTROL() & 2U) == 0U) {
-            return __get_PSP();//Read PSP
-        } else {
-            return __get_MSP();//Read MSP
-        }
-    }
-}
 
 //Helper function to halt the system
 static void mbed_halt_system(void)
@@ -124,19 +106,6 @@ MbedErrorStatus handle_error(MbedErrorStatus error_status, const char *error_msg
     }
 #endif
     
-    //Capture thread info
-    osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
-    current_error_ctx.thread_id = (uint32_t)current_thread;
-    current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
-    current_error_ctx.thread_stack_size = current_thread->stack_size;
-    current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
-    current_error_ctx.thread_current_sp = get_current_sp();
-    
-#ifndef MBED_CONF_ERROR_LOG_DISABLED    
-    //Log the error with error log
-    mbed_log_put_error(&current_error_ctx);
-#endif
-    
     //Use critsect here, as we don't want processing more than one error at the same time
     core_util_critical_section_enter();
     //Report the error
@@ -152,6 +121,11 @@ MbedErrorStatus handle_error(MbedErrorStatus error_status, const char *error_msg
     
     //Use critsect here, as we don't want processing more than one error at the same time
     core_util_critical_section_exit();
+    
+#ifndef MBED_CONF_ERROR_LOG_DISABLED    
+    //Log the error with error log
+    mbed_log_put_error(&current_error_ctx);
+#endif    
     
     //Call the error hook if available
     if(error_hook != NULL) {
