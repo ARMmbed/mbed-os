@@ -200,6 +200,14 @@ void control_stress_test()
     }
 }
 
+/** Test data correctness for every OUT/IN endpoint pair
+ *
+ * Given a USB device with multiple OUT/IN endpoint pairs
+ * When the host sends random payloads up to wMaxPacketSize in size
+ *     to an OUT endpoint of the device,
+ *     and then the device sends data back to host using an IN endpoint
+ * Then data sent and received by host is equal for every endpoint pair
+ */
 void ep_test_data_correctness()
 {
     uint16_t vendor_id = 0x0d28;
@@ -230,6 +238,13 @@ void ep_test_data_correctness()
     }
 }
 
+/** Test endpoint halt for every OUT/IN endpoint pair
+ *
+ * Given a USB device with multiple OUT/IN endpoint pairs
+ * When the host issues an endpoint halt control request at a random point
+ *     of OUT or IN transfer
+ * Then the endpoint is stalled and all further transfers fail
+ */
 void ep_test_halt()
 {
     uint16_t vendor_id = 0x0d28;
@@ -260,6 +275,13 @@ void ep_test_halt()
     }
 }
 
+/** Test simultaneous data transfers for multiple OUT/IN endpoint pairs
+ *
+ * Given a USB device with multiple OUT/IN endpoint pairs
+ * When multiple OUT and IN endpoints are used to transfer random data in parallel
+ * Then all transfers succeed
+ *     and for every endpoint pair, data received by host equals data sent by host
+ */
 void ep_test_parallel_transfers()
 {
     uint16_t vendor_id = 0x0d28;
@@ -290,6 +312,14 @@ void ep_test_parallel_transfers()
     }
 }
 
+/** Test simultaneous data transfers in parallel with control transfers
+ *
+ * Given a USB device with multiple OUT/IN endpoint pairs
+ * When multiple OUT and IN endpoints are used to transfer random data
+ *     and control requests are processed in parallel
+ * Then all transfers succeed
+ *     and for every endpoint pair, data received by host equals data sent by host
+ */
 void ep_test_parallel_transfers_ctrl()
 {
     uint16_t vendor_id = 0x0d28;
@@ -320,6 +350,12 @@ void ep_test_parallel_transfers_ctrl()
     }
 }
 
+/** Test aborting data transfer for every OUT/IN endpoint pair
+ *
+ * Given a USB device with multiple OUT/IN endpoint pairs
+ * When a device aborts an in progress data transfer
+ * Then no more data is transmitted
+ */
 void ep_test_abort()
 {
     uint16_t vendor_id = 0x0d28;
