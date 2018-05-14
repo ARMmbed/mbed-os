@@ -341,6 +341,12 @@ private:
 
     ble_error_t update_address_resolution_setting();
 
+    void set_random_address_rotation(bool enable);
+
+    void update_random_address();
+
+    void on_address_rotation_timeout();
+
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
@@ -354,9 +360,12 @@ private:
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
     CentralPrivacyConfiguration_t _central_privacy_configuration;
+    ble::address_t _random_static_identity_address;
+    bool _random_address_rotating;
     
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
+    mbed::Ticker _address_rotation_ticker;
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
 };
 

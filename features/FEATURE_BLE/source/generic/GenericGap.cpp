@@ -401,6 +401,9 @@ GenericGap::GenericGap(
     _pal_gap.when_gap_event_received(
         mbed::callback(this, &GenericGap::on_gap_event_received)
     );
+
+    // Recover static random identity
+    _random_static_identity_address = _pal_gap.get_random_address();
 }
 
 GenericGap::~GenericGap()
@@ -432,6 +435,7 @@ ble_error_t GenericGap::setAddress(
 
             _address_type = BLEProtocol::AddressType::RANDOM;
             _address = ble::address_t(address);
+            _random_static_identity_address = ble::address_t(address);
             return BLE_ERROR_NONE;
         }
 
@@ -487,6 +491,10 @@ ble_error_t GenericGap::stopAdvertising()
     }
     _advertising_timeout.detach();
     state.advertising = false;
+
+    // Stop address rotation if required
+    set_random_address_rotation(false);
+
     return BLE_ERROR_NONE;
 }
 
@@ -496,6 +504,9 @@ ble_error_t GenericGap::stopScan()
     if (err) {
         return err;
     }
+
+    // Stop address rotation if required
+    set_random_address_rotation(false);
 
     _scan_timeout.detach();
     return BLE_ERROR_NONE;
@@ -822,11 +833,19 @@ ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
         return BLE_ERROR_INVALID_STATE;
     }
 
+    pal::own_address_type_t own_address_type = get_own_address_type(true /* central */, true /* can use non resolvable address for scan requests */);
+
+    if(_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS))
+    {
+        // Use non-resolvable static random address
+        set_random_address_rotation(true);
+    }
+
     ble_error_t err = _pal_gap.set_scan_parameters(
         scanningParams.getActiveScanning(),
         scanningParams.getInterval(),
         scanningParams.getWindow(),
-        get_own_address_type(true /* central */, true /* can use non resolvable address for scan requests */),
+        own_address_type,
         _scanning_filter_policy
     );
 
@@ -930,6 +949,15 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    pal::own_address_type_t own_address_type = get_own_address_type(false /* peripheral */, 
+            params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED /* we can only use non resolvable addresses int this case */);
+
+    if(_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS))
+    {
+        // Use non-resolvable static random address
+        set_random_address_rotation(true);
+    }
+
     // TODO: fix the high level API to have a min/max range
     // Going against recommendations (The Advertising_Interval_Min and
     // Advertising_Interval_Max should not be the same value to enable the
@@ -940,8 +968,7 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         /* advertising_interval_min */ params.getIntervalInADVUnits(),
         /* advertising_interval_max */ params.getIntervalInADVUnits(),
         (pal::advertising_type_t::type) params.getAdvertisingType(),
-        get_own_address_type(false /* peripheral */, 
-            params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED /* we can only use non resolvable addresses int this case */),
+        own_address_type,
         pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
         ble::address_t(),
         pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
@@ -1054,6 +1081,10 @@ void GenericGap::process_advertising_timeout()
     if (err) {
         // TODO: define the mechanism signaling the error
     }
+
+    // Stop address rotation if required
+    set_random_address_rotation(false);
+
     processTimeoutEvent(Gap::TIMEOUT_SRC_ADVERTISING);
 }
 
@@ -1155,6 +1186,9 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
         if (e.role.value() == e.role.SLAVE) {
             _advertising_timeout.detach();
             _pal_gap.advertising_enable(false);
+
+            // Stop address rotation if required
+            set_random_address_rotation(false);
         }
 
         // using these parameters if stupid, there is no range for the
@@ -1307,6 +1341,64 @@ ble_error_t GenericGap::update_address_resolution_setting()
     }
 
     return _pal_gap.set_address_resolution(enable);
+}
+
+void GenericGap::set_random_address_rotation(bool enable)
+{
+    if(enable == _random_address_rotating) {
+        return;
+    }
+
+    _random_address_rotating = enable;
+
+    if(enable) {
+        // Set first address        
+        update_random_address();
+
+        // Schedule rotations every 15 minutes as recomended by the spec
+        _address_rotation_ticker.attach_us(
+            mbed::callback(this, &GenericGap::on_address_rotation_timeout),
+            15 * 60 * 1000000U
+        );
+    }
+    else {
+        // Stop ticker
+        _address_rotation_ticker.detach();
+
+        // Set static random identity address
+        _pal_gap.set_random_address(
+            _random_static_identity_address
+        );
+    }
+}
+
+void GenericGap::update_random_address()
+{
+    ble::address_t address;
+
+    if(!_random_address_rotating)
+    {
+        // This event might have been queued before we disabled address rotation
+        return;
+    }
+
+    // TODO: Placeholder: Get random data
+    // Build a non-resolvable private address
+
+    ble_error_t err = _pal_gap.set_random_address(
+        address
+    );
+    if (err) {
+        return;
+    }
+
+    _address_type = BLEProtocol::AddressType::RANDOM;
+    _address = address;
+}
+
+void GenericGap::on_address_rotation_timeout()
+{
+    _event_queue.post(mbed::callback(this, &GenericGap::update_random_address));
 }
 
 void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::EventHandler *connection_event_handler)

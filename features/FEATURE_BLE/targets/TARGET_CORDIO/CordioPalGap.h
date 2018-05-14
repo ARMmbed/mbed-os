@@ -311,6 +311,9 @@ public:
     virtual ble_error_t set_privacy(
         bool enable
     ) {
+        // 
+
+
         return BLE_ERROR_NONE;
     }
     
@@ -478,6 +481,7 @@ private:
     };
 
 private:
+    address_t device_random_static_identity_address;
     address_t device_random_address;
     bool use_active_scanning;
 };
