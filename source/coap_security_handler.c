@@ -51,8 +51,8 @@ struct coap_security_s {
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt            _cacert;
     mbedtls_x509_crt            _owncert;
-#endif
     mbedtls_pk_context          _pkey;
+#endif
 
     uint8_t                     _pw[64];
     uint8_t                     _pw_len;
@@ -109,8 +109,8 @@ static int coap_security_handler_init(coap_security_t *sec){
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_init( &sec->_cacert );
     mbedtls_x509_crt_init( &sec->_owncert );
-#endif
     mbedtls_pk_init( &sec->_pkey );
+#endif
 
     memset(&sec->_cookie, 0, sizeof(simple_cookie_t));
     memset(&sec->_keyblk, 0, sizeof(key_block_t));
@@ -145,9 +145,8 @@ static void coap_security_handler_reset(coap_security_t *sec){
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
     mbedtls_x509_crt_free(&sec->_cacert);
     mbedtls_x509_crt_free(&sec->_owncert);
-#endif
-
     mbedtls_pk_free(&sec->_pkey);
+#endif
 
     mbedtls_entropy_free( &sec->_entropy );
     mbedtls_ctr_drbg_free( &sec->_ctr_drbg );
