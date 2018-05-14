@@ -32,21 +32,6 @@ typedef struct {
     CRYS_AESCCM_Key_t cipher_key;    /*!< cipher key used */
     CRYS_AESCCM_KeySize_t keySize_ID;
 }
-mbedtls_ccm_alt_context_t;
-
-typedef struct {
-    mbedtls_cipher_context_t cipher_ctx;    /*!< cipher context used */
-}
-mbedtls_ccm_sw_context;
-
-typedef struct {
-    union
-    {
-        mbedtls_ccm_alt_context_t ccm_alt_ctx;
-        mbedtls_ccm_sw_context ccm_sw_ctx;
-    } u_ctx;
-    unsigned int    is_sw;
-}
 mbedtls_ccm_context;
 
 /**
