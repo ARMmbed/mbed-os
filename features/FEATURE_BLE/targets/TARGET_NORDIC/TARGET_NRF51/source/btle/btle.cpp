@@ -111,20 +111,6 @@ error_t btle_init(void)
     SOFTDEVICE_HANDLER_INIT(&clockConfiguration, signalEvent);
 
     // Enable BLE stack
-    /**
-     * Using this call, the application can select whether to include the
-     * Service Changed characteristic in the GATT Server. The default in all
-     * previous releases has been to include the Service Changed characteristic,
-     * but this affects how GATT clients behave. Specifically, it requires
-     * clients to subscribe to this attribute and not to cache attribute handles
-     * between connections unless the devices are bonded. If the application
-     * does not need to change the structure of the GATT server attributes at
-     * runtime this adds unnecessary complexity to the interaction with peer
-     * clients. If the SoftDevice is enabled with the Service Changed
-     * Characteristics turned off, then clients are allowed to cache attribute
-     * handles making applications simpler on both sides.
-     */
-    static const bool IS_SRVC_CHANGED_CHARACT_PRESENT = true;
 
     ble_enable_params_t ble_enable_params;
     uint32_t err_code = softdevice_enable_get_default_config(CENTRAL_LINK_COUNT,

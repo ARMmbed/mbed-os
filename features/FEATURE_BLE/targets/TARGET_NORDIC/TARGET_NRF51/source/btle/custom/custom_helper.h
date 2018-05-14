@@ -26,8 +26,13 @@
 extern "C" {
 #endif
 
-#define UUID_TABLE_MAX_ENTRIES  (4) /* This is the maximum number of 128-bit UUIDs with distinct bases that
-                                                   * we expect to be in use; increase this limit if needed. */
+/* This is the maximum number of 128-bit UUIDs with distinct bases that *
+ * we expect to be in use; increase this limit if needed. */
+#ifdef NRF_SDH_BLE_VS_UUID_COUNT
+    #define UUID_TABLE_MAX_ENTRIES  NRF_SDH_BLE_VS_UUID_COUNT
+#else
+    #define UUID_TABLE_MAX_ENTRIES  (4)
+#endif
 
 /**
  * Reset the table of 128bits uuids.
