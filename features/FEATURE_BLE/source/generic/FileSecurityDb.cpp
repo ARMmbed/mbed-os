@@ -170,6 +170,8 @@ void FileSecurityDb::set_entry_local_ltk(
         return;
     }
 
+    entry->flags.ltk_sent = true;
+
     fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_LTK, SEEK_SET);
     fwrite(&ltk, sizeof(ltk_t), 1, _db_file);
 }
@@ -202,6 +204,8 @@ void FileSecurityDb::set_entry_peer_ltk(
     if (!entry) {
         return;
     }
+
+    entry->flags.ltk_stored = true;
 
     fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_LTK, SEEK_SET);
     fwrite(&ltk, sizeof(ltk_t), 1, _db_file);
@@ -262,6 +266,8 @@ void FileSecurityDb::set_entry_peer_csrk(
     if (!entry) {
         return;
     }
+
+    entry->flags.csrk_stored = true;
 
     fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING, SEEK_SET);
     /* only write in the csrk */

@@ -354,7 +354,7 @@ ble_error_t GenericSecurityManager::enableSigning(
 
     if (enabled && !cb->signing_requested && !_default_key_distribution.get_signing()) {
         cb->signing_requested = true;
-        if (flags->csrk_stored && flags->csrk_sent) {
+        if (flags->csrk_stored) {
             /* used the stored ones when available */
             _db->get_entry_peer_csrk(
                 mbed::callback(this, &GenericSecurityManager::set_peer_csrk_cb),
@@ -1344,7 +1344,6 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
 
     flags->ltk_mitm_protected = cb->mitm_performed;
     flags->secure_connections_paired = true;
-    flags->ltk_stored = true;
 
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
@@ -1365,7 +1364,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
     }
 
     flags->ltk_mitm_protected = cb->mitm_performed;
-    flags->ltk_stored = true;
+
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
@@ -1398,7 +1397,6 @@ void GenericSecurityManager::on_keys_distributed_local_ltk(
         return;
     }
 
-    flags->ltk_sent = true;
     _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
@@ -1431,7 +1429,6 @@ void GenericSecurityManager::on_keys_distributed_irk(
         return;
     }
 
-    flags->irk_stored = true;
     _db->set_entry_peer_irk(cb->db_entry, irk);
 }
 
@@ -1469,8 +1466,6 @@ void GenericSecurityManager::on_keys_distributed_csrk(
     }
 
     flags->csrk_mitm_protected = cb->mitm_performed;
-    flags->csrk_stored = true;
-
     _db->set_entry_peer_csrk(cb->db_entry, csrk);
 
     eventHandler->signingKey(

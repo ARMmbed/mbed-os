@@ -36,7 +36,6 @@ struct SecurityDistributionFlags_t {
         encryption_key_size(0),
         peer_address_is_public(false),
         csrk_stored(false),
-        csrk_sent(false),
         ltk_stored(false),
         ltk_sent(false),
         irk_stored(false),
@@ -56,7 +55,6 @@ struct SecurityDistributionFlags_t {
 
     /** CSRK (Connection Signature Resolving Key) has been distributed and stored */
     uint8_t csrk_stored:1;
-    uint8_t csrk_sent:1;
     /** LTK (Long Term Key) has been distributed and stored */
     uint8_t ltk_stored:1;
     uint8_t ltk_sent:1;
