@@ -394,6 +394,7 @@ GenericGap::GenericGap(
     _advertising_filter_policy(pal::advertising_filter_policy_t::NO_FILTER),
     _whitelist(),
     _privacy_enabled(false),
+    _random_address_rotating(false),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _advertising_timeout(),
