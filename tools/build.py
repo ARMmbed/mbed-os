@@ -41,7 +41,7 @@ from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from tools.notifier.term import TerminalNotifier
-from tools.utils import argparse_filestring_type, args_error
+from tools.utils import argparse_filestring_type, args_error, argparse_many
 from tools.utils import argparse_filestring_type, argparse_dir_not_parent
 
 if __name__ == '__main__':
@@ -129,6 +129,9 @@ if __name__ == '__main__':
                       default=False,
                       help="Makes compiler more verbose, CI friendly.")
 
+    parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                        default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
     options = parser.parse_args()
 
     # Only prints matrix of supported toolchains
@@ -185,35 +188,35 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
-                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                    archive=(not options.no_archive),
-                                                    macros=options.macros,
-                                                    name=options.artifact_name,
-                                                    build_profile=profile)
+                        lib_build_res = build_library(
+                            options.source_dir, options.build_dir, mcu, toolchain,
+                            jobs=options.jobs,
+                            clean=options.clean,
+                            archive=(not options.no_archive),
+                            macros=options.macros,
+                            name=options.artifact_name,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                        )
                     else:
-                        lib_build_res = build_mbed_libs(mcu, toolchain,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                        macros=options.macros,
-                                                        build_profile=profile)
+                        lib_build_res = build_mbed_libs(
+                            mcu, toolchain,
+                            jobs=options.jobs,
+                            clean=options.clean,
+                            macros=options.macros,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                        )
 
                     for lib_id in libraries:
-                        build_lib(lib_id, mcu, toolchain,
-                                extra_verbose=options.extra_verbose_notify,
-                                verbose=options.verbose,
-                                silent=options.silent,
-                                clean=options.clean,
-                                macros=options.macros,
-                                    jobs=options.jobs,
-                                    build_profile=profile)
+                        build_lib(
+                            lib_id, mcu, toolchain,
+                            clean=options.clean,
+                            macros=options.macros,
+                            jobs=options.jobs,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                        )
                     if lib_build_res:
                         successes.append(tt_id)
                     else:
@@ -225,7 +228,6 @@ if __name__ == '__main__':
                         sys.exit(1)
                     failures.append(tt_id)
                     print(e)
-
 
     # Write summary of the builds
     print("\nCompleted in: (%.2f)s\n" % (time() - start))

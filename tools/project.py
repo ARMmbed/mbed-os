@@ -73,7 +73,7 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
            zip_proj=False, build_profile=None, export_path=None, notify=None,
-           app_config=None):
+           app_config=None, ignore=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -87,6 +87,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     project_id - the name of the project
     clean - start from a clean state before exporting
     zip_proj - create a zip file or not
+    ignore - list of paths to add to mbedignore
 
     Returns an object of type Exporter (tools/exports/exporters.py)
     """
@@ -98,7 +99,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     return export_project(src, project_dir, target, ide, name=name,
                           macros=macros, libraries_paths=lib, zip_proj=zip_name,
                           build_profile=build_profile, notify=notify,
-                          app_config=app_config)
+                          app_config=app_config, ignore=ignore)
 
 
 def main():
@@ -197,6 +198,9 @@ def main():
                         dest="app_config",
                         default=None)
 
+    parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                        default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
     options = parser.parse_args()
 
     # Print available tests in order and exit
@@ -273,7 +277,8 @@ def main():
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
                build_profile=profile, app_config=options.app_config,
-               export_path=options.build_dir, notify = notify)
+               export_path=options.build_dir, notify=notify,
+               ignore=options.ignore)
     except NotSupportedException as exc:
         print("[ERROR] %s" % str(exc))
 

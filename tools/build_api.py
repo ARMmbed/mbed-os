@@ -301,7 +301,7 @@ def target_supports_toolchain(target, toolchain_name):
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, config=None, app_config=None,
-                      build_profile=None):
+                      build_profile=None, ignore=None):
     """ Prepares resource related objects - toolchain, target, config
 
     Positional arguments:
@@ -317,6 +317,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a list of mergeable build profiles
+    ignore - list of paths to add to mbedignore
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -347,6 +348,9 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     toolchain.config = config
     toolchain.jobs = jobs
     toolchain.build_all = clean
+
+    if ignore:
+        toolchain.add_ignore_patterns(root=".", base_path=".", patterns=ignore)
 
     return toolchain
 
@@ -502,7 +506,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   project_description=None, config=None,
-                  app_config=None, build_profile=None, stats_depth=None):
+                  app_config=None, build_profile=None, stats_depth=None, ignore=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -529,6 +533,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
     stats_depth - depth level for memap to display file/dirs
+    ignore - list of paths to add to mbedignore
     """
 
     # Convert src_path to a list if needed
@@ -546,7 +551,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
-        app_config=app_config, build_profile=build_profile)
+        app_config=app_config, build_profile=build_profile, ignore=ignore)
 
     # The first path will give the name to the library
     name = (name or toolchain.config.name or
@@ -643,7 +648,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
                   remove_config_header_file=False, app_config=None,
-                  build_profile=None):
+                  build_profile=None, ignore=None):
     """ Build a library
 
     Positional arguments:
@@ -668,6 +673,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     remove_config_header_file - delete config header file when done building
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    ignore - list of paths to add to mbedignore
     """
 
     # Convert src_path to a list if needed
@@ -691,7 +697,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, app_config=app_config,
-        build_profile=build_profile)
+        build_profile=build_profile, ignore=ignore)
 
     # The first path will give the name to the library
     if name is None:
@@ -793,7 +799,7 @@ def mbed2_obj_path(target_name, toolchain_name):
 
 def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
               notify=None, jobs=1, report=None, properties=None,
-              build_profile=None):
+              build_profile=None, ignore=None):
     """ Legacy method for building mbed libraries
 
     Positional arguments:
@@ -809,6 +815,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
     build_profile - a dict of flags that will be passed to the compiler
+    ignore - list of paths to add to mbedignore
     """
     lib = Library(lib_id)
     if not lib.is_supported(target, toolchain_name):
@@ -872,7 +879,8 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
 
         toolchain = prepare_toolchain(
             src_paths, tmp_path, target, toolchain_name, macros=macros,
-            notify=notify, build_profile=build_profile, jobs=jobs, clean=clean)
+            notify=notify, build_profile=build_profile, jobs=jobs, clean=clean,
+            ignore=ignore)
 
         notify.info("Building library %s (%s, %s)" %
                        (name.upper(), target.name, toolchain_name))
@@ -948,7 +956,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
 # library
 def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
                     notify=None, jobs=1, report=None, properties=None,
-                    build_profile=None):
+                    build_profile=None, ignore=None):
     """ Function returns True is library was built and false if building was
     skipped
 
@@ -964,6 +972,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
     report - a dict where a result may be appended
     properties - UUUUHHHHH beats me
     build_profile - a dict of flags that will be passed to the compiler
+    ignore - list of paths to add to mbedignore
     """
 
     if report != None:
@@ -1007,7 +1016,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
         toolchain = prepare_toolchain(
             [""], tmp_path, target, toolchain_name, macros=macros, notify=notify,
-            build_profile=build_profile, jobs=jobs, clean=clean)
+            build_profile=build_profile, jobs=jobs, clean=clean, ignore=ignore)
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
         config = toolchain.config
