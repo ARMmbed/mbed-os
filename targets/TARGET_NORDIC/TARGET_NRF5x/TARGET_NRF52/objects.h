@@ -54,7 +54,7 @@ extern "C" {
 
 #include "nrf_uart.h"
 
-#if DEVICE_CRYPTOCELL
+#if defined(DEVICE_CRYPTOCELL)
 #include "objects_cryptocell.h"
 #else
 struct trng_s {
