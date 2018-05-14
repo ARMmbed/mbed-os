@@ -1,0 +1,30 @@
+{
+    "name": "nordic-ble",
+    "config": {
+        "central_link_count": {
+            "help": "When acting as BLE central, how many peripherals can connect",
+            "value": "3",
+            "macro_name": "NRF_SDH_BLE_CENTRAL_LINK_COUNT"
+        },
+        "peripheral_link_count": {
+            "help": "When acting as BLE peripheral, how many centrals can we conenct to",
+            "value": "1",
+            "macro_name": "NRF_SDH_BLE_PERIPHERAL_LINK_COUNT"
+        },
+        "gatt_attr_tab_size": {
+            "help": "The size of the table used to hold gatts. Can be adjusted by trial and error",
+            "value": "0x600",
+            "macro_name": "NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE"
+        },
+        "uuid_table_max_entries": {
+            "help": "maximum number of 128-bit UUIDs with distinct bases that we expect to be in use",
+            "value": "4",
+            "macro_name": "NRF_SDH_BLE_VS_UUID_COUNT"
+        },
+        "is_srvc_changed_charact_present": {
+            "help": "select whether to include the Service Changed characteristic in the GATT Server",
+            "value": "1",
+            "macro_name": "NRF_SDH_BLE_SERVICE_CHANGED"
+        }
+    }
+}
