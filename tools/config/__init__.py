@@ -575,6 +575,13 @@ class Config(object):
             except KeyError:
                 raise ConfigException("Not enough information in CMSIS packs to "
                                       "build a bootloader project")
+        
+        # Fix TrustZone secure/non-secure ROM address
+        if (self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33"):
+            rom_start = rom_start + int(getattr(self.target, "tz_offset", "0x0"), 0)
+        elif (self.target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS"):
+            rom_start = rom_start + int(getattr(self.target, "tz_offset_ns", "0x0"), 0)
+        
         if self.target.bootloader_img or self.target.restrict_size:
             return self._generate_bootloader_build(rom_start, rom_size)
         elif self.target.mbed_app_start or self.target.mbed_app_size:
