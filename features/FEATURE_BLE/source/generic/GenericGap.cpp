@@ -229,8 +229,8 @@ static bool is_prand_24_bits_valid(const BLEProtocol::AddressBytes_t address)
  */
 static bool is_random_static_address(const BLEProtocol::AddressBytes_t address)
 {
-    // top two msb bits shall be equal to 1.
-    if ((address[5] >> 6) != 0x03) {
+    // top two msb bits shall be equal to 0b11.
+    if (((address[5] >> 6) & 0xC0) != 0xC0) {
         return false;
     }
 
@@ -243,8 +243,8 @@ static bool is_random_static_address(const BLEProtocol::AddressBytes_t address)
 static bool is_random_private_non_resolvable_address(
     const BLEProtocol::AddressBytes_t address
 ) {
-    // top two msb bits shall be equal to 0.
-    if ((address[5] >> 6) != 0x00) {
+    // top two msb bits shall be equal to 0b00.
+    if (((address[5] >> 6) & 0xC0) != 0x00) {
         return false;
     }
 
@@ -257,8 +257,8 @@ static bool is_random_private_non_resolvable_address(
 static bool is_random_private_resolvable_address(
     const BLEProtocol::AddressBytes_t address
 ) {
-    // top two msb bits shall be equal to 01.
-    if ((address[5] >> 6) != 0x01) {
+    // top two msb bits shall be equal to 0b01.
+    if (((address[5] >> 6) & 0xC0) != 0x40) {
         return false;
     }
 
