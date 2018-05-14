@@ -916,6 +916,11 @@ def control_stress_test(dev, log):
 
 
 def find_ep_pair(intf, endpoint_type):
+    """Find an OUT and IN endpoint pair.
+
+    Raise a RuntimeError if any endpoint could not be found
+    or wMaxPacketSize is not equal for both endpoints.
+    """
     ep_out = usb.util.find_descriptor(
         intf, custom_match=lambda e:
         usb.util.endpoint_type(e.bmAttributes) == endpoint_type and
@@ -934,6 +939,12 @@ def find_ep_pair(intf, endpoint_type):
 
 
 def loopback_ep_test(ep_out, ep_in, payload_size):
+    """Send and receive random data using OUT/IN endpoint pair.
+
+    Verify that data received from IN endpoint is equal to
+    data sent to OUT endpoint.
+    Raise a RuntimeError if data does not match.
+    """
     payload_out = array.array('B', (random.randint(0x00, 0xff) for _ in range(payload_size)))
     ep_out.write(payload_out)
     payload_in = ep_in.read(ep_in.wMaxPacketSize)
@@ -941,6 +952,11 @@ def loopback_ep_test(ep_out, ep_in, payload_size):
 
 
 def random_size_loopback_ep_test(ep_out, ep_in, failure, error, seconds, log, min_payload_size=1):
+    """Repeat data transfer test for OUT/IN endpoint pair for a given time.
+
+    Set a failure Event if OUT/IN data verification fails.
+    Set an error Event if unexpected USB error occurs.
+    """
     end_ts = time.time() + seconds
     while time.time() < end_ts and not failure.is_set() and not error.is_set():
         payload_size = random.randint(min_payload_size, ep_out.wMaxPacketSize)
@@ -958,6 +974,12 @@ def random_size_loopback_ep_test(ep_out, ep_in, failure, error, seconds, log, mi
 
 
 def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
+    """OUT/IN endpoint halt test.
+
+    Verify that halting an endpoint at a random point of OUT or IN transfer
+    raises a USBError.
+    Raise a RuntimeError if halt fails or any unexpected error occurs.
+    """
     MIN_HALT_DELAY = 0.01
     MAX_HALT_DELAY = 0.1
     delay = random.uniform(MIN_HALT_DELAY, MAX_HALT_DELAY)
@@ -969,6 +991,7 @@ def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
     ctrl_error = Event()
 
     def timer_handler():
+        """Halt an endpoint using a USB control request."""
         try:
             dev.ctrl_transfer(**ctrl_kwargs)
         except Exception as err:
@@ -995,10 +1018,19 @@ def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
 
 USB_ERROR_FMT = str('Got {0!r} while testing endpoints '
                     '{1.bEndpointAddress:#04x}({1.wMaxPacketSize:02}) and '
-                    '{2.bEndpointAddress:#04x}({2.wMaxPacketSize:02}) with a random payload of {3} B.')
+                    '{2.bEndpointAddress:#04x}({2.wMaxPacketSize:02}) with '
+                    'a random payload of {3} B.')
 
 
 def ep_test_data_correctness(dev, log, verbose=False):
+    """Test data correctness for every OUT/IN endpoint pair.
+
+    Given a USB device with multiple OUT/IN endpoint pairs
+    When the host sends random payloads up to wMaxPacketSize in size
+        to an OUT endpoint of the device,
+        and then the device sends data back to host using an IN endpoint
+    Then data sent and received by host is equal for every endpoint pair
+    """
     cfg = dev.get_active_configuration()
     for intf in cfg:
         log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
@@ -1047,6 +1079,13 @@ def ep_test_data_correctness(dev, log, verbose=False):
 
 
 def ep_test_halt(dev, log, verbose=False):
+    """Test endpoint halt for every OUT/IN endpoint pair.
+
+    Given a USB device with multiple OUT/IN endpoint pairs
+    When the host issues an endpoint halt control request at a random point
+        of OUT or IN transfer
+    Then the endpoint is stalled and all further transfers fail
+    """
     cfg = dev.get_active_configuration()
     for intf in cfg:
         log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
@@ -1092,6 +1131,13 @@ def ep_test_halt(dev, log, verbose=False):
 
 
 def ep_test_parallel_transfers(dev, log, verbose=False):
+    """Test simultaneous data transfers for multiple OUT/IN endpoint pairs.
+
+    Given a USB device with multiple OUT/IN endpoint pairs
+    When multiple OUT and IN endpoints are used to transfer random test data
+    Then all transfers succeed
+        and data received equals data sent for every endpoint pair
+    """
     cfg = dev.get_active_configuration()
     for intf in cfg:
         log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
@@ -1145,6 +1191,14 @@ def ep_test_parallel_transfers(dev, log, verbose=False):
 
 
 def ep_test_parallel_transfers_ctrl(dev, log, verbose=False):
+    """Test simultaneous data transfers in parallel with control transfers.
+
+    Given a USB device with multiple OUT/IN endpoint pairs
+    When multiple OUT and IN endpoints are used to transfer random data
+        and control requests are processed in parallel
+    Then all transfers succeed
+        and for every endpoint pair, data received by host equals data sent by host
+    """
     cfg = dev.get_active_configuration()
     for intf in cfg:
         log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
@@ -1201,6 +1255,12 @@ def ep_test_parallel_transfers_ctrl(dev, log, verbose=False):
 
 
 def ep_test_abort(dev, log, verbose=False):
+    """Test aborting data transfer for every OUT/IN endpoint pair.
+
+    Given a USB device with multiple OUT/IN endpoint pairs
+    When a device aborts an in progress data transfer
+    Then no more data is transmitted
+    """
     NUM_PACKETS_UNTIL_ABORT = 2
     NUM_PACKETS_AFTER_ABORT = 8
     cfg = dev.get_active_configuration()
