@@ -166,7 +166,7 @@ void LoRaMac::post_process_mcps_req()
 {
     _params.is_last_tx_join_request = false;
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
-    if (_mcps_indication.type == MCPS_CONFIRMED) {
+    if (_mcps_confirmation.req_type == MCPS_CONFIRMED) {
         // An MCPS request for a CONFIRMED message has received an ack
         // in the downlink message
         if (_mcps_confirmation.ack_received) {
@@ -546,8 +546,6 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
 
     fctrl.value = payload[ptr_pos++];
     app_payload_start_index = 8 + fctrl.bits.fopts_len;
-
-    tr_debug("RX at port %d", payload[app_payload_start_index]);
 
     //perform MIC check
     if (!message_integrity_check(payload, size, &ptr_pos, address,
@@ -1611,9 +1609,6 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
 
     _mcps_confirmation.tx_toa = _params.timers.tx_toa;
     _mlme_confirmation.tx_toa = _params.timers.tx_toa;
-
-   // _lora_time.start(_params.timers.mac_state_check_timer,
-   //                  MAC_STATE_CHECK_TIMEOUT);
 
     if (!_is_nwk_joined) {
         _params.join_request_trial_counter++;
