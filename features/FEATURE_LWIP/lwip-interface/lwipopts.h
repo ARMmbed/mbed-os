@@ -210,7 +210,6 @@
 
 #if MBED_CONF_LWIP_TCP_ENABLED
 #define LWIP_TCP                    1
-#define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
 #define LWIP_TCP_KEEPALIVE          1
 #else
