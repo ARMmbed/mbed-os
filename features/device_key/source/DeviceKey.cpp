@@ -122,7 +122,7 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
     }
 
     if (NVSTORE_SUCCESS != ret) {
-        return DEVICEKEY_NVSTORE_UNPREDICTABLE_ERROR;
+        return DEVICEKEY_NVSTORE_UNPREDICTED_ERROR;
     }
 
     return DEVICEKEY_SUCCESS;
@@ -147,7 +147,7 @@ int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
     }
 
     if (NVSTORE_SUCCESS != nvStatus) {
-        return DEVICEKEY_NVSTORE_UNPREDICTABLE_ERROR;
+        return DEVICEKEY_NVSTORE_UNPREDICTED_ERROR;
     }
 
     size = out_size;
@@ -242,7 +242,7 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
     memset(output, 0, size);
 
     if (DEVICE_KEY_16BYTE > size) {
-        return DEVICEKEY_BUFFER_TO_SMALL;
+        return DEVICEKEY_BUFFER_TOO_SMALL;
     } else if (DEVICE_KEY_16BYTE <= size && DEVICE_KEY_32BYTE > size) {
         size = DEVICE_KEY_16BYTE;
     } else {
