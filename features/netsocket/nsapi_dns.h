@@ -188,6 +188,16 @@ nsapi_size_or_error_t nsapi_dns_query_multiple(S *stack, const char *host,
   */
 nsapi_error_t nsapi_dns_query_async_cancel(nsapi_error_t id);
 
+/** Set a call in callback
+ *
+ *  Can be used to provide an application specific call in callback to
+ *  DNS resolver. When callback is set it is used instead of stack
+ *  specific call in callbacks.
+ *
+ *  @param callback  Callback
+ */
+void nsapi_dns_call_in_set(call_in_callback_cb_t callback);
+
 /** Add a domain name server to list of servers to query
  *
  *  @param addr     Destination for the host address
