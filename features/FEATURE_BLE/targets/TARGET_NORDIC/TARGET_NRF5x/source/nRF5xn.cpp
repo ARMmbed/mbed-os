@@ -126,7 +126,7 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
         return BLE_ERROR_ALREADY_INITIALIZED;
     }
 
-    instanceID   = instanceID;
+    this->instanceID = instanceID;
 
     /* ToDo: Clear memory contents, reset the SD, etc. */
     if (btle_init() != ERROR_NONE) {
