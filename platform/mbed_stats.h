@@ -118,7 +118,8 @@ typedef enum {
  * struct mbed_stats_sys_t definition
  */
 typedef struct {
-    uint32_t cpu_id;                    /**< CPUID Register data */
+    uint32_t os_version;                /**< Mbed OS Version (Release only) */
+    uint32_t cpu_id;                    /**< CPUID Register data (Cortex-M only supported) */
     mbed_compiler_id_t compiler_id;     /**< Compiler ID \ref mbed_compiler_id_t */
     uint32_t compiler_version;          /**< Compiler version */
 } mbed_stats_sys_t;

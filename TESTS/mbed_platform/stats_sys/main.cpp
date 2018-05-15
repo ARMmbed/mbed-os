@@ -32,7 +32,14 @@ void test_sys_info()
     mbed_stats_sys_t stats;
     mbed_stats_sys_get(&stats);
 
+#if defined(MBED_VERSION)
+    TEST_ASSERT_NOT_EQUAL(0, stats.os_version);
+#endif
+
+#if defined(__CORTEX_M)
     TEST_ASSERT_NOT_EQUAL(0, stats.cpu_id);
+#endif
+
 #if defined(__IAR_SYSTEMS_ICC__)
     TEST_ASSERT_EQUAL(IAR, stats.compiler_id);
 #elif defined(__CC_ARM)
