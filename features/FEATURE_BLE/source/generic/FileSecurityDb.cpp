@@ -163,8 +163,7 @@ void FileSecurityDb::set_entry_local_ltk(
 
     entry->flags.ltk_sent = true;
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_LTK, SEEK_SET);
-    fwrite(&ltk, sizeof(ltk_t), 1, _db_file);
+    db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_LTK);
 }
 
 void FileSecurityDb::set_entry_local_ediv_rand(
@@ -177,10 +176,8 @@ void FileSecurityDb::set_entry_local_ediv_rand(
         return;
     }
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_EDIV, SEEK_SET);
-    fwrite(&ediv, sizeof(ediv_t), 1, _db_file);
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_RAND, SEEK_SET);
-    fwrite(&rand, sizeof(rand_t), 1, _db_file);
+    db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_EDIV);
+    db_write(&rand, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS_RAND);
 }
 
 /* peer's keys */
@@ -198,8 +195,7 @@ void FileSecurityDb::set_entry_peer_ltk(
 
     entry->flags.ltk_stored = true;
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_LTK, SEEK_SET);
-    fwrite(&ltk, sizeof(ltk_t), 1, _db_file);
+    db_write(&ltk, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_LTK);
 }
 
 void FileSecurityDb::set_entry_peer_ediv_rand(
@@ -212,10 +208,8 @@ void FileSecurityDb::set_entry_peer_ediv_rand(
         return;
     }
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_EDIV, SEEK_SET);
-    fwrite(&ediv, sizeof(ediv_t), 1, _db_file);
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_RAND, SEEK_SET);
-    fwrite(&rand, sizeof(rand_t), 1, _db_file);
+    db_write(&ediv, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_EDIV);
+    db_write(&rand, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS_RAND);
 }
 
 void FileSecurityDb::set_entry_peer_irk(
@@ -229,8 +223,7 @@ void FileSecurityDb::set_entry_peer_irk(
 
     entry->flags.irk_stored = true;
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_IRK, SEEK_SET);
-    fwrite(&irk, sizeof(irk_t), 1, _db_file);
+    db_write(&irk, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_IRK);
 }
 
 void FileSecurityDb::set_entry_peer_bdaddr(
@@ -243,10 +236,8 @@ void FileSecurityDb::set_entry_peer_bdaddr(
         return;
     }
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS, SEEK_SET);
-    fwrite(&peer_address, sizeof(address_t), 1, _db_file);
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC, SEEK_SET);
-    fwrite(&address_is_public, sizeof(bool), 1, _db_file);
+    db_write(&peer_address, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS);
+    db_write(&address_is_public, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY_ADDRESS_IS_PUBLIC);
 }
 
 void FileSecurityDb::set_entry_peer_csrk(
@@ -260,9 +251,7 @@ void FileSecurityDb::set_entry_peer_csrk(
 
     entry->flags.csrk_stored = true;
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING, SEEK_SET);
-    /* only write in the csrk */
-    fwrite(&csrk, sizeof(csrk_t), 1, _db_file);
+    db_write(&csrk, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING);
 }
 
 void FileSecurityDb::set_entry_peer_sign_counter(
@@ -290,14 +279,9 @@ void FileSecurityDb::restore() {
         }
     }
 
-    fseek(_db_file, DB_OFFSET_LOCAL_IDENTITY, SEEK_SET);
-    fread(&_local_identity, sizeof(_local_identity), 1, _db_file);
-
-    fseek(_db_file, DB_OFFSET_LOCAL_CSRK, SEEK_SET);
-    fread(&_local_csrk, sizeof(_local_csrk), 1, _db_file);
-
-    fseek(_db_file, DB_OFFSET_LOCAL_SIGN_COUNT, SEEK_SET);
-    fread(&_local_sign_counter, sizeof(_local_sign_counter), 1, _db_file);
+    db_read(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
+    db_read(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
+    db_read(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
 
     fseek(_db_file, DB_OFFSET_ENTRIES, SEEK_SET);
     /* we read the entries partially and fill the offsets ourselves*/
@@ -313,13 +297,11 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
         return;
     }
 
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT, SEEK_SET);
-    fwrite(&entry->peer_sign_counter, sizeof(sign_count_t), 1, _db_file);
+    db_write(&entry->peer_sign_counter, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
 }
 
 void FileSecurityDb::set_restore(bool reload) {
-    fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
-    fwrite(&reload, sizeof(bool), 1, _db_file);
+    db_write(&reload, DB_OFFSET_RESTORE);
 }
 
 /* helper functions */
@@ -358,9 +340,11 @@ SecurityEntryIdentity_t* FileSecurityDb::read_in_entry_peer_identity(entry_handl
     if (!entry) {
         return NULL;
     }
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY, SEEK_SET);
-    fread(&_buffer, sizeof(SecurityEntryIdentity_t), 1, _db_file);
-    return reinterpret_cast<SecurityEntryIdentity_t*>(_buffer);
+
+    SecurityEntryIdentity_t* identity = reinterpret_cast<SecurityEntryIdentity_t*>(_buffer);
+    db_read(identity, entry->file_offset + DB_STORE_OFFSET_PEER_IDENTITY);
+
+    return identity;
 };
 
 SecurityEntryKeys_t* FileSecurityDb::read_in_entry_peer_keys(entry_handle_t db_entry) {
@@ -368,9 +352,11 @@ SecurityEntryKeys_t* FileSecurityDb::read_in_entry_peer_keys(entry_handle_t db_e
     if (!entry) {
         return NULL;
     }
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS, SEEK_SET);
-    fread(&_buffer, sizeof(SecurityEntryKeys_t), 1, _db_file);
-    return reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
+
+    SecurityEntryKeys_t* keys = reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
+    db_read(keys, entry->file_offset + DB_STORE_OFFSET_PEER_KEYS);
+
+    return keys;
 };
 
 SecurityEntryKeys_t* FileSecurityDb::read_in_entry_local_keys(entry_handle_t db_entry) {
@@ -378,9 +364,11 @@ SecurityEntryKeys_t* FileSecurityDb::read_in_entry_local_keys(entry_handle_t db_
     if (!entry) {
         return NULL;
     }
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS, SEEK_SET);
-    fread(&_buffer, sizeof(SecurityEntryKeys_t), 1, _db_file);
-    return reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
+
+    SecurityEntryKeys_t* keys = reinterpret_cast<SecurityEntryKeys_t*>(_buffer);
+    db_read(keys, entry->file_offset + DB_STORE_OFFSET_LOCAL_KEYS);
+
+    return keys;
 };
 
 SecurityEntrySigning_t* FileSecurityDb::read_in_entry_peer_signing(entry_handle_t db_entry) {
@@ -388,12 +376,14 @@ SecurityEntrySigning_t* FileSecurityDb::read_in_entry_peer_signing(entry_handle_
     if (!entry) {
         return NULL;
     }
-    fseek(_db_file, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING, SEEK_SET);
 
     /* only read in the csrk */
-    fread(&_buffer, sizeof(csrk_t), 1, _db_file);
-    SecurityEntrySigning_t* signing = reinterpret_cast<SecurityEntrySigning_t*>(_buffer);
+    csrk_t* csrk = reinterpret_cast<csrk_t*>(_buffer);
+    db_read(csrk, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING);
+
+
     /* use the counter held in memory */
+    SecurityEntrySigning_t* signing = reinterpret_cast<SecurityEntrySigning_t*>(_buffer);
     signing->counter = entry->peer_sign_counter;
 
     return signing;

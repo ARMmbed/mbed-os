@@ -40,6 +40,18 @@ private:
         return reinterpret_cast<entry_t*>(db_handle);
     }
 
+    template<class T>
+    void db_read(T *value, long int offset) {
+        fseek(_db_file, offset, SEEK_SET);
+        fread(value, sizeof(T), 1, _db_file);
+    }
+
+    template<class T>
+    void db_write(T *value, long int offset) {
+        fseek(_db_file, offset, SEEK_SET);
+        fwrite(value, sizeof(T), 1, _db_file);
+    }
+
 public:
     FileSecurityDb(FILE *db_file);
     virtual ~FileSecurityDb();
