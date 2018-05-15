@@ -19,7 +19,6 @@
 #define AT_HANDLER_H_
 
 #include "platform/mbed_retarget.h"
-#include "stdio.h"
 
 #include "EventQueue.h"
 #include "PlatformMutex.h"
@@ -421,16 +420,23 @@ private:
     bool _debug_on;
     bool _cmd_start;
 
+    // time when a command or an URC processing was started
+    uint64_t _start_time;
+
     // Gets char from receiving buffer.
     // Resets and fills the buffer if all are already read (receiving position equals receiving length).
+    // Returns a next char or -1 on failure (also sets error flag)
     int get_char();
     // Sets to 0 the reading position, reading length and the whole buffer content.
     void reset_buffer();
     // Reading position set to 0 and buffer's unread content moved to beginning
     void rewind_buffer();
+    // Calculate remaining time for polling based on request start time and AT timeout.
+    // Returns 0 or time in ms for polling.
+    int poll_timeout(bool wait_for_timeout = true);
     // Reads from serial to receiving buffer.
-    // Returns on first successful read OR on timeout.
-    void fill_buffer();
+    // Returns true on successful read OR false on timeout.
+    bool fill_buffer(bool wait_for_timeout = true);
 
     void set_tag(tag_t* tag_dest, const char *tag_seq);
 
