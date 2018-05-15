@@ -16,14 +16,23 @@ extern "C" {
 #include <rt_misc.h>
 #include <stdint.h>
 
-extern char Image$$ARM_LIB_STACK$$ZI$$Limit[];
-extern char Image$$ARM_LIB_HEAP$$Base[];
-extern char Image$$ARM_LIB_HEAP$$ZI$$Limit[];
+/* The single region memory model would check stack collision at run time, verifying that
+ * the heap pointer is underneath the stack pointer. With two-region memory model/RTOS-less or
+ * multiple threads(stacks)/RTOS, the check gets meaningless and we must disable it. */
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+__asm(".global __use_two_region_memory\n\t");
+__asm(".global __use_no_semihosting\n\t");
+#else
+#pragma import(__use_two_region_memory)
+#endif
+
+extern char Image$$ARM_LIB_HEAP_$$Base[];
+extern char Image$$ARM_LIB_HEAP_$$ZI$$Limit[];
 extern __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
 
     struct __initial_stackheap r;
-    r.heap_base = (uint32_t)Image$$ARM_LIB_HEAP$$Base;
-    r.heap_limit = (uint32_t)Image$$ARM_LIB_HEAP$$ZI$$Limit;
+    r.heap_base = (uint32_t)Image$$ARM_LIB_HEAP_$$Base;
+    r.heap_limit = (uint32_t)Image$$ARM_LIB_HEAP_$$ZI$$Limit;
     return r;
 }
 

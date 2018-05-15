@@ -11,6 +11,11 @@
 #define SPIM_CCM_START  0x20020000
 #define SPIM_CCM_END    0x20028000
 
+/* If ARM_LIB_STACK/ARM_LIB_HEAP sections are defined, we cannot override __user_setup_stackheap.
+ * Otherwise, we would fail in C run-time initialization with RTOS-less build. Because __user_setup_stackheap
+ * has been re-implemented in platform/mbed_retarget.cpp, we rename ARM_LIB_STACK/ARM_LIB_HEAP to 
+ * ARM_LIB_STACK_/ARM_LIB_HEAP_ to avoid such error. */
+
 LR_IROM1 MBED_APP_START {
   ER_IROM1 MBED_APP_START {  ; load address = execution address
    *(RESET, +First)
@@ -22,7 +27,7 @@ LR_IROM1 MBED_APP_START {
   ;  uvisor-lib.a (+RW +ZI)
   ;}
   
-  ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
+  ARM_LIB_STACK_ 0x20000000 EMPTY 0x800 {
   }
   
   ER_IRAMVEC 0x20000800 EMPTY (4*(16 + 96)) {  ; Reserve for vectors
@@ -32,8 +37,8 @@ LR_IROM1 MBED_APP_START {
    .ANY (+RW +ZI)
   }
   
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x28000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  ARM_LIB_HEAP_ AlignExpr(+0, 16) EMPTY (0x20000000 + 0x28000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
   }
 }
 ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))  ; 512 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20028000)   ; 160 KB SRAM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP_) <= 0x20028000)   ; 160 KB SRAM
