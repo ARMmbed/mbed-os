@@ -18,10 +18,13 @@
 #define ODIN_WIFI_INTERFACE_H
 
 #include "WiFiInterface.h"
-#include "emac_api.h"
+#ifdef DEVICE_WIFI_AP
+#include "WiFiSoftAPInterface.h"
+#endif
 
 #include "mbed.h"
 #include "netsocket/WiFiAccessPoint.h"
+#include "netsocket/EMACInterface.h"
 #include "nsapi_types.h"
 #include "lwip/netif.h"
 #include "rtos.h"
@@ -42,7 +45,11 @@ struct wlan_scan_indication_s;
 /** OdinWiFiInterface class
  *  Implementation of the WiFiInterface for the ODIN-W2 module
  */
-class OdinWiFiInterface : public WiFiInterface
+#ifdef DEVICE_WIFI_AP
+class OdinWiFiInterface : public WiFiInterface, public WiFiSoftAPInterface, public EMACInterface
+#else
+class OdinWiFiInterface : public WiFiInterface, public EMACInterface
+#endif
 {
 public:
     /** OdinWiFiInterface lifetime
@@ -101,61 +108,8 @@ public:
      */
     virtual nsapi_error_t disconnect();
 
-    /** Get the local MAC address
-     *
-     *  Provided MAC address is intended for info or debug purposes and
-     *  may not be provided if the underlying network interface does not
-     *  provide a MAC address
-     *  
-     *  @return         Null-terminated representation of the local MAC address
-     *                  or null if no MAC address is available
-     */
-    virtual const char *get_mac_address();
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been recieved
-     */
-    virtual const char *get_ip_address();
 
-    /** Get the local network mask
-     *
-     *  @return         Null-terminated representation of the local network mask 
-     *                  or null if no network mask has been received
-     */
-    virtual const char *get_netmask();
-
-    /** Get the local gateway
-     *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been recieved
-     */
-    virtual const char *get_gateway();
-
-    /** Set a static IP address
-     *
-     *  Configures this network interface to use a static IP address.
-     *  Implicitly disables DHCP, which can be enabled in set_dhcp.
-     *  Requires that the network is disconnected.
-     *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
-
-    /** Enable or disable DHCP on the network
-     *
-     *  Enables DHCP on connecting the network. Defaults to enabled unless
-     *  a static IP address has been assigned. Requires that the network is
-     *  disconnected.
-     *
-     *  @param dhcp     True to enable DHCP
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t set_dhcp(bool dhcp);
     
     /** Gets the current radio signal strength for active connection
      *
@@ -186,9 +140,99 @@ public:
      */
     virtual nsapi_error_t set_timeout(int ms);
 
-    virtual NetworkStack *get_stack();
+#ifdef DEVICE_WIFI_AP
 
-protected:
+    /** Set IP config for access point
+         *
+         *  This function has to be called before the access point is started.
+         *
+         *  @param gateway     Null-terminated representation of the local gateway
+         *  @param netmask     Null-terminated representation of the network mask
+         *  @return            0 on success, negative error code on failure
+         */
+    //TODO: In previous WiFiInterface.h but not in new WiFiSoftAPInterface
+    virtual nsapi_error_t set_ap_network(const char *ip_address, const char *netmask, const char *gateway);
+
+    /** Set the WiFi network credentials
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection
+     *                   (defaults to NSAPI_SECURITY_NONE)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_credentials(const char *ssid, const char *pass = 0,
+            nsapi_security_t security = NSAPI_SECURITY_NONE);
+
+    /** Set the WiFi network channel
+     *
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_channel(uint8_t channel);
+
+    /** Gets the current number of active connections
+     *
+     *  @return         number of active connections
+     */
+    virtual int get_ap_connection_count();
+
+    /** Gets the max supported number of active connections
+     *
+     *  @return         maximum number of active connections
+     */
+    virtual int get_ap_max_connection_count();
+
+    /** Enable or disable DHCP on the network access point
+     *
+     *  Enables DHCP in SoftAP mode. Defaults to enabled unless
+     *  a static IP address has been assigned. Requires that the network is
+     *  service stopped.
+     *
+     *  @param dhcp     True to enable DHCP
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_ap_dhcp(bool dhcp);
+
+    /** Set the beacon interval.
+     *
+     *  Note that the value needs to be set before ap_start in order to take effect.
+     *
+     *  @param interval  Beason interval in time units (Default: 100 time units = 102.4 ms)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_beacon_interval(uint16_t interval);
+
+    /** Start the interface
+     *
+     *  Attempts to serve a WiFi network.
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t ap_start(const char *ssid, const char *pass = 0,
+            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0);
+
+    /** Start the interface
+     *
+     *  Attempts to serve a WiFi network. Requires ssid to be set.
+     *  passphrase is optional.
+     *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t ap_start();
+
+    /** Stop the interface
+     *
+     *  @return         0 on success, or error code on failure
+     */
+    virtual nsapi_error_t ap_stop();   
+
+#endif
 
 private:
 
@@ -222,11 +266,7 @@ private:
         const char          *passwd;
         nsapi_security_t    security;
         uint8_t             channel;
-        bool                use_dhcp;
         int                 timeout_ms;
-        char                ip_address[IPADDR_STRLEN_MAX];
-        char                netmask[IPADDR_STRLEN_MAX];
-        char                gateway[IPADDR_STRLEN_MAX];
     };
 
     struct ap_s {
@@ -243,6 +283,7 @@ private:
         int                 cnt_connected;
 
         nsapi_error_t       error_code;
+        uint16_t            beacon_interval;
     };
 
     struct scan_cache_s {
@@ -296,7 +337,8 @@ private:
             const char          *ssid,
             const char          *pass,
             nsapi_security_t    security,
-            uint8_t             channel);
+            uint8_t             channel,
+            uint16_t            beacon_interval);
 
     void timeout_user_connect();
     void update_scan_list(cbWLAN_ScanIndicationInfo *scan_info);
@@ -305,7 +347,6 @@ private:
     void wlan_scan_indication(cbWLAN_ScanIndicationInfo *scan_info, cb_boolean is_last_result);
 
     static bool                 _wlan_initialized; // Controls that cbWLAN is initiated only once
-    static emac_interface_t*    _emac; // Not possible to remove added interfaces to the network stack => static and re-use
     static int32_t              _target_id;
 
     OdinWifiState       _state;
@@ -314,7 +355,6 @@ private:
 
     struct sta_s        _sta;
     struct ap_s         _ap;
-    nsapi_stack_t       _stack;
     char                _mac_addr_str[ODIN_WIFI_MAX_MAC_ADDR_STR];
 
     cbWLAN_StatusConnectedInfo      _wlan_status_connected_info;

@@ -29,6 +29,7 @@
 #define _CB_PORT_TYPES_H_
 
 #include <cb_comdefs.h>
+#include "cb_assert.h"
 
 
 #endif /* _CB_PORT_TYPES_H_ */
