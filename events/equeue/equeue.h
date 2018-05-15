@@ -187,6 +187,15 @@ int equeue_post(equeue_t *queue, void (*cb)(void *), void *event);
 // the event may have already begun executing.
 void equeue_cancel(equeue_t *queue, int id);
 
+// Query how much time is left for delayed event
+//
+//  If event is delayed, this function can be used to query how much time
+//  is left until the event is due to be dispatched.
+//
+//  This function is irq safe.
+//
+int equeue_timeleft(equeue_t *q, int id);
+
 // Background an event queue onto a single-shot timer
 //
 // The provided update function will be called to indicate when the queue
