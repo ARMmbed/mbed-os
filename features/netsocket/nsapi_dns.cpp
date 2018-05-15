@@ -27,6 +27,7 @@
 #include "EventQueue.h"
 #include "OnboardNetworkStack.h"
 #include "Kernel.h"
+#include "PlatformMutex.h"
 
 #define CLASS_IN 1
 
@@ -76,9 +77,6 @@ struct DNS_QUERY {
     uint8_t count;
 };
 
-typedef nsapi_error_t (*nsapi_dns_call_t)(mbed::Callback<void()> func);
-typedef nsapi_error_t (*nsapi_dns_call_in_t)(int delay, mbed::Callback<void()> func);
-
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl);
 static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address);
 
@@ -107,10 +105,10 @@ static uint16_t dns_message_id = 1;
 static int dns_unique_id = 1;
 static DNS_QUERY *dns_query_queue[DNS_QUERY_QUEUE_SIZE];
 // Protects cache shared between blocking and asynchronous calls
-static rtos::Mutex dns_cache_mutex;
+static PlatformMutex dns_cache_mutex;
 // Protects from several threads running asynchronous DNS
-static rtos::Mutex dns_mutex;
-static nsapi_dns_call_in_t dns_call_in = 0;
+static PlatformMutex dns_mutex;
+static call_in_callback_cb_t dns_call_in = 0;
 
 // DNS server configuration
 extern "C" nsapi_error_t nsapi_dns_add_server(nsapi_addr_t addr)
@@ -558,7 +556,7 @@ nsapi_value_or_error_t nsapi_dns_query_async(NetworkStack *stack, const char *ho
     return nsapi_dns_query_multiple_async(stack, host, callback, 0, call_in_cb, version);
 }
 
-void nsapi_dns_call_in_set(nsapi_dns_call_in_t callback)
+void nsapi_dns_call_in_set(call_in_callback_cb_t callback)
 {
     dns_call_in = callback;
 }
@@ -1069,9 +1067,7 @@ static void nsapi_dns_query_async_response(void *ptr)
 
         nsapi_dns_query_async_resp(query, status, addresses);
 
-        if (addresses) {
-            delete[] addresses;
-        }
+        delete[] addresses;
     } else {
         dns_mutex.unlock();
     }
