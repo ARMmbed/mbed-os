@@ -232,9 +232,6 @@ error_t btle_init(void)
     }
     #endif
 
-    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
-    pm_init();
-
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
@@ -243,10 +240,6 @@ error_t btle_init(void)
     if (sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr) != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
     }
-#else
-    ble_gap_privacy_params_t privacy_params = {0};
-    privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
-    pm_privacy_set(&privacy_params);
 #endif
 
 // From SDK 14 onwards event handlers are registered differently
@@ -287,9 +280,6 @@ void btle_handler(const ble_evt_t *p_ble_evt)
     // Forward BLE events to the Connection State module.
     // This must be called before any event handler that uses this module.
     ble_conn_state_on_ble_evt(p_ble_evt);
-
-    // Forward BLE events to the Peer Manager
-    pm_on_ble_evt(p_ble_evt);
 #endif
 #endif
 
