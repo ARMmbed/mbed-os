@@ -76,9 +76,9 @@ void            app_error_handler(uint32_t error_code, uint32_t line_num, const 
 extern "C" void SD_EVT_IRQHandler(void); // export the softdevice event handler for registration by nvic-set-vector.
 
 #if NRF_SDK14PLUS_EVENT_HANDLERS
-static void btle_handler(const ble_evt_t *p_ble_evt, void *p_context);
+void btle_handler(const ble_evt_t *p_ble_evt, void *p_context);
 #else
-static void btle_handler(ble_evt_t *p_ble_evt);
+void btle_handler(ble_evt_t *p_ble_evt);
 #endif
 
 #if !NRF_SDK14PLUS_EVENT_HANDLERS
@@ -263,9 +263,9 @@ error_t btle_init(void)
 }
 
 #if NRF_SDK14PLUS_EVENT_HANDLERS
-static void btle_handler(const ble_evt_t *p_ble_evt, void *p_context)
+void btle_handler(const ble_evt_t *p_ble_evt, void *p_context)
 #else
-static void btle_handler(ble_evt_t *p_ble_evt)
+void btle_handler(const ble_evt_t *p_ble_evt)
 #endif
 {
 #if NRF_SDK14PLUS_EVENT_HANDLERS
