@@ -1412,7 +1412,7 @@ public:
         writeAuthorizationCallback(),
         _update_security(SecurityRequirement_t::NONE) {
         _valueAttribute.allowWrite(isWritable(_properties));
-        _valueAttribute.allowWrite(isReadable(_properties));
+        _valueAttribute.allowRead(isReadable(_properties));
 
         if (_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) {
             _valueAttribute.setWriteSecurityRequirement(
