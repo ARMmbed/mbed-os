@@ -2509,7 +2509,7 @@
     "RBLAB_BLENANO2": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "NRF51822_Y5_MBUG": {
@@ -3575,14 +3575,14 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "device_name": "nRF51822_xxAA"
     },
     "NRF51_DONGLE": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "progen": {"target": "nrf51-dongle"},
         "device_has": ["I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "OSHCHIP": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
@@ -3656,34 +3656,34 @@
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVK_NINA_B1": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_UBLOX_NINA_B1": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_LAIRD_BL652": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "MCU_NRF52840": {
@@ -3755,7 +3755,7 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52840_xxAA"
     },
     "BLUEPILL_F103C8": {
@@ -4027,7 +4027,7 @@
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": ["5"],
+        "release_versions": [],
         "device_name": "nRF52832_xxAA"
     },
     "NUMAKER_PFM_M487": {
