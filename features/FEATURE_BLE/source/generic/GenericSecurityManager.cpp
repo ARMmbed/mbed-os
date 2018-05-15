@@ -42,20 +42,19 @@ ble_error_t GenericSecurityManager::init(
     bool signing,
     const char* db_path
 ) {
-    if (_db) {
-        return BLE_ERROR_OPERATION_NOT_PERMITTED;
-    }
 
     ble_error_t err = _pal.initialize();
     if (err) {
     	return err;
     }
 
-    FILE* db_file = FileSecurityDb::open_db_file(db_path);
-    if (db_file) {
-        _db = new (std::nothrow) FileSecurityDb(db_file);
-    } else {
-        _db = new (std::nothrow) MemorySecurityDb();
+    if (!_db) {
+        FILE* db_file = FileSecurityDb::open_db_file(db_path);
+        if (db_file) {
+            _db = new (std::nothrow) FileSecurityDb(db_file);
+        } else {
+            _db = new (std::nothrow) MemorySecurityDb();
+        }
     }
 
     _db->restore();

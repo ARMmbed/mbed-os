@@ -126,6 +126,13 @@ private:
     virtual SecurityEntryKeys_t* read_in_entry_local_keys(entry_handle_t db_handle);
     virtual SecurityEntrySigning_t* read_in_entry_peer_signing(entry_handle_t db_handle);
 
+    /**
+     * Zero the db file.
+     * @param db_file filehandle for file to erase
+     * @return filehandle when successful, otherwise NULL
+     */
+    static FILE* erase_db_file(FILE* db_file);
+
 private:
     entry_t _entries[MAX_ENTRIES];
     FILE *_db_file;

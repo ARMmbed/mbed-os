@@ -75,16 +75,6 @@ typedef SecurityDb::entry_handle_t entry_handle_t;
 FileSecurityDb::FileSecurityDb(FILE *db_file)
     : SecurityDb(),
       _db_file(db_file) {
-    fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
-
-    /* restore if requested */
-    bool restore_toggle;
-    if (fread(&restore_toggle, sizeof(bool), 1, _db_file) == 1) {
-        if (restore_toggle) {
-            restore();
-        }
-    }
-
     /* init the offset in entries so they point to file positions */
     for (size_t i = 0; i < get_entry_count(); i++) {
         _entries[i].file_offset = DB_OFFSET_STORES + i * DB_SIZE_STORE;
@@ -126,22 +116,28 @@ FILE* FileSecurityDb::open_db_file(const char *db_path) {
     }
 
     if (init) {
-        fseek(db_file, 0, SEEK_SET);
+        return erase_db_file(db_file);
+    }
 
-        /* zero the file */
-        const uint32_t zero = 0;
-        size_t count = DB_SIZE / 4;
-        while (count--) {
-            if (fwrite(&zero, sizeof(zero), 1, db_file) != 1) {
-                fclose(db_file);
-                return NULL;
-            }
-        }
+    return db_file;
+}
 
-        if (fflush(db_file)) {
+FILE* FileSecurityDb::erase_db_file(FILE* db_file) {
+    fseek(db_file, 0, SEEK_SET);
+
+    /* zero the file */
+    const uint32_t zero = 0;
+    size_t count = DB_SIZE / 4;
+    while (count--) {
+        if (fwrite(&zero, sizeof(zero), 1, db_file) != 1) {
             fclose(db_file);
             return NULL;
         }
+    }
+
+    if (fflush(db_file)) {
+        fclose(db_file);
+        return NULL;
     }
 
     return db_file;
@@ -282,6 +278,18 @@ void FileSecurityDb::set_entry_peer_sign_counter(
 /* saving and loading from nvm */
 
 void FileSecurityDb::restore() {
+
+    fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
+
+    /* restore if requested */
+    bool restore_toggle;
+    if (fread(&restore_toggle, sizeof(bool), 1, _db_file) == 1) {
+        if (!restore_toggle) {
+            erase_db_file(_db_file);
+            return;
+        }
+    }
+
     fseek(_db_file, DB_OFFSET_LOCAL_IDENTITY, SEEK_SET);
     fread(&_local_identity, sizeof(_local_identity), 1, _db_file);
 
