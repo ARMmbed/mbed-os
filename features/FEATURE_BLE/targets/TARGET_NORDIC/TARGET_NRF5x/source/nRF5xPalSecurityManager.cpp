@@ -797,6 +797,14 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             );
 
             if (pairing_cb && pairing_cb->role == PAIRING_INITIATOR) {
+                // override signing parameter
+                initiator_dist.set_signing(false);
+                responder_dist.set_signing(false);
+
+                // override link parameter
+                initiator_dist.set_link(false);
+                responder_dist.set_link(false);
+
                 // when this event is received by an initiator, it should not be
                 // forwarded via the handler; this is not a behaviour expected
                 // by the bluetooth standard ...
