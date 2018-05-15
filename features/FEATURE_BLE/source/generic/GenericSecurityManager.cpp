@@ -63,7 +63,8 @@ ble_error_t GenericSecurityManager::init(
     _default_authentication.set_secure_connections(secure_connections);
     _default_authentication.set_keypress_notification(true);
 
-    _default_key_distribution.set_link(secure_connections);
+    // FIXME: depends on BR/EDR support
+    _default_key_distribution.set_link(false);
 
     _default_key_distribution.set_signing(signing);
     if (signing) {
@@ -150,17 +151,20 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
 
     /* by default the initiator doesn't send any keys other then identity */
     KeyDistribution initiator_distribution(
-        KeyDistribution::KEY_DISTRIBUTION_IDENTITY | _default_key_distribution.get_link()
+        KeyDistribution::KEY_DISTRIBUTION_IDENTITY |
+        _default_key_distribution.get_link()
+    );
+
+    initiator_distribution.set_signing(
+        cb->signing_override_default ?
+            cb->signing_requested :
+            _default_key_distribution.get_signing()
     );
 
     /* if requested the initiator may send all the default keys for later
      * use when roles are changed */
     if (_master_sends_keys) {
         initiator_distribution = _default_key_distribution;
-        /* override default if requested */
-        if (cb->signing_override_default) {
-            initiator_distribution.set_signing(cb->signing_requested);
-        }
     }
 
     KeyDistribution responder_distribution(_default_key_distribution);
@@ -198,13 +202,18 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     if (_master_sends_keys) {
         initiator_distribution &= _default_key_distribution;
     } else {
-        initiator_distribution &= KeyDistribution(KeyDistribution::KEY_DISTRIBUTION_IDENTITY | KeyDistribution::KEY_DISTRIBUTION_LINK);
+        initiator_distribution &= KeyDistribution(
+            KeyDistribution::KEY_DISTRIBUTION_IDENTITY |
+            KeyDistribution::KEY_DISTRIBUTION_LINK
+        );
     }
 
     /* signing has to be offered and enabled on the link */
     if (master_signing) {
         initiator_distribution.set_signing(
-            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+            cb->signing_override_default ?
+                cb->signing_requested :
+                _default_key_distribution.get_signing()
         );
     }
 
@@ -215,7 +224,9 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
     /* signing has to be requested and enabled on the link */
     if (responder_distribution.get_signing()) {
         responder_distribution.set_signing(
-            cb->signing_override_default ? cb->signing_requested : _default_key_distribution.get_signing()
+            cb->signing_override_default ?
+                cb->signing_requested :
+                _default_key_distribution.get_signing()
         );
     }
 
@@ -374,7 +385,11 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
 
     if (cb->encrypted) {
         if (cb->ltk_mitm_protected  || cb->mitm_performed) {
-            *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
+            if (cb->secure_connections_paired) {
+                *encryption = link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM;
+            } else {
+                *encryption = link_encryption_t::ENCRYPTED_WITH_MITM;
+            }
         } else {
             *encryption = link_encryption_t::ENCRYPTED;
         }
@@ -408,13 +423,14 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
         /* ignore if the link is already at required state*/
 
     } else if (encryption == link_encryption_t::NOT_ENCRYPTED) {
-
-        /* ignore if we are requesting an open link on an already encrypted link */
-
+        // Fail as it is not permitted to turn down encryption
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
     } else if (encryption == link_encryption_t::ENCRYPTED) {
 
         /* only change if we're not already encrypted with mitm */
-        if (current_encryption != link_encryption_t::ENCRYPTED_WITH_MITM) {
+        if (current_encryption != link_encryption_t::ENCRYPTED_WITH_MITM ||
+            current_encryption != link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+        ) {
             cb->encryption_requested = true;
             return enable_encryption(connection);
         }
@@ -422,6 +438,19 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_MITM) {
 
         if (cb->ltk_mitm_protected && !cb->encrypted) {
+            cb->encryption_requested = true;
+            return enable_encryption(connection);
+        } else {
+            cb->encryption_requested = true;
+            return requestAuthentication(connection);
+        }
+
+    } else if (encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
+
+        if (cb->ltk_mitm_protected &&
+            cb->secure_connections_paired &&
+            !cb->encrypted
+        ) {
             cb->encryption_requested = true;
             return enable_encryption(connection);
         } else {
@@ -749,7 +778,12 @@ void GenericSecurityManager::set_ltk_cb(
 
     if (cb) {
         if (entryKeys) {
-            _pal.set_ltk(cb->connection, entryKeys->ltk, cb->ltk_mitm_protected, cb->secure_connections_paired);
+            _pal.set_ltk(
+                cb->connection,
+                entryKeys->ltk,
+                cb->ltk_mitm_protected,
+                cb->secure_connections_paired
+            );
         } else {
             _pal.set_ltk_not_found(cb->connection);
         }
@@ -875,6 +909,8 @@ void GenericSecurityManager::on_disconnected(
     if (!cb) {
         return;
     }
+
+    _pal.remove_peer_csrk(connection);
 
     _db.close_entry(cb->db_entry);
     release_control_block(cb);
@@ -1102,7 +1138,10 @@ void GenericSecurityManager::on_link_encryption_result(
         cb->encryption_failed = false;
         cb->encrypted = true;
 
-    } else if (result == link_encryption_t::ENCRYPTED_WITH_MITM) {
+    } else if (
+        result == link_encryption_t::ENCRYPTED_WITH_MITM ||
+        result == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+    ) {
 
         cb->encryption_requested = false;
         cb->encryption_failed = false;
@@ -1228,6 +1267,7 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
 
     cb->ltk_mitm_protected = cb->mitm_performed;
     cb->secure_connections_paired = true;
+    cb->ltk_stored = true;
 
     _db.set_entry_peer_ltk(cb->db_entry, ltk);
 }
@@ -1241,6 +1281,7 @@ void GenericSecurityManager::on_keys_distributed_ltk(
         return;
     }
     cb->ltk_mitm_protected = cb->mitm_performed;
+    cb->ltk_stored = true;
     _db.set_entry_peer_ltk(cb->db_entry, ltk);
 }
 
@@ -1321,6 +1362,7 @@ void GenericSecurityManager::on_keys_distributed_csrk(
     }
 
     cb->csrk_mitm_protected = cb->mitm_performed;
+    cb->csrk_stored = true;
 
     _db.set_entry_peer_csrk(cb->db_entry, csrk);
 

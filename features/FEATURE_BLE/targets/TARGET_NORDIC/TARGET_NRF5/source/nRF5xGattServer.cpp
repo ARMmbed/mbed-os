@@ -25,42 +25,43 @@
 #include "btle/custom/custom_helper.h"
 
 #include "nRF5xn.h"
+#include "nrf_ble_gap.h"
 
 namespace {
 
 static const ble_gatts_rw_authorize_reply_params_t write_auth_queue_full_reply = {
-    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-    .params = {
-        .write = {
-            .gatt_status = BLE_GATT_STATUS_ATTERR_PREPARE_QUEUE_FULL
+    /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    /* .params = */ {
+        /* .write = */ {
+            /* .gatt_status = */ BLE_GATT_STATUS_ATTERR_PREPARE_QUEUE_FULL
         }
     }
 };
 
 static const ble_gatts_rw_authorize_reply_params_t write_auth_invalid_offset_reply = {
-    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-    .params = {
-        .write = {
-            .gatt_status = BLE_GATT_STATUS_ATTERR_INVALID_OFFSET
+    /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    /* .params = */ {
+        /* .write = */ {
+            /* .gatt_status = */ BLE_GATT_STATUS_ATTERR_INVALID_OFFSET
         }
     }
 };
 
 static const ble_gatts_rw_authorize_reply_params_t write_auth_succes_reply = {
-    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-    .params = {
-        .write = {
-            .gatt_status = BLE_GATT_STATUS_SUCCESS,
-            .update = 0
+    /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    /* .params = */ {
+        /* .write = */ {
+            /* .gatt_status = */ BLE_GATT_STATUS_SUCCESS,
+            /* .update = */ 0
         }
     }
 };
 
 static const ble_gatts_rw_authorize_reply_params_t write_auth_invalid_reply = {
-    .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-    .params = {
-        .write = {
-            .gatt_status = BLE_GATT_STATUS_ATTERR_INVALID
+    /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+    /* .params = */ {
+        /* .write = */ {
+            /* .gatt_status = */ BLE_GATT_STATUS_ATTERR_INVALID
         }
     }
 };
@@ -164,21 +165,25 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         }
 
         ASSERT_TRUE ( ERROR_NONE ==
-                 custom_add_in_characteristic(BLE_GATT_HANDLE_INVALID,
-                                              &nordicUUID,
-                                              p_char->getProperties(),
-                                              p_char->getRequiredSecurity(),
-                                              p_char->getValueAttribute().getValuePtr(),
-                                              p_char->getValueAttribute().getLength(),
-                                              p_char->getValueAttribute().getMaxLength(),
-                                              p_char->getValueAttribute().hasVariableLength(),
-                                              userDescriptionDescriptorValuePtr,
-                                              userDescriptionDescriptorValueLen,
-                                              presentationFormatDescriptorValuePtr,
-                                              presentationFormatDescriptorValueLen,
-                                              p_char->isReadAuthorizationEnabled(),
-                                              p_char->isWriteAuthorizationEnabled(),
-                                              &nrfCharacteristicHandles[characteristicCount]),
+                 custom_add_in_characteristic(
+                     BLE_GATT_HANDLE_INVALID,
+                     &nordicUUID,
+                     p_char->getProperties(),
+                     p_char->getReadSecurityRequirement(),
+                     p_char->getWriteSecurityRequirement(),
+                     p_char->getUpdateSecurityRequirement(),
+                     p_char->getValueAttribute().getValuePtr(),
+                     p_char->getValueAttribute().getLength(),
+                     p_char->getValueAttribute().getMaxLength(),
+                     p_char->getValueAttribute().hasVariableLength(),
+                     userDescriptionDescriptorValuePtr,
+                     userDescriptionDescriptorValueLen,
+                     presentationFormatDescriptorValuePtr,
+                     presentationFormatDescriptorValueLen,
+                     p_char->isReadAuthorizationEnabled(),
+                     p_char->isWriteAuthorizationEnabled(),
+                     &nrfCharacteristicHandles[characteristicCount]
+                 ),
                  BLE_ERROR_PARAM_OUT_OF_RANGE );
 
         /* Update the characteristic handle */
@@ -218,7 +223,9 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
                                             p_desc->getLength(),
                                             p_desc->getMaxLength(),
                                             p_desc->hasVariableLength(),
-                                            &nrfDescriptorHandles[descriptorCount]),
+                                            &nrfDescriptorHandles[descriptorCount],
+                                            p_desc->getReadSecurityRequirement(),
+                                            p_desc->getWriteSecurityRequirement()),
                 BLE_ERROR_PARAM_OUT_OF_RANGE);
 
             p_descriptors[descriptorCount] = p_desc;
@@ -260,9 +267,9 @@ ble_error_t nRF5xGattServer::read(GattAttribute::Handle_t attributeHandle, uint8
 ble_error_t nRF5xGattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP)
 {
     ble_gatts_value_t value = {
-        .len     = *lengthP,
-        .offset  = 0,
-        .p_value = buffer,
+        /* .len     = */ *lengthP,
+        /* .offset  = */ 0,
+        /* .p_value = */ buffer,
     };
 
     ASSERT_TRUE( ERROR_NONE ==
@@ -302,9 +309,9 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
     ble_error_t returnValue = BLE_ERROR_NONE;
 
     ble_gatts_value_t value = {
-        .len     = len,
-        .offset  = 0,
-        .p_value = const_cast<uint8_t *>(buffer),
+        /* .len     = */ len,
+        /* .offset  = */ 0,
+        /* .p_value = */ const_cast<uint8_t *>(buffer),
     };
 
     if (localOnly) {
@@ -345,7 +352,16 @@ ble_error_t nRF5xGattServer::write(Gap::Handle_t connectionHandle, GattAttribute
             }
         }
 
-        if (updatesEnabled) {
+        bool updates_permitted = false;
+        ble_gap_conn_sec_t connection_security;
+        uint32_t err = sd_ble_gap_conn_sec_get(connectionHandle, &connection_security);
+        if (!err &&
+            (connection_security.sec_mode.sm == 1) &&
+            (connection_security.sec_mode.lv >=  p_characteristics[characteristicIndex]->getUpdateSecurityRequirement().value())) {
+            updates_permitted = true;
+        }
+
+        if (updatesEnabled && updates_permitted) {
             error_t error = (error_t) sd_ble_gatts_hvx(connectionHandle, &hvx_params);
             if (error != ERROR_NONE) {
                 switch (error) {
@@ -611,14 +627,14 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
 
                     // success, signal it to the softdevice
                     ble_gatts_rw_authorize_reply_params_t reply = {
-                        .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-                        .params = {
-                            .write = {
-                                .gatt_status = BLE_GATT_STATUS_SUCCESS,
-                                .update = 1,
-                                .offset = input_req.offset,
-                                .len = input_req.len,
-                                .p_data = input_req.data
+                        /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+                        /* .params = */ {
+                            /* .write = */ {
+                                /* .gatt_status = */ BLE_GATT_STATUS_SUCCESS,
+                                /* .update = */ 1,
+                                /* .offset = */ input_req.offset,
+                                /* .len = */ input_req.len,
+                                /* .p_data = */ input_req.data
                             }
                         }
                     };
@@ -639,12 +655,12 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     }
 
                     GattWriteAuthCallbackParams cbParams = {
-                        .connHandle = conn_handle,
-                        .handle     = req->attr_handle,
-                        .offset     = req->offset,
-                        .len        = req->length,
-                        .data       = req->data,
-                        .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                        /* .connHandle = */ conn_handle,
+                        /* .handle     = */ req->attr_handle,
+                        /* .offset     = */ req->offset,
+                        /* .len        = */ req->length,
+                        /* .data       = */ req->data,
+                        /* .authorizationReply = */ AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
                                                                            * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
                                                                            * request is to proceed. */
                     };
@@ -661,9 +677,9 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
 
                     // FIXME can't use ::write here, this function doesn't take the offset into account ...
                     ble_gatts_value_t value = {
-                        .len     = req->length,
-                        .offset  = req->offset,
-                        .p_value = req->data
+                        /* .len     = */ req->length,
+                        /* .offset  = */ req->offset,
+                        /* .p_value = */ req->data
                     };
                     uint32_t update_err = sd_ble_gatts_value_set(conn_handle, req->attr_handle, &value);
                     if (update_err) {
@@ -688,25 +704,25 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
             }
 
             GattWriteAuthCallbackParams cbParams = {
-                .connHandle = gattsEventP->conn_handle,
-                .handle     = handle_value,
-                .offset     = gattsEventP->params.authorize_request.request.write.offset,
-                .len        = gattsEventP->params.authorize_request.request.write.len,
-                .data       = gattsEventP->params.authorize_request.request.write.data,
-                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                /* .connHandle = */ gattsEventP->conn_handle,
+                /* .handle     = */ handle_value,
+                /* .offset     = */ gattsEventP->params.authorize_request.request.write.offset,
+                /* .len        = */ gattsEventP->params.authorize_request.request.write.len,
+                /* .data       = */ gattsEventP->params.authorize_request.request.write.data,
+                /* .authorizationReply = */ AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
                                                                    * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
                                                                    * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
-                .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
-                .params = {
-                    .write = {
-                        .gatt_status = p_characteristics[characteristicIndex]->authorizeWrite(&cbParams),
-                        .update = 1,
-                        .offset = cbParams.offset,
-                        .len = cbParams.len,
-                        .p_data = cbParams.data
+                /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_WRITE,
+                /* .params = */ {
+                    /* .write = */ {
+                        /* .gatt_status = */ p_characteristics[characteristicIndex]->authorizeWrite(&cbParams),
+                        /* .update = */ 1,
+                        /* .offset = */ cbParams.offset,
+                        /* .len = */ cbParams.len,
+                        /* .p_data = */ cbParams.data
                     }
                 }
             };
@@ -740,21 +756,21 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
         }
         case GattServerEvents::GATT_EVENT_READ_AUTHORIZATION_REQ: {
             GattReadAuthCallbackParams cbParams = {
-                .connHandle         = gattsEventP->conn_handle,
-                .handle             = handle_value,
-                .offset             = gattsEventP->params.authorize_request.request.read.offset,
-                .len                = 0,
-                .data               = NULL,
-                .authorizationReply = AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
+                /* .connHandle         = */ gattsEventP->conn_handle,
+                /* .handle             = */ handle_value,
+                /* .offset             = */ gattsEventP->params.authorize_request.request.read.offset,
+                /* .len                = */ 0,
+                /* .data               = */ NULL,
+                /* .authorizationReply = */ AUTH_CALLBACK_REPLY_SUCCESS /* the callback handler must leave this member
                                                                    * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
                                                                    * request is to proceed. */
             };
 
             ble_gatts_rw_authorize_reply_params_t reply = {
-                .type = BLE_GATTS_AUTHORIZE_TYPE_READ,
-                .params = {
-                    .read = {
-                        .gatt_status = p_characteristics[characteristicIndex]->authorizeRead(&cbParams)
+                /* .type = */ BLE_GATTS_AUTHORIZE_TYPE_READ,
+                /* .params = */ {
+                    /* .read = */ {
+                        /* .gatt_status = */ p_characteristics[characteristicIndex]->authorizeRead(&cbParams)
                     }
                 }
             };

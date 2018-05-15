@@ -355,7 +355,10 @@ void BLE::stack_setup()
     AttHandlerInit(handlerId);
     AttsInit();
     AttsIndInit();
+    AttsSignInit();
+    AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
+    AttcSignInit();
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
