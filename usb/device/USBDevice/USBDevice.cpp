@@ -932,7 +932,9 @@ void USBDevice::out(usb_ep_t endpoint)
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
 
-    MBED_ASSERT(info->pending >= 1);
+    if (info->pending < 1) {
+        return;
+    }
     info->pending -= 1;
     if (info->callback) {
         (this->*(info->callback))(endpoint);
@@ -950,7 +952,9 @@ void USBDevice::in(usb_ep_t endpoint)
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
 
-    MBED_ASSERT(info->pending >= 1);
+    if (info->pending < 1) {
+        return;
+    }
     info->pending -= 1;
     if (info->callback) {
         (this->*(info->callback))(endpoint);
