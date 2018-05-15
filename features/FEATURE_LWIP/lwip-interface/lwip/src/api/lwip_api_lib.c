@@ -102,11 +102,18 @@ netconn_apimsg(tcpip_callback_fn fn, struct api_msg *apimsg)
   apimsg->op_completed_sem = LWIP_NETCONN_THREAD_SEM_GET();
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
-  err = tcpip_send_msg_wait_sem(fn, apimsg, LWIP_API_MSG_SEM(apimsg));
-  if (err == ERR_OK) {
-    return apimsg->err;
+  if (sys_tcpip_thread_check()) {
+      fn(apimsg);
+      return ERR_OK;
+  } else {
+      err = tcpip_send_msg_wait_sem(fn, apimsg, LWIP_API_MSG_SEM(apimsg));
+
+      if (err == ERR_OK) {
+        return apimsg->err;
+      }
+
+      return err;
   }
-  return err;
 }
 
 /**
@@ -903,6 +910,8 @@ netconn_join_leave_group(struct netconn *conn,
 #endif /* LWIP_IGMP || (LWIP_IPV6 && LWIP_IPV6_MLD) */
 
 #if LWIP_DNS
+#if LWIP_FULL_DNS
+
 /**
  * @ingroup netconn_common
  * Execute a DNS query, only one IP address is returned
@@ -982,6 +991,8 @@ netconn_gethostbyname(const char *name, ip_addr_t *addr)
   API_VAR_FREE(MEMP_DNS_API_MSG, msg);
   return err;
 }
+
+#endif /* LWIP_FULL_DNS */
 #endif /* LWIP_DNS*/
 
 #if LWIP_NETCONN_SEM_PER_THREAD

@@ -121,7 +121,6 @@ public:
         virtual char *get_gateway(char *buf, nsapi_size_t buflen) = 0;
     };
 
-
     /** Register a network interface with the IP stack
      *
      * Connects EMAC layer with the IP stack and initializes all the required infrastructure.
