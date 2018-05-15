@@ -583,6 +583,9 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 
     disableEndpointEvent(endpoint);
 
+    // reset this endpoint, including data toggle
+    SIEsetEndpointStatus(endpoint, 0);
+
     LPC_USB->USBDevIntClr = EP_RLZED;
     LPC_USB->USBReEp &= ~EP(endpoint);
 
