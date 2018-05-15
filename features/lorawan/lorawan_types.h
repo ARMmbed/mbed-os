@@ -375,6 +375,7 @@ typedef struct {
     uint32_t tx_toa;
 } lorawan_tx_metadata;
 
+/**
  * Meta-data collection for the received packet
  */
 typedef struct {

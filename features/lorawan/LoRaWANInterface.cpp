@@ -128,6 +128,12 @@ lorawan_status_t LoRaWANInterface::get_tx_metadata(lorawan_tx_metadata& metadata
     return _lw_stack.acquire_tx_metadata(metadata);
 }
 
+lorawan_status_t LoRaWANInterface::get_rx_metadata(lorawan_rx_metadata& metadata)
+{
+    Lock lock(*this);
+    return _lw_stack.acquire_rx_metadata(metadata);
+}
+
 int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length, int flags)
 {
     Lock lock(*this);

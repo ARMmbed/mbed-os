@@ -74,6 +74,7 @@ LoRaWANStack::LoRaWANStack()
   _tx_msg(),
   _rx_msg(),
   _tx_metadata(),
+  _rx_metadata(),
   _num_retry(1),
   _ctrl_flags(IDLE_FLAG),
   _app_port(INVALID_PORT),
@@ -83,6 +84,7 @@ LoRaWANStack::LoRaWANStack()
   _queue(NULL)
 {
     _tx_metadata.stale = true;
+    _rx_metadata.stale = true;
 
 #ifdef MBED_CONF_LORA_APP_PORT
     if (is_port_valid(MBED_CONF_LORA_APP_PORT)) {
@@ -433,6 +435,17 @@ lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata& tx_meta
     return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
 }
 
+lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata& metadata)
+{
+    if (!_rx_metadata.stale) {
+        metadata = _rx_metadata;
+        _rx_metadata.stale = true;
+        return LORAWAN_STATUS_OK;
+    }
+
+    return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
+}
+
 /*****************************************************************************
  * Interrupt handlers                                                        *
  ****************************************************************************/
@@ -539,6 +552,8 @@ void LoRaWANStack::process_reception(const uint8_t* const payload, uint16_t size
 
     _loramac.on_radio_rx_done(payload, size, rssi, snr);
 
+    make_rx_metadata_available();
+
     if (_loramac.get_mlme_confirmation()->pending) {
         _loramac.post_process_mlme_request();
         mlme_confirm_handler();
@@ -633,6 +648,15 @@ void LoRaWANStack::make_tx_metadata_available(void)
     _tx_metadata.tx_power = _loramac.get_mcps_confirmation()->tx_power;
     _tx_metadata.tx_toa = _loramac.get_mcps_confirmation()->tx_toa;
     _tx_metadata.nb_retries = _loramac.get_mcps_confirmation()->nb_retries;
+}
+
+void LoRaWANStack::make_rx_metadata_available(void)
+{
+    _rx_metadata.stale = false;
+    _rx_metadata.fpending_status = _loramac.get_mcps_indication()->fpending_status;
+    _rx_metadata.rx_datarate = _loramac.get_mcps_indication()->rx_datarate;
+    _rx_metadata.rssi = _loramac.get_mcps_indication()->rssi;
+    _rx_metadata.snr = _loramac.get_mcps_indication()->snr;
 }
 
 bool LoRaWANStack::is_port_valid(const uint8_t port, bool allow_port_0)

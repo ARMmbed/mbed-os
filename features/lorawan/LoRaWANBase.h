@@ -353,6 +353,22 @@ public:
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
      */
     virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata& metadata) = 0;
+
+    /** Get hold of RX meta-data
+     *
+     * Use this method to acquire any RX meta-data related to current
+     * reception.
+     * RX meta-data is only available right after the reception is completed.
+     * In other words, you can check for RX meta-data right after receiving the
+     * RX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata& metadata) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */

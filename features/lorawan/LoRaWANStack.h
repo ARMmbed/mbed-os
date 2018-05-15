@@ -391,6 +391,18 @@ public:
      */
     lorawan_status_t acquire_tx_metadata(lorawan_tx_metadata& metadata);
 
+    /** Acquire RX meta-data
+     *
+     * Upon successful reception, RX meta-data will be made available
+     *
+     * @param    metadata    A reference to the inbound structure which will be
+     *                       filled with any RX meta-data if available.
+     *
+     * @return               LORAWAN_STATUS_OK if successful,
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE otherwise
+     */
+    lorawan_status_t acquire_rx_metadata(lorawan_rx_metadata& metadata);
+
     void lock(void) { _loramac.lock(); }
     void unlock(void) { _loramac.unlock(); }
 
@@ -486,6 +498,7 @@ private:
     int convert_to_msg_flag(const mcps_type_t type);
 
     void make_tx_metadata_available(void);
+    void make_rx_metadata_available(void);
 
 private:
     LoRaMac _loramac;
@@ -496,6 +509,7 @@ private:
     loramac_tx_message_t _tx_msg;
     loramac_rx_message_t _rx_msg;
     lorawan_tx_metadata _tx_metadata;
+    lorawan_rx_metadata _rx_metadata;
     uint8_t _num_retry;
     uint32_t _ctrl_flags;
     uint8_t _app_port;
