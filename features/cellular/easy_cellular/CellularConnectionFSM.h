@@ -218,6 +218,9 @@ private:
     const char* _plmn;
     bool _command_success;
     bool _plmn_network_found;
+#if MBED_CONF_CELLULAR_RESET_DEVICE_IN_START != 0
+    bool _device_restarted;
+#endif
 };
 
 } // namespace
