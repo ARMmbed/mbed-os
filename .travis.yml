@@ -123,13 +123,13 @@ matrix:
           PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
-                  | capture(\", (?<warnings>[0-9]+) warnings\").warnings" \
+                  | capture(\", (?<files>[0-9]+) files\").warnings" \
               || echo 0)
 
-          STATUSM="Passed, ${CURR} warnings"
+          STATUSM="Passed, ${CURR} files"
           if [ "$PREV" -ne 0 ]
           then
-              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") warnings)"
+              STATUSM="$STATUSM ($(python -c "print '%+d' % ($CURR-$PREV)") files)"
           fi
         - bash -c "$STATUS" success "$STATUSM"
 
