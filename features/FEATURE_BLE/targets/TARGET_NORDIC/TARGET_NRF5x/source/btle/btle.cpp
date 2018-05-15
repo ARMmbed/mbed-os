@@ -23,7 +23,6 @@
 #include "ble_flash.h"
 #include "ble_conn_params.h"
 
-#include "btle_gap.h"
 #include "custom/custom_helper.h"
 
 #include "ble/GapEvents.h"
@@ -252,7 +251,7 @@ error_t btle_init(void)
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
 #endif
 
-    return btle_gap_init();
+    return ERROR_NONE;
 }
 
 #if NRF_SDK14PLUS_EVENT_HANDLERS
