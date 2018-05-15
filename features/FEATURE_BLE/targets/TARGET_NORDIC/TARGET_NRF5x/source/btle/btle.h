@@ -23,7 +23,6 @@ extern "C" {
 
 #include "common/common.h"
 
-#include "ble_srv_common.h"
 #include "headers/nrf_ble.h"
 
 #if NRF_SD_BLE_API_VERSION >= 5
