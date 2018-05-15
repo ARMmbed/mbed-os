@@ -468,6 +468,26 @@ public:
      */
     virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata& metadata);
 
+    /** Get hold of backoff time
+     *
+     * In the TX path, because of automatic duty cycling, the transmission is delayed
+     * by a certain amount of time which is the backoff time. While the system schedules
+     * application data to be sent, the application can inquire about how much time is
+     * left in the actual transmission to happen.
+     *
+     * The system will provide you with a backoff time only if the application data is
+     * in the TX pipe. If however, the event is already queued for the transmission, this
+     * API returns a LORAWAN_STATUS_METADATA_NOT_AVAILABLE error code.
+     *
+     * @param    backoff    the inbound integer that will be carry the backoff time if it
+     *                      is available.
+     *
+     * @return              LORAWAN_STATUS_OK if the meta-data regarding backoff is available,
+     *                      otherwise LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     *
+     */
+    virtual lorawan_status_t get_backoff_metadata(int& backoff);
+
     void lock(void) { _lw_stack.lock(); }
     void unlock(void) { _lw_stack.unlock(); }
 

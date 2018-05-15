@@ -403,6 +403,18 @@ public:
      */
     lorawan_status_t acquire_rx_metadata(lorawan_rx_metadata& metadata);
 
+    /** Acquire backoff meta-data
+     *
+     * Get hold of backoff time after which the transmission will take place.
+     *
+     * @param    backoff     A reference to the inbound integer which will be
+     *                       filled with any backoff meta-data if available.
+     *
+     * @return               LORAWAN_STATUS_OK if successful,
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE otherwise
+     */
+    lorawan_status_t acquire_backoff_metadata(int& backoff);
+
     void lock(void) { _loramac.lock(); }
     void unlock(void) { _loramac.unlock(); }
 

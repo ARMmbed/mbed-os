@@ -1008,6 +1008,11 @@ lorawan_status_t LoRaMac::send(loramac_mhdr_t *machdr, const uint8_t fport,
     return status;
 }
 
+int LoRaMac::get_backoff_timer_event_id(void)
+{
+    return _params.timers.backoff_timer.timer_id;
+}
+
 lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;

@@ -446,6 +446,19 @@ lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata& metadata
     return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
 }
 
+lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
+{
+    int id = _loramac.get_backoff_timer_event_id();
+
+    if (_loramac.get_backoff_timer_event_id() > 0) {
+        backoff = _queue->time_left(id);
+        return LORAWAN_STATUS_OK;
+    }
+
+    backoff = -1;
+    return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
+}
+
 /*****************************************************************************
  * Interrupt handlers                                                        *
  ****************************************************************************/

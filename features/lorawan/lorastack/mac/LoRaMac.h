@@ -443,6 +443,11 @@ public:
     void set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level);
 
     /**
+     * Returns the event ID of backoff timer.
+     */
+    int get_backoff_timer_event_id(void);
+
+    /**
      * These locks trample through to the upper layers and make
      * the stack thread safe.
      */
