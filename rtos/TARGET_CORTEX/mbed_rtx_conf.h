@@ -58,6 +58,10 @@
 #define OS_STACK_WATERMARK          1
 #endif
 
+#if !defined(OS_STACK_WATERMARK) && defined(MBED_THREAD_STATS_ENABLED)
+#define OS_STACK_WATERMARK          1
+#endif
+
 /* Run threads unprivileged when uVisor is enabled. */
 #if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
 # define OS_PRIVILEGE_MODE           0
