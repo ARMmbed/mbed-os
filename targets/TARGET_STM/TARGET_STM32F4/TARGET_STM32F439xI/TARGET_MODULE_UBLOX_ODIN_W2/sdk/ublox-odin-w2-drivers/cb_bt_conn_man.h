@@ -120,6 +120,8 @@ typedef enum
 typedef struct
 {
     TBdAddr                 address;
+    TNameOutgoing           remoteName;
+    cb_int8                 remoteRssi;
     cbBCM_ConnectionType    type;
     TConnHandle             aclHandle;
     TBluetoothType          btType;
@@ -128,17 +130,6 @@ typedef struct
     cb_boolean              uuidValid;
     cb_char                 serviceName[cbBCM_SERVICE_NAME_MAX_LEN];
 } cbBCM_ConnectionInfo;
-
-typedef struct
-{
-    cb_uint8  flags;            /** Reserved for future use. */
-    cb_uint8  flowDirection;    /** 0x00 for Outgoing Flow and 0x01 for Incoming Flow */
-    cb_uint8  serviceType;      /** 0x00 No Traffic; 0x01 Best Effort; 0x02 Guaranteed */
-    cb_uint32 tokenRate;        /** Token Rate in octets per second */
-    cb_uint32 tokenBucketSize;  /** Token Bucket Size in octets */
-    cb_uint32 peakBandwidth;    /** Peak Bandwidth in octets per second */
-    cb_uint32 latency;          /** Latency in microseconds */
-} cbBCM_FlowSpecParams;
 
 typedef void (*cbBCM_ConnectInd)(
     cbBCM_Handle handle,
@@ -238,12 +229,6 @@ typedef void(*cbBCM_LinkQualityCallback)(
     uint8               linkQuality);
 
 typedef void(*cbBCM_ServiceClassEnabled)(cb_uint8 serviceChannel);
-
-typedef void(*cbBCM_SetFlowSpecCallback)(
-    cb_uint8 status,
-    cbBCM_Handle handle,
-    cbBCM_FlowSpecParams parameters);
-
 /*===========================================================================
  * FUNCTIONS
  *=========================================================================*/
@@ -419,6 +404,7 @@ extern cb_uint16 cbBCM_getMaxLinksLE(void);
  * @param   serverChannel     RFCOMM server channel that shall be used. Set to
  *                            cbBCM_INVALID_SERVER_CHANNEL to perform automatic
  *                            service search to find the server channel.
+ * @param   pRemoteName       Pointer used in case user connects to the Bluetooth name
  * @param   pAclParameters    Link configuration including link supervision timeout
  *                            and master slave policy. Pass NULL to use default connection 
  *                            parameters.
@@ -430,7 +416,9 @@ extern cbBCM_Handle cbBCM_reqConnectSpp(
     TBdAddr *pAddress,
     cb_char *pServiceName,
     cb_uint8 serverChannel,
+    cb_char *pRemoteName,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -477,6 +465,7 @@ extern cbBCM_Handle cbBCM_reqConnectDun(
     cb_char *pServiceName,
     cb_uint8 serverChannel,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -525,6 +514,7 @@ extern cbBCM_Handle cbBCM_reqConnectUuid(
     cb_char *pServiceName,
     cb_uint8 serverChannel,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -624,6 +614,7 @@ extern cb_int32 cbBCM_autoConnect(
  */
 extern cbBCM_Handle cbBCM_reqConnectSps(
     TBdAddr *pAddress,
+    cb_char *pRemoteName,
     cbBCM_ConnectionParametersLe *pAclLeParams,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
@@ -825,7 +816,7 @@ extern TBdAddr cbBCM_getAddress(cbBCM_Handle handle);
  */
 extern cb_int32 cbBCM_registerDataCallback(
     cbBCM_ConnectionType type,
-    cbBCM_DataCallback *pDataCallback);
+    const cbBCM_DataCallback *pDataCallback);
 
 /**
  * @brief   Get the protocol handle for an active connection. Shall not be used
@@ -854,19 +845,19 @@ extern cbBCM_Handle cbBCM_getIdFromAclHandle(TConnHandle aclHandle);
 * @return  acl handle
 */
 extern TConnHandle cbBCM_getAclFromIdHandle(cbBCM_Handle  bcmHandle);
+
 /**
-* @brief   This will send cbHCI_cmdFlowSpecification command for the specified link
-*          with the specified parameters.
-* @param   handle           Connection handle
-* @param   parameters       Flow Specification parameters. For details see Bluetooth Core
-*                           Specification [Vol 3] Part A, Section 5.3
-* @param   flowSpecCallback Callback contains the data in Flow Specification Complete event
-* @return  If the operation is successful cbBCM_OK is returned.
+* @brief   Set active poll mode to introduce periodic BT classic link polling.
+* @param   mode   Active poll mode  0=disable, 1=enable (default period), 2-UINT16_MAX: period of poll
+* @return  If the update is successfully initiated cbBCM_OK is returned.
 */
-extern cb_int32 cbBCM_setFlowSpecification(
-    cbBCM_Handle handle,
-    cbBCM_FlowSpecParams parameters,
-    cbBCM_SetFlowSpecCallback flowSpecCallback);
+extern cb_int32 cbBCM_setActivePollMode(cb_uint16 mode);
+
+/**
+* @brief   Get active poll mode.
+* @return   Active poll mode  0=disable, 1=enable
+*/
+extern cb_uint16 cbBCM_getActivePollMode(void);
 
 /**
 * @brief   Change which packet types can be used for the connection identified by the handle
@@ -877,6 +868,7 @@ extern cb_int32 cbBCM_setFlowSpecification(
 extern cb_int32 cbBCM_changeConnectionPacketType(
     cbBCM_Handle handle,
     TPacketType aclPacketType);
+	
 
 #ifdef __cplusplus
 }
