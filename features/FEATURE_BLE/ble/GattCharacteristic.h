@@ -1414,6 +1414,8 @@ public:
         _valueAttribute.allowWrite(isWritable(_properties));
         _valueAttribute.allowRead(isReadable(_properties));
 
+        // signed writes requires at least an unauthenticated CSRK or an
+        // unauthenticated ltk if the link is encrypted.
         if (_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) {
             _valueAttribute.setWriteSecurityRequirement(
                 SecurityRequirement_t::UNAUTHENTICATED
