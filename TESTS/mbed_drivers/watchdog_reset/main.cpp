@@ -24,8 +24,8 @@
 #include "Watchdog_reset_tests.h"
 #include "mbed.h"
 
-#define TIMEOUT_MS 500UL
-#define TIMEOUT_DELTA_MS 50UL
+#define TIMEOUT_MS 100UL
+#define TIMEOUT_DELTA_MS 10UL
 
 #define MSG_VALUE_DUMMY "0"
 #define CASE_DATA_INVALID 0xffffffffUL
