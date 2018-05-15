@@ -29,15 +29,9 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "events/EventQueue.h"
 
 #include "LoRaWANStack.h"
-#if defined(FEATURE_COMMON_PAL)
-#include "mbed_trace.h"
+
+#include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "LSTK"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#define tr_warn(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 
 #define INVALID_PORT                0xFF
 #define MAX_CONFIRMED_MSG_RETRIES   255
