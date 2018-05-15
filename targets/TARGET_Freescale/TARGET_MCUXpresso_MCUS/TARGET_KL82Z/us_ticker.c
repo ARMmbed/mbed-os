@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,16 @@
 #include "fsl_pit.h"
 #include "fsl_clock_config.h"
 
-static int us_ticker_inited = 0;
+const ticker_info_t* us_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        1000000,    // 1 MHz
+             32     // 32 bit counter
+    };
+    return &info;
+}
+
+static bool us_ticker_inited = false;
 
 static void pit_isr(void)
 {
@@ -31,15 +40,14 @@ static void pit_isr(void)
     us_ticker_irq_handler();
 }
 
+/** Initialize the high frequency ticker
+ *
+ */
 void us_ticker_init(void)
 {
-    if (us_ticker_inited) {
-        return;
-    }
-    us_ticker_inited = 1;
-    //Common for ticker/timer
+    /* Common for ticker/timer. */
     uint32_t busClock;
-    // Structure to initialize PIT
+    /* Structure to initialize PIT. */
     pit_config_t pitConfig;
 
     PIT_GetDefaultConfig(&pitConfig);
@@ -47,55 +55,83 @@ void us_ticker_init(void)
 
     busClock = CLOCK_GetFreq(kCLOCK_BusClk);
 
-    //Timer
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, busClock / 1000000 - 1);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, 0xFFFFFFFF);
-    PIT_SetTimerChainMode(PIT, kPIT_Chnl_1, true);
-    PIT_StartTimer(PIT, kPIT_Chnl_0);
-    PIT_StartTimer(PIT, kPIT_Chnl_1);
-
-    //Ticker
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, busClock / 1000000 - 1);
-    PIT_SetTimerChainMode(PIT, kPIT_Chnl_3, true);
-    NVIC_SetVector(PIT0_IRQn, (uint32_t)pit_isr);
-    NVIC_EnableIRQ(PIT0_IRQn);
-}
-
-
-uint32_t us_ticker_read()
-{
+    /* Let the timer to count if re-init. */
     if (!us_ticker_inited) {
-        us_ticker_init();
+
+        PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, busClock / 1000000 - 1);
+        PIT_SetTimerPeriod(PIT, kPIT_Chnl_1, 0xFFFFFFFF);
+        PIT_SetTimerChainMode(PIT, kPIT_Chnl_1, true);
+        PIT_StartTimer(PIT, kPIT_Chnl_0);
+        PIT_StartTimer(PIT, kPIT_Chnl_1);
     }
 
+    /* Configure interrupt generation counters and disable ticker interrupts. */
+    PIT_StopTimer(PIT, kPIT_Chnl_3);
+    PIT_StopTimer(PIT, kPIT_Chnl_2);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, busClock / 1000000 - 1);
+    PIT_SetTimerChainMode(PIT, kPIT_Chnl_3, true);
+    NVIC_SetVector(PIT0_IRQn, (uint32_t) pit_isr);
+    NVIC_EnableIRQ(PIT0_IRQn);
+    PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
+
+    us_ticker_inited = true;
+}
+
+/** Read the current counter
+ *
+ * @return The current timer's counter value in ticks
+ */
+uint32_t us_ticker_read()
+{
     return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
 }
 
+/** Disable us ticker interrupt
+ *
+ */
 void us_ticker_disable_interrupt(void)
 {
     PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
 }
 
+/** Clear us ticker interrupt
+ *
+ */
 void us_ticker_clear_interrupt(void)
 {
     PIT_ClearStatusFlags(PIT, kPIT_Chnl_3, PIT_TFLG_TIF_MASK);
 }
 
+/** Set interrupt for specified timestamp
+ *
+ * @param timestamp The time in ticks when interrupt should be generated
+ */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t now_us, delta_us;
+    /* We get here absolute interrupt time which takes into account counter overflow.
+     * Since we use additional count-down timer to generate interrupt we need to calculate
+     * load value based on time-stamp.
+     */
+    const uint32_t now_ticks = us_ticker_read();
+    uint32_t delta_ticks =
+            timestamp >= now_ticks ? timestamp - now_ticks : (uint32_t)((uint64_t) timestamp + 0xFFFFFFFF - now_ticks);
 
-    now_us = us_ticker_read();
-    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+    if (delta_ticks == 0) {
+        /* The requested delay is less than the minimum resolution of this counter. */
+        delta_ticks = 1;
+    }
 
     PIT_StopTimer(PIT, kPIT_Chnl_3);
     PIT_StopTimer(PIT, kPIT_Chnl_2);
-    PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, (uint32_t)delta_us);
+    PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, delta_ticks);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
     PIT_StartTimer(PIT, kPIT_Chnl_3);
     PIT_StartTimer(PIT, kPIT_Chnl_2);
 }
 
+/** Fire us ticker interrupt
+ *
+ */
 void us_ticker_fire_interrupt(void)
 {
     NVIC_SetPendingIRQ(PIT0_IRQn);
