@@ -40,7 +40,7 @@
 // Do not set watchdog timeout shorter than 50 ms as it may cause the
 // host-test-runner return 'TIMEOUT' instead of 'FAIL' / 'PASS' if watchdog
 // performs reset during test suite teardown.
-#define WDG_TIMEOUT_MS 500UL
+#define WDG_TIMEOUT_MS 100UL
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 24
@@ -243,8 +243,8 @@ Case cases[] = {
          test_update_config,
          (utest::v1::case_teardown_handler_t) case_teardown_wdg_stop_or_reset),
 
-    Case("Init, 500 ms", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
-         test_init<500UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
+    Case("Init, 100 ms", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
+         test_init<100UL>, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
     Case("Init, max_timeout", (utest::v1::case_setup_handler_t) case_setup_sync_on_reset,
          test_init_max_timeout, (utest::v1::case_teardown_handler_t) case_teardown_sync_on_reset),
 };
