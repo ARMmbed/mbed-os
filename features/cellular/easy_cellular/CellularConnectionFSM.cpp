@@ -65,6 +65,10 @@ CellularConnectionFSM::CellularConnectionFSM() :
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
+
+#if MBED_CONF_CELLULAR_RESET_DEVICE_IN_START != 0
+    _device_restarted = false;
+#endif
 }
 
 CellularConnectionFSM::~CellularConnectionFSM()
@@ -452,6 +456,21 @@ void CellularConnectionFSM::state_device_ready()
 {
     _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
     if (_power->set_at_mode() == NSAPI_ERROR_OK) {
+#if MBED_CONF_CELLULAR_RESET_DEVICE_IN_START != 0
+        if (!_device_restarted) {
+            tr_info("RESTARING DEVICE.....");
+            _device_restarted = true;
+            _command_success = (_power->reset() == NSAPI_ERROR_OK);
+            if (_command_success) {
+                // need to wait for reset to start, 1s is too small...
+                _event_timeout = 3;
+            } else {
+                tr_error("reset failed...");
+                retry_state_or_fail();
+            }
+            return;
+        }
+#endif
         if (device_ready()) {
             enter_to_state(STATE_SIM_PIN);
         }

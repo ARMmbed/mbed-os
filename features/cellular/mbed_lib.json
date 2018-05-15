@@ -8,6 +8,10 @@
         "random_max_start_delay": {
             "help": "Maximum random delay value used in start-up sequence in milliseconds",
             "value": 0
+        },
+        "reset_device_in_start": {
+            "help": "Reset the device after power",
+            "value": 0
         }
     }
 }
