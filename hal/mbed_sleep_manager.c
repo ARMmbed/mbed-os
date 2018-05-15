@@ -31,18 +31,18 @@
 
 // deep sleep locking counter. A target is allowed to deep sleep if counter == 0
 static uint16_t deep_sleep_lock = 0U;
-static uint64_t sleep_time = 0;
-static uint64_t deep_sleep_time = 0;
+static us_timestamp_t sleep_time = 0;
+static us_timestamp_t deep_sleep_time = 0;
 
 #if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
 static ticker_data_t *sleep_ticker = NULL;
 #endif
 
-static inline uint64_t read_us(void)
+static inline us_timestamp_t read_us(void)
 {
 #if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
     if (NULL == sleep_ticker) {
-        sleep_ticker = (ticker_data_t*) get_lp_ticker_data();
+        sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
     }
     return ticker_read_us(sleep_ticker);
 #else
@@ -50,29 +50,22 @@ static inline uint64_t read_us(void)
 #endif
 }
 
-uint64_t mbed_time_idle(void)
+us_timestamp_t mbed_time_idle(void)
 {
-    return (sleep_time+deep_sleep_time);
+    return (sleep_time + deep_sleep_time);
 }
 
-uint64_t mbed_uptime(void)
+us_timestamp_t mbed_uptime(void)
 {
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
-    if (NULL == sleep_ticker) {
-        sleep_ticker = (ticker_data_t*) get_lp_ticker_data();
-    }
-    return ticker_read_us(sleep_ticker);
-#else
-    return 0;
-#endif
+    return read_us();
 }
 
-uint64_t mbed_time_sleep(void)
+us_timestamp_t mbed_time_sleep(void)
 {
     return sleep_time;
 }
 
-uint64_t mbed_time_deepsleep(void)
+us_timestamp_t mbed_time_deepsleep(void)
 {
     return deep_sleep_time;
 }
@@ -83,7 +76,7 @@ uint64_t mbed_time_deepsleep(void)
 #define STATISTIC_COUNT  10
 
 typedef struct sleep_statistic {
-    const char* identifier;
+    const char *identifier;
     uint8_t count;
 } sleep_statistic_t;
 
@@ -132,7 +125,7 @@ static void sleep_tracker_print_stats(void)
     }
 }
 
-void sleep_tracker_lock(const char* const filename, int line)
+void sleep_tracker_lock(const char *const filename, int line)
 {
     sleep_statistic_t *stat = sleep_tracker_find(filename);
 
@@ -196,7 +189,7 @@ void sleep_manager_sleep_auto(void)
     sleep_tracker_print_stats();
 #endif
     core_util_critical_section_enter();
-    uint64_t start = read_us();
+    us_timestamp_t start = read_us();
     bool deep = false;
 
 // debug profile should keep debuggers attached, no deep sleep allowed
@@ -211,8 +204,8 @@ void sleep_manager_sleep_auto(void)
     }
 #endif
 
-    uint64_t end = read_us();
-    if(true == deep) {
+    us_timestamp_t end = read_us();
+    if (true == deep) {
         deep_sleep_time += end - start;
     } else {
         sleep_time += end - start;

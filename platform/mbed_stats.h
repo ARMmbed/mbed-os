@@ -24,6 +24,7 @@
 #define MBED_STATS_H
 #include <stdint.h>
 #include <stddef.h>
+#include "hal/ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,10 +88,10 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
  * struct mbed_stats_cpu_t definition
  */
 typedef struct {
-    uint64_t uptime;            /**< Time since system is up and running */
-    uint64_t idle_time;         /**< Time spent in idle thread since system is up and running */
-    uint64_t sleep_time;        /**< Time spent in sleep since system is up and running */
-    uint64_t deep_sleep_time;   /**< Time spent in deep sleep since system is up and running */
+    us_timestamp_t uptime;            /**< Time since system is up and running */
+    us_timestamp_t idle_time;         /**< Time spent in idle thread since system is up and running */
+    us_timestamp_t sleep_time;        /**< Time spent in sleep since system is up and running */
+    us_timestamp_t deep_sleep_time;   /**< Time spent in deep sleep since system is up and running */
 } mbed_stats_cpu_t;
 
 /**

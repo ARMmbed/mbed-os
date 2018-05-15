@@ -25,6 +25,7 @@
 
 #include "sleep_api.h"
 #include "mbed_toolchain.h"
+#include "hal/ticker_api.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -206,31 +207,33 @@ static inline void system_reset(void)
     NVIC_SystemReset();
 }
  
-/** Provides the time spent in sleep mode, since system is up and running
+/** Provides the time spent in sleep mode since boot.
  *
  *  @return  Time spent in sleep
+ *  @note  Works only if platform supports LP ticker.
  */
-uint64_t mbed_time_sleep(void);
+us_timestamp_t mbed_time_sleep(void);
 
-/** Provides the time spent in deep sleep mode, since system is up and running
+/** Provides the time spent in deep sleep mode since boot.
  *
  *  @return  Time spent in deep sleep
+ *  @note  Works only if platform supports LP ticker.
  */
-uint64_t mbed_time_deepsleep(void);
+us_timestamp_t mbed_time_deepsleep(void);
 
-/** Provides the time spent in idle thread since the system is up
+/** Provides the time spent in idle mode since boot.
  *
  * @return  Idle thread time.
+ * @note  Works only if platform supports LP ticker.
  */
-uint64_t mbed_time_idle(void);
+us_timestamp_t mbed_time_idle(void);
 
-
-/** Provides the time since the system is up and running
+/** Provides the time since the system is up i.e. boot.
  *
  * @return  System uptime.
+ * @note  Works only if platform supports LP ticker.
  */
-uint64_t mbed_uptime(void);
-
+us_timestamp_t mbed_uptime(void);
 
 #ifdef __cplusplus
 }

@@ -39,7 +39,7 @@ static void busy_thread()
 {
     volatile uint64_t i = ~0;
     
-    while(i--) {
+    while (i--) {
         led1 = !led1;
         wait_us(wait_time);
     }
@@ -52,7 +52,7 @@ void get_cpu_usage()
     mbed_stats_cpu_get(&stats);
 
     uint64_t diff = (stats.idle_time - prev_idle_time);
-    uint8_t usage = 100 - ((diff * 100) / (SAMPLE_TIME*1000));
+    uint8_t usage = 100 - ((diff * 100) / (SAMPLE_TIME * 1000));
     prev_idle_time = stats.idle_time;
 
     TEST_ASSERT_NOT_EQUAL(0, usage);
