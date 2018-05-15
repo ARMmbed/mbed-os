@@ -43,8 +43,7 @@ static void _sigio_handler2(osThreadId id) {
 static void check_const_len_rand_sequence()
 {
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.sigio(callback(_sigio_handler1, Thread::gettid()));
 
     static const int BUFF_SIZE = 10;
@@ -90,15 +89,13 @@ static void check_const_len_rand_sequence()
         }
         TEST_ASSERT_EQUAL(0, memcmp(tx_buff, rx_buff, BUFF_SIZE));
     }
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
 static void check_var_len_rand_sequence()
 {
     TCPSocket sock;
-
-    sock.open(get_interface());
-    sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.sigio(callback(_sigio_handler2, Thread::gettid()));
 
     static const int BUFF_SIZE = 1001;
@@ -145,7 +142,7 @@ static void check_var_len_rand_sequence()
         TEST_ASSERT_EQUAL(0, memcmp(tx_buff, rx_buff, i));
     }
 
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
 void test_tcpsocket_thread_per_socket_safety()

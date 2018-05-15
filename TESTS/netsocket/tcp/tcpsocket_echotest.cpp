@@ -48,13 +48,7 @@ static void _sigio_handler(osThreadId id) {
 
 void test_tcpsocket_echotest()
 {
-    SocketAddress tcp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
-    TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(tcp_addr);
+    tcpsocket_connect_to_echo_srv(sock);
 
     int recvd;
     int sent;
@@ -82,7 +76,7 @@ void test_tcpsocket_echotest()
         }
         TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, sent));
     }
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
 void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
@@ -111,12 +105,7 @@ void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 void test_tcpsocket_echotest_nonblock()
 {
-    SocketAddress tcp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
-    sock.open(get_interface());
-    sock.connect(tcp_addr);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
@@ -155,5 +144,5 @@ void test_tcpsocket_echotest_nonblock()
         delete thread;
     }
     free(stack_mem);
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

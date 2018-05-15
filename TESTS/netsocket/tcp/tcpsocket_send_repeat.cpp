@@ -28,8 +28,7 @@ using namespace utest::v1;
 void test_tcpsocket_send_repeat()
 {
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9);
+    tcpsocket_connect_to_discard_srv(sock);
 
     int err;
     Timer timer;
@@ -38,5 +37,6 @@ void test_tcpsocket_send_repeat()
         err = sock.send(tx_buffer, sizeof(tx_buffer));
         TEST_ASSERT_EQUAL(sizeof(tx_buffer), err);
     }
-    sock.close();
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

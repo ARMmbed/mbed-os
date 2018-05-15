@@ -68,6 +68,26 @@ static void _ifdown() {
     printf("MBED: ifdown\n");
 }
 
+void tcpsocket_connect_to_echo_srv(TCPSocket& sock) {
+    SocketAddress tcp_addr;
+
+    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+}
+
+void tcpsocket_connect_to_discard_srv(TCPSocket& sock) {
+    SocketAddress tcp_addr;
+
+    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
+    tcp_addr.set_port(9);
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+}
+
 void fill_tx_buffer_ascii(char *buff, size_t len)
 {
     for (size_t i = 0; i<len; ++i) {

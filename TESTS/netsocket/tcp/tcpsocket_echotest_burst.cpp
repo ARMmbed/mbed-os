@@ -40,13 +40,8 @@ static void _sigio_handler(osThreadId id) {
 
 void test_tcpsocket_echotest_burst()
 {
-    SocketAddress tcp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(tcp_addr);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
     // TX buffer to be preserved for comparison
@@ -88,18 +83,13 @@ void test_tcpsocket_echotest_burst()
 
         TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, BURST_SIZE));
     }
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
 void test_tcpsocket_echotest_burst_nonblock()
 {
-    SocketAddress tcp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(tcp_addr);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
@@ -150,5 +140,5 @@ void test_tcpsocket_echotest_burst_nonblock()
 
         TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, BURST_SIZE));
     }
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

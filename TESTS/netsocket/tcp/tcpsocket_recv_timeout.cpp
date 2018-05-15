@@ -32,16 +32,11 @@ static void _sigio_handler(osThreadId id) {
 
 void test_tcpsocket_recv_timeout()
 {
-    SocketAddress tcp_addr;
-    get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
-    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
-
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};
 
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(tcp_addr);
+    tcpsocket_connect_to_echo_srv(sock);
     sock.set_timeout(100);
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
@@ -72,5 +67,5 @@ void test_tcpsocket_recv_timeout()
             pkt_unrecvd -= recvd;
         }
     }
-    sock.close();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

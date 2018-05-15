@@ -28,8 +28,7 @@ using namespace utest::v1;
 void test_tcpsocket_send_timeout()
 {
     TCPSocket sock;
-    sock.open(get_interface());
-    sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9);
+    tcpsocket_connect_to_discard_srv(sock);
 
     int err;
     Timer timer;
@@ -42,5 +41,6 @@ void test_tcpsocket_send_timeout()
         TEST_ASSERT_EQUAL(sizeof(tx_buffer), err);
         TEST_ASSERT(timer.read_ms() <= 800);
     }
-    sock.close();
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
