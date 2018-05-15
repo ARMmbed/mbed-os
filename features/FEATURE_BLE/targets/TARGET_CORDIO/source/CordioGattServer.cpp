@@ -84,6 +84,7 @@ ble_error_t GattServer::addService(GattService &service)
     att_service->attGroup.pAttr =
         (attsAttr_t*) alloc_block(attributes_count * sizeof(attsAttr_t));
     if (att_service->attGroup.pAttr == NULL) {
+        delete att_service;
         return BLE_ERROR_BUFFER_OVERFLOW;
     }
 
