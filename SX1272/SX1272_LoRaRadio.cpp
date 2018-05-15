@@ -32,15 +32,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
 
-#if defined(FEATURE_COMMON_PAL)
-#include "mbed_trace.h"
-#define TRACE_GROUP "LRAD"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
-
 #ifdef MBED_SX1272_LORA_RADIO_SPI_FREQUENCY
 #define SPI_FREQUENCY    MBED_SX1272_LORA_RADIO_SPI_FREQUENCY
 #else
