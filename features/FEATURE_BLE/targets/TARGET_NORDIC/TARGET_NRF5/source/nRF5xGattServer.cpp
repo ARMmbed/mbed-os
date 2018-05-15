@@ -469,7 +469,7 @@ ble_error_t nRF5xGattServer::reset(void)
     @brief  Callback handler for events getting pushed up from the SD
 */
 /**************************************************************************/
-void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
+void nRF5xGattServer::hwCallback(const ble_evt_t *p_ble_evt)
 {
     GattAttribute::Handle_t        handle_value;
     GattServerEvents::gattEvent_t  eventType;
