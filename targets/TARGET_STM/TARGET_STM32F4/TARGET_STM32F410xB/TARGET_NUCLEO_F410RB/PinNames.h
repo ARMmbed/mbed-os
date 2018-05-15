@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -36,6 +37,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
 
 typedef enum {
     PA_0  = 0x00,
@@ -59,13 +67,19 @@ typedef enum {
     PB_1  = 0x11,
     PB_2  = 0x12,
     PB_3  = 0x13,
+    PB_3_ALT0 = PB_3|ALT0,
     PB_4  = 0x14,
     PB_5  = 0x15,
     PB_6  = 0x16,
     PB_7  = 0x17,
     PB_8  = 0x18,
     PB_9  = 0x19,
+    PB_9_ALT0 = PB_9|ALT0,
+    PB_9_ALT1 = PB_9|ALT1,
     PB_10 = 0x1A,
+    PB_10_ALT0 = PB_10|ALT0,
+    PB_11 = 0x1B,
+    PB_11_ALT0 = PB_11|ALT0,
     PB_12 = 0x1C,
     PB_13 = 0x1D,
     PB_14 = 0x1E,
@@ -154,6 +168,31 @@ typedef enum {
     SPI_SCK     = PB_13,
     SPI_CS      = PB_12,
     PWM_OUT     = PA_7,
+
+/**** No USB pins ***/
+
+/**** No ETHERNET pins ***/
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_TRACECLK = PC_6,
+    SYS_TRACED0 = PC_10,
+    SYS_TRACED1 = PC_11,
+    SYS_TRACED2 = PC_12,
+    SYS_TRACED3 = PB_11,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_0,
+    SYS_WKUP3 = PC_1,
 
     // Not connected
     NC = (int)0xFFFFFFFF
