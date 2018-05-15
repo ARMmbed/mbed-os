@@ -448,8 +448,8 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     } else if (encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM) {
 
         if (cb->ltk_mitm_protected &&
-            cb->secure_connections_paired && !
-            cb->encrypted
+            cb->secure_connections_paired &&
+            !cb->encrypted
         ) {
             cb->encryption_requested = true;
             return enable_encryption(connection);
