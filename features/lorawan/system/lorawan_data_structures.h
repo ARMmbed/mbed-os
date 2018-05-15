@@ -1305,6 +1305,7 @@ typedef struct {
 
 } loramac_protocol_params;
 
+
 #if defined(LORAWAN_COMPLIANCE_TEST)
 
 typedef struct {

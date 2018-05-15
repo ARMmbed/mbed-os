@@ -553,6 +553,7 @@ void LoRaWANStack::process_transmission(void)
         if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
             _ctrl_flags |= TX_ONGOING_FLAG;
             _ctrl_flags &= ~TX_DONE_FLAG;
+            tr_debug("Awaiting ACK");
             _device_current_state = DEVICE_STATE_AWAITING_ACK;
             return;
         }

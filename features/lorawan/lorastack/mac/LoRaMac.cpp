@@ -170,7 +170,6 @@ void LoRaMac::post_process_mcps_req()
                 _params.ul_frame_counter++;
             }
         }
-
     } else {
         //UNCONFIRMED or PROPRIETARY
         if (_params.is_ul_frame_counter_fixed == false) {
@@ -548,6 +547,10 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
         return;
     }
 
+    // message is intended for us and MIC have passed, stop RX2 Window
+    // Spec: 3.3.4 Receiver Activity during the receive windows
+    _lora_time.stop(_params.timers.rx_window2_timer);
+
     _mcps_confirmation.ack_received = false;
     _mcps_indication.is_ack_recvd = false;
     _mcps_indication.pending = true;
@@ -662,7 +665,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
 {
     // on reception turn off queued timers
     _lora_time.stop(_params.timers.rx_window1_timer);
-    _lora_time.stop(_params.timers.rx_window2_timer);
 
     if (_device_class == CLASS_C) {
          open_rx2_window();
@@ -847,6 +849,7 @@ void LoRaMac::on_backoff_timer_expiry(void)
 void LoRaMac::open_rx1_window(void)
 {
     Lock lock(*this);
+    tr_debug("Opening RX1 Window");
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
@@ -871,6 +874,7 @@ void LoRaMac::open_rx1_window(void)
 void LoRaMac::open_rx2_window()
 {
     Lock lock(*this);
+    tr_debug("Opening RX2 Window");
     _lora_time.stop(_params.timers.rx_window2_timer);
 
     _params.rx_window2_config.channel = _params.channel;
@@ -925,13 +929,16 @@ void LoRaMac::check_to_disable_ack_timeout(bool node_ack_requested,
 void LoRaMac::on_ack_timeout_timer_event(void)
 {
     Lock lock(*this);
-    _params.ack_timeout_retry_counter++;
+    tr_debug("ACK_TIMEOUT Elapses, Retrying ...");
+    _lora_time.stop(_params.timers.ack_timeout_timer);
 
     // reduce data rate
     if ((_params.ack_timeout_retry_counter % 2)) {
         _params.sys_params.channel_data_rate = _lora_phy.get_next_lower_tx_datarate(
                                                _params.sys_params.channel_data_rate);
     }
+
+    _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
     // Schedule a retry
     if (handle_retransmission() != LORAWAN_STATUS_OK) {
@@ -943,12 +950,13 @@ void LoRaMac::on_ack_timeout_timer_event(void)
         _mac_commands.clear_command_buffer();
         _params.is_node_ack_requested = false;
         _mcps_confirmation.ack_received = false;
-        _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
         // now that is a critical failure
         lorawan_status_t status = handle_retransmission();
         MBED_ASSERT(status==LORAWAN_STATUS_OK);
     }
+
+    _params.ack_timeout_retry_counter++;
 }
 
 bool LoRaMac::validate_payload_length(uint16_t length,
@@ -1062,7 +1070,7 @@ lorawan_status_t LoRaMac::schedule_tx()
             return status;
         case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
             if (backoff_time != 0) {
-                tr_debug("Next Transmission in %lu ms", backoff_time);
+                tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
                 _lora_time.start(_params.timers.backoff_timer, backoff_time);
             }
             return LORAWAN_STATUS_OK;
@@ -1070,7 +1078,7 @@ lorawan_status_t LoRaMac::schedule_tx()
             break;
     }
 
-    tr_debug("Next Channel Idx=%d, DR=%d", _params.channel, next_channel.current_datarate);
+    tr_debug("TX: Channel=%d, DR=%d", _params.channel, next_channel.current_datarate);
 
     uint8_t dr_offset = _lora_phy.apply_DR_offset(_params.sys_params.channel_data_rate,
                                                   _params.sys_params.rx1_dr_offset);
@@ -1271,9 +1279,7 @@ lorawan_status_t LoRaMac::send_ongoing_tx()
     _params.is_last_tx_join_request = false;
     int8_t datarate = _params.sys_params.channel_data_rate;
 
-    // TODO: The comment is different than the code???
-    // Apply the minimum possible datarate.
-    // Some regions have limitations for the minimum datarate.
+    // This prohibits the data rate going below the minimum value.
     datarate = MAX(datarate, (int8_t)_lora_phy.get_minimum_tx_datarate());
 
     loramac_mhdr_t machdr;
