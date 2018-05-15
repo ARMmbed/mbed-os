@@ -522,7 +522,7 @@
         "macros": ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0231"],
-        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "device_name": "MK22DN512xxx5"
     },
     "K22F": {
@@ -586,7 +586,7 @@
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0250"],
-        "device_has": ["LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "MKW24D512xxx5",
         "bootloader_supported": true
@@ -612,7 +612,7 @@
         "public": false,
         "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "device_name": "MK24FN1M0xxx12"
     },
     "RO359B": {
@@ -715,7 +715,7 @@
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
-        "device_has": ["LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "MK82FN256xxx15"
     },
