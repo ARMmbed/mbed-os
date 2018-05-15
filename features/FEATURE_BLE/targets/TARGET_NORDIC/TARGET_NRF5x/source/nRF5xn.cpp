@@ -62,8 +62,7 @@ nRF5xn::nRF5xn(void) :
     instanceID(BLE::DEFAULT_INSTANCE),
     gapInstance(),
     gattServerInstance(NULL),
-    gattClient(&(ble::pal::vendor::nordic::nRF5xGattClient::get_client())),
-    securityManagerInstance(NULL)
+    gattClient(&(ble::pal::vendor::nordic::nRF5xGattClient::get_client()))
 {
 }
 
@@ -187,13 +186,6 @@ ble_error_t nRF5xn::shutdown(void)
         }
     }
 
-    if (securityManagerInstance != NULL) {
-        error = securityManagerInstance->reset();
-        if (error != BLE_ERROR_NONE) {
-            return error;
-        }
-    }
-
     /* S110 does not support BLE client features, nothing to reset. */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     error = getGattClient().reset();
@@ -212,6 +204,31 @@ ble_error_t nRF5xn::shutdown(void)
 
     initialized = false;
     return BLE_ERROR_NONE;
+}
+
+SecurityManager& nRF5xn::getSecurityManager()
+{
+    const nRF5xn* self = this;
+    return const_cast<SecurityManager&>(self->getSecurityManager());
+}
+
+const SecurityManager& nRF5xn::getSecurityManager() const
+{
+    static ble::pal::MemorySecurityDb m_db;
+    ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal =
+        ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
+    static struct : ble::pal::SigningEventMonitor {
+        virtual void set_signing_event_handler(EventHandler *signing_event_handler) { }
+    } dummy_signing_event_monitor;
+
+    static ble::generic::GenericSecurityManager m_instance(
+        m_pal,
+        m_db,
+        const_cast<nRF5xGap&>(getGap()),
+        dummy_signing_event_monitor
+    );
+
+    return m_instance;
 }
 
 void
