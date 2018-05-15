@@ -233,8 +233,12 @@ nRF5xn::waitForEvent(void)
 }
 
 void nRF5xn::processEvents() {
+    core_util_critical_section_enter();
     if (isEventsSignaled) {
         isEventsSignaled = false;
+        core_util_critical_section_exit();
         intern_softdevice_events_execute();
+    } else {
+        core_util_critical_section_exit();
     }
 }
