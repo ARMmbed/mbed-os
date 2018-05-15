@@ -18,11 +18,28 @@
 #include "lwip/debug.h"
 #include "lwip/def.h"
 #include "lwip_random.h"
+
+#if defined(DEVICE_TRNG)
+#include "hal/trng_api.h"
+#endif
+
 #include "randLIB.h"
 
 void lwip_seed_random(void)
 {
+#if defined(DEVICE_TRNG)
+    uint32_t result;
+    size_t olen;
+    trng_t trng_obj;
+
+    trng_init(&trng_obj);
+    trng_get_bytes(&trng_obj, (uint8_t*)&result, sizeof result, &olen);
+    trng_free(&trng_obj);
+
+    srand(result);
+#else
     randLIB_seed_random();
+#endif
 }
 
 void lwip_add_random_seed(uint64_t seed)

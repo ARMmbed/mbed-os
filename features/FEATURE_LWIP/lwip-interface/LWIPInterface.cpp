@@ -587,6 +587,11 @@ nsapi_error_t LWIP::Interface::bringdown()
 #if LWIP_IPV6
     mbed_lwip_clear_ipv6_addresses(&netif);
 #endif
+#if LWIP_IPV4
+    ip_addr_set_zero(&(netif.ip_addr));
+    ip_addr_set_zero(&(netif.netmask));
+    ip_addr_set_zero(&(netif.gw));
+#endif
 
     osSemaphoreDelete(has_any_addr);
     osSemaphoreAttr_t attr;

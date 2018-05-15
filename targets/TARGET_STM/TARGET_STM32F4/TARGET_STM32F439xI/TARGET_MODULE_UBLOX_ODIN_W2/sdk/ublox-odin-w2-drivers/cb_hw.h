@@ -32,6 +32,13 @@ extern "C" {
 /*===========================================================================
  * DEFINES
  *=========================================================================*/
+#define cbHW_SECUREBOOT_SIGN_LENGTH  344
+#define cbHW_FW_NAME_MAX_LENGTH      22
+#define cbHW_FW_NAME_MIN_LENGTH      1
+#define cbHW_FW_FLAG_MAX_LENGTH      8 // 8 bit fields
+#define cbHW_FW_FLAG_MIN_LENGTH      1
+#define cbHW_UNIQUE_ID_SIZE          12
+
 typedef enum {
     cbHW_PCB_VERSION_UNKNOWN,
     cbHW_PCB_VERSION_1,
@@ -64,6 +71,10 @@ typedef enum {
     cbHW_SYSTICK_LOW_FREQ,
     cbHW_SYSTICK_DEFAULT,
 } cbHW_SysTickMode;
+
+typedef enum {
+    cbHW_HASH_MD5
+}cbHW_HashType;
 /*===========================================================================
  * TYPES
  *=========================================================================*/
@@ -78,8 +89,9 @@ typedef void (*cbHW_SysTickCb)(void);
 void cbHW_init(void);
 void cbHW_registerStopModeStatusEvt(cbHW_StopModeStatusEvt evt);
 void cbHW_disableIrq(void);
-void cbHW_disableAllIrq(void); // Should not be used unless extremely critical
 void cbHW_enableIrq(void);
+void cbHW_disableAllIrq(void); // Should not be used unless extremely critical
+void cbHW_enableAllIrq(void);
 void cbHW_enterSleepMode(void);
 void cbHW_enterStopMode(void);
 void cbHW_setWakeupEvent(void);
@@ -96,6 +108,12 @@ void cbHW_setSysTickMode(cbHW_SysTickMode sysTickMode);
 void cbHW_delay(cb_uint32 us);
 
 /**
+* Puts the chip in NVIC soft reset
+* @note: this does not reset any watchdog timer already enabled
+*/
+void cbHW_reset(void);
+
+/**
 * Wait for specified amount of microseconds using a software loop.
 * @note Granularity may vary between systems. 
 * The system will not go to sleep during the delay.
@@ -108,7 +126,7 @@ void cbHW_setSysFreq(cb_uint32 sysFreq);
 cb_uint32 cbHW_getSysFreq(void);
 void cbHW_writeBackupRegister(cb_uint32 registerId, cb_uint32 value);
 cb_uint32 cbHW_readBackupRegister(cb_int32 registerId);
-void cbHW_getHWId(cb_uint8 uid[12]);
+void cbHW_getHWId(cb_uint8 uid[cbHW_UNIQUE_ID_SIZE]);
 cbHW_PCBVersion cbHW_getPCBVersion(void);
 
 /**
@@ -136,12 +154,65 @@ cb_uint32 cbHW_getTickFrequency(void);
 */
 cb_uint32 cbHW_getTicks(void);
 
+/**
+* Enter forced boot mode. The bootloader will start in x-modem 
+* mode and emit CCCC.. to notify that it is ready to receive
+* a new fw.
+* This function will return and boot mode will be entered
+* after a device specific timeout.
+* @param address x-modem file download start address
+* @param baudrate x-modem download buadrate
+* @return None
+*/
 void cbHW_forceBoot(cb_uint32 address, cb_uint32 baudrate);
+
+/**
+* Enter forced boot mode. The bootloader will start in x-modem
+* mode and emit CCCC.. to notify that it is ready to receive
+* a new fw.
+* This function will return and boot mode will be entered
+* after a device specific timeout.
+* @param address x-modem file download start address
+* @param baudrate x-modem download buadrate
+* @param fwId firmware id
+* @param fwSize firmware file size
+* @param fwSignature firmware signature
+* @param fwName firmware name
+* @param fwFlags firmware flags
+* @return None
+*/
+void cbHW_forceBootSecure(
+    cb_uint32 address,
+    cb_uint32 baudrate,
+    cb_uint32 fwId,
+    cb_uint32 fwSize,
+    cb_char* fwSignature,
+    cb_char* fwName,
+    cb_char* fwFlags);
+
+/**
+* Cancel entry into boot mode. The user canceled entry
+* into forced boot mode.
+* This function will clean up the RTC memory that was
+* configured for a forced boot operation. Use this function
+* for both cbHW_forceBootSecure and cbHW_forceBoot
+* @return None
+*/
+void cbHW_cancelforceBoot(void);
+
 void cbHW_enterProductionMode(cbHW_FlowControl flowControl);
 cbHW_ResetReason cbHW_resetReason(void);
 cbHW_FlowControl cbHW_flowControl(void);
 
-void cbHW_enableAllIrq(void);
+/**
+* Calculates a hash over a dataset.
+* @param type: type of hashing, MD5 for now
+* @param pInData: pointer to Data over which the hashing should be done
+* @param indataSize: size of data buffer.
+* @param pOutData: pointer to result data
+* @return None
+*/
+void cbHW_hash(cbHW_HashType type, const cb_uint8* pInData,cb_uint32 indataSize, cb_uint8* pOutData);
 
 #ifdef __cplusplus
 }
