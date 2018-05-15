@@ -337,6 +337,22 @@ public:
      *                          or other negative error code if request failed.
      */
     virtual lorawan_status_t set_device_class(device_class_t device_class) = 0;
+
+    /** Get hold of TX meta-data
+     *
+     * Use this method to acquire any TX meta-data related to previous
+     * transmission.
+     * TX meta-data is only available right after the transmission is completed.
+     * In other words, you can check for TX meta-data right after receiving the
+     * TX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata& metadata) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */

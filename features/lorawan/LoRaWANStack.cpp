@@ -73,6 +73,7 @@ LoRaWANStack::LoRaWANStack()
   _lw_session(),
   _tx_msg(),
   _rx_msg(),
+  _tx_metadata(),
   _num_retry(1),
   _ctrl_flags(IDLE_FLAG),
   _app_port(INVALID_PORT),
@@ -81,6 +82,8 @@ LoRaWANStack::LoRaWANStack()
   _ready_for_rx(true),
   _queue(NULL)
 {
+    _tx_metadata.stale = true;
+
 #ifdef MBED_CONF_LORA_APP_PORT
     if (is_port_valid(MBED_CONF_LORA_APP_PORT)) {
         _app_port = MBED_CONF_LORA_APP_PORT;
@@ -419,6 +422,17 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t& device_cla
     return LORAWAN_STATUS_OK;
 }
 
+lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata& tx_metadata)
+{
+    if (!_tx_metadata.stale) {
+        tx_metadata = _tx_metadata;
+        _tx_metadata.stale = true;
+        return LORAWAN_STATUS_OK;
+    }
+
+    return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
+}
+
 /*****************************************************************************
  * Interrupt handlers                                                        *
  ****************************************************************************/
@@ -487,6 +501,8 @@ void LoRaWANStack::process_transmission(void)
 {
     _loramac.on_radio_tx_done();
     tr_debug("Transmission completed");
+
+    make_tx_metadata_available();
 
     if (_device_current_state == DEVICE_STATE_JOINING) {
         _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
@@ -609,6 +625,16 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
 /*****************************************************************************
  * Private methods                                                           *
  ****************************************************************************/
+void LoRaWANStack::make_tx_metadata_available(void)
+{
+    _tx_metadata.stale = false;
+    _tx_metadata.channel = _loramac.get_mcps_confirmation()->channel;
+    _tx_metadata.data_rate = _loramac.get_mcps_confirmation()->data_rate;
+    _tx_metadata.tx_power = _loramac.get_mcps_confirmation()->tx_power;
+    _tx_metadata.tx_toa = _loramac.get_mcps_confirmation()->tx_toa;
+    _tx_metadata.nb_retries = _loramac.get_mcps_confirmation()->nb_retries;
+}
+
 bool LoRaWANStack::is_port_valid(const uint8_t port, bool allow_port_0)
 {
     //Application should not use reserved and illegal port numbers.
