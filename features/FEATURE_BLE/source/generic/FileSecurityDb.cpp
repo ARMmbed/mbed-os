@@ -78,21 +78,10 @@ FileSecurityDb::FileSecurityDb(FILE *db_file)
     fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
 
     /* restore if requested */
-    bool restore;
-    if ((fread(&restore, sizeof(bool), 1, _db_file) == 1) && restore) {
-        fseek(_db_file, DB_OFFSET_LOCAL_IDENTITY, SEEK_SET);
-        fread(&_local_identity, sizeof(_local_identity), 1, _db_file);
-
-        fseek(_db_file, DB_OFFSET_LOCAL_CSRK, SEEK_SET);
-        fread(&_local_csrk, sizeof(_local_csrk), 1, _db_file);
-
-        fseek(_db_file, DB_OFFSET_LOCAL_SIGN_COUNT, SEEK_SET);
-        fread(&_local_sign_counter, sizeof(_local_sign_counter), 1, _db_file);
-
-        fseek(_db_file, DB_OFFSET_ENTRIES, SEEK_SET);
-        /* we read the entries partially and fill the offsets ourselves*/
-        for (size_t i = 0; i < get_entry_count(); i++) {
-            fread(&_entries[i], DB_SIZE_ENTRY, 1, _db_file);
+    bool restore_toggle;
+    if (fread(&restore_toggle, sizeof(bool), 1, _db_file) == 1) {
+        if (restore_toggle) {
+            restore();
         }
     }
 
@@ -107,49 +96,55 @@ FileSecurityDb::~FileSecurityDb() {
 }
 
 FILE* FileSecurityDb::open_db_file(const char *db_path) {
+    if (!db_path) {
+        return NULL;
+    }
+
     FILE *db_file = fopen(db_path, "wb+");
-    if (db_file) {
-        /* we will check the db file and if the version or size doesn't match
-         * what we expect we will blank it */
-        bool init = false;
-        uint16_t version;
 
-        fseek(db_file, DB_OFFSET_VERSION, SEEK_SET);
+    if (!db_file) {
+        return NULL;
+    }
 
-        if ((fread(&version, sizeof(version), 1, db_file) == 1) &&
-            (version == DB_VERSION)) {
-            /* version checks out, try the size */
-            fseek(db_file, DB_SIZE - 1, SEEK_SET);
-            /* read one byte and expect to hit EOF */
-            if ((fread(&version, 1, 1, db_file) != 1) || !feof(db_file)) {
-                init = true;
-            }
-        } else {
+    /* we will check the db file and if the version or size doesn't match
+     * what we expect we will blank it */
+    bool init = false;
+    uint16_t version;
+
+    fseek(db_file, DB_OFFSET_VERSION, SEEK_SET);
+
+    if ((fread(&version, sizeof(version), 1, db_file) == 1) &&
+        (version == DB_VERSION)) {
+        /* version checks out, try the size */
+        fseek(db_file, DB_SIZE - 1, SEEK_SET);
+        /* read one byte and expect to hit EOF */
+        if ((fread(&version, 1, 1, db_file) != 1) || !feof(db_file)) {
             init = true;
         }
+    } else {
+        init = true;
+    }
 
-        if (init) {
-            fseek(db_file, 0, SEEK_SET);
+    if (init) {
+        fseek(db_file, 0, SEEK_SET);
 
-            /* zero the file */
-            const uint32_t zero = 0;
-            size_t count = DB_SIZE / 4;
-            while (count--) {
-                if (fwrite(&zero, sizeof(zero), 1, db_file) != 1) {
-                    fclose(db_file);
-                    return NULL;
-                }
-            }
-
-            if (fflush(db_file)) {
+        /* zero the file */
+        const uint32_t zero = 0;
+        size_t count = DB_SIZE / 4;
+        while (count--) {
+            if (fwrite(&zero, sizeof(zero), 1, db_file) != 1) {
                 fclose(db_file);
                 return NULL;
             }
         }
 
-        return db_file;
+        if (fflush(db_file)) {
+            fclose(db_file);
+            return NULL;
+        }
     }
-    return NULL;
+
+    return db_file;
 }
 
 SecurityDistributionFlags_t* FileSecurityDb::get_distribution_flags(
@@ -287,6 +282,21 @@ void FileSecurityDb::set_entry_peer_sign_counter(
 /* saving and loading from nvm */
 
 void FileSecurityDb::restore() {
+    fseek(_db_file, DB_OFFSET_LOCAL_IDENTITY, SEEK_SET);
+    fread(&_local_identity, sizeof(_local_identity), 1, _db_file);
+
+    fseek(_db_file, DB_OFFSET_LOCAL_CSRK, SEEK_SET);
+    fread(&_local_csrk, sizeof(_local_csrk), 1, _db_file);
+
+    fseek(_db_file, DB_OFFSET_LOCAL_SIGN_COUNT, SEEK_SET);
+    fread(&_local_sign_counter, sizeof(_local_sign_counter), 1, _db_file);
+
+    fseek(_db_file, DB_OFFSET_ENTRIES, SEEK_SET);
+    /* we read the entries partially and fill the offsets ourselves*/
+    for (size_t i = 0; i < get_entry_count(); i++) {
+        fread(&_entries[i], DB_SIZE_ENTRY, 1, _db_file);
+    }
+
 }
 
 void FileSecurityDb::sync(entry_handle_t db_handle) {
@@ -300,7 +310,11 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
 }
 
 void FileSecurityDb::set_restore(bool reload) {
+    fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
+    fwrite(&reload, sizeof(bool), 1, _db_file);
 }
+
+/* helper functions */
 
 uint8_t FileSecurityDb::get_entry_count() {
     return MAX_ENTRIES;
