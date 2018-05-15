@@ -1136,28 +1136,17 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     pairing_cb.initiator_dist = initiator_dist;
     pairing_cb.responder_dist = responder_dist;
 
-    KeyDistribution* own_dist = NULL;
-    KeyDistribution* peer_dist = NULL;
-
-    if (pairing_cb.role == PAIRING_INITIATOR) {
-        own_dist = &initiator_dist;
-        peer_dist = &responder_dist;
-    } else {
-        own_dist = &responder_dist;
-        peer_dist = &initiator_dist;
-    }
-
     ble_gap_sec_keyset_t keyset = {
         /* keys_own */ {
-            own_dist->get_encryption() ? &pairing_cb.own_enc_key : NULL,
-            own_dist->get_identity() ? &pairing_cb.own_id_key : NULL,
-            own_dist->get_signing() ? &pairing_cb.own_sign_key : NULL,
+            &pairing_cb.own_enc_key,
+            &pairing_cb.own_id_key,
+            &pairing_cb.own_sign_key,
             &pairing_cb.own_pk
         },
         /* keys_peer */ {
-            peer_dist->get_encryption() ? &pairing_cb.peer_enc_key : NULL,
-            peer_dist->get_identity() ? &pairing_cb.peer_id_key : NULL,
-            peer_dist->get_signing() ? &pairing_cb.peer_sign_key : NULL,
+            &pairing_cb.peer_enc_key,
+            &pairing_cb.peer_id_key,
+            &pairing_cb.peer_sign_key,
             &pairing_cb.peer_pk
         }
     };
