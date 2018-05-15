@@ -811,7 +811,7 @@
         },
         "detect_code": ["0725"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["SERIAL_FC"],
+        "device_has_add": ["CRC", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F030R8"
@@ -832,7 +832,7 @@
         "detect_code": ["0791"],
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["SERIAL_FC"],
+        "device_has_add": ["CRC", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F031K6"
@@ -853,7 +853,7 @@
         "detect_code": ["0785"],
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["CAN", "SERIAL_FC"],
+        "device_has_add": ["CAN", "CRC", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F042K6"
@@ -890,7 +890,7 @@
         },
         "detect_code": ["0730"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F072RB"
     },
@@ -908,7 +908,7 @@
         },
         "detect_code": ["0750"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F091RC"
     },
@@ -974,7 +974,7 @@
             }
         },
         "detect_code": ["0705"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F302R8"
@@ -994,7 +994,7 @@
         "overrides": {"lse_available": 0},
         "detect_code": ["0775"],
         "default_lib": "small",
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_FC"],
         "release_versions": ["2"],
         "device_name": "STM32F303K8"
     },
@@ -1045,7 +1045,7 @@
             }
         },
         "detect_code": ["0735"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F334R8"
@@ -1382,7 +1382,7 @@
         "macros_add": ["USBHOST_OTHER"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG",
@@ -1414,7 +1414,7 @@
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0819"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG",
@@ -1445,7 +1445,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": ["USBHOST_OTHER"],
         "detect_code": ["0818"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F767ZI",
@@ -1473,7 +1473,7 @@
             }
         },
         "detect_code": ["0780"],
-        "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["CRC", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L011K4"
@@ -1496,7 +1496,7 @@
             }
         },
         "detect_code": ["0790"],
-        "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["CRC", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L031K6"
@@ -1518,7 +1518,7 @@
             }
         },
         "detect_code": ["0715"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L053R8"
@@ -1540,7 +1540,7 @@
             }
         },
         "detect_code": ["0760"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L073RZ"
     },
@@ -1578,7 +1578,7 @@
             }
         },
         "detect_code": ["0770"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L432KC",
         "bootloader_supported": true
@@ -1600,7 +1600,7 @@
             }
         },
         "detect_code": ["0779"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L433RC",
         "bootloader_supported": true
@@ -1619,7 +1619,7 @@
         },
         "overrides": {"lse_available": 0},
         "release_versions": ["5"],
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_name" : "STM32L443RC",
         "detect_code": ["0458"],
@@ -1643,7 +1643,7 @@
         },
         "detect_code": ["0765"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG",
         "bootloader_supported": true
@@ -1662,7 +1662,7 @@
         },
         "detect_code": ["0766"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L476JG"
     },
@@ -1684,7 +1684,7 @@
         },
         "detect_code": ["0827"],
         "macros_add": ["USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L486RG"
     },
@@ -1701,7 +1701,7 @@
         },
         "detect_code": ["0460"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "WISE_1570", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["5"],
         "device_name": "STM32L486RG",
         "OUTPUT_EXT": "hex"
@@ -1730,7 +1730,7 @@
             }
         },
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["SERIAL_FC"],
+        "device_has_add": ["CRC", "SERIAL_FC"],
         "device_name": "STM32F051R8"
     },
     "DISCO_F100RB": {
@@ -1755,7 +1755,7 @@
         },
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "release_versions": ["2", "5"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_FC"],
         "device_name": "STM32F303VC"
     },
     "DISCO_F334C8": {
@@ -1771,7 +1771,7 @@
         },
         "overrides": {"lse_available": 0},
         "detect_code": ["0810"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F334C8"
@@ -1852,7 +1852,7 @@
             }
         },
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CRC", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32L053C8"
@@ -3987,7 +3987,7 @@
             }
         },
         "detect_code": ["0822"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496AG"
     },
@@ -4008,7 +4008,7 @@
             }
         },
         "detect_code": ["0823"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "CRC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L496ZG"
     },
