@@ -108,8 +108,10 @@ nsapi_error_t EmacTestNetworkStack::add_ethernet_interface(EMAC &emac, bool defa
 {
     // Test network stack supports only one interface
     TEST_ASSERT_MESSAGE(!m_interface, "Only one interface supported!");
-
-    m_interface = &EmacTestNetworkStack::Interface::get_instance();
+#ifdef TARGET_UBLOX_EVK_ODIN_W2
+	emac_if_init();
+#endif    
+	m_interface = &EmacTestNetworkStack::Interface::get_instance();
     TEST_ASSERT_MESSAGE(m_interface, "Invalid interface!");
 
     m_interface->m_emac = &emac;
