@@ -448,6 +448,12 @@ public:
     int get_backoff_timer_event_id(void);
 
     /**
+     * Clears out the TX pipe by discarding any outgoing message if the backoff
+     * timer is still running.
+     */
+    lorawan_status_t clear_tx_pipe(void);
+
+    /**
      * These locks trample through to the upper layers and make
      * the stack thread safe.
      */

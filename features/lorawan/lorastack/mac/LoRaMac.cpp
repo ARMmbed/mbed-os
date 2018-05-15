@@ -208,7 +208,7 @@ void LoRaMac::on_radio_tx_done(void)
             _lora_time.start(_params.timers.rx_window2_timer, _params.rx_window2_delay);
         }
 
-        if (_params.is_node_ack_requested == true) {
+        if (_params.is_node_ack_requested) {
             _lora_time.start(_params.timers.ack_timeout_timer,
                              _params.rx_window2_delay + _lora_phy.get_ack_timeout());
         }
@@ -1013,6 +1013,22 @@ int LoRaMac::get_backoff_timer_event_id(void)
     return _params.timers.backoff_timer.timer_id;
 }
 
+lorawan_status_t LoRaMac::clear_tx_pipe(void)
+{
+    // check if the event is not already queued
+    if (_ev_queue->time_left(get_backoff_timer_event_id()) > 0) {
+        _lora_time.stop(_params.timers.backoff_timer);
+        _lora_time.stop(_params.timers.ack_timeout_timer);
+        memset(_params.tx_buffer, 0, sizeof _params.tx_buffer);
+        _params.tx_buffer_len = 0;
+        reset_ongoing_tx(true);
+        tr_debug("Sending Cancelled");
+        return LORAWAN_STATUS_OK;
+    }
+
+    return LORAWAN_STATUS_BUSY;
+}
+
 lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;
@@ -1083,6 +1099,12 @@ lorawan_status_t LoRaMac::schedule_tx()
                 + _params.rx_window1_config.window_offset;
         _params.rx_window2_delay = _params.sys_params.recv_delay2
                 + _params.rx_window2_config.window_offset;
+    }
+
+    // handle the ack to the server here so that if the sending was cancelled
+    // by the user in the backoff period, we would still ack the previous frame.
+    if (_params.is_srv_ack_requested) {
+        _params.is_srv_ack_requested = false;
     }
 
     return send_frame_on_channel(_params.channel);
@@ -1488,7 +1510,6 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             }
 
             if (_params.is_srv_ack_requested == true) {
-                _params.is_srv_ack_requested = false;
                 fctrl->bits.ack = 1;
             }
 

@@ -415,6 +415,16 @@ public:
      */
     lorawan_status_t acquire_backoff_metadata(int& backoff);
 
+    /** Stops sending
+     *
+     * Stop sending any outstanding messages if they are not yet queued for
+     * transmission, i.e., if the backoff timer is nhot elapsed yet.
+     *
+     * @return               LORAWAN_STATUS_OK if the transmission is cancelled.
+     *                       LORAWAN_STATUS_BUSY otherwise.
+     */
+    lorawan_status_t stop_sending(void);
+
     void lock(void) { _loramac.lock(); }
     void unlock(void) { _loramac.unlock(); }
 

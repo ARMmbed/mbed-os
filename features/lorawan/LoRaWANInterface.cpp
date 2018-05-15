@@ -122,6 +122,12 @@ int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data, uint16_t lengt
     return _lw_stack.handle_tx(port, data, length, flags);
 }
 
+lorawan_status_t LoRaWANInterface::cancel_sending(void)
+{
+    Lock lock(*this);
+    return _lw_stack.stop_sending();
+}
+
 lorawan_status_t LoRaWANInterface::get_tx_metadata(lorawan_tx_metadata& metadata)
 {
     Lock lock(*this);

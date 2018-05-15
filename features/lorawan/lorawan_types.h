@@ -350,29 +350,29 @@ typedef struct lora_channelplan {
  */
 typedef struct {
     /**
-     * A boolean to mark if the meta data is stale
+     * The transmission time on air of the frame.
      */
-    bool stale;
+    uint32_t tx_toa;
     /**
      * The uplink channel used for transmission.
      */
     uint32_t channel;
     /**
-     * The uplink datarate.
-     */
-    uint8_t data_rate;
-    /**
      * The transmission power.
      */
     int8_t tx_power;
+    /**
+     * The uplink datarate.
+     */
+    uint8_t data_rate;
     /**
      * Provides the number of retransmissions.
      */
     uint8_t nb_retries;
     /**
-     * The transmission time on air of the frame.
+     * A boolean to mark if the meta data is stale
      */
-    uint32_t tx_toa;
+    bool stale;
 } lorawan_tx_metadata;
 
 /**
@@ -380,25 +380,21 @@ typedef struct {
  */
 typedef struct {
     /**
-     * A boolean to mark if the meta data is stale
+     * The RSSI for the received packet.
      */
-    bool stale;
+    int16_t rssi;
     /**
      * Data rate of reception
      */
     uint8_t rx_datarate;
     /**
-     * Frame pending status.
-     */
-    uint8_t fpending_status;
-    /**
-     * The RSSI for the received packet.
-     */
-    int16_t rssi;
-    /**
      * The SNR for the received packet.
      */
     uint8_t snr;
+    /**
+     * A boolean to mark if the meta data is stale
+     */
+    bool stale;
 } lorawan_rx_metadata;
 
 #endif /* MBED_LORAWAN_TYPES_H_ */

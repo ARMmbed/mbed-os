@@ -389,6 +389,19 @@ public:
      *
      */
     virtual lorawan_status_t get_backoff_metadata(int& backoff) = 0;
+
+    /** Cancel outgoing transmission
+     *
+     * This API is used to cancel any outstanding transmission in the TX pipe.
+     * If an event for transmission is not already queued at the end of backoff timer,
+     * the system can cancel the outstanding outgoing packet. Otherwise, the system is
+     * busy sending and can't be held back.
+     *
+     * @return              LORAWAN_STATUS_OK if the sending is cancelled.
+     *                      LORAWAN_STATUS_BUSY otherwise.
+     *
+     */
+    virtual lorawan_status_t cancel_sending(void) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */
