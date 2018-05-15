@@ -340,7 +340,14 @@ private:
 
     void on_unexpected_error(const pal::GapUnexpectedErrorEvent &e);
 
-    pal::own_address_type_t get_own_address_type(bool central_not_peripheral, bool non_connectable_or_scan_request);
+    enum AddressUseType_t {
+        CENTRAL_CONNECTION,
+        CENTRAL_SCAN,
+        PERIPHERAL_CONNECTABLE,
+        PERIPHERAL_NON_CONNECTABLE
+    };
+
+    pal::own_address_type_t get_own_address_type(AddressUseType_t address_use_type);
 
     bool initialize_whitelist() const;
 

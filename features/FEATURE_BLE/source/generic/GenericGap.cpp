@@ -548,7 +548,7 @@ ble_error_t GenericGap::connect(
         _initiator_policy_mode,
         (pal::connection_peer_address_type_t::type) peerAddrType,
         ble::address_t(peerAddr),
-        get_own_address_type(true /* central */, false /* requires resolvable address */),
+        get_own_address_type(CENTRAL_CONNECTION /* requires resolvable address */),
         connectionParams->minConnectionInterval,
         connectionParams->maxConnectionInterval,
         connectionParams->slaveLatency,
@@ -836,7 +836,7 @@ ble_error_t GenericGap::startRadioScan(const GapScanningParams &scanningParams)
         return BLE_ERROR_INVALID_STATE;
     }
 
-    pal::own_address_type_t own_address_type = get_own_address_type(true /* central */, true /* can use non resolvable address for scan requests */);
+    pal::own_address_type_t own_address_type = get_own_address_type(CENTRAL_SCAN /* central, can use non resolvable address for scan requests */);
 
     if(_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS))
     {
@@ -952,8 +952,12 @@ ble_error_t GenericGap::startAdvertising(const GapAdvertisingParams& params)
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    pal::own_address_type_t own_address_type = get_own_address_type(false /* peripheral */, 
-            params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED /* we can only use non resolvable addresses int this case */);
+    // We can only use non resolvable addresses if the device is non connectable
+    AddressUseType_t address_use_type = 
+        ((params.getAdvertisingType() == GapAdvertisingParams::ADV_SCANNABLE_UNDIRECTED)
+        || (params.getAdvertisingType() == GapAdvertisingParams::ADV_NON_CONNECTABLE_UNDIRECTED)) 
+        ? PERIPHERAL_NON_CONNECTABLE : PERIPHERAL_CONNECTABLE;
+    pal::own_address_type_t own_address_type = get_own_address_type(address_use_type);
 
     if(_privacy_enabled && (own_address_type == pal::own_address_type_t::RANDOM_ADDRESS))
     {
@@ -1276,18 +1280,18 @@ void GenericGap::on_unexpected_error(const pal::GapUnexpectedErrorEvent& e)
     // has been updated.
 }
 
-pal::own_address_type_t GenericGap::get_own_address_type(bool central_not_peripheral, bool non_connectable_or_scan_request)
+pal::own_address_type_t GenericGap::get_own_address_type(AddressUseType_t address_use_type)
 {
     if(_privacy_enabled) {
-        bool can_use_non_resolvable_address = false;
-        if(central_not_peripheral) {
-            can_use_non_resolvable_address = _central_privacy_configuration.use_non_resolvable_random_address;
-        } else {
-            can_use_non_resolvable_address = _peripheral_privacy_configuration.use_non_resolvable_random_address;
+        bool use_non_resolvable_address = false;
+        if(address_use_type == CENTRAL_SCAN) {
+            use_non_resolvable_address = _central_privacy_configuration.use_non_resolvable_random_address;
+        } else if (address_use_type == PERIPHERAL_NON_CONNECTABLE) {
+            use_non_resolvable_address = _peripheral_privacy_configuration.use_non_resolvable_random_address;
         }
 
         // An non resolvable private address should be generated
-        if(non_connectable_or_scan_request && can_use_non_resolvable_address) {
+        if(use_non_resolvable_address) {
             return pal::own_address_type_t::RANDOM_ADDRESS;
         }
 
