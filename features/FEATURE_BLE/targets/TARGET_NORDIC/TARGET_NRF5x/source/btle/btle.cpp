@@ -21,22 +21,11 @@
 #include "btle_clock.h"
 
 #include "ble_flash.h"
-#include "ble_conn_params.h"
 
 #include "custom/custom_helper.h"
 
 #include "ble/GapEvents.h"
 #include "nRF5xn.h"
-
-// This is a C++ file, so C11 _Static_assert (works with -std=gnu99 on GCC) won't work
-#undef STATIC_ASSERT_SIMPLE
-#undef STATIC_ASSERT_MSG
-
-// FIXME : We can't use mbed_assert.h because we're using these macros within functions
-#define STATIC_ASSERT_MSG(EXPR, MSG)  
-#define STATIC_ASSERT_SIMPLE(EXPR)
-
-#warning FIXME : We can't use mbed_assert.h because we're using these within functions
 
 #ifdef S110
     #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
@@ -51,8 +40,6 @@ extern "C" {
 #else
     #include "nrf_fstorage.h"
     #include "fds.h"
-    #include "peer_manager.h"
-    #include "ble_conn_state.h"
 #endif
 
 #include "nrf_sdh.h"
@@ -62,6 +49,16 @@ extern "C" {
 #include "headers/ble_hci.h"
 
 #include "nRF5xPalGattClient.h"
+
+// This is a C++ file, so C11 _Static_assert (works with -std=gnu99 on GCC) won't work
+#undef STATIC_ASSERT_SIMPLE
+#undef STATIC_ASSERT_MSG
+
+// FIXME : We can't use mbed_assert.h because we're using these macros within functions
+#define STATIC_ASSERT_MSG(EXPR, MSG)
+#define STATIC_ASSERT_SIMPLE(EXPR)
+
+#warning FIXME : We can't use mbed_assert.h because we're using these within functions
 
 
 // Make this volatile at it will be set in interrupt context

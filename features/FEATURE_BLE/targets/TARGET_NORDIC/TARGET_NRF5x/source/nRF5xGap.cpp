@@ -23,7 +23,6 @@
 #include "ble/BLE.h"
 
 #include "common/common.h"
-#include "ble_advdata.h"
 #include "headers/ble_hci.h"
 #include "ble/pal/ConnectionEventMonitor.h"
 #include "nRF5xPalSecurityManager.h"
