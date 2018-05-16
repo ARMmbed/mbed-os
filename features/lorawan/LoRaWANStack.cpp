@@ -259,17 +259,17 @@ lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
 
 lorawan_status_t LoRaWANStack::stop_sending(void)
 {
-     if (_loramac.clear_tx_pipe() == LORAWAN_STATUS_OK) {
-         if (_device_current_state == DEVICE_STATE_SENDING) {
-             _ctrl_flags &= ~TX_DONE_FLAG;
-             _ctrl_flags &= ~TX_ONGOING_FLAG;
-             _loramac.set_tx_ongoing(false);
-             _device_current_state = DEVICE_STATE_IDLE;
-             return LORAWAN_STATUS_OK;
-         }
-     }
+    if (_loramac.clear_tx_pipe() == LORAWAN_STATUS_OK) {
+        if (_device_current_state == DEVICE_STATE_SENDING) {
+            _ctrl_flags &= ~TX_DONE_FLAG;
+            _ctrl_flags &= ~TX_ONGOING_FLAG;
+            _loramac.set_tx_ongoing(false);
+            _device_current_state = DEVICE_STATE_IDLE;
+            return LORAWAN_STATUS_OK;
+        }
+    }
 
-     return LORAWAN_STATUS_BUSY;
+    return LORAWAN_STATUS_BUSY;
 }
 
 int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t* data,
@@ -439,7 +439,7 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t& device_cla
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata& tx_metadata)
+lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata &tx_metadata)
 {
     if (!_tx_metadata.stale) {
         tx_metadata = _tx_metadata;
@@ -450,7 +450,7 @@ lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata& tx_meta
     return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
 }
 
-lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata& metadata)
+lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata &metadata)
 {
     if (!_rx_metadata.stale) {
         metadata = _rx_metadata;

@@ -352,7 +352,7 @@ public:
      * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
      */
-    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata& metadata) = 0;
+    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata &metadata) = 0;
 
     /** Get hold of RX meta-data
      *
@@ -368,7 +368,7 @@ public:
      * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
      */
-    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata& metadata) = 0;
+    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata) = 0;
 
     /** Get hold of backoff time
      *
@@ -388,7 +388,7 @@ public:
      *                      otherwise LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
      *
      */
-    virtual lorawan_status_t get_backoff_metadata(int& backoff) = 0;
+    virtual lorawan_status_t get_backoff_metadata(int &backoff) = 0;
 
     /** Cancel outgoing transmission
      *

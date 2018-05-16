@@ -128,19 +128,19 @@ lorawan_status_t LoRaWANInterface::cancel_sending(void)
     return _lw_stack.stop_sending();
 }
 
-lorawan_status_t LoRaWANInterface::get_tx_metadata(lorawan_tx_metadata& metadata)
+lorawan_status_t LoRaWANInterface::get_tx_metadata(lorawan_tx_metadata &metadata)
 {
     Lock lock(*this);
     return _lw_stack.acquire_tx_metadata(metadata);
 }
 
-lorawan_status_t LoRaWANInterface::get_rx_metadata(lorawan_rx_metadata& metadata)
+lorawan_status_t LoRaWANInterface::get_rx_metadata(lorawan_rx_metadata &metadata)
 {
     Lock lock(*this);
     return _lw_stack.acquire_rx_metadata(metadata);
 }
 
-lorawan_status_t LoRaWANInterface::get_backoff_metadata(int& backoff)
+lorawan_status_t LoRaWANInterface::get_backoff_metadata(int &backoff)
 {
     Lock lock(*this);
     return _lw_stack.acquire_backoff_metadata(backoff);

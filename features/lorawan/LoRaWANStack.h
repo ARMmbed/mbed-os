@@ -389,7 +389,7 @@ public:
      * @return               LORAWAN_STATUS_OK if successful,
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE otherwise
      */
-    lorawan_status_t acquire_tx_metadata(lorawan_tx_metadata& metadata);
+    lorawan_status_t acquire_tx_metadata(lorawan_tx_metadata &metadata);
 
     /** Acquire RX meta-data
      *
@@ -401,7 +401,7 @@ public:
      * @return               LORAWAN_STATUS_OK if successful,
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE otherwise
      */
-    lorawan_status_t acquire_rx_metadata(lorawan_rx_metadata& metadata);
+    lorawan_status_t acquire_rx_metadata(lorawan_rx_metadata &metadata);
 
     /** Acquire backoff meta-data
      *
@@ -413,7 +413,7 @@ public:
      * @return               LORAWAN_STATUS_OK if successful,
      *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE otherwise
      */
-    lorawan_status_t acquire_backoff_metadata(int& backoff);
+    lorawan_status_t acquire_backoff_metadata(int &backoff);
 
     /** Stops sending
      *
