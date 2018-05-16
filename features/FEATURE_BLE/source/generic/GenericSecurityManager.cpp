@@ -48,13 +48,20 @@ ble_error_t GenericSecurityManager::init(
     	return err;
     }
 
+    if (_db) {
+        delete _db;
+    }
+
+    FILE* db_file = FileSecurityDb::open_db_file(db_path);
+
+    if (db_file) {
+        _db = new (std::nothrow) FileSecurityDb(db_file);
+    } else {
+        _db = new (std::nothrow) MemorySecurityDb();
+    }
+
     if (!_db) {
-        FILE* db_file = FileSecurityDb::open_db_file(db_path);
-        if (db_file) {
-            _db = new (std::nothrow) FileSecurityDb(db_file);
-        } else {
-            _db = new (std::nothrow) MemorySecurityDb();
-        }
+        return BLE_ERROR_NO_MEM;
     }
 
     _db->restore();
