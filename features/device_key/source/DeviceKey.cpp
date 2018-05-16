@@ -243,10 +243,8 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
 
     if (DEVICE_KEY_16BYTE > size) {
         return DEVICEKEY_BUFFER_TOO_SMALL;
-    } else if (DEVICE_KEY_16BYTE <= size && DEVICE_KEY_32BYTE > size) {
-        size = DEVICE_KEY_16BYTE;
-    } else {
-        size = DEVICE_KEY_32BYTE;
+    } else if (DEVICE_KEY_16BYTE != size && DEVICE_KEY_32BYTE != size) {
+        return DEVICEKEY_INVALID_PARAM;
     }
 
     trng_init(&trng_obj);
