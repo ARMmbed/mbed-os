@@ -234,7 +234,6 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
 #if defined(DEVICE_TRNG)
     size_t in_size;
     size_t ongoing_size;
-    size_t final_size;
     trng_t trng_obj;
     int ret = DEVICEKEY_SUCCESS;
     unsigned char *pBuffer = (unsigned char *)output;
@@ -267,7 +266,6 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
 
 finish:
     trng_free(&trng_obj);
-    size = final_size;
     return ret;
 
 #else
