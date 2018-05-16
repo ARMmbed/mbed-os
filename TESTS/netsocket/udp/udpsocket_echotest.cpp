@@ -90,6 +90,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
         recvd = sock.recvfrom(NULL, rx_buffer, expt2recv);
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
             wait_ms(WAIT2RECV_TIMEOUT);
+            --retry_cnt;
             continue;
         } else if (recvd == expt2recv) {
             break;
@@ -97,8 +98,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
     }
 
     TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, expt2recv));
-    drop_bad_packets(sock);
-    sock.set_blocking(false);
+    drop_bad_packets(sock, -1); // timeout equivalent to set_blocking(false)
 
     tx_sem.release();
 }
@@ -136,6 +136,7 @@ void test_udpsocket_echotest_nonblock()
                 if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     continue;
                 }
+                --retry_cnt;
             } else if (sent != pkt_s) {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;

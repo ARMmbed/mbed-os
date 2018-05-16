@@ -19,7 +19,7 @@
 #define UDP_TESTS_H
 
 NetworkInterface* get_interface();
-void drop_bad_packets(UDPSocket& sock);
+void drop_bad_packets(UDPSocket& sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 
 /*

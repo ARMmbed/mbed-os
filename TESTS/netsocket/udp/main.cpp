@@ -55,7 +55,7 @@ static void _ifdown() {
     printf("MBED: ifdown\n");
 }
 
-void drop_bad_packets(UDPSocket& sock) {
+void drop_bad_packets(UDPSocket& sock, int orig_timeout) {
     nsapi_error_t err;
     sock.set_timeout(0);
     while (true) {
@@ -64,6 +64,7 @@ void drop_bad_packets(UDPSocket& sock) {
             break;
         }
     }
+    sock.set_timeout(orig_timeout);
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)

@@ -25,6 +25,7 @@
 
 #define SIGNAL_SIGIO 0x1
 #define SIGIO_TIMEOUT 5000 //[ms]
+#define RECV_TIMEOUT 1 //[s]
 
 namespace
 {
@@ -56,6 +57,10 @@ void free_tx_buffers() {
     }
 }
 
+static void _sigio_handler(osThreadId id) {
+    osSignalSet(id, SIGNAL_SIGIO);
+}
+
 void test_udpsocket_echotest_burst()
 {
     SocketAddress udp_addr;
@@ -63,69 +68,73 @@ void test_udpsocket_echotest_burst()
     udp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
     UDPSocket sock;
+    const int TIMEOUT = 5000; // [ms]
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    sock.set_timeout(5000);
+    sock.set_timeout(TIMEOUT);
+    sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
     // TX buffers to be preserved for comparison
     prepare_tx_buffers();
 
+    int bt_total = 0;
     int ok_bursts = 0;
     int pkg_fail = 0;
-    SocketAddress temp_addr;
     int recvd = 0;
-    int bt_total = 0;
+    int recv_timeout = RECV_TIMEOUT;;
+    SocketAddress temp_addr;
     for (int i = 0; i < BURST_CNT; i++) {
         for (int x = 0; x < BURST_PKTS; x++) {
             TEST_ASSERT_EQUAL(tx_buffers[x].len, sock.sendto(udp_addr, tx_buffers[x].payload, tx_buffers[x].len));
         }
 
-        recvd = 0;
         bt_total = 0;
+        recvd = 0;
         for (int j = 0; j < BURST_PKTS; j++) {
             recvd = sock.recvfrom(&temp_addr, rx_buffer, 500);
-            if (recvd < 0) {
-                pkg_fail++;
+            if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
+                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                    pkg_fail += BURST_PKTS-j;
+                    break;
+                }
+            } else if (recvd < 0) {
+                pkg_fail += BURST_PKTS-j; // Assume all the following packets of the burst to be lost
                 printf("[%02d] network error %d\n", i, recvd);
-                continue;
+                wait(recv_timeout);
+                recv_timeout *= 2; // Back off,
+                break;
             } else if (temp_addr != udp_addr) {
                 printf("[%02d] packet from wrong address\n", i);
+                --j;
                 continue;
             }
+
+            recv_timeout = recv_timeout > RECV_TIMEOUT ? recv_timeout/2 : RECV_TIMEOUT;
 
             // Packets might arrive unordered
             for (int k = 0; k < BURST_PKTS; k++) {
                 if (tx_buffers[k].len == recvd &&
                     (memcmp(tx_buffers[k].payload, rx_buffer, recvd) == 0)) {
                     bt_total += recvd;
-                    goto PKT_OK;
                 }
             }
-            pkg_fail++;
-            break;
-PKT_OK:
-            continue;
         }
 
         if (bt_total == RECV_TOTAL) {
             ok_bursts++;
         } else {
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, TIMEOUT);
             printf("[%02d] burst failure\n", i);
         }
     }
 
     free_tx_buffers();
 
-    // Packet loss up to 10% tolerated
-    TEST_ASSERT_INT_WITHIN((BURST_CNT*BURST_PKTS/10), BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail);
-    // 90% of the bursts need to be successful
-    TEST_ASSERT_INT_WITHIN((BURST_CNT/10), BURST_CNT, ok_bursts);
+    // Packet loss up to 1/4 tolerated
+    TEST_ASSERT_INT_WITHIN((BURST_CNT*BURST_PKTS/4), BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail);
+    // 3/4 of the bursts need to be successful
+    TEST_ASSERT_INT_WITHIN((BURST_CNT/4), BURST_CNT, ok_bursts);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
-}
-
-static void _sigio_handler(osThreadId id) {
-    osSignalSet(id, SIGNAL_SIGIO);
 }
 
 void test_udpsocket_echotest_burst_nonblock()
@@ -188,7 +197,7 @@ PKT_OK:
         if (bt_total == RECV_TOTAL) {
             ok_bursts++;
         } else {
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, -1); // timeout equivalent to set_blocking(false)
             sock.set_blocking(false);
         }
     }
