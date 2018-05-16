@@ -21,7 +21,7 @@
 
 #include "mbed.h"
 
-#if !defined(MBED_CPU_STATS_ENABLED)
+#if !defined(MBED_CPU_STATS_ENABLED) || !defined(DEVICE_LOWPOWERTIMER) || !defined(DEVICE_SLEEP)
 #error [NOT_SUPPORTED] test not supported
 #endif
 
@@ -49,19 +49,22 @@ void get_cpu_usage()
 {
     static uint64_t prev_idle_time = 0;
     mbed_stats_cpu_t stats;
-    mbed_stats_cpu_get(&stats);
 
-    uint64_t diff = (stats.idle_time - prev_idle_time);
-    uint8_t usage = 100 - ((diff * 100) / (SAMPLE_TIME * 1000));
-    prev_idle_time = stats.idle_time;
-
-    TEST_ASSERT_NOT_EQUAL(0, usage);
+    while (1) {
+        mbed_stats_cpu_get(&stats);
+        uint64_t diff = (stats.idle_time - prev_idle_time);
+        uint8_t usage = 100 - ((diff * 100) / (SAMPLE_TIME * 1000));
+        prev_idle_time = stats.idle_time;
+        TEST_ASSERT_NOT_EQUAL(0, usage);
+        Thread::wait(SAMPLE_TIME);
+    }
 }
 
 void test_cpu_info(void)
 {
     mbed_stats_cpu_t stats;
-    Thread::wait(0.1);
+    Thread::wait(1);
+    mbed_stats_cpu_get(&stats);
     TEST_ASSERT_NOT_EQUAL(0, stats.uptime);
     TEST_ASSERT_NOT_EQUAL(0, stats.idle_time);
     return;
@@ -69,11 +72,12 @@ void test_cpu_info(void)
 
 void test_cpu_load(void)
 {
-    EventQueue *stats_queue = mbed_event_queue();
-    int id = stats_queue->call_every(SAMPLE_TIME, get_cpu_usage);
+
     Thread thread(osPriorityNormal, MAX_THREAD_STACK);
+    Thread thread_stats(osPriorityNormal, MAX_THREAD_STACK);
 
     thread.start(busy_thread);
+    thread_stats.start(get_cpu_usage);
 
     // Steadily increase the system load
     for (int count = 1; ; count++) {
@@ -84,7 +88,7 @@ void test_cpu_load(void)
         wait_time -= 1000;  // usec
     }
     thread.terminate();
-    stats_queue->cancel(id);
+    thread_stats.terminate();
 }
 
 Case cases[] = {
