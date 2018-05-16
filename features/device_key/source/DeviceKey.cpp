@@ -249,7 +249,6 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
 
     trng_init(&trng_obj);
 
-    //final_size = 0;
     in_size = size;
     while (in_size > 0) {
 
