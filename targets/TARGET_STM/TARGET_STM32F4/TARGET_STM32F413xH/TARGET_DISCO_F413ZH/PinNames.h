@@ -1,18 +1,33 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ *******************************************************************************
+ * Copyright (c) 2018, STMicroelectronics
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -36,6 +51,7 @@ typedef enum {
     PA_2        = 0x02,
     PA_2_ALT0   = PA_2|ALT0,
     PA_3        = 0x03,
+    PA_3_ALT0   = PA_3|ALT0,
     PA_4        = 0x04,
     PA_4_ALT0   = PA_4|ALT0,
     PA_5        = 0x05,
@@ -253,6 +269,41 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
+
+/**** USB pins ****/
+    USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DP = PA_12,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+
+/**** No ETHERNET pins ***/
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_TRACECLK = PE_2,
+    SYS_TRACED0 = PE_3,
+    SYS_TRACED0_ALT0 = PF_6,
+    SYS_TRACED1 = PE_4,
+    SYS_TRACED1_ALT0 = PF_7,
+    SYS_TRACED1_ALT1 = PD_3,
+    SYS_TRACED2 = PE_5,
+    SYS_TRACED2_ALT0 = PG_13,
+    SYS_TRACED3 = PE_6,
+    SYS_TRACED3_ALT0 = PG_14,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_0,
+    SYS_WKUP3 = PC_1,
 
     // Not connected
     NC = (int)0xFFFFFFFF
