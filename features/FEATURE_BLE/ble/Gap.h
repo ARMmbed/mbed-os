@@ -2175,7 +2175,7 @@ public:
      * resolved and advertisement packets are forwarded to the application
      * even if the advertiser private address is unknown.
      *
-     * @param enable[in] Should be set to true to enable the privacy mode and
+     * @param[in] enable Should be set to true to enable the privacy mode and
      * false to disable it.
      *
      * @return BLE_ERROR_NONE in case of success or an appropriate error code.
