@@ -39,7 +39,7 @@ public:
 
     /* nRF51 Functions */
     void eventCallback(void);
-    void hwCallback(ble_evt_t *p_ble_evt);
+    void hwCallback(const ble_evt_t *p_ble_evt);
 
 
 private:
