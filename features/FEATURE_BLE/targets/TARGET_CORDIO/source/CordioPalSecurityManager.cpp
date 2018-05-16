@@ -36,7 +36,8 @@ CordioSecurityManager::CordioSecurityManager() :
     _lesc_keys_generated(false),
     _public_key_x(),
     _pending_privacy_control_blocks(NULL),
-    _processing_privacy_control_block(false)
+    _processing_privacy_control_block(false),
+    _peer_csrks()
 {
 
 }
@@ -56,6 +57,7 @@ ble_error_t CordioSecurityManager::initialize()
     _use_default_passkey = false;
     _default_passkey = 0;
     _lesc_keys_generated = false;
+    memset(_peer_csrks, 0, sizeof(_peer_csrks));
 
 #if 0
     // FIXME: need help from the stack or local calculation
@@ -68,11 +70,13 @@ ble_error_t CordioSecurityManager::initialize()
 
 ble_error_t CordioSecurityManager::terminate()
 {
+    cleanup_peer_csrks();
     return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::reset()
 {
+    cleanup_peer_csrks();
     initialize();
     return BLE_ERROR_NONE;
 }
@@ -293,7 +297,8 @@ ble_error_t CordioSecurityManager::set_ltk_not_found(
 
 ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
 {
-    DmSecSetLocalIrk(const_cast<uint8_t*>(irk.data()));
+    _irk = irk;
+    DmSecSetLocalIrk(_irk.data());
     return BLE_ERROR_NONE;
 }
 
@@ -301,8 +306,11 @@ ble_error_t CordioSecurityManager::set_csrk(
     const csrk_t& csrk,
     sign_count_t sign_counter
 ) {
+    _csrk = csrk;
+    DmSecSetLocalCsrk(_csrk.data());
+    // extra set the sign counter used by the client
     CordioAttClient::get_client().set_sign_counter(sign_counter);
-    DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk.data()));
+
     return BLE_ERROR_NONE;
 }
 
@@ -312,9 +320,40 @@ ble_error_t CordioSecurityManager::set_peer_csrk(
     bool authenticated,
     sign_count_t sign_counter
 ) {
-    AttsSetCsrk(connection, const_cast<uint8_t*>(csrk.data()));
-    AttsSetSignCounter(connection, sign_counter);
+    if (connection == 0 || connection > DM_CONN_MAX) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
 
+    size_t connection_index = connection - 1;
+
+    if (_peer_csrks[connection_index]) {
+        *_peer_csrks[connection_index] = csrk;
+    } else {
+        _peer_csrks[connection_index] = new (std::nothrow) csrk_t(csrk);
+        if (_peer_csrks[connection_index] == NULL) {
+            return BLE_ERROR_NO_MEM;
+        }
+    }
+
+    AttsSetCsrk(connection, _peer_csrks[connection_index]->data(), authenticated);
+    AttsSetSignCounter(connection, sign_counter);
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t CordioSecurityManager::remove_peer_csrk(connection_handle_t connection)
+{
+    if (connection == 0 || connection > DM_CONN_MAX) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    size_t connection_index = connection - 1;
+
+    if (_peer_csrks[connection_index]) {
+        delete _peer_csrks[connection_index];
+        _peer_csrks[connection_index] = NULL;
+    }
+
+    AttsSetCsrk(connection, NULL, false);
     return BLE_ERROR_NONE;
 }
 
@@ -910,6 +949,14 @@ void CordioSecurityManager::process_privacy_control_blocks(bool cb_completed)
     _pending_privacy_control_blocks = next;
 }
 
+void CordioSecurityManager::cleanup_peer_csrks() {
+    for (size_t i = 0; i < DM_CONN_MAX; ++i) {
+        if (_peer_csrks[i]) {
+            delete _peer_csrks[i];
+            _peer_csrks[i] = NULL;
+        }
+    }
+}
 
 } // cordio
 } // vendor

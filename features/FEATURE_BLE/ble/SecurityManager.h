@@ -417,6 +417,9 @@ public:
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
      * @param[in]  signing       Generate and distribute signing key during pairing
+     * @param[in]  dbPath        Path to the folder used to store keys in the filesystem,
+     *                           if NULL keys will be only stored in memory
+     *
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -424,12 +427,14 @@ public:
                              bool                     requireMITM   = true,
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
                              const Passkey_t          passkey       = NULL,
-                             bool                     signing       = true) {
+                             bool                     signing       = true,
+                             const char              *dbPath        = NULL) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
         (void)iocaps;
         (void)passkey;
+        (void)dbPath;
 
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -967,15 +972,31 @@ public:
      */
      ble_error_t getLinkSecurity(ble::connection_handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
-        ble_error_t status = getLinkEncryption(connectionHandle, &encryption);
-        /* legacy support limits the return values */
-        if (encryption.value() == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
-            *securityStatus = ENCRYPTED;
-        } else {
-            *securityStatus = (LinkSecurityStatus_t)encryption.value();
+        ble_error_t err = getLinkEncryption(connectionHandle, &encryption);
+        if (err) {
+            return err;
         }
 
-        return status;
+        switch (encryption.value()) {
+            case ble::link_encryption_t::NOT_ENCRYPTED:
+                *securityStatus = NOT_ENCRYPTED;
+                break;
+            case ble::link_encryption_t::ENCRYPTION_IN_PROGRESS:
+                *securityStatus = ENCRYPTION_IN_PROGRESS;
+                break;
+            case ble::link_encryption_t::ENCRYPTED:
+            case ble::link_encryption_t::ENCRYPTED_WITH_MITM:
+            case ble::link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM:
+                *securityStatus = ENCRYPTED;
+                break;
+            default:
+                // should never happen
+                MBED_ASSERT(false);
+                *securityStatus = NOT_ENCRYPTED;
+                break;
+        }
+
+        return BLE_ERROR_NONE;
     }
 
     /**
@@ -1079,7 +1100,10 @@ private:
                 SecurityManager::SecurityMode_t securityMode;
                 if (result == ble::link_encryption_t::ENCRYPTED) {
                     securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
-                } else if (result == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
+                } else if (
+                    result == ble::link_encryption_t::ENCRYPTED_WITH_MITM ||
+                    result == ble::link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+                ) {
                     securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
                 } else {
                     securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;

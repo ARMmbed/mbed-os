@@ -1090,9 +1090,11 @@ ble_error_t GenericGattClient::write(
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
         SecurityManager &sm = createBLEInstance()->getSecurityManager();
         ble_error_t status = sm.getLinkEncryption(connection_handle, &encryption);
-        if (status == BLE_ERROR_NONE
-            || encryption == ble::link_encryption_t::ENCRYPTED
-            || encryption == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
+        if (status == BLE_ERROR_NONE &&
+            (encryption == link_encryption_t::ENCRYPTED ||
+             encryption == link_encryption_t::ENCRYPTED_WITH_MITM ||
+             encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM)
+        ) {
             cmd = GattClient::GATT_OP_WRITE_CMD;
         }
     }

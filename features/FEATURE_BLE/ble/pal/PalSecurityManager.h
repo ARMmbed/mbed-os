@@ -883,6 +883,8 @@ public:
         sign_count_t sign_counter
     ) = 0;
 
+    virtual ble_error_t remove_peer_csrk(connection_handle_t connection) = 0;
+
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //

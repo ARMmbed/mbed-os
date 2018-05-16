@@ -205,11 +205,9 @@ generic::GenericGattClient& BLE::getGattClient()
 
 SecurityManager& BLE::getSecurityManager()
 {
-    static pal::MemorySecurityDb m_db;
     static SigningEventMonitorProxy signing_event_monitor(*this);
     static generic::GenericSecurityManager m_instance(
         pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
-        m_db,
         getGap(),
         signing_event_monitor
     );
@@ -356,7 +354,10 @@ void BLE::stack_setup()
     AttHandlerInit(handlerId);
     AttsInit();
     AttsIndInit();
+    AttsSignInit();
+    AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
+    AttcSignInit();
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);

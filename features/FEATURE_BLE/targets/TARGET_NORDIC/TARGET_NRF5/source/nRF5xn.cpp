@@ -208,7 +208,6 @@ SecurityManager& nRF5xn::getSecurityManager()
 
 const SecurityManager& nRF5xn::getSecurityManager() const
 {
-    static ble::pal::MemorySecurityDb m_db;
     ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal =
         ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
     static struct : ble::pal::SigningEventMonitor {
@@ -217,7 +216,6 @@ const SecurityManager& nRF5xn::getSecurityManager() const
 
     static ble::generic::GenericSecurityManager m_instance(
         m_pal,
-        m_db,
         const_cast<nRF5xGap&>(getGap()),
         dummy_signing_event_monitor
     );
@@ -233,8 +231,12 @@ nRF5xn::waitForEvent(void)
 }
 
 void nRF5xn::processEvents() {
+    core_util_critical_section_enter();
     if (isEventsSignaled) {
         isEventsSignaled = false;
+        core_util_critical_section_exit();
         intern_softdevice_events_execute();
+    } else {
+        core_util_critical_section_exit();
     }
 }

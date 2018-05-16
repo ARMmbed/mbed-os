@@ -565,7 +565,7 @@ uint16_t AttsCccEnabled(dmConnId_t connId, uint8_t idx);
  *  \return None.
  */
 /*************************************************************************************************/
-void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk);
+void AttsSetCsrk(dmConnId_t connId, uint8_t *pCsrk, bool_t authenticated);
 
 /*************************************************************************************************/
 /*!
