@@ -472,11 +472,6 @@ private:
 #endif
 
     /**
-     * Aborts reception
-     */
-    void abort_rx(void);
-
-    /**
      * Handles a Join Accept frame
      */
     void handle_join_accept_frame(const uint8_t *payload, uint16_t size);

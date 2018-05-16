@@ -223,15 +223,6 @@ void LoRaMac::on_radio_tx_done(void)
     _params.timers.aggregated_last_tx_time = cur_time;
 }
 
-void LoRaMac::abort_rx(void)
-{
-    if (_params.is_node_ack_requested) {
-        const int ret = _ev_queue->call(this, &LoRaMac::on_ack_timeout_timer_event);
-        MBED_ASSERT(ret != 0);
-        (void)ret;
-    }
-}
-
 /**
  * This part handles incoming frames in response to Radio RX Interrupt
  */
@@ -526,7 +517,6 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
         if (!is_multicast) {
             // We are not the destination of this frame.
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-            abort_rx();
             return;
         }
     } else {
@@ -543,13 +533,14 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
     if (!message_integrity_check(payload, size, &ptr_pos, address,
                                  &downlink_counter, nwk_skey)) {
         tr_error("MIC failed");
-        abort_rx();
         return;
     }
 
     // message is intended for us and MIC have passed, stop RX2 Window
     // Spec: 3.3.4 Receiver Activity during the receive windows
-    _lora_time.stop(_params.timers.rx_window2_timer);
+    if (_params.rx_slot == RX_SLOT_WIN_2) {
+        _lora_time.stop(_params.timers.rx_window2_timer);
+    }
 
     _mcps_confirmation.ack_received = false;
     _mcps_indication.is_ack_recvd = false;
@@ -578,7 +569,6 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
             _mcps_indication.dl_frame_counter = downlink_counter;
             _mcps_indication.pending = false;
-            abort_rx();
 
             return;
         }
@@ -610,7 +600,7 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
                 tr_debug("Discarding duplicate frame");
                 _mcps_indication.pending = false;
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                abort_rx();
+
                 return;
             }
         }
@@ -663,8 +653,14 @@ void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_le
 void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
-    // on reception turn off queued timers
-    _lora_time.stop(_params.timers.rx_window1_timer);
+    // stop the RX1 timer here if its the first RX slot.
+    // If the MIC will pass we will stop RX2 timer as well later.
+    // If its RX2, stop RX2 timer.
+    if (_params.rx_slot == RX_SLOT_WIN_1) {
+        _lora_time.stop(_params.timers.rx_window1_timer);
+    } else if (_params.rx_slot == RX_SLOT_WIN_2) {
+        _lora_time.stop(_params.timers.rx_window2_timer);
+    }
 
     if (_device_class == CLASS_C) {
          open_rx2_window();
@@ -681,7 +677,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
         case FRAME_TYPE_JOIN_ACCEPT:
 
             if (nwk_joined()) {
-                abort_rx();
                 _mlme_confirmation.pending = false;
                 return;
             } else {

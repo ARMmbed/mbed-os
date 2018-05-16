@@ -540,8 +540,8 @@ void LoRaWANStack::process_transmission_timeout()
 
 void LoRaWANStack::process_transmission(void)
 {
-    _loramac.on_radio_tx_done();
     tr_debug("Transmission completed");
+    _loramac.on_radio_tx_done();
 
     make_tx_metadata_available();
 
