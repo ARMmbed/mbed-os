@@ -159,12 +159,8 @@ private:
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
-    bool set_network_registration();
-    bool get_attach_network(CellularNetwork::AttachStatus &status);
-    bool set_attach_network();
     bool is_registered();
-    bool device_ready();
-    nsapi_error_t is_automatic_registering(bool& auto_reg);
+    void device_ready();
 
     // state functions to keep state machine simple
     void state_init();

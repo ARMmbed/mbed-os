@@ -121,6 +121,12 @@ public:
      */
     virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
 
+    /** Check whether the device is ready to accept commands.
+     *
+     *  @return     zero on success
+     */
+    virtual nsapi_error_t is_device_ready() = 0;
+
     /** Set URC callback function for device specific ready urc. URC is defined in device specific
      *  power API. Used in startup sequence to listen when device is ready
      *  for using at commands and possible sim.
