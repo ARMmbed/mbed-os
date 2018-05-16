@@ -383,7 +383,6 @@ class SingleTestRunner(object):
                 build_mbed_libs_result = build_mbed_libs(
                     T, toolchain,
                     clean=clean_mbed_libs_options,
-                    verbose=self.opts_verbose,
                     jobs=self.opts_jobs,
                     report=build_report,
                     properties=build_properties,
@@ -463,7 +462,6 @@ class SingleTestRunner(object):
                     build_lib(lib_id,
                               T,
                               toolchain,
-                              verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
                               jobs=self.opts_jobs,
                               report=build_report,
@@ -509,7 +507,7 @@ class SingleTestRunner(object):
                 try:
                     path = build_project(test.source_dir, join(build_dir, test_id), T,
                         toolchain, test.dependencies, clean=clean_project_options,
-                        verbose=self.opts_verbose, name=project_name, macros=MACROS,
+                        name=project_name, macros=MACROS,
                         inc_dirs=INC_DIRS, jobs=self.opts_jobs, report=build_report,
                         properties=build_properties, project_id=test_id,
                         project_description=test.get_description(),
