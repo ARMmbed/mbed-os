@@ -417,6 +417,9 @@ public:
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
      * @param[in]  signing       Generate and distribute signing key during pairing
+     * @param[in]  dbPath        Path to the folder used to store keys in the filesystem,
+     *                           if NULL keys will be only stored in memory
+     *
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -424,12 +427,14 @@ public:
                              bool                     requireMITM   = true,
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
                              const Passkey_t          passkey       = NULL,
-                             bool                     signing       = true) {
+                             bool                     signing       = true,
+                             const char              *dbPath        = NULL) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
         (void)iocaps;
         (void)passkey;
+        (void)dbPath;
 
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
