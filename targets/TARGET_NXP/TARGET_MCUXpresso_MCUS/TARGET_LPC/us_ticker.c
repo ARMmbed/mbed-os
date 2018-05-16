@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,37 +18,54 @@
 #include "fsl_ctimer.h"
 #include "PeripheralNames.h"
 
-int us_ticker_inited = 0;
+const ticker_info_t* us_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        1000000,    // 1 MHz
+             32     // 32 bit counter
+    };
+    return &info;
+}
 
+static bool us_ticker_inited = false;
+
+/** Initialize the high frequency ticker
+ *
+ */
 void us_ticker_init(void) {
     ctimer_config_t config;
-
-    if (us_ticker_inited) {
-        return;
-    }
-
-    us_ticker_inited = 1;
 
     uint32_t pclk = CLOCK_GetFreq(kCLOCK_BusClk);
     uint32_t prescale = pclk / 1000000; // default to 1MHz (1 us ticks)
 
-    CTIMER_GetDefaultConfig(&config);
-    config.prescale = prescale - 1;
-    CTIMER_Init(CTIMER1, &config);
-    CTIMER_Reset(CTIMER1);
-    CTIMER_StartTimer(CTIMER1);
+    /* Let the timer to count if re-init. */
+    if (!us_ticker_inited) {
 
+        CTIMER_GetDefaultConfig(&config);
+        config.prescale = prescale - 1;
+        CTIMER_Init(CTIMER1, &config);
+        CTIMER_Reset(CTIMER1);
+        CTIMER_StartTimer(CTIMER1);
+    }
     NVIC_SetVector(CTIMER1_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(CTIMER1_IRQn);
+    CTIMER1->MCR &= ~1;
+
+    us_ticker_inited = true;
 }
 
+/** Read the current counter
+ *
+ * @return The current timer's counter value in ticks
+ */
 uint32_t us_ticker_read(void) {
-    if (!us_ticker_inited)
-        us_ticker_init();
-
     return CTIMER1->TC;
 }
 
+/** Set interrupt for specified timestamp
+ *
+ * @param timestamp The time in ticks when interrupt should be generated
+ */
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     ctimer_match_config_t matchConfig;
 
@@ -62,10 +79,16 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     CTIMER_SetupMatch(CTIMER1, kCTIMER_Match_0, &matchConfig);
 }
 
+/** Disable us ticker interrupt
+ *
+ */
 void us_ticker_disable_interrupt(void) {
     CTIMER1->MCR &= ~1;
 }
 
+/** Clear us ticker interrupt
+ *
+ */
 void us_ticker_clear_interrupt(void) {
     CTIMER1->IR = 1;
 }
