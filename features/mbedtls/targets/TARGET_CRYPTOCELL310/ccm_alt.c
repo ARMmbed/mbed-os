@@ -1,7 +1,7 @@
 /*
  *  ccm_alt.c
  *
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2018, Arm Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -54,7 +54,7 @@ int mbedtls_ccm_setkey( mbedtls_ccm_context *ctx,
         return ( MBEDTLS_ERR_AES_FEATURE_UNAVAILABLE );
     }
 
-    memcpy( ctx->cipher_key , key, keybits/8 );
+    memcpy( ctx->cipher_key , key, keybits / 8 );
     ctx->keySize_ID = CRYS_AES_Key128BitSize;
 
     return ( 0 );
@@ -85,8 +85,10 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
     if( iv_len < 7 || iv_len > 13 )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 
+#if defined(MBEDTLS_HAVE_INT64)
     if( length > 0xFFFFFFFF || add_len > 0xFFFFFFFF )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
+#endif
 
     CrysRet =  CRYS_AESCCM( SASI_AES_ENCRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
                             (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, tag );
@@ -120,8 +122,10 @@ int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
     if( iv_len < 7 || iv_len > 13 )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 
+#if defined(MBEDTLS_HAVE_INT64)
     if( length > 0xFFFFFFFF || add_len > 0xFFFFFFFF )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
+#endif
 
     CrysRet =  CRYS_AESCCM( SASI_AES_DECRYPT, ctx->cipher_key, ctx->keySize_ID,(uint8_t*)iv, iv_len,
                             (uint8_t*)add, add_len,  (uint8_t*)input, length, output, tag_len, (uint8_t*)tag );

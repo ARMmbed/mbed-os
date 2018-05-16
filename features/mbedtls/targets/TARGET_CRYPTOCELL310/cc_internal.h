@@ -4,7 +4,7 @@
  *  Internal utility functions and definitions,
  *  used for converting mbedtls types to CC types, and vice versa
  *
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2018, Arm Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may

@@ -1,7 +1,7 @@
 /*
  *  ecdh_alt.c
  *
- *  Copyright (C) 2018, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2018, Arm Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -52,12 +52,12 @@ int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
       if ( pDomain )
       {
           uint8_t temp_buf[ 2 * MAX_KEY_SIZE_IN_BYTES + 1 ] = {0};
-          cc_ecc_ws_keygen_params_t* kgParams =  mbedtls_calloc( 1, sizeof(cc_ecc_ws_keygen_params_t) );
+          cc_ecc_ws_keygen_params_t* kgParams =  mbedtls_calloc( 1, sizeof( cc_ecc_ws_keygen_params_t ) );
 
           if ( kgParams == NULL )
               return ( MBEDTLS_ERR_ECP_ALLOC_FAILED );
           pHeap = kgParams;
-          heapSize = sizeof(cc_ecc_ws_keygen_params_t);
+          heapSize = sizeof( cc_ecc_ws_keygen_params_t );
 
           ret = convert_CrysError_to_mbedtls_err( CRYS_ECPKI_GenKeyPair( &cc_rand, convert_mbedtls_to_cc_rand,
                                        pDomain, &kgParams->privKey,
@@ -92,7 +92,7 @@ int mbedtls_ecdh_gen_public( mbedtls_ecp_group *grp, mbedtls_mpi *d, mbedtls_ecp
           mbedtls_zeroize( temp_buf, sizeof( temp_buf ) );
       }
 
-      /* if CRYS_ECPKI_GetEcDomain returns NULL, than the given curve is wither Montgomery 25519
+      /* if CRYS_ECPKI_GetEcDomain returns NULL, then the given curve is either Montgomery 25519
        * or another curve which is not supported by CC310*/
       else if ( grp->id ==  MBEDTLS_ECP_DP_CURVE25519 )
       {
