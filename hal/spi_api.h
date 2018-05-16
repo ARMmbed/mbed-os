@@ -39,7 +39,6 @@
  *   to distinguish communication channels (master or slaves).
  * - As the instance allocation is at the user's responsibility, the hal implementation cannot keep
  *   a copy of the pointer (keep an alias to the object) as it may be stack allocated and/or moved.
- * - All method must be thread safe at HAL level.
  * - The hal implementation must support both clock phases.
  * - The hal implementation must support both clock polarities.
  * - The hal implementation must support either master or slave or both modes.
@@ -48,8 +47,9 @@
  * - The hal implementation must support at least 1 word length in the range 4 to 32.
  * - The hal implementation must support the simplex and full duplex modes.
  * - The hal implementation may or may not support the half-duplex, dual and/or quad-io modes.
- * - The accuracy of the clock generated in master mode by the hal implementation must be within +/-
- *   0.1% of the user requested frequency.
+ * - The generated clock must be lower than or equal to the requested frequency minimising the
+ *   deviation.
+ *
  *
  * - spi_get_capabilities(..)
  *   - returns NULL if passed a NULL pointer.
@@ -91,7 +91,8 @@
  * # Undefined behaviours
  * - calling any instance method before `spi_init()`.
  * - calling any other instance method than `spi_init()` after `spi_free()`.
- * - calling free on a spi_t instance being used in a `spi_transfer()` call.
+ * - calling any instance method while another one is running.
+ * - calling any method from an interrupt context.
  *
  * # Lexicon
  * ## Transfer/Transaction
@@ -122,10 +123,10 @@
  * _
  * ```
  * ## Symbol/Word
- * Even though documentations usually uses the lexeme `word` to mean the unit of data that is
- * sent/received it is ambiguous as it may not correspond to an actual `word` on the platform.
- * To avoid any confusion we will use in this API the lexeme `symbol` instead.
- * ## SPI channel
+ * Even though documentations usually uses `word` to mean the unit of data that is sent/received
+ * it is ambiguous as it may not correspond to an actual `word` on the platform. To avoid any
+ * confusion we will use in this API the word `symbol` instead.
+ * ## SPI channel
  * This is the virtual communication channel created between a master and its slave.
  * @{
  */
@@ -191,28 +192,28 @@ typedef struct {
  * This enumerates the possible result of the spi_init function.
  */
 typedef enum {
-    SPI_RESULT_OK, /**< Operation successful. */
-    SPI_RESULT_CONFIG_UNSUPPORTED, /**< The required parameters are not supported by the device. */
-    SPI_RESULT_INVALID_PARAM, /**< The given parameter(s) is/are invalid. */
-    SPI_RESULT_DEVICE_BUSY, /**< The requested peripheral/SS p)in is already initialised. */
+    SPI_RESULT_OK = 0, /**< Operation successful. */
+    SPI_RESULT_CONFIG_UNSUPPORTED = -1, /**< The required parameters are not supported by the device. */
+    SPI_RESULT_INVALID_PARAM = -2, /**< The given parameter(s) is/are invalid. */
+    SPI_RESULT_DEVICE_BUSY = -3, /**< The requested peripheral/SS p)in is already initialised. */
 } spi_result_t;
 
 /**
  * This is describes the capabilities of a SPI channel.
  * The elements of this structure are independent. This means that a supported feature is supported
  * regardless of other feature settings.
- *
- * @note minimum_frequency and maximum_frequency are used by tests to assess that at least these
- * frequencies are supported. The device may be able to achieve lower and/or faster frequency.
- * @warning Only minimum_frequency and maximum_frequency are assessed during tests. Your device may
- * not be able to generate the whole range between these limits.
  */
 typedef struct {
-    uint32_t    minimum_frequency; /**< Minimum frequency assessed during tests. */
-    uint32_t    maximum_frequency; /**< Maximum frequency assessed during tests. */
-
-    uint32_t    word_length; /**< Each bit represents the corresponding word length.
-                                  lsb => 1bit, msb => 32bit.*/
+    /** Minimum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    minimum_frequency;
+    /** Maximum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    maximum_frequency;
+    /** Each bit represents the corresponding word length. lsb => 1bit, msb => 32bit. */
+    uint32_t    word_length; 
     enum {
         SPI_CONTINUOUS_MODE_NONCONTINUOUS, /**< The channel only supports the noncontinuous mode. */
         SPI_CONTINUOUS_MODE_CONTINUOUS, /**< The channel only supports the continuous mode. */

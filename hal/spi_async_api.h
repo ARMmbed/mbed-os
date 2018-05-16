@@ -24,55 +24,69 @@
 #if DEVICE_SPI_ASYNCH
 
 /** \defgroup hal_spi_async SPI: Asynchronous API.
+ * Asynchronous extension to the SPI HAL API.
  *
- * This sub API complete the set of functions provided by the SPI API to enable asynchronous access
- * to the peripheral.
- *
- * - Schedule/enqueue a transaction.
- * - eventually cancel/abort the transaction.
- * - release the transaction (before or after its completion).
- *
- * # Defined behaviour
- * - `spi_async_transfer_new()` returns NULL if any of `spi_t *obj` or `spi_transfer_args_t *args` is NULL.
- * - `spi_async_transfer_new()` schedules a transfer using the given parameters.
- *   All parameters and the embedded references must stay "alive" until completion of the operation.
- * - `spi_async_transfer_new()` returns a reference counted handle on the scheduled operation.
- * - `spi_async_transfer_free()` does nothing if passed a NULL pointer.
- * - `spi_async_transfer_free()` notifies the lowlevel implementation that this reference is no longer
- *   owned used in the client application (upper/layer code).
- * - `spi_async_transfer_free()` does **NOT** cancel nor abort a transaction if called before completion.
- * - `spi_async_transfer_abort()` notifies the lowlevel implementation that the given transaction must be
- *   cancelled (if not already started) or aborted (if currently running).
- * - When the operation completes (normally or because of abortion or error) the callback is invoked
- *   with the provided context and a "reason" describing what triggered the completion.
- *   This call might be running in an interrupt context and thus all contrainsts applying to ISR
- *   handler applies to this callback.
- * - `spi_async_transfer_abort()` does nothing if called on an already completed transaction.
- * - `spi_async_transfer_abort()` may not wait for the transaction to be cancelled/aborted and returns
- *   immediatly.
- * - `spi_free()` cancels and aborts all transactions enqueued for this spi_t.
- * - the callback passed in spi_async_transfer_new is called only once.
- *
- * # Undefined behaviour
- * - Calling `spi_async_free_handle()` more than one time on a `spi_async_tranfer_t`.
- * - Calling `spi_async_abort()` after calling `spi_async_free_handle()`.
- *
- * # What this API does not cover
- * The following elements are not covered by this API and are considered implementation details :
- * - The use of Interrupts and/or DMA for async operations.
- * - The way `spi_transfer()` is implemented : using specific to this function or using
- *   `spi_async_transfer()`.
- * - Wether the SS pin is controlled by hardware or software.
- * - The way `spi_async_abort()` is implemented : abortion callback invoked in the same thread before
- *   returning, in an interrupt or in another thread.
- *
- * @{
- *
- * \struct spi_async_tranfer_t
- * This needs to be declared and defined by the low level device driver.
- * It is used to eventually abort an async request before its completion. see spi_async_abort.
- */
+ * # Programming model
+ * This is an OOP like API. spi_async_transfer_t is used a "this".<br/>
+ * Methods not having this type as their first parameter are **class** methods.<br/>
+ * Methods with an spi_t object as their first paremeter are **instance** methods.<br/>
+ * `spi_async_transfer_new()` acts as the "constructor" of this *class*.<br/>
+ * `spi_async_transfer_free()` acts as the "desctructor" of this *class*.
+ * 
+ * This API extends the hal_spi API.
+ * 
+ * # Defined behaviours
 
+## Defined behaviours
+ * - A repeating transfer must not restart until the invokation of the completion callback has not returned.
+ * - The implementation may use interrupt or 
+ * 
+ * - spi_async_transfer_new(..)
+ *   - returns NULL if `spi_t *obj` and/or `spi_transfer_args_t *args` is NULL.
+ *   - enqueues a transfer request that will processed as the device become available.
+ *   - on successfull enqueueing returns a counted reference to the related hal implementation
+ *     resource.
+ *     @warning if `repeat` is `false` then any element passed to this function must live at least
+ *     until the callback is invoked.
+ *     @warning if `repeat` is `true` then any element passed to this function must live at least
+ *     until the callback is invoked with the an event type not being `SPI_EVENT_TYPE_ON_DONE`.
+ * - spi_async_transfer_abort(..)
+ *   - notifies the lowlevel implementation that the given transaction must be cancelled (if not
+ *     already started) or aborted (if currently running).
+ *   - invokes the callback with the provided context and an spi_completion_type_t when the
+ *     operation completes (normally or because of abortion or error). This call might be running in
+ *     an interrupt context and thus all contrainsts applying to ISR handler applies to this
+ *     callback.
+ *   - does nothing if called on an already completed transaction.
+ *   - may not wait for the transaction to be cancelled/aborted and returns immediatly.
+ * - spi_async_transfer_free(..)
+ *   - does nothing if passed a NULL pointer.
+ *   - notifies the lowlevel implementation that this reference is no longer owned used in the
+ *     client application (upper/layer code).
+ *   - does **NOT** cancel nor abort a transaction if called before completion.
+ * - spi_event_f(..)
+ *   - may update the spi_transfer_args_t structure initialy given to `spi_async_transfer_new(..)`
+ *     on a repeating transfer.
+ *   - does not block/busy wait/perform heavy calculation.
+ *   - does not perfom any rtos unsafe operation.
+ *
+ * # Undefined behaviours
+ * - Calling any method on a `spi_async_tranfer_t` after calling `spi_async_free_handle()`.
+ *
+ * # Lexicon
+ * ## `Completion`/`Cancelletion`/`Abortion`
+ * The `completion` of a transfer is reached when one of the following condition is verified :
+ * - the transfer has sent and received the amount of symbol specified in `tx_count` and `rx_count`.
+ * - an error has occured during the transfer.
+ * - an abortion was triggered during the transfer.
+ * 
+ * The `cancellation` refers to an `abortion request` occuring before the transfer is actually initiated.
+ * 
+ * The `abortion` refers to `abortion request` occuring during the processing of the transfer.
+ * 
+ * @{
+ */
+ 
 /**
  * This enumerates the possible event types generated by the SPI ASYNC api.
  */
@@ -83,16 +97,14 @@ typedef enum spi_event_type_t {
 } spi_event_type_t;
 
 /**
- * Signature for a SPI async completion event.
- *
- * As this may be executed from an interrupt context it is highly adviced to restrict this callback
- * to signaling completion to a thread.
+ * This gives informations on the transaction state when the completion callback is invoked.
  */
-typedef void (*spi_event_f)(void *context, spi_event_type_t evtype);
+typedef struct spi_transfer_state_s {
+    spi_event_type_t event_type; /**< Even type triggering this invokation. */
+    uint32_t received; /**< Actual count of received symbols at the time being. */
+    uint32_t transmitted; /**< Actual count of transmitted symbols at the time being. */
+} spi_transfer_state_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /**
  * SPI asynchronous transfer type.
  * This has to be defined by the low-level implementation.
@@ -101,13 +113,47 @@ extern "C" {
 typedef struct spi_async_transfer_s spi_async_transfer_t;
 
 /**
+ * Signature for a SPI async completion event.
+ *
+ * As this may be executed from an interrupt context it is highly adviced to restrict this callback
+ * to signaling completion to a thread.
+ *
+ * @note This method may update the spi_transfer_args_t initialy passed to spi_async_transfer_new().
+ *       This is very handful for chaining transfer saving time from reallocation.
+ *
+ * @warning This method may be called form an interrupt context and thus may not call any interrupt
+ *          unsafe function. It should also be as quick as possible in order to avoid any latency on
+ *          the rest of the system.
+ *
+ * @param[in,out] context        Any object that was passed to spi_async_transfer_new().
+ * @param[in]     transfer       The handle that was returned by spi_async_transfer_new().
+ * @param[in]     transfer_state Transfer state at the moment of the call. This state will be valid
+ *                               until this method returns.
+ */
+typedef void (*spi_event_f)(void *context, spi_async_transfer_t* transfer, spi_transfer_state_t transfer_state);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
  * Schedules a transfer using the given parameters.
- * @warning All parameters and the embedded references must stay "alive" until completion of the operation.
+ *
+ * - returns NULL if `spi_t *obj` and/or `spi_transfer_args_t *args` is NULL.
+ * - enqueues a transfer request that will processed as the device become available.
+ * - on successfull enqueueing returns a counted reference to the related hal implementation
+ *   resource.
+ *
+ * @warning if `repeat` is `false` then any element passed to this function must live at least
+ *          until the callback is invoked.
+ * @warning if `repeat` is `true` then any element passed to this function must live at least until
+ *          the callback is invoked with the an event type not being `SPI_EVENT_TYPE_ON_DONE`.
  *
  * @param[in,out] obj       A pointer to a spi_t object.
  * @param[in,out] args      A pointer to a spi_transfer_args_t object.
  * @param[in]     context   A context to be used by the callback.
  * @param[in]     cb        A callback invoked upon completion of this transaction.
+ * @param[in]     repeat    If true, the transaction will be repeated until it is cancelled.
  *
  * @return A reference counted handle to the transaction.
  */
@@ -115,43 +161,35 @@ spi_async_transfer_t* spi_async_transfer_new(
     spi_t *obj,
     spi_transfer_args_t *args,
     void *context,
-    spi_event_f cb);
+    spi_event_f cb,
+    bool repeat);
 
 /**
  * Aborts the transaction referenced by the spi_async_tranfer_t.
  *
- * This function notifies the lowlevel implementation that the given transaction must be cancelled
- * (if not already started) or aborted (if currently running) and returns.
- *
- * The callback associated with this spi_async_tranfer_t will be invoked with SPI_EVENT_TYPE_ON_ABORT
- * as its evtype argument.
- *
- * This does nothing when used on an already cancelled/aborted transaction.
+ * - notifies the lowlevel implementation that the given transaction must be cancelled (if not
+ *   already started) or aborted (if currently running).
+ * - invokes the callback with the provided context and an spi_completion_type_t when the operation
+ *   completes (normally or because of abortion or error). This call might be running in an
+ *   interrupt context and thus all contrainsts applying to ISR handler applies to this callback.
+ * - does nothing if called on an already completed transaction.
+ * - may not wait for the transaction to be cancelled/aborted and returns immediatly.
  *
  * @param[in] transfer A spi_async_tranfer_t object.
- *
- * The handle is consumed in this operation and should no longer be used.
  */
 void spi_async_transfer_abort(spi_async_transfer_t* transfer);
 
 /**
  * Tells the low-level driver that the upper layer is no longer keeping this handle.
  *
- * This does nothing if passed a NULL pointer.
+ * - does nothing if passed a NULL pointer.
+ * - notifies the lowlevel implementation that this reference is no longer owned used in the client
+ *   application (upper/layer code).
+ * - does **NOT** cancel nor abort a transaction if called before completion.
  *
  * @param[in] transfer A spi_async_tranfer_t object.
  */
 void spi_async_transfer_free(spi_async_tranfer_t* transfer);
-
-/**
- * \func spi_free
- *
- * A SPI instance cannot be released if any reference to an asynchronous transaction is still alive.
- *
- * @warning An asynchronous transaction might be completed/errored/aborted and still alive if
- * `spi_async_free_handle()` has not beed called yet on it.
- *
- */
 #ifdef __cplusplus
 }
 #endif
