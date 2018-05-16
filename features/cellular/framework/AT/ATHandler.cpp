@@ -282,21 +282,19 @@ void ATHandler::process_oob()
                 if (!(_fileHandle->readable() || (_recv_pos < _recv_len))) {
                     break; // we have nothing to read anymore
                 }
-                _start_time = rtos::Kernel::get_ms_count(); // time to process next (potential) URC
             } else if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) { // If no match found, look for CRLF and consume everything up to CRLF
                 consume_to_tag(CRLF, true);
             } else {
                 if (!fill_buffer()) {
+                    reset_buffer(); // consume anything that could not be handled
                     break;
                 }
+                _start_time = rtos::Kernel::get_ms_count();
             }
         }
         _at_timeout = timeout;
     }
     tr_debug("process_oob exit");
-
-    flush(); // consume anything that could not be handled
-
     unlock();
 }
 
