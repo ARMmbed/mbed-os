@@ -143,6 +143,9 @@ err_t LWIP::Interface::emac_if_init(struct netif *netif)
     mbed_if->emac->set_link_input_cb(mbed::callback(mbed_if, &LWIP::Interface::emac_input));
     mbed_if->emac->set_link_state_cb(mbed::callback(mbed_if, &LWIP::Interface::emac_state_change));
 
+    /* Interface capabilities */
+    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
+
     if (!mbed_if->emac->power_up()) {
         err = ERR_IF;
     }
@@ -154,8 +157,6 @@ err_t LWIP::Interface::emac_if_init(struct netif *netif)
     mbed_if->emac->get_hwaddr(netif->hwaddr);
     /* Then we write back either what they gave us, or our default */
     mbed_if->emac->set_hwaddr(netif->hwaddr);
-    /* Interface capabilities */
-    netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
 
     mbed_if->emac->get_ifname(netif->name, 2);
 
