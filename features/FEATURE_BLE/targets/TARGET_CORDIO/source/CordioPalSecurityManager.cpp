@@ -22,6 +22,7 @@
 #include "att_api.h"
 #include "smp_api.h"
 #include "wsf_os.h"
+#include "hci_core.h"
 
 namespace ble {
 namespace pal {
@@ -34,6 +35,8 @@ CordioSecurityManager::CordioSecurityManager() :
     _default_passkey(0),
     _lesc_keys_generated(false),
     _public_key_x(),
+    _pending_privacy_control_blocks(NULL),
+    _processing_privacy_control_block(false),
     _peer_csrks()
 {
 
@@ -41,7 +44,7 @@ CordioSecurityManager::CordioSecurityManager() :
 
 CordioSecurityManager::~CordioSecurityManager()
 {
-
+    clear_privacy_control_blocks();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -84,31 +87,57 @@ ble_error_t CordioSecurityManager::reset()
 
 uint8_t CordioSecurityManager::read_resolving_list_capacity()
 {
-    // FIXME: Implement with privacy support.
-    return 0;
+    // The Cordio stack requests this from the controller during initialization
+    return hciCoreCb.resListSize;
 }
 
+// As the Cordio stack can only handle one of these methods at a time, we need to create a list of control blocks
+// that are dequeued one after the other on completion of the previous one
 ble_error_t CordioSecurityManager::add_device_to_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t &peer_identity_address,
     const irk_t &peer_irk
 ) {
-    // FIXME: Implement with privacy support.
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    if( read_resolving_list_capacity() == 0 )
+    {
+        // If 0 is returned as capacity, it means the controller does not support resolving addresses
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    // Queue control block
+    queue_add_device_to_resolving_list(peer_identity_address_type, peer_identity_address, peer_irk);
+    
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::remove_device_from_resolving_list(
     advertising_peer_address_type_t peer_identity_address_type,
     const address_t& peer_identity_address
 ) {
-    // FIXME: Implement with privacy support.
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    if( read_resolving_list_capacity() == 0 )
+    {
+        // If 0 is returned as capacity, it means the controller does not support resolving addresses
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    // Queue control block
+    queue_remove_device_from_resolving_list(peer_identity_address_type, peer_identity_address);
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::clear_resolving_list()
 {
-    // FIXME: Implement with privacy support.
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    if( read_resolving_list_capacity() == 0 )
+    {
+        // If 0 is returned as capacity, it means the controller does not support resolving addresses
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    
+    // Queue control block
+    queue_clear_resolving_list();
+
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -725,9 +754,199 @@ bool CordioSecurityManager::sm_handler(const wsfMsgHdr_t* msg) {
             return true;
         }
 
+        // Privacy
+        case DM_PRIV_ADD_DEV_TO_RES_LIST_IND: // Device added to resolving list
+        case DM_PRIV_REM_DEV_FROM_RES_LIST_IND: // Device removed from resolving list
+        case DM_PRIV_CLEAR_RES_LIST_IND: // Resolving list cleared
+        { 
+            // Previous command completed, we can move to the next control block
+            self.process_privacy_control_blocks(true);
+            return true;
+        }
         default:
             return false;
     }
+}
+
+struct CordioSecurityManager::PrivacyControlBlock
+{
+    PrivacyControlBlock() : _next(NULL) {}
+
+    virtual ~PrivacyControlBlock() {}
+
+    virtual void execute() = 0;
+
+    void set_next(PrivacyControlBlock* next) {
+        _next = next;
+    }
+
+    PrivacyControlBlock* next() const {
+        return _next;
+    }
+
+private:
+    PrivacyControlBlock* _next;
+};
+
+struct CordioSecurityManager::PrivacyClearResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+{
+    PrivacyClearResListControlBlock() : PrivacyControlBlock()
+    {}
+
+    virtual ~PrivacyClearResListControlBlock() {}
+
+    virtual void execute() {
+        // Execute command
+        DmPrivClearResList();
+    }
+};
+
+struct CordioSecurityManager::PrivacyAddDevToResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+{
+    PrivacyAddDevToResListControlBlock(
+        advertising_peer_address_type_t peer_identity_address_type,
+        const address_t &peer_identity_address,
+        const irk_t &peer_irk
+    ) : PrivacyControlBlock(),
+    _peer_identity_address_type(peer_identity_address_type),
+    _peer_identity_address(peer_identity_address),
+    _peer_irk(peer_irk)
+    {}
+
+    virtual ~PrivacyAddDevToResListControlBlock() {}
+
+    virtual void execute() {
+        // Execute command
+        DmPrivAddDevToResList(_peer_identity_address_type.value(), _peer_identity_address.data(), _peer_irk.data(), DmSecGetLocalIrk(), false, 0);
+    }
+
+private:
+    advertising_peer_address_type_t _peer_identity_address_type;
+    address_t _peer_identity_address;
+    irk_t _peer_irk;
+};
+
+struct CordioSecurityManager::PrivacyRemoveDevFromResListControlBlock : CordioSecurityManager::PrivacyControlBlock
+{
+    PrivacyRemoveDevFromResListControlBlock(
+        advertising_peer_address_type_t peer_identity_address_type,
+        const address_t &peer_identity_address
+    ) : PrivacyControlBlock(),
+    _peer_identity_address_type(peer_identity_address_type),
+    _peer_identity_address(peer_identity_address)
+    {
+
+    }
+
+    virtual ~PrivacyRemoveDevFromResListControlBlock() {}
+
+    virtual void execute() {
+        // Execute command
+        DmPrivRemDevFromResList(_peer_identity_address_type.value(), _peer_identity_address.data(), 0);
+    }
+
+private:
+    advertising_peer_address_type_t _peer_identity_address_type;
+    address_t _peer_identity_address;
+};
+
+// Helper functions for privacy
+void CordioSecurityManager::queue_add_device_to_resolving_list(
+    advertising_peer_address_type_t peer_identity_address_type,
+    const address_t &peer_identity_address,
+    const irk_t &peer_irk
+)
+{
+    PrivacyAddDevToResListControlBlock* cb = 
+        new (std::nothrow) PrivacyAddDevToResListControlBlock(peer_identity_address_type, peer_identity_address, peer_irk);
+    if( cb == NULL )
+    {
+        // Cannot go further
+        return;
+    }
+
+    queue_privacy_control_block(cb);
+}
+
+void CordioSecurityManager::queue_remove_device_from_resolving_list(
+    advertising_peer_address_type_t peer_identity_address_type,
+    const address_t &peer_identity_address
+)
+{
+    PrivacyRemoveDevFromResListControlBlock* cb = 
+        new (std::nothrow) PrivacyRemoveDevFromResListControlBlock(peer_identity_address_type, peer_identity_address);
+    if( cb == NULL )
+    {
+        // Cannot go further
+        return;
+    }
+
+    queue_privacy_control_block(cb);
+}
+
+void CordioSecurityManager::queue_clear_resolving_list() {
+    // Remove any pending control blocks, there's no point executing them as we're about to queue the list
+    clear_privacy_control_blocks();
+
+    PrivacyClearResListControlBlock* cb = 
+        new (std::nothrow) PrivacyClearResListControlBlock();
+    if( cb == NULL )
+    {
+        // Cannot go further
+        return;
+    }
+
+    queue_privacy_control_block(cb);
+}
+
+void CordioSecurityManager::clear_privacy_control_blocks() {
+    while(_pending_privacy_control_blocks != NULL)
+    {
+        PrivacyControlBlock* next = _pending_privacy_control_blocks->next();
+        delete _pending_privacy_control_blocks;
+        _pending_privacy_control_blocks = next;
+    }
+}
+
+void CordioSecurityManager::queue_privacy_control_block(PrivacyControlBlock* block)
+{
+    if( _pending_privacy_control_blocks == NULL ) {
+        _pending_privacy_control_blocks = block;
+    }
+    else {
+        PrivacyControlBlock* node = _pending_privacy_control_blocks;
+        while(node->next() != NULL) {
+            node = node->next();
+        }
+        node->set_next(block);
+    }
+
+    process_privacy_control_blocks(false);
+}
+
+// If cb_completed is set to true, it means the previous control block has completed
+void CordioSecurityManager::process_privacy_control_blocks(bool cb_completed)
+{
+    if( (_processing_privacy_control_block == true) && !cb_completed )
+    {
+        // Busy, cannot process next control block for now
+        return;
+    }
+
+    PrivacyControlBlock* cb = _pending_privacy_control_blocks;
+    if(cb == NULL) {
+        // All control blocks processed
+        _processing_privacy_control_block = false;
+        return;
+    }
+
+    // Process next block and free it
+    _processing_privacy_control_block = true;
+
+    PrivacyControlBlock* next = cb->next();
+    cb->execute();
+    delete cb;
+    _pending_privacy_control_blocks = next;
 }
 
 void CordioSecurityManager::cleanup_peer_csrks() {
