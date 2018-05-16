@@ -753,7 +753,7 @@
         "macros": ["CPU_MIMXRT1052DVL6A", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0227"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MIMXRT1052"
     },
