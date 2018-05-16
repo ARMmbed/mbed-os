@@ -131,7 +131,7 @@ private:
      *             output: the actual written size to the buffer
      * @return 0 on success, negative error code on failure
      */
-    int generate_key_by_trng(uint32_t *output, size_t& size);
+    int generate_key_by_trng(uint32_t *output, size_t size);
 
 };
 /** @}*/

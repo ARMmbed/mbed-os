@@ -229,7 +229,7 @@ finish:
     return DEVICEKEY_SUCCESS;
 }
 
-int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
+int DeviceKey::generate_key_by_trng(uint32_t *output, size_t size)
 {
 #if defined(DEVICE_TRNG)
     size_t in_size;
@@ -249,14 +249,13 @@ int DeviceKey::generate_key_by_trng(uint32_t *output, size_t& size)
 
     trng_init(&trng_obj);
 
-    final_size = 0;
+    //final_size = 0;
     in_size = size;
-    while (final_size < size) {
+    while (in_size > 0) {
 
         ongoing_size = 0;
         ret = trng_get_bytes(&trng_obj, (unsigned char *)pBuffer, in_size, &ongoing_size);
-        final_size += ongoing_size;
-        if (0 != ret) {
+        if (0 != ret || ongoing_size > in_size) {
             ret = DEVICEKEY_TRNG_ERROR;
             goto finish;
         }
