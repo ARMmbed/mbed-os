@@ -46,7 +46,7 @@ void test_emac_broadcast_cb(int opt)
     static bool echo_server_started = false;
     if (!echo_server_started) {
 #if MBED_CONF_APP_ECHO_SERVER_TRACE == 0
-         SET_TRACE_LEVEL(TRACE_NONE);
+        SET_TRACE_LEVEL(TRACE_NONE);
 #endif
         printf("echo server started successfully\r\n\r\n");
         echo_server_started = true;
