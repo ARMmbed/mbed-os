@@ -2850,7 +2850,7 @@
         "extra_labels": ["Maxim", "MAX32620C"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "MAX32625_BASE": {
         "inherits": ["Target"],
@@ -2859,7 +2859,7 @@
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "public": false
     },
     "MAX32625_BOOT": {
