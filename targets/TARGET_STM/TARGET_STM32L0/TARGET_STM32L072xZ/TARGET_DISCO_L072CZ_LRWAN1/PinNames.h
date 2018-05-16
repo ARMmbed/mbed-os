@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2017, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -48,7 +49,9 @@ typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
+    PA_2_ALT0 = PA_2|ALT0,
     PA_3  = 0x03,
+    PA_3_ALT0 = PA_3|ALT0,
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
@@ -88,6 +91,8 @@ typedef enum {
     PC_1  = 0x21,
     PC_2  = 0x22,
     PC_13 = 0x2D,
+    PC_14 = 0x2E,
+    PC_15 = 0x2F,
 
     PH_0  = 0x70,
     PH_1  = 0x71,
@@ -151,10 +156,27 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D13,
 
-    //USB pins
+/**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
     USB_NOE = PA_13,
+
+/**** No ETHERNET pins ***/
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+/**** DEBUG pins ****/
+    SYS_PVD_IN = PB_7,
+    SYS_SWCLK = PA_14,
+    SYS_SWDIO = PA_13,
+    SYS_VREF_OUT_PB0 = PB_0,
+    SYS_VREF_OUT_PB1 = PB_1,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
 
     // Not connected
     NC = (int)0xFFFFFFFF
