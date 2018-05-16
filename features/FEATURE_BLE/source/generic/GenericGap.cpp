@@ -1235,11 +1235,12 @@ void GenericGap::on_connection_complete(const pal::GapConnectionCompleteEvent& e
         // Now starts pairing or authentication procedures if required
         if(needs_pairing) {
             SecurityManager &sm = createBLEInstance()->getSecurityManager();
-            sm.requestPairing(e.connection_handle);
+            // Request authentication to start pairing procedure
+            sm.requestAuthentication(e.connection_handle);
         }
         else if(needs_authentication) {
-            SecurityManager &sm = createBLEInstance()->getSecurityManager();
-            sm.requestAuthentication(e.connection_handle);
+            // TODO: GAP Authentication != Security Manager authentication
+            // Needs to be implemented
         }
     } else { 
         // for now notify user that the connection failled by issuing a timeout
