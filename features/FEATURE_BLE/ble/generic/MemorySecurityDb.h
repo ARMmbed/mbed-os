@@ -148,6 +148,16 @@ public:
         }
     }
 
+
+    /* saving and loading from nvm */
+
+    virtual void reset() {
+        SecurityDb::reset();
+        for (size_t i = 0; i < MAX_ENTRIES; ++i) {
+            _entries[i] = entry_t();
+        }
+    }
+
 private:
     virtual uint8_t get_entry_count() {
         return MAX_ENTRIES;

@@ -656,6 +656,15 @@ public:
      */
     virtual void set_restore(bool reload) { };
 
+    /**
+     * Reset the databse by removing all information
+     */
+    virtual void reset() {
+        _local_identity = SecurityEntryIdentity_t();
+        _local_csrk = csrk_t();
+        _local_sign_counter = 0;
+    }
+
 private:
     /**
      * Get an entry for a new connection not present in the db yet. This will find a free entry
